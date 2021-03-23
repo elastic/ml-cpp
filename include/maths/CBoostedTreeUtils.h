@@ -68,8 +68,9 @@ struct SHyperparameterImportance {
 };
 
 //! Get the index of the root node in a canonical tree node vector.
-MATHS_EXPORT
-std::size_t rootIndex();
+inline std::size_t rootIndex() {
+    return 0;
+}
 
 //! Get the root node of \p tree.
 MATHS_EXPORT
@@ -172,12 +173,8 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
                                   const TSizeVec& extraColumns,
                                   std::size_t dependentVariable,
                                   const CDataFrameCategoryEncoder& encoder,
-                                  const core::CPackedBitVector& oldTrainingDataRowMask,
-                                  const core::CPackedBitVector& newTrainingDataRowMask,
+                                  const core::CPackedBitVector& trainingDataRowMask,
                                   const boosted_tree::CLoss& loss,
-                                  const TRegularization& regularization,
-                                  double eta,
-                                  double etaGrowthRate,
                                   const std::vector<std::vector<CBoostedTreeNode>>& forest);
 
 constexpr double INF{std::numeric_limits<double>::max()};

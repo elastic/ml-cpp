@@ -6,6 +6,7 @@
 
 #include <maths/CBoostedTreeUtils.h>
 
+#include <core/CContainerPrinter.h>
 #include <core/Concurrency.h>
 
 #include <maths/CBoostedTree.h>
@@ -41,10 +42,6 @@ void propagateLossGradients(std::size_t node,
     lossGradients[node] += lossGradients[tree[node].leftChildIndex()];
     lossGradients[node] += lossGradients[tree[node].rightChildIndex()];
 }
-}
-
-std::size_t rootIndex() {
-    return 0;
 }
 
 const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree) {
@@ -114,44 +111,24 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
                                   const TSizeVec& extraColumns,
                                   std::size_t dependentVariable,
                                   const CDataFrameCategoryEncoder& encoder,
-                                  const core::CPackedBitVector& oldTrainingDataRowMask,
-                                  const core::CPackedBitVector& newTrainingDataRowMask,
+                                  const core::CPackedBitVector& trainingDataRowMask,
                                   const CLoss& loss,
-                                  const TRegularization& regularization,
-                                  double eta,
-                                  double etaGrowthRate,
                                   const std::vector<std::vector<CBoostedTreeNode>>& forest) {
 
-    using TFloatVec = std::vector<CFloatStorage>;
     using TRowItr = core::CDataFrame::TRowItr;
-    using TLossUPtrVec = std::vector<CLoss::TLossUPtr>;
 
     // The first tree is used to centre the data and we never retrain this.
 
     if (forest.size() < 2) {
         return {};
     }
-    if (newTrainingDataRowMask.size() == 0) {
-        TDoubleVec result(forest.size(), 0.0);
-        for (std::size_t i = 1; i < result.size(); ++i) {
-            result[i] = 1.0 / static_cast<double>(result.size() - 1);
-        }
-        return result;
-    }
 
     std::size_t numberLossParameters{loss.numberParameters()};
+    LOG_TRACE(<< "dependent variable " << dependentVariable);
+    LOG_TRACE(<< "number loss parameters = " << numberLossParameters);
 
-    TLossUPtrVec losses;
-    losses.reserve(forest.size());
-    for (const auto& tree : forest) {
-        losses.push_back(
-            loss.incremental(eta, regularization.treeTopologyChangePenalty(), tree));
-        eta *= etaGrowthRate;
-    }
-
-    auto makeComputeTotalLossGradient = [&](const bool& isOldTrainingData) {
+    auto makeComputeTotalLossGradient = [&]() {
         return [&](TDoubleVectorVecVec& leafLossGradients, TRowItr beginRows, TRowItr endRows) {
-            TFloatVec storage(numberLossParameters);
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = readPrediction(*row, extraColumns, numberLossParameters);
                 double actual{readActual(*row, dependentVariable)};
@@ -159,17 +136,10 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
                 for (std::size_t i = 0; i < forest.size(); ++i) {
                     auto encodedRow = encoder.encode(*row);
                     std::size_t leaf{root(forest[i]).leafIndex(encodedRow, forest[i])};
-                    for (int j = 0; j < prediction.size(); ++j) {
-                        storage[j] = prediction(j) - forest[i][leaf].value()(i);
-                    }
-                    // The prediction after removing the tree from the ensemble.
-                    auto predictionMinusTree = TMemoryMappedFloatVector(
-                        storage.data(), static_cast<int>(numberLossParameters));
                     auto writer = [&](std::size_t j, double gradient) {
                         leafLossGradients[i][leaf](j) = gradient;
                     };
-                    losses[i]->gradient(encodedRow, isOldTrainingData,
-                                        predictionMinusTree, actual, writer, weight);
+                    loss.gradient(encodedRow, true, prediction, actual, writer, weight);
                 }
             }
         };
@@ -184,11 +154,10 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
         return leafLossGradients;
     };
 
-    auto computeLeafLossGradients = [&](bool oldTrainingData,
-                                        const core::CPackedBitVector& rowMask) {
+    auto computeLeafLossGradients = [&](const core::CPackedBitVector& rowMask) {
         auto results = frame.readRows(
             numberThreads, 0, frame.numberRows(),
-            core::bindRetrievableState(makeComputeTotalLossGradient(oldTrainingData),
+            core::bindRetrievableState(makeComputeTotalLossGradient(),
                                        makeZeroLeafLossGradients()),
             &rowMask);
 
@@ -208,13 +177,13 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
     // Compute the sum of loss gradients for each leaf for the old and
     // new data.
 
-    auto oldTrainingDataLossGradients = computeLeafLossGradients(true, oldTrainingDataRowMask);
-    auto newTrainingDataLossGradients = computeLeafLossGradients(false, newTrainingDataRowMask);
+    auto trainingDataLossGradients = computeLeafLossGradients(trainingDataRowMask);
 
     for (std::size_t i = 0; i < forest.size(); ++i) {
-        propagateLossGradients(rootIndex(), forest[i], oldTrainingDataLossGradients[i]);
-        propagateLossGradients(rootIndex(), forest[i], newTrainingDataLossGradients[i]);
+        propagateLossGradients(rootIndex(), forest[i], trainingDataLossGradients[i]);
     }
+    LOG_TRACE(<< "loss gradients = "
+              << core::CContainerPrinter::print(trainingDataLossGradients));
 
     // We interested in choosing trees for which the total gradient at all
     // nodes is the largest. These at least locally would give the largest
@@ -223,16 +192,15 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
     TDoubleVec result(forest.size(), 0.0);
     double Z{0.0};
     for (std::size_t i = 1; i < forest.size(); ++i) {
-        for (std::size_t j = 0; j < forest[i].size(); ++j) {
-            result[i] += (newTrainingDataLossGradients[i][j] +
-                          oldTrainingDataLossGradients[i][j])
-                             .lpNorm<1>();
+        for (std::size_t j = 1; j < forest[i].size(); ++j) {
+            result[i] += trainingDataLossGradients[i][j].lpNorm<1>();
         }
         Z += result[i];
     }
     for (auto& p : result) {
         p /= Z;
     }
+    LOG_TRACE("probabilities = " << core::CContainerPrinter::print(result));
 
     return result;
 }

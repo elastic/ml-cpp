@@ -884,9 +884,9 @@ CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
     LOG_TRACE(<< "features MICe = " << core::CContainerPrinter::print(mics));
 
     std::size_t numberAvailableFeatures{this->numberAvailableFeatures(mics)};
-    std::size_t maximumNumberFeatures{
-        (static_cast<std::size_t>(m_RowMask.manhattan()) + m_MinimumRowsPerFeature / 2) /
-        m_MinimumRowsPerFeature};
+    std::size_t maximumNumberFeatures{std::max(
+        (static_cast<std::size_t>(m_RowMask.manhattan()) + m_MinimumRowsPerFeature / 2) / m_MinimumRowsPerFeature,
+        static_cast<std::size_t>(5))};
     LOG_TRACE(<< "number possible features = " << numberAvailableFeatures
               << " maximum permitted features = " << maximumNumberFeatures);
 
