@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <ios>
 #include <iterator>
-#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
@@ -61,11 +60,8 @@ void CLoggerTest::testLogging() {
     LOG_AT_LEVEL("ERROR", << "Dynamic ERROR");
     LOG_FATAL(<< "Fatal - application to handle exit");
     LOG_AT_LEVEL("FATAL", << "Dynamic FATAL " << t);
-    try {
-        LOG_ABORT(<< "Throwing exception " << 1221U << ' ' << 0.23124);
 
-        CPPUNIT_ASSERT(false);
-    } catch (std::runtime_error&) { CPPUNIT_ASSERT(true); }
+    // It's not possible to test LOG_ABORT as it calls std::terminate
 }
 
 void CLoggerTest::testReconfiguration() {

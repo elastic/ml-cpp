@@ -23,9 +23,9 @@
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/writerappender.h>
 
+#include <exception>
 #include <iostream>
 #include <sstream>
-#include <stdexcept>
 
 #include <errno.h>
 #include <stdlib.h>
@@ -164,7 +164,7 @@ log4cxx::LoggerPtr CLogger::logger() {
 }
 
 void CLogger::fatal() {
-    throw std::runtime_error("Ml Fatal Exception");
+    std::terminate();
 }
 
 bool CLogger::setLoggingLevel(ELevel level) {
