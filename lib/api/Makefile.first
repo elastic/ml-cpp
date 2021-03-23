@@ -36,6 +36,7 @@ CDataFrameAnalysisSpecificationJsonWriter.cc \
 CDataFrameAnalysisInstrumentation.cc\
 CDataFrameAnalyzer.cc \
 CDataFrameOutliersRunner.cc \
+CDataSummarization.cc \
 CDataFrameTrainBoostedTreeClassifierRunner.cc \
 CDataFrameTrainBoostedTreeRegressionRunner.cc \
 CDataFrameTrainBoostedTreeRunner.cc \
