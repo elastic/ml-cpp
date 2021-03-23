@@ -34,7 +34,7 @@ const struct sock_filter FILTER[] = {
 
 #ifdef __x86_64__
     // Only applies to x86_64 arch. Jump to disallow for calls using the x32 ABI
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 47, 0),
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 48, 0),
     // If any sys call filters are added or removed then the jump
     // destination for each statement including the one above must
     // be updated accordingly
@@ -43,6 +43,7 @@ const struct sock_filter FILTER[] = {
     // Some of these are not used in latest glibc, and not supported in Linux
     // kernels for recent architectures, but in a few cases different sys calls
     // are used on different architectures
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 48, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 47, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 46, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 45, 0),
@@ -54,15 +55,14 @@ const struct sock_filter FILTER[] = {
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 39, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 38, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 37, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 36, 0),
 #elif defined(__aarch64__)
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 37, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 36, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 37, 0),
 #else
 #error Unsupported hardware architecture
 #endif
 
     // Allowed sys calls for all architectures, jump to return allow on match
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 36, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_newfstatat, 35, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 34, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup3, 33, 0),
