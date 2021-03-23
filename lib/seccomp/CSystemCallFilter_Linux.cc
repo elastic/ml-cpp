@@ -47,8 +47,8 @@ const struct sock_filter FILTER[] = {
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
 
 #ifdef __x86_64__
-    // Only applies to x86_64 arch. Jump to disallow for calls using the i386 ABI
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 46, 0),
+    // Only applies to x86_64 arch. Jump to disallow for calls using the x32 ABI
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 47, 0),
     // If any sys call filters are added or removed then the jump
     // destination for each statement including the one above must
     // be updated accordingly
@@ -57,6 +57,7 @@ const struct sock_filter FILTER[] = {
     // Some of these are not used in latest glibc, and not supported in Linux
     // kernels for recent architectures, but in a few cases different sys calls
     // are used on different architectures
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 47, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 46, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 45, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 44, 0),
@@ -68,15 +69,14 @@ const struct sock_filter FILTER[] = {
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 38, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 37, 0), // for forecast temp storage
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 36, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 35, 0),
 #elif defined(__aarch64__)
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 36, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 35, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 36, 0),
 #else
 #error Unsupported hardware architecture
 #endif
 
     // Allowed sys calls for all architectures, jump to return allow on match
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 35, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_newfstatat, 34, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 33, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup3, 32, 0),
