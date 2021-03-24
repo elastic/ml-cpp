@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 7.12.1
+
+=== Enhancements
+
+* Make ML native processes work with glibc 2.33 on x86_64. (See {ml-pull}1828[#1828].)
+
 == {es} version 7.12.0
 
 === Enhancements
