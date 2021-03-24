@@ -174,20 +174,20 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
         return leafLossGradients;
     };
 
-    // Compute the sum of loss gradients for each leaf for the old and
-    // new data.
-
+    // Compute the sum of loss gradients for each node.
     auto trainingDataLossGradients = computeLeafLossGradients(trainingDataRowMask);
-
     for (std::size_t i = 0; i < forest.size(); ++i) {
         propagateLossGradients(rootIndex(), forest[i], trainingDataLossGradients[i]);
     }
     LOG_TRACE(<< "loss gradients = "
               << core::CContainerPrinter::print(trainingDataLossGradients));
 
-    // We interested in choosing trees for which the total gradient at all
-    // nodes is the largest. These at least locally would give the largest
-    // gain in loss by adjusting.
+    // We are interested in choosing trees for which the total gradient of the
+    // loss at the current predictions for all nodes is the largest. These trees,
+    // at least locally, give the largest gain in loss by adjusting. Gradients
+    // of internal nodes are defined as the sum of the leaf gradients below them.
+    // We include these it captures the fact that certain branches of specific
+    // trees may be retrained for greater effect.
 
     TDoubleVec result(forest.size(), 0.0);
     double Z{0.0};

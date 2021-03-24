@@ -16,7 +16,6 @@
 #include <test/CRandomNumbers.h>
 
 #include "BoostedTreeTestData.h"
-#include "maths/COrderings.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -72,7 +71,10 @@ BOOST_AUTO_TEST_CASE(testRetrainTreeSelectionProbabilities) {
         BOOST_TEST_REQUIRE(probabilities.empty());
     }
 
-    // Test some invariants of the probabilities.
+    // Test some invariants of the probabilities:
+    //   1. That number probabilities is equal to the number of trees,
+    //   2. That the probabilities are non-negative, and
+    //   3. That the probabilities are normalized.
     for (std::size_t test = 0; test < 5; ++test) {
         m[0] += 5.0;
         s[0] -= 0.1;
