@@ -42,6 +42,7 @@ public:
     virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
     virtual bool nextPass() = 0;
     virtual void add(const CEncodedDataFrameRowRef& row,
+                     bool newExample,
                      const TMemoryMappedFloatVector& prediction,
                      double actual,
                      double weight = 1.0) = 0;
@@ -63,6 +64,7 @@ public:
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
              const TMemoryMappedFloatVector& prediction,
              double actual,
              double weight = 1.0) override {
@@ -92,6 +94,7 @@ public:
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& row,
+             bool newExample,
              const TMemoryMappedFloatVector& prediction,
              double actual,
              double weight = 1.0) override;
@@ -120,6 +123,7 @@ public:
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
              const TMemoryMappedFloatVector& prediction,
              double actual,
              double weight = 1.0) override {
@@ -187,6 +191,7 @@ public:
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
              const TMemoryMappedFloatVector& prediction,
              double actual,
              double weight = 1.0) override {
@@ -249,6 +254,7 @@ public:
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
              const TMemoryMappedFloatVector& prediction,
              double actual,
              double weight = 1.0) override {
@@ -326,6 +332,7 @@ public:
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& /*row*/,
+             bool /*newExample*/,
              const TMemoryMappedFloatVector& prediction,
              double actual,
              double weight = 1.0) override {
@@ -388,6 +395,7 @@ public:
 
     //! Update with a point prediction and actual value.
     void add(const CEncodedDataFrameRowRef& row,
+             bool newExample,
              const TMemoryMappedFloatVector& prediction,
              double actual,
              double weight = 1.0);
@@ -442,12 +450,14 @@ public:
                          double weight = 1.0) const = 0;
     //! The gradient of the loss function.
     virtual void gradient(const CEncodedDataFrameRowRef& row,
+                          bool newExample,
                           const TMemoryMappedFloatVector& prediction,
                           double actual,
                           const TWriter& writer,
                           double weight = 1.0) const = 0;
     //! The Hessian of the loss function (flattened).
     virtual void curvature(const CEncodedDataFrameRowRef& row,
+                           bool newExample,
                            const TMemoryMappedFloatVector& prediction,
                            double actual,
                            const TWriter& writer,
@@ -497,7 +507,8 @@ public:
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
-    void gradient(const CEncodedDataFrameRowRef&,
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
                   const TWriter& writer,
@@ -508,7 +519,8 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
-    void curvature(const CEncodedDataFrameRowRef&,
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
                    const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
@@ -548,18 +560,21 @@ public:
                  double actual,
                  double weight = 1.0) const override;
     void gradient(const CEncodedDataFrameRowRef& row,
+                  bool newExample,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const override;
-    void curvature(const CEncodedDataFrameRowRef&,
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool newExample,
                    const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
                    double weight = 1.0) const override {
-        this->curvature(prediction, actual, writer, weight);
+        this->curvature(newExample, prediction, actual, writer, weight);
     }
-    void curvature(const TMemoryMappedFloatVector& prediction,
+    void curvature(bool newExample,
+                   const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
                    double weight = 1.0) const;
@@ -603,7 +618,8 @@ public:
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
-    void gradient(const CEncodedDataFrameRowRef&,
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
                   const TWriter& writer,
@@ -614,7 +630,8 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
-    void curvature(const CEncodedDataFrameRowRef&,
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
                    const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
@@ -662,7 +679,8 @@ public:
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
-    void gradient(const CEncodedDataFrameRowRef&,
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
                   const TWriter& writer,
@@ -673,7 +691,8 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
-    void curvature(const CEncodedDataFrameRowRef&,
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
                    const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
@@ -726,7 +745,8 @@ public:
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
-    void gradient(const CEncodedDataFrameRowRef&,
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
                   const TWriter& writer,
@@ -737,7 +757,8 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
-    void curvature(const CEncodedDataFrameRowRef&,
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
                    const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
@@ -796,10 +817,11 @@ public:
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
-    double value(const TMemoryMappedFloatVector& predictionVec,
+    double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
-    void gradient(const CEncodedDataFrameRowRef&,
+    void gradient(const CEncodedDataFrameRowRef& /*row*/,
+                  bool /*newExample*/,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
                   const TWriter& writer,
@@ -810,7 +832,8 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
-    void curvature(const CEncodedDataFrameRowRef&,
+    void curvature(const CEncodedDataFrameRowRef& /*row*/,
+                   bool /*newExample*/,
                    const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,

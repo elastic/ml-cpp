@@ -19,6 +19,7 @@ all: build
 
 SRCS=\
 	Main.cc \
+	BoostedTreeTestData.cc \
 	CAdaptiveBucketingTest.cc \
 	CAgglomerativeClustererTest.cc \
 	CAssignmentTest.cc \
@@ -28,6 +29,7 @@ SRCS=\
 	CBoostedTreeLeafNodeStatisticsTest.cc \
 	CBoostedTreeLossTest.cc \
 	CBoostedTreeTest.cc \
+	CBoostedTreeUtilsTest.cc \
 	CBootstrapClustererTest.cc \
 	CBoundingBoxTest.cc \
 	CCalendarComponentAdaptiveBucketingTest.cc \

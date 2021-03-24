@@ -30,7 +30,6 @@
 namespace ml {
 namespace maths {
 using namespace boosted_tree_detail;
-using TDoubleVec = std::vector<double>;
 using TRowItr = core::CDataFrame::TRowItr;
 
 namespace {

@@ -128,11 +128,14 @@ bool CArgMinMseIncrementalImpl::nextPass() {
 }
 
 void CArgMinMseIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
+                                    bool newExample,
                                     const TMemoryMappedFloatVector& prediction,
                                     double actual,
                                     double weight) {
     m_MeanError.add(actual - prediction(0), weight);
-    m_MeanTreePredictions.add(root(*m_Tree).value(row, *m_Tree)(0));
+    if (newExample) {
+        m_MeanTreePredictions.add(root(*m_Tree).value(row, *m_Tree)(0));
+    }
 }
 
 void CArgMinMseIncrementalImpl::merge(const CArgMinLossImpl& other) {
@@ -147,28 +150,32 @@ CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() cons
 
     // We searching for the value x^* which satisfies
     //
-    //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2 + mu (p_i' - eta x)^2} + lambda * x^2 }
+    //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2 + 1{old} mu (p_i' - eta x)^2} + lambda * x^2 }
     //
-    // Here, a_i are the actuals p_i the predictions and p_i' the predictions from
+    // Here, a_i are the actuals, p_i the predictions and p_i' the predictions from
     // the tree being retrained. This is convex so there is one minimum where the
     // derivative w.r.t. x is zero and
     //
-    //   x^* = 1 / (n (1 + mu eta^2) + lambda) sum_i{ a_i - p_i + mu eta p_i' }.
+    //   x^* = 1 / (n (1 + n' / n mu eta^2) + lambda) sum_i{ a_i - p_i + mu eta 1{old} p_i' }.
     //
-    // Denoting the mean prediction error m = 1/n sum_i{ a_i - p_i } and the mean
-    // tree predictions p' = 1/n sum_i{p_i'} we have
+    // where n' = sum_i 1{old}. Denoting the mean prediction error m = 1/n sum_i{ a_i - p_i }
+    // and the mean tree predictions p' = 1/n' sum_i{p_i'} we have
     //
-    //   x^* = n / (n (1 + mu eta^2) + lambda) m + mu eta p'.
+    //   x^* = n / (n (1 + n' / n mu eta^2) + lambda) (m + n' / n mu eta p').
+    //
+    // In the following we absorb n' / n into the value of mu.
 
     double count{CBasicStatistics::count(m_MeanError)};
     double meanError{CBasicStatistics::mean(m_MeanError)};
+    double oldCount{CBasicStatistics::count(m_MeanTreePredictions)};
     double meanTreePrediction{CBasicStatistics::mean(m_MeanTreePredictions)};
+    double mu{(count == oldCount ? 1.0 : oldCount / count) * m_Mu};
 
     TDoubleVector result(1);
     result(0) = count == 0.0
                     ? 0.0
-                    : count / (count * (1.0 + m_Mu * CTools::pow2(m_Eta)) + this->lambda()) *
-                          (meanError + m_Mu * m_Eta * meanTreePrediction);
+                    : count / (count * (1.0 + mu * CTools::pow2(m_Eta)) + this->lambda()) *
+                          (meanError + mu * m_Eta * meanTreePrediction);
     return result;
 }
 
@@ -733,10 +740,11 @@ bool CArgMinLoss::nextPass() const {
 }
 
 void CArgMinLoss::add(const CEncodedDataFrameRowRef& row,
+                      bool newExample,
                       const TMemoryMappedFloatVector& prediction,
                       double actual,
                       double weight) {
-    return m_Impl->add(row, prediction, actual, weight);
+    return m_Impl->add(row, newExample, prediction, actual, weight);
 }
 
 void CArgMinLoss::merge(CArgMinLoss& other) {
@@ -867,19 +875,25 @@ double CMseIncremental::value(const TMemoryMappedFloatVector& prediction,
 }
 
 void CMseIncremental::gradient(const CEncodedDataFrameRowRef& row,
+                               bool newExample,
                                const TMemoryMappedFloatVector& prediction,
                                double actual,
                                const TWriter& writer,
                                double weight) const {
-    double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
-    writer(0, 2.0 * weight * (prediction(0) - actual + 2.0 * m_Mu * m_Eta * treePrediction));
+    if (newExample) {
+        writer(0, 2.0 * weight * (prediction(0) - actual));
+    } else {
+        double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
+        writer(0, 2.0 * weight * (prediction(0) - actual + m_Mu * m_Eta * treePrediction));
+    }
 }
 
-void CMseIncremental::curvature(const TMemoryMappedFloatVector& /*prediction*/,
+void CMseIncremental::curvature(bool newExample,
+                                const TMemoryMappedFloatVector& /*prediction*/,
                                 double /*actual*/,
                                 const TWriter& writer,
                                 double weight) const {
-    writer(0, 2.0 * weight * (1.0 + m_Mu * CTools::pow2(m_Eta)));
+    writer(0, 2.0 * weight * (1.0 + (newExample ? 0.0 : m_Mu * CTools::pow2(m_Eta))));
 }
 
 bool CMseIncremental::isCurvatureConstant() const {
