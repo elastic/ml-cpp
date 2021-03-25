@@ -12,17 +12,30 @@
 #include <string>
 
 namespace ml {
+namespace core {
+class CDataFrame;
+class CPackedBitVector;
+}
 namespace api {
 class API_EXPORT CDataSummarization : public CSerializableToJsonStream {
 public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
 
 public:
-    void addToJsonStream(TGenericLineWriter& writer) const override;
+    CDataSummarization(const core::CDataFrame& frame, core::CPackedBitVector rowMask);
+
+    CDataSummarization(const CDataSummarization&) = delete;
+    CDataSummarization& operator=(const CDataSummarization&) = delete;
+
+    void addToJsonStream(TGenericLineWriter& writer) const;
     void addToDocumentCompressed(TRapidJsonWriter& writer) const;
     std::string jsonString() const;
     void jsonStream(std::ostream& jsonStrm) const;
     std::stringstream jsonCompressedStream() const;
+
+private:
+    core::CPackedBitVector m_RowMask;
+    const core::CDataFrame& m_Frame;
 };
 }
 }

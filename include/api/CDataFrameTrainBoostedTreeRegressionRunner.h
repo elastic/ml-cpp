@@ -55,6 +55,8 @@ public:
     //! \return A serialisable metadata of the trained regression model.
     TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
 
+    TDataSummarizationUPtr dataSummarization(const core::CDataFrame& dataFrame) const override;
+
 private:
     void validate(const core::CDataFrame& frame,
                   std::size_t dependentVariableColumn) const override;

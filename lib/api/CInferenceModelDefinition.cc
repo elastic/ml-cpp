@@ -107,7 +107,6 @@ void addJsonArray(const std::string& tag,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
     writer.Key(tag);
     writer.StartArray();
-    rapidjson::Value array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
         writer.Double(value);
     }
@@ -119,7 +118,6 @@ void addJsonArray(const std::string& tag,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
     writer.Key(tag);
     writer.StartArray();
-    rapidjson::Value array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
         writer.String(value);
     }

@@ -241,6 +241,8 @@ public:
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap() const override;
 
+    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame) const;
+
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;
 
