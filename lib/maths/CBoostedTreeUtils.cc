@@ -186,8 +186,8 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
     // loss at the current predictions for all nodes is the largest. These trees,
     // at least locally, give the largest gain in loss by adjusting. Gradients
     // of internal nodes are defined as the sum of the leaf gradients below them.
-    // We include these it captures the fact that certain branches of specific
-    // trees may be retrained for greater effect.
+    // We include these because they capture the fact that certain branches of
+    // specific trees may be retrained for greater effect.
 
     TDoubleVec result(forest.size(), 0.0);
     double Z{0.0};

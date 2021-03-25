@@ -10,6 +10,7 @@
 #include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
+#include <core/CMemory.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
@@ -36,6 +37,7 @@
 #include <boost/circular_buffer.hpp>
 
 #include <algorithm>
+#include <limits>
 #include <memory>
 
 namespace ml {
@@ -289,23 +291,56 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     this->computeClassificationWeights(frame);
     this->initializeTreeShap(frame);
 
-    // Force progress to one because we can have early exit from loop skip altogether.
+    // Force progress to one and record the final memory usage.
     m_Instrumentation->updateProgress(1.0);
     m_Instrumentation->updateMemoryUsage(
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
 }
 
-bool CBoostedTreeImpl::trainIncremental(core::CDataFrame& /*frame*/,
-                                        const TTrainingStateCallback& /*recordTrainStateCallback*/) {
+void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
+                                        const TTrainingStateCallback& recordTrainStateCallback) {
 
-    if (m_BestForest.empty()) {
-        LOG_ERROR(<< "No model available to incrementally train.");
-        return false;
+    this->checkIncrementalTrainInvariants(frame);
+
+    m_TreesToRetrain = this->selectTreesToRetrain(frame);
+
+    std::int64_t lastMemoryUsage(this->memoryUsage());
+
+    double bestLoss{/*
+        lossAtNSigma(1.0, this->meanIncrementalTrainingLoss(frame, TBD))*/};
+    TNodeVecVec bestRetrainedTrees;
+
+    while (m_CurrentIncrementalRound < m_NumberIncrementalRounds) {
+        TNodeVecVec retrainedTrees;
+        TMeanVarAccumulator lossMoments;
+        std::tie(retrainedTrees, lossMoments) = this->retrainForest(frame);
+
+        double loss{lossAtNSigma(1.0, lossMoments)};
+        if (loss < bestLoss) {
+            bestLoss = loss;
+            bestRetrainedTrees = std::move(retrainedTrees);
+        }
+
+        if (this->selectNextHyperparameters(
+                lossMoments, *m_BayesianOptimizationForIncrementalTraining) == false) {
+            LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
+            break;
+        }
+
+        std::int64_t memoryUsage(this->memoryUsage());
+        m_Instrumentation->updateMemoryUsage(memoryUsage - lastMemoryUsage);
+        lastMemoryUsage = memoryUsage;
+
+        m_CurrentIncrementalRound += 1;
+        LOG_TRACE(<< "Round " << m_CurrentIncrementalRound << " state recording started");
+        this->recordState(recordTrainStateCallback);
+        LOG_TRACE(<< "Round " << m_CurrentIncrementalRound << " state recording finished");
     }
 
-    // TODO https://github.com/elastic/ml-cpp/issues/1721.
-
-    return true;
+    // Force progress to one and record the final memory usage.
+    m_Instrumentation->updateProgress(1.0);
+    m_Instrumentation->updateMemoryUsage(
+        static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -539,6 +574,21 @@ void CBoostedTreeImpl::initializeTreeShap(const core::CDataFrame& frame) {
     }
 }
 
+CBoostedTreeImpl::TSizeVec
+CBoostedTreeImpl::selectTreesToRetrain(const core::CDataFrame& frame) const {
+    TDoubleVec probabilities{retrainTreeSelectionProbabilities(
+        m_NumberThreads, frame, m_ExtraColumns, m_DependentVariable, *m_Encoder,
+        this->allTrainingRowsMask(), *m_Loss, m_BestForest)};
+
+    TSizeVec result;
+    std::size_t numberToRetrain{static_cast<std::size_t>(
+        std::max(m_RetrainFraction * static_cast<double>(m_BestForest.size()), 1.0) + 0.5)};
+    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities,
+                                                   numberToRetrain, result);
+
+    return result;
+}
+
 CBoostedTreeImpl::TMeanVarAccumulatorSizeDoubleTuple
 CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
 
@@ -627,7 +677,7 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
     return tree;
 }
 
-CBoostedTreeImpl::TNodeVecVecDoubleDoubleVecTuple
+CBoostedTreeImpl::TNodeVecVecDoubleDoubleVecTr
 CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                               const core::CPackedBitVector& trainingRowMask,
                               const core::CPackedBitVector& testingRowMask,
@@ -737,6 +787,10 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     LOG_TRACE(<< "Trained one forest");
 
     return {forest, stoppingCondition.bestLoss(), std::move(losses)};
+}
+
+CBoostedTreeImpl::TNodeVecVecMeanVarAccumulatorPr
+CBoostedTreeImpl::retrainForest(core::CDataFrame& frame) const {
 }
 
 core::CPackedBitVector
@@ -1307,6 +1361,10 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     return CBasicStatistics::mean(loss);
 }
 
+double CBoostedTreeImpl::meanIncrementalTrainingLoss(const core::CDataFrame& frame,
+                                                     const core::CPackedBitVector& rowMask) const {
+}
+
 CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row,
                                                        const TNodeVecVec& forest) const {
     TVector result{TVector::Zero(m_Loss->numberParameters())};
@@ -1616,10 +1674,13 @@ const std::string VERSION_7_8_TAG{"7.8"};
 const TStrVec SUPPORTED_VERSIONS{VERSION_7_8_TAG, VERSION_7_11_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
+const std::string BAYESIAN_OPTIMIZATION_FOR_INCREMENTAL_TRAINING_TAG{
+    "bayesian_optimization_for_incremental_training"};
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
 const std::string BEST_HYPERPARAMETERS_TAG{"best_hyperparameters"};
 const std::string CLASSIFICATION_WEIGHTS_OVERRIDE_TAG{"classification_weights_tag"};
+const std::string CURRENT_INCREMENTAL_ROUND_TAG{"current_incremental_round"};
 const std::string CURRENT_ROUND_TAG{"current_round"};
 const std::string DEPENDENT_VARIABLE_TAG{"dependent_variable"};
 const std::string DOWNSAMPLE_FACTOR_OVERRIDE_TAG{"downsample_factor_override"};
@@ -1645,18 +1706,21 @@ const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
 const std::string NUMBER_FOLDS_TAG{"number_folds"};
 const std::string NUMBER_FOLDS_OVERRIDE_TAG{"number_folds_override"};
+const std::string NUMBER_INCREMENTAL_ROUNDS_TAG{"number_incremental_rounds"};
 const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
 const std::string NUMBER_SPLITS_PER_FEATURE_TAG{"number_splits_per_feature"};
 const std::string NUMBER_THREADS_TAG{"number_threads"};
 const std::string RANDOM_NUMBER_GENERATOR_TAG{"random_number_generator"};
 const std::string REGULARIZATION_TAG{"regularization"};
 const std::string REGULARIZATION_OVERRIDE_TAG{"regularization_override"};
+const std::string RETRAIN_FRACTION_TAG{"retrain_fraction"};
 const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string STOP_CROSS_VALIDATION_EARLY_TAG{"stop_cross_validation_eraly"};
+const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
+const std::string TREES_TO_RETRAIN_TAG{"trees_to_retrain"};
 const std::string NUMBER_TOP_SHAP_VALUES_TAG{"top_shap_values"};
-const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
 }
 
 const std::string& CBoostedTreeImpl::bestHyperparametersName() {
@@ -1683,11 +1747,16 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(VERSION_7_11_TAG, "", inserter);
     core::CPersistUtils::persistIfNotNull(BAYESIAN_OPTIMIZATION_TAG,
                                           m_BayesianOptimization, inserter);
+    core::CPersistUtils::persistIfNotNull(
+        BAYESIAN_OPTIMIZATION_FOR_INCREMENTAL_TRAINING_TAG,
+        m_BayesianOptimizationForIncrementalTraining, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
     core::CPersistUtils::persist(BEST_HYPERPARAMETERS_TAG, m_BestHyperparameters, inserter);
     core::CPersistUtils::persistIfNotNull(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
                                           m_ClassificationWeightsOverride, inserter);
+    core::CPersistUtils::persist(CURRENT_INCREMENTAL_ROUND_TAG,
+                                 m_CurrentIncrementalRound, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
     core::CPersistUtils::persist(DEPENDENT_VARIABLE_TAG, m_DependentVariable, inserter);
     core::CPersistUtils::persist(DOWNSAMPLE_FACTOR_OVERRIDE_TAG,
@@ -1725,6 +1794,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_MissingFeatureRowMasks, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_TAG, m_NumberFolds, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_OVERRIDE_TAG, m_NumberFoldsOverride, inserter);
+    core::CPersistUtils::persist(NUMBER_INCREMENTAL_ROUNDS_TAG,
+                                 m_NumberIncrementalRounds, inserter);
     core::CPersistUtils::persist(NUMBER_ROUNDS_TAG, m_NumberRounds, inserter);
     core::CPersistUtils::persist(NUMBER_SPLITS_PER_FEATURE_TAG,
                                  m_NumberSplitsPerFeature, inserter);
@@ -1734,11 +1805,13 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(REGULARIZATION_OVERRIDE_TAG,
                                  m_RegularizationOverride, inserter);
     core::CPersistUtils::persist(REGULARIZATION_TAG, m_Regularization, inserter);
+    core::CPersistUtils::persist(RETRAIN_FRACTION_TAG, m_RetrainFraction, inserter);
     core::CPersistUtils::persist(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, inserter);
     core::CPersistUtils::persist(STOP_CROSS_VALIDATION_EARLY_TAG,
                                  m_StopCrossValidationEarly, inserter);
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
+    core::CPersistUtils::persist(TREES_TO_RETRAIN_TAG, m_TreesToRetrain, inserter);
     core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                  m_StopHyperparameterOptimizationEarly, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is restored from overriden hyperparameters
@@ -1770,6 +1843,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
                          m_BayesianOptimization =
                              std::make_unique<CBayesianOptimisation>(traverser))
+        RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_FOR_INCREMENTAL_TRAINING_TAG,
+                         m_BayesianOptimizationForIncrementalTraining =
+                             std::make_unique<CBayesianOptimisation>(traverser))
         RESTORE(BEST_FOREST_TAG,
                 core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
         RESTORE(BEST_FOREST_TEST_LOSS_TAG,
@@ -1784,6 +1860,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
             core::CPersistUtils::restore(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
                                          *m_ClassificationWeightsOverride, traverser),
             /*no-op*/)
+        RESTORE(CURRENT_INCREMENTAL_ROUND_TAG,
+                core::CPersistUtils::restore(CURRENT_INCREMENTAL_ROUND_TAG,
+                                             m_CurrentIncrementalRound, traverser))
         RESTORE(CURRENT_ROUND_TAG,
                 core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
         RESTORE(DEPENDENT_VARIABLE_TAG,
@@ -1845,6 +1924,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(NUMBER_FOLDS_OVERRIDE_TAG,
                 core::CPersistUtils::restore(NUMBER_FOLDS_OVERRIDE_TAG,
                                              m_NumberFoldsOverride, traverser))
+        RESTORE(NUMBER_INCREMENTAL_ROUNDS_TAG,
+                core::CPersistUtils::restore(NUMBER_INCREMENTAL_ROUNDS_TAG,
+                                             m_NumberIncrementalRounds, traverser))
         RESTORE(NUMBER_ROUNDS_TAG,
                 core::CPersistUtils::restore(NUMBER_ROUNDS_TAG, m_NumberRounds, traverser))
         RESTORE(NUMBER_SPLITS_PER_FEATURE_TAG,
@@ -1861,6 +1943,8 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(REGULARIZATION_OVERRIDE_TAG,
                 core::CPersistUtils::restore(REGULARIZATION_OVERRIDE_TAG,
                                              m_RegularizationOverride, traverser))
+        RESTORE(RETRAIN_FRACTION_TAG,
+                core::CPersistUtils::restore(RETRAIN_FRACTION_TAG, m_RetrainFraction, traverser))
         RESTORE(ROWS_PER_FEATURE_TAG,
                 core::CPersistUtils::restore(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, traverser))
         RESTORE(STOP_CROSS_VALIDATION_EARLY_TAG,
@@ -1870,6 +1954,8 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, traverser))
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
+        RESTORE(TREES_TO_RETRAIN_TAG,
+                core::CPersistUtils::restore(TREES_TO_RETRAIN_TAG, m_TreesToRetrain, traverser))
         RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                              m_StopHyperparameterOptimizationEarly, traverser))
@@ -1881,31 +1967,46 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     this->initializeHyperparameterSamples();
     m_InitializationStage = static_cast<EInitializationStage>(initializationStage);
 
+    this->checkRestoredInvariants();
+
     return true;
 }
 
 void CBoostedTreeImpl::checkRestoredInvariants() const {
+
     VIOLATES_INVARIANT_NO_EVALUATION(m_Loss, ==, nullptr);
-    VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
     VIOLATES_INVARIANT_NO_EVALUATION(m_Encoder, ==, nullptr);
     VIOLATES_INVARIANT_NO_EVALUATION(m_Instrumentation, ==, nullptr);
-    VIOLATES_INVARIANT(m_FeatureDataTypes.size(), ==,
+    VIOLATES_INVARIANT(m_FeatureDataTypes.size(), !=,
                        m_FeatureSampleProbabilities.size());
-    VIOLATES_INVARIANT(m_FeatureSampleProbabilities.size(), ==,
+    VIOLATES_INVARIANT(m_FeatureSampleProbabilities.size(), !=,
                        m_MissingFeatureRowMasks.size());
-    VIOLATES_INVARIANT(m_TrainingRowMasks.size(), ==, m_TestingRowMasks.size());
-    VIOLATES_INVARIANT(m_CurrentRound, <=, m_NumberRounds);
+    VIOLATES_INVARIANT(m_TrainingRowMasks.size(), !=, m_TestingRowMasks.size());
     for (std::size_t i = 0; i < m_TrainingRowMasks.size(); ++i) {
-        VIOLATES_INVARIANT(m_TrainingRowMasks[i].size(), ==,
+        VIOLATES_INVARIANT(m_TrainingRowMasks[i].size(), !=,
                            m_TestingRowMasks[i].size());
     }
-    for (const auto& samples : m_HyperparameterSamples) {
-        VIOLATES_INVARIANT(m_TunableHyperparameters.size(), ==, samples.size());
-    }
-    if (m_FoldRoundTestLosses.size() > 0) {
-        VIOLATES_INVARIANT(m_FoldRoundTestLosses.size(), ==, m_NumberFolds);
-        for (const auto& losses : m_FoldRoundTestLosses) {
-            VIOLATES_INVARIANT(losses.size(), ==, m_NumberRounds);
+
+    // If trees to retrain is not empty we're incrementally training and have
+    // slightly different invariants.
+    if (m_TreesToRetrain.size() > 0) {
+        VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
+        VIOLATES_INVARIANT(m_CurrentRound, >, m_NumberRounds);
+        for (const auto& samples : m_HyperparameterSamples) {
+            VIOLATES_INVARIANT(m_TunableHyperparameters.size(), !=, samples.size());
+        }
+        if (m_FoldRoundTestLosses.size() > 0) {
+            VIOLATES_INVARIANT(m_FoldRoundTestLosses.size(), !=, m_NumberFolds);
+            for (const auto& losses : m_FoldRoundTestLosses) {
+                VIOLATES_INVARIANT(losses.size(), >=, m_NumberRounds);
+            }
+        }
+    } else {
+        VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimizationForIncrementalTraining,
+                                         ==, nullptr);
+        VIOLATES_INVARIANT(m_CurrentIncrementalRound, >, m_NumberIncrementalRounds);
+        for (auto tree : m_TreesToRetrain) {
+            VIOLATES_INVARIANT(tree, >=, m_BestForest.size());
         }
     }
 }
@@ -1957,6 +2058,29 @@ void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const
     // }
 }
 
+void CBoostedTreeImpl::checkIncrementalTrainInvariants(const core::CDataFrame& frame) const {
+    if (m_BestForest.empty()) {
+        HANDLE_FATAL(<< "Internal error: no model available to incrementally train."
+                     << " Please report this problem.");
+    }
+    if (m_DependentVariable >= frame.numberColumns()) {
+        HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
+                     << "' was incorrectly initialized. Please report this problem.");
+    }
+    if (m_Loss == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "
+                     << "Please report this problem.");
+    }
+    if (m_Encoder == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply an category encoder. "
+                     << "Please report this problem.");
+    }
+    if (m_BayesianOptimizationForIncrementalTraining == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
+    }
+    // TODO
+}
+
 std::size_t CBoostedTreeImpl::memoryUsage() const {
     std::size_t mem{core::CMemory::dynamicSize(m_Loss)};
     mem += core::CMemory::dynamicSize(m_Encoder);
@@ -1970,6 +2094,8 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
     mem += core::CMemory::dynamicSize(m_BayesianOptimization);
     mem += core::CMemory::dynamicSize(m_Instrumentation);
     mem += core::CMemory::dynamicSize(m_HyperparameterSamples);
+    mem += core::CMemory::dynamicSize(m_BayesianOptimizationForIncrementalTraining);
+    mem += core::CMemory::dynamicSize(m_TreesToRetrain);
     return mem;
 }
 

@@ -175,13 +175,14 @@ private:
 //! \brief A boosted regression tree model.
 //!
 //! DESCRIPTION:\n
-//! This is strongly based on xgboost. We deviate in two important respect: we have
+//! This is strongly based on xgboost. We deviate in some important respects: we have
 //! hyperparameters which control the chance of selecting a feature in the feature
-//! bag for a tree, we have automatic handling of categorical fields, we roll in a
-//! hyperparameter optimisation loop based on Bayesian Optimisation seeded with a
-//! random search and we use an increasing learn rate training a single forest.
+//! bag for a tree, we have automatic handling of categorical fields, we automatically
+//! perform hyperparameter optimisation based on Bayesian Optimisation, we use soft
+//! depth based regularisation and we can vary the learn rate while training a single
+//! forest.
 //!
-//! The probability of selecting a feature behave like a feature weight, allowing us
+//! The probability of selecting a feature behaves like a feature weight, allowing us
 //! to:
 //!   1. Incorporate an estimate of strength of relationship between a regressor and
 //!      the target variable upfront,
@@ -229,7 +230,7 @@ public:
     //! Incrementally train the current model.
     //!
     //! \warning Train must have been previously called or a model loaded.
-    bool trainIncremental() override;
+    void trainIncremental() override;
 
     //! Write the predictions to the data frame supplied to the constructor.
     //!

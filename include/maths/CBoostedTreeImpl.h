@@ -91,9 +91,9 @@ public:
 
     //! Incrementally train the current model on the values in \p frame.
     //!
-    //! \warning Assumes that train has been called or a trained model has been
-    //! reloaded.
-    bool trainIncremental(core::CDataFrame& frame,
+    //! \warning Assumes that train has already been called or a trained model has
+    //! has been reloaded.
+    void trainIncremental(core::CDataFrame& frame,
                           const TTrainingStateCallback& recordTrainStateCallback);
 
     //! Write the predictions of the best trained model to \p frame.
@@ -192,7 +192,8 @@ private:
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
-    using TNodeVecVecDoubleDoubleVecTuple = std::tuple<TNodeVecVec, double, TDoubleVec>;
+    using TNodeVecVecMeanVarAccumulatorPr = std::pair<TNodeVecVec, TMeanVarAccumulator>;
+    using TNodeVecVecDoubleDoubleVecTr = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
@@ -246,6 +247,9 @@ private:
     //! Prepare to calculate SHAP feature importances.
     void initializeTreeShap(const core::CDataFrame& frame);
 
+    //! Select the trees of the best forest to retrain.
+    TSizeVec selectTreesToRetrain(const core::CDataFrame& frame) const;
+
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulatorSizeDoubleTuple crossValidateForest(core::CDataFrame& frame);
 
@@ -256,11 +260,13 @@ private:
                                                      const core::CPackedBitVector& testingRowMask) const;
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
-    TNodeVecVecDoubleDoubleVecTuple
-    trainForest(core::CDataFrame& frame,
-                const core::CPackedBitVector& trainingRowMask,
-                const core::CPackedBitVector& testingRowMask,
-                core::CLoopProgress& trainingProgress) const;
+    TNodeVecVecDoubleDoubleVecTr trainForest(core::CDataFrame& frame,
+                                             const core::CPackedBitVector& trainingRowMask,
+                                             const core::CPackedBitVector& testingRowMask,
+                                             core::CLoopProgress& trainingProgress) const;
+
+    //! Retrain the \p treesToRetrain of the best forest.
+    TNodeVecVecMeanVarAccumulatorPr retrainForest(core::CDataFrame& frame) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
@@ -316,6 +322,10 @@ private:
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
 
+    //! Compute the mean of the incemental loss function on the masked rows of \p frame.
+    double meanIncrementalTrainingLoss(const core::CDataFrame& frame,
+                                       const core::CPackedBitVector& rowMask) const;
+
     //! Get the forest's prediction for \p row.
     TVector predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest) const;
 
@@ -336,6 +346,10 @@ private:
 
     //! Check invariants which are assumed to hold in order to train on \p frame.
     void checkTrainInvariants(const core::CDataFrame& frame) const;
+
+    //! Check invariants which are assumed to hold in order to incrementally
+    //! train on \p frame.
+    void checkIncrementalTrainInvariants(const core::CDataFrame& frame) const;
 
     //! Get the number of hyperparameters to tune.
     std::size_t numberHyperparametersToTune() const;
@@ -404,9 +418,11 @@ private:
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 2;
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
+    double m_RetrainFraction = 0.1;
     TDataFrameCategoryEncoderUPtr m_Encoder;
     TDataTypeVec m_FeatureDataTypes;
     TDoubleVec m_FeatureSampleProbabilities;
+    TSizeVec m_TreesToRetrain;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
@@ -415,8 +431,11 @@ private:
     CBoostedTreeHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;
+    TBayesinOptimizationUPtr m_BayesianOptimizationForIncrementalTraining;
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
+    std::size_t m_NumberIncrementalRounds = 1;
+    std::size_t m_CurrentIncrementalRound = 0;
     core::CLoopProgress m_TrainingProgress;
     std::size_t m_NumberTopShapValues = 0;
     TTreeShapFeatureImportanceUPtr m_TreeShap;
