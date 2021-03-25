@@ -17,7 +17,10 @@ class CDataFrame;
 class CPackedBitVector;
 }
 namespace api {
-class API_EXPORT CDataSummarization : public CSerializableToJsonStream {
+
+//! \brief Class generates a compressed and chunked JSON blob that contains
+// selected data frame rows.
+class API_EXPORT CDataSummarization : public CSerializableToJsonDocumentCompressed {
 public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
 
@@ -27,11 +30,9 @@ public:
     CDataSummarization(const CDataSummarization&) = delete;
     CDataSummarization& operator=(const CDataSummarization&) = delete;
 
-    void addToJsonStream(TGenericLineWriter& writer) const;
-    void addToDocumentCompressed(TRapidJsonWriter& writer) const;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
+    void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
     std::string jsonString() const;
-    void jsonStream(std::ostream& jsonStrm) const;
-    std::stringstream jsonCompressedStream() const;
 
 private:
     core::CPackedBitVector m_RowMask;

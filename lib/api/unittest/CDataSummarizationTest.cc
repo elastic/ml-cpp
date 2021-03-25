@@ -118,7 +118,6 @@ void testIntegration(TLossFunctionType lossType) {
         }
     }
 }
-
 }
 
 BOOST_AUTO_TEST_CASE(testIntegrationRegression) {

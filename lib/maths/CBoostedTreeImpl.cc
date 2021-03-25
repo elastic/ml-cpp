@@ -10,12 +10,12 @@
 #include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
+#include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
-#include <core/CPackedBitVector.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
@@ -1994,18 +1994,19 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
     return m_TreeShap.get();
 }
 
-core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame) const {
-    // TODO implement
+core::CPackedBitVector
+CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame) const {
+    // TODO implement a smart summarization strategy.
     core::CPackedBitVector rowMask{};
-    std::size_t sampleSize(std::min(dataFrame.numberRows(), 
-    static_cast<std::size_t>(std::max(dataFrame.numberRows()*0.1, 100.0))));
+    std::size_t sampleSize(std::min(
+        dataFrame.numberRows(),
+        static_cast<std::size_t>(std::max(dataFrame.numberRows() * 0.1, 100.0))));
     for (std::size_t i = 0; i < sampleSize; ++i) {
         rowMask.extend(true);
     }
     rowMask.extend(false, dataFrame.numberRows() - rowMask.size());
     return rowMask;
 }
-
 
 CBoostedTreeImpl::THyperparameterImportanceVec
 CBoostedTreeImpl::hyperparameterImportance() const {

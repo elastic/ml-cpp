@@ -52,9 +52,11 @@ public:
     TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames,
                              const TStrVecVec& categoryNameMap) const override;
+
     //! \return A serialisable metadata of the trained regression model.
     TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
 
+    //! \return A serialisable data summarization for the trained regression model
     TDataSummarizationUPtr dataSummarization(const core::CDataFrame& dataFrame) const override;
 
 private:

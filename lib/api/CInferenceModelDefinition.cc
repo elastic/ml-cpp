@@ -403,14 +403,14 @@ std::string CInferenceModelDefinition::jsonString() const {
     return jsonStrm.str();
 }
 
-void CInferenceModelDefinition::jsonStream(std::ostream& jsonStrm) const {
+void CSerializableToJsonDocumentCompressed::jsonStream(std::ostream& jsonStrm) const {
     rapidjson::OStreamWrapper wrapper{jsonStrm};
     TGenericLineWriter writer{wrapper};
     this->addToJsonStream(writer);
     jsonStrm.flush();
 }
 
-std::stringstream CInferenceModelDefinition::jsonCompressedStream() const {
+std::stringstream CSerializableToJsonDocumentCompressed::jsonCompressedStream() const {
     std::stringstream compressedStream;
     using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
     {
@@ -423,7 +423,8 @@ std::stringstream CInferenceModelDefinition::jsonCompressedStream() const {
     return compressedStream;
 }
 
-void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer) const {
+void CSerializableToJsonDocumentCompressed::addToDocumentCompressed(TRapidJsonWriter& writer,
+                                                                    std::string compressed_doc_tag) const {
     std::stringstream compressedStream{this->jsonCompressedStream()};
     std::streamsize processed{0};
     compressedStream.seekg(0, compressedStream.end);
@@ -439,7 +440,7 @@ void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer
         remained -= bytesToProcess;
         processed += bytesToProcess;
         writer.StartObject();
-        writer.Key(JSON_COMPRESSED_INFERENCE_MODEL_TAG);
+        writer.Key(compressed_doc_tag);
         writer.StartObject();
         writer.Key(JSON_DOC_NUM_TAG);
         writer.Uint64(docNum);
@@ -453,6 +454,11 @@ void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer
         writer.EndObject();
         ++docNum;
     }
+}
+
+void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer) const {
+    CSerializableToJsonDocumentCompressed::addToDocumentCompressed(
+        writer, JSON_COMPRESSED_INFERENCE_MODEL_TAG);
 }
 
 void CInferenceModelDefinition::addToJsonStream(TGenericLineWriter& writer) const {

@@ -47,6 +47,17 @@ public:
     virtual void addToJsonStream(TGenericLineWriter& /*writer*/) const = 0;
 };
 
+class API_EXPORT CSerializableToJsonDocumentCompressed : public CSerializableToJsonStream{
+    public:
+        using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    public:
+    virtual ~CSerializableToJsonDocumentCompressed() = default;
+    virtual void addToDocumentCompressed(TRapidJsonWriter& writer) const = 0;
+    virtual void addToDocumentCompressed(TRapidJsonWriter& writer, std::string compressed_doc_tag) const;
+    virtual std::stringstream jsonCompressedStream() const;
+    virtual void jsonStream(std::ostream& jsonStrm) const;
+};
+
 //! Abstract class for output aggregation.
 class API_EXPORT CAggregateOutput : public CSerializableToJsonStream {
 public:
@@ -455,7 +466,7 @@ private:
 };
 
 //! \brief Technical details required for model evaluation.
-class API_EXPORT CInferenceModelDefinition : public CSerializableToJsonStream {
+class API_EXPORT CInferenceModelDefinition : public CSerializableToJsonDocumentCompressed {
 public:
     using TApiEncodingUPtr = std::unique_ptr<api::CEncoding>;
     using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
@@ -494,10 +505,10 @@ public:
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
     void addToJsonStream(TGenericLineWriter& writer) const override;
-    void addToDocumentCompressed(TRapidJsonWriter& writer) const;
+    void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
     std::string jsonString() const;
-    void jsonStream(std::ostream& jsonStrm) const;
-    std::stringstream jsonCompressedStream() const;
+    // void jsonStream(std::ostream& jsonStrm) const;
+    // std::stringstream jsonCompressedStream() const;
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;
