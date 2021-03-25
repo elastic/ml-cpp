@@ -1,0 +1,53 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/data_summarization/data_summarization.schema.json",
+    "description": "Data summarization object",
+    "title": "data_summarization",
+    "type": "object",
+    "properties": {
+        "num_rows": {
+            "description": "Number of rows in the data frame.",
+            "type": "number"
+        },
+        "num_columns": {
+            "description": "Number of columns in the data frame.",
+            "type": "number"
+        },
+        "column_names": {
+            "description": "List of column names",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "additionalItems": false
+        },
+        "column_is_categorical": {
+            "description": "List indicating wether or not the column contains categorical values",
+            "type": "array",
+            "items": {
+                "type": "boolean"
+            },
+            "additionalItems": false
+        },
+        "data": {
+            "description": "String serialized rows.",
+            "type": "array",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "additionalItems": false
+            },
+            "additionalItems": false
+        }
+    },
+    "required": [
+        "num_rows",
+        "num_columns",
+        "column_names",
+        "column_is_categorical",
+        "data"
+    ],
+    "additionalProperties": false
+}

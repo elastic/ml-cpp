@@ -30,7 +30,7 @@ const std::string JSON_NUM_ROWS_TAG{"num_rows"};
 const std::string JSON_NUM_COLUMNS_TAG{"num_columns"};
 const std::string JSON_COLUMN_NAMES_TAG{"column_names"};
 const std::string JSON_COLUMN_IS_CATEGORICAL_TAG{"column_is_categorical"};
-const std::string JSON_DATA_TAG{"data_summarization"};
+const std::string JSON_DATA_TAG{"data"};
 const std::string JSON_EOS_TAG{"eos"};
 
 // clang-format on

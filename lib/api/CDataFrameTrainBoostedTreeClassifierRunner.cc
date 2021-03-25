@@ -331,6 +331,15 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     return m_InferenceModelMetadata;
 }
 
+CDataFrameAnalysisRunner::TDataSummarizationUPtr
+CDataFrameTrainBoostedTreeClassifierRunner::dataSummarization(const core::CDataFrame& dataFrame) const {
+    auto rowMask = this->boostedTree().dataSummarization(dataFrame);
+    if (rowMask.manhattan() > 0) {
+        return std::make_unique<CDataSummarization>(dataFrame, rowMask);
+    }
+    return TDataSummarizationUPtr();
+}
+
 // clang-format off
 // The MAX_NUMBER_CLASSES must match the value used in the Java code. See the
 // MAX_DEPENDENT_VARIABLE_CARDINALITY in the x-pack classification code.
