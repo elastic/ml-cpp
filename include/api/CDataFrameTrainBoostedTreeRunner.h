@@ -82,7 +82,7 @@ public:
     //! \return Reference to the analysis state.
     CDataFrameAnalysisInstrumentation& instrumentation() override;
 
-    //! \return A serialisable data summarization for the trained classification model
+    //! \return A serialisable data summarization for the trained model.
     TDataSummarizationUPtr dataSummarization(const core::CDataFrame& dataFrame) const override;
 
 protected:
