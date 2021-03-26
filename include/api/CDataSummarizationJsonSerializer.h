@@ -20,7 +20,7 @@ class CDataFrame;
 namespace api {
 
 //! \brief Class generates a compressed and chunked JSON blob that contains
-// selected data frame rows.
+//! selected data frame rows.
 class API_EXPORT CDataSummarizationJsonSerializer final
     : public CSerializableToJsonDocumentCompressed {
 public:
