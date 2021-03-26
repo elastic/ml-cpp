@@ -55,6 +55,9 @@ public:
     static const std::string TRAINING_PERCENT_FIELD_NAME;
     static const std::string FEATURE_PROCESSORS;
     static const std::string EARLY_STOPPING_ENABLED;
+    static const std::string TASK;
+    static const std::string TASK_TRAIN;
+    static const std::string TASK_UPDATE;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
@@ -113,6 +116,8 @@ private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
 
+    enum ETask {E_Train, E_Update};
+
 private:
     void runImpl(core::CDataFrame& frame) override;
     bool restoreBoostedTree(core::CDataFrame& frame,
@@ -136,6 +141,7 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
+    ETask m_Task;
 };
 }
 }

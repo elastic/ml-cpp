@@ -26,6 +26,7 @@ namespace core {
 class CPackedBitVector;
 class CStatePersistInserter;
 class CStateRestoreTraverser;
+class CDataSearcher;
 }
 namespace maths {
 
@@ -42,6 +43,7 @@ public:
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
+    using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
 
 public:
     //! \name Instrumentation Phases
@@ -61,6 +63,9 @@ public:
     //!
     //! \warning Throws runtime error on fail to restore.
     static CBoostedTreeFactory constructFromString(std::istream& jsonStream);
+
+    static CBoostedTreeFactory constructFromDefinition(TDataSearcherUPtr dataSearcher,
+                                                       TLossFunctionUPtr loss);
 
     //! Get the maximum number of rows we'll train on.
     static std::size_t maximumNumberRows();
@@ -276,6 +281,9 @@ private:
 
     //! Stubs out test loss adjustment.
     static double noopAdjustTestLoss(double, double, double testLoss);
+
+    static bool restoreBestForest(TDataSearcherUPtr& restoreSearcher);
+    static bool restoreDataSummarization(TDataSearcherUPtr& restoreSearcher);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
