@@ -106,6 +106,9 @@ public:
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap();
 
+    //! Get the selected rows that summarize \p dataFrame.
+    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame) const;
+
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;
 

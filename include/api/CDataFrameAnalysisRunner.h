@@ -11,6 +11,7 @@
 #include <core/CStatePersistInserter.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
+#include <api/CDataSummarizationJsonSerializer.h>
 #include <api/CInferenceModelDefinition.h>
 #include <api/CInferenceModelMetadata.h>
 #include <api/ImportExport.h>
@@ -70,6 +71,7 @@ public:
     using TStrVecVec = std::vector<TStrVec>;
     using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
     using TOptionalInferenceModelMetadata = boost::optional<const CInferenceModelMetadata&>;
+    using TDataSummarizationUPtr = std::unique_ptr<CDataSummarizationJsonSerializer>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -144,6 +146,9 @@ public:
     //! \return A serialisable definition of the trained model.
     virtual TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
+
+    //! \return A serialisable summarization of the training data if appropriate or a null pointer.
+    virtual TDataSummarizationUPtr dataSummarization(const core::CDataFrame& dataFrame) const;
 
     //! \return A serialisable metadata of the trained model.
     virtual TOptionalInferenceModelMetadata inferenceModelMetadata() const;

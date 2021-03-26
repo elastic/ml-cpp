@@ -6,14 +6,10 @@
 #ifndef INCLUDED_ml_api_CInferenceModelDefinition_h
 #define INCLUDED_ml_api_CInferenceModelDefinition_h
 
-#include <core/CRapidJsonConcurrentLineWriter.h>
-
 #include <maths/CDataFrameCategoryEncoder.h>
 
+#include <api/CSerializableToJson.h>
 #include <api/ImportExport.h>
-
-#include <rapidjson/document.h>
-#include <rapidjson/ostreamwrapper.h>
 
 #include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
@@ -24,28 +20,6 @@
 
 namespace ml {
 namespace api {
-
-//! \brief Abstract class for all elements the the inference definition
-//! that can will be serialized into JSON.
-class API_EXPORT CSerializableToJsonDocument {
-public:
-    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
-
-public:
-    virtual ~CSerializableToJsonDocument() = default;
-    //! Serialize the object as JSON items under the \p parentObject using the specified \p writer.
-    virtual void addToJsonDocument(rapidjson::Value& parentObject,
-                                   TRapidJsonWriter& writer) const = 0;
-};
-
-class API_EXPORT CSerializableToJsonStream {
-public:
-    using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
-
-public:
-    virtual ~CSerializableToJsonStream() = default;
-    virtual void addToJsonStream(TGenericLineWriter& /*writer*/) const = 0;
-};
 
 //! Abstract class for output aggregation.
 class API_EXPORT CAggregateOutput : public CSerializableToJsonStream {
@@ -455,7 +429,7 @@ private:
 };
 
 //! \brief Technical details required for model evaluation.
-class API_EXPORT CInferenceModelDefinition : public CSerializableToJsonStream {
+class API_EXPORT CInferenceModelDefinition : public CSerializableToJsonDocumentCompressed {
 public:
     using TApiEncodingUPtr = std::unique_ptr<api::CEncoding>;
     using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
@@ -493,11 +467,9 @@ public:
     void trainedModel(TTrainedModelUPtr&& trainedModel);
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
-    void addToJsonStream(TGenericLineWriter& writer) const override;
-    void addToDocumentCompressed(TRapidJsonWriter& writer) const;
+    void addToJsonStream(TGenericLineWriter& writer) const final;
+    void addToDocumentCompressed(TRapidJsonWriter& writer) const final;
     std::string jsonString() const;
-    void jsonStream(std::ostream& jsonStrm) const;
-    std::stringstream jsonCompressedStream() const;
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;
