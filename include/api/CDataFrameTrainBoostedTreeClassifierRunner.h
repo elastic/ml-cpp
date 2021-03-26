@@ -79,9 +79,6 @@ public:
     //! \return A serialisable metadata of the trained classification model.
     TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
 
-    //! \return A serialisable data summarization for the trained classification model
-    TDataSummarizationUPtr dataSummarization(const core::CDataFrame& dataFrame) const override;
-
 private:
     static TLossFunctionUPtr loss(std::size_t numberClasses);
 

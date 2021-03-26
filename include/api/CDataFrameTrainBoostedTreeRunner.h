@@ -82,6 +82,9 @@ public:
     //! \return Reference to the analysis state.
     CDataFrameAnalysisInstrumentation& instrumentation() override;
 
+    //! \return A serialisable data summarization for the trained classification model
+    TDataSummarizationUPtr dataSummarization(const core::CDataFrame& dataFrame) const override;
+
 protected:
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
 

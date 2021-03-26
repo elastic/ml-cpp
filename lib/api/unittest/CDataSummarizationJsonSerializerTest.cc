@@ -9,7 +9,7 @@
 #include <maths/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameAnalyzer.h>
-#include <api/CDataSummarization.h>
+#include <api/CDataSummarizationJsonSerializer.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
@@ -49,8 +49,8 @@ std::stringstream decompressStream(std::stringstream&& compressedStream) {
     return decompressedStream;
 }
 
-void testIntegration(TLossFunctionType lossType) {
-    std::size_t numberExamples = 200;
+void testSchema(TLossFunctionType lossType) {
+    std::size_t numberExamples = 100;
     std::size_t cols = 3;
 
     std::stringstream output;
@@ -71,11 +71,10 @@ void testIntegration(TLossFunctionType lossType) {
     api::CDataFrameAnalyzer analyzer{
         specFactory.predictionSpec(analysisType, "target_col"), outputWriterFactory};
 
-    TDoubleVec expectedPredictions;
     TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
     TStrVec fieldValues{"", "", "0", "", ""};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        lossType, fieldNames, fieldValues, analyzer, expectedPredictions, numberExamples);
+        lossType, fieldNames, fieldValues, analyzer, numberExamples);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
     auto analysisRunner = analyzer.runner();
 
@@ -120,12 +119,12 @@ void testIntegration(TLossFunctionType lossType) {
 }
 }
 
-BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
-    testIntegration(TLossFunctionType::E_MseRegression);
+BOOST_AUTO_TEST_CASE(testRegression) {
+    testSchema(TLossFunctionType::E_MseRegression);
 }
 
-BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
-    testIntegration(TLossFunctionType::E_BinaryClassification);
+BOOST_AUTO_TEST_CASE(testClassification) {
+    testSchema(TLossFunctionType::E_BinaryClassification);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

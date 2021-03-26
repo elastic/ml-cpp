@@ -18,7 +18,7 @@
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataSummarization.h>
+#include <api/CDataSummarizationJsonSerializer.h>
 #include <api/ElasticsearchStateIndex.h>
 
 #include <cmath>
@@ -164,15 +164,6 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     m_InferenceModelMetadata.hyperparameterImportance(
         this->boostedTree().hyperparameterImportance());
     return m_InferenceModelMetadata;
-}
-
-CDataFrameAnalysisRunner::TDataSummarizationUPtr
-CDataFrameTrainBoostedTreeRegressionRunner::dataSummarization(const core::CDataFrame& dataFrame) const {
-    auto rowMask = this->boostedTree().dataSummarization(dataFrame);
-    if (rowMask.manhattan() > 0) {
-        return std::make_unique<CDataSummarization>(dataFrame, rowMask);
-    }
-    return TDataSummarizationUPtr();
 }
 
 // clang-format off

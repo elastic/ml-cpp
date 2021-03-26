@@ -4,11 +4,10 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CDataSummarization.h>
+#include <api/CDataSummarizationJsonSerializer.h>
 
 #include <core/CBase64Filter.h>
 #include <core/CDataFrame.h>
-#include <core/CPackedBitVector.h>
 #include <core/Constants.h>
 
 #include <boost/iostreams/filter/gzip.hpp>
@@ -31,24 +30,25 @@ const std::string JSON_COLUMN_NAMES_TAG{"column_names"};
 const std::string JSON_COLUMN_IS_CATEGORICAL_TAG{"column_is_categorical"};
 const std::string JSON_DATA_TAG{"data"};
 // clang-format on
-const std::size_t MAX_DOCUMENT_SIZE(16 * core::constants::BYTES_IN_MEGABYTES);
 }
 
-CDataSummarization::CDataSummarization(const core::CDataFrame& frame, core::CPackedBitVector rowMask)
-    : m_RowMask(rowMask), m_Frame(frame) {
+CDataSummarizationJsonSerializer::CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
+                                                                   core::CPackedBitVector rowMask)
+    : m_RowMask(std::move(rowMask)), m_Frame(frame) {
 }
 
-void CDataSummarization::addToDocumentCompressed(TRapidJsonWriter& writer) const {
-    CSerializableToJsonDocumentCompressed::addToDocumentCompressed(writer, JSON_COMPRESSED_DATA_SUMMARIZATION_TAG);
+void CDataSummarizationJsonSerializer::addToDocumentCompressed(TRapidJsonWriter& writer) const {
+    CSerializableToJsonDocumentCompressed::addToDocumentCompressed(
+        writer, JSON_COMPRESSED_DATA_SUMMARIZATION_TAG, JSON_DATA_SUMMARIZATION_TAG);
 }
 
-std::string CDataSummarization::jsonString() const {
+std::string CDataSummarizationJsonSerializer::jsonString() const {
     std::ostringstream jsonStrm;
     this->jsonStream(jsonStrm);
     return jsonStrm.str();
 }
 
-void CDataSummarization::addToJsonStream(TGenericLineWriter& writer) const {
+void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& writer) const {
     writer.StartObject();
     writer.Key(JSON_NUM_ROWS_TAG);
     writer.Uint64(static_cast<std::size_t>(m_RowMask.manhattan()));

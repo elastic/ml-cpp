@@ -34,7 +34,7 @@ SRCS=\
 	CDataFrameAnalyzerFeatureImportanceTest.cc \
 	CDataFrameAnalyzerOutlierTest.cc \
 	CDataFrameAnalyzerTrainingTest.cc \
-	CDataSummarizationTest.cc \
+	CDataSummarizationJsonSerializerTest.cc \
 	CDataFrameTrainBoostedTreeClassifierRunnerTest.cc \
 	CDataFrameTrainBoostedTreeRegressionRunnerTest.cc \
 	CDataFrameMockAnalysisRunner.cc \

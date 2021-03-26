@@ -1996,11 +1996,12 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
 
 core::CPackedBitVector
 CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame) const {
-    // TODO implement a smart summarization strategy.
+    // TODO #1834 implement a data summarization strategy.
     core::CPackedBitVector rowMask{};
-    std::size_t sampleSize(std::min(
-        dataFrame.numberRows(),
-        static_cast<std::size_t>(std::max(dataFrame.numberRows() * 0.1, 100.0))));
+    std::size_t sampleSize(
+        std::min(dataFrame.numberRows(),
+                 static_cast<std::size_t>(std::max(
+                     static_cast<double>(dataFrame.numberRows()) * 0.1, 100.0))));
     for (std::size_t i = 0; i < sampleSize; ++i) {
         rowMask.extend(true);
     }
