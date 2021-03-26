@@ -504,11 +504,9 @@ public:
     void trainedModel(TTrainedModelUPtr&& trainedModel);
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
-    void addToJsonStream(TGenericLineWriter& writer) const override;
-    void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const final;
+    void addToDocumentCompressed(TRapidJsonWriter& writer) const final;
     std::string jsonString() const;
-    // void jsonStream(std::ostream& jsonStrm) const;
-    // std::stringstream jsonCompressedStream() const;
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;

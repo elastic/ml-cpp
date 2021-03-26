@@ -30,8 +30,8 @@ public:
     CDataSummarization(const CDataSummarization&) = delete;
     CDataSummarization& operator=(const CDataSummarization&) = delete;
 
-    void addToJsonStream(TGenericLineWriter& writer) const override;
-    void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const final;
+    void addToDocumentCompressed(TRapidJsonWriter& writer) const final;
     std::string jsonString() const;
 
 private:
