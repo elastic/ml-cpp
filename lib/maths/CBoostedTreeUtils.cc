@@ -200,7 +200,7 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
     for (auto& p : result) {
         p /= Z;
     }
-    LOG_TRACE("probabilities = " << core::CContainerPrinter::print(result));
+    LOG_TRACE(<< "probabilities = " << core::CContainerPrinter::print(result));
 
     return result;
 }
