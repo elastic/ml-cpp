@@ -7,15 +7,16 @@
 
 # The non-Windows part of ML C++ CI does the following:
 #
-# 1. If this is not a PR build, obtain credentials from Vault for the accessing
-#    S3
+# 1. If this is not a PR build nor a debug build, obtain credentials from Vault
+#    for the accessing S3
 # 2. If this is a PR build and running on linux-x86_64, check the code style
 # 3. Build and unit test the C++ on the native architecture
 # 4. If running on linux-x86_64, cross compile the darwin-x86_64 build of the C++
 # 5. If this is not a PR build and running on linux-x86_64, cross compile the
 #    linux-aarch64 build of the C++
-# 6. If this is not a PR build, upload the builds to the artifacts directory on
-#    S3 that subsequent Java builds will download the C++ components from
+# 6. If this is not a PR build nor a debug build, upload the builds to the
+#    artifacts directory on S3 that subsequent Java builds will download the C++
+#    components from
 #
 # On Linux all steps run in Docker containers that ensure OS dependencies
 # are appropriate given the support matrix.
@@ -30,31 +31,11 @@
 : "${HOME:?Need to set HOME to a non-empty value.}"
 : "${WORKSPACE:?Need to set WORKSPACE to a non-empty value.}"
 
-# If this isn't a PR build then obtain credentials from Vault
-if [ -z "$PR_AUTHOR" ] ; then
-    set +x
-    export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
+set +x
 
-    unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY
-    FAILURES=0
-    while [ $FAILURES -lt 3 -a -z "$ML_AWS_ACCESS_KEY" ] ; do
-        AWS_CREDS=$(vault read -format=json -field=data aws-dev/creds/prelertartifacts)
-        if [ $? -eq 0 ] ; then
-            export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
-            export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
-        else
-            let FAILURES++
-            echo "Attempt $FAILURES to get AWS credentials failed"
-        fi
-    done
-
-    unset VAULT_TOKEN VAULT_ROLE_ID VAULT_SECRET_ID
-
-    if [ -z "$ML_AWS_ACCESS_KEY" -o -z "$ML_AWS_SECRET_KEY" ] ; then
-        echo "Exiting after failing to get AWS credentials $FAILURES times"
-        exit 1
-    fi
-    set -x
+# If this isn't a PR build or a debug build then obtain credentials from Vault
+if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
+    . ./aws_creds_from_vault.sh
 fi
 
 set -e
@@ -67,6 +48,11 @@ if [ -z "$BUILD_SNAPSHOT" ] ; then
     BUILD_SNAPSHOT=true
 fi
 
+# Default to running tests
+if [ -z "$RUN_TESTS" ] ; then
+    RUN_TESTS=true
+fi
+
 VERSION=$(cat ../gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
 HARDWARE_ARCH=$(uname -m | sed 's/arm64/aarch64/')
 
@@ -76,6 +62,18 @@ if [ "$BUILD_SNAPSHOT" = false ] ; then
 else
     export SNAPSHOT=yes
     VERSION=${VERSION}-SNAPSHOT
+fi
+
+# Version qualifier shouldn't be used in PR builds
+if [[ -n "$PR_AUTHOR" && -n "$VERSION_QUALIFIER" ]] ; then
+    echo "VERSION_QUALIFIER should not be set in PR builds: was $VERSION_QUALIFIER"
+    exit 2
+fi
+
+# Tests must be run in PR builds
+if [[ -n "$PR_AUTHOR" && "$RUN_TESTS" = false ]] ; then
+    echo "RUN_TESTS should not be false PR builds"
+    exit 3
 fi
 
 # Remove any old builds
@@ -92,11 +90,15 @@ case `uname` in
         # For macOS, build directly on the machine
         ./download_macos_deps.sh
         if [ -z "$PR_AUTHOR" ] ; then
-            TASK=build
+            if [ "$RUN_TESTS" = false ] ; then
+                TASKS="clean buildZip buildZipSymbols"
+            else
+                TASKS="clean buildZip buildZipSymbols check"
+            fi
         else
-            TASK=check
+            TASKS="clean buildZip check"
         fi
-        (cd .. && ./gradlew --info -Dbuild.snapshot=$BUILD_SNAPSHOT $TASK)
+        (cd .. && ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT -Dbuild.ml_debug=$ML_DEBUG $TASKS)
         ;;
 
     Linux)
@@ -108,14 +110,24 @@ case `uname` in
         # Build and test the native Linux architecture
         if [ "$HARDWARE_ARCH" = x86_64 ] ; then
 
+            # TODO - let the dedicated cross compile script do this once it's integrated into Jenkins
             # If this is a PR build then fail fast on style checks
             if [ -n "$PR_AUTHOR" ] ; then
                 ./docker_check_style.sh
             fi
 
-            ./docker_test.sh linux
+            if [ "$RUN_TESTS" = false ] ; then
+                ./docker_build.sh linux
+            else
+                ./docker_test.sh linux
+            fi
+
         elif [ "$HARDWARE_ARCH" = aarch64 ] ; then
-            ./docker_test.sh linux_aarch64_native
+            if [ "$RUN_TESTS" = false ] ; then
+                ./docker_build.sh linux_aarch64_native
+            else
+                ./docker_test.sh linux_aarch64_native
+            fi
         fi
 
         # If this is a PR build then run some Java integration tests
@@ -126,6 +138,7 @@ case `uname` in
             ./run_es_tests.sh "${GIT_TOPLEVEL}/.." "$(cd "${IVY_REPO}" && pwd)"
         fi
 
+        # TODO - remove the cross compiles once the dedicated script is integrated into Jenkins
         # Cross compile macOS
         if [ "$HARDWARE_ARCH" = x86_64 ] ; then
             ./docker_build.sh macosx
@@ -138,12 +151,12 @@ case `uname` in
 
     *)
         echo `uname 2>&1` "- unsupported operating system"
-        exit 2
+        exit 4
         ;;
 esac
 
-# If this isn't a PR build then upload the artifacts
-if [ -z "$PR_AUTHOR" ] ; then
-    (cd .. && ./gradlew --info -b upload.gradle -Dbuild.snapshot=$BUILD_SNAPSHOT upload)
+# If this isn't a PR build and isn't a debug build then upload the artifacts
+if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
+    (cd .. && ./gradlew --info -b upload.gradle -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT upload)
 fi
 
