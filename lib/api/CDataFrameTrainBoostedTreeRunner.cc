@@ -374,6 +374,15 @@ CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::instrumenta
     return m_Instrumentation;
 }
 
+CDataFrameAnalysisRunner::TDataSummarizationUPtr
+CDataFrameTrainBoostedTreeRunner::dataSummarization(const core::CDataFrame& dataFrame) const {
+    auto rowMask = this->boostedTree().dataSummarization(dataFrame);
+    if (rowMask.manhattan() > 0) {
+        return std::make_unique<CDataSummarizationJsonSerializer>(dataFrame, rowMask);
+    }
+    return TDataSummarizationUPtr();
+}
+
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME{"dependent_variable"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME{"prediction_field_name"};

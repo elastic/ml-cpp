@@ -194,6 +194,11 @@ CDataFrameAnalysisRunner::inferenceModelDefinition(const TStrVec& /*fieldNames*/
     return TInferenceModelDefinitionUPtr();
 }
 
+CDataFrameAnalysisRunner::TDataSummarizationUPtr
+CDataFrameAnalysisRunner::dataSummarization(const core::CDataFrame& /*dataFrame*/) const {
+    return TDataSummarizationUPtr();
+}
+
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameAnalysisRunner::inferenceModelMetadata() const {
     return TOptionalInferenceModelMetadata();

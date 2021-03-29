@@ -5,20 +5,15 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
-#include <core/CBase64Filter.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
-#include <core/Constants.h>
 
-#include <boost/iostreams/filter/gzip.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <cmath>
 #include <iterator>
 #include <memory>
-#include <ostream>
 
 namespace ml {
 namespace api {
@@ -33,10 +28,8 @@ const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
 const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
 const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
 const std::string JSON_DEFINITION_TAG{"definition"};
-const std::string JSON_DOC_NUM_TAG{"doc_num"};
 const std::string JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
 const std::string JSON_ENSEMBLE_TAG{"ensemble"};
-const std::string JSON_EOS_TAG{"eos"};
 const std::string JSON_EXPONENT_TAG{"exponent"};
 const std::string JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
 const std::string JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
@@ -85,8 +78,6 @@ const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
 const std::string JSON_WEIGHTS_TAG{"weights"};
 // clang-format on
 
-const std::size_t MAX_DOCUMENT_SIZE(16 * core::constants::BYTES_IN_MEGABYTES);
-
 auto toRapidjsonValue(std::size_t value) {
     return rapidjson::Value{static_cast<std::uint64_t>(value)};
 }
@@ -107,7 +98,6 @@ void addJsonArray(const std::string& tag,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
     writer.Key(tag);
     writer.StartArray();
-    rapidjson::Value array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
         writer.Double(value);
     }
@@ -119,7 +109,6 @@ void addJsonArray(const std::string& tag,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
     writer.Key(tag);
     writer.StartArray();
-    rapidjson::Value array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
         writer.String(value);
     }
@@ -405,56 +394,9 @@ std::string CInferenceModelDefinition::jsonString() const {
     return jsonStrm.str();
 }
 
-void CInferenceModelDefinition::jsonStream(std::ostream& jsonStrm) const {
-    rapidjson::OStreamWrapper wrapper{jsonStrm};
-    TGenericLineWriter writer{wrapper};
-    this->addToJsonStream(writer);
-    jsonStrm.flush();
-}
-
-std::stringstream CInferenceModelDefinition::jsonCompressedStream() const {
-    std::stringstream compressedStream;
-    using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
-    {
-        TFilteredOutput outFilter;
-        outFilter.push(boost::iostreams::gzip_compressor());
-        outFilter.push(core::CBase64Encoder());
-        outFilter.push(compressedStream);
-        this->jsonStream(outFilter);
-    }
-    return compressedStream;
-}
-
 void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer) const {
-    std::stringstream compressedStream{this->jsonCompressedStream()};
-    std::streamsize processed{0};
-    compressedStream.seekg(0, compressedStream.end);
-    std::streamsize remained{compressedStream.tellg()};
-    compressedStream.seekg(0, compressedStream.beg);
-    std::size_t docNum{0};
-    std::string buffer;
-    while (remained > 0) {
-        std::size_t bytesToProcess{std::min(MAX_DOCUMENT_SIZE, static_cast<size_t>(remained))};
-        buffer.clear();
-        std::copy_n(std::istreambuf_iterator<char>(compressedStream.seekg(processed)),
-                    bytesToProcess, std::back_inserter(buffer));
-        remained -= bytesToProcess;
-        processed += bytesToProcess;
-        writer.StartObject();
-        writer.Key(JSON_COMPRESSED_INFERENCE_MODEL_TAG);
-        writer.StartObject();
-        writer.Key(JSON_DOC_NUM_TAG);
-        writer.Uint64(docNum);
-        writer.Key(JSON_DEFINITION_TAG);
-        writer.String(buffer);
-        if (remained == 0) {
-            writer.Key(JSON_EOS_TAG);
-            writer.Bool(true);
-        }
-        writer.EndObject();
-        writer.EndObject();
-        ++docNum;
-    }
+    CSerializableToJsonDocumentCompressed::addToDocumentCompressed(
+        writer, JSON_COMPRESSED_INFERENCE_MODEL_TAG, JSON_DEFINITION_TAG);
 }
 
 void CInferenceModelDefinition::addToJsonStream(TGenericLineWriter& writer) const {

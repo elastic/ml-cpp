@@ -76,7 +76,7 @@ public:
     inferenceModelDefinition(const TStrVec& fieldNames,
                              const TStrVecVec& categoryNames) const override;
 
-    //! \return A serialisable metadata of the trained regression model.
+    //! \return A serialisable metadata of the trained classification model.
     TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
 
 private:

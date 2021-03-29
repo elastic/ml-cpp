@@ -11,6 +11,7 @@
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
 #include <core/CMemory.h>
+#include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
@@ -2128,6 +2129,21 @@ const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const
 
 CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
     return m_TreeShap.get();
+}
+
+core::CPackedBitVector
+CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame) const {
+    // TODO #1834 implement a data summarization strategy.
+    core::CPackedBitVector rowMask{};
+    std::size_t sampleSize(
+        std::min(dataFrame.numberRows(),
+                 static_cast<std::size_t>(std::max(
+                     static_cast<double>(dataFrame.numberRows()) * 0.1, 100.0))));
+    for (std::size_t i = 0; i < sampleSize; ++i) {
+        rowMask.extend(true);
+    }
+    rowMask.extend(false, dataFrame.numberRows() - rowMask.size());
+    return rowMask;
 }
 
 CBoostedTreeImpl::THyperparameterImportanceVec

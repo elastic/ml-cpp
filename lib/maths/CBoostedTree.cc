@@ -167,6 +167,10 @@ CTreeShapFeatureImportance* CBoostedTree::shap() const {
     return m_Impl->shap();
 }
 
+core::CPackedBitVector CBoostedTree::dataSummarization(const core::CDataFrame& dataFrame) const {
+    return m_Impl->dataSummarization(dataFrame);
+}
+
 CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportance() const {
     return m_Impl->hyperparameterImportance();
 }

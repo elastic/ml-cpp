@@ -145,6 +145,7 @@ void CDataFrameAnalyzer::run() {
         this->writeInferenceModel(*analysisRunner, outputWriter);
         this->writeResultsOf(*analysisRunner, outputWriter);
         this->writeInferenceModelMetadata(*analysisRunner, outputWriter);
+        this->writeDataSummarization(*analysisRunner, outputWriter);
     }
 }
 
@@ -298,6 +299,16 @@ void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRun
         modelMetadata->write(writer);
         writer.EndObject();
         writer.EndObject();
+    }
+    writer.flush();
+}
+
+void CDataFrameAnalyzer::writeDataSummarization(const CDataFrameAnalysisRunner& analysis,
+                                                core::CRapidJsonConcurrentLineWriter& writer) const {
+    // Write training data summarization
+    auto dataSummarization = analysis.dataSummarization(*m_DataFrame);
+    if (dataSummarization != nullptr) {
+        dataSummarization->addToDocumentCompressed(writer);
     }
     writer.flush();
 }
