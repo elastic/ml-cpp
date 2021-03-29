@@ -128,7 +128,7 @@ public:
     CBoostedTreeFactory& retrainFraction(double fraction);
     //! Set the maximum numbers of optimisation rounds we'll use for hyperparameter
     //! optimisation for incremental training.
-    CBoostedTreeFactory& maximumOptimisationNumberRoundsForIncrementalTrain(std::size_t rounds);
+    CBoostedTreeFactory& maximumOptimisationRoundsForIncrementalTrain(std::size_t rounds);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&

@@ -1529,7 +1529,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::retrainFraction(double fraction) {
 }
 
 CBoostedTreeFactory&
-CBoostedTreeFactory::maximumOptimisationNumberRoundsForIncrementalTrain(std::size_t rounds) {
+CBoostedTreeFactory::maximumOptimisationRoundsForIncrementalTrain(std::size_t rounds) {
     m_TreeImpl->m_NumberIncrementalRounds = rounds;
     return *this;
 }
