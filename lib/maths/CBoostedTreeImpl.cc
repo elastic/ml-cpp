@@ -302,7 +302,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     this->checkIncrementalTrainInvariants(frame);
 
-    m_TreesToRetrain = this->selectTreesToRetrain(frame);
+    this->selectTreesToRetrain(frame);
 
     std::int64_t lastMemoryUsage(this->memoryUsage());
 
@@ -350,6 +350,12 @@ void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainStat
 }
 
 void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
+    core::CPackedBitVector rowMask{frame.numberRows(), true};
+    this->predict(rowMask, frame);
+}
+
+void CBoostedTreeImpl::predict(const core::CPackedBitVector& rowMask,
+                               core::CDataFrame& frame) const {
     if (m_BestForestTestLoss == INF) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
                      << "Please report this problem.");
@@ -357,13 +363,15 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     }
     bool successful;
     std::tie(std::ignore, successful) = frame.writeColumns(
-        m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
+        m_NumberThreads, 0, frame.numberRows(),
+        [&](TRowItr beginRows, TRowItr endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
                 prediction = predictRow(m_Encoder->encode(*row), m_BestForest);
             }
-        });
+        },
+        &rowMask);
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: failed model inference. "
                      << "Please report this problem.");
@@ -574,19 +582,20 @@ void CBoostedTreeImpl::initializeTreeShap(const core::CDataFrame& frame) {
     }
 }
 
-CBoostedTreeImpl::TSizeVec
-CBoostedTreeImpl::selectTreesToRetrain(const core::CDataFrame& frame) const {
+void CBoostedTreeImpl::selectTreesToRetrain(const core::CDataFrame& frame) {
+
+    if (m_CurrentIncrementalRound > 0) {
+        return;
+    }
+
     TDoubleVec probabilities{retrainTreeSelectionProbabilities(
         m_NumberThreads, frame, m_ExtraColumns, m_DependentVariable, *m_Encoder,
         this->allTrainingRowsMask(), *m_Loss, m_BestForest)};
 
-    TSizeVec result;
     std::size_t numberToRetrain{static_cast<std::size_t>(
         std::max(m_RetrainFraction * static_cast<double>(m_BestForest.size()), 1.0) + 0.5)};
-    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities,
-                                                   numberToRetrain, result);
-
-    return result;
+    CSampling::categoricalSampleWithoutReplacement(
+        m_Rng, probabilities, numberToRetrain, m_TreesToRetrain);
 }
 
 CBoostedTreeImpl::TMeanVarAccumulatorSizeDoubleTuple
@@ -791,6 +800,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
 CBoostedTreeImpl::TNodeVecVecMeanVarAccumulatorPr
 CBoostedTreeImpl::retrainForest(core::CDataFrame& frame) const {
+    // TODO
 }
 
 core::CPackedBitVector
@@ -1363,6 +1373,7 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
 
 double CBoostedTreeImpl::meanIncrementalTrainingLoss(const core::CDataFrame& frame,
                                                      const core::CPackedBitVector& rowMask) const {
+    // TODO
 }
 
 CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row,

@@ -94,6 +94,8 @@ public:
     CBoostedTreeFactory& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier);
     //! Set the sum of weights squared multiplier.
     CBoostedTreeFactory& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier);
+    //! Set the penalty for changing the tree toppology when incrementally training.
+    CBoostedTreeFactory& treeTopologyChangePenalty(double treeTopologyChangePenalty);
     //! Set the soft tree depth limit.
     CBoostedTreeFactory& softTreeDepthLimit(double softTreeDepthLimit);
     //! Set the soft tree depth tolerance. This controls how hard we'll try to
@@ -110,8 +112,8 @@ public:
     //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTreeFactory& featureBagFraction(double featureBagFraction);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
-    //! optimisation per parameter.
-    CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! optimisation per parameter for training.
+    CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameterForTrain(std::size_t rounds);
     //! Set the number of restarts to use in global probing for Bayesian Optimisation.
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
@@ -120,6 +122,13 @@ public:
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
+    //! Set the row mask for new data with which we want to incrementally train.
+    CBoostedTreeFactory& newTrainingRowMask(core::CPackedBitVector rowMask);
+    //! Set the fraction of trees in the forest to retrain.
+    CBoostedTreeFactory& retrainFraction(double fraction);
+    //! Set the maximum numbers of optimisation rounds we'll use for hyperparameter
+    //! optimisation for incremental training.
+    CBoostedTreeFactory& maximumOptimisationNumberRoundsForIncrementalTrain(std::size_t rounds);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -137,9 +146,18 @@ public:
                                                     std::size_t numberColumns) const;
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const;
-    //! Build a boosted tree object for a given data frame.
+
+    //! Build a boosted tree object for training on \p frame.
     TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
-    //! Restore a boosted tree object for a given data frame.
+
+    //! Build a boosted tree object for incremental training \p tree on \p frame.
+    //!
+    //! \warning Takes ownership of \p tree.
+    TBoostedTreeUPtr buildForIncrementalTraining(core::CDataFrame& frame,
+                                                 TBoostedTreeUPtr tree);
+
+    //! Restore a boosted tree object for training on \p frame.
+    //!
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
@@ -170,8 +188,14 @@ private:
     //! Set up the number of folds we'll use for cross-validation.
     void initializeNumberFolds(core::CDataFrame& frame) const;
 
+    //! Copy all parameter overrides from \p treeImpl.
+    void copyParameterOverrides(const CBoostedTreeImpl& treeImpl) const;
+
     //! Resize the data frame with the extra columns used by train.
-    void resizeDataFrame(core::CDataFrame& frame) const;
+    void prepareDataFrameForTrain(core::CDataFrame& frame) const;
+
+    //! Resize the data frame with the extra columns used by incremental train.
+    void prepareDataFrameForIncrementalTrain(core::CDataFrame& frame) const;
 
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;

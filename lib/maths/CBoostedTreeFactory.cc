@@ -99,7 +99,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
 
-    this->resizeDataFrame(frame);
+    this->prepareDataFrameForTrain(frame);
 
     m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_NotInitialized
         ? this->skipProgressMonitoringFeatureSelection()
@@ -133,6 +133,25 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
+CBoostedTreeFactory::buildForIncrementalTraining(core::CDataFrame& frame,
+                                                 TBoostedTreeUPtr tree) {
+
+    std::swap(m_TreeImpl, tree->m_Impl);
+
+    // All overrides are applied to m_TreeImpl stored on the factory so we must
+    // make sure these are copied to the supplied boosted tree implementation.
+    this->copyParameterOverrides(*tree->m_Impl);
+
+    this->prepareDataFrameForIncrementalTrain(frame);
+
+    // TODO Bayesian optimisation setup.
+
+    std::swap(m_TreeImpl, tree->m_Impl);
+
+    return tree;
+}
+
+CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVariable) {
 
     if (dependentVariable != m_TreeImpl->m_DependentVariable) {
@@ -155,7 +174,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
         return this->buildFor(frame, dependentVariable);
     }
 
-    this->resizeDataFrame(frame);
+    this->prepareDataFrameForTrain(frame);
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
@@ -341,12 +360,55 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
     }
 }
 
-void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
+void CBoostedTreeFactory::copyParameterOverrides(const CBoostedTreeImpl& treeImpl) const {
 
+    m_TreeImpl->m_NewTrainingRowMask = treeImpl.m_NewTrainingRowMask;
+    m_TreeImpl->m_RetrainFraction = treeImpl.m_RetrainFraction;
+    m_TreeImpl->m_NumberIncrementalRounds = treeImpl.m_NumberIncrementalRounds;
+    m_TreeImpl->m_DownsampleFactorOverride = treeImpl.m_DownsampleFactorOverride;
+    m_TreeImpl->m_DownsampleFactor =
+        m_TreeImpl->m_DownsampleFactorOverride.value_or(m_TreeImpl->m_DownsampleFactor);
+    m_TreeImpl->m_EtaOverride = treeImpl.m_EtaOverride;
+    m_TreeImpl->m_Eta = m_TreeImpl->m_EtaOverride.value_or(m_TreeImpl->m_Eta);
+    m_TreeImpl->m_EtaGrowthRatePerTreeOverride = treeImpl.m_EtaGrowthRatePerTreeOverride;
+    m_TreeImpl->m_EtaGrowthRatePerTree =
+        m_TreeImpl->m_EtaGrowthRatePerTreeOverride.value_or(m_TreeImpl->m_EtaGrowthRatePerTree);
+    m_TreeImpl->m_NumberFoldsOverride = treeImpl.m_NumberFoldsOverride;
+    m_TreeImpl->m_NumberFolds =
+        m_TreeImpl->m_NumberFoldsOverride.value_or(m_TreeImpl->m_NumberFolds);
+    m_TreeImpl->m_FeatureBagFractionOverride = treeImpl.m_FeatureBagFractionOverride;
+    m_TreeImpl->m_FeatureBagFraction =
+        m_TreeImpl->m_FeatureBagFractionOverride.value_or(m_TreeImpl->m_FeatureBagFraction);
+    m_TreeImpl->m_ClassAssignmentObjective = treeImpl.m_ClassAssignmentObjective;
+    m_TreeImpl->m_ClassificationWeightsOverride = treeImpl.m_ClassificationWeightsOverride;
+    m_TreeImpl->m_RegularizationOverride = treeImpl.m_RegularizationOverride;
+    m_TreeImpl->m_Regularization.depthPenaltyMultiplier(
+        m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier().value_or(
+            m_TreeImpl->m_Regularization.depthPenaltyMultiplier()));
+    m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier(
+        m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier().value_or(
+            m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier()));
+    m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier(
+        m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier().value_or(
+            m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier()));
+    m_TreeImpl->m_Regularization.softTreeDepthLimit(
+        m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit().value_or(
+            m_TreeImpl->m_Regularization.softTreeDepthLimit()));
+    m_TreeImpl->m_Regularization.softTreeDepthTolerance(
+        m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(
+            m_TreeImpl->m_Regularization.softTreeDepthTolerance()));
+    m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty().value_or(
+        m_TreeImpl->m_Regularization.treeTopologyChangePenalty());
+}
+
+void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) const {
+
+    // Extend the frame with the bookkeeping columns used in train.
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
     std::size_t frameMemory{core::CMemory::dynamicSize(frame)};
     std::tie(m_TreeImpl->m_ExtraColumns, m_TreeImpl->m_PaddedExtraColumns) =
-        frame.resizeColumns(m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
+        frame.resizeColumns(m_TreeImpl->m_NumberThreads,
+                            extraColumnsForTrain(numberLossParameters));
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(
         core::CMemory::dynamicSize(frame) - frameMemory);
     m_TreeImpl->m_Instrumentation->flush();
@@ -359,6 +421,36 @@ void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
                            }
                        },
                        &allTrainingRowsMask);
+}
+
+void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& frame) const {
+
+    // Extend the frame with the bookkeeping columns used in incremental train.
+    std::size_t frameMemory{core::CMemory::dynamicSize(frame)};
+    TSizeVec extraColumns;
+    std::size_t paddedExtraColumns;
+    std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
+    std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
+        m_TreeImpl->m_NumberThreads, extraColumnsForIncrementalTrain(numberLossParameters));
+    m_TreeImpl->m_ExtraColumns.insert(m_TreeImpl->m_ExtraColumns.end(),
+                                      extraColumns.begin(), extraColumns.end());
+    m_TreeImpl->m_PaddedExtraColumns = m_TreeImpl->m_PaddedExtraColumns
+                                           ? *m_TreeImpl->m_PaddedExtraColumns + paddedExtraColumns
+                                           : paddedExtraColumns;
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(
+        core::CMemory::dynamicSize(frame) - frameMemory);
+    m_TreeImpl->m_Instrumentation->flush();
+
+    // Compute predictions from the old model on the new training data.
+    m_TreeImpl->predict(m_TreeImpl->m_NewTrainingRowMask, frame);
+
+    // Copy all predictions to previous prediction column(s) in frame.
+    frame.writeColumns(m_NumberThreads, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            readPreviousPrediction(*row, m_TreeImpl->m_ExtraColumns, numberLossParameters) =
+                readPrediction(*row, m_TreeImpl->m_ExtraColumns, numberLossParameters);
+        }
+    });
 }
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
@@ -1311,6 +1403,14 @@ CBoostedTreeFactory& CBoostedTreeFactory::leafWeightPenaltyMultiplier(double lea
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::treeTopologyChangePenalty(double treeTopologyChangePenalty) {
+    if (treeTopologyChangePenalty < 0.0) {
+        LOG_WARN(<< "tree topology change penalty must be non-negative");
+        treeTopologyChangePenalty = 0.0;
+    }
+    m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty(treeTopologyChangePenalty);
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::softTreeDepthLimit(double softTreeDepthLimit) {
     if (softTreeDepthLimit < MIN_SOFT_DEPTH_LIMIT) {
         LOG_WARN(<< "Minimum tree depth must be at least two");
@@ -1378,7 +1478,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFr
 }
 
 CBoostedTreeFactory&
-CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
+CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameterForTrain(std::size_t rounds) {
     m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter = rounds;
     return *this;
 }
@@ -1415,6 +1515,22 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
 
 CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool enable) {
     m_TreeImpl->m_StopHyperparameterOptimizationEarly = enable;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::newTrainingRowMask(core::CPackedBitVector rowMask) {
+    m_TreeImpl->m_NewTrainingRowMask = std::move(rowMask);
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::retrainFraction(double fraction) {
+    m_TreeImpl->m_RetrainFraction = fraction;
+    return *this;
+}
+
+CBoostedTreeFactory&
+CBoostedTreeFactory::maximumOptimisationNumberRoundsForIncrementalTrain(std::size_t rounds) {
+    m_TreeImpl->m_NumberIncrementalRounds = rounds;
     return *this;
 }
 

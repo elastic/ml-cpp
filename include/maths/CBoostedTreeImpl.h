@@ -101,6 +101,11 @@ public:
     //! \warning Must be called only if a trained model is available.
     void predict(core::CDataFrame& frame) const;
 
+    //! Write the predictions of the best trained model to the masked rows of \p frame.
+    //!
+    //! \warning Must be called only if a trained model is available.
+    void predict(const core::CPackedBitVector& rowMask, core::CDataFrame& frame) const;
+
     //! Get the SHAP value calculator.
     //!
     //! \warning Will return a nullptr if a trained model isn't available.
@@ -248,7 +253,7 @@ private:
     void initializeTreeShap(const core::CDataFrame& frame);
 
     //! Select the trees of the best forest to retrain.
-    TSizeVec selectTreesToRetrain(const core::CDataFrame& frame) const;
+    void selectTreesToRetrain(const core::CDataFrame& frame);
 
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulatorSizeDoubleTuple crossValidateForest(core::CDataFrame& frame);
@@ -426,6 +431,7 @@ private:
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
+    core::CPackedBitVector m_NewTrainingRowMask;
     double m_BestForestTestLoss = boosted_tree_detail::INF;
     TOptionalDoubleVecVec m_FoldRoundTestLosses;
     CBoostedTreeHyperparameters m_BestHyperparameters;

@@ -35,7 +35,13 @@ using TAlignedMemoryMappedFloatVector =
     CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
 using TRegularization = CBoostedTreeRegularization<double>;
 
-enum EExtraColumn { E_Prediction = 0, E_Gradient, E_Curvature, E_Weight };
+enum EExtraColumn {
+    E_Prediction = 0,
+    E_Gradient,
+    E_Curvature,
+    E_Weight,
+    E_PreviousPrediction
+};
 
 enum EHyperparameters {
     E_DownsampleFactor = 0,
@@ -86,11 +92,16 @@ inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters
 }
 
 //! Get the extra columns needed by training.
-inline TSizeAlignmentPrVec extraColumns(std::size_t numberLossParameters) {
+inline TSizeAlignmentPrVec extraColumnsForTrain(std::size_t numberLossParameters) {
     return {{numberLossParameters, core::CAlignment::E_Unaligned},
             {numberLossParameters, core::CAlignment::E_Aligned16},
             {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned},
             {1, core::CAlignment::E_Unaligned}};
+}
+
+//! Get the extra columns needed by incremental training.
+inline TSizeAlignmentPrVec extraColumnsForIncrementalTrain(std::size_t numberLossParameters) {
+    return {{numberLossParameters, core::CAlignment::E_Unaligned}};
 }
 
 //! Read the prediction from \p row.
@@ -103,6 +114,15 @@ inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
 //! Zero the prediction of \p row.
 MATHS_EXPORT
 void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
+
+//! Read the previous prediction for \p row if training incementally.
+MATHS_EXPORT
+inline TMemoryMappedFloatVector readPreviousPrediction(const TRowRef& row,
+                                                       const TSizeVec& extraColumns,
+                                                       std::size_t numberLossParameters) {
+    return {row.data() + extraColumns[E_PreviousPrediction],
+            static_cast<int>(numberLossParameters)};
+}
 
 //! Read all the loss derivatives from \p row into an aligned vector.
 inline TAlignedMemoryMappedFloatVector

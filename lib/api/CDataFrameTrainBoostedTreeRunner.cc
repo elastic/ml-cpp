@@ -193,7 +193,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         m_BoostedTreeFactory->numberFolds(numberFolds);
     }
     if (numberRoundsPerHyperparameter > 0) {
-        m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameter(numberRoundsPerHyperparameter);
+        m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameterForTrain(
+            numberRoundsPerHyperparameter);
     }
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
