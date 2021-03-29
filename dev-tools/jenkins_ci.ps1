@@ -72,7 +72,7 @@ if (!(Test-Path Env:VERSION_QUALIFIER)) {
 
 if (Test-Path Env:PR_AUTHOR) {
     if ($Env:RUN_TESTS -eq "false") {
-        Write-Output "RUN_TESTS should not be false PR builds"
+        Write-Output "RUN_TESTS should not be false in PR builds"
         Exit 3
     }
     $Tasks="clean", "buildZip", "check"
@@ -107,4 +107,3 @@ if (!(Test-Path Env:PR_AUTHOR) -And !(Test-Path Env:ML_DEBUG)) {
         Exit $LastExitCode
     }
 }
-
