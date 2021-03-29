@@ -26,15 +26,15 @@
 
 set +x
 
+# Change directory to the directory containing this script
+cd "$(dirname $0)"
+
 # If this isn't a PR build or a debug build then obtain credentials from Vault
 if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
     . ./aws_creds_from_vault.sh
 fi
 
 set -e
-
-# Change directory to the directory containing this script
-cd "$(dirname $0)"
 
 # Default to a snapshot build
 if [ -z "$BUILD_SNAPSHOT" ] ; then

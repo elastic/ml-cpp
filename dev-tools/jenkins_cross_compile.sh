@@ -30,6 +30,9 @@
 
 set +x
 
+# Change directory to the directory containing this script
+cd "$(dirname $0)"
+
 # If this isn't a PR build or a debug build then obtain credentials from Vault
 if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
     . ./aws_creds_from_vault.sh
@@ -39,11 +42,8 @@ set -e
 
 if [[ `uname` != Linux || `uname -m` != x86_64 ]] ; then
     echo "This script must be run on linux-x86_64"
-    exit 1
+    exit 2
 fi
-
-# Change directory to the directory containing this script
-cd "$(dirname $0)"
 
 # Default to a snapshot build
 if [ -z "$BUILD_SNAPSHOT" ] ; then
@@ -60,7 +60,7 @@ fi
 # Version qualifier can't be used in this branch
 if [ -n "$VERSION_QUALIFIER" ] ; then
     echo "VERSION_QUALIFIER not supported in this branch: was $VERSION_QUALIFIER"
-    exit 2
+    exit 3
 fi
 
 # Remove any old builds
