@@ -15,6 +15,9 @@ COPY . /ml-cpp/
 # Pass through whether this is a snapshot build (default yes if not specified)
 ARG SNAPSHOT=yes
 
+# Pass through ML debug option (default blank)
+ARG ML_DEBUG=
+
 # Run the build and unit tests
 RUN \
   /ml-cpp/dev-tools/docker/docker_entrypoint.sh --test

@@ -190,6 +190,3 @@ if [ -n "$JOB_NAME" ] ; then
     export ML_KEEP_GOING=1
 fi
 
-# Finally, switch off debug if it's currently switched on
-unset ML_DEBUG
-

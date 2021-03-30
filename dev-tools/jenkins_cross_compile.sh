@@ -5,21 +5,25 @@
 # you may not use this file except in compliance with the Elastic License.
 #
 
-# The non-Windows part of ML C++ CI does the following:
+# The part of ML C++ CI that cross compiles platforms that are not going to be
+# natively compiled.
+#
+# This script must run on linux-x86_64, as that is always the host OS for our
+# cross compilation.
 #
 # 1. If this is not a PR build nor a debug build, obtain credentials from Vault
 #    for the accessing S3
 # 2. If this is a PR build, check the code style
-# 3. Build and unit test the Linux version of the C++
-# 4. Cross compile the macOS version of the C++
+# 3. Cross compile the darwin-x86_64 build of the C++
+# 4. If this is not a PR build, cross compile the linux-aarch64 build of the C++
 # 5. If this is not a PR build nor a debug build, upload the builds to the
 #    artifacts directory on S3 that subsequent Java builds will download the C++
 #    components from
 #
-# The steps run in Docker containers that ensure OS dependencies
-# are appropriate given the support matrix.
+# All steps run in Docker containers that ensure OS dependencies are appropriate
+# given the support matrix.
 #
-# The macOS build cannot be unit tested as it is cross-compiled.
+# Cross-compiled platforms cannot be unit tested.
 
 : "${HOME:?Need to set HOME to a non-empty value.}"
 : "${WORKSPACE:?Need to set WORKSPACE to a non-empty value.}"
@@ -36,22 +40,14 @@ fi
 
 set -e
 
+if [[ `uname` != Linux || `uname -m` != x86_64 ]] ; then
+    echo "This script must be run on linux-x86_64"
+    exit 2
+fi
+
 # Default to a snapshot build
 if [ -z "$BUILD_SNAPSHOT" ] ; then
     BUILD_SNAPSHOT=true
-fi
-
-# Default to running tests
-if [ -z "$RUN_TESTS" ] ; then
-    RUN_TESTS=true
-fi
-
-VERSION=$(cat ../gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
-HARDWARE_ARCH=$(uname -m)
-
-if [ "$HARDWARE_ARCH" != x86_64 ] ; then
-    echo "$VERSION is not built on $HARDWARE_ARCH"
-    exit 0
 fi
 
 # Jenkins sets BUILD_SNAPSHOT, but our Docker scripts require SNAPSHOT
@@ -59,18 +55,11 @@ if [ "$BUILD_SNAPSHOT" = false ] ; then
     export SNAPSHOT=no
 else
     export SNAPSHOT=yes
-    VERSION=${VERSION}-SNAPSHOT
 fi
 
 # Version qualifier can't be used in this branch
 if [ -n "$VERSION_QUALIFIER" ] ; then
-    echo "VERSION_QUALIFIER not supported on this branch: was $VERSION_QUALIFIER"
-    exit 2
-fi
-
-# Tests must be run in PR builds
-if [[ -n "$PR_AUTHOR" && "$RUN_TESTS" = false ]] ; then
-    echo "RUN_TESTS should not be false PR builds"
+    echo "VERSION_QUALIFIER not supported in this branch: was $VERSION_QUALIFIER"
     exit 3
 fi
 
@@ -90,28 +79,13 @@ if [ -n "$PR_AUTHOR" ] ; then
     ./docker_check_style.sh
 fi
 
-# Build and test Linux
-if [ "$RUN_TESTS" = false ] ; then
-    ./docker_build.sh linux
-else
-    ./docker_test.sh linux
-fi
-
-# If this is a PR build then run some Java integration tests
-if [ -n "$PR_AUTHOR" ] ; then
-    if [ "$(uname -s)" = Linux ] ; then
-        IVY_REPO="${GIT_TOPLEVEL}/../ivy"
-        mkdir -p "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
-        cp "../build/distributions/ml-cpp-$VERSION-linux-x86_64.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
-        ./run_es_tests.sh "${GIT_TOPLEVEL}/.." "$(cd "${IVY_REPO}" && pwd)"
-    else
-        echo 'Not running ES integration tests on non-Linux platform:' $(uname -a)
-    fi
-fi
-
-# TODO - remove the cross compiles once the dedicated script is integrated into Jenkins
 # Cross compile macOS
 ./docker_build.sh macosx
+
+# If this isn't a PR build cross compile aarch64 too
+if [ -z "$PR_AUTHOR" ] ; then
+    ./docker_build.sh linux_aarch64_cross
+fi
 
 # If this isn't a PR build and isn't a debug build then upload the artifacts
 if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
