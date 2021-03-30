@@ -43,7 +43,7 @@ enum EExtraColumn {
     E_PreviousPrediction
 };
 
-enum EHyperparameters {
+enum EHyperparameter {
     E_DownsampleFactor = 0,
     E_Alpha,
     E_Lambda,
@@ -52,13 +52,14 @@ enum EHyperparameters {
     E_SoftTreeDepthTolerance,
     E_Eta,
     E_EtaGrowthRatePerTree,
-    E_FeatureBagFraction
+    E_FeatureBagFraction,
+    E_TreeTopologyChangePenalty
 };
 
-constexpr std::size_t NUMBER_HYPERPARAMETERS = E_FeatureBagFraction + 1; // This must be last hyperparameter
+constexpr std::size_t NUMBER_HYPERPARAMETERS = E_TreeTopologyChangePenalty + 1; // This must be last hyperparameter
 
 struct SHyperparameterImportance {
-    SHyperparameterImportance(EHyperparameters hyperparameter,
+    SHyperparameterImportance(EHyperparameter hyperparameter,
                               double value,
                               double absoluteImportance,
                               double relativeImportance,
@@ -66,7 +67,7 @@ struct SHyperparameterImportance {
         : s_Hyperparameter(hyperparameter), s_Value(value),
           s_AbsoluteImportance(absoluteImportance),
           s_RelativeImportance(relativeImportance), s_Supplied(supplied) {}
-    EHyperparameters s_Hyperparameter;
+    EHyperparameter s_Hyperparameter;
     double s_Value;
     double s_AbsoluteImportance;
     double s_RelativeImportance;

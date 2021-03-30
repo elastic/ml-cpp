@@ -26,6 +26,7 @@
 #include <boost/optional/optional_io.hpp>
 
 #include <cmath>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -138,13 +139,17 @@ CBoostedTreeFactory::buildForIncrementalTraining(core::CDataFrame& frame,
 
     std::swap(m_TreeImpl, tree->m_Impl);
 
+    m_TreeImpl->m_IncrementalTraining = true;
+
     // All overrides are applied to m_TreeImpl stored on the factory so we must
     // make sure these are copied to the supplied boosted tree implementation.
     this->copyParameterOverrides(*tree->m_Impl);
 
     this->prepareDataFrameForIncrementalTrain(frame);
 
-    // TODO Bayesian optimisation setup.
+    this->initializeHyperparameterOptimisation();
+
+    m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
 
     std::swap(m_TreeImpl, tree->m_Impl);
 
@@ -204,84 +209,73 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
     // a ratio, i.e. roughly speaking difference(p_1, p_0) = p_1 / p_0 for p_0
     // less than p_1, this translates to using log parameter values.
 
+    m_TreeImpl->initializeTunableHyperparameters();
+
     CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
-    for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
-        switch (i) {
+    for (const auto& parameter : m_TreeImpl->m_TunableHyperparameters) {
+        switch (parameter) {
         case E_DownsampleFactor:
-            if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
-                boundingBox.emplace_back(
-                    m_LogDownsampleFactorSearchInterval(MIN_PARAMETER_INDEX),
-                    m_LogDownsampleFactorSearchInterval(MAX_PARAMETER_INDEX));
-            }
+            boundingBox.emplace_back(
+                m_LogDownsampleFactorSearchInterval(MIN_PARAMETER_INDEX),
+                m_LogDownsampleFactorSearchInterval(MAX_PARAMETER_INDEX));
             break;
         case E_Alpha:
-            if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-                boundingBox.emplace_back(
-                    m_LogDepthPenaltyMultiplierSearchInterval(MIN_PARAMETER_INDEX),
-                    m_LogDepthPenaltyMultiplierSearchInterval(MAX_PARAMETER_INDEX));
-            }
+            boundingBox.emplace_back(
+                m_LogDepthPenaltyMultiplierSearchInterval(MIN_PARAMETER_INDEX),
+                m_LogDepthPenaltyMultiplierSearchInterval(MAX_PARAMETER_INDEX));
             break;
         case E_Lambda:
-            if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() ==
-                boost::none) {
-                boundingBox.emplace_back(
-                    m_LogLeafWeightPenaltyMultiplierSearchInterval(MIN_PARAMETER_INDEX),
-                    m_LogLeafWeightPenaltyMultiplierSearchInterval(MAX_PARAMETER_INDEX));
-            }
+            boundingBox.emplace_back(
+                m_LogLeafWeightPenaltyMultiplierSearchInterval(MIN_PARAMETER_INDEX),
+                m_LogLeafWeightPenaltyMultiplierSearchInterval(MAX_PARAMETER_INDEX));
             break;
         case E_Gamma:
-            if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() ==
-                boost::none) {
-                boundingBox.emplace_back(
-                    m_LogTreeSizePenaltyMultiplierSearchInterval(MIN_PARAMETER_INDEX),
-                    m_LogTreeSizePenaltyMultiplierSearchInterval(MAX_PARAMETER_INDEX));
-            }
+            boundingBox.emplace_back(
+                m_LogTreeSizePenaltyMultiplierSearchInterval(MIN_PARAMETER_INDEX),
+                m_LogTreeSizePenaltyMultiplierSearchInterval(MAX_PARAMETER_INDEX));
             break;
         case E_SoftTreeDepthLimit:
-            if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
-                boundingBox.emplace_back(
-                    m_SoftDepthLimitSearchInterval(MIN_PARAMETER_INDEX),
-                    m_SoftDepthLimitSearchInterval(MAX_PARAMETER_INDEX));
-            }
+            boundingBox.emplace_back(m_SoftDepthLimitSearchInterval(MIN_PARAMETER_INDEX),
+                                     m_SoftDepthLimitSearchInterval(MAX_PARAMETER_INDEX));
             break;
         case E_SoftTreeDepthTolerance:
-            if (m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
-                boundingBox.emplace_back(MIN_SOFT_DEPTH_LIMIT_TOLERANCE,
-                                         MAX_SOFT_DEPTH_LIMIT_TOLERANCE);
-            }
+            boundingBox.emplace_back(MIN_SOFT_DEPTH_LIMIT_TOLERANCE,
+                                     MAX_SOFT_DEPTH_LIMIT_TOLERANCE);
             break;
         case E_Eta:
-            if (m_TreeImpl->m_EtaOverride == boost::none) {
-                boundingBox.emplace_back(m_LogEtaSearchInterval(MIN_PARAMETER_INDEX),
-                                         m_LogEtaSearchInterval(MAX_PARAMETER_INDEX));
-            }
+            boundingBox.emplace_back(m_LogEtaSearchInterval(MIN_PARAMETER_INDEX),
+                                     m_LogEtaSearchInterval(MAX_PARAMETER_INDEX));
             break;
-        case E_EtaGrowthRatePerTree:
-            if (m_TreeImpl->m_EtaOverride == boost::none &&
-                m_TreeImpl->m_EtaGrowthRatePerTreeOverride == boost::none) {
-                double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
-                boundingBox.emplace_back(1.0 + MIN_ETA_GROWTH_RATE_SCALE * rate,
-                                         1.0 + MAX_ETA_GROWTH_RATE_SCALE * rate);
-            }
+        case E_EtaGrowthRatePerTree: {
+            double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
+            boundingBox.emplace_back(1.0 + MIN_ETA_GROWTH_RATE_SCALE * rate,
+                                     1.0 + MAX_ETA_GROWTH_RATE_SCALE * rate);
             break;
+        }
         case E_FeatureBagFraction:
-            if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
-                boundingBox.emplace_back(
-                    CTools::stableExp(m_LogFeatureBagFractionInterval(MIN_PARAMETER_INDEX)),
-                    CTools::stableExp(m_LogFeatureBagFractionInterval(MAX_PARAMETER_INDEX)));
-            }
+            boundingBox.emplace_back(
+                CTools::stableExp(m_LogFeatureBagFractionInterval(MIN_PARAMETER_INDEX)),
+                CTools::stableExp(m_LogFeatureBagFractionInterval(MAX_PARAMETER_INDEX)));
+            break;
+        case E_TreeTopologyChangePenalty:
+            boundingBox.emplace_back(CTools::stableLog(m_TreeImpl->m_Eta / 4.0),
+                                     CTools::stableLog(4.0 * m_TreeImpl->m_Eta));
             break;
         }
     }
     LOG_TRACE(<< "hyperparameter search bounding box = "
               << core::CContainerPrinter::print(boundingBox));
 
-    m_TreeImpl->initializeTunableHyperparameters();
     m_TreeImpl->m_BayesianOptimization = std::make_unique<CBayesianOptimisation>(
         std::move(boundingBox),
         m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
-    m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
-    m_TreeImpl->m_CurrentRound = 0; // for first start
+
+    if (m_TreeImpl->m_IncrementalTraining == false) {
+        m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
+        m_TreeImpl->m_CurrentRound = 0;
+    } else {
+        m_TreeImpl->m_CurrentIncrementalRound = 0;
+    }
 }
 
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) const {

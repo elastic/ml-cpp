@@ -208,7 +208,7 @@ private:
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
     using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
     using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
-    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameters>;
+    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
     // clang-format off
     using TMakeRootLeafNodeStatistics =
         std::function<TLeafNodeStatisticsPtr (const TImmutableRadixSetVec&,
@@ -405,6 +405,7 @@ private:
     TLossFunctionUPtr m_Loss;
     CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
         CBoostedTree::E_MinimumRecall;
+    bool m_IncrementalTraining = false;
     bool m_StopCrossValidationEarly = true;
     TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_DownsampleFactorOverride;
@@ -440,7 +441,6 @@ private:
     CBoostedTreeHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;
-    TBayesinOptimizationUPtr m_BayesianOptimizationForIncrementalTraining;
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
     std::size_t m_NumberIncrementalRounds = 1;

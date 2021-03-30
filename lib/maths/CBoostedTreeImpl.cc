@@ -323,7 +323,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         }
 
         if (this->selectNextHyperparameters(
-                lossMoments, *m_BayesianOptimizationForIncrementalTraining) == false) {
+                lossMoments, *m_BayesianOptimization) == false) {
             LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
             break;
         }
@@ -1444,6 +1444,9 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         case E_SoftTreeDepthTolerance:
             parameters(i) = m_Regularization.softTreeDepthTolerance();
             break;
+        case E_TreeTopologyChangePenalty:
+            parameters(i) = m_Regularization.treeTopologyChangePenalty();
+            break;
         }
     }
 
@@ -1511,6 +1514,9 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
             break;
         case E_SoftTreeDepthTolerance:
             m_Regularization.softTreeDepthTolerance(parameters(i));
+            break;
+        case E_TreeTopologyChangePenalty:
+            m_Regularization.treeTopologyChangePenalty(parameters(i));
             break;
         }
     }
@@ -1595,50 +1601,62 @@ void CBoostedTreeImpl::recordHyperparameters() {
 void CBoostedTreeImpl::initializeTunableHyperparameters() {
     m_TunableHyperparameters.clear();
     for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
-        switch (i) {
+        switch (static_cast<EHyperparameter>(i)) {
         case E_DownsampleFactor:
-            if (m_DownsampleFactorOverride == boost::none) {
+            if (m_IncrementalTraining == false && m_DownsampleFactorOverride == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_DownsampleFactor);
             }
             break;
         case E_Alpha:
-            if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+            if (m_IncrementalTraining == false &&
+                m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_Alpha);
             }
             break;
         case E_Lambda:
-            if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+            if (m_IncrementalTraining == false &&
+                m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_Lambda);
             }
             break;
         case E_Gamma:
-            if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
+            if (m_IncrementalTraining == false &&
+                m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_Gamma);
             }
             break;
         case E_SoftTreeDepthLimit:
-            if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
+            if (m_IncrementalTraining == false &&
+                m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_SoftTreeDepthLimit);
             }
             break;
         case E_SoftTreeDepthTolerance:
-            if (m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
+            if (m_IncrementalTraining == false &&
+                m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_SoftTreeDepthTolerance);
             }
             break;
         case E_Eta:
-            if (m_EtaOverride == boost::none) {
+            if (m_IncrementalTraining == false && m_EtaOverride == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_Eta);
             }
             break;
         case E_EtaGrowthRatePerTree:
-            if (m_EtaOverride == boost::none && m_EtaGrowthRatePerTreeOverride == boost::none) {
+            if (m_IncrementalTraining == false && m_EtaOverride == boost::none &&
+                m_EtaGrowthRatePerTreeOverride == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_EtaGrowthRatePerTree);
             }
             break;
         case E_FeatureBagFraction:
-            if (m_FeatureBagFractionOverride == boost::none) {
+            if (m_IncrementalTraining == false && m_FeatureBagFractionOverride == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_FeatureBagFraction);
+            }
+            break;
+        case E_TreeTopologyChangePenalty:
+            if (m_IncrementalTraining &&
+                m_RegularizationOverride.treeTopologyChangePenalty() == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_TreeTopologyChangePenalty);
             }
             break;
         }
@@ -1686,8 +1704,6 @@ const std::string VERSION_7_8_TAG{"7.8"};
 const TStrVec SUPPORTED_VERSIONS{VERSION_7_8_TAG, VERSION_7_11_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
-const std::string BAYESIAN_OPTIMIZATION_FOR_INCREMENTAL_TRAINING_TAG{
-    "bayesian_optimization_for_incremental_training"};
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
 const std::string BEST_HYPERPARAMETERS_TAG{"best_hyperparameters"};
@@ -1708,6 +1724,7 @@ const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
 const std::string INITIALIZATION_STAGE_TAG{"initialization_progress"};
+const std::string INCREMENTAL_TRAINING_TAG{"incremental_training"};
 const std::string LOSS_TAG{"loss"};
 const std::string LOSS_NAME_TAG{"loss_name"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
@@ -1759,9 +1776,6 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(VERSION_7_11_TAG, "", inserter);
     core::CPersistUtils::persistIfNotNull(BAYESIAN_OPTIMIZATION_TAG,
                                           m_BayesianOptimization, inserter);
-    core::CPersistUtils::persistIfNotNull(
-        BAYESIAN_OPTIMIZATION_FOR_INCREMENTAL_TRAINING_TAG,
-        m_BayesianOptimizationForIncrementalTraining, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
     core::CPersistUtils::persist(BEST_HYPERPARAMETERS_TAG, m_BestHyperparameters, inserter);
@@ -1788,6 +1802,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
     core::CPersistUtils::persist(FOLD_ROUND_TEST_LOSSES_TAG, m_FoldRoundTestLosses, inserter);
+    core::CPersistUtils::persist(INCREMENTAL_TRAINING_TAG, m_IncrementalTraining, inserter);
     core::CPersistUtils::persist(INITIALIZATION_STAGE_TAG,
                                  static_cast<int>(m_InitializationStage), inserter);
     if (m_Loss != nullptr) {
@@ -1855,9 +1870,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
                          m_BayesianOptimization =
                              std::make_unique<CBayesianOptimisation>(traverser))
-        RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_FOR_INCREMENTAL_TRAINING_TAG,
-                         m_BayesianOptimizationForIncrementalTraining =
-                             std::make_unique<CBayesianOptimisation>(traverser))
         RESTORE(BEST_FOREST_TAG,
                 core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
         RESTORE(BEST_FOREST_TEST_LOSS_TAG,
@@ -1911,6 +1923,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(FOLD_ROUND_TEST_LOSSES_TAG,
                 core::CPersistUtils::restore(FOLD_ROUND_TEST_LOSSES_TAG,
                                              m_FoldRoundTestLosses, traverser))
+        RESTORE(INCREMENTAL_TRAINING_TAG,
+                core::CPersistUtils::restore(INCREMENTAL_TRAINING_TAG,
+                                             m_IncrementalTraining, traverser))
         RESTORE(INITIALIZATION_STAGE_TAG,
                 core::CPersistUtils::restore(INITIALIZATION_STAGE_TAG,
                                              initializationStage, traverser))
@@ -1998,11 +2013,11 @@ void CBoostedTreeImpl::checkRestoredInvariants() const {
         VIOLATES_INVARIANT(m_TrainingRowMasks[i].size(), !=,
                            m_TestingRowMasks[i].size());
     }
+    VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
 
     // If trees to retrain is not empty we're incrementally training and have
     // slightly different invariants.
     if (m_TreesToRetrain.size() > 0) {
-        VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
         VIOLATES_INVARIANT(m_CurrentRound, >, m_NumberRounds);
         for (const auto& samples : m_HyperparameterSamples) {
             VIOLATES_INVARIANT(m_TunableHyperparameters.size(), !=, samples.size());
@@ -2014,8 +2029,6 @@ void CBoostedTreeImpl::checkRestoredInvariants() const {
             }
         }
     } else {
-        VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimizationForIncrementalTraining,
-                                         ==, nullptr);
         VIOLATES_INVARIANT(m_CurrentIncrementalRound, >, m_NumberIncrementalRounds);
         for (auto tree : m_TreesToRetrain) {
             VIOLATES_INVARIANT(tree, >=, m_BestForest.size());
@@ -2087,7 +2100,7 @@ void CBoostedTreeImpl::checkIncrementalTrainInvariants(const core::CDataFrame& f
         HANDLE_FATAL(<< "Internal error: must supply an category encoder. "
                      << "Please report this problem.");
     }
-    if (m_BayesianOptimizationForIncrementalTraining == nullptr) {
+    if (m_BayesianOptimization == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
     }
     // TODO
@@ -2106,7 +2119,6 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
     mem += core::CMemory::dynamicSize(m_BayesianOptimization);
     mem += core::CMemory::dynamicSize(m_Instrumentation);
     mem += core::CMemory::dynamicSize(m_HyperparameterSamples);
-    mem += core::CMemory::dynamicSize(m_BayesianOptimizationForIncrementalTraining);
     mem += core::CMemory::dynamicSize(m_TreesToRetrain);
     return mem;
 }
@@ -2155,16 +2167,8 @@ CBoostedTreeImpl::hyperparameterImportance() const {
     for (std::size_t i = 0; i < static_cast<std::size_t>(NUMBER_HYPERPARAMETERS); ++i) {
         double absoluteImportance{0.0};
         double relativeImportance{0.0};
-        bool supplied{true};
-        auto tunableIndex = std::distance(m_TunableHyperparameters.begin(),
-                                          std::find(m_TunableHyperparameters.begin(),
-                                                    m_TunableHyperparameters.end(), i));
-        if (static_cast<std::size_t>(tunableIndex) < m_TunableHyperparameters.size()) {
-            supplied = false;
-            std::tie(absoluteImportance, relativeImportance) = anovaMainEffects[tunableIndex];
-        }
         double hyperparameterValue;
-        switch (i) {
+        switch (static_cast<EHyperparameter>(i)) {
         case E_Alpha:
             hyperparameterValue = m_Regularization.depthPenaltyMultiplier();
             break;
@@ -2192,8 +2196,19 @@ CBoostedTreeImpl::hyperparameterImportance() const {
         case E_SoftTreeDepthTolerance:
             hyperparameterValue = m_Regularization.softTreeDepthTolerance();
             break;
+        case E_TreeTopologyChangePenalty:
+            // Importance not calculated.
+            continue;
         }
-        hyperparameterImportances.emplace_back(static_cast<EHyperparameters>(i),
+        bool supplied{true};
+        auto tunableIndex = std::distance(m_TunableHyperparameters.begin(),
+                                          std::find(m_TunableHyperparameters.begin(),
+                                                    m_TunableHyperparameters.end(), i));
+        if (static_cast<std::size_t>(tunableIndex) < m_TunableHyperparameters.size()) {
+            supplied = false;
+            std::tie(absoluteImportance, relativeImportance) = anovaMainEffects[tunableIndex];
+        }
+        hyperparameterImportances.emplace_back(static_cast<EHyperparameter>(i),
                                                hyperparameterValue, absoluteImportance,
                                                relativeImportance, supplied);
     }
