@@ -85,6 +85,7 @@ void testSchema(TLossFunctionType lossType) {
     // verify compressed definition
     {
         std::string dataSummarizationStr{dataSummarization->jsonString()};
+        LOG_INFO(<<dataSummarizationStr);
         std::stringstream decompressedStream{
             decompressStream(dataSummarization->jsonCompressedStream())};
         BOOST_TEST_REQUIRE(decompressedStream.str() == dataSummarizationStr);
@@ -148,7 +149,7 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
     expectedFrame->finishWritingRows();
 
     api::CDataSummarizationJsonSerializer serializer{
-        *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true)};
+        *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true), std::stringstream()};
     auto istream =
         std::make_shared<std::istringstream>(serializer.jsonString());
     api::CDataSummarizationJsonSerializer::TDataFrameUPtr actualFrame{

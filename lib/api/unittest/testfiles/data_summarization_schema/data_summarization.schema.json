@@ -37,6 +37,10 @@
             },
             "additionalItems": false
         },
+        "encodings": {
+            "description": "Encodings used in the boosted tree.",
+            "type": "object"
+        },
         "data": {
             "description": "String serialized rows.",
             "type": "array",
@@ -55,7 +59,8 @@
         "column_names",
         "column_is_categorical",
         "categorical_column_values",
-        "data"
+        "data", 
+        "encodings"
     ],
     "additionalProperties": false
 }

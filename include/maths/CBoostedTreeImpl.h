@@ -67,6 +67,7 @@ public:
     using TLossFunction = boosted_tree::CLoss;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
+    using TRecordEncodersCallback = CBoostedTree::TTrainingStateCallback;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
     using THyperparameterImportanceVec =
@@ -107,7 +108,8 @@ public:
     CTreeShapFeatureImportance* shap();
 
     //! Get the selected rows that summarize \p dataFrame.
-    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame) const;
+    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame,
+                                             const TRecordEncodersCallback& recordEncoders) const;
 
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;

@@ -16,6 +16,7 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
+#include <sstream>
 #include <string>
 
 namespace ml {
@@ -36,8 +37,9 @@ const std::string JSON_DATA_TAG{"data"};
 }
 
 CDataSummarizationJsonSerializer::CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
-                                                                   core::CPackedBitVector rowMask)
-    : m_RowMask(std::move(rowMask)), m_Frame(frame) {
+                                                                   core::CPackedBitVector rowMask,
+                                                                   std::stringstream encodings)
+    : m_RowMask(std::move(rowMask)), m_Frame(frame), m_Encodings(std::move(encodings)) {
 }
 
 void CDataSummarizationJsonSerializer::addToDocumentCompressed(TRapidJsonWriter& writer) const {
@@ -70,6 +72,11 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
         writer.Bool(columnIsCategorical);
     }
     writer.EndArray();
+    
+    writer.Key("encodings");
+    rapidjson::Document d;
+    d.Parse(m_Encodings.str());
+    writer.write(d);
 
     writer.Key(JSON_CATEGORICAL_COLUMN_VALUES_TAG);
     writer.StartArray();

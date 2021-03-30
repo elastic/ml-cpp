@@ -32,7 +32,8 @@ public:
 
 public:
     CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
-                                     core::CPackedBitVector rowMask);
+                                     core::CPackedBitVector rowMask,
+                                     std::stringstream encodings);
 
     CDataSummarizationJsonSerializer(const CDataSummarizationJsonSerializer&) = delete;
     CDataSummarizationJsonSerializer&
@@ -47,6 +48,7 @@ public:
 private:
     core::CPackedBitVector m_RowMask;
     const core::CDataFrame& m_Frame;
+    std::stringstream m_Encodings;
 };
 }
 }
