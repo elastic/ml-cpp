@@ -808,6 +808,12 @@ bool CMse::isCurvatureConstant() const {
     return true;
 }
 
+double CMse::difference(const TMemoryMappedFloatVector& prediction,
+                        const TMemoryMappedFloatVector& previousPrediction,
+                        double weight) const {
+    return weight * CTools::pow2(prediction(0) - previousPrediction(0));
+}
+
 CMse::TDoubleVector CMse::transform(const TMemoryMappedFloatVector& prediction) const {
     return TDoubleVector{prediction};
 }
@@ -898,6 +904,12 @@ void CMseIncremental::curvature(bool newExample,
 
 bool CMseIncremental::isCurvatureConstant() const {
     return true;
+}
+
+double CMseIncremental::difference(const TMemoryMappedFloatVector& prediction,
+                                   const TMemoryMappedFloatVector& previousPrediction,
+                                   double weight) const {
+    return weight * CTools::pow2(prediction(0) - previousPrediction(0));
 }
 
 CMse::TDoubleVector CMseIncremental::transform(const TMemoryMappedFloatVector& prediction) const {
@@ -993,6 +1005,16 @@ bool CMsle::isCurvatureConstant() const {
     return false;
 }
 
+double CMsle::difference(const TMemoryMappedFloatVector& logPrediction,
+                         const TMemoryMappedFloatVector& logPreviousPrediction,
+                         double weight) const {
+    double prediction{CTools::stableExp(logPrediction(0))};
+    double previousPrediction{CTools::stableExp(logPreviousPrediction(0))};
+    double logOffsetPrediction{CTools::stableLog(m_Offset + prediction)};
+    double logOffsetPreviousPrediction{CTools::stableLog(m_Offset + previousPrediction)};
+    return weight * CTools::pow2(logOffsetPrediction - logOffsetPreviousPrediction);
+}
+
 CMsle::TDoubleVector CMsle::transform(const TMemoryMappedFloatVector& prediction) const {
     TDoubleVector result{1};
     result(0) = std::exp(prediction(0));
@@ -1051,35 +1073,40 @@ std::size_t CPseudoHuber::numberParameters() const {
     return 1;
 }
 
-double CPseudoHuber::value(const TMemoryMappedFloatVector& predictionVec,
+double CPseudoHuber::value(const TMemoryMappedFloatVector& prediction,
                            double actual,
                            double weight) const {
     double delta2{CTools::pow2(m_Delta)};
-    double prediction{predictionVec[0]};
     return weight * delta2 *
-           (std::sqrt(1.0 + CTools::pow2(actual - prediction) / delta2) - 1.0);
+           (std::sqrt(1.0 + CTools::pow2(actual - prediction(0)) / delta2) - 1.0);
 }
 
-void CPseudoHuber::gradient(const TMemoryMappedFloatVector& predictionVec,
+void CPseudoHuber::gradient(const TMemoryMappedFloatVector& prediction,
                             double actual,
                             const TWriter& writer,
                             double weight) const {
-    double prediction{predictionVec(0)};
     writer(0, weight * (prediction - actual) /
-                  (std::sqrt(1.0 + CTools::pow2((actual - prediction) / m_Delta))));
+                  (std::sqrt(1.0 + CTools::pow2((actual - prediction(0)) / m_Delta))));
 }
 
-void CPseudoHuber::curvature(const TMemoryMappedFloatVector& predictionVec,
+void CPseudoHuber::curvature(const TMemoryMappedFloatVector& prediction,
                              double actual,
                              const TWriter& writer,
                              double weight) const {
-    double prediction{predictionVec(0)};
-    double result{1.0 / (std::sqrt(1.0 + CTools::pow2((actual - prediction) / m_Delta)))};
+    double result{1.0 / (std::sqrt(1.0 + CTools::pow2((actual - prediction(0)) / m_Delta)))};
     writer(0, weight * result);
 }
 
 bool CPseudoHuber::isCurvatureConstant() const {
     return false;
+}
+
+double CPseudoHuber::difference(const TMemoryMappedFloatVector& prediction,
+                                const TMemoryMappedFloatVector& previousPrediction,
+                                double weight) const {
+    double delta2{CTools::pow2(m_Delta)};
+    return weight * delta2 *
+           (std::sqrt(1.0 + CTools::pow2(prediction(0) - previousPrediction(0)) / delta2) - 1.0);
 }
 
 CPseudoHuber::TDoubleVector
@@ -1173,6 +1200,15 @@ void CBinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& prediction
 
 bool CBinomialLogisticLoss::isCurvatureConstant() const {
     return false;
+}
+
+double CBinomialLogisticLoss::difference(const TMemoryMappedFloatVector& prediction,
+                                         const TMemoryMappedFloatVector& previousPrediction,
+                                         double weight) const {
+    // The cross entropy of the new predicted probabilities given the previous ones.
+    double previousProbability{CTools::logisticFunction(previousPrediction(0))};
+    return -weight * ((1.0 - previousProbability) * logOneMinusLogistic(prediction(0)) +
+                      previousProbability * logLogistic(prediction(0)));
 }
 
 CBinomialLogisticLoss::TDoubleVector
@@ -1331,6 +1367,28 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
 
 bool CMultinomialLogisticLoss::isCurvatureConstant() const {
     return false;
+}
+
+double CMultinomialLogisticLoss::difference(const TMemoryMappedFloatVector& predictions,
+                                            const TMemoryMappedFloatVector& previousPredictions,
+                                            double weight) const {
+
+    // The cross entropy of the new predicted probabilities given the previous ones.
+
+    double zmax{predictions.maxCoeff()};
+    double logZ{0.0};
+    for (int i = 0; i < predictions.size(); ++i) {
+        logZ += std::exp(predictions(i) - zmax);
+    }
+    logZ = zmax + CTools::stableLog(logZ);
+
+    double result{0};
+    auto previousProbabilities = this->transform(previousPredictions);
+    for (int i = 0; i < predictions.size(); ++i) {
+        result += previousProbabilities(i) * (logZ - predictions(i));
+    }
+
+    return weight * result;
 }
 
 CMultinomialLogisticLoss::TDoubleVector

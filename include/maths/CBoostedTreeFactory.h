@@ -216,18 +216,20 @@ private:
     //! Setup before initializing unset hyperparameters.
     void initializeHyperparametersSetup(core::CDataFrame& frame);
 
-    //! Estimate a good central value for the regularisation hyperparameters
-    //! search bounding box.
+    //! Estimate a good search bounding box regularisation hyperparameters.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
-    //! Estimate a good central value for the feature bag fraction search interval.
+    //! Estimate a good range for the feature bag fraction search interval.
     void initializeUnsetFeatureBagFraction(core::CDataFrame& frame);
 
-    //! Estimates a good central value for the downsample factor search interval.
+    //! Estimates a good range value for the downsample factor search interval.
     void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
 
-    //! Estimate a good central value for learn rate.
+    //! Estimate a good range value for learn rate.
     void initializeUnsetEta(core::CDataFrame& frame);
+
+    //! Estimate a good range value for tree topology penalty.
+    void initializeUnsetTreeTopologyPenalty(core::CDataFrame& frame);
 
     //! Estimate the reduction in gain from a split and the total curvature of
     //! the loss function at a split.

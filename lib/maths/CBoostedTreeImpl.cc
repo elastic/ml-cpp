@@ -322,8 +322,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
             bestRetrainedTrees = std::move(retrainedTrees);
         }
 
-        if (this->selectNextHyperparameters(
-                lossMoments, *m_BayesianOptimization) == false) {
+        if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
             LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
             break;
         }
@@ -1356,7 +1355,8 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                     auto row = *row_;
                     auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
                     double actual{readActual(row, m_DependentVariable)};
-                    loss.add(m_Loss->value(prediction, actual));
+                    double weight{readExampleWeight(row, m_ExtraColumns)};
+                    loss.add(m_Loss->value(prediction, actual, weight));
                 }
             },
             TMeanAccumulator{}),
@@ -1374,7 +1374,34 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
 
 double CBoostedTreeImpl::meanIncrementalTrainingLoss(const core::CDataFrame& frame,
                                                      const core::CPackedBitVector& rowMask) const {
-    // TODO
+
+    // Add on 0.01 times the difference in the old predictions to encourage us
+    // to choose more similar forests if accuracy is similar.
+
+    core::CPackedBitVector oldRowMask{rowMask & ~m_NewTrainingRowMask};
+    auto results = frame.readRows(
+        m_NumberThreads, 0, frame.numberRows(),
+        core::bindRetrievableState(
+            [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
+                std::size_t numberLossParameters{m_Loss->numberParameters()};
+                for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                    auto row = *row_;
+                    auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
+                    auto previousPrediction = readPreviousPrediction(
+                        row, m_ExtraColumns, numberLossParameters);
+                    double weight{0.01 * readExampleWeight(row, m_ExtraColumns)};
+                    loss.add(m_Loss->difference(prediction, previousPrediction, weight));
+                }
+            },
+            TMeanAccumulator{}),
+        &oldRowMask);
+
+    TMeanAccumulator loss;
+    for (const auto& result : results.first) {
+        loss += result.s_FunctionState;
+    }
+
+    return this->meanLoss(frame, rowMask) + CBasicStatistics::mean(loss);
 }
 
 CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row,

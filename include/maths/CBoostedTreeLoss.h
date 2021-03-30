@@ -465,6 +465,11 @@ public:
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
 
+    //! Compute a matched difference between predictions.
+    virtual double difference(const TMemoryMappedFloatVector& prediction,
+                              const TMemoryMappedFloatVector& previousPrediction,
+                              double weight = 1.0) const = 0;
+
     //! Transforms a prediction from the forest to the target space.
     virtual TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const = 0;
 
@@ -532,7 +537,9 @@ public:
                    const TWriter& writer,
                    double weight = 1.0) const;
     bool isCurvatureConstant() const override;
-    //! \return \p prediction.
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
@@ -579,6 +586,9 @@ public:
                    const TWriter& writer,
                    double weight = 1.0) const;
     bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
     //! \return \p prediction.
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
@@ -643,6 +653,9 @@ public:
                    const TWriter& writer,
                    double weight = 1.0) const;
     bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
     //! \return (P(class 0), P(class 1)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
@@ -704,6 +717,9 @@ public:
                    const TWriter& writer,
                    double weight = 1.0) const;
     bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& predictions,
+                      const TMemoryMappedFloatVector& previousPredictions,
+                      double weight = 1.0) const override;
     //! \return (P(class 0), P(class 1), ..., P(class n)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
@@ -770,6 +786,9 @@ public:
                    const TWriter& writer,
                    double weight = 1.0) const;
     bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& logPrediction,
+                      const TMemoryMappedFloatVector& logPreviousPrediction,
+                      double weight = 1.0) const override;
     //! \return exp(\p prediction).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
@@ -845,6 +864,9 @@ public:
                    const TWriter& writer,
                    double weight = 1.0) const;
     bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
     //! \return \p prediction.
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
