@@ -138,22 +138,22 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
                           {"a", "b", "5.0", "0.0", "dog", "-0.1"},
                           {"c", "d", "5.0", "0.0", "dog", "1.0"},
                           {"e", "f", "5.0", "0.0", "dog", "1.5"}};
-    auto frame = core::makeMainStorageDataFrame(columnNames.size()).first;
-    frame->columnNames(columnNames);
-    frame->categoricalColumns(categoricalColumns);
+    auto expectedFrame = core::makeMainStorageDataFrame(columnNames.size()).first;
+    expectedFrame->columnNames(columnNames);
+    expectedFrame->categoricalColumns(categoricalColumns);
     for (std::size_t i = 0; i < rows.size(); ++i) {
-        frame->parseAndWriteRow(
+        expectedFrame->parseAndWriteRow(
             core::CVectorRange<const TStrVec>(rows[i], 0, rows[i].size()));
     }
-    frame->finishWritingRows();
+    expectedFrame->finishWritingRows();
 
     api::CDataSummarizationJsonSerializer serializer{
-        *frame, core::CPackedBitVector(frame->numberRows(), true)};
+        *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true)};
     auto istream =
         std::make_shared<std::istringstream>(serializer.jsonString());
-    api::CDataSummarizationJsonSerializer::TDataFrameUPtr restoredFrame{
+    api::CDataSummarizationJsonSerializer::TDataFrameUPtr actualFrame{
         api::CDataSummarizationJsonSerializer::fromJsonStream(istream)};
-    BOOST_REQUIRE(frame->checksum() == restoredFrame->checksum());
+    BOOST_REQUIRE(expectedFrame->checksum() == actualFrame->checksum());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

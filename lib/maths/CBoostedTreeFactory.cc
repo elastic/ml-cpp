@@ -6,13 +6,13 @@
 
 #include <maths/CBoostedTreeFactory.h>
 
+#include <core/CDataSearcher.h>
 #include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPersistUtils.h>
+#include <core/CStateDecompressor.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
-#include <core/CStateDecompressor.h>
-#include <core/CDataSearcher.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/CBayesianOptimisation.h>
@@ -1214,21 +1214,29 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
     return result;
 }
 
-CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(TDataSearcherUPtr dataSearcher,
-                                                                 TLossFunctionUPtr loss) {
-    
+CBoostedTreeFactory
+CBoostedTreeFactory::constructFromDefinition(std::size_t numberThreads,
+                                             TLossFunctionUPtr loss,
+                                             TDataSearcherUPtr dataSearcher,
+                                             const TRestoreDataSummarizationFunc& restoreCallback) {
+
+    CBoostedTreeFactory factory{CBoostedTreeFactory::constructFromParameters(
+        numberThreads, std::move(loss))};
     // Read data summarization from the stream
-    bool dataSummarizationRestored{CBoostedTreeFactory::restoreDataSummarization(dataSearcher)};
-    if (dataSummarizationRestored == false) {
+    TDataFrameUPtr dataSummarization{
+        CBoostedTreeFactory::restoreDataSummarization(dataSearcher, restoreCallback)};
+    if (dataSummarization) {
+        factory.dataSummarization(std::move(dataSummarization));
+    } else {
         HANDLE_FATAL(<< "Failed restoring data summarization.");
     }
-    
+
     // Read best forest from the stream
     bool forestRestored{CBoostedTreeFactory::restoreBestForest(dataSearcher)};
     if (forestRestored == false) {
         HANDLE_FATAL(<< "Failed restoring best forest from the model definition.");
     }
-    return {1, std::move(loss)};
+    return factory;
 }
 
 std::size_t CBoostedTreeFactory::maximumNumberRows() {
@@ -1438,6 +1446,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool enable) {
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataFrameUPtr dataSummarization) {
+    m_TreeImpl->m_DataSummarization.swap(dataSummarization);
+    return *this;
+}
+
 std::size_t CBoostedTreeFactory::estimateMemoryUsageTrain(std::size_t numberRows,
                                                           std::size_t numberColumns) const {
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
@@ -1597,34 +1610,34 @@ bool CBoostedTreeFactory::restoreBestForest(TDataSearcherUPtr& restoreSearcher) 
     return true;
 }
 
-bool CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSearcher) {
+CBoostedTreeFactory::TDataFrameUPtr
+CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSearcher,
+                                              const TRestoreDataSummarizationFunc& restoreCallback) {
     // Restore from compressed JSON.
     try {
         core::CStateDecompressor decompressor(*restoreSearcher);
         core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
-            return false;
+            return nullptr;
         }
 
         if (inputStream->bad()) {
             LOG_ERROR(<< "State restoration search returned bad stream");
-            return false;
+            return nullptr;
         }
 
         if (inputStream->fail()) {
             // This is fatal. If the stream exists and has failed then state is missing
             LOG_ERROR(<< "State restoration search returned failed stream");
-            return false;
+            return nullptr;
         }
-        // TODO implement
-        
+        return restoreCallback(inputStream);
 
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return false;
+        return nullptr;
     }
-    return true;
 }
 
 namespace {

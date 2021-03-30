@@ -89,7 +89,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         m_DependentVariableFieldName + "_prediction");
 
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
-    
+
     m_Task = parameters[TASK].fallback(E_Train);
 
     bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
@@ -159,7 +159,10 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     case (E_Update):
         m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
             maths::CBoostedTreeFactory::constructFromDefinition(
-                this->spec().restoreSearcher(), std::move(loss)));
+                this->spec().numberThreads(), std::move(loss), this->spec().restoreSearcher(),
+                [](const core::CDataSearcher::TIStreamP& istream) {
+                    return api::CDataSummarizationJsonSerializer::fromJsonStream(istream);
+                }));
         break;
     }
 

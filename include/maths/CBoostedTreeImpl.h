@@ -197,6 +197,7 @@ private:
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
     using TNodeVecVecDoubleDoubleVecTuple = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
@@ -408,6 +409,7 @@ private:
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
     TDataFrameCategoryEncoderUPtr m_Encoder;
+    TDataFrameUPtr m_DataSummarization;
     TDataTypeVec m_FeatureDataTypes;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;

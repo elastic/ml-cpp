@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CBoostedTreeFactory_h
 
 #include <core/CDataFrame.h>
+#include <core/CDataSearcher.h>
 #include <core/CNonCopyable.h>
 
 #include <maths/CBoostedTree.h>
@@ -26,7 +27,6 @@ namespace core {
 class CPackedBitVector;
 class CStatePersistInserter;
 class CStateRestoreTraverser;
-class CDataSearcher;
 }
 namespace maths {
 
@@ -44,6 +44,9 @@ public:
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
     using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TRestoreDataSummarizationFunc =
+        std::function<TDataFrameUPtr(const core::CDataSearcher::TIStreamP&)>;
 
 public:
     //! \name Instrumentation Phases
@@ -64,8 +67,11 @@ public:
     //! \warning Throws runtime error on fail to restore.
     static CBoostedTreeFactory constructFromString(std::istream& jsonStream);
 
-    static CBoostedTreeFactory constructFromDefinition(TDataSearcherUPtr dataSearcher,
-                                                       TLossFunctionUPtr loss);
+    static CBoostedTreeFactory
+    constructFromDefinition(std::size_t numberThreads,
+                            TLossFunctionUPtr loss,
+                            TDataSearcherUPtr dataSearcher,
+                            const TRestoreDataSummarizationFunc& restoreCallback);
 
     //! Get the maximum number of rows we'll train on.
     static std::size_t maximumNumberRows();
@@ -125,6 +131,9 @@ public:
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
+
+    CBoostedTreeFactory& dataSummarization(TDataFrameUPtr dataSummarization);
+    CBoostedTreeFactory& bestForest();
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -283,7 +292,8 @@ private:
     static double noopAdjustTestLoss(double, double, double testLoss);
 
     static bool restoreBestForest(TDataSearcherUPtr& restoreSearcher);
-    static bool restoreDataSummarization(TDataSearcherUPtr& restoreSearcher);
+    static TDataFrameUPtr restoreDataSummarization(TDataSearcherUPtr& restoreSearcher,
+                                         const TRestoreDataSummarizationFunc& restoreCallback);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
