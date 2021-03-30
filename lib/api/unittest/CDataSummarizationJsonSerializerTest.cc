@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CPackedBitVector.h>
 #include <core/CBase64Filter.h>
 
 #include <maths/CBoostedTreeLoss.h>
@@ -23,7 +24,8 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <fstream>
+#include <sstream>
+#include <fstream>|
 #include <string>
 
 BOOST_AUTO_TEST_SUITE(CDataSummarizationTest)
@@ -36,6 +38,7 @@ using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
 using TLossFunctionType = maths::boosted_tree::ELossType;
+using TRowItr = core::CDataFrame::TRowItr;
 
 std::stringstream decompressStream(std::stringstream&& compressedStream) {
     std::stringstream decompressedStream;
@@ -125,6 +128,32 @@ BOOST_AUTO_TEST_CASE(testRegression) {
 
 BOOST_AUTO_TEST_CASE(testClassification) {
     testSchema(TLossFunctionType::E_BinaryClassification);
+}
+
+BOOST_AUTO_TEST_CASE(testDeserialization) {
+    const TStrVec columnNames{"x1", "x2", "x3", "x4", "x5", "y"};
+    const TStrVec categoricalColumns{"x1", "x2", "x5"};
+    const TStrVecVec rows{{"a", "b", "1.0", "1.0", "cat", "-1.0"},
+                          {"a", "b", "1.0", "1.0", "cat", "-0.5"},
+                          {"a", "b", "5.0", "0.0", "dog", "-0.1"},
+                          {"c", "d", "5.0", "0.0", "dog", "1.0"},
+                          {"e", "f", "5.0", "0.0", "dog", "1.5"}};
+    auto frame = core::makeMainStorageDataFrame(columnNames.size()).first;
+    frame->columnNames(columnNames);
+    frame->categoricalColumns(categoricalColumns);
+    for (std::size_t i = 0; i < rows.size(); ++i) {
+        frame->parseAndWriteRow(
+            core::CVectorRange<const TStrVec>(rows[i], 0, rows[i].size()));
+    }
+    frame->finishWritingRows();
+
+    api::CDataSummarizationJsonSerializer serializer{
+        *frame, core::CPackedBitVector(frame->numberRows(), true)};
+    auto istream =
+        std::make_shared<std::istringstream>(serializer.jsonString());
+    api::CDataSummarizationJsonSerializer::TDataFrameUPtr restoredFrame{
+        api::CDataSummarizationJsonSerializer::fromJsonStream(istream)};
+    BOOST_REQUIRE(frame->checksum() == restoredFrame->checksum());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -492,6 +492,9 @@ public:
     //! Write which columns contain categorical data.
     void categoricalColumns(TBoolVec columnIsCategorical);
 
+    //! Write the values of the categories for each column.
+    void categoricalColumnValues(TStrVecVec categoricalColumnValues);
+
     //! This retrieves the asynchronous work from writing the rows to the store
     //! and updates the stored rows.
     //!

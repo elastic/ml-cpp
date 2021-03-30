@@ -10,6 +10,8 @@
 
 #include <api/CSerializableToJson.h>
 
+#include <istream>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -25,6 +27,8 @@ class API_EXPORT CDataSummarizationJsonSerializer final
     : public CSerializableToJsonDocumentCompressed {
 public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using TIStreamSPtr = std::shared_ptr<std::istream>;
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 
 public:
     CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
@@ -37,6 +41,8 @@ public:
     void addToJsonStream(TGenericLineWriter& writer) const override;
     void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
     std::string jsonString() const;
+
+    static TDataFrameUPtr fromJsonStream(const TIStreamSPtr& istream);
 
 private:
     core::CPackedBitVector m_RowMask;

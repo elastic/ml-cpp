@@ -1216,15 +1216,17 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
 
 CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(TDataSearcherUPtr dataSearcher,
                                                                  TLossFunctionUPtr loss) {
-    // Read best forest from the stream
-    bool forestRestored{CBoostedTreeFactory::restoreBestForest(dataSearcher)};
-    if (forestRestored == false) {
-        HANDLE_FATAL(<< "Failed restoring best forest from the model definition.");
-    }
+    
     // Read data summarization from the stream
     bool dataSummarizationRestored{CBoostedTreeFactory::restoreDataSummarization(dataSearcher)};
     if (dataSummarizationRestored == false) {
         HANDLE_FATAL(<< "Failed restoring data summarization.");
+    }
+    
+    // Read best forest from the stream
+    bool forestRestored{CBoostedTreeFactory::restoreBestForest(dataSearcher)};
+    if (forestRestored == false) {
+        HANDLE_FATAL(<< "Failed restoring best forest from the model definition.");
     }
     return {1, std::move(loss)};
 }
@@ -1616,10 +1618,8 @@ bool CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSea
             return false;
         }
         // TODO implement
-        // m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
-        //                     .analysisInstrumentation(m_Instrumentation)
-        //                     .trainingStateCallback(this->statePersister())
-        //                     .restoreFor(frame, dependentVariableColumn);
+        
+
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
         return false;

@@ -351,6 +351,27 @@ void CDataFrame::categoricalColumns(TBoolVec columnIsCategorical) {
     }
 }
 
+void CDataFrame::categoricalColumnValues(TStrVecVec categoricalColumnValues) {
+    if (categoricalColumnValues.size() != m_NumberColumns) {
+        HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns
+                     << "' categorical column values but got "
+                     << CContainerPrinter::print(categoricalColumnValues));
+    } else {
+        m_CategoricalColumnValues = std::move(categoricalColumnValues);
+        m_CategoricalColumnValueLookup.clear();
+        m_CategoricalColumnValueLookup.resize(m_CategoricalColumnValues.size());
+        std::size_t i{0};
+        for (auto & column : m_CategoricalColumnValues) {
+            std::size_t j{0};
+            for (auto & columnValue : column) {
+                m_CategoricalColumnValueLookup[i].emplace(columnValue, j);
+                ++j;
+            }
+            ++i;
+        }
+    }
+}
+
 void CDataFrame::finishWritingRows() {
     // Get any slices which have been written, append and clear the writer.
 
