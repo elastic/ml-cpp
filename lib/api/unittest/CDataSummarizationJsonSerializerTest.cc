@@ -4,8 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <core/CPackedBitVector.h>
 #include <core/CBase64Filter.h>
+#include <core/CJsonStatePersistInserter.h>
+#include <core/CPackedBitVector.h>
 
 #include <maths/CBoostedTreeLoss.h>
 
@@ -24,8 +25,8 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <sstream>
 #include <fstream>|
+#include <sstream>
 #include <string>
 
 BOOST_AUTO_TEST_SUITE(CDataSummarizationTest)
@@ -85,9 +86,10 @@ void testSchema(TLossFunctionType lossType) {
     // verify compressed definition
     {
         std::string dataSummarizationStr{dataSummarization->jsonString()};
-        LOG_INFO(<<dataSummarizationStr);
         std::stringstream decompressedStream{
             decompressStream(dataSummarization->jsonCompressedStream())};
+        api::CDataSummarizationJsonSerializer::fromJsonStream(
+            std::make_shared<std::istringstream>(dataSummarizationStr));
         BOOST_TEST_REQUIRE(decompressedStream.str() == dataSummarizationStr);
     }
 
@@ -148,13 +150,25 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
     }
     expectedFrame->finishWritingRows();
 
+    // create encoder and serialize it
+    maths::CDataFrameCategoryEncoder expectedEncoder({1, *expectedFrame, 5});
+    std::stringstream persistedEncoderStream;
+    {
+        core::CJsonStatePersistInserter inserter{persistedEncoderStream};
+        expectedEncoder.acceptPersistInserter(inserter);
+    }
+
     api::CDataSummarizationJsonSerializer serializer{
-        *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true), std::stringstream()};
-    auto istream =
-        std::make_shared<std::istringstream>(serializer.jsonString());
-    api::CDataSummarizationJsonSerializer::TDataFrameUPtr actualFrame{
+        *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true),
+        std::move(persistedEncoderStream)};
+    auto istream = std::make_shared<std::istringstream>(serializer.jsonString());
+    api::CDataSummarizationJsonSerializer::TDataSummarization dataSummarization{
         api::CDataSummarizationJsonSerializer::fromJsonStream(istream)};
-    BOOST_REQUIRE(expectedFrame->checksum() == actualFrame->checksum());
+    BOOST_REQUIRE(dataSummarization.first && dataSummarization.second);
+    BOOST_REQUIRE(expectedFrame->checksum() == dataSummarization.first->checksum());
+    BOOST_REQUIRE(dataSummarization.second->numberInputColumns() ==
+                  expectedFrame->numberColumns());
+    BOOST_REQUIRE(dataSummarization.second->numberEncodedColumns() > 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

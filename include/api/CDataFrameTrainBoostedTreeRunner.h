@@ -116,7 +116,7 @@ private:
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
 
-    enum ETask {E_Train, E_Update};
+    enum ETask { E_Train, E_Update };
 
 private:
     void runImpl(core::CDataFrame& frame) override;

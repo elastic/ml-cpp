@@ -354,14 +354,13 @@ void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
     m_TreeImpl->m_Instrumentation->flush();
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
-    frame.writeColumns(
-        m_NumberThreads, 0, frame.numberRows(),
-        [&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
-            }
-        },
-        &allTrainingRowsMask);
+    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
+                       [&](TRowItr beginRows, TRowItr endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
+                           }
+                       },
+                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
@@ -1223,9 +1222,9 @@ CBoostedTreeFactory::constructFromDefinition(std::size_t numberThreads,
     CBoostedTreeFactory factory{CBoostedTreeFactory::constructFromParameters(
         numberThreads, std::move(loss))};
     // Read data summarization from the stream
-    TDataFrameUPtr dataSummarization{
+    TDataSummarization dataSummarization{
         CBoostedTreeFactory::restoreDataSummarization(dataSearcher, restoreCallback)};
-    if (dataSummarization) {
+    if (dataSummarization.first) {
         factory.dataSummarization(std::move(dataSummarization));
     } else {
         HANDLE_FATAL(<< "Failed restoring data summarization.");
@@ -1446,8 +1445,9 @@ CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool enable) {
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataFrameUPtr dataSummarization) {
-    m_TreeImpl->m_DataSummarization.swap(dataSummarization);
+CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization dataSummarization) {
+    m_TreeImpl->m_DataSummarization.swap(dataSummarization.first);
+    m_TreeImpl->m_Encoder.swap(dataSummarization.second);
     return *this;
 }
 
@@ -1610,7 +1610,7 @@ bool CBoostedTreeFactory::restoreBestForest(TDataSearcherUPtr& restoreSearcher) 
     return true;
 }
 
-CBoostedTreeFactory::TDataFrameUPtr
+CBoostedTreeFactory::TDataSummarization
 CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSearcher,
                                               const TRestoreDataSummarizationFunc& restoreCallback) {
     // Restore from compressed JSON.
@@ -1619,24 +1619,24 @@ CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSearcher
         core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
-            return nullptr;
+            return {nullptr, nullptr};
         }
 
         if (inputStream->bad()) {
             LOG_ERROR(<< "State restoration search returned bad stream");
-            return nullptr;
+            return {nullptr, nullptr};
         }
 
         if (inputStream->fail()) {
             // This is fatal. If the stream exists and has failed then state is missing
             LOG_ERROR(<< "State restoration search returned failed stream");
-            return nullptr;
+            return {nullptr, nullptr};
         }
         return restoreCallback(inputStream);
 
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return nullptr;
+        return {nullptr, nullptr};
     }
 }
 

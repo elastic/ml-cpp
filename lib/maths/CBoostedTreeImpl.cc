@@ -1995,7 +1995,8 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
 }
 
 core::CPackedBitVector
-CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame, const TRecordEncodersCallback& recordEncoders) const {
+CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame,
+                                    const TRecordEncodersCallback& recordEncoders) const {
     // get row mask for sampling
     // TODO #1834 implement a data summarization strategy.
     core::CPackedBitVector rowMask{};

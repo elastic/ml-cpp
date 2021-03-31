@@ -242,8 +242,8 @@ public:
     CTreeShapFeatureImportance* shap() const override;
 
     //! Get the selected rows that summarize \p dataFrame.
-    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame, 
-TTrainingStateCallback callback) const override;
+    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame,
+                                             TTrainingStateCallback callback) const override;
 
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;

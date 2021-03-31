@@ -8,6 +8,8 @@
 
 #include <core/CPackedBitVector.h>
 
+#include <maths/CBoostedTreeFactory.h>
+
 #include <api/CSerializableToJson.h>
 
 #include <istream>
@@ -28,7 +30,7 @@ class API_EXPORT CDataSummarizationJsonSerializer final
 public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
     using TIStreamSPtr = std::shared_ptr<std::istream>;
-    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TDataSummarization = maths::CBoostedTreeFactory::TDataSummarization;
 
 public:
     CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
@@ -43,7 +45,7 @@ public:
     void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
     std::string jsonString() const;
 
-    static TDataFrameUPtr fromJsonStream(const TIStreamSPtr& istream);
+    static TDataSummarization fromJsonStream(const TIStreamSPtr& istream);
 
 private:
     core::CPackedBitVector m_RowMask;

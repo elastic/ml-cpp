@@ -400,17 +400,18 @@ CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::instrumenta
 CDataFrameAnalysisRunner::TDataSummarizationUPtr
 CDataFrameTrainBoostedTreeRunner::dataSummarization(const core::CDataFrame& dataFrame) const {
     std::stringstream output;
-    
+
     auto encodingRecorder =
         [&](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
-            core::CJsonStatePersistInserter inserter{output};
-            persistFunction(inserter);
+        core::CJsonStatePersistInserter inserter{output};
+        persistFunction(inserter);
     };
 
     auto rowMask = this->boostedTree().dataSummarization(dataFrame, encodingRecorder);
     // LOG_INFO(<< output.str());
     if (rowMask.manhattan() > 0) {
-        return std::make_unique<CDataSummarizationJsonSerializer>(dataFrame, rowMask, std::move(output));
+        return std::make_unique<CDataSummarizationJsonSerializer>(
+            dataFrame, rowMask, std::move(output));
     }
     return TDataSummarizationUPtr();
 }

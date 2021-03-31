@@ -8,7 +8,10 @@
 
 #include <core/CBase64Filter.h>
 #include <core/CDataFrame.h>
+#include <core/CJsonStateRestoreTraverser.h>
 #include <core/Constants.h>
+
+#include <maths/CDataFrameCategoryEncoder.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
@@ -16,8 +19,10 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
+#include <memory>
 #include <sstream>
 #include <string>
+#include <utility>
 
 namespace ml {
 namespace api {
@@ -32,6 +37,7 @@ const std::string JSON_NUM_COLUMNS_TAG{"num_columns"};
 const std::string JSON_COLUMN_NAMES_TAG{"column_names"};
 const std::string JSON_COLUMN_IS_CATEGORICAL_TAG{"column_is_categorical"};
 const std::string JSON_CATEGORICAL_COLUMN_VALUES_TAG{"categorical_column_values"};
+const std::string JSON_ENCODINGS_TAG{"encodings"};
 const std::string JSON_DATA_TAG{"data"};
 // clang-format on
 }
@@ -39,7 +45,8 @@ const std::string JSON_DATA_TAG{"data"};
 CDataSummarizationJsonSerializer::CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
                                                                    core::CPackedBitVector rowMask,
                                                                    std::stringstream encodings)
-    : m_RowMask(std::move(rowMask)), m_Frame(frame), m_Encodings(std::move(encodings)) {
+    : m_RowMask(std::move(rowMask)), m_Frame(frame),
+      m_Encodings(std::move(encodings)) {
 }
 
 void CDataSummarizationJsonSerializer::addToDocumentCompressed(TRapidJsonWriter& writer) const {
@@ -72,10 +79,11 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
         writer.Bool(columnIsCategorical);
     }
     writer.EndArray();
-    
-    writer.Key("encodings");
+
+    writer.Key(JSON_ENCODINGS_TAG);
     rapidjson::Document d;
     d.Parse(m_Encodings.str());
+    // TODO check if parsing was successful
     writer.write(d);
 
     writer.Key(JSON_CATEGORICAL_COLUMN_VALUES_TAG);
@@ -111,16 +119,19 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
     writer.EndObject();
 }
 
-CDataSummarizationJsonSerializer::TDataFrameUPtr
+CDataSummarizationJsonSerializer::TDataSummarization
 CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TBoolVec = std::vector<bool>;
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TEncoderUPtr = std::unique_ptr<maths::CDataFrameCategoryEncoder>;
     std::size_t numColumns;
     TStrVec columnNames;
     TStrVecVec categoricalColumnValues;
     TBoolVec columnIsCategorical;
-    std::unique_ptr<core::CDataFrame> frame;
+    TDataFrameUPtr frame;
+    TEncoderUPtr encoder;
 
     rapidjson::IStreamWrapper isw(*istream);
     rapidjson::Document d;
@@ -134,7 +145,7 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_NUM_COLUMNS_TAG
                   << "'  is missing or has an unexpected format.");
-        return nullptr;
+        return {nullptr, nullptr};
     }
 
     if (d.HasMember(JSON_COLUMN_NAMES_TAG) && d[JSON_COLUMN_NAMES_TAG].IsArray()) {
@@ -144,7 +155,7 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_COLUMN_NAMES_TAG
                   << "'  is missing or has an unexpected format.");
-        return nullptr;
+        return {nullptr, nullptr};
     }
 
     if (d.HasMember(JSON_COLUMN_IS_CATEGORICAL_TAG) &&
@@ -155,7 +166,7 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_COLUMN_IS_CATEGORICAL_TAG
                   << "'  is missing or has an unexpected format.");
-        return nullptr;
+        return {nullptr, nullptr};
     }
     if (d.HasMember(JSON_CATEGORICAL_COLUMN_VALUES_TAG) &&
         d[JSON_CATEGORICAL_COLUMN_VALUES_TAG].IsArray()) {
@@ -169,7 +180,24 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_CATEGORICAL_COLUMN_VALUES_TAG
                   << "'  is missing or has an unexpected format.");
-        return nullptr;
+        return {nullptr, nullptr};
+    }
+
+    if (d.HasMember(JSON_ENCODINGS_TAG) && d[JSON_ENCODINGS_TAG].IsObject()) {
+        std::stringstream jsonStrm;
+        rapidjson::OStreamWrapper wrapper{jsonStrm};
+        TGenericLineWriter writer{wrapper};
+        writer.StartObject();
+        writer.Key(JSON_ENCODINGS_TAG);
+        writer.write(d[JSON_ENCODINGS_TAG].GetObject());
+        writer.EndObject();
+        core::CJsonStateRestoreTraverser traverser(jsonStrm);
+        encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(traverser);
+        LOG_INFO(<< "Encoder restored successfully");
+    } else {
+        LOG_ERROR(<< "Data summarization field '" << JSON_ENCODINGS_TAG
+                  << "'  is missing or has an unexpected format.");
+        return {nullptr, nullptr};
     }
 
     if (d.HasMember(JSON_DATA_TAG) && d[JSON_DATA_TAG].IsArray()) {
@@ -192,10 +220,9 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_DATA_TAG
                   << "'  is missing or has an unexpected format.");
-        return nullptr;
+        return {nullptr, nullptr};
     }
-    return frame;
+    return {std::move(frame), std::move(encoder)};
 }
-
 }
 }

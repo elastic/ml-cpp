@@ -45,8 +45,10 @@ public:
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
     using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TEncoderUPtr = std::unique_ptr<maths::CDataFrameCategoryEncoder>;
+    using TDataSummarization = std::pair<TDataFrameUPtr, TEncoderUPtr>;
     using TRestoreDataSummarizationFunc =
-        std::function<TDataFrameUPtr(const core::CDataSearcher::TIStreamP&)>;
+        std::function<TDataSummarization(const core::CDataSearcher::TIStreamP&)>;
 
 public:
     //! \name Instrumentation Phases
@@ -132,7 +134,7 @@ public:
     //! Set the flag to enable or disable early stopping.
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
 
-    CBoostedTreeFactory& dataSummarization(TDataFrameUPtr dataSummarization);
+    CBoostedTreeFactory& dataSummarization(TDataSummarization dataSummarization);
     CBoostedTreeFactory& bestForest();
 
     //! Set pointer to the analysis instrumentation.
@@ -292,8 +294,9 @@ private:
     static double noopAdjustTestLoss(double, double, double testLoss);
 
     static bool restoreBestForest(TDataSearcherUPtr& restoreSearcher);
-    static TDataFrameUPtr restoreDataSummarization(TDataSearcherUPtr& restoreSearcher,
-                                         const TRestoreDataSummarizationFunc& restoreCallback);
+    static TDataSummarization
+    restoreDataSummarization(TDataSearcherUPtr& restoreSearcher,
+                             const TRestoreDataSummarizationFunc& restoreCallback);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;

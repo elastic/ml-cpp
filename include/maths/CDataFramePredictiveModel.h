@@ -69,7 +69,7 @@ public:
     //! Get the selected rows that summarize \p dataFrame.
     virtual core::CPackedBitVector
     dataSummarization(const core::CDataFrame& dataFrame,
-TTrainingStateCallback callback) const = 0;
+                      TTrainingStateCallback callback) const = 0;
 
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
