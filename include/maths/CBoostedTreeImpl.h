@@ -200,7 +200,7 @@ private:
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
-    using TNodeVecVecMeanVarAccumulatorPr = std::pair<TNodeVecVec, TMeanVarAccumulator>;
+    using TNodeVecVecDoublePr = std::pair<TNodeVecVec, double>;
     using TNodeVecVecDoubleDoubleVecTr = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
@@ -274,7 +274,10 @@ private:
                                              core::CLoopProgress& trainingProgress) const;
 
     //! Retrain the \p treesToRetrain of the best forest.
-    TNodeVecVecMeanVarAccumulatorPr retrainForest(core::CDataFrame& frame) const;
+    TNodeVecVecDoublePr retrainForest(core::CDataFrame& frame,
+                                      const core::CPackedBitVector& trainingRowMask,
+                                      const core::CPackedBitVector& testingRowMask,
+                                      core::CLoopProgress& trainingProgress) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
@@ -330,9 +333,10 @@ private:
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
 
-    //! Compute the mean of the incemental loss function on the masked rows of \p frame.
-    double meanIncrementalTrainingLoss(const core::CDataFrame& frame,
-                                       const core::CPackedBitVector& rowMask) const;
+    //! Compute the mean of the loss function on the masked rows of \p frame
+    //! adjusted for incremental training.
+    double meanAdjustedLoss(const core::CDataFrame& frame,
+                            const core::CPackedBitVector& rowMask) const;
 
     //! Get the forest's prediction for \p row.
     TVector predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest) const;

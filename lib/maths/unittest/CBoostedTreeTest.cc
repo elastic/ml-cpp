@@ -1964,7 +1964,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
                                1, std::make_unique<maths::boosted_tree::CMse>())
                                .numberFolds(2)
                                .maximumNumberTrees(2)
-                               .maximumOptimisationRoundsPerHyperparameter(3)
+                               .maximumOptimisationRoundsPerHyperparameterForTrain(3)
                                .buildFor(*frame, cols - 1);
         boostedTree->train();
         core::CJsonStatePersistInserter inserter(persistOnceState);
@@ -2036,7 +2036,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestoreDuringInitialization) {
                                1, std::make_unique<maths::boosted_tree::CMse>())
                                .numberFolds(2)
                                .maximumNumberTrees(2)
-                               .maximumOptimisationRoundsPerHyperparameter(3)
+                               .maximumOptimisationRoundsPerHyperparameterForTrain(3)
                                .trainingStateCallback(writeCheckpoint)
                                .buildFor(*frame, cols - 1);
         core::CJsonStatePersistInserter inserter(expectedState);

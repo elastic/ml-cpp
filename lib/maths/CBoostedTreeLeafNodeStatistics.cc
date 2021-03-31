@@ -181,7 +181,7 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivativesWith(
     aggregators.reserve(numberThreads);
 
     for (std::size_t i = 0; i < numberThreads; ++i) {
-        auto& splitsDerivatives = workspace.derivatives(MASK_INDEX)[i];
+        auto& splitsDerivatives = workspace.derivatives()[i];
         splitsDerivatives.zero();
         aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
@@ -212,8 +212,8 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivativesWi
     aggregators.reserve(numberThreads);
 
     for (std::size_t i = 0; i < numberThreads; ++i) {
-        auto& mask = workspace.masks(MASK_INDEX)[i];
-        auto& splitsDerivatives = workspace.derivatives(MASK_INDEX)[i];
+        auto& mask = workspace.masks()[i];
+        auto& splitsDerivatives = workspace.derivatives()[i];
         mask.clear();
         splitsDerivatives.zero();
         aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {

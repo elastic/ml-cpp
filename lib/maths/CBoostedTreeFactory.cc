@@ -145,7 +145,6 @@ CBoostedTreeFactory::buildForIncrementalTraining(core::CDataFrame& frame,
     // make sure these are copied to the supplied boosted tree implementation.
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->copyParameterOverrides(*tree->m_Impl); });
-
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
 
@@ -1747,6 +1746,7 @@ const std::string LOG_ETA_SEARCH_INTERVAL_TAG{"log_eta_search_interval"};
 const std::string LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG{"log_feature_bag_fraction_interval"};
 const std::string LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_leaf_weight_penalty_multiplier_search_interval"};
 const std::string LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_tree_size_penalty_multiplier_search_interval"};
+const std::string LOG_TREE_TOPOLOGY_CHANGE_PENALTY_SEARCH_INTERVAL_TAG{"log_tree_topology_change_penalty_search_interval"};
 const std::string SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG{"soft_depth_limit_search_interval"};
 const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
 const std::string TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG{"total_curvature_per_node_90th_percentile"};
@@ -1777,6 +1777,8 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
             m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
         core::CPersistUtils::persist(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
                                      m_LogTreeSizePenaltyMultiplierSearchInterval, inserter);
+        core::CPersistUtils::persist(LOG_TREE_TOPOLOGY_CHANGE_PENALTY_SEARCH_INTERVAL_TAG,
+                                     m_LogTreeTopologyChangePenaltySearchInterval, inserter);
         core::CPersistUtils::persist(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
                                      m_SoftDepthLimitSearchInterval, inserter);
         core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
@@ -1835,6 +1837,10 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                                 core::CPersistUtils::restore(
                                     LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
                                     m_LogTreeSizePenaltyMultiplierSearchInterval, traverser))
+                        RESTORE(LOG_TREE_TOPOLOGY_CHANGE_PENALTY_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_TREE_TOPOLOGY_CHANGE_PENALTY_SEARCH_INTERVAL_TAG,
+                                    m_LogTreeTopologyChangePenaltySearchInterval, traverser))
                         RESTORE(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
                                 core::CPersistUtils::restore(
                                     SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
