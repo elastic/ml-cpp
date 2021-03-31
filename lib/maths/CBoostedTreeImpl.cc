@@ -307,8 +307,15 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     std::int64_t lastMemoryUsage(this->memoryUsage());
 
-    double bestLoss{/*
-        lossAtNSigma(1.0, this->meanIncrementalTrainingLoss(frame, TBD))*/};
+    auto computeLossMoments = [&]() {
+        TMeanVarAccumulator lossMoments;
+        for (const auto& mask : m_TestingRowMasks) {
+            lossMoments.add(this->meanIncrementalTrainingLoss(frame, mask));
+        }
+        return lossMoments;
+    };
+
+    double bestLoss{lossAtNSigma(1.0, computeLossMoments())};
     TNodeVecVec bestRetrainedTrees;
 
     while (m_CurrentIncrementalRound < m_NumberIncrementalRounds) {
@@ -1472,7 +1479,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
             parameters(i) = m_Regularization.softTreeDepthTolerance();
             break;
         case E_TreeTopologyChangePenalty:
-            parameters(i) = m_Regularization.treeTopologyChangePenalty();
+            parameters(i) = CTools::stableLog(m_Regularization.treeTopologyChangePenalty());
             break;
         }
     }
@@ -1543,7 +1550,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
             m_Regularization.softTreeDepthTolerance(parameters(i));
             break;
         case E_TreeTopologyChangePenalty:
-            m_Regularization.treeTopologyChangePenalty(parameters(i));
+            m_Regularization.treeTopologyChangePenalty(CTools::stableExp(parameters(i)));
             break;
         }
     }

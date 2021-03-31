@@ -21,6 +21,7 @@
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/COrderings.h>
+#include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 
 #include <boost/optional/optional_io.hpp>
@@ -153,11 +154,11 @@ CBoostedTreeFactory::buildForIncrementalTraining(core::CDataFrame& frame,
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeCrossValidation(frame); });
 
+    this->initializeHyperparameters(frame);
     this->initializeHyperparameterOptimisation();
 
-    m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
-
     std::swap(m_TreeImpl, tree->m_Impl);
+    m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
 
     return tree;
 }
@@ -264,9 +265,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
                 CTools::stableExp(m_LogFeatureBagFractionInterval(MAX_PARAMETER_INDEX)));
             break;
         case E_TreeTopologyChangePenalty:
-            // TODO Base this on range of gains we see in the forest.
-            boundingBox.emplace_back(CTools::stableLog(m_TreeImpl->m_Eta / 4.0),
-                                     CTools::stableLog(4.0 * m_TreeImpl->m_Eta));
+            boundingBox.emplace_back(
+                m_LogTreeTopologyChangePenaltySearchInterval(MIN_PARAMETER_INDEX),
+                m_LogTreeTopologyChangePenaltySearchInterval(MAX_PARAMETER_INDEX));
             break;
         }
     }
@@ -472,7 +473,7 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
     } else {
 
         // Use separate stratified samples on old and new training data to ensure
-        // we have even splits across all folds.
+        // we have even splits of old and new data across all folds.
 
         TPackedBitVectorVec oldTrainingRowMasks;
         TPackedBitVectorVec oldTestingRowMasks;
@@ -556,7 +557,6 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 }
 
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
-
     if (m_TreeImpl->m_IncrementalTraining == false) {
         skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                     [&] { this->initializeHyperparametersSetup(frame); });
@@ -569,8 +569,8 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
         this->initializeUnsetFeatureBagFraction(frame);
         this->initializeUnsetEta(frame);
     } else {
-        skipOfAfter(CBoostedTreeImpl::E_NotInitialized,
-                    [&] { this->initializeUnsetTreeTopologyPenalty(frame); });
+        skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                    [this] { this->initializeUnsetTreeTopologyPenalty(); });
     }
 }
 
@@ -1103,9 +1103,37 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
     }
 }
 
-void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty(core::CDataFrame& frame) {
-    // Compute the forest node gain percentiles.
-    // TODO
+void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty() {
+
+    if (m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty() == boost::none) {
+        CFastQuantileSketch quantiles{CQuantileSketch::E_Linear, 50};
+
+        for (const auto& tree : m_TreeImpl->m_BestForest) {
+            for (const auto& node : tree) {
+                if (node.isLeaf() == false) {
+                    quantiles.add(node.gain());
+                }
+            }
+        }
+
+        if (quantiles.count() > 0) {
+            // We use the best forest internal gain percentiles to bound the range to search
+            // for the penalty. This ensures we search a range which encompasses the penalty
+            // having little impact on split selected to strongly resisting changing the tree.
+
+            double gainPercentiles[3];
+            quantiles.quantile(1.0, gainPercentiles[0]);
+            quantiles.quantile(20.0, gainPercentiles[1]);
+            quantiles.quantile(90.0, gainPercentiles[2]);
+
+            m_TreeImpl->m_Regularization.treeTopologyChangePenalty(gainPercentiles[1]);
+
+            gainPercentiles[0] = CTools::stableLog(gainPercentiles[0]);
+            gainPercentiles[1] = CTools::stableLog(gainPercentiles[1]);
+            gainPercentiles[2] = CTools::stableLog(gainPercentiles[2]);
+            m_LogTreeTopologyChangePenaltySearchInterval = TVector{gainPercentiles};
+        }
+    }
 }
 
 CBoostedTreeFactory::TDoubleDoublePrVec
@@ -1353,9 +1381,7 @@ std::size_t CBoostedTreeFactory::maximumNumberRows() {
 
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
     : m_NumberThreads{numberThreads},
-      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))},
-      m_LogDepthPenaltyMultiplierSearchInterval{0.0}, m_LogTreeSizePenaltyMultiplierSearchInterval{0.0},
-      m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0} {
+      m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept = default;
@@ -1453,6 +1479,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::treeTopologyChangePenalty(double treeT
         treeTopologyChangePenalty = 0.0;
     }
     m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty(treeTopologyChangePenalty);
+    return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::softTreeDepthLimit(double softTreeDepthLimit) {

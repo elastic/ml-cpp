@@ -1085,7 +1085,7 @@ void CPseudoHuber::gradient(const TMemoryMappedFloatVector& prediction,
                             double actual,
                             const TWriter& writer,
                             double weight) const {
-    writer(0, weight * (prediction - actual) /
+    writer(0, weight * (prediction(0) - actual) /
                   (std::sqrt(1.0 + CTools::pow2((actual - prediction(0)) / m_Delta))));
 }
 

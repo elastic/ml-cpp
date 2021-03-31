@@ -229,7 +229,7 @@ private:
     void initializeUnsetEta(core::CDataFrame& frame);
 
     //! Estimate a good range value for tree topology penalty.
-    void initializeUnsetTreeTopologyPenalty(core::CDataFrame& frame);
+    void initializeUnsetTreeTopologyPenalty();
 
     //! Estimate the reduction in gain from a split and the total curvature of
     //! the loss function at a split.
@@ -306,23 +306,24 @@ private:
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
-    bool m_StratifyRegressionCrossValidation = true;
-    double m_InitialDownsampleRowsPerFeature = 200.0;
-    double m_GainPerNode1stPercentile = 0.0;
-    double m_GainPerNode50thPercentile = 0.0;
-    double m_GainPerNode90thPercentile = 0.0;
-    double m_TotalCurvaturePerNode1stPercentile = 0.0;
-    double m_TotalCurvaturePerNode90thPercentile = 0.0;
-    std::size_t m_NumberThreads;
+    bool m_StratifyRegressionCrossValidation{true};
+    double m_InitialDownsampleRowsPerFeature{200.0};
+    double m_GainPerNode1stPercentile{0.0};
+    double m_GainPerNode50thPercentile{0.0};
+    double m_GainPerNode90thPercentile{0.0};
+    double m_TotalCurvaturePerNode1stPercentile{0.0};
+    double m_TotalCurvaturePerNode90thPercentile{0.0};
+    std::size_t m_NumberThreads{1};
     TBoostedTreeImplUPtr m_TreeImpl;
-    TVector m_LogDownsampleFactorSearchInterval;
-    TVector m_LogFeatureBagFractionInterval;
-    TVector m_LogDepthPenaltyMultiplierSearchInterval;
-    TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
-    TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
-    TVector m_SoftDepthLimitSearchInterval;
-    TVector m_LogEtaSearchInterval;
-    TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
+    TVector m_LogDownsampleFactorSearchInterval{0.0};
+    TVector m_LogFeatureBagFractionInterval{0.0};
+    TVector m_LogDepthPenaltyMultiplierSearchInterval{0.0};
+    TVector m_LogTreeSizePenaltyMultiplierSearchInterval{0.0};
+    TVector m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0};
+    TVector m_SoftDepthLimitSearchInterval{0.0};
+    TVector m_LogEtaSearchInterval{0.0};
+    TVector m_LogTreeTopologyChangePenaltySearchInterval{0.0};
+    TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
 };
 }
 }
