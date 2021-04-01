@@ -74,7 +74,8 @@ public:
     //! Set the objective to use when choosing the class assignments.
     CBoostedTreeFactory&
     classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
-    //! Set the class weights used for assigning labels to classes from the predicted probabilities.
+    //! Set the class weights used for assigning labels to classes from the
+    //! predicted probabilities.
     CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
@@ -111,6 +112,9 @@ public:
     CBoostedTreeFactory& maximumNumberTrees(std::size_t maximumNumberTrees);
     //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTreeFactory& featureBagFraction(double featureBagFraction);
+    //! Set the relative weight to assign changing old predictions in the loss
+    //! function for incremental training.
+    CBoostedTreeFactory& predictionChangeCost(double predictionChangeCost);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter for training.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameterForTrain(std::size_t rounds);

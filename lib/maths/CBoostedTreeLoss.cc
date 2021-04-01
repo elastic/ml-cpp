@@ -150,18 +150,18 @@ CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() cons
 
     // We searching for the value x^* which satisfies
     //
-    //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2 + 1{old} mu (p_i' - eta x)^2} + lambda * x^2 }
+    //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2 + 1{old} mu (p_i' / eta - x)^2} + lambda * x^2 }
     //
     // Here, a_i are the actuals, p_i the predictions and p_i' the predictions from
     // the tree being retrained. This is convex so there is one minimum where the
     // derivative w.r.t. x is zero and
     //
-    //   x^* = 1 / (n (1 + n' / n mu eta^2) + lambda) sum_i{ a_i - p_i + mu eta 1{old} p_i' }.
+    //   x^* = 1 / (n (1 + n' / n mu) + lambda) sum_i{ a_i - p_i + mu / eta 1{old} p_i' }.
     //
     // where n' = sum_i 1{old}. Denoting the mean prediction error m = 1/n sum_i{ a_i - p_i }
     // and the mean tree predictions p' = 1/n' sum_i{p_i'} we have
     //
-    //   x^* = n / (n (1 + n' / n mu eta^2) + lambda) (m + n' / n mu eta p').
+    //   x^* = n / (n (1 + n' / n mu) + lambda) (m + n' / n mu / eta p').
     //
     // In the following we absorb n' / n into the value of mu.
 
@@ -172,10 +172,9 @@ CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() cons
     double mu{(count == oldCount ? 1.0 : oldCount / count) * m_Mu};
 
     TDoubleVector result(1);
-    result(0) = count == 0.0
-                    ? 0.0
-                    : count / (count * (1.0 + mu * CTools::pow2(m_Eta)) + this->lambda()) *
-                          (meanError + mu * m_Eta * meanTreePrediction);
+    result(0) = count == 0.0 ? 0.0
+                             : count / (count * (1.0 + mu) + this->lambda()) *
+                                   (meanError + mu / m_Eta * meanTreePrediction);
     return result;
 }
 
@@ -890,7 +889,7 @@ void CMseIncremental::gradient(const CEncodedDataFrameRowRef& row,
         writer(0, 2.0 * weight * (prediction(0) - actual));
     } else {
         double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
-        writer(0, 2.0 * weight * (prediction(0) - actual + m_Mu * m_Eta * treePrediction));
+        writer(0, 2.0 * weight * (prediction(0) - actual + m_Mu / m_Eta * treePrediction));
     }
 }
 
@@ -899,7 +898,7 @@ void CMseIncremental::curvature(bool newExample,
                                 double /*actual*/,
                                 const TWriter& writer,
                                 double weight) const {
-    writer(0, 2.0 * weight * (1.0 + (newExample ? 0.0 : m_Mu * CTools::pow2(m_Eta))));
+    writer(0, 2.0 * weight * (1.0 + (newExample ? 0.0 : m_Mu)));
 }
 
 bool CMseIncremental::isCurvatureConstant() const {

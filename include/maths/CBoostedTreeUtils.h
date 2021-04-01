@@ -53,6 +53,7 @@ enum EHyperparameter {
     E_Eta,
     E_EtaGrowthRatePerTree,
     E_FeatureBagFraction,
+    E_PredictionChangeCost,
     E_TreeTopologyChangePenalty
 };
 

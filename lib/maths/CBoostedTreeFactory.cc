@@ -263,6 +263,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
                 CTools::stableExp(m_LogFeatureBagFractionInterval(MIN_PARAMETER_INDEX)),
                 CTools::stableExp(m_LogFeatureBagFractionInterval(MAX_PARAMETER_INDEX)));
             break;
+        case E_PredictionChangeCost:
+            boundingBox.emplace_back(CTools::stableLog(0.01), CTools::stableLog(2.0));
+            break;
         case E_TreeTopologyChangePenalty:
             boundingBox.emplace_back(
                 m_LogTreeTopologyChangePenaltySearchInterval(MIN_PARAMETER_INDEX),
@@ -556,14 +559,13 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 }
 
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
-    if (m_TreeImpl->m_IncrementalTraining == false) {
-        skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                    [&] { this->initializeHyperparametersSetup(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeHyperparametersSetup(frame); });
 
+    if (m_TreeImpl->m_IncrementalTraining == false) {
         if (m_TreeImpl->m_RegularizationOverride.countNotSetForTrain() > 0) {
             this->initializeUnsetRegularizationHyperparameters(frame);
         }
-
         this->initializeUnsetDownsampleFactor(frame);
         this->initializeUnsetFeatureBagFraction(frame);
         this->initializeUnsetEta(frame);
@@ -604,6 +606,9 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
                          MIN_ROWS_PER_FEATURE / numberFeatures);
     }
 
+    m_TreeImpl->m_PredictionChangeCost =
+        m_TreeImpl->m_PredictionChangeCostOverride.value_or(0.5);
+
     double downsampleFactor{m_InitialDownsampleRowsPerFeature * numberFeatures /
                             m_TreeImpl->m_TrainingRowMasks[0].manhattan()};
     m_TreeImpl->m_DownsampleFactor = m_TreeImpl->m_DownsampleFactorOverride.value_or(
@@ -620,7 +625,9 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
         .softTreeDepthLimit(
             m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit().value_or(0.0))
         .softTreeDepthTolerance(
-            m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(0.0));
+            m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(0.0))
+        .treeTopologyChangePenalty(
+            m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty().value_or(0.0));
 }
 
 void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame) {
@@ -1544,6 +1551,15 @@ CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFr
         featureBagFraction = CTools::truncate(featureBagFraction, 0.0, 1.0);
     }
     m_TreeImpl->m_FeatureBagFractionOverride = featureBagFraction;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::predictionChangeCost(double predictionChangeCost) {
+    if (predictionChangeCost < 0.0) {
+        LOG_WARN(<< "tree topology change penalty must be non-negative");
+        predictionChangeCost = 0.0;
+    }
+    m_TreeImpl->m_PredictionChangeCostOverride = predictionChangeCost;
     return *this;
 }
 

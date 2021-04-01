@@ -321,11 +321,18 @@ private:
     //! Get a column mask of the suitable regressor features.
     void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features) const;
 
+    //! Remove the predictions of \p tree from \p frame for the masked rows.
+    void removePredictions(core::CDataFrame& frame,
+                           const core::CPackedBitVector& trainingRowMask,
+                           const core::CPackedBitVector& testingRowMask,
+                           const TNodeVec& tree) const;
+
     //! Refresh the predictions and loss function derivatives for the masked
     //! rows in \p frame with predictions of \p tree.
     void refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
                                               const core::CPackedBitVector& trainingRowMask,
                                               const core::CPackedBitVector& testingRowMask,
+                                              const TLossFunction& loss,
                                               double eta,
                                               double lambda,
                                               TNodeVec& tree) const;
@@ -415,6 +422,7 @@ private:
     TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
     TOptionalDouble m_EtaGrowthRatePerTreeOverride;
+    TOptionalDouble m_PredictionChangeCostOverride;
     TOptionalSize m_NumberFoldsOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
@@ -424,6 +432,7 @@ private:
     double m_DownsampleFactor = 0.5;
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;
+    double m_PredictionChangeCost = 0.5;
     std::size_t m_NumberFolds = 4;
     std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;

@@ -47,6 +47,8 @@ public:
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
     static const std::string MAX_TREES;
     static const std::string FEATURE_BAG_FRACTION;
+    static const std::string PREDICTION_CHANGE_COST;
+    static const std::string TREE_TOPOLOGY_CHANGE_PENALTY;
     static const std::string NUM_FOLDS;
     static const std::string STOP_CROSS_VALIDATION_EARLY;
     static const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER;
