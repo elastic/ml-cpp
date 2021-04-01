@@ -6,6 +6,7 @@
 
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
+#include <c++/7/bits/c++config.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
@@ -25,10 +26,64 @@
 #include <api/ElasticsearchStateIndex.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
+#include <memory>
 #include <rapidjson/document.h>
 
 namespace ml {
 namespace api {
+
+namespace {
+maths::CBoostedTreeFactory::TModelDefinition
+forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
+    using TNodeVec = maths::CBoostedTreeFactory::TNodeVec;
+    using TNodeVecVec = maths::CBoostedTreeFactory::TNodeVecVec;
+    rapidjson::IStreamWrapper isw(*istream);
+    rapidjson::Document d;
+    d.ParseStream(isw);
+    // TODO make sure it parsed without errors
+    if (d.HasMember("trained_model") && d["trained_model"].IsObject()) {
+        auto trainedModel = d["trained_model"].GetObject();
+        if (trainedModel.HasMember("ensemble") && trainedModel["trained_model"].IsObject()) {
+            auto ensemble = trainedModel["trained_model"].GetObject();
+            if (ensemble.HasMember("trained_models") &&
+                ensemble["trained_models"].IsArray()) {
+                auto trainedModels = ensemble["trained_models"].GetArray();
+                auto forest = std::make_unique<TNodeVecVec>();
+                for (auto& tree : trainedModels) {
+                    TNodeVec nodes;
+                    for (auto& node : tree["tree_structure"].GetArray()) {
+                        std::size_t nodeIndex{node["node_index"].GetUint64()};
+                        std::size_t numberSamples{node["number_samples"].GetUint64()};
+                        if (node.HasMember("leaf_value")) {
+                            // TODO this can be/is a vector
+                            maths::CBoostedTreeNode::TVector nodeValue(1);
+
+                            nodeValue[0] = node["leaf_value"].GetDouble();
+                            nodes[nodeIndex].numberSamples(numberSamples);
+                            nodes[nodeIndex].nodeValue({nodeValue});
+
+                        } else {
+                            // TODO identify correct split feature;
+                            std::size_t splitFeature{0};
+                            double gain{node["split_gain"].GetDouble()};
+                            double splitValue{node["threshold"].GetDouble()};
+                            bool assignMissingToLeft{node["default_left"].GetBool()};
+                            // std::size_t leftChildId{node["left_child"].GetUint64()};
+                            // std::size_t rightChildId{node["right_child"].GetUint64()};
+                            nodes[nodeIndex].split(splitFeature, splitValue,
+                                                   assignMissingToLeft, gain, 0.0, nodes);
+                            nodes[nodeIndex].numberSamples(numberSamples);
+                        }
+                    }
+                    forest->push_back(nodes);
+                }
+                return forest;
+            }
+        }
+    }
+    return nullptr;
+}
+}
 
 const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
@@ -162,6 +217,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                 this->spec().numberThreads(), std::move(loss), this->spec().restoreSearcher(),
                 [](const core::CDataSearcher::TIStreamP& istream) {
                     return api::CDataSummarizationJsonSerializer::fromJsonStream(istream);
+                },
+                [](const core::CDataSearcher::TIStreamP& istream) {
+                    return forestFromJsonStream(istream);
                 }));
         break;
     }

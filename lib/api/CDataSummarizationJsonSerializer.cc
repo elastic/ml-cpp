@@ -136,7 +136,7 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     rapidjson::IStreamWrapper isw(*istream);
     rapidjson::Document d;
     d.ParseStream(isw);
-
+    // TODO make sure it parsed without errors
     if (d.HasMember(JSON_NUM_COLUMNS_TAG) && d[JSON_NUM_COLUMNS_TAG].IsUint64()) {
         numColumns = d[JSON_NUM_COLUMNS_TAG].GetUint64();
         columnNames.reserve(numColumns);

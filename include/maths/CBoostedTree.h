@@ -114,6 +114,8 @@ public:
     //! Set the number of samples to \p value.
     void numberSamples(std::size_t value);
 
+    void nodeValue(TVector nodeValue);
+
     //! Get number of samples affected by the node.
     std::size_t numberSamples() const;
 

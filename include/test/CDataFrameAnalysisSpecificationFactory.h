@@ -13,6 +13,7 @@
 #include <maths/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
 #include <test/ImportExport.h>
@@ -39,6 +40,7 @@ public:
     using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
     using TLossFunctionType = maths::boosted_tree::ELossType;
+    using TTask = api::CDataFrameTrainBoostedTreeRunner::ETask;
 
 public:
     CDataFrameAnalysisSpecificationFactory();
@@ -87,6 +89,7 @@ public:
     CDataFrameAnalysisSpecificationFactory&
     predictionRestoreSearcherSupplier(TRestoreSearcherSupplier* restoreSearcherSupplier);
     CDataFrameAnalysisSpecificationFactory& earlyStoppingEnabled(bool earlyStoppingEnabled);
+    CDataFrameAnalysisSpecificationFactory& task(TTask task);
 
     // Regression
     CDataFrameAnalysisSpecificationFactory& regressionLossFunction(TLossFunctionType lossFunction);
@@ -142,6 +145,7 @@ private:
     TPersisterSupplier* m_PersisterSupplier = nullptr;
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
     rapidjson::Document m_CustomProcessors;
+    TTask m_Task = TTask::E_Train;
     // Regression
     TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;

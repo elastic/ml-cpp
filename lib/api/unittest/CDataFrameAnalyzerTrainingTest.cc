@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "api/CSingleStreamSearcher.h"
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
@@ -24,6 +25,8 @@
 #include <api/CSingleStreamDataAdder.h>
 #include <api/ElasticsearchStateIndex.h>
 
+#include <sstream>
+#include <string>
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
@@ -606,6 +609,106 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
             testOneRunOfBoostedTreeTrainingWithStateRecovery(makeSpec, restart, lossFunction);
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining) {
+    auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
+                        TPersisterSupplier* persisterSupplier,
+                        TRestoreSearcherSupplier* restorerSupplier) {
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        return specFactory.rows(numberExamples)
+            .memoryLimit(15000000)
+            .predictionMaximumNumberTrees(10)
+            .predictionPersisterSupplier(persisterSupplier)
+            .predictionRestoreSearcherSupplier(restorerSupplier)
+            .regressionLossFunction(TLossFunctionType::E_MseRegression)
+            .earlyStoppingEnabled(false)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                            dependentVariable);
+    };
+
+    auto makeSpecIncremental = [&](const std::string& dependentVariable, std::size_t numberExamples,
+                        TPersisterSupplier* persisterSupplier,
+                        TRestoreSearcherSupplier* restorerSupplier) {
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        return specFactory.rows(numberExamples)
+            .memoryLimit(15000000)
+            .predictionMaximumNumberTrees(10)
+            .predictionPersisterSupplier(persisterSupplier)
+            .predictionRestoreSearcherSupplier(restorerSupplier)
+            .regressionLossFunction(TLossFunctionType::E_MseRegression)
+            .earlyStoppingEnabled(false)
+            .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Update)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                            dependentVariable);
+    };
+
+    std::stringstream outputStream;
+    auto outputWriterFactory = [&outputStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
+    };
+    TLossFunctionType lossFunction = TLossFunctionType::E_MseRegression;
+
+    // run once
+    std::size_t numberExamples{100};
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
+    TDoubleVec regressors;
+    test::CRandomNumbers rng;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
+    api::CDataFrameAnalyzer analyzer{
+        makeSpec("target", numberExamples, nullptr, nullptr), outputWriterFactory};
+    // std::size_t dependentVariable(std::find(fieldNames.begin(), fieldNames.end(), "target") -
+    //                               fieldNames.begin());
+    TStrVec targets;
+
+    // Avoid negative targets for MSLE.
+    auto targetTransformer = [&lossFunction](double x) {
+        return (lossFunction == TLossFunctionType::E_MsleRegression) ? x * x : x;
+    };
+    auto frame = test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
+        fieldNames, fieldValues, analyzer, weights, regressors, targets, targetTransformer);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+    LOG_INFO(<<outputStream.str());
+    
+    std::stringstream inferenceModelStream;
+    rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
+    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{inferenceModelStreamWrapper};
+    
+
+    std::stringstream dataSummarizationStream;
+    rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
+    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{dataSummarizationStreamWrapper};
+    
+    
+    // retrieve model definition and data summarization
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("compressed_inference_model")) {
+            inferenceModelWriter.write(result);
+        }
+        if (result.HasMember("compressed_data_summarization")) {
+            dataSummarizationWriter.write(result);
+        }
+    }
+
+    // pass model definition and data summarization into the restore stream
+    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
+    auto restoreStreamPtr = std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
+    TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr](){
+        return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
+    }};
+
+    // create a new spec for incremental training
+    // create new analyzer and run incremental training
+    outputStream.clear();
+    outputStream.str("");
+     api::CDataFrameAnalyzer newAnalyzer{
+        makeSpecIncremental("target", numberExamples, nullptr, &restorerSupplier), 
+        outputWriterFactory};
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {

@@ -354,13 +354,14 @@ void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
     m_TreeImpl->m_Instrumentation->flush();
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
-    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
-                           }
-                       },
-                       &allTrainingRowsMask);
+    frame.writeColumns(
+        m_NumberThreads, 0, frame.numberRows(),
+        [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
+            }
+        },
+        &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
@@ -1217,13 +1218,14 @@ CBoostedTreeFactory
 CBoostedTreeFactory::constructFromDefinition(std::size_t numberThreads,
                                              TLossFunctionUPtr loss,
                                              TDataSearcherUPtr dataSearcher,
-                                             const TRestoreDataSummarizationFunc& restoreCallback) {
+                                             const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback, 
+                                             const TRestoreModelDefinitionFunc& modelDefinitionRestoreCallback) {
 
     CBoostedTreeFactory factory{CBoostedTreeFactory::constructFromParameters(
         numberThreads, std::move(loss))};
     // Read data summarization from the stream
     TDataSummarization dataSummarization{
-        CBoostedTreeFactory::restoreDataSummarization(dataSearcher, restoreCallback)};
+        CBoostedTreeFactory::restoreDataSummarization(dataSearcher, dataSummarizationRestoreCallback)};
     if (dataSummarization.first) {
         factory.dataSummarization(std::move(dataSummarization));
     } else {
@@ -1231,8 +1233,9 @@ CBoostedTreeFactory::constructFromDefinition(std::size_t numberThreads,
     }
 
     // Read best forest from the stream
-    bool forestRestored{CBoostedTreeFactory::restoreBestForest(dataSearcher)};
-    if (forestRestored == false) {
+    TModelDefinition forestRestored{CBoostedTreeFactory::restoreBestForest(dataSearcher, modelDefinitionRestoreCallback)};
+    if (forestRestored) {
+        factory.modelDefinition(std::move(forestRestored));
         HANDLE_FATAL(<< "Failed restoring best forest from the model definition.");
     }
     return factory;
@@ -1451,6 +1454,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization d
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::modelDefinition(TModelDefinition modelDefinition) {
+    m_TreeImpl->m_BestForest = *modelDefinition;
+    return *this;
+}
+
 std::size_t CBoostedTreeFactory::estimateMemoryUsageTrain(std::size_t numberRows,
                                                           std::size_t numberColumns) const {
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
@@ -1578,36 +1586,35 @@ double CBoostedTreeFactory::noopAdjustTestLoss(double, double, double testLoss) 
     return testLoss;
 }
 
-bool CBoostedTreeFactory::restoreBestForest(TDataSearcherUPtr& restoreSearcher) {
+CBoostedTreeFactory::TModelDefinition
+CBoostedTreeFactory::restoreBestForest(TDataSearcherUPtr& restoreSearcher,
+                                       const TRestoreModelDefinitionFunc& restoreCallback) {
     // Restore from compressed JSON.
+    TModelDefinition modelDefinition;
     try {
         core::CStateDecompressor decompressor(*restoreSearcher);
         core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
-            return false;
+            return nullptr;
         }
 
         if (inputStream->bad()) {
             LOG_ERROR(<< "State restoration search returned bad stream");
-            return false;
+            return nullptr;
         }
 
         if (inputStream->fail()) {
             // This is fatal. If the stream exists and has failed then state is missing
             LOG_ERROR(<< "State restoration search returned failed stream");
-            return false;
+            return nullptr;
         }
-        // implement
-        // m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
-        //                     .analysisInstrumentation(m_Instrumentation)
-        //                     .trainingStateCallback(this->statePersister())
-        //                     .restoreFor(frame, dependentVariableColumn);
+        return restoreCallback(inputStream);
+
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return false;
     }
-    return true;
+    return nullptr;
 }
 
 CBoostedTreeFactory::TDataSummarization
@@ -1636,8 +1643,8 @@ CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSearcher
 
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return {nullptr, nullptr};
     }
+    return {nullptr, nullptr};
 }
 
 namespace {

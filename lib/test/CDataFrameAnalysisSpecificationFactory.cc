@@ -188,6 +188,12 @@ CDataFrameAnalysisSpecificationFactory::earlyStoppingEnabled(bool earlyStoppingE
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::task(TTask task) {
+    m_Task = task;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
     m_NumberClasses = number;
     return *this;
@@ -348,6 +354,16 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     if (m_EarlyStoppingEnabled == false) {
         writer.Key(TRunner::EARLY_STOPPING_ENABLED);
         writer.Bool(m_EarlyStoppingEnabled);
+    }
+
+    writer.Key(TRunner::TASK);
+    switch (m_Task) {
+    case TTask::E_Train:
+        writer.String(TRunner::TASK_TRAIN);
+        break;
+    case TTask::E_Update:
+        writer.String(TRunner::TASK_UPDATE);
+        break;
     }
 
     if (analysis == classification()) {

@@ -49,6 +49,13 @@ public:
     using TDataSummarization = std::pair<TDataFrameUPtr, TEncoderUPtr>;
     using TRestoreDataSummarizationFunc =
         std::function<TDataSummarization(const core::CDataSearcher::TIStreamP&)>;
+    // TODO define
+    using TNode = CBoostedTreeNode;
+    using TNodeVec = std::vector<TNode>;
+    using TNodeVecVec = std::vector<TNodeVec>;
+    using TModelDefinition = std::unique_ptr<TNodeVecVec>;
+    using TRestoreModelDefinitionFunc =
+        std::function<TModelDefinition(const core::CDataSearcher::TIStreamP&)>;
 
 public:
     //! \name Instrumentation Phases
@@ -73,7 +80,8 @@ public:
     constructFromDefinition(std::size_t numberThreads,
                             TLossFunctionUPtr loss,
                             TDataSearcherUPtr dataSearcher,
-                            const TRestoreDataSummarizationFunc& restoreCallback);
+                            const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
+                            const TRestoreModelDefinitionFunc& modelDefinitionRestoreCallback);
 
     //! Get the maximum number of rows we'll train on.
     static std::size_t maximumNumberRows();
@@ -135,6 +143,7 @@ public:
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
 
     CBoostedTreeFactory& dataSummarization(TDataSummarization dataSummarization);
+    CBoostedTreeFactory& modelDefinition(TModelDefinition modelDefinition);
     CBoostedTreeFactory& bestForest();
 
     //! Set pointer to the analysis instrumentation.
@@ -293,7 +302,8 @@ private:
     //! Stubs out test loss adjustment.
     static double noopAdjustTestLoss(double, double, double testLoss);
 
-    static bool restoreBestForest(TDataSearcherUPtr& restoreSearcher);
+    static TModelDefinition restoreBestForest(TDataSearcherUPtr& restoreSearcher,
+                                              const TRestoreModelDefinitionFunc& restoreCallback);
     static TDataSummarization
     restoreDataSummarization(TDataSearcherUPtr& restoreSearcher,
                              const TRestoreDataSummarizationFunc& restoreCallback);
