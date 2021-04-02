@@ -92,7 +92,7 @@ void writeTensor(torch::TensorAccessor<float, 2> accessor,
 template<std::size_t N>
 void writePrediction(const torch::Tensor& prediction,
                      const std::string& requestId,
-                     std::ostream& outputStream) {
+                     ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
 
     // creating the accessor will throw if the tensor does
     // not have exactly N dimensions. Do this before writing
@@ -100,8 +100,6 @@ void writePrediction(const torch::Tensor& prediction,
     // a partial result
     auto accessor = prediction.accessor<float, N>();
 
-    rapidjson::OStreamWrapper writeStream(outputStream);
-    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> jsonWriter(writeStream);
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -114,9 +112,9 @@ void writePrediction(const torch::Tensor& prediction,
     jsonWriter.EndObject();
 }
 
-void writeError(const std::string& requestId, const std::string& message, std::ostream& outputStream) {
-    rapidjson::OStreamWrapper writeStream(outputStream);
-    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> jsonWriter(writeStream);
+void writeError(const std::string& requestId,
+                const std::string& message,
+                ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -127,28 +125,31 @@ void writeError(const std::string& requestId, const std::string& message, std::o
 
 bool handleRequest(ml::torch::CCommandParser::SRequest& request,
                    torch::jit::script::Module& module,
-                   std::ostream& outputStream) {
+                   ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     try {
+        LOG_DEBUG(<< "Inference request with id: " << request.s_RequestId);
         torch::Tensor results = infer(module, request);
+        LOG_DEBUG(<< "Got results for request with id: " << request.s_RequestId);
         auto sizes = results.sizes();
         // Some models return a 3D tensor in which case
         // the first dimension must have size == 1
         if (sizes.size() == 3 && sizes[0] == 1) {
-            writePrediction<2>(results[0], request.s_RequestId, outputStream);
+            writePrediction<2>(results[0], request.s_RequestId, jsonWriter);
         } else if (sizes.size() == 2) {
-            writePrediction<2>(results, request.s_RequestId, outputStream);
+            writePrediction<2>(results, request.s_RequestId, jsonWriter);
         } else if (sizes.size() == 1) {
-            writePrediction<1>(results, request.s_RequestId, outputStream);
+            writePrediction<1>(results, request.s_RequestId, jsonWriter);
         } else {
             std::ostringstream ss;
             ss << "Cannot convert results tensor of size [" << sizes << "]";
-            writeError(request.s_RequestId, ss.str(), outputStream);
+            writeError(request.s_RequestId, ss.str(), jsonWriter);
         }
 
     } catch (std::runtime_error& e) {
-        writeError(request.s_RequestId, e.what(), outputStream);
+        writeError(request.s_RequestId, e.what(), jsonWriter);
     }
 
+    jsonWriter.Flush();
     return true;
 }
 
@@ -236,14 +237,18 @@ int main(int argc, char** argv) {
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream()};
 
-    commandParser.ioLoop(
-        [&module, &ioMgr](ml::torch::CCommandParser::SRequest& request) {
-            return handleRequest(request, module, ioMgr.outputStream());
-        },
-        [&ioMgr](const std::string& requestId, const std::string& message) {
-            writeError(requestId, message, ioMgr.outputStream());
-        });
+    rapidjson::OStreamWrapper writeStream(ioMgr.outputStream());
+    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> jsonWriter(writeStream);
 
+    jsonWriter.StartArray();
+    commandParser.ioLoop(
+        [&module, &jsonWriter](ml::torch::CCommandParser::SRequest& request) {
+            return handleRequest(request, module, jsonWriter);
+        },
+        [&jsonWriter](const std::string& requestId, const std::string& message) {
+            writeError(requestId, message, jsonWriter);
+        });
+    jsonWriter.EndArray();
     LOG_DEBUG(<< "ML Torch model prototype exiting");
 
     return EXIT_SUCCESS;
