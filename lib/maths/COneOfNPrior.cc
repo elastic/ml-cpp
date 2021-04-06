@@ -126,8 +126,11 @@ COneOfNPrior::COneOfNPrior(const TDoublePriorPtrPrVec& models,
 COneOfNPrior::COneOfNPrior(const SDistributionRestoreParams& params,
                            core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
-    traverser.traverseSubLevel(std::bind(&COneOfNPrior::acceptRestoreTraverser, this,
-                                         std::cref(params), std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&COneOfNPrior::acceptRestoreTraverser,
+                                             this, std::cref(params),
+                                             std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool COneOfNPrior::acceptRestoreTraverser(const SDistributionRestoreParams& params,

@@ -184,11 +184,3 @@ if [ -n "$JOB_NAME" ] ; then
     export ML_KEEP_GOING=1
 fi
 
-# Finally, switch off debug if we are not in Jenkins doing the debug build
-if [[ ! "$JOB_NAME" == *Debug* ]] ; then
-    unset ML_DEBUG
-    echo "Building $JOB_NAME with ML_DEBUG unset"
-else
-    echo "Building $JOB_NAME with ML_DEBUG=$ML_DEBUG"
-fi
-

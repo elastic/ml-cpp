@@ -277,7 +277,9 @@ bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
     LOG_DEBUG(<< "Restore categorizer state");
 
     try {
-        // Restore from Elasticsearch compressed data
+        // Restore from Elasticsearch compressed data.
+        // (To restore from uncompressed data for testing, comment the next line
+        // and substitute decompressor with restoreSearcher two lines below.)
         core::CStateDecompressor decompressor(restoreSearcher);
 
         core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));

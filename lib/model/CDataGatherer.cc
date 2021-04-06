@@ -756,11 +756,19 @@ core_t::TTime CDataGatherer::earliestBucketStartTime() const {
 }
 
 bool CDataGatherer::checkInvariants() const {
-    LOG_DEBUG(<< "Checking invariants for people registry");
-    bool result = m_PeopleRegistry.checkInvariants();
-    LOG_DEBUG(<< "Checking invariants for attributes registry");
-    result &= m_AttributesRegistry.checkInvariants();
-    return result;
+    if (m_BucketGatherer == nullptr) {
+        LOG_ERROR(<< "No bucket gatherer");
+        return false;
+    }
+    if (m_PeopleRegistry.checkInvariants() == false) {
+        LOG_ERROR(<< "People registry invariants violated");
+        return false;
+    }
+    if (m_AttributesRegistry.checkInvariants() == false) {
+        LOG_ERROR(<< "Attributes registry invariants violated");
+        return false;
+    }
+    return true;
 }
 
 bool CDataGatherer::acceptRestoreTraverser(const std::string& summaryCountFieldName,
@@ -833,6 +841,11 @@ bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldNa
             }
         }
     } while (traverser.next());
+
+    if (m_BucketGatherer == nullptr) {
+        LOG_ERROR(<< "Failed to restore any bucket gatherer");
+        return false;
+    }
 
     return true;
 }

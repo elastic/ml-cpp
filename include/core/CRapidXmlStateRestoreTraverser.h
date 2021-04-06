@@ -37,31 +37,31 @@ public:
 
     //! Navigate to the next element at the current level, or return false
     //! if there isn't one
-    virtual bool next();
+    bool next() override;
 
     //! Does the current element have a sub-level?
-    virtual bool hasSubLevel() const;
+    bool hasSubLevel() const override;
 
     //! Get the name of the current element - the returned reference is only
     //! valid for as long as the traverser is pointing at the same element
-    virtual const std::string& name() const;
+    const std::string& name() const override;
 
     //! Get the value of the current element - the returned reference is
     //! only valid for as long as the traverser is pointing at the same
     //! element
-    virtual const std::string& value() const;
+    const std::string& value() const override;
 
     //! Has the end of the underlying document been reached?
-    virtual bool isEof() const;
+    bool isEof() const override;
 
 protected:
     //! Navigate to the start of the sub-level of the current element, or
     //! return false if there isn't one
-    virtual bool descend();
+    bool descend() override;
 
     //! Navigate to the element of the level above from which descend() was
     //! called, or return false if there isn't a level above
-    virtual bool ascend();
+    bool ascend() override;
 
 private:
     //! Get a pointer to the next node element sibling of the current node,

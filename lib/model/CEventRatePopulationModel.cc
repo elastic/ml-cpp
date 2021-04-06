@@ -103,8 +103,10 @@ CEventRatePopulationModel::CEventRatePopulationModel(
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
     this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
                      std::move(featureCorrelatesModels));
-    traverser.traverseSubLevel(std::bind(&CEventRatePopulationModel::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CEventRatePopulationModel::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CEventRatePopulationModel::initialize(

@@ -456,8 +456,10 @@ CNormalMeanPrecConjugate::CNormalMeanPrecConjugate(const SDistributionRestorePar
                                                    core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate), m_GaussianMean(0.0),
       m_GaussianPrecision(0.0), m_GammaShape(0.0), m_GammaRate(0.0) {
-    traverser.traverseSubLevel(std::bind(&CNormalMeanPrecConjugate::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CNormalMeanPrecConjugate::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

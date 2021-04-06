@@ -7,10 +7,10 @@
 #define INCLUDED_ml_core_CStateRestoreTraverser_h
 
 #include <core/CLogger.h>
-#include <core/CNonCopyable.h>
 
 #include <core/ImportExport.h>
 
+#include <exception>
 #include <string>
 
 namespace ml {
@@ -37,12 +37,16 @@ namespace core {
 //!
 //! All values are returned as strings.
 //!
-class CORE_EXPORT CStateRestoreTraverser : private CNonCopyable {
+class CORE_EXPORT CStateRestoreTraverser {
 public:
     CStateRestoreTraverser();
 
     //! Virtual destructor for abstract class
     virtual ~CStateRestoreTraverser();
+
+    //! No copying
+    CStateRestoreTraverser(const CStateRestoreTraverser&) = delete;
+    CStateRestoreTraverser& operator=(const CStateRestoreTraverser&) = delete;
 
     //! Navigate to the next element at the current level, or return false
     //! if there isn't one
@@ -59,16 +63,16 @@ public:
     //! of this method.
     template<typename FUNC>
     bool traverseSubLevel(FUNC f) {
-        if (!this->hasSubLevel()) {
+        if (this->hasSubLevel() == false || this->haveBadState()) {
             return false;
         }
 
         CAutoLevel level(*this);
         try {
-            return f(*this);
+            return f(*this) && this->haveBadState() == false;
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Restoration failed: " << e.what());
-            level.setBadState();
+            this->setBadState();
             return false;
         }
     }
@@ -88,11 +92,11 @@ public:
     //! Is the state document unintelligible?
     bool haveBadState() const;
 
-protected:
     //! Set the bad state flag, which indicates that the state document was
     //! unintelligible.
     void setBadState();
 
+protected:
     //! Navigate to the start of the sub-level of the current element, or
     //! return false if there isn't one
     virtual bool descend() = 0;
@@ -103,25 +107,20 @@ protected:
 
 private:
     //! Class to implement RAII for traversing the next level down
-    class CORE_EXPORT CAutoLevel : private CNonCopyable {
+    class CORE_EXPORT CAutoLevel {
     public:
         CAutoLevel(CStateRestoreTraverser& traverser);
         ~CAutoLevel();
 
-        //! Set the bad state flag, called from an exception handler
-        //! further up, so that we don't try and read from the stream
-        //! in the destructor
-        void setBadState();
+        //! No copying
+        CAutoLevel(const CAutoLevel&) = delete;
+        CAutoLevel& operator=(const CAutoLevel&) = delete;
 
     private:
         CStateRestoreTraverser& m_Traverser;
 
         //! Remember whether descent on construction succeeded
         bool m_Descended;
-
-        //! If a stream parsing error occurs, don't try and descend
-        //! in the destructor
-        bool m_BadState;
     };
 
 private:

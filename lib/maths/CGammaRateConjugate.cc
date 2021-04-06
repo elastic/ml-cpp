@@ -722,8 +722,10 @@ CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams& param
                                          double offsetMargin)
     : CPrior(params.s_DataType, 0.0), m_Offset(0.0), m_OffsetMargin(offsetMargin),
       m_LikelihoodShape(1.0), m_PriorShape(0.0), m_PriorRate(0.0) {
-    traverser.traverseSubLevel(std::bind(&CGammaRateConjugate::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CGammaRateConjugate::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CGammaRateConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
