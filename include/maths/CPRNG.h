@@ -145,7 +145,7 @@ public:
         //! seeds.
         template<typename ITR>
         void seed(ITR begin, ITR end) {
-            std::size_t i = 0u;
+            std::size_t i = 0;
             for (/**/; i < 2 && begin != end; ++i, ++begin) {
                 m_X[i] = *begin;
             }
@@ -240,7 +240,7 @@ public:
         //! 64 bit seeds.
         template<typename ITR>
         void seed(ITR begin, ITR end) {
-            std::size_t i = 0u;
+            std::size_t i = 0;
             for (/**/; i < 16 && begin != end; ++i, ++begin) {
                 m_X[i] = *begin;
             }

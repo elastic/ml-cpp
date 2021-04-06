@@ -155,7 +155,7 @@ public:
         // generators can generate different numbers on different
         // platforms, even with the same random number generator seed.
         m_Seeds[0] = 472882027;
-        for (std::size_t i = 1u; i < N; ++i) {
+        for (std::size_t i = 1; i < N; ++i) {
             m_Seeds[i] = m_Seeds[i - 1] * 982451653ull;
         }
     }
@@ -163,7 +163,7 @@ public:
     //! Extract the dictionary word corresponding to \p word.
     CWord word(const std::string& word) const {
         TUInt64Array hash;
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             hash[i] = CHashing::safeMurmurHash64(
                 word.c_str(), static_cast<int>(word.size()), m_Seeds[i]);
         }
@@ -195,7 +195,7 @@ private:
     template<std::size_t NUMBER_OF_WORDS>
     CWord word(const TStrCPtr (&words)[NUMBER_OF_WORDS]) const {
         TUInt64Array hashes;
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             uint64_t& hash = hashes[i];
             for (std::size_t wordIndex = 0; wordIndex < NUMBER_OF_WORDS; ++wordIndex) {
                 const std::string& word = *words[wordIndex];

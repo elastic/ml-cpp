@@ -166,7 +166,7 @@ CMultivariateConstantPrior::TDouble10VecDouble10VecPr
 CMultivariateConstantPrior::marginalLikelihoodSupport() const {
     TDouble10Vec lowest(m_Dimension);
     TDouble10Vec highest(m_Dimension);
-    for (std::size_t i = 0u; i < m_Dimension; ++i) {
+    for (std::size_t i = 0; i < m_Dimension; ++i) {
         lowest[i] = boost::numeric::bounds<double>::lowest();
         highest[i] = boost::numeric::bounds<double>::highest();
     }
@@ -191,7 +191,7 @@ CMultivariateConstantPrior::TDouble10Vec10Vec
 CMultivariateConstantPrior::marginalLikelihoodCovariance() const {
     TDouble10Vec10Vec result(m_Dimension, TDouble10Vec(m_Dimension, 0.0));
     if (this->isNonInformative()) {
-        for (std::size_t i = 0u; i < m_Dimension; ++i) {
+        for (std::size_t i = 0; i < m_Dimension; ++i) {
             result[i][i] = boost::numeric::bounds<double>::highest();
         }
     }
@@ -238,7 +238,7 @@ CMultivariateConstantPrior::jointLogMarginalLikelihood(const TDouble10Vec1Vec& s
 
     double numberSamples = 0.0;
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i].size() != m_Dimension) {
             LOG_ERROR(<< "Unexpected dimension: " << samples[i].size() << " != " << m_Dimension);
             continue;

@@ -63,7 +63,7 @@ void CRandomNumbers::generateRandomMultivariateNormals(
         constexpr int N_{static_cast<int>(N)};
         Eigen::Matrix<T, N_, N_> covariance = Eigen::Matrix<T, N_, N_>::Zero();
 
-        for (std::size_t j = 0u; j < N; ++j) {
+        for (std::size_t j = 0; j < N; ++j) {
             covariance(j, j) = variances[i * N + j];
         }
 
@@ -78,7 +78,7 @@ void CRandomNumbers::generateRandomMultivariateNormals(
         this->generateUniformSamples(0.0, boost::math::constants::two_pi<double>(), 2, thetas);
 
         Eigen::Matrix<T, N_, N_> rotation = Eigen::Matrix<T, N_, N_>::Identity();
-        for (std::size_t j = 1u; j < coordinates.size(); j += 2) {
+        for (std::size_t j = 1; j < coordinates.size(); j += 2) {
             double ct = std::cos(thetas[j / 2]);
             double st = std::sin(thetas[j / 2]);
 
@@ -96,13 +96,13 @@ void CRandomNumbers::generateRandomMultivariateNormals(
 
     points.resize(k);
     TDoubleVecVec pointsi;
-    for (std::size_t i = 0u; i < k; ++i) {
+    for (std::size_t i = 0; i < k; ++i) {
         LOG_TRACE(<< "mean = " << means[i]);
         LOG_TRACE(<< "covariance = " << covariances[i]);
         this->generateMultivariateNormalSamples(
             means[i].template toVector<TDoubleVec>(),
             covariances[i].template toVectors<TDoubleVecVec>(), sizes[i], pointsi);
-        for (std::size_t j = 0u; j < pointsi.size(); ++j) {
+        for (std::size_t j = 0; j < pointsi.size(); ++j) {
             points[i].emplace_back(pointsi[j]);
         }
     }

@@ -50,7 +50,7 @@ public:
         std::size_t n = std::min(samples.first.size(), samples.second.size());
         VECTOR result;
         result.reserve(n);
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             result.push_back(0.5 * (samples.first[i] + samples.second[i]));
         }
         return result;
@@ -987,7 +987,7 @@ private:
         //! Update the statistic with \p n copies of \p x.
         bool add(const T& x, std::size_t n) {
             bool result = false;
-            for (std::size_t i = 0u; i < std::min(n, m_Statistics.size()); ++i) {
+            for (std::size_t i = 0; i < std::min(n, m_Statistics.size()); ++i) {
                 result |= this->add(x);
             }
             return result;

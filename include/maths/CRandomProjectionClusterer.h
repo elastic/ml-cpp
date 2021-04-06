@@ -100,7 +100,7 @@ protected:
         if (m_Dimension <= N) {
             m_Projections.resize(1);
             TVectorArray& projection = m_Projections[0];
-            for (std::size_t i = 0u; i < N; ++i) {
+            for (std::size_t i = 0; i < N; ++i) {
                 projection[i].extend(m_Dimension, 0.0);
                 if (i < m_Dimension) {
                     projection[i](i) = 1.0;
@@ -150,8 +150,8 @@ protected:
         TDoubleVecArray extension;
         TDoubleVec components;
         CSampling::normalSample(m_Rng, 0.0, 1.0, b * N * d, components);
-        for (std::size_t i = 0u; i < b; ++i) {
-            for (std::size_t j = 0u; j < N; ++j) {
+        for (std::size_t i = 0; i < b; ++i) {
+            for (std::size_t j = 0; j < N; ++j) {
                 extension[j].assign(&components[(i * N + j) * d],
                                     &components[(i * N + j + 1) * d]);
             }
@@ -161,7 +161,7 @@ protected:
                 return false;
             }
 
-            for (std::size_t j = 0u; j < N; ++j) {
+            for (std::size_t j = 0; j < N; ++j) {
                 scale(extension[j], beta);
                 TVector& projection = m_Projections[i][j];
                 projection *= alpha;
@@ -176,7 +176,7 @@ protected:
 private:
     //! Scale the values in the vector \p x by \p scale.
     void scale(TDoubleVec& x, double scale) {
-        for (std::size_t i = 0u; i < x.size(); ++i) {
+        for (std::size_t i = 0; i < x.size(); ++i) {
             x[i] *= scale;
         }
     }
@@ -235,16 +235,16 @@ public:
 
     //! Reserve space for \p n data points.
     void reserve(std::size_t n) {
-        for (std::size_t i = 0u; i < m_ProjectedData.size(); ++i) {
+        for (std::size_t i = 0; i < m_ProjectedData.size(); ++i) {
             m_ProjectedData[i].reserve(n);
         }
     }
 
     //! Add projected data for \p x.
     void add(const TVector& x) {
-        for (std::size_t i = 0u; i < this->projections().size(); ++i) {
+        for (std::size_t i = 0; i < this->projections().size(); ++i) {
             TVectorNx1 px;
-            for (std::size_t j = 0u; j < N; ++j) {
+            for (std::size_t j = 0; j < N; ++j) {
                 px(j) = this->projections()[i][j].inner(x);
             }
             m_ProjectedData[i].push_back(px);
@@ -347,14 +347,14 @@ protected:
         // Filled in with the samples of the (i,j)'th cluster.
         TSizeVec sij;
 
-        for (std::size_t i = 0u; i < b; ++i) {
+        for (std::size_t i = 0; i < b; ++i) {
             LOG_TRACE(<< "projection " << i);
             P = m_ProjectedData[i];
 
             // Create a lookup of points to their indices.
             lookup.clear();
             lookup.rehash(P.size());
-            for (std::size_t j = 0u; j < m_ProjectedData[i].size(); ++j) {
+            for (std::size_t j = 0; j < m_ProjectedData[i].size(); ++j) {
                 lookup[std::cref(m_ProjectedData[i][j])] = j;
             }
 
@@ -365,7 +365,7 @@ protected:
             double ni = static_cast<double>(clusters.size());
             LOG_TRACE(<< "# clusters = " << ni);
 
-            for (std::size_t j = 0u; j < clusters.size(); ++j) {
+            for (std::size_t j = 0; j < clusters.size(); ++j) {
                 const TVectorNx1Vec& points = clusters[j].points();
                 LOG_TRACE(<< "# points = " << points.size());
 
@@ -390,7 +390,7 @@ protected:
                 pij.reserve(nij);
                 fij.reserve(nij);
                 double pmax = boost::numeric::bounds<double>::lowest();
-                for (std::size_t k = 0u; k < nij; ++k) {
+                for (std::size_t k = 0; k < nij; ++k) {
                     std::size_t index = lookup[std::cref(points[k])];
                     if (I.count(index) == 0) {
                         TEigenVectorNx1 x = toDenseVector(points[k] - mij);
@@ -402,11 +402,11 @@ protected:
 
                 if (pij.size() > 0) {
                     double Zij = 0.0;
-                    for (std::size_t k = 0u; k < pij.size(); ++k) {
+                    for (std::size_t k = 0; k < pij.size(); ++k) {
                         pij[k] = std::exp(pij[k] - pmax);
                         Zij += pij[k];
                     }
-                    for (std::size_t k = 0u; k < pij.size(); ++k) {
+                    for (std::size_t k = 0; k < pij.size(); ++k) {
                         pij[k] /= Zij;
                     }
                     LOG_TRACE(<< "pij = " << core::CContainerPrinter::print(pij));
@@ -417,7 +417,7 @@ protected:
                     LOG_TRACE(<< "sij = " << core::CContainerPrinter::print(sij));
 
                     // Save the relevant data for the i'th clustering.
-                    for (std::size_t k = 0u; k < nsij; ++k) {
+                    for (std::size_t k = 0; k < nsij; ++k) {
                         I.insert(fij[sij[k]]);
                     }
                 }
@@ -445,8 +445,8 @@ protected:
         S.reserve(I.size());
         TVector concat(b * N);
         for (auto i : I) {
-            for (std::size_t j = 0u; j < b; ++j) {
-                for (std::size_t k = 0u; k < N; ++k) {
+            for (std::size_t j = 0; j < b; ++j) {
+                for (std::size_t k = 0; k < N; ++k) {
                     concat(N * j + k) = m_ProjectedData[j][i](k);
                 }
             }
@@ -454,16 +454,16 @@ protected:
             S.push_back(concat);
         }
         TVectorSizeUMap lookup(S.size());
-        for (std::size_t i = 0u; i < S.size(); ++i) {
+        for (std::size_t i = 0; i < S.size(); ++i) {
             lookup[S[i]] = i;
         }
         CKdTree<TVector> samples;
         samples.build(S);
 
         // Compute the neighbourhoods.
-        for (std::size_t i = 0u; i < n; ++i) {
-            for (std::size_t j = 0u; j < b; ++j) {
-                for (std::size_t k = 0u; k < N; ++k) {
+        for (std::size_t i = 0; i < n; ++i) {
+            for (std::size_t j = 0; j < b; ++j) {
+                for (std::size_t k = 0; k < N; ++k) {
                     concat(N * j + k) = m_ProjectedData[j][i](k);
                 }
             }
@@ -498,7 +498,7 @@ protected:
         TMeanAccumulatorVecVec S_(h);
 
         TVectorVec Pi(h);
-        for (std::size_t i = 0u; i < b; ++i) {
+        for (std::size_t i = 0; i < b; ++i) {
             const TVectorNx1Vec& X = m_ProjectedData[i];
             const TDoubleVec& Wi = W[i];
             const TVectorNx1Vec& Mi = M[i];
@@ -511,44 +511,44 @@ protected:
 
             // Compute the probability each neighbourhood is from
             // a given cluster.
-            for (std::size_t c = 0u; c < nci; ++c) {
+            for (std::size_t c = 0; c < nci; ++c) {
                 double wic = std::log(Wi[c]) - 0.5 * this->logDeterminant(Ci[c]);
                 LOG_TRACE(<< "  w(" << i << "," << c << ") = " << wic);
-                for (std::size_t j = 0u; j < h; ++j) {
+                for (std::size_t j = 0; j < h; ++j) {
                     std::size_t hj = H[j].size();
                     Pi[j](c) = static_cast<double>(hj) * wic;
-                    for (std::size_t k = 0u; k < hj; ++k) {
+                    for (std::size_t k = 0; k < hj; ++k) {
                         TEigenVectorNx1 x = toDenseVector(X[H[j][k]] - Mi[c]);
                         Pi[j](c) -= 0.5 * x.transpose() * Ci[c].solve(x);
                     }
                     LOG_TRACE(<< "    P(" << j << "," << c << ") = " << Pi[j](c));
                 }
             }
-            for (std::size_t j = 0u; j < h; ++j) {
+            for (std::size_t j = 0; j < h; ++j) {
                 double Pmax = *std::max_element(Pi[j].begin(), Pi[j].end());
                 double Z = 0.0;
-                for (std::size_t c = 0u; c < nci; ++c) {
+                for (std::size_t c = 0; c < nci; ++c) {
                     Pi[j](c) = std::exp(Pi[j](c) - Pmax);
                     Z += Pi[j](c);
                 }
-                for (std::size_t c = 0u; c < nci; ++c) {
+                for (std::size_t c = 0; c < nci; ++c) {
                     Pi[j](c) /= Z;
                 }
                 LOG_TRACE(<< "  P(" << j << ") = " << Pi[j]);
             }
 
             // Compute the similarities.
-            for (std::size_t j = 0u; j < h; ++j) {
+            for (std::size_t j = 0; j < h; ++j) {
                 S_[j].resize(j + 1);
-                for (std::size_t k = 0u; k <= j; ++k) {
+                for (std::size_t k = 0; k <= j; ++k) {
                     S_[j][k].add(-std::log(std::max(
                         Pi[j].inner(Pi[k]), boost::numeric::bounds<double>::smallest())));
                 }
             }
         }
-        for (std::size_t i = 0u; i < S_.size(); ++i) {
+        for (std::size_t i = 0; i < S_.size(); ++i) {
             S[i].reserve(S_[i].size());
-            for (std::size_t j = 0u; j < S_[i].size(); ++j) {
+            for (std::size_t j = 0; j < S_[i].size(); ++j) {
                 S[i].push_back(CBasicStatistics::mean(S_[i][j]));
             }
         }
@@ -575,7 +575,7 @@ protected:
 
         TDoubleTupleVec heights;
         heights.reserve(tree.size());
-        for (std::size_t i = 0u; i < tree.size(); ++i) {
+        for (std::size_t i = 0; i < tree.size(); ++i) {
             heights.push_back(TDoubleTuple());
             heights.back().add(tree[i].height());
         }
@@ -592,10 +592,10 @@ protected:
                       << ", height = " << height);
             const TNode& root = tree.back();
             root.clusteringAt(height, result);
-            for (std::size_t i = 0u; i < result.size(); ++i) {
+            for (std::size_t i = 0; i < result.size(); ++i) {
                 TSizeVec& ri = result[i];
                 std::size_t n = ri.size();
-                for (std::size_t j = 0u; j < n; ++j) {
+                for (std::size_t j = 0; j < n; ++j) {
                     ri.insert(ri.end(), H[ri[j]].begin(), H[ri[j]].end());
                 }
                 ri.erase(ri.begin(), ri.begin() + n);

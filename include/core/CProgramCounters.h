@@ -179,6 +179,14 @@ struct SCounterDefinition {
 //! A singleton class: there should only be one collection of global counters
 //!
 class CORE_EXPORT CProgramCounters {
+public:
+    //! \brief
+    //! The cache of program counters is cleared upon destruction of an instance of this class.
+    class CORE_EXPORT CCacheManager {
+    public:
+        ~CCacheManager();
+    };
+
 private:
     //! \brief
     //! An atomic counter object
@@ -257,6 +265,9 @@ public:
 
     //! Copy the collection of live counters to a cache
     static void cacheCounters();
+
+    //! Clear the collection of cached counters
+    static void clearCachedCounters();
 
     //! \name Persistence
     //@{

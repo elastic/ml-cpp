@@ -202,7 +202,7 @@ public:
     void add(const TPointPreciseVec& points) {
         TPointPreciseDoublePrVec weightedPoints;
         weightedPoints.reserve(points.size());
-        for (std::size_t i = 0u; i < points.size(); ++i) {
+        for (std::size_t i = 0; i < points.size(); ++i) {
             weightedPoints.push_back(TPointPreciseDoublePr(points[i], 1.0));
         }
         this->add(weightedPoints);

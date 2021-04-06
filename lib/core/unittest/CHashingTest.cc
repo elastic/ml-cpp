@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
         double collisionsRandom = 0.0;
         double hashedRandom = 0.0;
 
-        for (std::size_t h = 0u; h < hashes.size(); ++h) {
+        for (std::size_t h = 0; h < hashes.size(); ++h) {
             LOG_DEBUG(<< "**** Testing hash = " << hashes[h].print() << " ****");
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
@@ -59,10 +59,10 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
 
                 LOG_DEBUG(<< "m = " << m[i] << ", U = [" << n << "]");
 
-                uint32_t collisions = 0u;
+                uint32_t collisions = 0;
 
                 for (uint32_t x = 0; x < n; ++x) {
-                    for (uint32_t y = x + 1u; y < n; ++y) {
+                    for (uint32_t y = x + 1; y < n; ++y) {
                         uint32_t hx = hash(x);
                         uint32_t hy = hash(y);
                         if (hx == hy) {
@@ -116,16 +116,16 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
         double collisionsRandom = 0.0;
         double hashedRandom = 0.0;
 
-        for (std::size_t h = 0u; h < hashes.size(); ++h) {
+        for (std::size_t h = 0; h < hashes.size(); ++h) {
             LOG_DEBUG(<< "Testing hash = " << hashes[h].print());
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
 
-            uint32_t collisions = 0u;
+            uint32_t collisions = 0;
             TUInt32PrSet uniquePairs;
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
-                for (std::size_t j = i + 1u; j < samples.size(); ++j) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
+                for (std::size_t j = i + 1; j < samples.size(); ++j) {
                     if (samples[i] != samples[j] &&
                         uniquePairs.insert(TUInt32Pr(samples[i], samples[j])).second) {
                         uint32_t hx = hash(samples[i]);
@@ -171,12 +171,12 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
 
         TUint32PrUIntMap uniqueHashedPairs;
 
-        for (std::size_t h = 0u; h < hashes.size(); ++h) {
+        for (std::size_t h = 0; h < hashes.size(); ++h) {
             LOG_DEBUG(<< "Testing hash = " << hashes[h].print());
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
-            for (uint32_t x = 0u; x < 2000; ++x) {
-                for (uint32_t y = x + 1u; y < 2000; ++y) {
+            for (uint32_t x = 0; x < 2000; ++x) {
+                for (uint32_t y = x + 1; y < 2000; ++y) {
                     uint32_t hx = hash(x);
                     uint32_t hy = hash(y);
                     ++uniqueHashedPairs[TUInt32Pr(hx, hy)];
@@ -238,8 +238,8 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
     using TSizeSizeMap = std::map<std::size_t, std::size_t>;
     using TSizeSizeMapCItr = TSizeSizeMap::const_iterator;
 
-    const std::size_t stringSize = 32u;
-    const std::size_t numberStrings = 500000u;
+    const std::size_t stringSize = 32;
+    const std::size_t numberStrings = 500000;
 
     test::CRandomNumbers rng;
     TStrVec testStrings;
@@ -257,14 +257,14 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
         {
             boost::unordered_set<std::string> s;
             stopWatch.reset(true);
-            for (std::size_t i = 0u; i < testStrings.size(); ++i) {
+            for (std::size_t i = 0; i < testStrings.size(); ++i) {
                 s.insert(testStrings[i]);
             }
             defaultInsertTime += stopWatch.stop();
             size_t total(0);
             stopWatch.reset(true);
             for (int i = 0; i < 5; ++i) {
-                for (std::size_t j = 0u; j < testStrings.size(); ++j) {
+                for (std::size_t j = 0; j < testStrings.size(); ++j) {
                     total += s.count(testStrings[j]);
                 }
             }
@@ -277,14 +277,14 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
         {
             boost::unordered_set<std::string, CHashing::CMurmurHash2String> s;
             stopWatch.reset(true);
-            for (std::size_t i = 0u; i < testStrings.size(); ++i) {
+            for (std::size_t i = 0; i < testStrings.size(); ++i) {
                 s.insert(testStrings[i]);
             }
             murmurInsertTime += stopWatch.stop();
             size_t total(0);
             stopWatch.reset(true);
             for (int i = 0; i < 5; ++i) {
-                for (std::size_t j = 0u; j < testStrings.size(); ++j) {
+                for (std::size_t j = 0; j < testStrings.size(); ++j) {
                     total += s.count(testStrings[j]);
                 }
             }
@@ -314,11 +314,11 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
     // Check the number of collisions.
     TSizeSizeMap uniqueHashes;
     CHashing::CMurmurHash2String h;
-    for (std::size_t i = 0u; i < testStrings.size(); ++i) {
+    for (std::size_t i = 0; i < testStrings.size(); ++i) {
         ++uniqueHashes[h(testStrings[i]) % 3000017];
     }
 
-    std::size_t maxCollisions = 0u;
+    std::size_t maxCollisions = 0;
     for (TSizeSizeMapCItr i = uniqueHashes.begin(); i != uniqueHashes.end(); ++i) {
         maxCollisions = std::max(maxCollisions, i->second);
     }
@@ -341,15 +341,15 @@ BOOST_AUTO_TEST_CASE(testHashCombine) {
     using TStrVec = std::vector<std::string>;
     using TSizeSet = std::set<uint64_t>;
 
-    const std::size_t stringSize = 32u;
-    const std::size_t numberStrings = 2000000u;
+    const std::size_t stringSize = 32;
+    const std::size_t numberStrings = 2000000;
 
     test::CRandomNumbers rng;
 
     TStrVec testStrings;
     TSizeSet uniqueHashes;
     TSizeSet uniqueHashCombines;
-    for (std::size_t i = 0u; i < 5u; ++i) {
+    for (std::size_t i = 0; i < 5; ++i) {
         LOG_DEBUG(<< "test " << i);
 
         // This will overwrite the previous contents of testStrings
@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_CASE(testHashCombine) {
         uniqueHashes.clear();
         uniqueHashCombines.clear();
 
-        for (std::size_t j = 0u; j < numberStrings; j += 2) {
+        for (std::size_t j = 0; j < numberStrings; j += 2) {
             uniqueHashes.insert(hasher(testStrings[j] + testStrings[j + 1]));
             uniqueHashCombines.insert(core::CHashing::hashCombine(
                 static_cast<uint64_t>(hasher(testStrings[j])),

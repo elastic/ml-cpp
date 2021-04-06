@@ -165,7 +165,7 @@ public:
     CMultivariateMultimodalPrior(maths_t::EDataType dataType, TPriorPtrVec& priors)
         : CMultivariatePrior(dataType, 0.0) {
         m_Modes.reserve(priors.size());
-        for (std::size_t i = 0u; i < priors.size(); ++i) {
+        for (std::size_t i = 0; i < priors.size(); ++i) {
             m_Modes.emplace_back(i, std::move(priors[i]));
         }
     }
@@ -314,7 +314,7 @@ public:
 
             TPoint mean = hasSeasonalScale ? this->mean() : TPoint(0.0);
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 TPoint x(samples[i]);
                 if (!CMathsFuncs::isFinite(x)) {
                     LOG_ERROR(<< "Discarding " << x);
@@ -447,7 +447,7 @@ public:
             weight = std::exp(weight - maxWeight[0]);
             Z += weight;
         }
-        for (std::size_t i = 0u; i < weights.size(); ++i) {
+        for (std::size_t i = 0; i < weights.size(); ++i) {
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
@@ -499,7 +499,7 @@ public:
             weight = std::exp(weight - maxWeight[0]);
             Z += weight;
         }
-        for (std::size_t i = 0u; i < weights.size(); ++i) {
+        for (std::size_t i = 0; i < weights.size(); ++i) {
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
@@ -556,7 +556,7 @@ public:
 
         TPoint result(m_Modes[0].s_Prior->marginalLikelihoodMean());
         double distance = (value - result).euclidean();
-        for (std::size_t i = 1u; i < m_Modes.size(); ++i) {
+        for (std::size_t i = 1; i < m_Modes.size(); ++i) {
             TPoint mean(m_Modes[i].s_Prior->marginalLikelihoodMean());
             double di = (value - mean).euclidean();
             if (di < distance) {
@@ -697,12 +697,12 @@ public:
 
         TDouble10VecWeightsAry1Vec weight{TWeights::unit<TDouble10Vec>(N)};
         try {
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = this->smallest(maths_t::countForUpdate(weights[i]));
                 TPoint seasonalScale =
                     sqrt(TPoint(maths_t::seasonalVarianceScale(weights[i])));
                 double logSeasonalScale = 0.0;
-                for (std::size_t j = 0u; j < seasonalScale.dimension(); ++j) {
+                for (std::size_t j = 0; j < seasonalScale.dimension(); ++j) {
                     logSeasonalScale += std::log(seasonalScale(j));
                 }
 
@@ -834,7 +834,7 @@ public:
         inserter.insertLevel(SEED_PRIOR_TAG,
                              std::bind<void>(CPriorStateSerialiser(), std::cref(*m_SeedPrior),
                                              std::placeholders::_1));
-        for (std::size_t i = 0u; i < m_Modes.size(); ++i) {
+        for (std::size_t i = 0; i < m_Modes.size(); ++i) {
             inserter.insertLevel(MODE_TAG, std::bind(&TMode::acceptPersistInserter,
                                                      &m_Modes[i], std::placeholders::_1));
         }

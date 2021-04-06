@@ -768,32 +768,23 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     (logMinDownsampleFactor + logMaxDownsampleFactor) / 2.0};
                 LOG_TRACE(<< "mean log downsample factor = " << meanLogDownSampleFactor);
 
-                double previousDownsampleFactor{m_TreeImpl->m_DownsampleFactor};
-                double previousDepthPenaltyMultiplier{
+                double initialDownsampleFactor{m_TreeImpl->m_DownsampleFactor};
+                double initialDepthPenaltyMultiplier{
                     m_TreeImpl->m_Regularization.depthPenaltyMultiplier()};
-                double previousTreeSizePenaltyMultiplier{
+                double initialTreeSizePenaltyMultiplier{
                     m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier()};
-                double previousLeafWeightPenaltyMultiplier{
+                double initialLeafWeightPenaltyMultiplier{
                     m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier()};
 
                 // We need to scale the regularisation terms to account for the difference
                 // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
-                    double scale{previousDownsampleFactor / downsampleFactor};
-                    if (tree.m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-                        tree.m_Regularization.depthPenaltyMultiplier(
-                            scale * previousDepthPenaltyMultiplier);
-                    }
-                    if (tree.m_RegularizationOverride.treeSizePenaltyMultiplier() ==
-                        boost::none) {
-                        tree.m_Regularization.treeSizePenaltyMultiplier(
-                            scale * previousTreeSizePenaltyMultiplier);
-                    }
-                    if (tree.m_RegularizationOverride.leafWeightPenaltyMultiplier() ==
-                        boost::none) {
-                        tree.m_Regularization.leafWeightPenaltyMultiplier(
-                            scale * previousLeafWeightPenaltyMultiplier);
-                    }
+                    double scale{initialDownsampleFactor / downsampleFactor};
+                    tree.m_Regularization.depthPenaltyMultiplier(initialDepthPenaltyMultiplier);
+                    tree.m_Regularization.treeSizePenaltyMultiplier(initialTreeSizePenaltyMultiplier);
+                    tree.m_Regularization.leafWeightPenaltyMultiplier(
+                        initialLeafWeightPenaltyMultiplier);
+                    tree.scaleRegularizers(scale);
                     return scale;
                 };
 

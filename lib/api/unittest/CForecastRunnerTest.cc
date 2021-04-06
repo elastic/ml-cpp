@@ -58,7 +58,7 @@ void generatePopulationRecord(ml::core_t::TTime time, CTestAnomalyJob::TStrStrUM
 void populateJob(TGenerateRecord generateRecord, CTestAnomalyJob& job, std::size_t buckets = 1000) {
     ml::core_t::TTime time = START_TIME;
     CTestAnomalyJob::TStrStrUMap dataRows;
-    for (std::size_t bucket = 0u; bucket < 2 * buckets;
+    for (std::size_t bucket = 0; bucket < 2 * buckets;
          ++bucket, time += (BUCKET_LENGTH / 2)) {
         generateRecord(time, dataRows);
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));

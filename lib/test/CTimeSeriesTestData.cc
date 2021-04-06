@@ -241,7 +241,7 @@ bool CTimeSeriesTestData::parseLine(const core::CRegex& tokenRegex,
     }
 
     results.emplace_back(time, T());
-    for (std::size_t i = 1u; i < tokens.size(); ++i) {
+    for (std::size_t i = 1; i < tokens.size(); ++i) {
         double value(0.0);
         if (core::CStringUtils::stringToType(tokens[i], value) == false) {
             LOG_ERROR(<< "Invalid test data '" << line << "'");

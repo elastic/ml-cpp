@@ -71,8 +71,10 @@ CTokenListCategory::CTokenListCategory(bool isDryRun,
 }
 
 CTokenListCategory::CTokenListCategory(core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(std::bind(&CTokenListCategory::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CTokenListCategory::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

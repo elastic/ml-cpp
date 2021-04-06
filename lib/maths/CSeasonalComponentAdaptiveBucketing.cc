@@ -102,8 +102,10 @@ CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing(
     double minimumBucketLength,
     core::CStateRestoreTraverser& traverser)
     : CAdaptiveBucketing{decayRate, minimumBucketLength} {
-    traverser.traverseSubLevel(std::bind(&CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 const CSeasonalComponentAdaptiveBucketing& CSeasonalComponentAdaptiveBucketing::

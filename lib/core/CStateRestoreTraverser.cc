@@ -25,15 +25,11 @@ void CStateRestoreTraverser::setBadState() {
 }
 
 CStateRestoreTraverser::CAutoLevel::CAutoLevel(CStateRestoreTraverser& traverser)
-    : m_Traverser(traverser), m_Descended(traverser.descend()), m_BadState(false) {
-}
-
-void CStateRestoreTraverser::CAutoLevel::setBadState() {
-    m_BadState = true;
+    : m_Traverser{traverser}, m_Descended{traverser.descend()} {
 }
 
 CStateRestoreTraverser::CAutoLevel::~CAutoLevel() {
-    if (m_Descended && !m_BadState) {
+    if (m_Descended && m_Traverser.haveBadState() == false) {
         if (m_Traverser.ascend() == false) {
             LOG_ERROR(<< "Inconsistency - could not ascend following previous descend");
             m_Traverser.setBadState();

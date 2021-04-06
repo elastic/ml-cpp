@@ -98,7 +98,7 @@ public:
         m_CentreFilter.prune(node.boundingBox());
         const TSizeVec& filtered = m_CentreFilter.filter();
         maths::CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2> closest;
-        for (std::size_t i = 0u; i < m_Centres.size(); ++i) {
+        for (std::size_t i = 0; i < m_Centres.size(); ++i) {
             closest.add(TDoubleSizePr((m_Centres[i] - node.s_Point).euclidean(), i));
         }
         closest.sort();
@@ -122,9 +122,9 @@ private:
 
 template<typename POINT>
 std::pair<std::size_t, double> closest(const std::vector<POINT>& y, const POINT& x) {
-    std::size_t closest = 0u;
+    std::size_t closest = 0;
     double dmin = (x - y[0]).euclidean();
-    for (std::size_t i = 1u; i < y.size(); ++i) {
+    for (std::size_t i = 1; i < y.size(); ++i) {
         double di = (x - y[i]).euclidean();
         if (di < dmin) {
             closest = i;
@@ -139,17 +139,17 @@ bool kmeans(const std::vector<POINT>& points, std::size_t iterations, std::vecto
     using TMeanAccumlator = typename maths::CBasicStatistics::SSampleMean<POINT>::TAccumulator;
 
     std::vector<TMeanAccumlator> centroids;
-    for (std::size_t i = 0u; i < iterations; ++i) {
+    for (std::size_t i = 0; i < iterations; ++i) {
         centroids.clear();
         centroids.resize(centres.size());
 
-        for (std::size_t j = 0u; j < points.size(); ++j) {
+        for (std::size_t j = 0; j < points.size(); ++j) {
             std::size_t centre = closest(centres, points[j]).first;
             centroids[centre].add(points[j]);
         }
 
         bool converged = true;
-        for (std::size_t j = 0u; j < centres.size(); ++j) {
+        for (std::size_t j = 0; j < centres.size(); ++j) {
             if (maths::CBasicStatistics::mean(centroids[j]) != centres[j]) {
                 centres[j] = maths::CBasicStatistics::mean(centroids[j]);
                 converged = false;
@@ -170,11 +170,11 @@ double square(double x) {
 
 double sumSquareResiduals(const TVector2VecVec& points) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    for (std::size_t i = 0; i < points.size(); ++i) {
         TMean2Accumulator m_;
         m_.add(points[i]);
         TVector2 m = maths::CBasicStatistics::mean(m_);
-        for (std::size_t j = 0u; j < points[i].size(); ++j) {
+        for (std::size_t j = 0; j < points[i].size(); ++j) {
             result += square((points[i][j] - m).euclidean());
         }
     }
@@ -185,13 +185,13 @@ double sumSquareResiduals(const TVector2VecVec& points) {
 BOOST_AUTO_TEST_CASE(testDataPropagation) {
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 1u; i <= 100; ++i) {
+    for (std::size_t i = 1; i <= 100; ++i) {
         TDoubleVec samples;
         rng.generateUniformSamples(-400.0, 400.0, 1000, samples);
         {
             maths::CKdTree<TVector2, CKMeansForTest<TVector2>::TKdTreeNodeData> tree;
             TVector2Vec points;
-            for (std::size_t j = 0u; j < samples.size(); j += 2) {
+            for (std::size_t j = 0; j < samples.size(); j += 2) {
                 points.push_back(TVector2(&samples[j], &samples[j + 2]));
             }
             tree.build(points);
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testDataPropagation) {
         {
             maths::CKdTree<TVector4, CKMeansForTest<TVector4>::TKdTreeNodeData> tree;
             TVector4Vec points;
-            for (std::size_t j = 0u; j < samples.size(); j += 4) {
+            for (std::size_t j = 0; j < samples.size(); j += 4) {
                 points.push_back(TVector4(&samples[j], &samples[j + 4]));
             }
             tree.build(points);
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(testFilter) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 1u; i <= 100; ++i) {
+    for (std::size_t i = 1; i <= 100; ++i) {
         TDoubleVec samples1;
         rng.generateUniformSamples(-400.0, 400.0, 4000, samples1);
         TDoubleVec samples2;
@@ -229,12 +229,12 @@ BOOST_AUTO_TEST_CASE(testFilter) {
             maths::CKdTree<TVector2, CKMeansForTest<TVector2>::TKdTreeNodeData> tree;
 
             TVector2Vec points;
-            for (std::size_t j = 0u; j < samples1.size(); j += 2) {
+            for (std::size_t j = 0; j < samples1.size(); j += 2) {
                 points.push_back(TVector2(&samples1[j], &samples1[j + 2]));
             }
             tree.build(points);
             TVector2Vec centres;
-            for (std::size_t j = 0u; j < samples2.size(); j += 2) {
+            for (std::size_t j = 0; j < samples2.size(); j += 2) {
                 centres.push_back(TVector2(&samples2[j], &samples2[j + 2]));
             }
             LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centres));
@@ -255,12 +255,12 @@ BOOST_AUTO_TEST_CASE(testFilter) {
             maths::CKdTree<TVector4, CKMeansForTest<TVector4>::TKdTreeNodeData> tree;
 
             TVector4Vec points;
-            for (std::size_t j = 0u; j < samples1.size(); j += 4) {
+            for (std::size_t j = 0; j < samples1.size(); j += 4) {
                 points.push_back(TVector4(&samples1[j], &samples1[j + 4]));
             }
             tree.build(points);
             TVector4Vec centres;
-            for (std::size_t j = 0u; j < samples2.size(); j += 4) {
+            for (std::size_t j = 0; j < samples2.size(); j += 4) {
                 centres.push_back(TVector4(&samples2[j], &samples2[j + 4]));
             }
             LOG_TRACE(<< "centres = " << core::CContainerPrinter::print(centres));
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 1u; i <= 100; ++i) {
+    for (std::size_t i = 1; i <= 100; ++i) {
         TDoubleVec samples1;
         rng.generateUniformSamples(-400.0, 400.0, 4000, samples1);
         TDoubleVec samples2;
@@ -296,12 +296,12 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             maths::CKdTree<TVector2, CKMeansForTest<TVector2>::TKdTreeNodeData> tree;
 
             TVector2Vec points;
-            for (std::size_t j = 0u; j < samples1.size(); j += 2) {
+            for (std::size_t j = 0; j < samples1.size(); j += 2) {
                 points.push_back(TVector2(&samples1[j], &samples1[j + 2]));
             }
             tree.build(points);
             TVector2Vec centres;
-            for (std::size_t j = 0u; j < samples2.size(); j += 2) {
+            for (std::size_t j = 0; j < samples2.size(); j += 2) {
                 centres.push_back(TVector2(&samples2[j], &samples2[j + 2]));
             }
             tree.postorderDepthFirst(CKMeansForTest<TVector2>::TDataPropagator());
@@ -311,7 +311,7 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             tree.preorderDepthFirst(computer);
 
             TMean2AccumulatorVec expectedCentroids(centres.size());
-            for (std::size_t j = 0u; j < points.size(); ++j) {
+            for (std::size_t j = 0; j < points.size(); ++j) {
                 expectedCentroids[closest(centres, points[j]).first].add(points[j]);
             }
             LOG_TRACE(<< "expected centroids = "
@@ -326,12 +326,12 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             maths::CKdTree<TVector4, CKMeansForTest<TVector4>::TKdTreeNodeData> tree;
 
             TVector4Vec points;
-            for (std::size_t j = 0u; j < samples1.size(); j += 4) {
+            for (std::size_t j = 0; j < samples1.size(); j += 4) {
                 points.push_back(TVector4(&samples1[j], &samples1[j + 4]));
             }
             tree.build(points);
             TVector4Vec centres;
-            for (std::size_t j = 0u; j < samples2.size(); j += 4) {
+            for (std::size_t j = 0; j < samples2.size(); j += 4) {
                 centres.push_back(TVector4(&samples2[j], &samples2[j + 4]));
             }
             tree.postorderDepthFirst(CKMeansForTest<TVector4>::TDataPropagator());
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
             tree.preorderDepthFirst(computer);
 
             TMean4AccumulatorVec expectedCentroids(centres.size());
-            for (std::size_t j = 0u; j < points.size(); ++j) {
+            for (std::size_t j = 0; j < points.size(); ++j) {
                 expectedCentroids[closest(centres, points[j]).first].add(points[j]);
             }
             LOG_TRACE(<< "expected centroids = "
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE(testClosestPoints) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 1u; i <= 100; ++i) {
+    for (std::size_t i = 1; i <= 100; ++i) {
         TDoubleVec samples1;
         rng.generateUniformSamples(-400.0, 400.0, 4000, samples1);
         TDoubleVec samples2;
@@ -372,12 +372,12 @@ BOOST_AUTO_TEST_CASE(testClosestPoints) {
             maths::CKdTree<TVector2, CKMeansForTest<TVector2>::TKdTreeNodeData> tree;
 
             TVector2Vec points;
-            for (std::size_t j = 0u; j < samples1.size(); j += 2) {
+            for (std::size_t j = 0; j < samples1.size(); j += 2) {
                 points.push_back(TVector2(&samples1[j], &samples1[j + 2]));
             }
             tree.build(points);
             TVector2Vec centres;
-            for (std::size_t j = 0u; j < samples2.size(); j += 2) {
+            for (std::size_t j = 0; j < samples2.size(); j += 2) {
                 centres.push_back(TVector2(&samples2[j], &samples2[j + 2]));
             }
             tree.postorderDepthFirst(CKMeansForTest<TVector2>::TDataPropagator());
@@ -387,8 +387,8 @@ BOOST_AUTO_TEST_CASE(testClosestPoints) {
                 points.size(), centres, closestPoints);
             tree.postorderDepthFirst(collector);
 
-            for (std::size_t j = 0u; j < closestPoints.size(); ++j) {
-                for (std::size_t k = 0u; k < closestPoints[j].size(); ++k) {
+            for (std::size_t j = 0; j < closestPoints.size(); ++j) {
+                for (std::size_t k = 0; k < closestPoints[j].size(); ++k) {
                     BOOST_REQUIRE_EQUAL(closest(centres, closestPoints[j][k]).first, j);
                 }
             }
@@ -397,12 +397,12 @@ BOOST_AUTO_TEST_CASE(testClosestPoints) {
             maths::CKdTree<TVector4, CKMeansForTest<TVector4>::TKdTreeNodeData> tree;
 
             TVector4Vec points;
-            for (std::size_t j = 0u; j < samples1.size(); j += 4) {
+            for (std::size_t j = 0; j < samples1.size(); j += 4) {
                 points.push_back(TVector4(&samples1[j], &samples1[j + 4]));
             }
             tree.build(points);
             TVector4Vec centres;
-            for (std::size_t j = 0u; j < samples2.size(); j += 4) {
+            for (std::size_t j = 0; j < samples2.size(); j += 4) {
                 centres.push_back(TVector4(&samples2[j], &samples2[j + 4]));
             }
             tree.postorderDepthFirst(CKMeansForTest<TVector4>::TDataPropagator());
@@ -412,8 +412,8 @@ BOOST_AUTO_TEST_CASE(testClosestPoints) {
                 points.size(), centres, closestPoints);
             tree.postorderDepthFirst(collector);
 
-            for (std::size_t j = 0u; j < closestPoints.size(); ++j) {
-                for (std::size_t k = 0u; k < closestPoints[j].size(); ++k) {
+            for (std::size_t j = 0; j < closestPoints.size(); ++j) {
+                for (std::size_t k = 0; k < closestPoints[j].size(); ++k) {
                     BOOST_REQUIRE_EQUAL(closest(centres, closestPoints[j][k]).first, j);
                 }
             }
@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE(testRun) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 1u; t <= 100; ++t) {
+    for (std::size_t t = 1; t <= 100; ++t) {
         TDoubleVec samples1;
         rng.generateUniformSamples(-400.0, 400.0, 4000, samples1);
         TDoubleVec samples2;
@@ -435,11 +435,11 @@ BOOST_AUTO_TEST_CASE(testRun) {
 
         {
             TVector2Vec points;
-            for (std::size_t i = 0u; i < samples1.size(); i += 2) {
+            for (std::size_t i = 0; i < samples1.size(); i += 2) {
                 points.push_back(TVector2(&samples1[i], &samples1[i + 2]));
             }
             TVector2Vec centres;
-            for (std::size_t i = 0u; i < samples2.size(); i += 2) {
+            for (std::size_t i = 0; i < samples2.size(); i += 2) {
                 centres.push_back(TVector2(&samples2[i], &samples2[i + 2]));
             }
 
@@ -481,11 +481,11 @@ BOOST_AUTO_TEST_CASE(testRunWithSphericalClusters) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 50; ++t) {
+    for (std::size_t t = 0; t < 50; ++t) {
         TVector2Vec points;
         TSphericalCluster2Vec clusters;
 
-        for (std::size_t i = 0u; i < boost::size(means); ++i) {
+        for (std::size_t i = 0; i < boost::size(means); ++i) {
             TVector2Vec pointsi;
             TVector2 mean(&means[i][0], &means[i][2]);
             TMatrix2 covariances(&lowerTriangle[0], &lowerTriangle[3]);
@@ -551,14 +551,14 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
 
     test::CRandomNumbers rng;
 
-    std::size_t k = 5u;
+    std::size_t k = 5;
 
     TMeanAccumulator numberClustersSampled;
     double minSSRRatio = std::numeric_limits<double>::max();
     TMeanAccumulator meanSSRRatio;
     double maxSSRRatio = 0.0;
 
-    for (std::size_t t = 0u; t < 100; ++t) {
+    for (std::size_t t = 0; t < 100; ++t) {
         TSizeVec sizes;
         sizes.push_back(400);
         sizes.push_back(300);
@@ -571,7 +571,7 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
         rng.generateRandomMultivariateNormals(sizes, means, covariances, points);
 
         TVector2Vec flatPoints;
-        for (std::size_t i = 0u; i < points.size(); ++i) {
+        for (std::size_t i = 0; i < points.size(); ++i) {
             flatPoints.insert(flatPoints.end(), points[i].begin(), points[i].end());
             std::sort(points[i].begin(), points[i].end());
         }
@@ -581,7 +581,7 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
         TSizeVec random;
         rng.generateUniformSamples(0, flatPoints.size(), k, random);
         LOG_TRACE(<< "random = " << core::CContainerPrinter::print(random));
-        for (std::size_t i = 0u; i < k; ++i) {
+        for (std::size_t i = 0; i < k; ++i) {
             randomCentres.push_back(flatPoints[random[i]]);
         }
 
@@ -591,8 +591,8 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
         kmeansPlusPlusInitialization.run(flatPoints, k, plusPlusCentres);
 
         TSizeVec sampledClusters;
-        for (std::size_t i = 0u; i < plusPlusCentres.size(); ++i) {
-            std::size_t j = 0u;
+        for (std::size_t i = 0; i < plusPlusCentres.size(); ++i) {
+            std::size_t j = 0;
             for (/**/; j < points.size(); ++j) {
                 auto next = std::lower_bound(points[j].begin(), points[j].end(),
                                              plusPlusCentres[i]);

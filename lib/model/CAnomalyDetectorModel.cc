@@ -124,7 +124,7 @@ std::string CAnomalyDetectorModel::printPeople(const TSizeVec& pids, std::size_t
         return core::CStringUtils::typeToString(pids.size()) + " in total";
     }
     std::string result{this->personName(pids[0])};
-    for (std::size_t i = 1u; i < std::min(limit, pids.size()); ++i) {
+    for (std::size_t i = 1; i < std::min(limit, pids.size()); ++i) {
         result += ' ';
         result += this->personName(pids[i]);
     }
@@ -158,7 +158,7 @@ std::string CAnomalyDetectorModel::printAttributes(const TSizeVec& cids,
         return core::CStringUtils::typeToString(cids.size()) + " in total";
     }
     std::string result{this->attributeName(cids[0])};
-    for (std::size_t i = 1u; i < std::min(limit, cids.size()); ++i) {
+    for (std::size_t i = 1; i < std::min(limit, cids.size()); ++i) {
         result += ' ';
         result += this->attributeName(cids[i]);
     }
@@ -192,7 +192,7 @@ void CAnomalyDetectorModel::sample(core_t::TTime startTime,
         m_BucketCount += 1.0;
 
         double alpha{std::exp(-this->params().s_DecayRate)};
-        for (std::size_t pid = 0u; pid < m_PersonBucketCounts.size(); ++pid) {
+        for (std::size_t pid = 0; pid < m_PersonBucketCounts.size(); ++pid) {
             m_PersonBucketCounts[pid] *= alpha;
         }
         m_BucketCount *= alpha;
@@ -288,7 +288,7 @@ uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) con
     seed = maths::CChecksum::calculate(seed, m_Params);
     seed = maths::CChecksum::calculate(seed, m_BucketCount);
     TStrCRefUInt64Map hashes;
-    for (std::size_t pid = 0u; pid < m_PersonBucketCounts.size(); ++pid) {
+    for (std::size_t pid = 0; pid < m_PersonBucketCounts.size(); ++pid) {
         if (m_DataGatherer->isPersonActive(pid)) {
             uint64_t& hash{hashes[std::cref(m_DataGatherer->personName(pid))]};
             hash = maths::CChecksum::calculate(hash, m_PersonBucketCounts[pid]);
