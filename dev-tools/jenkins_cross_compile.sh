@@ -15,8 +15,7 @@
 #    for the accessing S3
 # 2. If this is a PR build, check the code style
 # 3. Cross compile the darwin-x86_64 build of the C++
-# 4. If this is not a PR build, cross compile the linux-aarch64 build of the C++
-# 5. If this is not a PR build nor a debug build, upload the builds to the
+# 4. If this is not a PR build nor a debug build, upload the builds to the
 #    artifacts directory on S3 that subsequent Java builds will download the C++
 #    components from
 #
@@ -81,11 +80,6 @@ fi
 
 # Cross compile macOS
 ./docker_build.sh macosx
-
-# If this isn't a PR build cross compile aarch64 too
-if [ -z "$PR_AUTHOR" ] ; then
-    ./docker_build.sh linux_aarch64_cross
-fi
 
 # If this isn't a PR build and isn't a debug build then upload the artifacts
 if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
