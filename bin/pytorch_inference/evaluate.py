@@ -33,6 +33,7 @@ import os
 import platform
 import stat
 import subprocess
+import sys
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
@@ -150,14 +151,13 @@ def main():
 
             doc_count = 0
             results_match = True
-            # output is NDJSON
-            for jsonline in output_file:
-                try:
-                    result = json.loads(jsonline)
-                except:
-                    print("Error parsing json: ", jsonline)
-                    return
+            try:
+                result_docs = json.load(output_file)
+            except:
+                print("Error parsing json: ", sys.exc_info()[0])
+                return
 
+            for result in result_docs:
                 expected = test_evaluation[doc_count]['expected_output']
                  
                 tolerance = 1e-04
