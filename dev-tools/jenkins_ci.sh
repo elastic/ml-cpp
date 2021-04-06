@@ -9,19 +9,15 @@
 #
 # 1. If this is not a PR build nor a debug build, obtain credentials from Vault
 #    for the accessing S3
-# 2. If this is a PR build and running on x86_64, check the code style
-# 3. Build and unit test the Linux version of the C++ on the native architecture
-# 4. If running on x86_64, cross compile the macOS build of the C++
-# 5. If this is not a PR build and running on x86_64, cross compile the aarch
-#    build of the C++
-# 6. If this is not a PR build nor a debug build, upload the builds to the
+# 2. Build and unit test the Linux version of the C++ on the native architecture
+# 3. For Linux PR builds, also run some Java integration tests using the newly
+#    built C++ code
+# 4. If this is not a PR build nor a debug build, upload the builds to the
 #    artifacts directory on S3 that subsequent Java builds will download the C++
 #    components from
 #
 # The steps run in Docker containers that ensure OS dependencies
 # are appropriate given the support matrix.
-#
-# The macOS build cannot be unit tested as it is cross-compiled.
 
 : "${HOME:?Need to set HOME to a non-empty value.}"
 : "${WORKSPACE:?Need to set WORKSPACE to a non-empty value.}"
@@ -90,18 +86,11 @@ docker --version
 
 # Build and test the native Linux architecture
 if [ "$HARDWARE_ARCH" = x86_64 ] ; then
-
-    # If this is a PR build then fail fast on style checks
-    if [ -n "$PR_AUTHOR" ] ; then
-        ./docker_check_style.sh
-    fi
-
     if [ "$RUN_TESTS" = false ] ; then
         ./docker_build.sh linux
     else
         ./docker_test.sh linux
     fi
-
 elif [ "$HARDWARE_ARCH" = aarch64 ] ; then
     if [ "$RUN_TESTS" = false ] ; then
         ./docker_build.sh linux_aarch64_native
@@ -119,16 +108,6 @@ if [ -n "$PR_AUTHOR" ] ; then
         ./run_es_tests.sh "${GIT_TOPLEVEL}/.." "$(cd "${IVY_REPO}" && pwd)"
     else
         echo 'Not running ES integration tests on non-Linux platform:' $(uname -a)
-    fi
-fi
-
-# TODO - remove the cross compiles once the dedicated script is integrated into Jenkins
-# Cross compile macOS
-if [ "$HARDWARE_ARCH" = x86_64 ] ; then
-    ./docker_build.sh macosx
-    # If this isn't a PR build cross compile aarch64 too
-    if [ -z "$PR_AUTHOR" ] ; then
-        ./docker_build.sh linux_aarch64_cross
     fi
 fi
 
