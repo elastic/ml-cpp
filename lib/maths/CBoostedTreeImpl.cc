@@ -167,9 +167,13 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
                                    CBoostedTree::TLossFunctionUPtr loss,
                                    TAnalysisInstrumentationPtr instrumentation)
     : m_NumberThreads{numberThreads}, m_Loss{std::move(loss)},
-      m_BestHyperparameters{
-          m_Regularization,       m_DownsampleFactor,   m_Eta,
-          m_EtaGrowthRatePerTree, m_MaximumNumberTrees, m_FeatureBagFraction},
+      m_BestHyperparameters(m_Regularization,
+                            m_DownsampleFactor,
+                            m_Eta,
+                            m_EtaGrowthRatePerTree,
+                            m_MaximumNumberTrees,
+                            m_FeatureBagFraction,
+                            m_PredictionChangeCost),
       m_Instrumentation{instrumentation != nullptr ? instrumentation : &INSTRUMENTATION_STUB} {
 }
 
@@ -218,8 +222,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         // Hyperparameter optimisation loop.
 
-        this->initializePerFoldTestLosses();
-        this->initializeHyperparameterSamples();
+        this->initializePerFoldTestLosses(m_NumberRounds);
+        this->initializeHyperparameterSamples(m_NumberRounds);
 
         while (m_CurrentRound < m_NumberRounds) {
 
@@ -231,12 +235,16 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             TMeanVarAccumulator lossMoments;
             std::size_t maximumNumberTrees;
             double numberNodes;
-            std::tie(lossMoments, maximumNumberTrees, numberNodes) =
-                this->crossValidateForest(frame);
+            std::tie(lossMoments, maximumNumberTrees, numberNodes) = this->crossValidateForest(
+                frame, m_CurrentRound, m_MaximumNumberTrees,
+                [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
+                       const core::CPackedBitVector& testingRowMask,
+                       core::CLoopProgress& trainingProgress) {
+                    return this->trainForest(frame_, trainingRowMask,
+                                             testingRowMask, trainingProgress);
+                });
 
-            m_MeanLossAccumulator.add(CBasicStatistics::mean(lossMoments));
-
-            this->captureBestHyperparameters(lossMoments, maximumNumberTrees, numberNodes);
+            this->captureBestHyperparameters(lossMoments, maximumNumberTrees, 0.0, numberNodes);
 
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
                 LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
@@ -303,32 +311,55 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     this->checkIncrementalTrainInvariants(frame);
 
+    if (m_BestForest.size() == 1) {
+        return;
+    }
+
     this->selectTreesToRetrain(frame);
 
     std::int64_t lastMemoryUsage(this->memoryUsage());
 
-    auto computeLossMoments = [&]() {
+    this->startProgressMonitoringTrainIncremental();
+
+    double initialLoss{lossAtNSigma(1.0, [&] {
         TMeanVarAccumulator lossMoments;
         for (const auto& mask : m_TestingRowMasks) {
             lossMoments.add(this->meanAdjustedLoss(frame, mask));
         }
         return lossMoments;
-    };
+    }())};
 
-    double bestLoss{lossAtNSigma(1.0, computeLossMoments())};
-    TNodeVecVec bestRetrainedTrees;
+    double retrainedNumberNodes{0.0};
+    for (const auto& i : m_TreesToRetrain) {
+        retrainedNumberNodes += static_cast<double>(m_BestForest[i].size());
+    }
+    double notRetrainedNumberNodes{numberForestNodes(m_BestForest) - retrainedNumberNodes};
+
+    // Hyperparameter optimisation loop.
+
+    this->initializePerFoldTestLosses(m_NumberIncrementalRounds);
+    this->initializeHyperparameterSamples(m_NumberIncrementalRounds);
+
+    std::size_t maximumNumberTrees{this->numberTreesToRetrain()};
+    TMeanVarAccumulator timeAccumulator;
+    core::CStopWatch stopWatch;
+    stopWatch.start();
+    std::uint64_t lastLap{stopWatch.lap()};
 
     while (m_CurrentIncrementalRound < m_NumberIncrementalRounds) {
-        TNodeVecVec retrainedTrees;
         TMeanVarAccumulator lossMoments;
-        // TODO
-        //std::tie(retrainedTrees, lossMoments) = this->retrainForest(frame);
+        double numberNodes;
+        std::tie(lossMoments, std::ignore, numberNodes) = this->crossValidateForest(
+            frame, m_CurrentIncrementalRound, maximumNumberTrees,
+            [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
+                   const core::CPackedBitVector& testingRowMask,
+                   core::CLoopProgress& trainingProgress) {
+                return this->retrainForest(frame_, trainingRowMask,
+                                           testingRowMask, trainingProgress);
+            });
 
-        double loss{lossAtNSigma(1.0, lossMoments)};
-        if (loss < bestLoss) {
-            bestLoss = loss;
-            bestRetrainedTrees = std::move(retrainedTrees);
-        }
+        this->captureBestHyperparameters(lossMoments, m_BestForest.size(),
+                                         notRetrainedNumberNodes, numberNodes);
 
         if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
             LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
@@ -343,6 +374,22 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         LOG_TRACE(<< "Round " << m_CurrentIncrementalRound << " state recording started");
         this->recordState(recordTrainStateCallback);
         LOG_TRACE(<< "Round " << m_CurrentIncrementalRound << " state recording finished");
+
+        std::uint64_t currentLap{stopWatch.lap()};
+        std::uint64_t delta{currentLap - lastLap};
+        m_Instrumentation->iterationTime(delta);
+
+        timeAccumulator.add(static_cast<double>(delta));
+        lastLap = currentLap;
+        m_Instrumentation->flush(HYPERPARAMETER_OPTIMIZATION_ROUND +
+                                 std::to_string(m_CurrentIncrementalRound));
+    }
+
+    if (m_BestForestTestLoss <
+        initialLoss + this->modelSizePenalty(notRetrainedNumberNodes, retrainedNumberNodes)) {
+        this->restoreBestHyperparameters();
+        core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
+        this->retrainForest(frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
     }
 
     // Force progress to one and record the final memory usage.
@@ -506,10 +553,10 @@ CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile,
     return {gains[index], curvatures[index]};
 }
 
-void CBoostedTreeImpl::initializePerFoldTestLosses() {
+void CBoostedTreeImpl::initializePerFoldTestLosses(std::size_t numberRounds) {
     m_FoldRoundTestLosses.resize(m_NumberFolds);
     for (auto& losses : m_FoldRoundTestLosses) {
-        losses.resize(m_NumberRounds);
+        losses.resize(numberRounds);
     }
 }
 
@@ -606,8 +653,12 @@ void CBoostedTreeImpl::selectTreesToRetrain(const core::CDataFrame& frame) {
         m_Rng, probabilities, numberToRetrain, m_TreesToRetrain);
 }
 
+template<typename F>
 CBoostedTreeImpl::TMeanVarAccumulatorSizeDoubleTuple
-CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
+CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
+                                      std::size_t currentRound,
+                                      std::size_t maximumNumberTrees,
+                                      const F& trainForest) {
 
     // We want to ensure we evaluate on equal proportions for each fold.
     TSizeVec folds(m_NumberFolds);
@@ -620,7 +671,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
         // that the test error is not close to the minimum test error. We use
         // the estimated test error for each remaining fold at two standard
         // deviations below the mean for this.
-        if (m_StopCrossValidationEarly && m_CurrentRound >= m_NumberFolds &&
+        if (m_StopCrossValidationEarly && currentRound >= m_NumberFolds &&
             folds.size() < m_NumberFolds) {
             for (const auto& testLoss : this->estimateMissingTestLosses(folds)) {
                 testLossMoments.add(
@@ -643,17 +694,19 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
         TNodeVecVec forest;
         double loss;
         TDoubleVec lossValues;
-        std::tie(forest, loss, lossValues) = this->trainForest(
+        std::tie(forest, loss, lossValues) = trainForest(
             frame, m_TrainingRowMasks[fold], m_TestingRowMasks[fold], m_TrainingProgress);
         LOG_TRACE(<< "fold = " << fold << " forest size = " << forest.size()
                   << " test set loss = " << loss);
         lossMoments.add(loss);
-        m_FoldRoundTestLosses[fold][m_CurrentRound] = loss;
+        m_FoldRoundTestLosses[fold][currentRound] = loss;
         numberTrees.push_back(static_cast<double>(forest.size()));
-        forestSizeAccumulator.add(numberForestNodes(forest));
+        auto numberNodes{numberForestNodes(forest)};
+        forestSizeAccumulator.add(numberNodes);
+        m_ForestSizeAccumulator.add(numberNodes);
         m_Instrumentation->lossValues(fold, std::move(lossValues));
     }
-    m_TrainingProgress.increment(m_MaximumNumberTrees * folds.size());
+    m_TrainingProgress.increment(maximumNumberTrees * folds.size());
     LOG_TRACE(<< "skipped " << folds.size() << " folds");
 
     std::sort(numberTrees.begin(), numberTrees.end());
@@ -664,6 +717,8 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
     LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
               << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments))
               << ", mean number nodes in forest = " << meanForestSize);
+
+    m_MeanLossAccumulator.add(CBasicStatistics::mean(lossMoments));
 
     return {lossMoments, medianNumberTrees, meanForestSize};
 }
@@ -717,7 +772,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             const TSizeVec& treeFeatureBag, const TSizeVec& nodeFeatureBag,
             const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
             return std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-                0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
+                rootIndex(), m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
                 frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
         };
@@ -808,15 +863,12 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     forest.resize(stoppingCondition.bestSize());
 
-    // record forest size as the number of nodes
-    m_ForestSizeAccumulator.add(numberForestNodes(forest));
-
     LOG_TRACE(<< "Trained one forest");
 
     return {forest, stoppingCondition.bestLoss(), std::move(losses)};
 }
 
-CBoostedTreeImpl::TNodeVecVecDoublePr
+CBoostedTreeImpl::TNodeVecVecDoubleDoubleVecTr
 CBoostedTreeImpl::retrainForest(core::CDataFrame& frame,
                                 const core::CPackedBitVector& trainingRowMask,
                                 const core::CPackedBitVector& testingRowMask,
@@ -829,7 +881,7 @@ CBoostedTreeImpl::retrainForest(core::CDataFrame& frame,
             const TSizeVec& treeFeatureBag, const TSizeVec& nodeFeatureBag,
             const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
             return std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
-                0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
+                rootIndex(), m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
                 frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
         };
@@ -887,7 +939,7 @@ CBoostedTreeImpl::retrainForest(core::CDataFrame& frame,
     auto bestLoss = std::min_element(losses.begin(), losses.end()) - losses.begin();
     retrainedTrees.resize(bestLoss + 1);
 
-    return {std::move(retrainedTrees), losses[bestLoss]};
+    return {std::move(retrainedTrees), losses[bestLoss], std::move(losses)};
 }
 
 core::CPackedBitVector
@@ -1701,22 +1753,28 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
 void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
                                                   std::size_t maximumNumberTrees,
-                                                  double numberNodes) {
+                                                  double fixedNumberNodes,
+                                                  double numberExtraNodes) {
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
 
-    // Add 0.01 * "forest number nodes" * E[GP] / "average forest number nodes" to meanLoss.
-    double modelSizeDifferentiator{0.01 * numberNodes /
-                                   CBasicStatistics::mean(m_ForestSizeAccumulator) *
-                                   CBasicStatistics::mean(m_MeanLossAccumulator)};
-    double loss{lossAtNSigma(1.0, lossMoments) + modelSizeDifferentiator};
+    double loss{lossAtNSigma(1.0, lossMoments) +
+                this->modelSizePenalty(fixedNumberNodes, numberExtraNodes)};
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
-        m_BestHyperparameters = CBoostedTreeHyperparameters{
-            m_Regularization,       m_DownsampleFactor, m_Eta,
-            m_EtaGrowthRatePerTree, maximumNumberTrees, m_FeatureBagFraction};
+        m_BestHyperparameters = CBoostedTreeHyperparameters(
+            m_Regularization, m_DownsampleFactor, m_Eta, m_EtaGrowthRatePerTree,
+            maximumNumberTrees, m_FeatureBagFraction, m_PredictionChangeCost);
     }
+}
+
+double CBoostedTreeImpl::modelSizePenalty(double fixedNumberNodes,
+                                          double numberExtraNodes) const {
+    // 0.01 * "forest number nodes" * E[GP] / "average forest number nodes" to meanLoss.
+    return 0.01 * (fixedNumberNodes + numberExtraNodes) /
+           (fixedNumberNodes + CBasicStatistics::mean(m_ForestSizeAccumulator)) *
+           CBasicStatistics::mean(m_MeanLossAccumulator);
 }
 
 void CBoostedTreeImpl::restoreBestHyperparameters() {
@@ -1726,6 +1784,7 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_EtaGrowthRatePerTree = m_BestHyperparameters.etaGrowthRatePerTree();
     m_MaximumNumberTrees = m_BestHyperparameters.maximumNumberTrees();
     m_FeatureBagFraction = m_BestHyperparameters.featureBagFraction();
+    m_PredictionChangeCost = m_BestHyperparameters.predictionChangeCost();
     LOG_TRACE(<< "loss* = " << m_BestForestTestLoss
               << ", regularization* = " << m_Regularization.print()
               << ", downsample factor* = " << m_DownsampleFactor << ", eta* = " << m_Eta
@@ -1750,6 +1809,10 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CPackedBitVector& trai
 std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
     return static_cast<std::size_t>(
         std::ceil(10.0 * std::sqrt(static_cast<double>(numberRows))));
+}
+
+std::size_t CBoostedTreeImpl::numberTreesToRetrain() const {
+    return m_TreesToRetrain.size();
 }
 
 void CBoostedTreeImpl::recordHyperparameters() {
@@ -1844,9 +1907,9 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
     }
 }
 
-void CBoostedTreeImpl::initializeHyperparameterSamples() {
+void CBoostedTreeImpl::initializeHyperparameterSamples(std::size_t numberRounds) {
     std::size_t dim{m_TunableHyperparameters.size()};
-    std::size_t n{m_NumberRounds / 3 + 1};
+    std::size_t n{numberRounds / 3 + 1};
     CSampling::sobolSequenceSample(dim, n, m_HyperparameterSamples);
 }
 
@@ -1877,6 +1940,24 @@ void CBoostedTreeImpl::startProgressMonitoringFinalTrain() {
 
 void CBoostedTreeImpl::skipProgressMonitoringFinalTrain() {
     m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAINING);
+}
+
+void CBoostedTreeImpl::startProgressMonitoringTrainIncremental() {
+
+    // This costs "number folds" * "maximum number retrained trees" units
+    // per round.
+
+    m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::INCREMENTAL_TRAIN);
+
+    std::size_t totalNumberSteps{m_NumberIncrementalRounds *
+                                 this->numberTreesToRetrain() * m_NumberFolds};
+    LOG_TRACE(<< "main loop total number steps = " << totalNumberSteps);
+    m_TrainingProgress = core::CLoopProgress{
+        totalNumberSteps, m_Instrumentation->progressCallback(), 1.0, 1024};
+
+    // Make sure progress starts where it left off.
+    m_TrainingProgress.increment(m_CurrentIncrementalRound *
+                                 this->numberTreesToRetrain() * m_NumberFolds);
 }
 
 namespace {
@@ -2179,13 +2260,12 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                              m_StopHyperparameterOptimizationEarly, traverser))
-        // m_TunableHyperparameters is not restored explicitly, it is re-generated
+        // m_TunableHyperparameters is not restored explicitly it is re-generated
         // from overriden hyperparameters.
-        // m_HyperparameterSamples is not restored explicitly, it is re-generated.
+        // m_HyperparameterSamples is not restored explicitly it is re-generated.
     } while (traverser.next());
 
     this->initializeTunableHyperparameters();
-    this->initializeHyperparameterSamples();
     m_InitializationStage = static_cast<EInitializationStage>(initializationStage);
 
     this->checkRestoredInvariants();

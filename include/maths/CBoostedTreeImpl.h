@@ -203,7 +203,6 @@ private:
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
-    using TNodeVecVecDoublePr = std::pair<TNodeVecVec, double>;
     using TNodeVecVecDoubleDoubleVecTr = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
@@ -252,7 +251,7 @@ private:
                                                  const TNodeVecVec& forest) const;
 
     //! Presize the collection to hold the per fold test errors.
-    void initializePerFoldTestLosses();
+    void initializePerFoldTestLosses(std::size_t numberRounds);
 
     //! Compute the probability threshold at which to classify a row as class one.
     void computeClassificationWeights(const core::CDataFrame& frame);
@@ -264,7 +263,11 @@ private:
     void selectTreesToRetrain(const core::CDataFrame& frame);
 
     //! Train the forest and compute loss moments on each fold.
-    TMeanVarAccumulatorSizeDoubleTuple crossValidateForest(core::CDataFrame& frame);
+    template<typename F>
+    TMeanVarAccumulatorSizeDoubleTuple crossValidateForest(core::CDataFrame& frame,
+                                                           std::size_t currentRound,
+                                                           std::size_t maximumNumberTrees,
+                                                           const F& trainForest);
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
@@ -279,10 +282,11 @@ private:
                                              core::CLoopProgress& trainingProgress) const;
 
     //! Retrain the \p treesToRetrain of the best forest.
-    TNodeVecVecDoublePr retrainForest(core::CDataFrame& frame,
-                                      const core::CPackedBitVector& trainingRowMask,
-                                      const core::CPackedBitVector& testingRowMask,
-                                      core::CLoopProgress& trainingProgress) const;
+    TNodeVecVecDoubleDoubleVecTr
+    retrainForest(core::CDataFrame& frame,
+                  const core::CPackedBitVector& trainingRowMask,
+                  const core::CPackedBitVector& testingRowMask,
+                  core::CLoopProgress& trainingProgress) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
@@ -376,7 +380,11 @@ private:
     //! Capture the current hyperparameter values.
     void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
                                     std::size_t maximumNumberTrees,
-                                    double numberNodes);
+                                    double fixedNumberNodes,
+                                    double numberExtraNodes);
+
+    //! Compute the loss penalty for model size.
+    double modelSizePenalty(double fixedNumberNodes, double numberExtraNodes) const;
 
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
@@ -406,6 +414,9 @@ private:
     //! a good idea.
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
+    //! Get the number of trees to retrain.
+    std::size_t numberTreesToRetrain() const;
+
     //! Start monitoring fine tuning hyperparameters.
     void startProgressMonitoringFineTuneHyperparameters();
 
@@ -414,6 +425,9 @@ private:
 
     //! Skip monitoring the final model training.
     void skipProgressMonitoringFinalTrain();
+
+    //! Start progress monitoring incremental training.
+    void startProgressMonitoringTrainIncremental();
 
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
@@ -425,7 +439,7 @@ private:
     void initializeTunableHyperparameters();
 
     //! Use Sobol sampler for for random hyperparamers.
-    void initializeHyperparameterSamples();
+    void initializeHyperparameterSamples(std::size_t numberRounds);
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;

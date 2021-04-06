@@ -50,6 +50,7 @@ public:
     static const std::string COARSE_PARAMETER_SEARCH;
     static const std::string FINE_TUNING_PARAMETERS;
     static const std::string FINAL_TRAINING;
+    static const std::string INCREMENTAL_TRAIN;
     //@}
 
 public:
