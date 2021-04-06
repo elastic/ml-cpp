@@ -10,7 +10,7 @@
 # 1. If this is not a PR build nor a debug build, obtain credentials from Vault
 #    for the accessing S3
 # 2. Build and unit test the C++ on the native architecture
-# 3. For Linux builds, also run some Java integration tests using the newly
+# 3. For Linux PR builds, also run some Java integration tests using the newly
 #    built C++ code
 # 4. If this is not a PR build nor a debug build, upload the builds to the
 #    artifacts directory on S3 that subsequent Java builds will download the C++
