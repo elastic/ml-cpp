@@ -45,6 +45,9 @@ namespace maths {
 class CBayesianOptimisation;
 class CBoostedTreeImplForTest;
 class CTreeShapFeatureImportance;
+namespace boosted_tree {
+class CArgMinLoss;
+}
 
 //! \brief Implementation of CBoostedTree.
 class MATHS_EXPORT CBoostedTreeImpl final {
@@ -208,6 +211,8 @@ private:
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
     using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
     using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
+    using TArgMinLossVec = std::vector<boosted_tree::CArgMinLoss>;
+    using TArgMinLossVecVec = std::vector<TArgMinLossVec>;
     using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
     // clang-format off
     using TMakeRootLeafNodeStatistics =
@@ -336,6 +341,22 @@ private:
                                               double eta,
                                               double lambda,
                                               TNodeVec& tree) const;
+
+    //! Extract the leaf values for \p tree which minimize \p loss on \p rowMask
+    //! rows of \p frame.
+    void minimumLossLeafValues(const core::CDataFrame& frame,
+                               const core::CPackedBitVector& rowMask,
+                               bool newExample,
+                               const TLossFunction& loss,
+                               const TNodeVec& tree,
+                               TArgMinLossVecVec& result) const;
+
+    //! Write \p loss gradient and curvature for the \p rowMask rows of \p frame.
+    void writeRowDerivatives(core::CDataFrame& frame,
+                             const core::CPackedBitVector& rowMask,
+                             bool newExample,
+                             const TLossFunction& loss,
+                             const TNodeVec& tree) const;
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;

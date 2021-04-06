@@ -860,7 +860,7 @@ CBoostedTreeImpl::retrainForest(core::CDataFrame& frame,
     //  1. Rebuild one tree on S
     //  2. Update predictions and loss derivatives
 
-    for (auto index : m_TreesToRetrain) {
+    for (const auto& index : m_TreesToRetrain) {
 
         this->removePredictions(frame, trainingRowMask, testingRowMask, m_BestForest[index]);
 
@@ -1364,9 +1364,11 @@ void CBoostedTreeImpl::removePredictions(core::CDataFrame& frame,
     frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
                        [&](TRowItr beginRows, TRowItr endRows) {
                            std::size_t numberLossParameters{m_Loss->numberParameters()};
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               readPrediction(*row, m_ExtraColumns, numberLossParameters) -=
-                                   root(tree).value(m_Encoder->encode(*row), tree);
+                           const auto& rootNode = root(tree);
+                           for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                               auto row = *row_;
+                               readPrediction(row, m_ExtraColumns, numberLossParameters) -=
+                                   rootNode.value(m_Encoder->encode(row), tree);
                            }
                        },
                        &rowMask);
@@ -1381,8 +1383,6 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
     double lambda,
     TNodeVec& tree) const {
 
-    using TArgMinLossVec = std::vector<CArgMinLoss>;
-
     TArgMinLossVec leafValues(tree.size(), loss.minimizer(lambda, m_Rng));
     auto nextPass = [&] {
         bool done{true};
@@ -1393,30 +1393,20 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
     };
 
     do {
-        auto result = frame.readRows(
-            m_NumberThreads, 0, frame.numberRows(),
-            core::bindRetrievableState(
-                [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
-                    std::size_t numberLossParameters{loss.numberParameters()};
-                    const auto& rootNode = root(tree);
-                    for (auto row_ = beginRows; row_ != endRows; ++row_) {
-                        auto row = *row_;
-                        auto encodedRow = m_Encoder->encode(row);
-                        auto prediction = readPrediction(row, m_ExtraColumns,
-                                                         numberLossParameters);
-                        double actual{readActual(row, m_DependentVariable)};
-                        double weight{readExampleWeight(row, m_ExtraColumns)};
-                        leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
-                            encodedRow, true /*new example*/, prediction, actual, weight);
-                    }
-                },
-                std::move(leafValues)),
-            &trainingRowMask);
+        TArgMinLossVecVec result(m_NumberThreads, std::move(leafValues));
+        if (m_IncrementalTraining) {
+            this->minimumLossLeafValues(frame, trainingRowMask & ~m_NewTrainingRowMask,
+                                        false, loss, tree, result);
+            this->minimumLossLeafValues(frame, trainingRowMask & m_NewTrainingRowMask,
+                                        true, loss, tree, result);
+        } else {
+            this->minimumLossLeafValues(frame, trainingRowMask, false, loss, tree, result);
+        }
 
-        leafValues = std::move(result.first[0].s_FunctionState);
-        for (std::size_t i = 1; i < result.first.size(); ++i) {
+        leafValues = std::move(result[0]);
+        for (std::size_t i = 1; i < result.size(); ++i) {
             for (std::size_t j = 0; j < leafValues.size(); ++j) {
-                leafValues[j].merge(result.first[i].s_FunctionState[j]);
+                leafValues[j].merge(result[i][j]);
             }
         }
     } while (nextPass());
@@ -1430,6 +1420,51 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
     LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
 
     core::CPackedBitVector updateRowMask{trainingRowMask | testingRowMask};
+
+    if (m_IncrementalTraining) {
+        this->writeRowDerivatives(frame, updateRowMask & ~m_NewTrainingRowMask,
+                                  false, loss, tree);
+        this->writeRowDerivatives(frame, updateRowMask & m_NewTrainingRowMask,
+                                  true, loss, tree);
+    } else {
+        this->writeRowDerivatives(frame, updateRowMask, false, loss, tree);
+    }
+}
+
+void CBoostedTreeImpl::minimumLossLeafValues(const core::CDataFrame& frame,
+                                             const core::CPackedBitVector& rowMask,
+                                             bool newExample,
+                                             const TLossFunction& loss,
+                                             const TNodeVec& tree,
+                                             TArgMinLossVecVec& result) const {
+
+    core::CDataFrame::TRowFuncVec minimizers;
+    minimizers.reserve(result.size());
+    for (std::size_t i = 0; i < result.size(); ++i) {
+        auto& leafValues = result[i];
+        minimizers.push_back([&](TRowItr beginRows, TRowItr endRows) {
+            std::size_t numberLossParameters{loss.numberParameters()};
+            const auto& rootNode = root(tree);
+            for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                auto row = *row_;
+                auto encodedRow = m_Encoder->encode(row);
+                auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
+                double actual{readActual(row, m_DependentVariable)};
+                double weight{readExampleWeight(row, m_ExtraColumns)};
+                leafValues[rootNode.leafIndex(encodedRow, tree)].add(
+                    encodedRow, newExample, prediction, actual, weight);
+            }
+        });
+    }
+
+    frame.readRows(0, frame.numberRows(), minimizers, &rowMask);
+}
+
+void CBoostedTreeImpl::writeRowDerivatives(core::CDataFrame& frame,
+                                           const core::CPackedBitVector& rowMask,
+                                           bool newExample,
+                                           const TLossFunction& loss,
+                                           const TNodeVec& tree) const {
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
         [&](TRowItr beginRows, TRowItr endRows) {
@@ -1441,13 +1476,13 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
                 double actual{readActual(row, m_DependentVariable)};
                 double weight{readExampleWeight(row, m_ExtraColumns)};
                 prediction += rootNode.value(m_Encoder->encode(row), tree);
-                writeLossGradient(row, true /*new example*/, m_ExtraColumns,
-                                  *m_Encoder, loss, prediction, actual, weight);
-                writeLossCurvature(row, true /*new example*/, m_ExtraColumns,
-                                   *m_Encoder, loss, prediction, actual, weight);
+                writeLossGradient(row, newExample, m_ExtraColumns, *m_Encoder,
+                                  loss, prediction, actual, weight);
+                writeLossCurvature(row, newExample, m_ExtraColumns, *m_Encoder,
+                                   loss, prediction, actual, weight);
             }
         },
-        &updateRowMask);
+        &rowMask);
 }
 
 double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
@@ -1885,6 +1920,8 @@ const std::string NUMBER_INCREMENTAL_ROUNDS_TAG{"number_incremental_rounds"};
 const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
 const std::string NUMBER_SPLITS_PER_FEATURE_TAG{"number_splits_per_feature"};
 const std::string NUMBER_THREADS_TAG{"number_threads"};
+const std::string PREDICTION_CHANGE_COST_TAG{"prediction_change_cost"};
+const std::string PREDICTION_CHANGE_COST_OVERRIDE_TAG{"prediction_change_cost_override"};
 const std::string RANDOM_NUMBER_GENERATOR_TAG{"random_number_generator"};
 const std::string REGULARIZATION_TAG{"regularization"};
 const std::string REGULARIZATION_OVERRIDE_TAG{"regularization_override"};
@@ -1974,6 +2011,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_NumberSplitsPerFeature, inserter);
     core::CPersistUtils::persist(NUMBER_THREADS_TAG, m_NumberThreads, inserter);
     core::CPersistUtils::persist(NUMBER_TOP_SHAP_VALUES_TAG, m_NumberTopShapValues, inserter);
+    core::CPersistUtils::persist(PREDICTION_CHANGE_COST_TAG, m_PredictionChangeCost, inserter);
+    core::CPersistUtils::persist(PREDICTION_CHANGE_COST_OVERRIDE_TAG,
+                                 m_PredictionChangeCostOverride, inserter);
     inserter.insertValue(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.toString());
     core::CPersistUtils::persist(REGULARIZATION_OVERRIDE_TAG,
                                  m_RegularizationOverride, inserter);
@@ -2111,6 +2151,12 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(NUMBER_TOP_SHAP_VALUES_TAG,
                 core::CPersistUtils::restore(NUMBER_TOP_SHAP_VALUES_TAG,
                                              m_NumberTopShapValues, traverser))
+        RESTORE(PREDICTION_CHANGE_COST_TAG,
+                core::CPersistUtils::restore(PREDICTION_CHANGE_COST_TAG,
+                                             m_PredictionChangeCost, traverser))
+        RESTORE(PREDICTION_CHANGE_COST_OVERRIDE_TAG,
+                core::CPersistUtils::restore(PREDICTION_CHANGE_COST_OVERRIDE_TAG,
+                                             m_PredictionChangeCostOverride, traverser))
         RESTORE(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.fromString(traverser.value()))
         RESTORE(REGULARIZATION_TAG,
                 core::CPersistUtils::restore(REGULARIZATION_TAG, m_Regularization, traverser))
