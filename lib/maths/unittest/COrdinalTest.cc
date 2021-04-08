@@ -38,7 +38,7 @@ std::string precisePrint(T x) {
 BOOST_AUTO_TEST_CASE(testEqual) {
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < 1000; ++i) {
+    for (std::size_t i = 0; i < 1000; ++i) {
         TDoubleVec sample;
         rng.generateUniformSamples(-10000.0, 10000.0, 1, sample);
         bool equal = maths::COrdinal(static_cast<int64_t>(sample[0])) ==
@@ -91,9 +91,9 @@ BOOST_AUTO_TEST_CASE(testEqual) {
                             maths::COrdinal(int64_t(569817345679111268))};
     maths::COrdinal s2[] = {maths::COrdinal(uint64_t(569817345679111267)),
                             maths::COrdinal(uint64_t(569817345679111268))};
-    for (std::size_t i = 0u; i < boost::size(s1); ++i) {
+    for (std::size_t i = 0; i < boost::size(s1); ++i) {
         LOG_DEBUG(<< s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
-        for (std::size_t j = 0u; j < i; ++j) {
+        for (std::size_t j = 0; j < i; ++j) {
             BOOST_TEST_REQUIRE(s1[i] != s1[j]);
         }
         BOOST_TEST_REQUIRE(s1[i] == s1[i]);
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE(testLess) {
 
     // Test some random orderings on integer types which don't overflow.
 
-    for (std::size_t i = 0u; i < 1000; ++i) {
+    for (std::size_t i = 0; i < 1000; ++i) {
         TDoubleVec samples;
         rng.generateUniformSamples(-10000.0, 10000.0, 2, samples);
         bool less = static_cast<int64_t>(samples[0]) < static_cast<int64_t>(samples[1]);
@@ -179,9 +179,9 @@ BOOST_AUTO_TEST_CASE(testLess) {
                             maths::COrdinal(int64_t(569817345679111268))};
     maths::COrdinal s2[] = {maths::COrdinal(uint64_t(569817345679111267)),
                             maths::COrdinal(uint64_t(569817345679111268))};
-    for (std::size_t i = 0u; i < boost::size(s1); ++i) {
+    for (std::size_t i = 0; i < boost::size(s1); ++i) {
         LOG_DEBUG(<< s1[i] << " (as double " << precisePrint(s1[i].asDouble()) << ")");
-        for (std::size_t j = 0u; j < i; ++j) {
+        for (std::size_t j = 0; j < i; ++j) {
             BOOST_TEST_REQUIRE(!(s1[i] < s1[j]));
         }
         for (std::size_t j = i + 1; j < boost::size(s1); ++j) {
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE(testAsDouble) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < 100; ++i) {
+    for (std::size_t i = 0; i < 100; ++i) {
         TDoubleVec sample;
         rng.generateUniformSamples(-20000.0, 0.0, 1, sample);
         maths::COrdinal signedOrdinal(static_cast<int64_t>(sample[0]));
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testAsDouble) {
     int64_t s[] = {-179809067369808278, -179809067369808277, 569817345679111267,
                    569817345679111268};
 
-    for (std::size_t i = 0u; i < boost::size(s); ++i) {
+    for (std::size_t i = 0; i < boost::size(s); ++i) {
         maths::COrdinal o(s[i]);
         LOG_DEBUG(<< o << " (as double " << precisePrint(o.asDouble()) << ")");
         BOOST_REQUIRE_EQUAL(static_cast<double>(s[i]), o.asDouble());
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE(testHash) {
     TSizeUSet unsignedHashes;
     TSizeUSet doubleHashes;
 
-    for (std::size_t i = 0u; i < 100; ++i) {
+    for (std::size_t i = 0; i < 100; ++i) {
         TDoubleVec sample;
         rng.generateUniformSamples(-20000.0, 0.0, 1, sample);
         maths::COrdinal signedOrdinal(static_cast<int64_t>(sample[0]));

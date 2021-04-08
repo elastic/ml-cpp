@@ -80,7 +80,7 @@ public:
 BOOST_AUTO_TEST_CASE(testBracket) {
     {
         CCompositeFunctions::CMinusConstant<CLog> f(CLog(), 0.0);
-        std::size_t maxIterations = 10u;
+        std::size_t maxIterations = 10;
         double a = 0.5, b = 0.5;
         double fa = f(a), fb = f(b);
         BOOST_TEST_REQUIRE(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(testBracket) {
 
     {
         CCompositeFunctions::CMinusConstant<CLog> f(CLog(), 5.0);
-        std::size_t maxIterations = 10u;
+        std::size_t maxIterations = 10;
         double a = 0.5, b = 0.6;
         double fa = f(a), fb = f(b);
         BOOST_TEST_REQUIRE(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(testBracket) {
 
     {
         CCompositeFunctions::CMinusConstant<CLog> f(CLog(), 10.0);
-        std::size_t maxIterations = 10u;
+        std::size_t maxIterations = 10;
         double a = 0.5, b = 5.0;
         double fa = f(a), fb = f(b);
         BOOST_TEST_REQUIRE(CSolvers::rightBracket(a, b, fa, fb, f, maxIterations));
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(testBracket) {
 
     {
         CCompositeFunctions::CMinusConstant<CLog> f(CLog(), 0.0);
-        std::size_t maxIterations = 10u;
+        std::size_t maxIterations = 10;
         double a = 100.0, b = 100.0;
         double fa = f(a), fb = f(b);
         BOOST_TEST_REQUIRE(CSolvers::leftBracket(
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(testBisection) {
     {
         a = 6.0;
         b = 10.0;
-        iterations = 5u;
+        iterations = 5;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
         BOOST_TEST_REQUIRE(!CSolvers::bisection(a, b, &f1, iterations, equal, bestGuess));
     }
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(testBisection) {
         double lastInterval = 20.0;
         double lastError = 2.0 / 3.0;
         double convergenceFactor = 1.0;
-        for (std::size_t i = 3u; i < 40; ++i) {
+        for (std::size_t i = 3; i < 40; ++i) {
             a = -10.0;
             b = 10.0;
             iterations = i;
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE(testBrent) {
     {
         a = 6.0;
         b = 10.0;
-        iterations = 5u;
+        iterations = 5;
         CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.1);
         BOOST_TEST_REQUIRE(!CSolvers::brent(a, b, &f1, iterations, equal, bestGuess));
     }
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(testSublevelSet) {
     LOG_DEBUG(<< "*** f(x) = 1.1 * exp(-(x-4)^2) + 0.4 * exp(-(x-10)^2/4) ***");
 
     double fmax = 0.9 * f5(10.0);
-    for (std::size_t i = 0u; i < 30u; ++i, fmax *= 0.9) {
+    for (std::size_t i = 0; i < 30; ++i, fmax *= 0.9) {
         LOG_DEBUG(<< "fmax = " << fmax);
 
         if (CSolvers::sublevelSet(4.0, 10.0, f5(4.0), f5(10.0), &f5, fmax, 10, sublevelSet)) {
@@ -403,7 +403,7 @@ BOOST_AUTO_TEST_CASE(testSublevelSet) {
     LOG_DEBUG(<< "*** f(x) = 1.1 * exp(-2.0*(x-4)^2) + 0.1 * exp(-(x-6)^2) + 0.4 * exp(-(x-10)^2/2) ***");
 
     fmax = 0.9 * f6(10.0);
-    for (std::size_t i = 0u; i < 15u; ++i, fmax *= 0.9) {
+    for (std::size_t i = 0; i < 15; ++i, fmax *= 0.9) {
         LOG_DEBUG(<< "fmax = " << fmax);
 
         bool found = CSolvers::sublevelSet(4.0, 10.0, f6(4.0), f6(10.0), &f6,

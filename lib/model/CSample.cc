@@ -27,7 +27,7 @@ std::string CSample::SToString::operator()(const CSample& sample) const {
                          core::CPersistUtils::PAIR_DELIMITER +
                          core::CStringUtils::typeToStringPrecise(
                              sample.m_Count, core::CIEEE754::E_SinglePrecision);
-    for (std::size_t i = 0u; i < sample.m_Value.size(); ++i) {
+    for (std::size_t i = 0; i < sample.m_Value.size(); ++i) {
         result += core::CPersistUtils::PAIR_DELIMITER +
                   core::CStringUtils::typeToStringPrecise(
                       sample.m_Value[i], core::CIEEE754::E_SinglePrecision);
@@ -50,7 +50,7 @@ bool CSample::SFromString::operator()(const std::string& token, CSample& value) 
         LOG_ERROR(<< "Cannot parse as sample: " << token);
         return false;
     }
-    for (std::size_t i = 3u; i < tokens.size(); ++i) {
+    for (std::size_t i = 3; i < tokens.size(); ++i) {
         double vi;
         if (!core::CStringUtils::stringToType(tokens[i], vi)) {
             LOG_ERROR(<< "Cannot parse as sample: " << token);
@@ -74,7 +74,7 @@ CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
     TDouble1Vec result;
     const TSizeVec& indices = CFeatureDataIndexing::valueIndices(dimension);
     result.reserve(indices.size());
-    for (std::size_t i = 0u; i < indices.size(); ++i) {
+    for (std::size_t i = 0; i < indices.size(); ++i) {
         result.push_back(m_Value[indices[i]]);
     }
     return result;

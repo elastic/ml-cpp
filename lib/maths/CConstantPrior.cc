@@ -53,8 +53,10 @@ CConstantPrior::CConstantPrior(const TOptionalDouble& constant)
 
 CConstantPrior::CConstantPrior(core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_DiscreteData, 0.0) {
-    traverser.traverseSubLevel(std::bind(&CConstantPrior::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CConstantPrior::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -166,7 +168,7 @@ CConstantPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
 
     double numberSamples = 0.0;
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] != *m_Constant) {
             // Technically infinite, but just use minus max double.
             result = boost::numeric::bounds<double>::lowest();
@@ -203,7 +205,7 @@ bool CConstantPrior::minusLogJointCdf(const TDouble1Vec& samples,
 
     double numberSamples = 0.0;
     try {
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             numberSamples += maths_t::count(weights[i]);
         }
     } catch (const std::exception& e) {
@@ -217,7 +219,7 @@ bool CConstantPrior::minusLogJointCdf(const TDouble1Vec& samples,
         return true;
     }
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] < *m_Constant) {
             lowerBound = upperBound = core::constants::LOG_MAX_DOUBLE;
             return true;
@@ -244,7 +246,7 @@ bool CConstantPrior::minusLogJointCdfComplement(const TDouble1Vec& samples,
 
     double numberSamples = 0.0;
     try {
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             numberSamples += maths_t::count(weights[i]);
         }
     } catch (const std::exception& e) {
@@ -258,7 +260,7 @@ bool CConstantPrior::minusLogJointCdfComplement(const TDouble1Vec& samples,
         return true;
     }
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] > *m_Constant) {
             lowerBound = upperBound = core::constants::LOG_MAX_DOUBLE;
             return true;
@@ -293,7 +295,7 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
     }
 
     int tail_ = 0;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] != *m_Constant) {
             lowerBound = upperBound = 0.0;
         }

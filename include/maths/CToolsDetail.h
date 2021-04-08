@@ -168,7 +168,7 @@ double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf
     double p = 0.0;
     TDoubleVec pIntervals(intervals.size(), 0.0);
     CSmoothedKernel<const LOGF&> kernel(logf, m_LogFx, 3.0);
-    for (std::size_t i = 0u; i < intervals.size(); ++i) {
+    for (std::size_t i = 0; i < intervals.size(); ++i) {
         if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(
                 kernel, intervals[i].first, intervals[i].second, pIntervals[i])) {
             LOG_ERROR(<< "Couldn't integrate kernel over "
@@ -191,7 +191,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
     static const double EPS = 1e-5;
-    static const std::size_t INTERVALS = 8u;
+    static const std::size_t INTERVALS = 8;
 
     const TDoubleVec& weights = mixture.weights();
     const TModeVec& modes = mixture.modes();
@@ -201,14 +201,14 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     }
 
     TDoubleDoublePrVec range;
-    for (std::size_t i = 0u; i < modes.size(); ++i) {
+    for (std::size_t i = 0; i < modes.size(); ++i) {
         range.push_back(TDoubleDoublePr(quantile(modes[i], EPS),
                                         quantile(modes[i], 1.0 - EPS)));
     }
     std::sort(range.begin(), range.end(), COrderings::SFirstLess());
     LOG_TRACE(<< "range = " << core::CContainerPrinter::print(range));
-    std::size_t left = 0u;
-    for (std::size_t i = 1u; i < range.size(); ++i) {
+    std::size_t left = 0;
+    for (std::size_t i = 1; i < range.size(); ++i) {
         if (range[left].second < range[i].first) {
             ++left;
             std::swap(range[left], range[i]);
@@ -222,11 +222,11 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     double result = 0.0;
 
     CDifferentialEntropyKernel<T> kernel(mixture);
-    for (std::size_t i = 0u; i < range.size(); ++i) {
+    for (std::size_t i = 0; i < range.size(); ++i) {
         double a = range[i].first;
         double d = (range[i].second - range[i].first) / static_cast<double>(INTERVALS);
 
-        for (std::size_t j = 0u; j < INTERVALS; ++j, a += d) {
+        for (std::size_t j = 0; j < INTERVALS; ++j, a += d) {
             double integral;
             if (CIntegration::gaussLegendre<CIntegration::OrderFive>(kernel, a, a + d, integral)) {
                 result += integral;

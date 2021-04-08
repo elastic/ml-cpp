@@ -30,7 +30,7 @@ template<typename TREND, typename VECTOR>
 boost::optional<VECTOR> CModel::predictionError(const TREND& trend, const VECTOR& sample) {
     boost::optional<VECTOR> result;
     std::size_t dimension = sample.size();
-    for (std::size_t i = 0u; i < dimension; ++i) {
+    for (std::size_t i = 0; i < dimension; ++i) {
         if (trend[i]->initialized()) {
             result.reset(VECTOR(dimension, 0.0));
             for (/**/; i < dimension; ++i) {
@@ -52,7 +52,7 @@ boost::optional<VECTOR> CModel::predictionError(double propagationInterval,
         std::size_t dimension{sample.size()};
         result.reset(sample);
         VECTOR mean(marginalLikelihoodMean<VECTOR>(*prior));
-        for (std::size_t d = 0u; d < dimension; ++d) {
+        for (std::size_t d = 0; d < dimension; ++d) {
             (*result)[d] -= mean[d];
         }
     }

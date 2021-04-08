@@ -259,7 +259,7 @@ private:
     //! Propagate the set elements forwards by \p time.
     template<typename F>
     static void age(TWordTypePrVec& set, F doAge) {
-        for (std::size_t i = 0u; i < set.size(); ++i) {
+        for (std::size_t i = 0; i < set.size(); ++i) {
             doAge(set[i].second);
         }
     }

@@ -109,7 +109,7 @@ bool CIndividualModel::addProbabilityAndInfluences(std::size_t pid,
 
     if (!influences.empty()) {
         const CDataGatherer& gatherer = this->dataGatherer();
-        for (std::size_t j = 0u; j < influences.size(); ++j) {
+        for (std::size_t j = 0; j < influences.size(); ++j) {
             if (const CInfluenceCalculator* influenceCalculator =
                     this->influenceCalculator(params.s_Feature, j)) {
                 pJoint.plugin(*influenceCalculator);

@@ -51,7 +51,7 @@ double countForUpdate(const TDoubleWeightsAry& weights) {
 
 TDouble10Vec countForUpdate(const TDouble10VecWeightsAry& weights) {
     TDouble10Vec result(weights[E_SampleCountWeight]);
-    for (std::size_t i = 0u; i < weights[E_SampleWinsorisationWeight].size(); ++i) {
+    for (std::size_t i = 0; i < weights[E_SampleWinsorisationWeight].size(); ++i) {
         result[i] *= weights[E_SampleWinsorisationWeight][i];
     }
     return result;

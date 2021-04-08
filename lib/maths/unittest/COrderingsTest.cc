@@ -599,7 +599,7 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
         TStrVec rawWords;
         rng.generateWords(5, keys.size() * 5, rawWords);
         TDictionaryVec values3;
-        for (std::size_t i = 0u; i < rawWords.size(); i += 5) {
+        for (std::size_t i = 0; i < rawWords.size(); i += 5) {
             TStrVec words(rawWords.begin() + i, rawWords.begin() + i + 5);
             values3.push_back(CDictionary(words));
         }
@@ -679,7 +679,7 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
                             core::CContainerPrinter::print(values4));
     }
     {
-        for (std::size_t i = 0u; i < 50; ++i) {
+        for (std::size_t i = 0; i < 50; ++i) {
             TDoubleVec raw;
             rng.generateUniformSamples(0.0, 10.0, 50, raw);
 
@@ -690,7 +690,7 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
             TDoubleVec values4(raw.begin() + 40, raw.begin() + 50);
 
             TDoubleDoubleTupleMap expected;
-            for (std::size_t j = 0u; j < 10; ++j) {
+            for (std::size_t j = 0; j < 10; ++j) {
                 expected[keys[j]] =
                     TDoubleTuple(values1[j], values2[j], values3[j], values4[j]);
             }
@@ -699,7 +699,7 @@ BOOST_AUTO_TEST_CASE(testSimultaneousSort) {
             LOG_DEBUG(<< "keys = " << core::CContainerPrinter::print(keys));
 
             auto itr = expected.begin();
-            for (std::size_t j = 0u; j < keys.size(); ++j, ++itr) {
+            for (std::size_t j = 0; j < keys.size(); ++j, ++itr) {
                 BOOST_REQUIRE_EQUAL(itr->first, keys[j]);
                 BOOST_REQUIRE_EQUAL(itr->second.get<0>(), values1[j]);
                 BOOST_REQUIRE_EQUAL(itr->second.get<1>(), values2[j]);

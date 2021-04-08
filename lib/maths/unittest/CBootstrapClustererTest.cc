@@ -102,7 +102,7 @@ void clique(std::size_t a, std::size_t b, TGraph& graph) {
 
 void connect(const TSizeVec& U, const TSizeVec& V, TGraph& graph) {
     BOOST_REQUIRE_EQUAL(U.size(), V.size());
-    for (std::size_t i = 0u; i < U.size(); ++i) {
+    for (std::size_t i = 0; i < U.size(); ++i) {
         boost::put(boost::edge_weight, graph, boost::add_edge(U[i], V[i], graph).first, 1.0);
     }
 }
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(testFacade) {
     std::size_t improveStructureClusterSeeds = 2;
     std::size_t improveStructureKmeansIterations = 3;
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "Trial " << t);
 
         double m1_[] = {2.0, 2.0};
@@ -149,9 +149,9 @@ BOOST_AUTO_TEST_CASE(testFacade) {
                 TSizeVecVec clusters;
                 clusterer.cluster(points, clusters);
                 actual.resize(clusters.size());
-                for (std::size_t i = 0u; i < clusters.size(); ++i) {
+                for (std::size_t i = 0; i < clusters.size(); ++i) {
                     std::sort(clusters[i].begin(), clusters[i].end());
-                    for (std::size_t j = 0u; j < clusters[i].size(); ++j) {
+                    for (std::size_t j = 0; j < clusters[i].size(); ++j) {
                         actual[i].push_back(points[clusters[i][j]]);
                     }
                 }
@@ -164,13 +164,13 @@ BOOST_AUTO_TEST_CASE(testFacade) {
                        improveStructureKmeansIterations);
 
             TVector2VecVec expected(xmeans.clusters().size());
-            for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+            for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
                 expected[i] = xmeans.clusters()[i].points();
                 std::sort(expected[i].begin(), expected[i].end());
             }
 
             BOOST_REQUIRE_EQUAL(expected.size(), actual.size());
-            for (std::size_t i = 0u; i < expected.size(); ++i) {
+            for (std::size_t i = 0; i < expected.size(); ++i) {
                 BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected[i]),
                                     core::CContainerPrinter::print(actual[i]));
             }
@@ -189,10 +189,10 @@ BOOST_AUTO_TEST_CASE(testBuildClusterGraph) {
         {{0, 1, 2, 3, _}, {5, 6, 7, 8, 9}, {_, _, 12, 13, 14}, {4, _, _, _, _}, {10, 11, _, _, _}},
         {{_, _, 2, 3, 4}, {_, _, _, 8, 9}, {10, 11, 12, 13, 14}, {0, 1, 5, 6, 7}, {_, _, _, _, _}}};
     TBootstrapClustererForTest2::TSizeVecVecVec clusters(boost::size(clusters_));
-    for (std::size_t i = 0u; i < boost::size(clusters_); ++i) {
-        for (std::size_t j = 0u; j < boost::size(clusters_[i]); ++j) {
+    for (std::size_t i = 0; i < boost::size(clusters_); ++i) {
+        for (std::size_t j = 0; j < boost::size(clusters_[i]); ++j) {
             TSizeVec cluster;
-            for (std::size_t k = 0u; k < boost::size(clusters_[i][j]); ++k) {
+            for (std::size_t k = 0; k < boost::size(clusters_[i][j]); ++k) {
                 if (clusters_[i][j][k] != _) {
                     cluster.push_back(clusters_[i][j][k]);
                 }
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(testBuildClusterGraph) {
                                           "14: [2, 5, 9, 11]\n"
                                           "15: [4]\n")};
 
-    for (std::size_t i = 0u; i < boost::size(overlaps); ++i) {
+    for (std::size_t i = 0; i < boost::size(overlaps); ++i) {
         LOG_DEBUG(<< "*** overlap threshold = " << overlaps[i] << " ***");
 
         TGraph graph;
@@ -294,8 +294,8 @@ BOOST_AUTO_TEST_CASE(testCutSearch) {
     rng.generateUniformSamples(1, 15, trials, connections);
 
     TMeanAccumulator quality;
-    for (std::size_t t = 0u; t < trials; ++t) {
-        std::size_t v = 20u;
+    for (std::size_t t = 0; t < trials; ++t) {
+        std::size_t v = 20;
 
         TGraph graph(v);
 
@@ -337,7 +337,7 @@ BOOST_AUTO_TEST_CASE(testSeparate) {
 
     test::CRandomNumbers rng;
 
-    const std::size_t trials = 100u;
+    const std::size_t trials = 100;
 
     TSizeVec splits1;
     rng.generateUniformSamples(5, 15, trials, splits1);
@@ -348,8 +348,8 @@ BOOST_AUTO_TEST_CASE(testSeparate) {
 
     std::size_t errors = 0;
     TMeanAccumulator quality;
-    for (std::size_t t = 0u; t < trials; ++t) {
-        std::size_t v = 40u;
+    for (std::size_t t = 0; t < trials; ++t) {
+        std::size_t v = 40;
 
         TGraph graph(v);
 
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE(testSeparate) {
         double a = 0.0;
         double b = 0.0;
         double cut = 0.0;
-        for (std::size_t i = 0u; i < v; ++i) {
+        for (std::size_t i = 0; i < v; ++i) {
             (parities[i] ? a : b) += 1.0;
         }
         TEdgeItr i, end;
@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE(testThickets) {
 
     test::CRandomNumbers rng;
 
-    const std::size_t trials = 10u;
+    const std::size_t trials = 10;
 
     TSizeVec splits1;
     rng.generateUniformSamples(5, 15, trials, splits1);
@@ -432,8 +432,8 @@ BOOST_AUTO_TEST_CASE(testThickets) {
     int error = 0;
 
     TMeanAccumulator meanJaccard;
-    for (std::size_t t = 0u; t < trials; ++t) {
-        std::size_t v = 40u;
+    for (std::size_t t = 0; t < trials; ++t) {
+        std::size_t v = 40;
 
         TGraph graph(v);
 
@@ -443,7 +443,7 @@ BOOST_AUTO_TEST_CASE(testThickets) {
         clique(k[1], v, graph);
 
         TSizeVecVec expectedClusters(3);
-        for (std::size_t i = 0u; i < v; ++i) {
+        for (std::size_t i = 0; i < v; ++i) {
             if (i < k[0]) {
                 expectedClusters[0].push_back(i);
             } else if (i < k[1]) {
@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE(testThickets) {
             }
             std::sort(clusters.begin(), clusters.end());
 
-            for (std::size_t i = 0u; i < 3; ++i) {
+            for (std::size_t i = 0; i < 3; ++i) {
                 double jaccard = maths::CSetTools::jaccard(
                     expectedClusters[i].begin(), expectedClusters[i].end(),
                     clusters[i].begin(), clusters[i].end());
@@ -543,7 +543,7 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
     std::size_t clusters[] = {0, 31, 62, boost::size(x)};
 
     TSizeVecVec perfect(3);
-    for (std::size_t i = 1u; i < boost::size(clusters); ++i) {
+    for (std::size_t i = 1; i < boost::size(clusters); ++i) {
         for (std::size_t j = clusters[i - 1]; j < clusters[i]; ++j) {
             perfect[i - 1].push_back(j);
         }
@@ -563,13 +563,13 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
     TVector2Vec flatPoints;
     TVector2SizeUMap lookup;
     TDoubleVec noise;
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "Trial " << t);
 
         flatPoints.clear();
         lookup.clear();
         rng.generateUniformSamples(0, 4.0, 2 * boost::size(x), noise);
-        for (std::size_t i = 0u; i < boost::size(x); ++i) {
+        for (std::size_t i = 0; i < boost::size(x); ++i) {
             TVector2 point(&x[i][0], &x[i][2]);
             point(0) += noise[2 * i];
             point(1) += noise[2 * i + 1];
@@ -588,9 +588,9 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
                                 bootstrapClusters);
 
         bootstrap.resize(bootstrapClusters.size());
-        for (std::size_t i = 0u; i < bootstrapClusters.size(); ++i) {
+        for (std::size_t i = 0; i < bootstrapClusters.size(); ++i) {
             bootstrap[i].clear();
-            for (std::size_t j = 0u; j < bootstrapClusters[i].size(); ++j) {
+            for (std::size_t j = 0; j < bootstrapClusters[i].size(); ++j) {
                 auto k = lookup.find(bootstrapClusters[i][j]);
                 BOOST_TEST_REQUIRE(k != lookup.end());
                 bootstrap[i].push_back(k->second);
@@ -598,9 +598,9 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
             std::sort(bootstrap[i].begin(), bootstrap[i].end());
         }
         TDoubleVec jaccard;
-        for (std::size_t i = 0u; i < perfect.size(); ++i) {
+        for (std::size_t i = 0; i < perfect.size(); ++i) {
             double jmax = 0.0;
-            for (std::size_t j = 0u; j < bootstrap.size(); ++j) {
+            for (std::size_t j = 0; j < bootstrap.size(); ++j) {
                 jmax = std::max(jmax, maths::CSetTools::jaccard(
                                           bootstrap[j].begin(), bootstrap[j].end(),
                                           perfect[i].begin(), perfect[i].end()));
@@ -618,9 +618,9 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
                    improveStructureKmeansIterations);
 
         vanilla.resize(xmeans.clusters().size());
-        for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+        for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
             vanilla[i].clear();
-            for (std::size_t j = 0u; j < xmeans.clusters()[i].points().size(); ++j) {
+            for (std::size_t j = 0; j < xmeans.clusters()[i].points().size(); ++j) {
                 auto k = lookup.find(xmeans.clusters()[i].points()[j]);
                 BOOST_TEST_REQUIRE(k != lookup.end());
                 vanilla[i].push_back(k->second);
@@ -628,9 +628,9 @@ BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
             std::sort(vanilla[i].begin(), vanilla[i].end());
         }
         jaccard.clear();
-        for (std::size_t i = 0u; i < perfect.size(); ++i) {
+        for (std::size_t i = 0; i < perfect.size(); ++i) {
             double jmax = 0.0;
-            for (std::size_t j = 0u; j < vanilla.size(); ++j) {
+            for (std::size_t j = 0; j < vanilla.size(); ++j) {
                 jmax = std::max(jmax, maths::CSetTools::jaccard(
                                           vanilla[j].begin(), vanilla[j].end(),
                                           perfect[i].begin(), perfect[i].end()));
@@ -681,10 +681,10 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
     maths::CSampling::multivariateNormalSample(m2, v2, 50, points2);
 
     TSizeVecVec perfect(2);
-    for (std::size_t i = 0u; i < points1.size(); ++i) {
+    for (std::size_t i = 0; i < points1.size(); ++i) {
         perfect[0].push_back(i);
     }
-    for (std::size_t i = 0u; i < points2.size(); ++i) {
+    for (std::size_t i = 0; i < points2.size(); ++i) {
         perfect[1].push_back(points1.size() + i);
     }
 
@@ -695,13 +695,13 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
     points.insert(points.end(), points2.begin(), points2.end());
 
     TVector2SizeUMap lookup;
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    for (std::size_t i = 0; i < points.size(); ++i) {
         lookup[points[i]] = i;
     }
 
     TSizeVecVec clusterCounts(perfect.size(), TSizeVec(points.size(), 0));
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "Trial " << t);
 
         rng.random_shuffle(points1.begin(), points1.end());
@@ -726,9 +726,9 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
         LOG_DEBUG(<< "# clusters = " << bootstrapClusters.size());
         if (bootstrapClusters.size() > 1) {
             bootstrap.resize(bootstrapClusters.size());
-            for (std::size_t i = 0u; i < bootstrapClusters.size(); ++i) {
+            for (std::size_t i = 0; i < bootstrapClusters.size(); ++i) {
                 bootstrap[i].clear();
-                for (std::size_t j = 0u; j < bootstrapClusters[i].size(); ++j) {
+                for (std::size_t j = 0; j < bootstrapClusters[i].size(); ++j) {
                     auto k = lookup.find(bootstrapClusters[i][j]);
                     BOOST_TEST_REQUIRE(k != lookup.end());
                     bootstrap[i].push_back(k->second);
@@ -737,17 +737,17 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
             }
 
             LOG_DEBUG(<< "clusters = " << core::CContainerPrinter::print(bootstrap));
-            for (std::size_t i = 0u; i < bootstrap.size(); ++i) {
+            for (std::size_t i = 0; i < bootstrap.size(); ++i) {
                 double Jmax = 0.0;
                 std::size_t cluster = 0;
-                for (std::size_t j = 0u; j < perfect.size(); ++j) {
+                for (std::size_t j = 0; j < perfect.size(); ++j) {
                     double J = maths::CSetTools::jaccard(
                         bootstrap[i].begin(), bootstrap[i].end(),
                         perfect[j].begin(), perfect[j].end());
                     boost::tie(Jmax, cluster) = std::max(
                         std::make_pair(Jmax, cluster), std::make_pair(J, j));
                 }
-                for (std::size_t j = 0u; j < bootstrap[i].size(); ++j) {
+                for (std::size_t j = 0; j < bootstrap[i].size(); ++j) {
                     ++clusterCounts[cluster][bootstrap[i][j]];
                 }
             }
@@ -755,7 +755,7 @@ BOOST_AUTO_TEST_CASE(testClusteringStability) {
     }
 
     TDoubleVec consistency(points.size(), 1.0);
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    for (std::size_t i = 0; i < points.size(); ++i) {
         double c0 = static_cast<double>(clusterCounts[0][i]);
         double c1 = static_cast<double>(clusterCounts[1][i]);
         if (c0 > 0.0 || c1 > 0.0) {

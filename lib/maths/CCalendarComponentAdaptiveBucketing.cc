@@ -228,7 +228,7 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
     newCentres.reserve(m);
     newLargeErrorCounts.reserve(m);
 
-    for (std::size_t i = 1u; i < n; ++i) {
+    for (std::size_t i = 1; i < n; ++i) {
         double yl{newEndpoints[i - 1]};
         double yr{newEndpoints[i]};
         std::size_t r(std::lower_bound(oldEndpoints.begin(), oldEndpoints.end(), yr) -
@@ -300,7 +300,7 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
         count += CBasicStatistics::count(value);
     }
     count /= (oldEndpoints[m] - oldEndpoints[0]);
-    for (std::size_t i = 0u; i < m; ++i) {
+    for (std::size_t i = 0; i < m; ++i) {
         double ci{CBasicStatistics::count(newValues[i])};
         if (ci > 0.0) {
             CBasicStatistics::scale(

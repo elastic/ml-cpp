@@ -83,7 +83,7 @@ public:
         // otherwise start a new layer.
 
         std::size_t layer = m_Layer + 1;
-        for (std::size_t i = 0u; i < node.s_Children.size(); ++i) {
+        for (std::size_t i = 0; i < node.s_Children.size(); ++i) {
             if (m_Layers[m_Layer].count(node.s_Children[i]) == 0) {
                 layer = m_Layer + 2;
                 break;
@@ -107,7 +107,7 @@ public:
         LOG_DEBUG(<< "# layers = " << m_Layers.size());
         BOOST_REQUIRE_EQUAL(expectedLayers, m_Layers.size());
 
-        for (std::size_t i = 0u; i < m_Layers.size(); ++i) {
+        for (std::size_t i = 0; i < m_Layers.size(); ++i) {
             LOG_DEBUG(<< "Checking layer " << core::CContainerPrinter::print(m_Layers[i]));
             for (TNodeCPtrSetCItr itr = m_Layers[i].begin();
                  itr != m_Layers[i].end(); ++itr) {
@@ -123,7 +123,7 @@ public:
 private:
     //! Get a node's layer.
     std::size_t layer(const TNode* node) const {
-        for (std::size_t i = 0u; i < m_Layers.size(); ++i) {
+        for (std::size_t i = 0; i < m_Layers.size(); ++i) {
             if (m_Layers[i].count(node) > 0) {
                 return i;
             }
@@ -183,7 +183,7 @@ public:
 
 private:
     std::size_t depth(const TNode* node) const {
-        std::size_t result = 0u;
+        std::size_t result = 0;
         for (/**/; node->s_Parent; node = node->s_Parent) {
             ++result;
         }
@@ -317,7 +317,7 @@ public:
             CFactory factory;
             TNodeProbabilitiesPtrVec probabilities;
             this->elements(node, pivot, factory, probabilities);
-            for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+            for (std::size_t i = 0; i < probabilities.size(); ++i) {
                 if (node.probability() <
                     model::CDetectorEqualizer::largestProbabilityToCorrect()) {
                     (*probabilities[i]).s_Probabilities[node.s_Detector].push_back(node.probability());
@@ -329,7 +329,7 @@ public:
     double test(double minimumSignificance) const {
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanSignificance;
 
-        for (std::size_t i = 0u; i < this->leafSet().size(); ++i) {
+        for (std::size_t i = 0; i < this->leafSet().size(); ++i) {
             const SNodeProbabilities& probabilities = this->leafSet()[i].second;
             LOG_DEBUG(<< "leaf = " << probabilities.s_Name);
 
@@ -339,8 +339,8 @@ public:
                 detectors.push_back(j->first);
             }
 
-            for (std::size_t j = 1u; j < detectors.size(); ++j) {
-                for (std::size_t k = 0u; k < j; ++k) {
+            for (std::size_t j = 1; j < detectors.size(); ++j) {
+                for (std::size_t k = 0; k < j; ++k) {
                     double significance = maths::CStatisticalTests::twoSampleKS(
                         probabilities.s_Probabilities.find(detectors[j])->second,
                         probabilities.s_Probabilities.find(detectors[k])->second);
@@ -1096,7 +1096,7 @@ BOOST_AUTO_TEST_CASE(testAggregator) {
         results.bottomUpBreadthFirst(extract);
         TDoubleVec scores;
         TDoubleVec probabilities;
-        for (std::size_t i = 0u; i < extract.personNodes().size(); ++i) {
+        for (std::size_t i = 0; i < extract.personNodes().size(); ++i) {
             scores.push_back(extract.personNodes()[i]->s_RawAnomalyScore);
             probabilities.push_back(extract.personNodes()[i]->probability());
         }
@@ -1548,12 +1548,12 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         "r", std::make_shared<model::CAnomalyScore::CNormalizer>(modelConfig));
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < 300; ++i) {
+    for (std::size_t i = 0; i < 300; ++i) {
         model::CHierarchicalResults results;
         TDoubleVec p;
         rng.generateUniformSamples(0.0, 1.0, boost::size(fields), p);
         TAttributeProbabilityVec empty;
-        for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+        for (std::size_t j = 0; j < boost::size(fields); ++j) {
             addResult(boost::lexical_cast<int>(fields[j][0]), fields[j][1] == TRUE_STR,
                       FUNC, function, fields[j][2], fields[j][3], fields[j][4],
                       fields[j][5], fields[j][6], p[j], results);
@@ -1757,10 +1757,10 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
             {"3", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING}};
         double scales[] = {1.9, 2.5, 1.7, 2.9};
 
-        for (std::size_t i = 0u; i < 300; ++i) {
+        for (std::size_t i = 0; i < 300; ++i) {
             model::CHierarchicalResults results;
             TAttributeProbabilityVec empty;
-            for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+            for (std::size_t j = 0; j < boost::size(fields); ++j) {
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
@@ -1773,10 +1773,10 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
             results.bottomUpBreadthFirst(aggregator);
         }
 
-        for (std::size_t i = 0u; i < 300; ++i) {
+        for (std::size_t i = 0; i < 300; ++i) {
             model::CHierarchicalResults results;
             TAttributeProbabilityVec empty;
-            for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+            for (std::size_t j = 0; j < boost::size(fields); ++j) {
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
@@ -1838,10 +1838,10 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
             {"1", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING}};
         double scales[] = {1.0, 3.5};
 
-        for (std::size_t i = 0u; i < 500; ++i) {
+        for (std::size_t i = 0; i < 500; ++i) {
             model::CHierarchicalResults results;
             TAttributeProbabilityVec empty;
-            for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+            for (std::size_t j = 0; j < boost::size(fields); ++j) {
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
@@ -1857,10 +1857,10 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         using TDoubleSizePr = std::pair<double, std::size_t>;
         maths::CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2> mostAnomalous;
 
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             model::CHierarchicalResults results;
             TAttributeProbabilityVec empty;
-            for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+            for (std::size_t j = 0; j < boost::size(fields); ++j) {
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);

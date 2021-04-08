@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
         double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
         TDoubleVec A(std::begin(a), std::end(a));
 
-        for (std::size_t i = 0u; i < boost::size(a); ++i) {
+        for (std::size_t i = 0; i < boost::size(a); ++i) {
             TDoubleVec left;
             for (std::size_t j = 0; j < i; ++j) {
                 left.push_back(a[j]);
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 100; ++t) {
+    for (std::size_t t = 0; t < 100; ++t) {
         TDoubleVec A;
         rng.generateUniformSamples(0.0, 100.0, t, A);
         std::sort(A.begin(), A.end());
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(testInplaceSetDifference) {
         TDoubleVec B;
         TDoubleVec mask;
         rng.generateUniformSamples(0.0, 1.0, t, mask);
-        for (std::size_t i = 0u; i < mask.size(); ++i) {
+        for (std::size_t i = 0; i < mask.size(); ++i) {
             if (mask[i] < 0.2) {
                 B.push_back(A[i]);
             }
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
         double a[] = {1.0, 1.1, 1.2, 3.4, 7.8};
         TDoubleVec A(std::begin(a), std::end(a));
 
-        for (std::size_t i = 0u; i < boost::size(a); ++i) {
+        for (std::size_t i = 0; i < boost::size(a); ++i) {
             TDoubleVec left;
             for (std::size_t j = 0; j < i; ++j) {
                 left.push_back(a[j]);
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 100; ++t) {
+    for (std::size_t t = 0; t < 100; ++t) {
         TDoubleVec A;
         rng.generateUniformSamples(0.0, 100.0, t, A);
         std::sort(A.begin(), A.end());
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(testSetSizes) {
         TDoubleVec B;
         TDoubleVec mask;
         rng.generateUniformSamples(0.0, 1.0, t, mask);
-        for (std::size_t i = 0u; i < mask.size(); ++i) {
+        for (std::size_t i = 0; i < mask.size(); ++i) {
             if (mask[i] < 0.2) {
                 B.push_back(A[i]);
             }
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(testJaccard) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         TSizeVec sizes;
         rng.generateUniformSamples(t / 2 + 1, (3 * t) / 2 + 2, 2, sizes);
 
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testOverlap) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         TSizeVec sizes;
         rng.generateUniformSamples(t / 2 + 1, (3 * t) / 2 + 2, 2, sizes);
 

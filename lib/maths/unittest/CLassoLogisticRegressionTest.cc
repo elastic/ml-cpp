@@ -33,8 +33,8 @@ using TSizeSizePrDoublePrVec = std::vector<TSizeSizePrDoublePr>;
 template<typename ARRAY>
 void initializeMatrix(const ARRAY& x_, TDoubleVecVec& x) {
     x.resize(boost::size(x_[0]), TDoubleVec(boost::size(x_), 0.0));
-    for (std::size_t i = 0u; i < boost::size(x_); ++i) {
-        for (std::size_t j = 0u; j < boost::size(x_[i]); ++j) {
+    for (std::size_t i = 0; i < boost::size(x_); ++i) {
+        for (std::size_t j = 0; j < boost::size(x_[i]); ++j) {
             x[j][i] = x_[i][j];
         }
     }
@@ -42,8 +42,8 @@ void initializeMatrix(const ARRAY& x_, TDoubleVecVec& x) {
 
 template<typename ARRAY>
 void initializeMatrix(const ARRAY& x_, TSizeSizePrDoublePrVec& x) {
-    for (std::size_t i = 0u; i < boost::size(x_); ++i) {
-        for (std::size_t j = 0u; j < boost::size(x_[i]); ++j) {
+    for (std::size_t i = 0; i < boost::size(x_); ++i) {
+        for (std::size_t j = 0; j < boost::size(x_[i]); ++j) {
             if (x_[i][j] > 0.0) {
                 x.push_back(TSizeSizePrDoublePr(TSizeSizePr(j, i), x_[i][j]));
             }
@@ -53,7 +53,7 @@ void initializeMatrix(const ARRAY& x_, TSizeSizePrDoublePrVec& x) {
 
 double inner(const TDoubleVec& x, const TDoubleVec& y) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         result += x[i] * y[i];
     }
     return result;
@@ -64,14 +64,14 @@ double logLikelihood(const TDoubleVecVec& x,
                      const TDoubleVec& lambda,
                      const TDoubleVec& beta) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < y.size(); ++i) {
+    for (std::size_t i = 0; i < y.size(); ++i) {
         double f = 0.0;
-        for (std::size_t j = 0u; j < beta.size(); ++j) {
+        for (std::size_t j = 0; j < beta.size(); ++j) {
             f += beta[j] * x[j][i];
         }
         result -= std::log(1.0 + std::exp(-f * y[i]));
     }
-    for (std::size_t j = 0u; j < beta.size(); ++j) {
+    for (std::size_t j = 0; j < beta.size(); ++j) {
         result -= lambda[j] * std::fabs(beta[j]);
     }
     return result;
@@ -127,14 +127,14 @@ BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
 
         double llMinusEps = 0.0;
         double llPlusEps = 0.0;
-        for (std::size_t i = 0u; i < 10; ++i) {
+        for (std::size_t i = 0; i < 10; ++i) {
             TDoubleVec step;
             rng.generateUniformSamples(0.0, EPS, beta1.size(), step);
 
             TDoubleVec betaMinusEps;
             TDoubleVec betaPlusEps;
             double length = 0.0;
-            for (std::size_t j = 0u; j < beta1.size(); ++j) {
+            for (std::size_t j = 0; j < beta1.size(); ++j) {
                 betaMinusEps.push_back(beta1[j] - step[j]);
                 betaPlusEps.push_back(beta1[j] + step[j]);
                 length += step[j] * step[j];
@@ -167,25 +167,25 @@ BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
     TDoubleVec decisionNormal;
     rng.generateUniformSamples(0.0, 1.0, 5, decisionNormal);
     double length = std::sqrt(inner(decisionNormal, decisionNormal));
-    for (std::size_t j = 0u; j < decisionNormal.size(); ++j) {
+    for (std::size_t j = 0; j < decisionNormal.size(); ++j) {
         decisionNormal[j] /= length;
     }
     LOG_DEBUG(<< "decisionNormal = " << core::CContainerPrinter::print(decisionNormal));
 
     TDoubleVecVec x_(6, TDoubleVec(100, 0.0));
     TDoubleVec y_(100, 0.0);
-    for (std::size_t i = 0u; i < 100; ++i) {
+    for (std::size_t i = 0; i < 100; ++i) {
         TDoubleVec xi;
         rng.generateUniformSamples(-20.0, 20.0, 5, xi);
         double yi = std::sqrt(inner(decisionNormal, xi)) > decision ? 1.0 : -1.0;
-        for (std::size_t j = 0u; j < xi.size(); ++j) {
+        for (std::size_t j = 0; j < xi.size(); ++j) {
             x_[j][i] = xi[j];
         }
         x_[5][i] = 1.0;
         y_[i] = yi;
     }
 
-    for (std::size_t k = 0u; k < boost::size(lambdas); ++k) {
+    for (std::size_t k = 0; k < boost::size(lambdas); ++k) {
         TDoubleVec lambda(6, lambdas[k]);
         TDoubleVecVec x(x_);
         TDoubleVec y(y_);
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
                   << ", numberIterations = " << numberIterations);
 
         TDoubleVec effectiveDecisionNormal;
-        for (std::size_t j = 0u; j < decisionNormal.size(); ++j) {
+        for (std::size_t j = 0; j < decisionNormal.size(); ++j) {
             effectiveDecisionNormal.push_back(beta[j]);
         }
 

@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
                 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 
     TCovariances2 moments(2);
-    for (std::size_t i = 0u; i < boost::size(x1); ++i) {
+    for (std::size_t i = 0; i < boost::size(x1); ++i) {
         cluster.add(TPoint(x1[i]), c1[i]);
         moments.add(TPoint(x1[i]), TPoint(c1[i]));
     }
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
     TCovariances2 sampleMoments(2);
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         sampleMoments.add(samples[i]);
     }
     TPoint sampleCentre = maths::CBasicStatistics::mean(sampleMoments);
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     double x2[][2]{{10.3, 10.4}, {10.6, 10.5}, {10.7, 11.0}, {9.8, 10.2},
                    {11.2, 11.4}, {11.0, 10.7}, {11.5, 11.3}};
     double c2[]{2.0, 1.0, 1.0, 2.0, 2.0, 1.0, 1.0};
-    for (std::size_t i = 0u; i < boost::size(x2); ++i) {
+    for (std::size_t i = 0; i < boost::size(x2); ++i) {
         cluster.add(TPoint(x2[i]), c2[i]);
     }
     maths::CPRNG::CXorOShiro128Plus rng;
@@ -199,17 +199,17 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     BOOST_REQUIRE_EQUAL(false, split->second.shouldMerge(split->first));
 
     if (split->first.centre() < split->second.centre()) {
-        for (std::size_t i = 0u; i < boost::size(x1); ++i) {
+        for (std::size_t i = 0; i < boost::size(x1); ++i) {
             split->second.add(TPoint(x1[i]), c1[i]);
         }
-        for (std::size_t i = 0u; i < boost::size(x2); ++i) {
+        for (std::size_t i = 0; i < boost::size(x2); ++i) {
             split->first.add(TPoint(x2[i]), c2[i]);
         }
     } else {
-        for (std::size_t i = 0u; i < boost::size(x1); ++i) {
+        for (std::size_t i = 0; i < boost::size(x1); ++i) {
             split->first.add(TPoint(x1[i]), c1[i]);
         }
-        for (std::size_t i = 0u; i < boost::size(x2); ++i) {
+        for (std::size_t i = 0; i < boost::size(x2); ++i) {
             split->second.add(TPoint(x2[i]), c2[i]);
         }
     }
@@ -231,20 +231,20 @@ BOOST_AUTO_TEST_CASE(testClusteringVanilla) {
     double covariances[][2][2]{
         {{10, 2}, {2, 15}}, {{30, 8}, {8, 15}}, {{20, -11}, {-11, 25}}};
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "*** test " << t << " ***");
 
         TDoubleVec mean(&means[0][0], &means[0][2]);
         TDoubleVecVec covariance;
-        for (std::size_t i = 0u; i < 2; ++i) {
+        for (std::size_t i = 0; i < 2; ++i) {
             covariance.emplace_back(&covariances[0][i][0], &covariances[0][i][2]);
         }
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(mean, covariance, 200, samples);
 
         TXMeans2ForTest clusterer(maths_t::E_ContinuousData, maths_t::E_ClustersFractionWeight);
-        std::size_t n = 0u;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        std::size_t n = 0;
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             clusterer.add(TPoint(samples[i]));
             n += clusterer.numberClusters();
         }
@@ -260,30 +260,30 @@ BOOST_AUTO_TEST_CASE(testClusteringVanilla) {
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMeanError;
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanCovError;
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "*** test " << t << " ***");
 
         TDoubleVecVec samples;
         TPointVec centres;
         TCovariances2Vec expectedMoments(boost::size(means), TCovariances2(2));
 
-        for (std::size_t i = 0u; i < boost::size(means); ++i) {
+        for (std::size_t i = 0; i < boost::size(means); ++i) {
             TDoubleVec mean(&means[i][0], &means[i][2]);
             TDoubleVecVec covariance;
-            for (std::size_t j = 0u; j < 2; ++j) {
+            for (std::size_t j = 0; j < 2; ++j) {
                 covariance.emplace_back(&covariances[i][j][0], &covariances[i][j][2]);
             }
             TDoubleVecVec samples_;
             rng.generateMultivariateNormalSamples(mean, covariance, 200, samples_);
             samples.insert(samples.end(), samples_.begin(), samples_.end());
-            for (std::size_t j = 0u; j < samples_.size(); ++j) {
+            for (std::size_t j = 0; j < samples_.size(); ++j) {
                 expectedMoments[i].add(TPoint(samples_[j]));
             }
         }
         rng.random_shuffle(samples.begin(), samples.end());
 
         TXMeans2ForTest clusterer(maths_t::E_ContinuousData, maths_t::E_ClustersFractionWeight);
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             clusterer.add(TPoint(samples[i]));
         }
 
@@ -291,13 +291,13 @@ BOOST_AUTO_TEST_CASE(testClusteringVanilla) {
         LOG_DEBUG(<< "# clusters = " << clusters.size());
         BOOST_REQUIRE_EQUAL(std::size_t(3), clusters.size());
 
-        for (std::size_t i = 0u; i < clusters.size(); ++i) {
+        for (std::size_t i = 0; i < clusters.size(); ++i) {
             LOG_DEBUG(<< "moments = "
                       << maths::CBasicStatistics::print(clusters[i].covariances()));
 
             maths::CBasicStatistics::COrderStatisticsStack<double, 1> meanError;
             maths::CBasicStatistics::COrderStatisticsStack<double, 1> covError;
-            for (std::size_t j = 0u; j < expectedMoments.size(); ++j) {
+            for (std::size_t j = 0; j < expectedMoments.size(); ++j) {
                 meanError.add(
                     (maths::CBasicStatistics::mean(clusters[i].covariances()) -
                      maths::CBasicStatistics::mean(expectedMoments[j]))
@@ -337,7 +337,7 @@ BOOST_AUTO_TEST_CASE(testClusteringWithOutliers) {
 
     double outliers_[][2] = {{600, 10}, {650, 11}, {610, 12}, {700, 16}, {690, 14}};
     TDoubleVecVec outliers;
-    for (std::size_t i = 0u; i < boost::size(outliers_); ++i) {
+    for (std::size_t i = 0; i < boost::size(outliers_); ++i) {
         outliers.push_back(TDoubleVec(std::begin(outliers_[i]), std::end(outliers_[i])));
     }
 
@@ -347,28 +347,28 @@ BOOST_AUTO_TEST_CASE(testClusteringWithOutliers) {
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMeanError;
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanCovError;
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "*** test " << t << " ***");
 
         TDoubleVecVec samples;
         TPointVec centres;
         TCovariances2Vec expectedMoments(boost::size(means), TCovariances2(2));
 
-        for (std::size_t i = 0u; i < boost::size(means); ++i) {
+        for (std::size_t i = 0; i < boost::size(means); ++i) {
             TDoubleVec mean(&means[i][0], &means[i][2]);
             TDoubleVecVec covariance;
-            for (std::size_t j = 0u; j < 2; ++j) {
+            for (std::size_t j = 0; j < 2; ++j) {
                 covariance.push_back(
                     TDoubleVec(&covariances[i][j][0], &covariances[i][j][2]));
             }
             TDoubleVecVec samples_;
             rng.generateMultivariateNormalSamples(mean, covariance, 200, samples_);
             samples.insert(samples.end(), samples_.begin(), samples_.end());
-            for (std::size_t j = 0u; j < samples_.size(); ++j) {
+            for (std::size_t j = 0; j < samples_.size(); ++j) {
                 expectedMoments[i].add(TPoint(samples_[j]));
             }
         }
-        for (std::size_t i = 0u; i < outliers.size(); ++i) {
+        for (std::size_t i = 0; i < outliers.size(); ++i) {
             expectedMoments[1].add(TPoint(outliers[i]));
         }
         rng.random_shuffle(samples.begin(), samples.end());
@@ -376,10 +376,10 @@ BOOST_AUTO_TEST_CASE(testClusteringWithOutliers) {
         TXMeans2ForTest clusterer(maths_t::E_ContinuousData,
                                   maths_t::E_ClustersFractionWeight, 0.0, 0.01);
 
-        for (std::size_t i = 0u; i < outliers.size(); ++i) {
+        for (std::size_t i = 0; i < outliers.size(); ++i) {
             clusterer.add(TPoint(outliers[i]));
         }
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             clusterer.add(TPoint(samples[i]));
         }
 
@@ -387,13 +387,13 @@ BOOST_AUTO_TEST_CASE(testClusteringWithOutliers) {
         LOG_DEBUG(<< "# clusters = " << clusters.size());
         BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
-        for (std::size_t i = 0u; i < clusters.size(); ++i) {
+        for (std::size_t i = 0; i < clusters.size(); ++i) {
             LOG_DEBUG(<< "moments = "
                       << maths::CBasicStatistics::print(clusters[i].covariances()));
 
             maths::CBasicStatistics::COrderStatisticsStack<double, 1> meanError;
             maths::CBasicStatistics::COrderStatisticsStack<double, 1> covError;
-            for (std::size_t j = 0u; j < expectedMoments.size(); ++j) {
+            for (std::size_t j = 0; j < expectedMoments.size(); ++j) {
                 meanError.add(
                     (maths::CBasicStatistics::mean(clusters[i].covariances()) -
                      maths::CBasicStatistics::mean(expectedMoments[j]))
@@ -444,17 +444,17 @@ BOOST_AUTO_TEST_CASE(testManyClusters) {
     TPointVecVec samples_;
     rng.generateRandomMultivariateNormals(sizes, means, covariances, samples_);
     TPointVec samples;
-    for (std::size_t i = 0u; i < samples_.size(); ++i) {
-        for (std::size_t j = 0u; j < samples_[i].size(); ++j) {
+    for (std::size_t i = 0; i < samples_.size(); ++i) {
+        for (std::size_t j = 0; j < samples_[i].size(); ++j) {
             samples.push_back(samples_[i][j]);
         }
     }
 
     TDoubleVec lgenerating(samples.size());
     TMeanAccumulator differentialEntropy;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         lgenerating[i] = 0.0;
-        for (std::size_t j = 0u; j < means.size(); ++j) {
+        for (std::size_t j = 0; j < means.size(); ++j) {
             double lj;
             maths::gaussianLogLikelihood(covariances[j], samples[i] - means[j], lj);
             lgenerating[i] += static_cast<double>(sizes[j]) * std::exp(lj);
@@ -465,14 +465,14 @@ BOOST_AUTO_TEST_CASE(testManyClusters) {
     LOG_DEBUG(<< "differentialEntropy = "
               << maths::CBasicStatistics::mean(differentialEntropy));
 
-    for (std::size_t t = 0u; t < 5; ++t) {
+    for (std::size_t t = 0; t < 5; ++t) {
         LOG_DEBUG(<< "*** test " << t << " ***");
 
         rng.random_shuffle(samples.begin(), samples.end());
 
         TXMeans2ForTest clusterer(maths_t::E_ContinuousData, maths_t::E_ClustersFractionWeight);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             clusterer.add(samples[i]);
         }
 
@@ -480,9 +480,9 @@ BOOST_AUTO_TEST_CASE(testManyClusters) {
         LOG_DEBUG(<< "# clusters = " << clusters.size());
 
         TMeanAccumulator loss;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             double l = 0.0;
-            for (std::size_t j = 0u; j < clusters.size(); ++j) {
+            for (std::size_t j = 0; j < clusters.size(); ++j) {
                 double n = maths::CBasicStatistics::count(clusters[j].covariances());
                 const TPoint& mean =
                     maths::CBasicStatistics::mean(clusters[j].covariances());
@@ -705,7 +705,7 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
     TXMeans2FloatForTest clusterer(maths_t::E_ContinuousData,
                                    maths_t::E_ClustersFractionWeight, 0.0005);
 
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         TPoint x(timeseries[i].second);
         reference.add(x);
         clusterer.add(x);
@@ -715,7 +715,7 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
     TMeanAccumulator LLR;
     TMeanAccumulator LLC;
 
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         TPoint x(timeseries[i].second);
 
         {
@@ -730,7 +730,7 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
             double ll = 0.0;
             double Z = 0.0;
             const TXMeans2FloatForTest::TClusterVec& clusters = clusterer.clusters();
-            for (std::size_t j = 0u; j < clusters.size(); ++j) {
+            for (std::size_t j = 0; j < clusters.size(); ++j) {
                 double w = maths::CBasicStatistics::count(clusters[j].covariances());
                 TPoint mean = maths::CBasicStatistics::mean(clusters[j].covariances());
                 TMatrix covariance =
@@ -765,10 +765,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVecVec samples;
     TPointVec centres;
 
-    for (std::size_t i = 0u; i < boost::size(means); ++i) {
+    for (std::size_t i = 0; i < boost::size(means); ++i) {
         TDoubleVec mean(&means[i][0], &means[i][2]);
         TDoubleVecVec covariance;
-        for (std::size_t j = 0u; j < 2; ++j) {
+        for (std::size_t j = 0; j < 2; ++j) {
             covariance.push_back(TDoubleVec(&covariances[i][j][0], &covariances[i][j][2]));
         }
         TDoubleVecVec samples_;
@@ -778,7 +778,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     rng.random_shuffle(samples.begin(), samples.end());
 
     TXMeans2ForTest clusterer(maths_t::E_ContinuousData, maths_t::E_ClustersFractionWeight);
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         clusterer.add(TPoint(samples[i]));
     }
 

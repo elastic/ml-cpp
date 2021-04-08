@@ -103,7 +103,7 @@ const core::TPersistenceTag& CKMeansOnline1d::persistenceTag() const {
 }
 
 void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         inserter.insertLevel(CLUSTER_TAG,
                              std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
                                        &m_Clusters[i], std::placeholders::_1));
@@ -127,13 +127,13 @@ std::size_t CKMeansOnline1d::numberClusters() const {
 }
 
 void CKMeansOnline1d::dataType(maths_t::EDataType dataType) {
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         m_Clusters[i].dataType(dataType);
     }
 }
 
 void CKMeansOnline1d::decayRate(double decayRate) {
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         m_Clusters[i].decayRate(decayRate);
     }
 }
@@ -223,13 +223,13 @@ void CKMeansOnline1d::add(const double& point, TSizeDoublePr2Vec& clusters, doub
 
 void CKMeansOnline1d::add(const TDoubleDoublePrVec& points) {
     TSizeDoublePr2Vec dummy;
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    for (std::size_t i = 0; i < points.size(); ++i) {
         this->add(points[i].first, dummy, points[i].second);
     }
 }
 
 void CKMeansOnline1d::propagateForwardsByTime(double time) {
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         m_Clusters[i].propagateForwardsByTime(time);
     }
 }
@@ -251,7 +251,7 @@ double CKMeansOnline1d::probability(std::size_t index) const {
     }
     double weight = m_Clusters[index].numberSamples();
     double weightSum = 0.0;
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         weightSum += m_Clusters[i].numberSamples();
     }
     return weightSum == 0.0 ? 0.0 : weight / weightSum;

@@ -85,7 +85,7 @@ double logLikelihood(const MATRIX& x,
 
     double result = 0.0;
     TDoubleVec f(y.size(), 0.0);
-    for (std::size_t j = 0u; j < beta.size(); ++j) {
+    for (std::size_t j = 0; j < beta.size(); ++j) {
         for (iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
             std::size_t i = x.row(itr, j);
             double xij = x.element(itr);
@@ -93,10 +93,10 @@ double logLikelihood(const MATRIX& x,
         }
     }
 
-    for (std::size_t i = 0u; i < f.size(); ++i) {
+    for (std::size_t i = 0; i < f.size(); ++i) {
         result -= std::log(1.0 + std::exp(-f[i] * y[i]));
     }
-    for (std::size_t j = 0u; j < beta.size(); ++j) {
+    for (std::size_t j = 0; j < beta.size(); ++j) {
         result -= lambda[j] * std::fabs(beta[j]);
     }
 
@@ -131,7 +131,7 @@ void CLG(std::size_t maxIterations,
     // Auxiliary variables used to compute solver step.
     TDoubleVec num(d, 0.0);
     TDoubleVec den(d, 0.0);
-    for (std::size_t j = 0u; j < d; ++j) {
+    for (std::size_t j = 0; j < d; ++j) {
         double Dj = delta[j];
         for (iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
             std::size_t i = x.row(itr, j);
@@ -144,12 +144,12 @@ void CLG(std::size_t maxIterations,
         }
     }
 
-    for (std::size_t k = 0u; k < maxIterations; ++k) {
+    for (std::size_t k = 0; k < maxIterations; ++k) {
         rlast = r;
         LOG_TRACE(<< "numerator   = " << core::CContainerPrinter::print(num));
         LOG_TRACE(<< "denominator = " << core::CContainerPrinter::print(den));
 
-        for (std::size_t j = 0u; j < d; ++j) {
+        for (std::size_t j = 0; j < d; ++j) {
             double bj = beta[j];
             double Dj = delta[j];
             double dvj = lassoStep(bj, lambda[j], num[j], den[j]);
@@ -189,7 +189,7 @@ void CLG(std::size_t maxIterations,
         // Check for convergence.
         double dsum = 0.0;
         double sum = 0.0;
-        for (std::size_t i = 0u; i < r.size(); ++i) {
+        for (std::size_t i = 0; i < r.size(); ++i) {
             dsum += std::fabs(r[i] - rlast[i]);
             sum += std::fabs(r[i]);
         }
@@ -308,7 +308,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CLrDenseMatrix& x,
 
     // Initialize the reachable values.
     TDoubleVec r(x.rows(), 0.0);
-    for (std::size_t j = 0u; j < x.columns(); ++j) {
+    for (std::size_t j = 0; j < x.columns(); ++j) {
         double bj = beta[j];
         for (CLrDenseMatrix::iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
             std::size_t i = x.row(itr, j);
@@ -337,7 +337,7 @@ bool CCyclicCoordinateDescent::runIncremental(const CLrSparseMatrix& x,
 
     // Initialize the reachable values.
     TDoubleVec r(x.rows(), 0.0);
-    for (std::size_t j = 0u; j < x.columns(); ++j) {
+    for (std::size_t j = 0; j < x.columns(); ++j) {
         double bj = beta[j];
         for (CLrSparseMatrix::iterator itr = x.beginRows(j); itr != x.endRows(j); ++itr) {
             std::size_t i = x.row(itr, j);
@@ -378,7 +378,7 @@ bool CLogisticRegressionModel::operator()(const TDoubleVec& x, double& probabili
                   << ", D = " << m_Beta[n - 1].first + 1);
     }
     double r = -m_Beta0;
-    for (std::size_t i = 0u; i < m_Beta.size(); ++i) {
+    for (std::size_t i = 0; i < m_Beta.size(); ++i) {
         r -= m_Beta[i].second * x[m_Beta[i].first];
     }
     probability = 1.0 / (1.0 + std::exp(-r));
@@ -391,7 +391,7 @@ double CLogisticRegressionModel::operator()(const TSizeDoublePrVec& x) const {
     }
 
     double r = -m_Beta0;
-    for (std::size_t i = 0u, j = 0u; i < m_Beta.size() && j < x.size(); /**/) {
+    for (std::size_t i = 0u, j = 0; i < m_Beta.size() && j < x.size(); /**/) {
         if (m_Beta[i].first < x[j].first) {
             ++i;
         } else if (x[j].first < m_Beta[i].first) {
@@ -440,9 +440,9 @@ void setupTrainingData(const TDoubleVecVec& x,
 
     TDoubleVecVec xTranspose(d + 1, TDoubleVec(m, 1.0));
     yMasked.reserve(m);
-    for (std::size_t i = 0u, i_ = 0u; i < n; ++i) {
+    for (std::size_t i = 0u, i_ = 0; i < n; ++i) {
         if (mask.count(i) == 0) {
-            for (std::size_t j = 0u; j < d; ++j) {
+            for (std::size_t j = 0; j < d; ++j) {
                 xTranspose[j][i_] = x[i][j];
             }
             yMasked.push_back(y[i]);
@@ -473,8 +473,8 @@ void setupTrainingData(const TSizeDoublePrVecVec& x,
     TSizeSizePrDoublePrVec xTranspose;
     yMasked.reserve(m);
     std::size_t rows = m;
-    std::size_t columns = 0u;
-    for (std::size_t i = 0u, i_ = 0u; i < n; ++i) {
+    std::size_t columns = 0;
+    for (std::size_t i = 0u, i_ = 0; i < n; ++i) {
         if (mask.count(i) == 0) {
             for (std::size_t j = 0u, d = x[i].size(); j < d; ++j) {
                 std::size_t j_ = x[i][j].first;
@@ -486,7 +486,7 @@ void setupTrainingData(const TSizeDoublePrVecVec& x,
             ++i_;
         }
     }
-    for (std::size_t i = 0u; i < rows; ++i) {
+    for (std::size_t i = 0; i < rows; ++i) {
         xTranspose.emplace_back(TSizeSizePr(columns, i), 1.0);
     }
     CLrSparseMatrix tmp(rows, columns + 1, xTranspose);
@@ -549,8 +549,8 @@ template<typename STORAGE>
 double l22Norm(const STORAGE& x) {
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     TMeanAccumulator result;
-    for (std::size_t i = 0u; i < x.size(); ++i) {
-        for (std::size_t j = 0u; j < x[i].size(); ++j) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
+        for (std::size_t j = 0; j < x[i].size(); ++j) {
             double xij = element(x[i][j]);
             result.add(xij * xij);
         }
@@ -607,8 +607,8 @@ public:
         m_Beta.clear();
         m_Lambda.assign(m_D, lambda);
         double result = 0.0;
-        for (std::size_t j = 0u; j < m_Splits; ++j) {
-            for (std::size_t i = 0u; i < 2; ++i) {
+        for (std::size_t j = 0; j < m_Splits; ++j) {
+            for (std::size_t i = 0; i < 2; ++i) {
                 learn(m_X[i][j], m_Y[i][j], m_Lambda, m_Beta);
                 result += logLikelihood(m_X[(i + 1) % 2][j],
                                         m_Y[(i + 1) % 2][j], m_Lambda, m_Beta);
@@ -679,7 +679,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     TSizeVec negative;
     positive.reserve(n);
     negative.reserve(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         (m_Y[i] > 0.0 ? positive : negative).push_back(i);
     }
     if (positive.size() <= 1 || negative.size() <= 1) {
@@ -712,7 +712,7 @@ void CLassoLogisticRegression<STORAGE>::doLearnHyperparameter(EHyperparametersSt
     double logLikelihoods[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
     double min = lambda / 10.0;
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         logLikelihoods[i] = objective(scales[i] * min);
     }
     LOG_TRACE(<< "log(L) = " << core::CContainerPrinter::print(logLikelihoods));
@@ -757,7 +757,7 @@ bool CLassoLogisticRegression<STORAGE>::doLearn(CLogisticRegressionModel& result
     sparse.reserve(std::count_if(
         m_Beta.begin(), m_Beta.end(),
         std::bind(std::greater<double>(), std::placeholders::_1, 0.0)));
-    for (std::size_t j = 0u; j < m_D; ++j) {
+    for (std::size_t j = 0; j < m_D; ++j) {
         if (m_Beta[j] > 0.0) {
             sparse.emplace_back(j, m_Beta[j]);
         }
@@ -777,7 +777,7 @@ bool CLassoLogisticRegression<STORAGE>::sanityChecks() const {
 
     bool positive = false;
     bool negative = false;
-    for (std::size_t i = 0u; (!positive || !negative) && i < m_Y.size(); ++i) {
+    for (std::size_t i = 0; (!positive || !negative) && i < m_Y.size(); ++i) {
         (m_Y[i] < 0.0 ? negative : positive) = true;
     }
     if (!negative || !positive) {
@@ -814,7 +814,7 @@ bool CLassoLogisticRegressionDense::learn(CLogisticRegressionModel& result) {
 ////// CLassoLogisticRegressionSparse //////
 
 void CLassoLogisticRegressionSparse::addTrainingData(const TSizeDoublePrVec& x, bool interesting) {
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         this->d() = std::max(this->d(), x[i].first);
     }
     this->x().push_back(x);

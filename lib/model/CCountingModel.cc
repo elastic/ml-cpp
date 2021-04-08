@@ -46,8 +46,10 @@ CCountingModel::CCountingModel(const SModelParams& params,
     : CAnomalyDetectorModel(params, dataGatherer, {}),
       m_StartTime(CAnomalyDetectorModel::TIME_UNSET),
       m_InterimBucketCorrector(interimBucketCorrector) {
-    traverser.traverseSubLevel(std::bind(&CCountingModel::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CCountingModel::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 CCountingModel::CCountingModel(bool isForPersistence, const CCountingModel& other)

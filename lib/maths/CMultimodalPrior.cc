@@ -160,7 +160,7 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
     m_Clusterer = std::make_unique<CKMeansOnline1d>(normals);
 
     m_Modes.reserve(normals.size());
-    for (std::size_t i = 0u; i < normals.size(); ++i) {
+    for (std::size_t i = 0; i < normals.size(); ++i) {
         m_Modes.emplace_back(i, TPriorPtr(normals.back().clone()));
     }
 }
@@ -171,22 +171,28 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType, double decayRate
     for (std::size_t i = 0; i < priors.size(); ++i) {
         m_Modes.emplace_back(i, std::move(priors[i]));
     }
+    // TODO - why does this constructor violate the invariant of m_SeedPrior != nullptr?
 }
 
 CMultimodalPrior::CMultimodalPrior(const SDistributionRestoreParams& params,
                                    core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
-    traverser.traverseSubLevel(std::bind(&CMultimodalPrior::acceptRestoreTraverser, this,
-                                         std::cref(params), std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CMultimodalPrior::acceptRestoreTraverser,
+                                             this, std::cref(params),
+                                             std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& params,
                                               core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
-                               core::CStringUtils::stringToType(traverser.value(), decayRate),
-                               this->decayRate(decayRate))
+        RESTORE_SETUP_TEARDOWN(
+            DECAY_RATE_TAG, double decayRate,
+            m_Clusterer != nullptr && m_SeedPrior != nullptr &&
+                core::CStringUtils::stringToType(traverser.value(), decayRate),
+            this->decayRate(decayRate))
         RESTORE(CLUSTERER_TAG, traverser.traverseSubLevel(std::bind<bool>(
                                    CClustererStateSerialiser(), std::cref(params),
                                    std::ref(m_Clusterer), std::placeholders::_1)))

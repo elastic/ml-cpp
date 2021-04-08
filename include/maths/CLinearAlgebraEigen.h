@@ -711,8 +711,8 @@ CDenseVectorInitializer<VECTOR> fromDenseVector(const VECTOR& type) {
 template<typename T, std::size_t N>
 template<typename MATRIX>
 CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(const CDenseMatrixInitializer<MATRIX>& m) {
-    for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
-        for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+    for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t j = 0; j <= i; ++j, ++i_) {
             TBase::m_LowerTriangle[i_] = m.get(i, j);
         }
     }
@@ -723,8 +723,8 @@ template<typename MATRIX>
 CSymmetricMatrix<T>::CSymmetricMatrix(const CDenseMatrixInitializer<MATRIX>& m) {
     m_D = m.rows();
     TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
-    for (std::size_t i = 0u, i_ = 0u; i < m_D; ++i) {
-        for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+    for (std::size_t i = 0u, i_ = 0; i < m_D; ++i) {
+        for (std::size_t j = 0; j <= i; ++j, ++i_) {
             TBase::m_LowerTriangle[i_] = m.get(i, j);
         }
     }
@@ -733,7 +733,7 @@ CSymmetricMatrix<T>::CSymmetricMatrix(const CDenseMatrixInitializer<MATRIX>& m) 
 template<typename T, std::size_t N>
 template<typename VECTOR>
 CVectorNx1<T, N>::CVectorNx1(const CDenseVectorInitializer<VECTOR>& v) {
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         TBase::m_X[i] = v.get(i);
     }
 }
@@ -742,7 +742,7 @@ template<typename T>
 template<typename VECTOR>
 CVector<T>::CVector(const CDenseVectorInitializer<VECTOR>& v) {
     TBase::m_X.resize(v.dimension());
-    for (std::size_t i = 0u; i < TBase::m_X.size(); ++i) {
+    for (std::size_t i = 0; i < TBase::m_X.size(); ++i) {
         TBase::m_X[i] = v.get(i);
     }
 }

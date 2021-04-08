@@ -73,7 +73,7 @@ struct SInfluencerSumSerializer {
             ordered.emplace_back(TStrCRef(*i->first), i->second);
         }
         std::sort(ordered.begin(), ordered.end(), maths::COrderings::SFirstLess());
-        for (std::size_t i = 0u; i < ordered.size(); ++i) {
+        for (std::size_t i = 0; i < ordered.size(); ++i) {
             inserter.insertValue(SUM_MAP_KEY_TAG, ordered[i].first);
             inserter.insertValue(SUM_MAP_VALUE_TAG, ordered[i].second,
                                  core::CIEEE754::E_SinglePrecision);
@@ -188,7 +188,7 @@ CGathererTools::CSumGatherer::featureData(core_t::TTime time,
         sum = &emptySample;
     }
     TStrCRefDouble1VecDoublePrPrVecVec influenceValues(m_InfluencerBucketSums.size());
-    for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerBucketSums.size(); ++i) {
         const TStoredStringPtrDoubleUMap& influencerStats =
             m_InfluencerBucketSums[i].get(time);
         influenceValues[i].reserve(influencerStats.size());
@@ -222,14 +222,14 @@ void CGathererTools::CSumGatherer::startNewBucket(core_t::TTime time) {
         m_Classifier.add(model_t::E_IndividualSumByBucketAndPerson, sum[0].value(), 1);
     }
     m_BucketSums.push(TSampleVec(), time);
-    for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerBucketSums.size(); ++i) {
         m_InfluencerBucketSums[i].push(TStoredStringPtrDoubleUMap(1), time);
     }
 }
 
 void CGathererTools::CSumGatherer::resetBucket(core_t::TTime bucketStart) {
     m_BucketSums.get(bucketStart).clear();
-    for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerBucketSums.size(); ++i) {
         m_InfluencerBucketSums[i].get(bucketStart).clear();
     }
 }
@@ -244,7 +244,7 @@ void CGathererTools::CSumGatherer::acceptPersistInserter(core::CStatePersistInse
             std::bind<void>(TSampleVecQueue::CSerializer<SSumSerializer>(),
                             std::cref(m_BucketSums), std::placeholders::_1));
     }
-    for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerBucketSums.size(); ++i) {
         inserter.insertLevel(
             INFLUENCER_BUCKET_SUM_QUEUE_TAG,
             std::bind<void>(
@@ -254,7 +254,7 @@ void CGathererTools::CSumGatherer::acceptPersistInserter(core::CStatePersistInse
 }
 
 bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t i = 0u;
+    std::size_t i = 0;
     do {
         const std::string& name = traverser.name();
         if (name == CLASSIFIER_TAG) {

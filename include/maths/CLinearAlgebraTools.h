@@ -41,7 +41,7 @@ template<>
 struct SSqrt<VectorTag> {
     template<typename VECTOR>
     static void calculate(std::size_t d, VECTOR& result) {
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             result(i) = std::sqrt(result(i));
         }
     }
@@ -51,8 +51,8 @@ template<>
 struct SSqrt<MatrixTag> {
     template<typename MATRIX>
     static void calculate(std::size_t d, MATRIX& result) {
-        for (std::size_t i = 0u; i < d; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j) {
+        for (std::size_t i = 0; i < d; ++i) {
+            for (std::size_t j = 0; j <= i; ++j) {
                 result(i, j) = std::sqrt(result(i, j));
             }
         }
@@ -66,7 +66,7 @@ template<>
 struct SMin<VectorVectorTag> {
     template<typename VECTOR>
     static void calculate(std::size_t d, const VECTOR& lhs, VECTOR& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             rhs(i) = std::min(lhs(i), rhs(i));
         }
     }
@@ -76,7 +76,7 @@ template<>
 struct SMin<VectorScalarTag> {
     template<typename VECTOR, typename T>
     static void calculate(std::size_t d, VECTOR& lhs, const T& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             lhs(i) = std::min(lhs(i), rhs);
         }
     }
@@ -86,7 +86,7 @@ template<>
 struct SMin<ScalarVectorTag> {
     template<typename T, typename VECTOR>
     static void calculate(std::size_t d, const T& lhs, VECTOR& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             rhs(i) = std::min(rhs(i), lhs);
         }
     }
@@ -96,8 +96,8 @@ template<>
 struct SMin<MatrixMatrixTag> {
     template<typename MATRIX>
     static void calculate(std::size_t d, const MATRIX& lhs, MATRIX& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j) {
+        for (std::size_t i = 0; i < d; ++i) {
+            for (std::size_t j = 0; j <= i; ++j) {
                 rhs(i, j) = std::min(lhs(i, j), rhs(i, j));
             }
         }
@@ -108,8 +108,8 @@ template<>
 struct SMin<MatrixScalarTag> {
     template<typename MATRIX, typename T>
     static void calculate(std::size_t d, MATRIX& lhs, const T& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j) {
+        for (std::size_t i = 0; i < d; ++i) {
+            for (std::size_t j = 0; j <= i; ++j) {
                 lhs(i, j) = std::min(lhs(i, j), rhs);
             }
         }
@@ -120,8 +120,8 @@ template<>
 struct SMin<ScalarMatrixTag> {
     template<typename T, typename MATRIX>
     static void calculate(std::size_t d, const T& lhs, MATRIX& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j) {
+        for (std::size_t i = 0; i < d; ++i) {
+            for (std::size_t j = 0; j <= i; ++j) {
                 rhs(i, j) = std::min(lhs, rhs(i, j));
             }
         }
@@ -135,7 +135,7 @@ template<>
 struct SMax<VectorVectorTag> {
     template<typename VECTOR>
     static void calculate(std::size_t d, const VECTOR& lhs, VECTOR& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             rhs(i) = std::max(lhs(i), rhs(i));
         }
     }
@@ -145,7 +145,7 @@ template<>
 struct SMax<VectorScalarTag> {
     template<typename VECTOR, typename T>
     static void calculate(std::size_t d, VECTOR& lhs, const T& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             lhs(i) = std::max(lhs(i), rhs);
         }
     }
@@ -155,7 +155,7 @@ template<>
 struct SMax<ScalarVectorTag> {
     template<typename T, typename VECTOR>
     static void calculate(std::size_t d, const T& lhs, VECTOR& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             rhs(i) = std::max(rhs(i), lhs);
         }
     }
@@ -165,8 +165,8 @@ template<>
 struct SMax<MatrixMatrixTag> {
     template<typename MATRIX>
     static void calculate(std::size_t d, const MATRIX& lhs, MATRIX& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j) {
+        for (std::size_t i = 0; i < d; ++i) {
+            for (std::size_t j = 0; j <= i; ++j) {
                 rhs(i, j) = std::max(lhs(i, j), rhs(i, j));
             }
         }
@@ -177,8 +177,8 @@ template<>
 struct SMax<MatrixScalarTag> {
     template<typename MATRIX, typename T>
     static void calculate(std::size_t d, MATRIX& lhs, const T& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j) {
+        for (std::size_t i = 0; i < d; ++i) {
+            for (std::size_t j = 0; j <= i; ++j) {
                 lhs(i, j) = std::max(lhs(i, j), rhs);
             }
         }
@@ -189,8 +189,8 @@ template<>
 struct SMax<ScalarMatrixTag> {
     template<typename T, typename MATRIX>
     static void calculate(std::size_t d, const T& lhs, MATRIX& rhs) {
-        for (std::size_t i = 0u; i < d; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j) {
+        for (std::size_t i = 0; i < d; ++i) {
+            for (std::size_t j = 0; j <= i; ++j) {
                 rhs(i, j) = std::max(lhs, rhs(i, j));
             }
         }
@@ -204,7 +204,7 @@ template<>
 struct SFabs<VectorTag> {
     template<typename VECTOR>
     static void calculate(std::size_t d, VECTOR& result) {
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             result(i) = std::fabs(result(i));
         }
     }
@@ -214,8 +214,8 @@ template<>
 struct SFabs<MatrixTag> {
     template<typename MATRIX>
     static void calculate(std::size_t d, MATRIX& result) {
-        for (std::size_t i = 0u; i < d; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j) {
+        for (std::size_t i = 0; i < d; ++i) {
+            for (std::size_t j = 0; j <= i; ++j) {
                 result(i, j) = std::fabs(result(i, j));
             }
         }
@@ -336,9 +336,9 @@ maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
 //! Output for debug.
 template<typename T>
 std::ostream& operator<<(std::ostream& o, const CSymmetricMatrix<T>& m) {
-    for (std::size_t i = 0u; i < m.rows(); ++i) {
+    for (std::size_t i = 0; i < m.rows(); ++i) {
         o << "\n    ";
-        for (std::size_t j = 0u; j < m.columns(); ++j) {
+        for (std::size_t j = 0; j < m.columns(); ++j) {
             std::string element = core::CStringUtils::typeToStringPretty(m(i, j));
             o << element << std::string(15 - element.size(), ' ');
         }
@@ -349,9 +349,9 @@ std::ostream& operator<<(std::ostream& o, const CSymmetricMatrix<T>& m) {
 //! Output for debug.
 template<typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& o, const CSymmetricMatrixNxN<T, N>& m) {
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         o << "\n    ";
-        for (std::size_t j = 0u; j < N; ++j) {
+        for (std::size_t j = 0; j < N; ++j) {
             std::string element = core::CStringUtils::typeToStringPretty(m(i, j));
             o << element << std::string(15 - element.size(), ' ');
         }
@@ -363,7 +363,7 @@ std::ostream& operator<<(std::ostream& o, const CSymmetricMatrixNxN<T, N>& m) {
 template<typename T, std::size_t N>
 std::ostream& operator<<(std::ostream& o, const CVectorNx1<T, N>& v) {
     o << "[";
-    for (std::size_t i = 0u; i + 1 < N; ++i) {
+    for (std::size_t i = 0; i + 1 < N; ++i) {
         o << core::CStringUtils::typeToStringPretty(v(i)) << ' ';
     }
     o << core::CStringUtils::typeToStringPretty(v(N - 1)) << ']';
@@ -377,7 +377,7 @@ std::ostream& operator<<(std::ostream& o, const CVector<T>& v) {
         return o << "[]";
     }
     o << "[";
-    for (std::size_t i = 0u; i + 1 < v.dimension(); ++i) {
+    for (std::size_t i = 0; i + 1 < v.dimension(); ++i) {
         o << core::CStringUtils::typeToStringPretty(v(i)) << ' ';
     }
     o << core::CStringUtils::typeToStringPretty(v(v.dimension() - 1)) << ']';
@@ -654,7 +654,7 @@ CSymmetricMatrix<T> fabs(const CSymmetricMatrix<T>& m) {
 template<typename T, typename MATRIX>
 void scaleCovariances(std::size_t i, T scale, MATRIX& m) {
     scale = std::sqrt(scale);
-    for (std::size_t j = 0u; j < m.columns(); ++j) {
+    for (std::size_t j = 0; j < m.columns(); ++j) {
         if (i != j) {
             m(i, j) *= scale;
         } else {
@@ -665,7 +665,7 @@ void scaleCovariances(std::size_t i, T scale, MATRIX& m) {
 //! Scale the rows and columns by \p scale.
 template<typename VECTOR, typename MATRIX>
 void scaleCovariances(const VECTOR& scale, MATRIX& m) {
-    for (std::size_t i = 0u; i < scale.dimension(); ++i) {
+    for (std::size_t i = 0; i < scale.dimension(); ++i) {
         scaleCovariances(i, scale(i), m);
     }
 }
@@ -674,7 +674,7 @@ void scaleCovariances(const VECTOR& scale, MATRIX& m) {
 template<typename SCALAR>
 void scaleCovariances(std::ptrdiff_t i, SCALAR scale, CDenseMatrix<SCALAR>& m) {
     scale = std::sqrt(scale);
-    for (std::ptrdiff_t j = 0u; j < m.cols(); ++j) {
+    for (std::ptrdiff_t j = 0; j < m.cols(); ++j) {
         if (i != j) {
             m(i, j) = m(j, i) = scale * m(i, j);
         } else {
@@ -685,7 +685,7 @@ void scaleCovariances(std::ptrdiff_t i, SCALAR scale, CDenseMatrix<SCALAR>& m) {
 //! Scale the rows and columns by \p scale.
 template<typename SCALAR>
 void scaleCovariances(const CDenseVector<SCALAR>& scale, CDenseMatrix<SCALAR>& m) {
-    for (std::ptrdiff_t i = 0u; i < scale.size(); ++i) {
+    for (std::ptrdiff_t i = 0; i < scale.size(); ++i) {
         scaleCovariances(i, scale(i), m);
     }
 }
@@ -827,8 +827,8 @@ inline Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>
 projectedMatrix(const std::vector<std::size_t>& subspace, const MATRIX& matrix) {
     std::size_t d = subspace.size();
     Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> result(d, d);
-    for (std::size_t i = 0u; i < d; ++i) {
-        for (std::size_t j = 0u; j < d; ++j) {
+    for (std::size_t i = 0; i < d; ++i) {
+        for (std::size_t j = 0; j < d; ++j) {
             result(i, j) = matrix(subspace[i], subspace[j]);
         }
     }
@@ -841,7 +841,7 @@ inline Eigen::Matrix<double, Eigen::Dynamic, 1>
 projectedVector(const std::vector<std::size_t>& subspace, const VECTOR& vector) {
     std::size_t d = subspace.size();
     Eigen::Matrix<double, Eigen::Dynamic, 1> result(d);
-    for (std::size_t i = 0u; i < d; ++i) {
+    for (std::size_t i = 0; i < d; ++i) {
         result(i) = vector(subspace[i]);
     }
     return result;

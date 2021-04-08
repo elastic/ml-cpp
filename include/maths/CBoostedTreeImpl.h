@@ -389,6 +389,9 @@ private:
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
 
+    //! Scale the regulariser multipliers by \p scale.
+    void scaleRegularizers(double scale);
+
     //! Check invariants which are assumed to hold after restoring.
     void checkRestoredInvariants() const;
 

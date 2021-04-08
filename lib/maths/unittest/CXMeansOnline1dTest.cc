@@ -45,7 +45,7 @@ bool restore(const maths::SDistributionRestoreParams& params,
 void debug(const TClusterVec& clusters) {
     std::ostringstream c;
     c << "[";
-    for (std::size_t j = 0u; j < clusters.size(); ++j) {
+    for (std::size_t j = 0; j < clusters.size(); ++j) {
         c << " (" << clusters[j].weight(maths_t::E_ClustersFractionWeight)
           << ", " << clusters[j].centre() << ", " << clusters[j].spread() << ")";
     }
@@ -65,10 +65,10 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     TDoubleVec values;
 
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator moments;
-    for (std::size_t i = 0u; i < boost::size(x1); ++i) {
+    for (std::size_t i = 0; i < boost::size(x1); ++i) {
         cluster.add(x1[i], c1[i]);
         moments.add(x1[i], c1[i]);
-        for (std::size_t j = 0u; j < static_cast<std::size_t>(c1[i]); ++j) {
+        for (std::size_t j = 0; j < static_cast<std::size_t>(c1[i]); ++j) {
             values.push_back(x1[i]);
         }
     }
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
 
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator percentileError;
     std::sort(values.begin(), values.end());
-    for (std::size_t i = 0u; i < 10; ++i) {
+    for (std::size_t i = 0; i < 10; ++i) {
         double p = static_cast<double>(10 * i) + 5.0;
         double expectedPercentile = values[static_cast<std::size_t>(
             p / 100.0 * static_cast<double>(values.size()) + 0.5)];
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator sampleMoments;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         sampleMoments.add(samples[i]);
     }
     double sampleCentre = maths::CBasicStatistics::mean(sampleMoments);
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
 
     double x2[] = {10.3, 10.6, 10.7, 9.8, 11.2, 11.0};
     double c2[] = {2.0, 1.0, 1.0, 2.0, 2.0, 1.0};
-    for (std::size_t i = 0u; i < boost::size(x2); ++i) {
+    for (std::size_t i = 0; i < boost::size(x2); ++i) {
         cluster.add(x2[i], c2[i]);
     }
     maths::CXMeansOnline1d::TOptionalClusterClusterPr split =
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
         double meanError = 0.0;
         double spreadError = 0.0;
 
-        for (unsigned int i = 0u; i < 50u; ++i) {
+        for (unsigned int i = 0; i < 50; ++i) {
             // Randomize the input order.
             rng.random_shuffle(samples.begin(), samples.end());
 
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
             //std::ofstream file;
             //file.open(name.str().c_str());
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 if (j % 50 == 0) {
                     LOG_DEBUG(<< "time = " << j);
                 }
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
                 //if (j > 0 && j % 10 == 0)
                 //{
                 //    file << "x = [ ";
-                //    for (std::size_t k = 0u; k < j; ++k)
+                //    for (std::size_t k = 0; k < j; ++k)
                 //    {
                 //        file << samples[k] << " ";
                 //    }
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
             LOG_DEBUG(<< "# clusters = " << clusters.size());
             BOOST_REQUIRE_EQUAL(std::size_t(3), clusters.size());
 
-            for (std::size_t j = 0u; j < clusters.size(); ++j) {
+            for (std::size_t j = 0; j < clusters.size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::mean(expectedClusters[j]),
                     clusters[j].centre(), 0.1);
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
                                          maths::CAvailableModeDistributions::ALL,
                                          maths_t::E_ClustersFractionWeight, 0.001);
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             if (j % 50 == 0) {
                 LOG_DEBUG(<< "time = " << j);
             }
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
         double meanError = 0.0;
         double spreadError = 0.0;
 
-        for (unsigned int i = 0u; i < 50u; ++i) {
+        for (unsigned int i = 0; i < 50; ++i) {
             // Randomize the input order.
             rng.random_shuffle(samples.begin(), samples.end());
 
@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
                                              maths::CAvailableModeDistributions::ALL,
                                              maths_t::E_ClustersFractionWeight, 0.001);
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 if (j % 50 == 0) {
                     LOG_DEBUG(<< "time = " << j);
                 }
@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
             debug(clusters);
 
             BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
-            for (std::size_t j = 0u; j < clusters.size(); ++j) {
+            for (std::size_t j = 0; j < clusters.size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::mean(expectedClusters[j]),
                     clusters[j].centre(), 0.4);
@@ -422,7 +422,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfUniforms) {
     double spreadError = 0.0;
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (unsigned int i = 0u; i < 50u; ++i) {
+    for (unsigned int i = 0; i < 50; ++i) {
         // Randomize the input order.
         rng.random_shuffle(samples.begin(), samples.end());
 
@@ -430,7 +430,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfUniforms) {
                                          maths::CAvailableModeDistributions::ALL,
                                          maths_t::E_ClustersFractionWeight, 0.001);
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             if (j % 50 == 0) {
                 LOG_DEBUG(<< "time = " << j);
             }
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfUniforms) {
         LOG_DEBUG(<< "# clusters = " << clusters.size());
         BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
-        for (std::size_t j = 0u; j < clusters.size(); ++j) {
+        for (std::size_t j = 0; j < clusters.size(); ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
                                          clusters[j].centre(), 0.01);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
     double spreadError = 0.0;
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (unsigned int i = 0u; i < 50u; ++i) {
+    for (unsigned int i = 0; i < 50; ++i) {
         // Randomize the input order.
         rng.random_shuffle(samples.begin(), samples.end());
 
@@ -505,7 +505,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
         //std::ofstream file;
         //file.open(name.str().c_str());
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             if (j % 50 == 0) {
                 LOG_DEBUG(<< "time = " << j);
             }
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
             //if (j > 0 && j % 10 == 0)
             //{
             //    file << "x = [ ";
-            //    for (std::size_t k = 0u; k < j; ++k)
+            //    for (std::size_t k = 0; k < j; ++k)
             //    {
             //        file << samples[k] << " ";
             //    }
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
         LOG_DEBUG(<< "# clusters = " << clusters.size());
         BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
-        for (std::size_t j = 0u; j < clusters.size(); ++j) {
+        for (std::size_t j = 0; j < clusters.size(); ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
                 0.03 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
@@ -585,7 +585,7 @@ BOOST_AUTO_TEST_CASE(testOutliers) {
     double n = 0.0;
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (unsigned int i = 0u; i < 50u; ++i) {
+    for (unsigned int i = 0; i < 50; ++i) {
         // Randomize the input order.
         rng.random_shuffle(samples.begin(), samples.end());
 
@@ -595,11 +595,11 @@ BOOST_AUTO_TEST_CASE(testOutliers) {
                                          0.001, // decay rate
                                          0.01); // mode fraction
 
-        for (std::size_t j = 0u; j < outliers.size(); ++j) {
+        for (std::size_t j = 0; j < outliers.size(); ++j) {
             clusterer.add(outliers[j], dummy);
         }
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             clusterer.add(samples[j], dummy);
         }
 
@@ -617,7 +617,7 @@ BOOST_AUTO_TEST_CASE(testOutliers) {
         n += 1.0;
         BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
-        for (std::size_t j = 0u; j < clusters.size(); ++j) {
+        for (std::size_t j = 0; j < clusters.size(); ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
                 0.01 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
@@ -669,7 +669,7 @@ BOOST_AUTO_TEST_CASE(testManyClusters) {
                                      2);    // mode count
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
+    for (std::size_t i = 0; i < timeseries.size(); ++i) {
         core_t::TTime tow = timeseries[i].first % core::constants::WEEK;
         clusterer.add(static_cast<double>(tow), dummy);
     }
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(testLowVariation) {
                                      maths_t::E_ClustersFractionWeight);
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (std::size_t i = 0u; i < 200; ++i) {
+    for (std::size_t i = 0; i < 200; ++i) {
         clusterer.add(static_cast<double>(i % 2), dummy);
     }
 
@@ -750,7 +750,7 @@ BOOST_AUTO_TEST_CASE(testAdaption) {
         debug(clusters);
         BOOST_REQUIRE_EQUAL(expectedClusters.size(), clusters.size());
 
-        for (std::size_t j = 0u; j < clusters.size(); ++j) {
+        for (std::size_t j = 0; j < clusters.size(); ++j) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
                 0.01 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
@@ -875,7 +875,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
                                      maths_t::E_ClustersEqualWeight, 0.05);
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (std::size_t j = 0u; j < samples.size(); ++j) {
+    for (std::size_t j = 0; j < samples.size(); ++j) {
         clusterer.add(samples[j], dummy);
         clusterer.propagateForwardsByTime(1.0);
     }
