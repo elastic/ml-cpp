@@ -153,13 +153,12 @@ public:
     std::size_t numberExtraColumnsForTrain() const;
 
     //! Build a boosted tree object for training on \p frame.
-    TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
+    TBoostedTreeUPtr buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable);
 
     //! Build a boosted tree object for incremental training \p tree on \p frame.
     //!
     //! \warning Takes ownership of \p tree.
-    TBoostedTreeUPtr buildForIncrementalTraining(core::CDataFrame& frame,
-                                                 TBoostedTreeUPtr tree);
+    TBoostedTreeUPtr buildForTrainIncremental(core::CDataFrame& frame, TBoostedTreeUPtr tree);
 
     //! Restore a boosted tree object for training on \p frame.
     //!

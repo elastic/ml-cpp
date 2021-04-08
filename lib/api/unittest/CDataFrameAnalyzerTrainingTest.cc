@@ -786,7 +786,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierWithUserClassWeights) {
                           1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
                           .classAssignmentObjective(maths::CBoostedTree::E_Custom)
                           .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
-                          .buildFor(*frame, 3);
+                          .buildForTrain(*frame, 3);
 
     classifier->train();
     classifier->predict();

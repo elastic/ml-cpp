@@ -329,7 +329,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
                                                     restoreSearcher);
         }
         if (treeRestored == false) {
-            m_BoostedTree = m_BoostedTreeFactory->buildFor(frame, dependentVariableColumn);
+            m_BoostedTree = m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
         }
     }
 

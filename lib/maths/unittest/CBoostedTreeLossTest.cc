@@ -1139,7 +1139,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
     auto frame = setupLinearRegressionProblem(rows, cols);
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+                          .buildForTrain(*frame, cols - 1);
     regression->train();
     regression->predict();
 
@@ -1242,7 +1242,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLossGradientAndCurvature) {
     auto frame = setupLinearRegressionProblem(rows, cols);
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+                          .buildForTrain(*frame, cols - 1);
     regression->train();
     regression->predict();
 

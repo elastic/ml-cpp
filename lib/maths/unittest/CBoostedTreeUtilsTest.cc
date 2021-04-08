@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(testRetrainTreeSelectionProbabilities) {
 
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+                          .buildForTrain(*frame, cols - 1);
     regression->train();
 
     const auto& impl = regression->impl();

@@ -92,7 +92,7 @@ bool intervalIsEmpty(const CBoostedTreeFactory::TVector& interval) {
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVariable) {
+CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable) {
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
@@ -135,8 +135,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::buildForIncrementalTraining(core::CDataFrame& frame,
-                                                 TBoostedTreeUPtr tree) {
+CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame, TBoostedTreeUPtr tree) {
 
     std::swap(m_TreeImpl, tree->m_Impl);
     m_TreeImpl->m_IncrementalTraining = true;
@@ -152,6 +151,10 @@ CBoostedTreeFactory::buildForIncrementalTraining(core::CDataFrame& frame,
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeCrossValidation(frame); });
+
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+    m_TreeImpl->m_Instrumentation->flush();
 
     this->initializeHyperparameters(frame);
     this->initializeHyperparameterOptimisation();
@@ -182,16 +185,24 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     case CBoostedTreeImpl::E_DownsampleFactorInitialized:
     case CBoostedTreeImpl::E_FeatureBagFractionInitialized:
     case CBoostedTreeImpl::E_EtaInitialized:
-        return this->buildFor(frame, dependentVariable);
+        // We only ever checkpoint after fully initialising for incremental train.
+        return this->buildForTrain(frame, dependentVariable);
     }
 
-    this->prepareDataFrameForTrain(frame);
+    if (m_TreeImpl->m_IncrementalTraining == false) {
+        this->prepareDataFrameForTrain(frame);
+    } else {
+        this->prepareDataFrameForIncrementalTrain(frame);
+    }
+
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
 
-    this->skipProgressMonitoringFeatureSelection();
-    this->skipProgressMonitoringInitializeHyperparameters();
+    if (m_TreeImpl->m_IncrementalTraining == false) {
+        this->skipProgressMonitoringFeatureSelection();
+        this->skipProgressMonitoringInitializeHyperparameters();
+    }
 
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(m_TreeImpl)}};
@@ -1103,8 +1114,8 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty() {
 
     if (m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty() == boost::none) {
-        CFastQuantileSketch quantiles{CQuantileSketch::E_Linear, 50};
 
+        CFastQuantileSketch quantiles{CQuantileSketch::E_Linear, 50};
         for (const auto& tree : m_TreeImpl->m_BestForest) {
             for (const auto& node : tree) {
                 if (node.isLeaf() == false) {

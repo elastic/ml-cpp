@@ -167,7 +167,7 @@ public:
             "testJob", core::constants::BYTES_IN_GIGABYTES);
         treeFactory.analysisInstrumentation(instrumentation);
 
-        auto tree = treeFactory.buildFor(*frame, weights.size());
+        auto tree = treeFactory.buildForTrain(*frame, weights.size());
 
         tree->train();
         tree->predict();
