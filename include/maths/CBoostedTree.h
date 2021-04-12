@@ -62,7 +62,7 @@ public:
 
     class MATHS_EXPORT CVisitor {
     public:
-        virtual ~CVisitor() = default;
+        virtual ~CVisitor() noexcept = default;
         //! Adds to last added tree.
         virtual void addNode(std::size_t splitFeature,
                              double splitValue,
@@ -212,7 +212,6 @@ public:
     class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
                                   public CBoostedTreeNode::CVisitor {
     public:
-        virtual ~CVisitor() noexcept = default;
         virtual void addTree() = 0;
         virtual void addClassificationWeights(TDoubleVec weights) = 0;
         virtual void addLossFunction(const TLossFunction& lossFunction) = 0;

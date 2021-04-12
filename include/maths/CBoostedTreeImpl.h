@@ -247,8 +247,8 @@ private:
 
     //! Compute the \p percentile percentile gain per split and the sum of row
     //! curvatures per internal node of \p forest.
-    TDoubleDoublePr gainAndCurvatureAtPercentile(double percentile,
-                                                 const TNodeVecVec& forest) const;
+    static TDoubleDoublePr gainAndCurvatureAtPercentile(double percentile,
+                                                        const TNodeVecVec& forest);
 
     //! Presize the collection to hold the per fold test errors.
     void initializePerFoldTestLosses();
@@ -328,7 +328,7 @@ private:
                         TSizeVec& nodeFeatureBag) const;
 
     //! Get a column mask of the suitable regressor features.
-    void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features) const;
+    static void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features);
 
     //! Remove the predictions of \p tree from \p frame for the masked rows.
     void removePredictions(core::CDataFrame& frame,
@@ -370,8 +370,8 @@ private:
     double meanAdjustedLoss(const core::CDataFrame& frame,
                             const core::CPackedBitVector& rowMask) const;
 
-    //! Get the forest's prediction for \p row.
-    TVector predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest) const;
+    //! Get the best forest's prediction for \p row.
+    TVector predictRow(const CEncodedDataFrameRowRef& row) const;
 
     //! Select the next hyperparameters for which to train a model.
     bool selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
@@ -409,13 +409,13 @@ private:
     //!
     //! \note This number will only be used if the regularised loss says its
     //! a good idea.
-    std::size_t maximumTreeSize(const core::CPackedBitVector& trainingRowMask) const;
+    static std::size_t maximumTreeSize(const core::CPackedBitVector& trainingRowMask);
 
     //! Get the maximum number of nodes to use in a tree.
     //!
     //! \note This number will only be used if the regularised loss says its
     //! a good idea.
-    std::size_t maximumTreeSize(std::size_t numberRows) const;
+    static std::size_t maximumTreeSize(std::size_t numberRows);
 
     //! Get the number of trees to retrain.
     std::size_t numberTreesToRetrain() const;

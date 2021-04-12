@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "core/CPackedBitVector.h"
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
@@ -389,7 +390,7 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
 }
 }
 
-BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
+BOOST_AUTO_TEST_CASE(testMsePiecewiseConstant) {
 
     // Test regression quality on piecewise constant function.
 
@@ -450,7 +451,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
 }
 
-BOOST_AUTO_TEST_CASE(testLinear) {
+BOOST_AUTO_TEST_CASE(testMseLinear) {
 
     // Test regression quality on linear function.
 
@@ -505,7 +506,7 @@ BOOST_AUTO_TEST_CASE(testLinear) {
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
-BOOST_AUTO_TEST_CASE(testNonLinear) {
+BOOST_AUTO_TEST_CASE(testMseNonLinear) {
 
     // Test regression quality on non-linear function.
 
@@ -637,6 +638,83 @@ BOOST_AUTO_TEST_CASE(testHuber) {
 
 BOOST_AUTO_TEST_CASE(testMsle) {
     // TODO #1744 test quality of MSLE on data with log-normal errors.
+}
+
+BOOST_AUTO_TEST_CASE(testMseIncremental) {
+
+    // Test incremental training for the MSE objective.
+
+    test::CRandomNumbers rng;
+    double noiseVariance{100.0};
+    std::size_t trainRows{200};
+    std::size_t testRows{100};
+    std::size_t extraTrainingRows{50};
+    std::size_t rows{trainRows + testRows};
+    std::size_t cols{6};
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        double offset{0.0};
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return offset + result;
+        };
+    }();
+
+    TDoubleVecVec x(cols - 1);
+    TDoubleVec noise;
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
+
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .buildForTrain(*frame, cols - 1);
+
+    regression->train();
+
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, extraTrainingRows, x[i]);
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, extraTrainingRows, noise);
+
+    fillDataFrame(extraTrainingRows, 0, cols, x, noise, target, *frame);
+
+    core::CPackedBitVector newTrainingRowMask(rows, false);
+    newTrainingRowMask.extend(true, extraTrainingRows);
+
+    const auto& bestHyperparameters = regression->bestHyperparameters();
+
+    regression =
+        maths::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::boosted_tree::CMse>())
+            .depthPenaltyMultiplier(bestHyperparameters.regularization().depthPenaltyMultiplier())
+            .leafWeightPenaltyMultiplier(
+                bestHyperparameters.regularization().leafWeightPenaltyMultiplier())
+            .softTreeDepthLimit(bestHyperparameters.regularization().softTreeDepthLimit())
+            .softTreeDepthTolerance(bestHyperparameters.regularization().softTreeDepthTolerance())
+            .treeSizePenaltyMultiplier(
+                bestHyperparameters.regularization().treeSizePenaltyMultiplier())
+            .downsampleFactor(bestHyperparameters.downsampleFactor())
+            .eta(bestHyperparameters.eta())
+            .etaGrowthRatePerTree(bestHyperparameters.etaGrowthRatePerTree())
+            .featureBagFraction(bestHyperparameters.featureBagFraction())
+            .newTrainingRowMask(newTrainingRowMask)
+            .buildForTrainIncremental(*frame, std::move(regression));
+
+    regression->trainIncremental();
+    regression->predict();
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {

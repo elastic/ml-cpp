@@ -145,6 +145,8 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame, TBoostedT
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->copyParameterOverrides(*tree->m_Impl); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeNumberFolds(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
 
     this->prepareDataFrameForIncrementalTrain(frame);
@@ -387,13 +389,12 @@ void CBoostedTreeFactory::copyParameterOverrides(const CBoostedTreeImpl& treeImp
     m_TreeImpl->m_EtaGrowthRatePerTree =
         m_TreeImpl->m_EtaGrowthRatePerTreeOverride.value_or(m_TreeImpl->m_EtaGrowthRatePerTree);
     m_TreeImpl->m_NumberFoldsOverride = treeImpl.m_NumberFoldsOverride;
-    m_TreeImpl->m_NumberFolds =
-        m_TreeImpl->m_NumberFoldsOverride.value_or(m_TreeImpl->m_NumberFolds);
     m_TreeImpl->m_FeatureBagFractionOverride = treeImpl.m_FeatureBagFractionOverride;
     m_TreeImpl->m_FeatureBagFraction =
         m_TreeImpl->m_FeatureBagFractionOverride.value_or(m_TreeImpl->m_FeatureBagFraction);
     m_TreeImpl->m_ClassAssignmentObjective = treeImpl.m_ClassAssignmentObjective;
     m_TreeImpl->m_ClassificationWeightsOverride = treeImpl.m_ClassificationWeightsOverride;
+    m_TreeImpl->m_PredictionChangeCostOverride = treeImpl.m_PredictionChangeCostOverride;
     m_TreeImpl->m_RegularizationOverride = treeImpl.m_RegularizationOverride;
     m_TreeImpl->m_Regularization.depthPenaltyMultiplier(
         m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier().value_or(
@@ -1161,7 +1162,7 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
         double gain;
         double curvature;
         std::tie(gain, curvature) =
-            m_TreeImpl->gainAndCurvatureAtPercentile(percentile, forest);
+            CBoostedTreeImpl::gainAndCurvatureAtPercentile(percentile, forest);
         LOG_TRACE(<< "gain = " << gain << ", curvature = " << curvature);
 
         result.emplace_back(gain, curvature);

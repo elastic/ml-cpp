@@ -106,7 +106,7 @@ private:
 //! discard the extra trees at the end of training.
 class CTrainForestStoppingCondition {
 public:
-    CTrainForestStoppingCondition(std::size_t maximumNumberTrees)
+    explicit CTrainForestStoppingCondition(std::size_t maximumNumberTrees)
         : m_MaximumNumberTrees{maximumNumberTrees},
           m_MaximumNumberTreesWithoutImprovement{std::max(
               static_cast<std::size_t>(0.075 * static_cast<double>(maximumNumberTrees) + 0.5),
@@ -425,7 +425,7 @@ void CBoostedTreeImpl::predict(const core::CPackedBitVector& rowMask,
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
-                prediction = predictRow(m_Encoder->encode(*row), m_BestForest);
+                prediction = this->predictRow(m_Encoder->encode(*row));
             }
         },
         &rowMask);
@@ -527,8 +527,7 @@ core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {
 }
 
 CBoostedTreeImpl::TDoubleDoublePr
-CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile,
-                                               const TNodeVecVec& forest) const {
+CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile, const TNodeVecVec& forest) {
 
     TDoubleVec gains;
     TDoubleVec curvatures;
@@ -542,7 +541,7 @@ CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile,
         }
     }
 
-    if (gains.size() == 0) {
+    if (gains.empty()) {
         return {0.0, 0.0};
     }
 
@@ -715,7 +714,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     std::size_t medianNumberTrees{
         static_cast<std::size_t>(CBasicStatistics::median(numberTrees))};
     double meanForestSize{CBasicStatistics::mean(forestSizeAccumulator)};
-    lossMoments = this->correctTestLossMoments(std::move(folds), lossMoments);
+    lossMoments = this->correctTestLossMoments(folds, lossMoments);
     LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
               << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments))
               << ", mean number nodes in forest = " << meanForestSize);
@@ -779,7 +778,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
         };
 
-    std::size_t maximumNumberInternalNodes{this->maximumTreeSize(trainingRowMask)};
+    std::size_t maximumNumberInternalNodes{maximumTreeSize(trainingRowMask)};
 
     TNodeVecVec forest{this->initializePredictionsAndLossDerivatives(
         frame, trainingRowMask, testingRowMask)};
@@ -888,7 +887,7 @@ CBoostedTreeImpl::retrainForest(core::CDataFrame& frame,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
         };
 
-    std::size_t maximumNumberInternalNodes{this->maximumTreeSize(trainingRowMask)};
+    std::size_t maximumNumberInternalNodes{maximumTreeSize(trainingRowMask)};
 
     TNodeVecVec retrainedTrees;
     retrainedTrees.reserve(m_TreesToRetrain.size());
@@ -970,7 +969,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask) const {
 
     TSizeVec features;
-    this->candidateRegressorFeatures(m_FeatureSampleProbabilities, features);
+    candidateRegressorFeatures(m_FeatureSampleProbabilities, features);
     LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
 
     TSizeVec binaryFeatures(features);
@@ -1341,7 +1340,7 @@ void CBoostedTreeImpl::treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeF
 
     std::size_t size{this->featureBagSize(1.25 * m_FeatureBagFraction)};
 
-    this->candidateRegressorFeatures(probabilities, treeFeatureBag);
+    candidateRegressorFeatures(probabilities, treeFeatureBag);
     if (size >= treeFeatureBag.size()) {
         return;
     }
@@ -1398,7 +1397,7 @@ void CBoostedTreeImpl::nodeFeatureBag(const TSizeVec& treeFeatureBag,
 }
 
 void CBoostedTreeImpl::candidateRegressorFeatures(const TDoubleVec& probabilities,
-                                                  TSizeVec& features) const {
+                                                  TSizeVec& features) {
     features.clear();
     features.reserve(probabilities.size());
     for (std::size_t i = 0; i < probabilities.size(); ++i) {
@@ -1447,7 +1446,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
     };
 
     do {
-        TArgMinLossVecVec result(m_NumberThreads, std::move(leafValues));
+        TArgMinLossVecVec result(m_NumberThreads, leafValues);
         if (m_IncrementalTraining) {
             this->minimumLossLeafValues(frame, trainingRowMask & ~m_NewTrainingRowMask,
                                         false, loss, tree, result);
@@ -1600,10 +1599,9 @@ double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
     return this->meanLoss(frame, rowMask) + CBasicStatistics::mean(loss);
 }
 
-CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row,
-                                                       const TNodeVecVec& forest) const {
+CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row) const {
     TVector result{TVector::Zero(m_Loss->numberParameters())};
-    for (const auto& tree : forest) {
+    for (const auto& tree : m_BestForest) {
         result += root(tree).value(row, tree);
     }
     return result;
@@ -1819,11 +1817,11 @@ std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
            (m_FeatureBagFractionOverride != boost::none ? 0 : 1);
 }
 
-std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CPackedBitVector& trainingRowMask) const {
-    return this->maximumTreeSize(static_cast<std::size_t>(trainingRowMask.manhattan()));
+std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CPackedBitVector& trainingRowMask) {
+    return maximumTreeSize(static_cast<std::size_t>(trainingRowMask.manhattan()));
 }
 
-std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
+std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) {
     return static_cast<std::size_t>(
         std::ceil(10.0 * std::sqrt(static_cast<double>(numberRows))));
 }
