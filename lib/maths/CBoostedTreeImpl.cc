@@ -2297,30 +2297,29 @@ void CBoostedTreeImpl::checkRestoredInvariants() const {
     VIOLATES_INVARIANT_NO_EVALUATION(m_Instrumentation, ==, nullptr);
     VIOLATES_INVARIANT(m_FeatureDataTypes.size(), !=,
                        m_FeatureSampleProbabilities.size());
-    VIOLATES_INVARIANT(m_FeatureSampleProbabilities.size(), !=,
+    VIOLATES_INVARIANT(m_FeatureSampleProbabilities.size() + 1, !=,
                        m_MissingFeatureRowMasks.size());
     VIOLATES_INVARIANT(m_TrainingRowMasks.size(), !=, m_TestingRowMasks.size());
     for (std::size_t i = 0; i < m_TrainingRowMasks.size(); ++i) {
         VIOLATES_INVARIANT(m_TrainingRowMasks[i].size(), !=,
                            m_TestingRowMasks[i].size());
     }
-    VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
+    if (m_InitializationStage == CBoostedTreeImpl::E_FullyInitialized) {
+        VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
+    }
 
-    // If trees to retrain is not empty we're incrementally training and have
-    // slightly different invariants.
     if (m_IncrementalTraining == false) {
         VIOLATES_INVARIANT(m_CurrentRound, >, m_NumberRounds);
         for (const auto& samples : m_HyperparameterSamples) {
             VIOLATES_INVARIANT(m_TunableHyperparameters.size(), !=, samples.size());
         }
-        if (m_FoldRoundTestLosses.size() > 0) {
+        if (m_FoldRoundTestLosses.empty() == false) {
             VIOLATES_INVARIANT(m_FoldRoundTestLosses.size(), !=, m_NumberFolds);
             for (const auto& losses : m_FoldRoundTestLosses) {
-                VIOLATES_INVARIANT(losses.size(), >=, m_NumberRounds);
+                VIOLATES_INVARIANT(losses.size(), >, m_NumberRounds);
             }
         }
     } else {
-        VIOLATES_INVARIANT(m_TreesToRetrain.size(), ==, 0);
         VIOLATES_INVARIANT(m_CurrentIncrementalRound, >, m_NumberIncrementalRounds);
         for (auto tree : m_TreesToRetrain) {
             VIOLATES_INVARIANT(tree, >=, m_BestForest.size());
