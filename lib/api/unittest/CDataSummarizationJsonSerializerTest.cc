@@ -25,7 +25,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <fstream>|
+#include <fstream>
 #include <sstream>
 #include <string>
 

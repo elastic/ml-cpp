@@ -627,9 +627,10 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining) {
                             dependentVariable);
     };
 
-    auto makeSpecIncremental = [&](const std::string& dependentVariable, std::size_t numberExamples,
-                        TPersisterSupplier* persisterSupplier,
-                        TRestoreSearcherSupplier* restorerSupplier) {
+    auto makeSpecIncremental = [&](const std::string& dependentVariable,
+                                   std::size_t numberExamples,
+                                   TPersisterSupplier* persisterSupplier,
+                                   TRestoreSearcherSupplier* restorerSupplier) {
         test::CDataFrameAnalysisSpecificationFactory specFactory;
         return specFactory.rows(numberExamples)
             .memoryLimit(15000000)
@@ -670,18 +671,18 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining) {
     auto frame = test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
         fieldNames, fieldValues, analyzer, weights, regressors, targets, targetTransformer);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-    LOG_INFO(<<outputStream.str());
-    
+    // LOG_INFO(<<outputStream.str());
+
     std::stringstream inferenceModelStream;
     rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{inferenceModelStreamWrapper};
-    
+    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
+        inferenceModelStreamWrapper};
 
     std::stringstream dataSummarizationStream;
     rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{dataSummarizationStreamWrapper};
-    
-    
+    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
+        dataSummarizationStreamWrapper};
+
     // retrieve model definition and data summarization
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(outputStream.str()));
@@ -689,26 +690,36 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining) {
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("compressed_inference_model")) {
             inferenceModelWriter.write(result);
+            LOG_DEBUG(<< "Inference Model definition found");
         }
         if (result.HasMember("compressed_data_summarization")) {
             dataSummarizationWriter.write(result);
+            LOG_DEBUG(<< "Data summarization found");
         }
     }
 
     // pass model definition and data summarization into the restore stream
     dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
-    auto restoreStreamPtr = std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
-    TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr](){
+    auto restoreStreamPtr =
+        std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
+    TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
         return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
     }};
+
+    // LOG_DEBUG(<< "restorerSupplier " << static_cast<std::stringstream*>(restorerSupplier()->search(1,1).get())->str());
 
     // create a new spec for incremental training
     // create new analyzer and run incremental training
     outputStream.clear();
     outputStream.str("");
-     api::CDataFrameAnalyzer newAnalyzer{
-        makeSpecIncremental("target", numberExamples, nullptr, &restorerSupplier), 
-        outputWriterFactory};
+    auto spec = makeSpecIncremental("target", numberExamples, nullptr, &restorerSupplier);
+    api::CDataFrameAnalyzer newAnalyzer{std::move(spec), outputWriterFactory};
+    auto newFrame = test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
+        fieldNames, fieldValues, newAnalyzer, weights, regressors, targets, targetTransformer);
+        
+    newAnalyzer.runner()->inferenceModelDefinition(fieldNames, const TStrVecVec &categoryNames)
+    newAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+    LOG_INFO(<< outputStream.str());
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {

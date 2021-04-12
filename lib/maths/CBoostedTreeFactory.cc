@@ -1236,6 +1236,8 @@ CBoostedTreeFactory::constructFromDefinition(std::size_t numberThreads,
     TModelDefinition forestRestored{CBoostedTreeFactory::restoreBestForest(dataSearcher, modelDefinitionRestoreCallback)};
     if (forestRestored) {
         factory.modelDefinition(std::move(forestRestored));
+    }
+    else {
         HANDLE_FATAL(<< "Failed restoring best forest from the model definition.");
     }
     return factory;
@@ -1590,10 +1592,10 @@ CBoostedTreeFactory::TModelDefinition
 CBoostedTreeFactory::restoreBestForest(TDataSearcherUPtr& restoreSearcher,
                                        const TRestoreModelDefinitionFunc& restoreCallback) {
     // Restore from compressed JSON.
-    TModelDefinition modelDefinition;
+    // TModelDefinition modelDefinition;
     try {
-        core::CStateDecompressor decompressor(*restoreSearcher);
-        core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
+        // core::CStateDecompressor decompressor(*restoreSearcher);
+        core::CDataSearcher::TIStreamP inputStream{restoreSearcher->search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
             return nullptr;
@@ -1622,8 +1624,13 @@ CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSearcher
                                               const TRestoreDataSummarizationFunc& restoreCallback) {
     // Restore from compressed JSON.
     try {
-        core::CStateDecompressor decompressor(*restoreSearcher);
-        core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
+        // core::CStateDecompressor decompressor(*restoreSearcher);
+        if (!restoreSearcher) {
+            LOG_ERROR(<< "Empty restore searcher");
+            return {nullptr, nullptr};
+        }
+        core::CDataSearcher::TIStreamP inputStream{restoreSearcher->search(1, 1)}; // search arguments are ignored
+        // LOG_DEBUG(<< "input stream initiated");
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
             return {nullptr, nullptr};
@@ -1639,6 +1646,7 @@ CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSearcher
             LOG_ERROR(<< "State restoration search returned failed stream");
             return {nullptr, nullptr};
         }
+        // LOG_DEBUG(<< "restoreDataSummarization input stream " << static_cast<std::stringstream*>(inputStream.get())->str());
         return restoreCallback(inputStream);
 
     } catch (std::exception& e) {

@@ -16,6 +16,7 @@
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 
+#include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
@@ -29,6 +30,19 @@ namespace api {
 
 namespace {
 using TRowItr = core::CDataFrame::TRowItr;
+using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
+
+std::stringstream decompressStream(std::stringstream&& compressedStream) {
+    std::stringstream decompressedStream;
+    {
+        TFilteredInput inFilter;
+        inFilter.push(boost::iostreams::gzip_decompressor());
+        inFilter.push(core::CBase64Decoder());
+        inFilter.push(compressedStream);
+        boost::iostreams::copy(inFilter, decompressedStream);
+    }
+    return decompressedStream;
+}
 
 // clang-format off
 const std::string JSON_COMPRESSED_DATA_SUMMARIZATION_TAG{"compressed_data_summarization"};
@@ -120,6 +134,36 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
 }
 
 CDataSummarizationJsonSerializer::TDataSummarization
+CDataSummarizationJsonSerializer::fromDocumentCompressed(const TIStreamSPtr& istream) {
+    rapidjson::IStreamWrapper isw(*istream);
+    rapidjson::Document d;
+    d.ParseStream(isw);
+    // TODO make sure it parsed without errors
+    if (d.HasMember(JSON_COMPRESSED_DATA_SUMMARIZATION_TAG) &&
+        d[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG].IsObject()) {
+        auto& compressedDataSummarization = d[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG];
+        if (compressedDataSummarization.HasMember(JSON_DATA_SUMMARIZATION_TAG) &&
+            compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].IsString()) {
+            LOG_DEBUG(<< "Data summarization tag found");
+            std::stringstream compressedStream{
+                compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].GetString()};
+            // std::stringstream decompressedStream{decompressStream(std::move(compressedStream))};
+            auto decompressedSPtr =
+                std::make_shared<std::stringstream>(decompressStream(std::stringstream(
+                    compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].GetString())));
+            return CDataSummarizationJsonSerializer::fromJsonStream(decompressedSPtr);
+        } else {
+            LOG_ERROR(<< "Field " << JSON_DATA_SUMMARIZATION_TAG
+                      << " not found or is not a string.");
+        }
+    } else {
+        LOG_ERROR(<< "Field " << JSON_COMPRESSED_DATA_SUMMARIZATION_TAG
+                  << " not found or is not an object.");
+    }
+    return {nullptr, nullptr};
+}
+
+CDataSummarizationJsonSerializer::TDataSummarization
 CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
@@ -136,7 +180,6 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     rapidjson::IStreamWrapper isw(*istream);
     rapidjson::Document d;
     d.ParseStream(isw);
-    // TODO make sure it parsed without errors
     if (d.HasMember(JSON_NUM_COLUMNS_TAG) && d[JSON_NUM_COLUMNS_TAG].IsUint64()) {
         numColumns = d[JSON_NUM_COLUMNS_TAG].GetUint64();
         columnNames.reserve(numColumns);
@@ -217,6 +260,7 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
             rowVec.clear();
         }
         frame->finishWritingRows();
+        LOG_INFO(<< "Data frame restored successfully");
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_DATA_TAG
                   << "'  is missing or has an unexpected format.");

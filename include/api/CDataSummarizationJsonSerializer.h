@@ -46,6 +46,7 @@ public:
     std::string jsonString() const;
 
     static TDataSummarization fromJsonStream(const TIStreamSPtr& istream);
+    static TDataSummarization fromDocumentCompressed(const TIStreamSPtr& istream);
 
 private:
     core::CPackedBitVector m_RowMask;
