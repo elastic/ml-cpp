@@ -291,11 +291,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         std::move(boundingBox),
         m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
 
+    m_TreeImpl->m_CurrentRound = 0;
     if (m_TreeImpl->m_IncrementalTraining == false) {
         m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
-        m_TreeImpl->m_CurrentRound = 0;
-    } else {
-        m_TreeImpl->m_CurrentIncrementalRound = 0;
     }
 }
 
@@ -379,7 +377,7 @@ void CBoostedTreeFactory::copyParameterOverrides(const CBoostedTreeImpl& treeImp
 
     m_TreeImpl->m_NewTrainingRowMask = treeImpl.m_NewTrainingRowMask;
     m_TreeImpl->m_RetrainFraction = treeImpl.m_RetrainFraction;
-    m_TreeImpl->m_NumberIncrementalRounds = treeImpl.m_NumberIncrementalRounds;
+    m_TreeImpl->m_NumberRounds = treeImpl.m_NumberRounds;
     m_TreeImpl->m_DownsampleFactorOverride = treeImpl.m_DownsampleFactorOverride;
     m_TreeImpl->m_DownsampleFactor =
         m_TreeImpl->m_DownsampleFactorOverride.value_or(m_TreeImpl->m_DownsampleFactor);
@@ -1618,7 +1616,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::retrainFraction(double fraction) {
 
 CBoostedTreeFactory&
 CBoostedTreeFactory::maximumOptimisationRoundsForIncrementalTrain(std::size_t rounds) {
-    m_TreeImpl->m_NumberIncrementalRounds = rounds;
+    m_TreeImpl->m_NumberRounds = rounds;
     return *this;
 }
 

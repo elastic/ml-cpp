@@ -222,8 +222,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         // Hyperparameter optimisation loop.
 
-        this->initializePerFoldTestLosses(m_NumberRounds);
-        this->initializeHyperparameterSamples(m_NumberRounds);
+        this->initializePerFoldTestLosses();
+        this->initializeHyperparameterSamples();
 
         while (m_CurrentRound < m_NumberRounds) {
 
@@ -339,8 +339,8 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     // Hyperparameter optimisation loop.
 
-    this->initializePerFoldTestLosses(m_NumberIncrementalRounds);
-    this->initializeHyperparameterSamples(m_NumberIncrementalRounds);
+    this->initializePerFoldTestLosses();
+    this->initializeHyperparameterSamples();
 
     std::size_t maximumNumberTrees{this->numberTreesToRetrain()};
     TMeanVarAccumulator timeAccumulator;
@@ -348,11 +348,11 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     stopWatch.start();
     std::uint64_t lastLap{stopWatch.lap()};
 
-    while (m_CurrentIncrementalRound < m_NumberIncrementalRounds) {
+    while (m_CurrentRound < m_NumberRounds) {
         TMeanVarAccumulator lossMoments;
         double numberNodes;
         std::tie(lossMoments, std::ignore, numberNodes) = this->crossValidateForest(
-            frame, m_CurrentIncrementalRound, maximumNumberTrees,
+            frame, m_CurrentRound, maximumNumberTrees,
             [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
                    const core::CPackedBitVector& testingRowMask,
                    core::CLoopProgress& trainingProgress) {
@@ -372,10 +372,10 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         m_Instrumentation->updateMemoryUsage(memoryUsage - lastMemoryUsage);
         lastMemoryUsage = memoryUsage;
 
-        m_CurrentIncrementalRound += 1;
-        LOG_TRACE(<< "Round " << m_CurrentIncrementalRound << " state recording started");
+        m_CurrentRound += 1;
+        LOG_TRACE(<< "Round " << m_CurrentRound << " state recording started");
         this->recordState(recordTrainStateCallback);
-        LOG_TRACE(<< "Round " << m_CurrentIncrementalRound << " state recording finished");
+        LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
 
         std::uint64_t currentLap{stopWatch.lap()};
         std::uint64_t delta{currentLap - lastLap};
@@ -384,7 +384,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         timeAccumulator.add(static_cast<double>(delta));
         lastLap = currentLap;
         m_Instrumentation->flush(HYPERPARAMETER_OPTIMIZATION_ROUND +
-                                 std::to_string(m_CurrentIncrementalRound));
+                                 std::to_string(m_CurrentRound));
     }
 
     if (m_BestForestTestLoss <
@@ -555,10 +555,10 @@ CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile,
     return {gains[index], curvatures[index]};
 }
 
-void CBoostedTreeImpl::initializePerFoldTestLosses(std::size_t numberRounds) {
+void CBoostedTreeImpl::initializePerFoldTestLosses() {
     m_FoldRoundTestLosses.resize(m_NumberFolds);
     for (auto& losses : m_FoldRoundTestLosses) {
-        losses.resize(numberRounds);
+        losses.resize(m_NumberRounds);
     }
 }
 
@@ -641,7 +641,7 @@ void CBoostedTreeImpl::initializeTreeShap(const core::CDataFrame& frame) {
 
 void CBoostedTreeImpl::selectTreesToRetrain(const core::CDataFrame& frame) {
 
-    if (m_CurrentIncrementalRound > 0) {
+    if (m_TreesToRetrain.empty() == false) {
         return;
     }
 
@@ -1924,9 +1924,9 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
     }
 }
 
-void CBoostedTreeImpl::initializeHyperparameterSamples(std::size_t numberRounds) {
+void CBoostedTreeImpl::initializeHyperparameterSamples() {
     std::size_t dim{m_TunableHyperparameters.size()};
-    std::size_t n{numberRounds / 3 + 1};
+    std::size_t n{m_NumberRounds / 3 + 1};
     CSampling::sobolSequenceSample(dim, n, m_HyperparameterSamples);
 }
 
@@ -1966,15 +1966,13 @@ void CBoostedTreeImpl::startProgressMonitoringTrainIncremental() {
 
     m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::INCREMENTAL_TRAIN);
 
-    std::size_t totalNumberSteps{m_NumberIncrementalRounds *
-                                 this->numberTreesToRetrain() * m_NumberFolds};
+    std::size_t totalNumberSteps{m_NumberRounds * this->numberTreesToRetrain() * m_NumberFolds};
     LOG_TRACE(<< "main loop total number steps = " << totalNumberSteps);
     m_TrainingProgress = core::CLoopProgress{
         totalNumberSteps, m_Instrumentation->progressCallback(), 1.0, 1024};
 
     // Make sure progress starts where it left off.
-    m_TrainingProgress.increment(m_CurrentIncrementalRound *
-                                 this->numberTreesToRetrain() * m_NumberFolds);
+    m_TrainingProgress.increment(m_CurrentRound * this->numberTreesToRetrain() * m_NumberFolds);
 }
 
 namespace {
@@ -1987,7 +1985,6 @@ const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
 const std::string BEST_HYPERPARAMETERS_TAG{"best_hyperparameters"};
 const std::string CLASSIFICATION_WEIGHTS_OVERRIDE_TAG{"classification_weights_tag"};
-const std::string CURRENT_INCREMENTAL_ROUND_TAG{"current_incremental_round"};
 const std::string CURRENT_ROUND_TAG{"current_round"};
 const std::string DEPENDENT_VARIABLE_TAG{"dependent_variable"};
 const std::string DOWNSAMPLE_FACTOR_OVERRIDE_TAG{"downsample_factor_override"};
@@ -2014,7 +2011,6 @@ const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
 const std::string NUMBER_FOLDS_TAG{"number_folds"};
 const std::string NUMBER_FOLDS_OVERRIDE_TAG{"number_folds_override"};
-const std::string NUMBER_INCREMENTAL_ROUNDS_TAG{"number_incremental_rounds"};
 const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
 const std::string NUMBER_SPLITS_PER_FEATURE_TAG{"number_splits_per_feature"};
 const std::string NUMBER_THREADS_TAG{"number_threads"};
@@ -2062,8 +2058,6 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(BEST_HYPERPARAMETERS_TAG, m_BestHyperparameters, inserter);
     core::CPersistUtils::persistIfNotNull(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
                                           m_ClassificationWeightsOverride, inserter);
-    core::CPersistUtils::persist(CURRENT_INCREMENTAL_ROUND_TAG,
-                                 m_CurrentIncrementalRound, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
     core::CPersistUtils::persist(DEPENDENT_VARIABLE_TAG, m_DependentVariable, inserter);
     core::CPersistUtils::persist(DOWNSAMPLE_FACTOR_OVERRIDE_TAG,
@@ -2102,8 +2096,6 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_MissingFeatureRowMasks, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_TAG, m_NumberFolds, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_OVERRIDE_TAG, m_NumberFoldsOverride, inserter);
-    core::CPersistUtils::persist(NUMBER_INCREMENTAL_ROUNDS_TAG,
-                                 m_NumberIncrementalRounds, inserter);
     core::CPersistUtils::persist(NUMBER_ROUNDS_TAG, m_NumberRounds, inserter);
     core::CPersistUtils::persist(NUMBER_SPLITS_PER_FEATURE_TAG,
                                  m_NumberSplitsPerFeature, inserter);
@@ -2169,9 +2161,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
             core::CPersistUtils::restore(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
                                          *m_ClassificationWeightsOverride, traverser),
             /*no-op*/)
-        RESTORE(CURRENT_INCREMENTAL_ROUND_TAG,
-                core::CPersistUtils::restore(CURRENT_INCREMENTAL_ROUND_TAG,
-                                             m_CurrentIncrementalRound, traverser))
         RESTORE(CURRENT_ROUND_TAG,
                 core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
         RESTORE(DEPENDENT_VARIABLE_TAG,
@@ -2236,9 +2225,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(NUMBER_FOLDS_OVERRIDE_TAG,
                 core::CPersistUtils::restore(NUMBER_FOLDS_OVERRIDE_TAG,
                                              m_NumberFoldsOverride, traverser))
-        RESTORE(NUMBER_INCREMENTAL_ROUNDS_TAG,
-                core::CPersistUtils::restore(NUMBER_INCREMENTAL_ROUNDS_TAG,
-                                             m_NumberIncrementalRounds, traverser))
         RESTORE(NUMBER_ROUNDS_TAG,
                 core::CPersistUtils::restore(NUMBER_ROUNDS_TAG, m_NumberRounds, traverser))
         RESTORE(NUMBER_SPLITS_PER_FEATURE_TAG,
@@ -2307,23 +2293,18 @@ void CBoostedTreeImpl::checkRestoredInvariants() const {
     if (m_InitializationStage == CBoostedTreeImpl::E_FullyInitialized) {
         VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
     }
-
-    if (m_IncrementalTraining == false) {
-        VIOLATES_INVARIANT(m_CurrentRound, >, m_NumberRounds);
-        for (const auto& samples : m_HyperparameterSamples) {
-            VIOLATES_INVARIANT(m_TunableHyperparameters.size(), !=, samples.size());
+    VIOLATES_INVARIANT(m_CurrentRound, >, m_NumberRounds);
+    for (const auto& samples : m_HyperparameterSamples) {
+        VIOLATES_INVARIANT(m_TunableHyperparameters.size(), !=, samples.size());
+    }
+    if (m_FoldRoundTestLosses.empty() == false) {
+        VIOLATES_INVARIANT(m_FoldRoundTestLosses.size(), !=, m_NumberFolds);
+        for (const auto& losses : m_FoldRoundTestLosses) {
+            VIOLATES_INVARIANT(losses.size(), >, m_NumberRounds);
         }
-        if (m_FoldRoundTestLosses.empty() == false) {
-            VIOLATES_INVARIANT(m_FoldRoundTestLosses.size(), !=, m_NumberFolds);
-            for (const auto& losses : m_FoldRoundTestLosses) {
-                VIOLATES_INVARIANT(losses.size(), >, m_NumberRounds);
-            }
-        }
-    } else {
-        VIOLATES_INVARIANT(m_CurrentIncrementalRound, >, m_NumberIncrementalRounds);
-        for (auto tree : m_TreesToRetrain) {
-            VIOLATES_INVARIANT(tree, >=, m_BestForest.size());
-        }
+    }
+    for (auto tree : m_TreesToRetrain) {
+        VIOLATES_INVARIANT(tree, >=, m_BestForest.size());
     }
 }
 

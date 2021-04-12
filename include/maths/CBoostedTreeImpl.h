@@ -251,7 +251,7 @@ private:
                                                  const TNodeVecVec& forest) const;
 
     //! Presize the collection to hold the per fold test errors.
-    void initializePerFoldTestLosses(std::size_t numberRounds);
+    void initializePerFoldTestLosses();
 
     //! Compute the probability threshold at which to classify a row as class one.
     void computeClassificationWeights(const core::CDataFrame& frame);
@@ -442,7 +442,7 @@ private:
     void initializeTunableHyperparameters();
 
     //! Use Sobol sampler for for random hyperparamers.
-    void initializeHyperparameterSamples(std::size_t numberRounds);
+    void initializeHyperparameterSamples();
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
@@ -494,8 +494,6 @@ private:
     TBayesinOptimizationUPtr m_BayesianOptimization;
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
-    std::size_t m_NumberIncrementalRounds = 1;
-    std::size_t m_CurrentIncrementalRound = 0;
     core::CLoopProgress m_TrainingProgress;
     std::size_t m_NumberTopShapValues = 0;
     TTreeShapFeatureImportanceUPtr m_TreeShap;
