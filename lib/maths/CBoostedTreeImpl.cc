@@ -261,6 +261,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
+        this->scaleRegularizers(allTrainingRowsMask.manhattan() /
+                                m_TrainingRowMasks[0].manhattan());
         this->startProgressMonitoringFinalTrain();
         std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
@@ -1450,6 +1452,21 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
               << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
               << ", maximum number trees* = " << m_MaximumNumberTrees
               << ", feature bag fraction* = " << m_FeatureBagFraction);
+}
+
+void CBoostedTreeImpl::scaleRegularizers(double scale) {
+    if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+        m_Regularization.depthPenaltyMultiplier(
+            scale * m_Regularization.depthPenaltyMultiplier());
+    }
+    if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
+        m_Regularization.treeSizePenaltyMultiplier(
+            scale * m_Regularization.treeSizePenaltyMultiplier());
+    }
+    if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+        m_Regularization.leafWeightPenaltyMultiplier(
+            scale * m_Regularization.leafWeightPenaltyMultiplier());
+    }
 }
 
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
