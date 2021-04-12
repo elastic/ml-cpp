@@ -2281,8 +2281,7 @@ void CBoostedTreeImpl::checkRestoredInvariants() const {
     VIOLATES_INVARIANT_NO_EVALUATION(m_Instrumentation, ==, nullptr);
     VIOLATES_INVARIANT(m_FeatureDataTypes.size(), !=,
                        m_FeatureSampleProbabilities.size());
-    VIOLATES_INVARIANT(m_FeatureSampleProbabilities.size() + 1, !=,
-                       m_MissingFeatureRowMasks.size());
+    VIOLATES_INVARIANT(m_DependentVariable, >=, m_MissingFeatureRowMasks.size());
     VIOLATES_INVARIANT(m_TrainingRowMasks.size(), !=, m_TestingRowMasks.size());
     for (std::size_t i = 0; i < m_TrainingRowMasks.size(); ++i) {
         VIOLATES_INVARIANT(m_TrainingRowMasks[i].size(), !=,
