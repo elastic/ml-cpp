@@ -22,11 +22,9 @@
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CSingleStreamDataAdder.h>
-#include <api/ElasticsearchStateIndex.h>
 #include <api/CSingleStreamSearcher.h>
+#include <api/ElasticsearchStateIndex.h>
 
-#include <sstream>
-#include <string>
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
@@ -38,6 +36,8 @@
 #include <boost/unordered_map.hpp>
 
 #include <memory>
+#include <sstream>
+#include <string>
 
 using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
@@ -611,7 +611,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining,
+                     *boost::unit_test::disabled()) {
     auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
                         TPersisterSupplier* persisterSupplier,
                         TRestoreSearcherSupplier* restorerSupplier) {

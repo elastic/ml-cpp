@@ -443,8 +443,9 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analys
     } else if (m_RestoreSearcherSupplier == nullptr && m_PersisterSupplier != nullptr) {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, *m_PersisterSupplier);
     } else if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier == nullptr) {
-        return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, api::CDataFrameAnalysisSpecification::noopPersisterSupplier, 
-        *m_RestoreSearcherSupplier);
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(
+            spec, api::CDataFrameAnalysisSpecification::noopPersisterSupplier,
+            *m_RestoreSearcherSupplier);
     } else {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
     }

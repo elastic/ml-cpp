@@ -170,9 +170,8 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 }
 
 const CBoostedTreeImpl& CBoostedTreeFactory::boostedTreeImpl() const {
-        return *m_TreeImpl;
-    }
-
+    return *m_TreeImpl;
+}
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
     return std::max(m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
@@ -359,14 +358,13 @@ void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
     m_TreeImpl->m_Instrumentation->flush();
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
-    frame.writeColumns(
-        m_NumberThreads, 0, frame.numberRows(),
-        [&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
-            }
-        },
-        &allTrainingRowsMask);
+    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
+                       [&](TRowItr beginRows, TRowItr endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
+                           }
+                       },
+                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
@@ -1219,18 +1217,18 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
     return result;
 }
 
-CBoostedTreeFactory
-CBoostedTreeFactory::constructFromDefinition(std::size_t numberThreads,
-                                             TLossFunctionUPtr loss,
-                                             TDataSearcherUPtr dataSearcher,
-                                             const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback, 
-                                             const TRestoreModelDefinitionFunc& modelDefinitionRestoreCallback) {
+CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
+    std::size_t numberThreads,
+    TLossFunctionUPtr loss,
+    TDataSearcherUPtr dataSearcher,
+    const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
+    const TRestoreModelDefinitionFunc& modelDefinitionRestoreCallback) {
 
     CBoostedTreeFactory factory{CBoostedTreeFactory::constructFromParameters(
         numberThreads, std::move(loss))};
     // Read data summarization from the stream
-    TDataSummarization dataSummarization{
-        CBoostedTreeFactory::restoreDataSummarization(dataSearcher, dataSummarizationRestoreCallback)};
+    TDataSummarization dataSummarization{CBoostedTreeFactory::restoreDataSummarization(
+        dataSearcher, dataSummarizationRestoreCallback)};
     if (dataSummarization.first) {
         factory.dataSummarization(std::move(dataSummarization));
     } else {
@@ -1238,11 +1236,11 @@ CBoostedTreeFactory::constructFromDefinition(std::size_t numberThreads,
     }
 
     // Read best forest from the stream
-    TModelDefinition forestRestored{CBoostedTreeFactory::restoreBestForest(dataSearcher, modelDefinitionRestoreCallback)};
+    TModelDefinition forestRestored{CBoostedTreeFactory::restoreBestForest(
+        dataSearcher, modelDefinitionRestoreCallback)};
     if (forestRestored) {
         factory.modelDefinition(std::move(forestRestored));
-    }
-    else {
+    } else {
         HANDLE_FATAL(<< "Failed restoring best forest from the model definition.");
     }
     return factory;

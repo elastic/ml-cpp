@@ -55,7 +55,7 @@ std::stringstream decompressStream(std::stringstream&& compressedStream) {
 
 maths::CBoostedTreeFactory::TModelDefinition
 forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
-    // LOG_DEBUG(<< "Restore model definition from json stream \n" 
+    // LOG_DEBUG(<< "Restore model definition from json stream \n"
     // << static_cast<std::stringstream*>(istream.get())->str());
     using TNodeVec = maths::CBoostedTreeFactory::TNodeVec;
     using TNodeVecVec = maths::CBoostedTreeFactory::TNodeVecVec;

@@ -13,8 +13,8 @@
 #include <maths/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <test/ImportExport.h>
 

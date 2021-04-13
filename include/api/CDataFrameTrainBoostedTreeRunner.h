@@ -35,7 +35,7 @@ class CBoostedTreeInferenceModelBuilder;
 class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
     enum ETask { E_Train, E_Update };
-    
+
     static const std::string DEPENDENT_VARIABLE_NAME;
     static const std::string PREDICTION_FIELD_NAME;
     static const std::string DOWNSAMPLE_ROWS_PER_FEATURE;

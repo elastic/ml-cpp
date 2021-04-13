@@ -184,7 +184,6 @@ public:
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
 
-
 private:
     std::size_t m_NumberRows = 0;
     std::size_t m_NumberColumns = 0;

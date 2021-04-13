@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     BOOST_TEST_REQUIRE(errors[0] == "Input error: prediction_field_name must not be equal to any of [is_training].");
 }
 
-BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, * utf::tolerance(0.000001)) {
+BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, *utf::tolerance(0.000001)) {
     // get restore string stream
     std::string filename{"testfiles/summary_definition.json"};
     std::ifstream file{filename};
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, * utf::tolerance(0.0000
         BOOST_REQUIRE_EQUAL(boostedTreeImpl.encoder().numberEncodedColumns(), 3);
         TDoubleVec actualMics{boostedTreeImpl.encoder().encodedColumnMics()};
         TDoubleVec expectedMics{0.8342732, 0.2650428, 0};
-        BOOST_TEST(actualMics==expectedMics, tt::per_element());
+        BOOST_TEST(actualMics == expectedMics, tt::per_element());
     } else {
         BOOST_FAIL("Connot read file " + filename);
     }
