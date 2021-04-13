@@ -147,8 +147,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
         fieldNames, fieldValues, analyzer, weights, regressors, targets, targetTransformer);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    TStrVec persistedStates{
-        splitOnNull(std::stringstream{std::move(persistenceStream->str())})};
+    TStrVec persistedStates{splitOnNull(std::stringstream{persistenceStream->str()})};
     auto expectedTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
 
     persistenceStream->str("");
@@ -169,7 +168,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
         targetTransformer);
     restoredAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    persistedStates = splitOnNull(std::stringstream{std::move(persistenceStream->str())});
+    persistedStates = splitOnNull(std::stringstream{persistenceStream->str()});
     auto actualTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
 
     // Compare hyperparameters.

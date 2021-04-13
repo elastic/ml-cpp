@@ -236,7 +236,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             std::size_t maximumNumberTrees;
             double numberNodes;
             std::tie(lossMoments, maximumNumberTrees, numberNodes) = this->crossValidateForest(
-                frame, m_CurrentRound, m_MaximumNumberTrees,
+                frame, m_MaximumNumberTrees,
                 [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
                        const core::CPackedBitVector& testingRowMask,
                        core::CLoopProgress& trainingProgress) {
@@ -352,7 +352,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         TMeanVarAccumulator lossMoments;
         double numberNodes;
         std::tie(lossMoments, std::ignore, numberNodes) = this->crossValidateForest(
-            frame, m_CurrentRound, maximumNumberTrees,
+            frame, maximumNumberTrees,
             [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
                    const core::CPackedBitVector& testingRowMask,
                    core::CLoopProgress& trainingProgress) {
@@ -657,7 +657,6 @@ void CBoostedTreeImpl::selectTreesToRetrain(const core::CDataFrame& frame) {
 template<typename F>
 CBoostedTreeImpl::TMeanVarAccumulatorSizeDoubleTuple
 CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
-                                      std::size_t currentRound,
                                       std::size_t maximumNumberTrees,
                                       const F& trainForest) {
 
@@ -672,7 +671,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
         // that the test error is not close to the minimum test error. We use
         // the estimated test error for each remaining fold at two standard
         // deviations below the mean for this.
-        if (m_StopCrossValidationEarly && currentRound >= m_NumberFolds &&
+        if (m_StopCrossValidationEarly && m_CurrentRound >= m_NumberFolds &&
             folds.size() < m_NumberFolds) {
             for (const auto& testLoss : this->estimateMissingTestLosses(folds)) {
                 testLossMoments.add(
@@ -687,7 +686,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     TMeanVarAccumulator lossMoments;
     TDoubleVec numberTrees;
     numberTrees.reserve(m_NumberFolds);
-    TMeanAccumulator forestSizeAccumulator;
+    TMeanAccumulator meanForestSizeAccumulator;
 
     while (folds.size() > 0 && stopCrossValidationEarly(lossMoments) == false) {
         std::size_t fold{folds.back()};
@@ -700,11 +699,9 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
         LOG_TRACE(<< "fold = " << fold << " forest size = " << forest.size()
                   << " test set loss = " << loss);
         lossMoments.add(loss);
-        m_FoldRoundTestLosses[fold][currentRound] = loss;
+        m_FoldRoundTestLosses[fold][m_CurrentRound] = loss;
         numberTrees.push_back(static_cast<double>(forest.size()));
-        auto numberNodes{numberForestNodes(forest)};
-        forestSizeAccumulator.add(numberNodes);
-        m_ForestSizeAccumulator.add(numberNodes);
+        meanForestSizeAccumulator.add(numberForestNodes(forest));
         m_Instrumentation->lossValues(fold, std::move(lossValues));
     }
     m_TrainingProgress.increment(maximumNumberTrees * folds.size());
@@ -713,12 +710,13 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     std::sort(numberTrees.begin(), numberTrees.end());
     std::size_t medianNumberTrees{
         static_cast<std::size_t>(CBasicStatistics::median(numberTrees))};
-    double meanForestSize{CBasicStatistics::mean(forestSizeAccumulator)};
+    double meanForestSize{CBasicStatistics::mean(meanForestSizeAccumulator)};
     lossMoments = this->correctTestLossMoments(folds, lossMoments);
     LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
               << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments))
               << ", mean number nodes in forest = " << meanForestSize);
 
+    m_MeanForestSizeAccumulator += meanForestSizeAccumulator;
     m_MeanLossAccumulator.add(CBasicStatistics::mean(lossMoments));
 
     return {lossMoments, medianNumberTrees, meanForestSize};
@@ -1773,7 +1771,7 @@ double CBoostedTreeImpl::modelSizePenalty(double fixedNumberNodes,
                                           double numberExtraNodes) const {
     // 0.01 * "forest number nodes" * E[GP] / "average forest number nodes" to meanLoss.
     return 0.01 * (fixedNumberNodes + numberExtraNodes) /
-           (fixedNumberNodes + CBasicStatistics::mean(m_ForestSizeAccumulator)) *
+           (fixedNumberNodes + CBasicStatistics::mean(m_MeanForestSizeAccumulator)) *
            CBasicStatistics::mean(m_MeanLossAccumulator);
 }
 
@@ -2006,6 +2004,8 @@ const std::string MAXIMUM_NUMBER_TREES_OVERRIDE_TAG{"maximum_number_trees_overri
 const std::string MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
 const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{
     "maximum_optimisation_rounds_per_hyperparameter"};
+const std::string MEAN_FOREST_SIZE_ACCUMULATOR_TAG{"mean_forest_size"};
+const std::string MEAN_LOSS_ACCUMULATOR_TAG{"mean_loss"};
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
 const std::string NUMBER_FOLDS_TAG{"number_folds"};
 const std::string NUMBER_FOLDS_OVERRIDE_TAG{"number_folds_override"};
@@ -2090,6 +2090,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_TAG, m_MaximumNumberTrees, inserter);
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                  m_MaximumNumberTreesOverride, inserter);
+    core::CPersistUtils::persist(MEAN_FOREST_SIZE_ACCUMULATOR_TAG,
+                                 m_MeanForestSizeAccumulator, inserter);
+    core::CPersistUtils::persist(MEAN_LOSS_ACCUMULATOR_TAG, m_MeanLossAccumulator, inserter);
     core::CPersistUtils::persist(MISSING_FEATURE_ROW_MASKS_TAG,
                                  m_MissingFeatureRowMasks, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_TAG, m_NumberFolds, inserter);
@@ -2215,6 +2218,12 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(MAXIMUM_NUMBER_TREES_TAG,
                 core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_TAG,
                                              m_MaximumNumberTrees, traverser))
+        RESTORE(MEAN_FOREST_SIZE_ACCUMULATOR_TAG,
+                core::CPersistUtils::restore(MEAN_FOREST_SIZE_ACCUMULATOR_TAG,
+                                             m_MeanForestSizeAccumulator, traverser))
+        RESTORE(MEAN_LOSS_ACCUMULATOR_TAG,
+                core::CPersistUtils::restore(MEAN_LOSS_ACCUMULATOR_TAG,
+                                             m_MeanLossAccumulator, traverser))
         RESTORE(MISSING_FEATURE_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(MISSING_FEATURE_ROW_MASKS_TAG,
                                              m_MissingFeatureRowMasks, traverser))
