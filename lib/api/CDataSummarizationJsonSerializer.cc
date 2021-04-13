@@ -138,16 +138,13 @@ CDataSummarizationJsonSerializer::fromDocumentCompressed(const TIStreamSPtr& ist
     rapidjson::IStreamWrapper isw(*istream);
     rapidjson::Document d;
     d.ParseStream(isw);
-    // TODO make sure it parsed without errors
     if (d.HasMember(JSON_COMPRESSED_DATA_SUMMARIZATION_TAG) &&
         d[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG].IsObject()) {
         auto& compressedDataSummarization = d[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG];
         if (compressedDataSummarization.HasMember(JSON_DATA_SUMMARIZATION_TAG) &&
             compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].IsString()) {
-            LOG_DEBUG(<< "Data summarization tag found");
             std::stringstream compressedStream{
                 compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].GetString()};
-            // std::stringstream decompressedStream{decompressStream(std::move(compressedStream))};
             auto decompressedSPtr =
                 std::make_shared<std::stringstream>(decompressStream(std::stringstream(
                     compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].GetString())));
@@ -236,7 +233,6 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
         writer.EndObject();
         core::CJsonStateRestoreTraverser traverser(jsonStrm);
         encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(traverser);
-        LOG_INFO(<< "Encoder restored successfully");
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_ENCODINGS_TAG
                   << "'  is missing or has an unexpected format.");
@@ -260,7 +256,6 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
             rowVec.clear();
         }
         frame->finishWritingRows();
-        LOG_INFO(<< "Data frame restored successfully");
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_DATA_TAG
                   << "'  is missing or has an unexpected format.");

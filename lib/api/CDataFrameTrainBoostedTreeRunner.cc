@@ -62,7 +62,6 @@ forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
     rapidjson::IStreamWrapper isw(*istream);
     rapidjson::Document d;
     d.ParseStream(isw);
-    // TODO make sure it parsed without errors
     if (d.HasMember("trained_model") && d["trained_model"].IsObject()) {
         auto trainedModel = d["trained_model"].GetObject();
         if (trainedModel.HasMember("ensemble") && trainedModel["ensemble"].IsObject()) {
@@ -90,8 +89,6 @@ forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
                             double gain{node["split_gain"].GetDouble()};
                             double splitValue{node["threshold"].GetDouble()};
                             bool assignMissingToLeft{node["default_left"].GetBool()};
-                            // std::size_t leftChildId{node["left_child"].GetUint64()};
-                            // std::size_t rightChildId{node["right_child"].GetUint64()};
                             nodes[nodeIndex].split(splitFeature, splitValue,
                                                    assignMissingToLeft, gain, 0.0, nodes);
                             nodes[nodeIndex].numberSamples(numberSamples);
@@ -99,7 +96,6 @@ forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
                     }
                     forest->push_back(nodes);
                 }
-                LOG_DEBUG(<< "Return forest with " << forest->size() << "elements");
                 return forest;
             }
         }
@@ -109,7 +105,6 @@ forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
 
 maths::CBoostedTreeFactory::TModelDefinition
 fromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream) {
-    LOG_DEBUG(<< "Restore model definition from compressed stream");
     rapidjson::IStreamWrapper isw(*istream);
     rapidjson::Document d;
     d.ParseStream(isw);
@@ -119,10 +114,8 @@ fromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream) {
         auto& compressedDataSummarization = d["compressed_inference_model"];
         if (compressedDataSummarization.HasMember("definition") &&
             compressedDataSummarization["definition"].IsString()) {
-            LOG_DEBUG(<< "Data summarization tag found");
             std::stringstream compressedStream{
                 compressedDataSummarization["definition"].GetString()};
-            // std::stringstream decompressedStream{decompressStream(std::move(compressedStream))};
             auto decompressedSPtr = std::make_shared<std::stringstream>(decompressStream(
                 std::stringstream(compressedDataSummarization["definition"].GetString())));
             return forestFromJsonStream(decompressedSPtr);
