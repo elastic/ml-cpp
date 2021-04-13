@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "api/CSingleStreamSearcher.h"
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
@@ -24,6 +23,7 @@
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/ElasticsearchStateIndex.h>
+#include <api/CSingleStreamSearcher.h>
 
 #include <sstream>
 #include <string>
@@ -611,7 +611,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining) {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining, *boost::unit_test::disabled()) {
     auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
                         TPersisterSupplier* persisterSupplier,
                         TRestoreSearcherSupplier* restorerSupplier) {
@@ -716,10 +716,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining) {
     api::CDataFrameAnalyzer newAnalyzer{std::move(spec), outputWriterFactory};
     auto newFrame = test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
         fieldNames, fieldValues, newAnalyzer, weights, regressors, targets, targetTransformer);
-        
-    newAnalyzer.runner()->inferenceModelDefinition(fieldNames, const TStrVecVec &categoryNames)
     newAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-    LOG_INFO(<< outputStream.str());
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {

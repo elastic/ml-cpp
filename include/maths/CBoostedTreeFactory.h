@@ -168,6 +168,12 @@ public:
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
+    //! \name Test Only
+    //@{
+    //! Get the boosted tree implementation.
+    const CBoostedTreeImpl& boostedTreeImpl() const;
+    //@}
+
 private:
     using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;

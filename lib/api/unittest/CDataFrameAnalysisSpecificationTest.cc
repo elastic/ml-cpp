@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         errors.clear();
         std::string parameters{"{\"dependent_variable\": \"value\"}"};
         api::CDataFrameAnalysisSpecification spec{
-            api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+            api::CDataFrameAnalysisSpecificationJsonWriter::jsonString( 
                 "testJob", 10000, 5, 100000000, 1, "42", {}, true,
                 test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
