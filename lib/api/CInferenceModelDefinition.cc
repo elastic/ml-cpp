@@ -19,64 +19,6 @@ namespace ml {
 namespace api {
 
 namespace {
-// clang-format off
-const std::string JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
-const std::string JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
-const std::string JSON_CLASSIFICATION_WEIGHTS_TAG{"classification_weights"};
-const std::string JSON_COMPRESSED_INFERENCE_MODEL_TAG{"compressed_inference_model"};
-const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
-const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
-const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
-const std::string JSON_DEFINITION_TAG{"definition"};
-const std::string JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
-const std::string JSON_ENSEMBLE_TAG{"ensemble"};
-const std::string JSON_EXPONENT_TAG{"exponent"};
-const std::string JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
-const std::string JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
-const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
-const std::string JSON_FEATURE_NAMES_TAG{"feature_names"};
-const std::string JSON_FIELD_LENGTH_TAG{"field_length"};
-const std::string JSON_FIELD_NAMES_TAG{"field_names"};
-const std::string JSON_FIELD_TAG{"field"};
-const std::string JSON_FIELD_VALUE_LENGTHS_TAG{"field_value_lengths"};
-const std::string JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
-const std::string JSON_FREQUENCY_MAP_TAG{"frequency_map"};
-const std::string JSON_HOT_MAP_TAG{"hot_map"};
-const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
-const std::string JSON_LEFT_CHILD_TAG{"left_child"};
-const std::string JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
-const std::string JSON_LT{"lt"};
-const std::string JSON_MODEL_SIZE_INFO_TAG{"model_size_info"};
-const std::string JSON_NODE_INDEX_TAG{"node_index"};
-const std::string JSON_NUM_CLASSES_TAG{"num_classes"};
-const std::string JSON_NUM_CLASSIFICATION_WEIGHTS_TAG{"num_classification_weights"};
-const std::string JSON_NUM_LEAVES_TAG{"num_leaves"};
-const std::string JSON_NUM_NODES_TAG{"num_nodes"};
-const std::string JSON_NUM_OPERATIONS_TAG{"num_operations"};
-const std::string JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG{"num_output_processor_weights"};
-const std::string JSON_NUMBER_SAMPLES_TAG{"number_samples"};
-const std::string JSON_ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
-const std::string JSON_PREPROCESSORS_TAG{"preprocessors"};
-const std::string JSON_RIGHT_CHILD_TAG{"right_child"};
-const std::string JSON_SPLIT_FEATURE_TAG{"split_feature"};
-const std::string JSON_SPLIT_GAIN_TAG{"split_gain"};
-const std::string JSON_TARGET_MAP_TAG{"target_map"};
-const std::string JSON_TARGET_MEAN_ENCODING_TAG{"target_mean_encoding"};
-const std::string JSON_TARGET_TYPE_CLASSIFICATION{"classification"};
-const std::string JSON_TARGET_TYPE_REGRESSION{"regression"};
-const std::string JSON_TARGET_TYPE_TAG{"target_type"};
-const std::string JSON_THRESHOLD_TAG{"threshold"};
-const std::string JSON_TOTAL_DEFINITION_LENGTH_TAG{"total_definition_length"};
-const std::string JSON_TRAINED_MODEL_SIZE_TAG{"trained_model_size"};
-const std::string JSON_TRAINED_MODEL_TAG{"trained_model"};
-const std::string JSON_TRAINED_MODELS_TAG{"trained_models"};
-const std::string JSON_TREE_SIZES_TAG{"tree_sizes"};
-const std::string JSON_TREE_STRUCTURE_TAG{"tree_structure"};
-const std::string JSON_TREE_TAG{"tree"};
-const std::string JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
-const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
-const std::string JSON_WEIGHTS_TAG{"weights"};
-// clang-format on
 
 auto toRapidjsonValue(std::size_t value) {
     return rapidjson::Value{static_cast<std::uint64_t>(value)};
@@ -919,5 +861,63 @@ void CExponent::addToJsonStream(TGenericLineWriter& writer) const {
 const std::string& CExponent::stringType() const {
     return JSON_EXPONENT_TAG;
 }
+
+// clang-format off
+const std::string CAggregateOutput::JSON_WEIGHTS_TAG{"weights"};
+const std::string CEncoding::CSizeInfo::JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
+const std::string CEncoding::CSizeInfo::JSON_FIELD_LENGTH_TAG{"field_length"};
+const std::string CEncoding::CSizeInfo::JSON_FIELD_VALUE_LENGTHS_TAG{"field_value_lengths"};
+const std::string CEncoding::JSON_FEATURE_NAME_TAG{"feature_name"};
+const std::string CEncoding::JSON_FIELD_TAG{"field"};
+const std::string CEnsemble::CSizeInfo::JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
+const std::string CEnsemble::CSizeInfo::JSON_NUM_OPERATIONS_TAG{"num_operations"};
+const std::string CEnsemble::CSizeInfo::JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG{"num_output_processor_weights"};
+const std::string CEnsemble::CSizeInfo::JSON_TREE_SIZES_TAG{"tree_sizes"};
+const std::string CEnsemble::JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
+const std::string CEnsemble::JSON_ENSEMBLE_TAG{"ensemble"};
+const std::string CEnsemble::JSON_TRAINED_MODELS_TAG{"trained_models"};
+const std::string CExponent::JSON_EXPONENT_TAG{"exponent"};
+const std::string CFrequencyEncoding::JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
+const std::string CFrequencyEncoding::JSON_FREQUENCY_MAP_TAG{"frequency_map"};
+const std::string CInferenceModelDefinition::CSizeInfo::JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
+const std::string CInferenceModelDefinition::CSizeInfo::JSON_MODEL_SIZE_INFO_TAG{"model_size_info"};
+const std::string CInferenceModelDefinition::CSizeInfo::JSON_TRAINED_MODEL_SIZE_TAG{"trained_model_size"};
+const std::string CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG{"compressed_inference_model"};
+const std::string CInferenceModelDefinition::JSON_DEFINITION_TAG{"definition"};
+const std::string CInferenceModelDefinition::JSON_PREPROCESSORS_TAG{"preprocessors"};
+const std::string CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG{"trained_model"};
+const std::string CLogisticRegression::JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
+const std::string COneHotEncoding::CSizeInfo::JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
+const std::string COneHotEncoding::JSON_HOT_MAP_TAG{"hot_map"};
+const std::string COneHotEncoding::JSON_ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
+const std::string CTargetMeanEncoding::JSON_DEFAULT_VALUE_TAG{"default_value"};
+const std::string CTargetMeanEncoding::JSON_TARGET_MAP_TAG{"target_map"};
+const std::string CTargetMeanEncoding::JSON_TARGET_MEAN_ENCODING_TAG{"target_mean_encoding"};
+const std::string CTrainedModel::CSizeInfo::JSON_NUM_CLASSES_TAG{"num_classes"};
+const std::string CTrainedModel::CSizeInfo::JSON_NUM_CLASSIFICATION_WEIGHTS_TAG{"num_classification_weights"};
+const std::string CTrainedModel::JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
+const std::string CTrainedModel::JSON_CLASSIFICATION_WEIGHTS_TAG{"classification_weights"};
+const std::string CTrainedModel::JSON_FEATURE_NAMES_TAG{"feature_names"};
+const std::string CTrainedModel::JSON_TARGET_TYPE_CLASSIFICATION{"classification"};
+const std::string CTrainedModel::JSON_TARGET_TYPE_REGRESSION{"regression"};
+const std::string CTrainedModel::JSON_TARGET_TYPE_TAG{"target_type"};
+const std::string CTree::CSizeInfo::JSON_NUM_LEAVES_TAG{"num_leaves"};
+const std::string CTree::CSizeInfo::JSON_NUM_NODES_TAG{"num_nodes"};
+const std::string CTree::CTreeNode::JSON_DECISION_TYPE_TAG{"decision_type"};
+const std::string CTree::CTreeNode::JSON_DEFAULT_LEFT_TAG{"default_left"};
+const std::string CTree::CTreeNode::JSON_LEAF_VALUE_TAG{"leaf_value"};
+const std::string CTree::CTreeNode::JSON_LEFT_CHILD_TAG{"left_child"};
+const std::string CTree::CTreeNode::JSON_LT{"lt"};
+const std::string CTree::CTreeNode::JSON_NODE_INDEX_TAG{"node_index"};
+const std::string CTree::CTreeNode::JSON_NUMBER_SAMPLES_TAG{"number_samples"};
+const std::string CTree::CTreeNode::JSON_RIGHT_CHILD_TAG{"right_child"};
+const std::string CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG{"split_feature"};
+const std::string CTree::CTreeNode::JSON_SPLIT_GAIN_TAG{"split_gain"};
+const std::string CTree::CTreeNode::JSON_THRESHOLD_TAG{"threshold"};
+const std::string CTree::JSON_TREE_STRUCTURE_TAG{"tree_structure"};
+const std::string CTree::JSON_TREE_TAG{"tree"};
+const std::string CWeightedMode::JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
+const std::string CWeightedSum::JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
+// clang-format on
 }
 }

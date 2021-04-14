@@ -6,7 +6,6 @@
 
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
-#include <core/CBase64Filter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
@@ -28,110 +27,8 @@
 
 #include <rapidjson/document.h>
 
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-
-#include <memory>
-#include <sstream>
-
 namespace ml {
 namespace api {
-
-namespace {
-using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
-
-std::stringstream decompressStream(std::stringstream&& compressedStream) {
-    std::stringstream decompressedStream;
-    {
-        TFilteredInput inFilter;
-        inFilter.push(boost::iostreams::gzip_decompressor());
-        inFilter.push(core::CBase64Decoder());
-        inFilter.push(compressedStream);
-        boost::iostreams::copy(inFilter, decompressedStream);
-    }
-    return decompressedStream;
-}
-
-maths::CBoostedTreeFactory::TModelDefinition
-forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
-    // LOG_DEBUG(<< "Restore model definition from json stream \n"
-    // << static_cast<std::stringstream*>(istream.get())->str());
-    using TNodeVec = maths::CBoostedTreeFactory::TNodeVec;
-    using TNodeVecVec = maths::CBoostedTreeFactory::TNodeVecVec;
-    rapidjson::IStreamWrapper isw(*istream);
-    rapidjson::Document d;
-    d.ParseStream(isw);
-    if (d.HasMember("trained_model") && d["trained_model"].IsObject()) {
-        auto trainedModel = d["trained_model"].GetObject();
-        if (trainedModel.HasMember("ensemble") && trainedModel["ensemble"].IsObject()) {
-            auto ensemble = trainedModel["ensemble"].GetObject();
-            if (ensemble.HasMember("trained_models") &&
-                ensemble["trained_models"].IsArray()) {
-                auto trainedModels = ensemble["trained_models"].GetArray();
-                auto forest = std::make_unique<TNodeVecVec>();
-                for (auto& tree : trainedModels) {
-                    TNodeVec nodes;
-                    nodes.emplace_back(); // add root
-                    for (auto& node : tree["tree"]["tree_structure"].GetArray()) {
-                        std::size_t nodeIndex{node["node_index"].GetUint64()};
-                        std::size_t numberSamples{node["number_samples"].GetUint64()};
-                        if (node.HasMember("leaf_value")) {
-                            // TODO this can be/is a vector
-                            maths::CBoostedTreeNode::TVector nodeValue(1);
-                            nodeValue[0] = node["leaf_value"].GetDouble();
-                            nodes[nodeIndex].numberSamples(numberSamples);
-                            nodes[nodeIndex].nodeValue({nodeValue});
-
-                        } else {
-                            // TODO identify correct split feature;
-                            std::size_t splitFeature{0};
-                            double gain{node["split_gain"].GetDouble()};
-                            double splitValue{node["threshold"].GetDouble()};
-                            bool assignMissingToLeft{node["default_left"].GetBool()};
-                            nodes[nodeIndex].split(splitFeature, splitValue,
-                                                   assignMissingToLeft, gain, 0.0, nodes);
-                            nodes[nodeIndex].numberSamples(numberSamples);
-                        }
-                    }
-                    forest->push_back(nodes);
-                }
-                return forest;
-            }
-        }
-    }
-    return nullptr;
-}
-
-maths::CBoostedTreeFactory::TModelDefinition
-fromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream) {
-    rapidjson::IStreamWrapper isw(*istream);
-    rapidjson::Document d;
-    d.ParseStream(isw);
-    // TODO make sure it parsed without errors
-    if (d.HasMember("compressed_inference_model") &&
-        d["compressed_inference_model"].IsObject()) {
-        auto& compressedDataSummarization = d["compressed_inference_model"];
-        if (compressedDataSummarization.HasMember("definition") &&
-            compressedDataSummarization["definition"].IsString()) {
-            std::stringstream compressedStream{
-                compressedDataSummarization["definition"].GetString()};
-            auto decompressedSPtr = std::make_shared<std::stringstream>(decompressStream(
-                std::stringstream(compressedDataSummarization["definition"].GetString())));
-            return forestFromJsonStream(decompressedSPtr);
-        } else {
-            LOG_ERROR(<< "Field "
-                      << "definition"
-                      << " not found or is not a string.");
-        }
-    } else {
-        LOG_ERROR(<< "Field "
-                  << "compressed_inference_model"
-                  << " not found or is not an object.");
-    }
-    return nullptr;
-}
-}
 
 const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
@@ -266,10 +163,11 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                 maths::CBoostedTreeFactory::constructFromDefinition(
                     this->spec().numberThreads(), std::move(loss), *restoreSearcher,
                     [](const core::CDataSearcher::TIStreamP& istream) {
-                        return api::CDataSummarizationJsonSerializer::fromDocumentCompressed(istream);
+                        return api::CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
+                            istream);
                     },
                     [](const core::CDataSearcher::TIStreamP& istream) {
-                        return fromDocumentCompressed(istream);
+                        return CRetrainableModelJsonDeserializer::fromDocumentCompressed(istream);
                     }));
         } else {
             HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");

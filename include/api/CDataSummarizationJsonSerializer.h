@@ -29,10 +29,6 @@ namespace api {
 class API_EXPORT CDataSummarizationJsonSerializer final
     : public CSerializableToJsonDocumentCompressed {
 public:
-    using TIStreamSPtr = std::shared_ptr<std::istream>;
-    using TDataSummarization = maths::CBoostedTreeFactory::TDataSummarization;
-
-public:
     CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
                                      core::CPackedBitVector rowMask,
                                      std::stringstream encodings);
@@ -45,16 +41,30 @@ public:
     void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
     std::string jsonString() const;
 
-    //! \brief Retrieve data summarization from decompressed JSON stream.
-    static TDataSummarization fromJsonStream(const TIStreamSPtr& istream);
-
-    //! \brief Retrieve data summarization from compressed and chunked JSON blob.
-    static TDataSummarization fromDocumentCompressed(const TIStreamSPtr& istream);
-
 private:
     core::CPackedBitVector m_RowMask;
     const core::CDataFrame& m_Frame;
     std::stringstream m_Encodings;
+};
+
+class CRetrainableModelJsonDeserializer {
+public:
+    using TDataSummarization = maths::CBoostedTreeFactory::TDataSummarization;
+    using TModelDefinition = maths::CBoostedTreeFactory::TModelDefinition;
+    using TIStreamSPtr = std::shared_ptr<std::istream>;
+
+public:
+    //! \brief Retrieve data summarization from decompressed JSON stream.
+    static TDataSummarization dataSummarizationFromJsonStream(const TIStreamSPtr& istream);
+
+    //! \brief Retrieve data summarization from compressed and chunked JSON blob.
+    static TDataSummarization
+    dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream);
+
+    static TModelDefinition forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream);
+
+    static TModelDefinition
+    fromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream);
 };
 }
 }

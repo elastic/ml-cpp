@@ -13,6 +13,8 @@
 
 #include <maths/CDataFrameCategoryEncoder.h>
 
+#include <api/CInferenceModelDefinition.h>
+
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
 
@@ -133,8 +135,8 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
     writer.EndObject();
 }
 
-CDataSummarizationJsonSerializer::TDataSummarization
-CDataSummarizationJsonSerializer::fromDocumentCompressed(const TIStreamSPtr& istream) {
+CRetrainableModelJsonDeserializer::TDataSummarization
+CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream) {
     rapidjson::IStreamWrapper isw(*istream);
     rapidjson::Document d;
     d.ParseStream(isw);
@@ -148,7 +150,7 @@ CDataSummarizationJsonSerializer::fromDocumentCompressed(const TIStreamSPtr& ist
             auto decompressedSPtr =
                 std::make_shared<std::stringstream>(decompressStream(std::stringstream(
                     compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].GetString())));
-            return CDataSummarizationJsonSerializer::fromJsonStream(decompressedSPtr);
+            return CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(decompressedSPtr);
         } else {
             LOG_ERROR(<< "Field " << JSON_DATA_SUMMARIZATION_TAG
                       << " not found or is not a string.");
@@ -160,8 +162,8 @@ CDataSummarizationJsonSerializer::fromDocumentCompressed(const TIStreamSPtr& ist
     return {nullptr, nullptr};
 }
 
-CDataSummarizationJsonSerializer::TDataSummarization
-CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
+CRetrainableModelJsonDeserializer::TDataSummarization
+CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStreamSPtr& istream) {
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TBoolVec = std::vector<bool>;
@@ -226,7 +228,7 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
     if (d.HasMember(JSON_ENCODINGS_TAG) && d[JSON_ENCODINGS_TAG].IsObject()) {
         std::stringstream jsonStrm;
         rapidjson::OStreamWrapper wrapper{jsonStrm};
-        TGenericLineWriter writer{wrapper};
+        CDataSummarizationJsonSerializer::TGenericLineWriter writer{wrapper};
         writer.StartObject();
         writer.Key(JSON_ENCODINGS_TAG);
         writer.write(d[JSON_ENCODINGS_TAG].GetObject());
@@ -262,6 +264,111 @@ CDataSummarizationJsonSerializer::fromJsonStream(const TIStreamSPtr& istream) {
         return {nullptr, nullptr};
     }
     return {std::move(frame), std::move(encoder)};
+}
+
+// using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
+
+// std::stringstream decompressStream(std::stringstream&& compressedStream) {
+//     std::stringstream decompressedStream;
+//     {
+//         TFilteredInput inFilter;
+//         inFilter.push(boost::iostreams::gzip_decompressor());
+//         inFilter.push(core::CBase64Decoder());
+//         inFilter.push(compressedStream);
+//         boost::iostreams::copy(inFilter, decompressedStream);
+//     }
+//     return decompressedStream;
+// }
+
+CRetrainableModelJsonDeserializer::TModelDefinition
+CRetrainableModelJsonDeserializer::forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
+    // LOG_DEBUG(<< "Restore model definition from json stream \n"
+    // << static_cast<std::stringstream*>(istream.get())->str());
+    using TNodeVec = maths::CBoostedTreeFactory::TNodeVec;
+    using TNodeVecVec = maths::CBoostedTreeFactory::TNodeVecVec;
+    rapidjson::IStreamWrapper isw(*istream);
+    rapidjson::Document d;
+    d.ParseStream(isw);
+    if (d.HasMember(CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG) &&
+        d[CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG].IsObject()) {
+        auto trainedModel = d[CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG].GetObject();
+        if (trainedModel.HasMember(CEnsemble::JSON_ENSEMBLE_TAG) &&
+            trainedModel[CEnsemble::JSON_ENSEMBLE_TAG].IsObject()) {
+            auto ensemble = trainedModel[CEnsemble::JSON_ENSEMBLE_TAG].GetObject();
+            if (ensemble.HasMember(CEnsemble::JSON_TRAINED_MODELS_TAG) &&
+                ensemble[CEnsemble::JSON_TRAINED_MODELS_TAG].IsArray()) {
+                auto trainedModels =
+                    ensemble[CEnsemble::JSON_TRAINED_MODELS_TAG].GetArray();
+                auto forest = std::make_unique<TNodeVecVec>();
+                for (auto& tree : trainedModels) {
+                    TNodeVec nodes;
+                    nodes.emplace_back(); // add root
+                    for (auto& node : tree[CTree::JSON_TREE_TAG][CTree::JSON_TREE_STRUCTURE_TAG]
+                                          .GetArray()) {
+                        std::size_t nodeIndex{
+                            node[CTree::CTreeNode::JSON_NODE_INDEX_TAG].GetUint64()};
+                        std::size_t numberSamples{
+                            node[CTree::CTreeNode::JSON_NUMBER_SAMPLES_TAG].GetUint64()};
+                        if (node.HasMember(CTree::CTreeNode::JSON_LEAF_VALUE_TAG)) {
+                            // TODO this can be/is a vector
+                            maths::CBoostedTreeNode::TVector nodeValue(1);
+                            nodeValue[0] =
+                                node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].GetDouble();
+                            nodes[nodeIndex].numberSamples(numberSamples);
+                            nodes[nodeIndex].nodeValue({nodeValue});
+
+                        } else {
+                            // TODO identify correct split feature;
+                            std::size_t splitFeature{0};
+                            double gain{
+                                node[CTree::CTreeNode::JSON_SPLIT_GAIN_TAG].GetDouble()};
+                            double splitValue{
+                                node[CTree::CTreeNode::JSON_THRESHOLD_TAG].GetDouble()};
+                            bool assignMissingToLeft{
+                                node[CTree::CTreeNode::JSON_DEFAULT_LEFT_TAG].GetBool()};
+                            nodes[nodeIndex].split(splitFeature, splitValue,
+                                                   assignMissingToLeft, gain, 0.0, nodes);
+                            nodes[nodeIndex].numberSamples(numberSamples);
+                        }
+                    }
+                    forest->push_back(nodes);
+                }
+                return forest;
+            }
+        }
+    }
+    return nullptr;
+}
+
+CRetrainableModelJsonDeserializer::TModelDefinition
+CRetrainableModelJsonDeserializer::fromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream) {
+    rapidjson::IStreamWrapper isw(*istream);
+    rapidjson::Document d;
+    d.ParseStream(isw);
+    // TODO make sure it parsed without errors
+    if (d.HasMember(CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG) &&
+        d[CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG].IsObject()) {
+        auto& compressedDataSummarization =
+            d[CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG];
+        if (compressedDataSummarization.HasMember(CInferenceModelDefinition::JSON_DEFINITION_TAG) &&
+            compressedDataSummarization[CInferenceModelDefinition::JSON_DEFINITION_TAG]
+                .IsString()) {
+            std::stringstream compressedStream{
+                compressedDataSummarization[CInferenceModelDefinition::JSON_DEFINITION_TAG]
+                    .GetString()};
+            auto decompressedSPtr = std::make_shared<std::stringstream>(decompressStream(
+                std::stringstream(compressedDataSummarization[CInferenceModelDefinition::JSON_DEFINITION_TAG]
+                                      .GetString())));
+            return CRetrainableModelJsonDeserializer::forestFromJsonStream(decompressedSPtr);
+        } else {
+            LOG_ERROR(<< "Field " << CInferenceModelDefinition::JSON_DEFINITION_TAG
+                      << " not found or is not a string.");
+        }
+    } else {
+        LOG_ERROR(<< "Field " << CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG
+                  << " not found or is not an object.");
+    }
+    return nullptr;
 }
 }
 }
