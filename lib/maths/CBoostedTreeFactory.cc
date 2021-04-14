@@ -1453,9 +1453,9 @@ CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool enable) {
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization&& dataSummarization) {
+CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization dataSummarization) {
     if (dataSummarization.first) {
-        m_TreeImpl->m_DataSummarization.swap(dataSummarization.first);
+        m_TreeImpl->m_SummarizationDataFrame.swap(dataSummarization.first);
     } else {
         LOG_ERROR(<< "Trying to pass an empty data summarization to the factory. Please report this error.");
     }

@@ -411,7 +411,7 @@ private:
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
     TDataFrameCategoryEncoderUPtr m_Encoder;
-    TDataFrameUPtr m_DataSummarization;
+    TDataFrameUPtr m_SummarizationDataFrame;
     TDataTypeVec m_FeatureDataTypes;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;

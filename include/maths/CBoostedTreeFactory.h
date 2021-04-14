@@ -140,7 +140,7 @@ public:
     //! Set the flag to enable or disable early stopping.
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
 
-    CBoostedTreeFactory& dataSummarization(TDataSummarization&& dataSummarization);
+    CBoostedTreeFactory& dataSummarization(TDataSummarization dataSummarization);
     CBoostedTreeFactory& modelDefinition(TModelDefinition modelDefinition);
 
     //! Set pointer to the analysis instrumentation.
