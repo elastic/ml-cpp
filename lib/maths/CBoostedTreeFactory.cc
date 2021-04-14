@@ -1222,7 +1222,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     TLossFunctionUPtr loss,
     core::CDataSearcher& dataSearcher,
     const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
-    const TRestoreModelDefinitionFunc& modelDefinitionRestoreCallback) {
+    const TRestoreBestForestFunc& modelDefinitionRestoreCallback) {
 
     CBoostedTreeFactory factory{CBoostedTreeFactory::constructFromParameters(
         numberThreads, std::move(loss))};
@@ -1236,7 +1236,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     }
 
     // Read best forest from the stream
-    TModelDefinition forestRestored{CBoostedTreeFactory::restoreBestForest(
+    TBestForest forestRestored{CBoostedTreeFactory::restoreBestForest(
         dataSearcher, modelDefinitionRestoreCallback)};
     if (forestRestored) {
         factory.modelDefinition(std::move(forestRestored));
@@ -1469,7 +1469,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization d
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::modelDefinition(TModelDefinition modelDefinition) {
+CBoostedTreeFactory& CBoostedTreeFactory::modelDefinition(TBestForest modelDefinition) {
     if (modelDefinition) {
         m_TreeImpl->m_BestForest = std::move(*modelDefinition.release());
     } else {
@@ -1606,11 +1606,11 @@ double CBoostedTreeFactory::noopAdjustTestLoss(double, double, double testLoss) 
     return testLoss;
 }
 
-CBoostedTreeFactory::TModelDefinition
+CBoostedTreeFactory::TBestForest
 CBoostedTreeFactory::restoreBestForest(core::CDataSearcher& restoreSearcher,
-                                       const TRestoreModelDefinitionFunc& restoreCallback) {
+                                       const TRestoreBestForestFunc& restoreCallback) {
     // Restore from compressed JSON.
-    // TModelDefinition modelDefinition;
+    // TBestForest modelDefinition;
     try {
         core::CDataSearcher::TIStreamP inputStream{restoreSearcher.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {

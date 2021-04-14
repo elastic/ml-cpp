@@ -51,9 +51,9 @@ public:
     using TNode = CBoostedTreeNode;
     using TNodeVec = std::vector<TNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
-    using TModelDefinition = std::unique_ptr<TNodeVecVec>;
-    using TRestoreModelDefinitionFunc =
-        std::function<TModelDefinition(const core::CDataSearcher::TIStreamP&)>;
+    using TBestForest = std::unique_ptr<TNodeVecVec>;
+    using TRestoreBestForestFunc =
+        std::function<TBestForest(const core::CDataSearcher::TIStreamP&)>;
 
 public:
     //! \name Instrumentation Phases
@@ -79,7 +79,7 @@ public:
                             TLossFunctionUPtr loss,
                             core::CDataSearcher& dataSearcher,
                             const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
-                            const TRestoreModelDefinitionFunc& modelDefinitionRestoreCallback);
+                            const TRestoreBestForestFunc& modelDefinitionRestoreCallback);
 
     //! Get the maximum number of rows we'll train on.
     static std::size_t maximumNumberRows();
@@ -141,7 +141,7 @@ public:
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
 
     CBoostedTreeFactory& dataSummarization(TDataSummarization dataSummarization);
-    CBoostedTreeFactory& modelDefinition(TModelDefinition modelDefinition);
+    CBoostedTreeFactory& modelDefinition(TBestForest modelDefinition);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -305,8 +305,8 @@ private:
     //! Stubs out test loss adjustment.
     static double noopAdjustTestLoss(double, double, double testLoss);
 
-    static TModelDefinition restoreBestForest(core::CDataSearcher& restoreSearcher,
-                                              const TRestoreModelDefinitionFunc& restoreCallback);
+    static TBestForest restoreBestForest(core::CDataSearcher& restoreSearcher,
+                                         const TRestoreBestForestFunc& restoreCallback);
     static TDataSummarization
     restoreDataSummarization(core::CDataSearcher& restoreSearcher,
                              const TRestoreDataSummarizationFunc& restoreCallback);

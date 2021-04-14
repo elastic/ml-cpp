@@ -167,7 +167,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                             istream);
                     },
                     [](const core::CDataSearcher::TIStreamP& istream) {
-                        return CRetrainableModelJsonDeserializer::fromDocumentCompressed(istream);
+                        return CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(
+                            istream);
                     }));
         } else {
             HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");

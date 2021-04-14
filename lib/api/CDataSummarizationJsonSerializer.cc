@@ -266,24 +266,8 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
     return {std::move(frame), std::move(encoder)};
 }
 
-// using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
-
-// std::stringstream decompressStream(std::stringstream&& compressedStream) {
-//     std::stringstream decompressedStream;
-//     {
-//         TFilteredInput inFilter;
-//         inFilter.push(boost::iostreams::gzip_decompressor());
-//         inFilter.push(core::CBase64Decoder());
-//         inFilter.push(compressedStream);
-//         boost::iostreams::copy(inFilter, decompressedStream);
-//     }
-//     return decompressedStream;
-// }
-
-CRetrainableModelJsonDeserializer::TModelDefinition
-CRetrainableModelJsonDeserializer::forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
-    // LOG_DEBUG(<< "Restore model definition from json stream \n"
-    // << static_cast<std::stringstream*>(istream.get())->str());
+CRetrainableModelJsonDeserializer::TBestForest
+CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
     using TNodeVec = maths::CBoostedTreeFactory::TNodeVec;
     using TNodeVecVec = maths::CBoostedTreeFactory::TNodeVecVec;
     rapidjson::IStreamWrapper isw(*istream);
@@ -340,12 +324,12 @@ CRetrainableModelJsonDeserializer::forestFromJsonStream(const core::CDataSearche
     return nullptr;
 }
 
-CRetrainableModelJsonDeserializer::TModelDefinition
-CRetrainableModelJsonDeserializer::fromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream) {
+CRetrainableModelJsonDeserializer::TBestForest
+CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(
+    const core::CDataSearcher::TIStreamP& istream) {
     rapidjson::IStreamWrapper isw(*istream);
     rapidjson::Document d;
     d.ParseStream(isw);
-    // TODO make sure it parsed without errors
     if (d.HasMember(CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG) &&
         d[CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG].IsObject()) {
         auto& compressedDataSummarization =
@@ -359,7 +343,7 @@ CRetrainableModelJsonDeserializer::fromDocumentCompressed(const core::CDataSearc
             auto decompressedSPtr = std::make_shared<std::stringstream>(decompressStream(
                 std::stringstream(compressedDataSummarization[CInferenceModelDefinition::JSON_DEFINITION_TAG]
                                       .GetString())));
-            return CRetrainableModelJsonDeserializer::forestFromJsonStream(decompressedSPtr);
+            return CRetrainableModelJsonDeserializer::bestForestFromJsonStream(decompressedSPtr);
         } else {
             LOG_ERROR(<< "Field " << CInferenceModelDefinition::JSON_DEFINITION_TAG
                       << " not found or is not a string.");

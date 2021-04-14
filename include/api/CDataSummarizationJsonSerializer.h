@@ -50,7 +50,7 @@ private:
 class CRetrainableModelJsonDeserializer {
 public:
     using TDataSummarization = maths::CBoostedTreeFactory::TDataSummarization;
-    using TModelDefinition = maths::CBoostedTreeFactory::TModelDefinition;
+    using TBestForest = maths::CBoostedTreeFactory::TBestForest;
     using TIStreamSPtr = std::shared_ptr<std::istream>;
 
 public:
@@ -61,10 +61,12 @@ public:
     static TDataSummarization
     dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream);
 
-    static TModelDefinition forestFromJsonStream(const core::CDataSearcher::TIStreamP& istream);
+    //! \brief Retrieve best forest from decompressed JSON stream.
+    static TBestForest bestForestFromJsonStream(const core::CDataSearcher::TIStreamP& istream);
 
-    static TModelDefinition
-    fromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream);
+    //! \brief Retrieve best forest from compressed and chunked JSON blob.
+    static TBestForest
+    bestForestFromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream);
 };
 }
 }
