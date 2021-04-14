@@ -43,13 +43,11 @@ public:
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
-    using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TEncoderUPtr = std::unique_ptr<maths::CDataFrameCategoryEncoder>;
     using TDataSummarization = std::pair<TDataFrameUPtr, TEncoderUPtr>;
     using TRestoreDataSummarizationFunc =
         std::function<TDataSummarization(const core::CDataSearcher::TIStreamP&)>;
-    // TODO define
     using TNode = CBoostedTreeNode;
     using TNodeVec = std::vector<TNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
@@ -79,7 +77,7 @@ public:
     static CBoostedTreeFactory
     constructFromDefinition(std::size_t numberThreads,
                             TLossFunctionUPtr loss,
-                            TDataSearcherUPtr dataSearcher,
+                            core::CDataSearcher& dataSearcher,
                             const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
                             const TRestoreModelDefinitionFunc& modelDefinitionRestoreCallback);
 
@@ -142,9 +140,8 @@ public:
     //! Set the flag to enable or disable early stopping.
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
 
-    CBoostedTreeFactory& dataSummarization(TDataSummarization dataSummarization);
+    CBoostedTreeFactory& dataSummarization(TDataSummarization&& dataSummarization);
     CBoostedTreeFactory& modelDefinition(TModelDefinition modelDefinition);
-    CBoostedTreeFactory& bestForest();
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -308,10 +305,10 @@ private:
     //! Stubs out test loss adjustment.
     static double noopAdjustTestLoss(double, double, double testLoss);
 
-    static TModelDefinition restoreBestForest(TDataSearcherUPtr& restoreSearcher,
+    static TModelDefinition restoreBestForest(core::CDataSearcher& restoreSearcher,
                                               const TRestoreModelDefinitionFunc& restoreCallback);
     static TDataSummarization
-    restoreDataSummarization(TDataSearcherUPtr& restoreSearcher,
+    restoreDataSummarization(core::CDataSearcher& restoreSearcher,
                              const TRestoreDataSummarizationFunc& restoreCallback);
 
 private:

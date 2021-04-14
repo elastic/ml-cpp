@@ -260,15 +260,20 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                 this->spec().numberThreads(), std::move(loss)));
         break;
     case (E_Update):
-        m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
-            maths::CBoostedTreeFactory::constructFromDefinition(
-                this->spec().numberThreads(), std::move(loss), this->spec().restoreSearcher(),
-                [](const core::CDataSearcher::TIStreamP& istream) {
-                    return api::CDataSummarizationJsonSerializer::fromDocumentCompressed(istream);
-                },
-                [](const core::CDataSearcher::TIStreamP& istream) {
-                    return fromDocumentCompressed(istream);
-                }));
+        auto restoreSearcher = this->spec().restoreSearcher();
+        if (restoreSearcher) {
+            m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
+                maths::CBoostedTreeFactory::constructFromDefinition(
+                    this->spec().numberThreads(), std::move(loss), *restoreSearcher,
+                    [](const core::CDataSearcher::TIStreamP& istream) {
+                        return api::CDataSummarizationJsonSerializer::fromDocumentCompressed(istream);
+                    },
+                    [](const core::CDataSearcher::TIStreamP& istream) {
+                        return fromDocumentCompressed(istream);
+                    }));
+        } else {
+            HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");
+        }
         break;
     }
 

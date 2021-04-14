@@ -1220,7 +1220,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
 CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     std::size_t numberThreads,
     TLossFunctionUPtr loss,
-    TDataSearcherUPtr dataSearcher,
+    core::CDataSearcher& dataSearcher,
     const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
     const TRestoreModelDefinitionFunc& modelDefinitionRestoreCallback) {
 
@@ -1453,14 +1453,29 @@ CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool enable) {
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization dataSummarization) {
-    m_TreeImpl->m_DataSummarization.swap(dataSummarization.first);
-    m_TreeImpl->m_Encoder.swap(dataSummarization.second);
+CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization&& dataSummarization) {
+    if (dataSummarization.first) {
+        m_TreeImpl->m_DataSummarization.swap(dataSummarization.first);
+    } else {
+        LOG_ERROR(<< "Trying to pass an empty data summarization to the factory. Please report this error.");
+    }
+
+    if (dataSummarization.second) {
+        m_TreeImpl->m_Encoder.swap(dataSummarization.second);
+    } else {
+        LOG_ERROR(<< "Trying to pass an empty encoder list to the factory. Please report this error.");
+    }
+
     return *this;
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::modelDefinition(TModelDefinition modelDefinition) {
-    m_TreeImpl->m_BestForest = *modelDefinition;
+    if (modelDefinition) {
+        m_TreeImpl->m_BestForest = std::move(*modelDefinition.release());
+    } else {
+        LOG_ERROR(<< "Trying to pass an empty model definition to the factory. Please report this error.");
+    }
+
     return *this;
 }
 
@@ -1592,13 +1607,12 @@ double CBoostedTreeFactory::noopAdjustTestLoss(double, double, double testLoss) 
 }
 
 CBoostedTreeFactory::TModelDefinition
-CBoostedTreeFactory::restoreBestForest(TDataSearcherUPtr& restoreSearcher,
+CBoostedTreeFactory::restoreBestForest(core::CDataSearcher& restoreSearcher,
                                        const TRestoreModelDefinitionFunc& restoreCallback) {
     // Restore from compressed JSON.
     // TModelDefinition modelDefinition;
     try {
-        // core::CStateDecompressor decompressor(*restoreSearcher);
-        core::CDataSearcher::TIStreamP inputStream{restoreSearcher->search(1, 1)}; // search arguments are ignored
+        core::CDataSearcher::TIStreamP inputStream{restoreSearcher.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
             return nullptr;
@@ -1623,17 +1637,11 @@ CBoostedTreeFactory::restoreBestForest(TDataSearcherUPtr& restoreSearcher,
 }
 
 CBoostedTreeFactory::TDataSummarization
-CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSearcher,
+CBoostedTreeFactory::restoreDataSummarization(core::CDataSearcher& restoreSearcher,
                                               const TRestoreDataSummarizationFunc& restoreCallback) {
     // Restore from compressed JSON.
     try {
-        // core::CStateDecompressor decompressor(*restoreSearcher);
-        if (!restoreSearcher) {
-            LOG_ERROR(<< "Empty restore searcher");
-            return {nullptr, nullptr};
-        }
-        core::CDataSearcher::TIStreamP inputStream{restoreSearcher->search(1, 1)}; // search arguments are ignored
-        // LOG_DEBUG(<< "input stream initiated");
+        core::CDataSearcher::TIStreamP inputStream{restoreSearcher.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
             return {nullptr, nullptr};
@@ -1649,7 +1657,6 @@ CBoostedTreeFactory::restoreDataSummarization(TDataSearcherUPtr& restoreSearcher
             LOG_ERROR(<< "State restoration search returned failed stream");
             return {nullptr, nullptr};
         }
-        // LOG_DEBUG(<< "restoreDataSummarization input stream " << static_cast<std::stringstream*>(inputStream.get())->str());
         return restoreCallback(inputStream);
 
     } catch (std::exception& e) {

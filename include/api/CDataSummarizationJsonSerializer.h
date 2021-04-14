@@ -23,12 +23,12 @@ class CDataFrame;
 }
 namespace api {
 
-//! \brief Class generates a compressed and chunked JSON blob that contains
-//! selected data frame rows.
+//! \brief Class serializes and deserializes data summarization using chunked JSON blob.
+//! Data summarization contains data rows as well as categorical encoding information.
+// TODO #1849 chunking is not supported yet.
 class API_EXPORT CDataSummarizationJsonSerializer final
     : public CSerializableToJsonDocumentCompressed {
 public:
-    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
     using TIStreamSPtr = std::shared_ptr<std::istream>;
     using TDataSummarization = maths::CBoostedTreeFactory::TDataSummarization;
 
@@ -45,7 +45,10 @@ public:
     void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
     std::string jsonString() const;
 
+    //! \brief Retrieve data summarization from decompressed JSON stream.
     static TDataSummarization fromJsonStream(const TIStreamSPtr& istream);
+
+    //! \brief Retrieve data summarization from compressed and chunked JSON blob.
     static TDataSummarization fromDocumentCompressed(const TIStreamSPtr& istream);
 
 private:

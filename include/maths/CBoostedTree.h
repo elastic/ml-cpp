@@ -114,6 +114,7 @@ public:
     //! Set the number of samples to \p value.
     void numberSamples(std::size_t value);
 
+    //! Set the node value to \p nodeValue.
     void nodeValue(TVector nodeValue);
 
     //! Get number of samples affected by the node.
@@ -245,7 +246,7 @@ public:
 
     //! Get the selected rows that summarize \p dataFrame.
     core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame,
-                                             TTrainingStateCallback callback) const override;
+                                             const TRecordEncodersCallback& callback) const override;
 
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;

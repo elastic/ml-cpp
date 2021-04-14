@@ -67,7 +67,7 @@ public:
     using TLossFunction = boosted_tree::CLoss;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
-    using TRecordEncodersCallback = CBoostedTree::TTrainingStateCallback;
+    using TRecordEncodersCallback = CBoostedTree::TRecordEncodersCallback;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
     using THyperparameterImportanceVec =
