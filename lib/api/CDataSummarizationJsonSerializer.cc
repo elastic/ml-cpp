@@ -96,11 +96,15 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
     }
     writer.EndArray();
 
-    writer.Key(JSON_ENCODINGS_TAG);
-    rapidjson::Document d;
-    d.Parse(m_Encodings.str());
-    // TODO check if parsing was successful
-    writer.write(d);
+    rapidjson::Document doc;
+    doc.Parse(m_Encodings.str());
+    rapidjson::ParseResult ok(doc.Parse(m_Encodings.str()));
+    if (static_cast<bool>(ok) == false) {
+        LOG_ERROR(<< "Failed parsing encoding json. Please report this error.");
+    } else {
+        writer.Key(JSON_ENCODINGS_TAG);
+        writer.write(doc);
+    }
 
     writer.Key(JSON_CATEGORICAL_COLUMN_VALUES_TAG);
     writer.StartArray();
@@ -138,11 +142,11 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
 CRetrainableModelJsonDeserializer::TDataSummarization
 CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream) {
     rapidjson::IStreamWrapper isw(*istream);
-    rapidjson::Document d;
-    d.ParseStream(isw);
-    if (d.HasMember(JSON_COMPRESSED_DATA_SUMMARIZATION_TAG) &&
-        d[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG].IsObject()) {
-        auto& compressedDataSummarization = d[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG];
+    rapidjson::Document doc;
+    doc.ParseStream(isw);
+    if (doc.HasMember(JSON_COMPRESSED_DATA_SUMMARIZATION_TAG) &&
+        doc[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG].IsObject()) {
+        auto& compressedDataSummarization = doc[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG];
         if (compressedDataSummarization.HasMember(JSON_DATA_SUMMARIZATION_TAG) &&
             compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].IsString()) {
             std::stringstream compressedStream{
@@ -177,10 +181,10 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
     TEncoderUPtr encoder;
 
     rapidjson::IStreamWrapper isw(*istream);
-    rapidjson::Document d;
-    d.ParseStream(isw);
-    if (d.HasMember(JSON_NUM_COLUMNS_TAG) && d[JSON_NUM_COLUMNS_TAG].IsUint64()) {
-        numColumns = d[JSON_NUM_COLUMNS_TAG].GetUint64();
+    rapidjson::Document doc;
+    doc.ParseStream(isw);
+    if (doc.HasMember(JSON_NUM_COLUMNS_TAG) && doc[JSON_NUM_COLUMNS_TAG].IsUint64()) {
+        numColumns = doc[JSON_NUM_COLUMNS_TAG].GetUint64();
         columnNames.reserve(numColumns);
         columnIsCategorical.reserve(numColumns);
         categoricalColumnValues.resize(numColumns, {});
@@ -190,8 +194,8 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         return {nullptr, nullptr};
     }
 
-    if (d.HasMember(JSON_COLUMN_NAMES_TAG) && d[JSON_COLUMN_NAMES_TAG].IsArray()) {
-        for (auto& item : d[JSON_COLUMN_NAMES_TAG].GetArray()) {
+    if (doc.HasMember(JSON_COLUMN_NAMES_TAG) && doc[JSON_COLUMN_NAMES_TAG].IsArray()) {
+        for (auto& item : doc[JSON_COLUMN_NAMES_TAG].GetArray()) {
             columnNames.push_back(item.GetString());
         }
     } else {
@@ -200,9 +204,9 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         return {nullptr, nullptr};
     }
 
-    if (d.HasMember(JSON_COLUMN_IS_CATEGORICAL_TAG) &&
-        d[JSON_COLUMN_IS_CATEGORICAL_TAG].IsArray()) {
-        for (auto& item : d[JSON_COLUMN_IS_CATEGORICAL_TAG].GetArray()) {
+    if (doc.HasMember(JSON_COLUMN_IS_CATEGORICAL_TAG) &&
+        doc[JSON_COLUMN_IS_CATEGORICAL_TAG].IsArray()) {
+        for (auto& item : doc[JSON_COLUMN_IS_CATEGORICAL_TAG].GetArray()) {
             columnIsCategorical.push_back(item.GetBool());
         }
     } else {
@@ -210,10 +214,10 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
                   << "'  is missing or has an unexpected format.");
         return {nullptr, nullptr};
     }
-    if (d.HasMember(JSON_CATEGORICAL_COLUMN_VALUES_TAG) &&
-        d[JSON_CATEGORICAL_COLUMN_VALUES_TAG].IsArray()) {
+    if (doc.HasMember(JSON_CATEGORICAL_COLUMN_VALUES_TAG) &&
+        doc[JSON_CATEGORICAL_COLUMN_VALUES_TAG].IsArray()) {
         std::size_t i{0};
-        for (auto& item : d[JSON_CATEGORICAL_COLUMN_VALUES_TAG].GetArray()) {
+        for (auto& item : doc[JSON_CATEGORICAL_COLUMN_VALUES_TAG].GetArray()) {
             for (auto& categoricalValue : item.GetArray()) {
                 categoricalColumnValues[i].push_back(categoricalValue.GetString());
             }
@@ -225,13 +229,13 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         return {nullptr, nullptr};
     }
 
-    if (d.HasMember(JSON_ENCODINGS_TAG) && d[JSON_ENCODINGS_TAG].IsObject()) {
+    if (doc.HasMember(JSON_ENCODINGS_TAG) && doc[JSON_ENCODINGS_TAG].IsObject()) {
         std::stringstream jsonStrm;
         rapidjson::OStreamWrapper wrapper{jsonStrm};
         CDataSummarizationJsonSerializer::TGenericLineWriter writer{wrapper};
         writer.StartObject();
         writer.Key(JSON_ENCODINGS_TAG);
-        writer.write(d[JSON_ENCODINGS_TAG].GetObject());
+        writer.write(doc[JSON_ENCODINGS_TAG].GetObject());
         writer.EndObject();
         core::CJsonStateRestoreTraverser traverser(jsonStrm);
         encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(traverser);
@@ -241,7 +245,7 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         return {nullptr, nullptr};
     }
 
-    if (d.HasMember(JSON_DATA_TAG) && d[JSON_DATA_TAG].IsArray()) {
+    if (doc.HasMember(JSON_DATA_TAG) && doc[JSON_DATA_TAG].IsArray()) {
         frame = core::makeMainStorageDataFrame(numColumns).first;
         frame->columnNames(columnNames);
         frame->categoricalColumns(columnIsCategorical);
@@ -249,7 +253,7 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         TStrVec rowVec;
         rowVec.reserve(numColumns);
 
-        for (auto& row : d[JSON_DATA_TAG].GetArray()) {
+        for (auto& row : doc[JSON_DATA_TAG].GetArray()) {
             for (auto& item : row.GetArray()) {
                 rowVec.push_back(item.GetString());
             }
@@ -294,7 +298,7 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
                         std::size_t numberSamples{
                             node[CTree::CTreeNode::JSON_NUMBER_SAMPLES_TAG].GetUint64()};
                         if (node.HasMember(CTree::CTreeNode::JSON_LEAF_VALUE_TAG)) {
-                            // TODO this can be/is a vector
+                            // TODO #1851 this can be/is a vector
                             maths::CBoostedTreeNode::TVector nodeValue(1);
                             nodeValue[0] =
                                 node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].GetDouble();
@@ -302,7 +306,7 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
                             nodes[nodeIndex].nodeValue({nodeValue});
 
                         } else {
-                            // TODO identify correct split feature;
+                            // TODO #1852 identify correct split feature;
                             std::size_t splitFeature{0};
                             double gain{
                                 node[CTree::CTreeNode::JSON_SPLIT_GAIN_TAG].GetDouble()};

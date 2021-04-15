@@ -2013,7 +2013,6 @@ CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame,
     recordEncoders([this](core::CStatePersistInserter& inserter) {
         this->m_Encoder->acceptPersistInserter(inserter);
     });
-    // m_Encoder->numberInputColumns()
     return rowMask;
 }
 

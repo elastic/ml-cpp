@@ -79,7 +79,7 @@ public:
                             TLossFunctionUPtr loss,
                             core::CDataSearcher& dataSearcher,
                             const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
-                            const TRestoreBestForestFunc& modelDefinitionRestoreCallback);
+                            const TRestoreBestForestFunc& bestForestRestoreCallback);
 
     //! Get the maximum number of rows we'll train on.
     static std::size_t maximumNumberRows();
@@ -139,9 +139,10 @@ public:
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
-
+    //! Set the data summarization information.
     CBoostedTreeFactory& dataSummarization(TDataSummarization dataSummarization);
-    CBoostedTreeFactory& modelDefinition(TBestForest modelDefinition);
+    //! Set the best forest from the previous training.
+    CBoostedTreeFactory& bestForest(TBestForest modelDefinition);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -305,11 +306,9 @@ private:
     //! Stubs out test loss adjustment.
     static double noopAdjustTestLoss(double, double, double testLoss);
 
-    static TBestForest restoreBestForest(core::CDataSearcher& restoreSearcher,
-                                         const TRestoreBestForestFunc& restoreCallback);
-    static TDataSummarization
-    restoreDataSummarization(core::CDataSearcher& restoreSearcher,
-                             const TRestoreDataSummarizationFunc& restoreCallback);
+    template<typename Callback>
+    static auto restoreTrainedModel(core::CDataSearcher& restoreSearcher,
+                                    const Callback& restoreCallback);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;

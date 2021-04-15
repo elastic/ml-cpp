@@ -6,11 +6,9 @@
 
 #include <maths/CBoostedTreeFactory.h>
 
-#include <core/CDataSearcher.h>
 #include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPersistUtils.h>
-#include <core/CStateDecompressor.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
@@ -1217,17 +1215,47 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
     return result;
 }
 
+template<typename Callback>
+auto CBoostedTreeFactory::restoreTrainedModel(core::CDataSearcher& restoreSearcher,
+                                              const Callback& restoreCallback) {
+    // Restore from compressed JSON.
+    try {
+        core::CDataSearcher::TIStreamP inputStream{restoreSearcher.search(1, 1)}; // search arguments are ignored
+        if (inputStream == nullptr) {
+            LOG_ERROR(<< "Unable to connect to data store");
+            return decltype(restoreCallback(inputStream))();
+        }
+
+        if (inputStream->bad()) {
+            LOG_ERROR(<< "State restoration search returned bad stream");
+            return decltype(restoreCallback(inputStream))();
+        }
+
+        if (inputStream->fail()) {
+            // This is fatal. If the stream exists and has failed then state is missing
+            LOG_ERROR(<< "State restoration search returned failed stream");
+            return decltype(restoreCallback(inputStream))();
+        }
+        return restoreCallback(inputStream);
+
+    } catch (std::exception& e) {
+        LOG_ERROR(<< "Failed to restore state! " << e.what());
+    }
+    return decltype(restoreCallback(core::CDataSearcher::TIStreamP()))();
+}
+
 CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     std::size_t numberThreads,
     TLossFunctionUPtr loss,
     core::CDataSearcher& dataSearcher,
     const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
-    const TRestoreBestForestFunc& modelDefinitionRestoreCallback) {
+    const TRestoreBestForestFunc& bestForestRestoreCallback) {
 
     CBoostedTreeFactory factory{CBoostedTreeFactory::constructFromParameters(
         numberThreads, std::move(loss))};
+
     // Read data summarization from the stream
-    TDataSummarization dataSummarization{CBoostedTreeFactory::restoreDataSummarization(
+    TDataSummarization dataSummarization{CBoostedTreeFactory::restoreTrainedModel(
         dataSearcher, dataSummarizationRestoreCallback)};
     if (dataSummarization.first) {
         factory.dataSummarization(std::move(dataSummarization));
@@ -1236,10 +1264,10 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     }
 
     // Read best forest from the stream
-    TBestForest forestRestored{CBoostedTreeFactory::restoreBestForest(
-        dataSearcher, modelDefinitionRestoreCallback)};
-    if (forestRestored) {
-        factory.modelDefinition(std::move(forestRestored));
+    TBestForest bestForestRestored{CBoostedTreeFactory::restoreTrainedModel(
+        dataSearcher, bestForestRestoreCallback)};
+    if (bestForestRestored) {
+        factory.bestForest(std::move(bestForestRestored));
     } else {
         HANDLE_FATAL(<< "Failed restoring best forest from the model definition.");
     }
@@ -1469,7 +1497,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization d
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::modelDefinition(TBestForest modelDefinition) {
+CBoostedTreeFactory& CBoostedTreeFactory::bestForest(TBestForest modelDefinition) {
     if (modelDefinition) {
         m_TreeImpl->m_BestForest = std::move(*modelDefinition.release());
     } else {
@@ -1604,65 +1632,6 @@ void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
 
 double CBoostedTreeFactory::noopAdjustTestLoss(double, double, double testLoss) {
     return testLoss;
-}
-
-CBoostedTreeFactory::TBestForest
-CBoostedTreeFactory::restoreBestForest(core::CDataSearcher& restoreSearcher,
-                                       const TRestoreBestForestFunc& restoreCallback) {
-    // Restore from compressed JSON.
-    // TBestForest modelDefinition;
-    try {
-        core::CDataSearcher::TIStreamP inputStream{restoreSearcher.search(1, 1)}; // search arguments are ignored
-        if (inputStream == nullptr) {
-            LOG_ERROR(<< "Unable to connect to data store");
-            return nullptr;
-        }
-
-        if (inputStream->bad()) {
-            LOG_ERROR(<< "State restoration search returned bad stream");
-            return nullptr;
-        }
-
-        if (inputStream->fail()) {
-            // This is fatal. If the stream exists and has failed then state is missing
-            LOG_ERROR(<< "State restoration search returned failed stream");
-            return nullptr;
-        }
-        return restoreCallback(inputStream);
-
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-    }
-    return nullptr;
-}
-
-CBoostedTreeFactory::TDataSummarization
-CBoostedTreeFactory::restoreDataSummarization(core::CDataSearcher& restoreSearcher,
-                                              const TRestoreDataSummarizationFunc& restoreCallback) {
-    // Restore from compressed JSON.
-    try {
-        core::CDataSearcher::TIStreamP inputStream{restoreSearcher.search(1, 1)}; // search arguments are ignored
-        if (inputStream == nullptr) {
-            LOG_ERROR(<< "Unable to connect to data store");
-            return {nullptr, nullptr};
-        }
-
-        if (inputStream->bad()) {
-            LOG_ERROR(<< "State restoration search returned bad stream");
-            return {nullptr, nullptr};
-        }
-
-        if (inputStream->fail()) {
-            // This is fatal. If the stream exists and has failed then state is missing
-            LOG_ERROR(<< "State restoration search returned failed stream");
-            return {nullptr, nullptr};
-        }
-        return restoreCallback(inputStream);
-
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-    }
-    return {nullptr, nullptr};
 }
 
 namespace {

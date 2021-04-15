@@ -615,7 +615,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining,
                      *boost::unit_test::disabled()) {
     auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
                         TPersisterSupplier* persisterSupplier,
-                        TRestoreSearcherSupplier* restorerSupplier) {
+                        TRestoreSearcherSupplier* restorerSupplier,
+                        test::CDataFrameAnalysisSpecificationFactory::TTask task) {
         test::CDataFrameAnalysisSpecificationFactory specFactory;
         return specFactory.rows(numberExamples)
             .memoryLimit(15000000)
@@ -624,23 +625,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining,
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
             .earlyStoppingEnabled(false)
-            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-                            dependentVariable);
-    };
-
-    auto makeSpecIncremental = [&](const std::string& dependentVariable,
-                                   std::size_t numberExamples,
-                                   TPersisterSupplier* persisterSupplier,
-                                   TRestoreSearcherSupplier* restorerSupplier) {
-        test::CDataFrameAnalysisSpecificationFactory specFactory;
-        return specFactory.rows(numberExamples)
-            .memoryLimit(15000000)
-            .predictionMaximumNumberTrees(10)
-            .predictionPersisterSupplier(persisterSupplier)
-            .predictionRestoreSearcherSupplier(restorerSupplier)
-            .regressionLossFunction(TLossFunctionType::E_MseRegression)
-            .earlyStoppingEnabled(false)
-            .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Update)
+            .task(task)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                             dependentVariable);
     };
@@ -660,9 +645,9 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining,
     test::CRandomNumbers rng;
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
     api::CDataFrameAnalyzer analyzer{
-        makeSpec("target", numberExamples, nullptr, nullptr), outputWriterFactory};
-    // std::size_t dependentVariable(std::find(fieldNames.begin(), fieldNames.end(), "target") -
-    //                               fieldNames.begin());
+        makeSpec("target", numberExamples, nullptr, nullptr,
+                 test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train),
+        outputWriterFactory};
     TStrVec targets;
 
     // Avoid negative targets for MSLE.
@@ -672,8 +657,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining,
     auto frame = test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
         fieldNames, fieldValues, analyzer, weights, regressors, targets, targetTransformer);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-    // LOG_INFO(<<outputStream.str());
 
+    // retrieve documents from the result stream that will be used to restore the model
     std::stringstream inferenceModelStream;
     rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
     core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
@@ -684,7 +669,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining,
     core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
         dataSummarizationStreamWrapper};
 
-    // retrieve model definition and data summarization
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(outputStream.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -698,26 +682,29 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionIncrementalTraining,
             LOG_DEBUG(<< "Data summarization found");
         }
     }
+    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
 
     // pass model definition and data summarization into the restore stream
-    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
     auto restoreStreamPtr =
         std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
     TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
         return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
     }};
 
-    // LOG_DEBUG(<< "restorerSupplier " << static_cast<std::stringstream*>(restorerSupplier()->search(1,1).get())->str());
-
     // create a new spec for incremental training
-    // create new analyzer and run incremental training
     outputStream.clear();
     outputStream.str("");
-    auto spec = makeSpecIncremental("target", numberExamples, nullptr, &restorerSupplier);
-    api::CDataFrameAnalyzer newAnalyzer{std::move(spec), outputWriterFactory};
+    // create new analyzer and run incremental training
+    api::CDataFrameAnalyzer analyzerIncremental{
+        makeSpec("target", numberExamples, nullptr, &restorerSupplier,
+                 test::CDataFrameAnalysisSpecificationFactory::TTask::E_Update),
+        outputWriterFactory};
     auto newFrame = test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
-        fieldNames, fieldValues, newAnalyzer, weights, regressors, targets, targetTransformer);
-    newAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+        fieldNames, fieldValues, analyzerIncremental, weights, regressors,
+        targets, targetTransformer);
+    analyzerIncremental.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    // TODO add checks once the incremental training is wired in.
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {

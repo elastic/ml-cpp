@@ -6,17 +6,13 @@
 
 #include <core/CDataFrame.h>
 
-#include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeImpl.h>
-#include <maths/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CSingleStreamSearcher.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
-
-#include <rapidjson/document.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -61,22 +57,18 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
 }
 
 BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, *utf::tolerance(0.000001)) {
-    // get restore string stream
-    std::string filename{"testfiles/summary_definition.json"};
+    // This test checks correct initialization of data summarization and the best forest for
+    // incremental training.
+
+    std::string filename{"testfiles/restore_incremental_model.json"};
     std::ifstream file{filename};
     if (file) {
-
-        // TODO refactor this part
-        std::stringstream dataSummaryModelDefinition;
-        std::string buff;
-        std::getline(file, buff);
-        dataSummaryModelDefinition << buff << '\0';
-        std::getline(file, buff);
-        dataSummaryModelDefinition << buff << '\0';
+        // get restore string stream
+        std::stringstream restoreStream;
+        restoreStream << file.rdbuf();
         file.close();
 
-        auto restoreStreamPtr = std::make_shared<std::stringstream>(
-            std::move(dataSummaryModelDefinition));
+        auto restoreStreamPtr = std::make_shared<std::stringstream>(std::move(restoreStream));
         TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
             return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
         }};
@@ -94,10 +86,10 @@ BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, *utf::tolerance(0.00000
                                 "target");
         auto* runner = static_cast<api::CDataFrameTrainBoostedTreeRegressionRunner*>(
             spec->runner());
-        const auto& boostedTreeFactory =
+        const auto& boostedTreeImpl =
             static_cast<const api::CDataFrameTrainBoostedTreeRegressionRunner&>(*runner)
-                .boostedTreeFactory();
-        const auto& boostedTreeImpl = boostedTreeFactory.boostedTreeImpl();
+                .boostedTreeFactory()
+                .boostedTreeImpl();
         // // check that all trees restored
         BOOST_REQUIRE_EQUAL(boostedTreeImpl.trainedModel().size(), 8);
         // // check that all encoders restored

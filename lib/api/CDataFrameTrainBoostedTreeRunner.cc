@@ -158,18 +158,18 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         break;
     case (E_Update):
         auto restoreSearcher = this->spec().restoreSearcher();
+        auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& istream) {
+            return api::CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
+                istream);
+        };
+        auto bestForestRestorer = [](const core::CDataSearcher::TIStreamP& istream) {
+            return CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(istream);
+        };
         if (restoreSearcher) {
             m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
                 maths::CBoostedTreeFactory::constructFromDefinition(
                     this->spec().numberThreads(), std::move(loss), *restoreSearcher,
-                    [](const core::CDataSearcher::TIStreamP& istream) {
-                        return api::CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
-                            istream);
-                    },
-                    [](const core::CDataSearcher::TIStreamP& istream) {
-                        return CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(
-                            istream);
-                    }));
+                    dataSummarizationRestorer, bestForestRestorer));
         } else {
             HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");
         }
