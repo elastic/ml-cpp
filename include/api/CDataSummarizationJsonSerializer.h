@@ -47,7 +47,7 @@ private:
     std::stringstream m_Encodings;
 };
 
-class CRetrainableModelJsonDeserializer {
+class API_EXPORT CRetrainableModelJsonDeserializer {
 public:
     using TDataSummarization = maths::CBoostedTreeFactory::TDataSummarization;
     using TBestForest = maths::CBoostedTreeFactory::TBestForest;

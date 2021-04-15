@@ -29,7 +29,7 @@
 #include <sstream>
 #include <string>
 
-BOOST_AUTO_TEST_SUITE(CDataSummarizationTest)
+BOOST_AUTO_TEST_SUITE(CDataSummarizationJsonSerializerTest)
 
 using namespace ml;
 
