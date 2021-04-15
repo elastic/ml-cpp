@@ -6,11 +6,13 @@
 
 #include <api/CDataSummarizationJsonSerializer.h>
 
+#include <c++/7/bits/c++config.h>
 #include <core/CBase64Filter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/Constants.h>
 
+#include <cstdint>
 #include <maths/CDataFrameCategoryEncoder.h>
 
 #include <api/CInferenceModelDefinition.h>
@@ -23,6 +25,7 @@
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include <memory>
+#include <rapidjson/rapidjson.h>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -297,13 +300,26 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
                             node[CTree::CTreeNode::JSON_NODE_INDEX_TAG].GetUint64()};
                         std::size_t numberSamples{
                             node[CTree::CTreeNode::JSON_NUMBER_SAMPLES_TAG].GetUint64()};
+                        nodes[nodeIndex].numberSamples(numberSamples);
+
                         if (node.HasMember(CTree::CTreeNode::JSON_LEAF_VALUE_TAG)) {
-                            // TODO #1851 this can be/is a vector
-                            maths::CBoostedTreeNode::TVector nodeValue(1);
-                            nodeValue[0] =
-                                node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].GetDouble();
-                            nodes[nodeIndex].numberSamples(numberSamples);
-                            nodes[nodeIndex].nodeValue({nodeValue});
+                            if (node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].IsArray()) {
+                                auto leafValueArray =
+                                    node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].GetArray();
+                                maths::CBoostedTreeNode::TVector nodeValue(
+                                    leafValueArray.Size());
+                                for (rapidjson::SizeType i = 0;
+                                     i < leafValueArray.Size(); ++i) {
+                                    nodeValue[static_cast<long>(i)] =
+                                        leafValueArray[i].GetDouble();
+                                }
+                                nodes[nodeIndex].nodeValue({nodeValue});
+                            } else {
+                                maths::CBoostedTreeNode::TVector nodeValue(1);
+                                nodeValue[0] =
+                                    node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].GetDouble();
+                                nodes[nodeIndex].nodeValue({nodeValue});
+                            }
 
                         } else {
                             std::size_t splitFeature{
