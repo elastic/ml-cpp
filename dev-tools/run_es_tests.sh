@@ -20,7 +20,7 @@
 set -e
 
 
-if ["$PR_TARGET_BRANCH" = "feature/incremental-learning"]; then
+if [ "$PR_TARGET_BRANCH" == "feature/incremental-learning" ]; then
     exit 0
 fi
 

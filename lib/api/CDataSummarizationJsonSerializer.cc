@@ -306,8 +306,8 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
                             nodes[nodeIndex].nodeValue({nodeValue});
 
                         } else {
-                            // TODO #1852 identify correct split feature;
-                            std::size_t splitFeature{0};
+                            std::size_t splitFeature{
+                                node[CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG].GetUint64()};
                             double gain{
                                 node[CTree::CTreeNode::JSON_SPLIT_GAIN_TAG].GetDouble()};
                             double splitValue{
