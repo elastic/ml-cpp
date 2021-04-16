@@ -63,6 +63,11 @@ public:
     //! \warning Throws runtime error on fail to restore.
     static CBoostedTreeFactory constructFromString(std::istream& jsonStream);
 
+    //! Construct from the supplied \p tree.
+    //!
+    //! \note This can be used for preparing for incremental training.
+    static CBoostedTreeFactory constructFromTree(TBoostedTreeUPtr tree);
+
     //! Get the maximum number of rows we'll train on.
     static std::size_t maximumNumberRows();
 
@@ -155,10 +160,8 @@ public:
     //! Build a boosted tree object for training on \p frame.
     TBoostedTreeUPtr buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable);
 
-    //! Build a boosted tree object for incremental training \p tree on \p frame.
-    //!
-    //! \warning Takes ownership of \p tree.
-    TBoostedTreeUPtr buildForTrainIncremental(core::CDataFrame& frame, TBoostedTreeUPtr tree);
+    //! Build a boosted tree object for incremental training on \p frame.
+    TBoostedTreeUPtr buildForTrainIncremental(core::CDataFrame& frame);
 
     //! Restore a boosted tree object for training on \p frame.
     //!
@@ -191,9 +194,6 @@ private:
 
     //! Set up the number of folds we'll use for cross-validation.
     void initializeNumberFolds(core::CDataFrame& frame) const;
-
-    //! Copy all parameter overrides from \p treeImpl.
-    void copyParameterOverrides(const CBoostedTreeImpl& treeImpl) const;
 
     //! Resize the data frame with the extra columns used by train.
     void prepareDataFrameForTrain(core::CDataFrame& frame) const;

@@ -135,15 +135,10 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame, TBoostedTreeUPtr tree) {
+CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame) {
 
-    std::swap(m_TreeImpl, tree->m_Impl);
     m_TreeImpl->m_IncrementalTraining = true;
 
-    // All overrides are applied to m_TreeImpl stored on the factory so we must
-    // make sure these are copied to the supplied boosted tree implementation.
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->copyParameterOverrides(*tree->m_Impl); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeNumberFolds(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
@@ -161,10 +156,13 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame, TBoostedT
     this->initializeHyperparameters(frame);
     this->initializeHyperparameterOptimisation();
 
-    std::swap(m_TreeImpl, tree->m_Impl);
-    m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
+                                                       m_TreeImpl->m_Loss->clone());
+    std::swap(m_TreeImpl, treeImpl);
+    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
 
-    return tree;
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
@@ -373,46 +371,6 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
     } else {
         m_TreeImpl->m_NumberFolds = *m_TreeImpl->m_NumberFoldsOverride;
     }
-}
-
-void CBoostedTreeFactory::copyParameterOverrides(const CBoostedTreeImpl& treeImpl) const {
-
-    m_TreeImpl->m_NewTrainingRowMask = treeImpl.m_NewTrainingRowMask;
-    m_TreeImpl->m_RetrainFraction = treeImpl.m_RetrainFraction;
-    m_TreeImpl->m_NumberRounds = treeImpl.m_NumberRounds;
-    m_TreeImpl->m_DownsampleFactorOverride = treeImpl.m_DownsampleFactorOverride;
-    m_TreeImpl->m_DownsampleFactor =
-        m_TreeImpl->m_DownsampleFactorOverride.value_or(m_TreeImpl->m_DownsampleFactor);
-    m_TreeImpl->m_EtaOverride = treeImpl.m_EtaOverride;
-    m_TreeImpl->m_Eta = m_TreeImpl->m_EtaOverride.value_or(m_TreeImpl->m_Eta);
-    m_TreeImpl->m_EtaGrowthRatePerTreeOverride = treeImpl.m_EtaGrowthRatePerTreeOverride;
-    m_TreeImpl->m_EtaGrowthRatePerTree =
-        m_TreeImpl->m_EtaGrowthRatePerTreeOverride.value_or(m_TreeImpl->m_EtaGrowthRatePerTree);
-    m_TreeImpl->m_NumberFoldsOverride = treeImpl.m_NumberFoldsOverride;
-    m_TreeImpl->m_FeatureBagFractionOverride = treeImpl.m_FeatureBagFractionOverride;
-    m_TreeImpl->m_FeatureBagFraction =
-        m_TreeImpl->m_FeatureBagFractionOverride.value_or(m_TreeImpl->m_FeatureBagFraction);
-    m_TreeImpl->m_ClassAssignmentObjective = treeImpl.m_ClassAssignmentObjective;
-    m_TreeImpl->m_ClassificationWeightsOverride = treeImpl.m_ClassificationWeightsOverride;
-    m_TreeImpl->m_PredictionChangeCostOverride = treeImpl.m_PredictionChangeCostOverride;
-    m_TreeImpl->m_RegularizationOverride = treeImpl.m_RegularizationOverride;
-    m_TreeImpl->m_Regularization.depthPenaltyMultiplier(
-        m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier().value_or(
-            m_TreeImpl->m_Regularization.depthPenaltyMultiplier()));
-    m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier(
-        m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier().value_or(
-            m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier()));
-    m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier(
-        m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier().value_or(
-            m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier()));
-    m_TreeImpl->m_Regularization.softTreeDepthLimit(
-        m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit().value_or(
-            m_TreeImpl->m_Regularization.softTreeDepthLimit()));
-    m_TreeImpl->m_Regularization.softTreeDepthTolerance(
-        m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(
-            m_TreeImpl->m_Regularization.softTreeDepthTolerance()));
-    m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty().value_or(
-        m_TreeImpl->m_Regularization.treeTopologyChangePenalty());
 }
 
 void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) const {
@@ -1379,6 +1337,12 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
     } catch (const std::exception& e) {
         throw std::runtime_error{std::string{"Input error: '"} + e.what() + "'"};
     }
+    return result;
+}
+
+CBoostedTreeFactory CBoostedTreeFactory::constructFromTree(TBoostedTreeUPtr tree) {
+    CBoostedTreeFactory result{1, nullptr};
+    result.m_TreeImpl = std::move(tree->m_Impl);
     return result;
 }
 

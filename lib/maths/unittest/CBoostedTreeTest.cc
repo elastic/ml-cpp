@@ -694,24 +694,8 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
     core::CPackedBitVector newTrainingRowMask(rows, false);
     newTrainingRowMask.extend(true, extraTrainingRows);
 
-    const auto& bestHyperparameters = regression->bestHyperparameters();
-
-    regression =
-        maths::CBoostedTreeFactory::constructFromParameters(
-            1, std::make_unique<maths::boosted_tree::CMse>())
-            .depthPenaltyMultiplier(bestHyperparameters.regularization().depthPenaltyMultiplier())
-            .leafWeightPenaltyMultiplier(
-                bestHyperparameters.regularization().leafWeightPenaltyMultiplier())
-            .softTreeDepthLimit(bestHyperparameters.regularization().softTreeDepthLimit())
-            .softTreeDepthTolerance(bestHyperparameters.regularization().softTreeDepthTolerance())
-            .treeSizePenaltyMultiplier(
-                bestHyperparameters.regularization().treeSizePenaltyMultiplier())
-            .downsampleFactor(bestHyperparameters.downsampleFactor())
-            .eta(bestHyperparameters.eta())
-            .etaGrowthRatePerTree(bestHyperparameters.etaGrowthRatePerTree())
-            .featureBagFraction(bestHyperparameters.featureBagFraction())
-            .newTrainingRowMask(newTrainingRowMask)
-            .buildForTrainIncremental(*frame, std::move(regression));
+    regression = maths::CBoostedTreeFactory::constructFromTree(std::move(regression))
+                     .buildForTrainIncremental(*frame);
 
     regression->trainIncremental();
     regression->predict();

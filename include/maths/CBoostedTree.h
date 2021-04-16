@@ -303,7 +303,7 @@ private:
 private:
     CBoostedTree(core::CDataFrame& frame,
                  TTrainingStateCallback recordTrainingState,
-                 TImplUPtr&& impl);
+                 TImplUPtr&& impl) noexcept;
 
 private:
     TImplUPtr m_Impl;

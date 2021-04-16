@@ -145,7 +145,7 @@ std::size_t CBoostedTreeNode::numberSamples() const {
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
                            TTrainingStateCallback recordTrainingState,
-                           TImplUPtr&& impl)
+                           TImplUPtr&& impl) noexcept
     : CDataFramePredictiveModel{frame, std::move(recordTrainingState)}, m_Impl{std::move(impl)} {
 }
 
