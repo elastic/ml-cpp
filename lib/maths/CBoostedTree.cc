@@ -143,10 +143,6 @@ std::size_t CBoostedTreeNode::numberSamples() const {
     return m_NumberSamples;
 }
 
-void CBoostedTreeNode::nodeValue(TVector nodeValue) {
-    m_NodeValue = std::move(nodeValue);
-}
-
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
                            TTrainingStateCallback recordTrainingState,
                            TImplUPtr&& impl)

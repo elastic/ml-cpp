@@ -44,7 +44,7 @@ public:
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
-    using TEncoderUPtr = std::unique_ptr<maths::CDataFrameCategoryEncoder>;
+    using TEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataSummarization = std::pair<TDataFrameUPtr, TEncoderUPtr>;
     using TRestoreDataSummarizationFunc =
         std::function<TDataSummarization(const core::CDataSearcher::TIStreamP&)>;
@@ -74,6 +74,9 @@ public:
     //! \warning Throws runtime error on fail to restore.
     static CBoostedTreeFactory constructFromString(std::istream& jsonStream);
 
+    //! Constructs a boosted tree object using data from the previously trained model.
+    //!
+    //! \warning Throws runtime error on fail to restore.
     static CBoostedTreeFactory
     constructFromDefinition(std::size_t numberThreads,
                             TLossFunctionUPtr loss,

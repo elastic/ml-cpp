@@ -151,12 +151,13 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
 
     switch (m_Task) {
-    case (E_Train):
+    case E_Train: {
         m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
             maths::CBoostedTreeFactory::constructFromParameters(
                 this->spec().numberThreads(), std::move(loss)));
         break;
-    case (E_Update):
+    }
+    case E_Update: {
         auto restoreSearcher = this->spec().restoreSearcher();
         auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& istream) {
             return api::CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
@@ -174,6 +175,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
             HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");
         }
         break;
+    }
     }
 
     (*m_BoostedTreeFactory)
@@ -412,13 +414,12 @@ CDataFrameTrainBoostedTreeRunner::dataSummarization(const core::CDataFrame& data
     std::stringstream output;
 
     auto encodingRecorder =
-        [&](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
+        [&](const std::function<void(core::CStatePersistInserter&)>& persistFunction) -> void {
         core::CJsonStatePersistInserter inserter{output};
         persistFunction(inserter);
     };
 
     auto rowMask = this->boostedTree().dataSummarization(dataFrame, encodingRecorder);
-    // LOG_INFO(<< output.str());
     if (rowMask.manhattan() > 0) {
         return std::make_unique<CDataSummarizationJsonSerializer>(
             dataFrame, rowMask, std::move(output));
