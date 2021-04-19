@@ -37,6 +37,11 @@
 * Adjust the syscall filter to allow mremap and avoid spurious audit logging.
   (See {ml-pull}1819[#1819].)
 
+=== Bug Fixes
+
+* Ensure the same hyperparameters are chosen if classification or regression training
+  is stopped and restarted, for example, if the node fails. (See {ml-pull}1848[#1848].)
+
 == {es} version 7.12.1
 
 === Enhancements
