@@ -61,16 +61,6 @@ void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields&
 
 class CTestFixture {
 public:
-    CTestFixture() {
-        // Enable trace level logging for these unit tests
-        ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Trace);
-    }
-
-    ~CTestFixture() {
-        // Revert to debug level logging for any subsequent unit tests
-        ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
-    }
-
     std::string makeUniqueToken() {
         std::string token;
         for (std::uint32_t workSeed = ++m_Seed; workSeed > 0; workSeed /= 20) {
