@@ -63,10 +63,10 @@ public:
     //! \warning Throws runtime error on fail to restore.
     static CBoostedTreeFactory constructFromString(std::istream& jsonStream);
 
-    //! Construct from the supplied \p tree.
+    //! Construct from the supplied \p model.
     //!
     //! \note This can be used for preparing for incremental training.
-    static CBoostedTreeFactory constructFromTree(TBoostedTreeUPtr tree);
+    static CBoostedTreeFactory constructFromModel(TBoostedTreeUPtr model);
 
     //! Get the maximum number of rows we'll train on.
     static std::size_t maximumNumberRows();

@@ -501,6 +501,10 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
     TStratifiedSamplerPtr sampler;
 
     double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    if (numberTrainingRows == 0.0) {
+        HANDLE_FATAL(<< "Internal error: no training data provided. Please report this problem");
+    }
+
     std::size_t desiredCount{
         (static_cast<std::size_t>(numberTrainingRows) + numberFolds / 2) / numberFolds};
 

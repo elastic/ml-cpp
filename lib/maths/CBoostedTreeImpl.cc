@@ -2338,13 +2338,6 @@ void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const
     //                      << "). Please report this problem.");
     //     }
     // }
-    // for (const auto& mask : m_MissingFeatureRowMasks) {
-    //     if (mask.size() != frame.numberRows()) {
-    //         HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
-    //                      << mask.size() << " !=  " << frame.numberRows()
-    //                      << "). Please report this problem.");
-    //     }
-    // }
     // for (const auto& mask : m_TrainingRowMasks) {
     //     if (mask.size() != frame.numberRows()) {
     //         HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
@@ -2380,13 +2373,6 @@ void CBoostedTreeImpl::checkIncrementalTrainInvariants(const core::CDataFrame& f
     }
     if (m_BayesianOptimization == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
-    }
-    for (const auto& mask : m_MissingFeatureRowMasks) {
-        if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
-                         << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.");
-        }
     }
     for (const auto& mask : m_MissingFeatureRowMasks) {
         if (mask.size() != frame.numberRows()) {

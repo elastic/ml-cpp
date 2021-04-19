@@ -299,6 +299,7 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
 
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) const {
 
+    m_TreeImpl->m_MissingFeatureRowMasks.clear();
     m_TreeImpl->m_MissingFeatureRowMasks.resize(frame.numberColumns());
 
     auto result = frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
@@ -396,6 +397,8 @@ void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) cons
 }
 
 void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& frame) const {
+
+    this->prepareDataFrameForTrain(frame);
 
     // Extend the frame with the bookkeeping columns used in incremental train.
     std::size_t frameMemory{core::CMemory::dynamicSize(frame)};
@@ -1340,9 +1343,10 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
     return result;
 }
 
-CBoostedTreeFactory CBoostedTreeFactory::constructFromTree(TBoostedTreeUPtr tree) {
+CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr model) {
     CBoostedTreeFactory result{1, nullptr};
-    result.m_TreeImpl = std::move(tree->m_Impl);
+    result.m_TreeImpl = std::move(model->m_Impl);
+    result.m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_NotInitialized;
     return result;
 }
 

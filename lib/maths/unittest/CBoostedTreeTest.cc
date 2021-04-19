@@ -211,6 +211,8 @@ void fillDataFrame(std::size_t trainRows,
                    const F& target,
                    core::CDataFrame& frame) {
 
+    std::size_t offset{frame.numberRows()};
+
     std::size_t rows{trainRows + testRows};
     frame.categoricalColumns(categoricalColumns);
     for (std::size_t i = 0; i < rows; ++i) {
@@ -221,12 +223,16 @@ void fillDataFrame(std::size_t trainRows,
         });
     }
     frame.finishWritingRows();
+
     frame.writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            double targetValue{row->index() < trainRows
-                                   ? target(*row) + noise[row->index()]
-                                   : core::CDataFrame::valueOfMissing()};
-            row->writeColumn(cols - 1, targetValue);
+            if (row->index() >= offset) {
+                std::size_t index{row->index() - offset};
+                double targetValue{index < trainRows
+                                       ? target(*row) + noise[index]
+                                       : core::CDataFrame::valueOfMissing()};
+                row->writeColumn(cols - 1, targetValue);
+            }
         }
     });
 }
@@ -674,7 +680,7 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
     }
     rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
 
-    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+    auto frame = core::makeMainStorageDataFrame(cols).first;
 
     fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
 
@@ -684,18 +690,23 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
 
     regression->train();
 
+    auto newFrame = core::makeMainStorageDataFrame(cols).first;
+
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *newFrame);
+
     for (std::size_t i = 0; i < cols - 1; ++i) {
         rng.generateUniformSamples(0.0, 10.0, extraTrainingRows, x[i]);
     }
     rng.generateNormalSamples(0.0, noiseVariance, extraTrainingRows, noise);
 
-    fillDataFrame(extraTrainingRows, 0, cols, x, noise, target, *frame);
+    fillDataFrame(extraTrainingRows, 0, cols, x, noise, target, *newFrame);
 
     core::CPackedBitVector newTrainingRowMask(rows, false);
     newTrainingRowMask.extend(true, extraTrainingRows);
 
-    regression = maths::CBoostedTreeFactory::constructFromTree(std::move(regression))
-                     .buildForTrainIncremental(*frame);
+    regression = maths::CBoostedTreeFactory::constructFromModel(std::move(regression))
+                     .newTrainingRowMask(newTrainingRowMask)
+                     .buildForTrainIncremental(*newFrame);
 
     regression->trainIncremental();
     regression->predict();
