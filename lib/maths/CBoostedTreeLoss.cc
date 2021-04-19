@@ -133,7 +133,7 @@ void CArgMinMseIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
                                     double actual,
                                     double weight) {
     m_MeanError.add(actual - prediction(0), weight);
-    if (newExample) {
+    if (newExample == false) {
         m_MeanTreePredictions.add(root(*m_Tree).value(row, *m_Tree)(0));
     }
 }
