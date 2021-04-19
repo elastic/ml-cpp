@@ -37,6 +37,7 @@
 #include <functional>
 #include <limits>
 #include <memory>
+#include <stdexcept>
 #include <streambuf>
 #include <utility>
 #include <vector>
@@ -387,6 +388,58 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
     stream << str;
     stream.flush();
 }
+}
+
+BOOST_AUTO_TEST_CASE(testEdgeCases) {
+
+    // Test some edge case inputs fail gracefully.
+
+    auto errorHandler = [](std::string error) {
+        throw std::runtime_error{std::move(error)};
+    };
+
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+    std::size_t cols{2};
+
+    // No data.
+    try {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
+        fillDataFrame(0, 0, 2, {}, {}, [](const TRowRef&) { return 1.0; }, *frame);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
+    } catch (const std::exception& e) { LOG_DEBUG(<< e.what()); }
+
+    // No training data.
+    try {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
+        fillDataFrame(0, 1, 2, {{1.0}}, {0.0}, [](const TRowRef&) { return 1.0; }, *frame);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
+    } catch (const std::exception& e) { LOG_DEBUG(<< e.what()); }
+
+    // Insufficient training data.
+    try {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
+        fillDataFrame(1, 0, 2, {{1.0}}, {0.0}, [](const TRowRef&) { return 1.0; }, *frame);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
+    } catch (const std::exception& e) { LOG_DEBUG(<< e.what()); }
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+
+    fillDataFrame(2, 0, 2, {{1.0}, {1.0}}, {0.0, 0.0},
+                  [](const TRowRef&) { return 1.0; }, *frame);
+
+    try {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
+        regression->train();
+    } catch (...) { BOOST_FAIL("Shouldn't throw"); }
 }
 
 BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
