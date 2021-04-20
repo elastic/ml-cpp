@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CBoostedTreeFactory_h
 
 #include <core/CDataFrame.h>
+#include <core/CDataSearcher.h>
 #include <core/CNonCopyable.h>
 
 #include <maths/CBoostedTree.h>
@@ -42,6 +43,17 @@ public:
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
+    using TDataSummarization = std::pair<TDataFrameUPtr, TEncoderUPtr>;
+    using TRestoreDataSummarizationFunc =
+        std::function<TDataSummarization(const core::CDataSearcher::TIStreamP&)>;
+    using TNode = CBoostedTreeNode;
+    using TNodeVec = std::vector<TNode>;
+    using TNodeVecVec = std::vector<TNodeVec>;
+    using TBestForest = std::unique_ptr<TNodeVecVec>;
+    using TRestoreBestForestFunc =
+        std::function<TBestForest(const core::CDataSearcher::TIStreamP&)>;
 
 public:
     //! \name Instrumentation Phases
@@ -61,6 +73,16 @@ public:
     //!
     //! \warning Throws runtime error on fail to restore.
     static CBoostedTreeFactory constructFromString(std::istream& jsonStream);
+
+    //! Constructs a boosted tree object using data from the previously trained model.
+    //!
+    //! \warning Throws runtime error on fail to restore.
+    static CBoostedTreeFactory
+    constructFromDefinition(std::size_t numberThreads,
+                            TLossFunctionUPtr loss,
+                            core::CDataSearcher& dataSearcher,
+                            const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
+                            const TRestoreBestForestFunc& bestForestRestoreCallback);
 
     //! Get the maximum number of rows we'll train on.
     static std::size_t maximumNumberRows();
@@ -120,6 +142,10 @@ public:
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
+    //! Set the data summarization information.
+    CBoostedTreeFactory& dataSummarization(TDataSummarization dataSummarization);
+    //! Set the best forest from the previous training.
+    CBoostedTreeFactory& bestForest(TBestForest modelDefinition);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -142,6 +168,14 @@ public:
     //! Restore a boosted tree object for a given data frame.
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
+
+    //! \name Test Only
+    //@{
+    //! Get the boosted tree implementation.
+    //!
+    // TODO (@valeriy42) remove this method once we have a method to initialise incremental training.
+    const CBoostedTreeImpl& boostedTreeImpl() const;
+    //@}
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -276,6 +310,10 @@ private:
 
     //! Stubs out test loss adjustment.
     static double noopAdjustTestLoss(double, double, double testLoss);
+
+    template<typename Callback>
+    static auto restoreTrainedModel(core::CDataSearcher& restoreSearcher,
+                                    const Callback& restoreCallback);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;

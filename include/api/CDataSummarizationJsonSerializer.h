@@ -8,8 +8,12 @@
 
 #include <core/CPackedBitVector.h>
 
+#include <maths/CBoostedTreeFactory.h>
+
 #include <api/CSerializableToJson.h>
 
+#include <istream>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -19,16 +23,15 @@ class CDataFrame;
 }
 namespace api {
 
-//! \brief Class generates a compressed and chunked JSON blob that contains
-//! selected data frame rows.
+//! \brief Class serializes and deserializes data summarization using chunked JSON blob.
+//! Data summarization contains data rows as well as categorical encoding information.
+// TODO #1849 chunking is not supported yet.
 class API_EXPORT CDataSummarizationJsonSerializer final
     : public CSerializableToJsonDocumentCompressed {
 public:
-    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
-
-public:
     CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
-                                     core::CPackedBitVector rowMask);
+                                     core::CPackedBitVector rowMask,
+                                     std::stringstream encodings);
 
     CDataSummarizationJsonSerializer(const CDataSummarizationJsonSerializer&) = delete;
     CDataSummarizationJsonSerializer&
@@ -41,6 +44,29 @@ public:
 private:
     core::CPackedBitVector m_RowMask;
     const core::CDataFrame& m_Frame;
+    std::stringstream m_Encodings;
+};
+
+class API_EXPORT CRetrainableModelJsonDeserializer {
+public:
+    using TDataSummarization = maths::CBoostedTreeFactory::TDataSummarization;
+    using TBestForest = maths::CBoostedTreeFactory::TBestForest;
+    using TIStreamSPtr = std::shared_ptr<std::istream>;
+
+public:
+    //! \brief Retrieve data summarization from decompressed JSON stream.
+    static TDataSummarization dataSummarizationFromJsonStream(const TIStreamSPtr& istream);
+
+    //! \brief Retrieve data summarization from compressed and chunked JSON blob.
+    static TDataSummarization
+    dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream);
+
+    //! \brief Retrieve best forest from decompressed JSON stream.
+    static TBestForest bestForestFromJsonStream(const core::CDataSearcher::TIStreamP& istream);
+
+    //! \brief Retrieve best forest from compressed and chunked JSON blob.
+    static TBestForest
+    bestForestFromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream);
 };
 }
 }

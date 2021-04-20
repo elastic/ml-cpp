@@ -188,6 +188,12 @@ CDataFrameAnalysisSpecificationFactory::earlyStoppingEnabled(bool earlyStoppingE
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::task(TTask task) {
+    m_Task = task;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
     m_NumberClasses = number;
     return *this;
@@ -350,6 +356,16 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Bool(m_EarlyStoppingEnabled);
     }
 
+    writer.Key(TRunner::TASK);
+    switch (m_Task) {
+    case TTask::E_Train:
+        writer.String(TRunner::TASK_TRAIN);
+        break;
+    case TTask::E_Update:
+        writer.String(TRunner::TASK_UPDATE);
+        break;
+    }
+
     if (analysis == classification()) {
         writer.Key(TClassificationRunner::NUM_CLASSES);
         writer.Uint64(m_NumberClasses);
@@ -426,6 +442,10 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analys
             spec, *m_PersisterSupplier, *m_RestoreSearcherSupplier);
     } else if (m_RestoreSearcherSupplier == nullptr && m_PersisterSupplier != nullptr) {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, *m_PersisterSupplier);
+    } else if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier == nullptr) {
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(
+            spec, api::CDataFrameAnalysisSpecification::noopPersisterSupplier,
+            *m_RestoreSearcherSupplier);
     } else {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
     }

@@ -34,6 +34,8 @@ class CBoostedTreeInferenceModelBuilder;
 //! \brief Runs boosted tree regression on a core::CDataFrame.
 class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
+    enum ETask { E_Train, E_Update };
+
     static const std::string DEPENDENT_VARIABLE_NAME;
     static const std::string PREDICTION_FIELD_NAME;
     static const std::string DOWNSAMPLE_ROWS_PER_FEATURE;
@@ -55,6 +57,9 @@ public:
     static const std::string TRAINING_PERCENT_FIELD_NAME;
     static const std::string FEATURE_PROCESSORS;
     static const std::string EARLY_STOPPING_ENABLED;
+    static const std::string TASK;
+    static const std::string TASK_TRAIN;
+    static const std::string TASK_UPDATE;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
@@ -136,6 +141,7 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
+    ETask m_Task;
 };
 }
 }
