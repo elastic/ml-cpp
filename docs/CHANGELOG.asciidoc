@@ -41,6 +41,8 @@
 
 * Ensure the same hyperparameters are chosen if classification or regression training
   is stopped and restarted, for example, if the node fails. (See {ml-pull}1848[#1848].)
+* Fail gracefully if insufficient data are supplied for classification or regression
+  training. (See {ml-pull}1855[#1855].)
 
 == {es} version 7.12.1
 

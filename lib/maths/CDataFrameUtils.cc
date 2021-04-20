@@ -496,10 +496,16 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                                                    std::size_t numberFolds,
                                                    std::size_t numberBuckets,
                                                    const core::CPackedBitVector& allTrainingRowsMask) {
+
+    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    if (numberTrainingRows < 2.0) {
+        HANDLE_FATAL(<< "Input error: unsufficient training data provided.");
+        return {TPackedBitVectorVec{}, TPackedBitVectorVec{}, TDoubleVec{}};
+    }
+
     TDoubleVec frequencies;
     TStratifiedSamplerPtr sampler;
 
-    double numberTrainingRows{allTrainingRowsMask.manhattan()};
     std::size_t desiredCount{
         (static_cast<std::size_t>(numberTrainingRows) + numberFolds / 2) / numberFolds};
 
