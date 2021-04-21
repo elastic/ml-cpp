@@ -1406,6 +1406,8 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr mod
     CBoostedTreeFactory result{1, nullptr};
     result.m_TreeImpl = std::move(model->m_Impl);
     result.m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_NotInitialized;
+    result.m_TreeImpl->m_MeanForestSizeAccumulator = CBoostedTreeImpl::TMeanAccumulator{};
+    result.m_TreeImpl->m_MeanLossAccumulator = CBoostedTreeImpl::TMeanAccumulator{};
     return result;
 }
 

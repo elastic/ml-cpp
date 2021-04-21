@@ -244,7 +244,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                                              testingRowMask, trainingProgress);
                 });
 
-            this->captureBestHyperparameters(lossMoments, maximumNumberTrees, 0.0, numberNodes);
+            this->captureBestHyperparameters(lossMoments, maximumNumberTrees,
+                                             0.0 /*no kept nodes*/, numberNodes);
 
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
                 LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
@@ -335,7 +336,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     for (const auto& i : m_TreesToRetrain) {
         retrainedNumberNodes += static_cast<double>(m_BestForest[i].size());
     }
-    double notRetrainedNumberNodes{numberForestNodes(m_BestForest) - retrainedNumberNodes};
+    double numberKeptNodes{numberForestNodes(m_BestForest) - retrainedNumberNodes};
 
     // Hyperparameter optimisation loop.
 
@@ -356,18 +357,18 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         this->recordHyperparameters();
 
         TMeanVarAccumulator lossMoments;
-        double numberNodes;
-        std::tie(lossMoments, std::ignore, numberNodes) = this->crossValidateForest(
+        double numberRetrainedNodes;
+        std::tie(lossMoments, std::ignore, numberRetrainedNodes) = this->crossValidateForest(
             frame, maximumNumberTrees,
             [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
                    const core::CPackedBitVector& testingRowMask,
                    core::CLoopProgress& trainingProgress) {
-                return this->retrainForest(frame_, trainingRowMask,
-                                           testingRowMask, trainingProgress);
+                return this->updateForest(frame_, trainingRowMask,
+                                          testingRowMask, trainingProgress);
             });
 
         this->captureBestHyperparameters(lossMoments, m_BestForest.size(),
-                                         notRetrainedNumberNodes, numberNodes);
+                                         numberKeptNodes, numberRetrainedNodes);
 
         if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
             LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
@@ -393,11 +394,15 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
                                  std::to_string(m_CurrentRound));
     }
 
+    LOG_TRACE(<< "Training finished after " << m_CurrentRound << " iterations. "
+              << "Time per iteration in ms mean: " << CBasicStatistics::mean(timeAccumulator)
+              << " std. dev:  " << std::sqrt(CBasicStatistics::variance(timeAccumulator)));
+
     if (m_BestForestTestLoss <
-        initialLoss + this->modelSizePenalty(notRetrainedNumberNodes, retrainedNumberNodes)) {
+        initialLoss + this->modelSizePenalty(numberKeptNodes, retrainedNumberNodes)) {
         this->restoreBestHyperparameters();
         core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
-        this->retrainForest(frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
+        this->updateForest(frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
     }
 
     // Force progress to one and record the final memory usage.
@@ -874,10 +879,10 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 }
 
 CBoostedTreeImpl::TNodeVecVecDoubleDoubleVecTr
-CBoostedTreeImpl::retrainForest(core::CDataFrame& frame,
-                                const core::CPackedBitVector& trainingRowMask,
-                                const core::CPackedBitVector& testingRowMask,
-                                core::CLoopProgress& trainingProgress) const {
+CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
+                               const core::CPackedBitVector& trainingRowMask,
+                               const core::CPackedBitVector& testingRowMask,
+                               core::CLoopProgress& trainingProgress) const {
 
     LOG_TRACE(<< "Incrementally training one forest...");
 
@@ -1760,14 +1765,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
 void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
                                                   std::size_t maximumNumberTrees,
-                                                  double fixedNumberNodes,
-                                                  double numberExtraNodes) {
+                                                  double numberKeptNodes,
+                                                  double numberRetrainedNodes) {
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
 
     double loss{lossAtNSigma(1.0, lossMoments) +
-                this->modelSizePenalty(fixedNumberNodes, numberExtraNodes)};
+                this->modelSizePenalty(numberKeptNodes, numberRetrainedNodes)};
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
         m_BestHyperparameters = CBoostedTreeHyperparameters(
@@ -1776,11 +1781,11 @@ void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& los
     }
 }
 
-double CBoostedTreeImpl::modelSizePenalty(double fixedNumberNodes,
-                                          double numberExtraNodes) const {
+double CBoostedTreeImpl::modelSizePenalty(double numberKeptNodes,
+                                          double numberRetrainedNodes) const {
     // 0.01 * "forest number nodes" * E[GP] / "average forest number nodes" to meanLoss.
-    return 0.01 * (fixedNumberNodes + numberExtraNodes) /
-           (fixedNumberNodes + CBasicStatistics::mean(m_MeanForestSizeAccumulator)) *
+    return 0.01 * (numberKeptNodes + numberRetrainedNodes) /
+           (numberKeptNodes + CBasicStatistics::mean(m_MeanForestSizeAccumulator)) *
            CBasicStatistics::mean(m_MeanLossAccumulator);
 }
 

@@ -283,12 +283,13 @@ private:
                                              const core::CPackedBitVector& testingRowMask,
                                              core::CLoopProgress& trainingProgress) const;
 
-    //! Retrain the \p treesToRetrain of the best forest.
+    //! Retrain a subset of the trees of one forest on the rows of \p frame in the
+    //! mask \p trainingRowMask.
     TNodeVecVecDoubleDoubleVecTr
-    retrainForest(core::CDataFrame& frame,
-                  const core::CPackedBitVector& trainingRowMask,
-                  const core::CPackedBitVector& testingRowMask,
-                  core::CLoopProgress& trainingProgress) const;
+    updateForest(core::CDataFrame& frame,
+                 const core::CPackedBitVector& trainingRowMask,
+                 const core::CPackedBitVector& testingRowMask,
+                 core::CLoopProgress& trainingProgress) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
@@ -380,13 +381,18 @@ private:
                                    CBayesianOptimisation& bopt);
 
     //! Capture the current hyperparameter values.
+    //!
+    //! \param[in] numberKeptNodes If incrementally training the number of nodes
+    //! in the retained portion of the forest.
+    //! \param[in] numberRetrainedNodes The number of trees in the new (portion
+    //! of the) forest.
     void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
                                     std::size_t maximumNumberTrees,
-                                    double fixedNumberNodes,
-                                    double numberExtraNodes);
+                                    double numberKeptNodes,
+                                    double numberRetrainedNodes);
 
     //! Compute the loss penalty for model size.
-    double modelSizePenalty(double fixedNumberNodes, double numberExtraNodes) const;
+    double modelSizePenalty(double numberKeptNodes, double numberRetrainedNodes) const;
 
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
