@@ -273,7 +273,7 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) ->
     dataset.to_csv(data_file, index=False)
     data_file.file.close()
 
-    with open('configs/{}.json'.format(dataset_name)) as fc:
+    with open('../configs/{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0]
     config_file = tempfile.NamedTemporaryFile(mode='wt')
@@ -301,7 +301,7 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str, verbose: 
     fdata = tempfile.NamedTemporaryFile(mode='wt')
     dataset.to_csv(fdata, index=False)
     fdata.file.close()
-    with open('configs/{}.json'.format(dataset_name)) as fc:
+    with open('../configs/{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0]
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
