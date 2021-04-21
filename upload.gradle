@@ -1,6 +1,7 @@
 description = 'Uploads the Machine Learning native binaries to s3'
 
 import org.elastic.gradle.UploadS3Task
+import org.gradle.internal.os.OperatingSystem
 
 import java.util.zip.ZipFile
 
@@ -133,9 +134,18 @@ task buildUberZip(type: Zip, dependsOn: downloadPlatformSpecific) {
   description = 'Create an uber zip from combined platform-specific C++ distributions'
 }
 
-task uberUpload(type: UploadS3Task, dependsOn: buildUberZip) {
+task buildDependencyReport(type: Exec) {
+  outputs.file("${buildDir}/distributions/dependencies.csv")
+  commandLine OperatingSystem.current().isWindows() ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
+  args '-c', "source ./set_env.sh && 3rd_party/dependency_report.sh --csv \"${outputs.files.singleFile}\""
+  workingDir "${projectDir}"
+  description = 'Create a CSV report on 3rd party dependencies we redistribute'
+}
+
+task uberUpload(type: UploadS3Task, dependsOn: [buildUberZip, buildDependencyReport]) {
   bucket 'prelert-artifacts'
   upload buildUberZip.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildUberZip.outputs.files.singleFile.name}"
-  description = 'Upload C++ uber zip to S3 Bucket'
+  upload buildDependencyReport.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildDependencyReport.outputs.files.singleFile.name}"
+  description = 'Upload C++ uber zip and dependency report to S3 Bucket'
 }
 
