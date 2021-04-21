@@ -70,6 +70,7 @@ public:
     using TLossFunction = boosted_tree::CLoss;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
+    using TRecordEncodersCallback = CBoostedTree::TRecordEncodersCallback;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
     using THyperparameterImportanceVec =
@@ -115,7 +116,8 @@ public:
     CTreeShapFeatureImportance* shap();
 
     //! Get the selected rows that summarize \p dataFrame.
-    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame) const;
+    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame,
+                                             const TRecordEncodersCallback& recordEncoders) const;
 
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;
@@ -205,6 +207,7 @@ private:
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
     using TNodeVecVecDoubleDoubleVecTr = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
@@ -479,6 +482,7 @@ private:
     double m_FeatureBagFraction = 0.5;
     double m_RetrainFraction = 0.1;
     TDataFrameCategoryEncoderUPtr m_Encoder;
+    TDataFrameUPtr m_SummarizationDataFrame;
     TDataTypeVec m_FeatureDataTypes;
     TDoubleVec m_FeatureSampleProbabilities;
     TSizeVec m_TreesToRetrain;

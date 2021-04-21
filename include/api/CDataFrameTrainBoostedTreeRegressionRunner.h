@@ -35,9 +35,8 @@ public:
     static const std::string PSEUDO_HUBER;
 
 public:
+    //! \return The runner's configuration parameter reader.
     static const CDataFrameAnalysisConfigReader& parameterReader();
-
-    static TLossFunctionUPtr lossFunction(const CDataFrameAnalysisParameters& parameters);
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeRegressionRunnerFactory.
     CDataFrameTrainBoostedTreeRegressionRunner(const CDataFrameAnalysisSpecification& spec,
@@ -57,6 +56,8 @@ public:
     TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
 
 private:
+    static TLossFunctionUPtr lossFunction(const CDataFrameAnalysisParameters& parameters);
+
     void validate(const core::CDataFrame& frame,
                   std::size_t dependentVariableColumn) const override;
 

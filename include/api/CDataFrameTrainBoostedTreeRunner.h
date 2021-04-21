@@ -34,6 +34,8 @@ class CBoostedTreeInferenceModelBuilder;
 //! \brief Runs boosted tree regression on a core::CDataFrame.
 class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
+    enum ETask { E_Train, E_Update };
+
     static const std::string DEPENDENT_VARIABLE_NAME;
     static const std::string PREDICTION_FIELD_NAME;
     static const std::string DOWNSAMPLE_ROWS_PER_FEATURE;
@@ -57,6 +59,9 @@ public:
     static const std::string TRAINING_PERCENT_FIELD_NAME;
     static const std::string FEATURE_PROCESSORS;
     static const std::string EARLY_STOPPING_ENABLED;
+    static const std::string TASK;
+    static const std::string TASK_TRAIN;
+    static const std::string TASK_UPDATE;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
@@ -73,10 +78,10 @@ public:
     //! \return The capacity of the data frame slice to use.
     std::size_t dataFrameSliceCapacity() const override;
 
-    //! The boosted tree.
+    //! \return The boosted tree.
     const maths::CBoostedTree& boostedTree() const;
 
-    //! The boosted tree factory.
+    //! \return The boosted tree factory.
     const maths::CBoostedTreeFactory& boostedTreeFactory() const;
 
     //! \return Reference to the analysis state.
@@ -95,13 +100,13 @@ protected:
                                      const CDataFrameAnalysisParameters& parameters,
                                      TLossFunctionUPtr loss);
 
-    //! Parameter reader handling parameters that are shared by subclasses.
+    //! \return The parameter reader handling parameters that are shared by subclasses.
     static const CDataFrameAnalysisConfigReader& parameterReader();
-    //! Name of dependent variable field.
+    //! \return The name of dependent variable field.
     const std::string& dependentVariableFieldName() const;
-    //! Name of prediction field.
+    //! \return The name of prediction field.
     const std::string& predictionFieldName() const;
-    //! The boosted tree factory.
+    //! \return The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();
 
     //! Validate if \p frame is suitable for running the analysis on.
@@ -138,6 +143,7 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
+    ETask m_Task;
 };
 }
 }

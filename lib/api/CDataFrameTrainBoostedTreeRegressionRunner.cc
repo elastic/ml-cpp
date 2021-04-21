@@ -77,9 +77,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysi
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
-    : CDataFrameTrainBoostedTreeRunner{
-          spec, parameters,
-          CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(parameters)} {
+    : CDataFrameTrainBoostedTreeRunner{spec, parameters, lossFunction(parameters)} {
 
     this->boostedTreeFactory().stratifyRegressionCrossValidation(
         parameters[STRATIFIED_CROSS_VALIDATION].fallback(true));

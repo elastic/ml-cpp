@@ -35,6 +35,7 @@ public:
     using TDouble2Vec = core::CSmallVector<double, 2>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
     using TTrainingStateCallback = std::function<void(TPersistFunc)>;
+    using TRecordEncodersCallback = std::function<void(TPersistFunc)>;
     using TRowRef = core::CDataFrame::TRowRef;
 
     //! The objective for the classification decision (given predicted class probabilities).
@@ -68,7 +69,8 @@ public:
 
     //! Get the selected rows that summarize \p dataFrame.
     virtual core::CPackedBitVector
-    dataSummarization(const core::CDataFrame& dataFrame) const = 0;
+    dataSummarization(const core::CDataFrame& dataFrame,
+                      const TRecordEncodersCallback& callback) const = 0;
 
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
