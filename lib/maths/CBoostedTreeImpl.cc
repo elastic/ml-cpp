@@ -1446,12 +1446,15 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
     do {
         TArgMinLossVecVec result(m_NumberThreads, leafValues);
         if (m_IncrementalTraining) {
-            this->minimumLossLeafValues(frame, trainingRowMask & ~m_NewTrainingRowMask,
-                                        false, loss, tree, result);
-            this->minimumLossLeafValues(frame, trainingRowMask & m_NewTrainingRowMask,
-                                        true, loss, tree, result);
+            this->minimumLossLeafValues(false /*new example*/, frame,
+                                        trainingRowMask & ~m_NewTrainingRowMask,
+                                        loss, tree, result);
+            this->minimumLossLeafValues(true /*new example*/, frame,
+                                        trainingRowMask & m_NewTrainingRowMask,
+                                        loss, tree, result);
         } else {
-            this->minimumLossLeafValues(frame, trainingRowMask, false, loss, tree, result);
+            this->minimumLossLeafValues(false /*new example*/, frame,
+                                        trainingRowMask, loss, tree, result);
         }
 
         leafValues = std::move(result[0]);
@@ -1473,18 +1476,18 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
     core::CPackedBitVector updateRowMask{trainingRowMask | testingRowMask};
 
     if (m_IncrementalTraining) {
-        this->writeRowDerivatives(frame, updateRowMask & ~m_NewTrainingRowMask,
-                                  false, loss, tree);
-        this->writeRowDerivatives(frame, updateRowMask & m_NewTrainingRowMask,
-                                  true, loss, tree);
+        this->writeRowDerivatives(false /*new example*/, frame,
+                                  updateRowMask & ~m_NewTrainingRowMask, loss, tree);
+        this->writeRowDerivatives(true /*new example*/, frame,
+                                  updateRowMask & m_NewTrainingRowMask, loss, tree);
     } else {
-        this->writeRowDerivatives(frame, updateRowMask, false, loss, tree);
+        this->writeRowDerivatives(false /*new example*/, frame, updateRowMask, loss, tree);
     }
 }
 
-void CBoostedTreeImpl::minimumLossLeafValues(const core::CDataFrame& frame,
+void CBoostedTreeImpl::minimumLossLeafValues(bool newExample,
+                                             const core::CDataFrame& frame,
                                              const core::CPackedBitVector& rowMask,
-                                             bool newExample,
                                              const TLossFunction& loss,
                                              const TNodeVec& tree,
                                              TArgMinLossVecVec& result) const {
@@ -1511,9 +1514,9 @@ void CBoostedTreeImpl::minimumLossLeafValues(const core::CDataFrame& frame,
     frame.readRows(0, frame.numberRows(), minimizers, &rowMask);
 }
 
-void CBoostedTreeImpl::writeRowDerivatives(core::CDataFrame& frame,
+void CBoostedTreeImpl::writeRowDerivatives(bool newExample,
+                                           core::CDataFrame& frame,
                                            const core::CPackedBitVector& rowMask,
-                                           bool newExample,
                                            const TLossFunction& loss,
                                            const TNodeVec& tree) const {
     frame.writeColumns(

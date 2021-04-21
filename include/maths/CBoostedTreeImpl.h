@@ -350,17 +350,17 @@ private:
 
     //! Extract the leaf values for \p tree which minimize \p loss on \p rowMask
     //! rows of \p frame.
-    void minimumLossLeafValues(const core::CDataFrame& frame,
+    void minimumLossLeafValues(bool newExample,
+                               const core::CDataFrame& frame,
                                const core::CPackedBitVector& rowMask,
-                               bool newExample,
                                const TLossFunction& loss,
                                const TNodeVec& tree,
                                TArgMinLossVecVec& result) const;
 
     //! Write \p loss gradient and curvature for the \p rowMask rows of \p frame.
-    void writeRowDerivatives(core::CDataFrame& frame,
+    void writeRowDerivatives(bool newExample,
+                             core::CDataFrame& frame,
                              const core::CPackedBitVector& rowMask,
-                             bool newExample,
                              const TLossFunction& loss,
                              const TNodeVec& tree) const;
 
