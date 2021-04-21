@@ -447,7 +447,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShap, SFixtureSingleTree) {
 
     TSizeVec expectedIndices{0, 0, 0, 0};
 
-    s_Frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    s_Frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             s_TreeFeatureImportance->shap(*row, [&](const TSizeVec& indices, const TStrVec& names,
                                                     const TVectorVec& shap) {
@@ -481,7 +481,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleTreesShap, SFixtureMultipleTrees) {
 
     TSizeVec expectedIndices{0, 0, 0, 0, 0, 1, 0, 0, 0, 0};
 
-    s_Frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    s_Frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             s_TreeFeatureImportance->shap(*row, [&](const TSizeVec& indices, const TStrVec& names,
                                                     const TVectorVec& shap) {
@@ -536,7 +536,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleRandomTreeShap, SFixtureRandomTrees) {
         std::sort(expectedIndices[i].begin(), expectedIndices[i].end());
     }
 
-    s_Frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    s_Frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             s_TreeFeatureImportance->shap(*row, [&](const TSizeVec& indices, const TStrVec& names,
                                                     const TVectorVec& shap) {
@@ -565,7 +565,7 @@ BOOST_FIXTURE_TEST_CASE(testThreadedRandomTreeShap, SFixtureRandomTrees) {
 
     core::startDefaultAsyncExecutor();
 
-    s_Frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    s_Frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         TSizeVec expectedIndices;
         TStrVec expectedNames;
         TVectorVec expectedShap;

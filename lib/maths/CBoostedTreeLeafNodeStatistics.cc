@@ -255,7 +255,7 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     for (std::size_t i = 0; i < numberThreads; ++i) {
         auto& splitsDerivatives = workspace.derivatives()[i];
         splitsDerivatives.zero();
-        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+        aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 this->addRowDerivatives(featureBag, encoder.encode(*row), splitsDerivatives);
             }
@@ -285,7 +285,7 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
         auto& splitsDerivatives = workspace.derivatives()[i];
         mask.clear();
         splitsDerivatives.zero();
-        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+        aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 auto encodedRow = encoder.encode(*row);
                 if (split.assignToLeft(encodedRow) == isLeftChild) {

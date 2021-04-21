@@ -180,7 +180,7 @@ auto computeEvaluationMetrics(const core::CDataFrame& frame,
     TMeanVarAccumulator functionMoments;
     TMeanVarAccumulator modelPredictionErrorMoments;
 
-    frame.readRows(1, beginTestRows, endTestRows, [&](TRowItr beginRows, TRowItr endRows) {
+    frame.readRows(1, beginTestRows, endTestRows, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (std::binary_search(outliers.begin(), outliers.end(), row->index()) == false) {
                 functionMoments.add(target(*row));
@@ -221,7 +221,7 @@ void fillDataFrame(std::size_t trainRows,
         });
     }
     frame.finishWritingRows();
-    frame.writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame.writeColumns(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             double targetValue{row->index() < trainRows
                                    ? target(*row) + noise[row->index()]
@@ -757,7 +757,7 @@ BOOST_AUTO_TEST_CASE(testThreading) {
 
         TMeanVarAccumulator modelPredictionErrorMoments;
 
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 modelPredictionErrorMoments.add(
                     target(*row) - regression->readPrediction(*row)[0]);
@@ -853,7 +853,7 @@ BOOST_AUTO_TEST_CASE(testConstantTarget) {
 
     TMeanAccumulator modelPredictionError;
 
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             modelPredictionError.add(1.0 - regression->readPrediction(*row)[0]);
         }
@@ -909,7 +909,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
         });
     }
     frame->finishWritingRows();
-    frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->writeColumns(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             double targetValue{row->index() < trainRows
                                    ? target(*row)
@@ -986,7 +986,7 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
         });
     }
     frame->finishWritingRows();
-    frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->writeColumns(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             double targetValue{row->index() < trainRows
                                    ? target(*row)
@@ -1340,7 +1340,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         classifier->predict();
 
         TMeanAccumulator logRelativeError;
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
                     double expectedProbability{probability(*row)};
@@ -1416,7 +1416,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
         TDoubleVec trueNegatives(2, 0.0);
         TDoubleVec falsePositives(2, 0.0);
         TDoubleVec falseNegatives(2, 0.0);
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 auto scores = classifier->readAndAdjustPrediction(*row);
                 std::size_t prediction(scores[1] < scores[0] ? 0 : 1);
@@ -1569,7 +1569,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         classifier->predict();
 
         TMeanAccumulator logRelativeError;
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
                     TVector expectedProbability{probability(*row)};
@@ -1872,7 +1872,7 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
     TDoubleVec expectedPredictions{17.5, 17.5, 17.5, 22.0};
     TDoubleVec actualPredictions;
 
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (maths::CDataFrameUtils::isMissing((*row)[cols - 1])) {
                 actualPredictions.push_back(regression->readPrediction(*row)[0]);

@@ -305,7 +305,8 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     }
     bool successful;
     std::tie(std::ignore, successful) = frame.writeColumns(
-        m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
+        m_NumberThreads, 0, frame.numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
@@ -587,7 +588,7 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
     core::CPackedBitVector updateRowMask{trainingRowMask | testingRowMask};
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
-        [this](TRowItr beginRows, TRowItr endRows) {
+        [this](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
                 zeroPrediction(*row, m_ExtraColumns, numberLossParameters);
@@ -1194,7 +1195,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
         auto result = frame.readRows(
             m_NumberThreads, 0, frame.numberRows(),
             core::bindRetrievableState(
-                [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
+                [&](TArgMinLossVec& leafValues_, const TRowItr& beginRows, const TRowItr& endRows) {
                     std::size_t numberLossParameters{m_Loss->numberParameters()};
                     const auto& rootNode = root(tree);
                     for (auto row_ = beginRows; row_ != endRows; ++row_) {
@@ -1229,7 +1230,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
     core::CPackedBitVector updateRowMask{trainingRowMask | testingRowMask};
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
-        [&](TRowItr beginRows, TRowItr endRows) {
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             const auto& rootNode = root(tree);
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
@@ -1251,7 +1252,7 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     auto results = frame.readRows(
         m_NumberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
+            [&](TMeanAccumulator& loss, const TRowItr& beginRows, const TRowItr& endRows) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);

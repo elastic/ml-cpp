@@ -241,8 +241,8 @@ BOOST_AUTO_TEST_CASE(testStandardizeColumns) {
             // Check the column values are what we expect given the data we generated.
 
             bool passed{true};
-            frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
-                                   core::CDataFrame::TRowItr endRows) {
+            frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                                   const core::CDataFrame::TRowItr& endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     for (std::size_t j = 0; j < row->numberColumns(); ++j) {
                         double mean{maths::CBasicStatistics::mean(moments[j])};
@@ -262,8 +262,8 @@ BOOST_AUTO_TEST_CASE(testStandardizeColumns) {
             // respectively.
 
             TMeanVarAccumulatorVec columnsMoments(cols);
-            frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
-                                   core::CDataFrame::TRowItr endRows) {
+            frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                                   const core::CDataFrame::TRowItr& endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     for (std::size_t j = 0; j < row->numberColumns(); ++j) {
                         columnsMoments[j].add((*row)[j]);
@@ -432,7 +432,8 @@ BOOST_AUTO_TEST_CASE(testColumnQuantilesWithEncoding) {
 
     TQuantileSketchVec expectedQuantiles{columnMask.size(),
                                          {maths::CQuantileSketch::E_Linear, 100}};
-    frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {
+    frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                           const core::CDataFrame::TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             maths::CEncodedDataFrameRowRef encodedRow{encoder.encode(*row)};
             for (std::size_t i = 0; i < columnMask.size(); ++i) {
@@ -528,8 +529,8 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
 
             TDoubleDoubleUMap testingCategoryCounts;
             frame->readRows(1, 0, frame->numberRows(),
-                            [&](core::CDataFrame::TRowItr beginRows,
-                                core::CDataFrame::TRowItr endRows) {
+                            [&](const core::CDataFrame::TRowItr& beginRows,
+                                const core::CDataFrame::TRowItr& endRows) {
                                 for (auto row = beginRows; row != endRows; ++row) {
                                     testingCategoryCounts[(*row)[0]] += 1.0;
                                 }
@@ -581,8 +582,8 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
 
             TDoubleVec values;
             frame->readRows(1, 0, frame->numberRows(),
-                            [&](core::CDataFrame::TRowItr beginRows,
-                                core::CDataFrame::TRowItr endRows) {
+                            [&](const core::CDataFrame::TRowItr& beginRows,
+                                const core::CDataFrame::TRowItr& endRows) {
                                 for (auto row = beginRows; row != endRows; ++row) {
                                     values.push_back((*row)[0]);
                                 }
@@ -1263,8 +1264,8 @@ BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeights) {
                                          TDoubleVector::Zero(numberClasses)};
                 TDoubleVector counts{TDoubleVector::Zero(numberClasses)};
 
-                frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
-                                       core::CDataFrame::TRowItr endRows) {
+                frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                                       const core::CDataFrame::TRowItr& endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
                         prediction = readPrediction(*row);
                         maths::CTools::inplaceSoftmax(prediction);
