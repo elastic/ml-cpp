@@ -185,7 +185,7 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
     };
 
     auto countBucketRows = core::bindRetrievableState(
-        [&](TDoubleVec& bucketCounts, TRowItr beginRows, TRowItr endRows) {
+        [&](TDoubleVec& bucketCounts, const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 bucketCounts[bucketSelector(*row)] += 1.0;
             }
@@ -319,7 +319,7 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
     }
 
     auto readColumnMoments = core::bindRetrievableState(
-        [](TMeanVarAccumulatorVec& moments_, TRowItr beginRows, TRowItr endRows) {
+        [](TMeanVarAccumulatorVec& moments_, const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                     if (isMissing((*row)[i]) == false) {
@@ -358,7 +358,8 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
     LOG_TRACE(<< "means = " << core::CContainerPrinter::print(mean));
     LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scale));
 
-    auto standardiseColumns = [&mean, &scale](TRowItr beginRows, TRowItr endRows) {
+    auto standardiseColumns = [&mean, &scale](const TRowItr& beginRows,
+                                              const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                 row->writeColumn(i, scale[i] * ((*row)[i] - mean[i]));
@@ -384,7 +385,7 @@ CDataFrameUtils::columnDataTypes(std::size_t numberThreads,
     using TMinMaxBoolPrVec = std::vector<std::pair<TMinMax, bool>>;
 
     auto readDataTypes = core::bindRetrievableState(
-        [&](TMinMaxBoolPrVec& types, TRowItr beginRows, TRowItr endRows) {
+        [&](TMinMaxBoolPrVec& types, const TRowItr& beginRows, const TRowItr& endRows) {
             double integerPart;
             if (encoder != nullptr) {
                 for (auto row = beginRows; row != endRows; ++row) {
@@ -448,7 +449,7 @@ CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                                  const TWeightFunc& weight) {
 
     auto readQuantiles = core::bindRetrievableState(
-        [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
+        [&](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) {
             if (encoder != nullptr) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     CEncodedDataFrameRowRef encodedRow{encoder->encode(*row)};
@@ -526,7 +527,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
     core::CPackedBitVector candidateTestingRowsMask{allTrainingRowsMask};
     for (std::size_t fold = 0; fold < numberFolds - 1; ++fold) {
         frame.readRows(1, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
                                sampler->sample(*row);
                            }
@@ -570,7 +571,7 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
 
     // Note this can throw a length_error in resize hence the try block around read.
     auto readCategoryCounts = core::bindRetrievableState(
-        [&](TDoubleVecVec& counts, TRowItr beginRows, TRowItr endRows) {
+        [&](TDoubleVecVec& counts, const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i : columnMask) {
                     if (isMissing((*row)[i]) == false) {
@@ -633,7 +634,7 @@ CDataFrameUtils::meanValueOfTargetForCategories(const CColumnValue& target,
 
     // Note this can throw a length_error in resize hence the try block around read.
     auto readColumnMeans = core::bindRetrievableState(
-        [&](TMeanAccumulatorVecVec& means_, TRowItr beginRows, TRowItr endRows) {
+        [&](TMeanAccumulatorVecVec& means_, const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i : columnMask) {
                     if (isMissing((*row)[i]) == false && isMissing(target(*row)) == false) {
@@ -788,7 +789,7 @@ CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColum
             TRowSampler sampler{numberSamples, rowFeatureSampler(i, target, samples)};
             frame.readRows(
                 1, 0, frame.numberRows(),
-                [&](TRowItr beginRows, TRowItr endRows) {
+                [&](const TRowItr& beginRows, const TRowItr& endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
                         if (isMissing((*row)[i]) || isMissing(target(*row))) {
                             continue;
@@ -857,7 +858,7 @@ CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColum
         samples.clear();
         TRowSampler sampler{numberSamples, rowSampler(samples)};
         frame.readRows(1, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
                                if (isMissing(target(*row)) == false) {
                                    sampler.sample(*row);
@@ -914,7 +915,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameInMemory(const CColumnValue& target
         auto missingCount = frame.readRows(
             1, 0, frame.numberRows(),
             core::bindRetrievableState(
-                [&](std::size_t& missing, TRowItr beginRows, TRowItr endRows) {
+                [&](std::size_t& missing, const TRowItr& beginRows, const TRowItr& endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
                         if (isMissing((*row)[i])) {
                             ++missing;
@@ -965,7 +966,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameOnDisk(const CColumnValue& target,
     auto missingCounts = frame.readRows(
         1, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](TSizeVec& missing, TRowItr beginRows, TRowItr endRows) {
+            [&](TSizeVec& missing, const TRowItr& beginRows, const TRowItr& endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                         missing[i] += isMissing((*row)[i]) ? 1 : 0;
@@ -1012,7 +1013,7 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
                                                 const TReadPredictionFunc& readPrediction) {
     TDoubleVector probabilities;
     auto readQuantiles = core::bindRetrievableState(
-        [=](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) mutable {
+        [=](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (isMissing((*row)[targetColumn]) == false) {
                     std::size_t actualClass{static_cast<std::size_t>((*row)[targetColumn])};
@@ -1089,7 +1090,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
 
         TSizeVec rowIndices;
         frame.readRows(1, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
                                sampler->sample(*row);
                            }
@@ -1110,7 +1111,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
 
     // Compute the count of each class in the sample set.
     auto readClassCountsAndRecalls = core::bindRetrievableState(
-        [&](TDoubleVector& state, TRowItr beginRows, TRowItr endRows) {
+        [&](TDoubleVector& state, const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (isMissing((*row)[targetColumn]) == false) {
                     int j{static_cast<int>((*row)[targetColumn])};
@@ -1167,7 +1168,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
         TDoubleVector probabilities;
         TDoubleVector scores;
         auto computeObjective = core::bindRetrievableState(
-            [=](TDoubleVector& state, TRowItr beginRows, TRowItr endRows) mutable {
+            [=](TDoubleVector& state, const TRowItr& beginRows, const TRowItr& endRows) mutable {
                 for (auto row = beginRows; row != endRows; ++row) {
                     if (isMissing((*row)[targetColumn]) == false) {
                         std::size_t j{static_cast<std::size_t>((*row)[targetColumn])};
@@ -1198,7 +1199,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
         TDoubleVector probabilities;
         TDoubleVector scores;
         auto computeObjectiveAndGradient = core::bindRetrievableState(
-            [=](TDoubleMatrix& state, TRowItr beginRows, TRowItr endRows) mutable {
+            [=](TDoubleMatrix& state, const TRowItr& beginRows, const TRowItr& endRows) mutable {
                 for (auto row = beginRows; row != endRows; ++row) {
                     if (isMissing((*row)[targetColumn]) == false) {
                         std::size_t j{static_cast<std::size_t>((*row)[targetColumn])};

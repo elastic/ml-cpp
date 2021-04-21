@@ -99,7 +99,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
         core::CJsonOutputStreamWrapper outputStreamWrapper(output);
         core::CRapidJsonConcurrentLineWriter writer(outputStreamWrapper);
 
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             auto columnHoldingDependentVariable =
                 std::find(columnNames.begin(), columnNames.end(), dependentVariableField) -
                 columnNames.begin();
