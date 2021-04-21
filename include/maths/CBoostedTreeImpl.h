@@ -291,6 +291,9 @@ private:
                  const core::CPackedBitVector& testingRowMask,
                  core::CLoopProgress& trainingProgress) const;
 
+    //! Compute the learn rate for the tree at \p index.
+    double etaForTreeAtPosition(std::size_t index) const;
+
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
 

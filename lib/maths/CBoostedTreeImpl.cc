@@ -817,14 +817,16 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     TDoubleVec losses;
     losses.reserve(m_MaximumNumberTrees);
+    scopeMemoryUsage.add(losses);
+
     CTrainForestStoppingCondition stoppingCondition{m_MaximumNumberTrees};
     TWorkspace workspace{m_Loss->numberParameters()};
 
     // For each iteration:
     //  1. Periodically compute weighted quantiles for features F and candidate
     //     splits S from F.
-    //  2. Build one tree on S
-    //  3. Update predictions and loss derivatives
+    //  2. Build one tree on S.
+    //  3. Update predictions and loss derivatives.
 
     do {
         auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
@@ -915,11 +917,13 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
     TDoubleVec losses;
     losses.reserve(m_TreesToRetrain.size());
+    scopeMemoryUsage.add(losses);
+
     TWorkspace workspace{m_Loss->numberParameters()};
 
-    // For feature candidate split set S, for each iteration:
-    //  1. Rebuild one tree on S
-    //  2. Update predictions and loss derivatives
+    // For each iteration:
+    //  1. Rebuild one tree on fixed upfront candidate splits of features.
+    //  2. Update predictions and loss derivatives.
 
     for (const auto& index : m_TreesToRetrain) {
 
@@ -930,8 +934,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
                                     makeRootLeafNodeStatistics, workspace);
 
         scopeMemoryUsage.add(tree);
-        double eta{std::min(
-            m_Eta + CTools::stable(std::pow(m_EtaGrowthRatePerTree, index)), 1.0)};
+        double eta{this->etaForTreeAtPosition(index)};
         auto loss = m_Loss->incremental(eta, m_PredictionChangeCost, m_BestForest[index]);
         this->refreshPredictionsAndLossDerivatives(
             frame, trainingRowMask, testingRowMask, *loss, eta,
@@ -950,6 +953,12 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
     retrainedTrees.resize(bestLoss + 1);
 
     return {std::move(retrainedTrees), losses[bestLoss], std::move(losses)};
+}
+
+double CBoostedTreeImpl::etaForTreeAtPosition(std::size_t index) const {
+    return std::min(m_Eta + CTools::stable(std::pow(m_EtaGrowthRatePerTree,
+                                                    static_cast<double>(index))),
+                    1.0);
 }
 
 core::CPackedBitVector
