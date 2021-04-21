@@ -194,9 +194,7 @@ public:
     //! \name Test Only
     //@{
     // TODO (@valeriy42) remove this method once we have a method to initialise incremental training.
-    const CBoostedTreeImpl& boostedTreeImpl() const {
-        return *m_TreeImpl;
-    }
+    const CBoostedTreeImpl& boostedTreeImpl() const { return *m_TreeImpl; }
     //@}
 
 private:
