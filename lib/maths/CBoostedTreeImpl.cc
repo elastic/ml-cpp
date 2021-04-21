@@ -1988,6 +1988,8 @@ void CBoostedTreeImpl::startProgressMonitoringTrainIncremental() {
 }
 
 namespace {
+// TODO Can we upgrade state after introducing incremental training or do we
+// need a new version tag?
 const std::string VERSION_7_11_TAG{"7.11"};
 const std::string VERSION_7_8_TAG{"7.8"};
 const TStrVec SUPPORTED_VERSIONS{VERSION_7_8_TAG, VERSION_7_11_TAG};
