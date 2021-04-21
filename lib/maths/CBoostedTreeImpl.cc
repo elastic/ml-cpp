@@ -349,6 +349,12 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     std::uint64_t lastLap{stopWatch.lap()};
 
     while (m_CurrentRound < m_NumberRounds) {
+
+        LOG_TRACE(<< "Optimisation round = " << m_CurrentRound + 1);
+        m_Instrumentation->iteration(m_CurrentRound + 1);
+
+        this->recordHyperparameters();
+
         TMeanVarAccumulator lossMoments;
         double numberNodes;
         std::tie(lossMoments, std::ignore, numberNodes) = this->crossValidateForest(
@@ -1835,22 +1841,28 @@ std::size_t CBoostedTreeImpl::numberTreesToRetrain() const {
 void CBoostedTreeImpl::recordHyperparameters() {
     m_Instrumentation->hyperparameters().s_Eta = m_Eta;
     m_Instrumentation->hyperparameters().s_ClassAssignmentObjective = m_ClassAssignmentObjective;
+    m_Instrumentation->hyperparameters().s_DepthPenaltyMultiplier =
+        m_Regularization.depthPenaltyMultiplier();
+    m_Instrumentation->hyperparameters().s_SoftTreeDepthLimit =
+        m_Regularization.softTreeDepthLimit();
+    m_Instrumentation->hyperparameters().s_SoftTreeDepthTolerance =
+        m_Regularization.softTreeDepthTolerance();
+    m_Instrumentation->hyperparameters().s_TreeSizePenaltyMultiplier =
+        m_Regularization.treeSizePenaltyMultiplier();
+    m_Instrumentation->hyperparameters().s_LeafWeightPenaltyMultiplier =
+        m_Regularization.leafWeightPenaltyMultiplier();
+    m_Instrumentation->hyperparameters().s_TreeTopologyChangePenalty =
+        m_Regularization.treeTopologyChangePenalty();
     m_Instrumentation->hyperparameters().s_DownsampleFactor = m_DownsampleFactor;
     m_Instrumentation->hyperparameters().s_NumFolds = m_NumberFolds;
     m_Instrumentation->hyperparameters().s_MaxTrees = m_MaximumNumberTrees;
     m_Instrumentation->hyperparameters().s_FeatureBagFraction = m_FeatureBagFraction;
+    m_Instrumentation->hyperparameters().s_PredictionChangeCost = m_PredictionChangeCost;
     m_Instrumentation->hyperparameters().s_EtaGrowthRatePerTree = m_EtaGrowthRatePerTree;
     m_Instrumentation->hyperparameters().s_MaxAttemptsToAddTree = m_MaximumAttemptsToAddTree;
     m_Instrumentation->hyperparameters().s_NumSplitsPerFeature = m_NumberSplitsPerFeature;
     m_Instrumentation->hyperparameters().s_MaxOptimizationRoundsPerHyperparameter =
         m_MaximumOptimisationRoundsPerHyperparameter;
-    m_Instrumentation->hyperparameters().s_Regularization =
-        CDataFrameTrainBoostedTreeInstrumentationInterface::SRegularization{
-            m_Regularization.depthPenaltyMultiplier(),
-            m_Regularization.softTreeDepthLimit(),
-            m_Regularization.softTreeDepthTolerance(),
-            m_Regularization.treeSizePenaltyMultiplier(),
-            m_Regularization.leafWeightPenaltyMultiplier()};
 }
 
 void CBoostedTreeImpl::initializeTunableHyperparameters() {

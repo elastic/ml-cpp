@@ -92,36 +92,25 @@ class MATHS_EXPORT CDataFrameTrainBoostedTreeInstrumentationInterface
     : virtual public CDataFrameAnalysisInstrumentationInterface {
 public:
     enum EStatsType { E_Regression, E_Classification };
-    struct SRegularization {
-        SRegularization() = default;
-        SRegularization(double depthPenaltyMultiplier,
-                        double softTreeDepthLimit,
-                        double softTreeDepthTolerance,
-                        double treeSizePenaltyMultiplier,
-                        double leafWeightPenaltyMultiplier)
-            : s_DepthPenaltyMultiplier{depthPenaltyMultiplier},
-              s_SoftTreeDepthLimit{softTreeDepthLimit}, s_SoftTreeDepthTolerance{softTreeDepthTolerance},
-              s_TreeSizePenaltyMultiplier{treeSizePenaltyMultiplier},
-              s_LeafWeightPenaltyMultiplier{leafWeightPenaltyMultiplier} {}
-        double s_DepthPenaltyMultiplier = -1.0;
-        double s_SoftTreeDepthLimit = -1.0;
-        double s_SoftTreeDepthTolerance = -1.0;
-        double s_TreeSizePenaltyMultiplier = -1.0;
-        double s_LeafWeightPenaltyMultiplier = -1.0;
-    };
     struct SHyperparameters {
-        double s_Eta = -1.0;
-        CBoostedTree::EClassAssignmentObjective s_ClassAssignmentObjective =
-            CBoostedTree::E_MinimumRecall;
-        SRegularization s_Regularization;
-        double s_DownsampleFactor = -1.0;
-        std::size_t s_NumFolds = 0;
-        std::size_t s_MaxTrees = 0;
-        double s_FeatureBagFraction = -1.0;
-        double s_EtaGrowthRatePerTree = -1.0;
-        std::size_t s_MaxAttemptsToAddTree = 0;
-        std::size_t s_NumSplitsPerFeature = 0;
-        std::size_t s_MaxOptimizationRoundsPerHyperparameter = 0;
+        double s_Eta{-1.0};
+        CBoostedTree::EClassAssignmentObjective s_ClassAssignmentObjective{
+            CBoostedTree::E_MinimumRecall};
+        double s_DepthPenaltyMultiplier{-1.0};
+        double s_SoftTreeDepthLimit{-1.0};
+        double s_SoftTreeDepthTolerance{-1.0};
+        double s_TreeSizePenaltyMultiplier{-1.0};
+        double s_LeafWeightPenaltyMultiplier{-1.0};
+        double s_TreeTopologyChangePenalty{-1.0};
+        double s_DownsampleFactor{-1.0};
+        std::size_t s_NumFolds{0};
+        std::size_t s_MaxTrees{0};
+        double s_FeatureBagFraction{-1.0};
+        double s_EtaGrowthRatePerTree{-1.0};
+        double s_PredictionChangeCost{-1.0};
+        std::size_t s_MaxAttemptsToAddTree{0};
+        std::size_t s_NumSplitsPerFeature{0};
+        std::size_t s_MaxOptimizationRoundsPerHyperparameter{0};
     };
     using TDoubleVec = std::vector<double>;
 
