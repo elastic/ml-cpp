@@ -188,6 +188,8 @@ inline double readActual(const TRowRef& row, std::size_t dependentVariable) {
 }
 
 //! Compute the probabilities with which to select each tree for retraining.
+//!
+//! TODO should this be a member of CBoostedTreeImpl.
 MATHS_EXPORT
 TDoubleVec
 retrainTreeSelectionProbabilities(std::size_t numberThreads,

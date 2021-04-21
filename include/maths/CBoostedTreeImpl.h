@@ -96,7 +96,7 @@ public:
     //! Incrementally train the current model on the values in \p frame.
     //!
     //! \warning Assumes that train has already been called or a trained model has
-    //! has been reloaded.
+    //! been reloaded.
     void trainIncremental(core::CDataFrame& frame,
                           const TTrainingStateCallback& recordTrainStateCallback);
 

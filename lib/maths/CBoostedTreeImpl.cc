@@ -1788,7 +1788,8 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
               << ", downsample factor* = " << m_DownsampleFactor << ", eta* = " << m_Eta
               << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
               << ", maximum number trees* = " << m_MaximumNumberTrees
-              << ", feature bag fraction* = " << m_FeatureBagFraction);
+              << ", feature bag fraction* = " << m_FeatureBagFraction
+              << ", prediction change cost* = " << m_PredictionChangeCost);
 }
 
 void CBoostedTreeImpl::scaleRegularizers(double scale) {
