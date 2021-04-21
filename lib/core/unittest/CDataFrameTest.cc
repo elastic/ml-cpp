@@ -86,7 +86,7 @@ makeReader(TFloatVec& components, std::size_t cols, bool& passed) {
 
 class CThreadReader {
 public:
-    void operator()(TRowItr beginRows, TRowItr endRows) {
+    void operator()(const TRowItr& beginRows, const TRowItr& endRows) {
         TSizeFloatVecUMap::iterator entry;
         for (auto row = beginRows; row != endRows; ++row) {
             bool added;
@@ -302,7 +302,7 @@ BOOST_FIXTURE_TEST_CASE(testReadRange, CTestFixture) {
                     bool passed{true};
                     frame->readRows(
                         threads, beginRowsInRange, endRowsInRange,
-                        [&](TRowItr beginRows, TRowItr endRows) {
+                        [&](const TRowItr& beginRows, const TRowItr& endRows) {
                             for (auto row = beginRows; row != endRows; ++row) {
                                 if (passed && (row->index() < beginRowsInRange ||
                                                row->index() >= endRowsInRange)) {
@@ -371,16 +371,16 @@ BOOST_FIXTURE_TEST_CASE(testWriteRange, CTestFixture) {
                     LOG_DEBUG(<< "Writing [" << beginRowsInRange << ","
                               << endRowsInRange << ")");
 
-                    frame->writeColumns(threads, beginRowsInRange, endRowsInRange,
-                                        [&](TRowItr beginRows, TRowItr endRows) {
-                                            for (auto row = beginRows;
-                                                 row != endRows; ++row) {
-                                                (*row)[0] += 2.0;
-                                            }
-                                        });
+                    frame->writeColumns(
+                        threads, beginRowsInRange, endRowsInRange,
+                        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                            for (auto row = beginRows; row != endRows; ++row) {
+                                (*row)[0] += 2.0;
+                            }
+                        });
 
                     bool passed{true};
-                    frame->readRows(threads, [&](TRowItr beginRows, TRowItr endRows) {
+                    frame->readRows(threads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
                         for (auto row = beginRows; row != endRows; ++row) {
                             if (passed) {
                                 auto column = components.begin() + row->index() * cols;
@@ -561,8 +561,8 @@ BOOST_FIXTURE_TEST_CASE(testResizeColumns, CTestFixture) {
 
         bool successful;
         bool passed{true};
-        std::tie(std::ignore, successful) =
-            frame->readRows(1, [&passed](TRowItr beginRows, TRowItr endRows) {
+        std::tie(std::ignore, successful) = frame->readRows(
+            1, [&passed](const TRowItr& beginRows, const TRowItr& endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     if (passed && row->numberColumns() != 18) {
                         LOG_DEBUG(<< "got " << row->numberColumns() << " columns");
@@ -617,7 +617,7 @@ BOOST_FIXTURE_TEST_CASE(testWriteColumns, CTestFixture) {
         frame->finishWritingRows();
 
         frame->resizeColumns(2, 18);
-        frame->writeColumns(2, [&](TRowItr beginRows, TRowItr endRows) mutable {
+        frame->writeColumns(2, [&](const TRowItr& beginRows, const TRowItr& endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t j = 15; j < 18; ++j) {
                     std::size_t index{row->index() * (cols + extraCols) + j};
@@ -672,7 +672,7 @@ BOOST_FIXTURE_TEST_CASE(testDocHashes, CTestFixture) {
         frame->finishWritingRows();
 
         frame->resizeColumns(2, 18);
-        frame->writeColumns(2, [&](TRowItr beginRows, TRowItr endRows) mutable {
+        frame->writeColumns(2, [&](const TRowItr& beginRows, const TRowItr& endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t j = 15; j < 18; ++j) {
                     std::size_t index{row->index() * (cols + extraCols) + j};
@@ -685,7 +685,7 @@ BOOST_FIXTURE_TEST_CASE(testDocHashes, CTestFixture) {
         bool passed{true};
         std::tie(std::ignore, successful) = frame->readRows(1, [
             &passed, cols, extraCols, expectedDocHash = std::int32_t{0}
-        ](TRowItr beginRows, TRowItr endRows) mutable {
+        ](const TRowItr& beginRows, const TRowItr& endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (passed && row->docHash() != expectedDocHash) {
                     LOG_ERROR(<< "Got doc hash " << row->docHash() << " expected "
@@ -764,8 +764,8 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                         ->readRows(
                             numberThreads, ranges[i][0], ranges[i][1],
                             core::bindRetrievableState(
-                                [](TSizeVec& readerReadRowsIndices,
-                                   TRowItr beginRows, TRowItr endRows) mutable {
+                                [](TSizeVec& readerReadRowsIndices, const TRowItr& beginRows,
+                                   const TRowItr& endRows) mutable {
                                     for (auto row = beginRows; row != endRows; ++row) {
                                         readerReadRowsIndices.push_back(row->index());
                                     }
@@ -809,8 +809,8 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                         ->readRows(
                             numberThreads, 0, rows,
                             core::bindRetrievableState(
-                                [](TSizeVec& readerReadRowsIndices,
-                                   TRowItr beginRows, TRowItr endRows) mutable {
+                                [](TSizeVec& readerReadRowsIndices, const TRowItr& beginRows,
+                                   const TRowItr& endRows) mutable {
                                     for (auto row = beginRows; row != endRows; ++row) {
                                         readerReadRowsIndices.push_back(row->index());
                                     }
@@ -874,7 +874,7 @@ BOOST_FIXTURE_TEST_CASE(testAlignment, CTestFixture) {
             }
             frame->finishWritingRows();
 
-            frame->readRows(1, [alignment](TRowItr beginRows, TRowItr endRows) {
+            frame->readRows(1, [alignment](const TRowItr& beginRows, const TRowItr& endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     BOOST_TEST_REQUIRE(core::CAlignment::isAligned(row->data(), alignment));
                 }
@@ -938,7 +938,7 @@ BOOST_FIXTURE_TEST_CASE(testAlignedExtraColumns, CTestFixture) {
             }
 
             BOOST_TEST_REQUIRE(extraCols.size() == offsets.size());
-            frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     for (std::size_t i = 0; i < extraCols.size(); ++i) {
                         BOOST_TEST_REQUIRE(core::CAlignment::isAligned(
