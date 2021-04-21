@@ -4,11 +4,11 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CPackedBitVector.h"
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
+#include <core/CPackedBitVector.h>
 #include <core/CRegex.h>
 #include <core/CStopWatch.h>
 

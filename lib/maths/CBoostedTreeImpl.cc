@@ -904,7 +904,6 @@ CBoostedTreeImpl::retrainForest(core::CDataFrame& frame,
 
     TDoubleVec losses;
     losses.reserve(m_TreesToRetrain.size());
-    CTrainForestStoppingCondition stoppingCondition{m_TreesToRetrain.size()};
     TWorkspace workspace{m_Loss->numberParameters()};
 
     // For feature candidate split set S, for each iteration:
@@ -935,7 +934,8 @@ CBoostedTreeImpl::retrainForest(core::CDataFrame& frame,
         losses.push_back(this->meanAdjustedLoss(frame, testingRowMask));
     }
 
-    auto bestLoss = std::min_element(losses.begin(), losses.end()) - losses.begin();
+    auto bestLoss = static_cast<std::size_t>(
+        std::min_element(losses.begin(), losses.end()) - losses.begin());
     retrainedTrees.resize(bestLoss + 1);
 
     return {std::move(retrainedTrees), losses[bestLoss], std::move(losses)};
