@@ -124,6 +124,14 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
         this->initializeHyperparameterOptimisation();
     }
 
+    m_TreeImpl->m_BestHyperparameters =
+        CBoostedTreeHyperparameters(m_TreeImpl->m_Regularization,
+                                    m_TreeImpl->m_DownsampleFactor,
+                                    m_TreeImpl->m_Eta,
+                                    m_TreeImpl->m_EtaGrowthRatePerTree,
+                                    m_TreeImpl->m_MaximumNumberTrees,
+                                    m_TreeImpl->m_FeatureBagFraction);
+
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);

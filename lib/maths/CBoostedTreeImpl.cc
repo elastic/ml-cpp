@@ -196,12 +196,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     this->startProgressMonitoringFineTuneHyperparameters();
 
-    // We need to initialize best hyperparameter in case we drop
-    // through hyperparameter optimization directly to final training.
-    m_BestForestTestLoss = std::numeric_limits<double>::infinity();
-    m_BestHyperparameters = CBoostedTreeHyperparameters{
-        m_Regularization,       m_DownsampleFactor,   m_Eta,
-        m_EtaGrowthRatePerTree, m_MaximumNumberTrees, m_FeatureBagFraction};
 
     if (this->canTrain() == false) {
 
@@ -309,7 +303,7 @@ void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainStat
 }
 
 void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
-    if (m_BestForestTestLoss == INF) {
+    if (m_BestForest.empty()) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
                      << "Please report this problem.");
         return;
@@ -1340,6 +1334,9 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         case E_FeatureBagFraction:
             parameters(i) = m_FeatureBagFraction;
             break;
+        case E_MaximumNumberTrees:
+            parameters(i) = static_cast<double>(m_MaximumNumberTrees);
+            break;
         case E_Gamma:
             parameters(i) = CTools::stableLog(
                 m_Regularization.treeSizePenaltyMultiplier() / scale);
@@ -1407,6 +1404,9 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
             break;
         case E_FeatureBagFraction:
             m_FeatureBagFraction = parameters(i);
+            break;
+        case E_MaximumNumberTrees:
+            m_MaximumNumberTrees = static_cast<std::size_t>(std::ceil(parameters(i)));
             break;
         case E_Gamma:
             m_Regularization.treeSizePenaltyMultiplier(
@@ -2017,6 +2017,8 @@ CBoostedTreeImpl::hyperparameterImportance() const {
             std::tie(absoluteImportance, relativeImportance) = anovaMainEffects[tunableIndex];
         }
         double hyperparameterValue;
+        SHyperparameterImportance::EType hyperparameterType{
+            boosted_tree_detail::SHyperparameterImportance::E_Double};
         switch (i) {
         case E_Alpha:
             hyperparameterValue = m_Regularization.depthPenaltyMultiplier();
@@ -2035,6 +2037,7 @@ CBoostedTreeImpl::hyperparameterImportance() const {
             break;
         case E_MaximumNumberTrees:
             hyperparameterValue = static_cast<double>(m_MaximumNumberTrees);
+            hyperparameterType = boosted_tree_detail::SHyperparameterImportance::E_Uint64;
             break;
         case E_Gamma:
             hyperparameterValue = m_Regularization.treeSizePenaltyMultiplier();
@@ -2049,9 +2052,9 @@ CBoostedTreeImpl::hyperparameterImportance() const {
             hyperparameterValue = m_Regularization.softTreeDepthTolerance();
             break;
         }
-        hyperparameterImportances.emplace_back(static_cast<EHyperparameters>(i),
-                                               hyperparameterValue, absoluteImportance,
-                                               relativeImportance, supplied);
+        hyperparameterImportances.push_back(
+            {static_cast<EHyperparameters>(i), hyperparameterValue,
+             absoluteImportance, relativeImportance, supplied, hyperparameterType});
     }
     return hyperparameterImportances;
 }

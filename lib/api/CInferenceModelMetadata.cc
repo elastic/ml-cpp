@@ -10,6 +10,7 @@
 #include <maths/CBoostedTreeUtils.h>
 
 #include <cmath>
+#include <cstdint>
 
 namespace ml {
 namespace api {
@@ -149,10 +150,13 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
         writer.Key(JSON_HYPERPARAMETER_NAME_TAG);
         writer.String(item.s_HyperparameterName);
         writer.Key(JSON_HYPERPARAMETER_VALUE_TAG);
-        if (item.s_HyperparameterName == CDataFrameTrainBoostedTreeRunner::MAX_TREES) {
-            writer.Uint64(static_cast<std::size_t>(item.s_Value));
-        } else {
+        switch (item.s_Type) {
+        case SHyperparameterImportance::E_Double:
             writer.Double(item.s_Value);
+            break;
+        case SHyperparameterImportance::E_Uint64:
+            writer.Uint64(static_cast<std::uint64_t>(item.s_Value));
+            break;
         }
         if (item.s_Supplied == false) {
             writer.Key(JSON_ABSOLUTE_IMPORTANCE_TAG);
@@ -246,8 +250,9 @@ void CInferenceModelMetadata::hyperparameterImportance(
         double relativeImportance{(std::fabs(item.s_RelativeImportance) < 1e-8)
                                       ? 0.0
                                       : item.s_RelativeImportance};
-        m_HyperparameterImportance.emplace_back(hyperparameterName, item.s_Value, absoluteImportance,
-                                                relativeImportance, item.s_Supplied);
+        m_HyperparameterImportance.push_back(
+            {hyperparameterName, item.s_Value, absoluteImportance, relativeImportance,
+             item.s_Supplied, static_cast<SHyperparameterImportance::EType>(item.s_Type)});
     }
     std::sort(m_HyperparameterImportance.begin(),
               m_HyperparameterImportance.end(), [](const auto& a, const auto& b) {
