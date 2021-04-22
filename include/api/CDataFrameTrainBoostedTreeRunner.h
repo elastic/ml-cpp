@@ -49,6 +49,8 @@ public:
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
     static const std::string MAX_TREES;
     static const std::string FEATURE_BAG_FRACTION;
+    static const std::string PREDICTION_CHANGE_COST;
+    static const std::string TREE_TOPOLOGY_CHANGE_PENALTY;
     static const std::string NUM_FOLDS;
     static const std::string STOP_CROSS_VALIDATION_EARLY;
     static const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER;
@@ -76,10 +78,10 @@ public:
     //! \return The capacity of the data frame slice to use.
     std::size_t dataFrameSliceCapacity() const override;
 
-    //! The boosted tree.
+    //! \return The boosted tree.
     const maths::CBoostedTree& boostedTree() const;
 
-    //! The boosted tree factory.
+    //! \return The boosted tree factory.
     const maths::CBoostedTreeFactory& boostedTreeFactory() const;
 
     //! \return Reference to the analysis state.
@@ -98,13 +100,13 @@ protected:
                                      const CDataFrameAnalysisParameters& parameters,
                                      TLossFunctionUPtr loss);
 
-    //! Parameter reader handling parameters that are shared by subclasses.
+    //! \return The parameter reader handling parameters that are shared by subclasses.
     static const CDataFrameAnalysisConfigReader& parameterReader();
-    //! Name of dependent variable field.
+    //! \return The name of dependent variable field.
     const std::string& dependentVariableFieldName() const;
-    //! Name of prediction field.
+    //! \return The name of prediction field.
     const std::string& predictionFieldName() const;
-    //! The boosted tree factory.
+    //! \return The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();
 
     //! Validate if \p frame is suitable for running the analysis on.

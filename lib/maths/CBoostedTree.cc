@@ -145,7 +145,7 @@ std::size_t CBoostedTreeNode::numberSamples() const {
 
 CBoostedTree::CBoostedTree(core::CDataFrame& frame,
                            TTrainingStateCallback recordTrainingState,
-                           TImplUPtr&& impl)
+                           TImplUPtr&& impl) noexcept
     : CDataFramePredictiveModel{frame, std::move(recordTrainingState)}, m_Impl{std::move(impl)} {
 }
 
@@ -155,8 +155,8 @@ void CBoostedTree::train() {
     m_Impl->train(this->frame(), this->trainingStateRecorder());
 }
 
-bool CBoostedTree::trainIncremental() {
-    return m_Impl->trainIncremental(this->frame(), this->trainingStateRecorder());
+void CBoostedTree::trainIncremental() {
+    m_Impl->trainIncremental(this->frame(), this->trainingStateRecorder());
 }
 
 void CBoostedTree::predict() const {

@@ -54,6 +54,10 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(MAX_TREES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_BAG_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(PREDICTION_CHANGE_COST,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(TREE_TOPOLOGY_CHANGE_PENALTY,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUM_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(STOP_CROSS_VALIDATION_EARLY,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -116,6 +120,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
+    double predictionChangeCost{parameters[PREDICTION_CHANGE_COST].fallback(-1.0)};
+    double treeTopologyChangePenalty{parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(-1.0)};
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
                                     m_CustomProcessors.GetAllocator());
@@ -148,6 +154,13 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         (featureBagFraction <= 0.0 || featureBagFraction > 1.0)) {
         HANDLE_FATAL(<< "Input error: '" << FEATURE_BAG_FRACTION
                      << "' should be in the range (0, 1]");
+    }
+    if (predictionChangeCost != -1.0 && predictionChangeCost < 0.0) {
+        HANDLE_FATAL(<< "Input error: '" << PREDICTION_CHANGE_COST << "' should be non-negative");
+    }
+    if (treeTopologyChangePenalty != -1.0 && treeTopologyChangePenalty < 0.0) {
+        HANDLE_FATAL(<< "Input error: '" << TREE_TOPOLOGY_CHANGE_PENALTY
+                     << "' should be non-negative");
     }
 
     switch (m_Task) {
@@ -218,11 +231,18 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (featureBagFraction > 0.0 && featureBagFraction <= 1.0) {
         m_BoostedTreeFactory->featureBagFraction(featureBagFraction);
     }
+    if (predictionChangeCost >= 0.0) {
+        m_BoostedTreeFactory->predictionChangeCost(predictionChangeCost);
+    }
+    if (treeTopologyChangePenalty >= 0.0) {
+        m_BoostedTreeFactory->treeTopologyChangePenalty(treeTopologyChangePenalty);
+    }
     if (numberFolds > 1) {
         m_BoostedTreeFactory->numberFolds(numberFolds);
     }
     if (numberRoundsPerHyperparameter > 0) {
-        m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameter(numberRoundsPerHyperparameter);
+        m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameterForTrain(
+            numberRoundsPerHyperparameter);
     }
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
@@ -338,7 +358,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
                                                     restoreSearcher);
         }
         if (treeRestored == false) {
-            m_BoostedTree = m_BoostedTreeFactory->buildFor(frame, dependentVariableColumn);
+            m_BoostedTree = m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
         }
     }
 
@@ -442,6 +462,8 @@ const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
+const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST{"prediction_change_cost"};
+const std::string CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY{"tree_topology_change_penalty"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_FOLDS{"num_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::STOP_CROSS_VALIDATION_EARLY{"stop_cross_validation_early"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER{"max_optimization_rounds_per_hyperparameter"};

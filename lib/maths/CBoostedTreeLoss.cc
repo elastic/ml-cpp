@@ -133,7 +133,7 @@ void CArgMinMseIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
                                     double actual,
                                     double weight) {
     m_MeanError.add(actual - prediction(0), weight);
-    if (newExample) {
+    if (newExample == false) {
         m_MeanTreePredictions.add(root(*m_Tree).value(row, *m_Tree)(0));
     }
 }
@@ -150,18 +150,18 @@ CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() cons
 
     // We searching for the value x^* which satisfies
     //
-    //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2 + 1{old} mu (p_i' - eta x)^2} + lambda * x^2 }
+    //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2 + 1{old} mu (p_i' / eta - x)^2} + lambda * x^2 }
     //
     // Here, a_i are the actuals, p_i the predictions and p_i' the predictions from
     // the tree being retrained. This is convex so there is one minimum where the
     // derivative w.r.t. x is zero and
     //
-    //   x^* = 1 / (n (1 + n' / n mu eta^2) + lambda) sum_i{ a_i - p_i + mu eta 1{old} p_i' }.
+    //   x^* = 1 / (n (1 + n' / n mu) + lambda) sum_i{ a_i - p_i + mu / eta 1{old} p_i' }.
     //
     // where n' = sum_i 1{old}. Denoting the mean prediction error m = 1/n sum_i{ a_i - p_i }
     // and the mean tree predictions p' = 1/n' sum_i{p_i'} we have
     //
-    //   x^* = n / (n (1 + n' / n mu eta^2) + lambda) (m + n' / n mu eta p').
+    //   x^* = n / (n (1 + n' / n mu) + lambda) (m + n' / n mu / eta p').
     //
     // In the following we absorb n' / n into the value of mu.
 
@@ -172,10 +172,9 @@ CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() cons
     double mu{(count == oldCount ? 1.0 : oldCount / count) * m_Mu};
 
     TDoubleVector result(1);
-    result(0) = count == 0.0
-                    ? 0.0
-                    : count / (count * (1.0 + mu * CTools::pow2(m_Eta)) + this->lambda()) *
-                          (meanError + mu * m_Eta * meanTreePrediction);
+    result(0) = count == 0.0 ? 0.0
+                             : count / (count * (1.0 + mu) + this->lambda()) *
+                                   (meanError + mu / m_Eta * meanTreePrediction);
     return result;
 }
 
@@ -808,6 +807,12 @@ bool CMse::isCurvatureConstant() const {
     return true;
 }
 
+double CMse::difference(const TMemoryMappedFloatVector& prediction,
+                        const TMemoryMappedFloatVector& previousPrediction,
+                        double weight) const {
+    return weight * CTools::pow2(prediction(0) - previousPrediction(0));
+}
+
 CMse::TDoubleVector CMse::transform(const TMemoryMappedFloatVector& prediction) const {
     return TDoubleVector{prediction};
 }
@@ -884,7 +889,7 @@ void CMseIncremental::gradient(const CEncodedDataFrameRowRef& row,
         writer(0, 2.0 * weight * (prediction(0) - actual));
     } else {
         double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
-        writer(0, 2.0 * weight * (prediction(0) - actual + m_Mu * m_Eta * treePrediction));
+        writer(0, 2.0 * weight * (prediction(0) - actual + m_Mu / m_Eta * treePrediction));
     }
 }
 
@@ -893,11 +898,17 @@ void CMseIncremental::curvature(bool newExample,
                                 double /*actual*/,
                                 const TWriter& writer,
                                 double weight) const {
-    writer(0, 2.0 * weight * (1.0 + (newExample ? 0.0 : m_Mu * CTools::pow2(m_Eta))));
+    writer(0, 2.0 * weight * (1.0 + (newExample ? 0.0 : m_Mu)));
 }
 
 bool CMseIncremental::isCurvatureConstant() const {
     return true;
+}
+
+double CMseIncremental::difference(const TMemoryMappedFloatVector& prediction,
+                                   const TMemoryMappedFloatVector& previousPrediction,
+                                   double weight) const {
+    return weight * CTools::pow2(prediction(0) - previousPrediction(0));
 }
 
 CMse::TDoubleVector CMseIncremental::transform(const TMemoryMappedFloatVector& prediction) const {
@@ -993,6 +1004,16 @@ bool CMsle::isCurvatureConstant() const {
     return false;
 }
 
+double CMsle::difference(const TMemoryMappedFloatVector& logPrediction,
+                         const TMemoryMappedFloatVector& logPreviousPrediction,
+                         double weight) const {
+    double prediction{CTools::stableExp(logPrediction(0))};
+    double previousPrediction{CTools::stableExp(logPreviousPrediction(0))};
+    double logOffsetPrediction{CTools::stableLog(m_Offset + prediction)};
+    double logOffsetPreviousPrediction{CTools::stableLog(m_Offset + previousPrediction)};
+    return weight * CTools::pow2(logOffsetPrediction - logOffsetPreviousPrediction);
+}
+
 CMsle::TDoubleVector CMsle::transform(const TMemoryMappedFloatVector& prediction) const {
     TDoubleVector result{1};
     result(0) = std::exp(prediction(0));
@@ -1051,35 +1072,40 @@ std::size_t CPseudoHuber::numberParameters() const {
     return 1;
 }
 
-double CPseudoHuber::value(const TMemoryMappedFloatVector& predictionVec,
+double CPseudoHuber::value(const TMemoryMappedFloatVector& prediction,
                            double actual,
                            double weight) const {
     double delta2{CTools::pow2(m_Delta)};
-    double prediction{predictionVec[0]};
     return weight * delta2 *
-           (std::sqrt(1.0 + CTools::pow2(actual - prediction) / delta2) - 1.0);
+           (std::sqrt(1.0 + CTools::pow2(actual - prediction(0)) / delta2) - 1.0);
 }
 
-void CPseudoHuber::gradient(const TMemoryMappedFloatVector& predictionVec,
+void CPseudoHuber::gradient(const TMemoryMappedFloatVector& prediction,
                             double actual,
                             const TWriter& writer,
                             double weight) const {
-    double prediction{predictionVec(0)};
-    writer(0, weight * (prediction - actual) /
-                  (std::sqrt(1.0 + CTools::pow2((actual - prediction) / m_Delta))));
+    writer(0, weight * (prediction(0) - actual) /
+                  (std::sqrt(1.0 + CTools::pow2((actual - prediction(0)) / m_Delta))));
 }
 
-void CPseudoHuber::curvature(const TMemoryMappedFloatVector& predictionVec,
+void CPseudoHuber::curvature(const TMemoryMappedFloatVector& prediction,
                              double actual,
                              const TWriter& writer,
                              double weight) const {
-    double prediction{predictionVec(0)};
-    double result{1.0 / (std::sqrt(1.0 + CTools::pow2((actual - prediction) / m_Delta)))};
+    double result{1.0 / (std::sqrt(1.0 + CTools::pow2((actual - prediction(0)) / m_Delta)))};
     writer(0, weight * result);
 }
 
 bool CPseudoHuber::isCurvatureConstant() const {
     return false;
+}
+
+double CPseudoHuber::difference(const TMemoryMappedFloatVector& prediction,
+                                const TMemoryMappedFloatVector& previousPrediction,
+                                double weight) const {
+    double delta2{CTools::pow2(m_Delta)};
+    return weight * delta2 *
+           (std::sqrt(1.0 + CTools::pow2(prediction(0) - previousPrediction(0)) / delta2) - 1.0);
 }
 
 CPseudoHuber::TDoubleVector
@@ -1173,6 +1199,15 @@ void CBinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& prediction
 
 bool CBinomialLogisticLoss::isCurvatureConstant() const {
     return false;
+}
+
+double CBinomialLogisticLoss::difference(const TMemoryMappedFloatVector& prediction,
+                                         const TMemoryMappedFloatVector& previousPrediction,
+                                         double weight) const {
+    // The cross entropy of the new predicted probabilities given the previous ones.
+    double previousProbability{CTools::logisticFunction(previousPrediction(0))};
+    return -weight * ((1.0 - previousProbability) * logOneMinusLogistic(prediction(0)) +
+                      previousProbability * logLogistic(prediction(0)));
 }
 
 CBinomialLogisticLoss::TDoubleVector
@@ -1331,6 +1366,28 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
 
 bool CMultinomialLogisticLoss::isCurvatureConstant() const {
     return false;
+}
+
+double CMultinomialLogisticLoss::difference(const TMemoryMappedFloatVector& predictions,
+                                            const TMemoryMappedFloatVector& previousPredictions,
+                                            double weight) const {
+
+    // The cross entropy of the new predicted probabilities given the previous ones.
+
+    double zmax{predictions.maxCoeff()};
+    double logZ{0.0};
+    for (int i = 0; i < predictions.size(); ++i) {
+        logZ += std::exp(predictions(i) - zmax);
+    }
+    logZ = zmax + CTools::stableLog(logZ);
+
+    double result{0};
+    auto previousProbabilities = this->transform(previousPredictions);
+    for (int i = 0; i < predictions.size(); ++i) {
+        result += previousProbabilities(i) * (logZ - predictions(i));
+    }
+
+    return weight * result;
 }
 
 CMultinomialLogisticLoss::TDoubleVector

@@ -207,7 +207,7 @@ public:
     //! \brief Visits each encoding type.
     class MATHS_EXPORT CVisitor {
     public:
-        virtual ~CVisitor() = default;
+        virtual ~CVisitor() noexcept = default;
         virtual void addIdentityEncoding(std::size_t inputColumnIndex) = 0;
         virtual void addOneHotEncoding(std::size_t inputColumnIndex,
                                        std::size_t hotCategory) = 0;

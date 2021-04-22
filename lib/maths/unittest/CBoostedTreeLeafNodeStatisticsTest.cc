@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         featureSplits.push_back(TImmutableRadixSet(splitValues));
 
         maths::CBoostedTreeLeafNodeStatistics::CWorkspace workspace{1};
-        workspace.reinitialize(numberThreads, featureSplits, 1);
+        workspace.reinitialize(numberThreads, featureSplits);
 
         core::CPackedBitVector trainingRowMask(rows, true);
 

@@ -35,9 +35,15 @@ using TAlignedMemoryMappedFloatVector =
     CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
 using TRegularization = CBoostedTreeRegularization<double>;
 
-enum EExtraColumn { E_Prediction = 0, E_Gradient, E_Curvature, E_Weight };
+enum EExtraColumn {
+    E_Prediction = 0,
+    E_Gradient,
+    E_Curvature,
+    E_Weight,
+    E_PreviousPrediction
+};
 
-enum EHyperparameters {
+enum EHyperparameter {
     E_DownsampleFactor = 0,
     E_Alpha,
     E_Lambda,
@@ -46,13 +52,15 @@ enum EHyperparameters {
     E_SoftTreeDepthTolerance,
     E_Eta,
     E_EtaGrowthRatePerTree,
-    E_FeatureBagFraction
+    E_FeatureBagFraction,
+    E_PredictionChangeCost,
+    E_TreeTopologyChangePenalty
 };
 
-constexpr std::size_t NUMBER_HYPERPARAMETERS = E_FeatureBagFraction + 1; // This must be last hyperparameter
+constexpr std::size_t NUMBER_HYPERPARAMETERS = E_TreeTopologyChangePenalty + 1; // This must be last hyperparameter
 
 struct SHyperparameterImportance {
-    SHyperparameterImportance(EHyperparameters hyperparameter,
+    SHyperparameterImportance(EHyperparameter hyperparameter,
                               double value,
                               double absoluteImportance,
                               double relativeImportance,
@@ -60,7 +68,7 @@ struct SHyperparameterImportance {
         : s_Hyperparameter(hyperparameter), s_Value(value),
           s_AbsoluteImportance(absoluteImportance),
           s_RelativeImportance(relativeImportance), s_Supplied(supplied) {}
-    EHyperparameters s_Hyperparameter;
+    EHyperparameter s_Hyperparameter;
     double s_Value;
     double s_AbsoluteImportance;
     double s_RelativeImportance;
@@ -86,11 +94,16 @@ inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters
 }
 
 //! Get the extra columns needed by training.
-inline TSizeAlignmentPrVec extraColumns(std::size_t numberLossParameters) {
+inline TSizeAlignmentPrVec extraColumnsForTrain(std::size_t numberLossParameters) {
     return {{numberLossParameters, core::CAlignment::E_Unaligned},
             {numberLossParameters, core::CAlignment::E_Aligned16},
             {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned},
             {1, core::CAlignment::E_Unaligned}};
+}
+
+//! Get the extra columns needed by incremental training.
+inline TSizeAlignmentPrVec extraColumnsForIncrementalTrain(std::size_t numberLossParameters) {
+    return {{numberLossParameters, core::CAlignment::E_Unaligned}};
 }
 
 //! Read the prediction from \p row.
@@ -103,6 +116,15 @@ inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
 //! Zero the prediction of \p row.
 MATHS_EXPORT
 void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
+
+//! Read the previous prediction for \p row if training incementally.
+MATHS_EXPORT
+inline TMemoryMappedFloatVector readPreviousPrediction(const TRowRef& row,
+                                                       const TSizeVec& extraColumns,
+                                                       std::size_t numberLossParameters) {
+    return {row.data() + extraColumns[E_PreviousPrediction],
+            static_cast<int>(numberLossParameters)};
+}
 
 //! Read all the loss derivatives from \p row into an aligned vector.
 inline TAlignedMemoryMappedFloatVector
@@ -166,6 +188,8 @@ inline double readActual(const TRowRef& row, std::size_t dependentVariable) {
 }
 
 //! Compute the probabilities with which to select each tree for retraining.
+//!
+//! TODO should this be a member of CBoostedTreeImpl.
 MATHS_EXPORT
 TDoubleVec
 retrainTreeSelectionProbabilities(std::size_t numberThreads,

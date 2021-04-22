@@ -1139,7 +1139,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
     auto frame = setupLinearRegressionProblem(rows, cols);
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+                          .buildForTrain(*frame, cols - 1);
     regression->train();
     regression->predict();
 
@@ -1159,8 +1159,9 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
         double actual{readActual(row, regression->columnHoldingDependentVariable())};
         auto prediction = readPrediction(row, extraColumns, mse.numberParameters());
         double treePrediction{root(tree).value(encoder.encode(row), tree)(0)};
-        return maths::CTools::pow2(actual - (prediction(0) + x)) +
-               mu * maths::CTools::pow2(treePrediction - eta * x);
+        double weight{readExampleWeight(row, extraColumns)};
+        return weight * (maths::CTools::pow2(actual - (prediction(0) + x)) +
+                         mu * maths::CTools::pow2(treePrediction / eta - x));
     };
 
     TDoubleVec leafMinimizers;
@@ -1181,7 +1182,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
                                row, regression->columnHoldingDependentVariable())};
                            double weight{readExampleWeight(row, extraColumns)};
                            leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
-                               encodedRow, true /*new example*/, prediction, actual, weight);
+                               encodedRow, false /*new example*/, prediction, actual, weight);
                        }
                    },
                    std::move(leafValues)));
@@ -1209,8 +1210,8 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
                            auto i = rootNode.leafIndex(encodedRow, tree);
                            double x{leafMinimizers[i]};
                            adjustedLosses_[i][min] += adjustedLoss(row, x);
-                           adjustedLosses_[i][minMinusEps] += adjustedLoss(row, x - 0.01);
-                           adjustedLosses_[i][minPlusEps] += adjustedLoss(row, x + 0.01);
+                           adjustedLosses_[i][minMinusEps] += adjustedLoss(row, x - eps);
+                           adjustedLosses_[i][minPlusEps] += adjustedLoss(row, x + eps);
                        }
                    },
                    std::move(leafLosses)));
@@ -1242,7 +1243,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLossGradientAndCurvature) {
     auto frame = setupLinearRegressionProblem(rows, cols);
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::boosted_tree::CMse>())
-                          .buildFor(*frame, cols - 1);
+                          .buildForTrain(*frame, cols - 1);
     regression->train();
     regression->predict();
 

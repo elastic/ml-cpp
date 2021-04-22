@@ -55,7 +55,7 @@ public:
     //! Incrementally train the current model.
     //!
     //! \warning Train must have been previously called or a model loaded.
-    virtual bool trainIncremental() = 0;
+    virtual void trainIncremental() = 0;
 
     //! Write the predictions to the data frame supplied to the constructor.
     //!

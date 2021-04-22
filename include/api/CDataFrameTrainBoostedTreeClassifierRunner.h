@@ -49,6 +49,7 @@ public:
     static const std::string CLASSIFICATION_WEIGHTS_WEIGHT;
 
 public:
+    //! Get the runner's configuration parameter reader.
     static const CDataFrameAnalysisConfigReader& parameterReader();
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeClassifierRunnerFactory.

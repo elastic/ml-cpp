@@ -62,6 +62,7 @@ public:
     static const std::string COARSE_PARAMETER_SEARCH;
     static const std::string FINE_TUNING_PARAMETERS;
     static const std::string FINAL_TRAINING;
+    static const std::string INCREMENTAL_TRAIN;
     //@}
 
 public:
@@ -84,6 +85,11 @@ public:
                             const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
                             const TRestoreBestForestFunc& bestForestRestoreCallback);
 
+    //! Construct from the supplied \p model.
+    //!
+    //! \note This can be used for preparing for incremental training.
+    static CBoostedTreeFactory constructFromModel(TBoostedTreeUPtr model);
+
     //! Get the maximum number of rows we'll train on.
     static std::size_t maximumNumberRows();
 
@@ -96,7 +102,8 @@ public:
     //! Set the objective to use when choosing the class assignments.
     CBoostedTreeFactory&
     classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
-    //! Set the class weights used for assigning labels to classes from the predicted probabilities.
+    //! Set the class weights used for assigning labels to classes from the
+    //! predicted probabilities.
     CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
@@ -116,6 +123,8 @@ public:
     CBoostedTreeFactory& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier);
     //! Set the sum of weights squared multiplier.
     CBoostedTreeFactory& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier);
+    //! Set the penalty for changing the tree toppology when incrementally training.
+    CBoostedTreeFactory& treeTopologyChangePenalty(double treeTopologyChangePenalty);
     //! Set the soft tree depth limit.
     CBoostedTreeFactory& softTreeDepthLimit(double softTreeDepthLimit);
     //! Set the soft tree depth tolerance. This controls how hard we'll try to
@@ -131,9 +140,12 @@ public:
     CBoostedTreeFactory& maximumNumberTrees(std::size_t maximumNumberTrees);
     //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTreeFactory& featureBagFraction(double featureBagFraction);
+    //! Set the relative weight to assign changing old predictions in the loss
+    //! function for incremental training.
+    CBoostedTreeFactory& predictionChangeCost(double predictionChangeCost);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
-    //! optimisation per parameter.
-    CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    //! optimisation per parameter for training.
+    CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameterForTrain(std::size_t rounds);
     //! Set the number of restarts to use in global probing for Bayesian Optimisation.
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
@@ -142,6 +154,10 @@ public:
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
+    //! Set the row mask for new data with which we want to incrementally train.
+    CBoostedTreeFactory& newTrainingRowMask(core::CPackedBitVector rowMask);
+    //! Set the fraction of trees in the forest to retrain.
+    CBoostedTreeFactory& retrainFraction(double fraction);
     //! Set the data summarization information.
     CBoostedTreeFactory& dataSummarization(TDataSummarization dataSummarization);
     //! Set the best forest from the previous training.
@@ -163,18 +179,22 @@ public:
                                                     std::size_t numberColumns) const;
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const;
-    //! Build a boosted tree object for a given data frame.
-    TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
-    //! Restore a boosted tree object for a given data frame.
+
+    //! Build a boosted tree object for training on \p frame.
+    TBoostedTreeUPtr buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable);
+
+    //! Build a boosted tree object for incremental training on \p frame.
+    TBoostedTreeUPtr buildForTrainIncremental(core::CDataFrame& frame);
+
+    //! Restore a boosted tree object for training on \p frame.
+    //!
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
     //! \name Test Only
     //@{
-    //! Get the boosted tree implementation.
-    //!
     // TODO (@valeriy42) remove this method once we have a method to initialise incremental training.
-    const CBoostedTreeImpl& boostedTreeImpl() const;
+    const CBoostedTreeImpl& boostedTreeImpl() const { return *m_TreeImpl; }
     //@}
 
 private:
@@ -205,7 +225,10 @@ private:
     void initializeNumberFolds(core::CDataFrame& frame) const;
 
     //! Resize the data frame with the extra columns used by train.
-    void resizeDataFrame(core::CDataFrame& frame) const;
+    void prepareDataFrameForTrain(core::CDataFrame& frame) const;
+
+    //! Resize the data frame with the extra columns used by incremental train.
+    void prepareDataFrameForIncrementalTrain(core::CDataFrame& frame) const;
 
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;
@@ -226,18 +249,20 @@ private:
     //! Setup before initializing unset hyperparameters.
     void initializeHyperparametersSetup(core::CDataFrame& frame);
 
-    //! Estimate a good central value for the regularisation hyperparameters
-    //! search bounding box.
+    //! Estimate a good search bounding box regularisation hyperparameters.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
-    //! Estimate a good central value for the feature bag fraction search interval.
+    //! Estimate a good range for the feature bag fraction search interval.
     void initializeUnsetFeatureBagFraction(core::CDataFrame& frame);
 
-    //! Estimates a good central value for the downsample factor search interval.
+    //! Estimates a good range value for the downsample factor search interval.
     void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
 
-    //! Estimate a good central value for learn rate.
+    //! Estimate a good range value for learn rate.
     void initializeUnsetEta(core::CDataFrame& frame);
+
+    //! Estimate a good range value for tree topology penalty.
+    void initializeUnsetTreeTopologyPenalty();
 
     //! Estimate the reduction in gain from a split and the total curvature of
     //! the loss function at a split.
@@ -318,23 +343,24 @@ private:
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
     TOptionalSize m_BayesianOptimisationRestarts;
-    bool m_StratifyRegressionCrossValidation = true;
-    double m_InitialDownsampleRowsPerFeature = 200.0;
-    double m_GainPerNode1stPercentile = 0.0;
-    double m_GainPerNode50thPercentile = 0.0;
-    double m_GainPerNode90thPercentile = 0.0;
-    double m_TotalCurvaturePerNode1stPercentile = 0.0;
-    double m_TotalCurvaturePerNode90thPercentile = 0.0;
-    std::size_t m_NumberThreads;
+    bool m_StratifyRegressionCrossValidation{true};
+    double m_InitialDownsampleRowsPerFeature{200.0};
+    double m_GainPerNode1stPercentile{0.0};
+    double m_GainPerNode50thPercentile{0.0};
+    double m_GainPerNode90thPercentile{0.0};
+    double m_TotalCurvaturePerNode1stPercentile{0.0};
+    double m_TotalCurvaturePerNode90thPercentile{0.0};
+    std::size_t m_NumberThreads{1};
     TBoostedTreeImplUPtr m_TreeImpl;
-    TVector m_LogDownsampleFactorSearchInterval;
-    TVector m_LogFeatureBagFractionInterval;
-    TVector m_LogDepthPenaltyMultiplierSearchInterval;
-    TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
-    TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
-    TVector m_SoftDepthLimitSearchInterval;
-    TVector m_LogEtaSearchInterval;
-    TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
+    TVector m_LogDownsampleFactorSearchInterval{0.0};
+    TVector m_LogFeatureBagFractionInterval{0.0};
+    TVector m_LogDepthPenaltyMultiplierSearchInterval{0.0};
+    TVector m_LogTreeSizePenaltyMultiplierSearchInterval{0.0};
+    TVector m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0};
+    TVector m_SoftDepthLimitSearchInterval{0.0};
+    TVector m_LogEtaSearchInterval{0.0};
+    TVector m_LogTreeTopologyChangePenaltySearchInterval{0.0};
+    TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
 };
 }
 }

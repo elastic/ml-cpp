@@ -12,17 +12,15 @@
 namespace ml {
 namespace maths {
 
-const std::string CBoostedTreeHyperparameters::HYPERPARAM_DOWNSAMPLE_FACTOR_TAG{
-    "hyperparam_downsample_factor"};
+// clang-format off
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_DOWNSAMPLE_FACTOR_TAG{"hyperparam_downsample_factor"};
 const std::string CBoostedTreeHyperparameters::HYPERPARAM_ETA_TAG{"hyperparam_eta"};
-const std::string CBoostedTreeHyperparameters::HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{
-    "hyperparam_eta_growth_rate_per_tree"};
-const std::string CBoostedTreeHyperparameters::HYPERPARAM_FEATURE_BAG_FRACTION_TAG{
-    "hyperparam_feature_bag_fraction"};
-const std::string CBoostedTreeHyperparameters::HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG{
-    "hyperparam_maximum_number_trees"};
-const std::string CBoostedTreeHyperparameters::HYPERPARAM_REGULARIZATION_TAG{
-    "hyperparam_regularization"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{"hyperparam_eta_growth_rate_per_tree"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_FEATURE_BAG_FRACTION_TAG{"hyperparam_feature_bag_fraction"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG{"hyperparam_maximum_number_trees"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_PREDICTION_CHANGE_COST_TAG{"hyperparam_prediction_change_cost"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_REGULARIZATION_TAG{"hyperparam_regularization"};
+// clang-format on
 
 void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(HYPERPARAM_DOWNSAMPLE_FACTOR_TAG,
@@ -34,6 +32,8 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
                                  m_FeatureBagFraction, inserter);
     core::CPersistUtils::persist(HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG,
                                  m_MaximumNumberTrees, inserter);
+    core::CPersistUtils::persist(HYPERPARAM_PREDICTION_CHANGE_COST_TAG,
+                                 m_PredictionChangeCost, inserter);
     core::CPersistUtils::persist(HYPERPARAM_REGULARIZATION_TAG, m_Regularization, inserter);
 }
 
@@ -54,6 +54,9 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
         RESTORE(HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG,
                 core::CPersistUtils::restore(HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG,
                                              m_MaximumNumberTrees, traverser))
+        RESTORE(HYPERPARAM_PREDICTION_CHANGE_COST_TAG,
+                core::CPersistUtils::restore(HYPERPARAM_PREDICTION_CHANGE_COST_TAG,
+                                             m_PredictionChangeCost, traverser))
         RESTORE(HYPERPARAM_REGULARIZATION_TAG,
                 core::CPersistUtils::restore(HYPERPARAM_REGULARIZATION_TAG,
                                              m_Regularization, traverser))
@@ -86,28 +89,8 @@ double CBoostedTreeHyperparameters::featureBagFraction() const {
     return m_FeatureBagFraction;
 }
 
-void CBoostedTreeHyperparameters::regularization(const TRegularization& regularization) {
-    m_Regularization = regularization;
-}
-
-void CBoostedTreeHyperparameters::downsampleFactor(double downsampleFactor) {
-    m_DownsampleFactor = downsampleFactor;
-}
-
-void CBoostedTreeHyperparameters::eta(double eta) {
-    m_Eta = eta;
-}
-
-void CBoostedTreeHyperparameters::etaGrowthRatePerTree(double etaGrowthRatePerTree) {
-    m_EtaGrowthRatePerTree = etaGrowthRatePerTree;
-}
-
-void CBoostedTreeHyperparameters::maximumNumberTrees(std::size_t maximumNumberTrees) {
-    m_MaximumNumberTrees = maximumNumberTrees;
-}
-
-void CBoostedTreeHyperparameters::featureBagFraction(double featureBagFraction) {
-    m_FeatureBagFraction = featureBagFraction;
+double CBoostedTreeHyperparameters::predictionChangeCost() const {
+    return m_PredictionChangeCost;
 }
 
 CBoostedTreeHyperparameters::CBoostedTreeHyperparameters(
@@ -116,10 +99,11 @@ CBoostedTreeHyperparameters::CBoostedTreeHyperparameters(
     double eta,
     double etaGrowthRatePerTree,
     std::size_t maximumNumberTrees,
-    double featureBagFraction)
+    double featureBagFraction,
+    double predictionChangeCost)
     : m_Regularization{regularization}, m_DownsampleFactor{downsampleFactor}, m_Eta{eta},
-      m_EtaGrowthRatePerTree{etaGrowthRatePerTree},
-      m_MaximumNumberTrees{maximumNumberTrees}, m_FeatureBagFraction{featureBagFraction} {
+      m_EtaGrowthRatePerTree{etaGrowthRatePerTree}, m_MaximumNumberTrees{maximumNumberTrees},
+      m_FeatureBagFraction{featureBagFraction}, m_PredictionChangeCost{predictionChangeCost} {
 }
 }
 }

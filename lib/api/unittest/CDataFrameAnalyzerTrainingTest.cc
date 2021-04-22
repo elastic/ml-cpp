@@ -150,8 +150,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
         fieldNames, fieldValues, analyzer, weights, regressors, targets, targetTransformer);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    TStrVec persistedStates{
-        splitOnNull(std::stringstream{std::move(persistenceStream->str())})};
+    TStrVec persistedStates{splitOnNull(std::stringstream{persistenceStream->str()})};
     auto expectedTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
 
     persistenceStream->str("");
@@ -172,7 +171,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
         targetTransformer);
     restoredAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    persistedStates = splitOnNull(std::stringstream{std::move(persistenceStream->str())});
+    persistedStates = splitOnNull(std::stringstream{persistenceStream->str()});
     auto actualTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
 
     // Compare hyperparameters.
@@ -885,7 +884,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierWithUserClassWeights) {
                           1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
                           .classAssignmentObjective(maths::CBoostedTree::E_Custom)
                           .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
-                          .buildFor(*frame, 3);
+                          .buildForTrain(*frame, 3);
 
     classifier->train();
     classifier->predict();

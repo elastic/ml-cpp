@@ -233,6 +233,12 @@ void CInferenceModelMetadata::hyperparameterImportance(
         case maths::boosted_tree_detail::E_SoftTreeDepthTolerance:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
             break;
+        case maths::boosted_tree_detail::E_PredictionChangeCost:
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST;
+            break;
+        case maths::boosted_tree_detail::E_TreeTopologyChangePenalty:
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY;
+            break;
         }
         double absoluteImportance{(std::fabs(item.s_AbsoluteImportance) < 1e-8)
                                       ? 0.0

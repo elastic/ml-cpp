@@ -57,14 +57,14 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
 
     m_PreviousSplit = this->rootPreviousSplit(workspace);
 
-    this->derivatives().swap(workspace.reducedDerivatives(MASK_INDEX));
+    this->derivatives().swap(workspace.reducedDerivatives());
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
-    workspace.reducedDerivatives(MASK_INDEX).swap(this->derivatives());
+    workspace.reducedDerivatives().swap(this->derivatives());
 
     if (this->gain() > workspace.minimumGain()) {
         this->rowMask() = rowMask;
-        CSplitsDerivatives tmp{workspace.derivatives(MASK_INDEX)[0]};
+        CSplitsDerivatives tmp{workspace.derivatives()[0]};
         this->derivatives() = std::move(tmp);
     }
 }
@@ -91,7 +91,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     this->computeRowMaskAndAggregateLossDerivatives(
         CNoLookAheadBound{}, numberThreads, frame, encoder, isLeftChild, split,
         treeFeatureBag, parent.rowMask(), workspace);
-    this->derivatives().swap(workspace.reducedDerivatives(MASK_INDEX));
+    this->derivatives().swap(workspace.reducedDerivatives());
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
@@ -103,11 +103,11 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
 
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
-    workspace.reducedDerivatives(MASK_INDEX).swap(this->derivatives());
+    workspace.reducedDerivatives().swap(this->derivatives());
 
     if (this->gain() >= workspace.minimumGain()) {
-        CSplitsDerivatives tmp{workspace.reducedDerivatives(MASK_INDEX)};
-        this->rowMask() = workspace.reducedMask(MASK_INDEX, parent.rowMask().size());
+        CSplitsDerivatives tmp{workspace.reducedDerivatives()};
+        this->rowMask() = workspace.reducedMask(parent.rowMask().size());
         this->derivatives() = std::move(tmp);
     }
 }
@@ -128,7 +128,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
 
     // Lazily compute the row mask to avoid unnecessary work.
 
-    this->derivatives().subtract(workspace.reducedDerivatives(MASK_INDEX));
+    this->derivatives().subtract(workspace.reducedDerivatives());
 
     // Set the split feature and value for this node in the tree being retrained.
     std::size_t parentSplitFeature{parent.bestSplit().first};
@@ -141,7 +141,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
 
     if (this->gain() >= workspace.minimumGain()) {
         this->rowMask() = std::move(parent.rowMask());
-        this->rowMask() ^= workspace.reducedMask(MASK_INDEX, this->rowMask().size());
+        this->rowMask() ^= workspace.reducedMask(this->rowMask().size());
     }
 }
 
