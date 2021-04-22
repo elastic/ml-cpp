@@ -432,7 +432,7 @@ void CBoostedTreeImpl::predict(const core::CPackedBitVector& rowMask,
     bool successful;
     std::tie(std::ignore, successful) = frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
-        [&](TRowItr beginRows, TRowItr endRows) {
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
@@ -741,7 +741,7 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
     core::CPackedBitVector updateRowMask{trainingRowMask | testingRowMask};
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
-        [this](TRowItr beginRows, TRowItr endRows) {
+        [this](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
@@ -1541,7 +1541,7 @@ void CBoostedTreeImpl::writeRowDerivatives(bool newExample,
                                            const TNodeVec& tree) const {
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
-        [&](TRowItr beginRows, TRowItr endRows) {
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{loss.numberParameters()};
             const auto& rootNode = root(tree);
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
@@ -1565,7 +1565,7 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     auto results = frame.readRows(
         m_NumberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
+            [&](TMeanAccumulator& loss, const TRowItr& beginRows, const TRowItr& endRows) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
                 for (auto row_ = beginRows; row_ != endRows; ++row_) {
                     auto row = *row_;

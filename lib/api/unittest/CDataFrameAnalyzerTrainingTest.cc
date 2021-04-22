@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
         }
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-        analyzer.dataFrame().readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        analyzer.dataFrame().readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t i{0};
             for (auto row = beginRows; row != endRows; ++row, ++i) {
                 BOOST_REQUIRE_EQUAL(isMissing[row->index()],
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
         }
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-        analyzer.dataFrame().readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        analyzer.dataFrame().readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t i{0};
             for (auto row = beginRows; row != endRows; ++row, ++i) {
                 BOOST_REQUIRE_EQUAL(isMissing[row->index()],
@@ -890,7 +890,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierWithUserClassWeights) {
     classifier->predict();
 
     TStrVec expectedPredictions(frame->numberRows());
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             auto scores = classifier->readAndAdjustPrediction(*row);
             std::size_t prediction(scores[1] < scores[0] ? 0 : 1);
@@ -944,7 +944,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFields) {
         bool passed{true};
 
         const core::CDataFrame& frame{analyzer.dataFrame()};
-        frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame.readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t i{0};
             for (auto row = beginRows; row != endRows; ++row, ++i) {
                 core::CFloatStorage expected[]{static_cast<double>(i % x[0].size()),
@@ -986,7 +986,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFields) {
         std::size_t i{0};
 
         const core::CDataFrame& frame{analyzer.dataFrame()};
-        frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame.readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row, ++i) {
                 core::CFloatStorage expected{
                     i < core::CDataFrame::MAX_CATEGORICAL_CARDINALITY
@@ -1055,7 +1055,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     analyzer.receivedAllRows();
 
     const core::CDataFrame& frame{analyzer.dataFrame()};
-    frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame.readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         std::vector<TRowRef> rows;
         std::copy(beginRows, endRows, std::back_inserter(rows));
         BOOST_REQUIRE_EQUAL(std::size_t{10}, rows.size());

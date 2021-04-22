@@ -118,7 +118,7 @@ void CTreeShapFeatureImportance::computeNumberSamples(std::size_t numberThreads,
             auto result = frame.readRows(
                 numberThreads,
                 core::bindRetrievableState(
-                    [&](TSizeVec& samplesPerNode, TRowItr beginRows, TRowItr endRows) {
+                    [&](TSizeVec& samplesPerNode, const TRowItr& beginRows, const TRowItr& endRows) {
                         for (auto row = beginRows; row != endRows; ++row) {
                             auto encodedRow{encoder.encode(*row)};
                             const CBoostedTreeNode* node{&tree[0]};

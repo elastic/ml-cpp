@@ -172,7 +172,7 @@ public:
         tree->train();
         tree->predict();
 
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = tree->readAndAdjustPrediction(*row);
                 appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
