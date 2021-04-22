@@ -142,7 +142,6 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
 }
 
 void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& writer) const {
-    // TODO use struct instead of a tuple
     writer.Key(JSON_HYPERPARAMETERS_TAG);
     writer.StartArray();
     for (const auto& item : m_HyperparameterImportance) {
@@ -150,7 +149,11 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
         writer.Key(JSON_HYPERPARAMETER_NAME_TAG);
         writer.String(item.s_HyperparameterName);
         writer.Key(JSON_HYPERPARAMETER_VALUE_TAG);
-        writer.Double(item.s_Value);
+        if (item.s_HyperparameterName == CDataFrameTrainBoostedTreeRunner::MAX_TREES) {
+            writer.Uint64(static_cast<std::size_t>(item.s_Value));
+        } else {
+            writer.Double(item.s_Value);
+        }
         if (item.s_Supplied == false) {
             writer.Key(JSON_ABSOLUTE_IMPORTANCE_TAG);
             writer.Double(item.s_AbsoluteImportance);
@@ -164,7 +167,7 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
     writer.EndArray();
 }
 
-const std::string& CInferenceModelMetadata::typeString() const {
+const std::string& CInferenceModelMetadata::typeString() {
     return JSON_MODEL_METADATA_TAG;
 }
 
@@ -232,6 +235,9 @@ void CInferenceModelMetadata::hyperparameterImportance(
             break;
         case maths::boosted_tree_detail::E_SoftTreeDepthTolerance:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
+            break;
+        case maths::boosted_tree_detail::E_MaximumNumberTrees:
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::MAX_TREES;
             break;
         }
         double absoluteImportance{(std::fabs(item.s_AbsoluteImportance) < 1e-8)

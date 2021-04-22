@@ -8,6 +8,7 @@
 #include <maths/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
@@ -20,6 +21,9 @@
 #include <fstream>
 #include <string>
 
+namespace utf = boost::unit_test;
+namespace tt = boost::test_tools;
+
 BOOST_AUTO_TEST_SUITE(CInferenceModelMetadataTest)
 
 using namespace ml;
@@ -27,6 +31,7 @@ using namespace ml;
 namespace {
 using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
+using TSizeVec = std::vector<std::size_t>;
 using TLossFunctionType = maths::boosted_tree::ELossType;
 }
 
@@ -57,7 +62,6 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
-    LOG_DEBUG(<< output.str());
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     std::ifstream modelMetaDataSchemaFileStream("testfiles/model_meta_data/model_meta_data.schema.json");
@@ -94,4 +98,114 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
     BOOST_TEST_REQUIRE(hasModelMetadata);
 }
 
+BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001)) {
+    // insure that training leads to the same results if all identified hyperparameters
+    // are explicitly specified
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    std::size_t numberSamples{100};
+    test::CRandomNumbers rng;
+    TSizeVec seed{0};
+    rng.generateUniformSamples(0, 1000, 1, seed);
+
+    TDoubleVec expectedPredictions;
+    expectedPredictions.reserve(numberSamples);
+    TDoubleVec actualPredictions;
+    actualPredictions.reserve(numberSamples);
+
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    test::CDataFrameAnalysisSpecificationFactory spec;
+    {
+        api::CDataFrameAnalyzer analyzer{
+            test::CDataFrameAnalysisSpecificationFactory{}.predictionSpec(
+                test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+            outputWriterFactory};
+        test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+            TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
+            analyzer, numberSamples, seed[0]);
+
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        rapidjson::Document results;
+        rapidjson::ParseResult ok(results.Parse(output.str()));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        // read hyperparameter into the new spec and expected predictions
+        for (const auto& result : results.GetArray()) {
+            if (result.HasMember("model_metadata")) {
+                for (const auto& hyperparameter :
+                     result["model_metadata"]["hyperparameters"].GetArray()) {
+                    std::string hyperparameterName{hyperparameter["name"].GetString()};
+                    if (hyperparameterName == api::CDataFrameTrainBoostedTreeRunner::ALPHA) {
+                        spec.predictionAlpha(hyperparameter["value"].GetDouble());
+                    } else if (hyperparameterName ==
+                               api::CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR) {
+                        spec.predictionDownsampleFactor(hyperparameter["value"].GetDouble());
+                    } else if (hyperparameterName ==
+                               api::CDataFrameTrainBoostedTreeRunner::ETA) {
+                        spec.predictionEta(hyperparameter["value"].GetDouble());
+                    } else if (hyperparameterName ==
+                               api::CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE) {
+                        spec.predictionEtaGrowthRatePerTree(
+                            hyperparameter["value"].GetDouble());
+                    } else if (hyperparameterName ==
+                               api::CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION) {
+                        spec.predictionFeatureBagFraction(
+                            hyperparameter["value"].GetDouble());
+                    } else if (hyperparameterName ==
+                               api::CDataFrameTrainBoostedTreeRunner::GAMMA) {
+                        spec.predictionGamma(hyperparameter["value"].GetDouble());
+                    } else if (hyperparameterName ==
+                               api::CDataFrameTrainBoostedTreeRunner::LAMBDA) {
+                        spec.predictionLambda(hyperparameter["value"].GetDouble());
+                    } else if (hyperparameterName ==
+                               api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT) {
+                        spec.predictionSoftTreeDepthLimit(
+                            hyperparameter["value"].GetDouble());
+                    } else if (hyperparameterName ==
+                               api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE) {
+                        spec.predictionSoftTreeDepthTolerance(
+                            hyperparameter["value"].GetDouble());
+                    } else if (hyperparameterName ==
+                               api::CDataFrameTrainBoostedTreeRunner::MAX_TREES) {
+                        spec.predictionMaximumNumberTrees(
+                            hyperparameter["value"].GetUint64());
+                    }
+                }
+
+            } else if (result.HasMember("row_results")) {
+                expectedPredictions.emplace_back(
+                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
+            }
+        }
+    }
+    BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberSamples);
+    output.str("");
+    {
+        api::CDataFrameAnalyzer analyzer{
+            spec.predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+            outputWriterFactory};
+
+        test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+            TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
+            analyzer, numberSamples, seed[0]);
+
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        rapidjson::Document results;
+        rapidjson::ParseResult ok(results.Parse(output.str()));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        for (const auto& result : results.GetArray()) {
+            if (result.HasMember("row_results")) {
+                actualPredictions.emplace_back(
+                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
+            }
+        }
+    }
+    BOOST_REQUIRE_EQUAL(actualPredictions.size(), numberSamples);
+    BOOST_TEST(actualPredictions == expectedPredictions, tt::per_element());
+}
 BOOST_AUTO_TEST_SUITE_END()

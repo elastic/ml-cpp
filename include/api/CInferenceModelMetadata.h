@@ -56,7 +56,7 @@ public:
     void columnNames(const TStrVec& columnNames);
     void classValues(const TStrVec& classValues);
     void predictionFieldTypeResolverWriter(const TPredictionFieldTypeResolverWriter& resolverWriter);
-    const std::string& typeString() const;
+    static const std::string& typeString();
     //! Add importances \p values to the feature with index \p i to calculate total feature importance.
     //! Total feature importance is the mean of the magnitudes of importances for individual data points.
     void addToFeatureImportance(std::size_t i, const TVector& values);

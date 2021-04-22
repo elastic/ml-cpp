@@ -34,6 +34,7 @@
 #include <boost/circular_buffer.hpp>
 
 #include <algorithm>
+#include <limits>
 #include <memory>
 
 namespace ml {
@@ -195,6 +196,13 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     this->startProgressMonitoringFineTuneHyperparameters();
 
+    // We need to initialize best hyperparameter in case we drop
+    // through hyperparameter optimization directly to final training.
+    m_BestForestTestLoss = std::numeric_limits<double>::infinity();
+    m_BestHyperparameters = CBoostedTreeHyperparameters{
+        m_Regularization,       m_DownsampleFactor,   m_Eta,
+        m_EtaGrowthRatePerTree, m_MaximumNumberTrees, m_FeatureBagFraction};
+
     if (this->canTrain() == false) {
 
         // Fallback to using the constant predictor which minimises the loss.
@@ -262,6 +270,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         this->scaleRegularizers(allTrainingRowsMask.manhattan() /
                                 m_TrainingRowMasks[0].manhattan());
         this->startProgressMonitoringFinalTrain();
+        // reinitialize random number generator for reproducible results
+        // TODO #1866 introduce accept randomize_seed configuration parameter
+        m_Rng = CPRNG::CXorOShiro128Plus{};
         std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
 
@@ -2021,6 +2032,9 @@ CBoostedTreeImpl::hyperparameterImportance() const {
             break;
         case E_FeatureBagFraction:
             hyperparameterValue = m_FeatureBagFraction;
+            break;
+        case E_MaximumNumberTrees:
+            hyperparameterValue = static_cast<double>(m_MaximumNumberTrees);
             break;
         case E_Gamma:
             hyperparameterValue = m_Regularization.treeSizePenaltyMultiplier();

@@ -40,6 +40,7 @@ enum EHyperparameters {
     E_SoftTreeDepthTolerance,
     E_Eta,
     E_EtaGrowthRatePerTree,
+    E_MaximumNumberTrees,
     E_FeatureBagFraction
 };
 

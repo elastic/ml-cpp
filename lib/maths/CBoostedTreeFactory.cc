@@ -169,9 +169,8 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
-    return std::max(m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
-                        m_TreeImpl->numberHyperparametersToTune(),
-                    std::size_t{1});
+    return m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
+           m_TreeImpl->numberHyperparametersToTune();
 }
 
 void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {

@@ -20,11 +20,16 @@ nbactions.xml
 #vscode files
 .vscode
 .clangd
+.cache
 
 # gradle stuff
 .gradle/
 build/
 generated-resources/
+
+# python environment stuff
+**/env/*
+*.pyc
 
 # testing stuff
 **/.local*
