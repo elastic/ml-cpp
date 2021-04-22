@@ -86,7 +86,7 @@ void addOutlierTestData(TStrVec fieldNames,
     expectedScores.resize(numberInliers + numberOutliers);
     expectedFeatureInfluences.resize(numberInliers + numberOutliers, TDoubleVec(5));
 
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             expectedScores[row->index()] = (*row)[5];
             if (computeFeatureInfluence) {

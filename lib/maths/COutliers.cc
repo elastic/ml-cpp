@@ -865,7 +865,7 @@ CEnsemble<POINT> buildEnsemble(const COutliers::SComputeParameters& params,
     auto builders = CEnsemble<POINT>::makeBuilders(
         methods, frame.numberRows(), frame.numberColumns(), params.s_NumberNeighbours);
 
-    frame.readRows(1, [&builders](TRowItr beginRows, TRowItr endRows) {
+    frame.readRows(1, [&builders](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (auto& builder : builders) {
                 builder.addPoint(*row);
@@ -905,7 +905,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         std::int64_t pointsMemory{signedMemoryUsage(points)};
         instrumentation.updateMemoryUsage(pointsMemory);
 
-        auto rowsToPoints = [&points](TRowItr beginRows, TRowItr endRows) {
+        auto rowsToPoints = [&points](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 points[row->index()] = CDataFrameUtils::rowTo<TPoint>(*row);
             }
@@ -939,7 +939,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
     std::size_t dimension{frame.numberColumns()};
 
-    auto writeScores = [&](TRowItr beginRows, TRowItr endRows) {
+    auto writeScores = [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             std::size_t index{dimension};
             for (auto value : scores[row->index()].compute(params.s_OutlierFraction)) {
@@ -1005,8 +1005,8 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
         LOG_TRACE(<< "rows [" << beginPartitionRows << "," << endPartitionRows << ")");
         points.resize(std::min(rowsPerPartition, frame.numberRows() - beginPartitionRows));
 
-        auto rowsToPoints = [beginPartitionRows, dimension,
-                             &points](TRowItr beginRows, TRowItr endRows) {
+        auto rowsToPoints = [beginPartitionRows, dimension, &points](
+                                const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t j = 0; j < dimension; ++j) {
                     points[row->index() - beginPartitionRows](j) = (*row)[j];
@@ -1028,7 +1028,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
         core::CProgramCounters::counter(counter_t::E_DFOTimeToComputeScores) +=
             watch.stop();
 
-        auto writeScores = [&](TRowItr beginRows, TRowItr endRows) {
+        auto writeScores = [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 std::size_t offset{row->index() - beginPartitionRows};
                 std::size_t index{dimension};

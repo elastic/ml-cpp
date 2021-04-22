@@ -270,7 +270,7 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
 
     m_TreeImpl->m_MissingFeatureRowMasks.resize(frame.numberColumns());
 
-    auto result = frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    auto result = frame.readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                 double value{(*row)[i]};
@@ -295,7 +295,8 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
         auto result = frame.readRows(
             m_NumberThreads,
             core::bindRetrievableState(
-                [this](std::size_t& numberTrainingRows, TRowItr beginRows, TRowItr endRows) {
+                [this](std::size_t& numberTrainingRows,
+                       const TRowItr& beginRows, const TRowItr& endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
                         double target{(*row)[m_TreeImpl->m_DependentVariable]};
                         if (CDataFrameUtils::isMissing(target) == false) {
@@ -354,7 +355,7 @@ void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
     frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
                                writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
                            }
