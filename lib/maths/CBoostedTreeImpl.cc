@@ -1433,7 +1433,7 @@ void CBoostedTreeImpl::removePredictions(core::CDataFrame& frame,
     core::CPackedBitVector rowMask{trainingRowMask | testingRowMask};
 
     frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            std::size_t numberLossParameters{m_Loss->numberParameters()};
                            const auto& rootNode = root(tree);
                            for (auto row_ = beginRows; row_ != endRows; ++row_) {
@@ -1516,7 +1516,7 @@ void CBoostedTreeImpl::minimumLossLeafValues(bool newExample,
     minimizers.reserve(result.size());
     for (std::size_t i = 0; i < result.size(); ++i) {
         auto& leafValues = result[i];
-        minimizers.push_back([&](TRowItr beginRows, TRowItr endRows) {
+        minimizers.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{loss.numberParameters()};
             const auto& rootNode = root(tree);
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
@@ -1598,7 +1598,7 @@ double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
     auto results = frame.readRows(
         m_NumberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
+            [&](TMeanAccumulator& loss, const TRowItr& beginRows, const TRowItr& endRows) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
                 for (auto row_ = beginRows; row_ != endRows; ++row_) {
                     auto row = *row_;

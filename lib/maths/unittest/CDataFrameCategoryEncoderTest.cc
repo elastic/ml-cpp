@@ -550,7 +550,8 @@ BOOST_AUTO_TEST_CASE(testEncodedDataFrameRowRef) {
 
     bool passed{true};
 
-    frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {
+    frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                           const core::CDataFrame::TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (passed) {
                 auto encoded = encoder.encode(*row);

@@ -143,9 +143,9 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
 
     writer.Key(JSON_CATEGORICAL_COLUMN_VALUES_TAG);
     writer.StartArray();
-    for (auto& categoricalColumnValuesItem : m_Frame.categoricalColumnValues()) {
+    for (const auto& categoricalColumnValuesItem : m_Frame.categoricalColumnValues()) {
         writer.StartArray();
-        for (auto& categoricalValue : categoricalColumnValuesItem) {
+        for (const auto& categoricalValue : categoricalColumnValuesItem) {
             writer.String(categoricalValue);
         }
         writer.EndArray();
@@ -154,7 +154,7 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
 
     writer.Key(JSON_DATA_TAG);
     writer.StartArray();
-    auto writeRowsToJson = [&](TRowItr beginRows, TRowItr endRows) {
+    auto writeRowsToJson = [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             writer.StartArray();
             for (std::size_t i = 0; i < m_Frame.numberColumns(); ++i) {
@@ -222,42 +222,42 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         categoricalColumnValues.resize(numColumns, {});
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_NUM_COLUMNS_TAG
-                  << "'  is missing or has an unexpected format.");
+                  << "' is missing or has an unexpected format.");
         return {nullptr, nullptr};
     }
 
     if (doc.HasMember(JSON_COLUMN_NAMES_TAG) && doc[JSON_COLUMN_NAMES_TAG].IsArray()) {
-        for (auto& item : doc[JSON_COLUMN_NAMES_TAG].GetArray()) {
+        for (const auto& item : doc[JSON_COLUMN_NAMES_TAG].GetArray()) {
             columnNames.push_back(item.GetString());
         }
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_COLUMN_NAMES_TAG
-                  << "'  is missing or has an unexpected format.");
+                  << "' is missing or has an unexpected format.");
         return {nullptr, nullptr};
     }
 
     if (doc.HasMember(JSON_COLUMN_IS_CATEGORICAL_TAG) &&
         doc[JSON_COLUMN_IS_CATEGORICAL_TAG].IsArray()) {
-        for (auto& item : doc[JSON_COLUMN_IS_CATEGORICAL_TAG].GetArray()) {
+        for (const auto& item : doc[JSON_COLUMN_IS_CATEGORICAL_TAG].GetArray()) {
             columnIsCategorical.push_back(item.GetBool());
         }
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_COLUMN_IS_CATEGORICAL_TAG
-                  << "'  is missing or has an unexpected format.");
+                  << "' is missing or has an unexpected format.");
         return {nullptr, nullptr};
     }
     if (doc.HasMember(JSON_CATEGORICAL_COLUMN_VALUES_TAG) &&
         doc[JSON_CATEGORICAL_COLUMN_VALUES_TAG].IsArray()) {
         std::size_t i{0};
-        for (auto& item : doc[JSON_CATEGORICAL_COLUMN_VALUES_TAG].GetArray()) {
-            for (auto& categoricalValue : item.GetArray()) {
+        for (const auto& item : doc[JSON_CATEGORICAL_COLUMN_VALUES_TAG].GetArray()) {
+            for (const auto& categoricalValue : item.GetArray()) {
                 categoricalColumnValues[i].push_back(categoricalValue.GetString());
             }
             ++i;
         }
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_CATEGORICAL_COLUMN_VALUES_TAG
-                  << "'  is missing or has an unexpected format.");
+                  << "' is missing or has an unexpected format.");
         return {nullptr, nullptr};
     }
 
@@ -273,7 +273,7 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(traverser);
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_ENCODINGS_TAG
-                  << "'  is missing or has an unexpected format.");
+                  << "' is missing or has an unexpected format.");
         return {nullptr, nullptr};
     }
 
@@ -285,8 +285,8 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         TStrVec rowVec;
         rowVec.reserve(numColumns);
 
-        for (auto& row : doc[JSON_DATA_TAG].GetArray()) {
-            for (auto& item : row.GetArray()) {
+        for (const auto& row : doc[JSON_DATA_TAG].GetArray()) {
+            for (const auto& item : row.GetArray()) {
                 rowVec.push_back(item.GetString());
             }
             frame->parseAndWriteRow(
@@ -296,7 +296,7 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         frame->finishWritingRows();
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_DATA_TAG
-                  << "'  is missing or has an unexpected format.");
+                  << "' is missing or has an unexpected format.");
         return {nullptr, nullptr};
     }
     return {std::move(frame), std::move(encoder)};

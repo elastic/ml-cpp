@@ -128,7 +128,8 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
     LOG_TRACE(<< "number loss parameters = " << numberLossParameters);
 
     auto makeComputeTotalLossGradient = [&]() {
-        return [&](TDoubleVectorVecVec& leafLossGradients, TRowItr beginRows, TRowItr endRows) {
+        return [&](TDoubleVectorVecVec& leafLossGradients,
+                   const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = readPrediction(*row, extraColumns, numberLossParameters);
                 double actual{readActual(*row, dependentVariable)};

@@ -421,7 +421,7 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
     m_TreeImpl->predict(m_TreeImpl->m_NewTrainingRowMask, frame);
 
     // Copy all predictions to previous prediction column(s) in frame.
-    frame.writeColumns(m_NumberThreads, [&](TRowItr beginRows, TRowItr endRows) {
+    frame.writeColumns(m_NumberThreads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             readPreviousPrediction(*row, m_TreeImpl->m_ExtraColumns, numberLossParameters) =
                 readPrediction(*row, m_TreeImpl->m_ExtraColumns, numberLossParameters);

@@ -51,7 +51,7 @@ void addRegressionData(test::CRandomNumbers& rng,
     }
     frame.finishWritingRows();
     frame.writeColumns(1, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
                                double targetValue{target(*row) + noise[row->index() - offset]};
                                row->writeColumn(cols - 1, targetValue);

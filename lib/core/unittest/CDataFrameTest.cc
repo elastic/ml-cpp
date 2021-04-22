@@ -62,8 +62,8 @@ makeWriter(TFloatVec& components, std::size_t cols, std::size_t i) {
 
 std::function<void(std::size_t&, TRowItr, TRowItr)>
 makeReader(TFloatVec& components, std::size_t cols, bool& passed) {
-    return [&components, cols, &passed](std::size_t& i, TRowItr beginRows,
-                                        TRowItr endRows) mutable {
+    return [&components, cols, &passed](std::size_t& i, const TRowItr& beginRows,
+                                        const TRowItr& endRows) mutable {
         TFloatVec expectedRow(cols);
         TFloatVec row(cols);
         for (auto j = beginRows; j != endRows; ++j) {

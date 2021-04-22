@@ -1170,7 +1170,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
         TArgMinLossVec leafValues(tree.size(), mse.minimizer(lambda, rng));
         auto result = frame->readRows(
             1, core::bindRetrievableState(
-                   [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
+                   [&](TArgMinLossVec& leafValues_, const TRowItr& beginRows, const TRowItr& endRows) {
                        std::size_t numberLossParameters{mse.numberParameters()};
                        const auto& rootNode = root(tree);
                        for (auto row_ = beginRows; row_ != endRows; ++row_) {
@@ -1202,7 +1202,8 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
     {
         auto result = frame->readRows(
             1, core::bindRetrievableState(
-                   [&](TDoubleVecVec& adjustedLosses_, TRowItr beginRows, TRowItr endRows) {
+                   [&](TDoubleVecVec& adjustedLosses_, const TRowItr& beginRows,
+                       const TRowItr& endRows) {
                        const auto& rootNode = root(tree);
                        for (auto row_ = beginRows; row_ != endRows; ++row_) {
                            auto row = *row_;
@@ -1261,7 +1262,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLossGradientAndCurvature) {
     // Test mu == 0
     {
         maths::boosted_tree::CMseIncremental mseIncremental{eta, 0.0, tree};
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{mse.numberParameters()};
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
@@ -1294,7 +1295,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLossGradientAndCurvature) {
     // Test mu == 0.1
     {
         maths::boosted_tree::CMseIncremental mseIncremental{eta, mu, tree};
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{mse.numberParameters()};
             const auto& rootNode = root(tree);
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
