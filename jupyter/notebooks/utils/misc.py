@@ -30,7 +30,13 @@ else:
                             platform.machine().lower())
     mlcpp_root = os.environ['CPP_SRC_HOME'] + \
         '/build/distribution/platform/{}'.format(system)
-dfa_path = mlcpp_root+'/bin/data_frame_analyzer'
+
+# Adjust the path for MacOS
+mac = (platform.system() == 'Darwin')
+if mac:
+    dfa_path = mlcpp_root+'/controller.app/Contents/MacOS/data_frame_analyzer'
+else:
+    dfa_path = mlcpp_root+'/bin/data_frame_analyzer'
 
 server = libtmux.Server()
 
