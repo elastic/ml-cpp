@@ -30,7 +30,13 @@ else:
                             platform.machine().lower())
     mlcpp_root = os.environ['CPP_SRC_HOME'] + \
         '/build/distribution/platform/{}'.format(system)
-dfa_path = mlcpp_root+'/bin/data_frame_analyzer'
+
+# Adjust the path for MacOS
+mac = (platform.system() == 'Darwin')
+if mac:
+    dfa_path = mlcpp_root+'/controller.app/Contents/MacOS/data_frame_analyzer'
+else:
+    dfa_path = mlcpp_root+'/bin/data_frame_analyzer'
 
 server = libtmux.Server()
 
@@ -212,6 +218,29 @@ class Job:
                 return definition
         return {}
 
+    def get_compressed_inference_model(self) -> str:
+        """
+        Get compressed model definition json.
+        """
+        for item in self.results:
+            if 'compressed_inference_model' in item:
+                return json.dumps(item)
+        return ""
+
+    def get_compressed_data_summarization(self) -> str:
+        """
+        Get compressed model definition json.
+        """
+        for item in self.results:
+            if 'compressed_data_summarization' in item:
+                return json.dumps(item)
+        return ""
+
+    def get_model_update_data(self) -> str:
+        data_summarization = self.get_compressed_data_summarization()
+        model_definition = self.get_compressed_inference_model()
+        return data_summarization + "\0\n" + model_definition + "\0\n"
+
     def get_model_blob(self) -> str:
         return self.model
 
@@ -273,7 +302,7 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) ->
     dataset.to_csv(data_file, index=False)
     data_file.file.close()
 
-    with open('configs/{}.json'.format(dataset_name)) as fc:
+    with open('../configs/{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0]
     config_file = tempfile.NamedTemporaryFile(mode='wt')
@@ -301,7 +330,7 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str, verbose: 
     fdata = tempfile.NamedTemporaryFile(mode='wt')
     dataset.to_csv(fdata, index=False)
     fdata.file.close()
-    with open('configs/{}.json'.format(dataset_name)) as fc:
+    with open('../configs/{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0]
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
@@ -313,6 +342,35 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str, verbose: 
     job = run_job(input=fdata, config=fconfig, restore=fmodel, verbose=verbose)
     return job
 
+def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True) -> Job:
+    """Train a new model incrementally using the model and hyperparameters from the original job.
+
+    Args:
+        dataset_name (str): dataset name (to get configuration)
+        dataset (pandas.DataFrame): new dataset
+        original_job (Job): Job object of the original training
+        verbose (bool): Verbosity flag (defalt: True)
+
+    Returns:
+        Job: new Job object
+    """
+    fdata = tempfile.NamedTemporaryFile(mode='wt')
+    dataset.to_csv(fdata, index=False)
+    fdata.file.close()
+    with open('../configs/{}.json'.format(dataset_name)) as fc:
+        config = json.load(fc)
+    config['rows'] = dataset.shape[0]
+    for name, value  in original_job.get_hyperparameters().items():
+        config['analysis']['parameters'][name] = value
+    config['analysis']['parameters']['task'] = 'update'
+    fconfig = tempfile.NamedTemporaryFile(mode='wt')
+    json.dump(config, fconfig)
+    fconfig.file.close()
+    fmodel = tempfile.NamedTemporaryFile(mode='wt')
+    fmodel.write(original_job.get_model_update_data())
+    fmodel.file.close()
+    job = run_job(input=fdata, config=fconfig, restore=fmodel, verbose=verbose)
+    return job
 
 def get_kdtree_samples(X: np.array, nsamples: int) -> np.array:
     def traverse_kdtree(node, max_level, split_dim, split_value):
@@ -516,8 +574,6 @@ def get_chi2(tree: Tree, sample: pandas.DataFrame):
             observed_frequencies[leaf_id] = 1.0
 
     expected_frequencies = tree.get_leaves_num_samples()
-#     for k,v in expected_frequencies.items():
-#         expected_frequencies[k] = float(v)
 
     observed_stats = []
     expected_stats = []
