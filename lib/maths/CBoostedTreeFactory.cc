@@ -135,6 +135,36 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
+CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable) {
+
+    m_TreeImpl->m_DependentVariable = dependentVariable;
+
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeMissingFeatureMasks(frame); });
+
+    this->prepareDataFrameForTrain(frame);
+
+    m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_NotInitialized
+        ? this->skipProgressMonitoringFeatureSelection()
+        : this->startProgressMonitoringFeatureSelection();
+
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->determineFeatureDataTypes(frame); });
+
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+    m_TreeImpl->m_Instrumentation->flush();
+
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
+                                                       m_TreeImpl->m_Loss->clone());
+    std::swap(m_TreeImpl, treeImpl);
+    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
+
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
+}
+
+CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame) {
 
     m_TreeImpl->m_IncrementalTraining = true;

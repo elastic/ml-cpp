@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "core/CContainerPrinter.h"
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 
 #include <core/LogMacros.h>
@@ -82,8 +83,10 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
     this->setAggregateOutput(ensemble);
 
     this->setTargetType();
+    LOG_DEBUG(<< "Model Builder Feature Names "
+              << core::CContainerPrinter::print(m_FeatureNames));
     ensemble->featureNames(m_FeatureNames);
-    ensemble->removeUnusedFeatures();
+    // ensemble->removeUnusedFeatures();
 
     return std::move(m_Definition);
 }

@@ -424,7 +424,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
 
 void CBoostedTreeImpl::predict(const core::CPackedBitVector& rowMask,
                                core::CDataFrame& frame) const {
-    if (m_BestForestTestLoss == INF) {
+    if (m_BestForest.empty()) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
                      << "Please report this problem.");
         return;
@@ -1625,6 +1625,8 @@ CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRo
     for (const auto& tree : m_BestForest) {
         result += root(tree).value(row, tree);
     }
+    // LOG_DEBUG(<<row.unencodedRow().data()->toString()<< " " << result);
+    // LOG_DEBUG(<<core::CContainerPrinter::print(result));
     return result;
 }
 

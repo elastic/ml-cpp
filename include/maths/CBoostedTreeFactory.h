@@ -183,6 +183,9 @@ public:
     //! Build a boosted tree object for training on \p frame.
     TBoostedTreeUPtr buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable);
 
+    //! Build a boosted tree object for prediction on \p frame.
+    TBoostedTreeUPtr buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable);
+
     //! Build a boosted tree object for incremental training on \p frame.
     TBoostedTreeUPtr buildForTrainIncremental(core::CDataFrame& frame);
 
