@@ -132,6 +132,7 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(output.str()));
+        LOG_DEBUG(<< output.str());
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
         // read hyperparameter into the new spec and expected predictions
         for (const auto& result : results.GetArray()) {
@@ -197,6 +198,7 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(output.str()));
+        LOG_DEBUG(<< output.str());
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
         for (const auto& result : results.GetArray()) {
             if (result.HasMember("row_results")) {
