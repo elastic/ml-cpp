@@ -32,7 +32,7 @@ CLoopProgress::CLoopProgress(std::size_t range,
                              const TProgressCallback& recordProgress,
                              double scale,
                              std::size_t steps)
-    : m_Range{std::max(range, 1UL)}, m_Steps{std::min(range, steps)},
+    : m_Range{std::max(range, static_cast<std::size_t>(1))}, m_Steps{std::min(range, steps)},
       m_StepProgress{scale / static_cast<double>(m_Steps)}, m_RecordProgress{recordProgress} {
 }
 

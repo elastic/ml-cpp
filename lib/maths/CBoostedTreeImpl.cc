@@ -196,7 +196,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     this->startProgressMonitoringFineTuneHyperparameters();
 
-
     if (this->canTrain() == false) {
 
         // Fallback to using the constant predictor which minimises the loss.

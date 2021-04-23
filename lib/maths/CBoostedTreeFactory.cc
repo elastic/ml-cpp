@@ -124,14 +124,6 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
         this->initializeHyperparameterOptimisation();
     }
 
-    m_TreeImpl->m_BestHyperparameters =
-        CBoostedTreeHyperparameters(m_TreeImpl->m_Regularization,
-                                    m_TreeImpl->m_DownsampleFactor,
-                                    m_TreeImpl->m_Eta,
-                                    m_TreeImpl->m_EtaGrowthRatePerTree,
-                                    m_TreeImpl->m_MaximumNumberTrees,
-                                    m_TreeImpl->m_FeatureBagFraction);
-
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
@@ -271,6 +263,10 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
     m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
     m_TreeImpl->m_CurrentRound = 0; // for first start
+    m_TreeImpl->m_BestHyperparameters = CBoostedTreeHyperparameters(
+        m_TreeImpl->m_Regularization, m_TreeImpl->m_DownsampleFactor,
+        m_TreeImpl->m_Eta, m_TreeImpl->m_EtaGrowthRatePerTree,
+        m_TreeImpl->m_MaximumNumberTrees, m_TreeImpl->m_FeatureBagFraction);
 }
 
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) const {
