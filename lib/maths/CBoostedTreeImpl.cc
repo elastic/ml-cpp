@@ -1955,6 +1955,9 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
                 m_TunableHyperparameters.push_back(E_TreeTopologyChangePenalty);
             }
             break;
+        case E_MaximumNumberTrees:
+            // maximum number trees is not a tunable parameter
+            break;
         }
     }
 }

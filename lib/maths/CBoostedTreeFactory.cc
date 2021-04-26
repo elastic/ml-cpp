@@ -281,6 +281,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
                 m_LogTreeTopologyChangePenaltySearchInterval(MIN_PARAMETER_INDEX),
                 m_LogTreeTopologyChangePenaltySearchInterval(MAX_PARAMETER_INDEX));
             break;
+        case E_MaximumNumberTrees:
+            // maximum number trees is not a tunable parameter
+            break;
         }
     }
     LOG_TRACE(<< "hyperparameter search bounding box = "
