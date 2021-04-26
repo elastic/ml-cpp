@@ -44,6 +44,12 @@
 * Fail gracefully if insufficient data are supplied for classification or regression
   training. (See {ml-pull}1855[#1855].)
 
+== {es} version 7.12.2
+
+=== Bug Fixes
+
+* Add missing hyperparamter to the model metadata. (See {ml-pull}1867[#1867].)
+
 == {es} version 7.12.1
 
 === Enhancements
