@@ -21,6 +21,8 @@
 #include <test/CRandomNumbers.h>
 #include <test/ImportExport.h>
 
+#include <boost/optional/optional_fwd.hpp>
+
 #include <string>
 #include <vector>
 
@@ -35,15 +37,20 @@ public:
     using TLossUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
     using TTargetTransformer = std::function<double(double)>;
     using TLossFunctionType = maths::boosted_tree::ELossType;
+    using TSizeOptional = boost::optional<std::size_t>;
 
 public:
     static void addPredictionTestData(TLossFunctionType type,
                                       const TStrVec& fieldNames,
                                       TStrVec fieldValues,
                                       api::CDataFrameAnalyzer& analyzer,
-                                      std::size_t numberExamples = 100) {
+                                      std::size_t numberExamples = 100,
+                                      TSizeOptional seed = {}) {
 
         test::CRandomNumbers rng;
+        if (seed) {
+            rng.seed(seed.get());
+        }
 
         TDoubleVec weights;
         rng.generateUniformSamples(-1.0, 1.0, fieldNames.size() - 3, weights);
@@ -86,9 +93,13 @@ public:
                                       double eta = 0.0,
                                       std::size_t maximumNumberTrees = 0,
                                       double featureBagFraction = 0.0,
-                                      double lossFunctionParameter = 1.0) {
+                                      double lossFunctionParameter = 1.0,
+                                      TSizeOptional seed = {}) {
 
         test::CRandomNumbers rng;
+        if (seed) {
+            rng.seed(seed.get());
+        }
 
         TDoubleVec weights;
         rng.generateUniformSamples(-1.0, 1.0, fieldNames.size() - 3, weights);

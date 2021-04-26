@@ -28,10 +28,22 @@
 
 //=== Regressions
 
+== {es} version 7.12.2
+
+=== Bug Fixes
+
+* Add missing hyperparamter to the model metadata. (See {ml-pull}1867[#1867].)
+
 == {es} version 7.12.1
 
 === Enhancements
 
+* Speed up training of regression and classification model training for data sets
+  with many features. (See {ml-pull}1746[#1746].)
+* Avoid overfitting in final training by scaling regularizers to account for the
+  difference in the number of training examples. This results in a better match
+  between train and test error for classification and regression and often slightly
+  improved test errors. (See {ml-pull}1755[#1755].)
 * Make ML native processes work with glibc 2.33 on x86_64. (See {ml-pull}1828[#1828].)
 
 == {es} version 7.12.0
