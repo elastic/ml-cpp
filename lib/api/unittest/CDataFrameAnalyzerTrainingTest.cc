@@ -674,21 +674,16 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
     };
-    TLossFunctionType lossFunction = TLossFunctionType::E_MseRegression;
 
     // run once
     std::size_t numberExamples{100};
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    // TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
-    // TDoubleVec regressors;
     test::CRandomNumbers rng;
-    // rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
     api::CDataFrameAnalyzer analyzer{
         makeSpec("target", numberExamples, nullptr, nullptr,
                  test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train),
         outputWriterFactory};
-    // TStrVec targets;
 
     TSizeVec seed{1};
     rng.generateUniformSamples(0, 1000, 1, seed);
@@ -738,7 +733,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
         }
     }
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberExamples);
-    // LOG_DEBUG(<< "Inference model 1: " << decompressStream(std::stringstream(compressedModelDefinition)).str());
     dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
 
     // pass model definition and data summarization into the restore stream
@@ -779,36 +773,18 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
             }
         }
     }
-    // LOG_DEBUG(<<"Inference Model 2: " << decompressStream(std::stringstream(compressedModelDefinition)).str());
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), numberExamples);
     BOOST_TEST(actualPredictions == expectedPredictions, tt::per_element());
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
                      *utf::tolerance(0.000001)) {
-    auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
-                        TPersisterSupplier* persisterSupplier,
-                        TRestoreSearcherSupplier* restorerSupplier,
-                        test::CDataFrameAnalysisSpecificationFactory::TTask task) {
-        test::CDataFrameAnalysisSpecificationFactory specFactory;
-        return specFactory.rows(numberExamples)
-            .memoryLimit(15000000)
-            .predictionMaximumNumberTrees(10)
-            .predictionPersisterSupplier(persisterSupplier)
-            .predictionRestoreSearcherSupplier(restorerSupplier)
-            .regressionLossFunction(TLossFunctionType::E_MseRegression)
-            .earlyStoppingEnabled(false)
-            .task(task)
-            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-                            dependentVariable);
-    };
-
     std::stringstream outputStream;
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
     };
 
-    std::size_t numberExamples = 31;
+    std::size_t numberExamples = 100;
     std::size_t cols = 3;
     TDoubleVec weights{10.0, 50.0};
     // run once
@@ -832,18 +808,15 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
     std::stringstream inferenceModelStream;
     std::stringstream dataSummarizationStream;
     std::string compressedModelDefinition;
+    rng.seed(seed[0]);
+    TDoubleVecVec values(cols);
+    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
+    values[1] = generateCategoricalData(rng, numberExamples, {5.0, 5.0, 5.0}).second;
 
+    for (std::size_t i = 0; i < numberExamples; ++i) {
+        values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
+    }
     {
-        rng.seed(seed[0]);
-        TDoubleVecVec frequencies;
-        TDoubleVecVec values(cols);
-        rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
-        values[1] =
-            generateCategoricalData(rng, numberExamples, {-5.0, 0.0, 5.0}).second;
-
-        for (std::size_t i = 0; i < numberExamples; ++i) {
-            values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
-        }
 
         test::CDataFrameAnalysisSpecificationFactory specFactory;
         api::CDataFrameAnalyzer analyzer{
@@ -874,15 +847,10 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(outputStream.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        // LOG_DEBUG(<<outputStream.str());
         for (const auto& result : results.GetArray()) {
             if (result.HasMember("compressed_inference_model")) {
                 inferenceModelWriter.write(result);
-                compressedModelDefinition =
-                    result["compressed_inference_model"]["definition"].GetString();
             } else if (result.HasMember("compressed_data_summarization")) {
-                // compressedModelDefinition =
-                // result["compressed_data_summarization"]["data_summarization"].GetString();
                 dataSummarizationWriter.write(result);
             } else if (result.HasMember("row_results")) {
                 expectedPredictions.emplace_back(
@@ -892,9 +860,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
         }
     }
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberExamples);
-    LOG_DEBUG(<< "Inference model 1: "
-              << decompressStream(std::stringstream(compressedModelDefinition)).str());
-    LOG_DEBUG(<< outputStream.str());
     dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
 
     // pass model definition and data summarization into the restore stream
@@ -913,17 +878,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
             inferenceModelStreamWrapper};
 
         // create new analyzer and run incremental training
-        rng.seed(seed[0]);
-        TDoubleVecVec frequencies;
-        TDoubleVecVec values(cols);
-        rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
-        values[1] =
-            generateCategoricalData(rng, numberExamples, {-5.0, 0.0, 5.0}).second;
-
-        for (std::size_t i = 0; i < numberExamples; ++i) {
-            values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
-        }
-
         test::CDataFrameAnalysisSpecificationFactory specFactory;
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(numberExamples)
@@ -951,18 +905,9 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
             if (result.HasMember("row_results")) {
                 actualPredictions.emplace_back(result["row_results"]["results"]["ml"]["target_col_prediction"]
                                                    .GetDouble());
-            } else if (result.HasMember("compressed_data_summarization")) {
-                // compressedModelDefinition =
-                // result["compressed_data_summarization"]["data_summarization"].GetString();
-            } else if (result.HasMember("compressed_inference_model")) {
-                compressedModelDefinition =
-                    result["compressed_inference_model"]["definition"].GetString();
             }
         }
     }
-    LOG_DEBUG(<< "Inference Model 2: "
-              << decompressStream(std::stringstream(compressedModelDefinition)).str());
-    LOG_DEBUG(<< outputStream.str());
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), numberExamples);
     BOOST_TEST(actualPredictions == expectedPredictions, tt::per_element());
 }
