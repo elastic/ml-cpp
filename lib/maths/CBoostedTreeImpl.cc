@@ -1417,7 +1417,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
                 scale * CTools::stableExp(parameters(i)));
             break;
         case E_SoftTreeDepthLimit:
-            m_Regularization.softTreeDepthLimit(std::max(parameters(i), 2.0));
+            m_Regularization.softTreeDepthLimit(parameters(i));
             break;
         case E_SoftTreeDepthTolerance:
             m_Regularization.softTreeDepthTolerance(parameters(i));
