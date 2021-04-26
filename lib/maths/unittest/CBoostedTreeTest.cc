@@ -1354,7 +1354,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.69);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.70);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -1587,7 +1587,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.1);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.2);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
