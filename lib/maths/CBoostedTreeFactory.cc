@@ -209,9 +209,8 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
-    return std::max(m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
-                        m_TreeImpl->numberHyperparametersToTune(),
-                    std::size_t{1});
+    return m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
+           m_TreeImpl->numberHyperparametersToTune();
 }
 
 void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
@@ -291,7 +290,11 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         std::move(boundingBox),
         m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
 
-    m_TreeImpl->m_CurrentRound = 0;
+    m_TreeImpl->m_CurrentRound = 0; // for first start
+    m_TreeImpl->m_BestHyperparameters = CBoostedTreeHyperparameters(
+        m_TreeImpl->m_Regularization, m_TreeImpl->m_DownsampleFactor, m_TreeImpl->m_Eta,
+        m_TreeImpl->m_EtaGrowthRatePerTree, m_TreeImpl->m_MaximumNumberTrees,
+        m_TreeImpl->m_FeatureBagFraction, m_TreeImpl->m_PredictionChangeCost);
     if (m_TreeImpl->m_IncrementalTraining == false) {
         m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
     }
