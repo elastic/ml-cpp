@@ -304,6 +304,7 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str, verbose: 
     with open('configs/{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0]
+    config['analysis']['parameters']['task'] = 'predict'
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)
     fconfig.file.close()
