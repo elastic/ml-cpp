@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <core/CBase64Filter.h>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
@@ -33,9 +32,6 @@
 
 #include <rapidjson/prettywriter.h>
 
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 #include <memory>
@@ -67,19 +63,6 @@ using TPersisterSupplier = std::function<TDataAdderUPtr()>;
 using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
 using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
 using TLossFunctionType = maths::boosted_tree::ELossType;
-using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
-
-std::stringstream decompressStream(std::stringstream&& stream) {
-    std::stringstream decompressedStream;
-    {
-        TFilteredInput inFilter;
-        inFilter.push(boost::iostreams::gzip_decompressor());
-        inFilter.push(core::CBase64Decoder());
-        inFilter.push(stream);
-        boost::iostreams::copy(inFilter, decompressedStream);
-    }
-    return decompressedStream;
-}
 
 class CTestDataSearcher : public core::CDataSearcher {
 public:
@@ -147,7 +130,7 @@ auto generateCategoricalData(test::CRandomNumbers& rng,
     rng.random_shuffle(values.begin(), values.end());
     rng.discard(1000000); // Make sure the categories are not correlated
 
-    return std::make_pair(frequencies[0], values);
+    return values;
 }
 
 template<typename F>
@@ -664,26 +647,15 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
-            .earlyStoppingEnabled(false)
             .task(task)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                             dependentVariable);
     };
 
-    std::stringstream outputStream;
-    auto outputWriterFactory = [&outputStream]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
-    };
-
-    // run once
     std::size_t numberExamples{100};
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     test::CRandomNumbers rng;
-    api::CDataFrameAnalyzer analyzer{
-        makeSpec("target", numberExamples, nullptr, nullptr,
-                 test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train),
-        outputWriterFactory};
 
     TSizeVec seed{1};
     rng.generateUniformSamples(0, 1000, 1, seed);
@@ -694,17 +666,24 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
     TDoubleVec actualPredictions;
     actualPredictions.reserve(numberExamples);
 
-    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
-        numberExamples, seed[0]);
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-
-    // retrieve documents from the result stream that will be used to restore the model
     std::stringstream inferenceModelStream;
     std::stringstream dataSummarizationStream;
-    std::string compressedModelDefinition;
+    std::stringstream outputStream;
+    auto outputWriterFactory = [&outputStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
+    };
 
+    // run once
     {
+        api::CDataFrameAnalyzer analyzer{
+            makeSpec("target", numberExamples, nullptr, nullptr,
+                     test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train),
+            outputWriterFactory};
+        test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+            TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
+            analyzer, numberExamples, seed[0]);
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
         rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
         core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
             inferenceModelStreamWrapper};
@@ -716,49 +695,42 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(outputStream.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        // LOG_DEBUG(<<outputStream.str());
         for (const auto& result : results.GetArray()) {
-            if (result.HasMember("compressed_inference_model")) {
+            if (result.HasMember("row_results")) {
+                expectedPredictions.emplace_back(
+                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
+            }
+            // retrieve documents from the result stream that will be used to restore the model
+            else if (result.HasMember("compressed_inference_model")) {
                 inferenceModelWriter.write(result);
 
             } else if (result.HasMember("compressed_data_summarization")) {
-                compressedModelDefinition =
-                    result["compressed_data_summarization"]["data_summarization"]
-                        .GetString();
                 dataSummarizationWriter.write(result);
-            } else if (result.HasMember("row_results")) {
-                expectedPredictions.emplace_back(
-                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
             }
         }
     }
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberExamples);
-    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
 
     // pass model definition and data summarization into the restore stream
+    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
     auto restoreStreamPtr =
         std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
     TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
         return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
     }};
 
-    // create a new spec for incremental training
     outputStream.str("");
-    inferenceModelStream.str("");
-    rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
-        inferenceModelStreamWrapper};
-    // create new analyzer and run incremental training
-    api::CDataFrameAnalyzer analyzerPrediction{
-        makeSpec("target", numberExamples, nullptr, &restorerSupplier,
-                 test::CDataFrameAnalysisSpecificationFactory::TTask::E_Predict),
-        outputWriterFactory};
-    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
-        analyzerPrediction, numberExamples, seed[0]);
-
-    analyzerPrediction.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
     {
+        // create a new analyzer for prediction
+        api::CDataFrameAnalyzer analyzerPrediction{
+            makeSpec("target", numberExamples, nullptr, &restorerSupplier,
+                     test::CDataFrameAnalysisSpecificationFactory::TTask::E_Predict),
+            outputWriterFactory};
+        test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+            TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
+            analyzerPrediction, numberExamples, seed[0]);
+        analyzerPrediction.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(outputStream.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -766,10 +738,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
             if (result.HasMember("row_results")) {
                 actualPredictions.emplace_back(
                     result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
-            } else if (result.HasMember("compressed_data_summarization")) {
-                compressedModelDefinition =
-                    result["compressed_data_summarization"]["data_summarization"]
-                        .GetString();
             }
         }
     }
@@ -779,52 +747,48 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
                      *utf::tolerance(0.000001)) {
-    std::stringstream outputStream;
-    auto outputWriterFactory = [&outputStream]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
-    };
 
     std::size_t numberExamples = 100;
     std::size_t cols = 3;
-    TDoubleVec weights{10.0, 50.0};
-    // run once
+    TStrVec fieldNames{"numeric_col", "categorical_col", "target", ".", "."};
+    TStrVec fieldValues{"", "", "0", "", ""};
     test::CRandomNumbers rng;
 
     TSizeVec seed{1};
     rng.generateUniformSamples(0, 1000, 1, seed);
     LOG_DEBUG(<< "Seed: " << seed[0]);
+    rng.seed(seed[0]);
+
+    // generate dataset
+    TDoubleVec weights{10.0, 50.0};
+    TDoubleVecVec values(cols);
+    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
+    values[1] = generateCategoricalData(rng, numberExamples, {5.0, 5.0, 5.0});
+    for (std::size_t i = 0; i < numberExamples; ++i) {
+        values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
+    }
 
     TDoubleVec expectedPredictions;
     expectedPredictions.reserve(numberExamples);
     TDoubleVec actualPredictions;
     actualPredictions.reserve(numberExamples);
 
-    TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
-    TStrVec expectedFieldNames{"numeric_col", "categorical_col"};
-
-    TStrVec fieldValues{"", "", "0", "", ""};
-
-    // retrieve documents from the result stream that will be used to restore the model
     std::stringstream inferenceModelStream;
     std::stringstream dataSummarizationStream;
-    std::string compressedModelDefinition;
-    rng.seed(seed[0]);
-    TDoubleVecVec values(cols);
-    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
-    values[1] = generateCategoricalData(rng, numberExamples, {5.0, 5.0, 5.0}).second;
+    std::stringstream outputStream;
+    auto outputWriterFactory = [&outputStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
+    };
 
-    for (std::size_t i = 0; i < numberExamples; ++i) {
-        values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
-    }
+    // run once
     {
-
-        test::CDataFrameAnalysisSpecificationFactory specFactory;
         api::CDataFrameAnalyzer analyzer{
-            specFactory.rows(numberExamples)
+            test::CDataFrameAnalysisSpecificationFactory()
+                .rows(numberExamples)
                 .columns(cols)
                 .memoryLimit(30000000)
                 .predictionCategoricalFieldNames({"categorical_col"})
-                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col"),
+                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
             outputWriterFactory};
 
         for (std::size_t i = 0; i < numberExamples; ++i) {
@@ -854,39 +818,32 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
                 dataSummarizationWriter.write(result);
             } else if (result.HasMember("row_results")) {
                 expectedPredictions.emplace_back(
-                    result["row_results"]["results"]["ml"]["target_col_prediction"]
-                        .GetDouble());
+                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
             }
         }
     }
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberExamples);
-    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
 
     // pass model definition and data summarization into the restore stream
+    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
     auto restoreStreamPtr =
         std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
     TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
         return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
     }};
 
-    // create a new spec for incremental training
     outputStream.str("");
-    inferenceModelStream.str("");
     {
-        rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-        core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
-            inferenceModelStreamWrapper};
-
-        // create new analyzer and run incremental training
-        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        // create a new spec for prediction
         api::CDataFrameAnalyzer analyzer{
-            specFactory.rows(numberExamples)
+            test::CDataFrameAnalysisSpecificationFactory()
+                .rows(numberExamples)
                 .columns(cols)
                 .memoryLimit(30000000)
                 .predictionCategoricalFieldNames({"categorical_col"})
                 .predictionRestoreSearcherSupplier(&restorerSupplier)
                 .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Predict)
-                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col"),
+                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
             outputWriterFactory};
 
         for (std::size_t i = 0; i < numberExamples; ++i) {
@@ -903,8 +860,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
         for (const auto& result : results.GetArray()) {
             if (result.HasMember("row_results")) {
-                actualPredictions.emplace_back(result["row_results"]["results"]["ml"]["target_col_prediction"]
-                                                   .GetDouble());
+                actualPredictions.emplace_back(
+                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
             }
         }
     }

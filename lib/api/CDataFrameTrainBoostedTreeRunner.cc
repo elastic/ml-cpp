@@ -171,7 +171,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                 this->spec().numberThreads(), std::move(loss)));
         break;
     }
-    case E_Update:
+    case E_Update: // use the same factory initialization as for the predict task
     case E_Predict: {
         auto restoreSearcher = this->spec().restoreSearcher();
         auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& istream) {
@@ -187,7 +187,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                     this->spec().numberThreads(), std::move(loss), *restoreSearcher,
                     dataSummarizationRestorer, bestForestRestorer));
         } else {
-            HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");
+            HANDLE_FATAL(<< "Trying to start prediction or incremental training without specified restore information.");
         }
         break;
     }

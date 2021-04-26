@@ -343,13 +343,6 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
                       << "' is missing in the model definition.");
             return nullptr;
         }
-        const auto& featureNamesArray =
-            tree[CTree::JSON_TREE_TAG][CTree::JSON_FEATURE_NAMES_TAG].GetArray();
-        TStrVec featureNames;
-        featureNames.reserve(featureNamesArray.Size());
-        for (const auto& item : featureNamesArray) {
-            featureNames.push_back(item.GetString());
-        }
         auto treeArray =
             tree[CTree::JSON_TREE_TAG][CTree::JSON_TREE_STRUCTURE_TAG].GetArray();
         TNodeVec nodes;

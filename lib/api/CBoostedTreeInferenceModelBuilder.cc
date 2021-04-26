@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CContainerPrinter.h"
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 
 #include <core/LogMacros.h>
@@ -79,13 +78,12 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
     }
 
     // Add aggregated output after the number of trees is known
-    auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
+    auto* ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     this->setAggregateOutput(ensemble);
 
     this->setTargetType();
-    LOG_DEBUG(<< "Model Builder Feature Names "
-              << core::CContainerPrinter::print(m_FeatureNames));
     ensemble->featureNames(m_FeatureNames);
+    // TODO #1869 reactivate once we have a way to map feature names to correct encoding using definition only.
     // ensemble->removeUnusedFeatures();
 
     return std::move(m_Definition);
