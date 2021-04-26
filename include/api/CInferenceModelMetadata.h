@@ -56,7 +56,7 @@ public:
     void columnNames(const TStrVec& columnNames);
     void classValues(const TStrVec& classValues);
     void predictionFieldTypeResolverWriter(const TPredictionFieldTypeResolverWriter& resolverWriter);
-    const std::string& typeString() const;
+    static const std::string& typeString();
     //! Add importances \p values to the feature with index \p i to calculate total feature importance.
     //! Total feature importance is the mean of the magnitudes of importances for individual data points.
     void addToFeatureImportance(std::size_t i, const TVector& values);
@@ -67,19 +67,13 @@ public:
 
 private:
     struct SHyperparameterImportance {
-        SHyperparameterImportance(std::string hyperparameterName,
-                                  double value,
-                                  double absoluteImportance,
-                                  double relativeImportance,
-                                  bool supplied)
-            : s_HyperparameterName(hyperparameterName), s_Value(value),
-              s_AbsoluteImportance(absoluteImportance),
-              s_RelativeImportance(relativeImportance), s_Supplied(supplied) {}
+        enum EType { E_Double, E_Uint64 };
         std::string s_HyperparameterName;
         double s_Value;
         double s_AbsoluteImportance;
         double s_RelativeImportance;
         bool s_Supplied;
+        EType s_Type;
     };
 
     using TMeanAccumulator =

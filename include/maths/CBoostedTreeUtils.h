@@ -40,25 +40,20 @@ enum EHyperparameters {
     E_SoftTreeDepthTolerance,
     E_Eta,
     E_EtaGrowthRatePerTree,
+    E_MaximumNumberTrees,
     E_FeatureBagFraction
 };
 
 constexpr std::size_t NUMBER_HYPERPARAMETERS = E_FeatureBagFraction + 1; // This must be last hyperparameter
 
 struct SHyperparameterImportance {
-    SHyperparameterImportance(EHyperparameters hyperparameter,
-                              double value,
-                              double absoluteImportance,
-                              double relativeImportance,
-                              bool supplied)
-        : s_Hyperparameter(hyperparameter), s_Value(value),
-          s_AbsoluteImportance(absoluteImportance),
-          s_RelativeImportance(relativeImportance), s_Supplied(supplied) {}
+    enum EType { E_Double = 0, E_Uint64 };
     EHyperparameters s_Hyperparameter;
     double s_Value;
     double s_AbsoluteImportance;
     double s_RelativeImportance;
     bool s_Supplied;
+    EType s_Type;
 };
 
 //! Get the size of upper triangle of the loss Hessain.
