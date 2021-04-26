@@ -189,7 +189,7 @@ bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& 
     do {
         const std::string& name = traverser.name();
         RESTORE_SETUP_TEARDOWN(
-            DECAY_RATE_TAG, double decayRate,
+            DECAY_RATE_TAG, double decayRate{this->decayRate()},
             m_Clusterer != nullptr && m_SeedPrior != nullptr &&
                 core::CStringUtils::stringToType(traverser.value(), decayRate),
             this->decayRate(decayRate))
