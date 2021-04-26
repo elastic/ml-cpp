@@ -1625,8 +1625,6 @@ CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRo
     for (const auto& tree : m_BestForest) {
         result += root(tree).value(row, tree);
     }
-    // LOG_DEBUG(<<row.unencodedRow().data()->toString()<< " " << result);
-    // LOG_DEBUG(<<core::CContainerPrinter::print(result));
     return result;
 }
 

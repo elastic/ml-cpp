@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CContainerPrinter.h"
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
 
 namespace ml {
@@ -60,7 +59,6 @@ CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(const TStrVec& fiel
         frame->parseAndWriteRow(
             core::CVectorRange<const TStrVec>(fieldValues, 0, weights.size() + 1));
     }
-    // LOG_DEBUG(<<core::CContainerPrinter::print(targets));
 
     frame->finishWritingRows();
 
