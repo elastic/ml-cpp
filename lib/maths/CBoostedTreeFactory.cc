@@ -553,8 +553,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                                  -mainLoopSearchInterval / 2.0,
                                                  mainLoopSearchInterval / 2.0)
                             .value_or(fallback);
-                    m_SoftDepthLimitSearchInterval =
-                        max(m_SoftDepthLimitSearchInterval, TVector{1.0});
+                    m_SoftDepthLimitSearchInterval = max(
+                        m_SoftDepthLimitSearchInterval, TVector{MIN_SOFT_DEPTH_LIMIT});
                     LOG_TRACE(<< "soft depth limit search interval = ["
                               << m_SoftDepthLimitSearchInterval.toDelimited() << "]");
                     m_TreeImpl->m_Regularization.softTreeDepthLimit(
