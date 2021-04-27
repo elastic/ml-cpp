@@ -294,6 +294,19 @@ public:
                                       std::size_t numberBuckets,
                                       const core::CPackedBitVector& allTrainingRowsMask);
 
+    //! Compute stratified sampling on the \p frame.
+    //!
+    //! See documentation of \link stratifiedCrossValidationRowMasks \endlink for
+    //! implementation details.
+    //!
+    //! \param[in] numberThreads The number of threads available.
+    //! \param[in] frame The data frame for which to compute the row masks.
+    //! \param[in] targetColumn The index of the column to predict.
+    //! \param[in] rng The random number generator to use.
+    //! \param[in] desiredNumberSamples The number of samples.
+    //! \param[in] numberBuckets The number of buckets to use when stratifying by
+    //! target quantiles for regression.
+    //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
     static core::CPackedBitVector
     stratifiedSamplingRowMasks(std::size_t numberThreads,
                                const core::CDataFrame& frame,
