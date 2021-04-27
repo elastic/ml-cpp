@@ -294,6 +294,15 @@ public:
                                       std::size_t numberBuckets,
                                       const core::CPackedBitVector& allTrainingRowsMask);
 
+    static core::CPackedBitVector
+    stratifiedSamplingRowMasks(std::size_t numberThreads,
+                               const core::CDataFrame& frame,
+                               std::size_t targetColumn,
+                               CPRNG::CXorOShiro128Plus rng,
+                               std::size_t desiredNumberSamples,
+                               std::size_t numberBuckets,
+                               const core::CPackedBitVector& allTrainingRowsMask);
+
     //! Get the relative frequency of each category in \p frame.
     //!
     //! \param[in] numberThreads The number of threads available.

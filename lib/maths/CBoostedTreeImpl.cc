@@ -29,6 +29,7 @@
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameCategoryEncoder.h>
+#include <maths/CDataFrameUtils.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
@@ -1432,17 +1433,18 @@ void CBoostedTreeImpl::removePredictions(core::CDataFrame& frame,
 
     core::CPackedBitVector rowMask{trainingRowMask | testingRowMask};
 
-    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                           std::size_t numberLossParameters{m_Loss->numberParameters()};
-                           const auto& rootNode = root(tree);
-                           for (auto row_ = beginRows; row_ != endRows; ++row_) {
-                               auto row = *row_;
-                               readPrediction(row, m_ExtraColumns, numberLossParameters) -=
-                                   rootNode.value(m_Encoder->encode(row), tree);
-                           }
-                       },
-                       &rowMask);
+    frame.writeColumns(
+        m_NumberThreads, 0, frame.numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            std::size_t numberLossParameters{m_Loss->numberParameters()};
+            const auto& rootNode = root(tree);
+            for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                auto row = *row_;
+                readPrediction(row, m_ExtraColumns, numberLossParameters) -=
+                    rootNode.value(m_Encoder->encode(row), tree);
+            }
+        },
+        &rowMask);
 }
 
 void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
@@ -2469,17 +2471,14 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
 core::CPackedBitVector
 CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame,
                                     const TRecordEncodersCallback& recordEncoders) const {
+
+    std::size_t sampleSize{std::max(static_cast<size_t>(dataFrame.numberRows() * 0.1),
+                                    static_cast<std::size_t>(2))};
     // get row mask for sampling
-    // TODO #1834 implement a data summarization strategy.
-    core::CPackedBitVector rowMask{};
-    std::size_t sampleSize(
-        std::min(dataFrame.numberRows(),
-                 static_cast<std::size_t>(std::max(
-                     static_cast<double>(dataFrame.numberRows()) * 0.1, 100.0))));
-    for (std::size_t i = 0; i < sampleSize; ++i) {
-        rowMask.extend(true);
-    }
-    rowMask.extend(false, dataFrame.numberRows() - rowMask.size());
+    core::CPackedBitVector allTrainingRowsMask{dataFrame.numberRows(), true};
+    core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
+        m_NumberThreads, dataFrame, m_DependentVariable, m_Rng, sampleSize, 10,
+        allTrainingRowsMask)};
 
     // get MICs for the features
     recordEncoders([this](core::CStatePersistInserter& inserter) {
