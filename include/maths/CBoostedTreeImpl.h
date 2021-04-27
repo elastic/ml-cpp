@@ -515,6 +515,7 @@ private:
     THyperparametersVec m_TunableHyperparameters;
     TDoubleVecVec m_HyperparameterSamples;
     bool m_StopHyperparameterOptimizationEarly = true;
+    double m_DataSummarizationFraction = 0.1;
 
 private:
     friend class CBoostedTreeFactory;

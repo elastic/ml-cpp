@@ -73,6 +73,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(EARLY_STOPPING_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(DATA_SUMMARIZATION_FRACTION,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(
             TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
             {{TASK_TRAIN, int{ETask::E_Train}}, {TASK_UPDATE, int{ETask::E_Update}}});
@@ -97,6 +99,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_Task = parameters[TASK].fallback(E_Train);
 
     bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
+    bool dataSummarizationFraction = parameters[DATA_SUMMARIZATION_FRACTION].fallback(0.1);
 
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
@@ -478,6 +481,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"earl
 const std::string CDataFrameTrainBoostedTreeRunner::TASK{"task"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_TRAIN{"train"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_UPDATE{"update"};
+const std::string CDataFrameTrainBoostedTreeRunner::DATA_SUMMARIZATION_FRACTION{"data_summarization_fraction"};
 // clang-format on
 }
 }

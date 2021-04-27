@@ -62,6 +62,7 @@ public:
     static const std::string TASK;
     static const std::string TASK_TRAIN;
     static const std::string TASK_UPDATE;
+    static const std::string DATA_SUMMARIZATION_FRACTION;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
