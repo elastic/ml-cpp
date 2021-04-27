@@ -10,6 +10,7 @@
 #include <maths/CBoostedTreeUtils.h>
 
 #include <cmath>
+#include <cstdint>
 
 namespace ml {
 namespace api {
@@ -142,7 +143,6 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
 }
 
 void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& writer) const {
-    // TODO use struct instead of a tuple
     writer.Key(JSON_HYPERPARAMETERS_TAG);
     writer.StartArray();
     for (const auto& item : m_HyperparameterImportance) {
@@ -150,7 +150,14 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
         writer.Key(JSON_HYPERPARAMETER_NAME_TAG);
         writer.String(item.s_HyperparameterName);
         writer.Key(JSON_HYPERPARAMETER_VALUE_TAG);
-        writer.Double(item.s_Value);
+        switch (item.s_Type) {
+        case SHyperparameterImportance::E_Double:
+            writer.Double(item.s_Value);
+            break;
+        case SHyperparameterImportance::E_Uint64:
+            writer.Uint64(static_cast<std::uint64_t>(item.s_Value));
+            break;
+        }
         if (item.s_Supplied == false) {
             writer.Key(JSON_ABSOLUTE_IMPORTANCE_TAG);
             writer.Double(item.s_AbsoluteImportance);
@@ -164,7 +171,7 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
     writer.EndArray();
 }
 
-const std::string& CInferenceModelMetadata::typeString() const {
+const std::string& CInferenceModelMetadata::typeString() {
     return JSON_MODEL_METADATA_TAG;
 }
 
@@ -233,6 +240,9 @@ void CInferenceModelMetadata::hyperparameterImportance(
         case maths::boosted_tree_detail::E_SoftTreeDepthTolerance:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
             break;
+        case maths::boosted_tree_detail::E_MaximumNumberTrees:
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::MAX_TREES;
+            break;
         }
         double absoluteImportance{(std::fabs(item.s_AbsoluteImportance) < 1e-8)
                                       ? 0.0
@@ -240,8 +250,9 @@ void CInferenceModelMetadata::hyperparameterImportance(
         double relativeImportance{(std::fabs(item.s_RelativeImportance) < 1e-8)
                                       ? 0.0
                                       : item.s_RelativeImportance};
-        m_HyperparameterImportance.emplace_back(hyperparameterName, item.s_Value, absoluteImportance,
-                                                relativeImportance, item.s_Supplied);
+        m_HyperparameterImportance.push_back(
+            {hyperparameterName, item.s_Value, absoluteImportance, relativeImportance,
+             item.s_Supplied, static_cast<SHyperparameterImportance::EType>(item.s_Type)});
     }
     std::sort(m_HyperparameterImportance.begin(),
               m_HyperparameterImportance.end(), [](const auto& a, const auto& b) {
