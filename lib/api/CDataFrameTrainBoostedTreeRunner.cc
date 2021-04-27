@@ -169,6 +169,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     switch (m_Task) {
     case E_Update:
         if (frameAndDirectory != nullptr) {
+            // This will be null if we're just computing memory usage.
             auto restoreSearcher = this->spec().restoreSearcher();
             if (restoreSearcher == nullptr) {
                 HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");
