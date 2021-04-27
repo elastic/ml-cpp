@@ -144,10 +144,6 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
 
     this->prepareDataFrameForTrain(frame);
 
-    m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_NotInitialized
-        ? this->skipProgressMonitoringFeatureSelection()
-        : this->startProgressMonitoringFeatureSelection();
-
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->determineFeatureDataTypes(frame); });
 

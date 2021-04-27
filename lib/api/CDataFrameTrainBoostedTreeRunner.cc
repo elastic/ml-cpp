@@ -362,9 +362,6 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
         if (treeRestored == false && m_Task == E_Train) {
             m_BoostedTree = m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
         }
-        if (m_Task == E_Predict) {
-            m_BoostedTree = m_BoostedTreeFactory->buildForPredict(frame, dependentVariableColumn);
-        }
     }
 
     this->validate(frame, dependentVariableColumn);
@@ -378,6 +375,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
         m_BoostedTree->predict();
         break;
     case E_Predict:
+        m_BoostedTree = m_BoostedTreeFactory->buildForPredict(frame, dependentVariableColumn);
         m_BoostedTree->predict();
     }
 
