@@ -1433,18 +1433,17 @@ void CBoostedTreeImpl::removePredictions(core::CDataFrame& frame,
 
     core::CPackedBitVector rowMask{trainingRowMask | testingRowMask};
 
-    frame.writeColumns(
-        m_NumberThreads, 0, frame.numberRows(),
-        [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            std::size_t numberLossParameters{m_Loss->numberParameters()};
-            const auto& rootNode = root(tree);
-            for (auto row_ = beginRows; row_ != endRows; ++row_) {
-                auto row = *row_;
-                readPrediction(row, m_ExtraColumns, numberLossParameters) -=
-                    rootNode.value(m_Encoder->encode(row), tree);
-            }
-        },
-        &rowMask);
+    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                           std::size_t numberLossParameters{m_Loss->numberParameters()};
+                           const auto& rootNode = root(tree);
+                           for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                               auto row = *row_;
+                               readPrediction(row, m_ExtraColumns, numberLossParameters) -=
+                                   rootNode.value(m_Encoder->encode(row), tree);
+                           }
+                       },
+                       &rowMask);
 }
 
 void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(

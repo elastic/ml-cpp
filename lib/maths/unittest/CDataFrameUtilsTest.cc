@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <boost/test/tools/old/interface.hpp>
-#include <c++/7/bits/c++config.h>
 #include <core/CContainerPrinter.h>
 #include <core/CPackedBitVector.h>
 
@@ -652,7 +650,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
 
         // Count should be very nearly the expected value.
         BOOST_REQUIRE_CLOSE(static_cast<double>(desiredNumberSamples[0]),
-                                     samplingRowMask.manhattan(), 5.0);
+                            samplingRowMask.manhattan(), 5.0);
 
         core::CPackedBitVector allTestingRowsMask{numberRows, false};
 
@@ -692,7 +690,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
 
         // Count should be very nearly the expected value.
         BOOST_REQUIRE_CLOSE(static_cast<double>(desiredNumberSamples[0]),
-                                     samplingRowMask.manhattan(), 1.0);
+                            samplingRowMask.manhattan(), 1.0);
 
         // ensure that the targets distribution is similar
         maths::CQuantileSketch expectedQuantiles(maths::CQuantileSketch::E_Linear, numberRows);
