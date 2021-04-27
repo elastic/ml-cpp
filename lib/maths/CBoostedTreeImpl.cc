@@ -2480,7 +2480,7 @@ CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame,
     std::size_t sampleSize{std::max(static_cast<size_t>(dataFrame.numberRows() * m_DataSummarizationFraction),
                                     static_cast<std::size_t>(2))};
     // get row mask for sampling
-    core::CPackedBitVector allTrainingRowsMask{dataFrame.numberRows(), true};
+    core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
     core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
         m_NumberThreads, dataFrame, m_DependentVariable, m_Rng, sampleSize, 10,
         allTrainingRowsMask)};
