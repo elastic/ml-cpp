@@ -62,13 +62,15 @@ const std::string& CDataFrameMockAnalysisRunnerFactory::name() const {
 }
 
 CDataFrameMockAnalysisRunnerFactory::TRunnerUPtr
-CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec) const {
+CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
+                                              TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     return std::make_unique<CDataFrameMockAnalysisRunner>(spec);
 }
 
 CDataFrameMockAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
-                                              const rapidjson::Value&) const {
+                                              const rapidjson::Value&,
+                                              TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     return std::make_unique<CDataFrameMockAnalysisRunner>(spec);
 }
 

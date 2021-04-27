@@ -76,8 +76,10 @@ CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysi
 
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
     const CDataFrameAnalysisSpecification& spec,
-    const CDataFrameAnalysisParameters& parameters)
-    : CDataFrameTrainBoostedTreeRunner{spec, parameters, lossFunction(parameters)} {
+    const CDataFrameAnalysisParameters& parameters,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory)
+    : CDataFrameTrainBoostedTreeRunner{spec, parameters, lossFunction(parameters),
+                                       frameAndDirectory} {
 
     this->boostedTreeFactory().stratifyRegressionCrossValidation(
         parameters[STRATIFIED_CROSS_VALIDATION].fallback(true));
@@ -107,7 +109,7 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Double(tree.readPrediction(row)[0]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
-    auto featureImportance = tree.shap();
+    auto* featureImportance = tree.shap();
     if (featureImportance != nullptr) {
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         featureImportance->shap(
@@ -155,8 +157,8 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
 
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
-    const auto& featureImportance = this->boostedTree().shap();
-    if (featureImportance) {
+    auto* featureImportance = this->boostedTree().shap();
+    if (featureImportance != nullptr) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
     m_InferenceModelMetadata.hyperparameterImportance(
@@ -178,7 +180,9 @@ const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() con
 }
 
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
-CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
+CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(
+    const CDataFrameAnalysisSpecification&,
+    TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     HANDLE_FATAL(<< "Input error: regression has a non-optional parameter '"
                  << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.");
     return nullptr;
@@ -187,11 +191,13 @@ CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnal
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
-    const rapidjson::Value& jsonParameters) const {
+    const rapidjson::Value& jsonParameters,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     const CDataFrameAnalysisConfigReader& parameterReader{
         CDataFrameTrainBoostedTreeRegressionRunner::parameterReader()};
     auto parameters = parameterReader.read(jsonParameters);
-    return std::make_unique<CDataFrameTrainBoostedTreeRegressionRunner>(spec, parameters);
+    return std::make_unique<CDataFrameTrainBoostedTreeRegressionRunner>(
+        spec, parameters, frameAndDirectory);
 }
 
 const std::string CDataFrameTrainBoostedTreeRegressionRunnerFactory::NAME{"regression"};

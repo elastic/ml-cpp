@@ -49,23 +49,25 @@ private:
 
 class API_EXPORT CRetrainableModelJsonDeserializer {
 public:
-    using TDataSummarization = maths::CBoostedTreeFactory::TDataSummarization;
-    using TBestForest = maths::CBoostedTreeFactory::TBestForest;
+    using TEncoderUPtr = maths::CBoostedTreeFactory::TEncoderUPtr;
+    using TNodeVecVecUPtr = maths::CBoostedTreeFactory::TNodeVecVecUPtr;
     using TIStreamSPtr = std::shared_ptr<std::istream>;
 
 public:
     //! \brief Retrieve data summarization from decompressed JSON stream.
-    static TDataSummarization dataSummarizationFromJsonStream(const TIStreamSPtr& istream);
+    static TEncoderUPtr dataSummarizationFromJsonStream(const TIStreamSPtr& istream,
+                                                        core::CDataFrame& frame);
 
     //! \brief Retrieve data summarization from compressed and chunked JSON blob.
-    static TDataSummarization
-    dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream);
+    static TEncoderUPtr dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream,
+                                                                core::CDataFrame& frame);
 
     //! \brief Retrieve best forest from decompressed JSON stream.
-    static TBestForest bestForestFromJsonStream(const core::CDataSearcher::TIStreamP& istream);
+    static TNodeVecVecUPtr
+    bestForestFromJsonStream(const core::CDataSearcher::TIStreamP& istream);
 
     //! \brief Retrieve best forest from compressed and chunked JSON blob.
-    static TBestForest
+    static TNodeVecVecUPtr
     bestForestFromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream);
 };
 }

@@ -174,8 +174,9 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
     writer.EndObject();
 }
 
-CRetrainableModelJsonDeserializer::TDataSummarization
-CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream) {
+CRetrainableModelJsonDeserializer::TEncoderUPtr
+CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream,
+                                                                           core::CDataFrame& frame) {
     rapidjson::IStreamWrapper isw(*istream);
     rapidjson::Document doc;
     doc.ParseStream(isw);
@@ -183,33 +184,32 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(const
         doc[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG].IsObject() == false) {
         LOG_ERROR(<< "Field " << JSON_COMPRESSED_DATA_SUMMARIZATION_TAG
                   << " not found or is not an object.");
-        return {nullptr, nullptr};
+        return nullptr;
     }
     auto& compressedDataSummarization = doc[JSON_COMPRESSED_DATA_SUMMARIZATION_TAG];
     if (compressedDataSummarization.HasMember(JSON_DATA_SUMMARIZATION_TAG) == false ||
         compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].IsString() == false) {
         LOG_ERROR(<< "Field " << JSON_DATA_SUMMARIZATION_TAG << " not found or is not a string.");
-        return {nullptr, nullptr};
+        return nullptr;
     }
     TStreamBuffer buffer{
         compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].GetString(),
         compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].GetStringLength()};
     auto decompressedSPtr = std::make_shared<std::stringstream>(decompressStream(buffer));
-    return CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(decompressedSPtr);
+    return dataSummarizationFromJsonStream(decompressedSPtr, frame);
 }
 
-CRetrainableModelJsonDeserializer::TDataSummarization
-CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStreamSPtr& istream) {
+CRetrainableModelJsonDeserializer::TEncoderUPtr
+CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStreamSPtr& istream,
+                                                                   core::CDataFrame& frame) {
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TBoolVec = std::vector<bool>;
-    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
-    using TEncoderUPtr = std::unique_ptr<maths::CDataFrameCategoryEncoder>;
+
     std::size_t numColumns;
     TStrVec columnNames;
     TStrVecVec categoricalColumnValues;
     TBoolVec columnIsCategorical;
-    TDataFrameUPtr frame;
     TEncoderUPtr encoder;
 
     rapidjson::IStreamWrapper isw(*istream);
@@ -223,7 +223,7 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_NUM_COLUMNS_TAG
                   << "' is missing or has an unexpected format.");
-        return {nullptr, nullptr};
+        return nullptr;
     }
 
     if (doc.HasMember(JSON_COLUMN_NAMES_TAG) && doc[JSON_COLUMN_NAMES_TAG].IsArray()) {
@@ -233,7 +233,7 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_COLUMN_NAMES_TAG
                   << "' is missing or has an unexpected format.");
-        return {nullptr, nullptr};
+        return nullptr;
     }
 
     if (doc.HasMember(JSON_COLUMN_IS_CATEGORICAL_TAG) &&
@@ -244,7 +244,7 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_COLUMN_IS_CATEGORICAL_TAG
                   << "' is missing or has an unexpected format.");
-        return {nullptr, nullptr};
+        return nullptr;
     }
     if (doc.HasMember(JSON_CATEGORICAL_COLUMN_VALUES_TAG) &&
         doc[JSON_CATEGORICAL_COLUMN_VALUES_TAG].IsArray()) {
@@ -258,7 +258,7 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_CATEGORICAL_COLUMN_VALUES_TAG
                   << "' is missing or has an unexpected format.");
-        return {nullptr, nullptr};
+        return nullptr;
     }
 
     if (doc.HasMember(JSON_ENCODINGS_TAG) && doc[JSON_ENCODINGS_TAG].IsObject()) {
@@ -269,19 +269,18 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
         writer.Key(JSON_ENCODINGS_TAG);
         writer.write(doc[JSON_ENCODINGS_TAG].GetObject());
         writer.EndObject();
-        core::CJsonStateRestoreTraverser traverser(jsonStrm);
+        core::CJsonStateRestoreTraverser traverser{jsonStrm};
         encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(traverser);
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_ENCODINGS_TAG
                   << "' is missing or has an unexpected format.");
-        return {nullptr, nullptr};
+        return nullptr;
     }
 
     if (doc.HasMember(JSON_DATA_TAG) && doc[JSON_DATA_TAG].IsArray()) {
-        frame = core::makeMainStorageDataFrame(numColumns).first;
-        frame->columnNames(columnNames);
-        frame->categoricalColumns(columnIsCategorical);
-        frame->categoricalColumnValues(categoricalColumnValues);
+        frame.columnNames(columnNames);
+        frame.categoricalColumns(columnIsCategorical);
+        frame.categoricalColumnValues(categoricalColumnValues);
         TStrVec rowVec;
         rowVec.reserve(numColumns);
 
@@ -289,33 +288,33 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStrea
             for (const auto& item : row.GetArray()) {
                 rowVec.push_back(item.GetString());
             }
-            frame->parseAndWriteRow(
+            frame.parseAndWriteRow(
                 core::CVectorRange<const TStrVec>(rowVec, 0, rowVec.size()));
             rowVec.clear();
         }
-        frame->finishWritingRows();
+        frame.finishWritingRows();
     } else {
         LOG_ERROR(<< "Data summarization field '" << JSON_DATA_TAG
                   << "' is missing or has an unexpected format.");
-        return {nullptr, nullptr};
+        return nullptr;
     }
-    return {std::move(frame), std::move(encoder)};
+    return encoder;
 }
 
-CRetrainableModelJsonDeserializer::TBestForest
+CRetrainableModelJsonDeserializer::TNodeVecVecUPtr
 CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSearcher::TIStreamP& istream) {
     using TNodeVec = maths::CBoostedTreeFactory::TNodeVec;
     using TNodeVecVec = maths::CBoostedTreeFactory::TNodeVecVec;
-    rapidjson::IStreamWrapper isw(*istream);
-    rapidjson::Document d;
-    d.ParseStream(isw);
-    if (d.HasMember(CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG) == false ||
-        d[CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG].IsObject() == false) {
+    rapidjson::IStreamWrapper isw{*istream};
+    rapidjson::Document doc;
+    doc.ParseStream(isw);
+    if (doc.HasMember(CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG) == false ||
+        doc[CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG].IsObject() == false) {
         LOG_ERROR(<< "Object '" << CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG
                   << "' is missing in the model definition.");
         return nullptr;
     }
-    auto trainedModel = d[CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG].GetObject();
+    auto trainedModel = doc[CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG].GetObject();
     if (trainedModel.HasMember(CEnsemble::JSON_ENSEMBLE_TAG) == false ||
         trainedModel[CEnsemble::JSON_ENSEMBLE_TAG].IsObject() == false) {
         LOG_ERROR(<< "Object '" << CEnsemble::JSON_ENSEMBLE_TAG
@@ -332,7 +331,8 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
     auto trainedModels = ensemble[CEnsemble::JSON_TRAINED_MODELS_TAG].GetArray();
     auto forest = std::make_unique<TNodeVecVec>();
     forest->reserve(trainedModels.Size());
-    for (auto& tree : trainedModels) {
+    TNodeVec nodes;
+    for (const auto& tree : trainedModels) {
         if (tree.HasMember(CTree::JSON_TREE_TAG) == false ||
             tree[CTree::JSON_TREE_TAG].IsObject() == false ||
             tree[CTree::JSON_TREE_TAG].HasMember(CTree::JSON_TREE_STRUCTURE_TAG) == false ||
@@ -343,10 +343,10 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
         }
         auto treeArray =
             tree[CTree::JSON_TREE_TAG][CTree::JSON_TREE_STRUCTURE_TAG].GetArray();
-        TNodeVec nodes;
+        nodes.clear();
         nodes.reserve(treeArray.Size());
         nodes.emplace_back(); // add root
-        for (auto& node : treeArray) {
+        for (const auto& node : treeArray) {
             std::size_t nodeIndex{getUint64(node, CTree::CTreeNode::JSON_NODE_INDEX_TAG)};
             std::size_t numberSamples{getUint64(node, CTree::CTreeNode::JSON_NUMBER_SAMPLES_TAG)};
             nodes[nodeIndex].numberSamples(numberSamples);
@@ -381,20 +381,20 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
     return forest;
 }
 
-CRetrainableModelJsonDeserializer::TBestForest
+CRetrainableModelJsonDeserializer::TNodeVecVecUPtr
 CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(
     const core::CDataSearcher::TIStreamP& istream) {
-    rapidjson::IStreamWrapper isw(*istream);
-    rapidjson::Document d;
-    d.ParseStream(isw);
-    if (d.HasMember(CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG) == false ||
-        d[CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG].IsObject() == false) {
+    rapidjson::IStreamWrapper isw{*istream};
+    rapidjson::Document doc;
+    doc.ParseStream(isw);
+    if (doc.HasMember(CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG) == false ||
+        doc[CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG].IsObject() == false) {
         LOG_ERROR(<< "Field " << CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG
                   << " not found or is not an object.");
         return nullptr;
     }
     auto& compressedDataSummarization =
-        d[CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG];
+        doc[CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG];
     if (compressedDataSummarization.HasMember(CInferenceModelDefinition::JSON_DEFINITION_TAG) == false ||
         compressedDataSummarization[CInferenceModelDefinition::JSON_DEFINITION_TAG]
                 .IsString() == false) {
@@ -407,7 +407,7 @@ CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(
                          compressedDataSummarization[CInferenceModelDefinition::JSON_DEFINITION_TAG]
                              .GetStringLength()};
     auto decompressedSPtr = std::make_shared<std::stringstream>(decompressStream(buffer));
-    return CRetrainableModelJsonDeserializer::bestForestFromJsonStream(decompressedSPtr);
+    return bestForestFromJsonStream(decompressedSPtr);
 }
 }
 }

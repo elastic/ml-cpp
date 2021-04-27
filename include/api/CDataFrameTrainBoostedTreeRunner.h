@@ -98,7 +98,8 @@ protected:
 protected:
     CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
                                      const CDataFrameAnalysisParameters& parameters,
-                                     TLossFunctionUPtr loss);
+                                     TLossFunctionUPtr loss,
+                                     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory);
 
     //! \return The parameter reader handling parameters that are shared by subclasses.
     static const CDataFrameAnalysisConfigReader& parameterReader();
@@ -121,6 +122,7 @@ private:
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
 
 private:
+    void computeAndSaveExecutionStrategy() override;
     void runImpl(core::CDataFrame& frame) override;
     bool restoreBoostedTree(core::CDataFrame& frame,
                             std::size_t dependentVariableColumn,

@@ -84,7 +84,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
 CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters,
-    TLossFunctionUPtr loss)
+    TLossFunctionUPtr loss,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory)
     : CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
 
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
@@ -163,32 +164,37 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                      << "' should be non-negative");
     }
 
+    this->computeAndSaveExecutionStrategy();
+
     switch (m_Task) {
-    case E_Train: {
+    case E_Update:
+        if (frameAndDirectory != nullptr) {
+            auto restoreSearcher = this->spec().restoreSearcher();
+            if (restoreSearcher == nullptr) {
+                HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");
+                break;
+            }
+            *frameAndDirectory = this->makeDataFrame();
+            auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& inputStream,
+                                                core::CDataFrame& frame) {
+                return CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
+                    inputStream, frame);
+            };
+            auto bestForestRestorer = [](const core::CDataSearcher::TIStreamP& inputStream) {
+                return CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(inputStream);
+            };
+            m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
+                maths::CBoostedTreeFactory::constructFromDefinition(
+                    this->spec().numberThreads(), std::move(loss), *restoreSearcher,
+                    *frameAndDirectory->first, dataSummarizationRestorer, bestForestRestorer));
+            break;
+        }
+        [[fallthrough]];
+    case E_Train:
         m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
             maths::CBoostedTreeFactory::constructFromParameters(
                 this->spec().numberThreads(), std::move(loss)));
         break;
-    }
-    case E_Update: {
-        auto restoreSearcher = this->spec().restoreSearcher();
-        auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& istream) {
-            return api::CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
-                istream);
-        };
-        auto bestForestRestorer = [](const core::CDataSearcher::TIStreamP& istream) {
-            return CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(istream);
-        };
-        if (restoreSearcher) {
-            m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
-                maths::CBoostedTreeFactory::constructFromDefinition(
-                    this->spec().numberThreads(), std::move(loss), *restoreSearcher,
-                    dataSummarizationRestorer, bestForestRestorer));
-        } else {
-            HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");
-        }
-        break;
-    }
     }
 
     (*m_BoostedTreeFactory)
@@ -285,6 +291,27 @@ const std::string& CDataFrameTrainBoostedTreeRunner::predictionFieldName() const
     return m_PredictionFieldName;
 }
 
+const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
+    if (m_BoostedTree == nullptr) {
+        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
+    }
+    return *m_BoostedTree;
+}
+
+maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
+    if (m_BoostedTreeFactory == nullptr) {
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
+    }
+    return *m_BoostedTreeFactory;
+}
+
+const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
+    if (m_BoostedTreeFactory == nullptr) {
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
+    }
+    return *m_BoostedTreeFactory;
+}
+
 bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) const {
     if (frame.numberColumns() <= 1) {
         HANDLE_FATAL(<< "Input error: analysis need at least one regressor.");
@@ -306,25 +333,11 @@ void CDataFrameTrainBoostedTreeRunner::accept(CBoostedTreeInferenceModelBuilder&
     this->boostedTree().accept(builder);
 }
 
-const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
-    if (m_BoostedTree == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
-    }
-    return *m_BoostedTree;
-}
-
-maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
-    if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
-    }
-    return *m_BoostedTreeFactory;
-}
-
-const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
-    if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
-    }
-    return *m_BoostedTreeFactory;
+void CDataFrameTrainBoostedTreeRunner::computeAndSaveExecutionStrategy() {
+    // We always use in core storage for the data frame for boosted tree training
+    // because it is too slow to use disk.
+    this->numberPartitions(1);
+    this->maximumNumberRowsPerPartition(this->spec().numberRows());
 }
 
 void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
@@ -348,27 +361,22 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     std::size_t dependentVariableColumn(dependentVariablePos -
                                         frame.columnNames().begin());
 
-    // Create restore searcher and restore in a scope so that the restore searcher
-    // gets destructed and performs any cleanup necessary.
-    {
-        auto restoreSearcher{this->spec().restoreSearcher()};
-        bool treeRestored{false};
-        if (restoreSearcher != nullptr && m_Task == E_Train) {
-            treeRestored = this->restoreBoostedTree(frame, dependentVariableColumn,
-                                                    restoreSearcher);
-        }
-        if (treeRestored == false) {
-            m_BoostedTree = m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
-        }
-    }
-
     this->validate(frame, dependentVariableColumn);
+
     switch (m_Task) {
-    case (E_Train):
+    case E_Train:
+        m_BoostedTree = [&] {
+            auto restoreSearcher{this->spec().restoreSearcher()};
+            if (restoreSearcher != nullptr &&
+                this->restoreBoostedTree(frame, dependentVariableColumn, restoreSearcher)) {
+                return std::move(m_BoostedTree);
+            }
+            return m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
+        }();
         m_BoostedTree->train();
         m_BoostedTree->predict();
         break;
-    case (E_Update):
+    case E_Update:
         m_BoostedTree->trainIncremental();
         m_BoostedTree->predict();
     }

@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "core/CDataFrame.h"
 #include <maths/CBoostedTreeFactory.h>
 
 #include <core/CIEEE754.h>
@@ -1361,7 +1362,7 @@ auto CBoostedTreeFactory::restoreTrainedModel(core::CDataSearcher& restoreSearch
         }
 
         if (inputStream->fail()) {
-            // This is fatal. If the stream exists and has failed then state is missing
+            // If the stream exists and has failed then state is missing.
             LOG_ERROR(<< "State restoration search returned failed stream");
             return decltype(restoreCallback(inputStream))();
         }
@@ -1377,29 +1378,31 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     std::size_t numberThreads,
     TLossFunctionUPtr loss,
     core::CDataSearcher& dataSearcher,
+    core::CDataFrame& frame,
     const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
     const TRestoreBestForestFunc& bestForestRestoreCallback) {
 
-    CBoostedTreeFactory factory{CBoostedTreeFactory::constructFromParameters(
-        numberThreads, std::move(loss))};
+    CBoostedTreeFactory factory{constructFromParameters(numberThreads, std::move(loss))};
 
-    // Read data summarization from the stream
-    TDataSummarization dataSummarization{CBoostedTreeFactory::restoreTrainedModel(
-        dataSearcher, dataSummarizationRestoreCallback)};
-    if (dataSummarization.first) {
-        factory.dataSummarization(std::move(dataSummarization));
+    // Read data summarization from the stream.
+    TEncoderUPtr encoder{restoreTrainedModel(
+        dataSearcher, [&](const core::CDataSearcher::TIStreamP& inputStream) {
+            return dataSummarizationRestoreCallback(inputStream, frame);
+        })};
+    if (encoder != nullptr) {
+        factory.featureEncoder(std::move(encoder));
     } else {
         HANDLE_FATAL(<< "Failed restoring data summarization.");
     }
 
-    // Read best forest from the stream
-    TBestForest bestForestRestored{CBoostedTreeFactory::restoreTrainedModel(
-        dataSearcher, bestForestRestoreCallback)};
-    if (bestForestRestored) {
-        factory.bestForest(std::move(bestForestRestored));
+    // Read best forest from the stream.
+    TNodeVecVecUPtr bestForest{restoreTrainedModel(dataSearcher, bestForestRestoreCallback)};
+    if (bestForest != nullptr) {
+        factory.bestForest(std::move(*bestForest.release()));
     } else {
         HANDLE_FATAL(<< "Failed restoring best forest from the model definition.");
     }
+
     return factory;
 }
 
@@ -1645,29 +1648,13 @@ CBoostedTreeFactory& CBoostedTreeFactory::retrainFraction(double fraction) {
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization dataSummarization) {
-    if (dataSummarization.first) {
-        m_TreeImpl->m_SummarizationDataFrame.swap(dataSummarization.first);
-    } else {
-        LOG_ERROR(<< "Trying to pass an empty data summarization to the factory. Please report this error.");
-    }
-
-    if (dataSummarization.second) {
-        m_TreeImpl->m_Encoder.swap(dataSummarization.second);
-    } else {
-        LOG_ERROR(<< "Trying to pass an empty encoder list to the factory. Please report this error.");
-    }
-
+CBoostedTreeFactory& CBoostedTreeFactory::featureEncoder(TEncoderUPtr encoder) {
+    m_TreeImpl->m_Encoder = std::move(encoder);
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::bestForest(TBestForest modelDefinition) {
-    if (modelDefinition) {
-        m_TreeImpl->m_BestForest = std::move(*modelDefinition.release());
-    } else {
-        LOG_ERROR(<< "Trying to pass an empty model definition to the factory. Please report this error.");
-    }
-
+CBoostedTreeFactory& CBoostedTreeFactory::bestForest(TNodeVecVec forest) {
+    m_TreeImpl->m_BestForest = std::move(forest);
     return *this;
 }
 

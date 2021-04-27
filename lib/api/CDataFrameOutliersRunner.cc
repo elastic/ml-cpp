@@ -61,6 +61,8 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
                                                    const CDataFrameAnalysisParameters& parameters)
     : CDataFrameOutliersRunner{spec} {
 
+    this->computeAndSaveExecutionStrategy();
+
     m_StandardizationEnabled = parameters[STANDARDIZATION_ENABLED].fallback(true);
     m_NumberNeighbours = parameters[N_NEIGHBORS].fallback(std::size_t{0});
     m_Method = parameters[METHOD].fallback(maths::COutliers::E_Ensemble);
@@ -175,13 +177,15 @@ const std::string& CDataFrameOutliersRunnerFactory::name() const {
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
-CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec) const {
+CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
+                                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     return std::make_unique<CDataFrameOutliersRunner>(spec);
 }
 
 CDataFrameOutliersRunnerFactory::TRunnerUPtr
 CDataFrameOutliersRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                          const rapidjson::Value& jsonParameters) const {
+                                          const rapidjson::Value& jsonParameters,
+                                          TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     auto parameters = parameterReader().read(jsonParameters);
     return std::make_unique<CDataFrameOutliersRunner>(spec, parameters);
 }

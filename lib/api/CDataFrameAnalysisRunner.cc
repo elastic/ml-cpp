@@ -64,6 +64,54 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
                  roundUpToNearestMb(expectedMemoryWithDisk));
 }
 
+CDataFrameAnalysisRunner::TDataFrameUPtrTemporaryDirectoryPtrPr
+CDataFrameAnalysisRunner::makeDataFrame() {
+    auto result = this->storeDataFrameInMainMemory()
+                      ? core::makeMainStorageDataFrame(m_Spec.numberColumns(),
+                                                       this->dataFrameSliceCapacity())
+                      : core::makeDiskStorageDataFrame(
+                            m_Spec.temporaryDirectory(), m_Spec.numberColumns(),
+                            m_Spec.numberRows(), this->dataFrameSliceCapacity());
+    result.first->missingString(m_Spec.missingFieldValue());
+    result.first->reserve(m_Spec.numberThreads(),
+                          m_Spec.numberColumns() + this->numberExtraColumns());
+    return result;
+}
+
+bool CDataFrameAnalysisRunner::storeDataFrameInMainMemory() const {
+    return m_NumberPartitions == 1;
+}
+
+std::size_t CDataFrameAnalysisRunner::numberPartitions() const {
+    return m_NumberPartitions;
+}
+
+std::size_t CDataFrameAnalysisRunner::maximumNumberRowsPerPartition() const {
+    return m_MaximumNumberRowsPerPartition;
+}
+
+void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
+    if (m_Runner.joinable()) {
+        LOG_INFO(<< "Already running analysis");
+    } else {
+        this->instrumentation().resetProgress();
+        m_Runner = std::thread([&frame, this]() {
+            this->runImpl(frame);
+            this->instrumentation().setToFinished();
+        });
+    }
+}
+
+void CDataFrameAnalysisRunner::waitToFinish() {
+    if (m_Runner.joinable()) {
+        m_Runner.join();
+    }
+}
+
+const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
+    return m_Spec;
+}
+
 void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     std::size_t numberRows{m_Spec.numberRows()};
@@ -86,10 +134,8 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
         if (memoryUsage <= memoryLimit) {
             break;
         }
-        // If we are not allowed to spill over to disk then only one partition
-        // is possible.
         if (m_Spec.diskUsageAllowed() == false) {
-            LOG_TRACE(<< "stop partition number computation since disk usage is turned off");
+            LOG_TRACE(<< "stop partition number computation since disk usage is disabled");
             break;
         }
     }
@@ -125,38 +171,12 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
     }
 }
 
-bool CDataFrameAnalysisRunner::storeDataFrameInMainMemory() const {
-    return m_NumberPartitions == 1;
+void CDataFrameAnalysisRunner::numberPartitions(std::size_t partitions) {
+    m_NumberPartitions = partitions;
 }
 
-std::size_t CDataFrameAnalysisRunner::numberPartitions() const {
-    return m_NumberPartitions;
-}
-
-std::size_t CDataFrameAnalysisRunner::maximumNumberRowsPerPartition() const {
-    return m_MaximumNumberRowsPerPartition;
-}
-
-void CDataFrameAnalysisRunner::run(core::CDataFrame& frame) {
-    if (m_Runner.joinable()) {
-        LOG_INFO(<< "Already running analysis");
-    } else {
-        this->instrumentation().resetProgress();
-        m_Runner = std::thread([&frame, this]() {
-            this->runImpl(frame);
-            this->instrumentation().setToFinished();
-        });
-    }
-}
-
-void CDataFrameAnalysisRunner::waitToFinish() {
-    if (m_Runner.joinable()) {
-        m_Runner.join();
-    }
-}
-
-const CDataFrameAnalysisSpecification& CDataFrameAnalysisRunner::spec() const {
-    return m_Spec;
+void CDataFrameAnalysisRunner::maximumNumberRowsPerPartition(std::size_t rowsPerPartition) {
+    m_MaximumNumberRowsPerPartition = rowsPerPartition;
 }
 
 std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumberRows,
@@ -205,17 +225,29 @@ CDataFrameAnalysisRunner::inferenceModelMetadata() const {
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
-CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
-    auto result = this->makeImpl(spec);
-    result->computeAndSaveExecutionStrategy();
+CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
+                                      TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
+    auto result = this->makeImpl(spec, frameAndDirectory);
+    if (result->numberPartitions() == 0) {
+        HANDLE_FATAL(<< "You need to call 'computeAndSaveExecutionStrategy' in the derived runner constructor.");
+    }
+    if (frameAndDirectory != nullptr && frameAndDirectory->first == nullptr) {
+        *frameAndDirectory = result->makeDataFrame();
+    }
     return result;
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec,
-                                      const rapidjson::Value& jsonParameters) const {
-    auto result = this->makeImpl(spec, jsonParameters);
-    result->computeAndSaveExecutionStrategy();
+                                      const rapidjson::Value& jsonParameters,
+                                      TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
+    auto result = this->makeImpl(spec, jsonParameters, frameAndDirectory);
+    if (result->numberPartitions() == 0) {
+        HANDLE_FATAL(<< "You need to call 'computeAndSaveExecutionStrategy' in the derived runner constructor.");
+    }
+    if (frameAndDirectory != nullptr && frameAndDirectory->first == nullptr) {
+        *frameAndDirectory = result->makeDataFrame();
+    }
     return result;
 }
 }

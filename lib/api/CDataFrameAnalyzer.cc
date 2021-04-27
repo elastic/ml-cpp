@@ -43,13 +43,28 @@ const std::string RESULTS{"results"};
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
                                        TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
+    : CDataFrameAnalyzer(std::move(analysisSpecification), nullptr, std::move(resultsStreamSupplier)) {
+}
+
+CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
+                                       TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory,
+                                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
+    : CDataFrameAnalyzer(std::move(analysisSpecification),
+                         &frameAndDirectory,
+                         std::move(resultsStreamSupplier)) {
+}
+
+CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
+                                       TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory,
+                                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
     : m_AnalysisSpecification{std::move(analysisSpecification)},
       m_ResultsStreamSupplier{std::move(resultsStreamSupplier)} {
-
-    if (m_AnalysisSpecification != nullptr) {
-        auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
-        m_DataFrame = std::move(frameAndDirectory.first);
-        m_DataFrameDirectory = frameAndDirectory.second;
+    if (frameAndDirectory != nullptr) {
+        std::tie(m_DataFrame, m_DataFrameDirectory) = std::move(*frameAndDirectory);
+    } else if (analysisSpecification->runner() != nullptr) {
+        // Lazily creating the data frame if needed is useful for unit testing.
+        std::tie(m_DataFrame, m_DataFrameDirectory) =
+            analysisSpecification->runner()->makeDataFrame();
     }
 }
 
@@ -147,10 +162,6 @@ void CDataFrameAnalyzer::run() {
         this->writeInferenceModelMetadata(*analysisRunner, outputWriter);
         this->writeDataSummarization(*analysisRunner, outputWriter);
     }
-}
-
-const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
-    return m_DataFrameDirectory;
 }
 
 const core::CDataFrame& CDataFrameAnalyzer::dataFrame() const {
