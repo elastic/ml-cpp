@@ -9,6 +9,7 @@
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
+#include <core/CPackedBitVector.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CStateDecompressor.h>
@@ -184,10 +185,13 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
             auto bestForestRestorer = [](const core::CDataSearcher::TIStreamP& inputStream) {
                 return CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(inputStream);
             };
+            auto& frame = frameAndDirectory->first;
             m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
                 maths::CBoostedTreeFactory::constructFromDefinition(
                     this->spec().numberThreads(), std::move(loss), *restoreSearcher,
-                    *frameAndDirectory->first, dataSummarizationRestorer, bestForestRestorer));
+                    *frame, dataSummarizationRestorer, bestForestRestorer));
+            m_BoostedTreeFactory->newTrainingRowMask(
+                core::CPackedBitVector{frame->numberRows(), false});
             break;
         }
         [[fallthrough]];

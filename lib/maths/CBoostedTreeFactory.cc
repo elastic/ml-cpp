@@ -4,9 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CDataFrame.h"
 #include <maths/CBoostedTreeFactory.h>
 
+#include <core/CDataFrame.h>
 #include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPersistUtils.h>
@@ -144,6 +144,10 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame) {
                 [&] { this->initializeNumberFolds(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        m_TreeImpl->m_NewTrainingRowMask.extend(
+            true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
+    });
 
     this->prepareDataFrameForIncrementalTrain(frame);
 
