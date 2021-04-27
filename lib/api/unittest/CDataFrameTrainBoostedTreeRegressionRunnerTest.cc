@@ -48,9 +48,8 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
                          "  \"dependent_variable\": \"dep_var\","
                          "  \"prediction_field_name\": \"is_training\""
                          "}");
-    auto parameters =
-        api::CDataFrameTrainBoostedTreeRegressionRunner::parameterReader().read(jsonParameters);
-    api::CDataFrameTrainBoostedTreeRegressionRunner runner(*spec, parameters);
+    api::CDataFrameTrainBoostedTreeRegressionRunnerFactory factory;
+    auto placeholder = factory.make(*spec, jsonParameters);
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
     BOOST_TEST_REQUIRE(errors[0] == "Input error: prediction_field_name must not be equal to any of [is_training].");
@@ -90,9 +89,9 @@ BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, *utf::tolerance(0.00000
             static_cast<const api::CDataFrameTrainBoostedTreeRegressionRunner&>(*runner)
                 .boostedTreeFactory()
                 .boostedTreeImpl();
-        // // check that all trees restored
+        // Check that all trees restored.
         BOOST_REQUIRE_EQUAL(boostedTreeImpl.trainedModel().size(), 8);
-        // // check that all encoders restored
+        // Check that all encoders restored.
         BOOST_REQUIRE_EQUAL(boostedTreeImpl.encoder().numberInputColumns(), 5);
         BOOST_REQUIRE_EQUAL(boostedTreeImpl.encoder().numberEncodedColumns(), 3);
         TDoubleVec actualMics{boostedTreeImpl.encoder().encodedColumnMics()};

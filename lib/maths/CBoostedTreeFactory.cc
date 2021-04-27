@@ -145,6 +145,7 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame) {
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        // We assume any additional rows are new examples.
         m_TreeImpl->m_NewTrainingRowMask.extend(
             true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
     });

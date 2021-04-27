@@ -5,6 +5,7 @@
  */
 
 #include <core/CBase64Filter.h>
+#include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CPackedBitVector.h>
 
@@ -83,13 +84,15 @@ void testSchema(TLossFunctionType lossType) {
     auto analysisRunner = analyzer.runner();
 
     auto dataSummarization = analysisRunner->dataSummarization(analyzer.dataFrame());
+
     // verify compressed definition
     {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
         std::string dataSummarizationStr{dataSummarization->jsonString()};
         std::stringstream decompressedStream{
             decompressStream(dataSummarization->jsonCompressedStream())};
         api::CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(
-            std::make_shared<std::istringstream>(dataSummarizationStr));
+            std::make_shared<std::istringstream>(dataSummarizationStr), *frame);
         BOOST_TEST_REQUIRE(decompressedStream.str() == dataSummarizationStr);
     }
 
@@ -144,9 +147,9 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
     auto expectedFrame = core::makeMainStorageDataFrame(columnNames.size()).first;
     expectedFrame->columnNames(columnNames);
     expectedFrame->categoricalColumns(categoricalColumns);
-    for (std::size_t i = 0; i < rows.size(); ++i) {
+    for (const auto& row : rows) {
         expectedFrame->parseAndWriteRow(
-            core::CVectorRange<const TStrVec>(rows[i], 0, rows[i].size()));
+            core::CVectorRange<const TStrVec>(row, 0, row.size()));
     }
     expectedFrame->finishWritingRows();
 
@@ -162,13 +165,13 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
         *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true),
         std::move(persistedEncoderStream)};
     auto istream = std::make_shared<std::istringstream>(serializer.jsonString());
-    api::CRetrainableModelJsonDeserializer::TDataSummarization dataSummarization{
-        api::CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(istream)};
-    BOOST_REQUIRE(dataSummarization.first && dataSummarization.second);
-    BOOST_REQUIRE(expectedFrame->checksum() == dataSummarization.first->checksum());
-    BOOST_REQUIRE(dataSummarization.second->numberInputColumns() ==
-                  expectedFrame->numberColumns());
-    BOOST_REQUIRE(dataSummarization.second->numberEncodedColumns() > 0);
+    auto actualFrame = core::makeMainStorageDataFrame(columnNames.size()).first;
+    auto encoder = api::CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(
+        istream, *actualFrame);
+    BOOST_REQUIRE(encoder != nullptr);
+    BOOST_REQUIRE(expectedFrame->checksum() == actualFrame->checksum());
+    BOOST_REQUIRE(encoder->numberInputColumns() == expectedFrame->numberColumns());
+    BOOST_REQUIRE(encoder->numberEncodedColumns() > 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
