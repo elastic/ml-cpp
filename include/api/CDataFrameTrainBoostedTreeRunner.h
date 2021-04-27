@@ -81,9 +81,6 @@ public:
     //! \return The boosted tree.
     const maths::CBoostedTree& boostedTree() const;
 
-    //! \return The boosted tree factory.
-    const maths::CBoostedTreeFactory& boostedTreeFactory() const;
-
     //! \return Reference to the analysis state.
     const CDataFrameAnalysisInstrumentation& instrumentation() const override;
     //! \return Reference to the analysis state.
@@ -107,6 +104,8 @@ protected:
     const std::string& dependentVariableFieldName() const;
     //! \return The name of prediction field.
     const std::string& predictionFieldName() const;
+    //! \return The boosted tree factory.
+    const maths::CBoostedTreeFactory& boostedTreeFactory() const;
     //! \return The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();
 

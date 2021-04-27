@@ -411,7 +411,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
                 break;
             }
         }
-        if (m_RegressionLossFunctionParameter) {
+        if (m_RegressionLossFunctionParameter != boost::none) {
             writer.Key(TRegressionRunner::LOSS_FUNCTION_PARAMETER);
             writer.Double(m_RegressionLossFunctionParameter.get());
         }
@@ -423,8 +423,10 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analysis,
-                                                       const std::string& dependentVariable) const {
+CDataFrameAnalysisSpecificationFactory::predictionSpec(
+    const std::string& analysis,
+    const std::string& dependentVariable,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
 
     std::size_t rows{m_Rows ? *m_Rows : 100};
     std::size_t columns{m_Columns ? *m_Columns : 5};
@@ -439,17 +441,18 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analys
 
     if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier != nullptr) {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(
-            spec, nullptr, *m_PersisterSupplier, *m_RestoreSearcherSupplier);
-    } else if (m_RestoreSearcherSupplier == nullptr && m_PersisterSupplier != nullptr) {
-        return std::make_unique<api::CDataFrameAnalysisSpecification>(
-            spec, nullptr, *m_PersisterSupplier);
-    } else if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier == nullptr) {
-        return std::make_unique<api::CDataFrameAnalysisSpecification>(
-            spec, nullptr, api::CDataFrameAnalysisSpecification::noopPersisterSupplier,
-            *m_RestoreSearcherSupplier);
-    } else {
-        return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
+            spec, frameAndDirectory, *m_PersisterSupplier, *m_RestoreSearcherSupplier);
     }
+    if (m_RestoreSearcherSupplier == nullptr && m_PersisterSupplier != nullptr) {
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(
+            spec, frameAndDirectory, *m_PersisterSupplier);
+    }
+    if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier == nullptr) {
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(
+            spec, frameAndDirectory, api::CDataFrameAnalysisSpecification::noopPersisterSupplier,
+            *m_RestoreSearcherSupplier);
+    }
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 }
 }

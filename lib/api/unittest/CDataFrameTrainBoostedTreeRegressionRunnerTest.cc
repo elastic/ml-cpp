@@ -9,6 +9,7 @@
 #include <maths/CBoostedTreeImpl.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
+#include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CSingleStreamSearcher.h>
 
@@ -33,6 +34,8 @@ using TDoubleVec = std::vector<double>;
 using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
 using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
 using TLossFunctionType = maths::boosted_tree::ELossType;
+using TDataFrameUPtrTemporaryDirectoryPtrPr =
+    api::CDataFrameAnalyzer::TDataFrameUPtrTemporaryDirectoryPtrPr;
 }
 
 BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
@@ -56,13 +59,13 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
 }
 
 BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, *utf::tolerance(0.000001)) {
-    // This test checks correct initialization of data summarization and the best forest for
-    // incremental training.
+    // This test checks correct initialization of data summarization and the best
+    // forest for incremental training.
 
     std::string filename{"testfiles/restore_incremental_model.json"};
     std::ifstream file{filename};
     if (file) {
-        // get restore string stream
+        // Get restore string stream.
         std::stringstream restoreStream;
         restoreStream << file.rdbuf();
         file.close();
@@ -71,6 +74,7 @@ BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, *utf::tolerance(0.00000
         TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
             return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
         }};
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
 
         test::CDataFrameAnalysisSpecificationFactory specFactory;
         auto spec =
@@ -82,13 +86,23 @@ BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, *utf::tolerance(0.00000
                 .earlyStoppingEnabled(false)
                 .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Update)
                 .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-                                "target");
-        auto* runner = static_cast<api::CDataFrameTrainBoostedTreeRegressionRunner*>(
-            spec->runner());
-        const auto& boostedTreeImpl =
-            static_cast<const api::CDataFrameTrainBoostedTreeRegressionRunner&>(*runner)
-                .boostedTreeFactory()
-                .boostedTreeImpl();
+                                "target", &frameAndDirectory);
+
+        std::stringstream output;
+        auto outputWriterFactory = [&output]() {
+            return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+        };
+
+        api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                         std::move(outputWriterFactory)};
+
+        analyzer.run();
+
+        auto* runner = dynamic_cast<const api::CDataFrameTrainBoostedTreeRunner*>(
+            analyzer.runner());
+        BOOST_TEST_REQUIRE(runner != nullptr);
+
+        const auto& boostedTreeImpl = runner->boostedTree().impl();
         // Check that all trees restored.
         BOOST_REQUIRE_EQUAL(boostedTreeImpl.trainedModel().size(), 8);
         // Check that all encoders restored.
