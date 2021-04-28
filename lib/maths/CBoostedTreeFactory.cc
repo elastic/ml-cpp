@@ -319,14 +319,12 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         std::move(boundingBox),
         m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
 
-    m_TreeImpl->m_CurrentRound = 0; // for first start
+    m_TreeImpl->m_CurrentRound = 0;
     m_TreeImpl->m_BestHyperparameters = CBoostedTreeHyperparameters(
         m_TreeImpl->m_Regularization, m_TreeImpl->m_DownsampleFactor, m_TreeImpl->m_Eta,
         m_TreeImpl->m_EtaGrowthRatePerTree, m_TreeImpl->m_MaximumNumberTrees,
         m_TreeImpl->m_FeatureBagFraction, m_TreeImpl->m_PredictionChangeCost);
-    if (m_TreeImpl->m_IncrementalTraining == false) {
-        m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
-    }
+    m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
 }
 
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) const {
@@ -706,8 +704,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                                  -mainLoopSearchInterval / 2.0,
                                                  mainLoopSearchInterval / 2.0)
                             .value_or(fallback);
-                    m_SoftDepthLimitSearchInterval =
-                        max(m_SoftDepthLimitSearchInterval, TVector{1.0});
+                    m_SoftDepthLimitSearchInterval = max(
+                        m_SoftDepthLimitSearchInterval, TVector{MIN_SOFT_DEPTH_LIMIT});
                     LOG_TRACE(<< "soft depth limit search interval = ["
                               << m_SoftDepthLimitSearchInterval.toDelimited() << "]");
                     m_TreeImpl->m_Regularization.softTreeDepthLimit(

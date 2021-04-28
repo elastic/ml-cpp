@@ -58,6 +58,14 @@
   is stopped and restarted, for example, if the node fails. (See {ml-pull}1848[#1848].)
 * Fail gracefully if insufficient data are supplied for classification or regression
   training. (See {ml-pull}1855[#1855].)
+* Fail gracefully on encountering unexpected state in restore from snapshot for anomaly
+  detection. (See {ml-pull}1872[#1872].)
+
+== {es} version 7.12.2
+
+=== Bug Fixes
+
+* Add missing hyperparamter to the model metadata. (See {ml-pull}1867[#1867].)
 
 == {es} version 7.12.2
 
