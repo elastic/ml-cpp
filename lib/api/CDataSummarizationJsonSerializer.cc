@@ -11,6 +11,7 @@
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/Constants.h>
 
+#include <maths/CBoostedTree.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 
 #include <api/CInferenceModelDefinition.h>
@@ -37,6 +38,7 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
 using Device = boost::iostreams::basic_array_source<char>;
 using TStreamBuffer = boost::iostreams::stream_buffer<Device>;
+using TStrVec = std::vector<std::string>;
 
 using TUint64Optional = boost::optional<std::uint64_t>;
 
@@ -352,6 +354,7 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
             nodes[nodeIndex].numberSamples(numberSamples);
 
             if (node.HasMember(CTree::CTreeNode::JSON_LEAF_VALUE_TAG)) {
+                // leaf node
                 if (node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].IsArray()) {
                     auto leafValueArray =
                         node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].GetArray();
@@ -367,13 +370,21 @@ CRetrainableModelJsonDeserializer::bestForestFromJsonStream(const core::CDataSea
                 }
 
             } else {
+                // inner node
                 std::size_t splitFeature{getUint64(node, CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG)};
                 double gain{getDouble(node, CTree::CTreeNode::JSON_SPLIT_GAIN_TAG)};
                 double splitValue{getDouble(node, CTree::CTreeNode::JSON_THRESHOLD_TAG)};
                 bool assignMissingToLeft{getBool(node, CTree::CTreeNode::JSON_DEFAULT_LEFT_TAG)};
+                std::size_t leftChildIndex{getUint64(node, CTree::CTreeNode::JSON_LEFT_CHILD_TAG)};
+                std::size_t rightChildIndex{
+                    getUint64(node, CTree::CTreeNode::JSON_RIGHT_CHILD_TAG)};
                 nodes[nodeIndex].split(splitFeature, splitValue,
                                        assignMissingToLeft, gain, 0.0, nodes);
                 nodes[nodeIndex].numberSamples(numberSamples);
+                nodes[nodeIndex].leftChildIndex(
+                    static_cast<maths::CBoostedTreeNode::TNodeIndex>(leftChildIndex));
+                nodes[nodeIndex].rightChildIndex(
+                    static_cast<maths::CBoostedTreeNode::TNodeIndex>(rightChildIndex));
             }
         }
         forest->push_back(nodes);

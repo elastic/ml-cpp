@@ -374,6 +374,9 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     case TTask::E_Update:
         writer.String(TRunner::TASK_UPDATE);
         break;
+    case TTask::E_Predict:
+        writer.String(TRunner::TASK_PREDICT);
+        break;
     }
 
     if (analysis == classification()) {

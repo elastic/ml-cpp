@@ -73,9 +73,10 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(EARLY_STOPPING_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(
-            TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
-            {{TASK_TRAIN, int{ETask::E_Train}}, {TASK_UPDATE, int{ETask::E_Update}}});
+        theReader.addParameter(TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
+                               {{TASK_TRAIN, int{ETask::E_Train}},
+                                {TASK_UPDATE, int{ETask::E_Update}},
+                                {TASK_PREDICT, int{ETask::E_Predict}}});
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -170,7 +171,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                 this->spec().numberThreads(), std::move(loss)));
         break;
     }
-    case E_Update: {
+    case E_Update: // use the same factory initialization as for the predict task
+    case E_Predict: {
         auto restoreSearcher = this->spec().restoreSearcher();
         auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& istream) {
             return api::CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
@@ -185,7 +187,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                     this->spec().numberThreads(), std::move(loss), *restoreSearcher,
                     dataSummarizationRestorer, bestForestRestorer));
         } else {
-            HANDLE_FATAL(<< "Trying to start incremental training without specified restore information.");
+            HANDLE_FATAL(<< "Trying to start prediction or incremental training without specified restore information.");
         }
         break;
     }
@@ -357,19 +359,23 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
             treeRestored = this->restoreBoostedTree(frame, dependentVariableColumn,
                                                     restoreSearcher);
         }
-        if (treeRestored == false) {
+        if (treeRestored == false && m_Task == E_Train) {
             m_BoostedTree = m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
         }
     }
 
     this->validate(frame, dependentVariableColumn);
     switch (m_Task) {
-    case (E_Train):
+    case E_Train:
         m_BoostedTree->train();
         m_BoostedTree->predict();
         break;
-    case (E_Update):
+    case E_Update:
         m_BoostedTree->trainIncremental();
+        m_BoostedTree->predict();
+        break;
+    case E_Predict:
+        m_BoostedTree = m_BoostedTreeFactory->buildForPredict(frame, dependentVariableColumn);
         m_BoostedTree->predict();
     }
 
@@ -478,6 +484,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"earl
 const std::string CDataFrameTrainBoostedTreeRunner::TASK{"task"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_TRAIN{"train"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_UPDATE{"update"};
+const std::string CDataFrameTrainBoostedTreeRunner::TASK_PREDICT{"predict"};
 // clang-format on
 }
 }

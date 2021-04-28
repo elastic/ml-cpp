@@ -78,12 +78,13 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
     }
 
     // Add aggregated output after the number of trees is known
-    auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
+    auto* ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     this->setAggregateOutput(ensemble);
 
     this->setTargetType();
     ensemble->featureNames(m_FeatureNames);
-    ensemble->removeUnusedFeatures();
+    // TODO #1869 reactivate once we have a way to map feature names to correct encoding using definition only.
+    // ensemble->removeUnusedFeatures();
 
     return std::move(m_Definition);
 }
