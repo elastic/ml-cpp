@@ -11,6 +11,7 @@
 
 CDataFrameMockAnalysisRunner::CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec)
     : ml::api::CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId()} {
+    this->computeAndSaveExecutionStrategy();
 }
 
 std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {

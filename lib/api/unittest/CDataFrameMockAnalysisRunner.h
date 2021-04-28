@@ -30,7 +30,7 @@ protected:
 
 class CDataFrameMockAnalysisRunner final : public ml::api::CDataFrameAnalysisRunner {
 public:
-    CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec);
+    explicit CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec);
 
     std::size_t numberExtraColumns() const override;
     std::size_t dataFrameSliceCapacity() const override;

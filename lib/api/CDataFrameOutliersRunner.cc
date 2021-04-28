@@ -77,6 +77,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     : CDataFrameAnalysisRunner{spec}, m_Method{static_cast<std::size_t>(
                                           maths::COutliers::E_Ensemble)},
       m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
+    this->computeAndSaveExecutionStrategy();
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {

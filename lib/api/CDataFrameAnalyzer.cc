@@ -61,10 +61,10 @@ CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analy
       m_ResultsStreamSupplier{std::move(resultsStreamSupplier)} {
     if (frameAndDirectory != nullptr) {
         std::tie(m_DataFrame, m_DataFrameDirectory) = std::move(*frameAndDirectory);
-    } else if (analysisSpecification->runner() != nullptr) {
+    } else if (m_AnalysisSpecification->runner() != nullptr) {
         // Lazily creating the data frame if needed is useful for unit testing.
         std::tie(m_DataFrame, m_DataFrameDirectory) =
-            analysisSpecification->runner()->makeDataFrame();
+            m_AnalysisSpecification->runner()->makeDataFrame();
     }
 }
 
