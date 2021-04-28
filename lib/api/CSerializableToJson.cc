@@ -3,6 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
+
 #include <api/CSerializableToJson.h>
 
 #include <core/CBase64Filter.h>
@@ -17,11 +18,8 @@ namespace ml {
 namespace api {
 
 namespace {
-// clang-format off
 const std::string JSON_DOC_NUM_TAG{"doc_num"};
 const std::string JSON_EOS_TAG{"eos"};
-// clang-format on
-
 const std::size_t MAX_DOCUMENT_SIZE(16 * core::constants::BYTES_IN_MEGABYTES);
 }
 

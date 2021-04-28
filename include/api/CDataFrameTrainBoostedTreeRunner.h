@@ -116,7 +116,8 @@ protected:
     //! Write the boosted tree and custom processors to \p builder.
     void accept(CBoostedTreeInferenceModelBuilder& builder) const;
 
-    ETask task() const { return m_Task; };
+    //! Get the task to perform.
+    ETask task() const { return m_Task; }
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;

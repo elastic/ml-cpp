@@ -90,7 +90,7 @@ public:
     //!
     //! This chooses the storage strategy based on the analysis constraints and
     //! the number of rows and columns it needs and reserves capacity as appropriate.
-    TDataFrameUPtrTemporaryDirectoryPtrPr makeDataFrame();
+    TDataFrameUPtrTemporaryDirectoryPtrPr makeDataFrame() const;
 
     //! Estimates memory usage in two cases:
     //!   1. disk is not used (the whole data frame fits in main memory)

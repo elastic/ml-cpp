@@ -43,6 +43,20 @@ CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
     this->waitToFinish();
 }
 
+CDataFrameAnalysisRunner::TDataFrameUPtrTemporaryDirectoryPtrPr
+CDataFrameAnalysisRunner::makeDataFrame() const {
+    auto result = this->storeDataFrameInMainMemory()
+                      ? core::makeMainStorageDataFrame(m_Spec.numberColumns(),
+                                                       this->dataFrameSliceCapacity())
+                      : core::makeDiskStorageDataFrame(
+                            m_Spec.temporaryDirectory(), m_Spec.numberColumns(),
+                            m_Spec.numberRows(), this->dataFrameSliceCapacity());
+    result.first->missingString(m_Spec.missingFieldValue());
+    result.first->reserve(m_Spec.numberThreads(),
+                          m_Spec.numberColumns() + this->numberExtraColumns());
+    return result;
+}
+
 void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
     std::size_t numberRows{m_Spec.numberRows()};
     std::size_t numberColumns{m_Spec.numberColumns()};
@@ -62,20 +76,6 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
     };
     writer.write(roundUpToNearestMb(expectedMemoryWithoutDisk),
                  roundUpToNearestMb(expectedMemoryWithDisk));
-}
-
-CDataFrameAnalysisRunner::TDataFrameUPtrTemporaryDirectoryPtrPr
-CDataFrameAnalysisRunner::makeDataFrame() {
-    auto result = this->storeDataFrameInMainMemory()
-                      ? core::makeMainStorageDataFrame(m_Spec.numberColumns(),
-                                                       this->dataFrameSliceCapacity())
-                      : core::makeDiskStorageDataFrame(
-                            m_Spec.temporaryDirectory(), m_Spec.numberColumns(),
-                            m_Spec.numberRows(), this->dataFrameSliceCapacity());
-    result.first->missingString(m_Spec.missingFieldValue());
-    result.first->reserve(m_Spec.numberThreads(),
-                          m_Spec.numberColumns() + this->numberExtraColumns());
-    return result;
 }
 
 bool CDataFrameAnalysisRunner::storeDataFrameInMainMemory() const {

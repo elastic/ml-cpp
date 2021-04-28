@@ -204,7 +204,6 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(const
 CRetrainableModelJsonDeserializer::TEncoderUPtr
 CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStreamSPtr& istream,
                                                                    core::CDataFrame& frame) {
-    using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TBoolVec = std::vector<bool>;
 

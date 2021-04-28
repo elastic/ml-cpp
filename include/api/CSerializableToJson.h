@@ -15,19 +15,22 @@
 
 namespace ml {
 namespace api {
-//! \brief Abstract class for all elements the the inference definition
-//! that can will be serialized into JSON.
+//! \brief Interface for adding all elements of an inference model definition
+//! to a JSON writer.
 class API_EXPORT CSerializableToJsonDocument {
 public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
 
 public:
     virtual ~CSerializableToJsonDocument() = default;
-    //! Serialize the object as JSON items under the \p parentObject using the specified \p writer.
+    //! Serialize the object as JSON items under the \p parentObject using the
+    //! specified \p writer.
     virtual void addToJsonDocument(rapidjson::Value& parentObject,
                                    TRapidJsonWriter& writer) const = 0;
 };
 
+//! \brief Interface for writing the inference model defition JSON description
+//! to a stream.
 class API_EXPORT CSerializableToJsonStream {
 public:
     using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
@@ -37,12 +40,13 @@ public:
     virtual void addToJsonStream(TGenericLineWriter& /*writer*/) const = 0;
 };
 
+//! \brief Interface for writing the inference model defition JSON description
+//! to a stream which first compresses, base64 encodes and chunks.
 class API_EXPORT CSerializableToJsonDocumentCompressed : public CSerializableToJsonStream {
 public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
 
 public:
-    virtual ~CSerializableToJsonDocumentCompressed() = default;
     virtual void addToDocumentCompressed(TRapidJsonWriter& writer) const = 0;
     virtual void addToDocumentCompressed(TRapidJsonWriter& writer,
                                          const std::string& compressedDocTag,

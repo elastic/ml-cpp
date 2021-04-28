@@ -341,7 +341,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
             auto boostedTree = this->restoreBoostedTree(
                 frame, dependentVariableColumn, this->spec().restoreSearcher());
             return boostedTree != nullptr
-                       ? boostedTree
+                       ? std::move(boostedTree)
                        : m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
         }();
         m_BoostedTree->train();
@@ -362,7 +362,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
 
 CDataFrameTrainBoostedTreeRunner::TBoostedTreeFactoryUPtr
 CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
-                                                     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) {
+                                                     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     switch (m_Task) {
     case E_Predict:
     case E_Update:
