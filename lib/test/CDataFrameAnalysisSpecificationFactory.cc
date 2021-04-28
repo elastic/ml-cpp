@@ -145,6 +145,12 @@ CDataFrameAnalysisSpecificationFactory::predictionEta(double eta) {
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionEtaGrowthRatePerTree(double etaGrowthRatePerTree) {
+    m_EtaGrowthRatePerTree = etaGrowthRatePerTree;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::predictionMaximumNumberTrees(std::size_t number) {
     m_MaximumNumberTrees = number;
     return *this;
@@ -319,6 +325,10 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Key(TRunner::ETA);
         writer.Double(m_Eta);
     }
+    if (m_EtaGrowthRatePerTree > 0.0) {
+        writer.Key(TRunner::ETA_GROWTH_RATE_PER_TREE);
+        writer.Double(m_EtaGrowthRatePerTree);
+    }
     if (m_DownsampleFactor > 0.0) {
         writer.Key(TRunner::DOWNSAMPLE_FACTOR);
         writer.Double(m_DownsampleFactor);
@@ -363,6 +373,9 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         break;
     case TTask::E_Update:
         writer.String(TRunner::TASK_UPDATE);
+        break;
+    case TTask::E_Predict:
+        writer.String(TRunner::TASK_PREDICT);
         break;
     }
 

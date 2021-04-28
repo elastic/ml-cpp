@@ -136,6 +136,32 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
+CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable) {
+
+    m_TreeImpl->m_DependentVariable = dependentVariable;
+
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeMissingFeatureMasks(frame); });
+
+    this->prepareDataFrameForTrain(frame);
+
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->determineFeatureDataTypes(frame); });
+
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+    m_TreeImpl->m_Instrumentation->flush();
+
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
+                                                       m_TreeImpl->m_Loss->clone());
+    std::swap(m_TreeImpl, treeImpl);
+    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
+
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
+}
+
+CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame) {
 
     m_TreeImpl->m_IncrementalTraining = true;
@@ -217,9 +243,8 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
-    return std::max(m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
-                        m_TreeImpl->numberHyperparametersToTune(),
-                    std::size_t{1});
+    return m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
+           m_TreeImpl->numberHyperparametersToTune();
 }
 
 void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
@@ -290,6 +315,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
                 m_LogTreeTopologyChangePenaltySearchInterval(MIN_PARAMETER_INDEX),
                 m_LogTreeTopologyChangePenaltySearchInterval(MAX_PARAMETER_INDEX));
             break;
+        case E_MaximumNumberTrees:
+            // maximum number trees is not a tunable parameter
+            break;
         }
     }
     LOG_TRACE(<< "hyperparameter search bounding box = "
@@ -300,9 +328,11 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
 
     m_TreeImpl->m_CurrentRound = 0;
-    if (m_TreeImpl->m_IncrementalTraining == false) {
-        m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
-    }
+    m_TreeImpl->m_BestHyperparameters = CBoostedTreeHyperparameters(
+        m_TreeImpl->m_Regularization, m_TreeImpl->m_DownsampleFactor, m_TreeImpl->m_Eta,
+        m_TreeImpl->m_EtaGrowthRatePerTree, m_TreeImpl->m_MaximumNumberTrees,
+        m_TreeImpl->m_FeatureBagFraction, m_TreeImpl->m_PredictionChangeCost);
+    m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
 }
 
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) const {
@@ -682,8 +712,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                                  -mainLoopSearchInterval / 2.0,
                                                  mainLoopSearchInterval / 2.0)
                             .value_or(fallback);
-                    m_SoftDepthLimitSearchInterval =
-                        max(m_SoftDepthLimitSearchInterval, TVector{1.0});
+                    m_SoftDepthLimitSearchInterval = max(
+                        m_SoftDepthLimitSearchInterval, TVector{MIN_SOFT_DEPTH_LIMIT});
                     LOG_TRACE(<< "soft depth limit search interval = ["
                               << m_SoftDepthLimitSearchInterval.toDelimited() << "]");
                     m_TreeImpl->m_Regularization.softTreeDepthLimit(

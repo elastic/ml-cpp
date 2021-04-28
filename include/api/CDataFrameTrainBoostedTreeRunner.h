@@ -34,7 +34,7 @@ class CBoostedTreeInferenceModelBuilder;
 //! \brief Runs boosted tree regression on a core::CDataFrame.
 class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
-    enum ETask { E_Train, E_Update };
+    enum ETask { E_Train = 0, E_Update, E_Predict };
 
     static const std::string DEPENDENT_VARIABLE_NAME;
     static const std::string PREDICTION_FIELD_NAME;
@@ -62,6 +62,7 @@ public:
     static const std::string TASK;
     static const std::string TASK_TRAIN;
     static const std::string TASK_UPDATE;
+    static const std::string TASK_PREDICT;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
@@ -115,6 +116,8 @@ protected:
     //! Write the boosted tree and custom processors to \p builder.
     void accept(CBoostedTreeInferenceModelBuilder& builder) const;
 
+    ETask task() const { return m_Task; };
+
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
@@ -123,9 +126,12 @@ private:
 private:
     void computeAndSaveExecutionStrategy() override;
     void runImpl(core::CDataFrame& frame) override;
-    bool restoreBoostedTree(core::CDataFrame& frame,
-                            std::size_t dependentVariableColumn,
-                            TDataSearcherUPtr& restoreSearcher);
+    TBoostedTreeFactoryUPtr
+    boostedTreeFactory(TLossFunctionUPtr loss,
+                       TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const;
+    TBoostedTreeUPtr restoreBoostedTree(core::CDataFrame& frame,
+                                        std::size_t dependentVariableColumn,
+                                        const TDataSearcherUPtr& restoreSearcher);
     std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,

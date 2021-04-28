@@ -327,8 +327,10 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     if (featureImportance != nullptr) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
-    m_InferenceModelMetadata.hyperparameterImportance(
-        this->boostedTree().hyperparameterImportance());
+    if (this->task() != E_Predict) {
+        m_InferenceModelMetadata.hyperparameterImportance(
+            this->boostedTree().hyperparameterImportance());
+    }
     return m_InferenceModelMetadata;
 }
 

@@ -27,6 +27,10 @@ nbactions.xml
 build/
 generated-resources/
 
+# python environment stuff
+**/env/*
+*.pyc
+
 # testing stuff
 **/.local*
 .vagrant/

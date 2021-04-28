@@ -120,8 +120,14 @@ public:
     //! Get the index of the left child node.
     TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
 
+    //! Set the left child index to \p value.
+    void leftChildIndex(TNodeIndex value) { m_LeftChild = value; }
+
     //! Get the index of the right child node.
     TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
+
+    //! Set the right child index to \p value.
+    void rightChildIndex(TNodeIndex value) { m_RightChild = value; }
 
     //! Split this node and add its child nodes to \p tree.
     TNodeIndexNodeIndexPr split(std::size_t splitFeature,
