@@ -38,9 +38,11 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
+using TRowItr = core::CDataFrame::TRowItr;
 using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
 using TLossFunctionType = maths::boosted_tree::ELossType;
-using TRowItr = core::CDataFrame::TRowItr;
+using TDataFrameUPtrTemporaryDirectoryPtrPr =
+    test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
 std::stringstream decompressStream(std::stringstream&& compressedStream) {
     std::stringstream decompressedStream;
@@ -73,8 +75,10 @@ void testSchema(TLossFunctionType lossType) {
         specFactory.predictionCategoricalFieldNames({"categorical_col"});
         analysisType = test::CDataFrameAnalysisSpecificationFactory::regression();
     }
-    api::CDataFrameAnalyzer analyzer{
-        specFactory.predictionSpec(analysisType, "target_col"), outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = specFactory.predictionSpec(analysisType, "target_col", &frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
 
     TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
     TStrVec fieldValues{"", "", "0", "", ""};

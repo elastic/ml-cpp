@@ -270,7 +270,7 @@ std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
 }
 
 CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-CDataFrameAnalysisSpecificationFactory::outlierSpec() const {
+CDataFrameAnalysisSpecificationFactory::outlierSpec(TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
 
     std::size_t rows{m_Rows ? *m_Rows : 110};
     std::size_t columns{m_Columns ? *m_Columns : 5};
@@ -283,7 +283,7 @@ CDataFrameAnalysisSpecificationFactory::outlierSpec() const {
 
     LOG_TRACE(<< "spec =\n" << spec);
 
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, frameAndDirectory);
 }
 
 std::string
@@ -465,7 +465,7 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(
             spec, frameAndDirectory, api::CDataFrameAnalysisSpecification::noopPersisterSupplier,
             *m_RestoreSearcherSupplier);
     }
-    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
+    return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, frameAndDirectory);
 }
 }
 }

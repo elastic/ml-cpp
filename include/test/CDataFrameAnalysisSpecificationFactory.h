@@ -108,7 +108,8 @@ public:
     classificationWeights(const TStrDoublePrVec& weights);
 
     std::string outlierParams() const;
-    TSpecificationUPtr outlierSpec() const;
+    TSpecificationUPtr
+    outlierSpec(TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
     std::string predictionParams(const std::string& analysis,
                                  const std::string& dependentVariable) const;

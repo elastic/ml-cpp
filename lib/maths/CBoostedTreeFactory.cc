@@ -1714,9 +1714,12 @@ CBoostedTreeFactory::estimateMemoryUsageTrainIncremental(std::size_t numberRows,
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->m_PaddedExtraColumns == boost::none
-               ? CBoostedTreeImpl::numberExtraColumnsForTrain(
-                     m_TreeImpl->m_Loss->numberParameters())
+               ? numberExtraColumnsForTrain(m_TreeImpl->m_Loss->numberParameters())
                : *m_TreeImpl->m_PaddedExtraColumns;
+}
+
+std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain(std::size_t numberParameters) {
+    return CBoostedTreeImpl::numberExtraColumnsForTrain(numberParameters);
 }
 
 void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {

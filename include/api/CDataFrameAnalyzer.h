@@ -42,8 +42,6 @@ public:
 
 public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier);
-    CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
                        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory,
                        TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier);
 
@@ -52,12 +50,6 @@ public:
     CDataFrameAnalyzer(const CDataFrameAnalyzer&) = delete;
     CDataFrameAnalyzer& operator=(const CDataFrameAnalyzer&) = delete;
 
-private:
-    CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                       TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory,
-                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier);
-
-public:
     //! This is true if the analyzer is receiving control messages.
     bool usingControlMessages() const;
 

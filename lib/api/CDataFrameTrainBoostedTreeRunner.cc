@@ -90,6 +90,14 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory)
     : CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
 
+    if (loss == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must provide a loss function for training."
+                     << " Please report this problem");
+        return;
+    }
+
+    m_NumberLossParameters = loss->numberParameters();
+
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
 
     m_PredictionFieldName = parameters[PREDICTION_FIELD_NAME].fallback(
@@ -233,7 +241,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
-    return m_BoostedTreeFactory->numberExtraColumnsForTrain();
+    return maths::CBoostedTreeFactory::numberExtraColumnsForTrain(m_NumberLossParameters);
 }
 
 std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {

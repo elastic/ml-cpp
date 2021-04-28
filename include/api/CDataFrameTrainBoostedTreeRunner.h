@@ -144,14 +144,15 @@ private:
 private:
     // Note custom config is written directly to the factory object.
 
+    ETask m_Task{E_Train};
     rapidjson::Document m_CustomProcessors;
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
     double m_TrainingPercent;
+    std::size_t m_NumberLossParameters{0};
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
-    ETask m_Task;
 };
 }
 }

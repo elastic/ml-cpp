@@ -178,7 +178,10 @@ public:
     std::size_t estimateMemoryUsageTrainIncremental(std::size_t numberRows,
                                                     std::size_t numberColumns) const;
     //! Get the number of columns training the model will add to the data frame.
+    //! \note This includes padding for alignment so should be prefered if possible.
     std::size_t numberExtraColumnsForTrain() const;
+    //! Get the number of columns training the model will add to the data frame.
+    static std::size_t numberExtraColumnsForTrain(std::size_t numberParameters);
 
     //! Build a boosted tree object for training on \p frame.
     TBoostedTreeUPtr buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable);

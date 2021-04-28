@@ -42,29 +42,13 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
-    : CDataFrameAnalyzer(std::move(analysisSpecification), nullptr, std::move(resultsStreamSupplier)) {
-}
-
-CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
                                        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory,
-                                       TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
-    : CDataFrameAnalyzer(std::move(analysisSpecification),
-                         &frameAndDirectory,
-                         std::move(resultsStreamSupplier)) {
-}
-
-CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
-                                       TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory,
                                        TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
     : m_AnalysisSpecification{std::move(analysisSpecification)},
       m_ResultsStreamSupplier{std::move(resultsStreamSupplier)} {
-    if (frameAndDirectory != nullptr) {
-        std::tie(m_DataFrame, m_DataFrameDirectory) = std::move(*frameAndDirectory);
-    } else if (m_AnalysisSpecification->runner() != nullptr) {
-        // Lazily creating the data frame if needed is useful for unit testing.
-        std::tie(m_DataFrame, m_DataFrameDirectory) =
-            m_AnalysisSpecification->runner()->makeDataFrame();
+    std::tie(m_DataFrame, m_DataFrameDirectory) = std::move(frameAndDirectory);
+    if (m_DataFrame == nullptr) {
+        HANDLE_FATAL(<< "Internal error: missing data frame. Please report this problem.");
     }
 }
 

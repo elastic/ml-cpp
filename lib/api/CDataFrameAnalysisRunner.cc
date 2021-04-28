@@ -190,7 +190,7 @@ std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumbe
 }
 
 CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersister() {
-    return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) -> void {
+    return [this](std::function<void(core::CStatePersistInserter&)> persistFunction) {
         auto persister = m_Spec.persister();
         if (persister != nullptr) {
             core::CStateCompressor compressor(*persister);
