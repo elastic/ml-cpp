@@ -26,7 +26,12 @@ namespace ml {
 namespace api {
 
 // Initialise statics
-const std::size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE{8192}; // 8kB
+
+// We keep the buffer at 2KB because it has to be smaller
+// than the OS buffer for the named pipes (smallest is windows at 4KB).
+// This allows flushing the buffer from the java side by sending spaces
+// without the risk of blocking the thread that writes to the process.
+const std::size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE{2048}; // 2kB
 
 CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
     : CLengthEncodedInputParser{TStrVec{}, strmIn} {
