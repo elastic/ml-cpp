@@ -156,55 +156,17 @@ BOOST_AUTO_TEST_CASE(testLevensteinDistance2) {
 
     using TStrVec = std::vector<std::string>;
 
-    TStrVec sourceShutDown1;
-    sourceShutDown1.push_back("ml13");
-    sourceShutDown1.push_back("4608.1.p2ps");
-    sourceShutDown1.push_back("Info");
-    sourceShutDown1.push_back("Source");
-    sourceShutDown1.push_back("ML_SERVICE2");
-    sourceShutDown1.push_back("on");
-    sourceShutDown1.push_back("has");
-    sourceShutDown1.push_back("shut");
-    sourceShutDown1.push_back("down");
-
-    TStrVec sourceShutDown2;
-    sourceShutDown2.push_back("ml13");
-    sourceShutDown2.push_back("4606.1.p2ps");
-    sourceShutDown2.push_back("Info");
-    sourceShutDown2.push_back("Source");
-    sourceShutDown2.push_back("MONEYBROKER");
-    sourceShutDown2.push_back("on");
-    sourceShutDown2.push_back("has");
-    sourceShutDown2.push_back("shut");
-    sourceShutDown2.push_back("down");
-
-    TStrVec serviceStart;
-    serviceStart.push_back("ml13");
-    serviceStart.push_back("4606.1.p2ps");
-    serviceStart.push_back("Info");
-    serviceStart.push_back("Service");
-    serviceStart.push_back("ML_FEED");
-    serviceStart.push_back("id");
-    serviceStart.push_back("of");
-    serviceStart.push_back("has");
-    serviceStart.push_back("started");
-
-    TStrVec noImageData;
-    noImageData.push_back("ml13");
-    noImageData.push_back("4607.1.p2ps");
-    noImageData.push_back("Debug");
-    noImageData.push_back("Did");
-    noImageData.push_back("not");
-    noImageData.push_back("receive");
-    noImageData.push_back("an");
-    noImageData.push_back("image");
-    noImageData.push_back("data");
-    noImageData.push_back("for");
-    noImageData.push_back("ML_FEED");
-    noImageData.push_back("4205.T");
-    noImageData.push_back("on");
-    noImageData.push_back("Recalling");
-    noImageData.push_back("item");
+    TStrVec sourceShutDown1{"ml13",   "4608.1.p2ps", "Info",
+                            "Source", "ML_SERVICE2", "on",
+                            "has",    "shut",        "down"};
+    TStrVec sourceShutDown2{"ml13",   "4606.1.p2ps", "Info",
+                            "Source", "MONEYBROKER", "on",
+                            "has",    "shut",        "down"};
+    TStrVec serviceStart{"ml13", "4606.1.p2ps", "Info", "Service", "ML_FEED",
+                         "id",   "of",          "has",  "started"};
+    TStrVec noImageData{"ml13",    "4607.1.p2ps", "Debug", "Did",       "not",
+                        "receive", "an",          "image", "data",      "for",
+                        "ML_FEED", "4205.T",      "on",    "Recalling", "item"};
 
     TStrVec empty;
 
@@ -347,55 +309,23 @@ BOOST_AUTO_TEST_CASE(testWeightedEditDistance) {
 
     // These tests give a weight of 3 to dictionary words and 1 to other tokens
 
-    TStrSizePrVec sourceShutDown1;
-    sourceShutDown1.push_back(TStrSizePr("ml13", 1));
-    sourceShutDown1.push_back(TStrSizePr("4608.1.p2ps", 1));
-    sourceShutDown1.push_back(TStrSizePr("Info", 3));
-    sourceShutDown1.push_back(TStrSizePr("Source", 3));
-    sourceShutDown1.push_back(TStrSizePr("ML_SERVICE2", 1));
-    sourceShutDown1.push_back(TStrSizePr("on", 3));
-    sourceShutDown1.push_back(TStrSizePr("has", 3));
-    sourceShutDown1.push_back(TStrSizePr("shut", 3));
-    sourceShutDown1.push_back(TStrSizePr("down", 3));
-
-    TStrSizePrVec sourceShutDown2;
-    sourceShutDown2.push_back(TStrSizePr("ml13", 1));
-    sourceShutDown2.push_back(TStrSizePr("4606.1.p2ps", 1));
-    sourceShutDown2.push_back(TStrSizePr("Info", 3));
-    sourceShutDown2.push_back(TStrSizePr("Source", 3));
-    sourceShutDown2.push_back(TStrSizePr("MONEYBROKER", 1));
-    sourceShutDown2.push_back(TStrSizePr("on", 3));
-    sourceShutDown2.push_back(TStrSizePr("has", 3));
-    sourceShutDown2.push_back(TStrSizePr("shut", 3));
-    sourceShutDown2.push_back(TStrSizePr("down", 3));
-
-    TStrSizePrVec serviceStart;
-    serviceStart.push_back(TStrSizePr("ml13", 1));
-    serviceStart.push_back(TStrSizePr("4606.1.p2ps", 1));
-    serviceStart.push_back(TStrSizePr("Info", 3));
-    serviceStart.push_back(TStrSizePr("Service", 3));
-    serviceStart.push_back(TStrSizePr("ML_FEED", 1));
-    serviceStart.push_back(TStrSizePr("id", 3));
-    serviceStart.push_back(TStrSizePr("of", 3));
-    serviceStart.push_back(TStrSizePr("has", 3));
-    serviceStart.push_back(TStrSizePr("started", 3));
-
-    TStrSizePrVec noImageData;
-    noImageData.push_back(TStrSizePr("ml13", 1));
-    noImageData.push_back(TStrSizePr("4607.1.p2ps", 1));
-    noImageData.push_back(TStrSizePr("Debug", 3));
-    noImageData.push_back(TStrSizePr("Did", 3));
-    noImageData.push_back(TStrSizePr("not", 3));
-    noImageData.push_back(TStrSizePr("receive", 3));
-    noImageData.push_back(TStrSizePr("an", 3));
-    noImageData.push_back(TStrSizePr("image", 3));
-    noImageData.push_back(TStrSizePr("data", 3));
-    noImageData.push_back(TStrSizePr("for", 3));
-    noImageData.push_back(TStrSizePr("ML_FEED", 1));
-    noImageData.push_back(TStrSizePr("4205.T", 1));
-    noImageData.push_back(TStrSizePr("on", 3));
-    noImageData.push_back(TStrSizePr("Recalling", 3));
-    noImageData.push_back(TStrSizePr("item", 3));
+    TStrSizePrVec sourceShutDown1{
+        {"ml13", 1},   {"4608.1.p2ps", 1}, {"Info", 3},
+        {"Source", 3}, {"ML_SERVICE2", 1}, {"on", 3},
+        {"has", 3},    {"shut", 3},        {"down", 3}};
+    TStrSizePrVec sourceShutDown2{
+        {"ml13", 1},   {"4606.1.p2ps", 1}, {"Info", 3},
+        {"Source", 3}, {"MONEYBROKER", 1}, {"on", 3},
+        {"has", 3},    {"shut", 3},        {"down", 3}};
+    TStrSizePrVec serviceStart{
+        {"ml13", 1},    {"4606.1.p2ps", 1}, {"Info", 3},
+        {"Service", 3}, {"ML_FEED", 1},     {"id", 3},
+        {"of", 3},      {"has", 3},         {"started", 3}};
+    TStrSizePrVec noImageData{{"ml13", 1}, {"4607.1.p2ps", 1}, {"Debug", 3},
+                              {"Did", 3},  {"not", 3},         {"receive", 3},
+                              {"an", 3},   {"image", 3},       {"data", 3},
+                              {"for", 3},  {"ML_FEED", 1},     {"4205.T", 1},
+                              {"on", 3},   {"Recalling", 3},   {"item", 3}};
 
     TStrSizePrVec empty;
 
@@ -418,4 +348,56 @@ BOOST_AUTO_TEST_CASE(testWeightedEditDistance) {
     BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(empty, serviceStart));
 }
 
+BOOST_AUTO_TEST_CASE(testPositionalWeightedEditDistance) {
+    ml::core::CStringSimilarityTester sst;
+
+    using TStrSizePr = std::pair<std::string, size_t>;
+    using TStrSizePrVec = std::vector<TStrSizePr>;
+
+    // These tests give a weight of 3 to dictionary words and 1 to other tokens
+    // along with positional weighting: x2 current weighting for first 4 tokens,
+    // x1 current weighting for next 3, x0 current weighting for the rest..
+    // We expect the resulting edit distance to differ from that where no positional
+    // weighting is in play, but still to be symmetric regarding the order of the strings passed.
+    TStrSizePrVec sourceShutDown1{
+        {"ml13", 2},   {"4608.1.p2ps", 2}, {"Info", 6},
+        {"Source", 6}, {"ML_SERVICE2", 1}, {"on", 3},
+        {"has", 3},    {"shut", 0},        {"down", 0}};
+    TStrSizePrVec sourceShutDown2{
+        {"ml13", 2},   {"4606.1.p2ps", 2}, {"Info", 6},
+        {"Source", 6}, {"MONEYBROKER", 1}, {"on", 3},
+        {"has", 3},    {"shut", 0},        {"down", 0}};
+
+    TStrSizePrVec serviceStart{
+        {"ml13", 2},    {"4606.1.p2ps", 2}, {"Info", 6},
+        {"Service", 6}, {"ML_FEED", 1},     {"id", 3},
+        {"of", 3},      {"has", 0},         {"started", 0}};
+    TStrSizePrVec noImageData{{"ml13", 2}, {"4607.1.p2ps", 2}, {"Debug", 6},
+                              {"Did", 6},  {"not", 1},         {"receive", 3},
+                              {"an", 3},   {"image", 0},       {"data", 0},
+                              {"for", 0},  {"ML_FEED", 0},     {"4205.T", 0},
+                              {"on", 0},   {"Recalling", 0},   {"item", 0}};
+    TStrSizePrVec empty;
+
+    BOOST_REQUIRE_EQUAL(size_t(3), sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
+    BOOST_REQUIRE_EQUAL(size_t(3), sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
+
+    BOOST_REQUIRE_EQUAL(size_t(3), sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
+    BOOST_REQUIRE_EQUAL(size_t(3), sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
+
+    BOOST_REQUIRE_EQUAL(size_t(15), sst.weightedEditDistance(sourceShutDown1, serviceStart));
+    BOOST_REQUIRE_EQUAL(size_t(15), sst.weightedEditDistance(serviceStart, sourceShutDown1));
+
+    BOOST_REQUIRE_EQUAL(size_t(13), sst.weightedEditDistance(sourceShutDown2, serviceStart));
+    BOOST_REQUIRE_EQUAL(size_t(13), sst.weightedEditDistance(serviceStart, sourceShutDown2));
+
+    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(noImageData, serviceStart));
+    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(serviceStart, noImageData));
+
+    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(noImageData, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(sourceShutDown1, noImageData));
+
+    BOOST_REQUIRE_EQUAL(size_t(23), sst.weightedEditDistance(serviceStart, empty));
+    BOOST_REQUIRE_EQUAL(size_t(23), sst.weightedEditDistance(empty, serviceStart));
+}
 BOOST_AUTO_TEST_SUITE_END()

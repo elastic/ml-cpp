@@ -90,12 +90,14 @@ public:
                                          true,  // Underscores
                                          true,  // Dots
                                          true,  // Dashes
+                                         true,  // Forward slashes
                                          true,  // Ignore leading digit
                                          true,  // Ignore hex
                                          true,  // Ignore date words
                                          false, // Ignore field names
                                          2,     // Min dictionary word length
-                                         core::CWordDictionary::TWeightVerbs5Other2>;
+                                         true,  // Truncate at first newline
+                                         core::CWordDictionary::TWeightVerbs5Other2AdjacentBoost6>;
 
 public:
     //! Construct without persistence capability
