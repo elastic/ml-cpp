@@ -51,6 +51,8 @@ public:
     explicit operator bool() const noexcept;
 
     //! Is there only one pointer for this stored string?
+    //! This method is inefficient and should only be used in unit test
+    //! code (and then only infrequently).
     bool isUnique() const noexcept;
 
     //! Equality operator for NULL.
