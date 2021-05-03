@@ -36,7 +36,7 @@ private:
 
 public:
     CStringThread(std::size_t i, const TStrVec& strings)
-        : m_I(i), m_Strings(strings) {}
+        : m_I{i}, m_Strings{strings} {}
 
     void uniques(TStrCPtrUSet& result) const {
         result.insert(m_UniquePtrs.begin(), m_UniquePtrs.end());
@@ -148,6 +148,12 @@ BOOST_FIXTURE_TEST_CASE(testStringStore, CTestFixture) {
         for (std::size_t i = 0; i < threads.size(); ++i) {
             BOOST_TEST_REQUIRE(threads[i]->waitForFinish());
         }
+
+        TStrCPtrUSet uniques;
+        for (std::size_t i = 0; i < threads.size(); ++i) {
+            threads[i]->uniques(uniques);
+        }
+        LOG_DEBUG(<< "unique counts = " << uniques.size());
 
         BOOST_REQUIRE_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
         CStringStore::names().pruneNotThreadSafe();
