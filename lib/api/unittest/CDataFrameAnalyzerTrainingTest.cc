@@ -723,7 +723,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
                 expectedPredictions.emplace_back(
                     result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
             }
-            // retrieve documents from the result stream that will be used to restore the model
+            // Retrieve documents from the result stream that will be used to restore the model.
             else if (result.HasMember("compressed_inference_model")) {
                 inferenceModelWriter.write(result);
 

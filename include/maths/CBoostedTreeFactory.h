@@ -190,7 +190,8 @@ public:
     TBoostedTreeUPtr buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable);
 
     //! Build a boosted tree object for incremental training on \p frame.
-    TBoostedTreeUPtr buildForTrainIncremental(core::CDataFrame& frame);
+    TBoostedTreeUPtr buildForTrainIncremental(core::CDataFrame& frame,
+                                              std::size_t dependentVariable);
 
     //! Restore a boosted tree object for training on \p frame.
     //!

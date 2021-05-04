@@ -136,34 +136,10 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable) {
+CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
+                                              std::size_t dependentVariable) {
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
-
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeMissingFeatureMasks(frame); });
-
-    this->prepareDataFrameForTrain(frame);
-
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->determineFeatureDataTypes(frame); });
-
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
-    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
-    m_TreeImpl->m_Instrumentation->flush();
-
-    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
-                                                       m_TreeImpl->m_Loss->clone());
-    std::swap(m_TreeImpl, treeImpl);
-    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
-
-    return TBoostedTreeUPtr{
-        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
-}
-
-CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame) {
-
     m_TreeImpl->m_IncrementalTraining = true;
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
@@ -189,6 +165,32 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame) {
 
     this->initializeHyperparameters(frame);
     this->initializeHyperparameterOptimisation();
+
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
+                                                       m_TreeImpl->m_Loss->clone());
+    std::swap(m_TreeImpl, treeImpl);
+    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
+
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
+}
+
+CBoostedTreeFactory::TBoostedTreeUPtr
+CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable) {
+
+    m_TreeImpl->m_DependentVariable = dependentVariable;
+
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeMissingFeatureMasks(frame); });
+
+    this->prepareDataFrameForTrain(frame);
+
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->determineFeatureDataTypes(frame); });
+
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+    m_TreeImpl->m_Instrumentation->flush();
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
@@ -487,27 +489,22 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
         // Use separate stratified samples on old and new training data to ensure
         // we have even splits of old and new data across all folds.
 
-        TPackedBitVectorVec oldTrainingRowMasks;
-        TPackedBitVectorVec oldTestingRowMasks;
-        std::tie(oldTrainingRowMasks, oldTestingRowMasks, std::ignore) =
+        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, std::ignore) =
             CDataFrameUtils::stratifiedCrossValidationRowMasks(
                 numberThreads, frame, dependentVariable, rng, numberFolds, numberBuckets,
                 allTrainingRowsMask & ~m_TreeImpl->m_NewTrainingRowMask);
 
-        TPackedBitVectorVec newTrainingRowMasks;
-        TPackedBitVectorVec newTestingRowMasks;
-        std::tie(newTrainingRowMasks, newTestingRowMasks, std::ignore) =
-            CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                numberThreads, frame, dependentVariable, rng, numberFolds, numberBuckets,
-                allTrainingRowsMask & m_TreeImpl->m_NewTrainingRowMask);
-
-        m_TreeImpl->m_TrainingRowMasks.resize(numberFolds);
-        m_TreeImpl->m_TestingRowMasks.resize(numberFolds);
-        for (std::size_t i = 0; i < numberFolds; ++i) {
-            m_TreeImpl->m_TrainingRowMasks[i] = oldTrainingRowMasks[i] |
-                                                newTrainingRowMasks[i];
-            m_TreeImpl->m_TestingRowMasks[i] = oldTestingRowMasks[i] |
-                                               newTestingRowMasks[i];
+        if (m_TreeImpl->m_NewTrainingRowMask.manhattan() > 0.0) {
+            TPackedBitVectorVec newTrainingRowMasks;
+            TPackedBitVectorVec newTestingRowMasks;
+            std::tie(newTrainingRowMasks, newTestingRowMasks, std::ignore) =
+                CDataFrameUtils::stratifiedCrossValidationRowMasks(
+                    numberThreads, frame, dependentVariable, rng, numberFolds, numberBuckets,
+                    allTrainingRowsMask & m_TreeImpl->m_NewTrainingRowMask);
+            for (std::size_t i = 0; i < numberFolds; ++i) {
+                m_TreeImpl->m_TrainingRowMasks[i] |= newTrainingRowMasks[i];
+                m_TreeImpl->m_TestingRowMasks[i] |= newTestingRowMasks[i];
+            }
         }
     }
 }

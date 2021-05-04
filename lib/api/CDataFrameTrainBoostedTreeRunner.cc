@@ -356,6 +356,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
         m_BoostedTree->predict();
         break;
     case E_Update:
+        m_BoostedTree = m_BoostedTreeFactory->buildForTrainIncremental(frame, dependentVariableColumn);
         m_BoostedTree->trainIncremental();
         m_BoostedTree->predict();
         break;

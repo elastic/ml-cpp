@@ -71,14 +71,14 @@ bool getBool(const rapidjson::Value& element, const std::string& tag, bool fallb
     return element[tag].GetBool();
 }
 
-std::stringstream decompressStream(boost::iostreams::stream_buffer<Device>& buffer) {
-    std::stringstream decompressedStream;
+auto decompressStream(boost::iostreams::stream_buffer<Device>& buffer) {
+    auto decompressedStream = std::make_shared<std::stringstream>();
     {
         TFilteredInput inFilter;
         inFilter.push(boost::iostreams::gzip_decompressor());
         inFilter.push(core::CBase64Decoder());
         inFilter.push(buffer);
-        boost::iostreams::copy(inFilter, decompressedStream);
+        boost::iostreams::copy(inFilter, *decompressedStream);
     }
     return decompressedStream;
 }
@@ -180,7 +180,7 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
 }
 
 CRetrainableModelJsonDeserializer::TEncoderUPtr
-CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream,
+CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(TIStreamSPtr istream,
                                                                            core::CDataFrame& frame) {
     rapidjson::IStreamWrapper isw{*istream};
     rapidjson::Document doc;
@@ -200,12 +200,11 @@ CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(const
     TStreamBuffer buffer{
         compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].GetString(),
         compressedDataSummarization[JSON_DATA_SUMMARIZATION_TAG].GetStringLength()};
-    auto decompressedSPtr = std::make_shared<std::stringstream>(decompressStream(buffer));
-    return dataSummarizationFromJsonStream(decompressedSPtr, frame);
+    return dataSummarizationFromJsonStream(decompressStream(buffer), frame);
 }
 
 CRetrainableModelJsonDeserializer::TEncoderUPtr
-CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(const TIStreamSPtr& istream,
+CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(TIStreamSPtr istream,
                                                                    core::CDataFrame& frame) {
     using TStrVecVec = std::vector<TStrVec>;
     using TBoolVec = std::vector<bool>;
@@ -419,8 +418,7 @@ CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(
                              .GetString(),
                          compressedDataSummarization[CInferenceModelDefinition::JSON_DEFINITION_TAG]
                              .GetStringLength()};
-    auto decompressedSPtr = std::make_shared<std::stringstream>(decompressStream(buffer));
-    return bestForestFromJsonStream(decompressedSPtr);
+    return bestForestFromJsonStream(decompressStream(buffer));
 }
 }
 }

@@ -98,21 +98,21 @@ BOOST_AUTO_TEST_CASE(testCreationForIncrementalTraining, *utf::tolerance(0.00000
 
         analyzer.run();
 
-        auto* runner = dynamic_cast<const api::CDataFrameTrainBoostedTreeRunner*>(
-            analyzer.runner());
+        const auto* runner =
+            dynamic_cast<const api::CDataFrameTrainBoostedTreeRunner*>(analyzer.runner());
         BOOST_TEST_REQUIRE(runner != nullptr);
 
         const auto& boostedTreeImpl = runner->boostedTree().impl();
         // Check that all trees restored.
-        BOOST_REQUIRE_EQUAL(boostedTreeImpl.trainedModel().size(), 8);
+        BOOST_REQUIRE_EQUAL(boostedTreeImpl.trainedModel().size(), 7);
         // Check that all encoders restored.
         BOOST_REQUIRE_EQUAL(boostedTreeImpl.encoder().numberInputColumns(), 5);
         BOOST_REQUIRE_EQUAL(boostedTreeImpl.encoder().numberEncodedColumns(), 3);
         TDoubleVec actualMics{boostedTreeImpl.encoder().encodedColumnMics()};
-        TDoubleVec expectedMics{0.8342732, 0.2650428, 0};
+        TDoubleVec expectedMics{0.3163495, 0.4311204, 0};
         BOOST_TEST(actualMics == expectedMics, tt::per_element());
     } else {
-        BOOST_FAIL("Connot read file " + filename);
+        BOOST_FAIL("Cannot read file " + filename);
     }
 }
 

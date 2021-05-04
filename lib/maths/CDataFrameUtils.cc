@@ -503,7 +503,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
 
     double numberTrainingRows{allTrainingRowsMask.manhattan()};
     if (numberTrainingRows < 2.0) {
-        HANDLE_FATAL(<< "Input error: unsufficient training data provided.");
+        HANDLE_FATAL(<< "Input error: insufficient training data provided.");
         return {{}, {}, {}};
     }
 

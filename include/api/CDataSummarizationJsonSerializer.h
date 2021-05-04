@@ -57,11 +57,11 @@ public:
 
 public:
     //! \brief Retrieve data summarization from decompressed JSON stream.
-    static TEncoderUPtr dataSummarizationFromJsonStream(const TIStreamSPtr& istream,
+    static TEncoderUPtr dataSummarizationFromJsonStream(TIStreamSPtr istream,
                                                         core::CDataFrame& frame);
 
     //! \brief Retrieve data summarization from compressed and chunked JSON blob.
-    static TEncoderUPtr dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream,
+    static TEncoderUPtr dataSummarizationFromDocumentCompressed(TIStreamSPtr istream,
                                                                 core::CDataFrame& frame);
 
     //! \brief Retrieve best forest from decompressed JSON stream.
