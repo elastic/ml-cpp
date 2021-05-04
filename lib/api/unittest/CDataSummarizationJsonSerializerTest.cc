@@ -44,7 +44,7 @@ using TLossFunctionType = maths::boosted_tree::ELossType;
 using TDataFrameUPtrTemporaryDirectoryPtrPr =
     test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
-std::stringstream decompressStream(std::stringstream&& compressedStream) {
+std::stringstream decompressStream(std::stringstream compressedStream) {
     std::stringstream decompressedStream;
     {
         TFilteredInput inFilter;
@@ -89,7 +89,7 @@ void testSchema(TLossFunctionType lossType) {
 
     auto dataSummarization = analysisRunner->dataSummarization(analyzer.dataFrame());
 
-    // verify compressed definition
+    // Verify compressed definition.
     {
         auto frame = core::makeMainStorageDataFrame(cols).first;
         std::string dataSummarizationStr{dataSummarization->jsonString()};
@@ -100,7 +100,7 @@ void testSchema(TLossFunctionType lossType) {
         BOOST_TEST_REQUIRE(decompressedStream.str() == dataSummarizationStr);
     }
 
-    // verify json schema
+    // Verify json schema.
     {
         std::ifstream schemaFileStream(
             "testfiles/data_summarization_schema/data_summarization.schema.json");
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
 
     api::CDataSummarizationJsonSerializer serializer{
         *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true),
-        std::move(persistedEncoderStream)};
+        columnNames.size(), std::move(persistedEncoderStream)};
     auto istream = std::make_shared<std::istringstream>(serializer.jsonString());
     auto actualFrame = core::makeMainStorageDataFrame(columnNames.size()).first;
     auto encoder = api::CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(

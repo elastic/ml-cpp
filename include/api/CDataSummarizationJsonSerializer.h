@@ -31,6 +31,7 @@ class API_EXPORT CDataSummarizationJsonSerializer final
 public:
     CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
                                      core::CPackedBitVector rowMask,
+                                     std::size_t numberColumns,
                                      std::stringstream encodings);
 
     CDataSummarizationJsonSerializer(const CDataSummarizationJsonSerializer&) = delete;
@@ -43,6 +44,7 @@ public:
 
 private:
     core::CPackedBitVector m_RowMask;
+    std::size_t m_NumberColumns;
     const core::CDataFrame& m_Frame;
     std::stringstream m_Encodings;
 };

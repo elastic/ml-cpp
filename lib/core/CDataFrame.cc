@@ -326,6 +326,10 @@ void CDataFrame::columnNames(TStrVec columnNames) {
     }
 }
 
+const std::string& CDataFrame::missingString() const {
+    return m_MissingString;
+}
+
 void CDataFrame::missingString(std::string missing) {
     m_MissingString = std::move(missing);
 }

@@ -752,7 +752,7 @@ CDataFrameUtils::maximumMinimumRecallClassWeights(std::size_t numberThreads,
 }
 
 bool CDataFrameUtils::isMissing(double value) {
-    return std::isfinite(value) == false;
+    return core::CDataFrame::isMissing(value);
 }
 
 CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColumnDataFrameInMemory(

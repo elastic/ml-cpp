@@ -150,7 +150,7 @@ void CDataFrameAnalyzer::run() {
 
 const core::CDataFrame& CDataFrameAnalyzer::dataFrame() const {
     if (m_DataFrame == nullptr) {
-        HANDLE_FATAL(<< "Internal error: missing data frame");
+        HANDLE_FATAL(<< "Internal error: missing data frame. Please report this problem.");
     }
     return *m_DataFrame;
 }

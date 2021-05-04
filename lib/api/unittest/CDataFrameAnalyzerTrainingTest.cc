@@ -407,8 +407,6 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
     auto errorHandler = [&errors](std::string error) { errors.push_back(error); };
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
-    // Test the results the analyzer produces match running the regression directly.
-
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
@@ -424,7 +422,7 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
     auto spec = test::CDataFrameAnalysisSpecificationFactory{}
                     .rows(numberSamples)
                     .predictionMaximumNumberTrees(2)
-                    .memoryLimit(1000)
+                    .memoryLimit(6000)
                     .predicitionNumberRoundsPerHyperparameter(1)
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                                     "target", &frameAndDirectory);
@@ -446,7 +444,8 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
     }
     BOOST_TEST_REQUIRE(memoryLimitExceed);
 
-    // verify memory status change
+    // Verify memory status change. Initially we should be ok, but hit the hard
+    // limit during training.
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -752,9 +751,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionNumericalOnlyPredictionTask,
             test::CDataFrameAnalysisSpecificationFactory::TTask::E_Predict);
         api::CDataFrameAnalyzer analyzerPrediction{
             std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
-        test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-            TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
-            analyzerPrediction, numberExamples, seed[0]);
         analyzerPrediction.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
         rapidjson::Document results;
@@ -785,7 +781,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
     LOG_DEBUG(<< "Seed: " << seed[0]);
     rng.seed(seed[0]);
 
-    // generate dataset
+    // Generate the data set.
     TDoubleVec weights{10.0, 50.0};
     TDoubleVecVec values(cols);
     rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
@@ -815,7 +811,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
                         .memoryLimit(30000000)
                         .predictionCategoricalFieldNames({"categorical_col"})
                         .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-                                        "target");
+                                        "target", &frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
             std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
 
@@ -876,14 +872,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionCategoricalMixPredictionTask,
                                 "target", &frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
             std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
-
-        for (std::size_t i = 0; i < numberExamples; ++i) {
-            for (std::size_t j = 0; j < cols; ++j) {
-                fieldValues[j] = core::CStringUtils::typeToStringPrecise(
-                    values[j][i], core::CIEEE754::E_DoublePrecision);
-            }
-            analyzer.handleRecord(fieldNames, fieldValues);
-        }
         analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
 
         rapidjson::Document results;

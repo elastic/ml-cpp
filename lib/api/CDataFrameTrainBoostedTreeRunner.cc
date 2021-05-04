@@ -477,7 +477,7 @@ CDataFrameTrainBoostedTreeRunner::dataSummarization(const core::CDataFrame& data
     auto rowMask = this->boostedTree().dataSummarization(dataFrame, encodingRecorder);
     if (rowMask.manhattan() > 0) {
         return std::make_unique<CDataSummarizationJsonSerializer>(
-            dataFrame, rowMask, std::move(output));
+            dataFrame, rowMask, this->spec().numberColumns(), std::move(output));
     }
     return TDataSummarizationUPtr();
 }

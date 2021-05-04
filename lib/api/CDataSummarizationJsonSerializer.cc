@@ -53,7 +53,7 @@ std::uint64_t getUint64(const rapidjson::Value& element,
     return element[tag].GetUint64();
 }
 
-double getDouble(const rapidjson::Value& element, const std::string& tag, double fallback = 0) {
+double getDouble(const rapidjson::Value& element, const std::string& tag, double fallback = 0.0) {
     if (element.HasMember(tag) == false || element[tag].IsDouble() == false) {
         LOG_ERROR(<< "Field '" << tag << "' is missing or has incorrect type. Using default value "
                   << fallback << " instead.");
@@ -97,9 +97,10 @@ const std::string JSON_DATA_TAG{"data"};
 
 CDataSummarizationJsonSerializer::CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
                                                                    core::CPackedBitVector rowMask,
+                                                                   std::size_t numberColumns,
                                                                    std::stringstream encodings)
-    : m_RowMask(std::move(rowMask)), m_Frame(frame),
-      m_Encodings(std::move(encodings)) {
+    : m_RowMask{std::move(rowMask)}, m_NumberColumns{numberColumns}, m_Frame{frame},
+      m_Encodings{std::move(encodings)} {
 }
 
 void CDataSummarizationJsonSerializer::addToDocumentCompressed(TRapidJsonWriter& writer) const {
@@ -117,19 +118,19 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
     writer.StartObject();
 
     writer.Key(JSON_NUM_COLUMNS_TAG);
-    writer.Uint64(m_Frame.numberColumns());
+    writer.Uint64(m_NumberColumns);
 
     writer.Key(JSON_COLUMN_NAMES_TAG);
     writer.StartArray();
-    for (const auto& columnName : m_Frame.columnNames()) {
-        writer.String(columnName);
+    for (std::size_t i = 0; i < m_NumberColumns; ++i) {
+        writer.String(m_Frame.columnNames()[i]);
     }
     writer.EndArray();
 
     writer.Key(JSON_COLUMN_IS_CATEGORICAL_TAG);
     writer.StartArray();
-    for (auto columnIsCategorical : m_Frame.columnIsCategorical()) {
-        writer.Bool(columnIsCategorical);
+    for (std::size_t i = 0; i < m_NumberColumns; ++i) {
+        writer.Bool(m_Frame.columnIsCategorical()[i]);
     }
     writer.EndArray();
 
@@ -145,10 +146,10 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
 
     writer.Key(JSON_CATEGORICAL_COLUMN_VALUES_TAG);
     writer.StartArray();
-    for (const auto& categoricalColumnValuesItem : m_Frame.categoricalColumnValues()) {
+    for (std::size_t i = 0; i < m_NumberColumns; ++i) {
         writer.StartArray();
-        for (const auto& categoricalValue : categoricalColumnValuesItem) {
-            writer.String(categoricalValue);
+        for (const auto& category : m_Frame.categoricalColumnValues()[i]) {
+            writer.String(category);
         }
         writer.EndArray();
     }
@@ -159,10 +160,12 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
     auto writeRowsToJson = [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             writer.StartArray();
-            for (std::size_t i = 0; i < m_Frame.numberColumns(); ++i) {
+            for (std::size_t i = 0; i < m_NumberColumns; ++i) {
                 auto value = (*row)[i];
-                if (m_Frame.categoricalColumnValues()[i].empty()) {
-                    writer.String(std::to_string(value));
+                if (core::CDataFrame::isMissing(value)) {
+                    writer.String(m_Frame.missingString());
+                } else if (m_Frame.categoricalColumnValues()[i].empty()) {
+                    writer.String(value.toString());
                 } else {
                     writer.String(
                         m_Frame.categoricalColumnValues()[i][static_cast<std::size_t>(value)]);
@@ -179,7 +182,7 @@ void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& write
 CRetrainableModelJsonDeserializer::TEncoderUPtr
 CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(const TIStreamSPtr& istream,
                                                                            core::CDataFrame& frame) {
-    rapidjson::IStreamWrapper isw(*istream);
+    rapidjson::IStreamWrapper isw{*istream};
     rapidjson::Document doc;
     doc.ParseStream(isw);
     if (doc.HasMember(JSON_COMPRESSED_DATA_SUMMARIZATION_TAG) == false ||
