@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
                     .predictionEta(0.5)
                     .predictionGamma(0.5)
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-                                    "target");
+                                    "target", &frameAndDirectory);
     api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
                                      std::move(outputWriterFactory)};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
