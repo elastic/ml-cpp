@@ -60,6 +60,8 @@
   training. (See {ml-pull}1855[#1855].)
 * Fail gracefully on encountering unexpected state in restore from snapshot for anomaly
   detection. (See {ml-pull}1872[#1872].)
+* Use appropriate memory ordering flags for aarch64 with string store to avoid excessive
+  string duplication. (See {ml-pull}1888[#1888].)
 
 == {es} version 7.12.2
 
