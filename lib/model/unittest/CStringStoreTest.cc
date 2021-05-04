@@ -60,7 +60,7 @@ public:
     }
 
 private:
-    virtual void run() {
+    void run() override {
         std::size_t n = m_Strings.size();
         for (std::size_t i = m_I; i < 1000; ++i) {
             m_Ptrs.push_back(core::CStoredStringPtr());
@@ -79,7 +79,7 @@ private:
         }
     }
 
-    virtual void shutdown() {}
+    void shutdown() override {}
 
     bool isMismatch(std::size_t i, std::size_t n, const core::CStoredStringPtr& p) {
         if (m_Strings[i % n] != *p) {
@@ -109,23 +109,10 @@ public:
 };
 
 BOOST_FIXTURE_TEST_CASE(testStringStore, CTestFixture) {
-    TStrVec strings;
-    strings.emplace_back("Milano");
-    strings.emplace_back("Monza");
-    strings.emplace_back("Amalfi");
-    strings.emplace_back("Pompei");
-    strings.emplace_back("Gragnano");
-    strings.emplace_back("Roma");
-    strings.emplace_back("Bologna");
-    strings.emplace_back("Torina");
-    strings.emplace_back("Napoli");
-    strings.emplace_back("Rimini");
-    strings.emplace_back("Genova");
-    strings.emplace_back("Capri");
-    strings.emplace_back("Ravello");
-    strings.emplace_back("Reggio");
-    strings.emplace_back("Palermo");
-    strings.emplace_back("Focaccino");
+    TStrVec strings{"Milano",   "Monza",  "Amalfi",  "Pompei",
+                    "Gragnano", "Roma",   "Bologna", "Torina",
+                    "Napoli",   "Rimini", "Genova",  "Capri",
+                    "Ravello",  "Reggio", "Palermo", "Focaccino"};
 
     LOG_DEBUG(<< "*** CStringStoreTest ***");
     {
@@ -140,11 +127,11 @@ BOOST_FIXTURE_TEST_CASE(testStringStore, CTestFixture) {
         BOOST_REQUIRE_EQUAL(pG.get(), pG2.get());
         BOOST_REQUIRE_EQUAL(*pG, *pG2);
 
-        BOOST_REQUIRE_EQUAL(std::size_t(1), CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(1, CStringStore::names().m_Strings.size());
     }
-    BOOST_REQUIRE_EQUAL(std::size_t(1), CStringStore::names().m_Strings.size());
+    BOOST_REQUIRE_EQUAL(1, CStringStore::names().m_Strings.size());
     CStringStore::names().pruneNotThreadSafe();
-    BOOST_REQUIRE_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
+    BOOST_REQUIRE_EQUAL(0, CStringStore::names().m_Strings.size());
 
     {
         LOG_DEBUG(<< "Testing multi-threaded");
@@ -165,8 +152,7 @@ BOOST_FIXTURE_TEST_CASE(testStringStore, CTestFixture) {
         BOOST_REQUIRE_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
         CStringStore::names().pruneNotThreadSafe();
         BOOST_REQUIRE_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, CStringStore::influencers().m_Strings.size());
 
         for (std::size_t i = 0; i < threads.size(); ++i) {
             // Propagate problems to main testing thread
@@ -178,9 +164,9 @@ BOOST_FIXTURE_TEST_CASE(testStringStore, CTestFixture) {
 
         BOOST_REQUIRE_EQUAL(strings.size(), CStringStore::names().m_Strings.size());
         CStringStore::names().pruneNotThreadSafe();
-        BOOST_REQUIRE_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, CStringStore::names().m_Strings.size());
         threads.clear();
-        BOOST_REQUIRE_EQUAL(std::size_t(0), CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, CStringStore::names().m_Strings.size());
     }
     {
         LOG_DEBUG(<< "Testing multi-threaded string duplication rate");
