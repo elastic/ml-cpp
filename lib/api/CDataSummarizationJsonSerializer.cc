@@ -115,6 +115,12 @@ std::string CDataSummarizationJsonSerializer::jsonString() const {
 }
 
 void CDataSummarizationJsonSerializer::addToJsonStream(TGenericLineWriter& writer) const {
+
+    // Note that the data frame has extra columns added to it when running training.
+    // These are at the end and should not be serialized since it is wasteful and they
+    // are reinitialised anyway. m_NumberColumns is the number of supplied columns,
+    // i.e. the feature values and target variable.
+
     writer.StartObject();
 
     writer.Key(JSON_NUM_COLUMNS_TAG);
