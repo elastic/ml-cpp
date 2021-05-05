@@ -43,17 +43,15 @@ public:
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
-    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
-    using TDataSummarization = std::pair<TDataFrameUPtr, TEncoderUPtr>;
     using TRestoreDataSummarizationFunc =
-        std::function<TDataSummarization(const core::CDataSearcher::TIStreamP&)>;
+        std::function<TEncoderUPtr(const core::CDataSearcher::TIStreamP&, core::CDataFrame&)>;
     using TNode = CBoostedTreeNode;
     using TNodeVec = std::vector<TNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
-    using TBestForest = std::unique_ptr<TNodeVecVec>;
+    using TNodeVecVecUPtr = std::unique_ptr<TNodeVecVec>;
     using TRestoreBestForestFunc =
-        std::function<TBestForest(const core::CDataSearcher::TIStreamP&)>;
+        std::function<TNodeVecVecUPtr(const core::CDataSearcher::TIStreamP&)>;
 
 public:
     //! \name Instrumentation Phases
@@ -77,11 +75,13 @@ public:
 
     //! Constructs a boosted tree object using data from the previously trained model.
     //!
-    //! \warning Throws runtime error on fail to restore.
+    //! \warning Calls HANDLE_FATAL (which calls std::terminate unless overridden) on
+    //! fail to restore.
     static CBoostedTreeFactory
     constructFromDefinition(std::size_t numberThreads,
                             TLossFunctionUPtr loss,
                             core::CDataSearcher& dataSearcher,
+                            core::CDataFrame& frame,
                             const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
                             const TRestoreBestForestFunc& bestForestRestoreCallback);
 
@@ -159,9 +159,9 @@ public:
     //! Set the fraction of trees in the forest to retrain.
     CBoostedTreeFactory& retrainFraction(double fraction);
     //! Set the data summarization information.
-    CBoostedTreeFactory& dataSummarization(TDataSummarization dataSummarization);
+    CBoostedTreeFactory& featureEncoder(TEncoderUPtr encoder);
     //! Set the best forest from the previous training.
-    CBoostedTreeFactory& bestForest(TBestForest modelDefinition);
+    CBoostedTreeFactory& bestForest(TNodeVecVec forest);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -178,7 +178,10 @@ public:
     std::size_t estimateMemoryUsageTrainIncremental(std::size_t numberRows,
                                                     std::size_t numberColumns) const;
     //! Get the number of columns training the model will add to the data frame.
+    //! \note This includes padding for alignment so should be prefered if possible.
     std::size_t numberExtraColumnsForTrain() const;
+    //! Get the number of columns training the model will add to the data frame.
+    static std::size_t numberExtraColumnsForTrain(std::size_t numberParameters);
 
     //! Build a boosted tree object for training on \p frame.
     TBoostedTreeUPtr buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable);
@@ -187,18 +190,13 @@ public:
     TBoostedTreeUPtr buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable);
 
     //! Build a boosted tree object for incremental training on \p frame.
-    TBoostedTreeUPtr buildForTrainIncremental(core::CDataFrame& frame);
+    TBoostedTreeUPtr buildForTrainIncremental(core::CDataFrame& frame,
+                                              std::size_t dependentVariable);
 
     //! Restore a boosted tree object for training on \p frame.
     //!
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
-
-    //! \name Test Only
-    //@{
-    // TODO (@valeriy42) remove this method once we have a method to initialise incremental training.
-    const CBoostedTreeImpl& boostedTreeImpl() const { return *m_TreeImpl; }
-    //@}
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -339,6 +337,7 @@ private:
     //! Stubs out test loss adjustment.
     static double noopAdjustTestLoss(double, double, double testLoss);
 
+    //! Restores a type from \p restoreSearcher using \p restoreCallback.
     template<typename Callback>
     static auto restoreTrainedModel(core::CDataSearcher& restoreSearcher,
                                     const Callback& restoreCallback);

@@ -3,6 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
+
 #include <core/CTimeUtils.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
@@ -31,6 +32,8 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TLossFunctionType = maths::boosted_tree::ELossType;
+using TDataFrameUPtrTemporaryDirectoryPtrPr =
+    test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
 void addOutlierTestData(TStrVec fieldNames,
                         TStrVec fieldValues,
@@ -151,11 +154,11 @@ BOOST_FIXTURE_TEST_CASE(testTrainingRegression, ml::test::CProgramCounterClearin
 
     TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    test::CDataFrameAnalysisSpecificationFactory specFactory;
-    api::CDataFrameAnalyzer analyzer{
-        specFactory.predictionSpec(
-            test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
-        outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}.predictionSpec(
+        test::CDataFrameAnalysisSpecificationFactory::regression(), "target", &frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
         TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
         expectedPredictions);
@@ -244,14 +247,16 @@ BOOST_FIXTURE_TEST_CASE(testTrainingClassification, ml::test::CProgramCounterCle
 
     TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    test::CDataFrameAnalysisSpecificationFactory specFactory;
-    api::CDataFrameAnalyzer analyzer{
-        specFactory.rows(100)
-            .memoryLimit(6000000)
-            .columns(5)
-            .predictionCategoricalFieldNames({"target"})
-            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target"),
-        outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
+                    .rows(100)
+                    .memoryLimit(6000000)
+                    .columns(5)
+                    .predictionCategoricalFieldNames({"target"})
+                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
+                                    "target", &frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
         TLossFunctionType::E_BinaryClassification, fieldNames, fieldValues,
         analyzer, expectedPredictions);
@@ -304,8 +309,10 @@ BOOST_FIXTURE_TEST_CASE(testOutlierDetection, ml::test::CProgramCounterClearingF
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(&frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;

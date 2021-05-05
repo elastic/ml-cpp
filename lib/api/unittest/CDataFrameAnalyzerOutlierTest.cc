@@ -39,6 +39,8 @@ using namespace ml;
 namespace {
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
+using TDataFrameUPtrTemporaryDirectoryPtrPr =
+    test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
 void addOutlierTestData(TStrVec fieldNames,
                         TStrVec fieldValues,
@@ -114,10 +116,10 @@ BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    std::stringstream persistStream;
-
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(&frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -163,8 +165,10 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(&frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -225,9 +229,13 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    test::CDataFrameAnalysisSpecificationFactory specFactory;
-    api::CDataFrameAnalyzer analyzer{
-        specFactory.memoryLimit(150000).rows(1000).outlierSpec(), outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
+                    .memoryLimit(150000)
+                    .rows(1000)
+                    .outlierSpec(&frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -279,9 +287,12 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    test::CDataFrameAnalysisSpecificationFactory specFactory;
-    api::CDataFrameAnalyzer analyzer{
-        specFactory.outlierComputeInfluence(true).outlierSpec(), outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
+                    .outlierComputeInfluence(true)
+                    .outlierSpec(&frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -340,14 +351,15 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
                 return std::make_unique<core::CJsonOutputStreamWrapper>(output);
             };
 
-            test::CDataFrameAnalysisSpecificationFactory specFactory;
-            api::CDataFrameAnalyzer analyzer{
-                specFactory.outlierMethod(methods[method])
-                    .outlierNumberNeighbours(k)
-                    .outlierComputeInfluence(false)
-                    .memoryLimit(150000)
-                    .outlierSpec(),
-                outputWriterFactory};
+            TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+            auto spec = test::CDataFrameAnalysisSpecificationFactory{}
+                            .outlierMethod(methods[method])
+                            .outlierNumberNeighbours(k)
+                            .outlierComputeInfluence(false)
+                            .memoryLimit(150000)
+                            .outlierSpec(&frameAndDirectory);
+            api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                             std::move(outputWriterFactory)};
 
             TDoubleVec expectedScores;
             TDoubleVecVec expectedFeatureInfluences;
@@ -387,8 +399,10 @@ BOOST_AUTO_TEST_CASE(testFlushMessage) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(&frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
     BOOST_REQUIRE_EQUAL(
         true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                     {"", "", "", "", "", "", "           "}));
@@ -413,20 +427,24 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     // Test with bad analysis specification.
     {
         errors.clear();
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = std::make_unique<api::CDataFrameAnalysisSpecification>(
+            "junk", &frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
-            std::make_unique<api::CDataFrameAnalysisSpecification>(std::string{"junk"}),
-            outputWriterFactory};
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST_REQUIRE(errors.size() > 0);
         BOOST_REQUIRE_EQUAL(false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5"},
                                                          {"10", "10", "10", "10", "10"}));
     }
 
-    // Test special field in the wrong position
+    // Test special field in the wrong position.
     {
         errors.clear();
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(&frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
                                          {"10", "10", "10", "", "10", "10", ""}));
@@ -436,8 +454,10 @@ BOOST_AUTO_TEST_CASE(testErrors) {
 
     // Test missing special field
     {
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(&frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
@@ -446,10 +466,12 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
-    // Test bad control message
+    // Test bad control message.
     {
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(&frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -458,10 +480,12 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
-    // Test bad input
+    // Test bad input.
     {
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(&frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -473,8 +497,11 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     // Test inconsistent number of rows
     {
         // Fewer rows than expected is ignored.
-        test::CDataFrameAnalysisSpecificationFactory specFactory;
-        api::CDataFrameAnalyzer analyzer{specFactory.rows(2).outlierSpec(), outputWriterFactory};
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = test::CDataFrameAnalysisSpecificationFactory{}.rows(2).outlierSpec(
+            &frameAndDirectory);
+        api::CDataFrameAnalyzer analyzer{
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -486,8 +513,11 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_TEST_REQUIRE(errors.empty());
     }
     {
-        test::CDataFrameAnalysisSpecificationFactory specFactory;
-        api::CDataFrameAnalyzer analyzer{specFactory.rows(2).outlierSpec(), outputWriterFactory};
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = test::CDataFrameAnalysisSpecificationFactory{}.rows(2).outlierSpec(
+            &frameAndDirectory);
+        api::CDataFrameAnalyzer analyzer{
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -507,8 +537,11 @@ BOOST_AUTO_TEST_CASE(testErrors) {
 
     // No data.
     {
-        test::CDataFrameAnalysisSpecificationFactory specFactory;
-        api::CDataFrameAnalyzer analyzer{specFactory.rows(2).outlierSpec(), outputWriterFactory};
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec = test::CDataFrameAnalysisSpecificationFactory{}.rows(2).outlierSpec(
+            &frameAndDirectory);
+        api::CDataFrameAnalyzer analyzer{
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -522,9 +555,12 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     {
         output.str("");
         errors.clear();
+        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+        auto spec =
+            test::CDataFrameAnalysisSpecificationFactory{}.memoryLimit(10000).outlierSpec(
+                &frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory{}.memoryLimit(10000).outlierSpec(),
-            outputWriterFactory};
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
         TDoubleVec expectedScores;
@@ -578,9 +614,11 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    test::CDataFrameAnalysisSpecificationFactory specFactory;
-    api::CDataFrameAnalyzer analyzer{specFactory.rows(9).outlierSpec(), outputWriterFactory};
-    for (auto i : {"1", "2", "3", "4", "5", "6", "7", "8", "9"}) {
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}.rows(9).outlierSpec(&frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
+    for (const auto& i : {"1", "2", "3", "4", "5", "6", "7", "8", "9"}) {
         analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                               {i, i, i, i, i, i, ""});
     }
@@ -611,8 +649,10 @@ BOOST_AUTO_TEST_CASE(testProgress) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(&frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;

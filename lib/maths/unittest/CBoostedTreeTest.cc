@@ -759,7 +759,7 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
 
     regression = maths::CBoostedTreeFactory::constructFromModel(std::move(regression))
                      .newTrainingRowMask(newTrainingRowMask)
-                     .buildForTrainIncremental(*newFrame);
+                     .buildForTrainIncremental(*newFrame, cols - 1);
 
     regression->trainIncremental();
     regression->predict();

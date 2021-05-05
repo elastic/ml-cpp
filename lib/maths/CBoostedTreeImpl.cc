@@ -317,7 +317,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     this->checkIncrementalTrainInvariants(frame);
 
-    if (m_BestForest.size() == 1) {
+    if (m_BestForest.size() == 1 || m_NewTrainingRowMask.manhattan() == 0.0) {
         return;
     }
 
@@ -1517,8 +1517,7 @@ void CBoostedTreeImpl::minimumLossLeafValues(bool newExample,
 
     core::CDataFrame::TRowFuncVec minimizers;
     minimizers.reserve(result.size());
-    for (std::size_t i = 0; i < result.size(); ++i) {
-        auto& leafValues = result[i];
+    for (auto& leafValues : result) {
         minimizers.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{loss.numberParameters()};
             const auto& rootNode = root(tree);

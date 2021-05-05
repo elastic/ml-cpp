@@ -81,9 +81,10 @@ CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
 
 CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifierRunner(
     const CDataFrameAnalysisSpecification& spec,
-    const CDataFrameAnalysisParameters& parameters)
+    const CDataFrameAnalysisParameters& parameters,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory)
     : CDataFrameTrainBoostedTreeRunner{
-          spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>())} {
+          spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>()), frameAndDirectory} {
 
     std::size_t numberClasses{parameters[NUM_CLASSES].as<std::size_t>()};
     auto classAssignmentObjective = parameters[CLASS_ASSIGNMENT_OBJECTIVE].fallback(
@@ -323,7 +324,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     const auto& featureImportance = this->boostedTree().shap();
-    if (featureImportance) {
+    if (featureImportance != nullptr) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
     if (this->task() != E_Predict) {
@@ -354,7 +355,9 @@ const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() con
 }
 
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
-CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
+CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
+    const CDataFrameAnalysisSpecification&,
+    TDataFrameUPtrTemporaryDirectoryPtrPr*) const {
     HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
                  << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.");
     return nullptr;
@@ -363,11 +366,13 @@ CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnal
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
     const CDataFrameAnalysisSpecification& spec,
-    const rapidjson::Value& jsonParameters) const {
+    const rapidjson::Value& jsonParameters,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     const CDataFrameAnalysisConfigReader& parameterReader{
         CDataFrameTrainBoostedTreeClassifierRunner::parameterReader()};
     auto parameters = parameterReader.read(jsonParameters);
-    return std::make_unique<CDataFrameTrainBoostedTreeClassifierRunner>(spec, parameters);
+    return std::make_unique<CDataFrameTrainBoostedTreeClassifierRunner>(
+        spec, parameters, frameAndDirectory);
 }
 
 const std::string CDataFrameTrainBoostedTreeClassifierRunnerFactory::NAME{"classification"};

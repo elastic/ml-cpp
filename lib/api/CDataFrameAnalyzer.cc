@@ -42,14 +42,13 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
+                                       TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory,
                                        TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
     : m_AnalysisSpecification{std::move(analysisSpecification)},
       m_ResultsStreamSupplier{std::move(resultsStreamSupplier)} {
-
-    if (m_AnalysisSpecification != nullptr) {
-        auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
-        m_DataFrame = std::move(frameAndDirectory.first);
-        m_DataFrameDirectory = frameAndDirectory.second;
+    std::tie(m_DataFrame, m_DataFrameDirectory) = std::move(frameAndDirectory);
+    if (m_DataFrame == nullptr) {
+        HANDLE_FATAL(<< "Internal error: missing data frame. Please report this problem.");
     }
 }
 
@@ -149,13 +148,9 @@ void CDataFrameAnalyzer::run() {
     }
 }
 
-const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
-    return m_DataFrameDirectory;
-}
-
 const core::CDataFrame& CDataFrameAnalyzer::dataFrame() const {
     if (m_DataFrame == nullptr) {
-        HANDLE_FATAL(<< "Internal error: missing data frame");
+        HANDLE_FATAL(<< "Internal error: missing data frame. Please report this problem.");
     }
     return *m_DataFrame;
 }

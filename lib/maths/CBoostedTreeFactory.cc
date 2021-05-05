@@ -6,6 +6,7 @@
 
 #include <maths/CBoostedTreeFactory.h>
 
+#include <core/CDataFrame.h>
 #include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPersistUtils.h>
@@ -135,6 +136,46 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
+CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
+                                              std::size_t dependentVariable) {
+
+    m_TreeImpl->m_DependentVariable = dependentVariable;
+    m_TreeImpl->m_IncrementalTraining = true;
+
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeNumberFolds(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeMissingFeatureMasks(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
+            // We assume any additional rows are new examples.
+            m_TreeImpl->m_NewTrainingRowMask.extend(
+                true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
+        }
+    });
+
+    this->prepareDataFrameForIncrementalTrain(frame);
+
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeCrossValidation(frame); });
+
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+    m_TreeImpl->m_Instrumentation->flush();
+
+    this->initializeHyperparameters(frame);
+    this->initializeHyperparameterOptimisation();
+
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
+                                                       m_TreeImpl->m_Loss->clone());
+    std::swap(m_TreeImpl, treeImpl);
+    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
+
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
+}
+
+CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable) {
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
@@ -161,42 +202,12 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
-CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame) {
-
-    m_TreeImpl->m_IncrementalTraining = true;
-
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeNumberFolds(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeMissingFeatureMasks(frame); });
-
-    this->prepareDataFrameForIncrementalTrain(frame);
-
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeCrossValidation(frame); });
-
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
-    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
-    m_TreeImpl->m_Instrumentation->flush();
-
-    this->initializeHyperparameters(frame);
-    this->initializeHyperparameterOptimisation();
-
-    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
-                                                       m_TreeImpl->m_Loss->clone());
-    std::swap(m_TreeImpl, treeImpl);
-    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
-
-    return TBoostedTreeUPtr{
-        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
-}
-
-CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVariable) {
 
     if (dependentVariable != m_TreeImpl->m_DependentVariable) {
         HANDLE_FATAL(<< "Internal error: expected dependent variable "
-                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
+                     << m_TreeImpl->m_DependentVariable << " got "
+                     << dependentVariable << ".");
         return nullptr;
     }
 
@@ -479,27 +490,22 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
         // Use separate stratified samples on old and new training data to ensure
         // we have even splits of old and new data across all folds.
 
-        TPackedBitVectorVec oldTrainingRowMasks;
-        TPackedBitVectorVec oldTestingRowMasks;
-        std::tie(oldTrainingRowMasks, oldTestingRowMasks, std::ignore) =
+        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, std::ignore) =
             CDataFrameUtils::stratifiedCrossValidationRowMasks(
                 numberThreads, frame, dependentVariable, rng, numberFolds, numberBuckets,
                 allTrainingRowsMask & ~m_TreeImpl->m_NewTrainingRowMask);
 
-        TPackedBitVectorVec newTrainingRowMasks;
-        TPackedBitVectorVec newTestingRowMasks;
-        std::tie(newTrainingRowMasks, newTestingRowMasks, std::ignore) =
-            CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                numberThreads, frame, dependentVariable, rng, numberFolds, numberBuckets,
-                allTrainingRowsMask & m_TreeImpl->m_NewTrainingRowMask);
-
-        m_TreeImpl->m_TrainingRowMasks.resize(numberFolds);
-        m_TreeImpl->m_TestingRowMasks.resize(numberFolds);
-        for (std::size_t i = 0; i < numberFolds; ++i) {
-            m_TreeImpl->m_TrainingRowMasks[i] = oldTrainingRowMasks[i] |
-                                                newTrainingRowMasks[i];
-            m_TreeImpl->m_TestingRowMasks[i] = oldTestingRowMasks[i] |
-                                               newTestingRowMasks[i];
+        if (m_TreeImpl->m_NewTrainingRowMask.manhattan() > 0.0) {
+            TPackedBitVectorVec newTrainingRowMasks;
+            TPackedBitVectorVec newTestingRowMasks;
+            std::tie(newTrainingRowMasks, newTestingRowMasks, std::ignore) =
+                CDataFrameUtils::stratifiedCrossValidationRowMasks(
+                    numberThreads, frame, dependentVariable, rng, numberFolds, numberBuckets,
+                    allTrainingRowsMask & m_TreeImpl->m_NewTrainingRowMask);
+            for (std::size_t i = 0; i < numberFolds; ++i) {
+                m_TreeImpl->m_TrainingRowMasks[i] |= newTrainingRowMasks[i];
+                m_TreeImpl->m_TestingRowMasks[i] |= newTestingRowMasks[i];
+            }
         }
     }
 }
@@ -1391,7 +1397,7 @@ auto CBoostedTreeFactory::restoreTrainedModel(core::CDataSearcher& restoreSearch
         }
 
         if (inputStream->fail()) {
-            // This is fatal. If the stream exists and has failed then state is missing
+            // If the stream exists and has failed then state is missing.
             LOG_ERROR(<< "State restoration search returned failed stream");
             return decltype(restoreCallback(inputStream))();
         }
@@ -1407,29 +1413,31 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     std::size_t numberThreads,
     TLossFunctionUPtr loss,
     core::CDataSearcher& dataSearcher,
+    core::CDataFrame& frame,
     const TRestoreDataSummarizationFunc& dataSummarizationRestoreCallback,
     const TRestoreBestForestFunc& bestForestRestoreCallback) {
 
-    CBoostedTreeFactory factory{CBoostedTreeFactory::constructFromParameters(
-        numberThreads, std::move(loss))};
+    CBoostedTreeFactory factory{constructFromParameters(numberThreads, std::move(loss))};
 
-    // Read data summarization from the stream
-    TDataSummarization dataSummarization{CBoostedTreeFactory::restoreTrainedModel(
-        dataSearcher, dataSummarizationRestoreCallback)};
-    if (dataSummarization.first) {
-        factory.dataSummarization(std::move(dataSummarization));
+    // Read data summarization from the stream.
+    TEncoderUPtr encoder{restoreTrainedModel(
+        dataSearcher, [&](const core::CDataSearcher::TIStreamP& inputStream) {
+            return dataSummarizationRestoreCallback(inputStream, frame);
+        })};
+    if (encoder != nullptr) {
+        factory.featureEncoder(std::move(encoder));
     } else {
         HANDLE_FATAL(<< "Failed restoring data summarization.");
     }
 
-    // Read best forest from the stream
-    TBestForest bestForestRestored{CBoostedTreeFactory::restoreTrainedModel(
-        dataSearcher, bestForestRestoreCallback)};
-    if (bestForestRestored) {
-        factory.bestForest(std::move(bestForestRestored));
+    // Read best forest from the stream.
+    TNodeVecVecUPtr bestForest{restoreTrainedModel(dataSearcher, bestForestRestoreCallback)};
+    if (bestForest != nullptr) {
+        factory.bestForest(std::move(*bestForest.release()));
     } else {
         HANDLE_FATAL(<< "Failed restoring best forest from the model definition.");
     }
+
     return factory;
 }
 
@@ -1675,29 +1683,13 @@ CBoostedTreeFactory& CBoostedTreeFactory::retrainFraction(double fraction) {
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::dataSummarization(TDataSummarization dataSummarization) {
-    if (dataSummarization.first) {
-        m_TreeImpl->m_SummarizationDataFrame.swap(dataSummarization.first);
-    } else {
-        LOG_ERROR(<< "Trying to pass an empty data summarization to the factory. Please report this error.");
-    }
-
-    if (dataSummarization.second) {
-        m_TreeImpl->m_Encoder.swap(dataSummarization.second);
-    } else {
-        LOG_ERROR(<< "Trying to pass an empty encoder list to the factory. Please report this error.");
-    }
-
+CBoostedTreeFactory& CBoostedTreeFactory::featureEncoder(TEncoderUPtr encoder) {
+    m_TreeImpl->m_Encoder = std::move(encoder);
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::bestForest(TBestForest modelDefinition) {
-    if (modelDefinition) {
-        m_TreeImpl->m_BestForest = std::move(*modelDefinition.release());
-    } else {
-        LOG_ERROR(<< "Trying to pass an empty model definition to the factory. Please report this error.");
-    }
-
+CBoostedTreeFactory& CBoostedTreeFactory::bestForest(TNodeVecVec forest) {
+    m_TreeImpl->m_BestForest = std::move(forest);
     return *this;
 }
 
@@ -1720,9 +1712,12 @@ CBoostedTreeFactory::estimateMemoryUsageTrainIncremental(std::size_t numberRows,
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return m_TreeImpl->m_PaddedExtraColumns == boost::none
-               ? CBoostedTreeImpl::numberExtraColumnsForTrain(
-                     m_TreeImpl->m_Loss->numberParameters())
+               ? numberExtraColumnsForTrain(m_TreeImpl->m_Loss->numberParameters())
                : *m_TreeImpl->m_PaddedExtraColumns;
+}
+
+std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain(std::size_t numberParameters) {
+    return CBoostedTreeImpl::numberExtraColumnsForTrain(numberParameters);
 }
 
 void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {

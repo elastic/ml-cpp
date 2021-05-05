@@ -72,20 +72,25 @@ public:
     using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
     using TOptionalInferenceModelMetadata = boost::optional<const CInferenceModelMetadata&>;
     using TDataSummarizationUPtr = std::unique_ptr<CDataSummarizationJsonSerializer>;
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
+    using TDataFrameUPtrTemporaryDirectoryPtrPr =
+        std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
     //! by the factory class.
-    CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec);
+    explicit CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec);
     virtual ~CDataFrameAnalysisRunner();
 
     CDataFrameAnalysisRunner(const CDataFrameAnalysisRunner&) = delete;
     CDataFrameAnalysisRunner& operator=(const CDataFrameAnalysisRunner&) = delete;
 
-    //! This computes the execution strategy for the analysis, including how
-    //! the data frame will be stored, the size of the partition and the maximum
-    //! number of rows per subset.
-    void computeAndSaveExecutionStrategy();
+    //! Make a data frame suitable for running the analysis on.
+    //!
+    //! This chooses the storage strategy based on the analysis constraints and
+    //! the number of rows and columns it needs and reserves capacity as appropriate.
+    TDataFrameUPtrTemporaryDirectoryPtrPr makeDataFrame() const;
 
     //! Estimates memory usage in two cases:
     //!   1. disk is not used (the whole data frame fits in main memory)
@@ -166,6 +171,17 @@ protected:
 protected:
     const CDataFrameAnalysisSpecification& spec() const;
 
+    //! This computes the execution strategy for the analysis, including how
+    //! the data frame will be stored, the size of the partition and the maximum
+    //! number of rows per subset.
+    //!
+    //! \warning This must be called in the constructor of any derived runner.
+    virtual void computeAndSaveExecutionStrategy();
+
+    void numberPartitions(std::size_t partitions);
+
+    void maximumNumberRowsPerPartition(std::size_t rowsPerPartition);
+
     std::size_t estimateMemoryUsage(std::size_t totalNumberRows,
                                     std::size_t partitionNumberRows,
                                     std::size_t numberColumns) const;
@@ -192,19 +208,41 @@ private:
 class API_EXPORT CDataFrameAnalysisRunnerFactory {
 public:
     using TRunnerUPtr = std::unique_ptr<CDataFrameAnalysisRunner>;
+    using TDataFrameUPtrTemporaryDirectoryPtrPr =
+        CDataFrameAnalysisRunner::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
 public:
     virtual ~CDataFrameAnalysisRunnerFactory() = default;
     virtual const std::string& name() const = 0;
 
-    TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec) const;
+    //! Create a new runner object from \p spec.
+    //!
+    //! \param[in] spec The analysis specification.
+    //! \param[out] frameAndDirectory If non-null a data frame is created which
+    //! is suitable for the analysis together with the directory handle, if it
+    //! is stored on disk, and written to this.
     TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
-                     const rapidjson::Value& jsonParameters) const;
+                     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
+
+    //! Create a new runner object from \p spec.
+    //!
+    //! \param[in] spec The analysis specification.
+    //! \param[in] jsonParameters A JSON description of the analysis parameters.
+    //! \param[out] frameAndDirectory If non-null a data frame is created which
+    //! is suitable for the analysis together with the directory handle, if it
+    //! is stored on disk, and written to this parameter.
+    TRunnerUPtr make(const CDataFrameAnalysisSpecification& spec,
+                     const rapidjson::Value& jsonParameters,
+                     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
 private:
-    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const = 0;
-    virtual TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                                 const rapidjson::Value& jsonParameters) const = 0;
+    virtual TRunnerUPtr
+    makeImpl(const CDataFrameAnalysisSpecification& spec,
+             TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const = 0;
+    virtual TRunnerUPtr
+    makeImpl(const CDataFrameAnalysisSpecification& spec,
+             const rapidjson::Value& jsonParameters,
+             TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const = 0;
 };
 }
 }

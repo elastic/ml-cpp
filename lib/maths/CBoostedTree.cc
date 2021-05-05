@@ -214,7 +214,7 @@ const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
     return m_Impl->trainedModel();
 }
 
-CBoostedTreeImpl& CBoostedTree::impl() {
+CBoostedTreeImpl& CBoostedTree::impl() const {
     return *m_Impl;
 }
 

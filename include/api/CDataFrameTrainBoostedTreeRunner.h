@@ -82,9 +82,6 @@ public:
     //! \return The boosted tree.
     const maths::CBoostedTree& boostedTree() const;
 
-    //! \return The boosted tree factory.
-    const maths::CBoostedTreeFactory& boostedTreeFactory() const;
-
     //! \return Reference to the analysis state.
     const CDataFrameAnalysisInstrumentation& instrumentation() const override;
     //! \return Reference to the analysis state.
@@ -99,7 +96,8 @@ protected:
 protected:
     CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
                                      const CDataFrameAnalysisParameters& parameters,
-                                     TLossFunctionUPtr loss);
+                                     TLossFunctionUPtr loss,
+                                     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory);
 
     //! \return The parameter reader handling parameters that are shared by subclasses.
     static const CDataFrameAnalysisConfigReader& parameterReader();
@@ -107,6 +105,8 @@ protected:
     const std::string& dependentVariableFieldName() const;
     //! \return The name of prediction field.
     const std::string& predictionFieldName() const;
+    //! \return The boosted tree factory.
+    const maths::CBoostedTreeFactory& boostedTreeFactory() const;
     //! \return The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();
 
@@ -116,7 +116,8 @@ protected:
     //! Write the boosted tree and custom processors to \p builder.
     void accept(CBoostedTreeInferenceModelBuilder& builder) const;
 
-    ETask task() const { return m_Task; };
+    //! Get the task to perform.
+    ETask task() const { return m_Task; }
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
@@ -124,10 +125,14 @@ private:
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
 
 private:
+    void computeAndSaveExecutionStrategy() override;
     void runImpl(core::CDataFrame& frame) override;
-    bool restoreBoostedTree(core::CDataFrame& frame,
-                            std::size_t dependentVariableColumn,
-                            TDataSearcherUPtr& restoreSearcher);
+    TBoostedTreeFactoryUPtr
+    boostedTreeFactory(TLossFunctionUPtr loss,
+                       TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const;
+    TBoostedTreeUPtr restoreBoostedTree(core::CDataFrame& frame,
+                                        std::size_t dependentVariableColumn,
+                                        const TDataSearcherUPtr& restoreSearcher);
     std::size_t estimateBookkeepingMemoryUsage(std::size_t numberPartitions,
                                                std::size_t totalNumberRows,
                                                std::size_t partitionNumberRows,
@@ -139,14 +144,15 @@ private:
 private:
     // Note custom config is written directly to the factory object.
 
+    ETask m_Task{E_Train};
     rapidjson::Document m_CustomProcessors;
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
     double m_TrainingPercent;
+    std::size_t m_NumberLossParameters{0};
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
-    ETask m_Task;
 };
 }
 }

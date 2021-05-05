@@ -41,6 +41,8 @@ public:
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
     using TLossFunctionType = maths::boosted_tree::ELossType;
     using TTask = api::CDataFrameTrainBoostedTreeRunner::ETask;
+    using TDataFrameUPtrTemporaryDirectoryPtrPr =
+        api::CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
 public:
     CDataFrameAnalysisSpecificationFactory();
@@ -106,12 +108,15 @@ public:
     classificationWeights(const TStrDoublePrVec& weights);
 
     std::string outlierParams() const;
-    TSpecificationUPtr outlierSpec() const;
+    TSpecificationUPtr
+    outlierSpec(TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
     std::string predictionParams(const std::string& analysis,
                                  const std::string& dependentVariable) const;
-    TSpecificationUPtr predictionSpec(const std::string& analysis,
-                                      const std::string& dependentVariable) const;
+    TSpecificationUPtr
+    predictionSpec(const std::string& analysis,
+                   const std::string& dependentVariable,
+                   TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
 private:
     using TOptionalSize = boost::optional<std::size_t>;

@@ -99,9 +99,11 @@ public:
     const std::string& name() const override;
 
 private:
-    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value& jsonParameters) const override;
+                         TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
+    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
+                         const rapidjson::Value& jsonParameters,
+                         TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
 };
 }
 }

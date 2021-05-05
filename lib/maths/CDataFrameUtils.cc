@@ -503,7 +503,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
 
     double numberTrainingRows{allTrainingRowsMask.manhattan()};
     if (numberTrainingRows < 2.0) {
-        HANDLE_FATAL(<< "Input error: unsufficient training data provided.");
+        HANDLE_FATAL(<< "Input error: insufficient training data provided.");
         return {{}, {}, {}};
     }
 
@@ -752,7 +752,7 @@ CDataFrameUtils::maximumMinimumRecallClassWeights(std::size_t numberThreads,
 }
 
 bool CDataFrameUtils::isMissing(double value) {
-    return std::isfinite(value) == false;
+    return core::CDataFrame::isMissing(value);
 }
 
 CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColumnDataFrameInMemory(

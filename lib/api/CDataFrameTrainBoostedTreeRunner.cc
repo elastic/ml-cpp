@@ -9,6 +9,7 @@
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
+#include <core/CPackedBitVector.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CStateDecompressor.h>
@@ -85,8 +86,17 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
 CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters,
-    TLossFunctionUPtr loss)
+    TLossFunctionUPtr loss,
+    TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory)
     : CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
+
+    if (loss == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must provide a loss function for training."
+                     << " Please report this problem");
+        return;
+    }
+
+    m_NumberLossParameters = loss->numberParameters();
 
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
 
@@ -164,35 +174,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                      << "' should be non-negative");
     }
 
-    switch (m_Task) {
-    case E_Train: {
-        m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
-            maths::CBoostedTreeFactory::constructFromParameters(
-                this->spec().numberThreads(), std::move(loss)));
-        break;
-    }
-    case E_Update: // use the same factory initialization as for the predict task
-    case E_Predict: {
-        auto restoreSearcher = this->spec().restoreSearcher();
-        auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& istream) {
-            return api::CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
-                istream);
-        };
-        auto bestForestRestorer = [](const core::CDataSearcher::TIStreamP& istream) {
-            return CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(istream);
-        };
-        if (restoreSearcher) {
-            m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
-                maths::CBoostedTreeFactory::constructFromDefinition(
-                    this->spec().numberThreads(), std::move(loss), *restoreSearcher,
-                    dataSummarizationRestorer, bestForestRestorer));
-        } else {
-            HANDLE_FATAL(<< "Trying to start prediction or incremental training without specified restore information.");
-        }
-        break;
-    }
-    }
+    this->computeAndSaveExecutionStrategy();
 
+    m_BoostedTreeFactory = this->boostedTreeFactory(std::move(loss), frameAndDirectory);
     (*m_BoostedTreeFactory)
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
@@ -257,7 +241,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
-    return m_BoostedTreeFactory->numberExtraColumnsForTrain();
+    return maths::CBoostedTreeFactory::numberExtraColumnsForTrain(m_NumberLossParameters);
 }
 
 std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
@@ -287,6 +271,27 @@ const std::string& CDataFrameTrainBoostedTreeRunner::predictionFieldName() const
     return m_PredictionFieldName;
 }
 
+const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
+    if (m_BoostedTree == nullptr) {
+        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
+    }
+    return *m_BoostedTree;
+}
+
+maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
+    if (m_BoostedTreeFactory == nullptr) {
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
+    }
+    return *m_BoostedTreeFactory;
+}
+
+const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
+    if (m_BoostedTreeFactory == nullptr) {
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
+    }
+    return *m_BoostedTreeFactory;
+}
+
 bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) const {
     if (frame.numberColumns() <= 1) {
         HANDLE_FATAL(<< "Input error: analysis need at least one regressor.");
@@ -308,25 +313,11 @@ void CDataFrameTrainBoostedTreeRunner::accept(CBoostedTreeInferenceModelBuilder&
     this->boostedTree().accept(builder);
 }
 
-const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
-    if (m_BoostedTree == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
-    }
-    return *m_BoostedTree;
-}
-
-maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
-    if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
-    }
-    return *m_BoostedTreeFactory;
-}
-
-const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
-    if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
-    }
-    return *m_BoostedTreeFactory;
+void CDataFrameTrainBoostedTreeRunner::computeAndSaveExecutionStrategy() {
+    // We always use in core storage for the data frame for boosted tree training
+    // because it is too slow to use disk.
+    this->numberPartitions(1);
+    this->maximumNumberRowsPerPartition(this->spec().numberRows());
 }
 
 void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
@@ -350,69 +341,108 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     std::size_t dependentVariableColumn(dependentVariablePos -
                                         frame.columnNames().begin());
 
-    // Create restore searcher and restore in a scope so that the restore searcher
-    // gets destructed and performs any cleanup necessary.
-    {
-        auto restoreSearcher{this->spec().restoreSearcher()};
-        bool treeRestored{false};
-        if (restoreSearcher != nullptr && m_Task == E_Train) {
-            treeRestored = this->restoreBoostedTree(frame, dependentVariableColumn,
-                                                    restoreSearcher);
-        }
-        if (treeRestored == false && m_Task == E_Train) {
-            m_BoostedTree = m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
-        }
-    }
-
     this->validate(frame, dependentVariableColumn);
+
     switch (m_Task) {
     case E_Train:
+        m_BoostedTree = [&] {
+            auto boostedTree = this->restoreBoostedTree(
+                frame, dependentVariableColumn, this->spec().restoreSearcher());
+            return boostedTree != nullptr
+                       ? std::move(boostedTree)
+                       : m_BoostedTreeFactory->buildForTrain(frame, dependentVariableColumn);
+        }();
         m_BoostedTree->train();
         m_BoostedTree->predict();
         break;
     case E_Update:
+        m_BoostedTree = m_BoostedTreeFactory->buildForTrainIncremental(frame, dependentVariableColumn);
         m_BoostedTree->trainIncremental();
         m_BoostedTree->predict();
         break;
     case E_Predict:
         m_BoostedTree = m_BoostedTreeFactory->buildForPredict(frame, dependentVariableColumn);
         m_BoostedTree->predict();
+        break;
     }
 
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
 }
 
-bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
-                                                          std::size_t dependentVariableColumn,
-                                                          TDataSearcherUPtr& restoreSearcher) {
+CDataFrameTrainBoostedTreeRunner::TBoostedTreeFactoryUPtr
+CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
+                                                     TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
+    switch (m_Task) {
+    case E_Predict:
+    case E_Update:
+        if (frameAndDirectory != nullptr) {
+            // This will be null if we're just computing memory usage.
+            auto restoreSearcher = this->spec().restoreSearcher();
+            if (restoreSearcher == nullptr) {
+                HANDLE_FATAL(<< "Input error: can't predict or incrementally training without specifying a model.");
+                break;
+            }
+            *frameAndDirectory = this->makeDataFrame();
+            auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& inputStream,
+                                                core::CDataFrame& frame) {
+                return CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
+                    inputStream, frame);
+            };
+            auto bestForestRestorer = [](const core::CDataSearcher::TIStreamP& inputStream) {
+                return CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(inputStream);
+            };
+            auto& frame = frameAndDirectory->first;
+            auto result = std::make_unique<maths::CBoostedTreeFactory>(
+                maths::CBoostedTreeFactory::constructFromDefinition(
+                    this->spec().numberThreads(), std::move(loss), *restoreSearcher,
+                    *frame, dataSummarizationRestorer, bestForestRestorer));
+            result->newTrainingRowMask(core::CPackedBitVector{frame->numberRows(), false});
+            return result;
+        }
+        [[fallthrough]];
+    case E_Train:
+        break;
+    }
+
+    return std::make_unique<maths::CBoostedTreeFactory>(maths::CBoostedTreeFactory::constructFromParameters(
+        this->spec().numberThreads(), std::move(loss)));
+}
+
+CDataFrameTrainBoostedTreeRunner::TBoostedTreeUPtr
+CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
+                                                     std::size_t dependentVariableColumn,
+                                                     const TDataSearcherUPtr& restoreSearcher) {
+    if (restoreSearcher == nullptr) {
+        return nullptr;
+    }
+
     // Restore from compressed JSON.
     try {
         core::CStateDecompressor decompressor(*restoreSearcher);
         core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
-            return false;
+            return nullptr;
         }
 
         if (inputStream->bad()) {
             LOG_ERROR(<< "State restoration search returned bad stream");
-            return false;
+            return nullptr;
         }
 
         if (inputStream->fail()) {
             // This is fatal. If the stream exists and has failed then state is missing
             LOG_ERROR(<< "State restoration search returned failed stream");
-            return false;
+            return nullptr;
         }
-        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
-                            .analysisInstrumentation(m_Instrumentation)
-                            .trainingStateCallback(this->statePersister())
-                            .restoreFor(frame, dependentVariableColumn);
+        return maths::CBoostedTreeFactory::constructFromString(*inputStream)
+            .analysisInstrumentation(m_Instrumentation)
+            .trainingStateCallback(this->statePersister())
+            .restoreFor(frame, dependentVariableColumn);
     } catch (std::exception& e) {
         LOG_ERROR(<< "Failed to restore state! " << e.what());
-        return false;
     }
-    return true;
+    return nullptr;
 }
 
 std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
@@ -448,7 +478,7 @@ CDataFrameTrainBoostedTreeRunner::dataSummarization(const core::CDataFrame& data
     auto rowMask = this->boostedTree().dataSummarization(dataFrame, encodingRecorder);
     if (rowMask.manhattan() > 0) {
         return std::make_unique<CDataSummarizationJsonSerializer>(
-            dataFrame, rowMask, std::move(output));
+            dataFrame, rowMask, this->spec().numberColumns(), std::move(output));
     }
     return TDataSummarizationUPtr();
 }

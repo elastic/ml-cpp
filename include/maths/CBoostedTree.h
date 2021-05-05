@@ -282,7 +282,7 @@ public:
     //! \name Test Only
     //@{
     //! Get the implementation.
-    CBoostedTreeImpl& impl();
+    CBoostedTreeImpl& impl() const;
 
     //! Get the weight that has been chosen for each feature for training.
     const TDoubleVec& featureWeightsForTraining() const;
