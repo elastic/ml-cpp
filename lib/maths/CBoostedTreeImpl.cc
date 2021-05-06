@@ -279,6 +279,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         this->scaleRegularizers(allTrainingRowsMask.manhattan() /
                                 m_TrainingRowMasks[0].manhattan());
         this->startProgressMonitoringFinalTrain();
+        // reinitialize random number generator for reproducible results
+        // TODO #1866 introduce accept randomize_seed configuration parameter
+        m_Rng = CPRNG::CXorOShiro128Plus{};
         if (m_BestForest.empty()) {
             std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
                 frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
@@ -315,7 +318,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     this->checkIncrementalTrainInvariants(frame);
 
-    if (m_BestForest.size() == 1) {
+    if (m_BestForest.size() == 1 || m_NewTrainingRowMask.manhattan() == 0.0) {
         return;
     }
 
@@ -425,7 +428,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
 
 void CBoostedTreeImpl::predict(const core::CPackedBitVector& rowMask,
                                core::CDataFrame& frame) const {
-    if (m_BestForestTestLoss == INF) {
+    if (m_BestForest.empty()) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
                      << "Please report this problem.");
         return;
@@ -1515,8 +1518,7 @@ void CBoostedTreeImpl::minimumLossLeafValues(bool newExample,
 
     core::CDataFrame::TRowFuncVec minimizers;
     minimizers.reserve(result.size());
-    for (std::size_t i = 0; i < result.size(); ++i) {
-        auto& leafValues = result[i];
+    for (auto& leafValues : result) {
         minimizers.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{loss.numberParameters()};
             const auto& rootNode = root(tree);
@@ -1673,6 +1675,9 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         case E_FeatureBagFraction:
             parameters(i) = m_FeatureBagFraction;
             break;
+        case E_MaximumNumberTrees:
+            parameters(i) = static_cast<double>(m_MaximumNumberTrees);
+            break;
         case E_Gamma:
             parameters(i) = CTools::stableLog(
                 m_Regularization.treeSizePenaltyMultiplier() / scale);
@@ -1747,6 +1752,9 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         case E_FeatureBagFraction:
             m_FeatureBagFraction = parameters(i);
             break;
+        case E_MaximumNumberTrees:
+            m_MaximumNumberTrees = static_cast<std::size_t>(std::ceil(parameters(i)));
+            break;
         case E_Gamma:
             m_Regularization.treeSizePenaltyMultiplier(
                 scale * CTools::stableExp(parameters(i)));
@@ -1756,7 +1764,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
                 scale * CTools::stableExp(parameters(i)));
             break;
         case E_SoftTreeDepthLimit:
-            m_Regularization.softTreeDepthLimit(parameters(i));
+            m_Regularization.softTreeDepthLimit(std::max(parameters(i), 2.0));
             break;
         case E_SoftTreeDepthTolerance:
             m_Regularization.softTreeDepthTolerance(parameters(i));
@@ -1946,6 +1954,9 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
                 m_RegularizationOverride.treeTopologyChangePenalty() == boost::none) {
                 m_TunableHyperparameters.push_back(E_TreeTopologyChangePenalty);
             }
+            break;
+        case E_MaximumNumberTrees:
+            // maximum number trees is not a tunable parameter
             break;
         }
     }
@@ -2369,28 +2380,27 @@ void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const
     if (m_BayesianOptimization == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
     }
-    // TODO #1811 reactivate the checks once we have a dedicated way to evaluate persisted model on new data.
-    // for (const auto& mask : m_MissingFeatureRowMasks) {
-    //     if (mask.size() != frame.numberRows()) {
-    //         HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
-    //                      << mask.size() << " !=  " << frame.numberRows()
-    //                      << "). Please report this problem.");
-    //     }
-    // }
-    // for (const auto& mask : m_TrainingRowMasks) {
-    //     if (mask.size() != frame.numberRows()) {
-    //         HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
-    //                      << mask.size() << " !=  " << frame.numberRows()
-    //                      << "). Please report this problem.");
-    //     }
-    // }
-    // for (const auto& mask : m_TestingRowMasks) {
-    //     if (mask.size() != frame.numberRows()) {
-    //         HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
-    //                      << mask.size() << " !=  " << frame.numberRows()
-    //                      << "). Please report this problem.");
-    //     }
-    // }
+    for (const auto& mask : m_MissingFeatureRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.");
+        }
+    }
+    for (const auto& mask : m_TrainingRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.");
+        }
+    }
+    for (const auto& mask : m_TestingRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.");
+        }
+    }
 }
 
 void CBoostedTreeImpl::checkIncrementalTrainInvariants(const core::CDataFrame& frame) const {
@@ -2502,6 +2512,8 @@ CBoostedTreeImpl::hyperparameterImportance() const {
         double absoluteImportance{0.0};
         double relativeImportance{0.0};
         double hyperparameterValue;
+        SHyperparameterImportance::EType hyperparameterType{
+            boosted_tree_detail::SHyperparameterImportance::E_Double};
         switch (static_cast<EHyperparameter>(i)) {
         case E_Alpha:
             hyperparameterValue = m_Regularization.depthPenaltyMultiplier();
@@ -2517,6 +2529,10 @@ CBoostedTreeImpl::hyperparameterImportance() const {
             break;
         case E_FeatureBagFraction:
             hyperparameterValue = m_FeatureBagFraction;
+            break;
+        case E_MaximumNumberTrees:
+            hyperparameterValue = static_cast<double>(m_MaximumNumberTrees);
+            hyperparameterType = boosted_tree_detail::SHyperparameterImportance::E_Uint64;
             break;
         case E_Gamma:
             hyperparameterValue = m_Regularization.treeSizePenaltyMultiplier();
@@ -2545,9 +2561,9 @@ CBoostedTreeImpl::hyperparameterImportance() const {
             supplied = false;
             std::tie(absoluteImportance, relativeImportance) = anovaMainEffects[tunableIndex];
         }
-        hyperparameterImportances.emplace_back(static_cast<EHyperparameter>(i),
-                                               hyperparameterValue, absoluteImportance,
-                                               relativeImportance, supplied);
+        hyperparameterImportances.push_back(
+            {static_cast<EHyperparameter>(i), hyperparameterValue,
+             absoluteImportance, relativeImportance, supplied, hyperparameterType});
     }
     return hyperparameterImportances;
 }

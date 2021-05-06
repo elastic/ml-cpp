@@ -483,6 +483,9 @@ public:
     //! Write the column names.
     void columnNames(TStrVec columnNames);
 
+    //! Get the string which is used to indicate a value is missing.
+    const std::string& missingString() const;
+
     //! Write the string which indicates that a value is missing.
     void missingString(std::string missing);
 
@@ -530,6 +533,11 @@ public:
     //! Get the value to use for a missing element in a data frame.
     static constexpr double valueOfMissing() {
         return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    //! Check if \p value is missing.
+    static bool isMissing(double value) {
+        return std::isfinite(value) == false;
     }
 
 private:

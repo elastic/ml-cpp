@@ -1013,9 +1013,11 @@ private:
                                 core::CStateRestoreTraverser& traverser) {
         do {
             const std::string& name = traverser.name();
-            RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
-                                   core::CStringUtils::stringToType(traverser.value(), decayRate),
-                                   this->decayRate(decayRate))
+            RESTORE_SETUP_TEARDOWN(
+                DECAY_RATE_TAG, double decayRate{this->decayRate()},
+                m_Clusterer != nullptr && m_SeedPrior != nullptr &&
+                    core::CStringUtils::stringToType(traverser.value(), decayRate),
+                this->decayRate(decayRate))
             RESTORE(CLUSTERER_TAG, traverser.traverseSubLevel(std::bind<bool>(
                                        CClustererStateSerialiser(), std::cref(params),
                                        std::ref(m_Clusterer), std::placeholders::_1)))

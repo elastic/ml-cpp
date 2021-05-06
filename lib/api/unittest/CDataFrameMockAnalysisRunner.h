@@ -30,7 +30,7 @@ protected:
 
 class CDataFrameMockAnalysisRunner final : public ml::api::CDataFrameAnalysisRunner {
 public:
-    CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec);
+    explicit CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec);
 
     std::size_t numberExtraColumns() const override;
     std::size_t dataFrameSliceCapacity() const override;
@@ -61,9 +61,11 @@ private:
     static const std::string NAME;
 
 private:
-    TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec) const override;
     TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value&) const override;
+                         TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
+    TRunnerUPtr makeImpl(const ml::api::CDataFrameAnalysisSpecification& spec,
+                         const rapidjson::Value&,
+                         TDataFrameUPtrTemporaryDirectoryPtrPr*) const override;
 };
 
 #endif // INCLUDED_CDataFrameMockAnalysisRunner_h

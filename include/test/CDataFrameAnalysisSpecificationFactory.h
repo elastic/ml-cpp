@@ -41,6 +41,8 @@ public:
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
     using TLossFunctionType = maths::boosted_tree::ELossType;
     using TTask = api::CDataFrameTrainBoostedTreeRunner::ETask;
+    using TDataFrameUPtrTemporaryDirectoryPtrPr =
+        api::CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
 public:
     CDataFrameAnalysisSpecificationFactory();
@@ -78,6 +80,8 @@ public:
     CDataFrameAnalysisSpecificationFactory& predictionSoftTreeDepthLimit(double limit);
     CDataFrameAnalysisSpecificationFactory& predictionSoftTreeDepthTolerance(double tolerance);
     CDataFrameAnalysisSpecificationFactory& predictionEta(double eta);
+    CDataFrameAnalysisSpecificationFactory&
+    predictionEtaGrowthRatePerTree(double etaGrowthRatePerTree);
     CDataFrameAnalysisSpecificationFactory& predictionMaximumNumberTrees(std::size_t number);
     CDataFrameAnalysisSpecificationFactory& predictionDownsampleFactor(double downsampleFactor);
     CDataFrameAnalysisSpecificationFactory& predictionFeatureBagFraction(double fraction);
@@ -104,12 +108,15 @@ public:
     classificationWeights(const TStrDoublePrVec& weights);
 
     std::string outlierParams() const;
-    TSpecificationUPtr outlierSpec() const;
+    TSpecificationUPtr
+    outlierSpec(TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
     std::string predictionParams(const std::string& analysis,
                                  const std::string& dependentVariable) const;
-    TSpecificationUPtr predictionSpec(const std::string& analysis,
-                                      const std::string& dependentVariable) const;
+    TSpecificationUPtr
+    predictionSpec(const std::string& analysis,
+                   const std::string& dependentVariable,
+                   TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory = nullptr) const;
 
 private:
     using TOptionalSize = boost::optional<std::size_t>;
@@ -122,38 +129,39 @@ private:
     TOptionalSize m_Columns;
     TOptionalSize m_MemoryLimit;
     std::string m_MissingString;
-    bool m_DiskUsageAllowed = true;
+    bool m_DiskUsageAllowed{true};
     // Outliers
     std::string m_Method;
-    std::size_t m_NumberNeighbours = 0;
-    bool m_ComputeFeatureInfluence = false;
+    std::size_t m_NumberNeighbours{0};
+    bool m_ComputeFeatureInfluence{false};
     // Prediction
-    std::size_t m_NumberRoundsPerHyperparameter = 0;
-    std::size_t m_BayesianOptimisationRestarts = 0;
+    std::size_t m_NumberRoundsPerHyperparameter{0};
+    std::size_t m_BayesianOptimisationRestarts{0};
     TStrVec m_CategoricalFieldNames;
     std::string m_PredictionFieldName;
-    double m_Alpha = -1.0;
-    double m_Lambda = -1.0;
-    double m_Gamma = -1.0;
-    double m_SoftTreeDepthLimit = -1.0;
-    double m_SoftTreeDepthTolerance = -1.0;
-    double m_Eta = -1.0;
-    std::size_t m_MaximumNumberTrees = 0;
-    double m_DownsampleFactor = 0.0;
-    double m_FeatureBagFraction = -1.0;
-    std::size_t m_NumberTopShapValues = 0;
-    TPersisterSupplier* m_PersisterSupplier = nullptr;
-    TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
+    double m_Alpha{-1.0};
+    double m_Lambda{-1.0};
+    double m_Gamma{-1.0};
+    double m_SoftTreeDepthLimit{-1.0};
+    double m_SoftTreeDepthTolerance{-1.0};
+    double m_Eta{-1.0};
+    double m_EtaGrowthRatePerTree{-1.0};
+    std::size_t m_MaximumNumberTrees{0};
+    double m_DownsampleFactor{0.0};
+    double m_FeatureBagFraction{-1.0};
+    std::size_t m_NumberTopShapValues{0};
+    TPersisterSupplier* m_PersisterSupplier{nullptr};
+    TRestoreSearcherSupplier* m_RestoreSearcherSupplier{nullptr};
     rapidjson::Document m_CustomProcessors;
     TTask m_Task = TTask::E_Train;
     // Regression
     TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;
     // Classification
-    std::size_t m_NumberClasses = 2;
-    std::size_t m_NumberTopClasses = 0;
+    std::size_t m_NumberClasses{2};
+    std::size_t m_NumberTopClasses{0};
     std::string m_PredictionFieldType;
-    bool m_EarlyStoppingEnabled = true;
+    bool m_EarlyStoppingEnabled{true};
     TStrDoublePrVec m_ClassificationWeights;
 };
 }
