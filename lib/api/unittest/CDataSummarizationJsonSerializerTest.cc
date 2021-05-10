@@ -95,7 +95,7 @@ void testSchema(TLossFunctionType lossType) {
         std::string dataSummarizationStr{dataSummarization->jsonString()};
         std::stringstream decompressedStream{
             decompressStream(dataSummarization->jsonCompressedStream())};
-        api::CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(
+        api::CRetrainableModelJsonReader::dataSummarizationFromJsonStream(
             std::make_shared<std::istringstream>(dataSummarizationStr), *frame);
         BOOST_TEST_REQUIRE(decompressedStream.str() == dataSummarizationStr);
     }
@@ -165,12 +165,12 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
         expectedEncoder.acceptPersistInserter(inserter);
     }
 
-    api::CDataSummarizationJsonSerializer serializer{
+    api::CDataSummarizationJsonWriter writer{
         *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true),
         columnNames.size(), std::move(persistedEncoderStream)};
-    auto istream = std::make_shared<std::istringstream>(serializer.jsonString());
+    auto istream = std::make_shared<std::istringstream>(writer.jsonString());
     auto actualFrame = core::makeMainStorageDataFrame(columnNames.size()).first;
-    auto encoder = api::CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(
+    auto encoder = api::CRetrainableModelJsonReader::dataSummarizationFromJsonStream(
         istream, *actualFrame);
     BOOST_REQUIRE(encoder != nullptr);
     BOOST_REQUIRE(expectedFrame->checksum() == actualFrame->checksum());

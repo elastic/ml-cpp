@@ -23,24 +23,32 @@ class CDataFrame;
 }
 namespace api {
 
-//! \brief Class serializes and deserializes data summarization using chunked JSON blob.
-//! Data summarization contains data rows as well as categorical encoding information.
-// TODO #1849 chunking is not supported yet.
-class API_EXPORT CDataSummarizationJsonSerializer final
-    : public CSerializableToJsonDocumentCompressed {
+//! \brief Class which writes the data summarization as a compressed, base64 encoded
+//! and chunked JSON blob.
+//!
+//! DESCRIPTION:\n
+//! The data summarization contains data rows as well as the feature value encoding
+//! information.
+class API_EXPORT CDataSummarizationJsonWriter final : public CSerializableToJsonDocumentCompressed {
 public:
-    CDataSummarizationJsonSerializer(const core::CDataFrame& frame,
-                                     core::CPackedBitVector rowMask,
-                                     std::size_t numberColumns,
-                                     std::stringstream encodings);
+    CDataSummarizationJsonWriter(const core::CDataFrame& frame,
+                                 core::CPackedBitVector rowMask,
+                                 std::size_t numberColumns,
+                                 std::stringstream encodings);
 
-    CDataSummarizationJsonSerializer(const CDataSummarizationJsonSerializer&) = delete;
-    CDataSummarizationJsonSerializer&
-    operator=(const CDataSummarizationJsonSerializer&) = delete;
+    CDataSummarizationJsonWriter(const CDataSummarizationJsonWriter&) = delete;
+    CDataSummarizationJsonWriter& operator=(const CDataSummarizationJsonWriter&) = delete;
 
+    //! Write the JSON data summarisation.
     void addToJsonStream(TGenericLineWriter& writer) const override;
+
+    //! Write a compressed and chunked JSON data summarisation.
     void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
+
+    //! \name Test Only
+    //@{
     std::string jsonString() const;
+    //@}
 
 private:
     core::CPackedBitVector m_RowMask;
@@ -49,28 +57,35 @@ private:
     std::stringstream m_Encodings;
 };
 
-class API_EXPORT CRetrainableModelJsonDeserializer {
+//! \brief Reads a compressed, base64 encoded chunked JSON representation of a
+//! data summarisation and an inference model which can be used to initialise
+//! incremental training.
+// TODO #1849 reading from chunked output is not supported yet.
+class API_EXPORT CRetrainableModelJsonReader {
 public:
     using TEncoderUPtr = maths::CBoostedTreeFactory::TEncoderUPtr;
     using TNodeVecVecUPtr = maths::CBoostedTreeFactory::TNodeVecVecUPtr;
-    using TIStreamSPtr = std::shared_ptr<std::istream>;
+    using TIStreamSPtr = core::CDataSearcher::TIStreamP;
 
 public:
-    //! \brief Retrieve data summarization from decompressed JSON stream.
+    //! Retrieve the data summarization from a JSON blob.
     static TEncoderUPtr dataSummarizationFromJsonStream(TIStreamSPtr istream,
                                                         core::CDataFrame& frame);
 
-    //! \brief Retrieve data summarization from compressed and chunked JSON blob.
+    //! Retrieve the data summarization from a compressed and chunked JSON blob.
     static TEncoderUPtr dataSummarizationFromDocumentCompressed(TIStreamSPtr istream,
                                                                 core::CDataFrame& frame);
 
-    //! \brief Retrieve best forest from decompressed JSON stream.
-    static TNodeVecVecUPtr
-    bestForestFromJsonStream(const core::CDataSearcher::TIStreamP& istream);
+    //! Retrieve the best forest from a JSON blob.
+    static TNodeVecVecUPtr bestForestFromJsonStream(TIStreamSPtr istream);
 
-    //! \brief Retrieve best forest from compressed and chunked JSON blob.
-    static TNodeVecVecUPtr
-    bestForestFromDocumentCompressed(const core::CDataSearcher::TIStreamP& istream);
+    //! Retrieve the best forest from a compressed and chunked JSON blob.
+    static TNodeVecVecUPtr bestForestFromDocumentCompressed(TIStreamSPtr istream);
+
+private:
+    static TEncoderUPtr dataSummarizationFromJson(std::istream& istream,
+                                                  core::CDataFrame& frame);
+    static TNodeVecVecUPtr bestForestFromJson(std::istream& istream);
 };
 }
 }
