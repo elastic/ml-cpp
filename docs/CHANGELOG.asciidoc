@@ -39,6 +39,12 @@
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
 
+== {es} version 7.14.0
+
+=== Bug Fixes
+
+* Make atomic operations safer for aarch64. (See {ml-pull}1893[#1893].)
+
 == {es} version 7.13.0
 
 === Enhancements
