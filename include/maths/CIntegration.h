@@ -413,10 +413,10 @@ public:
         static const CSparseGaussLegendreQuadrature& instance() {
             const CSparseGaussLegendreQuadrature* tmp =
                 ms_Instance.load(std::memory_order_acquire);
-            if (!tmp) {
+            if (tmp == nullptr) {
                 core::CScopedFastLock scopedLock(CIntegration::ms_Mutex);
-                tmp = ms_Instance.load(std::memory_order_relaxed);
-                if (!tmp) {
+                tmp = ms_Instance.load(std::memory_order_acquire);
+                if (tmp == nullptr) {
                     tmp = new CSparseGaussLegendreQuadrature();
                     ms_Instance.store(tmp, std::memory_order_release);
                 }
