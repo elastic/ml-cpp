@@ -46,7 +46,13 @@ CStoredStringPtr::operator bool() const noexcept {
 }
 
 bool CStoredStringPtr::isUnique() const noexcept {
-    return m_String.unique();
+    // Use count is updated in a relaxed manner, so will not necessarily be
+    // accurate in this thread unless this thread has recently done something
+    // that has updated the value. Updating the value like this is obviously
+    // inefficient, so this method should only be used infrequently and only
+    // in unit test code.
+    TStrCPtr sync{m_String};
+    return sync.use_count() == 2;
 }
 
 bool CStoredStringPtr::operator==(std::nullptr_t rhs) const noexcept {
