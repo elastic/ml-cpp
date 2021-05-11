@@ -385,11 +385,11 @@ CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
             *frameAndDirectory = this->makeDataFrame();
             auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& inputStream,
                                                 core::CDataFrame& frame) {
-                return CRetrainableModelJsonDeserializer::dataSummarizationFromDocumentCompressed(
+                return CRetrainableModelJsonReader::dataSummarizationFromDocumentCompressed(
                     inputStream, frame);
             };
             auto bestForestRestorer = [](const core::CDataSearcher::TIStreamP& inputStream) {
-                return CRetrainableModelJsonDeserializer::bestForestFromDocumentCompressed(inputStream);
+                return CRetrainableModelJsonReader::bestForestFromDocumentCompressed(inputStream);
             };
             auto& frame = frameAndDirectory->first;
             auto result = std::make_unique<maths::CBoostedTreeFactory>(
@@ -465,7 +465,7 @@ CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::instrumenta
     return m_Instrumentation;
 }
 
-CDataFrameAnalysisRunner::TDataSummarizationUPtr
+CDataFrameAnalysisRunner::TDataSummarizationJsonWriterUPtr
 CDataFrameTrainBoostedTreeRunner::dataSummarization(const core::CDataFrame& dataFrame) const {
     std::stringstream output;
 
@@ -477,10 +477,10 @@ CDataFrameTrainBoostedTreeRunner::dataSummarization(const core::CDataFrame& data
 
     auto rowMask = this->boostedTree().dataSummarization(dataFrame, encodingRecorder);
     if (rowMask.manhattan() > 0) {
-        return std::make_unique<CDataSummarizationJsonSerializer>(
+        return std::make_unique<CDataSummarizationJsonWriter>(
             dataFrame, rowMask, this->spec().numberColumns(), std::move(output));
     }
-    return TDataSummarizationUPtr();
+    return {};
 }
 
 // clang-format off

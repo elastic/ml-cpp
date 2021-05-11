@@ -71,7 +71,7 @@ public:
     using TStrVecVec = std::vector<TStrVec>;
     using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
     using TOptionalInferenceModelMetadata = boost::optional<const CInferenceModelMetadata&>;
-    using TDataSummarizationUPtr = std::unique_ptr<CDataSummarizationJsonSerializer>;
+    using TDataSummarizationJsonWriterUPtr = std::unique_ptr<CDataSummarizationJsonWriter>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
     using TDataFrameUPtrTemporaryDirectoryPtrPr =
@@ -153,7 +153,8 @@ public:
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
 
     //! \return A serialisable summarization of the training data if appropriate or a null pointer.
-    virtual TDataSummarizationUPtr dataSummarization(const core::CDataFrame& dataFrame) const;
+    virtual TDataSummarizationJsonWriterUPtr
+    dataSummarization(const core::CDataFrame& dataFrame) const;
 
     //! \return A serialisable metadata of the trained model.
     virtual TOptionalInferenceModelMetadata inferenceModelMetadata() const;

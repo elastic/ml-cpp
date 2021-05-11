@@ -211,12 +211,12 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
 CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
 CDataFrameAnalysisRunner::inferenceModelDefinition(const TStrVec& /*fieldNames*/,
                                                    const TStrVecVec& /*categoryNames*/) const {
-    return TInferenceModelDefinitionUPtr();
+    return {};
 }
 
-CDataFrameAnalysisRunner::TDataSummarizationUPtr
+CDataFrameAnalysisRunner::TDataSummarizationJsonWriterUPtr
 CDataFrameAnalysisRunner::dataSummarization(const core::CDataFrame& /*dataFrame*/) const {
-    return TDataSummarizationUPtr();
+    return {};
 }
 
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
