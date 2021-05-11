@@ -52,12 +52,10 @@ auto ifExists(const std::string& tag, const GET& get, const VALUE& value)
         try {
             return get(value[tag]);
         } catch (const std::runtime_error& e) {
-            LOG_ERROR(<< "Field '" << tag << "' " << e.what() << ".");
+            throw std::runtime_error("Field '" + tag + "' " + e.what() + ".");
         }
-    } else {
-        LOG_ERROR(<< "Field '" << tag << "' is missing.");
     }
-    throw std::runtime_error{""};
+    throw std::runtime_error{"Field '" + tag + "' is missing."};
 }
 
 auto getObject(const rapidjson::Value& value) {
@@ -227,9 +225,7 @@ CRetrainableModelJsonReader::dataSummarizationFromJsonStream(TIStreamSPtr istrea
     }
     try {
         return dataSummarizationFromJson(*istream, frame);
-    } catch (...) {
-        // Logging is handled at the point of throw.
-    }
+    } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     return nullptr;
 }
 
@@ -315,9 +311,7 @@ CRetrainableModelJsonReader::dataSummarizationFromDocumentCompressed(TIStreamSPt
                              ifExists(JSON_DATA_SUMMARIZATION_TAG, getStringLength,
                                       compressedDataSummarization)};
         return dataSummarizationFromJsonStream(decompressStream(buffer), frame);
-    } catch (...) {
-        // Logging is handled at the point of throw.
-    }
+    } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     return nullptr;
 }
 
@@ -328,9 +322,7 @@ CRetrainableModelJsonReader::bestForestFromJsonStream(TIStreamSPtr istream) {
     }
     try {
         return bestForestFromJson(*istream);
-    } catch (...) {
-        // Logging is handled at the point of throw.
-    }
+    } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     return nullptr;
 }
 
@@ -426,9 +418,7 @@ CRetrainableModelJsonReader::bestForestFromDocumentCompressed(TIStreamSPtr istre
                              ifExists(CInferenceModelDefinition::JSON_DEFINITION_TAG,
                                       getStringLength, compressedDataSummarization)};
         return bestForestFromJsonStream(decompressStream(buffer));
-    } catch (...) {
-        // Logging is handled at the point of throw.
-    }
+    } catch (const std::exception& e) { LOG_ERROR(<< e.what()); }
     return nullptr;
 }
 }
