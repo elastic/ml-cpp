@@ -153,7 +153,8 @@ public:
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
 
     //! \return A serialisable summarization of the training data if appropriate or a null pointer.
-    virtual TDataSummarizationJsonWriterUPtr dataSummarization(const core::CDataFrame& dataFrame) const;
+    virtual TDataSummarizationJsonWriterUPtr
+    dataSummarization(const core::CDataFrame& dataFrame) const;
 
     //! \return A serialisable metadata of the trained model.
     virtual TOptionalInferenceModelMetadata inferenceModelMetadata() const;

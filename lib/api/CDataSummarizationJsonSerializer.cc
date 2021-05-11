@@ -133,7 +133,8 @@ CDataSummarizationJsonWriter::CDataSummarizationJsonWriter(const core::CDataFram
                                                            core::CPackedBitVector rowMask,
                                                            std::size_t numberColumns,
                                                            std::stringstream encodings)
-    : m_RowMask{std::move(rowMask)}, m_NumberColumns{numberColumns}, m_Frame{frame}, m_Encodings{std::move(encodings)} {
+    : m_RowMask{std::move(rowMask)}, m_NumberColumns{numberColumns}, m_Frame{frame},
+      m_Encodings{std::move(encodings)} {
 }
 
 void CDataSummarizationJsonWriter::addToDocumentCompressed(TRapidJsonWriter& writer) const {
@@ -383,7 +384,8 @@ CRetrainableModelJsonReader::bestForestFromJson(std::istream& istream) {
                 }
             } else {
                 // Add a split node.
-                std::size_t splitFeature{ifExists(CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG, getUint64, node)};
+                std::size_t splitFeature{ifExists(
+                    CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG, getUint64, node)};
                 double gain{ifExists(CTree::CTreeNode::JSON_SPLIT_GAIN_TAG, getDouble, node)};
                 double splitValue{ifExists(CTree::CTreeNode::JSON_THRESHOLD_TAG,
                                            getDouble, node)};
