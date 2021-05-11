@@ -58,49 +58,49 @@ auto ifExists(const std::string& tag, const GET& get, const VALUE& value)
     throw std::runtime_error{"Field '" + tag + "' is missing."};
 }
 
-auto getObject(const rapidjson::Value& value) {
+auto getAsObjectFrom(const rapidjson::Value& value) {
     if (value.IsObject() == false) {
         throw std::runtime_error{"is not an object"};
     }
     return value.GetObject();
 }
 
-auto getArray(const rapidjson::Value& value) {
+auto getAsArrayFrom(const rapidjson::Value& value) {
     if (value.IsArray() == false) {
         throw std::runtime_error{"is not an array"};
     }
     return value.GetArray();
 }
 
-bool getBool(const rapidjson::Value& value) {
+bool getAsBoolFrom(const rapidjson::Value& value) {
     if (value.IsBool() == false) {
         throw std::runtime_error{"is not a bool"};
     }
     return value.GetBool();
 }
 
-std::uint64_t getUint64(const rapidjson::Value& value) {
+std::uint64_t getAsUint64From(const rapidjson::Value& value) {
     if (value.IsUint64() == false) {
         throw std::runtime_error{"is not a uint64"};
     }
     return value.GetUint64();
 }
 
-double getDouble(const rapidjson::Value& value) {
+double getAsDoubleFrom(const rapidjson::Value& value) {
     if (value.IsDouble() == false) {
         throw std::runtime_error{"is not a double"};
     }
     return value.GetDouble();
 }
 
-auto getString(const rapidjson::Value& value) {
+auto getAsStringFrom(const rapidjson::Value& value) {
     if (value.IsString() == false) {
         throw std::runtime_error{"is not a string"};
     }
     return value.GetString();
 }
 
-std::size_t getStringLength(const rapidjson::Value& value) {
+std::size_t getStringLengthFrom(const rapidjson::Value& value) {
     if (value.IsString() == false) {
         throw std::runtime_error{"is not a string"};
     }
@@ -236,7 +236,7 @@ CRetrainableModelJsonReader::dataSummarizationFromJson(std::istream& istream,
     rapidjson::Document doc;
     doc.ParseStream(isw);
 
-    std::size_t numberColumns{ifExists(JSON_NUM_COLUMNS_TAG, getUint64, doc)};
+    std::size_t numberColumns{ifExists(JSON_NUM_COLUMNS_TAG, getAsUint64From, doc)};
 
     TStrVec columnNames;
     TBoolVec columnIsCategorical;
@@ -245,25 +245,25 @@ CRetrainableModelJsonReader::dataSummarizationFromJson(std::istream& istream,
     columnIsCategorical.reserve(numberColumns);
     categoricalColumnValues.resize(numberColumns, {});
 
-    for (const auto& name : ifExists(JSON_COLUMN_NAMES_TAG, getArray, doc)) {
-        columnNames.push_back(getString(name));
+    for (const auto& name : ifExists(JSON_COLUMN_NAMES_TAG, getAsArrayFrom, doc)) {
+        columnNames.push_back(getAsStringFrom(name));
     }
 
     for (const auto& isCategorical :
-         ifExists(JSON_COLUMN_IS_CATEGORICAL_TAG, getArray, doc)) {
-        columnIsCategorical.push_back(getBool(isCategorical));
+         ifExists(JSON_COLUMN_IS_CATEGORICAL_TAG, getAsArrayFrom, doc)) {
+        columnIsCategorical.push_back(getAsBoolFrom(isCategorical));
     }
 
     std::size_t i{0};
     for (const auto& categories :
-         ifExists(JSON_CATEGORICAL_COLUMN_VALUES_TAG, getArray, doc)) {
-        for (const auto& category : getArray(categories)) {
-            categoricalColumnValues[i].push_back(getString(category));
+         ifExists(JSON_CATEGORICAL_COLUMN_VALUES_TAG, getAsArrayFrom, doc)) {
+        for (const auto& category : getAsArrayFrom(categories)) {
+            categoricalColumnValues[i].push_back(getAsStringFrom(category));
         }
         ++i;
     }
 
-    ifExists(JSON_ENCODINGS_TAG, getObject, doc); // Validate the nested object exists.
+    ifExists(JSON_ENCODINGS_TAG, getAsObjectFrom, doc); // Validate the nested object exists.
     TEncoderUPtr encodings;
     std::stringstream jsonStrm;
     rapidjson::OStreamWrapper wrapper{jsonStrm};
@@ -281,9 +281,9 @@ CRetrainableModelJsonReader::dataSummarizationFromJson(std::istream& istream,
 
     TStrVec rowVec;
     rowVec.reserve(numberColumns);
-    for (const auto& row : ifExists(JSON_DATA_TAG, getArray, doc)) {
-        for (const auto& column : getArray(row)) {
-            rowVec.emplace_back(getString(column));
+    for (const auto& row : ifExists(JSON_DATA_TAG, getAsArrayFrom, doc)) {
+        for (const auto& column : getAsArrayFrom(row)) {
+            rowVec.emplace_back(getAsStringFrom(column));
         }
         frame.parseAndWriteRow(
             core::CVectorRange<const TStrVec>(rowVec, 0, rowVec.size()));
@@ -305,10 +305,10 @@ CRetrainableModelJsonReader::dataSummarizationFromDocumentCompressed(TIStreamSPt
         rapidjson::Document doc;
         doc.ParseStream(isw);
         auto compressedDataSummarization =
-            ifExists(JSON_COMPRESSED_DATA_SUMMARIZATION_TAG, getObject, doc);
-        TStreamBuffer buffer{ifExists(JSON_DATA_SUMMARIZATION_TAG, getString,
+            ifExists(JSON_COMPRESSED_DATA_SUMMARIZATION_TAG, getAsObjectFrom, doc);
+        TStreamBuffer buffer{ifExists(JSON_DATA_SUMMARIZATION_TAG, getAsStringFrom,
                                       compressedDataSummarization),
-                             ifExists(JSON_DATA_SUMMARIZATION_TAG, getStringLength,
+                             ifExists(JSON_DATA_SUMMARIZATION_TAG, getStringLengthFrom,
                                       compressedDataSummarization)};
         return dataSummarizationFromJsonStream(decompressStream(buffer), frame);
     } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
@@ -334,59 +334,62 @@ CRetrainableModelJsonReader::bestForestFromJson(std::istream& istream) {
     rapidjson::IStreamWrapper isw{istream};
     rapidjson::Document doc;
     doc.ParseStream(isw);
-    auto inferenceModel =
-        ifExists(CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG, getObject, doc);
-    auto ensemble = ifExists(CEnsemble::JSON_ENSEMBLE_TAG, getObject, inferenceModel);
-    auto trainedModels = ifExists(CEnsemble::JSON_TRAINED_MODELS_TAG, getArray, ensemble);
+    auto inferenceModel = ifExists(CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG,
+                                   getAsObjectFrom, doc);
+    auto ensemble = ifExists(CEnsemble::JSON_ENSEMBLE_TAG, getAsObjectFrom, inferenceModel);
+    auto trainedModels = ifExists(CEnsemble::JSON_TRAINED_MODELS_TAG, getAsArrayFrom, ensemble);
     auto forest = std::make_unique<TNodeVecVec>();
     forest->reserve(trainedModels.Size());
     TStrVec featureNames;
     TNodeVec nodes;
     for (const auto& trainedModel : trainedModels) {
-        auto tree = ifExists(CTree::JSON_TREE_TAG, getObject, trainedModel);
+        auto tree = ifExists(CTree::JSON_TREE_TAG, getAsObjectFrom, trainedModel);
         featureNames.clear();
-        for (const auto& name : ifExists(CTree::JSON_FEATURE_NAMES_TAG, getArray, tree)) {
-            featureNames.emplace_back(getString(name));
+        for (const auto& name :
+             ifExists(CTree::JSON_FEATURE_NAMES_TAG, getAsArrayFrom, tree)) {
+            featureNames.emplace_back(getAsStringFrom(name));
         }
-        auto treeNodes = ifExists(CTree::JSON_TREE_STRUCTURE_TAG, getArray, tree);
+        auto treeNodes = ifExists(CTree::JSON_TREE_STRUCTURE_TAG, getAsArrayFrom, tree);
         nodes.clear();
         nodes.reserve(treeNodes.Size());
         nodes.emplace_back(); // Add the root.
         for (const auto& node : treeNodes) {
-            std::size_t nodeIndex{
-                ifExists(CTree::CTreeNode::JSON_NODE_INDEX_TAG, getUint64, node)};
-            std::size_t numberSamples{ifExists(
-                CTree::CTreeNode::JSON_NUMBER_SAMPLES_TAG, getUint64, node)};
+            std::size_t nodeIndex{ifExists(CTree::CTreeNode::JSON_NODE_INDEX_TAG,
+                                           getAsUint64From, node)};
+            std::size_t numberSamples{ifExists(CTree::CTreeNode::JSON_NUMBER_SAMPLES_TAG,
+                                               getAsUint64From, node)};
             nodes[nodeIndex].numberSamples(numberSamples);
             if (node.HasMember(CTree::CTreeNode::JSON_LEAF_VALUE_TAG)) {
                 // Add a leaf node.
                 if (node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].IsArray()) {
                     auto leafValueArray =
-                        getArray(node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG]);
+                        getAsArrayFrom(node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG]);
                     maths::CBoostedTreeNode::TVector nodeValue(leafValueArray.Size());
                     for (rapidjson::SizeType i = 0; i < leafValueArray.Size(); ++i) {
-                        nodeValue[static_cast<long>(i)] = getDouble(leafValueArray[i]);
+                        nodeValue[static_cast<long>(i)] =
+                            getAsDoubleFrom(leafValueArray[i]);
                     }
                     nodes[nodeIndex].value(nodeValue);
                 } else {
                     maths::CBoostedTreeNode::TVector nodeValue(1);
                     nodeValue[0] = ifExists(CTree::CTreeNode::JSON_LEAF_VALUE_TAG,
-                                            getDouble, node);
+                                            getAsDoubleFrom, node);
                     nodes[nodeIndex].value(nodeValue);
                 }
             } else {
                 // Add a split node.
-                std::size_t splitFeature{ifExists(
-                    CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG, getUint64, node)};
-                double gain{ifExists(CTree::CTreeNode::JSON_SPLIT_GAIN_TAG, getDouble, node)};
+                std::size_t splitFeature{ifExists(CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG,
+                                                  getAsUint64From, node)};
+                double gain{ifExists(CTree::CTreeNode::JSON_SPLIT_GAIN_TAG,
+                                     getAsDoubleFrom, node)};
                 double splitValue{ifExists(CTree::CTreeNode::JSON_THRESHOLD_TAG,
-                                           getDouble, node)};
-                bool assignMissingToLeft{ifExists(
-                    CTree::CTreeNode::JSON_DEFAULT_LEFT_TAG, getBool, node)};
-                std::size_t leftChildIndex{ifExists(
-                    CTree::CTreeNode::JSON_LEFT_CHILD_TAG, getUint64, node)};
-                std::size_t rightChildIndex{ifExists(
-                    CTree::CTreeNode::JSON_RIGHT_CHILD_TAG, getUint64, node)};
+                                           getAsDoubleFrom, node)};
+                bool assignMissingToLeft{ifExists(CTree::CTreeNode::JSON_DEFAULT_LEFT_TAG,
+                                                  getAsBoolFrom, node)};
+                std::size_t leftChildIndex{ifExists(CTree::CTreeNode::JSON_LEFT_CHILD_TAG,
+                                                    getAsUint64From, node)};
+                std::size_t rightChildIndex{ifExists(CTree::CTreeNode::JSON_RIGHT_CHILD_TAG,
+                                                     getAsUint64From, node)};
                 nodes[nodeIndex].split(splitFeature, splitValue,
                                        assignMissingToLeft, gain, 0.0, nodes);
                 nodes[nodeIndex].numberSamples(numberSamples);
@@ -411,12 +414,13 @@ CRetrainableModelJsonReader::bestForestFromDocumentCompressed(TIStreamSPtr istre
         rapidjson::IStreamWrapper isw{*istream};
         rapidjson::Document doc;
         doc.ParseStream(isw);
-        auto compressedDataSummarization = ifExists(
-            CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG, getObject, doc);
+        auto compressedDataSummarization =
+            ifExists(CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG,
+                     getAsObjectFrom, doc);
         TStreamBuffer buffer{ifExists(CInferenceModelDefinition::JSON_DEFINITION_TAG,
-                                      getString, compressedDataSummarization),
+                                      getAsStringFrom, compressedDataSummarization),
                              ifExists(CInferenceModelDefinition::JSON_DEFINITION_TAG,
-                                      getStringLength, compressedDataSummarization)};
+                                      getStringLengthFrom, compressedDataSummarization)};
         return bestForestFromJsonStream(decompressStream(buffer));
     } catch (const std::exception& e) { LOG_ERROR(<< e.what()); }
     return nullptr;
