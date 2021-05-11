@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CDataFrameCategoryEncoder.h"
 #include <maths/CBoostedTree.h>
 
 #include <core/CDataFrame.h>
@@ -13,6 +12,7 @@
 #include <maths/CBoostedTreeImpl.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLinearAlgebraPersist.h>
 #include <maths/CLinearAlgebraShims.h>
 

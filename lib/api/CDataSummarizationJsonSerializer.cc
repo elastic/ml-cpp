@@ -242,8 +242,10 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
 
     rapidjson::Document doc;
     std::stringstream encodings;
-    core::CJsonStatePersistInserter inserter{encodings};
-    m_Encodings.acceptPersistInserter(inserter);
+    {
+        core::CJsonStatePersistInserter inserter{encodings};
+        m_Encodings.acceptPersistInserter(inserter);
+    }
     rapidjson::ParseResult ok(doc.Parse(encodings.str()));
     if (static_cast<bool>(ok) == false) {
         LOG_ERROR(<< "Failed parsing encoding json. Please report this error.");

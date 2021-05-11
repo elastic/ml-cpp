@@ -192,7 +192,6 @@ public:
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Names of the features used by the model.
     virtual const TStringVec& featureNames() const;
-    virtual TStringVec& featureNames();
     //! Names of the features used by the model.
     virtual void featureNames(TStringVec featureNames);
     //! Sets target type (regression or classification).

@@ -18,7 +18,7 @@
             "additionalItems": false
         },
         "column_is_categorical": {
-            "description": "List indicating wether or not the column contains categorical values.",
+            "description": "List indicating whether or not the column contains categorical values.",
             "type": "array",
             "items": {
                 "type": "boolean"
@@ -29,13 +29,32 @@
             "description": "List of lists containing unique string values for categorical fields.",
             "type": "array",
             "items": {
-                "type":"array",
+                "type": "array",
                 "items": {
-                    "type":"string"
+                    "type": "string"
                 },
                 "additionalItems": false
             },
             "additionalItems": false
+        },
+        "encodings_indices": {
+            "description": "List mapping feature name to encoding index.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "encoding_name": {
+                        "type": "string"
+                    },
+                    "encoding_index": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "encoding_name",
+                    "encoding_index"
+                ]
+            }
         },
         "encodings": {
             "description": "Encodings used in the boosted tree.",
@@ -59,8 +78,9 @@
         "column_names",
         "column_is_categorical",
         "categorical_column_values",
-        "data", 
-        "encodings"
+        "data",
+        "encodings",
+        "encodings_indices"
     ],
     "additionalProperties": false
 }

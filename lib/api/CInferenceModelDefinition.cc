@@ -395,10 +395,6 @@ const CTrainedModel::TStringVec& CTrainedModel::featureNames() const {
     return m_FeatureNames;
 }
 
-CTrainedModel::TStringVec& CTrainedModel::featureNames() {
-    return m_FeatureNames;
-}
-
 void CTrainedModel::featureNames(TStringVec featureNames) {
     m_FeatureNames = std::move(featureNames);
 }
