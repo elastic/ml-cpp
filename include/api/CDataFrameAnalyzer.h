@@ -41,6 +41,9 @@ public:
         std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
 
 public:
+    static const std::string CONTROL_MESSAGE_FIELD_NAME;
+
+public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
                        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory,
                        TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier);

@@ -72,10 +72,12 @@ private:
     TDoubleVec m_Weights;
 };
 
-//! Allows to use logistic regression aggregation.
+//! \brief Logistic regression aggregation.
 //!
-//! Given a weights vector $\vec{w}$ as a parameter and an output vector from the ensemble $\vec{x}$,
-//! it computes the logistic regression function \f$1/(1 + \exp(-\vec{w}^T \vec{x}))\f$.
+//! DESCRIPTION:\n
+//! Given a weights vector $\vec{w}$ as a parameter and an output vector from
+//! the ensemble $\vec{x}$, it computes the logistic regression function
+//! \f$1/(1 + \exp(-\vec{w}^T \vec{x}))\f$.
 class API_EXPORT CLogisticRegression final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
@@ -95,10 +97,11 @@ private:
     TDoubleVec m_Weights;
 };
 
-//! Allows to use exponent aggregation.
+//! \brief Exponent aggregation.
 //!
-//! Given a weights vector $\vec{w}$ as a parameter and an output vector from the ensemble $\vec{x}$,
-//! it computes the exponent function \f$\exp(\vec{w}^T \vec{x})\f$.
+//! DESCRIPTION:\n
+//! Given a weights vector $\vec{w}$ as a parameter and an output vector from the
+//! ensemble $\vec{x}$, it computes the exponent function \f$\exp(\vec{w}^T \vec{x})\f$.
 class API_EXPORT CExponent final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
@@ -130,6 +133,37 @@ public:
 
     enum ETargetType { E_Classification, E_Regression };
 
+    //! \brief Provides feature names.
+    //!
+    //! DESCRIPTION:\n
+    //! Trained model features include any input feature and any synthetic features
+    //! which training adds, which include, for example, category encodings. Any code
+    //! which references trained model features by name needs to use consistent naming.
+    //! We standardise by using this class to encapsulate naming trained model features
+    //! from the input feature names, the category names and the type of operation used
+    //! to generate the feature.
+    class CFeatureNameProvider {
+    public:
+        using TStrVec = std::vector<std::string>;
+        using TStrVecVec = std::vector<TStrVec>;
+
+    public:
+        CFeatureNameProvider(TStrVec fieldNames, TStrVecVec categoryNames);
+
+        const std::string& fieldName(std::size_t inputColumnIndex) const;
+        const std::string& category(std::size_t inputColumnIndex, std::size_t hotCategory) const;
+        std::string identityEncodingName(std::size_t inputColumnIndex) const;
+        std::string oneHotEncodingName(std::size_t inputColumnIndex,
+                                       std::size_t hotCategory) const;
+        std::string targetMeanEncodingName(std::size_t inputColumnIndex) const;
+        std::string frequencyEncodingName(std::size_t inputColumnIndex) const;
+
+    private:
+        TStrVec m_FieldNames;
+        TStrVecVec m_CategoryNames;
+    };
+
+    //! \brief A measure of the model complexity.
     class CSizeInfo : public CSerializableToJsonDocument {
     public:
         static const std::string JSON_NUM_CLASSES_TAG;
@@ -155,20 +189,18 @@ public:
     static const std::string JSON_TARGET_TYPE_TAG;
 
 public:
-    virtual ~CTrainedModel() override = default;
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Names of the features used by the model.
     virtual const TStringVec& featureNames() const;
     virtual TStringVec& featureNames();
     //! Names of the features used by the model.
-    virtual void featureNames(const TStringVec& featureNames);
-    virtual void featureNames(TStringVec&& featureNames);
+    virtual void featureNames(TStringVec featureNames);
     //! Sets target type (regression or classification).
     virtual void targetType(ETargetType targetType);
     //! Returns target type (regression or classification).
     virtual ETargetType targetType() const;
     //! Adjust the feature names, e.g. to exclude not used feature names like the target column.
-    virtual TStringVec removeUnusedFeatures() = 0;
+    virtual const TStringVec& removeUnusedFeatures() = 0;
     //! Set the labels to use for each class.
     virtual void classificationLabels(const TStringVec& classificationLabels);
     //! Get the labels to use for each class.
@@ -262,7 +294,7 @@ public:
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Total number of tree nodes.
     std::size_t size() const;
-    TStringVec removeUnusedFeatures() override;
+    const TStringVec& removeUnusedFeatures() override;
     TTreeNodeVec& treeStructure();
     //! Get the object for model size with information for estimation.
     TSizeInfoUPtr sizeInfo() const override;
@@ -304,13 +336,12 @@ public:
     //! Aggregation mechanism for the output from individual models.
     void aggregateOutput(TAggregateOutputUPtr&& aggregateOutput);
     const TAggregateOutputUPtr& aggregateOutput() const;
-    const TStringVec& featureNames() const override;
-    void featureNames(const TStringVec& featureNames) override;
+    void featureNames(TStringVec featureNames) override;
     //! List of trained models withing this ensemble.
     TTrainedModelUPtrVec& trainedModels();
     //! Number of models in the ensemble.
     std::size_t size() const;
-    TStringVec removeUnusedFeatures() override;
+    const TStringVec& removeUnusedFeatures() override;
     void targetType(ETargetType targetType) override;
     //! Set the labels to use for each class.
     void classificationLabels(const TStringVec& classificationLabels) override;
@@ -320,6 +351,7 @@ public:
     TSizeInfoUPtr sizeInfo() const override;
     using CTrainedModel::classificationLabels;
     using CTrainedModel::classificationWeights;
+    using CTrainedModel::featureNames;
     using CTrainedModel::targetType;
 
 private:
@@ -492,7 +524,7 @@ private:
 //! \brief A JSON blob defining a custom encoding or an array of custom encodings.
 class API_EXPORT COpaqueEncoding final : public CCustomEncoding {
 public:
-    COpaqueEncoding(const rapidjson::Document& object);
+    explicit COpaqueEncoding(const rapidjson::Document& object);
 
     void addToJsonStream(TGenericLineWriter& writer) const override;
 

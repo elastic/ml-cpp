@@ -44,14 +44,15 @@ public:
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
     using TEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
+    using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
     using TRestoreDataSummarizationFunc =
-        std::function<TEncoderUPtr(const core::CDataSearcher::TIStreamP&, core::CDataFrame&)>;
+        std::function<std::pair<TEncoderUPtr, TStrSizeUMap>(core::CDataSearcher::TIStreamP, core::CDataFrame&)>;
     using TNode = CBoostedTreeNode;
     using TNodeVec = std::vector<TNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
     using TNodeVecVecUPtr = std::unique_ptr<TNodeVecVec>;
     using TRestoreBestForestFunc =
-        std::function<TNodeVecVecUPtr(const core::CDataSearcher::TIStreamP&)>;
+        std::function<TNodeVecVecUPtr(core::CDataSearcher::TIStreamP, const TStrSizeUMap&)>;
 
 public:
     //! \name Instrumentation Phases
@@ -336,11 +337,6 @@ private:
 
     //! Stubs out test loss adjustment.
     static double noopAdjustTestLoss(double, double, double testLoss);
-
-    //! Restores a type from \p restoreSearcher using \p restoreCallback.
-    template<typename Callback>
-    static auto restoreTrainedModel(core::CDataSearcher& restoreSearcher,
-                                    const Callback& restoreCallback);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;

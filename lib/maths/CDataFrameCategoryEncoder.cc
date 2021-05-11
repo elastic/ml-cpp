@@ -355,15 +355,14 @@ void CDataFrameCategoryEncoder::accept(CDataFrameCategoryEncoder::CVisitor& visi
     for (const auto& encoding : m_Encodings) {
         if (encoding->type() == E_IdentityEncoding) {
             visitor.addIdentityEncoding(encoding->inputColumnIndex());
-        }
-        if (encoding->type() == E_OneHot) {
-            auto enc = static_cast<const COneHotEncoding*>(encoding.get());
+        } else if (encoding->type() == E_OneHot) {
+            const auto* enc = static_cast<const COneHotEncoding*>(encoding.get());
             visitor.addOneHotEncoding(enc->inputColumnIndex(), enc->hotCategory());
         } else if (encoding->type() == E_Frequency) {
-            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
+            const auto* enc = static_cast<const CMappedEncoding*>(encoding.get());
             visitor.addFrequencyEncoding(enc->inputColumnIndex(), enc->map());
         } else if (encoding->type() == E_TargetMean) {
-            auto enc = static_cast<const CMappedEncoding*>(encoding.get());
+            const auto* enc = static_cast<const CMappedEncoding*>(encoding.get());
             visitor.addTargetMeanEncoding(enc->inputColumnIndex(), enc->map(),
                                           enc->fallback());
         }

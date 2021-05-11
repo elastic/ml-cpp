@@ -40,7 +40,7 @@ public:
     virtual void addToJsonStream(TGenericLineWriter& /*writer*/) const = 0;
 };
 
-//! \brief Interface for writing the inference model defition JSON description
+//! \brief Interface for writing the inference model definition JSON description
 //! to a stream which first compresses, base64 encodes and chunks.
 class API_EXPORT CSerializableToJsonDocumentCompressed : public CSerializableToJsonStream {
 public:

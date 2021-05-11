@@ -8,9 +8,8 @@
 
 #include <core/LogMacros.h>
 
+#include <api/CDataFrameAnalyzer.h>
 #include <api/CInferenceModelDefinition.h>
-
-#include <rapidjson/writer.h>
 
 #include <algorithm>
 
@@ -18,47 +17,46 @@ namespace ml {
 namespace api {
 
 void CBoostedTreeInferenceModelBuilder::addTree() {
-    auto ensemble = static_cast<CEnsemble*>(m_Definition.trainedModel().get());
+    auto* ensemble = static_cast<CEnsemble*>(m_Definition.trainedModel().get());
     ensemble->trainedModels().emplace_back(std::make_unique<CTree>());
 }
 
 void CBoostedTreeInferenceModelBuilder::addIdentityEncoding(std::size_t inputColumnIndex) {
-    m_FeatureNames.push_back(m_FieldNames[inputColumnIndex]);
+    m_FeatureNames.push_back(m_FeatureNameProvider.identityEncodingName(inputColumnIndex));
 }
 
 void CBoostedTreeInferenceModelBuilder::addOneHotEncoding(std::size_t inputColumnIndex,
                                                           std::size_t hotCategory) {
-    std::string fieldName{m_Definition.fieldNames()[inputColumnIndex]};
-    std::string category = m_CategoryNames[inputColumnIndex][hotCategory];
-    std::string featureName = fieldName + "_" + category;
+    const std::string& fieldName{m_FeatureNameProvider.fieldName(inputColumnIndex)};
+    const std::string& category{m_FeatureNameProvider.category(inputColumnIndex, hotCategory)};
+    std::string featureName{
+        m_FeatureNameProvider.oneHotEncodingName(inputColumnIndex, hotCategory)};
     if (m_OneHotEncodingMaps.find(fieldName) == m_OneHotEncodingMaps.end()) {
-        auto apiEncoding = std::make_unique<COneHotEncoding>(
-            fieldName, COneHotEncoding::TStringStringUMap());
-        m_OneHotEncodingMaps.emplace(fieldName, std::move(apiEncoding));
+        m_OneHotEncodingMaps.emplace(
+            fieldName, std::make_unique<COneHotEncoding>(
+                           fieldName, COneHotEncoding::TStringStringUMap()));
     }
     m_OneHotEncodingMaps[fieldName]->hotMap().emplace(category, featureName);
-    m_FeatureNames.push_back(featureName);
+    m_FeatureNames.push_back(std::move(featureName));
 }
 
 void CBoostedTreeInferenceModelBuilder::addTargetMeanEncoding(std::size_t inputColumnIndex,
                                                               const TDoubleVec& map,
                                                               double fallback) {
-    const std::string& fieldName{m_Definition.fieldNames()[inputColumnIndex]};
-    std::string featureName{fieldName + "_targetmean"};
-    auto stringMap = this->encodingMap(inputColumnIndex, map);
+    const std::string& fieldName{m_FeatureNameProvider.fieldName(inputColumnIndex)};
+    std::string featureName{m_FeatureNameProvider.targetMeanEncodingName(inputColumnIndex)};
     m_Definition.preprocessors().push_back(std::make_unique<CTargetMeanEncoding>(
-        fieldName, fallback, featureName, std::move(stringMap)));
-    m_FeatureNames.push_back(featureName);
+        fieldName, fallback, featureName, this->encodingMap(inputColumnIndex, map)));
+    m_FeatureNames.push_back(std::move(featureName));
 }
 
 void CBoostedTreeInferenceModelBuilder::addFrequencyEncoding(std::size_t inputColumnIndex,
                                                              const TDoubleVec& map) {
-    const std::string& fieldName{m_Definition.fieldNames()[inputColumnIndex]};
-    std::string featureName{fieldName + "_frequency"};
-    auto stringMap = this->encodingMap(inputColumnIndex, map);
+    const std::string& fieldName{m_FeatureNameProvider.fieldName(inputColumnIndex)};
+    std::string featureName{m_FeatureNameProvider.frequencyEncodingName(inputColumnIndex)};
     m_Definition.preprocessors().push_back(std::make_unique<CFrequencyEncoding>(
-        fieldName, featureName, std::move(stringMap)));
-    m_FeatureNames.push_back(featureName);
+        fieldName, featureName, this->encodingMap(inputColumnIndex, map)));
+    m_FeatureNames.push_back(std::move(featureName));
 }
 
 void CBoostedTreeInferenceModelBuilder::addCustomProcessor(TApiCustomEncodingUPtr value) {
@@ -67,24 +65,24 @@ void CBoostedTreeInferenceModelBuilder::addCustomProcessor(TApiCustomEncodingUPt
 
 CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 
-    // Finalize OneHotEncoding Mappings
+    // Finalize one-hot encoding mappings
     for (auto& oneHotEncodingMapping : m_OneHotEncodingMaps) {
         m_Definition.preprocessors().emplace_back(
             std::move(oneHotEncodingMapping.second));
     }
 
+    // Copy the custom preprocessors.
     for (auto& customProcessor : m_CustomProcessors) {
         m_Definition.customPreprocessors().emplace_back(std::move(customProcessor));
     }
 
-    // Add aggregated output after the number of trees is known
+    // Add aggregated output after the number of trees is known.
     auto* ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     this->setAggregateOutput(ensemble);
 
     this->setTargetType();
     ensemble->featureNames(m_FeatureNames);
-    // TODO #1869 reactivate once we have a way to map feature names to correct encoding using definition only.
-    // ensemble->removeUnusedFeatures();
+    ensemble->removeUnusedFeatures();
 
     return std::move(m_Definition);
 }
@@ -97,11 +95,12 @@ void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
                                                 std::size_t numberSamples,
                                                 maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
                                                 maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
-    auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
+    auto* ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     // use dynamic cast to prevent using wrong type of trained models
-    auto tree = dynamic_cast<CTree*>(ensemble->trainedModels().back().get());
+    auto* tree = dynamic_cast<CTree*>(ensemble->trainedModels().back().get());
     if (tree == nullptr) {
-        HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.");
+        HANDLE_FATAL(<< "Internal error. Tree is null.");
+        return;
     }
     tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft,
                                        nodeValue.to<TDoubleVec>(), splitFeature,
@@ -110,30 +109,29 @@ void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
 
 CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
                                                                      std::size_t dependentVariableColumnIndex,
-                                                                     const TStrVecVec& categoryNames)
-    : m_CategoryNames{categoryNames} {
+                                                                     TStrVecVec categoryNames)
+    : m_FeatureNameProvider{fieldNames, std::move(categoryNames)} {
 
-    // filter filed names containing empty string
-    fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), ""),
+    fieldNames.erase(std::remove_if(fieldNames.begin(), fieldNames.end(),
+                                    [](const auto& name) {
+                                        return name.empty() ||
+                                               name == CDataFrameAnalyzer::CONTROL_MESSAGE_FIELD_NAME;
+                                    }),
                      fieldNames.end());
-    fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), "."),
-                     fieldNames.end());
-    m_FieldNames = fieldNames;
 
     m_Definition.dependentVariableColumnIndex(dependentVariableColumnIndex);
     m_Definition.fieldNames(std::move(fieldNames));
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
 }
 
-CBoostedTreeInferenceModelBuilder::TStringDoubleUMap
+CBoostedTreeInferenceModelBuilder::TStrDoubleUMap
 CBoostedTreeInferenceModelBuilder::encodingMap(std::size_t inputColumnIndex,
-                                               const TDoubleVec& map_) {
-    TStringDoubleUMap map;
-    for (std::size_t categoryUInt = 0; categoryUInt < map_.size(); ++categoryUInt) {
-        std::string category{m_CategoryNames[inputColumnIndex][categoryUInt]};
-        map.emplace(category, map_[categoryUInt]);
+                                               const TDoubleVec& map) {
+    TStrDoubleUMap result;
+    for (std::size_t i = 0; i < map.size(); ++i) {
+        result.emplace(m_FeatureNameProvider.category(inputColumnIndex, i), map[i]);
     }
-    return map;
+    return result;
 }
 
 CInferenceModelDefinition& CBoostedTreeInferenceModelBuilder::definition() {

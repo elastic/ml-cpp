@@ -180,11 +180,11 @@ void CEnsemble::addToJsonStream(TGenericLineWriter& writer) const {
     writer.EndObject();
 }
 
-void CEnsemble::featureNames(const TStringVec& featureNames) {
-    this->CTrainedModel::featureNames(featureNames);
+void CEnsemble::featureNames(TStringVec featureNames) {
     for (auto& trainedModel : m_TrainedModels) {
         trainedModel->featureNames(featureNames);
     }
+    this->CTrainedModel::featureNames(std::move(featureNames));
 }
 
 void CEnsemble::aggregateOutput(TAggregateOutputUPtr&& aggregateOutput) {
@@ -210,22 +210,19 @@ void CEnsemble::targetType(ETargetType targetType) {
     }
 }
 
-CTrainedModel::TStringVec CEnsemble::removeUnusedFeatures() {
-    boost::unordered_set<std::string> set;
+const CEnsemble::TStringVec& CEnsemble::removeUnusedFeatures() {
+    boost::unordered_set<std::string> uniqueUsedFeatures;
     for (auto& trainedModel : this->trainedModels()) {
-        TStringVec vec(trainedModel->removeUnusedFeatures());
-        set.insert(vec.begin(), vec.end());
+        const auto& usedFeatures = trainedModel->removeUnusedFeatures();
+        uniqueUsedFeatures.insert(usedFeatures.begin(), usedFeatures.end());
     }
-    TStringVec selectedFeatureNames;
-    selectedFeatureNames.reserve(set.size());
-    std::copy(set.begin(), set.end(), std::back_inserter(selectedFeatureNames));
-    std::sort(selectedFeatureNames.begin(), selectedFeatureNames.end());
-    this->CTrainedModel::featureNames(selectedFeatureNames);
-    return selectedFeatureNames;
-}
-
-const CTrainedModel::TStringVec& CEnsemble::featureNames() const {
-    return this->CTrainedModel::featureNames();
+    TStringVec usedFeatures(uniqueUsedFeatures.begin(), uniqueUsedFeatures.end());
+    std::sort(usedFeatures.begin(), usedFeatures.end());
+    // It is very important that we call the base class method here because we don't
+    // want to reset feature names of the individual models which may be referenced
+    // by position in their feature name vector.
+    this->CTrainedModel::featureNames(std::move(usedFeatures));
+    return this->featureNames();
 }
 
 void CEnsemble::classificationLabels(const TStringVec& classificationLabels) {
@@ -310,23 +307,23 @@ CTree::TTreeNodeVec& CTree::treeStructure() {
     return m_TreeStructure;
 }
 
-CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
-    boost::unordered_map<std::size_t, std::size_t> selectedFeatureIndices;
+const CTree::TStringVec& CTree::removeUnusedFeatures() {
+    boost::unordered_map<std::size_t, std::size_t> usedFeatureIndices;
     for (auto& treeNode : m_TreeStructure) {
         if (treeNode.leaf() == false) {
-            std::size_t adjustedIndex{selectedFeatureIndices
-                                          .emplace(treeNode.splitFeature(),
-                                                   selectedFeatureIndices.size())
-                                          .first->second};
+            std::size_t adjustedIndex{
+                usedFeatureIndices
+                    .emplace(treeNode.splitFeature(), usedFeatureIndices.size())
+                    .first->second};
             treeNode.splitFeature(adjustedIndex);
         }
     }
-    TStringVec selectedFeatureNames(selectedFeatureIndices.size());
+    TStringVec usedFeatures(usedFeatureIndices.size());
     auto& featureNames = this->featureNames();
-    for (auto i = selectedFeatureIndices.begin(); i != selectedFeatureIndices.end(); ++i) {
-        selectedFeatureNames[i->second] = std::move(featureNames[i->first]);
+    for (const auto& index : usedFeatureIndices) {
+        usedFeatures[index.second] = std::move(featureNames[index.first]);
     }
-    this->featureNames(std::move(selectedFeatureNames));
+    this->featureNames(std::move(usedFeatures));
     return this->featureNames();
 }
 
@@ -398,8 +395,12 @@ const CTrainedModel::TStringVec& CTrainedModel::featureNames() const {
     return m_FeatureNames;
 }
 
-void CTrainedModel::featureNames(const TStringVec& featureNames) {
-    m_FeatureNames = featureNames;
+CTrainedModel::TStringVec& CTrainedModel::featureNames() {
+    return m_FeatureNames;
+}
+
+void CTrainedModel::featureNames(TStringVec featureNames) {
+    m_FeatureNames = std::move(featureNames);
 }
 
 void CTrainedModel::targetType(ETargetType targetType) {
@@ -408,14 +409,6 @@ void CTrainedModel::targetType(ETargetType targetType) {
 
 CTrainedModel::ETargetType CTrainedModel::targetType() const {
     return m_TargetType;
-}
-
-CTrainedModel::TStringVec& CTrainedModel::featureNames() {
-    return m_FeatureNames;
-}
-
-void CTrainedModel::featureNames(TStringVec&& featureNames) {
-    m_FeatureNames = std::move(featureNames);
 }
 
 const CTrainedModel::TOptionalStringVec& CTrainedModel::classificationLabels() const {
@@ -432,6 +425,40 @@ const CTrainedModel::TOptionalDoubleVec& CTrainedModel::classificationWeights() 
 
 void CTrainedModel::classificationWeights(TDoubleVec classificationWeights) {
     m_ClassificationWeights = std::move(classificationWeights);
+}
+
+CTrainedModel::CFeatureNameProvider::CFeatureNameProvider(TStrVec fieldNames, TStrVecVec categoryNames)
+    : m_FieldNames{std::move(fieldNames)}, m_CategoryNames{std::move(categoryNames)} {
+}
+
+const std::string&
+CTrainedModel::CFeatureNameProvider::fieldName(std::size_t inputColumnIndex) const {
+    return m_FieldNames[inputColumnIndex];
+}
+
+const std::string&
+CTrainedModel::CFeatureNameProvider::category(std::size_t inputColumnIndex,
+                                              std::size_t hotCategory) const {
+    return m_CategoryNames[inputColumnIndex][hotCategory];
+}
+
+std::string CTrainedModel::CFeatureNameProvider::identityEncodingName(std::size_t inputColumnIndex) const {
+    return m_FieldNames[inputColumnIndex];
+}
+
+std::string
+CTrainedModel::CFeatureNameProvider::oneHotEncodingName(std::size_t inputColumnIndex,
+                                                        std::size_t hotCategory) const {
+    return m_FieldNames[inputColumnIndex] + "_" +
+           m_CategoryNames[inputColumnIndex][hotCategory];
+}
+
+std::string CTrainedModel::CFeatureNameProvider::targetMeanEncodingName(std::size_t inputColumnIndex) const {
+    return m_FieldNames[inputColumnIndex] + "_targetmean";
+}
+
+std::string CTrainedModel::CFeatureNameProvider::frequencyEncodingName(std::size_t inputColumnIndex) const {
+    return m_FieldNames[inputColumnIndex] + "_frequency";
 }
 
 CTrainedModel::CSizeInfo::CSizeInfo(const CTrainedModel& trainedModel)

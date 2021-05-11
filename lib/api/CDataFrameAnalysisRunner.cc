@@ -215,13 +215,13 @@ CDataFrameAnalysisRunner::inferenceModelDefinition(const TStrVec& /*fieldNames*/
 }
 
 CDataFrameAnalysisRunner::TDataSummarizationJsonWriterUPtr
-CDataFrameAnalysisRunner::dataSummarization(const core::CDataFrame& /*dataFrame*/) const {
+CDataFrameAnalysisRunner::dataSummarization() const {
     return {};
 }
 
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameAnalysisRunner::inferenceModelMetadata() const {
-    return TOptionalInferenceModelMetadata();
+    return {};
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr

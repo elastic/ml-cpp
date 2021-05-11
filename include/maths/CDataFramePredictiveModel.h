@@ -25,6 +25,7 @@ class CDataFrame;
 class CRapidJsonConcurrentLineWriter;
 }
 namespace maths {
+class CDataFrameCategoryEncoder;
 class CTreeShapFeatureImportance;
 
 //! \brief Defines the interface for fitting and inferring a predictive model
@@ -67,11 +68,6 @@ public:
     //! \warning Will return a nullptr if a trained model isn't available.
     virtual CTreeShapFeatureImportance* shap() const = 0;
 
-    //! Get the selected rows that summarize \p dataFrame.
-    virtual core::CPackedBitVector
-    dataSummarization(const core::CDataFrame& dataFrame,
-                      const TRecordEncodersCallback& callback) const = 0;
-
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
 
@@ -80,6 +76,15 @@ public:
 
     //! Read the raw model prediction from \p row and make posthoc adjustments.
     virtual TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const = 0;
+
+    //! Get the selected rows that summarize.
+    virtual core::CPackedBitVector dataSummarization() const = 0;
+
+    //! Get the category encoder.
+    virtual const CDataFrameCategoryEncoder& categoryEncoder() const = 0;
+
+    //! Get the data the model is trained on.
+    const core::CDataFrame& trainingData() const;
 
 protected:
     CDataFramePredictiveModel(core::CDataFrame& frame, TTrainingStateCallback recordTrainingState);
