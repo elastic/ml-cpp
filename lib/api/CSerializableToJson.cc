@@ -53,6 +53,12 @@ auto decodeAndDecompress(std::istream& inputStream) {
     return result;
 }
 
+void consumeSpace(std::istream& stream) {
+    while (std::isspace(stream.peek()) != 0) {
+        stream.get();
+    }
+}
+
 const std::string JSON_DOC_NUM_TAG{"doc_num"};
 const std::string JSON_EOS_TAG{"eos"};
 }
@@ -129,6 +135,7 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                              ifExists(payloadTag, getStringLengthFrom, chunk));
                 done = chunk.HasMember(JSON_EOS_TAG);
             } while (done == false && inputStream->eof() == false);
+            consumeSpace(*inputStream);
             return decodeAndDecompress(buffer);
         } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     }
