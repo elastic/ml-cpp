@@ -247,10 +247,6 @@ public:
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap() const override;
 
-    //! Get the selected rows that summarize \p dataFrame.
-    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame,
-                                             const TRecordEncodersCallback& callback) const override;
-
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;
 
@@ -266,6 +262,12 @@ public:
     //! class to target different objectives (accuracy or minimum recall) when
     //! assigning classes.
     TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const override;
+
+    //! Get the selected rows that summarize.
+    core::CPackedBitVector dataSummarization() const override;
+
+    //! Get the category encoder.
+    const CDataFrameCategoryEncoder& categoryEncoder() const override;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;

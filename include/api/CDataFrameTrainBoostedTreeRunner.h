@@ -87,9 +87,8 @@ public:
     //! \return Reference to the analysis state.
     CDataFrameAnalysisInstrumentation& instrumentation() override;
 
-    //! \return A serialisable data summarization for the trained model.
-    TDataSummarizationJsonWriterUPtr
-    dataSummarization(const core::CDataFrame& dataFrame) const override;
+    //! \return A serialisable summarization of the training data.
+    TDataSummarizationJsonWriterUPtr dataSummarization() const override;
 
 protected:
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;

@@ -2476,25 +2476,18 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
     return m_TreeShap.get();
 }
 
-core::CPackedBitVector
-CBoostedTreeImpl::dataSummarization(const core::CDataFrame& dataFrame,
-                                    const TRecordEncodersCallback& recordEncoders) const {
+core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFrame& frame) const {
     // get row mask for sampling
     // TODO #1834 implement a data summarization strategy.
     core::CPackedBitVector rowMask{};
-    std::size_t sampleSize(
-        std::min(dataFrame.numberRows(),
-                 static_cast<std::size_t>(std::max(
-                     static_cast<double>(dataFrame.numberRows()) * 0.1, 100.0))));
+    std::size_t sampleSize(std::min(
+        frame.numberRows(), static_cast<std::size_t>(std::max(
+                                static_cast<double>(frame.numberRows()) * 0.1, 100.0))));
     for (std::size_t i = 0; i < sampleSize; ++i) {
         rowMask.extend(true);
     }
-    rowMask.extend(false, dataFrame.numberRows() - rowMask.size());
+    rowMask.extend(false, frame.numberRows() - rowMask.size());
 
-    // get MICs for the features
-    recordEncoders([this](core::CStatePersistInserter& inserter) {
-        this->m_Encoder->acceptPersistInserter(inserter);
-    });
     return rowMask;
 }
 

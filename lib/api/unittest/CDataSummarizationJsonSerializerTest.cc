@@ -5,6 +5,7 @@
  */
 
 #include <core/CBase64Filter.h>
+#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CPackedBitVector.h>
@@ -87,7 +88,7 @@ void testSchema(TLossFunctionType lossType) {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
     auto analysisRunner = analyzer.runner();
 
-    auto dataSummarization = analysisRunner->dataSummarization(analyzer.dataFrame());
+    auto dataSummarization = analysisRunner->dataSummarization();
 
     // Verify compressed definition.
     {
@@ -159,23 +160,19 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
 
     // create encoder and serialize it
     maths::CDataFrameCategoryEncoder expectedEncoder({1, *expectedFrame, 5});
-    std::stringstream persistedEncoderStream;
-    {
-        core::CJsonStatePersistInserter inserter{persistedEncoderStream};
-        expectedEncoder.acceptPersistInserter(inserter);
-    }
 
     api::CDataSummarizationJsonWriter writer{
         *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true),
-        columnNames.size(), std::move(persistedEncoderStream)};
+        columnNames.size(), expectedEncoder};
     auto istream = std::make_shared<std::istringstream>(writer.jsonString());
     auto actualFrame = core::makeMainStorageDataFrame(columnNames.size()).first;
-    auto encoder = api::CRetrainableModelJsonReader::dataSummarizationFromJsonStream(
-        istream, *actualFrame);
+    auto[encoder, encodingIndices] =
+        api::CRetrainableModelJsonReader::dataSummarizationFromJsonStream(istream, *actualFrame);
     BOOST_REQUIRE(encoder != nullptr);
     BOOST_REQUIRE(expectedFrame->checksum() == actualFrame->checksum());
     BOOST_REQUIRE(encoder->numberInputColumns() == expectedFrame->numberColumns());
     BOOST_REQUIRE(encoder->numberEncodedColumns() > 0);
+    BOOST_REQUIRE_EQUAL("[(y, 0)]", core::CContainerPrinter::print(encodingIndices));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

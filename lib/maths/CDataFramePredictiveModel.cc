@@ -14,6 +14,10 @@ CDataFramePredictiveModel::CDataFramePredictiveModel(core::CDataFrame& frame,
     : m_Frame{frame}, m_RecordTrainingState(std::move(recordTrainingState)) {
 }
 
+const core::CDataFrame& CDataFramePredictiveModel::trainingData() const {
+    return m_Frame;
+}
+
 core::CDataFrame& CDataFramePredictiveModel::frame() const {
     return m_Frame;
 }

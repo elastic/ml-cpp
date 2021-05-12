@@ -28,8 +28,6 @@ namespace {
 using TStrVec = std::vector<std::string>;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
-
 // Control message types:
 const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 
@@ -167,11 +165,11 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
     //
     // These will both be called . to avoid collision with any real field name.
 
-    auto posDocHash = std::find(fieldNames.begin(), fieldNames.end(), SPECIAL_COLUMN_FIELD_NAME);
+    auto posDocHash = std::find(fieldNames.begin(), fieldNames.end(), CONTROL_MESSAGE_FIELD_NAME);
     auto posControlMessage = posDocHash == fieldNames.end()
                                  ? fieldNames.end()
                                  : std::find(posDocHash + 1, fieldNames.end(),
-                                             SPECIAL_COLUMN_FIELD_NAME);
+                                             CONTROL_MESSAGE_FIELD_NAME);
 
     if (posDocHash == fieldNames.end() && posControlMessage == fieldNames.end()) {
         m_ControlFieldIndex = FIELD_MISSING;
@@ -301,7 +299,7 @@ void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRun
 void CDataFrameAnalyzer::writeDataSummarization(const CDataFrameAnalysisRunner& analysis,
                                                 core::CRapidJsonConcurrentLineWriter& writer) const {
     // Write training data summarization
-    auto dataSummarization = analysis.dataSummarization(*m_DataFrame);
+    auto dataSummarization = analysis.dataSummarization();
     if (dataSummarization != nullptr) {
         dataSummarization->addToDocumentCompressed(writer);
     }
@@ -340,5 +338,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {
     return m_AnalysisSpecification->runner();
 }
+
+const std::string CDataFrameAnalyzer::CONTROL_MESSAGE_FIELD_NAME{"."};
 }
 }

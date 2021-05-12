@@ -90,6 +90,33 @@ std::size_t computeMaximumNumberTrees(double eta) {
 bool intervalIsEmpty(const CBoostedTreeFactory::TVector& interval) {
     return interval(MAX_PARAMETER_INDEX) - interval(MIN_PARAMETER_INDEX) == 0.0;
 }
+
+auto validInputStream(core::CDataSearcher& restoreSearcher) {
+    try {
+        // Note that the search arguments are ignored here.
+        auto inputStream = restoreSearcher.search(1, 1);
+        if (inputStream == nullptr) {
+            LOG_ERROR(<< "Unable to connect to data store.");
+            return decltype(restoreSearcher.search(1, 1)){};
+        }
+
+        if (inputStream->bad()) {
+            LOG_ERROR(<< "State restoration search returned bad stream.");
+            return decltype(restoreSearcher.search(1, 1)){};
+        }
+
+        if (inputStream->fail()) {
+            // If the stream exists and has failed then state is missing.
+            LOG_ERROR(<< "State restoration search returned failed stream.");
+            return decltype(restoreSearcher.search(1, 1)){};
+        }
+        return inputStream;
+
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Failed to restore state! " << e.what());
+    }
+    return decltype(restoreSearcher.search(1, 1)){};
+}
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
@@ -1380,35 +1407,6 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonS
     return result;
 }
 
-template<typename Callback>
-auto CBoostedTreeFactory::restoreTrainedModel(core::CDataSearcher& restoreSearcher,
-                                              const Callback& restoreCallback) {
-    // Restore from compressed JSON.
-    try {
-        core::CDataSearcher::TIStreamP inputStream{restoreSearcher.search(1, 1)}; // search arguments are ignored
-        if (inputStream == nullptr) {
-            LOG_ERROR(<< "Unable to connect to data store");
-            return decltype(restoreCallback(inputStream))();
-        }
-
-        if (inputStream->bad()) {
-            LOG_ERROR(<< "State restoration search returned bad stream");
-            return decltype(restoreCallback(inputStream))();
-        }
-
-        if (inputStream->fail()) {
-            // If the stream exists and has failed then state is missing.
-            LOG_ERROR(<< "State restoration search returned failed stream");
-            return decltype(restoreCallback(inputStream))();
-        }
-        return restoreCallback(inputStream);
-
-    } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to restore state! " << e.what());
-    }
-    return decltype(restoreCallback(core::CDataSearcher::TIStreamP()))();
-}
-
 CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     std::size_t numberThreads,
     TLossFunctionUPtr loss,
@@ -1420,10 +1418,10 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     CBoostedTreeFactory factory{constructFromParameters(numberThreads, std::move(loss))};
 
     // Read data summarization from the stream.
-    TEncoderUPtr encoder{restoreTrainedModel(
-        dataSearcher, [&](const core::CDataSearcher::TIStreamP& inputStream) {
-            return dataSummarizationRestoreCallback(inputStream, frame);
-        })};
+    TEncoderUPtr encoder;
+    TStrSizeUMap encodingsIndices;
+    std::tie(encoder, encodingsIndices) =
+        dataSummarizationRestoreCallback(validInputStream(dataSearcher), frame);
     if (encoder != nullptr) {
         factory.featureEncoder(std::move(encoder));
     } else {
@@ -1431,7 +1429,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
     }
 
     // Read best forest from the stream.
-    TNodeVecVecUPtr bestForest{restoreTrainedModel(dataSearcher, bestForestRestoreCallback)};
+    auto bestForest = bestForestRestoreCallback(validInputStream(dataSearcher), encodingsIndices);
     if (bestForest != nullptr) {
         factory.bestForest(std::move(*bestForest.release()));
     } else {

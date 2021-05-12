@@ -27,8 +27,6 @@ public:
     using TDoubleVec = std::vector<double>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
-    using TSizeStringUMap = boost::unordered_map<std::size_t, std::string>;
-    using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
     using TVector = maths::CBoostedTreeNode::TVector;
     using TApiCustomEncodingUPtr = std::unique_ptr<api::CCustomEncoding>;
     using TApiCustomEncodingUPtrVec = std::vector<TApiCustomEncodingUPtr>;
@@ -36,7 +34,7 @@ public:
 public:
     CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
                                       std::size_t dependentVariableColumnIndex,
-                                      const TStrVecVec& categoryNames);
+                                      TStrVecVec categoryNames);
     ~CBoostedTreeInferenceModelBuilder() override = default;
     void addTree() override;
     void addNode(std::size_t splitFeature,
@@ -61,20 +59,19 @@ protected:
 
 private:
     using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
-    using TOneHotEncodingUMap = boost::unordered_map<std::string, TOneHotEncodingUPtr>;
-    using TStringDoubleUMap = boost::unordered_map<std::string, double>;
+    using TStrOneHotEncodingUPtrUMap = boost::unordered_map<std::string, TOneHotEncodingUPtr>;
+    using TStrDoubleUMap = boost::unordered_map<std::string, double>;
 
 private:
     virtual void setTargetType() = 0;
     virtual void setAggregateOutput(CEnsemble* ensemble) const = 0;
-    TStringDoubleUMap encodingMap(std::size_t inputColumnIndex, const TDoubleVec& map_);
+    TStrDoubleUMap encodingMap(std::size_t inputColumnIndex, const TDoubleVec& map);
 
 private:
     CInferenceModelDefinition m_Definition;
-    TStrVecVec m_CategoryNames;
-    TOneHotEncodingUMap m_OneHotEncodingMaps;
-    TStrVec m_FieldNames;
+    CTrainedModel::CFeatureNameProvider m_FeatureNameProvider;
     TStrVec m_FeatureNames;
+    TStrOneHotEncodingUPtrUMap m_OneHotEncodingMaps;
     TApiCustomEncodingUPtrVec m_CustomProcessors;
 };
 

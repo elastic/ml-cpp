@@ -379,18 +379,21 @@ CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
             // This will be null if we're just computing memory usage.
             auto restoreSearcher = this->spec().restoreSearcher();
             if (restoreSearcher == nullptr) {
-                HANDLE_FATAL(<< "Input error: can't predict or incrementally training without specifying a model.");
+                HANDLE_FATAL(<< "Input error: can't predict or incrementally training without supplying a model.");
                 break;
             }
             *frameAndDirectory = this->makeDataFrame();
-            auto dataSummarizationRestorer = [](const core::CDataSearcher::TIStreamP& inputStream,
+            auto dataSummarizationRestorer = [](CRetrainableModelJsonReader::TIStreamSPtr inputStream,
                                                 core::CDataFrame& frame) {
-                return CRetrainableModelJsonReader::dataSummarizationFromDocumentCompressed(
-                    inputStream, frame);
+                return CRetrainableModelJsonReader::dataSummarizationFromCompressedJsonStream(
+                    std::move(inputStream), frame);
             };
-            auto bestForestRestorer = [](const core::CDataSearcher::TIStreamP& inputStream) {
-                return CRetrainableModelJsonReader::bestForestFromDocumentCompressed(inputStream);
-            };
+            auto bestForestRestorer =
+                [](CRetrainableModelJsonReader::TIStreamSPtr inputStream,
+                   const CRetrainableModelJsonReader::TStrSizeUMap& encodingsIndices) {
+                    return CRetrainableModelJsonReader::bestForestFromCompressedJsonStream(
+                        std::move(inputStream), encodingsIndices);
+                };
             auto& frame = frameAndDirectory->first;
             auto result = std::make_unique<maths::CBoostedTreeFactory>(
                 maths::CBoostedTreeFactory::constructFromDefinition(
@@ -466,21 +469,14 @@ CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::instrumenta
 }
 
 CDataFrameAnalysisRunner::TDataSummarizationJsonWriterUPtr
-CDataFrameTrainBoostedTreeRunner::dataSummarization(const core::CDataFrame& dataFrame) const {
-    std::stringstream output;
-
-    auto encodingRecorder =
-        [&](const std::function<void(core::CStatePersistInserter&)>& persistFunction) -> void {
-        core::CJsonStatePersistInserter inserter{output};
-        persistFunction(inserter);
-    };
-
-    auto rowMask = this->boostedTree().dataSummarization(dataFrame, encodingRecorder);
-    if (rowMask.manhattan() > 0) {
-        return std::make_unique<CDataSummarizationJsonWriter>(
-            dataFrame, rowMask, this->spec().numberColumns(), std::move(output));
+CDataFrameTrainBoostedTreeRunner::dataSummarization() const {
+    auto rowMask = this->boostedTree().dataSummarization();
+    if (rowMask.manhattan() <= 0.0) {
+        return {};
     }
-    return {};
+    return std::make_unique<CDataSummarizationJsonWriter>(
+        this->boostedTree().trainingData(), std::move(rowMask),
+        this->spec().numberColumns(), this->boostedTree().categoryEncoder());
 }
 
 // clang-format off

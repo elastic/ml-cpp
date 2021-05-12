@@ -44,6 +44,41 @@ using TRowItr = core::CDataFrame::TRowItr;
 using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
 using Device = boost::iostreams::basic_array_source<char>;
 using TStreamBuffer = boost::iostreams::stream_buffer<Device>;
+using TStrSizeUMap = CRetrainableModelJsonReader::TStrSizeUMap;
+
+class CEncoderNameIndexMapBuilder final : public maths::CDataFrameCategoryEncoder::CVisitor {
+public:
+    using TStrSizePrVec = std::vector<std::pair<std::string, std::size_t>>;
+    using TStrSizePrVecCItr = TStrSizePrVec::const_iterator;
+
+public:
+    CEncoderNameIndexMapBuilder(TStrVec fieldNames, TStrVecVec categoryNames)
+        : m_FeatureNameProvider{std::move(fieldNames), std::move(categoryNames)} {}
+
+    void addIdentityEncoding(std::size_t inputColumnIndex) override {
+        m_Map.emplace_back(m_FeatureNameProvider.identityEncodingName(inputColumnIndex),
+                           m_Map.size());
+    }
+    void addOneHotEncoding(std::size_t inputColumnIndex, std::size_t hotCategory) override {
+        m_Map.emplace_back(m_FeatureNameProvider.oneHotEncodingName(inputColumnIndex, hotCategory),
+                           m_Map.size());
+    }
+    void addTargetMeanEncoding(std::size_t inputColumnIndex, const TDoubleVec&, double) override {
+        m_Map.emplace_back(m_FeatureNameProvider.targetMeanEncodingName(inputColumnIndex),
+                           m_Map.size());
+    }
+    void addFrequencyEncoding(std::size_t inputColumnIndex, const TDoubleVec&) override {
+        m_Map.emplace_back(m_FeatureNameProvider.frequencyEncodingName(inputColumnIndex),
+                           m_Map.size());
+    }
+
+    TStrSizePrVecCItr begin() const { return m_Map.begin(); }
+    TStrSizePrVecCItr end() const { return m_Map.end(); }
+
+private:
+    CTrainedModel::CFeatureNameProvider m_FeatureNameProvider;
+    TStrSizePrVec m_Map;
+};
 
 template<typename GET, typename VALUE>
 auto ifExists(const std::string& tag, const GET& get, const VALUE& value)
@@ -107,6 +142,22 @@ std::size_t getStringLengthFrom(const rapidjson::Value& value) {
     return value.GetStringLength();
 }
 
+std::size_t lookup(const TStrSizeUMap& encodingsIndices,
+                   const TStrVec& featureNames,
+                   std::size_t featureIndex) {
+    if (featureIndex > featureNames.size()) {
+        LOG_ERROR(<< "Feature name index '" << featureIndex
+                  << "' out of bounds '" << featureNames.size() << "'.");
+        throw std::runtime_error{""};
+    }
+    auto encodingIndex = encodingsIndices.find(featureNames[featureIndex]);
+    if (encodingIndex == encodingsIndices.end()) {
+        LOG_ERROR(<< "No encoding index for '" << featureNames[featureIndex] << "'.");
+        throw std::runtime_error{""};
+    }
+    return encodingIndex->second;
+}
+
 auto decompressStream(boost::iostreams::stream_buffer<Device>& buffer) {
     auto result = std::make_shared<TFilteredInput>();
     result->push(boost::iostreams::gzip_decompressor());
@@ -122,6 +173,9 @@ const std::string JSON_NUM_COLUMNS_TAG{"num_columns"};
 const std::string JSON_COLUMN_NAMES_TAG{"column_names"};
 const std::string JSON_COLUMN_IS_CATEGORICAL_TAG{"column_is_categorical"};
 const std::string JSON_CATEGORICAL_COLUMN_VALUES_TAG{"categorical_column_values"};
+const std::string JSON_ENCODING_NAME_INDEX_MAP_TAG{"encodings_indices"};
+const std::string JSON_ENCODING_NAME_INDEX_MAP_KEY_TAG{"encoding_name"};
+const std::string JSON_ENCODING_NAME_INDEX_MAP_VALUE_TAG{"encoding_index"};
 const std::string JSON_ENCODINGS_TAG{"encodings"};
 const std::string JSON_DATA_TAG{"data"};
 // clang-format on
@@ -130,9 +184,8 @@ const std::string JSON_DATA_TAG{"data"};
 CDataSummarizationJsonWriter::CDataSummarizationJsonWriter(const core::CDataFrame& frame,
                                                            core::CPackedBitVector rowMask,
                                                            std::size_t numberColumns,
-                                                           std::stringstream encodings)
-    : m_RowMask{std::move(rowMask)}, m_NumberColumns{numberColumns}, m_Frame{frame},
-      m_Encodings{std::move(encodings)} {
+                                                           const maths::CDataFrameCategoryEncoder& encodings)
+    : m_RowMask{std::move(rowMask)}, m_NumberColumns{numberColumns}, m_Frame{frame}, m_Encodings{encodings} {
 }
 
 void CDataSummarizationJsonWriter::addToDocumentCompressed(TRapidJsonWriter& writer) const {
@@ -172,9 +225,28 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
     }
     writer.EndArray();
 
+    CEncoderNameIndexMapBuilder encodingIndices{m_Frame.columnNames(),
+                                                m_Frame.categoricalColumnValues()};
+    m_Encodings.accept(encodingIndices);
+    writer.Key(JSON_ENCODING_NAME_INDEX_MAP_TAG);
+    writer.StartArray();
+    for (const auto& index : encodingIndices) {
+        writer.StartObject();
+        writer.Key(JSON_ENCODING_NAME_INDEX_MAP_KEY_TAG);
+        writer.String(index.first);
+        writer.Key(JSON_ENCODING_NAME_INDEX_MAP_VALUE_TAG);
+        writer.Uint64(index.second);
+        writer.EndObject();
+    }
+    writer.EndArray();
+
     rapidjson::Document doc;
-    doc.Parse(m_Encodings.str());
-    rapidjson::ParseResult ok(doc.Parse(m_Encodings.str()));
+    std::stringstream encodings;
+    {
+        core::CJsonStatePersistInserter inserter{encodings};
+        m_Encodings.acceptPersistInserter(inserter);
+    }
+    rapidjson::ParseResult ok(doc.Parse(encodings.str()));
     if (static_cast<bool>(ok) == false) {
         LOG_ERROR(<< "Failed parsing encoding json. Please report this error.");
     } else {
@@ -217,19 +289,19 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
     writer.EndObject();
 }
 
-CRetrainableModelJsonReader::TEncoderUPtr
+CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
 CRetrainableModelJsonReader::dataSummarizationFromJsonStream(TIStreamSPtr istream,
                                                              core::CDataFrame& frame) {
     if (istream == nullptr) {
-        return nullptr;
+        return {nullptr, TStrSizeUMap{}};
     }
     try {
         return dataSummarizationFromJson(*istream, frame);
     } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
-    return nullptr;
+    return {nullptr, TStrSizeUMap{}};
 }
 
-CRetrainableModelJsonReader::TEncoderUPtr
+CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
 CRetrainableModelJsonReader::dataSummarizationFromJson(std::istream& istream,
                                                        core::CDataFrame& frame) {
     rapidjson::IStreamWrapper isw(istream);
@@ -263,6 +335,14 @@ CRetrainableModelJsonReader::dataSummarizationFromJson(std::istream& istream,
         ++i;
     }
 
+    TStrSizeUMap encodingIndices;
+    for (const auto& entry :
+         ifExists(JSON_ENCODING_NAME_INDEX_MAP_TAG, getAsArrayFrom, doc)) {
+        encodingIndices.emplace(
+            ifExists(JSON_ENCODING_NAME_INDEX_MAP_KEY_TAG, getAsStringFrom, entry),
+            ifExists(JSON_ENCODING_NAME_INDEX_MAP_VALUE_TAG, getAsUint64From, entry));
+    }
+
     ifExists(JSON_ENCODINGS_TAG, getAsObjectFrom, doc); // Validate the nested object exists.
     TEncoderUPtr encodings;
     std::stringstream jsonStrm;
@@ -291,14 +371,14 @@ CRetrainableModelJsonReader::dataSummarizationFromJson(std::istream& istream,
     }
     frame.finishWritingRows();
 
-    return encodings;
+    return {std::move(encodings), std::move(encodingIndices)};
 }
 
-CRetrainableModelJsonReader::TEncoderUPtr
-CRetrainableModelJsonReader::dataSummarizationFromDocumentCompressed(TIStreamSPtr istream,
-                                                                     core::CDataFrame& frame) {
+CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
+CRetrainableModelJsonReader::dataSummarizationFromCompressedJsonStream(TIStreamSPtr istream,
+                                                                       core::CDataFrame& frame) {
     if (istream == nullptr) {
-        return nullptr;
+        return {nullptr, TStrSizeUMap{}};
     }
     try {
         rapidjson::IStreamWrapper isw{*istream};
@@ -312,22 +392,24 @@ CRetrainableModelJsonReader::dataSummarizationFromDocumentCompressed(TIStreamSPt
                                       compressedDataSummarization)};
         return dataSummarizationFromJsonStream(decompressStream(buffer), frame);
     } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
-    return nullptr;
+    return {nullptr, TStrSizeUMap{}};
 }
 
 CRetrainableModelJsonReader::TNodeVecVecUPtr
-CRetrainableModelJsonReader::bestForestFromJsonStream(TIStreamSPtr istream) {
+CRetrainableModelJsonReader::bestForestFromJsonStream(TIStreamSPtr istream,
+                                                      const TStrSizeUMap& encodingIndices) {
     if (istream == nullptr) {
         return nullptr;
     }
     try {
-        return bestForestFromJson(*istream);
+        return bestForestFromJson(*istream, encodingIndices);
     } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     return nullptr;
 }
 
 CRetrainableModelJsonReader::TNodeVecVecUPtr
-CRetrainableModelJsonReader::bestForestFromJson(std::istream& istream) {
+CRetrainableModelJsonReader::bestForestFromJson(std::istream& istream,
+                                                const TStrSizeUMap& encodingIndices) {
     using TNodeVec = maths::CBoostedTreeFactory::TNodeVec;
     using TNodeVecVec = maths::CBoostedTreeFactory::TNodeVecVec;
 
@@ -378,8 +460,9 @@ CRetrainableModelJsonReader::bestForestFromJson(std::istream& istream) {
                 }
             } else {
                 // Add a split node.
-                std::size_t splitFeature{ifExists(CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG,
-                                                  getAsUint64From, node)};
+                std::size_t splitFeature{lookup(encodingIndices, featureNames,
+                                                ifExists(CTree::CTreeNode::JSON_SPLIT_FEATURE_TAG,
+                                                         getAsUint64From, node))};
                 double gain{ifExists(CTree::CTreeNode::JSON_SPLIT_GAIN_TAG,
                                      getAsDoubleFrom, node)};
                 double splitValue{ifExists(CTree::CTreeNode::JSON_THRESHOLD_TAG,
@@ -406,7 +489,8 @@ CRetrainableModelJsonReader::bestForestFromJson(std::istream& istream) {
 }
 
 CRetrainableModelJsonReader::TNodeVecVecUPtr
-CRetrainableModelJsonReader::bestForestFromDocumentCompressed(TIStreamSPtr istream) {
+CRetrainableModelJsonReader::bestForestFromCompressedJsonStream(TIStreamSPtr istream,
+                                                                const TStrSizeUMap& encodingIndices) {
     if (istream == nullptr) {
         return nullptr;
     }
@@ -421,7 +505,7 @@ CRetrainableModelJsonReader::bestForestFromDocumentCompressed(TIStreamSPtr istre
                                       getAsStringFrom, compressedDataSummarization),
                              ifExists(CInferenceModelDefinition::JSON_DEFINITION_TAG,
                                       getStringLengthFrom, compressedDataSummarization)};
-        return bestForestFromJsonStream(decompressStream(buffer));
+        return bestForestFromJsonStream(decompressStream(buffer), encodingIndices);
     } catch (const std::exception& e) { LOG_ERROR(<< e.what()); }
     return nullptr;
 }
