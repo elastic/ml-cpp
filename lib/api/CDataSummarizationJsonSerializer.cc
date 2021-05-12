@@ -21,11 +21,6 @@
 #include <rapidjson/istreamwrapper.h>
 #include <rapidjson/rapidjson.h>
 
-#include <boost/iostreams/copy.hpp>
-#include <boost/iostreams/device/array.hpp>
-#include <boost/iostreams/filter/gzip.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -41,9 +36,6 @@ using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 using TRowItr = core::CDataFrame::TRowItr;
-using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
-using Device = boost::iostreams::basic_array_source<char>;
-using TStreamBuffer = boost::iostreams::stream_buffer<Device>;
 using TStrSizeUMap = CRetrainableModelJsonReader::TStrSizeUMap;
 
 class CEncoderNameIndexMapBuilder final : public maths::CDataFrameCategoryEncoder::CVisitor {
@@ -80,90 +72,19 @@ private:
     TStrSizePrVec m_Map;
 };
 
-template<typename GET, typename VALUE>
-auto ifExists(const std::string& tag, const GET& get, const VALUE& value)
-    -> decltype(get(value[tag])) {
-    if (value.HasMember(tag)) {
-        try {
-            return get(value[tag]);
-        } catch (const std::runtime_error& e) {
-            throw std::runtime_error("Field '" + tag + "' " + e.what() + ".");
-        }
-    }
-    throw std::runtime_error{"Field '" + tag + "' is missing."};
-}
-
-auto getAsObjectFrom(const rapidjson::Value& value) {
-    if (value.IsObject() == false) {
-        throw std::runtime_error{"is not an object"};
-    }
-    return value.GetObject();
-}
-
-auto getAsArrayFrom(const rapidjson::Value& value) {
-    if (value.IsArray() == false) {
-        throw std::runtime_error{"is not an array"};
-    }
-    return value.GetArray();
-}
-
-bool getAsBoolFrom(const rapidjson::Value& value) {
-    if (value.IsBool() == false) {
-        throw std::runtime_error{"is not a bool"};
-    }
-    return value.GetBool();
-}
-
-std::uint64_t getAsUint64From(const rapidjson::Value& value) {
-    if (value.IsUint64() == false) {
-        throw std::runtime_error{"is not a uint64"};
-    }
-    return value.GetUint64();
-}
-
-double getAsDoubleFrom(const rapidjson::Value& value) {
-    if (value.IsDouble() == false) {
-        throw std::runtime_error{"is not a double"};
-    }
-    return value.GetDouble();
-}
-
-auto getAsStringFrom(const rapidjson::Value& value) {
-    if (value.IsString() == false) {
-        throw std::runtime_error{"is not a string"};
-    }
-    return value.GetString();
-}
-
-std::size_t getStringLengthFrom(const rapidjson::Value& value) {
-    if (value.IsString() == false) {
-        throw std::runtime_error{"is not a string"};
-    }
-    return value.GetStringLength();
-}
-
 std::size_t lookup(const TStrSizeUMap& encodingsIndices,
                    const TStrVec& featureNames,
                    std::size_t featureIndex) {
     if (featureIndex > featureNames.size()) {
-        LOG_ERROR(<< "Feature name index '" << featureIndex
-                  << "' out of bounds '" << featureNames.size() << "'.");
-        throw std::runtime_error{""};
+        throw std::runtime_error{"Feature name index '" +
+                                 std::to_string(featureIndex) + "' out of bounds '" +
+                                 std::to_string(featureNames.size()) + "'."};
     }
     auto encodingIndex = encodingsIndices.find(featureNames[featureIndex]);
     if (encodingIndex == encodingsIndices.end()) {
-        LOG_ERROR(<< "No encoding index for '" << featureNames[featureIndex] << "'.");
-        throw std::runtime_error{""};
+        throw std::runtime_error{"No encoding index for '" + featureNames[featureIndex] + "'."};
     }
     return encodingIndex->second;
-}
-
-auto decompressStream(boost::iostreams::stream_buffer<Device>& buffer) {
-    auto result = std::make_shared<TFilteredInput>();
-    result->push(boost::iostreams::gzip_decompressor());
-    result->push(core::CBase64Decoder());
-    result->push(buffer);
-    return result;
 }
 
 // clang-format off
@@ -188,15 +109,9 @@ CDataSummarizationJsonWriter::CDataSummarizationJsonWriter(const core::CDataFram
     : m_RowMask{std::move(rowMask)}, m_NumberColumns{numberColumns}, m_Frame{frame}, m_Encodings{encodings} {
 }
 
-void CDataSummarizationJsonWriter::addToDocumentCompressed(TRapidJsonWriter& writer) const {
-    this->CSerializableToJsonDocumentCompressed::addToDocumentCompressed(
-        writer, JSON_COMPRESSED_DATA_SUMMARIZATION_TAG, JSON_DATA_SUMMARIZATION_TAG);
-}
-
-std::string CDataSummarizationJsonWriter::jsonString() const {
-    std::ostringstream jsonStrm;
-    this->jsonStream(jsonStrm);
-    return jsonStrm.str();
+void CDataSummarizationJsonWriter::addCompressedToJsonStream(TRapidJsonWriter& writer) const {
+    this->CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
+        JSON_COMPRESSED_DATA_SUMMARIZATION_TAG, JSON_DATA_SUMMARIZATION_TAG, writer);
 }
 
 void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) const {
@@ -292,18 +207,17 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
 CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
 CRetrainableModelJsonReader::dataSummarizationFromJsonStream(TIStreamSPtr istream,
                                                              core::CDataFrame& frame) {
-    if (istream == nullptr) {
-        return {nullptr, TStrSizeUMap{}};
+    if (istream != nullptr) {
+        try {
+            return doDataSummarizationFromJsonStream(*istream, frame);
+        } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     }
-    try {
-        return dataSummarizationFromJson(*istream, frame);
-    } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     return {nullptr, TStrSizeUMap{}};
 }
 
 CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
-CRetrainableModelJsonReader::dataSummarizationFromJson(std::istream& istream,
-                                                       core::CDataFrame& frame) {
+CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& istream,
+                                                               core::CDataFrame& frame) {
     rapidjson::IStreamWrapper isw(istream);
     rapidjson::Document doc;
     doc.ParseStream(isw);
@@ -377,39 +291,27 @@ CRetrainableModelJsonReader::dataSummarizationFromJson(std::istream& istream,
 CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
 CRetrainableModelJsonReader::dataSummarizationFromCompressedJsonStream(TIStreamSPtr istream,
                                                                        core::CDataFrame& frame) {
-    if (istream == nullptr) {
-        return {nullptr, TStrSizeUMap{}};
-    }
-    try {
-        rapidjson::IStreamWrapper isw{*istream};
-        rapidjson::Document doc;
-        doc.ParseStream(isw);
-        auto compressedDataSummarization =
-            ifExists(JSON_COMPRESSED_DATA_SUMMARIZATION_TAG, getAsObjectFrom, doc);
-        TStreamBuffer buffer{ifExists(JSON_DATA_SUMMARIZATION_TAG, getAsStringFrom,
-                                      compressedDataSummarization),
-                             ifExists(JSON_DATA_SUMMARIZATION_TAG, getStringLengthFrom,
-                                      compressedDataSummarization)};
-        return dataSummarizationFromJsonStream(decompressStream(buffer), frame);
-    } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
-    return {nullptr, TStrSizeUMap{}};
+    std::stringstream buffer;
+    return dataSummarizationFromJsonStream(
+        rawJsonStream(JSON_COMPRESSED_DATA_SUMMARIZATION_TAG,
+                      JSON_DATA_SUMMARIZATION_TAG, std::move(istream), buffer),
+        frame);
 }
 
 CRetrainableModelJsonReader::TNodeVecVecUPtr
 CRetrainableModelJsonReader::bestForestFromJsonStream(TIStreamSPtr istream,
                                                       const TStrSizeUMap& encodingIndices) {
-    if (istream == nullptr) {
-        return nullptr;
+    if (istream != nullptr) {
+        try {
+            return doBestForestFromJsonStream(*istream, encodingIndices);
+        } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     }
-    try {
-        return bestForestFromJson(*istream, encodingIndices);
-    } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     return nullptr;
 }
 
 CRetrainableModelJsonReader::TNodeVecVecUPtr
-CRetrainableModelJsonReader::bestForestFromJson(std::istream& istream,
-                                                const TStrSizeUMap& encodingIndices) {
+CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
+                                                        const TStrSizeUMap& encodingIndices) {
     using TNodeVec = maths::CBoostedTreeFactory::TNodeVec;
     using TNodeVecVec = maths::CBoostedTreeFactory::TNodeVecVec;
 
@@ -491,23 +393,12 @@ CRetrainableModelJsonReader::bestForestFromJson(std::istream& istream,
 CRetrainableModelJsonReader::TNodeVecVecUPtr
 CRetrainableModelJsonReader::bestForestFromCompressedJsonStream(TIStreamSPtr istream,
                                                                 const TStrSizeUMap& encodingIndices) {
-    if (istream == nullptr) {
-        return nullptr;
-    }
-    try {
-        rapidjson::IStreamWrapper isw{*istream};
-        rapidjson::Document doc;
-        doc.ParseStream(isw);
-        auto compressedDataSummarization =
-            ifExists(CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG,
-                     getAsObjectFrom, doc);
-        TStreamBuffer buffer{ifExists(CInferenceModelDefinition::JSON_DEFINITION_TAG,
-                                      getAsStringFrom, compressedDataSummarization),
-                             ifExists(CInferenceModelDefinition::JSON_DEFINITION_TAG,
-                                      getStringLengthFrom, compressedDataSummarization)};
-        return bestForestFromJsonStream(decompressStream(buffer), encodingIndices);
-    } catch (const std::exception& e) { LOG_ERROR(<< e.what()); }
-    return nullptr;
+    std::stringstream buffer;
+    return bestForestFromJsonStream(
+        rawJsonStream(CInferenceModelDefinition::JSON_COMPRESSED_INFERENCE_MODEL_TAG,
+                      CInferenceModelDefinition::JSON_DEFINITION_TAG,
+                      std::move(istream), buffer),
+        encodingIndices);
 }
 }
 }

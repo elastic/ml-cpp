@@ -276,7 +276,7 @@ void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& ana
         writer.Key(modelDefinitionSizeInfo->typeString());
         writer.write(sizeInfoObject);
         writer.EndObject();
-        modelDefinition->addToDocumentCompressed(writer);
+        modelDefinition->addCompressedToJsonStream(writer);
     }
     writer.flush();
 }
@@ -301,7 +301,7 @@ void CDataFrameAnalyzer::writeDataSummarization(const CDataFrameAnalysisRunner& 
     // Write training data summarization
     auto dataSummarization = analysis.dataSummarization();
     if (dataSummarization != nullptr) {
-        dataSummarization->addToDocumentCompressed(writer);
+        dataSummarization->addCompressedToJsonStream(writer);
     }
     writer.flush();
 }

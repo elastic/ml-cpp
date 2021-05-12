@@ -191,7 +191,7 @@ public:
 public:
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Names of the features used by the model.
-    virtual const TStringVec& featureNames() const;
+    const TStringVec& featureNames() const;
     //! Names of the features used by the model.
     virtual void featureNames(TStringVec featureNames);
     //! Sets target type (regression or classification).
@@ -210,6 +210,9 @@ public:
     virtual const TOptionalDoubleVec& classificationWeights() const;
     //! Get the object for model size with information for estimation.
     virtual TSizeInfoUPtr sizeInfo() const = 0;
+
+protected:
+    TStringVec& featureNames();
 
 private:
     TStringVec m_FeatureNames;
@@ -532,7 +535,7 @@ private:
 };
 
 //! \brief Technical details required for model evaluation.
-class API_EXPORT CInferenceModelDefinition : public CSerializableToJsonDocumentCompressed {
+class API_EXPORT CInferenceModelDefinition : public CSerializableToCompressedChunkedJson {
 public:
     using TApiEncodingUPtr = std::unique_ptr<api::CEncoding>;
     using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
@@ -581,8 +584,7 @@ public:
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
     void addToJsonStream(TGenericLineWriter& writer) const final;
-    void addToDocumentCompressed(TRapidJsonWriter& writer) const final;
-    std::string jsonString() const;
+    void addCompressedToJsonStream(TRapidJsonWriter& writer) const final;
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;

@@ -34,7 +34,7 @@ namespace api {
 //! DESCRIPTION:\n
 //! The data summarization contains data rows as well as the feature value encoding
 //! information.
-class API_EXPORT CDataSummarizationJsonWriter final : public CSerializableToJsonDocumentCompressed {
+class API_EXPORT CDataSummarizationJsonWriter final : public CSerializableToCompressedChunkedJson {
 public:
     CDataSummarizationJsonWriter(const core::CDataFrame& frame,
                                  core::CPackedBitVector rowMask,
@@ -48,12 +48,7 @@ public:
     void addToJsonStream(TGenericLineWriter& writer) const override;
 
     //! Write a compressed and chunked JSON data summarisation.
-    void addToDocumentCompressed(TRapidJsonWriter& writer) const override;
-
-    //! \name Test Only
-    //@{
-    std::string jsonString() const;
-    //@}
+    void addCompressedToJsonStream(TRapidJsonWriter& writer) const override;
 
 private:
     core::CPackedBitVector m_RowMask;
@@ -65,8 +60,7 @@ private:
 //! \brief Reads a compressed, base64 encoded chunked JSON representation of a
 //! data summarisation and an inference model which can be used to initialise
 //! incremental training.
-// TODO #1849 reading from chunked output is not supported yet.
-class API_EXPORT CRetrainableModelJsonReader {
+class API_EXPORT CRetrainableModelJsonReader : private CSerializableFromCompressedChunkedJson {
 public:
     using TEncoderUPtr = maths::CBoostedTreeFactory::TEncoderUPtr;
     using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
@@ -93,9 +87,9 @@ public:
 
 private:
     static TEncoderUPtrStrSizeUMapPr
-    dataSummarizationFromJson(std::istream& istream, core::CDataFrame& frame);
-    static TNodeVecVecUPtr bestForestFromJson(std::istream& istream,
-                                              const TStrSizeUMap& encodingIndices);
+    doDataSummarizationFromJsonStream(std::istream& istream, core::CDataFrame& frame);
+    static TNodeVecVecUPtr doBestForestFromJsonStream(std::istream& istream,
+                                                      const TStrSizeUMap& encodingIndices);
 };
 }
 }
