@@ -134,7 +134,7 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                 buffer.write(ifExists(payloadTag, getAsStringFrom, chunk),
                              ifExists(payloadTag, getStringLengthFrom, chunk));
                 done = chunk.HasMember(JSON_EOS_TAG);
-            } while (done == false && inputStream->eof() == false);
+            } while (done == false);
             consumeSpace(*inputStream);
             return decodeAndDecompress(buffer);
         } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
