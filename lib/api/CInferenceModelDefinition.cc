@@ -327,15 +327,9 @@ const CTree::TStringVec& CTree::removeUnusedFeatures() {
     return this->featureNames();
 }
 
-std::string CInferenceModelDefinition::jsonString() const {
-    std::ostringstream jsonStrm;
-    this->jsonStream(jsonStrm);
-    return jsonStrm.str();
-}
-
-void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer) const {
-    CSerializableToJsonDocumentCompressed::addToDocumentCompressed(
-        writer, JSON_COMPRESSED_INFERENCE_MODEL_TAG, JSON_DEFINITION_TAG);
+void CInferenceModelDefinition::addCompressedToJsonStream(TRapidJsonWriter& writer) const {
+    this->CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
+        JSON_COMPRESSED_INFERENCE_MODEL_TAG, JSON_DEFINITION_TAG, writer);
 }
 
 void CInferenceModelDefinition::addToJsonStream(TGenericLineWriter& writer) const {
@@ -392,6 +386,10 @@ void CTrainedModel::addToJsonStream(TGenericLineWriter& writer) const {
 }
 
 const CTrainedModel::TStringVec& CTrainedModel::featureNames() const {
+    return m_FeatureNames;
+}
+
+CTrainedModel::TStringVec& CTrainedModel::featureNames() {
     return m_FeatureNames;
 }
 
