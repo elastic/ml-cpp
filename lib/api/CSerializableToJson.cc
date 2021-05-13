@@ -92,8 +92,8 @@ void CSerializableToCompressedChunkedJson::addCompressedToJsonStream(
 
     TCharVec buffer;
     buffer.reserve(m_MaxDocumentSize);
-    io::stream<io::back_insert_device<TCharVec>> output{io::back_inserter(buffer)};
-    compressAndEncode(this->callableAddToJsonStream(), output);
+    io::stream<io::back_insert_device<TCharVec>> bufferStream{io::back_inserter(buffer)};
+    compressAndEncode(this->callableAddToJsonStream(), bufferStream);
 
     std::size_t docNum{0};
     for (std::size_t i = 0; i < buffer.size(); i += m_MaxDocumentSize) {
@@ -130,13 +130,17 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
             bool done{false};
             do {
                 doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(isw);
+                assertNoParseError(doc);
                 auto chunk = ifExists(compressedDocTag, getAsObjectFrom, doc);
                 buffer.write(ifExists(payloadTag, getAsStringFrom, chunk),
                              ifExists(payloadTag, getStringLengthFrom, chunk));
                 done = chunk.HasMember(JSON_EOS_TAG);
             } while (done == false);
+
             consumeSpace(*inputStream);
+
             return decodeAndDecompress(buffer);
+
         } catch (const std::runtime_error& e) { LOG_ERROR(<< e.what()); }
     }
     return nullptr;

@@ -12,6 +12,7 @@
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
+#include <rapidjson/error/en.h>
 #include <rapidjson/ostreamwrapper.h>
 #include <rapidjson/rapidjson.h>
 
@@ -128,6 +129,15 @@ protected:
                                      const std::string& payloadTag,
                                      TIStreamPtr inputStream,
                                      std::iostream& buffer);
+
+    static void assertNoParseError(const rapidjson::Document& doc) {
+        if (doc.HasParseError()) {
+            const char* error{rapidjson::GetParseError_En(doc.GetParseError())};
+            throw std::runtime_error{"Error parsing JSON at offset " +
+                                     std::to_string(doc.GetErrorOffset()) + ": " +
+                                     ((error != nullptr) ? error : "No message")};
+        }
+    }
 
     template<typename GET, typename VALUE>
     static auto ifExists(const std::string& tag, const GET& get, const VALUE& value)

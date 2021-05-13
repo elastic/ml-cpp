@@ -221,6 +221,7 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
     rapidjson::IStreamWrapper isw(istream);
     rapidjson::Document doc;
     doc.ParseStream(isw);
+    assertNoParseError(doc);
 
     std::size_t numberColumns{ifExists(JSON_NUM_COLUMNS_TAG, getAsUint64From, doc)};
 
@@ -318,6 +319,8 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
     rapidjson::IStreamWrapper isw{istream};
     rapidjson::Document doc;
     doc.ParseStream(isw);
+    assertNoParseError(doc);
+
     auto inferenceModel = ifExists(CInferenceModelDefinition::JSON_TRAINED_MODEL_TAG,
                                    getAsObjectFrom, doc);
     auto ensemble = ifExists(CEnsemble::JSON_ENSEMBLE_TAG, getAsObjectFrom, inferenceModel);
