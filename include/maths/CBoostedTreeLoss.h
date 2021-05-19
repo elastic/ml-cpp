@@ -105,9 +105,9 @@ private:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 private:
-    double m_Eta;
-    double m_Mu;
-    const TNodeVec* m_Tree;
+    double m_Eta = 0.0;
+    double m_Mu = 0.0;
+    const TNodeVec* m_Tree = nullptr;
     TMeanAccumulator m_MeanError;
     TMeanAccumulator m_MeanTreePredictions;
 };
@@ -291,6 +291,59 @@ private:
     }
 
 private:
+    std::size_t m_CurrentPass = 0;
+    TMinMaxAccumulator m_PredictionMinMax;
+    TDoubleVector2x1 m_ClassCounts;
+    TDoubleVector2x1Vec m_BucketsClassCounts;
+};
+
+//! TODO
+class MATHS_EXPORT CArgMinBinomialLogisticLossIncrementalImpl final : public CArgMinLossImpl {
+public:
+    explicit CArgMinBinomialLogisticLossIncrementalImpl(double lambda,
+                                                        double eta,
+                                                        double mu,
+                                                        const TNodeVec& tree);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(const CEncodedDataFrameRowRef& row,
+             bool newExample,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override;
+    void merge(const CArgMinLossImpl& other) override;
+    TDoubleVector value() const override;
+
+private:
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+    using TDoubleVector2x1 = CVectorNx1<double, 2>;
+    using TDoubleVector2x1Vec = std::vector<TDoubleVector2x1>;
+
+private:
+    static constexpr std::size_t NUMBER_BUCKETS = 128;
+
+private:
+    std::size_t bucket(double prediction) const {
+        double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
+        return std::min(static_cast<std::size_t>(bucket), m_BucketsClassCounts.size() - 1);
+    }
+
+    double bucketCentre(std::size_t bucket) const {
+        return m_PredictionMinMax.min() +
+               (static_cast<double>(bucket) + 0.5) * this->bucketWidth();
+    }
+
+    double bucketWidth() const {
+        return m_PredictionMinMax.initialized()
+                   ? m_PredictionMinMax.range() /
+                         static_cast<double>(m_BucketsClassCounts.size())
+                   : 0.0;
+    }
+
+private:
+    double m_Eta = 0.0;
+    double m_Mu = 0.0;
+    const TNodeVec* m_Tree = nullptr;
     std::size_t m_CurrentPass = 0;
     TMinMaxAccumulator m_PredictionMinMax;
     TDoubleVector2x1 m_ClassCounts;
@@ -503,8 +556,8 @@ public:
     static const std::string NAME;
 
 public:
-    explicit CMse(core::CStateRestoreTraverser& traverser);
     CMse() = default;
+    explicit CMse(core::CStateRestoreTraverser& traverser);
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
@@ -556,9 +609,8 @@ public:
     static const std::string NAME;
 
 public:
-    explicit CMseIncremental(core::CStateRestoreTraverser& traverser);
     CMseIncremental(double eta, double mu, const TNodeVec& tree);
-    CMseIncremental() = default;
+    [[noreturn]] explicit CMseIncremental(core::CStateRestoreTraverser& traverser);
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
@@ -596,8 +648,8 @@ public:
     bool isRegression() const override;
 
 private:
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+    void acceptPersistInserter(core::CStatePersistInserter&) const override {}
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser&) override;
 
 private:
     double m_Eta = 0.0;
@@ -619,8 +671,8 @@ public:
     static const std::string NAME;
 
 public:
-    explicit CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     CBinomialLogisticLoss() = default;
+    explicit CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
@@ -667,6 +719,53 @@ private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
+//! TODO
+class MATHS_EXPORT CBinomialLogisticLossIncremental final : public CLoss {
+public:
+    static const std::string NAME;
+
+public:
+    CBinomialLogisticLossIncremental(double eta, double mu, const TNodeVec& tree);
+    [[noreturn]] explicit CBinomialLogisticLossIncremental(core::CStateRestoreTraverser& traverser);
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
+    ELossType type() const override;
+    std::size_t numberParameters() const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const CEncodedDataFrameRowRef& row,
+                  bool newExample,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override;
+    void curvature(const CEncodedDataFrameRowRef& row,
+                   bool newExample,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override;
+    bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
+    //! \return (P(class 0), P(class 1)).
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
+    CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
+    const std::string& name() const override;
+    bool isRegression() const override;
+
+private:
+    void acceptPersistInserter(core::CStatePersistInserter&) const override {}
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
+private:
+    double m_Eta = 0.0;
+    double m_Mu = 0.0;
+    const TNodeVec* m_Tree = nullptr;
+};
+
 //!  \brief Implements loss for multinomial logistic regression.
 //!
 //! DESCRIPTION:\n
@@ -683,8 +782,8 @@ public:
     static const std::string NAME;
 
 public:
-    explicit CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     explicit CMultinomialLogisticLoss(std::size_t numberClasses);
+    explicit CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     ELossType type() const override;
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
@@ -752,8 +851,8 @@ public:
     static const std::string NAME;
 
 public:
-    explicit CMsle(core::CStateRestoreTraverser& traverser);
     explicit CMsle(double offset = 1.0);
+    explicit CMsle(core::CStateRestoreTraverser& traverser);
     ELossType type() const override;
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
@@ -830,8 +929,8 @@ public:
     static const std::string NAME;
 
 public:
-    explicit CPseudoHuber(core::CStateRestoreTraverser& traverser);
     explicit CPseudoHuber(double delta);
+    explicit CPseudoHuber(core::CStateRestoreTraverser& traverser);
     ELossType type() const override;
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;

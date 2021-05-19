@@ -302,6 +302,142 @@ CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::
     return result;
 }
 
+CArgMinBinomialLogisticLossIncrementalImpl::CArgMinBinomialLogisticLossIncrementalImpl(
+    double lambda,
+    double eta,
+    double mu,
+    const TNodeVec& tree)
+    : CArgMinLossImpl{lambda}, m_Eta{eta}, m_Mu{mu}, m_Tree{&tree}, m_ClassCounts{0},
+      m_BucketsClassCounts(NUMBER_BUCKETS, TDoubleVector2x1{0.0}) {
+}
+
+std::unique_ptr<CArgMinLossImpl> CArgMinBinomialLogisticLossIncrementalImpl::clone() const {
+    return std::make_unique<CArgMinBinomialLogisticLossIncrementalImpl>(*this);
+}
+
+bool CArgMinBinomialLogisticLossIncrementalImpl::nextPass() {
+    m_CurrentPass += this->bucketWidth() > 0.0 ? 1 : 2;
+    return m_CurrentPass < 2;
+}
+
+void CArgMinBinomialLogisticLossIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
+                                                     bool newExample,
+                                                     const TMemoryMappedFloatVector& prediction,
+                                                     double actual,
+                                                     double weight) {
+    if (newExample) {
+        switch (m_CurrentPass) {
+        case 0: {
+            m_PredictionMinMax.add(prediction(0));
+            m_ClassCounts(static_cast<std::size_t>(actual)) += weight;
+            break;
+        }
+        case 1: {
+            auto& count = m_BucketsClassCounts[this->bucket(prediction(0))];
+            count(static_cast<std::size_t>(actual)) += weight;
+            break;
+        }
+        default:
+            break;
+        }
+    } else {
+        // TODO
+    }
+}
+
+void CArgMinBinomialLogisticLossIncrementalImpl::merge(const CArgMinLossImpl& other) {
+    const auto* logistic =
+        dynamic_cast<const CArgMinBinomialLogisticLossIncrementalImpl*>(&other);
+    if (logistic != nullptr) {
+        switch (m_CurrentPass) {
+        case 0:
+            m_PredictionMinMax += logistic->m_PredictionMinMax;
+            m_ClassCounts += logistic->m_ClassCounts;
+            break;
+        case 1:
+            for (std::size_t i = 0; i < m_BucketsClassCounts.size(); ++i) {
+                m_BucketsClassCounts[i] += logistic->m_BucketsClassCounts[i];
+            }
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+CArgMinBinomialLogisticLossIncrementalImpl::TDoubleVector
+CArgMinBinomialLogisticLossIncrementalImpl::value() const {
+
+    std::function<double(double)> objective;
+    double minWeight;
+    double maxWeight;
+
+    // This is true if and only if all the predictions were identical. In this
+    // case we only need one pass over the data and can compute the optimal
+    // value from the counts of the two categories.
+    if (this->bucketWidth() == 0.0) {
+        // This is the (unique) predicted value for the rows in leaf by the forest
+        // so far (i.e. without the weight for the leaf we're about to add).
+        double prediction{m_PredictionMinMax.initialized()
+                              ? (m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0
+                              : 0.0};
+        objective = [prediction, this](double weight) {
+            double logOdds{prediction + weight};
+            double c0{m_ClassCounts(0)};
+            double c1{m_ClassCounts(1)};
+            return this->lambda() * CTools::pow2(weight) -
+                   c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds);
+        };
+
+        // Weight shrinkage means the optimal weight will be somewhere between
+        // the logit of the empirical probability and zero.
+        double c0{m_ClassCounts(0) + 1.0};
+        double c1{m_ClassCounts(1) + 1.0};
+        double empiricalProbabilityC1{c1 / (c0 + c1)};
+        double empiricalLogOddsC1{CTools::stableLog(
+            empiricalProbabilityC1 / (1.0 - empiricalProbabilityC1))};
+        minWeight = (empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0) - prediction;
+        maxWeight = (empiricalProbabilityC1 < 0.5 ? 0.0 : empiricalLogOddsC1) - prediction;
+
+    } else {
+        objective = [this](double weight) {
+            double loss{0.0};
+            for (std::size_t i = 0; i < m_BucketsClassCounts.size(); ++i) {
+                double logOdds{this->bucketCentre(i) + weight};
+                double c0{m_BucketsClassCounts[i](0)};
+                double c1{m_BucketsClassCounts[i](1)};
+                loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds);
+            }
+            return loss + this->lambda() * CTools::pow2(weight);
+        };
+
+        // Choose a weight interval in which all probabilites vary from close to
+        // zero to close to one. In particular, the idea is to minimize the leaf
+        // weight on an interval [a, b] where if we add "a" the log-odds for all
+        // rows <= -5, i.e. max prediction + a = -5, and if we add "b" the log-odds
+        // for all rows >= 5, i.e. min prediction + a = 5.
+        minWeight = -m_PredictionMinMax.max() - 5.0;
+        maxWeight = -m_PredictionMinMax.min() + 5.0;
+    }
+
+    TDoubleVector result(1);
+
+    if (minWeight == maxWeight) {
+        result(0) = minWeight;
+        return result;
+    }
+
+    double minimum;
+    double objectiveAtMinimum;
+    std::size_t maxIterations{10};
+    CSolvers::minimize(minWeight, maxWeight, objective(minWeight), objective(maxWeight),
+                       objective, 1e-3, maxIterations, minimum, objectiveAtMinimum);
+    LOG_TRACE(<< "minimum = " << minimum << " objective(minimum) = " << objectiveAtMinimum);
+
+    result(0) = minimum;
+    return result;
+}
+
 CArgMinMultinomialLogisticLossImpl::CArgMinMultinomialLogisticLossImpl(std::size_t numberClasses,
                                                                        double lambda,
                                                                        const CPRNG::CXorOShiro128Plus& rng)
@@ -700,6 +836,9 @@ CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
         if (lossFunctionName == CMse::NAME) {
             return std::make_unique<CMse>(traverser);
         }
+        if (lossFunctionName == CMseIncremental::NAME) {
+            return std::make_unique<CMse>(traverser);
+        }
         if (lossFunctionName == CMsle::NAME) {
             return std::make_unique<CMsle>(traverser);
         }
@@ -708,6 +847,9 @@ CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
         }
         if (lossFunctionName == CBinomialLogisticLoss::NAME) {
             return std::make_unique<CBinomialLogisticLoss>(traverser);
+        }
+        if (lossFunctionName == CBinomialLogisticLossIncremental::NAME) {
+            return std::make_unique<CMse>(traverser);
         }
         if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
             return std::make_unique<CMultinomialLogisticLoss>(traverser);
@@ -838,12 +980,10 @@ bool CMse::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */)
 
 const std::string CMse::NAME{"mse"};
 
-CMseIncremental::CMseIncremental(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
-            return this->acceptRestoreTraverser(traverser_);
-        }) == false) {
-        throw std::runtime_error{"failed to restore CMse"};
-    }
+CMseIncremental::CMseIncremental(core::CStateRestoreTraverser&) {
+    // We purposely don't persist and restore the state since this only exists
+    // temporarily between persistence events.
+    throw std::runtime_error{"restore is not supported for CMseIncremental"};
 }
 
 CMseIncremental::CMseIncremental(double eta, double mu, const TNodeVec& tree)
@@ -860,7 +1000,6 @@ CMseIncremental::incremental(double eta, double mu, const TNodeVec& tree) const 
 }
 
 ELossType CMseIncremental::type() const {
-    // TODO https://github.com/elastic/ml-cpp/issues/1721. Do we need to differentiate?
     return E_MseRegression;
 }
 
@@ -927,13 +1066,8 @@ bool CMseIncremental::isRegression() const {
     return true;
 }
 
-void CMseIncremental::acceptPersistInserter(core::CStatePersistInserter& /* inserter */) const {
-    // We purposely don't persist and restore the state since this is only
-    // temporarily attached and only between persistence events.
-}
-
-bool CMseIncremental::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */) {
-    return true;
+bool CMseIncremental::acceptRestoreTraverser(core::CStateRestoreTraverser&) {
+    return false;
 }
 
 const std::string CMseIncremental::NAME{"mse_incremental"};
@@ -1155,8 +1289,8 @@ CBinomialLogisticLoss::TLossUPtr CBinomialLogisticLoss::clone() const {
 }
 
 CBinomialLogisticLoss::TLossUPtr
-CBinomialLogisticLoss::incremental(double, double, const TNodeVec&) const {
-    return nullptr;
+CBinomialLogisticLoss::incremental(double eta, double mu, const TNodeVec& tree) const {
+    return std::make_unique<CBinomialLogisticLossIncremental>(eta, mu, tree);
 }
 
 ELossType CBinomialLogisticLoss::type() const {
@@ -1239,6 +1373,129 @@ bool CBinomialLogisticLoss::acceptRestoreTraverser(core::CStateRestoreTraverser&
 }
 
 const std::string CBinomialLogisticLoss::NAME{"binomial_logistic"};
+
+CBinomialLogisticLossIncremental::CBinomialLogisticLossIncremental(double eta,
+                                                                   double mu,
+                                                                   const TNodeVec& tree)
+    : m_Eta{eta}, m_Mu{mu}, m_Tree{&tree} {
+}
+
+CBinomialLogisticLossIncremental::CBinomialLogisticLossIncremental(core::CStateRestoreTraverser&) {
+    // We purposely don't persist and restore the state since this only exists
+    // temporarily between persistence events.
+    throw std::runtime_error{"restore is not supported for CBinomialLogisticLossIncremental"};
+}
+
+CBinomialLogisticLossIncremental::TLossUPtr CBinomialLogisticLossIncremental::clone() const {
+    return std::make_unique<CBinomialLogisticLossIncremental>(*this);
+}
+
+CBinomialLogisticLossIncremental::TLossUPtr
+CBinomialLogisticLossIncremental::incremental(double eta, double mu, const TNodeVec& tree) const {
+    return std::make_unique<CBinomialLogisticLossIncremental>(eta, mu, tree);
+}
+
+ELossType CBinomialLogisticLossIncremental::type() const {
+    return E_BinaryClassification;
+}
+
+std::size_t CBinomialLogisticLossIncremental::numberParameters() const {
+    return 1;
+}
+
+double CBinomialLogisticLossIncremental::value(const TMemoryMappedFloatVector& prediction,
+                                               double actual,
+                                               double weight) const {
+    // This purposely doesn't include any loss term for changing the prediction.
+    // This is used to estimate the quality of a retrained forest and select
+    // hyperaparameters which penalise changing predictions such as mu. As such
+    // we compute loss on a hold out from the old data to act as a proxy for how
+    // much we might have damaged accuracy on the original training data.
+    return -weight * ((1.0 - actual) * logOneMinusLogistic(prediction(0)) +
+                      actual * logLogistic(prediction(0)));
+}
+
+void CBinomialLogisticLossIncremental::gradient(const CEncodedDataFrameRowRef& row,
+                                                bool newExample,
+                                                const TMemoryMappedFloatVector& prediction,
+                                                double actual,
+                                                const TWriter& writer,
+                                                double weight) const {
+    if (newExample) {
+        if (prediction(0) > -LOG_EPSILON && actual == 1.0) {
+            writer(0, -weight * CTools::stableExp(-prediction(0)));
+        } else {
+            writer(0, weight * (CTools::logisticFunction(prediction(0)) - actual));
+        }
+    } else {
+        double treePrediction{
+            CTools::logisticFunction(root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
+        if (prediction(0) > -LOG_EPSILON && actual == 1.0) {
+            writer(0, -weight * ((1.0 + m_Mu) * CTools::stableExp(-prediction(0)) +
+                                 m_Mu * (treePrediction - 1.0)));
+        } else {
+            writer(0, weight * ((1.0 + m_Mu) * CTools::logisticFunction(prediction(0)) -
+                                actual - m_Mu * treePrediction));
+        }
+    }
+}
+
+void CBinomialLogisticLossIncremental::curvature(const CEncodedDataFrameRowRef& /*row*/,
+                                                 bool newExample,
+                                                 const TMemoryMappedFloatVector& prediction,
+                                                 double /*actual*/,
+                                                 const TWriter& writer,
+                                                 double weight) const {
+    if (prediction(0) > -LOG_EPSILON) {
+        writer(0, weight * (newExample ? 1.0 : 1.0 + m_Mu) *
+                      CTools::stableExp(-prediction(0)));
+    } else {
+        double probability{CTools::logisticFunction(prediction(0))};
+        writer(0, weight * (newExample ? 1.0 : 1.0 + m_Mu) * probability * (1.0 - probability));
+    }
+}
+
+bool CBinomialLogisticLossIncremental::isCurvatureConstant() const {
+    return false;
+}
+
+double CBinomialLogisticLossIncremental::difference(const TMemoryMappedFloatVector& prediction,
+                                                    const TMemoryMappedFloatVector& previousPrediction,
+                                                    double weight) const {
+    // The cross entropy of the new predicted probabilities given the previous ones.
+    double previousProbability{CTools::logisticFunction(previousPrediction(0))};
+    return -weight * ((1.0 - previousProbability) * logOneMinusLogistic(prediction(0)) +
+                      previousProbability * logLogistic(prediction(0)));
+}
+
+CBinomialLogisticLossIncremental::TDoubleVector
+CBinomialLogisticLossIncremental::transform(const TMemoryMappedFloatVector& prediction) const {
+    double p1{CTools::logisticFunction(prediction(0))};
+    TDoubleVector result{2};
+    result(0) = 1.0 - p1;
+    result(1) = p1;
+    return result;
+}
+
+CArgMinLoss CBinomialLogisticLossIncremental::minimizer(double lambda,
+                                                        const CPRNG::CXorOShiro128Plus&) const {
+    return this->makeMinimizer(
+        CArgMinBinomialLogisticLossIncrementalImpl{lambda, m_Eta, m_Mu, *m_Tree});
+}
+
+const std::string& CBinomialLogisticLossIncremental::name() const {
+    return NAME;
+}
+
+bool CBinomialLogisticLossIncremental::isRegression() const {
+    return false;
+}
+
+bool CBinomialLogisticLossIncremental::acceptRestoreTraverser(core::CStateRestoreTraverser&) {
+    return false;
+}
+
+const std::string CBinomialLogisticLossIncremental::NAME{"binomial_logistic_incremental"};
 
 CMultinomialLogisticLoss::CMultinomialLogisticLoss(std::size_t numberClasses)
     : m_NumberClasses{numberClasses} {
