@@ -297,7 +297,13 @@ private:
     TDoubleVector2x1Vec m_BucketsClassCounts;
 };
 
-//! TODO
+//! \brief Finds the value to add to a set of predicted log-odds which minimises
+//! adjusted regularised cross entropy loss w.r.t. the actual categories for
+//! incremental training.
+//!
+//! DESCRIPTION:\n
+//! This applies a correction to the loss based on the cross entropy between the
+//! new predictions and the predictions of a supplied tree (the one being retrained).
 class MATHS_EXPORT CArgMinBinomialLogisticLossIncrementalImpl final : public CArgMinLossImpl {
 public:
     explicit CArgMinBinomialLogisticLossIncrementalImpl(double lambda,
@@ -316,6 +322,8 @@ public:
 
 private:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TDoubleVector2x1 = CVectorNx1<double, 2>;
     using TDoubleVector2x1Vec = std::vector<TDoubleVector2x1>;
 
@@ -348,6 +356,8 @@ private:
     TMinMaxAccumulator m_PredictionMinMax;
     TDoubleVector2x1 m_ClassCounts;
     TDoubleVector2x1Vec m_BucketsClassCounts;
+    TMeanAccumulator m_MeanTreePredictions;
+    TMeanAccumulatorVec m_BucketsMeanTreePredictions;
 };
 
 //! \brief Finds the value to add to a set of predicted multinomial logit which
@@ -476,7 +486,7 @@ private:
     friend class CLoss;
 };
 
-//! \brief Defines the loss function for the regression problem.
+//! \brief Defines the loss function for the regression or classification problem.
 class MATHS_EXPORT CLoss {
 public:
     using TDoubleVector = CDenseVector<double>;
@@ -657,7 +667,7 @@ private:
     const TNodeVec* m_Tree = nullptr;
 };
 
-//! \brief Implements loss for binomial logistic regression.
+//! \brief The loss for binomial logistic regression.
 //!
 //! DESCRIPTION:\n
 //! This targets the cross entropy loss using the tree to predict class log-odds:
@@ -719,7 +729,11 @@ private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
-//! TODO
+//! \brief The loss for incremental binomial logistic regression.
+//!
+//! DESCRIPTION:\n
+//! This augments the standard loss function by adding the cross-entropy between
+//! predictions and the supplied tree predictions.
 class MATHS_EXPORT CBinomialLogisticLossIncremental final : public CLoss {
 public:
     static const std::string NAME;
@@ -766,7 +780,7 @@ private:
     const TNodeVec* m_Tree = nullptr;
 };
 
-//!  \brief Implements loss for multinomial logistic regression.
+//!  \brief The loss for multinomial logistic regression.
 //!
 //! DESCRIPTION:\n
 //! This targets the cross-entropy loss using the forest to predict the class
@@ -837,10 +851,10 @@ private:
 //!
 //! DESCRIPTION:\n
 //! Formally, the MSLE loss definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
-//! However, we approximate this by a quadratic form which has its minimum p = a and
-//! matches the value and derivative of MSLE loss function. For example, if the
-//! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
-//! as
+//! However, we approximate this by a quadratic form which shares the position of
+//! its minimum p = a and matches the value and derivative of MSLE loss function
+//! at the current prediction. For example, if the current prediction for the i'th
+//! training point is \f$p_i\f$, the loss is defined as
 //! <pre class="fragment">
 //!   \f$\displaystyle l_i(p) = c_i + w_i(p - a_i)^2\f$
 //! </pre>
@@ -907,10 +921,10 @@ private:
 //! DESCRIPTION:\n
 //! Formally, the pseudo-Huber loss definition we use is
 //! \f$\delta^2 (\sqrt{1 + \frac{(a - p)^2}{\delta^2}} - 1)\f$.
-//! However, we approximate this by a quadratic form which has its minimum p = a and
-//! matches the value and derivative of the pseudo-Huber loss function. For example,
-//! if the current prediction for the i'th training point is \f$p_i\f$, the loss is
-//! defined as
+//! However, we approximate this by a quadratic form which shares the position of
+//! its minimum p = a and matches the value and derivative of the pseudo-Huber loss
+//! function at the current prediction. For example, if the current prediction for
+//! the i'th training point is \f$p_i\f$, the loss is defined as
 //! <pre class="fragment">
 //! \f[
 //!     l_i(p) = \delta^2 \left(\sqrt{1 + \frac{(a_i - p_i)^{2}}{\delta^2}} - 1\right) +
@@ -918,9 +932,9 @@ private:
 //!              \frac{-a_i+p_i}{2\sqrt{\frac{\delta^2 + (a_i-p_i)^{2}}{\delta^2}}(a_i-p_i)} (p - p_i)^2
 //! \f]
 //! </pre>
-//! For this approximation we compute first and second derivative (gradient and curvature)
-//! with respect to p and then substitute p=p_i.
-//! As a result we obtain the following formulas for the gradient:
+//! For this approximation we compute first and second derivative (gradient and
+//! curvature) with respect to p and then substitute \f$p = p_i\f$. As a result we
+//! obtain the following formulas for the gradient:
 //!   \f[\frac{-a_i + p_i}{\sqrt{\frac{\delta^2 + (a_i - p_i)^2}{\delta^2}}}\f]
 //! and for the curvature:
 //!   \f[\frac{1}{\sqrt{1 + \frac{(a_i - p_i)^2}{\delta^2}}}\f]
