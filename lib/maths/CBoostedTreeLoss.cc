@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "maths/CBoostedTreeUtils.h"
 #include <maths/CBoostedTreeLoss.h>
 
 #include <core/CPersistUtils.h>
@@ -308,7 +309,8 @@ CArgMinBinomialLogisticLossIncrementalImpl::CArgMinBinomialLogisticLossIncrement
     double mu,
     const TNodeVec& tree)
     : CArgMinLossImpl{lambda}, m_Eta{eta}, m_Mu{mu}, m_Tree{&tree}, m_ClassCounts{0},
-      m_BucketsClassCounts(NUMBER_BUCKETS, TDoubleVector2x1{0.0}) {
+      m_BucketsClassCounts(NUMBER_BUCKETS, TDoubleVector2x1{0.0}),
+      m_BucketsMeanTreePredictions(NUMBER_BUCKETS) {
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinBinomialLogisticLossIncrementalImpl::clone() const {
@@ -395,11 +397,12 @@ CArgMinBinomialLogisticLossIncrementalImpl::value() const {
             double logOdds{prediction + weight};
             double c0{m_ClassCounts(0)};
             double c1{m_ClassCounts(1)};
-            double p{CBasicStatistics::count(m_MeanTreePredictions) *
-                     CBasicStatistics::mean(m_MeanTreePredictions)};
+            double mu{m_Mu * CBasicStatistics::count(m_MeanTreePredictions)};
+            double p{CBasicStatistics::mean(m_MeanTreePredictions)};
             return this->lambda() * CTools::pow2(weight) -
-                   c0 * logOneMinusLogistic(logOdds) -
-                   (c1 + m_Mu * p) * logLogistic(logOdds);
+                   c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds) -
+                   mu * (1.0 - p) * logOneMinusLogistic(weight) -
+                   mu * p * logLogistic(weight);
         };
 
         // Weight shrinkage means the optimal weight will be somewhere between
@@ -419,10 +422,11 @@ CArgMinBinomialLogisticLossIncrementalImpl::value() const {
                 double logOdds{this->bucketCentre(i) + weight};
                 double c0{m_BucketsClassCounts[i](0)};
                 double c1{m_BucketsClassCounts[i](1)};
-                double p{CBasicStatistics::count(m_BucketsMeanTreePredictions[i]) *
-                         CBasicStatistics::mean(m_BucketsMeanTreePredictions[i])};
-                loss -= c0 * logOneMinusLogistic(logOdds) +
-                        (c1 + m_Mu * p) * logLogistic(logOdds);
+                double mu{m_Mu * CBasicStatistics::count(m_BucketsMeanTreePredictions[i])};
+                double p{CBasicStatistics::mean(m_BucketsMeanTreePredictions[i])};
+                loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds) +
+                        mu * (1.0 - p) * logOneMinusLogistic(weight) +
+                        mu * p * logLogistic(weight);
             }
             return loss + this->lambda() * CTools::pow2(weight);
         };
@@ -1031,7 +1035,7 @@ double CMseIncremental::value(const TMemoryMappedFloatVector& prediction,
     // hyperaparameters which penalise changing predictions such as mu. As such
     // we compute loss on a hold out from the old data to act as a proxy for how
     // much we might have damaged accuracy on the original training data.
-    return weight * CTools::pow2(prediction(0) - actual);
+    return this->CMse::value(prediction, actual, weight);
 }
 
 void CMseIncremental::gradient(const CEncodedDataFrameRowRef& row,
@@ -1041,7 +1045,7 @@ void CMseIncremental::gradient(const CEncodedDataFrameRowRef& row,
                                const TWriter& writer,
                                double weight) const {
     if (newExample) {
-        writer(0, 2.0 * weight * (prediction(0) - actual));
+        this->CMse::gradient(prediction, actual, writer, weight);
     } else {
         double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
         writer(0, 2.0 * weight * (prediction(0) - actual + m_Mu / m_Eta * treePrediction));
@@ -1063,7 +1067,7 @@ bool CMseIncremental::isCurvatureConstant() const {
 double CMseIncremental::difference(const TMemoryMappedFloatVector& prediction,
                                    const TMemoryMappedFloatVector& previousPrediction,
                                    double weight) const {
-    return weight * CTools::pow2(prediction(0) - previousPrediction(0));
+    return this->CMse::difference(prediction, previousPrediction, weight);
 }
 
 CMse::TDoubleVector CMseIncremental::transform(const TMemoryMappedFloatVector& prediction) const {
@@ -1427,8 +1431,7 @@ double CBinomialLogisticLossIncremental::value(const TMemoryMappedFloatVector& p
     // hyperaparameters which penalise changing predictions such as mu. As such
     // we compute loss on a hold out from the old data to act as a proxy for how
     // much we might have damaged accuracy on the original training data.
-    return -weight * ((1.0 - actual) * logOneMinusLogistic(prediction(0)) +
-                      actual * logLogistic(prediction(0)));
+    return this->CBinomialLogisticLoss::value(prediction, actual, weight);
 }
 
 void CBinomialLogisticLossIncremental::gradient(const CEncodedDataFrameRowRef& row,
@@ -1438,11 +1441,7 @@ void CBinomialLogisticLossIncremental::gradient(const CEncodedDataFrameRowRef& r
                                                 const TWriter& writer,
                                                 double weight) const {
     if (newExample) {
-        if (prediction(0) > -LOG_EPSILON && actual == 1.0) {
-            writer(0, -weight * CTools::stableExp(-prediction(0)));
-        } else {
-            writer(0, weight * (CTools::logisticFunction(prediction(0)) - actual));
-        }
+        this->CBinomialLogisticLoss::gradient(prediction, actual, writer, weight);
     } else {
         double treePrediction{
             CTools::logisticFunction(root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
@@ -1478,19 +1477,12 @@ bool CBinomialLogisticLossIncremental::isCurvatureConstant() const {
 double CBinomialLogisticLossIncremental::difference(const TMemoryMappedFloatVector& prediction,
                                                     const TMemoryMappedFloatVector& previousPrediction,
                                                     double weight) const {
-    // The cross entropy of the new predicted probabilities given the previous ones.
-    double previousProbability{CTools::logisticFunction(previousPrediction(0))};
-    return -weight * ((1.0 - previousProbability) * logOneMinusLogistic(prediction(0)) +
-                      previousProbability * logLogistic(prediction(0)));
+    return this->CBinomialLogisticLoss::difference(prediction, previousPrediction, weight);
 }
 
 CBinomialLogisticLossIncremental::TDoubleVector
 CBinomialLogisticLossIncremental::transform(const TMemoryMappedFloatVector& prediction) const {
-    double p1{CTools::logisticFunction(prediction(0))};
-    TDoubleVector result{2};
-    result(0) = 1.0 - p1;
-    result(1) = p1;
-    return result;
+    return this->CBinomialLogisticLoss::transform(prediction);
 }
 
 CArgMinLoss CBinomialLogisticLossIncremental::minimizer(double lambda,

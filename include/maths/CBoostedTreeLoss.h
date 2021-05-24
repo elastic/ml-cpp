@@ -561,7 +561,7 @@ private:
 };
 
 //! \brief The MSE loss function.
-class MATHS_EXPORT CMse final : public CLoss {
+class MATHS_EXPORT CMse : public CLoss {
 public:
     static const std::string NAME;
 
@@ -614,7 +614,7 @@ private:
 };
 
 //! \brief The MSE loss function for incremental training.
-class MATHS_EXPORT CMseIncremental final : public CLoss {
+class MATHS_EXPORT CMseIncremental final : public CMse {
 public:
     static const std::string NAME;
 
@@ -676,7 +676,7 @@ private:
 //! </pre>
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
 //! prediction and \f$S(\cdot)\f$ denotes the logistic function.
-class MATHS_EXPORT CBinomialLogisticLoss final : public CLoss {
+class MATHS_EXPORT CBinomialLogisticLoss : public CLoss {
 public:
     static const std::string NAME;
 
@@ -734,7 +734,7 @@ private:
 //! DESCRIPTION:\n
 //! This augments the standard loss function by adding the cross-entropy between
 //! predictions and the supplied tree predictions.
-class MATHS_EXPORT CBinomialLogisticLossIncremental final : public CLoss {
+class MATHS_EXPORT CBinomialLogisticLossIncremental final : public CBinomialLogisticLoss {
 public:
     static const std::string NAME;
 
