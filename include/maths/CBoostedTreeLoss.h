@@ -248,7 +248,7 @@ private:
 //! Here, \f$B\f$ ranges over the buckets, \f$\bar{p}_B\f$ denotes the B'th bucket
 //! centre and \f$c_{0,B}\f$ and \f$c_{1,B}\f$ denote the counts of actual classes
 //! 0 and 1, respectively, in the bucket \f$B\f$.
-class MATHS_EXPORT CArgMinBinomialLogisticLossImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinBinomialLogisticLossImpl : public CArgMinLossImpl {
 public:
     explicit CArgMinBinomialLogisticLossImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
@@ -264,15 +264,18 @@ public:
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
-private:
+protected:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
     using TDoubleVector2x1 = CVectorNx1<double, 2>;
     using TDoubleVector2x1Vec = std::vector<TDoubleVector2x1>;
+    using TObjective = std::function<double(double)>;
 
-private:
+protected:
     static constexpr std::size_t NUMBER_BUCKETS = 128;
 
-private:
+protected:
+    std::size_t currentPass() const { return m_CurrentPass; }
+
     std::size_t bucket(double prediction) const {
         double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
         return std::min(static_cast<std::size_t>(bucket), m_BucketsClassCounts.size() - 1);
@@ -289,6 +292,21 @@ private:
                          static_cast<double>(m_BucketsClassCounts.size())
                    : 0.0;
     }
+
+    double midPrediction() const {
+        return m_PredictionMinMax.initialized()
+                   ? (m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0
+                   : 0.0;
+    }
+
+    const TDoubleVector2x1& classCounts() const { return m_ClassCounts; }
+
+    const TDoubleVector2x1Vec& bucketsClassCounts() const {
+        return m_BucketsClassCounts;
+    }
+
+private:
+    virtual TObjective objective() const;
 
 private:
     std::size_t m_CurrentPass = 0;
@@ -304,58 +322,32 @@ private:
 //! DESCRIPTION:\n
 //! This applies a correction to the loss based on the cross entropy between the
 //! new predictions and the predictions of a supplied tree (the one being retrained).
-class MATHS_EXPORT CArgMinBinomialLogisticLossIncrementalImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinBinomialLogisticLossIncrementalImpl final
+    : public CArgMinBinomialLogisticLossImpl {
 public:
     explicit CArgMinBinomialLogisticLossIncrementalImpl(double lambda,
                                                         double eta,
                                                         double mu,
                                                         const TNodeVec& tree);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
-    bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& row,
              bool newExample,
              const TMemoryMappedFloatVector& prediction,
              double actual,
              double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
-    TDoubleVector value() const override;
 
 private:
-    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
-    using TDoubleVector2x1 = CVectorNx1<double, 2>;
-    using TDoubleVector2x1Vec = std::vector<TDoubleVector2x1>;
 
 private:
-    static constexpr std::size_t NUMBER_BUCKETS = 128;
-
-private:
-    std::size_t bucket(double prediction) const {
-        double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
-        return std::min(static_cast<std::size_t>(bucket), m_BucketsClassCounts.size() - 1);
-    }
-
-    double bucketCentre(std::size_t bucket) const {
-        return m_PredictionMinMax.min() +
-               (static_cast<double>(bucket) + 0.5) * this->bucketWidth();
-    }
-
-    double bucketWidth() const {
-        return m_PredictionMinMax.initialized()
-                   ? m_PredictionMinMax.range() /
-                         static_cast<double>(m_BucketsClassCounts.size())
-                   : 0.0;
-    }
+    TObjective objective() const override;
 
 private:
     double m_Eta = 0.0;
     double m_Mu = 0.0;
     const TNodeVec* m_Tree = nullptr;
-    std::size_t m_CurrentPass = 0;
-    TMinMaxAccumulator m_PredictionMinMax;
-    TDoubleVector2x1 m_ClassCounts;
-    TDoubleVector2x1Vec m_BucketsClassCounts;
     TMeanAccumulator m_MeanTreePredictions;
     TMeanAccumulatorVec m_BucketsMeanTreePredictions;
 };

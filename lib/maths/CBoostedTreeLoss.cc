@@ -233,7 +233,6 @@ void CArgMinBinomialLogisticLossImpl::merge(const CArgMinLossImpl& other) {
 
 CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::value() const {
 
-    std::function<double(double)> objective;
     double minWeight;
     double maxWeight;
 
@@ -243,16 +242,7 @@ CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::
     if (this->bucketWidth() == 0.0) {
         // This is the (unique) predicted value for the rows in leaf by the forest
         // so far (i.e. without the weight for the leaf we're about to add).
-        double prediction{m_PredictionMinMax.initialized()
-                              ? (m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0
-                              : 0.0};
-        objective = [prediction, this](double weight) {
-            double logOdds{prediction + weight};
-            double c0{m_ClassCounts(0)};
-            double c1{m_ClassCounts(1)};
-            return this->lambda() * CTools::pow2(weight) -
-                   c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds);
-        };
+        double prediction{this->midPrediction()};
 
         // Weight shrinkage means the optimal weight will be somewhere between
         // the logit of the empirical probability and zero.
@@ -263,19 +253,7 @@ CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::
             empiricalProbabilityC1 / (1.0 - empiricalProbabilityC1))};
         minWeight = (empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0) - prediction;
         maxWeight = (empiricalProbabilityC1 < 0.5 ? 0.0 : empiricalLogOddsC1) - prediction;
-
     } else {
-        objective = [this](double weight) {
-            double loss{0.0};
-            for (std::size_t i = 0; i < m_BucketsClassCounts.size(); ++i) {
-                double logOdds{this->bucketCentre(i) + weight};
-                double c0{m_BucketsClassCounts[i](0)};
-                double c1{m_BucketsClassCounts[i](1)};
-                loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds);
-            }
-            return loss + this->lambda() * CTools::pow2(weight);
-        };
-
         // Choose a weight interval in which all probabilites vary from close to
         // zero to close to one. In particular, the idea is to minimize the leaf
         // weight on an interval [a, b] where if we add "a" the log-odds for all
@@ -294,6 +272,7 @@ CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::
 
     double minimum;
     double objectiveAtMinimum;
+    auto objective = this->objective();
     std::size_t maxIterations{10};
     CSolvers::minimize(minWeight, maxWeight, objective(minWeight), objective(maxWeight),
                        objective, 1e-3, maxIterations, minimum, objectiveAtMinimum);
@@ -303,13 +282,38 @@ CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::
     return result;
 }
 
+CArgMinBinomialLogisticLossImpl::TObjective CArgMinBinomialLogisticLossImpl::objective() const {
+    // This is true if and only if all the predictions were identical. In this
+    // case we only need one pass over the data and can compute the optimal
+    // value from the counts of the two categories.
+    if (this->bucketWidth() == 0.0) {
+        double prediction{this->midPrediction()};
+        return [prediction, this](double weight) {
+            double logOdds{prediction + weight};
+            double c0{m_ClassCounts(0)};
+            double c1{m_ClassCounts(1)};
+            return this->lambda() * CTools::pow2(weight) -
+                   c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds);
+        };
+    }
+    return [this](double weight) {
+        double loss{0.0};
+        for (std::size_t i = 0; i < m_BucketsClassCounts.size(); ++i) {
+            double logOdds{this->bucketCentre(i) + weight};
+            double c0{m_BucketsClassCounts[i](0)};
+            double c1{m_BucketsClassCounts[i](1)};
+            loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds);
+        }
+        return loss + this->lambda() * CTools::pow2(weight);
+    };
+}
+
 CArgMinBinomialLogisticLossIncrementalImpl::CArgMinBinomialLogisticLossIncrementalImpl(
     double lambda,
     double eta,
     double mu,
     const TNodeVec& tree)
-    : CArgMinLossImpl{lambda}, m_Eta{eta}, m_Mu{mu}, m_Tree{&tree}, m_ClassCounts{0},
-      m_BucketsClassCounts(NUMBER_BUCKETS, TDoubleVector2x1{0.0}),
+    : CArgMinBinomialLogisticLossImpl{lambda}, m_Eta{eta}, m_Mu{mu}, m_Tree{&tree},
       m_BucketsMeanTreePredictions(NUMBER_BUCKETS) {
 }
 
@@ -317,41 +321,31 @@ std::unique_ptr<CArgMinLossImpl> CArgMinBinomialLogisticLossIncrementalImpl::clo
     return std::make_unique<CArgMinBinomialLogisticLossIncrementalImpl>(*this);
 }
 
-bool CArgMinBinomialLogisticLossIncrementalImpl::nextPass() {
-    m_CurrentPass += this->bucketWidth() > 0.0 ? 1 : 2;
-    return m_CurrentPass < 2;
-}
-
 void CArgMinBinomialLogisticLossIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
                                                      bool newExample,
                                                      const TMemoryMappedFloatVector& prediction,
                                                      double actual,
                                                      double weight) {
-    switch (m_CurrentPass) {
-    case 0: {
-        m_PredictionMinMax.add(prediction(0));
-        m_ClassCounts(static_cast<std::size_t>(actual)) += weight;
-        if (newExample == false) {
+    this->CArgMinBinomialLogisticLossImpl::add(prediction, actual, weight);
+    if (newExample == false) {
+        switch (this->currentPass()) {
+        case 0: {
             double treePrediction{CTools::logisticFunction(
                 root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
             m_MeanTreePredictions.add(treePrediction);
+            break;
         }
-        break;
-    }
-    case 1: {
-        std::size_t bucket{this->bucket(prediction(0))};
-        auto& count = m_BucketsClassCounts[bucket];
-        count(static_cast<std::size_t>(actual)) += weight;
-        if (newExample == false) {
+        case 1: {
+            std::size_t bucket{this->bucket(prediction(0))};
             auto& mean = m_BucketsMeanTreePredictions[bucket];
             double treePrediction{CTools::logisticFunction(
                 root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
             mean.add(treePrediction);
+            break;
         }
-        break;
-    }
-    default:
-        break;
+        default:
+            break;
+        }
     }
 }
 
@@ -359,15 +353,13 @@ void CArgMinBinomialLogisticLossIncrementalImpl::merge(const CArgMinLossImpl& ot
     const auto* logistic =
         dynamic_cast<const CArgMinBinomialLogisticLossIncrementalImpl*>(&other);
     if (logistic != nullptr) {
-        switch (m_CurrentPass) {
+        this->CArgMinBinomialLogisticLossImpl::merge(*logistic);
+        switch (this->currentPass()) {
         case 0:
-            m_PredictionMinMax += logistic->m_PredictionMinMax;
-            m_ClassCounts += logistic->m_ClassCounts;
             m_MeanTreePredictions += logistic->m_MeanTreePredictions;
             break;
         case 1:
-            for (std::size_t i = 0; i < m_BucketsClassCounts.size(); ++i) {
-                m_BucketsClassCounts[i] += logistic->m_BucketsClassCounts[i];
+            for (std::size_t i = 0; i < m_BucketsMeanTreePredictions.size(); ++i) {
                 m_BucketsMeanTreePredictions[i] += logistic->m_BucketsMeanTreePredictions[i];
             }
             break;
@@ -377,26 +369,18 @@ void CArgMinBinomialLogisticLossIncrementalImpl::merge(const CArgMinLossImpl& ot
     }
 }
 
-CArgMinBinomialLogisticLossIncrementalImpl::TDoubleVector
-CArgMinBinomialLogisticLossIncrementalImpl::value() const {
-
-    std::function<double(double)> objective;
-    double minWeight;
-    double maxWeight;
+CArgMinBinomialLogisticLossIncrementalImpl::TObjective
+CArgMinBinomialLogisticLossIncrementalImpl::objective() const {
 
     // This is true if and only if all the predictions were identical. In this
     // case we only need one pass over the data and can compute the optimal
-    // value from the counts of the two categories.
+    // value from the counts of the two categories and the mean tree predictions.
     if (this->bucketWidth() == 0.0) {
-        // This is the (unique) predicted value for the rows in leaf by the forest
-        // so far (i.e. without the weight for the leaf we're about to add).
-        double prediction{m_PredictionMinMax.initialized()
-                              ? (m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0
-                              : 0.0};
-        objective = [prediction, this](double weight) {
+        double prediction{this->midPrediction()};
+        return [prediction, this](double weight) {
             double logOdds{prediction + weight};
-            double c0{m_ClassCounts(0)};
-            double c1{m_ClassCounts(1)};
+            double c0{this->classCounts()(0)};
+            double c1{this->classCounts()(1)};
             double mu{m_Mu * CBasicStatistics::count(m_MeanTreePredictions)};
             double p{CBasicStatistics::mean(m_MeanTreePredictions)};
             return this->lambda() * CTools::pow2(weight) -
@@ -404,58 +388,23 @@ CArgMinBinomialLogisticLossIncrementalImpl::value() const {
                    mu * (1.0 - p) * logOneMinusLogistic(weight) -
                    mu * p * logLogistic(weight);
         };
-
-        // Weight shrinkage means the optimal weight will be somewhere between
-        // the logit of the empirical probability and zero.
-        double c0{m_ClassCounts(0) + 1.0};
-        double c1{m_ClassCounts(1) + 1.0};
-        double empiricalProbabilityC1{c1 / (c0 + c1)};
-        double empiricalLogOddsC1{CTools::stableLog(
-            empiricalProbabilityC1 / (1.0 - empiricalProbabilityC1))};
-        minWeight = (empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0) - prediction;
-        maxWeight = (empiricalProbabilityC1 < 0.5 ? 0.0 : empiricalLogOddsC1) - prediction;
-
-    } else {
-        objective = [this](double weight) {
-            double loss{0.0};
-            for (std::size_t i = 0; i < m_BucketsClassCounts.size(); ++i) {
-                double logOdds{this->bucketCentre(i) + weight};
-                double c0{m_BucketsClassCounts[i](0)};
-                double c1{m_BucketsClassCounts[i](1)};
-                double mu{m_Mu * CBasicStatistics::count(m_BucketsMeanTreePredictions[i])};
-                double p{CBasicStatistics::mean(m_BucketsMeanTreePredictions[i])};
-                loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds) +
-                        mu * (1.0 - p) * logOneMinusLogistic(weight) +
-                        mu * p * logLogistic(weight);
-            }
-            return loss + this->lambda() * CTools::pow2(weight);
-        };
-
-        // Choose a weight interval in which all probabilites vary from close to
-        // zero to close to one. In particular, the idea is to minimize the leaf
-        // weight on an interval [a, b] where if we add "a" the log-odds for all
-        // rows <= -5, i.e. max prediction + a = -5, and if we add "b" the log-odds
-        // for all rows >= 5, i.e. min prediction + a = 5.
-        minWeight = -m_PredictionMinMax.max() - 5.0;
-        maxWeight = -m_PredictionMinMax.min() + 5.0;
     }
 
-    TDoubleVector result(1);
-
-    if (minWeight == maxWeight) {
-        result(0) = minWeight;
-        return result;
-    }
-
-    double minimum;
-    double objectiveAtMinimum;
-    std::size_t maxIterations{10};
-    CSolvers::minimize(minWeight, maxWeight, objective(minWeight), objective(maxWeight),
-                       objective, 1e-3, maxIterations, minimum, objectiveAtMinimum);
-    LOG_TRACE(<< "minimum = " << minimum << " objective(minimum) = " << objectiveAtMinimum);
-
-    result(0) = minimum;
-    return result;
+    return [this](double weight) {
+        double loss{0.0};
+        const auto& bucketsClassCounts = this->bucketsClassCounts();
+        for (std::size_t i = 0; i < bucketsClassCounts.size(); ++i) {
+            double logOdds{this->bucketCentre(i) + weight};
+            double c0{bucketsClassCounts[i](0)};
+            double c1{bucketsClassCounts[i](1)};
+            double mu{m_Mu * CBasicStatistics::count(m_BucketsMeanTreePredictions[i])};
+            double p{CBasicStatistics::mean(m_BucketsMeanTreePredictions[i])};
+            loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds) +
+                    mu * (1.0 - p) * logOneMinusLogistic(weight) +
+                    mu * p * logLogistic(weight);
+        }
+        return loss + this->lambda() * CTools::pow2(weight);
+    };
 }
 
 CArgMinMultinomialLogisticLossImpl::CArgMinMultinomialLogisticLossImpl(std::size_t numberClasses,
