@@ -58,7 +58,7 @@ private:
 
 //! \brief Finds the value to add to a set of predictions which minimises the
 //! regularized MSE w.r.t. the actual values.
-class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinMseImpl : public CArgMinLossImpl {
 public:
     explicit CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
@@ -74,8 +74,11 @@ public:
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
-private:
+protected:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+protected:
+    const TMeanAccumulator& meanError() const { return m_MeanError; }
 
 private:
     TMeanAccumulator m_MeanError;
@@ -88,11 +91,10 @@ private:
 //! DESCRIPTION:\n
 //! This applies a correction to the loss based on the difference from the
 //! predictions of a supplied tree (the one being retrained).
-class MATHS_EXPORT CArgMinMseIncrementalImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinMseIncrementalImpl final : public CArgMinMseImpl {
 public:
     CArgMinMseIncrementalImpl(double lambda, double eta, double mu, const TNodeVec& tree);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
-    bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& row,
              bool newExample,
              const TMemoryMappedFloatVector& prediction,
@@ -102,13 +104,9 @@ public:
     TDoubleVector value() const override;
 
 private:
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-private:
     double m_Eta = 0.0;
     double m_Mu = 0.0;
     const TNodeVec* m_Tree = nullptr;
-    TMeanAccumulator m_MeanError;
     TMeanAccumulator m_MeanTreePredictions;
 };
 

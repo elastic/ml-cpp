@@ -117,15 +117,11 @@ CArgMinMseIncrementalImpl::CArgMinMseIncrementalImpl(double lambda,
                                                      double eta,
                                                      double mu,
                                                      const TNodeVec& tree)
-    : CArgMinLossImpl{lambda}, m_Eta{eta}, m_Mu{mu}, m_Tree{&tree} {
+    : CArgMinMseImpl{lambda}, m_Eta{eta}, m_Mu{mu}, m_Tree{&tree} {
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinMseIncrementalImpl::clone() const {
     return std::make_unique<CArgMinMseIncrementalImpl>(*this);
-}
-
-bool CArgMinMseIncrementalImpl::nextPass() {
-    return false;
 }
 
 void CArgMinMseIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
@@ -133,7 +129,7 @@ void CArgMinMseIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
                                     const TMemoryMappedFloatVector& prediction,
                                     double actual,
                                     double weight) {
-    m_MeanError.add(actual - prediction(0), weight);
+    this->CArgMinMseImpl::add(prediction, actual, weight);
     if (newExample == false) {
         m_MeanTreePredictions.add(root(*m_Tree).value(row, *m_Tree)(0));
     }
@@ -142,7 +138,7 @@ void CArgMinMseIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
 void CArgMinMseIncrementalImpl::merge(const CArgMinLossImpl& other) {
     const auto* mse = dynamic_cast<const CArgMinMseIncrementalImpl*>(&other);
     if (mse != nullptr) {
-        m_MeanError += mse->m_MeanError;
+        this->CArgMinMseImpl::merge(*mse);
         m_MeanTreePredictions += mse->m_MeanTreePredictions;
     }
 }
@@ -166,8 +162,8 @@ CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() cons
     //
     // In the following we absorb n' / n into the value of mu.
 
-    double count{CBasicStatistics::count(m_MeanError)};
-    double meanError{CBasicStatistics::mean(m_MeanError)};
+    double count{CBasicStatistics::count(this->meanError())};
+    double meanError{CBasicStatistics::mean(this->meanError())};
     double oldCount{CBasicStatistics::count(m_MeanTreePredictions)};
     double meanTreePrediction{CBasicStatistics::mean(m_MeanTreePredictions)};
     double mu{(count == oldCount ? 1.0 : oldCount / count) * m_Mu};
