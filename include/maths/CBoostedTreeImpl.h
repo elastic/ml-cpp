@@ -404,8 +404,8 @@ private:
     std::size_t m_NumberTopShapValues = 0;
     TTreeShapFeatureImportanceUPtr m_TreeShap;
     TAnalysisInstrumentationPtr m_Instrumentation;
-    mutable TMeanAccumulator m_ForestSizeAccumulator;
-    mutable TMeanAccumulator m_MeanLossAccumulator;
+    TMeanAccumulator m_MeanForestSizeAccumulator;
+    TMeanAccumulator m_MeanLossAccumulator;
     THyperparametersVec m_TunableHyperparameters;
     TDoubleVecVec m_HyperparameterSamples;
     bool m_StopHyperparameterOptimizationEarly = true;

@@ -236,7 +236,7 @@ public:
     using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, CAlignment::EType>>;
     using TRowRef = data_frame_detail::CRowRef;
     using TRowItr = data_frame_detail::CRowIterator;
-    using TRowFunc = std::function<void(TRowItr, TRowItr)>;
+    using TRowFunc = std::function<void(const TRowItr&, const TRowItr&)>;
     using TRowFuncVec = std::vector<TRowFunc>;
     using TRowFuncVecBoolPr = std::pair<TRowFuncVec, bool>;
     using TWriteFunc = std::function<void(TFloatVecItr, std::int32_t&)>;

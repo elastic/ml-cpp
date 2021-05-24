@@ -311,12 +311,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     std::size_t numberThreads{1};
 
     using TRowItr = core::CDataFrame::TRowItr;
-    m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
-        TMeanVarAccumulator timeAccumulator;
-        core::CStopWatch stopWatch;
-        stopWatch.start();
-        std::uint64_t lastLap{stopWatch.lap()};
-
+    m_DataFrame->readRows(numberThreads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             writer.StartObject();
             writer.Key(ROW_RESULTS);
@@ -330,12 +325,6 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             writer.EndObject();
             writer.EndObject();
             writer.EndObject();
-
-            std::uint64_t currentLap{stopWatch.lap()};
-            std::uint64_t delta{currentLap - lastLap};
-
-            timeAccumulator.add(static_cast<double>(delta));
-            lastLap = currentLap;
         }
     });
 

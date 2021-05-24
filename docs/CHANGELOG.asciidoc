@@ -39,6 +39,12 @@
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
 
+== {es} version 7.14.0
+
+=== Bug Fixes
+
+* Make atomic operations safer for aarch64. (See {ml-pull}1893[#1893].)
+
 == {es} version 7.13.0
 
 === Enhancements
@@ -51,6 +57,23 @@
   improved test errors. (See {ml-pull}1755[#1755].)
 * Adjust the syscall filter to allow mremap and avoid spurious audit logging.
   (See {ml-pull}1819[#1819].)
+
+=== Bug Fixes
+
+* Ensure the same hyperparameters are chosen if classification or regression training
+  is stopped and restarted, for example, if the node fails. (See {ml-pull}1848[#1848].)
+* Fail gracefully if insufficient data are supplied for classification or regression
+  training. (See {ml-pull}1855[#1855].)
+* Fail gracefully on encountering unexpected state in restore from snapshot for anomaly
+  detection. (See {ml-pull}1872[#1872].)
+* Use appropriate memory ordering flags for aarch64 with string store to avoid excessive
+  string duplication. (See {ml-pull}1888[#1888].)
+
+== {es} version 7.12.2
+
+=== Bug Fixes
+
+* Add missing hyperparamter to the model metadata. (See {ml-pull}1867[#1867].)
 
 == {es} version 7.12.1
 
