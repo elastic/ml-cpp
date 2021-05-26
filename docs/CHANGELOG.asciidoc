@@ -41,6 +41,11 @@
 
 == {es} version 7.14.0
 
+=== Enhancements
+
+* Favour multiple adjacent dictionary words when performing categorisation. (See
+  {ml-pull}1903[#1903].)
+
 === Bug Fixes
 
 * Make atomic operations safer for aarch64. (See {ml-pull}1893[#1893].)
