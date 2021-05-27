@@ -119,7 +119,7 @@ public:
                 (m_NumOfAdjacentDictionaryWords > 1 ? ADJACENT_PARTS_BOOST : 1);
             weight *= boost;
 
-            m_NumOfAdjacentDictionaryWords++;
+            ++m_NumOfAdjacentDictionaryWords;
 
             return weight;
         }
