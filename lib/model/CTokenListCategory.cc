@@ -316,8 +316,8 @@ bool CTokenListCategory::updateOrderedCommonTokenIds(const TSizeSizePrVec& newTo
 
         std::size_t newIndex{0};
         std::size_t tryWeight{0};
-        std::size_t commonIndex = tryOrderedCommonTokenBeginIndex;
-        for (; commonIndex < m_OrderedCommonTokenEndIndex; ++commonIndex) {
+        for (std::size_t commonIndex = tryOrderedCommonTokenBeginIndex;
+             commonIndex < m_OrderedCommonTokenEndIndex; ++commonIndex) {
 
             // Ignore tokens that are not in the common unique tokens
             if (this->isTokenCommon(m_BaseTokenIds[commonIndex].first) == false) {
