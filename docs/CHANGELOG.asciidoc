@@ -43,7 +43,7 @@
 
 === Enhancements
 
-* Favour multiple adjacent dictionary words when performing categorisation. (See
+* Give higher weight to multiple adjacent dictionary words when performing categorization. (See
   {ml-pull}1903[#1903].)
 
 === Bug Fixes
