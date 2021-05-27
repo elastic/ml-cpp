@@ -115,7 +115,8 @@ public:
             }
 
             std::size_t weight = (partOfSpeech == SPECIAL_PART1) ? EXTRA_WEIGHT1 : DEFAULT_EXTRA_WEIGHT;
-            weight *= (m_NumOfAdjacentDictionaryWords > 1 ? ADJACENT_PARTS_BOOST : 1);
+            std::size_t boost = (m_NumOfAdjacentDictionaryWords > 1 ? ADJACENT_PARTS_BOOST : 1);
+            weight *= boost;
 
             m_NumOfAdjacentDictionaryWords++;
 
