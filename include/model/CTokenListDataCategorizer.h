@@ -162,9 +162,7 @@ protected:
         totalWeight += idWithWeight.second;
     }
 
-    void reset() override {
-        m_DictionaryWeightFunc.reset();
-    }
+    void reset() override { m_DictionaryWeightFunc.reset(); }
 
     //! Compute similarity between two vectors
     double similarity(const TSizeSizePrVec& left,
