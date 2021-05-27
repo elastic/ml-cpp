@@ -115,40 +115,40 @@ BOOST_AUTO_TEST_CASE(testLevensteinDistance) {
     std::string mouse("mouse");
     std::string nothing;
 
-    BOOST_REQUIRE_EQUAL(size_t(0), sst.levenshteinDistance(cat, cat));
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.levenshteinDistance(cat, dog));
-    BOOST_REQUIRE_EQUAL(size_t(5), sst.levenshteinDistance(cat, mouse));
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.levenshteinDistance(cat, nothing));
+    BOOST_REQUIRE_EQUAL(0, sst.levenshteinDistance(cat, cat));
+    BOOST_REQUIRE_EQUAL(3, sst.levenshteinDistance(cat, dog));
+    BOOST_REQUIRE_EQUAL(5, sst.levenshteinDistance(cat, mouse));
+    BOOST_REQUIRE_EQUAL(3, sst.levenshteinDistance(cat, nothing));
 
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.levenshteinDistance(dog, cat));
-    BOOST_REQUIRE_EQUAL(size_t(0), sst.levenshteinDistance(dog, dog));
-    BOOST_REQUIRE_EQUAL(size_t(4), sst.levenshteinDistance(dog, mouse));
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.levenshteinDistance(dog, nothing));
+    BOOST_REQUIRE_EQUAL(3, sst.levenshteinDistance(dog, cat));
+    BOOST_REQUIRE_EQUAL(0, sst.levenshteinDistance(dog, dog));
+    BOOST_REQUIRE_EQUAL(4, sst.levenshteinDistance(dog, mouse));
+    BOOST_REQUIRE_EQUAL(3, sst.levenshteinDistance(dog, nothing));
 
-    BOOST_REQUIRE_EQUAL(size_t(5), sst.levenshteinDistance(mouse, cat));
-    BOOST_REQUIRE_EQUAL(size_t(4), sst.levenshteinDistance(mouse, dog));
-    BOOST_REQUIRE_EQUAL(size_t(0), sst.levenshteinDistance(mouse, mouse));
-    BOOST_REQUIRE_EQUAL(size_t(5), sst.levenshteinDistance(mouse, nothing));
+    BOOST_REQUIRE_EQUAL(5, sst.levenshteinDistance(mouse, cat));
+    BOOST_REQUIRE_EQUAL(4, sst.levenshteinDistance(mouse, dog));
+    BOOST_REQUIRE_EQUAL(0, sst.levenshteinDistance(mouse, mouse));
+    BOOST_REQUIRE_EQUAL(5, sst.levenshteinDistance(mouse, nothing));
 
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.levenshteinDistance(nothing, cat));
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.levenshteinDistance(nothing, dog));
-    BOOST_REQUIRE_EQUAL(size_t(5), sst.levenshteinDistance(nothing, mouse));
-    BOOST_REQUIRE_EQUAL(size_t(0), sst.levenshteinDistance(nothing, nothing));
+    BOOST_REQUIRE_EQUAL(3, sst.levenshteinDistance(nothing, cat));
+    BOOST_REQUIRE_EQUAL(3, sst.levenshteinDistance(nothing, dog));
+    BOOST_REQUIRE_EQUAL(5, sst.levenshteinDistance(nothing, mouse));
+    BOOST_REQUIRE_EQUAL(0, sst.levenshteinDistance(nothing, nothing));
 
     std::string str1("Monday 12345");
     std::string str2("Monday 67890");
     std::string str3("Sunday 12345");
     std::string str4;
 
-    BOOST_REQUIRE_EQUAL(size_t(0), sst.levenshteinDistance(str1, str1));
-    BOOST_REQUIRE_EQUAL(size_t(5), sst.levenshteinDistance(str1, str2));
-    BOOST_REQUIRE_EQUAL(size_t(2), sst.levenshteinDistance(str1, str3));
-    BOOST_REQUIRE_EQUAL(size_t(12), sst.levenshteinDistance(str1, str4));
+    BOOST_REQUIRE_EQUAL(0, sst.levenshteinDistance(str1, str1));
+    BOOST_REQUIRE_EQUAL(5, sst.levenshteinDistance(str1, str2));
+    BOOST_REQUIRE_EQUAL(2, sst.levenshteinDistance(str1, str3));
+    BOOST_REQUIRE_EQUAL(12, sst.levenshteinDistance(str1, str4));
 
-    BOOST_REQUIRE_EQUAL(size_t(0), sst.levenshteinDistanceEx(str1, str1, &::isdigit));
-    BOOST_REQUIRE_EQUAL(size_t(0), sst.levenshteinDistanceEx(str1, str2, &::isdigit));
-    BOOST_REQUIRE_EQUAL(size_t(2), sst.levenshteinDistanceEx(str1, str3, &::isdigit));
-    BOOST_REQUIRE_EQUAL(size_t(7), sst.levenshteinDistanceEx(str1, str4, &::isdigit));
+    BOOST_REQUIRE_EQUAL(0, sst.levenshteinDistanceEx(str1, str1, &::isdigit));
+    BOOST_REQUIRE_EQUAL(0, sst.levenshteinDistanceEx(str1, str2, &::isdigit));
+    BOOST_REQUIRE_EQUAL(2, sst.levenshteinDistanceEx(str1, str3, &::isdigit));
+    BOOST_REQUIRE_EQUAL(7, sst.levenshteinDistanceEx(str1, str4, &::isdigit));
 }
 
 BOOST_AUTO_TEST_CASE(testLevensteinDistance2) {
@@ -170,23 +170,23 @@ BOOST_AUTO_TEST_CASE(testLevensteinDistance2) {
 
     TStrVec empty;
 
-    BOOST_REQUIRE_EQUAL(size_t(2), sst.levenshteinDistance(sourceShutDown1, sourceShutDown2));
-    BOOST_REQUIRE_EQUAL(size_t(2), sst.levenshteinDistance(sourceShutDown2, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(2, sst.levenshteinDistance(sourceShutDown1, sourceShutDown2));
+    BOOST_REQUIRE_EQUAL(2, sst.levenshteinDistance(sourceShutDown2, sourceShutDown1));
 
-    BOOST_REQUIRE_EQUAL(size_t(7), sst.levenshteinDistance(sourceShutDown1, serviceStart));
-    BOOST_REQUIRE_EQUAL(size_t(7), sst.levenshteinDistance(serviceStart, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(7, sst.levenshteinDistance(sourceShutDown1, serviceStart));
+    BOOST_REQUIRE_EQUAL(7, sst.levenshteinDistance(serviceStart, sourceShutDown1));
 
-    BOOST_REQUIRE_EQUAL(size_t(6), sst.levenshteinDistance(sourceShutDown2, serviceStart));
-    BOOST_REQUIRE_EQUAL(size_t(6), sst.levenshteinDistance(serviceStart, sourceShutDown2));
+    BOOST_REQUIRE_EQUAL(6, sst.levenshteinDistance(sourceShutDown2, serviceStart));
+    BOOST_REQUIRE_EQUAL(6, sst.levenshteinDistance(serviceStart, sourceShutDown2));
 
-    BOOST_REQUIRE_EQUAL(size_t(13), sst.levenshteinDistance(noImageData, serviceStart));
-    BOOST_REQUIRE_EQUAL(size_t(13), sst.levenshteinDistance(serviceStart, noImageData));
+    BOOST_REQUIRE_EQUAL(13, sst.levenshteinDistance(noImageData, serviceStart));
+    BOOST_REQUIRE_EQUAL(13, sst.levenshteinDistance(serviceStart, noImageData));
 
-    BOOST_REQUIRE_EQUAL(size_t(14), sst.levenshteinDistance(noImageData, sourceShutDown1));
-    BOOST_REQUIRE_EQUAL(size_t(14), sst.levenshteinDistance(sourceShutDown1, noImageData));
+    BOOST_REQUIRE_EQUAL(14, sst.levenshteinDistance(noImageData, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(14, sst.levenshteinDistance(sourceShutDown1, noImageData));
 
-    BOOST_REQUIRE_EQUAL(size_t(9), sst.levenshteinDistance(serviceStart, empty));
-    BOOST_REQUIRE_EQUAL(size_t(9), sst.levenshteinDistance(empty, serviceStart));
+    BOOST_REQUIRE_EQUAL(9, sst.levenshteinDistance(serviceStart, empty));
+    BOOST_REQUIRE_EQUAL(9, sst.levenshteinDistance(empty, serviceStart));
 }
 
 BOOST_AUTO_TEST_CASE(testLevensteinDistanceThroughputDifferent) {
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(testLevensteinDistanceThroughputDifferent) {
         for (size_t j = 0; j < TEST_SIZE; ++j) {
             size_t result(sst.levenshteinDistance(input[i], input[j]));
             if (i == j) {
-                BOOST_REQUIRE_EQUAL(size_t(0), result);
+                BOOST_REQUIRE_EQUAL(0, result);
             }
         }
     }
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testLevensteinDistanceThroughputSimilar) {
         for (size_t j = 0; j < TEST_SIZE; ++j) {
             size_t result(sst.levenshteinDistance(input[i], input[j]));
             if (i == j) {
-                BOOST_REQUIRE_EQUAL(size_t(0), result);
+                BOOST_REQUIRE_EQUAL(0, result);
             }
         }
     }
@@ -329,23 +329,23 @@ BOOST_AUTO_TEST_CASE(testWeightedEditDistance) {
 
     TStrSizePrVec empty;
 
-    BOOST_REQUIRE_EQUAL(size_t(2), sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
-    BOOST_REQUIRE_EQUAL(size_t(2), sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(2, sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
+    BOOST_REQUIRE_EQUAL(2, sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
 
-    BOOST_REQUIRE_EQUAL(size_t(17), sst.weightedEditDistance(sourceShutDown1, serviceStart));
-    BOOST_REQUIRE_EQUAL(size_t(17), sst.weightedEditDistance(serviceStart, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(17, sst.weightedEditDistance(sourceShutDown1, serviceStart));
+    BOOST_REQUIRE_EQUAL(17, sst.weightedEditDistance(serviceStart, sourceShutDown1));
 
-    BOOST_REQUIRE_EQUAL(size_t(16), sst.weightedEditDistance(sourceShutDown2, serviceStart));
-    BOOST_REQUIRE_EQUAL(size_t(16), sst.weightedEditDistance(serviceStart, sourceShutDown2));
+    BOOST_REQUIRE_EQUAL(16, sst.weightedEditDistance(sourceShutDown2, serviceStart));
+    BOOST_REQUIRE_EQUAL(16, sst.weightedEditDistance(serviceStart, sourceShutDown2));
 
-    BOOST_REQUIRE_EQUAL(size_t(36), sst.weightedEditDistance(noImageData, serviceStart));
-    BOOST_REQUIRE_EQUAL(size_t(36), sst.weightedEditDistance(serviceStart, noImageData));
+    BOOST_REQUIRE_EQUAL(36, sst.weightedEditDistance(noImageData, serviceStart));
+    BOOST_REQUIRE_EQUAL(36, sst.weightedEditDistance(serviceStart, noImageData));
 
-    BOOST_REQUIRE_EQUAL(size_t(36), sst.weightedEditDistance(noImageData, sourceShutDown1));
-    BOOST_REQUIRE_EQUAL(size_t(36), sst.weightedEditDistance(sourceShutDown1, noImageData));
+    BOOST_REQUIRE_EQUAL(36, sst.weightedEditDistance(noImageData, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(36, sst.weightedEditDistance(sourceShutDown1, noImageData));
 
-    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(serviceStart, empty));
-    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(empty, serviceStart));
+    BOOST_REQUIRE_EQUAL(21, sst.weightedEditDistance(serviceStart, empty));
+    BOOST_REQUIRE_EQUAL(21, sst.weightedEditDistance(empty, serviceStart));
 }
 
 BOOST_AUTO_TEST_CASE(testPositionalWeightedEditDistance) {
@@ -379,25 +379,25 @@ BOOST_AUTO_TEST_CASE(testPositionalWeightedEditDistance) {
                               {"on", 0},   {"Recalling", 0},   {"item", 0}};
     TStrSizePrVec empty;
 
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(3, sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
+    BOOST_REQUIRE_EQUAL(3, sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
 
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
-    BOOST_REQUIRE_EQUAL(size_t(3), sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(3, sst.weightedEditDistance(sourceShutDown1, sourceShutDown2));
+    BOOST_REQUIRE_EQUAL(3, sst.weightedEditDistance(sourceShutDown2, sourceShutDown1));
 
-    BOOST_REQUIRE_EQUAL(size_t(15), sst.weightedEditDistance(sourceShutDown1, serviceStart));
-    BOOST_REQUIRE_EQUAL(size_t(15), sst.weightedEditDistance(serviceStart, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(15, sst.weightedEditDistance(sourceShutDown1, serviceStart));
+    BOOST_REQUIRE_EQUAL(15, sst.weightedEditDistance(serviceStart, sourceShutDown1));
 
-    BOOST_REQUIRE_EQUAL(size_t(13), sst.weightedEditDistance(sourceShutDown2, serviceStart));
-    BOOST_REQUIRE_EQUAL(size_t(13), sst.weightedEditDistance(serviceStart, sourceShutDown2));
+    BOOST_REQUIRE_EQUAL(13, sst.weightedEditDistance(sourceShutDown2, serviceStart));
+    BOOST_REQUIRE_EQUAL(13, sst.weightedEditDistance(serviceStart, sourceShutDown2));
 
-    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(noImageData, serviceStart));
-    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(serviceStart, noImageData));
+    BOOST_REQUIRE_EQUAL(21, sst.weightedEditDistance(noImageData, serviceStart));
+    BOOST_REQUIRE_EQUAL(21, sst.weightedEditDistance(serviceStart, noImageData));
 
-    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(noImageData, sourceShutDown1));
-    BOOST_REQUIRE_EQUAL(size_t(21), sst.weightedEditDistance(sourceShutDown1, noImageData));
+    BOOST_REQUIRE_EQUAL(21, sst.weightedEditDistance(noImageData, sourceShutDown1));
+    BOOST_REQUIRE_EQUAL(21, sst.weightedEditDistance(sourceShutDown1, noImageData));
 
-    BOOST_REQUIRE_EQUAL(size_t(23), sst.weightedEditDistance(serviceStart, empty));
-    BOOST_REQUIRE_EQUAL(size_t(23), sst.weightedEditDistance(empty, serviceStart));
+    BOOST_REQUIRE_EQUAL(23, sst.weightedEditDistance(serviceStart, empty));
+    BOOST_REQUIRE_EQUAL(23, sst.weightedEditDistance(empty, serviceStart));
 }
 BOOST_AUTO_TEST_SUITE_END()
