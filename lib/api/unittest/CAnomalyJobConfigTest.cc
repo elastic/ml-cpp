@@ -927,7 +927,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
     }
     {
-        const std::string validMultiMetricCategorizationJobConfig{
+        const std::string invalidMultiMetricCategorizationJobConfig{
             "{\"job_id\":\"categorize_message\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604311804567,\"description\":\"\","
             "\"analysis_config\":{\"bucket_span\":\"15m\",\"categorization_field_name\":\"message\",\"per_partition_categorization\":{\"enabled\":true,\"stop_on_warn\":false},\"detectors\":["
             "{\"detector_description\":\"count by mlcategory partitionfield=\\\"agent.keyword\\\"\",\"function\":\"count\",\"by_field_name\":\"mlcategory\",\"partition_field_name\":\"agent.keyword\",\"detector_index\":0},"
@@ -937,11 +937,11 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
-        BOOST_TEST_REQUIRE(!jobConfig.parse(validMultiMetricCategorizationJobConfig));
+        BOOST_TEST_REQUIRE(!jobConfig.parse(invalidMultiMetricCategorizationJobConfig));
         BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
     }
     {
-        const std::string validMultiMetricCategorizationJobConfig{
+        const std::string invalidMultiMetricCategorizationJobConfig{
             "{\"job_id\":\"categorize_message\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604311804567,\"description\":\"\","
             "\"analysis_config\":{\"bucket_span\":\"15m\",\"categorization_field_name\":\"message\",\"per_partition_categorization\":{\"enabled\":true,\"stop_on_warn\":false},\"detectors\":["
             "{\"detector_description\":\"count by mlcategory partitionfield=\\\"agent.keyword\\\"\",\"function\":\"count\",\"by_field_name\":\"mlcategory\",\"detector_index\":0}"
@@ -950,11 +950,11 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
-        BOOST_TEST_REQUIRE(!jobConfig.parse(validMultiMetricCategorizationJobConfig));
+        BOOST_TEST_REQUIRE(!jobConfig.parse(invalidMultiMetricCategorizationJobConfig));
         BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
     }
     {
-        const std::string validMultiMetricCategorizationJobConfig{
+        const std::string invalidMultiMetricCategorizationJobConfig{
             "{\"job_id\":\"categorize_message\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604311804567,\"description\":\"\","
             "\"analysis_config\":{\"bucket_span\":\"15m\",\"per_partition_categorization\":{\"enabled\":true,\"stop_on_warn\":false},\"detectors\":["
             "{\"detector_description\":\"count by mlcategory partitionfield=\\\"agent.keyword\\\"\",\"function\":\"count\",\"by_field_name\":\"mlcategory\",\"partition_field_name\":\"agent.keyword\",\"detector_index\":0},"
@@ -964,7 +964,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
-        BOOST_TEST_REQUIRE(!jobConfig.parse(validMultiMetricCategorizationJobConfig));
+        BOOST_TEST_REQUIRE(!jobConfig.parse(invalidMultiMetricCategorizationJobConfig));
         BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
     }
     {
