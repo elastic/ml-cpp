@@ -223,6 +223,8 @@ protected:
                                     TSizeSizeMap& tokenUniqueIds,
                                     std::size_t& totalWeight) = 0;
 
+    virtual void reset() = 0;
+
     //! Compute similarity between two vectors
     virtual double similarity(const TSizeSizePrVec& left,
                               std::size_t leftWeight,

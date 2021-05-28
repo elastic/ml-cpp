@@ -527,6 +527,8 @@ bool CTokenListDataCategorizerBase::addPretokenisedTokens(const std::string& tok
         this->tokenToIdAndWeight(token, tokenIds, tokenUniqueIds, totalWeight);
     }
 
+    this->reset();
+
     return true;
 }
 
