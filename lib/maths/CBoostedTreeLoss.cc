@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CBoostedTreeUtils.h"
 #include <maths/CBoostedTreeLoss.h>
 
 #include <core/CPersistUtils.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLbfgs.h>
 #include <maths/CLinearAlgebraEigen.h>
