@@ -35,7 +35,7 @@ bool setUpIStream(const std::string& fileName,
         return stream != nullptr && !stream->bad();
     }
     std::ifstream* fileStream{nullptr};
-    stream.reset(fileStream = new std::ifstream(fileName.c_str()));
+    stream.reset(fileStream = new std::ifstream(fileName, std::ios::binary | std::ios::in));
     return fileStream->is_open();
 }
 
@@ -56,7 +56,7 @@ bool setUpOStream(const std::string& fileName,
         return stream != nullptr && !stream->bad();
     }
     std::ofstream* fileStream{nullptr};
-    stream.reset(fileStream = new std::ofstream(fileName.c_str()));
+    stream.reset(fileStream = new std::ofstream(fileName, std::ios::binary | std::ios::out));
     return fileStream->is_open();
 }
 }

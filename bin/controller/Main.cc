@@ -25,6 +25,7 @@
 //! 2) ./categorize
 //! 3) ./data_frame_analyzer
 //! 4) ./normalize
+//! 5) ./pytorch_inference
 //!
 //! The assumption here is that the working directory of this
 //! process will be the directory containing these other
@@ -156,7 +157,8 @@ int main(int argc, char** argv) {
     }
 
     ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
-        "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize"};
+        "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize",
+        "./pytorch_inference"};
 
     ml::controller::CCommandProcessor processor{permittedProcessPaths, *outputStream};
     processor.processCommands(*commandStream);
