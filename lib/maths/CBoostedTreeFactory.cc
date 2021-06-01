@@ -122,6 +122,8 @@ auto validInputStream(core::CDataSearcher& restoreSearcher) {
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable) {
 
+    m_TreeImpl->m_Rng = CPRNG::CXorOShiro128Plus{};
+
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
@@ -166,6 +168,8 @@ CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
                                               std::size_t dependentVariable) {
 
+    m_TreeImpl->m_Rng = CPRNG::CXorOShiro128Plus{};
+
     m_TreeImpl->m_DependentVariable = dependentVariable;
     m_TreeImpl->m_IncrementalTraining = true;
 
@@ -204,6 +208,8 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
 
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable) {
+
+    m_TreeImpl->m_Rng = CPRNG::CXorOShiro128Plus{};
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
