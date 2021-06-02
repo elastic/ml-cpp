@@ -93,8 +93,6 @@ public:
         //! Get a boolean parameter.
         bool fallback(bool value) const;
         //! Get an unsigned integer parameter.
-        std::uint64_t fallback(std::uint64_t fallback) const;
-        //! Get an unsigned integer parameter.
         std::size_t fallback(std::size_t value) const;
         //! Get a signed integer parameter.
         std::ptrdiff_t fallback(std::ptrdiff_t value) const;
