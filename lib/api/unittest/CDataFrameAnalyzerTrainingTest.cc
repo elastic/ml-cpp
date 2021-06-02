@@ -913,7 +913,6 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
-            .earlyStoppingEnabled(false)
             .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                             dependentVariable, &frameAndDirectory);
@@ -949,7 +948,6 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
-            .earlyStoppingEnabled(false)
             .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Update)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                             dependentVariable, &frameAndDirectory);
@@ -1069,15 +1067,15 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
         }
     }
 
+    frame->resizeColumns(1, weights.size() + 1);
     TDoubleVecVec newTrainingData;
     newTrainingData.reserve(numberExamples);
-    newTrainingDataFrame->readRows(1, [&](const TRowItr& beginRows,
-                                          const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                newTrainingData.push_back(TDoubleVec(row->numberColumns()));
-                row->copyTo(newTrainingData.back().begin());
-            }
-        });
+    newTrainingDataFrame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            newTrainingData.push_back(TDoubleVec(row->numberColumns()));
+            row->copyTo(newTrainingData.back().begin());
+        }
+    });
     for (std::size_t i = 0; i < newTrainingData.size(); ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t& id) {
             for (std::size_t j = 0; j < newTrainingData[i].size(); ++j, ++column) {
@@ -1092,8 +1090,8 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     newTrainingRowMask.extend(true, numberExamples);
 
     regression = maths::CBoostedTreeFactory::constructFromModel(std::move(regression))
-        .newTrainingRowMask(newTrainingRowMask)
-        .buildForTrainIncremental(*frame, weights.size());
+                     .newTrainingRowMask(newTrainingRowMask)
+                     .buildForTrainIncremental(*frame, weights.size());
 
     regression->trainIncremental();
     regression->predict();

@@ -34,6 +34,8 @@ namespace api {
 const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
         CDataFrameAnalysisConfigReader theReader;
+        theReader.addParameter(RANDOM_NUMBER_GENERATOR_SEED,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(DEPENDENT_VARIABLE_NAME,
                                CDataFrameAnalysisConfigReader::E_RequiredParameter);
         theReader.addParameter(PREDICTION_FIELD_NAME,
@@ -109,6 +111,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
 
+    std::uint64_t seed{parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0})};
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
     double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
@@ -178,6 +181,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     m_BoostedTreeFactory = this->boostedTreeFactory(std::move(loss), frameAndDirectory);
     (*m_BoostedTreeFactory)
+        .seed(seed)
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
@@ -480,6 +484,7 @@ CDataFrameTrainBoostedTreeRunner::dataSummarization() const {
 }
 
 // clang-format off
+const std::string CDataFrameTrainBoostedTreeRunner::RANDOM_NUMBER_GENERATOR_SEED{"seed"};
 const std::string CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME{"dependent_variable"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME{"prediction_field_name"};
 const std::string CDataFrameTrainBoostedTreeRunner::TRAINING_PERCENT_FIELD_NAME{"training_percent"};

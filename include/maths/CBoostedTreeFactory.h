@@ -100,6 +100,8 @@ public:
     CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept;
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&&) noexcept;
 
+    //! Set the random number generator seed.
+    CBoostedTreeFactory& seed(std::uint64_t seed);
     //! Set the objective to use when choosing the class assignments.
     CBoostedTreeFactory&
     classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);

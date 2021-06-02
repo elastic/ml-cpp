@@ -101,6 +101,17 @@ bool CDataFrameAnalysisConfigReader::CParameter::fallback(bool fallback) const {
     return m_Value->GetBool();
 }
 
+std::uint64_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::uint64_t fallback) const {
+    if (m_Value == nullptr) {
+        return fallback;
+    }
+    if (m_Value->IsUint64() == false) {
+        this->handleFatal();
+        return fallback;
+    }
+    return m_Value->GetUint64();
+}
+
 std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t fallback) const {
     if (m_Value == nullptr) {
         return fallback;
