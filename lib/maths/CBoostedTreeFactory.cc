@@ -122,8 +122,6 @@ auto validInputStream(core::CDataSearcher& restoreSearcher) {
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable) {
 
-    m_TreeImpl->m_Rng.seed(m_TreeImpl->m_Seed);
-
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
@@ -168,8 +166,6 @@ CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
                                               std::size_t dependentVariable) {
 
-    m_TreeImpl->m_Rng.seed(m_TreeImpl->m_Seed);
-
     m_TreeImpl->m_DependentVariable = dependentVariable;
     m_TreeImpl->m_IncrementalTraining = true;
 
@@ -212,8 +208,6 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
 
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t dependentVariable) {
-
-    m_TreeImpl->m_Rng.seed(m_TreeImpl->m_Seed);
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
@@ -1452,6 +1446,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
 CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr model) {
     CBoostedTreeFactory result{1, nullptr};
     result.m_TreeImpl = std::move(model->m_Impl);
+    result.m_TreeImpl->m_Rng.seed(result.m_TreeImpl->m_Seed);
     result.m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier(
         result.m_TreeImpl->m_Regularization.depthPenaltyMultiplier());
     result.m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier(
@@ -1492,6 +1487,7 @@ CBoostedTreeFactory::~CBoostedTreeFactory() = default;
 
 CBoostedTreeFactory& CBoostedTreeFactory::seed(std::uint64_t seed) {
     m_TreeImpl->m_Seed = seed;
+    m_TreeImpl->m_Rng.seed(seed);
     return *this;
 }
 
