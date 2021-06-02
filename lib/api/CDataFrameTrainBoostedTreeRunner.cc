@@ -34,6 +34,8 @@ namespace api {
 const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
         CDataFrameAnalysisConfigReader theReader;
+        theReader.addParameter(RANDOM_NUMBER_GENERATOR_SEED,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(DEPENDENT_VARIABLE_NAME,
                                CDataFrameAnalysisConfigReader::E_RequiredParameter);
         theReader.addParameter(PREDICTION_FIELD_NAME,
@@ -109,6 +111,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
 
+    std::size_t seed{parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0})};
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
     double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
@@ -178,6 +181,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     m_BoostedTreeFactory = this->boostedTreeFactory(std::move(loss), frameAndDirectory);
     (*m_BoostedTreeFactory)
+        .seed(seed)
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
@@ -261,6 +265,17 @@ std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
                         (numberThreads * ((numberSlices + numberThreads / 2) / numberThreads));
     }
     return std::max(sliceCapacity, std::size_t{128});
+}
+
+core::CPackedBitVector
+CDataFrameTrainBoostedTreeRunner::rowsToWriteMask(const core::CDataFrame& frame) const {
+    switch (m_Task) {
+    case E_Train:
+    case E_Predict:
+        return core::CPackedBitVector{frame.numberRows(), true};
+    case E_Update:
+        return m_BoostedTree->newTrainingRowMask();
+    }
 }
 
 const std::string& CDataFrameTrainBoostedTreeRunner::dependentVariableFieldName() const {
@@ -358,7 +373,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     case E_Update:
         m_BoostedTree = m_BoostedTreeFactory->buildForTrainIncremental(frame, dependentVariableColumn);
         m_BoostedTree->trainIncremental();
-        m_BoostedTree->predict();
+        m_BoostedTree->predict(true /*new data only*/);
         break;
     case E_Predict:
         m_BoostedTree = m_BoostedTreeFactory->buildForPredict(frame, dependentVariableColumn);
@@ -373,8 +388,10 @@ CDataFrameTrainBoostedTreeRunner::TBoostedTreeFactoryUPtr
 CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
                                                      TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     switch (m_Task) {
-    case E_Predict:
+    case E_Train:
+        break;
     case E_Update:
+    case E_Predict:
         if (frameAndDirectory != nullptr) {
             // This will be null if we're just computing memory usage.
             auto restoreSearcher = this->spec().restoreSearcher();
@@ -402,8 +419,6 @@ CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
             result->newTrainingRowMask(core::CPackedBitVector{frame->numberRows(), false});
             return result;
         }
-        [[fallthrough]];
-    case E_Train:
         break;
     }
 
@@ -421,7 +436,7 @@ CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
 
     // Restore from compressed JSON.
     try {
-        core::CStateDecompressor decompressor(*restoreSearcher);
+        core::CStateDecompressor decompressor{*restoreSearcher};
         core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");
@@ -480,6 +495,7 @@ CDataFrameTrainBoostedTreeRunner::dataSummarization() const {
 }
 
 // clang-format off
+const std::string CDataFrameTrainBoostedTreeRunner::RANDOM_NUMBER_GENERATOR_SEED{"seed"};
 const std::string CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME{"dependent_variable"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME{"prediction_field_name"};
 const std::string CDataFrameTrainBoostedTreeRunner::TRAINING_PERCENT_FIELD_NAME{"training_percent"};

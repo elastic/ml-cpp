@@ -278,9 +278,10 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         this->scaleRegularizers(allTrainingRowsMask.manhattan() /
                                 m_TrainingRowMasks[0].manhattan());
         this->startProgressMonitoringFinalTrain();
-        // reinitialize random number generator for reproducible results
-        // TODO #1866 introduce accept randomize_seed configuration parameter
-        m_Rng = CPRNG::CXorOShiro128Plus{};
+
+        // Reinitialize random number generator for reproducible results.
+        m_Rng.seed(m_Seed);
+
         if (m_BestForest.empty()) {
             std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
                 frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
@@ -1707,7 +1708,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
               << lossVariance << ": regularization = " << m_Regularization.print()
               << ", downsample factor = " << m_DownsampleFactor << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
-              << ", feature bag fraction = " << m_FeatureBagFraction);
+              << ", feature bag fraction = " << m_FeatureBagFraction
+              << ", prediction cost change = " << m_PredictionChangeCost);
 
     bopt.add(parameters, meanLoss, lossVariance);
     if (m_CurrentRound < m_HyperparameterSamples.size()) {
@@ -1839,6 +1841,10 @@ void CBoostedTreeImpl::scaleRegularizers(double scale) {
 }
 
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
+    if (m_IncrementalTraining) {
+        return m_RegularizationOverride.countNotSet() +
+               (m_PredictionChangeCostOverride != boost::none ? 0 : 1);
+    }
     return m_RegularizationOverride.countNotSetForTrain() +
            (m_DownsampleFactorOverride != boost::none ? 0 : 1) +
            (m_EtaOverride != boost::none
@@ -2579,6 +2585,10 @@ CBoostedTreeImpl::TLossFunction& CBoostedTreeImpl::loss() const {
 
 std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
     return m_DependentVariable;
+}
+
+const core::CPackedBitVector& CBoostedTreeImpl::newTrainingRowMask() const {
+    return m_NewTrainingRowMask;
 }
 
 const CBoostedTreeImpl::TSizeVec& CBoostedTreeImpl::extraColumns() const {

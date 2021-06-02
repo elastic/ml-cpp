@@ -185,13 +185,17 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeCrossValidation(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->determineFeatureDataTypes(frame); });
 
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
 
-    this->initializeHyperparameters(frame);
-    this->initializeHyperparameterOptimisation();
+    if (this->initializeFeatureSampleDistribution()) {
+        this->initializeHyperparameters(frame);
+        this->initializeHyperparameterOptimisation();
+    }
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
@@ -1442,6 +1446,24 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
 CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr model) {
     CBoostedTreeFactory result{1, nullptr};
     result.m_TreeImpl = std::move(model->m_Impl);
+    result.m_TreeImpl->m_Rng.seed(result.m_TreeImpl->m_Seed);
+    result.m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier(
+        result.m_TreeImpl->m_Regularization.depthPenaltyMultiplier());
+    result.m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier(
+        result.m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier());
+    result.m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier(
+        result.m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier());
+    result.m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit(
+        result.m_TreeImpl->m_Regularization.softTreeDepthLimit());
+    result.m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance(
+        result.m_TreeImpl->m_Regularization.softTreeDepthTolerance());
+    result.m_TreeImpl->m_DownsampleFactorOverride = result.m_TreeImpl->m_DownsampleFactor;
+    result.m_TreeImpl->m_EtaOverride = result.m_TreeImpl->m_Eta;
+    result.m_TreeImpl->m_EtaGrowthRatePerTreeOverride = result.m_TreeImpl->m_EtaGrowthRatePerTree;
+    result.m_TreeImpl->m_FeatureBagFractionOverride = result.m_TreeImpl->m_FeatureBagFraction;
+    result.m_TreeImpl->m_CurrentRound = 0;
+    result.m_TreeImpl->m_BestForestTestLoss = boosted_tree_detail::INF;
+    result.m_TreeImpl->m_FoldRoundTestLosses.clear();
     result.m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_NotInitialized;
     result.m_TreeImpl->m_MeanForestSizeAccumulator = CBoostedTreeImpl::TMeanAccumulator{};
     result.m_TreeImpl->m_MeanLossAccumulator = CBoostedTreeImpl::TMeanAccumulator{};
@@ -1462,6 +1484,12 @@ CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept = defau
 CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) noexcept = default;
 
 CBoostedTreeFactory::~CBoostedTreeFactory() = default;
+
+CBoostedTreeFactory& CBoostedTreeFactory::seed(std::uint64_t seed) {
+    m_TreeImpl->m_Seed = seed;
+    m_TreeImpl->m_Rng.seed(seed);
+    return *this;
+}
 
 CBoostedTreeFactory&
 CBoostedTreeFactory::classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective) {

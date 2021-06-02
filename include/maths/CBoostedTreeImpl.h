@@ -133,6 +133,9 @@ public:
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const;
 
+    //! Get a mask for the new training data.
+    const core::CPackedBitVector& newTrainingRowMask() const;
+
     //! Get start indices of the extra columns.
     const TSizeVec& extraColumns() const;
 
@@ -454,17 +457,17 @@ private:
     void initializeHyperparameterSamples();
 
 private:
+    std::uint64_t m_Seed{0};
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     EInitializationStage m_InitializationStage = E_NotInitialized;
     std::size_t m_NumberThreads;
-    std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
+    std::size_t m_DependentVariable{std::numeric_limits<std::size_t>::max()};
     TOptionalSize m_PaddedExtraColumns;
     TSizeVec m_ExtraColumns;
     TLossFunctionUPtr m_Loss;
-    CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
-        CBoostedTree::E_MinimumRecall;
-    bool m_IncrementalTraining = false;
-    bool m_StopCrossValidationEarly = true;
+    CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective{CBoostedTree::E_MinimumRecall};
+    bool m_IncrementalTraining{false};
+    bool m_StopCrossValidationEarly{true};
     TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
@@ -476,18 +479,18 @@ private:
     TOptionalStrDoublePrVec m_ClassificationWeightsOverride;
     TRegularization m_Regularization;
     TVector m_ClassificationWeights;
-    double m_DownsampleFactor = 0.5;
-    double m_Eta = 0.1;
-    double m_EtaGrowthRatePerTree = 1.05;
-    double m_PredictionChangeCost = 0.5;
-    std::size_t m_NumberFolds = 4;
-    std::size_t m_MaximumNumberTrees = 20;
-    std::size_t m_MaximumAttemptsToAddTree = 3;
-    std::size_t m_NumberSplitsPerFeature = 75;
-    std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 2;
-    std::size_t m_RowsPerFeature = 50;
-    double m_FeatureBagFraction = 0.5;
-    double m_RetrainFraction = 0.1;
+    double m_DownsampleFactor{0.5};
+    double m_Eta{0.1};
+    double m_EtaGrowthRatePerTree{1.05};
+    double m_PredictionChangeCost{0.5};
+    std::size_t m_NumberFolds{4};
+    std::size_t m_MaximumNumberTrees{20};
+    std::size_t m_MaximumAttemptsToAddTree{3};
+    std::size_t m_NumberSplitsPerFeature{75};
+    std::size_t m_MaximumOptimisationRoundsPerHyperparameter{2};
+    std::size_t m_RowsPerFeature{50};
+    double m_FeatureBagFraction{0.5};
+    double m_RetrainFraction{0.1};
     TDataFrameCategoryEncoderUPtr m_Encoder;
     TDataTypeVec m_FeatureDataTypes;
     TDoubleVec m_FeatureSampleProbabilities;
@@ -496,22 +499,22 @@ private:
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
     core::CPackedBitVector m_NewTrainingRowMask;
-    double m_BestForestTestLoss = boosted_tree_detail::INF;
+    double m_BestForestTestLoss{boosted_tree_detail::INF};
     TOptionalDoubleVecVec m_FoldRoundTestLosses;
     CBoostedTreeHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;
-    std::size_t m_NumberRounds = 1;
-    std::size_t m_CurrentRound = 0;
+    std::size_t m_NumberRounds{1};
+    std::size_t m_CurrentRound{0};
     core::CLoopProgress m_TrainingProgress;
-    std::size_t m_NumberTopShapValues = 0;
+    std::size_t m_NumberTopShapValues{0};
     TTreeShapFeatureImportanceUPtr m_TreeShap;
     TAnalysisInstrumentationPtr m_Instrumentation;
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanLossAccumulator;
     THyperparametersVec m_TunableHyperparameters;
     TDoubleVecVec m_HyperparameterSamples;
-    bool m_StopHyperparameterOptimizationEarly = true;
+    bool m_StopHyperparameterOptimizationEarly{true};
 
 private:
     friend class CBoostedTreeFactory;

@@ -36,6 +36,7 @@ class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRun
 public:
     enum ETask { E_Train = 0, E_Update, E_Predict };
 
+    static const std::string RANDOM_NUMBER_GENERATOR_SEED;
     static const std::string DEPENDENT_VARIABLE_NAME;
     static const std::string PREDICTION_FIELD_NAME;
     static const std::string DOWNSAMPLE_ROWS_PER_FEATURE;
@@ -78,6 +79,10 @@ public:
 
     //! \return The capacity of the data frame slice to use.
     std::size_t dataFrameSliceCapacity() const override;
+
+    //! \return A mask of the rows of \p frame to write. This is either all rows
+    //! or new training data if updating.
+    core::CPackedBitVector rowsToWriteMask(const core::CDataFrame& frame) const override;
 
     //! \return The boosted tree.
     const maths::CBoostedTree& boostedTree() const;
