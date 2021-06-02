@@ -11,6 +11,7 @@
 
 #include <seccomp/CSystemCallFilter.h>
 
+#include <torch/csrc/api/include/torch/types.h>
 #include <ver/CBuildInfo.h>
 
 #include <api/CIoManager.h>
@@ -64,12 +65,12 @@ torch::Tensor infer(torch::jit::script::Module& module,
     if (result.isTuple()) {
         // For BERT models the result tensor is the first element in a tuple
         return result.toTuple()->elements()[0].toTensor();
-    } else {
-        return result.toTensor();
     }
+    return result.toTensor();
 }
 
-void writeTensor(torch::TensorAccessor<float, 1> accessor,
+template<typename T>
+void writeTensor(torch::TensorAccessor<T, 1>& accessor,
                  ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     jsonWriter.StartArray();
     for (int i = 0; i < accessor.size(0); ++i) {
@@ -78,7 +79,8 @@ void writeTensor(torch::TensorAccessor<float, 1> accessor,
     jsonWriter.EndArray();
 }
 
-void writeTensor(torch::TensorAccessor<float, 2> accessor,
+template<typename T>
+void writeTensor(torch::TensorAccessor<T, 2>& accessor,
                  ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     for (int i = 0; i < accessor.size(0); ++i) {
         jsonWriter.StartArray();
@@ -87,29 +89,6 @@ void writeTensor(torch::TensorAccessor<float, 2> accessor,
         }
         jsonWriter.EndArray();
     }
-}
-
-template<std::size_t N>
-void writePrediction(const torch::Tensor& prediction,
-                     const std::string& requestId,
-                     ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
-
-    // creating the accessor will throw if the tensor does
-    // not have exactly N dimensions. Do this before writing
-    // any output so the error message isn't mingled with
-    // a partial result
-    auto accessor = prediction.accessor<float, N>();
-
-    jsonWriter.StartObject();
-    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
-    jsonWriter.String(requestId);
-    jsonWriter.Key(INFERENCE);
-    jsonWriter.StartArray();
-
-    writeTensor(accessor, jsonWriter);
-
-    jsonWriter.EndArray();
-    jsonWriter.EndObject();
 }
 
 void writeError(const std::string& requestId,
@@ -121,6 +100,50 @@ void writeError(const std::string& requestId,
     jsonWriter.Key(ERROR);
     jsonWriter.String(message);
     jsonWriter.EndObject();
+}
+
+void writeDocumentOpening(const std::string& requestId,
+                          ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+    jsonWriter.StartObject();
+    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
+    jsonWriter.String(requestId);
+    jsonWriter.Key(INFERENCE);
+    jsonWriter.StartArray();
+}
+
+void writeDocumentClosing(ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+    jsonWriter.EndArray();
+    jsonWriter.EndObject();
+}
+
+template<std::size_t N>
+void writePrediction(const torch::Tensor& prediction,
+                     const std::string& requestId,
+                     ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+
+    // creating the accessor will throw if the tensor does
+    // not have exactly N dimensions. Do this before writing
+    // any output so the error message isn't mingled with
+    // a partial result
+
+    if (prediction.dtype() == torch::kFloat32) {
+        auto accessor = prediction.accessor<float, N>();
+
+        writeDocumentOpening(requestId, jsonWriter);
+        writeTensor(accessor, jsonWriter);
+        writeDocumentClosing(jsonWriter);
+
+    } else if (prediction.dtype() == torch::kFloat64) {
+        auto accessor = prediction.accessor<double, N>();
+
+        writeDocumentOpening(requestId, jsonWriter);
+        writeTensor(accessor, jsonWriter);
+        writeDocumentClosing(jsonWriter);
+    } else {
+        std::ostringstream ss;
+        ss << "cannot process result tensor of type [" << prediction.dtype() << "]";
+        writeError(requestId, ss.str(), jsonWriter);
+    }
 }
 
 bool handleRequest(ml::torch::CCommandParser::SRequest& request,
@@ -144,7 +167,8 @@ bool handleRequest(ml::torch::CCommandParser::SRequest& request,
             ss << "Cannot convert results tensor of size [" << sizes << "]";
             writeError(request.s_RequestId, ss.str(), jsonWriter);
         }
-
+    } catch (const c10::Error& e) {
+        writeError(request.s_RequestId, e.what(), jsonWriter);
     } catch (std::runtime_error& e) {
         writeError(request.s_RequestId, e.what(), jsonWriter);
     }
