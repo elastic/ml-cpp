@@ -60,8 +60,9 @@ public:
 
     //! Write the predictions to the data frame supplied to the constructor.
     //!
+    //! \param[in] newDataOnly Only predict newly supplied data.
     //! \warning This can only be called after train.
-    virtual void predict() const = 0;
+    virtual void predict(bool newDataOnly = false) const = 0;
 
     //! Get the SHAP value calculator.
     //!
@@ -70,6 +71,9 @@ public:
 
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
+
+    //! Get a mask for the new training data.
+    virtual const core::CPackedBitVector& newTrainingRowMask() const = 0;
 
     //! Read the prediction out of \p row.
     virtual TDouble2Vec readPrediction(const TRowRef& row) const = 0;

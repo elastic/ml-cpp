@@ -8,6 +8,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLoopProgress.h>
+#include <core/CPackedBitVector.h>
 
 CDataFrameMockAnalysisRunner::CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec)
     : ml::api::CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId()} {
@@ -20,6 +21,11 @@ std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {
 
 std::size_t CDataFrameMockAnalysisRunner::dataFrameSliceCapacity() const {
     return 10000;
+}
+
+ml::core::CPackedBitVector
+CDataFrameMockAnalysisRunner::rowsToWriteMask(const ml::core::CDataFrame& frame) const {
+    return ml::core::CPackedBitVector{frame.numberRows(), true};
 }
 
 void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,

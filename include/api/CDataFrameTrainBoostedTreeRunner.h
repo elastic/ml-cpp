@@ -80,6 +80,10 @@ public:
     //! \return The capacity of the data frame slice to use.
     std::size_t dataFrameSliceCapacity() const override;
 
+    //! \return A mask of the rows of \p frame to write. This is either all rows
+    //! or new training data if updating.
+    core::CPackedBitVector rowsToWriteMask(const core::CDataFrame& frame) const override;
+
     //! \return The boosted tree.
     const maths::CBoostedTree& boostedTree() const;
 

@@ -8,7 +8,6 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CImmutableRadixSet.h>
-#include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
 #include <core/CMemory.h>
@@ -1709,7 +1708,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
               << lossVariance << ": regularization = " << m_Regularization.print()
               << ", downsample factor = " << m_DownsampleFactor << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
-              << ", feature bag fraction = " << m_FeatureBagFraction);
+              << ", feature bag fraction = " << m_FeatureBagFraction
+              << ", prediction cost change = " << m_PredictionChangeCost);
 
     bopt.add(parameters, meanLoss, lossVariance);
     if (m_CurrentRound < m_HyperparameterSamples.size()) {
@@ -2585,6 +2585,10 @@ CBoostedTreeImpl::TLossFunction& CBoostedTreeImpl::loss() const {
 
 std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
     return m_DependentVariable;
+}
+
+const core::CPackedBitVector& CBoostedTreeImpl::newTrainingRowMask() const {
+    return m_NewTrainingRowMask;
 }
 
 const CBoostedTreeImpl::TSizeVec& CBoostedTreeImpl::extraColumns() const {

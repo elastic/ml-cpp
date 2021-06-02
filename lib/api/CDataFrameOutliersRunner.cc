@@ -89,6 +89,11 @@ std::size_t CDataFrameOutliersRunner::dataFrameSliceCapacity() const {
                                                this->numberExtraColumns());
 }
 
+core::CPackedBitVector
+CDataFrameOutliersRunner::rowsToWriteMask(const core::CDataFrame& frame) const {
+    return core::CPackedBitVector{frame.numberRows(), true};
+}
+
 void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
                                            const TRowRef& row,
                                            core::CRapidJsonConcurrentLineWriter& writer) const {

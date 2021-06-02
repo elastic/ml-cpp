@@ -30,6 +30,7 @@
 namespace ml {
 namespace core {
 class CDataFrame;
+class CPackedBitVector;
 class CRapidJsonConcurrentLineWriter;
 namespace data_frame_detail {
 class CRowRef;
@@ -115,6 +116,12 @@ public:
 
     //! \return The capacity of the data frame slice to use.
     virtual std::size_t dataFrameSliceCapacity() const = 0;
+
+    //! Get a mask for the subset of the rows for which results are required.
+    //!
+    //! \param[in] frame The data frame for which to write results.
+    //! \return A mask of the rows of \p frame to write.
+    virtual core::CPackedBitVector rowsToWriteMask(const core::CDataFrame& frame) const = 0;
 
     //! Write the extra columns of \p row added by the analysis to \p writer.
     //!

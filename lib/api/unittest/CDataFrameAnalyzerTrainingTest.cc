@@ -1042,15 +1042,15 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
         return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
     }};
 
-    // Create a new spec for incremental training.
     outputStream.clear();
     outputStream.str("");
-    // Create new analyzer and run incremental training.
+
+    // Create a new spec for incremental training.
     spec = makeUpdateSpec("target", frameAndDirectory, nullptr, &restorerSupplier);
 
+    // Create new analyzer and run incremental training.
     api::CDataFrameAnalyzer analyzerIncremental{
         std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
-
     auto newTrainingDataFrame = test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
         fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
     analyzerIncremental.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
@@ -1097,11 +1097,14 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     regression->predict();
 
     auto expectedPrediction = expectedPredictions.begin();
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
-        for (auto row = beginRows; row != endRows; ++row) {
-            LOG_DEBUG(<< (*row)[weights.size()] << " vs " << (*expectedPrediction++));
-        }
-    });
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            LOG_DEBUG(<< regression->readPrediction(*row)[0]
+                                      << " vs " << (*expectedPrediction++));
+                        }
+                    },
+                    &newTrainingRowMask);
 }
 
 BOOST_AUTO_TEST_CASE(testClassificationTraining) {

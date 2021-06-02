@@ -314,23 +314,27 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     // can join the extra columns with the original data frame.
     std::size_t numberThreads{1};
 
+    auto rowsToWriteMask = analysis.rowsToWriteMask(*m_DataFrame);
+
     using TRowItr = core::CDataFrame::TRowItr;
-    m_DataFrame->readRows(numberThreads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
-        for (auto row = beginRows; row != endRows; ++row) {
-            writer.StartObject();
-            writer.Key(ROW_RESULTS);
-            writer.StartObject();
-            writer.Key(CHECKSUM);
-            writer.Int(row->docHash());
-            writer.Key(RESULTS);
-            writer.StartObject();
-            writer.Key(m_AnalysisSpecification->resultsField());
-            analysis.writeOneRow(*m_DataFrame, *row, writer);
-            writer.EndObject();
-            writer.EndObject();
-            writer.EndObject();
-        }
-    });
+    m_DataFrame->readRows(numberThreads, 0, m_DataFrame->numberRows(),
+                          [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                              for (auto row = beginRows; row != endRows; ++row) {
+                                  writer.StartObject();
+                                  writer.Key(ROW_RESULTS);
+                                  writer.StartObject();
+                                  writer.Key(CHECKSUM);
+                                  writer.Int(row->docHash());
+                                  writer.Key(RESULTS);
+                                  writer.StartObject();
+                                  writer.Key(m_AnalysisSpecification->resultsField());
+                                  analysis.writeOneRow(*m_DataFrame, *row, writer);
+                                  writer.EndObject();
+                                  writer.EndObject();
+                                  writer.EndObject();
+                              }
+                          },
+                          &rowsToWriteMask);
 
     writer.flush();
 }

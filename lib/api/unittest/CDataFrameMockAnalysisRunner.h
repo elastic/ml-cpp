@@ -34,6 +34,7 @@ public:
 
     std::size_t numberExtraColumns() const override;
     std::size_t dataFrameSliceCapacity() const override;
+    ml::core::CPackedBitVector rowsToWriteMask(const ml::core::CDataFrame& frame) const override;
     void writeOneRow(const ml::core::CDataFrame&,
                      const TRowRef&,
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;

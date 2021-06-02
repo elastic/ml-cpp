@@ -160,7 +160,10 @@ void CBoostedTree::trainIncremental() {
     m_Impl->trainIncremental(this->frame(), this->trainingStateRecorder());
 }
 
-void CBoostedTree::predict() const {
+void CBoostedTree::predict(bool newDataOnly) const {
+    if (newDataOnly) {
+        m_Impl->predict(m_Impl->newTrainingRowMask(), this->frame());
+    }
     m_Impl->predict(this->frame());
 }
 
@@ -174,6 +177,10 @@ CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportanc
 
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
+}
+
+const core::CPackedBitVector& CBoostedTree::newTrainingRowMask() const {
+    return m_Impl->newTrainingRowMask();
 }
 
 CBoostedTree::TDouble2Vec CBoostedTree::readPrediction(const TRowRef& row) const {

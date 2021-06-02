@@ -133,6 +133,9 @@ public:
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const;
 
+    //! Get a mask for the new training data.
+    const core::CPackedBitVector& newTrainingRowMask() const;
+
     //! Get start indices of the extra columns.
     const TSizeVec& extraColumns() const;
 
