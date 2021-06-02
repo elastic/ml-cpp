@@ -70,7 +70,7 @@ torch::Tensor infer(torch::jit::script::Module& module,
 }
 
 template<typename T>
-void writeTensor(torch::TensorAccessor<T, 1>& accessor,
+void writeTensor(const torch::TensorAccessor<T, 1UL>& accessor,
                  ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     jsonWriter.StartArray();
     for (int i = 0; i < accessor.size(0); ++i) {
@@ -80,14 +80,10 @@ void writeTensor(torch::TensorAccessor<T, 1>& accessor,
 }
 
 template<typename T>
-void writeTensor(torch::TensorAccessor<T, 2>& accessor,
+void writeTensor(const torch::TensorAccessor<T, 2UL>& accessor,
                  ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     for (int i = 0; i < accessor.size(0); ++i) {
-        jsonWriter.StartArray();
-        for (int j = 0; j < accessor.size(1); ++j) {
-            jsonWriter.Double(static_cast<double>(accessor[i][j]));
-        }
-        jsonWriter.EndArray();
+        writeTensor(accessor[i], jsonWriter);
     }
 }
 
