@@ -49,7 +49,7 @@ struct API_EXPORT CDataSummarizationJsonTags {
 //! DESCRIPTION:\n
 //! The data summarization contains data rows as well as the feature value encoding
 //! information.
-class API_EXPORT CDataSummarizationJsonWriter
+class API_EXPORT CDataSummarizationJsonWriter final
     : public CSerializableToCompressedChunkedJson,
       public CDataSummarizationJsonTags {
 public:
