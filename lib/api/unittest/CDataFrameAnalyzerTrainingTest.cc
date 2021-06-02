@@ -34,6 +34,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
+
 #include <memory>
 #include <sstream>
 #include <string>
@@ -1066,6 +1067,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
         }
     }
+    BOOST_REQUIRE_EQUAL(numberExamples, expectedPredictions.size());
 
     frame->resizeColumns(1, weights.size() + 1);
     TDoubleVecVec newTrainingData;
@@ -1100,8 +1102,9 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     frame->readRows(1, 0, frame->numberRows(),
                     [&](const TRowItr& beginRows, const TRowItr& endRows) {
                         for (auto row = beginRows; row != endRows; ++row) {
-                            LOG_DEBUG(<< regression->readPrediction(*row)[0]
-                                      << " vs " << (*expectedPrediction++));
+                            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                                (*expectedPrediction++),
+                                regression->readPrediction(*row)[0], 1e-6);
                         }
                     },
                     &newTrainingRowMask);
