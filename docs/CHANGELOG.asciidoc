@@ -42,6 +42,11 @@
   - the C++ front end to PyTorch and performs inference on models stored in the 
   TorchScript format. (See {ml-pull}1902[#1902].)
 
+=== Bug Fixes
+
+*. Ensure bucket count calculation is performed for simple count jobs with 1s bucket spans.
+  (See {ml-pull}1908[#1908].)
+
 == {es} version 7.14.0
 
 === Enhancements
