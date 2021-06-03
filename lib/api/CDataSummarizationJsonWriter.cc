@@ -126,7 +126,9 @@ void CDataSummarizationJsonWriter::addToJsonStream(TGenericLineWriter& writer) c
     }
     rapidjson::ParseResult ok(doc.Parse(encodings.str()));
     if (static_cast<bool>(ok) == false) {
-        LOG_ERROR(<< "Failed parsing encoding json. Please report this error.");
+        LOG_ERROR(<< "Failed parsing encoding json: "
+                  << rapidjson::GetParseError_En(doc.GetParseError())
+                  << ". Please report this error.");
     } else {
         writer.Key(JSON_ENCODINGS_TAG);
         writer.write(doc);
