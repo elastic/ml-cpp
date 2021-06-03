@@ -11,7 +11,6 @@
 #include <core/CStatePersistInserter.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
-#include <api/CDataSummarizationJsonSerializer.h>
 #include <api/CInferenceModelDefinition.h>
 #include <api/CInferenceModelMetadata.h>
 #include <api/ImportExport.h>
@@ -38,6 +37,7 @@ class CRowRef;
 }
 namespace api {
 class CDataFrameAnalysisSpecification;
+class CDataSummarizationJsonWriter;
 class CMemoryUsageEstimationResultJsonWriter;
 
 //! \brief Hierarchy for running a specific core::CDataFrame analyses.

@@ -13,7 +13,8 @@
 #include <maths/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameAnalyzer.h>
-#include <api/CDataSummarizationJsonSerializer.h>
+#include <api/CDataSummarizationJsonWriter.h>
+#include <api/CRetrainableModelJsonReader.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
