@@ -16,6 +16,7 @@
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataSummarizationJsonWriter.h>
 
 #include <cmath>
 #include <limits>

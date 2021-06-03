@@ -25,7 +25,7 @@ std::size_t CDataFrameMockAnalysisRunner::dataFrameSliceCapacity() const {
 
 ml::core::CPackedBitVector
 CDataFrameMockAnalysisRunner::rowsToWriteMask(const ml::core::CDataFrame& frame) const {
-    return ml::core::CPackedBitVector{frame.numberRows(), true};
+    return {frame.numberRows(), true};
 }
 
 void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,

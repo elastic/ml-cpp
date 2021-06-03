@@ -23,7 +23,9 @@
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataSummarizationJsonWriter.h>
 #include <api/CInferenceModelDefinition.h>
+#include <api/CRetrainableModelJsonReader.h>
 #include <api/ElasticsearchStateIndex.h>
 
 #include <rapidjson/document.h>
@@ -272,7 +274,7 @@ CDataFrameTrainBoostedTreeRunner::rowsToWriteMask(const core::CDataFrame& frame)
     switch (m_Task) {
     case E_Train:
     case E_Predict:
-        return core::CPackedBitVector{frame.numberRows(), true};
+        return {frame.numberRows(), true};
     case E_Update:
         return m_BoostedTree->newTrainingRowMask();
     }

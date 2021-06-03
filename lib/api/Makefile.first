@@ -41,7 +41,8 @@ CDataFrameTrainBoostedTreeClassifierRunner.cc \
 CDataFrameTrainBoostedTreeRegressionRunner.cc \
 CDataFrameTrainBoostedTreeRunner.cc \
 CDataProcessor.cc \
-CDataSummarizationJsonSerializer.cc \
+CDataSummarizationJsonTags.cc \
+CDataSummarizationJsonWriter.cc \
 CDetectionRulesJsonParser.cc \
 CFieldDataCategorizer.cc \
 CForecastRunner.cc \
@@ -64,6 +65,7 @@ CNoopCategoryIdMapper.cc \
 CPerPartitionCategoryIdMapper.cc \
 CPersistenceManager.cc \
 CResultNormalizer.cc \
+CRetrainableModelJsonReader.cc \
 CSerializableToJson.cc \
 CSimpleOutputWriter.cc \
 CSingleFieldDataCategorizer.cc \

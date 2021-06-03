@@ -18,7 +18,6 @@
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
-#include <api/CDataSummarizationJsonSerializer.h>
 #include <api/ElasticsearchStateIndex.h>
 
 #include <cmath>
