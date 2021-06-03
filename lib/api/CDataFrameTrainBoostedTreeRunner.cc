@@ -274,7 +274,7 @@ CDataFrameTrainBoostedTreeRunner::rowsToWriteMask(const core::CDataFrame& frame)
     switch (m_Task) {
     case E_Train:
     case E_Predict:
-        return core::CPackedBitVector{frame.numberRows(), true};
+        return {frame.numberRows(), true};
     case E_Update:
         return m_BoostedTree->newTrainingRowMask();
     }
