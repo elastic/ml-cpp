@@ -7,7 +7,7 @@
 #include <api/CDataSummarizationJsonTags.h>
 
 namespace ml {
-namespace api {    
+namespace api {
 // clang-format off
 const std::string CDataSummarizationJsonTags::JSON_COMPRESSED_DATA_SUMMARIZATION_TAG{"compressed_data_summarization"};
 const std::string CDataSummarizationJsonTags::JSON_DATA_SUMMARIZATION_TAG{"data_summarization"};
