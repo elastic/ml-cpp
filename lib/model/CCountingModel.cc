@@ -282,7 +282,7 @@ bool CCountingModel::computeProbability(std::size_t pid,
                                         SAnnotatedProbability& result) const {
     result = SAnnotatedProbability(1.0);
     result.s_CurrentBucketCount =
-        this->currentBucketCount(pid, (startTime + endTime) / 2 - 1);
+        this->currentBucketCount(pid, (startTime + endTime + 1) / 2 - 1);
     result.s_BaselineBucketCount = this->baselineBucketCount(pid);
     return true;
 }
