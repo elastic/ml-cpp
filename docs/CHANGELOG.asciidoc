@@ -44,7 +44,7 @@
 
 === Bug Fixes
 
-* Ensure bucket count calculation is performed for simple count jobs with 1s bucket spans.
+* Ensure bucket `event_count` is calculated for jobs with 1 second bucket spans.
   (See {ml-pull}1908[#1908].)
 
 == {es} version 7.14.0
