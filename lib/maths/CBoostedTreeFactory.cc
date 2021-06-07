@@ -489,14 +489,16 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
         core::CMemory::dynamicSize(frame) - frameMemory);
     m_TreeImpl->m_Instrumentation->flush();
 
-    // Compute predictions from the old model on the new training data.
-    m_TreeImpl->predict(m_TreeImpl->m_NewTrainingRowMask, frame);
+    // Compute predictions from the old model.
+    m_TreeImpl->predict(frame);
 
     // Copy all predictions to previous prediction column(s) in frame.
     frame.writeColumns(m_NumberThreads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
-        for (auto row = beginRows; row != endRows; ++row) {
-            readPreviousPrediction(*row, m_TreeImpl->m_ExtraColumns, numberLossParameters) =
-                readPrediction(*row, m_TreeImpl->m_ExtraColumns, numberLossParameters);
+        for (auto row_ = beginRows; row_ != endRows; ++row_) {
+            auto row = *row_;
+            writePreviousPrediction(
+                row, m_TreeImpl->m_ExtraColumns, numberLossParameters,
+                readPrediction(row, m_TreeImpl->m_ExtraColumns, numberLossParameters));
         }
     });
 }
