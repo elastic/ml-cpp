@@ -152,6 +152,14 @@ double trace(std::size_t columns, const TMemoryMappedFloatVector& upperTriangle)
     return result;
 }
 
+TSizeVec merge(const TSizeVec& x, TSizeVec y) {
+    std::size_t split{y.size()};
+    y.insert(y.end(), x.begin(), x.end());
+    std::inplace_merge(y.begin(), y.begin() + split, y.end());
+    y.erase(std::unique(y.begin(), y.end()), y.end());
+    return y;
+}
+
 CDataFrameTrainBoostedTreeInstrumentationStub INSTRUMENTATION_STUB;
 
 double numberForestNodes(const CBoostedTreeImpl::TNodeVecVec& forest) {
@@ -939,6 +947,10 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
     for (const auto& index : m_TreesToRetrain) {
 
+        LOG_TRACE(<< "Retraining = "
+                  << root(m_BestForest[index]).print(m_BestForest[index]));
+
+        workspace.retraining(m_BestForest[index]);
         this->removePredictions(frame, trainingRowMask, testingRowMask, m_BestForest[index]);
 
         auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
@@ -1097,6 +1109,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
 
     workspace.reinitialize(m_NumberThreads, candidateSplits);
+    TSizeVec featuresToInclude{workspace.featuresToInclude()};
+    LOG_TRACE(<< "features to include = "
+              << core::CContainerPrinter::print(featuresToInclude));
 
     TNodeVec tree(1);
     // Since number of leaves in a perfect binary tree is (numberInternalNodes+1)
@@ -1109,9 +1124,12 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     TSizeVec treeFeatureBag;
     TSizeVec nodeFeatureBag;
     this->treeFeatureBag(featureSampleProbabilities, treeFeatureBag);
+    treeFeatureBag = merge(featuresToInclude, std::move(treeFeatureBag));
+    LOG_TRACE(<< "tree bag = " << core::CContainerPrinter::print(treeFeatureBag));
 
     featureSampleProbabilities = m_FeatureSampleProbabilities;
     this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
+    nodeFeatureBag = merge(featuresToInclude, std::move(nodeFeatureBag));
 
     TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
     splittableLeaves.push_back(makeRootLeafNodeStatistics(
@@ -1175,6 +1193,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         featureSampleProbabilities = m_FeatureSampleProbabilities;
         this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
+        nodeFeatureBag = merge(featuresToInclude, std::move(nodeFeatureBag));
 
         std::size_t numberSplittableLeaves{splittableLeaves.size()};
         std::size_t currentNumberInternalNodes{(tree.size() - 1) / 2};

@@ -12,6 +12,7 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/COrderings.h>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -309,6 +310,23 @@ std::size_t CBoostedTreeLeafNodeStatistics::numberLossParameters() const {
 const CBoostedTreeLeafNodeStatistics::TImmutableRadixSetVec&
 CBoostedTreeLeafNodeStatistics::candidateSplits() const {
     return m_CandidateSplits;
+}
+
+CBoostedTreeLeafNodeStatistics::TSizeVec
+CBoostedTreeLeafNodeStatistics::CWorkspace::featuresToInclude() const {
+
+    TSizeVec result;
+    if (m_TreeToRetrain != nullptr) {
+        for (const auto& node : *m_TreeToRetrain) {
+            if (node.isLeaf() == false) {
+                result.push_back(node.splitFeature());
+            }
+        }
+    }
+    std::sort(result.begin(), result.end());
+    result.erase(std::unique(result.begin(), result.end()), result.end());
+
+    return result;
 }
 }
 }
