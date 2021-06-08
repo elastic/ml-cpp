@@ -764,15 +764,15 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
-                if (m_IncrementalTraining == false) {
-                    zeroPrediction(row, m_ExtraColumns, numberLossParameters);
-                } else {
+                if (m_IncrementalTraining) {
                     writePrediction(row, m_ExtraColumns, numberLossParameters,
                                     readPreviousPrediction(row, m_ExtraColumns,
                                                            numberLossParameters));
+                } else {
+                    zeroPrediction(row, m_ExtraColumns, numberLossParameters);
+                    zeroLossGradient(row, m_ExtraColumns, numberLossParameters);
+                    zeroLossCurvature(row, m_ExtraColumns, numberLossParameters);
                 }
-                zeroLossGradient(row, m_ExtraColumns, numberLossParameters);
-                zeroLossCurvature(row, m_ExtraColumns, numberLossParameters);
             }
         },
         &updateRowMask);
@@ -921,7 +921,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
     std::size_t maximumNumberInternalNodes{maximumTreeSize(trainingRowMask)};
 
     TNodeVecVec retrainedTrees;
-    retrainedTrees.reserve(m_TreesToRetrain.size());
+    retrainedTrees.reserve(m_TreesToRetrain.size() + 1);
     this->initializePredictionsAndLossDerivatives(frame, trainingRowMask, testingRowMask);
 
     CScopeRecordMemoryUsage scopeMemoryUsage{
@@ -945,24 +945,28 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
     //  1. Rebuild one tree on fixed upfront candidate splits of features.
     //  2. Update predictions and loss derivatives.
 
+    retrainedTrees.emplace_back();
     for (const auto& index : m_TreesToRetrain) {
 
-        LOG_TRACE(<< "Retraining = "
+        LOG_TRACE(<< "Retraining ="
                   << root(m_BestForest[index]).print(m_BestForest[index]));
 
-        workspace.retraining(m_BestForest[index]);
-        this->removePredictions(frame, trainingRowMask, testingRowMask, m_BestForest[index]);
+        const auto& treeToRetrain = m_BestForest[index];
+
+        workspace.retraining(treeToRetrain);
+        this->removePredictions(frame, trainingRowMask, testingRowMask, treeToRetrain);
+
+        double eta{this->etaForTreeAtPosition(index)};
+        auto loss = m_Loss->incremental(eta, m_PredictionChangeCost, treeToRetrain);
+        this->refreshPredictionsAndLossDerivatives(
+            frame, trainingRowMask, testingRowMask, *loss, eta,
+            m_Regularization.leafWeightPenaltyMultiplier(), retrainedTrees.back());
 
         auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
                                     maximumNumberInternalNodes,
                                     makeRootLeafNodeStatistics, workspace);
 
         scopeMemoryUsage.add(tree);
-        double eta{this->etaForTreeAtPosition(index)};
-        auto loss = m_Loss->incremental(eta, m_PredictionChangeCost, m_BestForest[index]);
-        this->refreshPredictionsAndLossDerivatives(
-            frame, trainingRowMask, testingRowMask, *loss, eta,
-            m_Regularization.leafWeightPenaltyMultiplier(), tree);
         retrainedTrees.push_back(std::move(tree));
         trainingProgress.increment();
 
@@ -971,10 +975,12 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
         losses.push_back(this->meanAdjustedLoss(frame, testingRowMask));
     }
+    retrainedTrees.erase(retrainedTrees.begin());
 
     auto bestLoss = static_cast<std::size_t>(
         std::min_element(losses.begin(), losses.end()) - losses.begin());
     retrainedTrees.resize(bestLoss + 1);
+    LOG_TRACE(<< "# retrained trees = " << retrainedTrees.size());
 
     return {std::move(retrainedTrees), losses[bestLoss], std::move(losses)};
 }
@@ -1485,44 +1491,49 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
     double lambda,
     TNodeVec& tree) const {
 
-    TArgMinLossVec leafValues(tree.size(), loss.minimizer(lambda, m_Rng));
-    auto nextPass = [&] {
-        bool done{true};
-        for (const auto& value : leafValues) {
-            done &= (value.nextPass() == false);
-        }
-        return done == false;
-    };
+    TArgMinLossVec leafValues;
 
-    do {
-        TArgMinLossVecVec result(m_NumberThreads, leafValues);
-        if (m_IncrementalTraining) {
-            this->minimumLossLeafValues(false /*new example*/, frame,
-                                        trainingRowMask & ~m_NewTrainingRowMask,
-                                        loss, tree, result);
-            this->minimumLossLeafValues(true /*new example*/, frame,
-                                        trainingRowMask & m_NewTrainingRowMask,
-                                        loss, tree, result);
-        } else {
-            this->minimumLossLeafValues(false /*new example*/, frame,
-                                        trainingRowMask, loss, tree, result);
-        }
+    if (tree.empty() == false) {
 
-        leafValues = std::move(result[0]);
-        for (std::size_t i = 1; i < result.size(); ++i) {
-            for (std::size_t j = 0; j < leafValues.size(); ++j) {
-                leafValues[j].merge(result[i][j]);
+        auto nextPass = [&] {
+            bool done{true};
+            for (const auto& value : leafValues) {
+                done &= (value.nextPass() == false);
+            }
+            return done == false;
+        };
+
+        leafValues.resize(tree.size(), loss.minimizer(lambda, m_Rng));
+        do {
+            TArgMinLossVecVec result(m_NumberThreads, leafValues);
+            if (m_IncrementalTraining) {
+                this->minimumLossLeafValues(false /*new example*/, frame,
+                                            trainingRowMask & ~m_NewTrainingRowMask,
+                                            loss, tree, result);
+                this->minimumLossLeafValues(true /*new example*/, frame,
+                                            trainingRowMask & m_NewTrainingRowMask,
+                                            loss, tree, result);
+            } else {
+                this->minimumLossLeafValues(false /*new example*/, frame,
+                                            trainingRowMask, loss, tree, result);
+            }
+
+            leafValues = std::move(result[0]);
+            for (std::size_t i = 1; i < result.size(); ++i) {
+                for (std::size_t j = 0; j < leafValues.size(); ++j) {
+                    leafValues[j].merge(result[i][j]);
+                }
+            }
+        } while (nextPass());
+
+        for (std::size_t i = 0; i < tree.size(); ++i) {
+            if (tree[i].isLeaf()) {
+                tree[i].value(eta * leafValues[i].value());
             }
         }
-    } while (nextPass());
 
-    for (std::size_t i = 0; i < tree.size(); ++i) {
-        if (tree[i].isLeaf()) {
-            tree[i].value(eta * leafValues[i].value());
-        }
+        LOG_TRACE(<< "tree = " << root(tree).print(tree));
     }
-
-    LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
 
     core::CPackedBitVector updateRowMask{trainingRowMask | testingRowMask};
 
@@ -1569,17 +1580,23 @@ void CBoostedTreeImpl::writeRowDerivatives(bool newExample,
                                            const core::CPackedBitVector& rowMask,
                                            const TLossFunction& loss,
                                            const TNodeVec& tree) const {
+
+    auto addTreePrediction = [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
+        if (tree.empty() == false) {
+            prediction += root(tree).value(m_Encoder->encode(row), tree);
+        }
+    };
+
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{loss.numberParameters()};
-            const auto& rootNode = root(tree);
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
                 auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
                 double actual{readActual(row, m_DependentVariable)};
                 double weight{readExampleWeight(row, m_ExtraColumns)};
-                prediction += rootNode.value(m_Encoder->encode(row), tree);
+                addTreePrediction(row, prediction);
                 writeLossGradient(row, newExample, m_ExtraColumns, *m_Encoder,
                                   loss, prediction, actual, weight);
                 writeLossCurvature(row, newExample, m_ExtraColumns, *m_Encoder,
