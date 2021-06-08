@@ -112,6 +112,20 @@ inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
 MATHS_EXPORT
 void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
 
+//! Write \p value to \p row prediction column(s).
+MATHS_EXPORT
+void writePrediction(const TRowRef& row,
+                     const TSizeVec& extraColumns,
+                     std::size_t numberLossParameters,
+                     const TMemoryMappedFloatVector& value);
+
+//! Write \p value to \p row previous prediction column(s).
+MATHS_EXPORT
+void writePreviousPrediction(const TRowRef& row,
+                             const TSizeVec& extraColumns,
+                             std::size_t numberLossParameters,
+                             const TMemoryMappedFloatVector& value);
+
 //! Read the previous prediction for \p row if training incementally.
 MATHS_EXPORT
 inline TMemoryMappedFloatVector readPreviousPrediction(const TRowRef& row,
