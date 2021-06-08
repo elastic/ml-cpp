@@ -56,7 +56,7 @@ public:
 
     //! \name Capacity
     //@{
-    bool empty() const { return m_Values.size(); }
+    bool empty() const { return m_Values.empty(); }
     std::size_t size() const { return m_Values.size(); }
     //@}
 
