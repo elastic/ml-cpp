@@ -309,6 +309,9 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
             hr[ASSIGN_MISSING_TO_LEFT] -= curvature;
             hr[ASSIGN_MISSING_TO_RIGHT] -= curvature;
 
+            // Note in the following we scale the tree change penalty by 2 to undo
+            // the scaling which is applied when computing maximum gain.
+
             if (cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c) {
                 gain[ASSIGN_MISSING_TO_LEFT] = -INF;
             } else {
@@ -318,7 +321,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
                                                 hr[ASSIGN_MISSING_TO_LEFT])};
                 gain[ASSIGN_MISSING_TO_LEFT] =
                     minLossLeft + minLossRight -
-                    this->penaltyForTreeChange(regularization, feature, split);
+                    2.0 * this->penaltyForTreeChange(regularization, feature, split);
             }
 
             if (cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c) {
@@ -330,7 +333,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
                                                 hr[ASSIGN_MISSING_TO_RIGHT])};
                 gain[ASSIGN_MISSING_TO_RIGHT] =
                     minLossLeft + minLossRight -
-                    this->penaltyForTreeChange(regularization, feature, split);
+                    2.0 * this->penaltyForTreeChange(regularization, feature, split);
             }
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
@@ -401,7 +404,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange(const TRegulariz
 
     double splitAt{candidateSplits[split]};
     double previousSplitAt{CTools::truncate(m_PreviousSplit->s_SplitAt, a, b)};
-    return 0.5 * regularization.treeTopologyChangePenalty() *
+    return 0.25 * regularization.treeTopologyChangePenalty() *
            std::fabs(splitAt - previousSplitAt) / (b - a);
 }
 
