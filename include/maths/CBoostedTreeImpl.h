@@ -339,19 +339,16 @@ private:
 
     //! Remove the predictions of \p tree from \p frame for the masked rows.
     void removePredictions(core::CDataFrame& frame,
-                           const core::CPackedBitVector& trainingRowMask,
-                           const core::CPackedBitVector& testingRowMask,
+                           const core::CPackedBitVector& rowMask,
                            const TNodeVec& tree) const;
 
-    //! Refresh the predictions and loss function derivatives for the masked
-    //! rows in \p frame with predictions of \p tree.
-    void refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
-                                              const core::CPackedBitVector& trainingRowMask,
-                                              const core::CPackedBitVector& testingRowMask,
-                                              const TLossFunction& loss,
-                                              double eta,
-                                              double lambda,
-                                              TNodeVec& tree) const;
+    //! Compute the leaf values to use for \p tree.
+    void computeLeafValues(core::CDataFrame& frame,
+                           const core::CPackedBitVector& trainingRowMask,
+                           const TLossFunction& loss,
+                           double eta,
+                           double lambda,
+                           TNodeVec& tree) const;
 
     //! Extract the leaf values for \p tree which minimize \p loss on \p rowMask
     //! rows of \p frame.
@@ -362,12 +359,20 @@ private:
                                const TNodeVec& tree,
                                TArgMinLossVecVec& result) const;
 
-    //! Write \p loss gradient and curvature for the \p rowMask rows of \p frame.
-    void writeRowDerivatives(bool newExample,
-                             core::CDataFrame& frame,
-                             const core::CPackedBitVector& rowMask,
-                             const TLossFunction& loss,
-                             const TNodeVec& tree) const;
+    //! Update the predictions and the \p loss gradient and curvature for the
+    //! \p rowMask rows of \p frame for all training data.
+    void refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
+                                              const core::CPackedBitVector& rowMask,
+                                              const TLossFunction& loss,
+                                              TNodeVec& tree) const;
+
+    //! Update the predictions and the \p loss gradient and curvature for the
+    //! \p rowMask rows of \p frame for old or new training data.
+    void refreshPredictionsAndLossDerivatives(bool newExample,
+                                              core::CDataFrame& frame,
+                                              const core::CPackedBitVector& rowMask,
+                                              const TLossFunction& loss,
+                                              const TNodeVec& tree) const;
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;

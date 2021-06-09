@@ -781,9 +781,10 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
     if (m_IncrementalTraining == false) {
         // At the start we will centre the data w.r.t. the given loss function.
         tree.assign({CBoostedTreeNode{m_Loss->numberParameters()}});
-        this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask,
-                                                   testingRowMask, *m_Loss,
-                                                   1.0 /*eta*/, 0.0 /*lambda*/, tree);
+        this->computeLeafValues(frame, trainingRowMask, *m_Loss, 1.0 /*eta*/,
+                                0.0 /*lambda*/, tree);
+        this->refreshPredictionsAndLossDerivatives(
+            frame, trainingRowMask | testingRowMask, *m_Loss, tree);
     }
 
     return tree;
@@ -859,27 +860,25 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             break;
         }
 
+        bool forceRefreshSplits{tree.size() <= 1};
+
         if (tree.size() > 1) {
             scopeMemoryUsage.add(tree);
+            this->computeLeafValues(frame, trainingRowMask, *m_Loss, eta,
+                                    m_Regularization.leafWeightPenaltyMultiplier(), tree);
             this->refreshPredictionsAndLossDerivatives(
-                frame, trainingRowMask, testingRowMask, *m_Loss, eta,
-                m_Regularization.leafWeightPenaltyMultiplier(), tree);
+                frame, trainingRowMask | testingRowMask, *m_Loss, tree);
             forest.push_back(std::move(tree));
             eta = std::min(1.0, m_EtaGrowthRatePerTree * eta);
             retries = 0;
             trainingProgress.increment();
-        } else {
-            // Refresh splits in case it allows us to find tree which can reduce loss.
-            scopeMemoryUsage.remove(candidateSplits);
-            candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-            scopeMemoryUsage.add(candidateSplits);
-            nextTreeCountToRefreshSplits += static_cast<std::size_t>(
-                std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
         }
 
+        scopeMemoryUsage.remove(downsampledRowMask);
         downsampledRowMask = this->downsample(trainingRowMask);
+        scopeMemoryUsage.add(downsampledRowMask);
 
-        if (forest.size() == nextTreeCountToRefreshSplits) {
+        if (forceRefreshSplits || forest.size() == nextTreeCountToRefreshSplits) {
             scopeMemoryUsage.remove(candidateSplits);
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
             scopeMemoryUsage.add(candidateSplits);
@@ -911,6 +910,10 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
                                core::CLoopProgress& trainingProgress) const {
 
     LOG_TRACE(<< "Incrementally training one forest...");
+
+    if (m_TreesToRetrain.empty()) {
+        return {{}, INF, {}};
+    }
 
     auto makeRootLeafNodeStatistics =
         [&](const TImmutableRadixSetVec& candidateSplits,
@@ -946,9 +949,13 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
     TWorkspace workspace{m_Loss->numberParameters()};
 
-    // For each iteration:
-    //  1. Rebuild one tree on fixed upfront candidate splits of features.
-    //  2. Update predictions and loss derivatives.
+    // The exact sequence of operations in this loop is important. For each
+    // iteration:
+    //   1. Remove tree to be retrained predictions + add *previous* retrained
+    //      tree predictions and refresh loss derivatives
+    //   2. Periodically compute weighted quantiles for features F and candidate
+    //      splits S from F.
+    //   3. Build one tree on S.
 
     retrainedTrees.emplace_back();
     for (const auto& index : m_TreesToRetrain) {
@@ -959,13 +966,12 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         const auto& treeToRetrain = m_BestForest[index];
 
         workspace.retraining(treeToRetrain);
-        this->removePredictions(frame, trainingRowMask, testingRowMask, treeToRetrain);
+        this->removePredictions(frame, trainingRowMask | testingRowMask, treeToRetrain);
 
         double eta{this->etaForTreeAtPosition(index)};
         auto loss = m_Loss->incremental(eta, m_PredictionChangeCost, treeToRetrain);
         this->refreshPredictionsAndLossDerivatives(
-            frame, trainingRowMask, testingRowMask, *loss, eta,
-            m_Regularization.leafWeightPenaltyMultiplier(), retrainedTrees.back());
+            frame, trainingRowMask | testingRowMask, *loss, retrainedTrees.back());
 
         if (retrainedTrees.size() == nextTreeCountToRefreshSplits) {
             scopeMemoryUsage.remove(candidateSplits);
@@ -978,13 +984,17 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
                                     maximumNumberInternalNodes,
                                     makeRootLeafNodeStatistics, workspace);
+        this->computeLeafValues(frame, trainingRowMask, *loss, eta,
+                                m_Regularization.leafWeightPenaltyMultiplier(), tree);
 
         scopeMemoryUsage.add(tree);
         retrainedTrees.push_back(std::move(tree));
         trainingProgress.increment();
 
+        scopeMemoryUsage.remove(downsampledRowMask);
         downsampledRowMask = this->downsample(oldTrainingRowMask) |
                              this->downsample(newTrainingRowMask);
+        scopeMemoryUsage.add(downsampledRowMask);
 
         losses.push_back(this->meanAdjustedLoss(frame, testingRowMask));
     }
@@ -1476,12 +1486,8 @@ void CBoostedTreeImpl::candidateRegressorFeatures(const TDoubleVec& probabilitie
 }
 
 void CBoostedTreeImpl::removePredictions(core::CDataFrame& frame,
-                                         const core::CPackedBitVector& trainingRowMask,
-                                         const core::CPackedBitVector& testingRowMask,
+                                         const core::CPackedBitVector& rowMask,
                                          const TNodeVec& tree) const {
-
-    core::CPackedBitVector rowMask{trainingRowMask | testingRowMask};
-
     frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
                        [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            std::size_t numberLossParameters{m_Loss->numberParameters()};
@@ -1495,59 +1501,50 @@ void CBoostedTreeImpl::removePredictions(core::CDataFrame& frame,
                        &rowMask);
 }
 
-void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
-    core::CDataFrame& frame,
-    const core::CPackedBitVector& trainingRowMask,
-    const core::CPackedBitVector& testingRowMask,
-    const TLossFunction& loss,
-    double eta,
-    double lambda,
-    TNodeVec& tree) const {
+void CBoostedTreeImpl::computeLeafValues(core::CDataFrame& frame,
+                                         const core::CPackedBitVector& trainingRowMask,
+                                         const TLossFunction& loss,
+                                         double eta,
+                                         double lambda,
+                                         TNodeVec& tree) const {
 
-    TArgMinLossVec leafValues;
-
-    if (tree.empty() == false) {
-
-        auto nextPass = [&] {
-            bool done{true};
-            for (const auto& value : leafValues) {
-                done &= (value.nextPass() == false);
-            }
-            return done == false;
-        };
-
-        leafValues.resize(tree.size(), loss.minimizer(lambda, m_Rng));
-        do {
-            TArgMinLossVecVec result(m_NumberThreads, leafValues);
-            this->minimumLossLeafValues(false /*new example*/, frame,
-                                        trainingRowMask & ~m_NewTrainingRowMask,
-                                        loss, tree, result);
-            this->minimumLossLeafValues(true /*new example*/, frame,
-                                        trainingRowMask & m_NewTrainingRowMask,
-                                        loss, tree, result);
-            leafValues = std::move(result[0]);
-            for (std::size_t i = 1; i < result.size(); ++i) {
-                for (std::size_t j = 0; j < leafValues.size(); ++j) {
-                    leafValues[j].merge(result[i][j]);
-                }
-            }
-        } while (nextPass());
-
-        for (std::size_t i = 0; i < tree.size(); ++i) {
-            if (tree[i].isLeaf()) {
-                tree[i].value(eta * leafValues[i].value());
-            }
-        }
-
-        LOG_TRACE(<< "tree = " << root(tree).print(tree));
+    if (tree.empty()) {
+        return;
     }
 
-    core::CPackedBitVector updateRowMask{trainingRowMask | testingRowMask};
+    TArgMinLossVec leafValues;
+    auto nextPass = [&] {
+        bool done{true};
+        for (const auto& value : leafValues) {
+            done &= (value.nextPass() == false);
+        }
+        return done == false;
+    };
 
-    this->writeRowDerivatives(false /*new example*/, frame,
-                              updateRowMask & ~m_NewTrainingRowMask, loss, tree);
-    this->writeRowDerivatives(true /*new example*/, frame,
-                              updateRowMask & m_NewTrainingRowMask, loss, tree);
+    leafValues.resize(tree.size(), loss.minimizer(lambda, m_Rng));
+    do {
+        TArgMinLossVecVec result(m_NumberThreads, leafValues);
+        this->minimumLossLeafValues(false /*new example*/, frame,
+                                    trainingRowMask & ~m_NewTrainingRowMask,
+                                    loss, tree, result);
+        this->minimumLossLeafValues(true /*new example*/, frame,
+                                    trainingRowMask & m_NewTrainingRowMask,
+                                    loss, tree, result);
+        leafValues = std::move(result[0]);
+        for (std::size_t i = 1; i < result.size(); ++i) {
+            for (std::size_t j = 0; j < leafValues.size(); ++j) {
+                leafValues[j].merge(result[i][j]);
+            }
+        }
+    } while (nextPass());
+
+    for (std::size_t i = 0; i < tree.size(); ++i) {
+        if (tree[i].isLeaf()) {
+            tree[i].value(eta * leafValues[i].value());
+        }
+    }
+
+    LOG_TRACE(<< "tree = " << root(tree).print(tree));
 }
 
 void CBoostedTreeImpl::minimumLossLeafValues(bool newExample,
@@ -1578,11 +1575,21 @@ void CBoostedTreeImpl::minimumLossLeafValues(bool newExample,
     frame.readRows(0, frame.numberRows(), minimizers, &rowMask);
 }
 
-void CBoostedTreeImpl::writeRowDerivatives(bool newExample,
-                                           core::CDataFrame& frame,
-                                           const core::CPackedBitVector& rowMask,
-                                           const TLossFunction& loss,
-                                           const TNodeVec& tree) const {
+void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
+                                                            const core::CPackedBitVector& rowMask,
+                                                            const TLossFunction& loss,
+                                                            TNodeVec& tree) const {
+    this->refreshPredictionsAndLossDerivatives(
+        false /*new example*/, frame, rowMask & ~m_NewTrainingRowMask, loss, tree);
+    this->refreshPredictionsAndLossDerivatives(
+        true /*new example*/, frame, rowMask & m_NewTrainingRowMask, loss, tree);
+}
+
+void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(bool newExample,
+                                                            core::CDataFrame& frame,
+                                                            const core::CPackedBitVector& rowMask,
+                                                            const TLossFunction& loss,
+                                                            const TNodeVec& tree) const {
 
     auto addTreePrediction = [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
         if (tree.empty() == false) {

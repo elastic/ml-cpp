@@ -702,10 +702,10 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
     using TTargetFunc = std::function<double(const TRowRef&)>;
 
     test::CRandomNumbers rng;
-    double noiseVariance{100.0};
-    std::size_t rows{300};
+    double noiseVariance{9.0};
+    std::size_t rows{500};
     std::size_t cols{6};
-    std::size_t extraTrainingRows{50};
+    std::size_t extraTrainingRows{250};
 
     TTargetFunc target;
     TTargetFunc perturbedTarget;
@@ -715,7 +715,7 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
         TDoubleVec dv;
         rng.generateUniformSamples(0.0, 10.0, 2 * cols - 2, p);
         rng.generateUniformSamples(-10.0, 10.0, cols - 1, v);
-        rng.generateUniformSamples(-0.5, 1.0, cols - 1, dv);
+        rng.generateUniformSamples(-2.0, 5.0, cols - 1, dv);
         for (std::size_t i = 0; i < p.size(); i += 2) {
             std::sort(p.begin() + i, p.begin() + i + 2);
         }
