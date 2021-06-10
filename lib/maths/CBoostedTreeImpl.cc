@@ -976,11 +976,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
         workspace.retraining(treeToRetrain);
 
-        // TODO stop gap scaling original predictions by eta is a mistake since the
-        // original tree predictions may have been computed before the ensemble error
-        // converged. We should be able to just remove eta consideration from the
-        // incremental loss.
-        auto loss = m_Loss->incremental(1.0, m_PredictionChangeCost, treeToRetrain);
+        auto loss = m_Loss->incremental(eta, m_PredictionChangeCost, treeToRetrain);
 
         this->refreshPredictionsAndLossDerivatives(
             frame, trainingRowMask | testingRowMask, *loss,
