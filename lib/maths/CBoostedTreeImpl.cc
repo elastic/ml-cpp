@@ -784,7 +784,10 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
         this->computeLeafValues(frame, trainingRowMask, *m_Loss, 1.0 /*eta*/,
                                 0.0 /*lambda*/, tree);
         this->refreshPredictionsAndLossDerivatives(
-            frame, trainingRowMask | testingRowMask, *m_Loss, tree);
+            frame, trainingRowMask | testingRowMask, *m_Loss,
+            [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
+                prediction += root(tree).value(m_Encoder->encode(row), tree);
+            });
     }
 
     return tree;
@@ -867,7 +870,10 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             this->computeLeafValues(frame, trainingRowMask, *m_Loss, eta,
                                     m_Regularization.leafWeightPenaltyMultiplier(), tree);
             this->refreshPredictionsAndLossDerivatives(
-                frame, trainingRowMask | testingRowMask, *m_Loss, tree);
+                frame, trainingRowMask | testingRowMask, *m_Loss,
+                [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
+                    prediction += root(tree).value(m_Encoder->encode(row), tree);
+                });
             forest.push_back(std::move(tree));
             eta = std::min(1.0, m_EtaGrowthRatePerTree * eta);
             retries = 0;
@@ -964,14 +970,22 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
                   << root(m_BestForest[index]).print(m_BestForest[index]));
 
         const auto& treeToRetrain = m_BestForest[index];
+        const auto& treeWhichWasRetrained = retrainedTrees.back();
 
         workspace.retraining(treeToRetrain);
-        this->removePredictions(frame, trainingRowMask | testingRowMask, treeToRetrain);
 
         double eta{this->etaForTreeAtPosition(index)};
         auto loss = m_Loss->incremental(eta, m_PredictionChangeCost, treeToRetrain);
+
         this->refreshPredictionsAndLossDerivatives(
-            frame, trainingRowMask | testingRowMask, *loss, retrainedTrees.back());
+            frame, trainingRowMask | testingRowMask, *loss,
+            [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
+                auto encodedRow = m_Encoder->encode(row);
+                prediction -= root(treeToRetrain).value(encodedRow, treeToRetrain);
+                if (treeWhichWasRetrained.empty() == false) {
+                    prediction += root(treeWhichWasRetrained).value(encodedRow, treeWhichWasRetrained);
+                }
+            });
 
         if (retrainedTrees.size() == nextTreeCountToRefreshSplits) {
             scopeMemoryUsage.remove(candidateSplits);
@@ -1485,22 +1499,6 @@ void CBoostedTreeImpl::candidateRegressorFeatures(const TDoubleVec& probabilitie
     }
 }
 
-void CBoostedTreeImpl::removePredictions(core::CDataFrame& frame,
-                                         const core::CPackedBitVector& rowMask,
-                                         const TNodeVec& tree) const {
-    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                           std::size_t numberLossParameters{m_Loss->numberParameters()};
-                           const auto& rootNode = root(tree);
-                           for (auto row_ = beginRows; row_ != endRows; ++row_) {
-                               auto row = *row_;
-                               readPrediction(row, m_ExtraColumns, numberLossParameters) -=
-                                   rootNode.value(m_Encoder->encode(row), tree);
-                           }
-                       },
-                       &rowMask);
-}
-
 void CBoostedTreeImpl::computeLeafValues(core::CDataFrame& frame,
                                          const core::CPackedBitVector& trainingRowMask,
                                          const TLossFunction& loss,
@@ -1575,28 +1573,25 @@ void CBoostedTreeImpl::minimumLossLeafValues(bool newExample,
     frame.readRows(0, frame.numberRows(), minimizers, &rowMask);
 }
 
-void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
-                                                            const core::CPackedBitVector& rowMask,
-                                                            const TLossFunction& loss,
-                                                            TNodeVec& tree) const {
-    this->refreshPredictionsAndLossDerivatives(
-        false /*new example*/, frame, rowMask & ~m_NewTrainingRowMask, loss, tree);
-    this->refreshPredictionsAndLossDerivatives(
-        true /*new example*/, frame, rowMask & m_NewTrainingRowMask, loss, tree);
+void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
+    core::CDataFrame& frame,
+    const core::CPackedBitVector& rowMask,
+    const TLossFunction& loss,
+    const TUpdateRowPrediction& updateRowPrediction) const {
+    this->refreshPredictionsAndLossDerivatives(false /*new example*/, frame,
+                                               rowMask & ~m_NewTrainingRowMask,
+                                               loss, updateRowPrediction);
+    this->refreshPredictionsAndLossDerivatives(true /*new example*/, frame,
+                                               rowMask & m_NewTrainingRowMask,
+                                               loss, updateRowPrediction);
 }
 
-void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(bool newExample,
-                                                            core::CDataFrame& frame,
-                                                            const core::CPackedBitVector& rowMask,
-                                                            const TLossFunction& loss,
-                                                            const TNodeVec& tree) const {
-
-    auto addTreePrediction = [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
-        if (tree.empty() == false) {
-            prediction += root(tree).value(m_Encoder->encode(row), tree);
-        }
-    };
-
+void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
+    bool newExample,
+    core::CDataFrame& frame,
+    const core::CPackedBitVector& rowMask,
+    const TLossFunction& loss,
+    const TUpdateRowPrediction& updateRowPrediction) const {
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
@@ -1606,7 +1601,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(bool newExample,
                 auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
                 double actual{readActual(row, m_DependentVariable)};
                 double weight{readExampleWeight(row, m_ExtraColumns)};
-                addTreePrediction(row, prediction);
+                updateRowPrediction(row, prediction);
                 writeLossGradient(row, newExample, m_ExtraColumns, *m_Encoder,
                                   loss, prediction, actual, weight);
                 writeLossCurvature(row, newExample, m_ExtraColumns, *m_Encoder,
