@@ -957,11 +957,13 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
     // The exact sequence of operations in this loop is important. For each
     // iteration:
-    //   1. Remove tree to be retrained predictions + add *previous* retrained
-    //      tree predictions and refresh loss derivatives
+    //   1. Remove tree to be retrained predictions and add *previous* retrained
+    //      tree predictions and refresh loss derivatives.
     //   2. Periodically compute weighted quantiles for features F and candidate
     //      splits S from F.
     //   3. Build one tree on S.
+
+    double eta{this->etaForTreeAtPosition(m_TreesToRetrain.size())};
 
     retrainedTrees.emplace_back();
     for (const auto& index : m_TreesToRetrain) {
@@ -974,8 +976,8 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
         workspace.retraining(treeToRetrain);
 
-        double eta{this->etaForTreeAtPosition(index)};
-        auto loss = m_Loss->incremental(eta, m_PredictionChangeCost, treeToRetrain);
+        double treeToRetrainEta{this->etaForTreeAtPosition(index)};
+        auto loss = m_Loss->incremental(treeToRetrainEta, m_PredictionChangeCost, treeToRetrain);
 
         this->refreshPredictionsAndLossDerivatives(
             frame, trainingRowMask | testingRowMask, *loss,
