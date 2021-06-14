@@ -1335,7 +1335,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalArgmin) {
     // Test that the minimizer finds a local minimum of the adjusted binomial
     // logistic loss function (it's convex so this is unique).
 
-    double eps{0.01};
+    double eps{0.02};
     std::size_t min{0};
     std::size_t minMinusEps{1};
     std::size_t minPlusEps{2};

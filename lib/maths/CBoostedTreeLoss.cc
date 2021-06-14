@@ -328,7 +328,7 @@ void CArgMinBinomialLogisticLossIncrementalImpl::add(const CEncodedDataFrameRowR
         case 0: {
             double treePrediction{CTools::logisticFunction(
                 root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
-            m_MeanTreePredictions.add(treePrediction);
+            m_MeanTreePredictions.add(treePrediction, weight);
             break;
         }
         case 1: {
@@ -336,7 +336,7 @@ void CArgMinBinomialLogisticLossIncrementalImpl::add(const CEncodedDataFrameRowR
             auto& mean = m_BucketsMeanTreePredictions[bucket];
             double treePrediction{CTools::logisticFunction(
                 root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
-            mean.add(treePrediction);
+            mean.add(treePrediction, weight);
             break;
         }
         default:
