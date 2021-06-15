@@ -1441,7 +1441,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalArgmin) {
 
     double decrease{0.0};
     for (const auto& leafLoss : leafLosses) {
-        LOG_INFO(<< core::CContainerPrinter::print(leafLoss));
+        // TODO understand why this fails on cross compile for aarch64.
         //BOOST_TEST_REQUIRE(leafLoss[min] <= leafLoss[minMinusEps]);
         //BOOST_TEST_REQUIRE(leafLoss[min] <= leafLoss[minPlusEps]);
         decrease += leafLoss[minMinusEps] - leafLoss[min];
