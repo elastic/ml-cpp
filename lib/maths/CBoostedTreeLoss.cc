@@ -393,7 +393,7 @@ CArgMinBinomialLogisticLossIncrementalImpl::objective() const {
         };
     }
 
-    // This is true if the forest predictions were identical.
+    // This is true if all the forest predictions were identical.
     if (bucketWidth(this->predictionMinMax()) == 0.0) {
         double prediction{mid(this->predictionMinMax())};
         return [prediction, this](double weight) {
@@ -413,7 +413,7 @@ CArgMinBinomialLogisticLossIncrementalImpl::objective() const {
         };
     }
 
-    // This is true if the tree predictions were identical.
+    // This is true if all the tree predictions were identical.
     if (bucketWidth(m_TreePredictionMinMax) == 0.0) {
         double pOld{CTools::logisticFunction(mid(m_TreePredictionMinMax))};
         double mu{m_Mu * m_Count};
