@@ -2535,18 +2535,13 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
 
 core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFrame& frame) const {
 
-    std::size_t sampleSize{std::max(static_cast<size_t>(dataFrame.numberRows() * m_DataSummarizationFraction),
+    std::size_t sampleSize{std::max(static_cast<size_t>(frame.numberRows() * m_DataSummarizationFraction),
                                     static_cast<std::size_t>(2))};
     // get row mask for sampling
     core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
     core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
-        m_NumberThreads, dataFrame, m_DependentVariable, m_Rng, sampleSize, 10,
-        allTrainingRowsMask)};
+        m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10, allTrainingRowsMask)};
 
-    // get MICs for the features
-    recordEncoders([this](core::CStatePersistInserter& inserter) {
-        this->m_Encoder->acceptPersistInserter(inserter);
-    });
     return rowMask;
 }
 
