@@ -16,6 +16,7 @@
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataSummarizationJsonWriter.h>
 
 #include <cmath>
 #include <limits>
@@ -27,8 +28,6 @@ namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-
-const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 
 // Control message types:
 const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
@@ -42,14 +41,13 @@ const std::string RESULTS{"results"};
 }
 
 CDataFrameAnalyzer::CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
+                                       TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory,
                                        TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier)
     : m_AnalysisSpecification{std::move(analysisSpecification)},
       m_ResultsStreamSupplier{std::move(resultsStreamSupplier)} {
-
-    if (m_AnalysisSpecification != nullptr) {
-        auto frameAndDirectory = m_AnalysisSpecification->makeDataFrame();
-        m_DataFrame = std::move(frameAndDirectory.first);
-        m_DataFrameDirectory = frameAndDirectory.second;
+    std::tie(m_DataFrame, m_DataFrameDirectory) = std::move(frameAndDirectory);
+    if (m_DataFrame == nullptr) {
+        HANDLE_FATAL(<< "Internal error: missing data frame. Please report this problem.");
     }
 }
 
@@ -149,13 +147,9 @@ void CDataFrameAnalyzer::run() {
     }
 }
 
-const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
-    return m_DataFrameDirectory;
-}
-
 const core::CDataFrame& CDataFrameAnalyzer::dataFrame() const {
     if (m_DataFrame == nullptr) {
-        HANDLE_FATAL(<< "Internal error: missing data frame");
+        HANDLE_FATAL(<< "Internal error: missing data frame. Please report this problem.");
     }
     return *m_DataFrame;
 }
@@ -172,11 +166,11 @@ bool CDataFrameAnalyzer::prepareToReceiveControlMessages(const TStrVec& fieldNam
     //
     // These will both be called . to avoid collision with any real field name.
 
-    auto posDocHash = std::find(fieldNames.begin(), fieldNames.end(), SPECIAL_COLUMN_FIELD_NAME);
+    auto posDocHash = std::find(fieldNames.begin(), fieldNames.end(), CONTROL_MESSAGE_FIELD_NAME);
     auto posControlMessage = posDocHash == fieldNames.end()
                                  ? fieldNames.end()
                                  : std::find(posDocHash + 1, fieldNames.end(),
-                                             SPECIAL_COLUMN_FIELD_NAME);
+                                             CONTROL_MESSAGE_FIELD_NAME);
 
     if (posDocHash == fieldNames.end() && posControlMessage == fieldNames.end()) {
         m_ControlFieldIndex = FIELD_MISSING;
@@ -283,7 +277,7 @@ void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& ana
         writer.Key(modelDefinitionSizeInfo->typeString());
         writer.write(sizeInfoObject);
         writer.EndObject();
-        modelDefinition->addToDocumentCompressed(writer);
+        modelDefinition->addCompressedToJsonStream(writer);
     }
     writer.flush();
 }
@@ -306,9 +300,9 @@ void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRun
 void CDataFrameAnalyzer::writeDataSummarization(const CDataFrameAnalysisRunner& analysis,
                                                 core::CRapidJsonConcurrentLineWriter& writer) const {
     // Write training data summarization
-    auto dataSummarization = analysis.dataSummarization(*m_DataFrame);
+    auto dataSummarization = analysis.dataSummarization();
     if (dataSummarization != nullptr) {
-        dataSummarization->addToDocumentCompressed(writer);
+        dataSummarization->addCompressedToJsonStream(writer);
     }
     writer.flush();
 }
@@ -321,23 +315,27 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     // can join the extra columns with the original data frame.
     std::size_t numberThreads{1};
 
+    auto rowsToWriteMask = analysis.rowsToWriteMask(*m_DataFrame);
+
     using TRowItr = core::CDataFrame::TRowItr;
-    m_DataFrame->readRows(numberThreads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
-        for (auto row = beginRows; row != endRows; ++row) {
-            writer.StartObject();
-            writer.Key(ROW_RESULTS);
-            writer.StartObject();
-            writer.Key(CHECKSUM);
-            writer.Int(row->docHash());
-            writer.Key(RESULTS);
-            writer.StartObject();
-            writer.Key(m_AnalysisSpecification->resultsField());
-            analysis.writeOneRow(*m_DataFrame, *row, writer);
-            writer.EndObject();
-            writer.EndObject();
-            writer.EndObject();
-        }
-    });
+    m_DataFrame->readRows(numberThreads, 0, m_DataFrame->numberRows(),
+                          [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                              for (auto row = beginRows; row != endRows; ++row) {
+                                  writer.StartObject();
+                                  writer.Key(ROW_RESULTS);
+                                  writer.StartObject();
+                                  writer.Key(CHECKSUM);
+                                  writer.Int(row->docHash());
+                                  writer.Key(RESULTS);
+                                  writer.StartObject();
+                                  writer.Key(m_AnalysisSpecification->resultsField());
+                                  analysis.writeOneRow(*m_DataFrame, *row, writer);
+                                  writer.EndObject();
+                                  writer.EndObject();
+                                  writer.EndObject();
+                              }
+                          },
+                          &rowsToWriteMask);
 
     writer.flush();
 }
@@ -345,5 +343,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {
     return m_AnalysisSpecification->runner();
 }
+
+const std::string CDataFrameAnalyzer::CONTROL_MESSAGE_FIELD_NAME{"."};
 }
 }

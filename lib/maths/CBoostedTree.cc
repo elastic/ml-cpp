@@ -12,6 +12,7 @@
 #include <maths/CBoostedTreeImpl.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLinearAlgebraPersist.h>
 #include <maths/CLinearAlgebraShims.h>
 
@@ -159,18 +160,15 @@ void CBoostedTree::trainIncremental() {
     m_Impl->trainIncremental(this->frame(), this->trainingStateRecorder());
 }
 
-void CBoostedTree::predict() const {
+void CBoostedTree::predict(bool newDataOnly) const {
+    if (newDataOnly) {
+        m_Impl->predict(m_Impl->newTrainingRowMask(), this->frame());
+    }
     m_Impl->predict(this->frame());
 }
 
 CTreeShapFeatureImportance* CBoostedTree::shap() const {
     return m_Impl->shap();
-}
-
-core::CPackedBitVector
-CBoostedTree::dataSummarization(const core::CDataFrame& dataFrame,
-                                const TRecordEncodersCallback& callback) const {
-    return m_Impl->dataSummarization(dataFrame, callback);
 }
 
 CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportance() const {
@@ -179,6 +177,10 @@ CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportanc
 
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
+}
+
+const core::CPackedBitVector& CBoostedTree::newTrainingRowMask() const {
+    return m_Impl->newTrainingRowMask();
 }
 
 CBoostedTree::TDouble2Vec CBoostedTree::readPrediction(const TRowRef& row) const {
@@ -210,11 +212,19 @@ CBoostedTree::TDouble2Vec CBoostedTree::readAndAdjustPrediction(const TRowRef& r
     return prediction.to<TDouble2Vec>();
 }
 
+core::CPackedBitVector CBoostedTree::dataSummarization() const {
+    return m_Impl->dataSummarization(this->frame());
+}
+
+const CDataFrameCategoryEncoder& CBoostedTree::categoryEncoder() const {
+    return m_Impl->encoder();
+}
+
 const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
     return m_Impl->trainedModel();
 }
 
-CBoostedTreeImpl& CBoostedTree::impl() {
+CBoostedTreeImpl& CBoostedTree::impl() const {
     return *m_Impl;
 }
 

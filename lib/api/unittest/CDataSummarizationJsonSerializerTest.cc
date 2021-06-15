@@ -5,13 +5,16 @@
  */
 
 #include <core/CBase64Filter.h>
+#include <core/CContainerPrinter.h>
+#include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CPackedBitVector.h>
 
 #include <maths/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameAnalyzer.h>
-#include <api/CDataSummarizationJsonSerializer.h>
+#include <api/CDataSummarizationJsonWriter.h>
+#include <api/CRetrainableModelJsonReader.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
@@ -37,11 +40,13 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
+using TRowItr = core::CDataFrame::TRowItr;
 using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
 using TLossFunctionType = maths::boosted_tree::ELossType;
-using TRowItr = core::CDataFrame::TRowItr;
+using TDataFrameUPtrTemporaryDirectoryPtrPr =
+    test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
-std::stringstream decompressStream(std::stringstream&& compressedStream) {
+std::stringstream decompressStream(std::stringstream compressedStream) {
     std::stringstream decompressedStream;
     {
         TFilteredInput inFilter;
@@ -72,8 +77,10 @@ void testSchema(TLossFunctionType lossType) {
         specFactory.predictionCategoricalFieldNames({"categorical_col"});
         analysisType = test::CDataFrameAnalysisSpecificationFactory::regression();
     }
-    api::CDataFrameAnalyzer analyzer{
-        specFactory.predictionSpec(analysisType, "target_col"), outputWriterFactory};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = specFactory.predictionSpec(analysisType, "target_col", &frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
 
     TStrVec fieldNames{"numeric_col", "categorical_col", "target_col", ".", "."};
     TStrVec fieldValues{"", "", "0", "", ""};
@@ -82,18 +89,20 @@ void testSchema(TLossFunctionType lossType) {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
     auto analysisRunner = analyzer.runner();
 
-    auto dataSummarization = analysisRunner->dataSummarization(analyzer.dataFrame());
-    // verify compressed definition
+    auto dataSummarization = analysisRunner->dataSummarization();
+
+    // Verify compressed definition.
     {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
         std::string dataSummarizationStr{dataSummarization->jsonString()};
         std::stringstream decompressedStream{
             decompressStream(dataSummarization->jsonCompressedStream())};
-        api::CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(
-            std::make_shared<std::istringstream>(dataSummarizationStr));
+        api::CRetrainableModelJsonReader::dataSummarizationFromJsonStream(
+            std::make_shared<std::istringstream>(dataSummarizationStr), *frame);
         BOOST_TEST_REQUIRE(decompressedStream.str() == dataSummarizationStr);
     }
 
-    // verify json schema
+    // Verify json schema.
     {
         std::ifstream schemaFileStream(
             "testfiles/data_summarization_schema/data_summarization.schema.json");
@@ -144,31 +153,27 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
     auto expectedFrame = core::makeMainStorageDataFrame(columnNames.size()).first;
     expectedFrame->columnNames(columnNames);
     expectedFrame->categoricalColumns(categoricalColumns);
-    for (std::size_t i = 0; i < rows.size(); ++i) {
+    for (const auto& row : rows) {
         expectedFrame->parseAndWriteRow(
-            core::CVectorRange<const TStrVec>(rows[i], 0, rows[i].size()));
+            core::CVectorRange<const TStrVec>(row, 0, row.size()));
     }
     expectedFrame->finishWritingRows();
 
     // create encoder and serialize it
     maths::CDataFrameCategoryEncoder expectedEncoder({1, *expectedFrame, 5});
-    std::stringstream persistedEncoderStream;
-    {
-        core::CJsonStatePersistInserter inserter{persistedEncoderStream};
-        expectedEncoder.acceptPersistInserter(inserter);
-    }
 
-    api::CDataSummarizationJsonSerializer serializer{
+    api::CDataSummarizationJsonWriter writer{
         *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true),
-        std::move(persistedEncoderStream)};
-    auto istream = std::make_shared<std::istringstream>(serializer.jsonString());
-    api::CRetrainableModelJsonDeserializer::TDataSummarization dataSummarization{
-        api::CRetrainableModelJsonDeserializer::dataSummarizationFromJsonStream(istream)};
-    BOOST_REQUIRE(dataSummarization.first && dataSummarization.second);
-    BOOST_REQUIRE(expectedFrame->checksum() == dataSummarization.first->checksum());
-    BOOST_REQUIRE(dataSummarization.second->numberInputColumns() ==
-                  expectedFrame->numberColumns());
-    BOOST_REQUIRE(dataSummarization.second->numberEncodedColumns() > 0);
+        columnNames.size(), expectedEncoder};
+    auto istream = std::make_shared<std::istringstream>(writer.jsonString());
+    auto actualFrame = core::makeMainStorageDataFrame(columnNames.size()).first;
+    auto[encoder, encodingIndices] =
+        api::CRetrainableModelJsonReader::dataSummarizationFromJsonStream(istream, *actualFrame);
+    BOOST_REQUIRE(encoder != nullptr);
+    BOOST_REQUIRE(expectedFrame->checksum() == actualFrame->checksum());
+    BOOST_REQUIRE(encoder->numberInputColumns() == expectedFrame->numberColumns());
+    BOOST_REQUIRE(encoder->numberEncodedColumns() > 0);
+    BOOST_REQUIRE_EQUAL("[(y, 0)]", core::CContainerPrinter::print(encodingIndices));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

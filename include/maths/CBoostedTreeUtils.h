@@ -52,6 +52,7 @@ enum EHyperparameter {
     E_SoftTreeDepthTolerance,
     E_Eta,
     E_EtaGrowthRatePerTree,
+    E_MaximumNumberTrees,
     E_FeatureBagFraction,
     E_PredictionChangeCost,
     E_TreeTopologyChangePenalty
@@ -60,19 +61,13 @@ enum EHyperparameter {
 constexpr std::size_t NUMBER_HYPERPARAMETERS = E_TreeTopologyChangePenalty + 1; // This must be last hyperparameter
 
 struct SHyperparameterImportance {
-    SHyperparameterImportance(EHyperparameter hyperparameter,
-                              double value,
-                              double absoluteImportance,
-                              double relativeImportance,
-                              bool supplied)
-        : s_Hyperparameter(hyperparameter), s_Value(value),
-          s_AbsoluteImportance(absoluteImportance),
-          s_RelativeImportance(relativeImportance), s_Supplied(supplied) {}
+    enum EType { E_Double = 0, E_Uint64 };
     EHyperparameter s_Hyperparameter;
     double s_Value;
     double s_AbsoluteImportance;
     double s_RelativeImportance;
     bool s_Supplied;
+    EType s_Type;
 };
 
 //! Get the index of the root node in a canonical tree node vector.
@@ -116,6 +111,20 @@ inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
 //! Zero the prediction of \p row.
 MATHS_EXPORT
 void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
+
+//! Write \p value to \p row prediction column(s).
+MATHS_EXPORT
+void writePrediction(const TRowRef& row,
+                     const TSizeVec& extraColumns,
+                     std::size_t numberLossParameters,
+                     const TMemoryMappedFloatVector& value);
+
+//! Write \p value to \p row previous prediction column(s).
+MATHS_EXPORT
+void writePreviousPrediction(const TRowRef& row,
+                             const TSizeVec& extraColumns,
+                             std::size_t numberLossParameters,
+                             const TMemoryMappedFloatVector& value);
 
 //! Read the previous prediction for \p row if training incementally.
 MATHS_EXPORT

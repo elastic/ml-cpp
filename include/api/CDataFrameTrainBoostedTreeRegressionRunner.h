@@ -40,7 +40,8 @@ public:
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeRegressionRunnerFactory.
     CDataFrameTrainBoostedTreeRegressionRunner(const CDataFrameAnalysisSpecification& spec,
-                                               const CDataFrameAnalysisParameters& parameters);
+                                               const CDataFrameAnalysisParameters& parameters,
+                                               TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory);
 
     //! Write the prediction for \p row to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
@@ -75,9 +76,11 @@ public:
     const std::string& name() const override;
 
 private:
-    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
-                         const rapidjson::Value& jsonParameters) const override;
+                         TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const override;
+    TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec,
+                         const rapidjson::Value& jsonParameters,
+                         TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const override;
 };
 }
 }

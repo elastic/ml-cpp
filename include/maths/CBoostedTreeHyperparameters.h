@@ -20,7 +20,7 @@ namespace ml {
 namespace maths {
 
 //! \brief Holds the parameters associated with the different types of regularizer
-//! terms available.
+//! terms available for boosted tree training.
 template<typename T>
 class CBoostedTreeRegularization final {
 public:
@@ -61,6 +61,11 @@ public:
     }
 
     //! Count the number of parameters which have their default values.
+    std::size_t countNotSet() const {
+        return this->countNotSetForTrain() + (m_TreeTopologyChangePenalty == T{} ? 1 : 0);
+    }
+
+    //! Count the number of train parameters which have their default values.
     std::size_t countNotSetForTrain() const {
         // We do not count m_TreeTopologyChangePenalty here because it is not tuned as
         // part of train from scratch.
@@ -245,22 +250,22 @@ private:
     TRegularization m_Regularization;
 
     //! The downsample factor.
-    double m_DownsampleFactor = 0.0;
+    double m_DownsampleFactor{0.0};
 
     //! Shrinkage.
-    double m_Eta = 0.0;
+    double m_Eta{0.0};
 
     //! Rate of growth of shrinkage in the training loop.
-    double m_EtaGrowthRatePerTree = 0.0;
+    double m_EtaGrowthRatePerTree{0.0};
 
     //! The maximum number of trees we'll use.
-    std::size_t m_MaximumNumberTrees = 0;
+    std::size_t m_MaximumNumberTrees{0};
 
     //! The fraction of features we use per bag.
-    double m_FeatureBagFraction = 0.0;
+    double m_FeatureBagFraction{0.0};
 
     //! The cost of changing the old model predictions when training incrementally.
-    double m_PredictionChangeCost = 0.0;
+    double m_PredictionChangeCost{0.0};
 };
 }
 }

@@ -120,8 +120,14 @@ public:
     //! Get the index of the left child node.
     TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
 
+    //! Set the left child index to \p value.
+    void leftChildIndex(TNodeIndex value) { m_LeftChild = value; }
+
     //! Get the index of the right child node.
     TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
+
+    //! Set the right child index to \p value.
+    void rightChildIndex(TNodeIndex value) { m_RightChild = value; }
 
     //! Split this node and add its child nodes to \p tree.
     TNodeIndexNodeIndexPr split(std::size_t splitFeature,
@@ -233,23 +239,23 @@ public:
 
     //! Write the predictions to the data frame supplied to the constructor.
     //!
+    //! \param[in] newDataOnly Only predict newly supplied data.
     //! \warning This can only be called after train.
-    void predict() const override;
+    void predict(bool newDataOnly = false) const override;
 
     //! Get the SHAP value calculator.
     //!
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap() const override;
 
-    //! Get the selected rows that summarize \p dataFrame.
-    core::CPackedBitVector dataSummarization(const core::CDataFrame& dataFrame,
-                                             const TRecordEncodersCallback& callback) const override;
-
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;
+
+    //! Get a mask for the new training data.
+    const core::CPackedBitVector& newTrainingRowMask() const override;
 
     //! Read the model prediction from \p row.
     TDouble2Vec readPrediction(const TRowRef& row) const override;
@@ -260,6 +266,12 @@ public:
     //! class to target different objectives (accuracy or minimum recall) when
     //! assigning classes.
     TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const override;
+
+    //! Get the selected rows that summarize.
+    core::CPackedBitVector dataSummarization() const override;
+
+    //! Get the category encoder.
+    const CDataFrameCategoryEncoder& categoryEncoder() const override;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
@@ -276,7 +288,7 @@ public:
     //! \name Test Only
     //@{
     //! Get the implementation.
-    CBoostedTreeImpl& impl();
+    CBoostedTreeImpl& impl() const;
 
     //! Get the weight that has been chosen for each feature for training.
     const TDoubleVec& featureWeightsForTraining() const;

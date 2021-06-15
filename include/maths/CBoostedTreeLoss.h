@@ -58,7 +58,7 @@ private:
 
 //! \brief Finds the value to add to a set of predictions which minimises the
 //! regularized MSE w.r.t. the actual values.
-class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinMseImpl : public CArgMinLossImpl {
 public:
     explicit CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
@@ -74,8 +74,11 @@ public:
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
-private:
+protected:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+protected:
+    const TMeanAccumulator& meanError() const { return m_MeanError; }
 
 private:
     TMeanAccumulator m_MeanError;
@@ -88,11 +91,10 @@ private:
 //! DESCRIPTION:\n
 //! This applies a correction to the loss based on the difference from the
 //! predictions of a supplied tree (the one being retrained).
-class MATHS_EXPORT CArgMinMseIncrementalImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinMseIncrementalImpl final : public CArgMinMseImpl {
 public:
     CArgMinMseIncrementalImpl(double lambda, double eta, double mu, const TNodeVec& tree);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
-    bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& row,
              bool newExample,
              const TMemoryMappedFloatVector& prediction,
@@ -102,13 +104,9 @@ public:
     TDoubleVector value() const override;
 
 private:
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-private:
-    double m_Eta;
-    double m_Mu;
-    const TNodeVec* m_Tree;
-    TMeanAccumulator m_MeanError;
+    double m_Eta = 0.0;
+    double m_Mu = 0.0;
+    const TNodeVec* m_Tree = nullptr;
     TMeanAccumulator m_MeanTreePredictions;
 };
 
@@ -248,7 +246,7 @@ private:
 //! Here, \f$B\f$ ranges over the buckets, \f$\bar{p}_B\f$ denotes the B'th bucket
 //! centre and \f$c_{0,B}\f$ and \f$c_{1,B}\f$ denote the counts of actual classes
 //! 0 and 1, respectively, in the bucket \f$B\f$.
-class MATHS_EXPORT CArgMinBinomialLogisticLossImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinBinomialLogisticLossImpl : public CArgMinLossImpl {
 public:
     explicit CArgMinBinomialLogisticLossImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
@@ -264,15 +262,18 @@ public:
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
-private:
+protected:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
     using TDoubleVector2x1 = CVectorNx1<double, 2>;
     using TDoubleVector2x1Vec = std::vector<TDoubleVector2x1>;
+    using TObjective = std::function<double(double)>;
 
-private:
+protected:
     static constexpr std::size_t NUMBER_BUCKETS = 128;
 
-private:
+protected:
+    std::size_t currentPass() const { return m_CurrentPass; }
+
     std::size_t bucket(double prediction) const {
         double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
         return std::min(static_cast<std::size_t>(bucket), m_BucketsClassCounts.size() - 1);
@@ -290,11 +291,63 @@ private:
                    : 0.0;
     }
 
+    double midPrediction() const {
+        return m_PredictionMinMax.initialized()
+                   ? (m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0
+                   : 0.0;
+    }
+
+    const TDoubleVector2x1& classCounts() const { return m_ClassCounts; }
+
+    const TDoubleVector2x1Vec& bucketsClassCounts() const {
+        return m_BucketsClassCounts;
+    }
+
+private:
+    virtual TObjective objective() const;
+
 private:
     std::size_t m_CurrentPass = 0;
     TMinMaxAccumulator m_PredictionMinMax;
     TDoubleVector2x1 m_ClassCounts;
     TDoubleVector2x1Vec m_BucketsClassCounts;
+};
+
+//! \brief Finds the value to add to a set of predicted log-odds which minimises
+//! adjusted regularised cross entropy loss w.r.t. the actual categories for
+//! incremental training.
+//!
+//! DESCRIPTION:\n
+//! This applies a correction to the loss based on the cross entropy between the
+//! new predictions and the predictions of a supplied tree (the one being retrained).
+class MATHS_EXPORT CArgMinBinomialLogisticLossIncrementalImpl final
+    : public CArgMinBinomialLogisticLossImpl {
+public:
+    explicit CArgMinBinomialLogisticLossIncrementalImpl(double lambda,
+                                                        double eta,
+                                                        double mu,
+                                                        const TNodeVec& tree);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    void add(const CEncodedDataFrameRowRef& row,
+             bool newExample,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override;
+    void merge(const CArgMinLossImpl& other) override;
+
+private:
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+
+private:
+    TObjective objective() const override;
+
+private:
+    double m_Eta = 0.0;
+    double m_Mu = 0.0;
+    const TNodeVec* m_Tree = nullptr;
+    TMeanAccumulator m_MeanTreePredictions;
+    TMeanAccumulatorVec m_BucketsMeanTreePredictions;
 };
 
 //! \brief Finds the value to add to a set of predicted multinomial logit which
@@ -423,7 +476,7 @@ private:
     friend class CLoss;
 };
 
-//! \brief Defines the loss function for the regression problem.
+//! \brief Defines the loss function for the regression or classification problem.
 class MATHS_EXPORT CLoss {
 public:
     using TDoubleVector = CDenseVector<double>;
@@ -498,13 +551,13 @@ private:
 };
 
 //! \brief The MSE loss function.
-class MATHS_EXPORT CMse final : public CLoss {
+class MATHS_EXPORT CMse : public CLoss {
 public:
     static const std::string NAME;
 
 public:
-    explicit CMse(core::CStateRestoreTraverser& traverser);
     CMse() = default;
+    explicit CMse(core::CStateRestoreTraverser& traverser);
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
@@ -551,14 +604,13 @@ private:
 };
 
 //! \brief The MSE loss function for incremental training.
-class MATHS_EXPORT CMseIncremental final : public CLoss {
+class MATHS_EXPORT CMseIncremental final : public CMse {
 public:
     static const std::string NAME;
 
 public:
-    explicit CMseIncremental(core::CStateRestoreTraverser& traverser);
     CMseIncremental(double eta, double mu, const TNodeVec& tree);
-    CMseIncremental() = default;
+    [[noreturn]] explicit CMseIncremental(core::CStateRestoreTraverser& traverser);
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
@@ -596,8 +648,8 @@ public:
     bool isRegression() const override;
 
 private:
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+    void acceptPersistInserter(core::CStatePersistInserter&) const override {}
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser&) override;
 
 private:
     double m_Eta = 0.0;
@@ -605,7 +657,7 @@ private:
     const TNodeVec* m_Tree = nullptr;
 };
 
-//! \brief Implements loss for binomial logistic regression.
+//! \brief The loss for binomial logistic regression.
 //!
 //! DESCRIPTION:\n
 //! This targets the cross entropy loss using the tree to predict class log-odds:
@@ -614,13 +666,13 @@ private:
 //! </pre>
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
 //! prediction and \f$S(\cdot)\f$ denotes the logistic function.
-class MATHS_EXPORT CBinomialLogisticLoss final : public CLoss {
+class MATHS_EXPORT CBinomialLogisticLoss : public CLoss {
 public:
     static const std::string NAME;
 
 public:
-    explicit CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     CBinomialLogisticLoss() = default;
+    explicit CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
@@ -667,7 +719,58 @@ private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
-//!  \brief Implements loss for multinomial logistic regression.
+//! \brief The loss for incremental binomial logistic regression.
+//!
+//! DESCRIPTION:\n
+//! This augments the standard loss function by adding the cross-entropy between
+//! predictions and the supplied tree predictions.
+class MATHS_EXPORT CBinomialLogisticLossIncremental final : public CBinomialLogisticLoss {
+public:
+    static const std::string NAME;
+
+public:
+    CBinomialLogisticLossIncremental(double eta, double mu, const TNodeVec& tree);
+    [[noreturn]] explicit CBinomialLogisticLossIncremental(core::CStateRestoreTraverser& traverser);
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
+    ELossType type() const override;
+    std::size_t numberParameters() const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const CEncodedDataFrameRowRef& row,
+                  bool newExample,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override;
+    void curvature(const CEncodedDataFrameRowRef& row,
+                   bool newExample,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override;
+    bool isCurvatureConstant() const override;
+    double difference(const TMemoryMappedFloatVector& prediction,
+                      const TMemoryMappedFloatVector& previousPrediction,
+                      double weight = 1.0) const override;
+    //! \return (P(class 0), P(class 1)).
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
+    CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
+    const std::string& name() const override;
+    bool isRegression() const override;
+
+private:
+    void acceptPersistInserter(core::CStatePersistInserter&) const override {}
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
+private:
+    double m_Eta = 0.0;
+    double m_Mu = 0.0;
+    const TNodeVec* m_Tree = nullptr;
+};
+
+//!  \brief The loss for multinomial logistic regression.
 //!
 //! DESCRIPTION:\n
 //! This targets the cross-entropy loss using the forest to predict the class
@@ -683,8 +786,8 @@ public:
     static const std::string NAME;
 
 public:
-    explicit CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     explicit CMultinomialLogisticLoss(std::size_t numberClasses);
+    explicit CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     ELossType type() const override;
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
@@ -738,10 +841,10 @@ private:
 //!
 //! DESCRIPTION:\n
 //! Formally, the MSLE loss definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
-//! However, we approximate this by a quadratic form which has its minimum p = a and
-//! matches the value and derivative of MSLE loss function. For example, if the
-//! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
-//! as
+//! However, we approximate this by a quadratic form which shares the position of
+//! its minimum p = a and matches the value and derivative of MSLE loss function
+//! at the current prediction. For example, if the current prediction for the i'th
+//! training point is \f$p_i\f$, the loss is defined as
 //! <pre class="fragment">
 //!   \f$\displaystyle l_i(p) = c_i + w_i(p - a_i)^2\f$
 //! </pre>
@@ -752,8 +855,8 @@ public:
     static const std::string NAME;
 
 public:
-    explicit CMsle(core::CStateRestoreTraverser& traverser);
     explicit CMsle(double offset = 1.0);
+    explicit CMsle(core::CStateRestoreTraverser& traverser);
     ELossType type() const override;
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
@@ -808,10 +911,10 @@ private:
 //! DESCRIPTION:\n
 //! Formally, the pseudo-Huber loss definition we use is
 //! \f$\delta^2 (\sqrt{1 + \frac{(a - p)^2}{\delta^2}} - 1)\f$.
-//! However, we approximate this by a quadratic form which has its minimum p = a and
-//! matches the value and derivative of the pseudo-Huber loss function. For example,
-//! if the current prediction for the i'th training point is \f$p_i\f$, the loss is
-//! defined as
+//! However, we approximate this by a quadratic form which shares the position of
+//! its minimum p = a and matches the value and derivative of the pseudo-Huber loss
+//! function at the current prediction. For example, if the current prediction for
+//! the i'th training point is \f$p_i\f$, the loss is defined as
 //! <pre class="fragment">
 //! \f[
 //!     l_i(p) = \delta^2 \left(\sqrt{1 + \frac{(a_i - p_i)^{2}}{\delta^2}} - 1\right) +
@@ -819,9 +922,9 @@ private:
 //!              \frac{-a_i+p_i}{2\sqrt{\frac{\delta^2 + (a_i-p_i)^{2}}{\delta^2}}(a_i-p_i)} (p - p_i)^2
 //! \f]
 //! </pre>
-//! For this approximation we compute first and second derivative (gradient and curvature)
-//! with respect to p and then substitute p=p_i.
-//! As a result we obtain the following formulas for the gradient:
+//! For this approximation we compute first and second derivative (gradient and
+//! curvature) with respect to p and then substitute \f$p = p_i\f$. As a result we
+//! obtain the following formulas for the gradient:
 //!   \f[\frac{-a_i + p_i}{\sqrt{\frac{\delta^2 + (a_i - p_i)^2}{\delta^2}}}\f]
 //! and for the curvature:
 //!   \f[\frac{1}{\sqrt{1 + \frac{(a_i - p_i)^2}{\delta^2}}}\f]
@@ -830,8 +933,8 @@ public:
     static const std::string NAME;
 
 public:
-    explicit CPseudoHuber(core::CStateRestoreTraverser& traverser);
     explicit CPseudoHuber(double delta);
+    explicit CPseudoHuber(core::CStateRestoreTraverser& traverser);
     ELossType type() const override;
     TLossUPtr clone() const override;
     TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;

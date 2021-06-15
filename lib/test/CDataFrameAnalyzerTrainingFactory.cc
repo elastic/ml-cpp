@@ -32,7 +32,6 @@ CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(const TStrVec& fiel
                                                              const TDoubleVec& regressors,
                                                              TStrVec& targets,
                                                              TTargetTransformer targetTransformer) {
-
     auto target = [&weights, &targetTransformer](const TDoubleVec& regressors_) {
         double result{0.0};
         for (std::size_t i = 0; i < weights.size(); ++i) {
@@ -56,7 +55,6 @@ CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(const TStrVec& fiel
         }
         fieldValues[weights.size()] = target(row);
         targets.push_back(fieldValues[weights.size()]);
-
         analyzer.handleRecord(fieldNames, fieldValues);
         frame->parseAndWriteRow(
             core::CVectorRange<const TStrVec>(fieldValues, 0, weights.size() + 1));

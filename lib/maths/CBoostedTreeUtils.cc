@@ -58,6 +58,24 @@ void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_
     }
 }
 
+void writePrediction(const TRowRef& row,
+                     const TSizeVec& extraColumns,
+                     std::size_t numberLossParameters,
+                     const TMemoryMappedFloatVector& value) {
+    for (std::size_t i = 0; i < numberLossParameters; ++i) {
+        row.writeColumn(extraColumns[E_Prediction] + i, value(i));
+    }
+}
+
+void writePreviousPrediction(const TRowRef& row,
+                             const TSizeVec& extraColumns,
+                             std::size_t numberLossParameters,
+                             const TMemoryMappedFloatVector& value) {
+    for (std::size_t i = 0; i < numberLossParameters; ++i) {
+        row.writeColumn(extraColumns[E_PreviousPrediction] + i, value(i));
+    }
+}
+
 void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
     for (std::size_t i = 0; i < numberLossParameters; ++i) {
         row.writeColumn(extraColumns[E_Gradient] + i, 0.0);

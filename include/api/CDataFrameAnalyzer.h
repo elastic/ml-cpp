@@ -11,8 +11,6 @@
 
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <boost/unordered_map.hpp>
-
 #include <cinttypes>
 #include <functional>
 #include <memory>
@@ -37,11 +35,19 @@ public:
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
     using TDataFrameAnalysisSpecificationUPtr = std::unique_ptr<CDataFrameAnalysisSpecification>;
+    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TTemporaryDirectoryPtr = std::shared_ptr<core::CTemporaryDirectory>;
+    using TDataFrameUPtrTemporaryDirectoryPtrPr =
+        std::pair<TDataFrameUPtr, TTemporaryDirectoryPtr>;
+
+public:
+    static const std::string CONTROL_MESSAGE_FIELD_NAME;
 
 public:
     CDataFrameAnalyzer(TDataFrameAnalysisSpecificationUPtr analysisSpecification,
+                       TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory,
                        TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier);
+
     ~CDataFrameAnalyzer();
 
     CDataFrameAnalyzer(const CDataFrameAnalyzer&) = delete;
@@ -59,17 +65,11 @@ public:
     //! Run the configured analysis.
     void run();
 
-    //! Get the data frame's temporary directory if there is one.
-    const TTemporaryDirectoryPtr& dataFrameDirectory() const;
-
     //! Get the data frame asserting there is one.
     const core::CDataFrame& dataFrame() const;
 
     //! Get pointer to the analysis runner.
     const CDataFrameAnalysisRunner* runner() const;
-
-private:
-    using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
 
 private:
     static const std::ptrdiff_t FIELD_UNSET{-2};

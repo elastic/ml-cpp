@@ -60,6 +60,7 @@ SRCS=\
 	CPersistenceManagerTest.cc \
 	CRestorePreviousStateTest.cc \
 	CResultNormalizerTest.cc \
+	CSerializableToJsonTest.cc \
 	CSingleFieldDataCategorizerTest.cc \
 	CSingleStreamDataAdderTest.cc \
 	CStateRestoreStreamFilterTest.cc \

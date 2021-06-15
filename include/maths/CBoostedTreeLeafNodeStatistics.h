@@ -510,6 +510,9 @@ public:
         CWorkspace& operator=(const CWorkspace& other) = delete;
         CWorkspace& operator=(CWorkspace&&) = default;
 
+        //! Get a list of features which must be included in training.
+        TSizeVec featuresToInclude() const;
+
         //! Define the tree to retrain.
         void retraining(const TNodeVec& tree) { m_TreeToRetrain = &tree; }
 

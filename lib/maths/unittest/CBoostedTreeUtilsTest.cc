@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(testRetrainTreeSelectionProbabilities) {
         for (std::size_t i = 0; i < cols - 1; ++i) {
             rng.generateUniformSamples(0.0, 10.0, 10, x[i]);
         }
-        addRegressionData(rng, deltaTarget, x, noiseVariance, *frame);
+        addData(rng, deltaTarget, x, noiseVariance, *frame);
 
         core::CPackedBitVector allRowsMask{frame->numberRows(), true};
         core::CPackedBitVector newRowsMask{frame->numberRows() - 10, false};
