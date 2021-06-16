@@ -94,6 +94,7 @@ public:
     predictionRestoreSearcherSupplier(TRestoreSearcherSupplier* restoreSearcherSupplier);
     CDataFrameAnalysisSpecificationFactory& earlyStoppingEnabled(bool earlyStoppingEnabled);
     CDataFrameAnalysisSpecificationFactory& task(TTask task);
+    CDataFrameAnalysisSpecificationFactory& dataSummarizationFraction(double fraction);
 
     // Regression
     CDataFrameAnalysisSpecificationFactory& regressionLossFunction(TLossFunctionType lossFunction);
@@ -153,7 +154,8 @@ private:
     TPersisterSupplier* m_PersisterSupplier{nullptr};
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier{nullptr};
     rapidjson::Document m_CustomProcessors;
-    TTask m_Task = TTask::E_Train;
+    TTask m_Task{TTask::E_Train};
+    double m_DataSummarizationFraction{-1.0};
     // Regression
     TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;

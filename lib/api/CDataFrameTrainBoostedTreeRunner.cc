@@ -114,7 +114,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_Task = parameters[TASK].fallback(E_Train);
 
     bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
-    bool dataSummarizationFraction = parameters[DATA_SUMMARIZATION_FRACTION].fallback(0.1);
+    double dataSummarizationFraction =
+        parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0);
 
     std::size_t seed{parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0})};
     std::size_t downsampleRowsPerFeature{
@@ -244,6 +245,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (numTopFeatureImportanceValues > 0) {
         m_BoostedTreeFactory->numberTopShapValues(numTopFeatureImportanceValues);
+    }
+    if (dataSummarizationFraction > 0) {
+        m_BoostedTreeFactory->dataSummarizationFraction(dataSummarizationFraction);
     }
 }
 

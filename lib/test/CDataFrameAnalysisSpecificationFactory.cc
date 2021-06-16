@@ -200,6 +200,12 @@ CDataFrameAnalysisSpecificationFactory::task(TTask task) {
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::dataSummarizationFraction(double fraction) {
+    m_DataSummarizationFraction = fraction;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
     m_NumberClasses = number;
     return *this;
@@ -364,6 +370,11 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     if (m_EarlyStoppingEnabled == false) {
         writer.Key(TRunner::EARLY_STOPPING_ENABLED);
         writer.Bool(m_EarlyStoppingEnabled);
+    }
+
+    if (m_DataSummarizationFraction > 0) {
+        writer.Key(TRunner::DATA_SUMMARIZATION_FRACTION);
+        writer.Double(m_DataSummarizationFraction);
     }
 
     writer.Key(TRunner::TASK);
