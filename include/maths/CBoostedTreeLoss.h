@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -104,9 +105,9 @@ public:
     TDoubleVector value() const override;
 
 private:
-    double m_Eta = 0.0;
-    double m_Mu = 0.0;
-    const TNodeVec* m_Tree = nullptr;
+    double m_Eta{0.0};
+    double m_Mu{0.0};
+    const TNodeVec* m_Tree{nullptr};
     TMeanAccumulator m_MeanTreePredictions;
 };
 
@@ -169,8 +170,8 @@ private:
     }
 
 private:
-    std::size_t m_CurrentPass = 0;
-    double m_Offset = 1.0;
+    double m_Offset{1.0};
+    std::size_t m_CurrentPass{0};
     TMinMaxAccumulator m_ExpPredictionMinMax;
     TMinMaxAccumulator m_LogActualMinMax;
     TVectorMeanAccumulatorVecVec m_Buckets;
@@ -221,8 +222,8 @@ private:
     }
 
 private:
-    double m_DeltaSquared = 1.0;
-    std::size_t m_CurrentPass = 0;
+    double m_DeltaSquared{1.0};
+    std::size_t m_CurrentPass{0};
     TMeanAccumulatorVec m_Buckets;
     TMinMaxAccumulator m_ErrorMinMax;
 };
@@ -269,45 +270,46 @@ protected:
     using TObjective = std::function<double(double)>;
 
 protected:
-    static constexpr std::size_t NUMBER_BUCKETS = 128;
+    static constexpr std::size_t NUMBER_BUCKETS{128};
 
 protected:
-    std::size_t currentPass() const { return m_CurrentPass; }
-
-    std::size_t bucket(double prediction) const {
-        double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
-        return std::min(static_cast<std::size_t>(bucket), m_BucketsClassCounts.size() - 1);
+    static std::size_t bucket(const TMinMaxAccumulator& minmax, double prediction) {
+        double bucket{(prediction - minmax.min()) / bucketWidth(minmax)};
+        return std::min(static_cast<std::size_t>(bucket), NUMBER_BUCKETS - 1);
     }
 
-    double bucketCentre(std::size_t bucket) const {
-        return m_PredictionMinMax.min() +
-               (static_cast<double>(bucket) + 0.5) * this->bucketWidth();
+    static double bucketCentre(const TMinMaxAccumulator& minmax, std::size_t bucket) {
+        return minmax.min() + (static_cast<double>(bucket) + 0.5) * bucketWidth(minmax);
     }
 
-    double bucketWidth() const {
-        return m_PredictionMinMax.initialized()
-                   ? m_PredictionMinMax.range() /
-                         static_cast<double>(m_BucketsClassCounts.size())
-                   : 0.0;
+    static double bucketWidth(const TMinMaxAccumulator& minmax) {
+        return minmax.initialized() ? minmax.range() / static_cast<double>(NUMBER_BUCKETS)
+                                    : 0.0;
     }
 
-    double midPrediction() const {
-        return m_PredictionMinMax.initialized()
-                   ? (m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0
-                   : 0.0;
+    static double mid(const TMinMaxAccumulator& minmax) {
+        return minmax.initialized() ? (minmax.min() + minmax.max()) / 2.0 : 0.0;
     }
 
+    const TMinMaxAccumulator& predictionMinMax() const {
+        return m_PredictionMinMax;
+    }
     const TDoubleVector2x1& classCounts() const { return m_ClassCounts; }
-
     const TDoubleVector2x1Vec& bucketsClassCounts() const {
         return m_BucketsClassCounts;
     }
 
 private:
     virtual TObjective objective() const;
+    virtual double minWeight() const {
+        return std::numeric_limits<double>::max();
+    }
+    virtual double maxWeight() const {
+        return -std::numeric_limits<double>::max();
+    }
 
 private:
-    std::size_t m_CurrentPass = 0;
+    std::size_t m_CurrentPass{0};
     TMinMaxAccumulator m_PredictionMinMax;
     TDoubleVector2x1 m_ClassCounts;
     TDoubleVector2x1Vec m_BucketsClassCounts;
@@ -323,11 +325,9 @@ private:
 class MATHS_EXPORT CArgMinBinomialLogisticLossIncrementalImpl final
     : public CArgMinBinomialLogisticLossImpl {
 public:
-    explicit CArgMinBinomialLogisticLossIncrementalImpl(double lambda,
-                                                        double eta,
-                                                        double mu,
-                                                        const TNodeVec& tree);
+    CArgMinBinomialLogisticLossIncrementalImpl(double lambda, double eta, double mu, const TNodeVec& tree);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
     void add(const CEncodedDataFrameRowRef& row,
              bool newExample,
              const TMemoryMappedFloatVector& prediction,
@@ -336,18 +336,18 @@ public:
     void merge(const CArgMinLossImpl& other) override;
 
 private:
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
-
-private:
     TObjective objective() const override;
+    double minWeight() const override { return m_TreePredictionMinMax.min(); }
+    double maxWeight() const override { return m_TreePredictionMinMax.max(); }
 
 private:
-    double m_Eta = 0.0;
-    double m_Mu = 0.0;
-    const TNodeVec* m_Tree = nullptr;
-    TMeanAccumulator m_MeanTreePredictions;
-    TMeanAccumulatorVec m_BucketsMeanTreePredictions;
+    double m_Eta{0.0};
+    double m_Mu{0.0};
+    const TNodeVec* m_Tree{nullptr};
+    std::size_t m_CurrentPass{0};
+    TMinMaxAccumulator m_TreePredictionMinMax;
+    double m_Count{0.0};
+    TDoubleVec m_BucketsCount;
 };
 
 //! \brief Finds the value to add to a set of predicted multinomial logit which
@@ -404,11 +404,11 @@ private:
     using TSampler = CSampling::CVectorDissimilaritySampler<TDoubleVector>;
 
 private:
-    static constexpr std::size_t NUMBER_CENTRES = 96;
+    static constexpr std::size_t NUMBER_CENTRES{96};
 
 private:
-    std::size_t m_NumberClasses = 0;
-    std::size_t m_CurrentPass = 0;
+    std::size_t m_NumberClasses{0};
+    std::size_t m_CurrentPass{0};
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     TDoubleVector m_ClassCounts;
     TDoubleVector m_DoublePrediction;
@@ -652,9 +652,9 @@ private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser&) override;
 
 private:
-    double m_Eta = 0.0;
-    double m_Mu = 0.0;
-    const TNodeVec* m_Tree = nullptr;
+    double m_Eta{0.0};
+    double m_Mu{0.0};
+    const TNodeVec* m_Tree{nullptr};
 };
 
 //! \brief The loss for binomial logistic regression.
@@ -765,9 +765,9 @@ private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
 private:
-    double m_Eta = 0.0;
-    double m_Mu = 0.0;
-    const TNodeVec* m_Tree = nullptr;
+    double m_Eta{0.0};
+    double m_Mu{0.0};
+    const TNodeVec* m_Tree{nullptr};
 };
 
 //!  \brief The loss for multinomial logistic regression.

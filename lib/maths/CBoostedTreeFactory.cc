@@ -128,6 +128,12 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
                 [&] { this->initializeNumberFolds(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
+            m_TreeImpl->m_NewTrainingRowMask.extend(
+                false, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
+        }
+    });
 
     this->prepareDataFrameForTrain(frame);
 

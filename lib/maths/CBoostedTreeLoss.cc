@@ -185,7 +185,7 @@ std::unique_ptr<CArgMinLossImpl> CArgMinBinomialLogisticLossImpl::clone() const 
 }
 
 bool CArgMinBinomialLogisticLossImpl::nextPass() {
-    m_CurrentPass += this->bucketWidth() > 0.0 ? 1 : 2;
+    m_CurrentPass += bucketWidth(m_PredictionMinMax) > 0.0 ? 1 : 2;
     return m_CurrentPass < 2;
 }
 
@@ -199,7 +199,7 @@ void CArgMinBinomialLogisticLossImpl::add(const TMemoryMappedFloatVector& predic
         break;
     }
     case 1: {
-        auto& count = m_BucketsClassCounts[this->bucket(prediction(0))];
+        auto& count = m_BucketsClassCounts[bucket(m_PredictionMinMax, prediction(0))];
         count(static_cast<std::size_t>(actual)) += weight;
         break;
     }
@@ -235,10 +235,10 @@ CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::
     // This is true if and only if all the predictions were identical. In this
     // case we only need one pass over the data and can compute the optimal
     // value from the counts of the two categories.
-    if (this->bucketWidth() == 0.0) {
+    if (bucketWidth(m_PredictionMinMax) == 0.0) {
         // This is the (unique) predicted value for the rows in leaf by the forest
         // so far (i.e. without the weight for the leaf we're about to add).
-        double prediction{this->midPrediction()};
+        double prediction{mid(m_PredictionMinMax)};
 
         // Weight shrinkage means the optimal weight will be somewhere between
         // the logit of the empirical probability and zero.
@@ -258,6 +258,8 @@ CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::
         minWeight = -m_PredictionMinMax.max() - 5.0;
         maxWeight = -m_PredictionMinMax.min() + 5.0;
     }
+    minWeight = std::min(minWeight, this->minWeight());
+    maxWeight = std::max(maxWeight, this->maxWeight());
 
     TDoubleVector result(1);
 
@@ -279,11 +281,11 @@ CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::
 }
 
 CArgMinBinomialLogisticLossImpl::TObjective CArgMinBinomialLogisticLossImpl::objective() const {
-    // This is true if and only if all the predictions were identical. In this
-    // case we only need one pass over the data and can compute the optimal
-    // value from the counts of the two categories.
-    if (this->bucketWidth() == 0.0) {
-        double prediction{this->midPrediction()};
+    // This is true if all the predictions were identical. In this case we only
+    // need one pass over the data and can compute the optimal value from the
+    // counts of the two categories.
+    if (bucketWidth(m_PredictionMinMax) == 0.0) {
+        double prediction{mid(m_PredictionMinMax)};
         return [prediction, this](double weight) {
             double logOdds{prediction + weight};
             double c0{m_ClassCounts(0)};
@@ -293,14 +295,14 @@ CArgMinBinomialLogisticLossImpl::TObjective CArgMinBinomialLogisticLossImpl::obj
         };
     }
     return [this](double weight) {
-        double loss{0.0};
+        double loss{this->lambda() * CTools::pow2(weight)};
         for (std::size_t i = 0; i < m_BucketsClassCounts.size(); ++i) {
-            double logOdds{this->bucketCentre(i) + weight};
+            double logOdds{bucketCentre(m_PredictionMinMax, i) + weight};
             double c0{m_BucketsClassCounts[i](0)};
             double c1{m_BucketsClassCounts[i](1)};
             loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds);
         }
-        return loss + this->lambda() * CTools::pow2(weight);
+        return loss;
     };
 }
 
@@ -310,11 +312,17 @@ CArgMinBinomialLogisticLossIncrementalImpl::CArgMinBinomialLogisticLossIncrement
     double mu,
     const TNodeVec& tree)
     : CArgMinBinomialLogisticLossImpl{lambda}, m_Eta{eta}, m_Mu{mu}, m_Tree{&tree},
-      m_BucketsMeanTreePredictions(NUMBER_BUCKETS) {
+      m_BucketsCount(NUMBER_BUCKETS, 0.0) {
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinBinomialLogisticLossIncrementalImpl::clone() const {
     return std::make_unique<CArgMinBinomialLogisticLossIncrementalImpl>(*this);
+}
+
+bool CArgMinBinomialLogisticLossIncrementalImpl::nextPass() {
+    this->CArgMinBinomialLogisticLossImpl::nextPass();
+    m_CurrentPass += bucketWidth(m_TreePredictionMinMax) > 0.0 ? 1 : 2;
+    return m_CurrentPass < 2;
 }
 
 void CArgMinBinomialLogisticLossIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
@@ -324,19 +332,17 @@ void CArgMinBinomialLogisticLossIncrementalImpl::add(const CEncodedDataFrameRowR
                                                      double weight) {
     this->CArgMinBinomialLogisticLossImpl::add(prediction, actual, weight);
     if (newExample == false) {
-        switch (this->currentPass()) {
+        switch (m_CurrentPass) {
         case 0: {
-            double treePrediction{CTools::logisticFunction(
-                root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
-            m_MeanTreePredictions.add(treePrediction);
+            double treePrediction{root(*m_Tree).value(row, *m_Tree)(0) / m_Eta};
+            m_TreePredictionMinMax.add(treePrediction);
+            m_Count += weight;
             break;
         }
         case 1: {
-            std::size_t bucket{this->bucket(prediction(0))};
-            auto& mean = m_BucketsMeanTreePredictions[bucket];
-            double treePrediction{CTools::logisticFunction(
-                root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
-            mean.add(treePrediction);
+            double treePrediction{root(*m_Tree).value(row, *m_Tree)(0) / m_Eta};
+            auto& count = m_BucketsCount[bucket(m_TreePredictionMinMax, treePrediction)];
+            count += weight;
             break;
         }
         default:
@@ -350,13 +356,14 @@ void CArgMinBinomialLogisticLossIncrementalImpl::merge(const CArgMinLossImpl& ot
         dynamic_cast<const CArgMinBinomialLogisticLossIncrementalImpl*>(&other);
     if (logistic != nullptr) {
         this->CArgMinBinomialLogisticLossImpl::merge(*logistic);
-        switch (this->currentPass()) {
+        switch (m_CurrentPass) {
         case 0:
-            m_MeanTreePredictions += logistic->m_MeanTreePredictions;
+            m_TreePredictionMinMax += logistic->m_TreePredictionMinMax;
+            m_Count += logistic->m_Count;
             break;
         case 1:
-            for (std::size_t i = 0; i < m_BucketsMeanTreePredictions.size(); ++i) {
-                m_BucketsMeanTreePredictions[i] += logistic->m_BucketsMeanTreePredictions[i];
+            for (std::size_t i = 0; i < m_BucketsCount.size(); ++i) {
+                m_BucketsCount[i] += logistic->m_BucketsCount[i];
             }
             break;
         default:
@@ -368,38 +375,81 @@ void CArgMinBinomialLogisticLossIncrementalImpl::merge(const CArgMinLossImpl& ot
 CArgMinBinomialLogisticLossIncrementalImpl::TObjective
 CArgMinBinomialLogisticLossIncrementalImpl::objective() const {
 
-    // This is true if and only if all the predictions were identical. In this
-    // case we only need one pass over the data and can compute the optimal
-    // value from the counts of the two categories and the mean tree predictions.
-    if (this->bucketWidth() == 0.0) {
-        double prediction{this->midPrediction()};
+    // This is true if all the forest and tree predictions were identical.
+    if (bucketWidth(this->predictionMinMax()) == 0.0 &&
+        bucketWidth(m_TreePredictionMinMax) == 0.0) {
+        double prediction{mid(this->predictionMinMax())};
+        double pOld{CTools::logisticFunction(mid(m_TreePredictionMinMax))};
+        double mu{m_Mu * m_Count};
+        return [prediction, pOld, mu, this](double weight) {
+            double logOdds{prediction + weight};
+            double c0{this->classCounts()(0)};
+            double c1{this->classCounts()(1)};
+            double logOneMinusPNew{logOneMinusLogistic(weight)};
+            double logPNew{logLogistic(weight)};
+            return this->lambda() * CTools::pow2(weight) -
+                   c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds) -
+                   mu * ((1.0 - pOld) * logOneMinusPNew + pOld * logPNew);
+        };
+    }
+
+    // This is true if all the forest predictions were identical.
+    if (bucketWidth(this->predictionMinMax()) == 0.0) {
+        double prediction{mid(this->predictionMinMax())};
         return [prediction, this](double weight) {
             double logOdds{prediction + weight};
             double c0{this->classCounts()(0)};
             double c1{this->classCounts()(1)};
-            double mu{m_Mu * CBasicStatistics::count(m_MeanTreePredictions)};
-            double p{CBasicStatistics::mean(m_MeanTreePredictions)};
-            return this->lambda() * CTools::pow2(weight) -
-                   c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds) -
-                   mu * (1.0 - p) * logOneMinusLogistic(weight) -
-                   mu * p * logLogistic(weight);
+            double logOneMinusPNew{logOneMinusLogistic(weight)};
+            double logPNew{logLogistic(weight)};
+            double loss{this->lambda() * CTools::pow2(weight) -
+                        c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds)};
+            for (std::size_t i = 0; i < NUMBER_BUCKETS; ++i) {
+                double pOld{CTools::logisticFunction(bucketCentre(m_TreePredictionMinMax, i))};
+                double mu{m_Mu * m_BucketsCount[i]};
+                loss -= mu * ((1.0 - pOld) * logOneMinusPNew + pOld * logPNew);
+            }
+            return loss;
+        };
+    }
+
+    // This is true if all the tree predictions were identical.
+    if (bucketWidth(m_TreePredictionMinMax) == 0.0) {
+        double pOld{CTools::logisticFunction(mid(m_TreePredictionMinMax))};
+        double mu{m_Mu * m_Count};
+        return [pOld, mu, this](double weight) {
+            const auto& predictionMinMax = this->predictionMinMax();
+            const auto& bucketsClassCounts = this->bucketsClassCounts();
+            double logOneMinusPNew{logOneMinusLogistic(weight)};
+            double logPNew{logLogistic(weight)};
+            double loss{this->lambda() * CTools::pow2(weight) -
+                        mu * ((1.0 - pOld) * logOneMinusPNew + pOld * logPNew)};
+            for (std::size_t i = 0; i < NUMBER_BUCKETS; ++i) {
+                double logOdds{bucketCentre(predictionMinMax, i) + weight};
+                double c0{bucketsClassCounts[i](0)};
+                double c1{bucketsClassCounts[i](1)};
+                loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds);
+            }
+            return loss;
         };
     }
 
     return [this](double weight) {
-        double loss{0.0};
+        const auto& predictionMinMax = this->predictionMinMax();
         const auto& bucketsClassCounts = this->bucketsClassCounts();
-        for (std::size_t i = 0; i < bucketsClassCounts.size(); ++i) {
-            double logOdds{this->bucketCentre(i) + weight};
+        double logOneMinusPNew{logOneMinusLogistic(weight)};
+        double logPNew{logLogistic(weight)};
+        double loss{this->lambda() * CTools::pow2(weight)};
+        for (std::size_t i = 0; i < NUMBER_BUCKETS; ++i) {
+            double logOdds{bucketCentre(predictionMinMax, i) + weight};
             double c0{bucketsClassCounts[i](0)};
             double c1{bucketsClassCounts[i](1)};
-            double mu{m_Mu * CBasicStatistics::count(m_BucketsMeanTreePredictions[i])};
-            double p{CBasicStatistics::mean(m_BucketsMeanTreePredictions[i])};
+            double mu{m_Mu * m_BucketsCount[i]};
+            double pOld{CTools::logisticFunction(bucketCentre(m_TreePredictionMinMax, i))};
             loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds) +
-                    mu * (1.0 - p) * logOneMinusLogistic(weight) +
-                    mu * p * logLogistic(weight);
+                    mu * ((1.0 - pOld) * logOneMinusPNew + pOld * logPNew);
         }
-        return loss + this->lambda() * CTools::pow2(weight);
+        return loss;
     };
 }
 
