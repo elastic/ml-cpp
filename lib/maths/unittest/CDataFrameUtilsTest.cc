@@ -607,6 +607,115 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
+    using TDoubleDoubleUMap = boost::unordered_map<double, double>;
+
+    test::CRandomNumbers testRng;
+    maths::CPRNG::CXorOShiro128Plus rng;
+
+    std::size_t numberRows{2000};
+    std::size_t numberCols{1};
+    std::size_t numberBins{10};
+    TSizeVec desiredNumberSamples(1);
+
+    // test categorical targets
+    for (std::size_t trial = 0; trial < 10; ++trial) {
+
+        TDoubleVec categories;
+        testRng.generateNormalSamples(0.0, 3.0, numberRows, categories);
+
+        testRng.generateUniformSamples(200, 500, 1, desiredNumberSamples);
+        double desiredSamplesFraction{static_cast<double>(desiredNumberSamples[0]) / numberRows};
+
+        auto frame = core::makeMainStorageDataFrame(numberCols).first;
+        frame->categoricalColumns(TBoolVec{true});
+        for (std::size_t i = 0; i < numberRows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *column = std::floor(std::fabs(categories[i]));
+            });
+        }
+        frame->finishWritingRows();
+
+        core::CPackedBitVector allTrainingRowsMask{numberRows, true};
+
+        TDoubleDoubleUMap categoryCounts;
+        for (auto i = allTrainingRowsMask.beginOneBits();
+             i != allTrainingRowsMask.endOneBits(); ++i) {
+            categoryCounts[std::floor(std::fabs(categories[*i]))] += 1.0;
+        }
+
+        core::CPackedBitVector samplingRowMask;
+        samplingRowMask = maths::CDataFrameUtils::stratifiedSamplingRowMasks(
+            1, *frame, 0, rng, desiredNumberSamples[0], numberBins, allTrainingRowsMask);
+
+        // Count should be very nearly the expected value.
+        BOOST_REQUIRE_CLOSE(static_cast<double>(desiredNumberSamples[0]),
+                            samplingRowMask.manhattan(), 5.0);
+
+        core::CPackedBitVector allTestingRowsMask{numberRows, false};
+
+        TDoubleDoubleUMap testingCategoryCounts;
+        frame->readRows(1, 0, frame->numberRows(),
+                        [&](const core::CDataFrame::TRowItr& beginRows,
+                            const core::CDataFrame::TRowItr& endRows) {
+                            for (auto row = beginRows; row != endRows; ++row) {
+                                testingCategoryCounts[(*row)[0]] += 1.0;
+                            }
+                        },
+                        &samplingRowMask);
+        for (const auto& count : categoryCounts) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(count.second * desiredSamplesFraction,
+                                         testingCategoryCounts[count.first], 2.0);
+        }
+    }
+
+    // test numerical targets
+    for (std::size_t trial = 0; trial < 10; ++trial) {
+        TDoubleVec value;
+        testRng.generateNormalSamples(0.0, 3.0, numberRows, value);
+        testRng.generateUniformSamples(500, 750, 1, desiredNumberSamples);
+
+        auto frame = core::makeMainStorageDataFrame(numberCols).first;
+        frame->categoricalColumns(TBoolVec{false});
+        for (std::size_t i = 0; i < numberRows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column,
+                                std::int32_t&) { *column = value[i]; });
+        }
+        frame->finishWritingRows();
+
+        core::CPackedBitVector allTrainingRowsMask{numberRows, true};
+        core::CPackedBitVector samplingRowMask;
+        samplingRowMask = maths::CDataFrameUtils::stratifiedSamplingRowMasks(
+            1, *frame, 0, rng, desiredNumberSamples[0], numberBins, allTrainingRowsMask);
+
+        // Count should be very nearly the expected value.
+        BOOST_REQUIRE_CLOSE(static_cast<double>(desiredNumberSamples[0]),
+                            samplingRowMask.manhattan(), 1.0);
+
+        // ensure that the targets distribution is similar
+        maths::CQuantileSketch expectedQuantiles(maths::CQuantileSketch::E_Linear, numberRows);
+        maths::CQuantileSketch actualQuantiles(
+            maths::CQuantileSketch::E_Linear,
+            static_cast<std::size_t>(samplingRowMask.manhattan()));
+        for (std::size_t i = 0; i < numberRows; ++i) {
+            expectedQuantiles.add(value[i]);
+            if (samplingRowMask[i]) {
+                actualQuantiles.add(value[i]);
+            }
+        }
+
+        double percentageStep{1.0 / numberBins * 100.0};
+        double expected;
+        double actual;
+        for (double percentage = percentageStep; percentage < 100.0;
+             percentage += percentageStep) {
+            expectedQuantiles.quantile(percentage, expected);
+            actualQuantiles.quantile(percentage, actual);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 0.05);
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testMicWithColumn) {
 
     // Test we get the exact MICe value when the number of rows is less than

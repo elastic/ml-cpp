@@ -1701,6 +1701,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool enable) {
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::dataSummarizationFraction(double fraction) {
+    m_TreeImpl->m_DataSummarizationFraction = fraction;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::newTrainingRowMask(core::CPackedBitVector rowMask) {
     m_TreeImpl->m_NewTrainingRowMask = std::move(rowMask);
     return *this;

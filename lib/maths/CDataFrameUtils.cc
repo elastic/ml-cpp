@@ -558,6 +558,62 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
     return {std::move(trainingRowMasks), std::move(testingRowMasks), std::move(frequencies)};
 }
 
+core::CPackedBitVector
+CDataFrameUtils::stratifiedSamplingRowMasks(std::size_t numberThreads,
+                                            const core::CDataFrame& frame,
+                                            std::size_t targetColumn,
+                                            CPRNG::CXorOShiro128Plus rng,
+                                            std::size_t desiredNumberSamples,
+                                            std::size_t numberBuckets,
+                                            const core::CPackedBitVector& allTrainingRowsMask) {
+    TDoubleVec frequencies;
+    TStratifiedSamplerPtr sampler;
+    core::CPackedBitVector samplesRowMask;
+
+    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    if (numberTrainingRows < 2.0) {
+        HANDLE_FATAL(<< "Input error: unsufficient training data provided.");
+        return {};
+    }
+
+    if (frame.columnIsCategorical()[targetColumn]) {
+        std::tie(sampler, frequencies) = classifierStratifiedCrossValidationRowSampler(
+            numberThreads, frame, targetColumn, rng, desiredNumberSamples, allTrainingRowsMask);
+    } else {
+        sampler = regressionStratifiedCrossValiationRowSampler(
+            numberThreads, frame, targetColumn, rng, desiredNumberSamples,
+            numberBuckets, allTrainingRowsMask);
+    }
+
+    LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
+
+    TSizeVec rowIndices;
+    core::CPackedBitVector candidateSamplesRowsMask{allTrainingRowsMask};
+    frame.readRows(1, 0, frame.numberRows(),
+                   [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                       for (auto row = beginRows; row != endRows; ++row) {
+                           sampler->sample(*row);
+                       }
+                   },
+                   &candidateSamplesRowsMask);
+    sampler->finishSampling(rng, rowIndices);
+    std::sort(rowIndices.begin(), rowIndices.end());
+    LOG_TRACE(<< "# row indices = " << rowIndices.size());
+
+    for (auto row : rowIndices) {
+        samplesRowMask.extend(false, row - samplesRowMask.size());
+        samplesRowMask.extend(true);
+    }
+    samplesRowMask.extend(false, allTrainingRowsMask.size() - samplesRowMask.size());
+
+    // We exclusive or here to remove the rows we've selected for the current
+    //test fold. This is equivalent to samplng without replacement
+    candidateSamplesRowsMask ^= samplesRowMask;
+
+    LOG_TRACE(<< "# selected rows = " << samplesRowMask.manhattan());
+    return samplesRowMask;
+}
+
 CDataFrameUtils::TDoubleVecVec
 CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
                                      const core::CDataFrame& frame,

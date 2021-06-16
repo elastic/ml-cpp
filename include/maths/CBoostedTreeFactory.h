@@ -157,6 +157,8 @@ public:
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
     CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
+    //! Set the fraction of data rows for data summarization in (0.0, 1.0].
+    CBoostedTreeFactory& dataSummarizationFraction(double fraction);
     //! Set the row mask for new data with which we want to incrementally train.
     CBoostedTreeFactory& newTrainingRowMask(core::CPackedBitVector rowMask);
     //! Set the fraction of trees in the forest to retrain.

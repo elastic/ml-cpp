@@ -677,6 +677,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
             .task(task)
+            .dataSummarizationFraction(1.0)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                             dependentVariable, &frameAndDirectory);
     };
@@ -818,6 +819,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
                         .columns(cols)
                         .memoryLimit(30000000)
                         .predictionCategoricalFieldNames({"categorical_col"})
+                        .dataSummarizationFraction(1.0)
                         .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                                         "target", &frameAndDirectory);
         api::CDataFrameAnalyzer analyzer{

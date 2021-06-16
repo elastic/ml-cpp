@@ -78,6 +78,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(EARLY_STOPPING_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(DATA_SUMMARIZATION_FRACTION,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
                                {{TASK_TRAIN, int{ETask::E_Train}},
                                 {TASK_UPDATE, int{ETask::E_Update}},
@@ -112,6 +114,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_Task = parameters[TASK].fallback(E_Train);
 
     bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
+    double dataSummarizationFraction =
+        parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0);
 
     std::size_t seed{parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0})};
     std::size_t downsampleRowsPerFeature{
@@ -241,6 +245,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (numTopFeatureImportanceValues > 0) {
         m_BoostedTreeFactory->numberTopShapValues(numTopFeatureImportanceValues);
+    }
+    if (dataSummarizationFraction > 0) {
+        m_BoostedTreeFactory->dataSummarizationFraction(dataSummarizationFraction);
     }
 }
 
@@ -525,6 +532,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"impor
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
 const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"early_stopping_enabled"};
+const std::string CDataFrameTrainBoostedTreeRunner::DATA_SUMMARIZATION_FRACTION{"data_summarization_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK{"task"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_TRAIN{"train"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_UPDATE{"update"};

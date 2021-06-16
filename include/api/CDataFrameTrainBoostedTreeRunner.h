@@ -60,6 +60,7 @@ public:
     static const std::string TRAINING_PERCENT_FIELD_NAME;
     static const std::string FEATURE_PROCESSORS;
     static const std::string EARLY_STOPPING_ENABLED;
+    static const std::string DATA_SUMMARIZATION_FRACTION;
     static const std::string TASK;
     static const std::string TASK_TRAIN;
     static const std::string TASK_UPDATE;

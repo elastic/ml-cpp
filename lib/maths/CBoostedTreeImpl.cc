@@ -29,6 +29,7 @@
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameCategoryEncoder.h>
+#include <maths/CDataFrameUtils.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
@@ -2118,6 +2119,7 @@ const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string TREES_TO_RETRAIN_TAG{"trees_to_retrain"};
 const std::string NUMBER_TOP_SHAP_VALUES_TAG{"top_shap_values"};
+const std::string DATA_SUMMARIZATION_FRACTION_TAG{"data_summarization_fraction"};
 }
 
 const std::string& CBoostedTreeImpl::bestHyperparametersName() {
@@ -2211,6 +2213,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(TREES_TO_RETRAIN_TAG, m_TreesToRetrain, inserter);
     core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                  m_StopHyperparameterOptimizationEarly, inserter);
+    core::CPersistUtils::persist(DATA_SUMMARIZATION_FRACTION_TAG,
+                                 m_DataSummarizationFraction, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is re-generated
     // from overriden hyperparameters.
     // m_HyperparameterSamples is not persisted explicitly, it is re-generated.
@@ -2363,6 +2367,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                              m_StopHyperparameterOptimizationEarly, traverser))
+        RESTORE(DATA_SUMMARIZATION_FRACTION_TAG,
+                core::CPersistUtils::restore(DATA_SUMMARIZATION_FRACTION_TAG,
+                                             m_DataSummarizationFraction, traverser))
         // m_TunableHyperparameters is not restored explicitly it is re-generated
         // from overriden hyperparameters.
         // m_HyperparameterSamples is not restored explicitly it is re-generated.
@@ -2527,16 +2534,13 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
 }
 
 core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFrame& frame) const {
+
+    std::size_t sampleSize{std::max(static_cast<size_t>(frame.numberRows() * m_DataSummarizationFraction),
+                                    static_cast<std::size_t>(2))};
     // get row mask for sampling
-    // TODO #1834 implement a data summarization strategy.
-    core::CPackedBitVector rowMask{};
-    std::size_t sampleSize(std::min(
-        frame.numberRows(), static_cast<std::size_t>(std::max(
-                                static_cast<double>(frame.numberRows()) * 0.1, 100.0))));
-    for (std::size_t i = 0; i < sampleSize; ++i) {
-        rowMask.extend(true);
-    }
-    rowMask.extend(false, frame.numberRows() - rowMask.size());
+    core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
+    core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
+        m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10, allTrainingRowsMask)};
 
     return rowMask;
 }
