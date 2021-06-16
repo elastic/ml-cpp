@@ -375,7 +375,7 @@ void CArgMinBinomialLogisticLossIncrementalImpl::merge(const CArgMinLossImpl& ot
 CArgMinBinomialLogisticLossIncrementalImpl::TObjective
 CArgMinBinomialLogisticLossIncrementalImpl::objective() const {
 
-    // This is true if all the forst and tree predictions were identical.
+    // This is true if all the forest and tree predictions were identical.
     if (bucketWidth(this->predictionMinMax()) == 0.0 &&
         bucketWidth(m_TreePredictionMinMax) == 0.0) {
         double prediction{mid(this->predictionMinMax())};
