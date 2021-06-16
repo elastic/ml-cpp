@@ -148,9 +148,9 @@ class Job:
                 print(err)
             # the line in main.cc where final output is produced
             success = sum(
-                ['Main.cc@246' in line for line in self.pane.capture_pane()[-5:]]) == 1
+                [line == 'Success' for line in self.pane.capture_pane()[-5:]]) == 1
             failure = sum(
-                ['FATAL' in line for line in self.pane.capture_pane()[-5:]]) == 1
+                [line == 'Failure' for line in self.pane.capture_pane()[-5:]]) == 1
             if success or failure:
                 break
             time.sleep(5.0)
@@ -274,6 +274,7 @@ def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
         cmd += ['--restore', job.restore_filename]
 
     cmd = ' '.join(cmd)
+    cmd += '; if [ $? -eq 0 ]; then echo "Success"; else echo "Failure";  fi;'
 
     session = server.new_session(job_name)
     window = session.new_window(attach=False)
