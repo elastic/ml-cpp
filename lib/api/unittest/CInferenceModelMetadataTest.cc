@@ -10,6 +10,7 @@
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
 
@@ -221,6 +222,59 @@ BOOST_AUTO_TEST_CASE(testHyperparameterReproducibility, *utf::tolerance(0.000001
     }
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), numberSamples);
     BOOST_TEST(actualPredictions == expectedPredictions, tt::per_element());
+}
+
+BOOST_AUTO_TEST_CASE(testDataSummarization) {
+    std::size_t numRows{50};
+    double summarizationFraction{0.2};
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TStrVec fieldNames{"f1", "target", ".", "."};
+    TStrVec fieldValues{"", "", "0", ""};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = test::CDataFrameAnalysisSpecificationFactory{}
+                    .rows(numRows)
+                    .columns(2)
+                    .dataSummarizationFraction(summarizationFraction)
+                    .predictionLambda(0.5)
+                    .predictionEta(.5)
+                    .predictionGamma(0.5)
+                    .predictionAlpha(0.5)
+                    .predictionSoftTreeDepthLimit(10.0)
+                    .predictionSoftTreeDepthTolerance(1.0)
+                    .predictionMaximumNumberTrees(3)
+                    .predictionDownsampleFactor(1.0)
+                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                                    "target", &frameAndDirectory);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     std::move(outputWriterFactory)};
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer, numRows);
+
+    analyzer.handleRecord(fieldNames, {"", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    // Read number rows of data summarization.
+    std::size_t dataSummarizationNumRows{0};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("model_metadata")) {
+            if (result["model_metadata"].HasMember("data_summarization") &&
+                result["model_metadata"]["data_summarization"].HasMember("num_rows")) {
+                dataSummarizationNumRows =
+                    result["model_metadata"]["data_summarization"]["num_rows"].GetUint64();
+            }
+        }
+    }
+
+    // check correct number of rows up to a rounding error
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(dataSummarizationNumRows),
+                                 numRows * summarizationFraction, 1.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
