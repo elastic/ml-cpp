@@ -91,7 +91,7 @@ private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
     void writeHyperparameterImportance(TRapidJsonWriter& writer) const;
     void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
-    void writeDataSummarizationMetadata(TRapidJsonWriter& writer) const;
+    void writeDataSummarization(TRapidJsonWriter& writer) const;
 
 private:
     TSizeMeanAccumulatorUMap m_TotalShapValuesMean;

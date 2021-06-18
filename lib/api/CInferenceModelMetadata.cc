@@ -19,7 +19,7 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
-    this->writeDataSummarizationMetadata(writer);
+    this->writeDataSummarization(writer);
 }
 
 void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
@@ -172,7 +172,8 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
     writer.EndArray();
 }
 
-void CInferenceModelMetadata::writeDataSummarizationMetadata(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeDataSummarization(TRapidJsonWriter& writer) const {
+    // only write out if data summarization exists
     if (m_DataSummarizationNumRows > 0) {
         writer.Key(JSON_DATA_SUMMARIZATION_TAG);
         writer.StartObject();
