@@ -5,8 +5,19 @@
     "title": "model_meta_data",
     "type": "object",
     "properties": {
+        "data_summarization": {
+            "description": "Information regarding data summarization for incremental learning.",
+            "type": "object",
+            "properties": {
+                "num_rows": {
+                    "type": "number"
+                }
+            },
+            "required": ["num_rows"],
+            "additionalProperties": false
+        },
         "total_feature_importance": {
-            "description": "Average feature importance for all features used by the model",
+            "description": "Average feature importance for all features used by the model.",
             "type": "array",
             "items": {
                 "type": "object",

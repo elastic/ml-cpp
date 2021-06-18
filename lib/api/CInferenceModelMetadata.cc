@@ -19,6 +19,7 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
+    this->writeDataSummarizationMetadata(writer);
 }
 
 void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
@@ -171,6 +172,16 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
     writer.EndArray();
 }
 
+void CInferenceModelMetadata::writeDataSummarizationMetadata(TRapidJsonWriter& writer) const {
+    if (m_DataSummarizationNumRows > 0) {
+        writer.Key(JSON_DATA_SUMMARIZATION_TAG);
+        writer.StartObject();
+        writer.Key(JSON_NUM_ROWS_TAG);
+        writer.Uint64(m_DataSummarizationNumRows);
+        writer.EndObject();
+    }
+}
+
 const std::string& CInferenceModelMetadata::typeString() {
     return JSON_MODEL_METADATA_TAG;
 }
@@ -266,11 +277,17 @@ void CInferenceModelMetadata::hyperparameterImportance(
               });
 }
 
+void CInferenceModelMetadata::dataSummarizationNumRows(std::size_t numRows) {
+    m_DataSummarizationNumRows = numRows;
+}
+
 // clang-format off
 const std::string CInferenceModelMetadata::JSON_ABSOLUTE_IMPORTANCE_TAG{"absolute_importance"};
 const std::string CInferenceModelMetadata::JSON_BASELINE_TAG{"baseline"};
 const std::string CInferenceModelMetadata::JSON_CLASS_NAME_TAG{"class_name"};
 const std::string CInferenceModelMetadata::JSON_CLASSES_TAG{"classes"};
+const std::string CInferenceModelMetadata::JSON_DATA_SUMMARIZATION_TAG{"data_summarization"};
+const std::string CInferenceModelMetadata::JSON_NUM_ROWS_TAG{"num_rows"};
 const std::string CInferenceModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG{"feature_importance_baseline"};
 const std::string CInferenceModelMetadata::JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETERS_TAG{"hyperparameters"};
