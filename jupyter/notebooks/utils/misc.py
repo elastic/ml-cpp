@@ -199,6 +199,19 @@ class Job:
                                     ] = hyperparameter['value']
         return hyperparameters
 
+    def get_data_summarization_num_rows(self)->int:
+        """Get the number of examples used in data summarization.
+
+        Returns:
+            int: number of examples
+        """
+        num_rows = 0
+        for item in self.results:
+            if 'model_metadata' in item:
+                if 'data_summarization' in item['model_metadata']:
+                    num_rows = item['model_metadata']['data_summarization']['num_rows']
+        return num_rows
+
     def get_model_definition(self) -> dict:
         """
         Get model definition json.
@@ -361,7 +374,7 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
     fdata.file.close()
     with open('../configs/{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
-    config['rows'] = dataset.shape[0]
+    config['rows'] = dataset.shape[0] + original_job.get_data_summarization_num_rows()
     for name, value  in original_job.get_hyperparameters().items():
         config['analysis']['parameters'][name] = value
     config['analysis']['parameters']['task'] = 'update'
