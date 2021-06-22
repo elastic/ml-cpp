@@ -48,7 +48,7 @@ SHELL_SCRIPT_EXT=.sh
 UT_TMP_DIR=/tmp/$(LOGNAME)
 RESOURCES_DIR=resources
 LOCALLIBS=-lm -lpthread -ldl -lrt
-NETLIBS=-lnsl
+NETLIBS=
 BOOSTVER=1_71
 ifeq ($(HARDWARE_ARCH),aarch64)
 BOOSTARCH=a64
