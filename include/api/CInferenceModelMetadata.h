@@ -29,6 +29,7 @@ public:
     static const std::string JSON_BASELINE_TAG;
     static const std::string JSON_CLASS_NAME_TAG;
     static const std::string JSON_CLASSES_TAG;
+    static const std::string JSON_DATA_SUMMARIZATION_TAG;
     static const std::string JSON_FEATURE_IMPORTANCE_BASELINE_TAG;
     static const std::string JSON_FEATURE_NAME_TAG;
     static const std::string JSON_HYPERPARAMETERS_TAG;
@@ -40,6 +41,7 @@ public:
     static const std::string JSON_MEAN_MAGNITUDE_TAG;
     static const std::string JSON_MIN_TAG;
     static const std::string JSON_MODEL_METADATA_TAG;
+    static const std::string JSON_NUM_ROWS_TAG;
     static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
     static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
 
@@ -64,6 +66,7 @@ public:
     //! to the baseline value).
     void featureImportanceBaseline(TVector&& baseline);
     void hyperparameterImportance(const maths::CBoostedTree::THyperparameterImportanceVec& hyperparameterImportance);
+    void dataSummarizationNumRows(std::size_t numRows);
 
 private:
     struct SHyperparameterImportance {
@@ -88,6 +91,7 @@ private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
     void writeHyperparameterImportance(TRapidJsonWriter& writer) const;
     void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
+    void writeDataSummarization(TRapidJsonWriter& writer) const;
 
 private:
     TSizeMeanAccumulatorUMap m_TotalShapValuesMean;
@@ -100,6 +104,7 @@ private:
             writer.String(value);
         };
     THyperparametersVec m_HyperparameterImportance;
+    std::size_t m_DataSummarizationNumRows{0};
 };
 }
 }
