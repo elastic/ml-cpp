@@ -323,6 +323,69 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
     BOOST_TEST_REQUIRE(progressCompleted);
 }
+
+void readIncrementalTrainingState(const std::string& resultsJson,
+                                  double& alpha,
+                                  double& lambda,
+                                  double& gamma,
+                                  double& softTreeDepthLimit,
+                                  double& softTreeDepthTolerance,
+                                  double& eta,
+                                  double& etaGrowthRatePerTree,
+                                  double& downsampleFactor,
+                                  double& featureBagFraction,
+                                  std::ostream& dataSummarizationStream) {
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(resultsJson));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    std::stringstream inferenceModelStream;
+    rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
+    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
+        inferenceModelStreamWrapper};
+
+    rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
+    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
+        dataSummarizationStreamWrapper};
+
+    // Read the state used to initialize incremental training.
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("compressed_inference_model")) {
+            inferenceModelWriter.write(result);
+            LOG_DEBUG(<< "Inference Model definition found");
+        } else if (result.HasMember("compressed_data_summarization")) {
+            dataSummarizationWriter.write(result);
+            LOG_DEBUG(<< "Data summarization found");
+        } else if (result.HasMember("model_metadata")) {
+            LOG_DEBUG(<< "Metadata found");
+            for (const auto& item : result["model_metadata"]["hyperparameters"].GetArray()) {
+                if (std::strcmp(item["name"].GetString(), "alpha") == 0) {
+                    alpha = item["value"].GetDouble();
+                } else if (std::strcmp(item["name"].GetString(), "lambda") == 0) {
+                    lambda = item["value"].GetDouble();
+                } else if (std::strcmp(item["name"].GetString(), "gamma") == 0) {
+                    gamma = item["value"].GetDouble();
+                } else if (std::strcmp(item["name"].GetString(), "soft_tree_depth_limit") == 0) {
+                    softTreeDepthLimit = item["value"].GetDouble();
+                } else if (std::strcmp(item["name"].GetString(),
+                                       "soft_tree_depth_tolerance") == 0) {
+                    softTreeDepthTolerance = item["value"].GetDouble();
+                } else if (std::strcmp(item["name"].GetString(), "eta") == 0) {
+                    eta = item["value"].GetDouble();
+                } else if (std::strcmp(item["name"].GetString(),
+                                       "eta_growth_rate_per_tree") == 0) {
+                    etaGrowthRatePerTree = item["value"].GetDouble();
+                } else if (std::strcmp(item["name"].GetString(), "downsample_factor") == 0) {
+                    downsampleFactor = item["value"].GetDouble();
+                } else if (std::strcmp(item["name"].GetString(), "feature_bag_fraction") == 0) {
+                    featureBagFraction = item["value"].GetDouble();
+                }
+            }
+        }
+    }
+    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
+}
 }
 
 BOOST_AUTO_TEST_CASE(testMissingString) {
@@ -987,56 +1050,16 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     regression->predict();
 
     // Retrieve documents from the result stream that will be used to restore the model.
-    std::stringstream inferenceModelStream;
-    rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
-        inferenceModelStreamWrapper};
 
     std::stringstream dataSummarizationStream;
     rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
     core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
         dataSummarizationStreamWrapper};
 
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-
-    // Read the state used to initialize incremental training.
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("compressed_inference_model")) {
-            inferenceModelWriter.write(result);
-            LOG_DEBUG(<< "Inference Model definition found");
-        } else if (result.HasMember("compressed_data_summarization")) {
-            dataSummarizationWriter.write(result);
-            LOG_DEBUG(<< "Data summarization found");
-        } else if (result.HasMember("model_metadata")) {
-            LOG_DEBUG(<< "Metadata found");
-            for (const auto& item : result["model_metadata"]["hyperparameters"].GetArray()) {
-                if (std::strcmp(item["name"].GetString(), "alpha") == 0) {
-                    alpha = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "lambda") == 0) {
-                    lambda = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "gamma") == 0) {
-                    gamma = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "soft_tree_depth_limit") == 0) {
-                    softTreeDepthLimit = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(),
-                                       "soft_tree_depth_tolerance") == 0) {
-                    softTreeDepthTolerance = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "eta") == 0) {
-                    eta = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(),
-                                       "eta_growth_rate_per_tree") == 0) {
-                    etaGrowthRatePerTree = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "downsample_factor") == 0) {
-                    downsampleFactor = item["value"].GetDouble();
-                } else if (std::strcmp(item["name"].GetString(), "feature_bag_fraction") == 0) {
-                    featureBagFraction = item["value"].GetDouble();
-                }
-            }
-        }
-    }
-    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
+    readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
+                                 softTreeDepthLimit, softTreeDepthTolerance,
+                                 eta, etaGrowthRatePerTree, downsampleFactor,
+                                 featureBagFraction, dataSummarizationStream);
 
     // Pass model definition and data summarization into the restore stream.
     auto restoreStreamPtr =
@@ -1058,7 +1081,8 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
         fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
     analyzerIncremental.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    ok = results.Parse(outputStream.str());
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     // Read the predictions.
@@ -1325,6 +1349,183 @@ BOOST_AUTO_TEST_CASE(testClassificationWithUserClassWeights) {
             ++expectedPrediction;
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
+
+    // Test running incremental training from the analyzer matches running directly.
+
+    std::size_t maximumNumberTrees{30};
+    std::size_t numberExamples{100};
+
+    auto makeTrainSpec = [&](const std::string& dependentVariable,
+                             TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
+                             TPersisterSupplier* persisterSupplier,
+                             TRestoreSearcherSupplier* restorerSupplier) {
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        return specFactory.rows(numberExamples)
+            .memoryLimit(15000000)
+            .predictionCategoricalFieldNames({dependentVariable})
+            .predictionMaximumNumberTrees(maximumNumberTrees)
+            .predictionPersisterSupplier(persisterSupplier)
+            .predictionRestoreSearcherSupplier(restorerSupplier)
+            .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
+            .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
+                            dependentVariable, &frameAndDirectory);
+    };
+
+    double alpha;
+    double lambda;
+    double gamma;
+    double softTreeDepthLimit;
+    double softTreeDepthTolerance;
+    double eta;
+    double etaGrowthRatePerTree;
+    double downsampleFactor;
+    double featureBagFraction;
+
+    auto makeUpdateSpec = [&](const std::string& dependentVariable,
+                              TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
+                              TPersisterSupplier* persisterSupplier,
+                              TRestoreSearcherSupplier* restorerSupplier) {
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        return specFactory.rows(2 * numberExamples)
+            .memoryLimit(15000000)
+            .predictionCategoricalFieldNames({dependentVariable})
+            .predictionAlpha(alpha)
+            .predictionLambda(lambda)
+            .predictionGamma(gamma)
+            .predictionSoftTreeDepthLimit(softTreeDepthLimit)
+            .predictionSoftTreeDepthTolerance(softTreeDepthTolerance)
+            .predictionEta(eta)
+            .predictionEtaGrowthRatePerTree(etaGrowthRatePerTree)
+            .predictionMaximumNumberTrees(maximumNumberTrees)
+            .predictionDownsampleFactor(downsampleFactor)
+            .predictionFeatureBagFraction(featureBagFraction)
+            .predictionPersisterSupplier(persisterSupplier)
+            .predictionRestoreSearcherSupplier(restorerSupplier)
+            .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
+            .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Update)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
+                            dependentVariable, &frameAndDirectory);
+    };
+
+    std::stringstream outputStream;
+    auto outputWriterFactory = [&outputStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
+    };
+
+    // Run once.
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
+    TDoubleVec regressors;
+    test::CRandomNumbers rng;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = makeTrainSpec("target", frameAndDirectory, nullptr, nullptr);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     outputWriterFactory};
+    TStrVec targets;
+    auto frame = test::CDataFrameAnalyzerTrainingFactory::setupBinaryClassificationData(
+        fieldNames, fieldValues, analyzer, weights, regressors, targets);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    // Train a model for comparison.
+    auto classification =
+        maths::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
+            .maximumNumberTrees(maximumNumberTrees)
+            .buildForTrain(*frame, weights.size());
+    classification->train();
+    classification->predict();
+
+    // Retrieve documents from the result stream that will be used to restore the model.
+
+    std::stringstream dataSummarizationStream;
+    rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
+    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
+        dataSummarizationStreamWrapper};
+
+    readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
+                                 softTreeDepthLimit, softTreeDepthTolerance,
+                                 eta, etaGrowthRatePerTree, downsampleFactor,
+                                 featureBagFraction, dataSummarizationStream);
+
+    // Pass model definition and data summarization into the restore stream.
+    auto restoreStreamPtr =
+        std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
+    TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
+        return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
+    }};
+
+    outputStream.clear();
+    outputStream.str("");
+
+    // Create a new spec for incremental training.
+    spec = makeUpdateSpec("target", frameAndDirectory, nullptr, &restorerSupplier);
+
+    // Create new analyzer and run incremental training.
+    api::CDataFrameAnalyzer analyzerIncremental{
+        std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
+    auto newTrainingDataFrame = test::CDataFrameAnalyzerTrainingFactory::setupBinaryClassificationData(
+        fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
+    analyzerIncremental.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    // Read the predictions.
+    TDoubleVec expectedPredictions;
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            expectedPredictions.emplace_back(
+                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
+        }
+    }
+    BOOST_REQUIRE_EQUAL(numberExamples, expectedPredictions.size());
+
+    frame->resizeColumns(1, weights.size() + 1);
+    TDoubleVecVec newTrainingData;
+    newTrainingData.reserve(numberExamples);
+    newTrainingDataFrame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            newTrainingData.push_back(TDoubleVec(row->numberColumns()));
+            row->copyTo(newTrainingData.back().begin());
+        }
+    });
+    for (std::size_t i = 0; i < newTrainingData.size(); ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t& id) {
+            for (std::size_t j = 0; j < newTrainingData[i].size(); ++j, ++column) {
+                *column = newTrainingData[i][j];
+                id = static_cast<std::int32_t>(i);
+            }
+        });
+    }
+    frame->finishWritingRows();
+
+    core::CPackedBitVector newTrainingRowMask(numberExamples, false);
+    newTrainingRowMask.extend(true, numberExamples);
+
+    classification = maths::CBoostedTreeFactory::constructFromModel(std::move(classification))
+                         .newTrainingRowMask(newTrainingRowMask)
+                         .buildForTrainIncremental(*frame, weights.size());
+
+    classification->trainIncremental();
+    classification->predict();
+
+    auto expectedPrediction = expectedPredictions.begin();
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                                (*expectedPrediction++),
+                                classification->readPrediction(*row)[0], 1e-6);
+                        }
+                    },
+                    &newTrainingRowMask);
 }
 
 BOOST_AUTO_TEST_CASE(testParsingOfCategoricalFields) {
