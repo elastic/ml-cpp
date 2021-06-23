@@ -1482,7 +1482,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             expectedPredictions.emplace_back(
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
+                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble());
         }
     }
     BOOST_REQUIRE_EQUAL(numberExamples, expectedPredictions.size());
@@ -1517,15 +1517,25 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     classification->predict();
 
     auto expectedPrediction = expectedPredictions.begin();
-    frame->readRows(1, 0, frame->numberRows(),
-                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                        for (auto row = beginRows; row != endRows; ++row) {
-                            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                                (*expectedPrediction++),
-                                classification->readPrediction(*row)[0], 1e-6);
-                        }
-                    },
-                    &newTrainingRowMask);
+    frame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                double prediction{classification->readPrediction(*row)[0]};
+                // The prediction_probability result contains the highest scoring
+                // class probability which is usually, but not always, the highest
+                // class probability. The probability of the prediction result is
+                // therefore not a consistent class while readPrediction always
+                // returns the probability of class 1. Here, we simply check that
+                // the prediction_probability matches the probability of one of the
+                // classes, since it is very unlikely to match the wrong class by
+                // chance.
+                BOOST_REQUIRE((std::fabs(*expectedPrediction - prediction) < 1e-6) ||
+                              (std::fabs(*expectedPrediction + prediction - 1.0) < 1e-6));
+                ++expectedPrediction;
+            }
+        },
+        &newTrainingRowMask);
 }
 
 BOOST_AUTO_TEST_CASE(testParsingOfCategoricalFields) {
