@@ -363,19 +363,16 @@ void CDataFrame::categoricalColumnValues(TStrVecVec categoricalColumnValues) {
         m_CategoricalColumnValues = std::move(categoricalColumnValues);
         m_CategoricalColumnValueLookup.clear();
         m_CategoricalColumnValueLookup.resize(m_CategoricalColumnValues.size());
-        std::size_t i{0};
-        for (auto& column : m_CategoricalColumnValues) {
-            std::size_t j{0};
-            for (auto& columnValue : column) {
-                m_CategoricalColumnValueLookup[i].emplace(columnValue, j);
-                ++j;
+        for (std::size_t i = 0; i < m_CategoricalColumnValues.size(); ++i) {
+            for (std::size_t j = 0; j < m_CategoricalColumnValues[i].size(); ++j) {
+                m_CategoricalColumnValueLookup[i].emplace(
+                    m_CategoricalColumnValues[i][j], j);
             }
-            ++i;
         }
     }
 }
 
-void CDataFrame::finishWritingRows() {
+void CDataFrame::finishWritingBatchOfRows() {
     // Get any slices which have been written, append and clear the writer.
 
     if (m_Writer != nullptr) {
@@ -389,6 +386,11 @@ void CDataFrame::finishWritingRows() {
         }
         LOG_TRACE(<< "# slices = " << m_Slices.size());
     }
+}
+
+void CDataFrame::finishWritingRows() {
+
+    this->finishWritingBatchOfRows();
 
     // Recover memory from categorical field parsing.
 

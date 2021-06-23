@@ -498,14 +498,17 @@ public:
     //! Write the values of the categories for each column.
     void categoricalColumnValues(TStrVecVec categoricalColumnValues);
 
-    //! This retrieves the asynchronous work from writing the rows to the store
-    //! and updates the stored rows.
-    //!
-    //! Until this is called the written rows are not visible outside the data
-    //! frame.
+    //! This finishes the asynchronous task of writing rows to the store and
+    //! publishes them. Until this is called the written rows are not visible
+    //! outside the data frame.
     //!
     //! \warning This MUST be called after the last row is written to commit the
     //! work and to join the thread used to store the slices.
+    void finishWritingBatchOfRows();
+
+    //! This calls finishWritingBatchOfRows and recovers memory.
+    //!
+    //! \note Call if no more rows are going to be written.
     void finishWritingRows();
 
     //! \return The column names if any.

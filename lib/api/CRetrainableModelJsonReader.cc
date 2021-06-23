@@ -130,7 +130,7 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
             core::CVectorRange<const TStrVec>(rowVec, 0, rowVec.size()));
         rowVec.clear();
     }
-    frame.finishWritingRows();
+    frame.finishWritingBatchOfRows();
 
     return {std::move(encodings), std::move(encodingIndices)};
 }

@@ -223,7 +223,7 @@ void fillDataFrame(std::size_t trainRows,
             }
         });
     }
-    frame.finishWritingRows();
+    frame.finishWritingBatchOfRows();
 
     frame.writeColumns(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
