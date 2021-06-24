@@ -160,13 +160,13 @@ public:
 
         // Normalize the weights.
         double weightSum = 0.0;
-        for (std::size_t i = 0u; i < w; ++i) {
+        for (std::size_t i = 0; i < w; ++i) {
             weightSum += m_Weights[i];
         }
         if (weightSum == 0.0) {
             LOG_ERROR(<< "Expected non-zero weight sum");
         }
-        for (std::size_t i = 0u; i < w; ++i) {
+        for (std::size_t i = 0; i < w; ++i) {
             m_Weights[i] = weightSum == 0.0 ? 1.0 / static_cast<double>(w)
                                             : m_Weights[i] / weightSum;
         }
@@ -185,7 +185,7 @@ public:
 
     std::string print() const {
         std::string result;
-        for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
+        for (std::size_t i = 0; i < m_Weights.size(); ++i) {
             result +=
                 ' ' + core::CStringUtils::typeToStringPretty(m_Weights[i]) + '/' +
                 core::CStringUtils::typeToStringPretty(mean(m_Modes[i])) + '/' +
@@ -234,7 +234,7 @@ mixture_detail::TDoubleDoublePr support(const CMixtureDistribution<T>& distribut
     mixture_detail::TDoubleDoublePr result(boost::numeric::bounds<double>::highest(),
                                            boost::numeric::bounds<double>::lowest());
 
-    for (std::size_t i = 0u; i < modes.size(); ++i) {
+    for (std::size_t i = 0; i < modes.size(); ++i) {
         try {
             mixture_detail::TDoubleDoublePr modeSupport = support(modes[i]);
             result.first = std::min(result.first, modeSupport.first);
@@ -255,7 +255,7 @@ double mode(const CMixtureDistribution<T>& distribution) {
     using TDoubleVec = typename CMixtureDistribution<T>::TDoubleVec;
     using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
-    static const std::size_t MAX_ITERATIONS = 20u;
+    static const std::size_t MAX_ITERATIONS = 20;
 
     double result = 0.0;
 
@@ -271,7 +271,7 @@ double mode(const CMixtureDistribution<T>& distribution) {
 
     mixture_detail::CPdfAdpater<T> f(distribution);
     double fMax = 0.0;
-    for (std::size_t i = 0u; i < weights.size(); ++i) {
+    for (std::size_t i = 0; i < weights.size(); ++i) {
         try {
             double x25 = quantile(modes[i], 0.25);
             double x75 = quantile(modes[i], 0.75);
@@ -314,7 +314,7 @@ double pdf(const CMixtureDistribution<T>& distribution, double x) {
         return result;
     }
 
-    for (std::size_t i = 0u; i < weights.size(); ++i) {
+    for (std::size_t i = 0; i < weights.size(); ++i) {
         mixture_detail::TDoubleDoublePr ms = support(modes[i]);
         if (x >= ms.first && x <= ms.second) {
             try {
@@ -357,7 +357,7 @@ double cdf(const CMixtureDistribution<T>& distribution, double x) {
     }
 
     double result = 0.0;
-    for (std::size_t i = 0u; i < modes.size(); ++i) {
+    for (std::size_t i = 0; i < modes.size(); ++i) {
         mixture_detail::TDoubleDoublePr ms = support(modes[i]);
         if (x >= ms.second) {
             result += weights[i];
@@ -402,7 +402,7 @@ double cdfComplement(const CMixtureDistribution<T>& distribution, double x) {
     }
 
     double result = 0.0;
-    for (std::size_t i = 0u; i < modes.size(); ++i) {
+    for (std::size_t i = 0; i < modes.size(); ++i) {
         mixture_detail::TDoubleDoublePr ms = support(modes[i]);
         if (x < ms.first) {
             result += weights[i];
@@ -476,7 +476,7 @@ double quantile(const CMixtureDistribution<T>& distribution, const double q) {
     mixture_detail::CCdfAdapter<T> f(distribution);
     CCompositeFunctions::CMinusConstant<mixture_detail::CCdfAdapter<T>> fq(f, q);
 
-    static const std::size_t MAX_ITERATIONS = 100u;
+    static const std::size_t MAX_ITERATIONS = 100;
     static const double EPS = 1e-3;
 
     double x0 = mode(distribution);

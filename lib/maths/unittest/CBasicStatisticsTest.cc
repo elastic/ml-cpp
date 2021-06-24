@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
 
             for (size_t i = 0; i < boost::size(samples); ++i) {
                 acc1.add(samples[i], static_cast<double>(weights[i]));
-                for (std::size_t j = 0u; j < weights[i]; ++j) {
+                for (std::size_t j = 0; j < weights[i]; ++j) {
                     acc2.add(samples[i]);
                 }
             }
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
 
             for (size_t i = 0; i < boost::size(samples); ++i) {
                 acc1.add(samples[i], static_cast<double>(weights[i]));
-                for (std::size_t j = 0u; j < weights[i]; ++j) {
+                for (std::size_t j = 0; j < weights[i]; ++j) {
                     acc2.add(samples[i]);
                 }
             }
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
 
             for (size_t i = 0; i < boost::size(samples); ++i) {
                 acc1.add(samples[i], static_cast<double>(weights[i]));
-                for (std::size_t j = 0u; j < weights[i]; ++j) {
+                for (std::size_t j = 0; j < weights[i]; ++j) {
                     acc2.add(samples[i]);
                 }
             }
@@ -329,10 +329,10 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             TDoubleVec samples;
             rng.generateNormalSamples(2.0, 3.0, 40u, samples);
 
-            for (std::size_t j = 1u; j < samples.size(); ++j) {
+            for (std::size_t j = 1; j < samples.size(); ++j) {
                 LOG_DEBUG(<< "split = " << j << "/" << samples.size() - j);
 
-                for (std::size_t i = 0u; i < j; ++i) {
+                for (std::size_t i = 0; i < j; ++i) {
                     acc1.add(samples[i]);
                 }
                 for (std::size_t i = j; i < samples.size(); ++i) {
@@ -361,10 +361,10 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             TDoubleVec samples;
             rng.generateGammaSamples(3.0, 3.0, 40u, samples);
 
-            for (std::size_t j = 1u; j < samples.size(); ++j) {
+            for (std::size_t j = 1; j < samples.size(); ++j) {
                 LOG_DEBUG(<< "split = " << j << "/" << samples.size() - j);
 
-                for (std::size_t i = 0u; i < j; ++i) {
+                for (std::size_t i = 0; i < j; ++i) {
                     acc1.add(samples[i]);
                 }
                 for (std::size_t i = j; i < samples.size(); ++i) {
@@ -399,10 +399,10 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             TDoubleVec samples;
             rng.generateLogNormalSamples(1.1, 1.0, 40u, samples);
 
-            for (std::size_t j = 1u; j < samples.size(); ++j) {
+            for (std::size_t j = 1; j < samples.size(); ++j) {
                 LOG_DEBUG(<< "split = " << j << "/" << samples.size() - j);
 
-                for (std::size_t i = 0u; i < j; ++i) {
+                for (std::size_t i = 0; i < j; ++i) {
                     acc1.add(samples[i]);
                 }
                 for (std::size_t i = j; i < samples.size(); ++i) {
@@ -457,9 +457,9 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             TMeanAccumulator means[4];
             TVectorMeanAccumulator vectorMean;
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 maths::CVectorNx1<double, 4> v;
-                for (std::size_t j = 0u; j < 4; ++i, ++j) {
+                for (std::size_t j = 0; j < 4; ++i, ++j) {
                     means[j].add(samples[i]);
                     v(j) = samples[i];
                 }
@@ -468,7 +468,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
 
                 BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(means[0]),
                                     maths::CBasicStatistics::count(vectorMean));
-                for (std::size_t j = 0u; j < 4; ++j) {
+                for (std::size_t j = 0; j < 4; ++j) {
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::mean(means[j]),
                         (maths::CBasicStatistics::mean(vectorMean))(j), 1e-14);
@@ -484,9 +484,9 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             TMeanVarAccumulator meansAndVariances[4];
             TVectorMeanVarAccumulator vectorMeanAndVariances;
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 maths::CVectorNx1<double, 4> v;
-                for (std::size_t j = 0u; j < 4; ++i, ++j) {
+                for (std::size_t j = 0; j < 4; ++i, ++j) {
                     meansAndVariances[j].add(samples[i]);
                     v(j) = samples[i];
                 }
@@ -496,7 +496,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 BOOST_REQUIRE_EQUAL(
                     maths::CBasicStatistics::count(meansAndVariances[0]),
                     maths::CBasicStatistics::count(vectorMeanAndVariances));
-                for (std::size_t j = 0u; j < 4; ++j) {
+                for (std::size_t j = 0; j < 4; ++j) {
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::mean(meansAndVariances[j]),
                         (maths::CBasicStatistics::mean(vectorMeanAndVariances))(j), 1e-14);
@@ -516,9 +516,9 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
             TMeanVarSkewAccumulator meansVariancesAndSkews[4];
             TVectorMeanVarSkewAccumulator vectorMeanVarianceAndSkew;
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 maths::CVectorNx1<double, 4> v;
-                for (std::size_t j = 0u; j < 4; ++i, ++j) {
+                for (std::size_t j = 0; j < 4; ++i, ++j) {
                     meansVariancesAndSkews[j].add(samples[i]);
                     v(j) = samples[i];
                 }
@@ -528,7 +528,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 BOOST_REQUIRE_EQUAL(
                     maths::CBasicStatistics::count(meansVariancesAndSkews[0]),
                     maths::CBasicStatistics::count(vectorMeanVarianceAndSkew));
-                for (std::size_t j = 0u; j < 4; ++j) {
+                for (std::size_t j = 0; j < 4; ++j) {
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::mean(meansVariancesAndSkews[j]),
                         (maths::CBasicStatistics::mean(vectorMeanVarianceAndSkew))(j), 1e-14);
@@ -568,7 +568,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0u; i < restored.size(); ++i) {
+                for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
@@ -596,7 +596,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0u; i < restored.size(); ++i) {
+                for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
@@ -622,7 +622,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0u; i < restored.size(); ++i) {
+                for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
@@ -651,7 +651,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0u; i < restored.size(); ++i) {
+                for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
@@ -677,7 +677,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0u; i < restored.size(); ++i) {
+                for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
@@ -706,7 +706,7 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                     SRestore(), std::ref(restored), std::placeholders::_1)));
                 LOG_DEBUG(<< "restored = " << core::CContainerPrinter::print(restored));
                 BOOST_REQUIRE_EQUAL(moments.size(), restored.size());
-                for (std::size_t i = 0u; i < restored.size(); ++i) {
+                for (std::size_t i = 0; i < restored.size(); ++i) {
                     BOOST_REQUIRE_EQUAL(moments[i].checksum(), restored[i].checksum());
                 }
             }
@@ -847,7 +847,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
         maths::CBasicStatistics::SSampleCovariances<maths::CVector<double>> covariances2(3);
         maths::CBasicStatistics::SSampleCovariances<maths::CDenseVector<double>> covariances3(3);
 
-        for (std::size_t i = 0u; i < boost::size(raw); ++i) {
+        for (std::size_t i = 0; i < boost::size(raw); ++i) {
             LOG_DEBUG(<< "v = " << core::CContainerPrinter::print(raw[i]));
             covariances1.add(maths::CVectorNx1<double, 3>(raw[i]));
             covariances2.add(maths::CVector<double>(std::begin(raw[i]), std::end(raw[i])));
@@ -874,14 +874,14 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
         BOOST_REQUIRE_EQUAL(static_cast<double>(boost::size(raw)),
                             maths::CBasicStatistics::count(covariances3));
 
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expectedMean[i], (maths::CBasicStatistics::mean(covariances1))(i), 2e-6);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expectedMean[i], (maths::CBasicStatistics::mean(covariances2))(i), 2e-6);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expectedMean[i], (maths::CBasicStatistics::mean(covariances3))(i), 2e-6);
-            for (std::size_t j = 0u; j < 3; ++j) {
+            for (std::size_t j = 0; j < 3; ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     expectedCovariances[i][j],
                     (maths::CBasicStatistics::covariances(covariances1))(i, j), 2e-6);
@@ -925,7 +925,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
             2.0 * maths::CSymmetricMatrixNxN<double, 4>(
                       maths::E_OuterProduct, covariances4 / covariances4.euclidean()));
 
-        std::size_t n = 10000u;
+        std::size_t n = 10000;
 
         TVectorVec samples;
         maths::CSampling::multivariateNormalSample(mean, covariance, n, samples);
@@ -940,10 +940,10 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
         LOG_DEBUG(<< "covariances = "
                   << maths::CBasicStatistics::covariances(sampleCovariance));
 
-        for (std::size_t i = 0u; i < 4; ++i) {
+        for (std::size_t i = 0; i < 4; ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 mean(i), (maths::CBasicStatistics::mean(sampleCovariance))(i), 0.05);
-            for (std::size_t j = 0u; j < 4; ++j) {
+            for (std::size_t j = 0; j < 4; ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     covariance(i, j),
                     (maths::CBasicStatistics::covariances(sampleCovariance))(i, j), 0.16);
@@ -958,7 +958,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
         rng.generateUniformSamples(5.0, 10.0, 400, coordinates);
 
         std::vector<maths::CVectorNx1<double, 4>> points;
-        for (std::size_t i = 0u; i < coordinates.size(); i += 4) {
+        for (std::size_t i = 0; i < coordinates.size(); i += 4) {
             double c[] = {coordinates[i + 0], coordinates[i + 1],
                           coordinates[i + 2], coordinates[i + 3]};
             points.push_back(maths::CVectorNx1<double, 4>(c));
@@ -966,7 +966,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
 
         maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 4>> expectedSampleCovariances(
             4);
-        for (std::size_t i = 0u; i < points.size(); ++i) {
+        for (std::size_t i = 0; i < points.size(); ++i) {
             expectedSampleCovariances.add(points[i]);
         }
 
@@ -1007,12 +1007,12 @@ BOOST_AUTO_TEST_CASE(testCovariancesLedoitWolf) {
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator error;
     maths::CBasicStatistics::SSampleMean<double>::TAccumulator errorLW;
 
-    for (std::size_t i = 0u; i < boost::size(means); ++i) {
+    for (std::size_t i = 0; i < boost::size(means); ++i) {
         LOG_DEBUG(<< "*** test " << i << " ***");
 
         TDoubleVec mean(std::begin(means[i]), std::end(means[i]));
         TDoubleVecVec covariance;
-        for (std::size_t j = 0u; j < boost::size(covariances[i]); ++j) {
+        for (std::size_t j = 0; j < boost::size(covariances[i]); ++j) {
             covariance.emplace_back(std::begin(covariances[i][j]),
                                     std::end(covariances[i][j]));
         }
@@ -1024,10 +1024,10 @@ BOOST_AUTO_TEST_CASE(testCovariancesLedoitWolf) {
 
         // Test the frobenius norm of the error in the covariance matrix.
 
-        for (std::size_t j = 3u; j < samples.size(); ++j) {
+        for (std::size_t j = 3; j < samples.size(); ++j) {
             TVector2Vec jsamples;
             TDenseVectorVec jsamples2;
-            for (std::size_t k = 0u; k < j; ++k) {
+            for (std::size_t k = 0; k < j; ++k) {
                 jsamples.emplace_back(samples[k]);
                 TDenseVector v(2);
                 v << samples[k][0], samples[k][1];
@@ -1050,8 +1050,8 @@ BOOST_AUTO_TEST_CASE(testCovariancesLedoitWolf) {
             const TDenseMatrix& covLWML2 =
                 maths::CBasicStatistics::maximumLikelihoodCovariances(covLW2);
 
-            for (std::size_t r = 0u; r < 2; ++r) {
-                for (std::size_t c = 0u; c < 2; ++c) {
+            for (std::size_t r = 0; r < 2; ++r) {
+                for (std::size_t c = 0; c < 2; ++c) {
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(covLWML(r, c), covLWML2(r, c), 1e-10);
                 }
             }

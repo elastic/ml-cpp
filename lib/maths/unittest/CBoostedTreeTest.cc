@@ -37,6 +37,7 @@
 #include <functional>
 #include <limits>
 #include <memory>
+#include <stdexcept>
 #include <streambuf>
 #include <utility>
 #include <vector>
@@ -179,7 +180,7 @@ auto computeEvaluationMetrics(const core::CDataFrame& frame,
     TMeanVarAccumulator functionMoments;
     TMeanVarAccumulator modelPredictionErrorMoments;
 
-    frame.readRows(1, beginTestRows, endTestRows, [&](TRowItr beginRows, TRowItr endRows) {
+    frame.readRows(1, beginTestRows, endTestRows, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (std::binary_search(outliers.begin(), outliers.end(), row->index()) == false) {
                 functionMoments.add(target(*row));
@@ -220,7 +221,7 @@ void fillDataFrame(std::size_t trainRows,
         });
     }
     frame.finishWritingRows();
-    frame.writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame.writeColumns(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             double targetValue{row->index() < trainRows
                                    ? target(*row) + noise[row->index()]
@@ -387,6 +388,58 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
     stream << str;
     stream.flush();
 }
+}
+
+BOOST_AUTO_TEST_CASE(testEdgeCases) {
+
+    // Test some edge case inputs fail gracefully.
+
+    auto errorHandler = [](std::string error) {
+        throw std::runtime_error{std::move(error)};
+    };
+
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+    std::size_t cols{2};
+
+    // No data.
+    try {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
+        fillDataFrame(0, 0, 2, {}, {}, [](const TRowRef&) { return 1.0; }, *frame);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
+    } catch (const std::exception& e) { LOG_DEBUG(<< e.what()); }
+
+    // No training data.
+    try {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
+        fillDataFrame(0, 1, 2, {{1.0}}, {0.0}, [](const TRowRef&) { return 1.0; }, *frame);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
+    } catch (const std::exception& e) { LOG_DEBUG(<< e.what()); }
+
+    // Insufficient training data.
+    try {
+        auto frame = core::makeMainStorageDataFrame(cols).first;
+        fillDataFrame(1, 0, 2, {{1.0}}, {0.0}, [](const TRowRef&) { return 1.0; }, *frame);
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
+    } catch (const std::exception& e) { LOG_DEBUG(<< e.what()); }
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+
+    fillDataFrame(2, 0, 2, {{1.0}, {1.0}}, {0.0, 0.0},
+                  [](const TRowRef&) { return 1.0; }, *frame);
+
+    try {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .buildFor(*frame, cols - 1);
+        regression->train();
+    } catch (...) { BOOST_FAIL("Shouldn't throw"); }
 }
 
 BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
@@ -704,7 +757,7 @@ BOOST_AUTO_TEST_CASE(testThreading) {
 
         TMeanVarAccumulator modelPredictionErrorMoments;
 
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 modelPredictionErrorMoments.add(
                     target(*row) - regression->readPrediction(*row)[0]);
@@ -800,7 +853,7 @@ BOOST_AUTO_TEST_CASE(testConstantTarget) {
 
     TMeanAccumulator modelPredictionError;
 
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             modelPredictionError.add(1.0 - regression->readPrediction(*row)[0]);
         }
@@ -856,7 +909,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
         });
     }
     frame->finishWritingRows();
-    frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->writeColumns(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             double targetValue{row->index() < trainRows
                                    ? target(*row)
@@ -882,7 +935,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.16);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.93);
 }
 
 BOOST_AUTO_TEST_CASE(testFeatureBags) {
@@ -933,7 +986,7 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
         });
     }
     frame->finishWritingRows();
-    frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->writeColumns(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             double targetValue{row->index() < trainRows
                                    ? target(*row)
@@ -1287,7 +1340,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         classifier->predict();
 
         TMeanAccumulator logRelativeError;
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
                     double expectedProbability{probability(*row)};
@@ -1301,13 +1354,13 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.681);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.70);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.51);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.53);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
@@ -1363,7 +1416,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
         TDoubleVec trueNegatives(2, 0.0);
         TDoubleVec falsePositives(2, 0.0);
         TDoubleVec falseNegatives(2, 0.0);
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 auto scores = classifier->readAndAdjustPrediction(*row);
                 std::size_t prediction(scores[1] < scores[0] ? 0 : 1);
@@ -1389,7 +1442,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
-    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.11);
+    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.16);
 }
 
 BOOST_AUTO_TEST_CASE(testClassificationWeightsOverride) {
@@ -1516,7 +1569,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         classifier->predict();
 
         TMeanAccumulator logRelativeError;
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
                     TVector expectedProbability{probability(*row)};
@@ -1534,7 +1587,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.1);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.2);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -1819,7 +1872,7 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
     TDoubleVec expectedPredictions{17.5, 17.5, 17.5, 22.0};
     TDoubleVec actualPredictions;
 
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (maths::CDataFrameUtils::isMissing((*row)[cols - 1])) {
                 actualPredictions.push_back(regression->readPrediction(*row)[0]);

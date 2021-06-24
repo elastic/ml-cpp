@@ -311,6 +311,9 @@ private:
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
 
+    //! Scale the regulariser multipliers by \p scale.
+    void scaleRegularizers(double scale);
+
     //! Check invariants which are assumed to hold after restoring.
     void checkRestoredInvariants() const;
 
@@ -401,8 +404,8 @@ private:
     std::size_t m_NumberTopShapValues = 0;
     TTreeShapFeatureImportanceUPtr m_TreeShap;
     TAnalysisInstrumentationPtr m_Instrumentation;
-    mutable TMeanAccumulator m_ForestSizeAccumulator;
-    mutable TMeanAccumulator m_MeanLossAccumulator;
+    TMeanAccumulator m_MeanForestSizeAccumulator;
+    TMeanAccumulator m_MeanLossAccumulator;
     THyperparametersVec m_TunableHyperparameters;
     TDoubleVecVec m_HyperparameterSamples;
     bool m_StopHyperparameterOptimizationEarly = true;

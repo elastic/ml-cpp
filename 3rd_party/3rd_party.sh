@@ -46,8 +46,12 @@ case `uname` in
         BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
         XML_LOCATION=
         GCC_RT_LOCATION=
+        OMP_LOCATION=
         STL_LOCATION=
         ZLIB_LOCATION=
+        TORCH_LIBRARIES="torch_cpu c10"
+        TORCH_LOCATION=/usr/local/lib
+        TORCH_EXTENSION=.dylib
         ;;
 
     Linux)
@@ -65,10 +69,15 @@ case `uname` in
             XML_EXTENSION=.so.2
             GCC_RT_LOCATION=/usr/local/gcc93/lib64
             GCC_RT_EXTENSION=.so.1
+            OMP_LOCATION=/usr/local/gcc93/lib64
+            OMP_EXTENSION=.so.1
             STL_LOCATION=/usr/local/gcc93/lib64
             STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
-            ZLIB_LOCATION=
+            ZLIB_LOCATION=            
+            TORCH_LIBRARIES="torch_cpu c10"
+            TORCH_LOCATION=/usr/local/gcc93/lib
+            TORCH_EXTENSION=.so              
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
@@ -77,8 +86,12 @@ case `uname` in
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
             XML_LOCATION=
             GCC_RT_LOCATION=
+            OMP_LOCATION=
             STL_LOCATION=
             ZLIB_LOCATION=
+            TORCH_LIBRARIES="torch_cpu c10"
+            TORCH_LOCATION=$SYSROOT/usr/local/lib
+            TORCH_EXTENSION=.dylib            
         else
             SYSROOT=/usr/local/sysroot-$CPP_CROSS_COMPILE-linux-gnu
             BOOST_LOCATION=$SYSROOT/usr/local/gcc93/lib
@@ -95,6 +108,7 @@ case `uname` in
             XML_EXTENSION=.so.2
             GCC_RT_LOCATION=$SYSROOT/usr/local/gcc93/lib64
             GCC_RT_EXTENSION=.so.1
+            OMP_LOCATION=$SYSROOT/usr/local/gcc93/lib64
             STL_LOCATION=$SYSROOT/usr/local/gcc93/lib64
             STL_PREFIX=libstdc++
             STL_EXTENSION=.so.6
@@ -115,6 +129,7 @@ case `uname` in
         XML_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         XML_EXTENSION=.dll
         GCC_RT_LOCATION=
+        OMP_LOCATION=
         # Read VCBASE from environment if defined, otherwise default to VS Professional 2019
         DEFAULTVCBASE=`cd /$LOCAL_DRIVE && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2019/Professional"`
         VCBASE=${VCBASE:-$DEFAULTVCBASE}
@@ -124,6 +139,9 @@ case `uname` in
         STL_EXTENSION=.dll
         ZLIB_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         ZLIB_EXTENSION=1.dll
+        TORCH_LIBRARIES="asmjit c10 fbgemm torch_cpu"
+        TORCH_LOCATION=/$LOCAL_DRIVE/usr/local/bin
+        TORCH_EXTENSION=.dll
         ;;
 
     *)
@@ -176,6 +194,18 @@ if [ ! -z "$GCC_RT_LOCATION" ] ; then
         exit 7
     fi
 fi
+if [ ! -z "$OMP_LOCATION" ] ; then
+    if ls $OMP_LOCATION/libgomp*$OMP_EXTENSION >/dev/null ; then
+        if [ -n "$INSTALL_DIR" ] ; then
+            rm -f $INSTALL_DIR/libgomp*$OMP_EXTENSION
+            cp $OMP_LOCATION/libgomp*$OMP_EXTENSION $INSTALL_DIR
+            chmod u+wx $INSTALL_DIR/libgomp*$OMP_EXTENSION
+        fi
+    else
+        echo "OMP runtime library not found"
+        exit 8
+    fi
+fi
 if [ ! -z "$STL_LOCATION" ] ; then
     if ls $STL_LOCATION/*$STL_PATTERN*$STL_EXTENSION >/dev/null ; then
         if [ -n "$INSTALL_DIR" ] ; then
@@ -185,7 +215,7 @@ if [ ! -z "$STL_LOCATION" ] ; then
         fi
     else
         echo "C++ standard library not found"
-        exit 8
+        exit 9
     fi
 fi
 if [ ! -z "$ZLIB_LOCATION" ] ; then
@@ -197,9 +227,25 @@ if [ ! -z "$ZLIB_LOCATION" ] ; then
         fi
     else
         echo "zlib not found"
-        exit 9
+        exit 10
     fi
 fi
+if [ ! -z "$TORCH_LOCATION" ] ; then
+    if ls $TORCH_LOCATION/*$TORCH_EXTENSION >/dev/null ; then
+        if [ -n "$INSTALL_DIR" ] ; then            
+            for LIBRARY in $TORCH_LIBRARIES
+            do
+                rm -f $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
+                cp $TORCH_LOCATION/*$LIBRARY*$TORCH_EXTENSION $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
+            done            
+        fi        
+    else
+        echo "Torch libraries not found"
+        exit 11
+    fi
+fi
+
 
 # Special extra platform-specific processing
 case `uname` in
@@ -210,7 +256,7 @@ case `uname` in
             for FILE in `find . -type f | egrep -v '^core|-debug$|libMl'`
             do
                 # Replace RPATH for 3rd party libraries that already have one
-                patchelf --print-rpath $FILE | grep lib >/dev/null 2>&1 && patchelf --set-rpath '$ORIGIN/.' $FILE
+                patchelf --print-rpath $FILE | grep lib >/dev/null 2>&1 && patchelf --force-rpath --set-rpath '$ORIGIN' $FILE
                 if [ $? -eq 0 ] ; then
                     echo "Set RPATH in $FILE"
                 else

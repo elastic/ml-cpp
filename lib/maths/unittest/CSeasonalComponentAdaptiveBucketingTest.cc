@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(testSwap) {
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, 2.0, 100, noise);
 
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             core_t::TTime x = static_cast<core_t::TTime>(100 * p + i);
             double y = 0.02 * (static_cast<double>(i) - 50.0) *
                        (static_cast<double>(i) - 50.0);
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(testRefine) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, 9.0, 100, noise);
 
-            for (std::size_t i = 0u; i < 100; ++i) {
+            for (std::size_t i = 0; i < 100; ++i) {
                 core_t::TTime x = static_cast<core_t::TTime>(100 * p + i);
                 double y = 0.02 * (static_cast<double>(i) - 50.0) *
                            (static_cast<double>(i) - 50.0);
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         TMeanAccumulator varianceError;
         TMeanVarAccumulator avgError;
 
-        for (std::size_t i = 1u; i < endpoints.size(); ++i) {
+        for (std::size_t i = 1; i < endpoints.size(); ++i) {
             double a = endpoints[i - 1];
             double b = endpoints[i];
             LOG_DEBUG(<< "bucket = [" << a << "," << b << "]");
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
 
     bucketing.initialize(10);
     for (std::size_t p = 0; p < 10; ++p) {
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             core_t::TTime x = static_cast<core_t::TTime>(100 * p + i);
             double y = 0.02 * (static_cast<double>(i) - 50.0) *
                        (static_cast<double>(i) - 50.0);
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
     }
 
     double lastCount = bucketing.count();
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         bucketing.propagateForwardsByTime(1.0);
         double count = bucketing.count();
         LOG_DEBUG(<< "count = " << count << ", lastCount = " << lastCount
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(testUnintialized) {
 
     bucketing.initialize(10);
     BOOST_TEST_REQUIRE(bucketing.initialized());
-    for (std::size_t i = 0u; i < 10; ++i) {
+    for (std::size_t i = 0; i < 10; ++i) {
         core_t::TTime t = static_cast<core_t::TTime>(i);
         double v = static_cast<double>(t * t);
         bucketing.add(t, v, v);
@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE(testKnots) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, 4.0, 100, noise);
 
-            for (std::size_t i = 0u; i < 100; ++i) {
+            for (std::size_t i = 0; i < 100; ++i) {
                 core_t::TTime x = static_cast<core_t::TTime>(p * 86400 + 864 * i);
                 double y = 0.02 * (static_cast<double>(i) - 50.0) *
                            (static_cast<double>(i) - 50.0);
@@ -497,7 +497,7 @@ BOOST_AUTO_TEST_CASE(testKnots) {
 
             TMeanAccumulator meanError;
             TMeanAccumulator meanValue;
-            for (std::size_t i = 0u; i < knots.size(); ++i) {
+            for (std::size_t i = 0; i < knots.size(); ++i) {
                 double x = knots[i] / 864.0;
                 double expectedValue = 0.02 * (x - 50.0) * (x - 50.0);
                 LOG_DEBUG(<< "expected = " << expectedValue << ", value = " << values[i]);
@@ -521,7 +521,7 @@ BOOST_AUTO_TEST_CASE(testKnots) {
         for (std::size_t p = 0; p < 50; ++p) {
             TDoubleVec noise;
 
-            for (std::size_t i = 0u; i < 100; ++i) {
+            for (std::size_t i = 0; i < 100; ++i) {
                 core_t::TTime x = static_cast<core_t::TTime>(p * 86400 + 864 * i);
                 double v = 0.01 * (static_cast<double>(i) - 50.0) *
                            (static_cast<double>(i) - 50.0);
@@ -541,7 +541,7 @@ BOOST_AUTO_TEST_CASE(testKnots) {
 
                 TMeanAccumulator meanError;
                 TMeanAccumulator meanVariance;
-                for (std::size_t i = 0u; i < knots.size(); ++i) {
+                for (std::size_t i = 0; i < knots.size(); ++i) {
                     double x = knots[i] / 864.0;
                     double expectedVariance = 0.01 * (x - 50.0) * (x - 50.0);
                     LOG_DEBUG(<< "expected = " << expectedVariance
@@ -576,7 +576,7 @@ BOOST_AUTO_TEST_CASE(testLongTermTrendKnots) {
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, 100.0, 144, noise);
 
-        for (std::size_t i = 0u; i < 144; ++i) {
+        for (std::size_t i = 0; i < 144; ++i) {
             double x = static_cast<double>(i) / 144.0;
             double y = 10.0 * (std::min(static_cast<double>(p + 1) + x, 50.0) -
                                std::max(static_cast<double>(p + 1) + x - 50.0, 0.0) +
@@ -599,7 +599,7 @@ BOOST_AUTO_TEST_CASE(testLongTermTrendKnots) {
 
             TMeanAccumulator meanError;
             TMeanAccumulator meanValue;
-            for (std::size_t i = 0u; i < knots.size(); ++i) {
+            for (std::size_t i = 0; i < knots.size(); ++i) {
                 double x = knots[i] / 86400.0;
                 double expectedValue =
                     10.0 * (std::min(static_cast<double>(p + 1) + x, 50.0) -
@@ -658,7 +658,7 @@ BOOST_AUTO_TEST_CASE(testShiftValue) {
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(variances1),
                         core::CContainerPrinter::print(variances2));
 
-    for (std::size_t i = 0u; i < values1.size(); ++i) {
+    for (std::size_t i = 0; i < values1.size(); ++i) {
         LOG_DEBUG(<< "values = " << values1[i] << " vs " << values2[i]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(20.0 + values1[i], values2[i], 1e-6 * values1[i]);
     }
@@ -709,7 +709,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     origBucketing.initialize(10);
     for (std::size_t p = 0; p < 10; ++p) {
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             core_t::TTime x = static_cast<core_t::TTime>(p * 86400 + 864 * i);
             double y = 0.02 * (static_cast<double>(i) - 50.0) *
                        (static_cast<double>(i) - 50.0);
@@ -763,7 +763,7 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
 
     expectedBucketing.initialize(10);
     for (std::size_t p = 0; p < 10; ++p) {
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             core_t::TTime x = static_cast<core_t::TTime>(p * 86400 + 864 * i);
             double y = 0.02 * (static_cast<double>(i) - 50.0) *
                        (static_cast<double>(i) - 50.0);

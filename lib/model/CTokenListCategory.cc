@@ -71,8 +71,10 @@ CTokenListCategory::CTokenListCategory(bool isDryRun,
 }
 
 CTokenListCategory::CTokenListCategory(core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(std::bind(&CTokenListCategory::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CTokenListCategory::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -307,11 +309,13 @@ bool CTokenListCategory::updateOrderedCommonTokenIds(const TSizeSizePrVec& newTo
 
     // Iterate over the possible starting positions within the current ordered
     // tokens.
+    std::size_t bestWeight{0};
     for (std::size_t tryOrderedCommonTokenBeginIndex = m_OrderedCommonTokenBeginIndex;
          tryOrderedCommonTokenBeginIndex < m_OrderedCommonTokenEndIndex;
          ++tryOrderedCommonTokenBeginIndex) {
 
         std::size_t newIndex{0};
+        std::size_t tryWeight{0};
         for (std::size_t commonIndex = tryOrderedCommonTokenBeginIndex;
              commonIndex < m_OrderedCommonTokenEndIndex; ++commonIndex) {
 
@@ -324,15 +328,21 @@ bool CTokenListCategory::updateOrderedCommonTokenIds(const TSizeSizePrVec& newTo
             // current base token.  If we reach the end of the test tokens while
             // doing this it means the new tokens don't contain the base tokens
             // in the same order.
-            while (newIndex < newTokenIds.size() &&
-                   newTokenIds[newIndex].first != m_BaseTokenIds[commonIndex].first) {
-                ++newIndex;
+            while (newIndex < newTokenIds.size()) {
+                if (newTokenIds[newIndex].first != m_BaseTokenIds[commonIndex].first) {
+                    ++newIndex;
+                } else {
+                    tryWeight += (newTokenIds[newIndex].second +
+                                  m_BaseTokenIds[commonIndex].second);
+                    break;
+                }
             }
+
             if (newIndex == newTokenIds.size()) {
                 // Record the bounds of the matched subset if it's better than
                 // what we've previously seen
-                if (commonIndex - tryOrderedCommonTokenBeginIndex >
-                    bestOrderedCommonTokenEndIndex - bestOrderedCommonTokenBeginIndex) {
+                if (tryWeight > bestWeight) {
+                    bestWeight = tryWeight;
                     bestOrderedCommonTokenBeginIndex = tryOrderedCommonTokenBeginIndex;
                     bestOrderedCommonTokenEndIndex = commonIndex;
                 }
@@ -342,13 +352,13 @@ bool CTokenListCategory::updateOrderedCommonTokenIds(const TSizeSizePrVec& newTo
         if (newIndex < newTokenIds.size()) {
             // With this try at the begin index we got the best possible match
             // given the starting point, but that might not be best overall.
-            if (m_OrderedCommonTokenEndIndex - tryOrderedCommonTokenBeginIndex >
-                bestOrderedCommonTokenEndIndex - bestOrderedCommonTokenBeginIndex) {
+            if (tryWeight > bestWeight) {
+                bestWeight = tryWeight;
                 bestOrderedCommonTokenBeginIndex = tryOrderedCommonTokenBeginIndex;
                 bestOrderedCommonTokenEndIndex = m_OrderedCommonTokenEndIndex;
             }
             // We cannot do better by incrementing the starting token, because
-            // for the current starting token we got the longest possible match,
+            // for the current starting token we got the best possible match,
             // so stop here
             break;
         }

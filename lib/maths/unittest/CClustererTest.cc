@@ -32,22 +32,22 @@ BOOST_AUTO_TEST_CASE(testIndexGenerator) {
 
     test::CRandomNumbers rng;
 
-    std::size_t numberOperations = 100000u;
+    std::size_t numberOperations = 100000;
 
     TDoubleVec tmp;
     rng.generateUniformSamples(0.0, 1.0, numberOperations, tmp);
     TSizeVec nexts;
     nexts.reserve(tmp.size());
-    for (std::size_t i = 0u; i < tmp.size(); ++i) {
+    for (std::size_t i = 0; i < tmp.size(); ++i) {
         nexts.push_back(static_cast<std::size_t>(tmp[i] + 0.5));
     }
 
     maths::CClusterer1d::CIndexGenerator generator;
 
     TSizeSet indices;
-    std::size_t maxSetSize = 0u;
+    std::size_t maxSetSize = 0;
 
-    for (std::size_t i = 0u; i < numberOperations; ++i) {
+    for (std::size_t i = 0; i < numberOperations; ++i) {
         if (i % 1000 == 0) {
             LOG_DEBUG(<< "maxSetSize = " << maxSetSize);
             LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(indices));

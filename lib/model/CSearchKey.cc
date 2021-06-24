@@ -13,6 +13,7 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CChecksum.h>
 
@@ -123,7 +124,16 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
         }
     } while (traverser.next());
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CSearchKey::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_FieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_ByFieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_OverFieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_PartitionFieldName, ==, nullptr);
 }
 
 void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -135,7 +145,7 @@ void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) co
     inserter.insertValue(BY_FIELD_NAME_TAG, *m_ByFieldName);
     inserter.insertValue(OVER_FIELD_NAME_TAG, *m_OverFieldName);
     inserter.insertValue(PARTITION_FIELD_NAME_TAG, *m_PartitionFieldName);
-    for (std::size_t i = 0u; i < m_InfluenceFieldNames.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
         inserter.insertValue(INFLUENCE_FIELD_NAME_TAG, *m_InfluenceFieldNames[i]);
     }
 }
@@ -206,7 +216,7 @@ bool CSearchKey::operator<(const CSearchKey& rhs) const {
                             rhs.m_InfluenceFieldNames.size()) {
                             return false;
                         }
-                        for (std::size_t i = 0u; i < m_InfluenceFieldNames.size(); ++i) {
+                        for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
                             comp = m_InfluenceFieldNames[i]->compare(
                                 *rhs.m_InfluenceFieldNames[i]);
                             if (comp != 0) {

@@ -47,8 +47,8 @@ BOOST_AUTO_TEST_CASE(testComputeScores) {
 
     const double jointProbabilityWeight = 0.5;
     const double extremeProbabilityWeight = 0.5;
-    const std::size_t minExtremeSamples = 1u;
-    const std::size_t maxExtremeSamples = 5u;
+    const std::size_t minExtremeSamples = 1;
+    const std::size_t maxExtremeSamples = 5;
     const double maximumAnomalousProbability = 0.05;
     double overallScore = 0.0;
     double overallProbability = 1.0;
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantiles) {
 
     TDoubleVec samples;
     rng.generateGammaSamples(1.0, 2.0, 20000, samples);
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] < 0.5) {
             samples[i] = 0.0;
         }
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantiles) {
     double numberSamples = 0.0;
 
     TDoubleMSet scores;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         scores.insert(samples[i]);
         normalizer.updateQuantiles({"", "", "bucket_time", ""}, samples[i]);
 
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantilesMultiplePartitions) {
     rng.generateGammaSamples(1.0, 2.0, 20000, samplesJAL);
 
     BOOST_REQUIRE_EQUAL(samplesAAL.size(), samplesKLM.size());
-    for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
+    for (std::size_t i = 0; i < samplesAAL.size(); ++i) {
         if (samplesAAL[i] < 0.5) {
             samplesAAL[i] = 0.0;
         }
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresQuantilesMultiplePartitions) {
     double numberSamples = 0.0;
 
     TDoubleMSet scores;
-    for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
+    for (std::size_t i = 0; i < samplesAAL.size(); ++i) {
         scores.insert(samplesAAL[i]);
         normalizer.updateQuantiles({"airline", "AAL", "", ""}, samplesAAL[i]);
         normalizer.updateQuantiles({"airline", "KLM", "", ""}, samplesAAL[i]);
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
     TDoubleVec samples;
     rng.generateGammaSamples(1.0, 2.0, 2000, samples);
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] < 0.5) {
             samples[i] = 0.0;
         }
@@ -360,10 +360,10 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNoisy) {
 
     TDoubleSizeMap maxScores;
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         normalizer.updateQuantiles({"", "", "", ""}, samples[i]);
     }
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double sample = samples[i];
         normalizer.normalize({"", "", "bucket_time", ""}, sample);
         LOG_TRACE(<< i << ") raw = " << samples[i] << ", normalized = " << sample);
@@ -432,13 +432,13 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
     model::CAnomalyScore::CNormalizer normalizer(config);
     normalizer.isForMembersOfPopulation(false);
 
-    for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
+    for (std::size_t i = 0; i < samplesAAL.size(); ++i) {
         normalizer.updateQuantiles({"", "", "airline", "AAL"}, samplesAAL[i]);
         normalizer.updateQuantiles({"", "", "airline", "KLM"}, samplesKLM[i]);
     }
 
     TDoubleVec actualAALScores;
-    for (std::size_t i = 0u; i < boost::size(anomalyTimes); ++i) {
+    for (std::size_t i = 0; i < boost::size(anomalyTimes); ++i) {
         double sampleAAL = samplesAAL[anomalyTimes[i]];
         double sampleKLM = samplesKLM[anomalyTimes[i]];
         LOG_DEBUG(<< "sampleAAL = " << sampleAAL);
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresPerPartitionMaxScore) {
     std::sort(actualAALScores.begin(), actualAALScores.end());
     LOG_DEBUG(<< "actualAALScores = " << core::CContainerPrinter::print(actualAALScores));
 
-    for (std::size_t i = 0u; i < boost::size(expectedAALScores); ++i) {
+    for (std::size_t i = 0; i < boost::size(expectedAALScores); ++i) {
         double pctChange = 100.0 *
                            (std::fabs(actualAALScores[i] - expectedAALScores[i])) /
                            expectedAALScores[i];
@@ -482,12 +482,12 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresLargeScore) {
     model::CAnomalyScore::CNormalizer normalizer(config);
     normalizer.isForMembersOfPopulation(false);
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         normalizer.updateQuantiles({"", "", "", ""}, samples[i]);
     }
 
     TDoubleVec scores;
-    for (std::size_t i = 0u; i < boost::size(anomalyTimes); ++i) {
+    for (std::size_t i = 0; i < boost::size(anomalyTimes); ++i) {
         double sample = samples[anomalyTimes[i]];
         normalizer.normalize({"", "", "bucket_time", ""}, sample);
         scores.push_back(sample);
@@ -495,7 +495,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresLargeScore) {
     std::sort(scores.begin(), scores.end());
     LOG_DEBUG(<< "scores = " << core::CContainerPrinter::print(scores));
 
-    for (std::size_t i = 0u; i + 1 < boost::size(anomalies); ++i) {
+    for (std::size_t i = 0; i + 1 < boost::size(anomalies); ++i) {
         double change = 100.0 * anomalies[i] / anomalies[boost::size(anomalies) - 1];
         double uplift = scores[i] - change;
         LOG_DEBUG(<< "uplift = " << uplift << " scores[" << i << "] = " << scores[i] << " anomalies["
@@ -523,17 +523,17 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
         std::string("[1.14, 1.04, 1, 1.04, 1.09]"),
         std::string("[1.14, 1.04, 1, 1.04, 1.09]")};
 
-    for (std::size_t i = 0u; i < boost::size(nonZeroCounts); ++i) {
+    for (std::size_t i = 0; i < boost::size(nonZeroCounts); ++i) {
         LOG_DEBUG(<< "non-zero count = " << nonZeroCounts[i]);
 
         TDoubleVec samples(500u, 0.0);
-        for (std::size_t j = 0u; j < nonZeroCounts[i]; ++j) {
+        for (std::size_t j = 0; j < nonZeroCounts[i]; ++j) {
             if (std::find(std::begin(anomalyTimes), std::end(anomalyTimes), j) ==
                 std::end(anomalyTimes)) {
                 samples[j] += 0.0055;
             }
         }
-        for (std::size_t j = 0u; j < boost::size(anomalyTimes); ++j) {
+        for (std::size_t j = 0; j < boost::size(anomalyTimes); ++j) {
             samples[anomalyTimes[j]] += anomalies[j];
         }
 
@@ -542,12 +542,12 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresNearZero) {
         model::CAnomalyScore::CNormalizer normalizer(config);
         normalizer.isForMembersOfPopulation(false);
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             normalizer.updateQuantiles({"", "", "", ""}, samples[j]);
         }
 
         TDoubleVec maxScores;
-        for (std::size_t j = 0u; j < boost::size(anomalyTimes); ++j) {
+        for (std::size_t j = 0; j < boost::size(anomalyTimes); ++j) {
             double sample = samples[anomalyTimes[j]];
             normalizer.normalize({"", "", "bucket_time", ""}, sample);
             maxScores.push_back(sample);
@@ -569,7 +569,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresOrdering) {
     TDoubleVec allScores;
     rng.generateUniformSamples(0.0, 50.0, n, allScores);
 
-    for (std::size_t i = 200u; i <= n; i += 200) {
+    for (std::size_t i = 200; i <= n; i += 200) {
         LOG_DEBUG(<< "*** " << i << " ***");
 
         TDoubleVec scores(&allScores[0], &allScores[i]);
@@ -579,18 +579,18 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresOrdering) {
         model::CAnomalyScore::CNormalizer normalizer(config);
         normalizer.isForMembersOfPopulation(false);
 
-        for (std::size_t j = 0u; j < i; ++j) {
+        for (std::size_t j = 0; j < i; ++j) {
             normalizer.updateQuantiles({"", "", "", ""}, scores[j]);
         }
 
         TDoubleVec normalizedScores(scores);
-        for (std::size_t j = 0u; j < i; ++j) {
+        for (std::size_t j = 0; j < i; ++j) {
             BOOST_TEST_REQUIRE(normalizer.normalize({"", "", "bucket_time", ""},
                                                     normalizedScores[j]));
         }
 
         maths::COrderings::simultaneousSort(scores, normalizedScores);
-        for (std::size_t j = 1u; j < normalizedScores.size(); ++j) {
+        for (std::size_t j = 1; j < normalizedScores.size(); ++j) {
             if (normalizedScores[j] - normalizedScores[j - 1] < -0.01) {
                 LOG_DEBUG(<< normalizedScores[j] << " " << normalizedScores[j - 1]);
             }
@@ -628,7 +628,7 @@ BOOST_AUTO_TEST_CASE(testNormalizerGetMaxScore) {
     model::CAnomalyScore::CNormalizer normalizer(config);
     normalizer.isForMembersOfPopulation(false);
 
-    for (std::size_t i = 0u; i < samplesAAL.size(); ++i) {
+    for (std::size_t i = 0; i < samplesAAL.size(); ++i) {
         normalizer.updateQuantiles({"", "", "airline", "AAL"}, samplesAAL[i]);
         normalizer.updateQuantiles({"", "", "airline", "KLM"}, samplesKLM[i]);
     }

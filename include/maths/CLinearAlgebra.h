@@ -83,42 +83,42 @@ struct SSymmetricMatrix {
 
     //! Componentwise negative.
     void negative() {
-        for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
+        for (std::size_t i = 0; i < m_LowerTriangle.size(); ++i) {
             m_LowerTriangle[i] = -m_LowerTriangle[i];
         }
     }
 
     //! Matrix subtraction.
     void minusEquals(const SSymmetricMatrix& rhs) {
-        for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
+        for (std::size_t i = 0; i < m_LowerTriangle.size(); ++i) {
             m_LowerTriangle[i] -= rhs.m_LowerTriangle[i];
         }
     }
 
     //! Matrix addition.
     void plusEquals(const SSymmetricMatrix& rhs) {
-        for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
+        for (std::size_t i = 0; i < m_LowerTriangle.size(); ++i) {
             m_LowerTriangle[i] += rhs.m_LowerTriangle[i];
         }
     }
 
     //! Componentwise multiplication.
     void multiplyEquals(const SSymmetricMatrix& rhs) {
-        for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
+        for (std::size_t i = 0; i < m_LowerTriangle.size(); ++i) {
             m_LowerTriangle[i] *= rhs.m_LowerTriangle[i];
         }
     }
 
     //! Scalar multiplication.
     void multiplyEquals(Type scale) {
-        for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
+        for (std::size_t i = 0; i < m_LowerTriangle.size(); ++i) {
             m_LowerTriangle[i] *= scale;
         }
     }
 
     //! Scalar division.
     void divideEquals(Type scale) {
-        for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
+        for (std::size_t i = 0; i < m_LowerTriangle.size(); ++i) {
             m_LowerTriangle[i] /= scale;
         }
     }
@@ -144,7 +144,7 @@ struct SSymmetricMatrix {
     template<typename VECTOR>
     VECTOR diagonal(std::size_t d) const {
         VECTOR result(d);
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             result[i] = this->element(i, i);
         }
         return result;
@@ -153,7 +153,7 @@ struct SSymmetricMatrix {
     //! Get the trace.
     Type trace(std::size_t d) const {
         Type result(0);
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             result += this->element(i, i);
         }
         return result;
@@ -162,8 +162,8 @@ struct SSymmetricMatrix {
     //! The Frobenius norm.
     double frobenius(std::size_t d) const {
         double result = 0.0;
-        for (std::size_t i = 0u, i_ = 0u; i < d; ++i, ++i_) {
-            for (std::size_t j = 0u; j < i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < d; ++i, ++i_) {
+            for (std::size_t j = 0; j < i; ++j, ++i_) {
                 result += 2.0 * m_LowerTriangle[i_] * m_LowerTriangle[i_];
             }
             result += m_LowerTriangle[i_] * m_LowerTriangle[i_];
@@ -174,8 +174,8 @@ struct SSymmetricMatrix {
     //! Convert to the MATRIX representation.
     template<typename MATRIX>
     inline MATRIX& toType(std::size_t d, MATRIX& result) const {
-        for (std::size_t i = 0u, i_ = 0u; i < d; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < d; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 result(i, j) = result(j, i) = m_LowerTriangle[i_];
             }
         }
@@ -184,8 +184,8 @@ struct SSymmetricMatrix {
 
     //! Get a checksum of the elements of this matrix.
     uint64_t checksum() const {
-        uint64_t result = 0u;
-        for (std::size_t i = 0u; i < m_LowerTriangle.size(); ++i) {
+        uint64_t result = 0;
+        for (std::size_t i = 0; i < m_LowerTriangle.size(); ++i) {
             result = core::CHashing::hashCombine(
                 result, static_cast<uint64_t>(m_LowerTriangle[i]));
         }
@@ -266,8 +266,8 @@ public:
 
     //! Construct from C-style array of arrays.
     explicit CSymmetricMatrixNxN(const TArray& m) {
-        for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
         }
@@ -275,8 +275,8 @@ public:
 
     //! Construct from a vector of vectors.
     explicit CSymmetricMatrixNxN(const TVecVec& m) {
-        for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
         }
@@ -285,8 +285,8 @@ public:
     //! Construct from a small vector of small vectors.
     template<std::size_t M>
     explicit CSymmetricMatrixNxN(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m) {
-        for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
         }
@@ -298,7 +298,7 @@ public:
     //! at least N (N+1) / 2 items.
     template<typename ITR>
     CSymmetricMatrixNxN(ITR begin, ITR end) {
-        for (std::size_t i = 0u; i < N * (N + 1) / 2 && begin != end; ++i, ++begin) {
+        for (std::size_t i = 0; i < N * (N + 1) / 2 && begin != end; ++i, ++begin) {
             TBase::m_LowerTriangle[i] = static_cast<T>(*begin);
         }
     }
@@ -431,12 +431,12 @@ public:
     template<typename VECTOR_OF_VECTORS>
     inline VECTOR_OF_VECTORS toVectors() const {
         VECTOR_OF_VECTORS result(N);
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             result[i].resize(N);
         }
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             result[i][i] = this->operator()(i, i);
-            for (std::size_t j = 0u; j < i; ++j) {
+            for (std::size_t j = 0; j < i; ++j) {
                 result[i][j] = result[j][i] = this->operator()(i, j);
             }
         }
@@ -526,8 +526,8 @@ public:
     //! Construct from C-style array of arrays.
     explicit CSymmetricMatrix(const TArray& m) : m_D(m.size()) {
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
-        for (std::size_t i = 0u, i_ = 0u; i < m_D; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < m_D; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
         }
@@ -538,8 +538,8 @@ public:
     explicit CSymmetricMatrix(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m)
         : m_D(m.size()) {
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
-        for (std::size_t i = 0u, i_ = 0u; i < m_D; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < m_D; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
         }
@@ -553,7 +553,7 @@ public:
     CSymmetricMatrix(ITR begin, ITR end) {
         m_D = this->dimension(std::distance(begin, end));
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
-        for (std::size_t i = 0u; i < m_D * (m_D + 1) / 2 && begin != end; ++i, ++begin) {
+        for (std::size_t i = 0; i < m_D * (m_D + 1) / 2 && begin != end; ++i, ++begin) {
             TBase::m_LowerTriangle[i] = static_cast<T>(*begin);
         }
     }
@@ -705,12 +705,12 @@ public:
     template<typename VECTOR_OF_VECTORS>
     inline VECTOR_OF_VECTORS toVectors() const {
         VECTOR_OF_VECTORS result(m_D);
-        for (std::size_t i = 0u; i < m_D; ++i) {
+        for (std::size_t i = 0; i < m_D; ++i) {
             result[i].resize(m_D);
         }
-        for (std::size_t i = 0u; i < m_D; ++i) {
+        for (std::size_t i = 0; i < m_D; ++i) {
             result[i][i] = this->operator()(i, i);
-            for (std::size_t j = 0u; j < i; ++j) {
+            for (std::size_t j = 0; j < i; ++j) {
                 result[i][j] = result[j][i] = this->operator()(i, j);
             }
         }
@@ -779,49 +779,49 @@ struct SVector {
 
     //! Componentwise negative.
     void negative() {
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             m_X[i] = -m_X[i];
         }
     }
 
     //! Vector subtraction.
     void minusEquals(const SVector& rhs) {
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             m_X[i] -= rhs.m_X[i];
         }
     }
 
     //! Vector addition.
     void plusEquals(const SVector& rhs) {
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             m_X[i] += rhs.m_X[i];
         }
     }
 
     //! Componentwise multiplication.
     void multiplyEquals(const SVector& scale) {
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             m_X[i] *= scale.m_X[i];
         }
     }
 
     //! Scalar multiplication.
     void multiplyEquals(Type scale) {
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             m_X[i] *= scale;
         }
     }
 
     //! Componentwise division.
     void divideEquals(const SVector& scale) {
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             m_X[i] /= scale.m_X[i];
         }
     }
 
     //! Scalar division.
     void divideEquals(Type scale) {
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             m_X[i] /= scale;
         }
     }
@@ -841,7 +841,7 @@ struct SVector {
     //! Inner product.
     double inner(const SVector& covector) const {
         double result = 0.0;
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             result += m_X[i] * covector.m_X[i];
         }
         return result;
@@ -851,7 +851,7 @@ struct SVector {
     template<typename VECTOR>
     double inner(const VECTOR& covector) const {
         double result = 0.0;
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             result += m_X[i] * covector(i);
         }
         return result;
@@ -860,7 +860,7 @@ struct SVector {
     //! The L1 norm of the vector.
     double L1() const {
         double result = 0.0;
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             result += std::fabs(static_cast<double>(m_X[i]));
         }
         return result;
@@ -869,7 +869,7 @@ struct SVector {
     //! Convert to the VECTOR representation.
     template<typename VECTOR>
     inline VECTOR& toType(VECTOR& result) const {
-        for (std::size_t i = 0u; i < m_X.size(); ++i) {
+        for (std::size_t i = 0; i < m_X.size(); ++i) {
             result(i) = m_X[i];
         }
         return result;
@@ -878,7 +878,7 @@ struct SVector {
     //! Get a checksum of the components of this vector.
     uint64_t checksum() const {
         uint64_t result = static_cast<uint64_t>(m_X[0]);
-        for (std::size_t i = 1u; i < m_X.size(); ++i) {
+        for (std::size_t i = 1; i < m_X.size(); ++i) {
             result = core::CHashing::hashCombine(result, static_cast<uint64_t>(m_X[i]));
         }
         return result;
@@ -950,7 +950,7 @@ public:
 
     //! Construct from a C-style array.
     explicit CVectorNx1(const TArray& v) {
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             TBase::m_X[i] = v[i];
         }
     }
@@ -958,7 +958,7 @@ public:
     //! Construct from a boost array.
     template<typename U>
     explicit CVectorNx1(const std::array<U, N>& a) {
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             TBase::m_X[i] = a[i];
         }
     }
@@ -966,7 +966,7 @@ public:
     //! Construct from a vector.
     template<typename U>
     explicit CVectorNx1(const std::vector<U>& v) {
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             TBase::m_X[i] = v[i];
         }
     }
@@ -974,7 +974,7 @@ public:
     //! Construct from a vector.
     template<typename U>
     explicit CVectorNx1(const core::CSmallVectorBase<U>& v) {
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             TBase::m_X[i] = v[i];
         }
     }
@@ -1169,15 +1169,15 @@ CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(ESymmetricMatrixType type,
                                                const CVectorNx1<T, N>& x) {
     switch (type) {
     case E_OuterProduct:
-        for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = x(i) * x(j);
             }
         }
         break;
     case E_Diagonal:
-        for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
             }
         }
@@ -1247,7 +1247,7 @@ public:
     //! Construct from a boost array.
     template<std::size_t N>
     explicit CVector(const std::array<T, N>& a) {
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             TBase::m_X[i] = a[i];
         }
     }
@@ -1473,15 +1473,15 @@ CSymmetricMatrix<T>::CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T
     TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
     switch (type) {
     case E_OuterProduct:
-        for (std::size_t i = 0u, i_ = 0u; i < x.dimension(); ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < x.dimension(); ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = x(i) * x(j);
             }
         }
         break;
     case E_Diagonal:
-        for (std::size_t i = 0u, i_ = 0u; i < x.dimension(); ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+        for (std::size_t i = 0u, i_ = 0; i < x.dimension(); ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
             }
         }
@@ -1521,9 +1521,9 @@ void swap(CVector<T>& lhs, CVector<T>& rhs) {
 template<typename T, std::size_t N>
 CVectorNx1<T, N> operator*(const CSymmetricMatrixNxN<T, N>& m, const CVectorNx1<T, N>& x) {
     CVectorNx1<T, N> result;
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         double component = 0.0;
-        for (std::size_t j = 0u; j < N; ++j) {
+        for (std::size_t j = 0; j < N; ++j) {
             component += m(i, j) * x(j);
         }
         result(i) = component;
@@ -1541,9 +1541,9 @@ CVectorNx1<T, N> operator*(const CSymmetricMatrixNxN<T, N>& m, const CVectorNx1<
 template<typename T>
 CVector<T> operator*(const CSymmetricMatrix<T>& m, const CVector<T>& x) {
     CVector<T> result(x.dimension());
-    for (std::size_t i = 0u; i < m.rows(); ++i) {
+    for (std::size_t i = 0; i < m.rows(); ++i) {
         double component = 0.0;
-        for (std::size_t j = 0u; j < m.columns(); ++j) {
+        for (std::size_t j = 0; j < m.columns(); ++j) {
             component += m(i, j) * x(j);
         }
         result(i) = component;

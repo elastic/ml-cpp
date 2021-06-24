@@ -5,7 +5,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:2
+FROM docker.elastic.co/ml-dev/ml-linux-aarch64-native-build:4
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
@@ -17,6 +17,9 @@ ARG VERSION_QUALIFIER=
 
 # Pass through whether this is a snapshot build (default yes if not specified)
 ARG SNAPSHOT=yes
+
+# Pass through ML debug option (default blank)
+ARG ML_DEBUG=
 
 # Run the build
 RUN \

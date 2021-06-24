@@ -21,6 +21,10 @@ CRapidXmlStateRestoreTraverser::CRapidXmlStateRestoreTraverser(const CRapidXmlPa
 }
 
 bool CRapidXmlStateRestoreTraverser::next() {
+    if (haveBadState()) {
+        return false;
+    }
+
     CRapidXmlParser::TCharRapidXmlNode* next(this->nextNodeElement());
     if (next == nullptr) {
         return false;
@@ -39,6 +43,11 @@ bool CRapidXmlStateRestoreTraverser::hasSubLevel() const {
 }
 
 const std::string& CRapidXmlStateRestoreTraverser::name() const {
+    if (haveBadState()) {
+        m_CachedName.clear();
+        return m_CachedName;
+    }
+
     if (!m_IsNameCacheValid) {
         if (m_CurrentNode != nullptr) {
             m_CachedName.assign(m_CurrentNode->name(), m_CurrentNode->name_size());
@@ -52,6 +61,11 @@ const std::string& CRapidXmlStateRestoreTraverser::name() const {
 }
 
 const std::string& CRapidXmlStateRestoreTraverser::value() const {
+    if (haveBadState()) {
+        m_CachedValue.clear();
+        return m_CachedValue;
+    }
+
     if (!m_IsValueCacheValid) {
         if (m_CurrentNode != nullptr) {
             // NB: this doesn't work for CDATA - see implementation decisions in

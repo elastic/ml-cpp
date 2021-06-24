@@ -46,8 +46,10 @@ CCountingModel::CCountingModel(const SModelParams& params,
     : CAnomalyDetectorModel(params, dataGatherer, {}),
       m_StartTime(CAnomalyDetectorModel::TIME_UNSET),
       m_InterimBucketCorrector(interimBucketCorrector) {
-    traverser.traverseSubLevel(std::bind(&CCountingModel::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CCountingModel::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 CCountingModel::CCountingModel(bool isForPersistence, const CCountingModel& other)
@@ -280,7 +282,7 @@ bool CCountingModel::computeProbability(std::size_t pid,
                                         SAnnotatedProbability& result) const {
     result = SAnnotatedProbability(1.0);
     result.s_CurrentBucketCount =
-        this->currentBucketCount(pid, (startTime + endTime) / 2 - 1);
+        this->currentBucketCount(pid, (startTime + endTime + 1) / 2 - 1);
     result.s_BaselineBucketCount = this->baselineBucketCount(pid);
     return true;
 }

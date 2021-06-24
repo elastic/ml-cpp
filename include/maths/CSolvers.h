@@ -364,10 +364,10 @@ public:
     solve(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
         } else if (maxIterations < 3) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
         } else {
             maxIterations -= 2;
             solve(a, b, f(a), f(b), f, maxIterations, equal, bestGuess);
@@ -462,12 +462,12 @@ public:
     brent(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
             return true;
         }
         if (maxIterations < 3) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
             return true;
         }
         maxIterations -= 2;
@@ -621,12 +621,12 @@ public:
                           double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
             return true;
         }
         if (maxIterations < 3) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
             return true;
         }
         maxIterations -= 2;
@@ -818,7 +818,7 @@ public:
 
         TMinAccumulator min;
         T fp(p.size());
-        for (std::size_t i = 0u; i < p.size(); ++i) {
+        for (std::size_t i = 0; i < p.size(); ++i) {
             double fi = f(p[i]);
             fp[i] = fi;
             min.add(TDoubleSizePr(fi, i));

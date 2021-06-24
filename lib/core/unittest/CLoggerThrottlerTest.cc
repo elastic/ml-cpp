@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(testThrottling) {
 
     BOOST_TEST_REQUIRE(logged[0] >= 4);
     // Allow for long stalls running the tests.
-    BOOST_TEST_REQUIRE(logged[1] <= 16);
+    BOOST_TEST_REQUIRE(logged[1] <= 18);
 
     BOOST_REQUIRE_EQUAL(100, counts[0]);
     BOOST_REQUIRE_EQUAL(100, counts[1]);

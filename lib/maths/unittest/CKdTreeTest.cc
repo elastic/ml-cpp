@@ -96,12 +96,12 @@ BOOST_AUTO_TEST_CASE(testBuild) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < numberTests; ++i) {
+    for (std::size_t i = 0; i < numberTests; ++i) {
         TDoubleVec samples;
         rng.generateUniformSamples(-100.0, 100.0, 2 * (i + 1), samples);
 
         TVector2Vec points;
-        for (std::size_t j = 0u; j < samples.size(); j += 2) {
+        for (std::size_t j = 0; j < samples.size(); j += 2) {
             points.emplace_back(&samples[j], &samples[j + 2]);
         }
 
@@ -110,12 +110,12 @@ BOOST_AUTO_TEST_CASE(testBuild) {
         BOOST_TEST_REQUIRE(kdTree.checkInvariants());
     }
 
-    for (std::size_t i = 0u; i < numberTests; ++i) {
+    for (std::size_t i = 0; i < numberTests; ++i) {
         TDoubleVec samples;
         rng.generateUniformSamples(-100.0, 100.0, 5 * (i + 1), samples);
 
         TVector5Vec points;
-        for (std::size_t j = 0u; j < samples.size(); j += 5) {
+        for (std::size_t j = 0; j < samples.size(); j += 5) {
             points.emplace_back(&samples[j], &samples[j + 5]);
         }
 
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE(testBuildWithMove) {
     rng.generateUniformSamples(-100.0, 100.0, 50, samples);
 
     TVectorCountMovesVec points;
-    for (std::size_t i = 0u; i < samples.size(); /**/) {
+    for (std::size_t i = 0; i < samples.size(); /**/) {
         TVector point(5);
         while (i++ < 5) {
             point(i % 5) = samples[i];
@@ -166,12 +166,12 @@ BOOST_AUTO_TEST_CASE(testNearestNeighbour) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < numberTests; ++i) {
+    for (std::size_t i = 0; i < numberTests; ++i) {
         TDoubleVec samples;
         rng.generateUniformSamples(-100.0, 100.0, 2 * (i + 1), samples);
 
         TVector2Vec points;
-        for (std::size_t j = 0u; j < samples.size(); j += 2) {
+        for (std::size_t j = 0; j < samples.size(); j += 2) {
             points.emplace_back(&samples[j], &samples[j + 2]);
         }
 
@@ -182,12 +182,12 @@ BOOST_AUTO_TEST_CASE(testNearestNeighbour) {
         rng.generateUniformSamples(-150.0, 150.0, 2 * 10, samples);
 
         TVector2Vec tests;
-        for (std::size_t j = 0u; j < samples.size(); j += 2) {
+        for (std::size_t j = 0; j < samples.size(); j += 2) {
             tests.emplace_back(&samples[j], &samples[j + 2]);
         }
 
         LOG_TRACE(<< "*** Test " << i << " ***");
-        for (std::size_t j = 0u; j < tests.size(); ++j) {
+        for (std::size_t j = 0; j < tests.size(); ++j) {
             TDoubleVector2PrVec expectedNearest;
             nearestNeightbours(1, points, tests[j], expectedNearest);
 
@@ -208,12 +208,12 @@ BOOST_AUTO_TEST_CASE(testNearestNeighbours) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < numberTests; ++i) {
+    for (std::size_t i = 0; i < numberTests; ++i) {
         TDoubleVec samples;
         rng.generateUniformSamples(-100.0, 100.0, 5 * 300, samples);
 
         TVector5Vec points;
-        for (std::size_t j = 0u; j < samples.size(); j += 5) {
+        for (std::size_t j = 0; j < samples.size(); j += 5) {
             points.emplace_back(&samples[j], &samples[j + 5]);
         }
 
@@ -224,19 +224,19 @@ BOOST_AUTO_TEST_CASE(testNearestNeighbours) {
         rng.generateUniformSamples(-100.0, 100.0, 5 * 10, samples);
 
         TVector5Vec tests;
-        for (std::size_t j = 0u; j < samples.size(); j += 5) {
+        for (std::size_t j = 0; j < samples.size(); j += 5) {
             tests.emplace_back(&samples[j], &samples[j + 5]);
         }
 
         LOG_TRACE(<< "*** Test " << i << " ***");
-        for (std::size_t j = 0u; j < tests.size(); ++j) {
+        for (std::size_t j = 0; j < tests.size(); ++j) {
             TDoubleVector5PrVec expectedNeighbours;
             nearestNeightbours(2 * j, points, tests[j], expectedNeighbours);
 
             TVector5Vec neighbours;
             kdTree.nearestNeighbours(2 * j, tests[j], neighbours);
             BOOST_REQUIRE_EQUAL(expectedNeighbours.size(), neighbours.size());
-            for (std::size_t k = 0u; k < expectedNeighbours.size(); ++k) {
+            for (std::size_t k = 0; k < expectedNeighbours.size(); ++k) {
                 LOG_TRACE(<< "Expected nearest = " << expectedNeighbours[k].second
                           << ", expected distance = " << expectedNeighbours[k].first);
                 LOG_TRACE(<< "Nearest          = " << neighbours[k] << ", actual distance   = "
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(testRequestingEveryPoint) {
     rng.generateUniformSamples(-100.0, 100.0, 5 * 5, samples);
 
     TVector5Vec points;
-    for (std::size_t j = 0u; j < samples.size(); j += 5) {
+    for (std::size_t j = 0; j < samples.size(); j += 5) {
         points.emplace_back(&samples[j], &samples[j + 5]);
     }
     std::stable_sort(points.begin(), points.end());

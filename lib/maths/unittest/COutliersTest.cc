@@ -166,8 +166,8 @@ void outlierErrorStatisticsForEnsemble(std::size_t numberThreads,
                                                     0.05}; // Outlier fraction
         maths::COutliers::compute(params, *frame, instrumentation);
 
-        frame->readRows(1, [&scores](core::CDataFrame::TRowItr beginRows,
-                                     core::CDataFrame::TRowItr endRows) {
+        frame->readRows(1, [&scores](const core::CDataFrame::TRowItr& beginRows,
+                                     const core::CDataFrame::TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 scores[row->index()] = (*row)[6];
             }
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE(testLof) {
         maths::COutliers::lof(k, points, scores);
 
         TMaxAccumulator outliers_(numberOutliers);
-        for (std::size_t i = 0u; i < scores.size(); ++i) {
+        for (std::size_t i = 0; i < scores.size(); ++i) {
             outliers_.add({scores[i], i});
         }
         TSizeVec outliers(numberOutliers);
@@ -516,8 +516,8 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
             bool passed{true};
             TMeanAccumulator averageSignificances[2];
 
-            frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
-                                   core::CDataFrame::TRowItr endRows) {
+            frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                                   const core::CDataFrame::TRowItr& endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     passed &= (std::fabs((*row)[3] + (*row)[4] - 1.0) < 1e-6);
                     if (row->index() == outlierIndexes[0]) {
@@ -739,8 +739,8 @@ BOOST_AUTO_TEST_CASE(testMostlyDuplicate) {
         maths::COutliers::compute(params, *frame, instrumentation);
 
         TDoubleVec outlierScores(outliers.size());
-        frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
-                               core::CDataFrame::TRowItr endRows) {
+        frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                               const core::CDataFrame::TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 auto outlier = std::find_if(
                     outliers.begin(),
@@ -797,8 +797,8 @@ BOOST_AUTO_TEST_CASE(testFewPoints) {
 
         bool passed{true};
 
-        frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
-                               core::CDataFrame::TRowItr endRows) {
+        frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                               const core::CDataFrame::TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 // Check score is in range 0 to 1.
                 LOG_DEBUG(<< "outlier score = " << (*row)[rows]);

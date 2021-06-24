@@ -32,14 +32,14 @@ BOOST_AUTO_TEST_CASE(testLowCov) {
     maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias, 1);
 
     double decayRate{0.0005};
-    for (std::size_t i = 0u; i < 1000; ++i) {
+    for (std::size_t i = 0; i < 1000; ++i) {
         double multiplier{controller.multiplier({10000.0}, {{1.0}}, 3600, 1.0, 0.0005)};
         decayRate *= multiplier;
     }
     LOG_DEBUG(<< "Controlled decay = " << decayRate);
     BOOST_TEST_REQUIRE(decayRate > 0.0005);
 
-    for (std::size_t i = 0u; i < 1000; ++i) {
+    for (std::size_t i = 0; i < 1000; ++i) {
         double multiplier{controller.multiplier({10000.0}, {{0.0}}, 3600, 1.0, 0.0005)};
         decayRate *= multiplier;
     }
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE(testOrderedErrors) {
 
     double decayRate{0.0005};
     TDouble1VecVec predictionErrors;
-    for (std::size_t i = 0u; i < 500; ++i) {
+    for (std::size_t i = 0; i < 500; ++i) {
         for (int j = 0; j < 100; ++j) {
             predictionErrors.push_back({static_cast<double>(j - 50)});
         }
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     maths::CDecayRateController origController(
         maths::CDecayRateController::E_PredictionBias, 1);
-    for (std::size_t i = 0u; i < values.size(); ++i) {
+    for (std::size_t i = 0; i < values.size(); ++i) {
         origController.multiplier({values[i]}, {{errors[i]}}, 3600, 1.0, 0.0005);
     }
 

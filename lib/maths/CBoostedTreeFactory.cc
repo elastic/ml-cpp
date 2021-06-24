@@ -141,7 +141,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 
     if (dependentVariable != m_TreeImpl->m_DependentVariable) {
         HANDLE_FATAL(<< "Internal error: expected dependent variable "
-                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable)
+                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
         return nullptr;
     }
 
@@ -172,9 +172,8 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 }
 
 std::size_t CBoostedTreeFactory::numberHyperparameterTuningRounds() const {
-    return std::max(m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
-                        m_TreeImpl->numberHyperparametersToTune(),
-                    std::size_t{1});
+    return m_TreeImpl->m_MaximumOptimisationRoundsPerHyperparameter *
+           m_TreeImpl->numberHyperparametersToTune();
 }
 
 void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
@@ -267,13 +266,17 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
     m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
     m_TreeImpl->m_CurrentRound = 0; // for first start
+    m_TreeImpl->m_BestHyperparameters = CBoostedTreeHyperparameters(
+        m_TreeImpl->m_Regularization, m_TreeImpl->m_DownsampleFactor,
+        m_TreeImpl->m_Eta, m_TreeImpl->m_EtaGrowthRatePerTree,
+        m_TreeImpl->m_MaximumNumberTrees, m_TreeImpl->m_FeatureBagFraction);
 }
 
 void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& frame) const {
 
     m_TreeImpl->m_MissingFeatureRowMasks.resize(frame.numberColumns());
 
-    auto result = frame.readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    auto result = frame.readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                 double value{(*row)[i]};
@@ -298,7 +301,8 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
         auto result = frame.readRows(
             m_NumberThreads,
             core::bindRetrievableState(
-                [this](std::size_t& numberTrainingRows, TRowItr beginRows, TRowItr endRows) {
+                [this](std::size_t& numberTrainingRows,
+                       const TRowItr& beginRows, const TRowItr& endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
                         double target{(*row)[m_TreeImpl->m_DependentVariable]};
                         if (CDataFrameUtils::isMissing(target) == false) {
@@ -357,7 +361,7 @@ void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
     frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
                                writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
                            }
@@ -566,8 +570,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         this->testLossLineSearch(frame, applySoftDepthLimit,
                                                  minSoftDepthLimit, maxSoftDepthLimit)
                             .value_or(fallback);
-                    m_SoftDepthLimitSearchInterval =
-                        max(m_SoftDepthLimitSearchInterval, TVector{1.0});
+                    m_SoftDepthLimitSearchInterval = max(
+                        m_SoftDepthLimitSearchInterval, TVector{MIN_SOFT_DEPTH_LIMIT});
                     LOG_TRACE(<< "soft depth limit search interval = ["
                               << m_SoftDepthLimitSearchInterval.toDelimited() << "]");
                     m_TreeImpl->m_Regularization.softTreeDepthLimit(
@@ -760,32 +764,23 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     (logMinDownsampleFactor + logMaxDownsampleFactor) / 2.0};
                 LOG_TRACE(<< "mean log downsample factor = " << meanLogDownSampleFactor);
 
-                double previousDownsampleFactor{m_TreeImpl->m_DownsampleFactor};
-                double previousDepthPenaltyMultiplier{
+                double initialDownsampleFactor{m_TreeImpl->m_DownsampleFactor};
+                double initialDepthPenaltyMultiplier{
                     m_TreeImpl->m_Regularization.depthPenaltyMultiplier()};
-                double previousTreeSizePenaltyMultiplier{
+                double initialTreeSizePenaltyMultiplier{
                     m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier()};
-                double previousLeafWeightPenaltyMultiplier{
+                double initialLeafWeightPenaltyMultiplier{
                     m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier()};
 
                 // We need to scale the regularisation terms to account for the difference
                 // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
-                    double scale{previousDownsampleFactor / downsampleFactor};
-                    if (tree.m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-                        tree.m_Regularization.depthPenaltyMultiplier(
-                            scale * previousDepthPenaltyMultiplier);
-                    }
-                    if (tree.m_RegularizationOverride.treeSizePenaltyMultiplier() ==
-                        boost::none) {
-                        tree.m_Regularization.treeSizePenaltyMultiplier(
-                            scale * previousTreeSizePenaltyMultiplier);
-                    }
-                    if (tree.m_RegularizationOverride.leafWeightPenaltyMultiplier() ==
-                        boost::none) {
-                        tree.m_Regularization.leafWeightPenaltyMultiplier(
-                            scale * previousLeafWeightPenaltyMultiplier);
-                    }
+                    double scale{initialDownsampleFactor / downsampleFactor};
+                    tree.m_Regularization.depthPenaltyMultiplier(initialDepthPenaltyMultiplier);
+                    tree.m_Regularization.treeSizePenaltyMultiplier(initialTreeSizePenaltyMultiplier);
+                    tree.m_Regularization.leafWeightPenaltyMultiplier(
+                        initialLeafWeightPenaltyMultiplier);
+                    tree.scaleRegularizers(scale);
                     return scale;
                 };
 

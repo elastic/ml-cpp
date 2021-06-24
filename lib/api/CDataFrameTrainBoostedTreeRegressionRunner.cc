@@ -86,11 +86,12 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
                   this->dependentVariableFieldName()) != categoricalFieldNames.end()) {
-        HANDLE_FATAL(<< "Input error: trying to perform regression with categorical target.")
+        HANDLE_FATAL(<< "Input error: trying to perform regression with categorical target.");
     }
     if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
         HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
-                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST) << ".")
+                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
+                     << ".");
     }
 }
 
@@ -180,7 +181,7 @@ const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() con
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
     HANDLE_FATAL(<< "Input error: regression has a non-optional parameter '"
-                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
+                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.");
     return nullptr;
 }
 

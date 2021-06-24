@@ -75,8 +75,8 @@ public:
         double result = std::numeric_limits<double>::max();
         const TSizeVec& lp = lhs.points();
         const TSizeVec& rp = rhs.points();
-        for (std::size_t i = 0u; i < lp.size(); ++i) {
-            for (std::size_t j = 0u; j < rp.size(); ++j) {
+        for (std::size_t i = 0; i < lp.size(); ++i) {
+            for (std::size_t j = 0; j < rp.size(); ++j) {
                 std::size_t pi = lp[i];
                 std::size_t pj = rp[j];
                 if (pj > pi) {
@@ -101,8 +101,8 @@ public:
         double result = -std::numeric_limits<double>::max();
         const TSizeVec& lp = lhs.points();
         const TSizeVec& rp = rhs.points();
-        for (std::size_t i = 0u; i < lp.size(); ++i) {
-            for (std::size_t j = 0u; j < rp.size(); ++j) {
+        for (std::size_t i = 0; i < lp.size(); ++i) {
+            for (std::size_t j = 0; j < rp.size(); ++j) {
                 std::size_t pi = lp[i];
                 std::size_t pj = rp[j];
                 if (pj > pi) {
@@ -124,7 +124,7 @@ TClusterVec agglomerativeCluster(const TDoubleVecVec& distanceMatrix) {
 
     TClusterVec clusters;
     clusters.reserve(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         clusters.push_back(CCluster(i));
     }
 
@@ -138,7 +138,7 @@ TClusterVec agglomerativeCluster(const TDoubleVecVec& distanceMatrix) {
         std::size_t mi = 0;
         std::size_t mj = 0;
 
-        for (std::size_t i = 0u; i < clusters.size(); ++i) {
+        for (std::size_t i = 0; i < clusters.size(); ++i) {
             for (std::size_t j = i + 1; j < clusters.size(); ++j) {
                 double fij = f(clusters[i], clusters[j]);
                 if (fij < fmin) {
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE(testNode) {
 
     LOG_DEBUG(<< "tree = \n" << root.print());
 
-    for (std::size_t i = 0u; i < 8; ++i) {
+    for (std::size_t i = 0; i < 8; ++i) {
         BOOST_REQUIRE_EQUAL(root.index(), nodes[i].root().index());
     }
 
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(testSimplePermutations) {
         std::string("[(3.3, [0, 1, 2, 3]), (2.2, [0, 1, 2]), (1.3, [1, 2])]"),
         std::string("[(6.8, [0, 1, 2, 3]), (3.5, [0, 1, 2]), (1.3, [1, 2])]")};
 
-    for (std::size_t o = 0u; o < boost::size(objectives); ++o) {
+    for (std::size_t o = 0; o < boost::size(objectives); ++o) {
         LOG_DEBUG(<< "****** " << print(objectives[o]) << " ******");
 
         std::size_t p[] = {0, 1, 2, 3};
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE(testSimplePermutations) {
             LOG_DEBUG(<< "*** " << core::CContainerPrinter::print(p) << " ***");
 
             TDoubleVecVec distanceMatrix(n);
-            for (std::size_t i = 0u; i < n; ++i) {
+            for (std::size_t i = 0; i < n; ++i) {
                 for (std::size_t j = i; j < n; ++j) {
                     distanceMatrix[j].push_back(std::fabs(x[p[i]] - x[p[j]]));
                 }
@@ -284,8 +284,8 @@ BOOST_AUTO_TEST_CASE(testSimplePermutations) {
 
             LOG_DEBUG(<< "clusters           = " << core::CContainerPrinter::print(clusters));
 
-            for (std::size_t i = 0u; i < clusters.size(); ++i) {
-                for (std::size_t j = 0u; j < clusters[i].second.size(); ++j) {
+            for (std::size_t i = 0; i < clusters.size(); ++i) {
+                for (std::size_t j = 0; j < clusters[i].second.size(); ++j) {
                     clusters[i].second[j] = p[clusters[i].second[j]];
                 }
                 std::sort(clusters[i].second.begin(), clusters[i].second.end());
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
          std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [1, 3])]"),
          std::string("[(6.8, [0, 1, 2, 3, 4, 5]), (3.5, [0, 1, 2, 3, 4]), (1.3, [1, 2, 3, 4]), (0, [1, 2, 3]), (0, [2, 3])]")}};
 
-    for (std::size_t o = 0u, count = 0u; o < boost::size(objectives); ++o) {
+    for (std::size_t o = 0u, count = 0; o < boost::size(objectives); ++o) {
         LOG_DEBUG(<< "****** " << print(objectives[o]) << " ******");
 
         std::size_t p[] = {0, 1, 2, 3, 4, 5};
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
             }
 
             TDoubleVecVec distanceMatrix(n);
-            for (std::size_t i = 0u; i < n; ++i) {
+            for (std::size_t i = 0; i < n; ++i) {
                 for (std::size_t j = i; j < n; ++j) {
                     distanceMatrix[j].push_back(std::fabs(x[p[i]] - x[p[j]]));
                 }
@@ -348,8 +348,8 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
                           << core::CContainerPrinter::print(clusters));
             }
 
-            for (std::size_t i = 0u; i < clusters.size(); ++i) {
-                for (std::size_t j = 0u; j < clusters[i].second.size(); ++j) {
+            for (std::size_t i = 0; i < clusters.size(); ++i) {
+                for (std::size_t j = 0; j < clusters[i].second.size(); ++j) {
                     clusters[i].second[j] = p[clusters[i].second[j]];
                 }
                 std::sort(clusters[i].second.begin(), clusters[i].second.end());
@@ -372,20 +372,20 @@ BOOST_AUTO_TEST_CASE(testDegenerate) {
 BOOST_AUTO_TEST_CASE(testRandom) {
     test::CRandomNumbers rng;
 
-    std::size_t n = 20u;
+    std::size_t n = 20;
 
     maths::CAgglomerativeClusterer::EObjective objectives[] = {
         maths::CAgglomerativeClusterer::E_Single, maths::CAgglomerativeClusterer::E_Complete};
 
-    for (std::size_t o = 0u; o < boost::size(objectives); ++o) {
+    for (std::size_t o = 0; o < boost::size(objectives); ++o) {
         LOG_DEBUG(<< "*** " << print(objectives[o]) << " ***");
 
-        for (std::size_t t = 0u; t < 10; ++t) {
+        for (std::size_t t = 0; t < 10; ++t) {
             TDoubleVec dij;
             rng.generateUniformSamples(0.0, 100.0, n * (n - 1) / 2, dij);
 
             TDoubleVecVec distanceMatrix(n);
-            for (std::size_t i = 0u, k = 0u; i < n; ++i) {
+            for (std::size_t i = 0u, k = 0; i < n; ++i) {
                 for (std::size_t j = i; j < n; ++j) {
                     distanceMatrix[j].push_back(i == j ? 0.0 : dij[k++]);
                 }
@@ -410,7 +410,7 @@ BOOST_AUTO_TEST_CASE(testRandom) {
 
             TDoubleSizeVecPrVec expectedClusters;
             expectedClusters.reserve(expectedTree.size());
-            for (std::size_t i = 0u; i < expectedTree.size(); ++i) {
+            for (std::size_t i = 0; i < expectedTree.size(); ++i) {
                 expectedTree[i].add(expectedClusters);
             }
             std::sort(expectedClusters.begin(), expectedClusters.end());
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(testRandom) {
 
             TDoubleSizeVecPrVec clusters;
             tree.back().clusters(clusters);
-            for (std::size_t i = 0u; i < clusters.size(); ++i) {
+            for (std::size_t i = 0; i < clusters.size(); ++i) {
                 std::sort(clusters[i].second.begin(), clusters[i].second.end());
             }
             std::sort(clusters.begin(), clusters.end());

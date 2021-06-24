@@ -107,7 +107,7 @@ protected:
         std::string print() const {
             std::ostringstream result;
             result << "[" << s_Bucket << ", " + s_Person << ",";
-            for (std::size_t i = 0u; i < s_Attributes.size(); ++i) {
+            for (std::size_t i = 0; i < s_Attributes.size(); ++i) {
                 if (s_Attributes[i].first < 0.01) {
                     result << " " << s_Attributes[i].second;
                 }

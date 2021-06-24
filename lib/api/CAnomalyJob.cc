@@ -193,7 +193,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
         this->populateDetectorKeys(m_JobConfig, m_DetectorKeys);
     }
 
-    for (std::size_t i = 0u; i < m_DetectorKeys.size(); ++i) {
+    for (std::size_t i = 0; i < m_DetectorKeys.size(); ++i) {
         const std::string& partitionFieldName(m_DetectorKeys[i].partitionFieldName());
 
         // An empty partitionFieldName means no partitioning
@@ -268,7 +268,7 @@ void CAnomalyJob::description() const {
     LOG_INFO(<< "\tpartition " << partition.get());
     LOG_INFO(<< "\t\tkey " << detectors[0].first.second.get());
     LOG_INFO(<< "\t\t\t" << detectors[0].second->description());
-    for (std::size_t i = 1u; i < detectors.size(); ++i) {
+    for (std::size_t i = 1; i < detectors.size(); ++i) {
         if (detectors[i].first.first.get() != partition.get()) {
             partition = detectors[i].first.first;
             LOG_INFO(<< "\tpartition " << partition.get());
@@ -295,7 +295,7 @@ void CAnomalyJob::descriptionAndDebugMemoryUsage() const {
     ss << "\t\t\t" << detectors[0].second->description() << std::endl;
     detectors[0].second->showMemoryUsage(ss);
 
-    for (std::size_t i = 1u; i < detectors.size(); ++i) {
+    for (std::size_t i = 1; i < detectors.size(); ++i) {
         ss << std::endl;
         if (detectors[i].first.first.get() != partition.get()) {
             partition = detectors[i].first.first;
@@ -799,7 +799,9 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
                                core_t::TTime& completeToTime) {
     size_t numDetectors(0);
     try {
-        // Restore from Elasticsearch compressed data
+        // Restore from Elasticsearch compressed data.
+        // (To restore from uncompressed data for testing, comment the next line
+        // and substitute decompressor with restoreSearcher two lines below.)
         core::CStateDecompressor decompressor(restoreSearcher);
 
         core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));
@@ -1099,9 +1101,10 @@ bool CAnomalyJob::doPersistStateInForeground(core::CDataAdder& persister,
     std::string normaliserState;
     m_Normalizer.toJson(m_LastResultsTime, "api", normaliserState, true);
 
-    // Persistence operates on a cached collection of counters rather than on the live counters directly.
-    // This is in order that background persistence operates on a consistent set of counters however we
-    // also must ensure that foreground persistence has access to an up-to-date cache of counters as well.
+    // Persistence of static counters is expected to operate on a cached collection of counters rather
+    // than on the live counters directly. This is in order that the more frequently used background persistence
+    // operates on a consistent set of counters. Hence, to avoid an error regarding the cache not existing, we
+    // also must ensure that foreground persistence has access to an up-to-date cache of counters.
     core::CProgramCounters::cacheCounters();
 
     return this->persistCopiedState(
@@ -1254,6 +1257,12 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                                      core_t::TTime latestRecordTime,
                                      core_t::TTime lastResultsTime,
                                      core::CDataAdder& persister) {
+    // Ensure that the cache of program counters is cleared upon exiting the current scope.
+    // As the cache is cleared when the simple count detector is persisted this may seem
+    // unnecessary at first, but there are occasions when the simple count detector does not exist,
+    // e.g. when no data is seen but time is advanced.
+    core::CProgramCounters::CCacheManager cacheMgr;
+
     // Persist state for each detector separately by streaming
     try {
         core::CStateCompressor compressor(persister);
@@ -1597,7 +1606,7 @@ CAnomalyJob::makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
 void CAnomalyJob::populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys) {
     keys.clear();
 
-    // Add a key for the simple count detector.
+    // Always add a key for the simple count detector.
     keys.push_back(model::CSearchKey::simpleCountKey());
 
     for (const auto& fieldOptions : jobConfig.analysisConfig().detectorsConfig()) {
@@ -1623,7 +1632,7 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector,
     model::CAnomalyDetector::TStrCPtrVec fieldValues;
     const TStrVec& fieldNames = detector->fieldsOfInterest();
     fieldValues.reserve(fieldNames.size());
-    for (std::size_t i = 0u; i < fieldNames.size(); ++i) {
+    for (std::size_t i = 0; i < fieldNames.size(); ++i) {
         fieldValues.push_back(fieldValue(fieldNames[i], dataRowFields));
     }
 

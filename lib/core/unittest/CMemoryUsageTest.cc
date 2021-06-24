@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         TFooWithMemoryFooWithMemoryMap foosWithMemory;
 
         std::size_t keys[] = {0, 1, 2, 3, 4, 5};
-        for (std::size_t i = 0u; i < boost::size(keys); ++i) {
+        for (std::size_t i = 0; i < boost::size(keys); ++i) {
             foos[SFoo(keys[i])] = SFoo(keys[i]);
             foosWithMemory[SFooWithMemoryUsage(keys[i])] = SFooWithMemoryUsage(keys[i]);
         }
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         TFooWithMemoryFooWithMemoryUMap foosWithMemory;
 
         std::size_t keys[] = {0, 1, 2, 3, 4, 5};
-        for (std::size_t i = 0u; i < boost::size(keys); ++i) {
+        for (std::size_t i = 0; i < boost::size(keys); ++i) {
             foos[SFoo(keys[i])] = SFoo(keys[i]);
             foosWithMemory[SFooWithMemoryUsage(keys[i])] = SFooWithMemoryUsage(keys[i]);
         }
@@ -388,7 +388,7 @@ BOOST_AUTO_TEST_CASE(testUsage) {
         TFooFSet foos;
 
         std::size_t keys[] = {0, 1, 2, 3, 4, 5};
-        for (std::size_t i = 0u; i < boost::size(keys); ++i) {
+        for (std::size_t i = 0; i < boost::size(keys); ++i) {
             foos.insert(SFoo(keys[i]));
         }
 

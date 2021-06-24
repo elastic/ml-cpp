@@ -146,7 +146,7 @@ void mstCluster(const TDoubleVecVec& distanceMatrix, TDoubleSizeSizePrPrVec& L) 
 
     TSizeVec S;
     S.reserve(N);
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         S.push_back(i);
     }
     TDoubleVec D(N, INF);
@@ -158,7 +158,7 @@ void mstCluster(const TDoubleVecVec& distanceMatrix, TDoubleSizeSizePrPrVec& L) 
         std::size_t n = 0;
         double d = INF;
 
-        for (std::size_t i = 0u; i < S.size(); ++i) {
+        for (std::size_t i = 0; i < S.size(); ++i) {
             std::size_t x = S[i];
             D[x] = std::min(D[x], distance(distanceMatrix, x, c));
             if (D[x] < d) {
@@ -212,7 +212,7 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
 
     TSizeVec S;
     S.reserve(N);
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         S.push_back(i);
     }
     TSizeVec chain;
@@ -220,7 +220,7 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
     TDoubleVec size(N, 1.0);
     TSizeVec rightmost;
     rightmost.reserve(2 * N - 1);
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         rightmost.push_back(i);
     }
 
@@ -251,10 +251,10 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
 
         double d;
         do {
-            std::size_t c = 0u;
+            std::size_t c = 0;
             std::size_t ra = rightmost[a];
             d = INF;
-            for (std::size_t i = 0u; i < S.size(); ++i) {
+            for (std::size_t i = 0; i < S.size(); ++i) {
                 std::size_t x = S[i];
                 std::size_t rx = rightmost[x];
                 if (a != x) {
@@ -288,7 +288,7 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
         // and the rightmost direct address table.
         std::size_t merged[] = {a, b};
         CSetTools::inplace_set_difference(S, merged, merged + 2);
-        for (std::size_t i = 0u; i < S.size(); ++i) {
+        for (std::size_t i = 0; i < S.size(); ++i) {
             std::size_t x = S[i];
             update(size, rightmost[x], ra, rb, distanceMatrix);
         }
@@ -324,14 +324,14 @@ void buildTree(TDoubleSizeSizePrPrVec& heights, TNodeVec& tree) {
     }
 
     tree.reserve(2 * n + 1);
-    for (std::size_t i = 0u; i <= n; ++i) {
+    for (std::size_t i = 0; i <= n; ++i) {
         tree.emplace_back(i, 0.0);
     }
 
     std::stable_sort(heights.begin(), heights.end(), COrderings::SFirstLess());
     LOG_TRACE(<< "heights = " << core::CContainerPrinter::print(heights));
 
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         double h = heights[i].first;
         std::size_t j = heights[i].second.first;
         std::size_t k = heights[i].second.second;
@@ -346,7 +346,7 @@ void buildTree(TDoubleSizeSizePrPrVec& heights, TNodeVec& tree) {
 bool CAgglomerativeClusterer::initialize(TDoubleVecVec& distanceMatrix) {
     // Check that the matrix is square.
     std::size_t n = distanceMatrix.size();
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         LOG_TRACE(<< "D = " << core::CContainerPrinter::print(distanceMatrix[i]));
         if (distanceMatrix[i].size() != i + 1) {
             LOG_ERROR(<< "Distance matrix isn't upper triangular");
@@ -357,7 +357,7 @@ bool CAgglomerativeClusterer::initialize(TDoubleVecVec& distanceMatrix) {
     m_DistanceMatrix.swap(distanceMatrix);
 
     m_Pi.resize(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         m_Pi[i] = i;
     }
     m_Lambda.resize(n, INF);

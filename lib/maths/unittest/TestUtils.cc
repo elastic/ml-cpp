@@ -162,7 +162,7 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage,
         CCdf cdf(percentage < 0.5 ? CCdf::E_Lower : CCdf::E_Upper, *m_Prior, percentage);
         TDoubleDoublePr fBracket(cdf(bracket.first), cdf(bracket.second));
 
-        std::size_t maxIterations = 100u;
+        std::size_t maxIterations = 100;
         for (/**/; fBracket.first * fBracket.second > 0.0 && maxIterations > 0; --maxIterations) {
             step *= 2.0;
             if (fBracket.first > 0.0) {
@@ -195,7 +195,7 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
         CCompositeFunctions::CProduct<bool (*)(double, double&), TMarginalLikelihood>;
 
     const double eps = 1e-3;
-    unsigned int steps = 100u;
+    unsigned int steps = 100;
 
     result = 0.0;
 
@@ -239,7 +239,7 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double& result) cons
         CCompositeFunctions::CProduct<CResidual, TMarginalLikelihood>;
 
     const double eps = 1e-3;
-    unsigned int steps = 100u;
+    unsigned int steps = 100;
 
     result = 0.0;
 

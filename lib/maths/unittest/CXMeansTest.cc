@@ -126,11 +126,11 @@ public:
         POINT variances = maths::CBasicStatistics::variance(moments);
 
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator variance_;
-        for (std::size_t i = 0u; i < variances.dimension(); ++i) {
+        for (std::size_t i = 0; i < variances.dimension(); ++i) {
             variance_.add(variances(i));
         }
         double variance = maths::CBasicStatistics::mean(variance_);
-        for (std::size_t i = 0u; i < points.size(); ++i) {
+        for (std::size_t i = 0; i < points.size(); ++i) {
             m_Divergence.add(-logfSphericalGaussian(mean, variance, points[i]));
         }
     }
@@ -144,9 +144,9 @@ void computePurities(const TSizeVecVec& clusters, TDoubleVec& purities) {
     purities.resize(clusters.size());
 
     TSizeVec counts;
-    for (std::size_t i = 0u; i < clusters.size(); ++i) {
+    for (std::size_t i = 0; i < clusters.size(); ++i) {
         counts.clear();
-        for (std::size_t j = 0u; j < clusters[i].size(); ++j) {
+        for (std::size_t j = 0; j < clusters[i].size(); ++j) {
             counts.resize(std::max(counts.size(), clusters[i][j] + 1));
             ++counts[clusters[i][j]];
         }
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
     TDoubleVec samples;
     rng.generateUniformSamples(-100.0, 400.0, 800, samples);
 
-    for (std::size_t t = 0u; t < 100; ++t) {
+    for (std::size_t t = 0; t < 100; ++t) {
         LOG_DEBUG(<< "Test " << t);
         {
             maths::CXMeans<TVector2>::CCluster cluster1;
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
             BOOST_REQUIRE_EQUAL(std::size_t(0), cluster2.size());
 
             TVector2Vec points;
-            for (std::size_t i = 0u; i < samples.size(); i += 2) {
+            for (std::size_t i = 0; i < samples.size(); i += 2) {
                 points.push_back(TVector2(&samples[i], &samples[i + 2]));
             }
             TVector2Vec pointsCopy(points);
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
             BOOST_REQUIRE_EQUAL(std::size_t(0), cluster2.size());
 
             TVector4Vec points;
-            for (std::size_t i = 0u; i < samples.size(); i += 4) {
+            for (std::size_t i = 0; i < samples.size(); i += 4) {
                 points.push_back(TVector4(&samples[i], &samples[i + 4]));
             }
             TVector4Vec pointsCopy(points);
@@ -228,11 +228,11 @@ BOOST_AUTO_TEST_CASE(testImproveStructure) {
 
     TMeanAccumulator meanError;
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "Test " << t);
 
         TVector2Vec points;
-        for (std::size_t i = 0u; i < 2; ++i) {
+        for (std::size_t i = 0; i < 2; ++i) {
             TVector2 mean(&means[i][0], &means[i][2]);
             TMatrix2 covariance(&covariances[i][0], &covariances[i][3]);
             TVector2Vec cluster;
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(testImproveStructure) {
 
         TVector2Vec clusters;
         TUInt64Vec oldChecksums;
-        for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+        for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
             clusters.push_back(xmeans.clusters()[i].centre());
             oldChecksums.push_back(xmeans.clusters()[i].checksum());
         }
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE(testImproveStructure) {
         std::sort(oldChecksums.begin(), oldChecksums.end());
         LOG_DEBUG(<< "centres = " << core::CContainerPrinter::print(clusters));
 
-        for (std::size_t i = 0u; i < clusters.size(); ++i) {
+        for (std::size_t i = 0; i < clusters.size(); ++i) {
             TVector2 mean(&means[i][0], &means[i][2]);
             double error = (clusters[i] - mean).euclidean();
             BOOST_TEST_REQUIRE(error < 0.75);
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testImproveStructure) {
         // as inactive.
         xmeans.improveStructure(2, 5);
         TUInt64Vec newChecksums;
-        for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+        for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
             clusters.push_back(xmeans.clusters()[i].centre());
             newChecksums.push_back(xmeans.clusters()[i].checksum());
         }
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE(testImproveStructure) {
                               newChecksums.begin(), newChecksums.end(),
                               std::back_inserter(inactive));
         LOG_DEBUG(<< "inactive = " << core::CContainerPrinter::print(inactive));
-        for (std::size_t i = 0u; i < inactive.size(); ++i) {
+        for (std::size_t i = 0; i < inactive.size(); ++i) {
             BOOST_TEST_REQUIRE(xmeans.inactive().count(inactive[i]) > 0);
         }
     }
@@ -294,11 +294,11 @@ BOOST_AUTO_TEST_CASE(testImproveParams) {
     double means[][2] = {{10.0, 20.0}, {30.0, 30.0}};
     double covariances[][3] = {{10.0, -3.0, 15.0}, {20.0, 2.0, 5.0}};
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "Test " << t);
 
         TVector2Vec points;
-        for (std::size_t i = 0u; i < 2; ++i) {
+        for (std::size_t i = 0; i < 2; ++i) {
             TVector2 mean(&means[i][0], &means[i][2]);
             TMatrix2 covariance(&covariances[i][0], &covariances[i][3]);
             TVector2Vec cluster;
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE(testImproveParams) {
         xmeans.improveStructure(2, 1);
 
         TVector2Vec seedCentres;
-        for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+        for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
             seedCentres.push_back(xmeans.clusters()[i].centre());
         }
         std::sort(seedCentres.begin(), seedCentres.end());
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(testImproveParams) {
         std::sort(expectedCentres.begin(), expectedCentres.end());
 
         TVector2Vec centres;
-        for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+        for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
             centres.push_back(xmeans.clusters()[i].centre());
         }
         std::sort(centres.begin(), centres.end());
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(testOneCluster) {
         xmeans.run(3, 3, 5);
 
         CEmpiricalKullbackLeibler klc;
-        for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+        for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
             klc.add(xmeans.clusters()[i].points());
         }
 
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(testFiveClusters) {
         flatPoints.clear();
         CEmpiricalKullbackLeibler kl;
 
-        for (std::size_t i = 0u; i < points.size(); ++i) {
+        for (std::size_t i = 0; i < points.size(); ++i) {
             kl.add(points[i]);
             flatPoints.insert(flatPoints.end(), points[i].begin(), points[i].end());
             std::sort(points[i].begin(), points[i].end());
@@ -441,18 +441,18 @@ BOOST_AUTO_TEST_CASE(testFiveClusters) {
         CEmpiricalKullbackLeibler klc;
         TSizeVecVec trueClusters(xmeans.clusters().size());
 
-        std::size_t n = 0u;
-        for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+        std::size_t n = 0;
+        for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
             const TVector2Vec& clusterPoints = xmeans.clusters()[i].points();
 
             klc.add(clusterPoints);
             n += clusterPoints.size();
 
             //file << "y" << t+1 << i+1 << " = [";
-            for (std::size_t j = 0u; j < clusterPoints.size(); ++j) {
+            for (std::size_t j = 0; j < clusterPoints.size(); ++j) {
                 //file << clusterPoints[j](0) << "," << clusterPoints[j](1) << "\n";
 
-                std::size_t k = 0u;
+                std::size_t k = 0;
                 for (/**/; k < points.size(); ++k) {
                     for (TVector2VecCItr
                              itr = std::lower_bound(points[k].begin(), points[k].end(),
@@ -482,7 +482,7 @@ BOOST_AUTO_TEST_CASE(testFiveClusters) {
 
         double minPurity = 1.0;
         TMeanAccumulator totalPurity;
-        for (std::size_t i = 0u; i < purities.size(); ++i) {
+        for (std::size_t i = 0; i < purities.size(); ++i) {
             minPurity = std::min(minPurity, purities[i]);
             totalPurity.add(purities[i],
                             static_cast<double>(xmeans.clusters()[i].size()));
@@ -539,7 +539,7 @@ BOOST_AUTO_TEST_CASE(testTwentyClusters) {
     CEmpiricalKullbackLeibler kl;
     TVector2Vec flatPoints;
 
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    for (std::size_t i = 0; i < points.size(); ++i) {
         kl.add(points[i]);
         flatPoints.insert(flatPoints.end(), points[i].begin(), points[i].end());
         std::sort(points[i].begin(), points[i].end());
@@ -559,18 +559,18 @@ BOOST_AUTO_TEST_CASE(testTwentyClusters) {
     CEmpiricalKullbackLeibler klc;
     TSizeVecVec trueClusters(xmeans.clusters().size());
 
-    std::size_t n = 0u;
-    for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+    std::size_t n = 0;
+    for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
         const TVector2Vec& clusterPoints = xmeans.clusters()[i].points();
 
         klc.add(clusterPoints);
         n += clusterPoints.size();
 
         //file << "y" << i+1 << " = [";
-        for (std::size_t j = 0u; j < clusterPoints.size(); ++j) {
+        for (std::size_t j = 0; j < clusterPoints.size(); ++j) {
             //file << clusterPoints[j](0) << "," << clusterPoints[j](1) << "\n";
 
-            std::size_t k = 0u;
+            std::size_t k = 0;
             for (/**/; k < points.size(); ++k) {
                 for (TVector2VecCItr
                          itr = std::lower_bound(points[k].begin(),
@@ -600,7 +600,7 @@ BOOST_AUTO_TEST_CASE(testTwentyClusters) {
 
     double minPurity = 1.0;
     TMeanAccumulator totalPurity;
-    for (std::size_t i = 0u; i < purities.size(); ++i) {
+    for (std::size_t i = 0; i < purities.size(); ++i) {
         minPurity = std::min(minPurity, purities[i]);
         totalPurity.add(purities[i], static_cast<double>(xmeans.clusters()[i].size()));
     }
@@ -636,27 +636,27 @@ BOOST_AUTO_TEST_CASE(testPoorlyConditioned) {
         {53.0, 52.0},  {51.0, 52.0}};
 
     TVector2Vec cluster1;
-    for (std::size_t i = 0u; i < 10; ++i) {
+    for (std::size_t i = 0; i < 10; ++i) {
         cluster1.push_back(TVector2(&points_[i][0], &points_[i][2]));
     }
     std::sort(cluster1.begin(), cluster1.end());
     TVector2Vec cluster2;
-    for (std::size_t i = 10u; i < 20; ++i) {
+    for (std::size_t i = 10; i < 20; ++i) {
         cluster2.push_back(TVector2(&points_[i][0], &points_[i][2]));
     }
     std::sort(cluster2.begin(), cluster2.end());
     TVector2Vec cluster3;
-    for (std::size_t i = 20u; i < boost::size(points_); ++i) {
+    for (std::size_t i = 20; i < boost::size(points_); ++i) {
         cluster3.push_back(TVector2(&points_[i][0], &points_[i][2]));
     }
     std::sort(cluster3.begin(), cluster3.end());
 
     maths::CXMeans<TVector2, maths::CGaussianInfoCriterion<TVector2, maths::E_BIC>> xmeans(5);
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "*** test = " << t << " ***");
 
         TVector2Vec points;
-        for (std::size_t i = 0u; i < boost::size(points_); ++i) {
+        for (std::size_t i = 0; i < boost::size(points_); ++i) {
             points.push_back(TVector2(&points_[i][0], &points_[i][2]));
         }
 
@@ -664,7 +664,7 @@ BOOST_AUTO_TEST_CASE(testPoorlyConditioned) {
         xmeans.run(4, 4, 5);
 
         LOG_DEBUG(<< "# clusters = " << xmeans.clusters().size());
-        for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+        for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
             TVector2Vec clusterPoints = xmeans.clusters()[i].points();
             std::sort(clusterPoints.begin(), clusterPoints.end());
             LOG_DEBUG(<< "points = " << core::CContainerPrinter::print(clusterPoints));

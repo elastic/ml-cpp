@@ -452,7 +452,7 @@ operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& 
         return 1.0;
     }
 
-    const unsigned int MAX_ITERATIONS = 20u;
+    const unsigned int MAX_ITERATIONS = 20;
     std::size_t maxIterations = MAX_ITERATIONS;
 
     double b1, b2, f1, f2;
@@ -638,7 +638,7 @@ operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const 
         return truncate(2.0 * cdfComplement(logt, x), 0.0, 1.0);
     }
 
-    const unsigned int MAX_ITERATIONS = 20u;
+    const unsigned int MAX_ITERATIONS = 20;
 
     double fx = pdf(logt, x);
     double m = mode(logt);
@@ -860,7 +860,7 @@ operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
 
     const double CONVERGENCE_TOLERANCE = 1e-4;
     const double PDF_TOLERANCE = 5e-2;
-    const unsigned int MAX_ITERATIONS = 20u;
+    const unsigned int MAX_ITERATIONS = 20;
 
     double m = boost::math::mode(gamma_);
     LOG_TRACE(<< "x = " << x << ", mode = " << m);
@@ -868,7 +868,7 @@ operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
     this->tail(x, m, tail);
 
     double y[] = {2.0 * m - x, 0.0};
-    unsigned int i = 0u;
+    unsigned int i = 0;
 
     if (x == m) {
         return 1.0;
@@ -1085,11 +1085,11 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
 
     const double CONVERGENCE_TOLERANCE = 1e-4;
     const double PDF_TOLERANCE = 5e-2;
-    const unsigned int MAX_ITERATIONS = 6u;
+    const unsigned int MAX_ITERATIONS = 6;
 
     TDoubleBoolPr sp = stationaryPoint(beta_);
     double y[] = {2.0 * sp.first - x, 0.0};
-    unsigned int i = 0u;
+    unsigned int i = 0;
 
     this->tail(x, sp.first, tail);
 
@@ -1346,7 +1346,7 @@ void CTools::CMixtureProbabilityOfLessLikelySample::intervals(TDoubleDoublePrVec
     m_Endpoints.erase(std::unique(m_Endpoints.begin(), m_Endpoints.end()),
                       m_Endpoints.end());
     intervals.reserve(m_Endpoints.size() - 1);
-    for (std::size_t i = 1u; i < m_Endpoints.size(); ++i) {
+    for (std::size_t i = 1; i < m_Endpoints.size(); ++i) {
         intervals.emplace_back(m_Endpoints[i - 1], m_Endpoints[i]);
     }
     LOG_TRACE(<< "intervals = " << core::CContainerPrinter::print(intervals));
@@ -1922,7 +1922,7 @@ double CTools::powOneMinusX(double x, double p) {
     if (std::fabs(y) < EPS) {
         double remainder = 0.0;
         double ti = 1.0;
-        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0) {
+        for (std::size_t i = 0; i < N && p != 0.0; ++i, p -= 1.0) {
             ti *= p * x;
             remainder += COEFFS[i] * ti;
         }
@@ -1965,7 +1965,7 @@ double CTools::oneMinusPowOneMinusX(double x, double p) {
     if (std::fabs(y) < EPS) {
         double result = 0.0;
         double ti = 1.0;
-        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0) {
+        for (std::size_t i = 0; i < N && p != 0.0; ++i, p -= 1.0) {
             ti *= p * x;
             result -= COEFFS[i] * ti;
         }
@@ -1987,7 +1987,7 @@ double CTools::logOneMinusX(double x) {
 
     if (std::fabs(x) < EPS) {
         double xi = -x;
-        for (std::size_t i = 0u; i < 6; ++i, xi *= -x) {
+        for (std::size_t i = 0; i < 6; ++i, xi *= -x) {
             result += xi / static_cast<double>(i + 1);
         }
     } else {

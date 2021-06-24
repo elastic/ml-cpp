@@ -71,7 +71,15 @@ struct SMultimodalPriorMode {
                                    std::ref(s_Prior), std::placeholders::_1)))
         } while (traverser.next());
 
+        this->checkRestoredInvariants();
+
         return true;
+    }
+
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const {
+        VIOLATES_INVARIANT_NO_EVALUATION(s_Prior, ==, nullptr);
     }
 
     //! Persist state by passing information to the supplied inserter.
@@ -90,7 +98,7 @@ struct SMultimodalPriorMode {
         }
         std::ostringstream result;
         result << std::scientific << std::setprecision(15) << modes[0].weight();
-        for (std::size_t i = 1u; i < modes.size(); ++i) {
+        for (std::size_t i = 1; i < modes.size(); ++i) {
             result << " " << modes[i].weight();
         }
         return result.str();

@@ -122,7 +122,7 @@ void importData(ml::core_t::TTime firstTime,
     using TifstreamPtrVec = std::vector<TifstreamPtr>;
 
     TifstreamPtrVec ifss;
-    for (std::size_t i = 0u; i < fileNames.size(); ++i) {
+    for (std::size_t i = 0; i < fileNames.size(); ++i) {
         TifstreamPtr ifs(new std::ifstream(fileNames[i].c_str()));
         BOOST_TEST_REQUIRE(ifs->is_open());
         ifss.push_back(ifs);
@@ -131,7 +131,7 @@ void importData(ml::core_t::TTime firstTime,
     ml::core_t::TTime lastBucketTime = ml::maths::CIntegerTools::ceil(firstTime, bucketLength);
 
     TTimeVec times(ifss.size());
-    for (std::size_t i = 0u; i < ifss.size(); ++i) {
+    for (std::size_t i = 0; i < ifss.size(); ++i) {
         std::string line;
         std::getline(*ifss[i], line);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(line, times[i]));
@@ -209,9 +209,9 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
 
     BOOST_REQUIRE_EQUAL(EXPECTED_ANOMALOUS_HOURS, peaks.size());
 
-    std::size_t detected503 = 0u;
-    std::size_t detectedMySQL = 0u;
-    for (std::size_t i = 0u; i < peaks.size(); ++i) {
+    std::size_t detected503 = 0;
+    std::size_t detectedMySQL = 0;
+    for (std::size_t i = 0; i < peaks.size(); ++i) {
         LOG_DEBUG(<< "Checking for status 503 anomaly at " << peaks[i]);
         if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/status503.txt"))) {
             ++detected503;

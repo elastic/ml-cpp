@@ -103,8 +103,8 @@ void CHierarchicalResultsAggregator::setJob(EJob job) {
 void CHierarchicalResultsAggregator::refresh(const CAnomalyDetectorModelConfig& modelConfig) {
     m_DecayRate = modelConfig.decayRate();
     m_MaximumAnomalousProbability = modelConfig.maximumAnomalousProbability();
-    for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
-        for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
+    for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+        for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
             m_Parameters[i][j] = modelConfig.aggregationStyleParam(
                 static_cast<model_t::EAggregationStyle>(i),
                 static_cast<model_t::EAggregationParam>(j));
@@ -236,7 +236,7 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(
     using TSizeFSet = boost::container::flat_set<std::size_t>;
     using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
 
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         partition[i].reserve(node.s_Children.size());
     }
 
@@ -313,7 +313,7 @@ void CHierarchicalResultsAggregator::detectorProbabilities(
 
     TIntDouble1VecFMap detectorProbabilities;
     detectorProbabilities.reserve(numberDetectors);
-    for (int i = 0u; i < static_cast<int>(N); ++i) {
+    for (int i = 0; i < static_cast<int>(N); ++i) {
         const double* params{m_Parameters[i]};
         for (const auto& subset : partition[i]) {
             int detector_{subset.first.first};

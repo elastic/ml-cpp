@@ -204,7 +204,7 @@ bool CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser(const std::stri
         if (name == DATA_GATHERER_TAG) {
             m_DataGatherer.reset(
                 m_ModelFactory->makeDataGatherer(partitionFieldValue, traverser));
-            if (!m_DataGatherer) {
+            if (m_DataGatherer == nullptr || m_DataGatherer->checkInvariants() == false) {
                 LOG_ERROR(<< "Failed to restore the data gatherer from "
                           << traverser.value());
                 return false;
