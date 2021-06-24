@@ -31,9 +31,9 @@
 namespace {
 const std::string INFERENCE{"inference"};
 const std::string ERROR{"error"};
-const std::string TIME{"time"};
+const std::string TIME_MS{"time_ms"};
 
-ml::core::CStopWatch stopWatch; 
+ml::core::CStopWatch stopWatch;
 }
 
 torch::Tensor infer(torch::jit::script::Module& module,
@@ -103,12 +103,12 @@ void writeError(const std::string& requestId,
 }
 
 void writeDocumentOpening(const std::string& requestId,
-                          std::uint64_t timeMs,  
+                          std::uint64_t timeMs,
                           ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
-    jsonWriter.Key(TIME);
+    jsonWriter.Key(TIME_MS);
     jsonWriter.Uint64(timeMs);
     jsonWriter.Key(INFERENCE);
     jsonWriter.StartArray();
@@ -153,7 +153,7 @@ void writePrediction(const torch::Tensor& prediction,
 bool handleRequest(ml::torch::CCommandParser::SRequest& request,
                    torch::jit::script::Module& module,
                    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
-    
+
     try {
         LOG_DEBUG(<< "Inference request with id: " << request.s_RequestId);
         stopWatch.reset(true);

@@ -166,7 +166,7 @@ def main():
                     tolerance = test_evaluation[doc_count]['how_close']                    
 
 
-                total_time_ms += result['time']
+                total_time_ms += result['time_ms']
 
 
                 # compare to expected
