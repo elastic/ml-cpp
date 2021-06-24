@@ -149,6 +149,7 @@ def main():
         print("reading results...", flush=True)
         with open(args.output_file) as output_file:
 
+            total_time_ms = 0
             doc_count = 0
             results_match = True
             try:
@@ -164,6 +165,10 @@ def main():
                 if 'how_close' in test_evaluation[doc_count]:
                     tolerance = test_evaluation[doc_count]['how_close']                    
 
+
+                total_time_ms += result['time']
+
+
                 # compare to expected
                 if compare_results(expected, result, tolerance) == False:
                     print()
@@ -172,6 +177,10 @@ def main():
                     results_match = False
 
                 doc_count = doc_count +1
+
+            print()
+            print('{} requests evaluated in {} ms'.format(doc_count, total_time_ms))
+            print()
 
             if doc_count != len(test_evaluation): 
                 print()
