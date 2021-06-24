@@ -504,11 +504,6 @@ public:
     //!
     //! \warning This MUST be called after the last row is written to commit the
     //! work and to join the thread used to store the slices.
-    void finishWritingBatchOfRows();
-
-    //! This calls finishWritingBatchOfRows and recovers memory.
-    //!
-    //! \note Call if no more rows are going to be written.
     void finishWritingRows();
 
     //! \return The column names if any.
@@ -580,6 +575,8 @@ private:
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
 
 private:
+    void fillCategoricalColumnValueLookup();
+
     bool parallelApplyToAllRows(std::size_t beginRows,
                                 std::size_t endRows,
                                 TRowFuncVec& funcs,
