@@ -313,7 +313,7 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) ->
         Job: [description]
     """
     data_file = tempfile.NamedTemporaryFile(mode='wt')
-    dataset.to_csv(data_file, index=False)
+    dataset.to_csv(data_file, index=False, na_rep='\0')
     data_file.file.close()
 
     with open('../configs/{}.json'.format(dataset_name)) as fc:
@@ -342,7 +342,7 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str, verbose: 
         Job: [description]
     """
     fdata = tempfile.NamedTemporaryFile(mode='wt')
-    dataset.to_csv(fdata, index=False)
+    dataset.to_csv(fdata, index=False, na_rep=0)
     fdata.file.close()
     with open('../configs/{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
@@ -370,7 +370,7 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
         Job: new Job object
     """
     fdata = tempfile.NamedTemporaryFile(mode='wt')
-    dataset.to_csv(fdata, index=False)
+    dataset.to_csv(fdata, index=False, na_rep=0)
     fdata.file.close()
     with open('../configs/{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
