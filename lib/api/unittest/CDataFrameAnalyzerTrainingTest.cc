@@ -334,7 +334,7 @@ void readIncrementalTrainingState(const std::string& resultsJson,
                                   double& etaGrowthRatePerTree,
                                   double& downsampleFactor,
                                   double& featureBagFraction,
-                                  std::ostream& dataSummarizationStream) {
+                                  std::ostream& incrementalTrainingState) {
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(resultsJson));
@@ -345,9 +345,9 @@ void readIncrementalTrainingState(const std::string& resultsJson,
     core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
         inferenceModelStreamWrapper};
 
-    rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
+    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
     core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-        dataSummarizationStreamWrapper};
+        incrementalTrainingStateWrapper};
 
     // Read the state used to initialize incremental training.
     for (const auto& result : results.GetArray()) {
@@ -384,7 +384,7 @@ void readIncrementalTrainingState(const std::string& resultsJson,
             }
         }
     }
-    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
+    incrementalTrainingState << '\0' << inferenceModelStream.str() << '\0';
 }
 }
 
@@ -760,7 +760,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
     actualPredictions.reserve(numberExamples);
 
     std::stringstream inferenceModelStream;
-    std::stringstream dataSummarizationStream;
+    std::stringstream incrementalTrainingState;
     std::stringstream outputStream;
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
@@ -782,9 +782,9 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
         core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
             inferenceModelStreamWrapper};
 
-        rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
+        rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
         core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-            dataSummarizationStreamWrapper};
+            incrementalTrainingStateWrapper};
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(outputStream.str()));
@@ -803,9 +803,9 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberExamples);
 
     // Pass model definition and data summarization into the restore stream.
-    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
+    incrementalTrainingState << '\0' << inferenceModelStream.str() << '\0';
     auto restoreStreamPtr =
-        std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
+        std::make_shared<std::stringstream>(std::move(incrementalTrainingState));
     TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
         return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
     }};
@@ -868,7 +868,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
     actualPredictions.reserve(numberExamples);
 
     std::stringstream inferenceModelStream;
-    std::stringstream dataSummarizationStream;
+    std::stringstream incrementalTrainingState;
     std::stringstream outputStream;
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
@@ -901,9 +901,9 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
         core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
             inferenceModelStreamWrapper};
 
-        rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
+        rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
         core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-            dataSummarizationStreamWrapper};
+            incrementalTrainingStateWrapper};
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(outputStream.str()));
@@ -922,9 +922,9 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberExamples);
 
     // Pass model definition and data summarization into the restore stream.
-    dataSummarizationStream << '\0' << inferenceModelStream.str() << '\0';
+    incrementalTrainingState << '\0' << inferenceModelStream.str() << '\0';
     auto restoreStreamPtr =
-        std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
+        std::make_shared<std::stringstream>(std::move(incrementalTrainingState));
     TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
         return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
     }};
@@ -1051,19 +1051,19 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
 
     // Retrieve documents from the result stream that will be used to restore the model.
 
-    std::stringstream dataSummarizationStream;
-    rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
+    std::stringstream incrementalTrainingState;
+    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
     core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-        dataSummarizationStreamWrapper};
+        incrementalTrainingStateWrapper};
 
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
-                                 featureBagFraction, dataSummarizationStream);
+                                 featureBagFraction, incrementalTrainingState);
 
     // Pass model definition and data summarization into the restore stream.
     auto restoreStreamPtr =
-        std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
+        std::make_shared<std::stringstream>(std::move(incrementalTrainingState));
     TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
         return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
     }};
@@ -1086,14 +1086,14 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     // Read the predictions.
-    TDoubleVec expectedPredictions;
+    TDoubleVec predictions;
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            expectedPredictions.emplace_back(
+            predictions.emplace_back(
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
         }
     }
-    BOOST_REQUIRE_EQUAL(numberExamples, expectedPredictions.size());
+    BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
 
     frame->resizeColumns(1, weights.size() + 1);
     TDoubleVecVec newTrainingData;
@@ -1124,13 +1124,12 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     regression->trainIncremental();
     regression->predict();
 
-    auto expectedPrediction = expectedPredictions.begin();
+    auto prediction = predictions.begin();
     frame->readRows(1, 0, frame->numberRows(),
                     [&](const TRowItr& beginRows, const TRowItr& endRows) {
                         for (auto row = beginRows; row != endRows; ++row) {
                             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                                (*expectedPrediction++),
-                                regression->readPrediction(*row)[0], 1e-6);
+                                (*prediction++), regression->readPrediction(*row)[0], 1e-6);
                         }
                     },
                     &newTrainingRowMask);
@@ -1443,19 +1442,19 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
 
     // Retrieve documents from the result stream that will be used to restore the model.
 
-    std::stringstream dataSummarizationStream;
-    rapidjson::OStreamWrapper dataSummarizationStreamWrapper(dataSummarizationStream);
+    std::stringstream incrementalTrainingState;
+    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
     core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-        dataSummarizationStreamWrapper};
+        incrementalTrainingStateWrapper};
 
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
-                                 featureBagFraction, dataSummarizationStream);
+                                 featureBagFraction, incrementalTrainingState);
 
     // Pass model definition and data summarization into the restore stream.
     auto restoreStreamPtr =
-        std::make_shared<std::stringstream>(std::move(dataSummarizationStream));
+        std::make_shared<std::stringstream>(std::move(incrementalTrainingState));
     TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
         return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
     }};
@@ -1478,14 +1477,14 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
     // Read the predictions.
-    TDoubleVec expectedPredictions;
+    TDoubleVec predictions;
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            expectedPredictions.emplace_back(
+            predictions.emplace_back(
                 result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble());
         }
     }
-    BOOST_REQUIRE_EQUAL(numberExamples, expectedPredictions.size());
+    BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
 
     frame->resizeColumns(1, weights.size() + 1);
     TDoubleVecVec newTrainingData;
@@ -1516,12 +1515,12 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     classification->trainIncremental();
     classification->predict();
 
-    auto expectedPrediction = expectedPredictions.begin();
+    auto prediction = predictions.begin();
     frame->readRows(
         1, 0, frame->numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                double prediction{classification->readPrediction(*row)[0]};
+                double expectedPrediction{classification->readPrediction(*row)[0]};
                 // The prediction_probability result contains the highest scoring
                 // class probability which is usually, but not always, the highest
                 // class probability. The probability of the prediction result is
@@ -1530,9 +1529,9 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
                 // the prediction_probability matches the probability of one of the
                 // classes, since it is very unlikely to match the wrong class by
                 // chance.
-                BOOST_REQUIRE((std::fabs(*expectedPrediction - prediction) < 1e-6) ||
-                              (std::fabs(*expectedPrediction + prediction - 1.0) < 1e-6));
-                ++expectedPrediction;
+                BOOST_REQUIRE((std::fabs(*prediction - expectedPrediction) < 1e-6) ||
+                              (std::fabs(*prediction + expectedPrediction - 1.0) < 1e-6));
+                ++prediction;
             }
         },
         &newTrainingRowMask);
