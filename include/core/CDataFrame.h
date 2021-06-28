@@ -498,11 +498,9 @@ public:
     //! Write the values of the categories for each column.
     void categoricalColumnValues(TStrVecVec categoricalColumnValues);
 
-    //! This retrieves the asynchronous work from writing the rows to the store
-    //! and updates the stored rows.
-    //!
-    //! Until this is called the written rows are not visible outside the data
-    //! frame.
+    //! This finishes the asynchronous task of writing rows to the store and
+    //! publishes them. Until this is called the written rows are not visible
+    //! outside the data frame.
     //!
     //! \warning This MUST be called after the last row is written to commit the
     //! work and to join the thread used to store the slices.
@@ -577,6 +575,8 @@ private:
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
 
 private:
+    void fillCategoricalColumnValueLookup();
+
     bool parallelApplyToAllRows(std::size_t beginRows,
                                 std::size_t endRows,
                                 TRowFuncVec& funcs,
