@@ -10,4 +10,4 @@ libtmux
 graphviz
 pathlib2            ==2.3.5
 nbsmoke             ==0.5.0
-incremental_learning==0.1
+bump2version        ==1.0.1
