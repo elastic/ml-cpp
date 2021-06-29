@@ -80,6 +80,8 @@ public:
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
+    //! Set the maximum number of rows to use for training when tuning hyperparameters.
+    CBoostedTreeFactory& maximumNumberTrainRows(std::size_t rows);
     //! Stratify the cross-validation we do for regression.
     CBoostedTreeFactory& stratifyRegressionCrossValidation(bool stratify);
     //! Stop cross-validation early if the test loss is not promising.
@@ -275,6 +277,7 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_StratifyRegressionCrossValidation = true;
     double m_InitialDownsampleRowsPerFeature = 200.0;
+    std::size_t m_MaximumNumberOfTrainRows = 1000000;
     double m_GainPerNode1stPercentile = 0.0;
     double m_GainPerNode50thPercentile = 0.0;
     double m_GainPerNode90thPercentile = 0.0;

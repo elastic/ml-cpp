@@ -125,8 +125,6 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
         this->initializeHyperparameterOptimisation();
     }
 
-    LOG_INFO(<< "number threads = " << m_NumberThreads);
-
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
@@ -334,18 +332,35 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
         // to find the smallest integer k s.t. c * f * # rows <= (1 - 1 / k) * # rows.
         // This gives k = ceil(1 / (1 - c * f)). However, we also upper bound this
         // by MAX_NUMBER_FOLDS.
+        //
+        // In addition, we want to constrain the maximum amount of training data we'll
+        // use during hyperparameter search to avoid very long run times. To do this
+        // we set the number of folds to be less than two. We define the size of the
+        // training data set to be (k - 1) / k * # rows, with k the number of folds.
+        // If k < 2 this means we end up selecting less than half the data for training.
+        // To meet the constraint on the maximum number of rows M we must choose k
+        // which satisfies M >= (k - 1) / k * # rows. This is trivially satisfied for
+        // # rows less than M and, given we also constrain the maximum number of folds,
+        // we only care if # rows > MAX_NUMBER_FOLDS * M / (MAX_NUMBER_FOLDS - 1).
 
         double initialDownsampleFraction{(m_InitialDownsampleRowsPerFeature *
                                           static_cast<double>(frame.numberColumns() - 1)) /
                                          static_cast<double>(totalNumberTrainingRows)};
-
-        m_TreeImpl->m_NumberFolds = static_cast<std::size_t>(
+        double minimumTrainingDataConstraintNumberFolds{
             std::ceil(1.0 / std::max(1.0 - initialDownsampleFraction / MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION,
-                                     1.0 / MAX_NUMBER_FOLDS)));
+                                     1.0 / MAX_NUMBER_FOLDS))};
+        double maximumTrainingDataConstraintNumberFolds{
+            1.0 / (1.0 - static_cast<double>(m_MaximumNumberOfTrainRows) /
+                             std::max(static_cast<double>(frame.numberRows()),
+                                      MAX_NUMBER_FOLDS / (MAX_NUMBER_FOLDS - 1.0) *
+                                          static_cast<double>(m_MaximumNumberOfTrainRows)))};
+
+        m_TreeImpl->m_FractionalFolds = std::min(minimumTrainingDataConstraintNumberFolds,
+                                                 maximumTrainingDataConstraintNumberFolds);
         LOG_TRACE(<< "initial downsample fraction = " << initialDownsampleFraction
-                  << " # folds = " << m_TreeImpl->m_NumberFolds);
+                  << " # folds = " << m_TreeImpl->m_FractionalFolds);
     } else {
-        m_TreeImpl->m_NumberFolds = *m_TreeImpl->m_NumberFoldsOverride;
+        m_TreeImpl->m_FractionalFolds = static_cast<double>(*m_TreeImpl->m_NumberFoldsOverride);
     }
 }
 
@@ -378,7 +393,7 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
     std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, std::ignore) =
         CDataFrameUtils::stratifiedCrossValidationRowMasks(
             m_TreeImpl->m_NumberThreads, frame, dependentVariable, m_TreeImpl->m_Rng,
-            m_TreeImpl->m_NumberFolds, numberBuckets, allTrainingRowsMask);
+            m_TreeImpl->m_FractionalFolds, numberBuckets, allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const {
@@ -813,8 +828,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                 fallback(MAX_PARAMETER_INDEX) = logMaxDownsampleFactor;
 
                 m_LogDownsampleFactorSearchInterval =
-                    this->testLossLineSearch(frame, applyDownsampleFactor,
-                                             logMinDownsampleFactor,
+                    this->testLossLineSearch(frame, applyDownsampleFactor, logMinDownsampleFactor,
                                              logMaxDownsampleFactor, adjustTestLoss)
                         .value_or(fallback);
 
@@ -869,9 +883,10 @@ void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& fr
                 // larger than the minimum.
                 auto adjustTestLoss = [=](double logFeatureBagFraction,
                                           double minTestLoss, double testLoss) {
-                    return testLoss + CTools::linearlyInterpolate(
-                                          logMinFeatureBagFraction, logMaxFeatureBagFraction,
-                                          0.0, 0.01 * minTestLoss, logFeatureBagFraction);
+                    return testLoss +
+                           CTools::linearlyInterpolate(
+                               logMinFeatureBagFraction, logMaxFeatureBagFraction,
+                               0.0, 0.01 * minTestLoss, logFeatureBagFraction);
                 };
 
                 TVector fallback;
@@ -1086,7 +1101,8 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     std::tie(bestParameter, bestParameterTestLoss) = lowess.minimum();
     LOG_INFO(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss);
 
-    double width{(intervalRightEnd - intervalLeftEnd) / static_cast<double>(MAX_LINE_SEARCH_ITERATIONS)};
+    double width{(intervalRightEnd - intervalLeftEnd) /
+                 static_cast<double>(MAX_LINE_SEARCH_ITERATIONS)};
     intervalLeftEnd = bestParameter - width;
     intervalRightEnd = bestParameter + width;
     LOG_INFO(<< "interval = [" << intervalLeftEnd << "," << intervalRightEnd << "]");
@@ -1161,6 +1177,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t numberFolds) {
         numberFolds = 2;
     }
     m_TreeImpl->m_NumberFoldsOverride = numberFolds;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberTrainRows(std::size_t rows) {
+    m_MaximumNumberOfTrainRows = rows;
     return *this;
 }
 
