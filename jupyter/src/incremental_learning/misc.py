@@ -19,7 +19,9 @@ import base64
 import gzip
 import heapq
 from operator import itemgetter
+
 from .trees import Tree, Forest
+from .config import datasets_dir, configs_dir
 
 # I assume, your host OS is not CentOS
 cloud = (platform.system() == 'Linux') and (platform.dist()[0] == 'centos')
@@ -316,7 +318,7 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) ->
     dataset.to_csv(data_file, index=False, na_rep='\0')
     data_file.file.close()
 
-    with open('../configs/{}.json'.format(dataset_name)) as fc:
+    with open(configs_dir / '{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0]
     config_file = tempfile.NamedTemporaryFile(mode='wt')
@@ -330,7 +332,7 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) ->
     return job
 
 
-def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str, verbose: bool = True) -> Job:
+def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True) -> Job:
     """Evaluate the model on a given dataset .
 
     Args:
@@ -344,15 +346,15 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str, verbose: 
     fdata = tempfile.NamedTemporaryFile(mode='wt')
     dataset.to_csv(fdata, index=False, na_rep=0)
     fdata.file.close()
-    with open('../configs/{}.json'.format(dataset_name)) as fc:
+    with open(configs_dir / '{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
-    config['rows'] = dataset.shape[0]
+    config['rows'] = dataset.shape[0] + original_job.get_data_summarization_num_rows()
     config['analysis']['parameters']['task'] = 'predict'
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)
     fconfig.file.close()
     fmodel = tempfile.NamedTemporaryFile(mode='wt')
-    fmodel.write(model)
+    fmodel.write(original_job.get_model_update_data())
     fmodel.file.close()
     job = run_job(input=fdata, config=fconfig, restore=fmodel, verbose=verbose)
     return job
@@ -372,7 +374,7 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
     fdata = tempfile.NamedTemporaryFile(mode='wt')
     dataset.to_csv(fdata, index=False, na_rep=0)
     fdata.file.close()
-    with open('../configs/{}.json'.format(dataset_name)) as fc:
+    with open(configs_dir / '{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0] + original_job.get_data_summarization_num_rows()
     for name, value  in original_job.get_hyperparameters().items():

@@ -9,5 +9,4 @@ seaborn             ==0.11.1
 libtmux
 graphviz
 pathlib2            ==2.3.5
-
 incremental_learning==0.1
