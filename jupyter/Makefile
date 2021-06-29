@@ -16,6 +16,7 @@ PIP := $(BIN)/pip
 # TOX := $(BIN)/tox
 PYTHON := $(BIN)/$(python)
 TEST_RUNNER := $(BIN)/py.test
+JUPYTER := $(BIN)/jupyter
 
 REQUIREMENTS := $(shell find ./ -name $(REQUIRE))
 REQUIREMENTS_LOG := .requirements.log
@@ -23,8 +24,12 @@ TEST_CODE := $(wildcard $(TESTDIR)/*.py)
 TEST_RUNNER_PKGS = pytest
 SRC_DIR := src/
 
+TEST_NOTEBOOKS := \
+	incremental_learning
+
 .PHONY: all
 .PHONY: test
+.PHONY: test-jupyter
 
 all: test
 
@@ -44,6 +49,9 @@ src: $(PIP) $(SRC_DIR)
 
 test: $(REQUIREMENTS_LOG) $(TEST_RUNNER)
 	$(TEST_RUNNER) $(args) $(TESTDIR)
+
+test-notebooks: $(addprefix notebooks/,$(TEST_NOTEBOOKS)) $(REQUIREMENTS_LOG) $(TEST_RUNNER) 
+	$(TEST_RUNNER) --nbsmoke-run $<
 
 $(TEST_RUNNER):
 	$(PIP) install $(TEST_RUNNER_PKGS) | tee -a $(REQUIREMENTS_LOG)
