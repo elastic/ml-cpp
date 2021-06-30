@@ -1,0 +1,17 @@
+{
+    "job_id": "dga-ngrams-test",
+    "rows": 20000,
+    "cols": 93,
+    "memory_limit": 50000000,
+    "threads": 3,
+    "results_field": "ml",
+    "categorical_fields" : ["f.b9","f.b8","f.b7","f.b6","f.b5","f.b4","f.b3","f.b2","f.b1","f.b0","f.u9","f.u8","f.u7","f.u6","f.u5","f.u4","f.u3","f.u2","f.u1","f.u0","f.tld","malicious","f.t8","f.t7","f.t6","f.t5","f.t4","f.t3","f.t2","f.t1","f.t0","f.u10","dns.response_code","f.t10","f.b11","f.b10","f.t9","f.u11","f.u12","f.t11","f.t12","f.b12","f.b13","f.u14","f.u13","f.u15","f.u16","f.t13","f.t14","f.b15","f.b14","f.b19","f.b18","f.b17","f.u20","f.u18","f.u19","f.u17","f.t15","f.t16","f.t17","f.t18","f.b16","f.b23","f.b22","f.b21","f.b20","f.b25","f.b24","f.u25","f.u26","f.u21","f.u22","f.u23","f.u24","f.t22","f.t23","f.t24","f.t20","f.t21","f.t19","f.b27","f.b26","f.u27","f.u28","f.t26","f.t25","f.b29","f.b28","f.u29","f.t27","f.t28","f.u30"],
+    "analysis": {
+      "name": "classification",
+      "parameters": {
+        "dependent_variable": "malicious",
+          "num_classes" : 2
+          
+      }
+    }
+  }

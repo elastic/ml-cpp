@@ -291,7 +291,7 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
 
     // This is only used when writing rows so is resized lazily.
     if (m_CategoricalColumnValueLookup.size() != m_NumberColumns) {
-        m_CategoricalColumnValueLookup.resize(m_NumberColumns);
+        this->fillCategoricalColumnValueLookup();
     }
 
     this->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
@@ -319,8 +319,9 @@ void CDataFrame::writeRow(const TWriteFunc& writeRow) {
 
 void CDataFrame::columnNames(TStrVec columnNames) {
     if (columnNames.size() != m_NumberColumns) {
-        HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns << "' column names values but got "
-                     << CContainerPrinter::print(columnNames));
+        HANDLE_FATAL(<< "Expected '" << m_NumberColumns << "' column names values but got "
+                     << columnNames.size() << ". The values are "
+                     << CContainerPrinter::print(columnNames) << ".");
     } else {
         m_ColumnNames = std::move(columnNames);
     }
@@ -347,9 +348,9 @@ void CDataFrame::categoricalColumns(TStrVec categoricalColumnNames) {
 
 void CDataFrame::categoricalColumns(TBoolVec columnIsCategorical) {
     if (columnIsCategorical.size() != m_NumberColumns) {
-        HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns
-                     << "' 'is categorical' column indicator values but got "
-                     << CContainerPrinter::print(columnIsCategorical));
+        HANDLE_FATAL(<< "Expected '" << m_NumberColumns << "' 'is categorical' column indicator values but got "
+                     << columnIsCategorical.size() << ". The values are "
+                     << CContainerPrinter::print(columnIsCategorical) << ".");
     } else {
         m_ColumnIsCategorical = std::move(columnIsCategorical);
     }
@@ -357,25 +358,17 @@ void CDataFrame::categoricalColumns(TBoolVec columnIsCategorical) {
 
 void CDataFrame::categoricalColumnValues(TStrVecVec categoricalColumnValues) {
     if (categoricalColumnValues.size() != m_NumberColumns) {
-        HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns << "' categorical column values but got "
-                     << CContainerPrinter::print(categoricalColumnValues));
+        HANDLE_FATAL(<< "Expected '" << m_NumberColumns << "' categorical column values but got "
+                     << categoricalColumnValues.size() << ". The values are "
+                     << CContainerPrinter::print(categoricalColumnValues) << ".");
     } else {
         m_CategoricalColumnValues = std::move(categoricalColumnValues);
-        m_CategoricalColumnValueLookup.clear();
-        m_CategoricalColumnValueLookup.resize(m_CategoricalColumnValues.size());
-        std::size_t i{0};
-        for (auto& column : m_CategoricalColumnValues) {
-            std::size_t j{0};
-            for (auto& columnValue : column) {
-                m_CategoricalColumnValueLookup[i].emplace(columnValue, j);
-                ++j;
-            }
-            ++i;
-        }
+        this->fillCategoricalColumnValueLookup();
     }
 }
 
 void CDataFrame::finishWritingRows() {
+
     // Get any slices which have been written, append and clear the writer.
 
     if (m_Writer != nullptr) {
@@ -445,6 +438,16 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
     return inMainMemory
                ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
                : 0;
+}
+
+void CDataFrame::fillCategoricalColumnValueLookup() {
+    m_CategoricalColumnValueLookup.clear();
+    m_CategoricalColumnValueLookup.resize(m_NumberColumns);
+    for (std::size_t i = 0; i < m_CategoricalColumnValues.size(); ++i) {
+        for (std::size_t j = 0; j < m_CategoricalColumnValues[i].size(); ++j) {
+            m_CategoricalColumnValueLookup[i].emplace(m_CategoricalColumnValues[i][j], j);
+        }
+    }
 }
 
 bool CDataFrame::parallelApplyToAllRows(std::size_t beginRows,

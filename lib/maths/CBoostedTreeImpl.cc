@@ -425,6 +425,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         }
     }
 
+    this->computeClassificationWeights(frame);
+    this->initializeTreeShap(frame);
+
     // Force progress to one and record the final memory usage.
     m_Instrumentation->updateProgress(1.0);
     m_Instrumentation->updateMemoryUsage(
