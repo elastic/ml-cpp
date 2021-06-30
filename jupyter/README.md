@@ -1,5 +1,6 @@
 # Evaluation Workbench for Incremental Learning <!-- omit in toc -->
 
+- [Directory structure](#directory-structure)
 - [Zero-to-hero launching `jupyter notebook`](#zero-to-hero-launchingjupyter-notebook)
   - [Running locally for development](#running-locally-for-development)
   - [Running inside the docker container](#running-inside-the-docker-container)
@@ -16,6 +17,16 @@
   - [Working with large jobs on GCP](#working-with-large-jobs-on-gcp)
   - [Working with the GCP buckets](#working-with-the-gcp-buckets)
     - [Copy data without mounting](#copy-data-without-mounting)
+- [Running tests with `make`](#running-tests-with-make)
+
+## Directory structure
+
+- `data/` datasets and config files. For testing purposes, we have some small example datasets.
+- `docker/` scripts and configurations for creating Docker containers.
+- `notebooks/` contains `jupyter` notebooks for different projects. Currently, only `incremental_learning` project is available. The project notebooks are used to test functionality and show different behaviour. Since they are subject to smoketests, they should run reasonably fast. If you are working on long-running notebooks, you can put them into `prototypes` directory.
+- `src/` python packages containing supporting code. Currently, only `incremental_learning` package is available.
+- `tests/` pytest unit tests for python packages.
+- `Makefile` for automated tasks. Run `make` to see which tasks are available.
 
 ## Zero-to-hero launching `jupyter notebook`
 
@@ -38,7 +49,7 @@ Set up a local instance of Jupyter using the following instructions
 3. Install the required dependencies for your chosen Jupyter notebook
 
     ```bash
-    pip install -r requirements.txt
+    make **env**
     ```
 
 4. Launch Jupyter
@@ -178,17 +189,22 @@ gcloud auth application-default login
 If you run jupyter notebook from GCP, you may want to start by running `init.sh` script to mount the
 `ml-incremental-learning-datasets` bucket under `/data` and copy the dataset into the instance.
 
-Within your jupyter notebook instance you will find the directory `notebooks` with the following file structure:
+Within your jupyter notebook instance you will find the directories `data` and `notebooks` with the following file
+structure:
 
 ```tree
-notebooks
+data
 ├── configs
 │   ├── facebook_6000.json
 │   └── ...
 ├── datasets
 │   ├── facebook_6000.csv
+/home/valeriy/Documents/workspace/valeriy42/ml-cpp/jupyter/notebooks/incremental_learning/01-data-summarization.ipynb
+notebooks
+├── archive
+├── incremental_learning
+│   ├── 01-data-summarization.ipynb
 │   └── ...
-├── scenario-1.ipynb
 └── ...
 ```
 
@@ -226,4 +242,34 @@ To copy `dataset.csv` to the bucket:
 
 ```bash
 gsutil cp dataset.csv gs://ml-incremental-learning-datasets
+```
+
+## Running tests with `make`
+
+To see all available `make` targets run `make` from this directory. The output will be something like 
+
+```
+all               Run all
+env               Install requirements and python packages
+bump-minor        Bump minor version of python packages
+bump-major        Bump major version of python packages
+test              Run unit tests
+test-notebooks    Run jupyter notebooks smoketests
+help              Print this help
+clean-env         Delete environment
+clean-build       Delete temporary files and directories
+clean-test        Delete temporary files for testing
+clean-notebooks   Delete notebook checkpoints
+```
+
+To execute python integration tests, run
+
+```bash
+make test
+```
+
+To execute jupyter notebooks smoke tests, run
+
+```bash
+make test-notebooks
 ```
