@@ -189,17 +189,22 @@ gcloud auth application-default login
 If you run jupyter notebook from GCP, you may want to start by running `init.sh` script to mount the
 `ml-incremental-learning-datasets` bucket under `/data` and copy the dataset into the instance.
 
-Within your jupyter notebook instance you will find the directory `notebooks` with the following file structure:
+Within your jupyter notebook instance you will find the directories `data` and `notebooks` with the following file
+structure:
 
 ```tree
-notebooks
+data
 ├── configs
 │   ├── facebook_6000.json
 │   └── ...
 ├── datasets
 │   ├── facebook_6000.csv
+/home/valeriy/Documents/workspace/valeriy42/ml-cpp/jupyter/notebooks/incremental_learning/01-data-summarization.ipynb
+notebooks
+├── archive
+├── incremental_learning
+│   ├── 01-data-summarization.ipynb
 │   └── ...
-├── scenario-1.ipynb
 └── ...
 ```
 

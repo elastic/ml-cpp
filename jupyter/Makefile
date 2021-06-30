@@ -67,6 +67,21 @@ test-notebooks: $(addprefix $(NB_DIR)/,$(TEST_NOTEBOOKS)) $(REQUIREMENTS_LOG) $(
 $(TEST_RUNNER):
 	$(PIP) install $(TEST_RUNNER_PKGS) | tee -a $(REQUIREMENTS_LOG)
 
+build-docker: ## Build docker image tagged IMAGE_NAME
+ifdef IMAGE_NAME
+	cd ..; \
+	DOCKER_BUILDKIT=1 docker build -t $(IMAGE_NAME) -f ./jupyter/docker/Dockerfile .
+else
+	@echo "You need to specify IMAGE_NAME:\nIMAGE_NAME=foobar make build-docker"
+endif
+
+run-docker: ## Run docker container for image IMAGE_NAME
+ifdef IMAGE_NAME
+	docker run -p 9999:9999 $(IMAGE_NAME):latest
+else
+	@echo "You need to specify IMAGE_NAME:\nIMAGE_NAME=foobar make run-docker"
+endif
+
 help: ## Print this help
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 	| sed -n 's/^\(.*\): \(.*\)##\(.*\)/\1:\3/p' \
