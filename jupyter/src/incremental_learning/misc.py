@@ -9,7 +9,6 @@ import tempfile
 import json
 import random
 import string
-import platform
 import os
 import libtmux
 from IPython import display
@@ -17,31 +16,12 @@ import time
 from typing import Union
 import base64
 import gzip
-import heapq
 from operator import itemgetter
 
 from .trees import Tree, Forest
-from .config import datasets_dir, configs_dir
-
-# I assume, your host OS is not CentOS
-cloud = (platform.system() == 'Linux') and (platform.dist()[0] == 'centos')
-if cloud:
-    mlcpp_root = '/ml-cpp'
-else:
-    system = '{}-{}'.format(platform.system().lower(),
-                            platform.machine().lower())
-    mlcpp_root = os.environ['CPP_SRC_HOME'] + \
-        '/build/distribution/platform/{}'.format(system)
-
-# Adjust the path for MacOS
-mac = (platform.system() == 'Darwin')
-if mac:
-    dfa_path = mlcpp_root+'/controller.app/Contents/MacOS/data_frame_analyzer'
-else:
-    dfa_path = mlcpp_root+'/bin/data_frame_analyzer'
+from .config import datasets_dir, configs_dir, dfa_path
 
 server = libtmux.Server()
-
 
 def is_temp(obj: object):
     return isinstance(obj, tempfile._TemporaryFileWrapper)
@@ -278,7 +258,7 @@ def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
     job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))
     job_name = 'job_{}'.format(job_suffix)
 
-    cmd = [dfa_path,
+    cmd = [str(dfa_path),
            "--input", job.input_filename,
            "--config", job.config_filename,
            "--output", job.output.name]
