@@ -334,7 +334,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         m_MaximumNumberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
                                                      m_Loss->numberParameters()))};
-    std::size_t foldRoundLossMemoryUsage{this->numberFolds() * m_NumberRounds *
+    std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
                                          sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
     std::size_t tunableHyperparametersMemoryUsage{
@@ -367,7 +367,9 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     // we get a constant 8 / 64.
     std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
     std::size_t trainTestMaskMemoryUsage{
-        2 * static_cast<std::size_t>(std::ceil(std::log2(m_FractionalFolds))) * numberRows};
+        2 * m_NumberFolds *
+        static_cast<std::size_t>(std::ceil(
+            std::min(m_TrainFractionPerFold, 1.0 - m_TrainFractionPerFold) * numberRows))};
     std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
         this->numberHyperparametersToTune(), m_NumberRounds)};
     std::size_t worstCaseMemoryUsage{
@@ -435,7 +437,7 @@ CBoostedTreeImpl::gainAndCurvatureAtPercentile(double percentile,
 }
 
 void CBoostedTreeImpl::initializePerFoldTestLosses() {
-    m_FoldRoundTestLosses.resize(this->numberFolds());
+    m_FoldRoundTestLosses.resize(m_NumberFolds);
     for (auto& losses : m_FoldRoundTestLosses) {
         losses.resize(m_NumberRounds);
     }
@@ -522,7 +524,7 @@ CBoostedTreeImpl::TMeanVarAccumulatorSizeDoubleTuple
 CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
 
     // We want to ensure we evaluate on equal proportions for each fold.
-    TSizeVec folds(this->numberFolds());
+    TSizeVec folds(m_NumberFolds);
     std::iota(folds.begin(), folds.end(), 0);
     CSampling::random_shuffle(m_Rng, folds.begin(), folds.end());
 
@@ -532,8 +534,8 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
         // that the test error is not close to the minimum test error. We use
         // the estimated test error for each remaining fold at two standard
         // deviations below the mean for this.
-        if (m_StopCrossValidationEarly && m_CurrentRound >= this->numberFolds() &&
-            folds.size() < this->numberFolds()) {
+        if (m_StopCrossValidationEarly && m_CurrentRound >= m_NumberFolds &&
+            folds.size() < m_NumberFolds) {
             for (const auto& testLoss : this->estimateMissingTestLosses(folds)) {
                 testLossMoments.add(
                     CBasicStatistics::mean(testLoss) -
@@ -546,7 +548,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
 
     TMeanVarAccumulator lossMoments;
     TDoubleVec numberTrees;
-    numberTrees.reserve(this->numberFolds());
+    numberTrees.reserve(m_NumberFolds);
     TMeanAccumulator meanForestSizeAccumulator;
 
     while (folds.size() > 0 && stopCrossValidationEarly(lossMoments) == false) {
@@ -972,13 +974,12 @@ double CBoostedTreeImpl::minimumTestLoss() const {
     TMinAccumulator minimumTestLoss;
     for (std::size_t round = 0; round < m_CurrentRound - 1; ++round) {
         TMeanVarAccumulator roundLossMoments;
-        for (std::size_t fold = 0; fold < this->numberFolds(); ++fold) {
+        for (std::size_t fold = 0; fold < m_NumberFolds; ++fold) {
             if (m_FoldRoundTestLosses[fold][round] != boost::none) {
                 roundLossMoments.add(*m_FoldRoundTestLosses[fold][round]);
             }
         }
-        if (static_cast<std::size_t>(CBasicStatistics::count(roundLossMoments)) ==
-            this->numberFolds()) {
+        if (static_cast<std::size_t>(CBasicStatistics::count(roundLossMoments)) == m_NumberFolds) {
             minimumTestLoss.add(CBasicStatistics::mean(roundLossMoments));
         }
     }
@@ -1027,7 +1028,7 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     // where the indices range over the folds for which we have errors in the
     // current round.
 
-    TSizeVec present(this->numberFolds());
+    TSizeVec present(m_NumberFolds);
     std::iota(present.begin(), present.end(), 0);
     TSizeVec ordered{missing};
     std::sort(ordered.begin(), ordered.end());
@@ -1478,10 +1479,6 @@ void CBoostedTreeImpl::scaleRegularizers(double scale) {
     }
 }
 
-std::size_t CBoostedTreeImpl::numberFolds() const {
-    return static_cast<std::size_t>(std::ceil(m_FractionalFolds));
-}
-
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
     return m_RegularizationOverride.countNotSet() +
            (m_DownsampleFactorOverride != boost::none ? 0 : 1) +
@@ -1504,7 +1501,8 @@ void CBoostedTreeImpl::recordHyperparameters() {
     m_Instrumentation->hyperparameters().s_Eta = m_Eta;
     m_Instrumentation->hyperparameters().s_ClassAssignmentObjective = m_ClassAssignmentObjective;
     m_Instrumentation->hyperparameters().s_DownsampleFactor = m_DownsampleFactor;
-    m_Instrumentation->hyperparameters().s_NumFolds = m_FractionalFolds;
+    m_Instrumentation->hyperparameters().s_NumFolds = m_NumberFolds;
+    m_Instrumentation->hyperparameters().s_TrainFractionPerFold = m_TrainFractionPerFold;
     m_Instrumentation->hyperparameters().s_MaxTrees = m_MaximumNumberTrees;
     m_Instrumentation->hyperparameters().s_FeatureBagFraction = m_FeatureBagFraction;
     m_Instrumentation->hyperparameters().s_EtaGrowthRatePerTree = m_EtaGrowthRatePerTree;
@@ -1587,13 +1585,13 @@ void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
 
     m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINE_TUNING_PARAMETERS);
 
-    std::size_t totalNumberSteps{m_NumberRounds * m_MaximumNumberTrees * this->numberFolds()};
+    std::size_t totalNumberSteps{m_NumberRounds * m_MaximumNumberTrees * m_NumberFolds};
     LOG_TRACE(<< "main loop total number steps = " << totalNumberSteps);
     m_TrainingProgress = core::CLoopProgress{
         totalNumberSteps, m_Instrumentation->progressCallback(), 1.0, 1024};
 
     // Make sure progress starts where it left off.
-    m_TrainingProgress.increment(m_CurrentRound * m_MaximumNumberTrees * this->numberFolds());
+    m_TrainingProgress.increment(m_CurrentRound * m_MaximumNumberTrees * m_NumberFolds);
 }
 
 void CBoostedTreeImpl::startProgressMonitoringFinalTrain() {
@@ -1633,7 +1631,6 @@ const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
 const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
-const std::string FRACTIONAL_FOLDS_TAG{"number_folds"};
 const std::string INITIALIZATION_STAGE_TAG{"initialization_progress"};
 const std::string LOSS_TAG{"loss"};
 const std::string LOSS_NAME_TAG{"loss_name"};
@@ -1646,6 +1643,7 @@ const std::string MEAN_FOREST_SIZE_ACCUMULATOR_TAG{"mean_forest_size"};
 const std::string MEAN_LOSS_ACCUMULATOR_TAG{"mean_loss"};
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
 const std::string NUMBER_FOLDS_OVERRIDE_TAG{"number_folds_override"};
+const std::string NUMBER_FOLDS_TAG{"number_folds"};
 const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
 const std::string NUMBER_SPLITS_PER_FEATURE_TAG{"number_splits_per_feature"};
 const std::string NUMBER_THREADS_TAG{"number_threads"};
@@ -1656,6 +1654,8 @@ const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string STOP_CROSS_VALIDATION_EARLY_TAG{"stop_cross_validation_eraly"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
+const std::string TRAIN_FRACTION_PER_FOLD_TAG{"train_fraction_per_folds"};
+const std::string TRAIN_FRACTION_PER_FOLD_OVERRIDE_TAG{"train_fraction_per_folds_override"};
 const std::string NUMBER_TOP_SHAP_VALUES_TAG{"top_shap_values"};
 const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
 }
@@ -1708,7 +1708,6 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
     core::CPersistUtils::persist(FOLD_ROUND_TEST_LOSSES_TAG, m_FoldRoundTestLosses, inserter);
-    core::CPersistUtils::persist(FRACTIONAL_FOLDS_TAG, m_FractionalFolds, inserter);
     core::CPersistUtils::persist(INITIALIZATION_STAGE_TAG,
                                  static_cast<int>(m_InitializationStage), inserter);
     if (m_Loss != nullptr) {
@@ -1729,6 +1728,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(MISSING_FEATURE_ROW_MASKS_TAG,
                                  m_MissingFeatureRowMasks, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_OVERRIDE_TAG, m_NumberFoldsOverride, inserter);
+    core::CPersistUtils::persist(NUMBER_FOLDS_TAG, m_NumberFolds, inserter);
     core::CPersistUtils::persist(NUMBER_ROUNDS_TAG, m_NumberRounds, inserter);
     core::CPersistUtils::persist(NUMBER_SPLITS_PER_FEATURE_TAG,
                                  m_NumberSplitsPerFeature, inserter);
@@ -1743,6 +1743,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_StopCrossValidationEarly, inserter);
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
+    core::CPersistUtils::persist(TRAIN_FRACTION_PER_FOLD_OVERRIDE_TAG,
+                                 m_TrainFractionPerFoldOverride, inserter);
+    core::CPersistUtils::persist(TRAIN_FRACTION_PER_FOLD_TAG, m_TrainFractionPerFold, inserter);
     core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                  m_StopHyperparameterOptimizationEarly, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is restored from overriden hyperparameters
@@ -1824,8 +1827,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(FOLD_ROUND_TEST_LOSSES_TAG,
                 core::CPersistUtils::restore(FOLD_ROUND_TEST_LOSSES_TAG,
                                              m_FoldRoundTestLosses, traverser))
-        RESTORE(FRACTIONAL_FOLDS_TAG,
-                core::CPersistUtils::restore(FRACTIONAL_FOLDS_TAG, m_FractionalFolds, traverser))
         RESTORE(INITIALIZATION_STAGE_TAG,
                 core::CPersistUtils::restore(INITIALIZATION_STAGE_TAG,
                                              initializationStage, traverser))
@@ -1855,6 +1856,8 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(NUMBER_FOLDS_OVERRIDE_TAG,
                 core::CPersistUtils::restore(NUMBER_FOLDS_OVERRIDE_TAG,
                                              m_NumberFoldsOverride, traverser))
+        RESTORE(NUMBER_FOLDS_TAG,
+                core::CPersistUtils::restore(NUMBER_FOLDS_TAG, m_NumberFolds, traverser))
         RESTORE(NUMBER_ROUNDS_TAG,
                 core::CPersistUtils::restore(NUMBER_ROUNDS_TAG, m_NumberRounds, traverser))
         RESTORE(NUMBER_SPLITS_PER_FEATURE_TAG,
@@ -1880,6 +1883,12 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, traverser))
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
+        RESTORE(TRAIN_FRACTION_PER_FOLD_OVERRIDE_TAG,
+                core::CPersistUtils::restore(TRAIN_FRACTION_PER_FOLD_OVERRIDE_TAG,
+                                             m_TrainFractionPerFoldOverride, traverser))
+        RESTORE(TRAIN_FRACTION_PER_FOLD_TAG,
+                core::CPersistUtils::restore(TRAIN_FRACTION_PER_FOLD_TAG,
+                                             m_TrainFractionPerFold, traverser))
         RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                              m_StopHyperparameterOptimizationEarly, traverser))
@@ -1913,7 +1922,7 @@ void CBoostedTreeImpl::checkRestoredInvariants() const {
         VIOLATES_INVARIANT(m_TunableHyperparameters.size(), ==, samples.size());
     }
     if (m_FoldRoundTestLosses.size() > 0) {
-        VIOLATES_INVARIANT(m_FoldRoundTestLosses.size(), ==, this->numberFolds());
+        VIOLATES_INVARIANT(m_FoldRoundTestLosses.size(), ==, m_NumberFolds);
         for (const auto& losses : m_FoldRoundTestLosses) {
             VIOLATES_INVARIANT(losses.size(), ==, m_NumberRounds);
         }
@@ -2023,7 +2032,7 @@ CBoostedTreeImpl::hyperparameterImportance() const {
         double hyperparameterValue;
         SHyperparameterImportance::EType hyperparameterType{
             boosted_tree_detail::SHyperparameterImportance::E_Double};
-        switch (i) {
+        switch (static_cast<EHyperparameters>(i)) {
         case E_Alpha:
             hyperparameterValue = m_Regularization.depthPenaltyMultiplier();
             break;

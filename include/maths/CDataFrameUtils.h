@@ -280,9 +280,8 @@ public:
     //! \param[in] frame The data frame for which to compute the row masks.
     //! \param[in] targetColumn The index of the column to predict.
     //! \param[in] rng The random number generator to use.
-    //! \param[in] numberFolds The number of folds to use. If this is less than
-    //! two, there will be two train masks, but their size will be less than 50%
-    //! of the data.
+    //! \param[in] numberFolds The number of folds to use.
+    //! \param[in] trainFractionPerFold The fraction of train data to use per fold.
     //! \param[in] numberBuckets The number of buckets to use when stratifying
     //! by target quantiles for regression.
     //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
@@ -292,7 +291,8 @@ public:
                                       const core::CDataFrame& frame,
                                       std::size_t targetColumn,
                                       CPRNG::CXorOShiro128Plus rng,
-                                      double numberFolds,
+                                      std::size_t numberFolds,
+                                      double trainFractionPerFold,
                                       std::size_t numberBuckets,
                                       const core::CPackedBitVector& allTrainingRowsMask);
 

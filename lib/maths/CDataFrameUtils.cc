@@ -494,23 +494,24 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                                                    const core::CDataFrame& frame,
                                                    std::size_t targetColumn,
                                                    CPRNG::CXorOShiro128Plus rng,
-                                                   double numberFolds,
+                                                   std::size_t numberFolds,
+                                                   double trainFractionPerFold,
                                                    std::size_t numberBuckets,
                                                    const core::CPackedBitVector& allTrainingRowsMask) {
     TDoubleVec frequencies;
     TStratifiedSamplerPtr sampler;
 
-    double numberRows{allTrainingRowsMask.manhattan()};
-    if (numberRows < std::max(numberFolds, 2.0)) {
+    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    if (static_cast<std::size_t>(numberTrainingRows) < numberFolds) {
         HANDLE_FATAL(<< "Input error: unsufficient training data provided.");
         return {{}, {}, {}};
     }
 
-    // We sample the smaller of the test/train sets in the loop.
-    std::size_t numberTrainingRows{static_cast<std::size_t>(
-        1.0 - (numberFolds - 1.0) / numberFolds * numberRows + 0.5)};
-    std::size_t numberTestingRows{static_cast<std::size_t>(numberRows) - numberTrainingRows};
-    std::size_t sampleSize{std::min(numberTrainingRows, numberTestingRows)};
+    // We sample the smaller of the test or train set in the loop.
+    std::size_t sampleSize{static_cast<std::size_t>(
+        std::min(trainFractionPerFold, 1.0 - trainFractionPerFold) * numberTrainingRows + 0.5)};
+    double minimumSizeToSample{static_cast<double>(sampleSize + numberFolds)};
+    LOG_TRACE(<< "sample size = " << sampleSize);
 
     if (frame.columnIsCategorical()[targetColumn]) {
         std::tie(sampler, frequencies) = classifierStratifiedCrossValidationRowSampler(
@@ -523,13 +524,14 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
 
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
 
-    TPackedBitVectorVec testingRowMasks(static_cast<std::size_t>(std::ceil(numberFolds)));
+    TPackedBitVectorVec testingRowMasks(numberFolds);
 
     TSizeVec rowIndices;
     core::CPackedBitVector candidateTestingRowsMask{allTrainingRowsMask};
     for (std::size_t fold = 0; fold < testingRowMasks.size(); ++fold) {
-        if (candidateTestingRowsMask.manhattan() <
-            static_cast<double>(sampleSize - numberFolds)) {
+        if (candidateTestingRowsMask.manhattan() < minimumSizeToSample) {
+            testingRowMasks[fold] = candidateTestingRowsMask;
+        } else {
             frame.readRows(1, 0, frame.numberRows(),
                            [&](const TRowItr& beginRows, const TRowItr& endRows) {
                                for (auto row = beginRows; row != endRows; ++row) {
@@ -547,8 +549,6 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
             }
             testingRowMasks[fold].extend(false, allTrainingRowsMask.size() -
                                                     testingRowMasks[fold].size());
-        } else {
-            testingRowMasks[fold] = candidateTestingRowsMask;
         }
 
         // We exclusive or here to remove the rows we've selected for the current
@@ -558,7 +558,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
 
     TPackedBitVectorVec trainingRowMasks{complementRowMasks(testingRowMasks, allTrainingRowsMask)};
 
-    if (numberTrainingRows < numberTestingRows) {
+    if (trainFractionPerFold < 0.5) {
         std::swap(trainingRowMasks, testingRowMasks);
     }
 

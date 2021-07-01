@@ -320,9 +320,6 @@ private:
     //! Check invariants which are assumed to hold in order to train on \p frame.
     void checkTrainInvariants(const core::CDataFrame& frame) const;
 
-    //! Get the count of train/validation folds.
-    std::size_t numberFolds() const;
-
     //! Get the number of hyperparameters to tune.
     std::size_t numberHyperparametersToTune() const;
 
@@ -375,6 +372,7 @@ private:
     TOptionalDouble m_EtaOverride;
     TOptionalDouble m_EtaGrowthRatePerTreeOverride;
     TOptionalSize m_NumberFoldsOverride;
+    TOptionalSize m_TrainFractionPerFoldOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     TOptionalStrDoublePrVec m_ClassificationWeightsOverride;
@@ -383,7 +381,8 @@ private:
     double m_DownsampleFactor = 0.5;
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;
-    double m_FractionalFolds = 4.0;
+    std::size_t m_NumberFolds = 4;
+    double m_TrainFractionPerFold = 0.75;
     std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;
     std::size_t m_NumberSplitsPerFeature = 75;

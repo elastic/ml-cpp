@@ -507,7 +507,9 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
         maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
         std::tie(trainingRowMasks, testingRowMasks, std::ignore) =
             maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                1, *frame, 0, rng, numberFolds[0], numberBins, allTrainingRowsMask);
+                1, *frame, 0, rng, numberFolds[0],
+                1.0 - 1.0 / static_cast<double>(numberFolds[0]), numberBins,
+                allTrainingRowsMask);
 
         BOOST_REQUIRE_EQUAL(numberFolds[0], trainingRowMasks.size());
         BOOST_REQUIRE_EQUAL(numberFolds[0], testingRowMasks.size());
@@ -564,7 +566,9 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
         maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
         std::tie(std::ignore, testingRowMasks, std::ignore) =
             maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                1, *frame, 0, rng, numberFolds[0], numberBins, allTrainingRowsMask);
+                1, *frame, 0, rng, numberFolds[0],
+                1.0 - 1.0 / static_cast<double>(numberFolds[0]), numberBins,
+                allTrainingRowsMask);
 
         TDoubleVecVec targetDecile(numberFolds[0], TDoubleVec(numberBins));
 
