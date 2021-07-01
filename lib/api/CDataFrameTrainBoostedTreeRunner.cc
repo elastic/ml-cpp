@@ -280,10 +280,12 @@ core::CPackedBitVector
 CDataFrameTrainBoostedTreeRunner::rowsToWriteMask(const core::CDataFrame& frame) const {
     switch (m_Task) {
     case E_Train:
-    case E_Predict:
         return {frame.numberRows(), true};
+        break;
+    case E_Predict:
     case E_Update:
         return m_BoostedTree->newTrainingRowMask();
+        break;
     }
 }
 
@@ -386,7 +388,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
         break;
     case E_Predict:
         m_BoostedTree = m_BoostedTreeFactory->buildForPredict(frame, dependentVariableColumn);
-        m_BoostedTree->predict();
+        m_BoostedTree->predict(true /*new data only*/);
         break;
     }
 

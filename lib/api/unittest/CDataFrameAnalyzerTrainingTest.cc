@@ -727,6 +727,8 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
     // result of training if rerunning with the same hyperparameters with numeric
     // only features.
 
+    double dataSummarizationFraction{0.1};
+
     auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
                         TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
                         TPersisterSupplier* persisterSupplier,
@@ -740,12 +742,14 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
             .task(task)
-            .dataSummarizationFraction(1.0)
+            .dataSummarizationFraction(dataSummarizationFraction)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                             dependentVariable, &frameAndDirectory);
     };
 
-    std::size_t numberExamples{100};
+    std::size_t trainExamples{200};
+    std::size_t predictExamples{50};
+
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     test::CRandomNumbers rng;
@@ -755,9 +759,9 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
     LOG_DEBUG(<< "Seed: " << seed[0]);
 
     TDoubleVec expectedPredictions;
-    expectedPredictions.reserve(numberExamples);
+    expectedPredictions.reserve(trainExamples);
     TDoubleVec actualPredictions;
-    actualPredictions.reserve(numberExamples);
+    actualPredictions.reserve(predictExamples);
 
     std::stringstream inferenceModelStream;
     std::stringstream incrementalTrainingState;
@@ -769,13 +773,14 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
     // Run once.
     {
         TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
-        auto spec = makeSpec("target", numberExamples, frameAndDirectory, nullptr, nullptr,
+        auto spec = makeSpec("target", trainExamples, frameAndDirectory, nullptr, nullptr,
                              test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train);
+        LOG_DEBUG(<< "Number rows train " << frameAndDirectory.first->numberRows());
         api::CDataFrameAnalyzer analyzer{
             std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
         test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
             TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
-            analyzer, numberExamples, seed[0]);
+            analyzer, trainExamples, seed[0]);
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
         rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
@@ -800,7 +805,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
             }
         }
     }
-    BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberExamples);
+    BOOST_REQUIRE_EQUAL(expectedPredictions.size(), trainExamples);
 
     // Pass model definition and data summarization into the restore stream.
     incrementalTrainingState << '\0' << inferenceModelStream.str() << '\0';
@@ -815,11 +820,16 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
         // Create a new analyzer for prediction.
         TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
         auto spec = makeSpec(
-            "target", numberExamples, frameAndDirectory, nullptr, &restorerSupplier,
+            "target",
+            static_cast<std::size_t>(trainExamples * dataSummarizationFraction) + predictExamples,
+            frameAndDirectory, nullptr, &restorerSupplier,
             test::CDataFrameAnalysisSpecificationFactory::TTask::E_Predict);
-        api::CDataFrameAnalyzer analyzerPrediction{
+        api::CDataFrameAnalyzer predictionAnalyzer{
             std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
-        analyzerPrediction.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+        test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+            TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
+            predictionAnalyzer, predictExamples, seed[0]);
+        predictionAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(outputStream.str()));
@@ -831,8 +841,10 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
             }
         }
     }
-    BOOST_REQUIRE_EQUAL(actualPredictions.size(), numberExamples);
-    BOOST_TEST(actualPredictions == expectedPredictions, tt::per_element());
+    BOOST_REQUIRE_EQUAL(actualPredictions.size(), predictExamples);
+    for (int i = 0; i < predictExamples; ++i) {
+        BOOST_TEST_REQUIRE(actualPredictions[i] == expectedPredictions[i]);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,

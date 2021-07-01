@@ -219,7 +219,13 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
-
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
+            // We assume any additional rows are new examples.
+            m_TreeImpl->m_NewTrainingRowMask.extend(
+                true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
+        }
+    });
     this->prepareDataFrameForTrain(frame);
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,

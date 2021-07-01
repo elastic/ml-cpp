@@ -316,12 +316,13 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, ve
     """Evaluate the model on a given dataset .
 
     Args:
-        dataset_name (str): [description]
-        dataset (pandas.DataFrame): [description]
-        model (str): [description]
+        dataset_name (str): dataset name (to get configuration)
+        dataset (pandas.DataFrame): new dataset
+        original_job (Job): Job object of the original training
+        verbose (bool): Verbosity flag (defalt: True)
 
     Returns:
-        Job: [description]
+        Job: new Job object
     """
     fdata = tempfile.NamedTemporaryFile(mode='wt')
     dataset.to_csv(fdata, index=False, na_rep=0)
