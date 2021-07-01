@@ -14,6 +14,7 @@
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 
+#include <limits>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLoss.h>
@@ -29,6 +30,10 @@
 
 namespace ml {
 namespace api {
+namespace {
+const std::size_t UNSET_NUMBER_ROUNDS_PER_HYPERPARAMETER{
+    std::numeric_limits<std::size_t>::max()};
+}
 
 const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
@@ -96,7 +101,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     std::size_t numberRoundsPerHyperparameter{
-        parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
+        parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
+            UNSET_NUMBER_ROUNDS_PER_HYPERPARAMETER)};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
@@ -192,7 +198,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (numberFolds > 1) {
         m_BoostedTreeFactory->numberFolds(numberFolds);
     }
-    if (numberRoundsPerHyperparameter > 0) {
+    if (numberRoundsPerHyperparameter != UNSET_NUMBER_ROUNDS_PER_HYPERPARAMETER) {
         m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameter(numberRoundsPerHyperparameter);
     }
     if (bayesianOptimisationRestarts > 0) {

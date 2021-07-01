@@ -359,8 +359,6 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
                                                  maximumTrainingDataConstraintNumberFolds);
         LOG_TRACE(<< "initial downsample fraction = " << initialDownsampleFraction
                   << " # folds = " << m_TreeImpl->m_FractionalFolds);
-    } else {
-        m_TreeImpl->m_FractionalFolds = static_cast<double>(*m_TreeImpl->m_NumberFoldsOverride);
     }
 }
 
@@ -467,30 +465,20 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
 }
 
 void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame) {
-    if (m_TreeImpl->m_EtaOverride != boost::none) {
-        m_TreeImpl->m_Eta = *(m_TreeImpl->m_EtaOverride);
-    } else {
+    if (m_TreeImpl->m_EtaOverride == boost::none) {
         m_TreeImpl->m_Eta =
             computeEta(frame.numberColumns() - this->numberExtraColumnsForTrain());
         m_TreeImpl->m_EtaGrowthRatePerTree = 1.0 + m_TreeImpl->m_Eta / 2.0;
     }
 
-    if (m_TreeImpl->m_EtaGrowthRatePerTreeOverride != boost::none) {
-        m_TreeImpl->m_EtaGrowthRatePerTree = *(m_TreeImpl->m_EtaGrowthRatePerTreeOverride);
-    }
-
-    if (m_TreeImpl->m_MaximumNumberTreesOverride != boost::none) {
-        m_TreeImpl->m_MaximumNumberTrees = *(m_TreeImpl->m_MaximumNumberTreesOverride);
-    } else {
+    if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
         // This needs to be tied to the learn rate to avoid bias.
         m_TreeImpl->m_MaximumNumberTrees = computeMaximumNumberTrees(m_TreeImpl->m_Eta);
     }
 
     double numberFeatures{static_cast<double>(m_TreeImpl->m_Encoder->numberEncodedColumns())};
 
-    if (m_TreeImpl->m_FeatureBagFractionOverride != boost::none) {
-        m_TreeImpl->m_FeatureBagFraction = *(m_TreeImpl->m_FeatureBagFractionOverride);
-    } else {
+    if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
         m_TreeImpl->m_FeatureBagFraction =
             std::min(m_TreeImpl->m_FeatureBagFraction,
                      m_TreeImpl->m_TrainingRowMasks[0].manhattan() /
@@ -1159,6 +1147,7 @@ CBoostedTreeFactory::classAssignmentObjective(CBoostedTree::EClassAssignmentObje
 
 CBoostedTreeFactory& CBoostedTreeFactory::classificationWeights(TStrDoublePrVec weights) {
     m_TreeImpl->m_ClassificationWeightsOverride = std::move(weights);
+    m_TreeImpl->m_ClassificationWeights = *m_TreeImpl->m_ClassificationWeightsOverride;
     return *this;
 }
 
@@ -1177,6 +1166,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t numberFolds) {
         numberFolds = 2;
     }
     m_TreeImpl->m_NumberFoldsOverride = numberFolds;
+    m_TreeImpl->m_FractionalFolds = static_cast<double>(numberFolds);
     return *this;
 }
 
@@ -1209,6 +1199,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::downsampleFactor(double factor) {
         factor = 1.0;
     }
     m_TreeImpl->m_DownsampleFactorOverride = factor;
+    m_TreeImpl->m_DownsampleFactor = factor;
     return *this;
 }
 
@@ -1218,6 +1209,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::depthPenaltyMultiplier(double depthPen
         depthPenaltyMultiplier = 0.0;
     }
     m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier(depthPenaltyMultiplier);
+    m_TreeImpl->m_Regularization.depthPenaltyMultiplier(depthPenaltyMultiplier);
     return *this;
 }
 
@@ -1227,6 +1219,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::treeSizePenaltyMultiplier(double treeS
         treeSizePenaltyMultiplier = 0.0;
     }
     m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier(treeSizePenaltyMultiplier);
+    m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier(treeSizePenaltyMultiplier);
     return *this;
 }
 
@@ -1236,6 +1229,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::leafWeightPenaltyMultiplier(double lea
         leafWeightPenaltyMultiplier = 0.0;
     }
     m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier(leafWeightPenaltyMultiplier);
+    m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier(leafWeightPenaltyMultiplier);
     return *this;
 }
 
@@ -1245,6 +1239,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::softTreeDepthLimit(double softTreeDept
         softTreeDepthLimit = MIN_SOFT_DEPTH_LIMIT;
     }
     m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit(softTreeDepthLimit);
+    m_TreeImpl->m_Regularization.softTreeDepthLimit(softTreeDepthLimit);
     return *this;
 }
 
@@ -1254,6 +1249,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::softTreeDepthTolerance(double softTree
         softTreeDepthTolerance = 0.01;
     }
     m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance(softTreeDepthTolerance);
+    m_TreeImpl->m_Regularization.softTreeDepthTolerance(softTreeDepthTolerance);
     return *this;
 }
 
@@ -1268,6 +1264,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::eta(double eta) {
         eta = 1.0;
     }
     m_TreeImpl->m_EtaOverride = eta;
+    m_TreeImpl->m_Eta = eta;
     return *this;
 }
 
@@ -1278,6 +1275,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::etaGrowthRatePerTree(double etaGrowthR
         etaGrowthRatePerTree = std::max(etaGrowthRatePerTree, MIN_ETA);
     }
     m_TreeImpl->m_EtaGrowthRatePerTreeOverride = etaGrowthRatePerTree;
+    m_TreeImpl->m_EtaGrowthRatePerTree = etaGrowthRatePerTree;
     return *this;
 }
 
@@ -1292,6 +1290,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberTrees(std::size_t maximum
         maximumNumberTrees = std::min(maximumNumberTrees, MAX_NUMBER_TREES);
     }
     m_TreeImpl->m_MaximumNumberTreesOverride = maximumNumberTrees;
+    m_TreeImpl->m_MaximumNumberTrees = maximumNumberTrees;
     return *this;
 }
 
@@ -1302,6 +1301,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFr
         featureBagFraction = CTools::truncate(featureBagFraction, 0.0, 1.0);
     }
     m_TreeImpl->m_FeatureBagFractionOverride = featureBagFraction;
+    m_TreeImpl->m_FeatureBagFraction = featureBagFraction;
     return *this;
 }
 
