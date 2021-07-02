@@ -460,6 +460,8 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
     if (m_TreeImpl->m_EtaOverride == boost::none) {
         m_TreeImpl->m_Eta =
             computeEta(frame.numberColumns() - this->numberExtraColumnsForTrain());
+    }
+    if (m_TreeImpl->m_EtaGrowthRatePerTreeOverride == boost::none) {
         m_TreeImpl->m_EtaGrowthRatePerTree = 1.0 + m_TreeImpl->m_Eta / 2.0;
     }
 
