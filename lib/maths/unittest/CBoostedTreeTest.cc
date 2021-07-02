@@ -431,8 +431,8 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
 
-    fillDataFrame(2, 0, 2, {{1.0}, {1.0}}, {0.0, 0.0},
-                  [](const TRowRef&) { return 1.0; }, *frame);
+    fillDataFrame(5, 0, 2, {{1.0}, {1.0}, {1.0}, {1.0}, {1.0}},
+                  {0.0, 0.0, 0.0, 0.0, 0.0}, [](const TRowRef&) { return 1.0; }, *frame);
 
     try {
         auto regression = maths::CBoostedTreeFactory::constructFromParameters(
