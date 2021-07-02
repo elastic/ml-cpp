@@ -279,7 +279,7 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_StratifyRegressionCrossValidation = true;
     double m_InitialDownsampleRowsPerFeature = 200.0;
-    std::size_t m_MaximumNumberOfTrainRows = 750000;
+    std::size_t m_MaximumNumberOfTrainRows = 500000;
     double m_GainPerNode1stPercentile = 0.0;
     double m_GainPerNode50thPercentile = 0.0;
     double m_GainPerNode90thPercentile = 0.0;

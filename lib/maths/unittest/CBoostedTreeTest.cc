@@ -704,7 +704,7 @@ BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
     std::size_t trainRows{10000};
     std::size_t testRows{200};
     std::size_t rows{trainRows + testRows};
-    std::size_t cols{6};
+    std::size_t cols{8};
 
     auto target = [&] {
         TDoubleVec m;
@@ -720,8 +720,6 @@ BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
         };
     }();
 
-    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
-
     TDoubleVecVec x(cols - 1);
     for (std::size_t i = 0; i < cols - 1; ++i) {
         rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
@@ -730,6 +728,7 @@ BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
     TDoubleVec noise;
     rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
 
+    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
     fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
 
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(

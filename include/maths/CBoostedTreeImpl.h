@@ -290,6 +290,9 @@ private:
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
 
+    //! Compute the overall variance of the error we see between folds.
+    double betweenFoldTestLossVariance() const;
+
     //! Get the root node of \p tree.
     static const CBoostedTreeNode& root(const TNodeVec& tree);
 

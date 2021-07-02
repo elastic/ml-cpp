@@ -16,6 +16,7 @@
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTree.h>
@@ -1278,6 +1279,20 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     return CBasicStatistics::mean(loss);
 }
 
+double CBoostedTreeImpl::betweenFoldTestLossVariance() const {
+    TMeanVarAccumulator result;
+    for (const auto& testLosses : m_FoldRoundTestLosses) {
+        TMeanAccumulator meanTestLoss;
+        for (std::size_t i = 0; i <= m_CurrentRound; ++i) {
+            if (testLosses[i] != boost::none) {
+                meanTestLoss.add(*testLosses[i]);
+            }
+        }
+        result.add(CBasicStatistics::mean(meanTestLoss));
+    }
+    return CBasicStatistics::maximumLikelihoodVariance(result);
+}
+
 CBoostedTreeNode& CBoostedTreeImpl::root(TNodeVec& tree) {
     return tree[0];
 }
@@ -1358,13 +1373,23 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     double meanLoss{CBasicStatistics::mean(lossMoments)};
     double lossVariance{CBasicStatistics::variance(lossMoments)};
 
-    LOG_TRACE(<< "round = " << m_CurrentRound << " loss = " << meanLoss << " variance = "
-              << lossVariance << ": regularization = " << m_Regularization.print()
+    LOG_TRACE(<< "round = " << m_CurrentRound << ", loss = " << meanLoss
+              << ", total variance = " << lossVariance
+              << ", explained variance = " << this->betweenFoldTestLossVariance());
+    LOG_TRACE(<< "regularization = " << m_Regularization.print()
               << ", downsample factor = " << m_DownsampleFactor << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
 
     bopt.add(parameters, meanLoss, lossVariance);
+    // One fold might have examples which are harder to predict on average than
+    // another fold, particularly if the sample size is small. What we really care
+    // about is the variation between fold loss values after accounting for any
+    // systematic effect due to sampling. Running for multiple rounds allows us
+    // to estimate this effect and we remove it when characterising the uncertainty
+    // in the loss values in the Gaussian Process.
+    bopt.explainedErrorVariance(this->betweenFoldTestLossVariance());
+
     if (m_CurrentRound < m_HyperparameterSamples.size()) {
         std::copy(m_HyperparameterSamples[m_CurrentRound].begin(),
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());

@@ -30,8 +30,9 @@ namespace ml {
 namespace maths {
 
 namespace {
-const std::string VERSION_7_5_TAG{"7.5"};
+using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
+const std::string VERSION_7_5_TAG{"7.5"};
 const std::string MIN_BOUNDARY_TAG{"min_boundary"};
 const std::string MAX_BOUNDARY_TAG{"max_boundary"};
 const std::string ERROR_VARIANCES_TAG{"error_variances"};
@@ -106,6 +107,10 @@ void CBayesianOptimisation::add(TVector x, double fx, double vx) {
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
+void CBayesianOptimisation::explainedErrorVariance(double vx) {
+    m_ExplainedErrorVariance = CTools::pow2(m_RangeScale) * vx;
+}
+
 std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TVector>
 CBayesianOptimisation::boundingBox() const {
     return {m_MinBoundary, m_MaxBoundary};
@@ -114,7 +119,6 @@ CBayesianOptimisation::boundingBox() const {
 std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TOptionalDouble>
 CBayesianOptimisation::maximumExpectedImprovement() {
 
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMinAccumulator =
         CBasicStatistics::COrderStatisticsHeap<std::pair<double, TVector>>;
 
@@ -583,6 +587,7 @@ void CBayesianOptimisation::precondition() {
     for (auto& variance : m_ErrorVariances) {
         variance /= CTools::pow2(m_RangeScale);
     }
+    m_ExplainedErrorVariance /= CTools::pow2(m_RangeScale);
 
     TMeanVarAccumulator rangeMoments;
     for (const auto& value : m_FunctionMeanValues) {
@@ -599,6 +604,7 @@ void CBayesianOptimisation::precondition() {
     for (auto& variance : m_ErrorVariances) {
         variance *= CTools::pow2(m_RangeScale);
     }
+    m_ExplainedErrorVariance *= CTools::pow2(m_RangeScale);
 }
 
 CBayesianOptimisation::TVector CBayesianOptimisation::function() const {
@@ -610,10 +616,10 @@ CBayesianOptimisation::TVector CBayesianOptimisation::function() const {
 }
 
 double CBayesianOptimisation::meanErrorVariance() const {
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     TMeanAccumulator variance;
     variance.add(m_ErrorVariances);
-    return CBasicStatistics::mean(variance);
+    return CBasicStatistics::mean(variance) -
+           std::min(m_ExplainedErrorVariance, 0.99 * CBasicStatistics::mean(variance));
 }
 
 CBayesianOptimisation::TMatrix CBayesianOptimisation::dKerneld(const TVector& a, int k) const {
