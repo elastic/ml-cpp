@@ -716,6 +716,9 @@ CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask) cons
     // curvatures for each tree we train. The sampling scheme should minimize
     // the correlation with previous trees for fixed sample size so randomly
     // sampling without replacement is appropriate.
+    if (trainingRowMask.manhattan() == 0.0) {
+        return trainingRowMask;
+    }
     core::CPackedBitVector result;
     do {
         result = core::CPackedBitVector{};
