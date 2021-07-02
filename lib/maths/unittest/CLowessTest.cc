@@ -53,8 +53,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
         [&](double x) { return scale[0] * x / 10.0; },
         [&](double x) {
             return scale[0] * (x - offset[0]) * (x - offset[0]) / 100.0;
-        }
-    };
+        }};
 
     for (std::size_t i = 0; i < 100; ++i) {
 
