@@ -467,8 +467,10 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
     //   2) The test masks are disjoint for each fold,
     //   3) The train and test masks are disjoint for a given fold,
     //   4) They're all subsets of the initial mask supplied,
-    //   5) The number of examples in each category per fold is proportional to
-    //      their overall frequency.
+    //   5) The number of examples in each category per fold is proportional
+    //      to their overall frequency.
+    //   6) Test we get the correct size masks if we are using more or less
+    //      training data than implied by k-fold cross-validation.
 
     using TDoubleDoubleUMap = boost::unordered_map<double, double>;
 
@@ -607,6 +609,37 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
             LOG_DEBUG(<< "variance in test set target percentile = "
                       << maths::CBasicStatistics::variance(testTargetDecileMoments));
             BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(testTargetDecileMoments) < 0.02);
+        }
+    }
+
+    for (auto fraction : {0.1, 0.4}) {
+        TDoubleVec categories;
+        testRng.generateNormalSamples(0.0, 3.0, numberRows, categories);
+
+        auto frame = core::makeMainStorageDataFrame(numberCols).first;
+        frame->categoricalColumns(TBoolVec{true});
+        for (std::size_t i = 0; i < numberRows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *column = std::floor(std::fabs(categories[i]));
+            });
+        }
+        frame->finishWritingRows();
+
+        core::CPackedBitVector allTrainingRowsMask{numberRows, true};
+
+        maths::CDataFrameUtils::TPackedBitVectorVec trainingRowMasks;
+        maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
+        std::tie(trainingRowMasks, testingRowMasks, std::ignore) =
+            maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
+                1, *frame, 0, rng, 3, fraction, numberBins, allTrainingRowsMask);
+
+        BOOST_REQUIRE_EQUAL(trainingRowMasks.size(), testingRowMasks.size());
+        for (std::size_t i = 0; i < trainingRowMasks.size(); ++i) {
+            BOOST_REQUIRE_EQUAL(
+                numberRows, static_cast<std::size_t>(
+                                (trainingRowMasks[i] | testingRowMasks[i]).manhattan()));
+            BOOST_REQUIRE_EQUAL(fraction, trainingRowMasks[i].manhattan() /
+                                              static_cast<double>(numberRows));
         }
     }
 }
