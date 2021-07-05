@@ -19,7 +19,7 @@ RUN \
 RUN \
   mkdir -p /usr/local/sysroot-aarch64-linux-gnu/usr && \
   cd /usr/local/sysroot-aarch64-linux-gnu/usr && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-2.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-4.tar.bz2 | tar jxf - && \
   cd .. && \
   ln -s usr/lib lib && \
   ln -s usr/lib64 lib64

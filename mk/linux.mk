@@ -48,7 +48,7 @@ SHELL_SCRIPT_EXT=.sh
 UT_TMP_DIR=/tmp/$(LOGNAME)
 RESOURCES_DIR=resources
 LOCALLIBS=-lm -lpthread -ldl -lrt
-NETLIBS=-lnsl
+NETLIBS=
 BOOSTVER=1_71
 ifeq ($(HARDWARE_ARCH),aarch64)
 BOOSTARCH=a64
@@ -76,6 +76,9 @@ RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 endif
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_MAX_ALIGN_BYTES=32
+TORCHINCLUDES=-isystem /usr/local/gcc93/include/pytorch
+TORCHCPULIB=-ltorch_cpu
+C10LIB=-lc10
 XMLINCLUDES=`/usr/local/gcc93/bin/xml2-config --cflags`
 XMLLIBS=`/usr/local/gcc93/bin/xml2-config --libs`
 DYNAMICLIBLDFLAGS=$(PLATPICFLAGS) -shared -Wl,--as-needed -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN'

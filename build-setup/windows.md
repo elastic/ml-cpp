@@ -191,3 +191,126 @@ lib -NOLOGO strptime.obj
 copy strptime.lib C:\usr\local\lib
 ```
 
+### CMake
+
+CMake is required to build PyTorch.  Download the MSI installer for version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-win64-x64.msi> (or get a more recent version).
+
+Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
+
+### Python 3.7
+
+PyTorch currently requires Python 3.6, 3.7 or 3.8, and version 3.7 appears to cause fewest problems in their test status matrix, so we use that.
+
+Download the executable installer for Python 3.7.9 from <https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe>.
+
+Right click on the installer and "Run as administrator".  (Note that evelating privileges during the install is not sufficient for the Python 3.7.9 installer, it needs to have elevated privileges when first run.  Obviously this is bad practice, but that's the way it is in version 3.7.9.)
+
+On the first installer screen click "Customize installation".  (Although "Install Now" seems like it would do the job, the "Install launcher for all users" option literally only installs the _launcher_ for all users, not Python itself.)
+
+Click "Next" on the "Optional Features" screen.
+
+On the "Advanced Options" screen, check "Install for all users" and "Add Python to environment variables".  Then click "Install".
+
+For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
+
+### PyTorch 1.8.0
+
+PyTorch requires that certain Python modules are installed.  Start a command prompt "cmd.exe" using "Run as administrator".  In it run:
+
+```
+pip install install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
+```
+
+This stalls part way through waiting for a key press, and it's necessary to press enter in the command prompt window to get it to complete.
+
+Next, in a Git bash shell run:
+
+```
+cd /c/tools
+git clone --depth=1 --branch=v1.8.0 git@github.com:pytorch/pytorch.git
+cd pytorch
+git submodule sync
+git submodule update --init --recursive
+```
+
+Edit `torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp` and replace:
+
+```
+  std::unique_ptr<FILE, decltype(&_pclose)> pipe(
+      _wpopen(cmd.c_str(), L"r"), _pclose);
+```
+
+with:
+
+```
+  std::unique_ptr<FILE> pipe;
+```
+
+Also replace:
+
+```
+  intptr_t r = _wspawnve(_P_WAIT, comspec, a, e.data());
+  return r;
+```
+
+with:
+
+```
+  return -1;
+```
+
+This file is used to compile fused CPU kernels, which we do not expect to be
+doing and never want to do for security reasons. Replacing the calls to
+`_wpopen()` and `_wspawnve()` ensures that a heuristic virus scanner looking for
+potentially dangerous function calls in our shipped product will not encounter
+these functions that run external processes.
+
+In `torch/CMakeLists.txt` remove the guards around `onnx_library`, i.e. change lines 98-100 from:
+
+```
+    if(BUILD_TEST)
+      list(APPEND TORCH_PYTHON_LINK_LIBRARIES onnx_library)
+    endif(BUILD_TEST)
+```
+
+to:
+
+```
+    list(APPEND TORCH_PYTHON_LINK_LIBRARIES onnx_library)
+```
+
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
+
+```
+cd \tools\pytorch
+set BUILD_TEST=OFF
+set BUILD_CAFFE2=OFF
+set USE_NUMPY=OFF
+set USE_DISTRIBUTED=OFF
+set USE_QNNPACK=OFF
+set USE_PYTORCH_QNNPACK=OFF
+set USE_XNNPACK=OFF
+set MSVC_Z7_OVERRIDE=OFF
+set PYTORCH_BUILD_VERSION=1.8.0
+set PYTORCH_BUILD_NUMBER=1
+python setup.py install
+```
+
+When it completes, at the very end there is an error message that the Python modules could not be installed.  This can be ignored as we only want the headers, DLLs and import libraries.
+
+To finish off, in a Git bash shell run:
+
+```
+cd /c/tools/pytorch
+mkdir /c/usr/local/include/pytorch
+cp -r torch/include/* /c/usr/local/include/pytorch/
+cp torch/lib/torch_cpu.dll /c/usr/local/bin/
+cp torch/lib/torch_cpu.lib /c/usr/local/lib/
+cp torch/lib/c10.dll /c/usr/local/bin/
+cp torch/lib/c10.lib /c/usr/local/lib/
+cp torch/lib/fbgemm.dll /c/usr/local/bin/
+cp torch/lib/fbgemm.lib /c/usr/local/lib/
+cp torch/lib/asmjit.dll /c/usr/local/bin/
+cp torch/lib/asmjit.lib /c/usr/local/lib/
+```
+

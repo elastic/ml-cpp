@@ -27,7 +27,7 @@ On the fully configured macOS build server, run the following commands:
 
 ```
 cd /usr
-tar jcvf ~/usr-x86_64-apple-macosx10.14.tar.bz2 include lib local
+tar jcvf ~/usr-x86_64-apple-macosx10.14.tar.bz2 lib local
 cd /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr
 tar jcvf ~/xcode-x86_64-apple-macosx10.14.tar.bz2 include
 cd `xcrun --show-sdk-path`/usr

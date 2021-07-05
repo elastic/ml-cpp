@@ -16,6 +16,7 @@ COMPONENTS= \
             controller \
             data_frame_analyzer \
             normalize \
+            pytorch_inference \
 
 include $(CPP_SRC_HOME)/mk/toplevel.mk
 
