@@ -979,7 +979,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
         double eta{index < m_BestForest.size()
                        ? m_RetrainedTreeEta
-                       : this->etaForTreeAtPosition(m_TreesToRetrain.size())};
+                       : this->etaForTreeAtPosition(m_BestForest.size())};
 
         workspace.retraining(treeToRetrain);
 
