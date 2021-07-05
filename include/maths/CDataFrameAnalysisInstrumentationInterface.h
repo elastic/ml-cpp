@@ -94,6 +94,7 @@ public:
     enum EStatsType { E_Regression, E_Classification };
     struct SHyperparameters {
         double s_Eta{-1.0};
+        double s_RetrainedTreeEta{-1.0};
         CBoostedTree::EClassAssignmentObjective s_ClassAssignmentObjective{
             CBoostedTree::E_MinimumRecall};
         double s_DepthPenaltyMultiplier{-1.0};

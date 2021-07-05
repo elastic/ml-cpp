@@ -46,6 +46,7 @@ public:
     static const std::string GAMMA;
     static const std::string ETA;
     static const std::string ETA_GROWTH_RATE_PER_TREE;
+    static const std::string RETRAINED_TREE_ETA;
     static const std::string SOFT_TREE_DEPTH_LIMIT;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
     static const std::string MAX_TREES;

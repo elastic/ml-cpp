@@ -211,6 +211,7 @@ public:
                                 double downsampleFactor,
                                 double eta,
                                 double etaGrowthRatePerTree,
+                                double retrainedTreeEta,
                                 std::size_t maximumNumberTrees,
                                 double featureBagFraction,
                                 double predictionChangeCost);
@@ -225,6 +226,8 @@ public:
     double eta() const;
     //! Rate of growth of shrinkage in the training loop.
     double etaGrowthRatePerTree() const;
+    //! Shrinkage for retrained trees.
+    double retrainedTreeEta() const;
     //! The fraction of features we use per bag.
     double featureBagFraction() const;
     //! The cost of changing the model predictions on old training data.
@@ -240,6 +243,7 @@ public:
     static const std::string HYPERPARAM_DOWNSAMPLE_FACTOR_TAG;
     static const std::string HYPERPARAM_ETA_TAG;
     static const std::string HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG;
+    static const std::string HYPERPARAM_RETRAINED_TREE_ETA_TAG;
     static const std::string HYPERPARAM_FEATURE_BAG_FRACTION_TAG;
     static const std::string HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG;
     static const std::string HYPERPARAM_PREDICTION_CHANGE_COST_TAG;
@@ -257,6 +261,9 @@ private:
 
     //! Rate of growth of shrinkage in the training loop.
     double m_EtaGrowthRatePerTree{0.0};
+
+    //! Shrinkage for retrained trees.
+    double m_RetrainedTreeEta{0.0};
 
     //! The maximum number of trees we'll use.
     std::size_t m_MaximumNumberTrees{0};

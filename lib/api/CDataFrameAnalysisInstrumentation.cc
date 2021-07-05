@@ -439,6 +439,9 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
 
         writer->addMember(CDataFrameTrainBoostedTreeRunner::ETA,
                           rapidjson::Value(m_Hyperparameters.s_Eta).Move(), parentObject);
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA,
+                          rapidjson::Value(m_Hyperparameters.s_RetrainedTreeEta).Move(),
+                          parentObject);
         if (m_Type == E_Classification) {
             auto objective = m_Hyperparameters.s_ClassAssignmentObjective;
             writer->addMember(

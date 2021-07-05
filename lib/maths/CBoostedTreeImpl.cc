@@ -180,6 +180,7 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
                             m_DownsampleFactor,
                             m_Eta,
                             m_EtaGrowthRatePerTree,
+                            m_RetrainedTreeEta,
                             m_MaximumNumberTrees,
                             m_FeatureBagFraction,
                             m_PredictionChangeCost),
@@ -967,8 +968,6 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
     //      splits S from F.
     //   3. Build one tree on S.
 
-    double eta{this->etaForTreeAtPosition(m_TreesToRetrain.size())};
-
     retrainedTrees.emplace_back();
     for (const auto& index : m_TreesToRetrain) {
 
@@ -977,6 +976,10 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
         const auto& treeToRetrain = m_BestForest[index];
         const auto& treeWhichWasRetrained = retrainedTrees.back();
+
+        double eta{index < m_BestForest.size()
+                       ? m_RetrainedTreeEta
+                       : this->etaForTreeAtPosition(m_TreesToRetrain.size())};
 
         workspace.retraining(treeToRetrain);
 
@@ -1749,6 +1752,9 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         case E_PredictionChangeCost:
             parameters(i) = CTools::stableLog(m_PredictionChangeCost);
             break;
+        case E_RetrainedTreeEta:
+            parameters(i) = CTools::stableLog(m_RetrainedTreeEta);
+            break;
         case E_TreeTopologyChangePenalty:
             parameters(i) = CTools::stableLog(m_Regularization.treeTopologyChangePenalty());
             break;
@@ -1762,6 +1768,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
               << lossVariance << ": regularization = " << m_Regularization.print()
               << ", downsample factor = " << m_DownsampleFactor << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
+              << ", retrained tree eta = " << m_RetrainedTreeEta
               << ", feature bag fraction = " << m_FeatureBagFraction
               << ", prediction cost change = " << m_PredictionChangeCost);
 
@@ -1827,6 +1834,9 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         case E_PredictionChangeCost:
             m_PredictionChangeCost = CTools::stableExp(parameters(i));
             break;
+        case E_RetrainedTreeEta:
+            m_RetrainedTreeEta = CTools::stableExp(parameters(i));
+            break;
         case E_TreeTopologyChangePenalty:
             m_Regularization.treeTopologyChangePenalty(CTools::stableExp(parameters(i)));
             break;
@@ -1849,7 +1859,7 @@ void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& los
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
         m_BestHyperparameters = CBoostedTreeHyperparameters(
-            m_Regularization, m_DownsampleFactor, m_Eta, m_EtaGrowthRatePerTree,
+            m_Regularization, m_DownsampleFactor, m_Eta, m_EtaGrowthRatePerTree, m_RetrainedTreeEta,
             maximumNumberTrees, m_FeatureBagFraction, m_PredictionChangeCost);
     }
 }
@@ -1867,6 +1877,7 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
     m_DownsampleFactor = m_BestHyperparameters.downsampleFactor();
     m_Eta = m_BestHyperparameters.eta();
     m_EtaGrowthRatePerTree = m_BestHyperparameters.etaGrowthRatePerTree();
+    m_RetrainedTreeEta = m_BestHyperparameters.retrainedTreeEta();
     m_MaximumNumberTrees = m_BestHyperparameters.maximumNumberTrees();
     m_FeatureBagFraction = m_BestHyperparameters.featureBagFraction();
     m_PredictionChangeCost = m_BestHyperparameters.predictionChangeCost();
@@ -1874,6 +1885,7 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
               << ", regularization* = " << m_Regularization.print()
               << ", downsample factor* = " << m_DownsampleFactor << ", eta* = " << m_Eta
               << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
+              << ", retrained tree eta* = " << m_RetrainedTreeEta
               << ", maximum number trees* = " << m_MaximumNumberTrees
               << ", feature bag fraction* = " << m_FeatureBagFraction
               << ", prediction change cost* = " << m_PredictionChangeCost);
@@ -1897,6 +1909,7 @@ void CBoostedTreeImpl::scaleRegularizers(double scale) {
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
     if (m_IncrementalTraining) {
         return m_RegularizationOverride.countNotSet() +
+               (m_RetrainedTreeEtaOverride != boost::none ? 0 : 1) +
                (m_PredictionChangeCostOverride != boost::none ? 0 : 1);
     }
     return m_RegularizationOverride.countNotSetForTrain() +
@@ -1922,6 +1935,7 @@ std::size_t CBoostedTreeImpl::numberTreesToRetrain() const {
 
 void CBoostedTreeImpl::recordHyperparameters() {
     m_Instrumentation->hyperparameters().s_Eta = m_Eta;
+    m_Instrumentation->hyperparameters().s_RetrainedTreeEta = m_RetrainedTreeEta;
     m_Instrumentation->hyperparameters().s_ClassAssignmentObjective = m_ClassAssignmentObjective;
     m_Instrumentation->hyperparameters().s_DepthPenaltyMultiplier =
         m_Regularization.depthPenaltyMultiplier();
@@ -1951,6 +1965,7 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
     m_TunableHyperparameters.clear();
     for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
         switch (static_cast<EHyperparameter>(i)) {
+        // Train hyperparameters.
         case E_DownsampleFactor:
             if (m_IncrementalTraining == false && m_DownsampleFactorOverride == boost::none) {
                 m_TunableHyperparameters.push_back(E_DownsampleFactor);
@@ -2008,14 +2023,20 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
                 m_TunableHyperparameters.push_back(E_PredictionChangeCost);
             }
             break;
+        // Incremental train hyperparameters.
+        case E_RetrainedTreeEta:
+            if (m_IncrementalTraining && m_RetrainedTreeEtaOverride == boost::none) {
+                m_TunableHyperparameters.push_back(E_RetrainedTreeEta);
+            }
+            break;
         case E_TreeTopologyChangePenalty:
             if (m_IncrementalTraining &&
                 m_RegularizationOverride.treeTopologyChangePenalty() == boost::none) {
                 m_TunableHyperparameters.push_back(E_TreeTopologyChangePenalty);
             }
             break;
+        // Not tuned directly.
         case E_MaximumNumberTrees:
-            // maximum number trees is not a tunable parameter
             break;
         }
     }
@@ -2121,6 +2142,8 @@ const std::string PREDICTION_CHANGE_COST_OVERRIDE_TAG{"prediction_change_cost_ov
 const std::string RANDOM_NUMBER_GENERATOR_TAG{"random_number_generator"};
 const std::string REGULARIZATION_TAG{"regularization"};
 const std::string REGULARIZATION_OVERRIDE_TAG{"regularization_override"};
+const std::string RETRAINED_TREE_ETA_TAG{"retrained_tree_eta"};
+const std::string RETRAINED_TREE_ETA_OVERRIDE_TAG{"retrained_tree_eta_override"};
 const std::string RETRAIN_FRACTION_TAG{"retrain_fraction"};
 const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string STOP_CROSS_VALIDATION_EARLY_TAG{"stop_cross_validation_eraly"};
@@ -2144,12 +2167,15 @@ CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
     return {CBoostedTreeHyperparameters::HYPERPARAM_DOWNSAMPLE_FACTOR_TAG,
             CBoostedTreeHyperparameters::HYPERPARAM_ETA_TAG,
             CBoostedTreeHyperparameters::HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
+            CBoostedTreeHyperparameters::HYPERPARAM_RETRAINED_TREE_ETA_TAG,
             CBoostedTreeHyperparameters::HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
+            CBoostedTreeHyperparameters::HYPERPARAM_PREDICTION_CHANGE_COST_TAG,
             TRegularization::REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
             TRegularization::REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
             TRegularization::REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
             TRegularization::REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
-            TRegularization::REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG};
+            TRegularization::REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
+            TRegularization::REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG};
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -2215,6 +2241,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(REGULARIZATION_OVERRIDE_TAG,
                                  m_RegularizationOverride, inserter);
     core::CPersistUtils::persist(REGULARIZATION_TAG, m_Regularization, inserter);
+    core::CPersistUtils::persist(RETRAINED_TREE_ETA_TAG, m_RetrainedTreeEta, inserter);
+    core::CPersistUtils::persist(RETRAINED_TREE_ETA_OVERRIDE_TAG,
+                                 m_RetrainedTreeEtaOverride, inserter);
     core::CPersistUtils::persist(RETRAIN_FRACTION_TAG, m_RetrainFraction, inserter);
     core::CPersistUtils::persist(ROWS_PER_FEATURE_TAG, m_RowsPerFeature, inserter);
     core::CPersistUtils::persist(STOP_CROSS_VALIDATION_EARLY_TAG,
@@ -2365,6 +2394,11 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(REGULARIZATION_OVERRIDE_TAG,
                 core::CPersistUtils::restore(REGULARIZATION_OVERRIDE_TAG,
                                              m_RegularizationOverride, traverser))
+        RESTORE(RETRAINED_TREE_ETA_TAG,
+                core::CPersistUtils::restore(RETRAINED_TREE_ETA_TAG, m_RetrainedTreeEta, traverser))
+        RESTORE(RETRAINED_TREE_ETA_OVERRIDE_TAG,
+                core::CPersistUtils::restore(RETRAINED_TREE_ETA_OVERRIDE_TAG,
+                                             m_RetrainedTreeEtaOverride, traverser))
         RESTORE(RETRAIN_FRACTION_TAG,
                 core::CPersistUtils::restore(RETRAIN_FRACTION_TAG, m_RetrainFraction, traverser))
         RESTORE(ROWS_PER_FEATURE_TAG,
@@ -2605,6 +2639,9 @@ CBoostedTreeImpl::hyperparameterImportance() const {
             break;
         case E_PredictionChangeCost:
             hyperparameterValue = m_PredictionChangeCost;
+            break;
+        case E_RetrainedTreeEta:
+            hyperparameterValue = m_RetrainedTreeEta;
             break;
         case E_TreeTopologyChangePenalty:
             hyperparameterValue = m_Regularization.treeTopologyChangePenalty();
