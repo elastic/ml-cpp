@@ -8,6 +8,7 @@
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CRapidJsonLineWriter.h>
+#include <core/CStopWatch.h>
 
 #include <seccomp/CSystemCallFilter.h>
 
@@ -30,6 +31,9 @@
 namespace {
 const std::string INFERENCE{"inference"};
 const std::string ERROR{"error"};
+const std::string TIME_MS{"time_ms"};
+
+ml::core::CStopWatch stopWatch;
 }
 
 torch::Tensor infer(torch::jit::script::Module& module,
@@ -99,10 +103,13 @@ void writeError(const std::string& requestId,
 }
 
 void writeDocumentOpening(const std::string& requestId,
+                          std::uint64_t timeMs,
                           ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
+    jsonWriter.Key(TIME_MS);
+    jsonWriter.Uint64(timeMs);
     jsonWriter.Key(INFERENCE);
     jsonWriter.StartArray();
 }
@@ -115,6 +122,7 @@ void writeDocumentClosing(ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapp
 template<std::size_t N>
 void writePrediction(const torch::Tensor& prediction,
                      const std::string& requestId,
+                     std::uint64_t timeMs,
                      ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
 
     // creating the accessor will throw if the tensor does
@@ -125,14 +133,14 @@ void writePrediction(const torch::Tensor& prediction,
     if (prediction.dtype() == torch::kFloat32) {
         auto accessor = prediction.accessor<float, N>();
 
-        writeDocumentOpening(requestId, jsonWriter);
+        writeDocumentOpening(requestId, timeMs, jsonWriter);
         writeTensor(accessor, jsonWriter);
         writeDocumentClosing(jsonWriter);
 
     } else if (prediction.dtype() == torch::kFloat64) {
         auto accessor = prediction.accessor<double, N>();
 
-        writeDocumentOpening(requestId, jsonWriter);
+        writeDocumentOpening(requestId, timeMs, jsonWriter);
         writeTensor(accessor, jsonWriter);
         writeDocumentClosing(jsonWriter);
     } else {
@@ -145,19 +153,22 @@ void writePrediction(const torch::Tensor& prediction,
 bool handleRequest(ml::torch::CCommandParser::SRequest& request,
                    torch::jit::script::Module& module,
                    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+
     try {
         LOG_DEBUG(<< "Inference request with id: " << request.s_RequestId);
+        stopWatch.reset(true);
         torch::Tensor results = infer(module, request);
+        std::uint64_t timeMs = stopWatch.stop();
         LOG_DEBUG(<< "Got results for request with id: " << request.s_RequestId);
         auto sizes = results.sizes();
         // Some models return a 3D tensor in which case
         // the first dimension must have size == 1
         if (sizes.size() == 3 && sizes[0] == 1) {
-            writePrediction<2>(results[0], request.s_RequestId, jsonWriter);
+            writePrediction<2>(results[0], request.s_RequestId, timeMs, jsonWriter);
         } else if (sizes.size() == 2) {
-            writePrediction<2>(results, request.s_RequestId, jsonWriter);
+            writePrediction<2>(results, request.s_RequestId, timeMs, jsonWriter);
         } else if (sizes.size() == 1) {
-            writePrediction<1>(results, request.s_RequestId, jsonWriter);
+            writePrediction<1>(results, request.s_RequestId, timeMs, jsonWriter);
         } else {
             std::ostringstream ss;
             ss << "Cannot convert results tensor of size [" << sizes << "]";
