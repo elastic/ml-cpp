@@ -197,7 +197,7 @@ int main(int argc, char** argv) {
     std::string logProperties;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
-    bool validElasticLicenseKeyConfirmed{false};
+    bool validElasticLicenseKeyConfirmed{true};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,

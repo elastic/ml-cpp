@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     std::string quantilesStateFile;
     bool deleteStateFiles{false};
     bool writeCsv{false};
-    bool validElasticLicenseKeyConfirmed{false};
+    bool validElasticLicenseKeyConfirmed{true};
     if (ml::normalize::CCmdLineParser::parse(
             argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
             lengthEncodedInput, namedPipeConnectTimeout, inputFileName,

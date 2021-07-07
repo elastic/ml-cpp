@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
     bool isRestoreFileNamedPipe{false};
     std::string persistFileName;
     bool isPersistFileNamedPipe{false};
-    bool validElasticLicenseKeyConfirmed{false};
+    bool validElasticLicenseKeyConfirmed{true};
     if (ml::data_frame_analyzer::CCmdLineParser::parse(
             argc, argv, configFile, memoryUsageEstimationOnly, logProperties,
             logPipe, lengthEncodedInput, namedPipeConnectTimeout, inputFileName,

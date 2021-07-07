@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
     bool isPersistFileNamedPipe{false};
     bool isPersistInForeground{false};
     std::string categorizationFieldName;
-    bool validElasticLicenseKeyConfirmed{false};
+    bool validElasticLicenseKeyConfirmed{true};
     if (ml::categorize::CCmdLineParser::parse(
             argc, argv, limitConfigFile, jobId, logProperties, logPipe, delimiter,
             lengthEncodedInput, persistInterval, namedPipeConnectTimeout,
