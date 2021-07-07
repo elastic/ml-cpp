@@ -548,7 +548,7 @@ BOOST_AUTO_TEST_CASE(testLinear) {
         // Unbiased...
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
-            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
 
@@ -1417,7 +1417,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.71);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.77);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
