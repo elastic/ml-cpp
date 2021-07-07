@@ -501,7 +501,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
 
     double numberTrainingRows{allTrainingRowsMask.manhattan()};
     if (static_cast<std::size_t>(numberTrainingRows) < numberFolds) {
-        HANDLE_FATAL(<< "Input error: unsufficient training data provided.");
+        HANDLE_FATAL(<< "Input error: insufficient training data provided.");
         return {{}, {}, {}};
     }
 
@@ -512,8 +512,8 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
     // We sample the smaller of the test or train set in the loop.
     std::size_t excessSampleSize{static_cast<std::size_t>(
         std::ceil(excessSampleFraction * numberTrainingRows))};
-    std::size_t sampleSize{static_cast<std::size_t>(
-        (sampleFraction - excessSampleFraction) * numberTrainingRows)};
+    std::size_t sampleSize{static_cast<std::size_t>(std::max(
+        (1.0 + 1e-8) * (sampleFraction - excessSampleFraction) * numberTrainingRows, 1.0))};
     LOG_TRACE(<< "excess sample size = " << excessSampleSize
               << ", sample size = " << sampleSize);
 
@@ -536,6 +536,10 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
 
     auto excessSampler = makeSampler(excessSampleSize);
     auto sampler = makeSampler(sampleSize);
+    if (sampler == nullptr) {
+        HANDLE_FATAL(<< "Internal error: failed to create train/test splits.");
+        return {{}, {}, {}};
+    }
 
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
 
