@@ -56,11 +56,12 @@ int main(int argc, char** argv) {
     std::string quantilesStateFile;
     bool deleteStateFiles{false};
     bool writeCsv{false};
+    bool validElasticLicenseKeyConfirmed{false};
     if (ml::normalize::CCmdLineParser::parse(
             argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
             lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            quantilesStateFile, deleteStateFiles, writeCsv) == false) {
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, quantilesStateFile,
+            deleteStateFiles, writeCsv, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
@@ -90,6 +91,11 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
+
+    if (validElasticLicenseKeyConfirmed == false) {
+        LOG_FATAL(<< "Failed to confirm valid license key.");
+        return EXIT_FAILURE;
+    }
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();

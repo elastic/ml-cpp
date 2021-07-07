@@ -32,7 +32,8 @@ bool CCmdLineParser::parse(int argc,
                            std::string& restoreFileName,
                            bool& isRestoreFileNamedPipe,
                            std::string& persistFileName,
-                           bool& isPersistFileNamedPipe) {
+                           bool& isPersistFileNamedPipe,
+                           bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -62,6 +63,8 @@ bool CCmdLineParser::parse(int argc,
             ("persist", boost::program_options::value<std::string>(),
                     "File to persist state to - not present means no state persistence")
             ("persistIsPipe", "Specified persist file is a named pipe")
+            ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
+             "Confirmation that a valid Elastic license key is in use.")
         ;
         // clang-format on
 
@@ -119,6 +122,10 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("persistIsPipe") > 0) {
             isPersistFileNamedPipe = true;
+        }
+        if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
+            validElasticLicenseKeyConfirmed =
+                vm["validElasticLicenseKeyConfirmed"].as<bool>();
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

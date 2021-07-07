@@ -40,7 +40,8 @@ public:
                       std::string& restoreFileName,
                       bool& isRestoreFileNamedPipe,
                       std::string& loggingFileName,
-                      std::string& logProperties);
+                      std::string& logProperties,
+                      bool& validElasticLicenseKeyConfirmed);
 
 private:
     static const std::string DESCRIPTION;
