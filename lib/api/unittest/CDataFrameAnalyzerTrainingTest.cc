@@ -386,6 +386,51 @@ void readIncrementalTrainingState(const std::string& resultsJson,
     }
     incrementalTrainingState << '\0' << inferenceModelStream.str() << '\0';
 }
+
+void readIncrementalTrainingState(const std::string& resultsJson,
+                                  std::ostream& incrementalTrainingState) {
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(resultsJson));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    std::stringstream inferenceModelStream;
+    rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
+    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
+        inferenceModelStreamWrapper};
+
+    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
+    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
+        incrementalTrainingStateWrapper};
+
+    // Read the state used to initialize incremental training.
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("compressed_inference_model")) {
+            inferenceModelWriter.write(result);
+            LOG_DEBUG(<< "Inference Model definition found");
+        } else if (result.HasMember("compressed_data_summarization")) {
+            dataSummarizationWriter.write(result);
+            LOG_DEBUG(<< "Data summarization found");
+        }
+    }
+    incrementalTrainingState << '\0' << inferenceModelStream.str() << '\0';
+}
+
+void readPredictions(const std::string& resultsJson,
+                     const std::string& targetPredictionName,
+                     TDoubleVec& predictions) {
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(resultsJson));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            predictions.emplace_back(
+                result["row_results"]["results"]["ml"][targetPredictionName].GetDouble());
+        }
+    }
+}
 }
 
 BOOST_AUTO_TEST_CASE(testMissingString) {
@@ -724,171 +769,141 @@ BOOST_AUTO_TEST_CASE(testRegressionTrainingWithStateRecovery) {
 BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.000001)) {
 
     // This tests that a prediction only task produces the same predictions as the
-    // result of training if rerunning with the same hyperparameters with numeric
-    // only features.
+    // result of training if rerunning with numeric features only.
+    using TTask = test::CDataFrameAnalysisSpecificationFactory::TTask;
+    double dataSummarizationFraction{0.1};
+    std::size_t trainExamples{70};
+    std::size_t predictExamples{50};
 
-    auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
-                        TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
-                        TPersisterSupplier* persisterSupplier,
-                        TRestoreSearcherSupplier* restorerSupplier,
-                        test::CDataFrameAnalysisSpecificationFactory::TTask task) {
-        return test::CDataFrameAnalysisSpecificationFactory{}
-            .rows(numberExamples)
-            .memoryLimit(15000000)
-            .predictionMaximumNumberTrees(10)
-            .predictionPersisterSupplier(persisterSupplier)
-            .predictionRestoreSearcherSupplier(restorerSupplier)
-            .regressionLossFunction(TLossFunctionType::E_MseRegression)
-            .task(task)
-            .dataSummarizationFraction(1.0)
-            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-                            dependentVariable, &frameAndDirectory);
-    };
-
-    std::size_t numberExamples{100};
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "target", ".", "."};
-    TStrVec fieldValues{"", "", "", "", "", "0", ""};
     test::CRandomNumbers rng;
-
     TSizeVec seed{1};
     rng.generateUniformSamples(0, 1000, 1, seed);
     LOG_DEBUG(<< "Seed: " << seed[0]);
 
-    TDoubleVec expectedPredictions;
-    expectedPredictions.reserve(numberExamples);
-    TDoubleVec actualPredictions;
-    actualPredictions.reserve(numberExamples);
-
-    std::stringstream inferenceModelStream;
-    std::stringstream incrementalTrainingState;
     std::stringstream outputStream;
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
     };
-
-    // Run once.
-    {
+    auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
+                        TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
+                        TRestoreSearcherSupplier* restorerSupplier, TTask task) {
+        return test::CDataFrameAnalysisSpecificationFactory{}
+            .rows(numberExamples)
+            .memoryLimit(15000000)
+            .predictionMaximumNumberTrees(10)
+            .predictionRestoreSearcherSupplier(restorerSupplier)
+            .regressionLossFunction(TLossFunctionType::E_MseRegression)
+            .task(task)
+            .dataSummarizationFraction(dataSummarizationFraction)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                            dependentVariable, &frameAndDirectory);
+    };
+    auto runAnalyzer = [&](std::size_t totalExamples, std::size_t newExamples, TTask task,
+                           TRestoreSearcherSupplier* restorerSupplier = nullptr) {
+        TStrVec fieldNames{"c1", "c2", "c3", "c4", "target", ".", "."};
+        TStrVec fieldValues{"", "", "", "", "", "0", ""};
+        outputStream.str("");
         TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
-        auto spec = makeSpec("target", numberExamples, frameAndDirectory, nullptr, nullptr,
-                             test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train);
+        auto spec = makeSpec("target", totalExamples, frameAndDirectory,
+                             restorerSupplier, task);
         api::CDataFrameAnalyzer analyzer{
             std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
+
         test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
             TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
-            analyzer, numberExamples, seed[0]);
+            analyzer, newExamples, seed[0]);
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+    };
 
-        rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-        core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
-            inferenceModelStreamWrapper};
-
-        rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
-        core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-            incrementalTrainingStateWrapper};
-
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(outputStream.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        for (const auto& result : results.GetArray()) {
-            if (result.HasMember("compressed_inference_model")) {
-                inferenceModelWriter.write(result);
-            } else if (result.HasMember("compressed_data_summarization")) {
-                dataSummarizationWriter.write(result);
-            } else if (result.HasMember("row_results")) {
-                expectedPredictions.emplace_back(
-                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
-            }
-        }
-    }
-    BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberExamples);
-
-    // Pass model definition and data summarization into the restore stream.
-    incrementalTrainingState << '\0' << inferenceModelStream.str() << '\0';
-    auto restoreStreamPtr =
-        std::make_shared<std::stringstream>(std::move(incrementalTrainingState));
-    TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
-        return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
-    }};
-
-    outputStream.str("");
+    // Run initial training.
+    TDoubleVec expectedPredictions;
+    expectedPredictions.reserve(trainExamples);
+    std::stringstream incrementalTrainingState;
     {
-        // Create a new analyzer for prediction.
-        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
-        auto spec = makeSpec(
-            "target", numberExamples, frameAndDirectory, nullptr, &restorerSupplier,
-            test::CDataFrameAnalysisSpecificationFactory::TTask::E_Predict);
-        api::CDataFrameAnalyzer analyzerPrediction{
-            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
-        analyzerPrediction.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(outputStream.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        for (const auto& result : results.GetArray()) {
-            if (result.HasMember("row_results")) {
-                actualPredictions.emplace_back(
-                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
-            }
-        }
+        runAnalyzer(trainExamples, trainExamples, TTask::E_Train);
+        readIncrementalTrainingState(outputStream.str(), incrementalTrainingState);
+        readPredictions(outputStream.str(), "target_prediction", expectedPredictions);
     }
-    BOOST_REQUIRE_EQUAL(actualPredictions.size(), numberExamples);
-    BOOST_TEST(actualPredictions == expectedPredictions, tt::per_element());
+    BOOST_REQUIRE_EQUAL(expectedPredictions.size(), trainExamples);
+
+    // Run prediction.
+    TDoubleVec actualPredictions;
+    actualPredictions.reserve(predictExamples);
+    {
+        // Pass incremental training state into the restore stream.
+        auto restoreStreamPtr =
+            std::make_shared<std::stringstream>(std::move(incrementalTrainingState));
+        TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
+            return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
+        }};
+        
+        std::size_t numberExamples{
+            static_cast<std::size_t>(trainExamples * dataSummarizationFraction) + predictExamples};
+        runAnalyzer(numberExamples, predictExamples, TTask::E_Predict, &restorerSupplier);
+        readPredictions(outputStream.str(), "target_prediction", actualPredictions);
+    }
+    BOOST_REQUIRE_EQUAL(actualPredictions.size(), predictExamples);
+    for (int i = 0; i < predictExamples; ++i) {
+        BOOST_TEST_REQUIRE(actualPredictions[i] == expectedPredictions[i]);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
                      *utf::tolerance(0.000001)) {
 
     // This tests that a prediction only task produces the same predictions as the
-    // result of training if rerunning with the same hyperparameters with a mixture
-    // of categorical and numeric features.
-
-    std::size_t numberExamples = 100;
+    // result of training if rerunning with a mixture of categorical and numeric
+    // features.
+    using TTask = test::CDataFrameAnalysisSpecificationFactory::TTask;
+    double dataSummarizationFraction{0.1};
+    std::size_t trainExamples{70};
+    std::size_t predictExamples{50};
     std::size_t cols = 3;
-    TStrVec fieldNames{"numeric_col", "categorical_col", "target", ".", "."};
-    TStrVec fieldValues{"", "", "0", "", ""};
-    test::CRandomNumbers rng;
 
+    test::CRandomNumbers rng;
     TSizeVec seed{1};
     rng.generateUniformSamples(0, 1000, 1, seed);
     LOG_DEBUG(<< "Seed: " << seed[0]);
     rng.seed(seed[0]);
 
-    // Generate the data set.
+    // Generate the training values.
     TDoubleVec weights{10.0, 50.0};
     TDoubleVecVec values(cols);
-    rng.generateUniformSamples(-10.0, 10.0, numberExamples, values[0]);
-    values[1] = generateCategoricalData(rng, numberExamples, {5.0, 5.0, 5.0});
-    for (std::size_t i = 0; i < numberExamples; ++i) {
+    rng.generateUniformSamples(-10.0, 10.0, trainExamples, values[0]);
+    values[1] = generateCategoricalData(rng, trainExamples, {5.0, 5.0, 5.0});
+    for (std::size_t i = 0; i < trainExamples; ++i) {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    TDoubleVec expectedPredictions;
-    expectedPredictions.reserve(numberExamples);
-    TDoubleVec actualPredictions;
-    actualPredictions.reserve(numberExamples);
-
-    std::stringstream inferenceModelStream;
-    std::stringstream incrementalTrainingState;
     std::stringstream outputStream;
     auto outputWriterFactory = [&outputStream]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
     };
-
-    // Run once.
-    {
+    auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
+                        TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
+                        TRestoreSearcherSupplier* restorerSupplier, TTask task) {
+        return test::CDataFrameAnalysisSpecificationFactory{}
+            .rows(numberExamples)
+            .columns(cols)
+            .memoryLimit(30000000)
+            .predictionCategoricalFieldNames({"categorical_col"})
+            .predictionRestoreSearcherSupplier(restorerSupplier)
+            .dataSummarizationFraction(dataSummarizationFraction)
+            .task(task)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                            dependentVariable, &frameAndDirectory);
+    };
+    auto runAnalyzer = [&](std::size_t totalExamples, std::size_t newExamples, TTask task,
+                           TRestoreSearcherSupplier* restorerSupplier = nullptr) {
+        TStrVec fieldNames{"numeric_col", "categorical_col", "target", ".", "."};
+        TStrVec fieldValues{"", "", "0", "", ""};
+        outputStream.str("");
         TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
-        auto spec = test::CDataFrameAnalysisSpecificationFactory{}
-                        .rows(numberExamples)
-                        .columns(cols)
-                        .memoryLimit(30000000)
-                        .predictionCategoricalFieldNames({"categorical_col"})
-                        .dataSummarizationFraction(1.0)
-                        .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-                                        "target", &frameAndDirectory);
+        auto spec = makeSpec("target", totalExamples, frameAndDirectory,
+                             restorerSupplier, task);
         api::CDataFrameAnalyzer analyzer{
             std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
-
-        for (std::size_t i = 0; i < numberExamples; ++i) {
+        for (std::size_t i = 0; i < newExamples; ++i) {
             for (std::size_t j = 0; j < cols; ++j) {
                 fieldValues[j] = core::CStringUtils::typeToStringPrecise(
                     values[j][i], core::CIEEE754::E_DoublePrecision);
@@ -896,69 +911,39 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
             analyzer.handleRecord(fieldNames, fieldValues);
         }
         analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
+    };
 
-        rapidjson::OStreamWrapper inferenceModelStreamWrapper(inferenceModelStream);
-        core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> inferenceModelWriter{
-            inferenceModelStreamWrapper};
-
-        rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
-        core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-            incrementalTrainingStateWrapper};
-
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(outputStream.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        for (const auto& result : results.GetArray()) {
-            if (result.HasMember("compressed_inference_model")) {
-                inferenceModelWriter.write(result);
-            } else if (result.HasMember("compressed_data_summarization")) {
-                dataSummarizationWriter.write(result);
-            } else if (result.HasMember("row_results")) {
-                expectedPredictions.emplace_back(
-                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
-            }
-        }
-    }
-    BOOST_REQUIRE_EQUAL(expectedPredictions.size(), numberExamples);
-
-    // Pass model definition and data summarization into the restore stream.
-    incrementalTrainingState << '\0' << inferenceModelStream.str() << '\0';
-    auto restoreStreamPtr =
-        std::make_shared<std::stringstream>(std::move(incrementalTrainingState));
-    TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
-        return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
-    }};
-
-    outputStream.str("");
+    // Run inital training.
+    TDoubleVec expectedPredictions;
+    expectedPredictions.reserve(trainExamples);
+    std::stringstream incrementalTrainingState;
     {
-        // Create a new spec for prediction.
-        TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
-        auto spec =
-            test::CDataFrameAnalysisSpecificationFactory{}
-                .rows(numberExamples)
-                .columns(cols)
-                .memoryLimit(30000000)
-                .predictionCategoricalFieldNames({"categorical_col"})
-                .predictionRestoreSearcherSupplier(&restorerSupplier)
-                .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Predict)
-                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-                                "target", &frameAndDirectory);
-        api::CDataFrameAnalyzer analyzer{
-            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
-        analyzer.handleRecord(fieldNames, {"", "", "", "", "$"});
-
-        rapidjson::Document results;
-        rapidjson::ParseResult ok(results.Parse(outputStream.str()));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        for (const auto& result : results.GetArray()) {
-            if (result.HasMember("row_results")) {
-                actualPredictions.emplace_back(
-                    result["row_results"]["results"]["ml"]["target_prediction"].GetDouble());
-            }
-        }
+        runAnalyzer(trainExamples, trainExamples, TTask::E_Train);
+        readIncrementalTrainingState(outputStream.str(), incrementalTrainingState);
+        readPredictions(outputStream.str(), "target_prediction", expectedPredictions);
     }
-    BOOST_REQUIRE_EQUAL(actualPredictions.size(), numberExamples);
-    BOOST_TEST(actualPredictions == expectedPredictions, tt::per_element());
+    BOOST_REQUIRE_EQUAL(expectedPredictions.size(), trainExamples);
+
+    // Run prediction.
+    TDoubleVec actualPredictions;
+    actualPredictions.reserve(predictExamples);
+    {
+        // Pass incremental training state into the restore stream.
+        auto restoreStreamPtr =
+            std::make_shared<std::stringstream>(std::move(incrementalTrainingState));
+        TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
+            return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
+        }};
+
+        std::size_t numberExamples{
+            static_cast<std::size_t>(trainExamples * dataSummarizationFraction) + predictExamples};
+        runAnalyzer(numberExamples, predictExamples, TTask::E_Predict, &restorerSupplier);
+        readPredictions(outputStream.str(), "target_prediction", actualPredictions);
+    }
+    BOOST_REQUIRE_EQUAL(actualPredictions.size(), predictExamples);
+    for (int i = 0; i < predictExamples; ++i) {
+        BOOST_TEST_REQUIRE(actualPredictions[i] == expectedPredictions[i]);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
@@ -1125,14 +1110,15 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     regression->predict();
 
     auto prediction = predictions.begin();
-    frame->readRows(1, 0, frame->numberRows(),
-                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                        for (auto row = beginRows; row != endRows; ++row) {
-                            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                                (*prediction++), regression->readPrediction(*row)[0], 1e-6);
-                        }
-                    },
-                    &newTrainingRowMask);
+    frame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    (*prediction++), regression->readPrediction(*row)[0], 1e-6);
+            }
+        },
+        &newTrainingRowMask);
 }
 
 BOOST_AUTO_TEST_CASE(testClassificationTraining) {
