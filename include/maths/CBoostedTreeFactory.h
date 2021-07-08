@@ -257,7 +257,7 @@ private:
     //! Setup before setting initial values for hyperparameters.
     void initializeHyperparametersSetup(core::CDataFrame& frame);
 
-    //! Estimate a good initial value and search bounding box for regularisation
+    //! Estimate a good initial value and bounding box to search for regularisation
     //! hyperparameters.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
