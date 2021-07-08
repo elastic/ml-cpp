@@ -909,7 +909,8 @@ public:
             std::swap(fa, fb);
         }
 
-        double x, fx;
+        double x;
+        double fx;
         {
             std::size_t n = maxIterations;
             minimize(a, b, fa, fb, f, 0.0, n, fc, x, fx);
@@ -922,7 +923,7 @@ public:
 
         // [a, x] and [b, r] bracket the sublevel set end points.
 
-        auto fMinusFc = [=](double x_) { return f(x_) - fc; };
+        auto fMinusFc = [&f, fc](double x_) { return f(x_) - fc; };
 
         LOG_TRACE(<< "a = " << a << ", x = " << x << ", b = " << b);
         LOG_TRACE(<< "f_(a) = " << fa - fc << ", f_(x) = " << fx - fc
