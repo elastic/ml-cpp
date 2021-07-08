@@ -197,11 +197,12 @@ int main(int argc, char** argv) {
     std::string logProperties;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
+    bool validElasticLicenseKeyConfirmed{true};
 
     if (ml::torch::CCmdLineParser::parse(
-            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, logFileName, logProperties) == false) {
+            argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            logFileName, logProperties, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
@@ -240,6 +241,11 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
+
+    if (validElasticLicenseKeyConfirmed == false) {
+        LOG_FATAL(<< "Failed to confirm valid license key.");
+        return EXIT_FAILURE;
+    }
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();

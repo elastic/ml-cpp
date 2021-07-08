@@ -57,7 +57,8 @@ public:
                       bool& isPersistFileNamedPipe,
                       bool& isPersistInForeground,
                       std::size_t& maxAnomalyRecords,
-                      bool& memoryUsage);
+                      bool& memoryUsage,
+                      bool& validElasticLicenseKeyConfirmed);
 
 private:
     static const std::string DESCRIPTION;

@@ -36,7 +36,8 @@ bool CCmdLineParser::parse(int argc,
                            std::string& persistFileName,
                            bool& isPersistFileNamedPipe,
                            bool& isPersistInForeground,
-                           std::string& categorizationFieldName) {
+                           std::string& categorizationFieldName,
+                           bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -74,6 +75,8 @@ bool CCmdLineParser::parse(int argc,
             ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
             ("categorizationfield", boost::program_options::value<std::string>(),
                     "Field to compute mlcategory from")
+            ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
+             "Confirmation that a valid Elastic license key is in use.")
         ;
         // clang-format on
 
@@ -143,6 +146,10 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("categorizationfield") > 0) {
             categorizationFieldName = vm["categorizationfield"].as<std::string>();
+        }
+        if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
+            validElasticLicenseKeyConfirmed =
+                vm["validElasticLicenseKeyConfirmed"].as<bool>();
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
