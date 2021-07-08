@@ -68,6 +68,12 @@ void CLowess<N>::fit(TDoubleDoublePrVec data, std::size_t numberFolds) {
     TSizeVecVec testingMasks;
     this->setupMasks(numberFolds, trainingMasks, testingMasks);
 
+    // Here, we line search different values of m_K. We aim to cover the case we have
+    // a lot of smoothing, m_K is 0, to the case m_K is large compared to the data
+    // range so most points have very low weight and don't constrain the polynomial
+    // parameters. We finish up by polishing up the minimum on the best candidate
+    // interval using Brent's method. See CSolvers::globalMaximize for details.
+
     TDoubleVec K(17);
     double range{m_Data.back().first - m_Data.front().first};
     for (std::size_t i = 0; i < K.size(); ++i) {
