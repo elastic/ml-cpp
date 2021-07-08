@@ -332,8 +332,8 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
         //
         // In addition, we want to constrain the maximum amount of training data we'll
         // use during hyperparameter search to avoid very long run times. To do this
-        // we use less than the implied 1 - 1/k : 1/k train : test split when it results
-        // in more train rows than the defined maximum.
+        // we use less than the implied 1 - 1/k : 1/k for the train : test split when
+        // it results in more train rows than the defined maximum.
 
         double initialDownsampleFraction{(m_InitialDownsampleRowsPerFeature *
                                           static_cast<double>(frame.numberColumns() - 1)) /
