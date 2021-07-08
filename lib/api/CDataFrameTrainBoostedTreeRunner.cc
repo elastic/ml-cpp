@@ -32,7 +32,7 @@
 namespace ml {
 namespace api {
 namespace {
-const std::size_t UNSET_NUMBER_ROUNDS_PER_HYPERPARAMETER{
+const std::size_t NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET{
     std::numeric_limits<std::size_t>::max()};
 }
 
@@ -106,7 +106,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
     std::size_t numberRoundsPerHyperparameter{
         parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
-            UNSET_NUMBER_ROUNDS_PER_HYPERPARAMETER)};
+            NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET)};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
@@ -205,7 +205,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (trainFractionPerFold > 0.0) {
         m_BoostedTreeFactory->trainFractionPerFold(trainFractionPerFold);
     }
-    if (numberRoundsPerHyperparameter != UNSET_NUMBER_ROUNDS_PER_HYPERPARAMETER) {
+    if (numberRoundsPerHyperparameter != NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET) {
         m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameter(numberRoundsPerHyperparameter);
     }
     if (bayesianOptimisationRestarts > 0) {
