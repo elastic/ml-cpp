@@ -34,7 +34,8 @@ public:
     //!
     //! \param[in] data The training data.
     //! \param[in] numberFolds The number of folds to use in cross-validation to
-    // compute the best weight function from the family exp(-k |xi - xj|).
+    //! compute the best weight function from the family exp(-k |xi - xj|) with
+    //! k a free parameter which determines the amount of smoothing to use.
     void fit(TDoubleDoublePrVec data, std::size_t numberFolds);
 
     //! Predict the value at \p x.
@@ -51,15 +52,6 @@ public:
     //!
     //! \note Defined as zero if no data have been fit.
     double residualVariance() const;
-
-    //! Compute the sublevel set of \p f containing \p xmin.
-    //!
-    //! \param[in] xmin The argument of the minimum of the interpolated function.
-    //! \param[in] fmin The value of the minimum of the function.
-    //! \param[in] f The value of the function for which to compute the sublevel set.
-    //! \note \p f should be greater than fmin.
-    //! \note Defined as (0,0) if no data have been fit.
-    TDoubleDoublePr sublevelSet(double xmin, double fmin, double f) const;
 
     //! Get how far we are prepared to extrapolate as the interval we will search
     //! in the minimum and sublevelSet functions.
@@ -81,7 +73,10 @@ private:
 private:
     TDoubleDoublePrVec m_Data;
     TSizeVec m_Mask;
-    double m_K = 0.0;
+    //! The weight to assign to data points when fitting polynomial at x is given
+    //! by exp(-k |xi - xj|). This can therefore be thought of as the inverse of
+    //! the amount of smoothing.
+    double m_K{0.0};
 };
 }
 }

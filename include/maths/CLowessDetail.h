@@ -166,41 +166,6 @@ double CLowess<N>::residualVariance() const {
 }
 
 template<std::size_t N>
-typename CLowess<N>::TDoubleDoublePr
-CLowess<N>::sublevelSet(double xmin, double fmin, double f) const {
-
-    if (m_Data.empty()) {
-        return {0.0, 0.0};
-    }
-    if (f <= fmin) {
-        return {xmin, xmin};
-    }
-
-    auto solve = [&](double n, double stop) {
-        double fx{fmin};
-        for (double i = 1.0; i <= n; i += 1.0) {
-            double xlast{((i - 1.0) * stop + (n - i + 1.0) * xmin) / n};
-            double x{(i * stop + (n - i) * xmin) / n};
-            double flast{fx};
-            fx = this->predict(x);
-            if (fx > f) {
-                return CTools::linearlyInterpolate(flast, fx, xlast, x, f);
-            }
-        }
-        return stop;
-    };
-
-    double xa, xb;
-    std::tie(xa, xb) = this->extrapolationInterval();
-    double alpha{(xmin - xa) / (xb - xa)};
-    double beta{1.0 - alpha};
-    LOG_TRACE(<< "alpha = " << alpha << ", beta = " << beta);
-
-    return {solve(std::ceil(alpha * 40.0), xa),
-            solve(std::ceil((1.0 - alpha) * 40.0), xb)};
-}
-
-template<std::size_t N>
 typename CLowess<N>::TDoubleDoublePr CLowess<N>::extrapolationInterval() const {
     double xa{m_Data.front().first};
     double xb{m_Data.back().first};

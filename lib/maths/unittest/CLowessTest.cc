@@ -80,18 +80,6 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
             BOOST_TEST_REQUIRE(fmin <= lowess.predict(std::max(xmin - 0.1, xea)));
             BOOST_TEST_REQUIRE(fmin <= lowess.predict(std::min(xmin + 0.1, xeb)));
 
-            double xa, xb;
-            std::tie(xa, xb) = lowess.sublevelSet(xmin, fmin, fmin + 0.1);
-            BOOST_TEST_REQUIRE(xa <= xmin);
-            BOOST_TEST_REQUIRE(xb >= xmin);
-
-            BOOST_TEST_REQUIRE(xmin >= xea);
-            BOOST_TEST_REQUIRE(xmin <= xeb);
-            BOOST_TEST_REQUIRE(xa >= xea);
-            BOOST_TEST_REQUIRE(xb <= xeb);
-            BOOST_TEST_REQUIRE(xa >= xea);
-            BOOST_TEST_REQUIRE(xb <= xeb);
-
             TMeanVarAccumulator residualMoments;
             for (const auto& x : data) {
                 residualMoments.add(x.second - lowess.predict(x.first));
@@ -202,6 +190,7 @@ BOOST_AUTO_TEST_CASE(testTrainingLossCurves) {
     //   2. Car-parts
     //   3. Boston
 
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TDoubleDoublePrVecVec = std::vector<maths::CLowess<2>::TDoubleDoublePrVec>;
 
     // clang-format off
@@ -232,30 +221,23 @@ BOOST_AUTO_TEST_CASE(testTrainingLossCurves) {
          {-0.1069061, 9.885219}},
         {{-3.800451, 8.317797}, {-3.738576, 8.053429}, {-3.403612, 8.338234}, {-2.801874, 8.890816}, {-2.333564, 8.705093},
          {-2.208987, 10.69139}, {-1.803296, 9.234116}, {-1.002829, 10.67219}, {-0.9090844, 12.46085}, {-0.804719, 13.98731}}};
+
+    // Check against judged minimum for each curve.
+    TDoubleVec preferredXmin{9.5, 1.7, -0.64, 3.6, -0.1, -0.25, 11.0, 5.0, 2.0, -0.1, -0.2, -2.3, -0.8, 5.5, 3.2, -2.3, 2.0, -0.57, -3.6};
     // clang-format on
 
-    for (const auto& curve : curves) {
+    TMeanAccumulator meanRelativeError;
+    for (std::size_t i = 0; i < curves.size(); ++i) {
         maths::CLowess<2> lowess;
-        lowess.fit(curve, curve.size());
-        double xmin, fmin;
-        std::tie(xmin, fmin) = lowess.minimum();
-        double variance{lowess.residualVariance()};
+        lowess.fit(curves[i], curves[i].size());
+        double xmin;
+        std::tie(xmin, std::ignore) = lowess.minimum();
 
-        double xa, xb;
-        double ftarget{fmin + std::sqrt(variance)};
-        std::tie(xa, xb) = lowess.sublevelSet(xmin, fmin, ftarget);
-
-        if (xa <= curve.front().first) {
-            BOOST_TEST_REQUIRE(lowess.predict(xa) <= 1.01 * ftarget);
-        } else {
-            BOOST_REQUIRE_CLOSE(lowess.predict(xa), ftarget, 1.0); // 1.0%
-        }
-        if (xb >= curve.back().first) {
-            BOOST_TEST_REQUIRE(lowess.predict(xb) <= 1.01 * ftarget);
-        } else {
-            BOOST_REQUIRE_CLOSE(lowess.predict(xb), ftarget, 1.0); // 1.0%
-        }
+        meanRelativeError.add(std::fabs(xmin - preferredXmin[i]) /
+                              std::fabs(preferredXmin[i]));
     }
+
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, maths::CBasicStatistics::mean(meanRelativeError), 0.25);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
