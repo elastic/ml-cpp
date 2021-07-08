@@ -98,6 +98,7 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TLossFunctionType = maths::boosted_tree::ELossType;
 using TLossFunctionUPtr = maths::CBoostedTreeFactory::TLossFunctionUPtr;
+using TTargetFunc = std::function<double(const TRowRef&)>;
 
 const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
 
@@ -395,6 +396,9 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
     stream << str;
     stream.flush();
 }
+
+const std::size_t OLD_TRAINING_DATA{0};
+const std::size_t NEW_TRAINING_DATA{1};
 }
 
 BOOST_AUTO_TEST_CASE(testEdgeCases) {
@@ -695,11 +699,9 @@ BOOST_AUTO_TEST_CASE(testMsle) {
     // TODO #1744 test quality of MSLE on data with log-normal errors.
 }
 
-BOOST_AUTO_TEST_CASE(testMseIncremental) {
+BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
 
-    // Test incremental training for the MSE objective.
-
-    using TTargetFunc = std::function<double(const TRowRef&)>;
+    // Test incremental training for the MSE objective for drift in the target value.
 
     test::CRandomNumbers rng;
     double noiseVariance{9.0};
@@ -776,9 +778,6 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
     oldTrainingRowMask.extend(false, extraTrainingRows);
     core::CPackedBitVector newTrainingRowMask{~oldTrainingRowMask};
 
-    const std::size_t OLD{0};
-    const std::size_t NEW{1};
-
     TMeanAccumulator mseBeforeIncrementalTraining[2];
     TMeanAccumulator mseAfterIncrementalTraining[2];
 
@@ -786,22 +785,24 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
     regression->predict();
 
     // Get the average error on the old and new training data from the old model.
-    frame->readRows(1, 0, frame->numberRows(),
-                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                        for (auto row = beginRows; row != endRows; ++row) {
-                            mseBeforeIncrementalTraining[OLD].add(maths::CTools::pow2(
-                                (*row)[cols - 1] - regression->readPrediction(*row)[0]));
-                        }
-                    },
-                    &oldTrainingRowMask);
-    frame->readRows(1, 0, frame->numberRows(),
-                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                        for (auto row = beginRows; row != endRows; ++row) {
-                            mseBeforeIncrementalTraining[NEW].add(maths::CTools::pow2(
-                                (*row)[cols - 1] - regression->readPrediction(*row)[0]));
-                        }
-                    },
-                    &newTrainingRowMask);
+    frame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                mseBeforeIncrementalTraining[OLD_TRAINING_DATA].add(maths::CTools::pow2(
+                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+            }
+        },
+        &oldTrainingRowMask);
+    frame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                mseBeforeIncrementalTraining[NEW_TRAINING_DATA].add(maths::CTools::pow2(
+                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+            }
+        },
+        &newTrainingRowMask);
 
     regression = maths::CBoostedTreeFactory::constructFromModel(std::move(regression))
                      .newTrainingRowMask(newTrainingRowMask)
@@ -815,7 +816,7 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
         1, 0, frame->numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                mseAfterIncrementalTraining[OLD].add(maths::CTools::pow2(
+                mseAfterIncrementalTraining[OLD_TRAINING_DATA].add(maths::CTools::pow2(
                     (*row)[cols - 1] - regression->readPrediction(*row)[0]));
             }
         },
@@ -824,7 +825,7 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
         1, 0, frame->numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                mseAfterIncrementalTraining[NEW].add(maths::CTools::pow2(
+                mseAfterIncrementalTraining[NEW_TRAINING_DATA].add(maths::CTools::pow2(
                     (*row)[cols - 1] - regression->readPrediction(*row)[0]));
             }
         },
@@ -836,15 +837,149 @@ BOOST_AUTO_TEST_CASE(testMseIncremental) {
     // larger reduction in the new training data predcition error.
 
     double errorIncreaseOnOld{
-        maths::CBasicStatistics::mean(mseAfterIncrementalTraining[OLD]) /
-            maths::CBasicStatistics::mean(mseBeforeIncrementalTraining[OLD]) -
+        maths::CBasicStatistics::mean(mseAfterIncrementalTraining[OLD_TRAINING_DATA]) /
+            maths::CBasicStatistics::mean(mseBeforeIncrementalTraining[OLD_TRAINING_DATA]) -
         1.0};
     double errorDecreaseOnNew{
-        maths::CBasicStatistics::mean(mseBeforeIncrementalTraining[NEW]) /
-            maths::CBasicStatistics::mean(mseAfterIncrementalTraining[NEW]) -
+        maths::CBasicStatistics::mean(mseBeforeIncrementalTraining[NEW_TRAINING_DATA]) /
+            maths::CBasicStatistics::mean(mseAfterIncrementalTraining[NEW_TRAINING_DATA]) -
         1.0};
 
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 1.5 * errorIncreaseOnOld);
+    LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
+    LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 2.0 * errorIncreaseOnOld);
+}
+
+BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
+
+    // Test incremental training for the MSE objective for values out of the training
+    // data domain domain.
+
+    test::CRandomNumbers rng;
+    double noiseVariance{100.0};
+    std::size_t rows{750};
+    std::size_t cols{6};
+    std::size_t extraTrainingRows{250};
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    fillDataFrame(rows, 0, cols, x, noise, target, *frame);
+
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .buildForTrain(*frame, cols - 1);
+    regression->train();
+
+    frame->resizeColumns(1, cols);
+    auto newFrame = core::makeMainStorageDataFrame(cols).first;
+
+    fillDataFrame(rows, 0, cols, x, noise, target, *newFrame);
+
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(10.0, 15.0, extraTrainingRows, x[i]);
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, extraTrainingRows, noise);
+
+    fillDataFrame(extraTrainingRows, 0, cols, x, noise, target, *frame);
+    fillDataFrame(extraTrainingRows, 0, cols, x, noise, target, *newFrame);
+
+    regression->predict();
+
+    core::CPackedBitVector oldTrainingRowMask{rows, true};
+    oldTrainingRowMask.extend(false, extraTrainingRows);
+    core::CPackedBitVector newTrainingRowMask{~oldTrainingRowMask};
+
+    TMeanAccumulator mseBeforeIncrementalTraining[2];
+    TMeanAccumulator mseAfterIncrementalTraining[2];
+
+    frame->resizeColumns(1, cols + 1);
+    regression->predict();
+
+    // Get the average error on the old and new training data from the old model.
+    frame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                mseBeforeIncrementalTraining[OLD_TRAINING_DATA].add(maths::CTools::pow2(
+                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+            }
+        },
+        &oldTrainingRowMask);
+    frame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                mseBeforeIncrementalTraining[NEW_TRAINING_DATA].add(maths::CTools::pow2(
+                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+            }
+        },
+        &newTrainingRowMask);
+
+    regression = maths::CBoostedTreeFactory::constructFromModel(std::move(regression))
+                     .newTrainingRowMask(newTrainingRowMask)
+                     .buildForTrainIncremental(*newFrame, cols - 1);
+
+    regression->trainIncremental();
+    regression->predict();
+
+    // Get the average error on the old and new training data from the new model.
+    newFrame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                mseAfterIncrementalTraining[OLD_TRAINING_DATA].add(maths::CTools::pow2(
+                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+            }
+        },
+        &oldTrainingRowMask);
+    newFrame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                mseAfterIncrementalTraining[NEW_TRAINING_DATA].add(maths::CTools::pow2(
+                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+            }
+        },
+        &newTrainingRowMask);
+
+    // We should see little change in the prediction errors on the old data
+    // set which doesn't overlap the new data, but a large improvement on
+    // the new data for constant extrapolation performs poorly.
+
+    double errorIncreaseOnOld{
+        maths::CBasicStatistics::mean(mseAfterIncrementalTraining[OLD_TRAINING_DATA]) /
+            maths::CBasicStatistics::mean(mseBeforeIncrementalTraining[OLD_TRAINING_DATA]) -
+        1.0};
+    double errorDecreaseOnNew{
+        maths::CBasicStatistics::mean(mseBeforeIncrementalTraining[NEW_TRAINING_DATA]) /
+            maths::CBasicStatistics::mean(mseAfterIncrementalTraining[NEW_TRAINING_DATA]) -
+        1.0};
+
+    LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
+    LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -1309,8 +1444,6 @@ BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
 
     // We should get similar performance independent of fixed shifts for the target.
 
-    using TTargetFunc = std::function<double(const TRowRef& row)>;
-
     test::CRandomNumbers rng;
 
     std::size_t trainRows{1000};
@@ -1516,6 +1649,154 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
     LOG_DEBUG(<< "mean log relative error = "
               << maths::CBasicStatistics::mean(meanLogRelativeError));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.56);
+}
+
+BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
+
+    // Test incremental training for the binomial logistic objective for drift in the
+    // target value.
+}
+
+BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
+
+    // Test incremental training for binomial logistic objective for values out of the
+    // training data domain.
+
+    test::CRandomNumbers rng;
+    std::size_t rows{750};
+    std::size_t cols{5};
+    std::size_t extraTrainingRows{250};
+
+    auto probability = [&] {
+        TDoubleVec weights{-0.6, 1.0, 0.8, -1.2};
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, 0.5, rows + extraTrainingRows, noise);
+        return [=](const TRowRef& row) {
+            double x{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                x += weights[i] * row[i];
+            }
+            return maths::CTools::logisticFunction(x + noise[row.index()]);
+        };
+    }();
+
+    auto target = [&] {
+        TDoubleVec uniform01;
+        rng.generateUniformSamples(0.0, 1.0, rows + extraTrainingRows, uniform01);
+        return [=](const TRowRef& row) {
+            return uniform01[row.index()] < probability(row) ? 1.0 : 0.0;
+        };
+    }();
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(-3.0, 0.0, rows, x[i]);
+    }
+
+    fillDataFrame(rows, 0, cols, {false, false, false, false, true}, x,
+                  TDoubleVec(rows, 0.0), target, *frame);
+
+    auto classifier = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
+                          .buildForTrain(*frame, cols - 1);
+    classifier->train();
+
+    frame->resizeColumns(1, cols);
+    auto newFrame = core::makeMainStorageDataFrame(cols).first;
+
+    fillDataFrame(rows, 0, cols, {false, false, false, false, true}, x,
+                  TDoubleVec(rows, 0.0), target, *newFrame);
+
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 3.0, extraTrainingRows, x[i]);
+    }
+
+    fillDataFrame(extraTrainingRows, 0, cols, {false, false, false, false, true},
+                  x, TDoubleVec(extraTrainingRows, 0.0), target, *frame);
+    fillDataFrame(extraTrainingRows, 0, cols, {false, false, false, false, true},
+                  x, TDoubleVec(extraTrainingRows, 0.0), target, *newFrame);
+
+    classifier->predict();
+
+    core::CPackedBitVector oldTrainingRowMask{rows, true};
+    oldTrainingRowMask.extend(false, extraTrainingRows);
+    core::CPackedBitVector newTrainingRowMask{~oldTrainingRowMask};
+
+    TMeanAccumulator logRelativeErrorBeforeIncrementalTraining[2];
+    TMeanAccumulator logRelativeErrorAfterIncrementalTraining[2];
+
+    auto addToRelativeError = [&](const TRowRef& row, TMeanAccumulator& logRelativeError) {
+        double expectedProbability{probability(row)};
+        double actualProbability{classifier->readPrediction(row)[1]};
+        logRelativeError.add(std::log(std::max(actualProbability, expectedProbability) /
+                                      std::min(actualProbability, expectedProbability)));
+
+    };
+
+    frame->resizeColumns(1, cols + 1);
+    classifier->predict();
+
+    // Get the average error on the old and new training data from the old model.
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            addToRelativeError(
+                                *row, logRelativeErrorBeforeIncrementalTraining[OLD_TRAINING_DATA]);
+                        }
+                    },
+                    &oldTrainingRowMask);
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            addToRelativeError(
+                                *row, logRelativeErrorBeforeIncrementalTraining[NEW_TRAINING_DATA]);
+                        }
+                    },
+                    &newTrainingRowMask);
+
+    classifier = maths::CBoostedTreeFactory::constructFromModel(std::move(classifier))
+                     .newTrainingRowMask(newTrainingRowMask)
+                     .buildForTrainIncremental(*newFrame, cols - 1);
+
+    classifier->trainIncremental();
+    classifier->predict();
+
+    // Get the average error on the old and new training data from the new model.
+    newFrame->readRows(1, 0, frame->numberRows(),
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               addToRelativeError(
+                                   *row, logRelativeErrorAfterIncrementalTraining[OLD_TRAINING_DATA]);
+                           }
+                       },
+                       &oldTrainingRowMask);
+    newFrame->readRows(1, 0, frame->numberRows(),
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               addToRelativeError(
+                                   *row, logRelativeErrorAfterIncrementalTraining[NEW_TRAINING_DATA]);
+                           }
+                       },
+                       &newTrainingRowMask);
+
+    // We should see little change in the prediction errors on the old data
+    // set which doesn't overlap the new data, but a large improvement on
+    // the new data for constant extrapolation performs poorly.
+    double errorIncreaseOnOld{
+        maths::CBasicStatistics::mean(logRelativeErrorAfterIncrementalTraining[OLD_TRAINING_DATA]) /
+            maths::CBasicStatistics::mean(
+                logRelativeErrorBeforeIncrementalTraining[OLD_TRAINING_DATA]) -
+        1.0};
+    double errorDecreaseOnNew{
+        maths::CBasicStatistics::mean(logRelativeErrorBeforeIncrementalTraining[NEW_TRAINING_DATA]) /
+            maths::CBasicStatistics::mean(logRelativeErrorAfterIncrementalTraining[NEW_TRAINING_DATA]) -
+        1.0};
+
+    LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
+    LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 1.5 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {

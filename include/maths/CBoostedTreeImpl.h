@@ -475,6 +475,7 @@ private:
     TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
     TOptionalDouble m_EtaGrowthRatePerTreeOverride;
+    TOptionalDouble m_RetrainedTreeEtaOverride;
     TOptionalDouble m_PredictionChangeCostOverride;
     TOptionalSize m_NumberFoldsOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
@@ -485,6 +486,7 @@ private:
     double m_DownsampleFactor{0.5};
     double m_Eta{0.1};
     double m_EtaGrowthRatePerTree{1.05};
+    double m_RetrainedTreeEta{1.0};
     double m_PredictionChangeCost{0.5};
     std::size_t m_NumberFolds{4};
     std::size_t m_MaximumNumberTrees{20};

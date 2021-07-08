@@ -44,6 +44,7 @@ enum EExtraColumn {
 };
 
 enum EHyperparameter {
+    // Train parameters.
     E_DownsampleFactor = 0,
     E_Alpha,
     E_Lambda,
@@ -55,6 +56,8 @@ enum EHyperparameter {
     E_MaximumNumberTrees,
     E_FeatureBagFraction,
     E_PredictionChangeCost,
+    // Incremental train parameters.
+    E_RetrainedTreeEta,
     E_TreeTopologyChangePenalty
 };
 

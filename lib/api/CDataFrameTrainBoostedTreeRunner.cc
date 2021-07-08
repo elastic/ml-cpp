@@ -52,6 +52,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(ETA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(ETA_GROWTH_RATE_PER_TREE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(RETRAINED_TREE_ETA,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(SOFT_TREE_DEPTH_LIMIT,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(SOFT_TREE_DEPTH_TOLERANCE,
@@ -137,6 +139,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double gamma{parameters[GAMMA].fallback(-1.0)};
     double eta{parameters[ETA].fallback(-1.0)};
     double etaGrowthRatePerTree{parameters[ETA_GROWTH_RATE_PER_TREE].fallback(-1.0)};
+    double retrainedTreeEta{parameters[RETRAINED_TREE_ETA].fallback(-1.0)};
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
@@ -160,6 +163,10 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (etaGrowthRatePerTree != -1.0 && etaGrowthRatePerTree <= 0.0) {
         HANDLE_FATAL(<< "Input error: '" << ETA_GROWTH_RATE_PER_TREE << "' should be positive.");
+    }
+    if (retrainedTreeEta != -1.0 && (retrainedTreeEta <= 0.0 || retrainedTreeEta > 1.0)) {
+        HANDLE_FATAL(<< "Input error: '" << RETRAINED_TREE_ETA
+                     << "' should be in the range (0, 1].");
     }
     if (softTreeDepthLimit != -1.0 && softTreeDepthLimit < 0.0) {
         HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_LIMIT << "' should be non-negative.");
@@ -214,6 +221,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (etaGrowthRatePerTree > 0.0) {
         m_BoostedTreeFactory->etaGrowthRatePerTree(etaGrowthRatePerTree);
+    }
+    if (retrainedTreeEta > 0.0 && retrainedTreeEta <= 1.0) {
+        m_BoostedTreeFactory->retrainedTreeEta(retrainedTreeEta);
     }
     if (softTreeDepthLimit >= 0.0) {
         m_BoostedTreeFactory->softTreeDepthLimit(softTreeDepthLimit);
@@ -517,6 +527,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::LAMBDA{"lambda"};
 const std::string CDataFrameTrainBoostedTreeRunner::GAMMA{"gamma"};
 const std::string CDataFrameTrainBoostedTreeRunner::ETA{"eta"};
 const std::string CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE{"eta_growth_rate_per_tree"};
+const std::string CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA{"retrained_tree_eta"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};

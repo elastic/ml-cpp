@@ -356,13 +356,18 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         case E_PredictionChangeCost:
             boundingBox.emplace_back(CTools::stableLog(0.01), CTools::stableLog(2.0));
             break;
+        case E_RetrainedTreeEta:
+            boundingBox.emplace_back(
+                m_LogRetrainedTreeEtaSearchInterval(MIN_PARAMETER_INDEX),
+                m_LogRetrainedTreeEtaSearchInterval(MAX_PARAMETER_INDEX));
+            break;
         case E_TreeTopologyChangePenalty:
             boundingBox.emplace_back(
                 m_LogTreeTopologyChangePenaltySearchInterval(MIN_PARAMETER_INDEX),
                 m_LogTreeTopologyChangePenaltySearchInterval(MAX_PARAMETER_INDEX));
             break;
         case E_MaximumNumberTrees:
-            // maximum number trees is not a tunable parameter
+            // Maximum number trees is not tuned directly.
             break;
         }
     }
@@ -375,8 +380,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
 
     m_TreeImpl->m_CurrentRound = 0;
     m_TreeImpl->m_BestHyperparameters = CBoostedTreeHyperparameters(
-        m_TreeImpl->m_Regularization, m_TreeImpl->m_DownsampleFactor, m_TreeImpl->m_Eta,
-        m_TreeImpl->m_EtaGrowthRatePerTree, m_TreeImpl->m_MaximumNumberTrees,
+        m_TreeImpl->m_Regularization, m_TreeImpl->m_DownsampleFactor,
+        m_TreeImpl->m_Eta, m_TreeImpl->m_EtaGrowthRatePerTree,
+        m_TreeImpl->m_RetrainedTreeEta, m_TreeImpl->m_MaximumNumberTrees,
         m_TreeImpl->m_FeatureBagFraction, m_TreeImpl->m_PredictionChangeCost);
     m_TreeImpl->m_NumberRounds = this->numberHyperparameterTuningRounds();
 }
@@ -623,8 +629,10 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
         this->initializeUnsetFeatureBagFraction(frame);
         this->initializeUnsetEta(frame);
     } else {
-        skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                    [this] { this->initializeUnsetTreeTopologyPenalty(); });
+        skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [this] {
+            this->initializeUnsetTreeTopologyPenalty();
+            this->initializeUnsetRetrainedTreeEta();
+        });
     }
 }
 
@@ -1153,6 +1161,18 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
     }
 }
 
+void CBoostedTreeFactory::initializeUnsetRetrainedTreeEta() {
+    if (m_TreeImpl->m_RetrainedTreeEtaOverride == boost::none) {
+        // The incremental loss function keeps the leaf weights around the
+        // magnitude of the old tree leaf weights so we search larger values
+        // of eta for trees we retrain.
+        m_LogRetrainedTreeEtaSearchInterval(MIN_PARAMETER_INDEX) =
+            CTools::stableLog(m_TreeImpl->m_Eta);
+        m_LogRetrainedTreeEtaSearchInterval(BEST_PARAMETER_INDEX) = 0.0;
+        m_LogRetrainedTreeEtaSearchInterval(MAX_PARAMETER_INDEX) = 0.0;
+    }
+}
+
 void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty() {
 
     if (m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty() == boost::none) {
@@ -1626,6 +1646,20 @@ CBoostedTreeFactory& CBoostedTreeFactory::eta(double eta) {
         eta = 1.0;
     }
     m_TreeImpl->m_EtaOverride = eta;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::retrainedTreeEta(double eta) {
+    if (eta < MIN_ETA) {
+        LOG_WARN(<< "Truncating supplied learning rate " << eta
+                 << " which must be no smaller than " << MIN_ETA);
+        eta = std::max(eta, MIN_ETA);
+    }
+    if (eta > 1.0) {
+        LOG_WARN(<< "Using a learning rate greater than one doesn't make sense");
+        eta = 1.0;
+    }
+    m_TreeImpl->m_RetrainedTreeEtaOverride = eta;
     return *this;
 }
 

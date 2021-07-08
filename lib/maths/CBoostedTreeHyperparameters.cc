@@ -16,6 +16,7 @@ namespace maths {
 const std::string CBoostedTreeHyperparameters::HYPERPARAM_DOWNSAMPLE_FACTOR_TAG{"hyperparam_downsample_factor"};
 const std::string CBoostedTreeHyperparameters::HYPERPARAM_ETA_TAG{"hyperparam_eta"};
 const std::string CBoostedTreeHyperparameters::HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG{"hyperparam_eta_growth_rate_per_tree"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAM_RETRAINED_TREE_ETA_TAG{"hyperparam_retrained_tree_eta"};
 const std::string CBoostedTreeHyperparameters::HYPERPARAM_FEATURE_BAG_FRACTION_TAG{"hyperparam_feature_bag_fraction"};
 const std::string CBoostedTreeHyperparameters::HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG{"hyperparam_maximum_number_trees"};
 const std::string CBoostedTreeHyperparameters::HYPERPARAM_PREDICTION_CHANGE_COST_TAG{"hyperparam_prediction_change_cost"};
@@ -28,6 +29,8 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
     core::CPersistUtils::persist(HYPERPARAM_ETA_TAG, m_Eta, inserter);
     core::CPersistUtils::persist(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
                                  m_EtaGrowthRatePerTree, inserter);
+    core::CPersistUtils::persist(HYPERPARAM_RETRAINED_TREE_ETA_TAG,
+                                 m_RetrainedTreeEta, inserter);
     core::CPersistUtils::persist(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
                                  m_FeatureBagFraction, inserter);
     core::CPersistUtils::persist(HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG,
@@ -48,6 +51,9 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
         RESTORE(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
                 core::CPersistUtils::restore(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,
                                              m_EtaGrowthRatePerTree, traverser))
+        RESTORE(HYPERPARAM_RETRAINED_TREE_ETA_TAG,
+                core::CPersistUtils::restore(HYPERPARAM_RETRAINED_TREE_ETA_TAG,
+                                             m_RetrainedTreeEta, traverser))
         RESTORE(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
                 core::CPersistUtils::restore(HYPERPARAM_FEATURE_BAG_FRACTION_TAG,
                                              m_FeatureBagFraction, traverser))
@@ -81,6 +87,10 @@ double CBoostedTreeHyperparameters::etaGrowthRatePerTree() const {
     return m_EtaGrowthRatePerTree;
 }
 
+double CBoostedTreeHyperparameters::retrainedTreeEta() const {
+    return m_RetrainedTreeEta;
+}
+
 std::size_t CBoostedTreeHyperparameters::maximumNumberTrees() const {
     return m_MaximumNumberTrees;
 }
@@ -98,12 +108,14 @@ CBoostedTreeHyperparameters::CBoostedTreeHyperparameters(
     double downsampleFactor,
     double eta,
     double etaGrowthRatePerTree,
+    double retrainedTreeEta,
     std::size_t maximumNumberTrees,
     double featureBagFraction,
     double predictionChangeCost)
     : m_Regularization{regularization}, m_DownsampleFactor{downsampleFactor}, m_Eta{eta},
-      m_EtaGrowthRatePerTree{etaGrowthRatePerTree}, m_MaximumNumberTrees{maximumNumberTrees},
-      m_FeatureBagFraction{featureBagFraction}, m_PredictionChangeCost{predictionChangeCost} {
+      m_EtaGrowthRatePerTree{etaGrowthRatePerTree}, m_RetrainedTreeEta{retrainedTreeEta},
+      m_MaximumNumberTrees{maximumNumberTrees}, m_FeatureBagFraction{featureBagFraction},
+      m_PredictionChangeCost{predictionChangeCost} {
 }
 }
 }

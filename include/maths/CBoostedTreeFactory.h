@@ -135,8 +135,10 @@ public:
     CBoostedTreeFactory& softTreeDepthTolerance(double softTreeDepthTolerance);
     //! Set the fractional relative tolerance in the target maximum tree depth.
     CBoostedTreeFactory& maxTreeDepthTolerance(double maxTreeDepthTolerance);
-    //! Set the amount we'll shrink the weights on each each iteration.
+    //! Set the amount we'll shrink the tree leaf weights we compute.
     CBoostedTreeFactory& eta(double eta);
+    //! Set the amount we'll shrink the retrained tree leaf weights we compute.
+    CBoostedTreeFactory& retrainedTreeEta(double eta);
     //! Set the amount we'll grow eta on each each iteration.
     CBoostedTreeFactory& etaGrowthRatePerTree(double etaGrowthRatePerTree);
     //! Set the maximum number of trees in the ensemble.
@@ -249,25 +251,33 @@ private:
     //! Initialize the regressors sample distribution.
     bool initializeFeatureSampleDistribution() const;
 
-    //! Set the initial values for the various hyperparameters.
+    //! Set the initial values for hyperparameters.
     void initializeHyperparameters(core::CDataFrame& frame);
 
-    //! Setup before initializing unset hyperparameters.
+    //! Setup before setting initial values for hyperparameters.
     void initializeHyperparametersSetup(core::CDataFrame& frame);
 
-    //! Estimate a good search bounding box regularisation hyperparameters.
+    //! Estimate a good initial value and bounding box to search for regularisation
+    //! hyperparameters.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
-    //! Estimate a good range for the feature bag fraction search interval.
+    //! Estimate a good initial value and range to search for the feature bag
+    //! fraction.
     void initializeUnsetFeatureBagFraction(core::CDataFrame& frame);
 
-    //! Estimates a good range value for the downsample factor search interval.
+    //! Estimate a good initial value and range to search for the downsample
+    //! factor.
     void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
 
-    //! Estimate a good range value for learn rate.
+    //! Estimate a good initial value and range to search for the learn rate.
     void initializeUnsetEta(core::CDataFrame& frame);
 
-    //! Estimate a good range value for tree topology penalty.
+    //! Estimate a good initial value and range to search for the learn rate
+    //! to use for retrained trees when training incrementally.
+    void initializeUnsetRetrainedTreeEta();
+
+    //! Estimate a good initial value and range to search for the for tree
+    //! topology penalty when training incrementally.
     void initializeUnsetTreeTopologyPenalty();
 
     //! Estimate the reduction in gain from a split and the total curvature of
@@ -361,6 +371,7 @@ private:
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0};
     TVector m_SoftDepthLimitSearchInterval{0.0};
     TVector m_LogEtaSearchInterval{0.0};
+    TVector m_LogRetrainedTreeEtaSearchInterval{0.0};
     TVector m_LogTreeTopologyChangePenaltySearchInterval{0.0};
     TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
 };

@@ -225,6 +225,7 @@ void CInferenceModelMetadata::hyperparameterImportance(
     for (const auto& item : hyperparameterImportance) {
         std::string hyperparameterName;
         switch (item.s_Hyperparameter) {
+        // Train hyperparameters.
         case maths::boosted_tree_detail::E_Alpha:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::ALPHA;
             break;
@@ -255,9 +256,14 @@ void CInferenceModelMetadata::hyperparameterImportance(
         case maths::boosted_tree_detail::E_PredictionChangeCost:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST;
             break;
+        // Incremental train hyperparameters.
+        case maths::boosted_tree_detail::E_RetrainedTreeEta:
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA;
+            break;
         case maths::boosted_tree_detail::E_TreeTopologyChangePenalty:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY;
             break;
+        // Not tuned directly.
         case maths::boosted_tree_detail::E_MaximumNumberTrees:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::MAX_TREES;
             break;
