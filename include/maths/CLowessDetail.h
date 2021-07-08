@@ -50,7 +50,7 @@ void CLowess<N>::fit(TDoubleDoublePrVec data, std::size_t numberFolds) {
     //   p^*(x) = argmin_p{ sum_i{ w_i (Y_i - poly(X_i | p))^2 } }              (2)
     //
     // where w = exp(-k (x - X_i)), (X, Y) are the data to fit and p is the vector
-    // of parameters for the polynomial function poly(. | p), i.e. the coefficients 
+    // of parameters for the polynomial function poly(. | p), i.e. the coefficients
     // p_0 + p_1 x + p_2 x^2 ... (which are determined by minimizing the weighted
     // least square prediction errors as in (2)).
     //
@@ -119,17 +119,19 @@ typename CLowess<N>::TDoubleDoublePr CLowess<N>::minimum() const {
 
     TDoubleVec X;
 
-    double xa, xb;
+    double xa;
+    double xb;
     std::tie(xa, xb) = this->extrapolationInterval();
 
     // Coarse.
     X.reserve(m_Data.size() + 2);
     X.push_back(xa);
-    for (std::size_t i = 0; i < m_Data.size(); ++i) {
-        X.push_back(m_Data[i].first);
+    for (const auto& xi : m_Data) {
+        X.push_back(xi.first);
     }
     X.push_back(xb);
-    double xmin, fmin;
+    double xmin;
+    double fmin;
     CSolvers::globalMinimize(X, [&](double x) { return this->predict(x); }, xmin, fmin);
 
     // Refine.
@@ -141,7 +143,8 @@ typename CLowess<N>::TDoubleDoublePr CLowess<N>::minimum() const {
     for (double x = xa; x < xb; x += dx) {
         X.push_back(x);
     }
-    double xcand, fcand;
+    double xcand;
+    double fcand;
     CSolvers::globalMinimize(X, [&](double x) { return this->predict(x); }, xcand, fcand);
 
     if (fcand < fmin) {
@@ -166,11 +169,12 @@ double CLowess<N>::residualVariance() const {
     TSizeVec mask(n);
     std::iota(mask.begin(), mask.end(), 1);
     for (std::size_t i = 0; i < n; ++i) {
-        double xi, yi;
+        double xi;
+        double yi;
         std::tie(xi, yi) = m_Data[i];
         auto poly = this->fit(mask.begin(), mask.begin() + n - 1, m_K, xi);
         moments.add(yi - poly.predict(xi));
-        mask[i] = i;
+        mask[i] -= 1;
     }
 
     return CBasicStatistics::variance(moments);
@@ -249,7 +253,7 @@ double CLowess<N>::likelihood(TSizeVecVec& trainingMasks, TSizeVecVec& testingMa
 
     double result{0.0};
 
-    CNormalMeanPrecConjugate::TDouble1Vec samples;
+    CNormalMeanPrecConjugate::TDouble1Vec testResiduals;
     CNormalMeanPrecConjugate::TDoubleWeightsAry1Vec weights;
 
     for (std::size_t i = 0; i < trainingMasks.size(); ++i) {
@@ -260,8 +264,13 @@ double CLowess<N>::likelihood(TSizeVecVec& trainingMasks, TSizeVecVec& testingMa
         std::size_t last{trainingMasks[i].size() - 1};
 
         for (auto& j : trainingMasks[i]) {
-            double xj, yj;
+            double xj;
+            double yj;
             std::tie(xj, yj) = m_Data[j];
+            // Here we wish to leave out the j'th fold training mask. Since this
+            // is a vector we do this efficiently by temporarily swaping to the
+            // back of the collection so we can pass the masks as a contiguous
+            // range.
             std::swap(j, trainingMasks[i][last]);
             auto poly = this->fit(trainingMasks[i].cbegin(),
                                   trainingMasks[i].cbegin() + last, k, xj);
@@ -270,20 +279,21 @@ double CLowess<N>::likelihood(TSizeVecVec& trainingMasks, TSizeVecVec& testingMa
         }
         LOG_TRACE(<< "residual distribution = " << residuals.print());
 
-        samples.clear();
-        samples.reserve(testingMasks[i].size());
+        testResiduals.clear();
+        testResiduals.reserve(testingMasks[i].size());
         for (auto j : testingMasks[i]) {
-            double xj, yj;
+            double xj;
+            double yj;
             std::tie(xj, yj) = m_Data[j];
             auto poly = this->fit(trainingMasks[i].cbegin(),
                                   trainingMasks[i].cend(), k, xj);
-            samples.push_back(yj - poly.predict(xj));
+            testResiduals.push_back(yj - poly.predict(xj));
         }
         weights.assign(testingMasks[i].size(), maths_t::CUnitWeights::UNIT);
-        LOG_TRACE(<< "samples = " << samples);
+        LOG_TRACE(<< "test residuals = " << testResiduals);
 
         double likelihood;
-        residuals.jointLogMarginalLikelihood(samples, weights, likelihood);
+        residuals.jointLogMarginalLikelihood(testResiduals, weights, likelihood);
         result += likelihood;
     }
     LOG_TRACE(<< "k = " << k << ", likelihood = " << result);
@@ -296,7 +306,8 @@ typename CLowess<N>::TPolynomial
 CLowess<N>::fit(TSizeVecCItr beginMask, TSizeVecCItr endMask, double k, double x) const {
     TPolynomial poly;
     for (auto i = beginMask; i != endMask; ++i) {
-        double xi, yi;
+        double xi;
+        double yi;
         std::tie(xi, yi) = m_Data[*i];
         poly.add(xi, yi, this->weight(k, xi, x));
     }
