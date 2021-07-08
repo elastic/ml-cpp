@@ -24,6 +24,7 @@ using namespace ml;
 
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
+using TDoubleDoublePrVec = maths::CLowess<2>::TDoubleDoublePrVec;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 BOOST_AUTO_TEST_CASE(testInvariants) {
@@ -45,7 +46,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
     TDoubleVec scale;
     TDoubleVec offset;
     TDoubleVec noise;
-    maths::CLowess<2>::TDoubleDoublePrVec data;
+    TDoubleDoublePrVec data;
 
     std::function<double(double)> trends[]{
         [&](double x) {
@@ -106,7 +107,7 @@ BOOST_AUTO_TEST_CASE(testSmooth) {
         return 8.0 * std::sin(boost::math::double_constants::two_pi / 20.0 * x);
     };
 
-    maths::CLowess<2>::TDoubleDoublePrVec data;
+    TDoubleDoublePrVec data;
     for (std::size_t i = 0; i < 20; ++i) {
         double x{static_cast<double>(i)};
         data.emplace_back(x, trend(x));
@@ -140,7 +141,7 @@ BOOST_AUTO_TEST_CASE(testSmoothPlusNoise) {
         return 8.0 * std::sin(boost::math::double_constants::two_pi / 20.0 * x);
     };
 
-    maths::CLowess<2>::TDoubleDoublePrVec data;
+    TDoubleDoublePrVec data;
     for (std::size_t i = 0; i < noise.size(); ++i) {
         double x{static_cast<double>(i)};
         data.emplace_back(x, trend(x) + noise[i]);
@@ -173,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testMinimum) {
         return 8.0 * std::sin(boost::math::double_constants::two_pi / 20.0 * x);
     };
 
-    maths::CLowess<2>::TDoubleDoublePrVec data;
+    TDoubleDoublePrVec data;
     for (std::size_t i = 0; i < 20; ++i) {
         double x{static_cast<double>(i)};
         data.emplace_back(x, trend(x));
@@ -202,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testTrainingLossCurves) {
     //   3. Boston
 
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TDoubleDoublePrVecVec = std::vector<maths::CLowess<2>::TDoubleDoublePrVec>;
+    using TDoubleDoublePrVecVec = std::vector<TDoubleDoublePrVec>;
 
     // clang-format off
     TDoubleDoublePrVecVec curves{
