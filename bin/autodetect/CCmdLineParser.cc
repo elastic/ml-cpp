@@ -45,7 +45,8 @@ bool CCmdLineParser::parse(int argc,
                            bool& isPersistFileNamedPipe,
                            bool& isPersistInForeground,
                            std::size_t& maxAnomalyRecords,
-                           bool& memoryUsage) {
+                           bool& memoryUsage,
+                           bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -95,7 +96,9 @@ bool CCmdLineParser::parse(int argc,
                     "The maximum number of records to be outputted for each bucket. Defaults to 100, a value 0 removes the limit.")
             ("memoryUsage",
                     "Log the model memory usage at the end of the job")
-        ;
+            ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
+                    "Confirmation that a valid Elastic license key is in use.")
+            ;
         // clang-format on
         boost::program_options::variables_map vm;
         boost::program_options::store(
@@ -188,6 +191,10 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("memoryUsage") > 0) {
             memoryUsage = true;
+        }
+        if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
+            validElasticLicenseKeyConfirmed =
+                vm["validElasticLicenseKeyConfirmed"].as<bool>();
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

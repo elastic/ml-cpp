@@ -41,7 +41,8 @@ public:
                       std::string& restoreFileName,
                       bool& isRestoreFileNamedPipe,
                       std::string& persistFileName,
-                      bool& isPersistFileNamedPipe);
+                      bool& isPersistFileNamedPipe,
+                      bool& validElasticLicenseKeyConfirmed);
 
 private:
     static const std::string DESCRIPTION;
