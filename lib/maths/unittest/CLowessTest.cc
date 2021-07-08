@@ -40,6 +40,8 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
 
     test::CRandomNumbers rng;
 
+    std::size_t numberFolds{5};
+
     TDoubleVec scale;
     TDoubleVec offset;
     TDoubleVec noise;
@@ -69,12 +71,14 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
             }
 
             maths::CLowess<2> lowess;
-            lowess.fit(data, 5);
+            lowess.fit(data, numberFolds);
 
-            double xea, xeb;
+            double xea;
+            double xeb;
             std::tie(xea, xeb) = lowess.extrapolationInterval();
 
-            double xmin, fmin;
+            double xmin;
+            double fmin;
             std::tie(xmin, fmin) = lowess.minimum();
             BOOST_REQUIRE_EQUAL(fmin, lowess.predict(xmin));
             BOOST_TEST_REQUIRE(fmin <= lowess.predict(std::max(xmin - 0.1, xea)));
@@ -96,6 +100,8 @@ BOOST_AUTO_TEST_CASE(testSmooth) {
 
     test::CRandomNumbers rng;
 
+    std::size_t numberFolds{5};
+
     auto trend = [](double x) {
         return 8.0 * std::sin(boost::math::double_constants::two_pi / 20.0 * x);
     };
@@ -107,7 +113,7 @@ BOOST_AUTO_TEST_CASE(testSmooth) {
     }
 
     maths::CLowess<2> lowess;
-    lowess.fit(data, 5);
+    lowess.fit(data, numberFolds);
 
     TMeanVarAccumulator errorMoments;
     for (std::size_t i = 0; i < 20; ++i) {
@@ -125,6 +131,8 @@ BOOST_AUTO_TEST_CASE(testSmoothPlusNoise) {
 
     test::CRandomNumbers rng;
 
+    std::size_t numberFolds{5};
+
     TDoubleVec noise;
     rng.generateNormalSamples(0.0, 4.0, 20, noise);
 
@@ -139,7 +147,7 @@ BOOST_AUTO_TEST_CASE(testSmoothPlusNoise) {
     }
 
     maths::CLowess<2> lowess;
-    lowess.fit(data, 5);
+    lowess.fit(data, numberFolds);
 
     TMeanVarAccumulator errorMoments;
     for (std::size_t i = 0; i < 20; ++i) {
@@ -159,6 +167,8 @@ BOOST_AUTO_TEST_CASE(testMinimum) {
 
     test::CRandomNumbers rng;
 
+    std::size_t numberFolds{5};
+
     auto trend = [](double x) {
         return 8.0 * std::sin(boost::math::double_constants::two_pi / 20.0 * x);
     };
@@ -170,9 +180,10 @@ BOOST_AUTO_TEST_CASE(testMinimum) {
     }
 
     maths::CLowess<2> lowess;
-    lowess.fit(data, 5);
+    lowess.fit(data, numberFolds);
 
-    double x, fx;
+    double x;
+    double fx;
     std::tie(x, fx) = lowess.minimum();
 
     // Expect minimum at ((3 / 2) * pi) / (2 pi / 20) = 15 and a value of around -8.0;
