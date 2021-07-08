@@ -39,6 +39,7 @@ const std::size_t BEST_PARAMETER_INDEX{1};
 const std::size_t MAX_PARAMETER_INDEX{2};
 const std::size_t MAX_LINE_SEARCH_ITERATIONS{10};
 const double LINE_SEARCH_MINIMUM_RELATIVE_EI_TO_CONTINUE{0.01};
+const double SMALL_RELATIVE_TEST_LOSS_INCREASE{0.01};
 const double MIN_ROWS_PER_FEATURE{20.0};
 const double MIN_SOFT_DEPTH_LIMIT{2.0};
 const double MIN_SOFT_DEPTH_LIMIT_TOLERANCE{0.05};
@@ -801,7 +802,8 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                                           double minTestLoss, double testLoss) {
                     return testLoss + CTools::linearlyInterpolate(
                                           logMinDownsampleFactor, logMaxDownsampleFactor,
-                                          0.0, 0.01 * minTestLoss, logDownsampleFactor);
+                                          0.0, SMALL_RELATIVE_TEST_LOSS_INCREASE * minTestLoss,
+                                          logDownsampleFactor);
                 };
 
                 TVector fallback;
@@ -865,10 +867,10 @@ void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& fr
                 // larger than the minimum.
                 auto adjustTestLoss = [=](double logFeatureBagFraction,
                                           double minTestLoss, double testLoss) {
-                    return testLoss +
-                           CTools::linearlyInterpolate(
-                               logMinFeatureBagFraction, logMaxFeatureBagFraction,
-                               0.0, 0.01 * minTestLoss, logFeatureBagFraction);
+                    return testLoss + CTools::linearlyInterpolate(
+                                          logMinFeatureBagFraction, logMaxFeatureBagFraction,
+                                          0.0, SMALL_RELATIVE_TEST_LOSS_INCREASE * minTestLoss,
+                                          logFeatureBagFraction);
                 };
 
                 TVector fallback;
