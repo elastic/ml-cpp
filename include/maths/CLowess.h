@@ -7,9 +7,8 @@
 #ifndef INCLUDED_ml_maths_CLowess_h
 #define INCLUDED_ml_maths_CLowess_h
 
-#include <maths/CLeastSquaresOnlineRegression.h>
-
 #include <maths/CBasicStatistics.h>
+#include <maths/CLeastSquaresOnlineRegression.h>
 
 #include <utility>
 #include <vector>
