@@ -859,7 +859,7 @@ public:
     //! \param[out] fx Set to the value of f at \p x.
     template<typename T, typename F>
     static bool globalMaximize(const T& p, const F& f, double& x, double& fx) {
-        auto minusF = [&](double x_) { return -f(x_); };
+        auto minusF = [&f](double x_) { return -f(x_); };
         bool result{globalMinimize(p, minusF, x, fx)};
         fx = -fx;
         return result;
