@@ -209,9 +209,10 @@ private:
     TDoubleDoublePrVec estimateTreeGainAndCurvature(core::CDataFrame& frame,
                                                     const TDoubleVec& percentiles) const;
 
-    //! Perform a line search for the test loss w.r.t. a single regularization
-    //! hyperparameter and apply Newton's method to find the minimum. The plan
-    //! is to find a value near where the model starts to overfit.
+    //! Perform a line search for the test loss w.r.t. a single hyperparameter.
+    //! At the end we use a smooth curve fit through all test loss values (using
+    //! LOWESS regression) and use this to get a best estimate of where the true
+    //! minimum occurs.
     //!
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
