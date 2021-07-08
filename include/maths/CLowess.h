@@ -47,6 +47,8 @@ public:
     //! \note Defined as (0,0) if no data have been fit.
     TDoubleDoublePr minimum() const;
 
+    //! \name Test Functions
+    //@{
     //! Get an estimate of residual variance at the observed values.
     //!
     //! \note Defined as zero if no data have been fit.
@@ -55,6 +57,7 @@ public:
     //! Get how far we are prepared to extrapolate as the interval we will search
     //! in the minimum and sublevelSet functions.
     TDoubleDoublePr extrapolationInterval() const;
+    //@}
 
 private:
     using TDoubleVec = std::vector<double>;
