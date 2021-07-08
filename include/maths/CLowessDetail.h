@@ -56,10 +56,11 @@ void CLowess<N>::fit(TDoubleDoublePrVec data, std::size_t numberFolds) {
     //
     // We determine k by solving
     //
-    //   k^* = argmin_k{ sum_{Yi in H}{ L(Yi | f(x | p^*)) } }
+    //   k^* = argmin_k{ sum_{Yi in H}{ L(Yi | f(x | p^*(k))) } }
     //
-    // where H is a hold out set and we assume Y_i ~ N(poly(X_i | p^*), sigma) with
-    // sigma estimated from the training data prediction residuals.
+    // where H is a hold out set and we assume Y_i ~ N(poly(X_i | p^*(k)), sigma)
+    // with sigma estimated from the training data prediction residuals to compute
+    // the likelihood function L(Yi | f(x | p^*(k))).
 
     m_Mask.resize(m_Data.size());
     std::iota(m_Mask.begin(), m_Mask.end(), 0);
