@@ -227,6 +227,7 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
         }
     });
     this->prepareDataFrameForTrain(frame);
+    m_TreeImpl->computeClassificationWeights(frame);
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->determineFeatureDataTypes(frame); });

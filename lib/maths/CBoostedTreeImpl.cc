@@ -414,8 +414,8 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
               << "Time per iteration in ms mean: " << CBasicStatistics::mean(timeAccumulator)
               << " std. dev:  " << std::sqrt(CBasicStatistics::variance(timeAccumulator)));
 
-    if (m_BestForestTestLoss <
-        initialLoss + this->modelSizePenalty(numberKeptNodes, retrainedNumberNodes)) {
+    if (true /*m_BestForestTestLoss <
+        initialLoss + this->modelSizePenalty(numberKeptNodes, retrainedNumberNodes)*/) {
         this->restoreBestHyperparameters();
         core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
         TNodeVecVec retrainedTrees;
