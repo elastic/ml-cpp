@@ -570,8 +570,13 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
 
     core::CPackedBitVector candidateTestingRowsMask{allTrainingRowsMask};
     for (auto& testingRowMask : testingRowMasks) {
-        testingRowMask = sample(sampler, candidateTestingRowsMask);
-        candidateTestingRowsMask ^= testingRowMask;
+        if (static_cast<std::size_t>(candidateTestingRowsMask.manhattan()) <= sampleSize) {
+            testingRowMask = std::move(candidateTestingRowsMask);
+            candidateTestingRowsMask = core::CPackedBitVector{testingRowMask.size(), false};
+        } else {
+            testingRowMask = sample(sampler, candidateTestingRowsMask);
+            candidateTestingRowsMask ^= testingRowMask;
+        }
         if (excessSampler != nullptr) {
             testingRowMask |= sample(excessSampler, allTrainingRowsMask ^ testingRowMask);
         }

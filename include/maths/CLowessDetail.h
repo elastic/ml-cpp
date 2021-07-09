@@ -47,12 +47,12 @@ void CLowess<N>::fit(TDoubleDoublePrVec data, std::size_t numberFolds) {
     //
     //   f(x | p^*) = poly(x | p^*(x))
     //
-    //   p^*(x) = argmin_p{ sum_i{ w_i (Y_i - poly(X_i | p))^2 } }              (2)
+    //   p^*(x) = argmin_p{ sum_i{ w_i (Y_i - poly(X_i | p))^2 } }              (1)
     //
     // where w = exp(-k (x - X_i)), (X, Y) are the data to fit and p is the vector
     // of parameters for the polynomial function poly(. | p), i.e. the coefficients
     // p_0 + p_1 x + p_2 x^2 ... (which are determined by minimizing the weighted
-    // least square prediction errors as in (2)).
+    // least square prediction errors as in (1)).
     //
     // We determine k by solving
     //
