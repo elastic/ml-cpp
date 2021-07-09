@@ -31,14 +31,6 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
 
     // Test invariants are satisfied on random input.
 
-    // We check:
-    //   1. Minimum is a local minimum.
-    //   2. The sublevel set contains the minimum.
-    //   3. The minimum is within 10% of the training data interval.
-    //   4. The ends of the sublevel set is within 10% of the training data interval.
-    //   5. The variance is greater than or equal to the variance of the residuals at
-    //      the training data.
-
     test::CRandomNumbers rng;
 
     std::size_t numberFolds{5};
@@ -57,6 +49,8 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
         [&](double x) {
             return scale[0] * (x - offset[0]) * (x - offset[0]) / 100.0;
         }};
+
+    // We check...
 
     for (std::size_t i = 0; i < 100; ++i) {
 
@@ -78,6 +72,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
             double xeb;
             std::tie(xea, xeb) = lowess.extrapolationInterval();
 
+            // 1. The minimum is a local minimum.
             double xmin;
             double fmin;
             std::tie(xmin, fmin) = lowess.minimum();
@@ -85,6 +80,12 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
             BOOST_TEST_REQUIRE(fmin <= lowess.predict(std::max(xmin - 0.1, xea)));
             BOOST_TEST_REQUIRE(fmin <= lowess.predict(std::min(xmin + 0.1, xeb)));
 
+            // 2. The minimum is within the maximum extrapolation interval.
+            BOOST_TEST_REQUIRE(xmin >= xea);
+            BOOST_TEST_REQUIRE(xmin <= xeb);
+
+            // 3. The variance is greater than the variance of the residual at the
+            //    training data.
             TMeanVarAccumulator residualMoments;
             for (const auto& x : data) {
                 residualMoments.add(x.second - lowess.predict(x.first));
