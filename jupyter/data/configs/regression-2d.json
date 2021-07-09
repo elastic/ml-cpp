@@ -8,8 +8,7 @@
     "analysis": {
       "name": "regression",
       "parameters": {
-        "dependent_variable": "target",
-        
+        "dependent_variable": "target"
       }
     }
   }
