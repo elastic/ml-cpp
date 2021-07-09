@@ -483,10 +483,11 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
             rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_NumFolds))
                 .Move(),
             parentObject);
-        writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD,
-            rapidjson::Value(this->m_Hyperparameters.s_TrainFractionPerFold).Move(),
-            parentObject);
+        // TODO enable with Java changes.
+        //writer->addMember(
+        //    CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD,
+        //    rapidjson::Value(this->m_Hyperparameters.s_TrainFractionPerFold).Move(),
+        //    parentObject);
         writer->addMember(
             CDataFrameTrainBoostedTreeRunner::MAX_TREES,
             rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxTrees))

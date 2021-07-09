@@ -322,12 +322,14 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
 
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
-    const auto& featureImportance = this->boostedTree().shap();
-    if (featureImportance) {
+    auto* featureImportance = this->boostedTree().shap();
+    if (featureImportance != nullptr) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
     m_InferenceModelMetadata.hyperparameterImportance(
         this->boostedTree().hyperparameterImportance());
+    m_InferenceModelMetadata.numberTrainingRows(this->boostedTree().numberTrainingRows());
+    m_InferenceModelMetadata.trainFractionPerFold(this->boostedTree().trainFractionPerFold());
     return m_InferenceModelMetadata;
 }
 

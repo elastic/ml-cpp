@@ -47,7 +47,7 @@ public:
     //! \note Defined as (0,0) if no data have been fit.
     TDoubleDoublePr minimum() const;
 
-    //! \name Test Functions
+    //! \name Test Only
     //@{
     //! Get an estimate of residual variance at the observed values.
     //!

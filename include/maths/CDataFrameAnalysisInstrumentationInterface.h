@@ -116,7 +116,7 @@ public:
         SRegularization s_Regularization;
         double s_DownsampleFactor{-1.0};
         std::size_t s_NumFolds{0};
-        double s_TrainFractionPerFold{0.0};
+        double s_NumTrainingRows{0};
         std::size_t s_MaxTrees{0};
         double s_FeatureBagFraction{-1.0};
         double s_EtaGrowthRatePerTree{-1.0};

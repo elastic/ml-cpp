@@ -262,7 +262,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         this->restoreBestHyperparameters();
         this->scaleRegularizers(allTrainingRowsMask.manhattan() /
-                                m_TrainingRowMasks[0].manhattan());
+                                this->meanNumberTrainingRowsPerFold());
         this->startProgressMonitoringFinalTrain();
         // reinitialize random number generator for reproducible results
         // TODO #1866 introduce accept randomize_seed configuration parameter
@@ -404,8 +404,12 @@ bool CBoostedTreeImpl::canTrain() const {
                            m_FeatureSampleProbabilities.end(), 0.0) > 0.0;
 }
 
-core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {
-    return ~m_MissingFeatureRowMasks[m_DependentVariable];
+double CBoostedTreeImpl::meanNumberTrainingRowsPerFold() const {
+    TMeanAccumulator result;
+    for (const auto& mask : m_TrainingRowMasks) {
+        result.add(mask.manhattan());
+    }
+    return CBasicStatistics::mean(result);
 }
 
 CBoostedTreeImpl::TDoubleDoublePr
@@ -1530,7 +1534,8 @@ void CBoostedTreeImpl::recordHyperparameters() {
     m_Instrumentation->hyperparameters().s_ClassAssignmentObjective = m_ClassAssignmentObjective;
     m_Instrumentation->hyperparameters().s_DownsampleFactor = m_DownsampleFactor;
     m_Instrumentation->hyperparameters().s_NumFolds = m_NumberFolds;
-    m_Instrumentation->hyperparameters().s_TrainFractionPerFold = m_TrainFractionPerFold;
+    m_Instrumentation->hyperparameters().s_NumTrainingRows =
+        this->meanNumberTrainingRowsPerFold();
     m_Instrumentation->hyperparameters().s_MaxTrees = m_MaximumNumberTrees;
     m_Instrumentation->hyperparameters().s_FeatureBagFraction = m_FeatureBagFraction;
     m_Instrumentation->hyperparameters().s_EtaGrowthRatePerTree = m_EtaGrowthRatePerTree;
@@ -2126,6 +2131,14 @@ const CBoostedTreeImpl::TSizeVec& CBoostedTreeImpl::extraColumns() const {
 
 const CBoostedTreeImpl::TVector& CBoostedTreeImpl::classificationWeights() const {
     return m_ClassificationWeights;
+}
+
+double CBoostedTreeImpl::trainFractionPerFold() const {
+    return m_TrainFractionPerFold;
+}
+
+core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {
+    return ~m_MissingFeatureRowMasks[m_DependentVariable];
 }
 
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};

@@ -150,6 +150,13 @@ public:
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
+    //! \return The fraction of data we use for train per fold when tuning hyperparameters.
+    double trainFractionPerFold() const;
+
+    //! \return The full training set data mask, i.e. all rows which aren't missing
+    //! the dependent variable.
+    core::CPackedBitVector allTrainingRowsMask() const;
+
     //!\ name Test Only
     //@{
     //! The name of the object holding the best hyperaparameters in the state document.
@@ -203,9 +210,8 @@ private:
     //! Check if we can train a model.
     bool canTrain() const;
 
-    //! Get the full training set data mask, i.e. all rows which aren't missing
-    //! the dependent variable.
-    core::CPackedBitVector allTrainingRowsMask() const;
+    //! Get the mean number of training examples which are used in each fold.
+    double meanNumberTrainingRowsPerFold() const;
 
     //! Compute the \p percentile percentile gain per split and the sum of row
     //! curvatures per internal node of \p forest.
