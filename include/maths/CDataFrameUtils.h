@@ -286,8 +286,9 @@ public:
     //! \param[in] targetColumn The index of the column to predict.
     //! \param[in] rng The random number generator to use.
     //! \param[in] numberFolds The number of folds to use.
-    //! \param[in] numberBuckets The number of buckets to use when stratifying by
-    //! target quantiles for regression.
+    //! \param[in] trainFractionPerFold The fraction of train data to use per fold.
+    //! \param[in] numberBuckets The number of buckets to use when stratifying
+    //! by target quantiles for regression.
     //! \param[in] allTrainingRowsMask A mask of the candidate training rows.
     //! \warning This fails if the target is not categorical.
     static std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>
@@ -296,6 +297,7 @@ public:
                                       std::size_t targetColumn,
                                       CPRNG::CXorOShiro128Plus rng,
                                       std::size_t numberFolds,
+                                      double trainFractionPerFold,
                                       std::size_t numberBuckets,
                                       const core::CPackedBitVector& allTrainingRowsMask);
 
