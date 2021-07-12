@@ -33,7 +33,7 @@ public:
     //! Adds \p delta to the memory usage statistics.
     virtual void updateMemoryUsage(std::int64_t delta) = 0;
 
-    //! Start progress monitoring for \p phase.
+    //! Start progress monitoring of \p task.
     //!
     //! \note This resets the current progress to zero.
     virtual void startNewProgressMonitoredTask(const std::string& task) = 0;
@@ -116,7 +116,6 @@ public:
         SRegularization s_Regularization;
         double s_DownsampleFactor{-1.0};
         std::size_t s_NumFolds{0};
-        double s_NumTrainingRows{0};
         std::size_t s_MaxTrees{0};
         double s_FeatureBagFraction{-1.0};
         double s_EtaGrowthRatePerTree{-1.0};
@@ -127,18 +126,19 @@ public:
     using TDoubleVec = std::vector<double>;
 
 public:
-    virtual ~CDataFrameTrainBoostedTreeInstrumentationInterface() = default;
-    //! Supervised learning job \p type, can be E_Regression or E_Classification.
+    //! Set the supervised learning job \p type, can be E_Regression or E_Classification.
     virtual void type(EStatsType type) = 0;
-    //! Current \p iteration number.
+    //! Set the current \p iteration number.
     virtual void iteration(std::size_t iteration) = 0;
-    //! Run time of the iteration.
+    //! Set the run time of the current iteration.
     virtual void iterationTime(std::uint64_t delta) = 0;
-    //! Type of the validation loss result, e.g. "mse".
+    //! Set the type of the validation loss result, e.g. "mse".
     virtual void lossType(const std::string& lossType) = 0;
-    //! List of \p lossValues of validation error for the given \p fold.
+    //! Set the validation loss values for \p fold for each forest size to \p lossValues.
     virtual void lossValues(std::size_t fold, TDoubleVec&& lossValues) = 0;
-    //! \return Structure contains hyperparameters.
+    //! Set the fraction of data used for training per fold.
+    virtual void trainingFractionPerFold(double fraction) = 0;
+    //! \return A writable object containing the training hyperparameters.
     virtual SHyperparameters& hyperparameters() = 0;
 };
 
@@ -168,6 +168,7 @@ public:
     void iterationTime(std::uint64_t /* delta */) override {}
     void lossType(const std::string& /* lossType */) override {}
     void lossValues(std::size_t /* fold */, TDoubleVec&& /* lossValues */) override {}
+    void trainingFractionPerFold(double /* fraction */) override {}
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
 private:

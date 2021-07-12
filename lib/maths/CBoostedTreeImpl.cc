@@ -1530,12 +1530,11 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 }
 
 void CBoostedTreeImpl::recordHyperparameters() {
+    m_Instrumentation->trainingFractionPerFold(m_TrainFractionPerFold);
     m_Instrumentation->hyperparameters().s_Eta = m_Eta;
     m_Instrumentation->hyperparameters().s_ClassAssignmentObjective = m_ClassAssignmentObjective;
     m_Instrumentation->hyperparameters().s_DownsampleFactor = m_DownsampleFactor;
     m_Instrumentation->hyperparameters().s_NumFolds = m_NumberFolds;
-    m_Instrumentation->hyperparameters().s_NumTrainingRows =
-        this->meanNumberTrainingRowsPerFold();
     m_Instrumentation->hyperparameters().s_MaxTrees = m_MaximumNumberTrees;
     m_Instrumentation->hyperparameters().s_FeatureBagFraction = m_FeatureBagFraction;
     m_Instrumentation->hyperparameters().s_EtaGrowthRatePerTree = m_EtaGrowthRatePerTree;
