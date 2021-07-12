@@ -19,16 +19,22 @@
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameUtils.h>
 
+#include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CInferenceModelDefinition.h>
 #include <api/ElasticsearchStateIndex.h>
 
-#include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <rapidjson/document.h>
+
+#include <limits>
 
 namespace ml {
 namespace api {
+namespace {
+const std::size_t NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET{
+    std::numeric_limits<std::size_t>::max()};
+}
 
 const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
@@ -55,6 +61,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(FEATURE_BAG_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUM_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(TRAIN_FRACTION_PER_FOLD,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(STOP_CROSS_VALIDATION_EARLY,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER,
@@ -95,8 +103,10 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
+    double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
     std::size_t numberRoundsPerHyperparameter{
-        parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
+        parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
+            NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET)};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
@@ -192,7 +202,10 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (numberFolds > 1) {
         m_BoostedTreeFactory->numberFolds(numberFolds);
     }
-    if (numberRoundsPerHyperparameter > 0) {
+    if (trainFractionPerFold > 0.0) {
+        m_BoostedTreeFactory->trainFractionPerFold(trainFractionPerFold);
+    }
+    if (numberRoundsPerHyperparameter != NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET) {
         m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameter(numberRoundsPerHyperparameter);
     }
     if (bayesianOptimisationRestarts > 0) {
@@ -388,6 +401,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"s
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_FOLDS{"num_folds"};
+const std::string CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD{"train_fraction_per_fold"};
 const std::string CDataFrameTrainBoostedTreeRunner::STOP_CROSS_VALIDATION_EARLY{"stop_cross_validation_early"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER{"max_optimization_rounds_per_hyperparameter"};
 const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
