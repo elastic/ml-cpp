@@ -100,7 +100,7 @@ bool CCmdLineParser::parse(int argc,
             loggingFileName = vm["logPipe"].as<std::string>();
         }
         if (vm.count("logProperties") > 0) {
-            vm["logProperties"].as<std::string>();
+            logProperties = vm["logProperties"].as<std::string>();
         }
         if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
             validElasticLicenseKeyConfirmed =
