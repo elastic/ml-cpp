@@ -173,17 +173,13 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
 }
 
 void CInferenceModelMetadata::writeTrainParameters(TRapidJsonWriter& writer) const {
-    // TODO enable with Java changes.
-    // Only write out if it has been set.
-    //if (m_TrainingFractionPerFold > 0.0) {
-    //    writer.Key(JSON_TRAIN_PARAMETERS_TAG);
-    //    writer.StartObject();
-    //    writer.Key(JSON_NUM_TRAINING_ROWS_TAG);
-    //    writer.Uint64(m_NumberRowsUsedForTrain);
-    //    writer.Key(CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD);
-    //    writer.Double(m_TrainingFractionPerFold);
-    //    writer.EndObject();
-    //}
+    if (m_NumberTrainRows > 0) {
+        writer.Key(JSON_TRAIN_PARAMETERS_TAG);
+        writer.StartObject();
+        writer.Key(JSON_NUM_TRAINING_ROWS_TAG);
+        writer.Uint64(m_NumberTrainRows);
+        writer.EndObject();
+    }
 }
 
 const std::string& CInferenceModelMetadata::typeString() {
@@ -275,12 +271,8 @@ void CInferenceModelMetadata::hyperparameterImportance(
               });
 }
 
-void CInferenceModelMetadata::numberTrainingRows(std::size_t numberRows) {
-    m_NumberTrainingRows = numberRows;
-}
-
-void CInferenceModelMetadata::trainFractionPerFold(double fraction) {
-    m_TrainFractionPerFold = fraction;
+void CInferenceModelMetadata::numberTrainRows(std::size_t numberRows) {
+    m_NumberTrainRows = numberRows;
 }
 
 // clang-format off

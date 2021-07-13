@@ -1530,7 +1530,6 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 }
 
 void CBoostedTreeImpl::recordHyperparameters() {
-    m_Instrumentation->trainingFractionPerFold(m_TrainFractionPerFold);
     m_Instrumentation->hyperparameters().s_Eta = m_Eta;
     m_Instrumentation->hyperparameters().s_ClassAssignmentObjective = m_ClassAssignmentObjective;
     m_Instrumentation->hyperparameters().s_DownsampleFactor = m_DownsampleFactor;
@@ -2130,10 +2129,6 @@ const CBoostedTreeImpl::TSizeVec& CBoostedTreeImpl::extraColumns() const {
 
 const CBoostedTreeImpl::TVector& CBoostedTreeImpl::classificationWeights() const {
     return m_ClassificationWeights;
-}
-
-double CBoostedTreeImpl::trainFractionPerFold() const {
-    return m_TrainFractionPerFold;
 }
 
 core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {

@@ -67,9 +67,7 @@ public:
     void featureImportanceBaseline(TVector&& baseline);
     void hyperparameterImportance(const maths::CBoostedTree::THyperparameterImportanceVec& hyperparameterImportance);
     //! Set the number of rows used to train the model.
-    void numberTrainingRows(std::size_t numberRows);
-    //! Set the fraction of data per fold used for training when tuning hyperparameters.
-    void trainFractionPerFold(double fraction);
+    void numberTrainRows(std::size_t numberRows);
 
 private:
     struct SHyperparameterImportance {
@@ -107,8 +105,7 @@ private:
             writer.String(value);
         }};
     THyperparametersVec m_HyperparameterImportance;
-    std::size_t m_NumberTrainingRows{0};
-    double m_TrainFractionPerFold{0.0};
+    std::size_t m_NumberTrainRows{0};
 };
 }
 }

@@ -167,12 +167,8 @@ CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportanc
     return m_Impl->hyperparameterImportance();
 }
 
-std::size_t CBoostedTree::numberTrainingRows() const {
+std::size_t CBoostedTree::numberTrainRows() const {
     return static_cast<std::size_t>(m_Impl->allTrainingRowsMask().manhattan());
-}
-
-double CBoostedTree::trainFractionPerFold() const {
-    return m_Impl->trainFractionPerFold();
 }
 
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {

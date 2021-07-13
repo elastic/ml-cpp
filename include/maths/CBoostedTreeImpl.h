@@ -150,9 +150,6 @@ public:
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
-    //! \return The fraction of data we use for train per fold when tuning hyperparameters.
-    double trainFractionPerFold() const;
-
     //! \return The full training set data mask, i.e. all rows which aren't missing
     //! the dependent variable.
     core::CPackedBitVector allTrainingRowsMask() const;
