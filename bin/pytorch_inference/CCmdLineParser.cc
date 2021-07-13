@@ -55,7 +55,7 @@ bool CCmdLineParser::parse(int argc,
                         "Named pipe to write log messages to")
             ("logProperties", "Optional logger properties file")
             ("numThreads", boost::program_options::value<std::int32_t>(),
-                        "Optionaly set number of threads LibTorch can use for inference - not pressent means use the LibTorch defaults")
+                        "Optionaly set number of threads LibTorch can use for inference - not present means use the LibTorch defaults")
             ("numInterOpThreads", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of threads LibTorch can use for inter operation parallelism - not present means use the LibTorch defaults")
             ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
