@@ -57,7 +57,7 @@ bool CCmdLineParser::parse(int argc,
             ("numThreads", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of threads LibTorch can use for inference - not pressent means use the LibTorch defaults")
             ("numInterOpThreads", boost::program_options::value<std::int32_t>(),
-                        "Optionaly set number of threads LibTorch can use for inter operation parrllelism - not pressent means use the LibTorch defaults")
+                        "Optionaly set number of threads LibTorch can use for inter operation parallelism - not present means use the LibTorch defaults")
             ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
              "Confirmation that a valid Elastic license key is in use.")
             ;
