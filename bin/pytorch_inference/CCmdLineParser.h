@@ -8,6 +8,7 @@
 
 #include <core/CoreTypes.h>
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -41,6 +42,8 @@ public:
                       bool& isRestoreFileNamedPipe,
                       std::string& loggingFileName,
                       std::string& logProperties,
+                      std::int32_t& numThreads,
+                      std::int32_t& numInterOpThreads,
                       bool& validElasticLicenseKeyConfirmed);
 
 private:
