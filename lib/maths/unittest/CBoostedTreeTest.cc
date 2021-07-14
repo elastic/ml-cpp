@@ -713,6 +713,20 @@ BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
     std::size_t rows{trainRows + testRows};
     std::size_t cols{8};
 
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
     TDoubleVecVec x(cols - 1);
     for (std::size_t i = 0; i < cols - 1; ++i) {
         rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
@@ -727,7 +741,7 @@ BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::boosted_tree::CMse>())
                           .trainFractionPerFold(0.05)
-                          .buildFor(*frame, cols - 1);
+                          .buildForTrain(*frame, cols - 1);
 
     core::CStopWatch timer{true};
     regression->train();
@@ -925,6 +939,14 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
     }();
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
 
     fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
@@ -2494,7 +2516,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
                                1, std::make_unique<maths::boosted_tree::CMse>())
                                .numberFolds(2)
                                .maximumNumberTrees(2)
-                               .maximumOptimisationRoundsPerHyperparameterForTrain(3)
+                               .maximumOptimisationRoundsPerHyperparameter(3)
                                .buildForTrain(*frame, cols - 1);
         boostedTree->train();
         core::CJsonStatePersistInserter inserter(persistOnceState);
@@ -2566,7 +2588,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestoreDuringInitialization) {
                                1, std::make_unique<maths::boosted_tree::CMse>())
                                .numberFolds(2)
                                .maximumNumberTrees(2)
-                               .maximumOptimisationRoundsPerHyperparameterForTrain(3)
+                               .maximumOptimisationRoundsPerHyperparameter(3)
                                .trainingStateCallback(writeCheckpoint)
                                .buildForTrain(*frame, cols - 1);
         core::CJsonStatePersistInserter inserter(expectedState);
