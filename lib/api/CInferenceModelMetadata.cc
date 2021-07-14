@@ -19,6 +19,7 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
+    this->writeTrainParameters(writer);
     this->writeDataSummarization(writer);
 }
 
@@ -50,10 +51,10 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
             double maximum{-minimum};
             writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
-            for (std::size_t j = 0; j < m_ClassValues.size(); ++j) {
+            for (const auto &classValue : m_ClassValues) {
                 writer.StartObject();
                 writer.Key(JSON_CLASS_NAME_TAG);
-                m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
+                m_PredictionFieldTypeResolverWriter(classValue, writer);
                 writer.Key(JSON_IMPORTANCE_TAG);
                 writer.StartObject();
                 writer.Key(JSON_MEAN_MAGNITUDE_TAG);
@@ -174,13 +175,27 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
 
 void CInferenceModelMetadata::writeDataSummarization(TRapidJsonWriter& writer) const {
     // only write out if data summarization exists
-    if (m_DataSummarizationNumRows > 0) {
+    if (m_NumDataSummarizationRows > 0) {
         writer.Key(JSON_DATA_SUMMARIZATION_TAG);
         writer.StartObject();
         writer.Key(JSON_NUM_ROWS_TAG);
-        writer.Uint64(m_DataSummarizationNumRows);
+        writer.Uint64(m_NumDataSummarizationRows);
         writer.EndObject();
     }
+}
+
+void CInferenceModelMetadata::writeTrainParameters(TRapidJsonWriter& writer) const {
+    // TODO enable with Java changes.
+    // Only write out if it has been set.
+    //if (m_TrainingFractionPerFold > 0.0) {
+    //    writer.Key(JSON_TRAIN_PARAMETERS_TAG);
+    //    writer.StartObject();
+    //    writer.Key(JSON_NUM_TRAINING_ROWS_TAG);
+    //    writer.Uint64(m_NumberRowsUsedForTrain);
+    //    writer.Key(CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD);
+    //    writer.Double(m_TrainingFractionPerFold);
+    //    writer.EndObject();
+    //}
 }
 
 const std::string& CInferenceModelMetadata::typeString() {
@@ -219,7 +234,7 @@ void CInferenceModelMetadata::featureImportanceBaseline(TVector&& baseline) {
 }
 
 void CInferenceModelMetadata::hyperparameterImportance(
-    const maths::CBoostedTree::THyperparameterImportanceVec& hyperparameterImportance) {
+    const THyperparameterImportanceVec& hyperparameterImportance) {
     m_HyperparameterImportance.clear();
     m_HyperparameterImportance.reserve(hyperparameterImportance.size());
     for (const auto& item : hyperparameterImportance) {
@@ -284,8 +299,16 @@ void CInferenceModelMetadata::hyperparameterImportance(
               });
 }
 
-void CInferenceModelMetadata::dataSummarizationNumRows(std::size_t numRows) {
-    m_DataSummarizationNumRows = numRows;
+void CInferenceModelMetadata::numTrainingRows(std::size_t numRows) {
+    m_NumTrainingRows = numRows;
+}
+
+void CInferenceModelMetadata::trainFractionPerFold(double fraction) {
+    m_TrainFractionPerFold = fraction;
+}
+
+void CInferenceModelMetadata::numDataSummarizationRows(std::size_t numRows) {
+    m_NumDataSummarizationRows = numRows;
 }
 
 // clang-format off
@@ -306,8 +329,10 @@ const std::string CInferenceModelMetadata::JSON_MAX_TAG{"max"};
 const std::string CInferenceModelMetadata::JSON_MEAN_MAGNITUDE_TAG{"mean_magnitude"};
 const std::string CInferenceModelMetadata::JSON_MIN_TAG{"min"};
 const std::string CInferenceModelMetadata::JSON_MODEL_METADATA_TAG{"model_metadata"};
+const std::string CInferenceModelMetadata::JSON_NUM_TRAINING_ROWS_TAG{"num_training_rows"};
 const std::string CInferenceModelMetadata::JSON_RELATIVE_IMPORTANCE_TAG{"relative_importance"};
 const std::string CInferenceModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
+const std::string CInferenceModelMetadata::JSON_TRAIN_PARAMETERS_TAG{"train_parameters"};
 // clang-format on
 }
 }

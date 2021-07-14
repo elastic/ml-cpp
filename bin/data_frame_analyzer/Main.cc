@@ -102,11 +102,13 @@ int main(int argc, char** argv) {
     bool isRestoreFileNamedPipe{false};
     std::string persistFileName;
     bool isPersistFileNamedPipe{false};
+    bool validElasticLicenseKeyConfirmed{true};
     if (ml::data_frame_analyzer::CCmdLineParser::parse(
             argc, argv, configFile, memoryUsageEstimationOnly, logProperties,
             logPipe, lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe) == false) {
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            isPersistFileNamedPipe, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
@@ -143,6 +145,11 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
+
+    if (validElasticLicenseKeyConfirmed == false) {
+        LOG_FATAL(<< "Failed to confirm valid license key.");
+        return EXIT_FAILURE;
+    }
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();

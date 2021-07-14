@@ -181,6 +181,13 @@ public:
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
+    //! \return The fraction of data we use for train per fold when tuning hyperparameters.
+    double trainFractionPerFold() const;
+
+    //! \return The full training set data mask, i.e. all rows which aren't missing
+    //! the dependent variable.
+    core::CPackedBitVector allTrainingRowsMask() const;
+
     //!\ name Test Only
     //@{
     //! The name of the object holding the best hyperaparameters in the state document.
@@ -248,9 +255,8 @@ private:
     //! Check if we can train a model.
     bool canTrain() const;
 
-    //! Get the full training set data mask, i.e. all rows which aren't missing
-    //! the dependent variable.
-    core::CPackedBitVector allTrainingRowsMask() const;
+    //! Get the mean number of training examples which are used in each fold.
+    double meanNumberTrainingRowsPerFold() const;
 
     //! Compute the \p percentile percentile gain per split and the sum of row
     //! curvatures per internal node of \p forest.
@@ -375,10 +381,14 @@ private:
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
 
+
     //! Compute the mean of the loss function on the masked rows of \p frame
     //! adjusted for incremental training.
     double meanAdjustedLoss(const core::CDataFrame& frame,
                             const core::CPackedBitVector& rowMask) const;
+
+    //! Compute the overall variance of the error we see between folds.
+    double betweenFoldTestLossVariance() const;
 
     //! Get the best forest's prediction for \p row.
     TVector predictRow(const CEncodedDataFrameRowRef& row) const;
@@ -478,6 +488,7 @@ private:
     TOptionalDouble m_RetrainedTreeEtaOverride;
     TOptionalDouble m_PredictionChangeCostOverride;
     TOptionalSize m_NumberFoldsOverride;
+    TOptionalSize m_TrainFractionPerFoldOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     TOptionalStrDoublePrVec m_ClassificationWeightsOverride;
@@ -489,6 +500,7 @@ private:
     double m_RetrainedTreeEta{1.0};
     double m_PredictionChangeCost{0.5};
     std::size_t m_NumberFolds{4};
+    double m_TrainFractionPerFold{0.75};
     std::size_t m_MaximumNumberTrees{20};
     std::size_t m_MaximumAttemptsToAddTree{3};
     std::size_t m_NumberSplitsPerFeature{75};
@@ -520,7 +532,7 @@ private:
     THyperparametersVec m_TunableHyperparameters;
     TDoubleVecVec m_HyperparameterSamples;
     bool m_StopHyperparameterOptimizationEarly{true};
-    double m_DataSummarizationFraction = 0.1;
+    double m_DataSummarizationFraction{0.1};
 
 private:
     friend class CBoostedTreeFactory;

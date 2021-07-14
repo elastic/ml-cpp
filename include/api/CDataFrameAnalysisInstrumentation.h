@@ -184,17 +184,19 @@ public:
     CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId, std::size_t memoryLimit)
         : CDataFrameAnalysisInstrumentation(jobId, memoryLimit) {}
 
-    //! Supervised learning job \p type, can be E_Regression or E_Classification.
+    //! Set the supervised learning job \p type, can be E_Regression or E_Classification.
     void type(EStatsType type) override;
-    //! Current \p iteration number.
+    //! Set the current \p iteration number.
     void iteration(std::size_t iteration) override;
-    //! Run time of the iteration.
+    //! Set the run time of the current iteration.
     void iterationTime(std::uint64_t delta) override;
-    //! Type of the validation loss result, e.g. "mse".
+    //! Set the type of the validation loss result, e.g. "mse".
     void lossType(const std::string& lossType) override;
-    //! List of \p lossValues of validation error for the given \p fold.
+    //! Set the validation loss values for \p fold for each forest size to \p lossValues.
     void lossValues(std::size_t fold, TDoubleVec&& lossValues) override;
-    //! \return Structure contains hyperparameters.
+    //! Set the fraction of data used for training per fold.
+    void trainingFractionPerFold(double fraction) override;
+    //! \return A writable object containing the training hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
 protected:
@@ -206,19 +208,21 @@ private:
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
+    void writeMetaData(rapidjson::Value& parentObject);
     void writeHyperparameters(rapidjson::Value& parentObject);
     void writeValidationLoss(rapidjson::Value& parentObject);
     void writeTimingStats(rapidjson::Value& parentObject);
     void reset();
 
 private:
-    EStatsType m_Type = E_Regression;
-    std::size_t m_Iteration = 0;
-    std::uint64_t m_IterationTime = 0;
-    std::uint64_t m_ElapsedTime = 0;
-    bool m_AnalysisStatsInitialized = false;
+    EStatsType m_Type{E_Regression};
+    std::size_t m_Iteration{0};
+    std::uint64_t m_IterationTime{0};
+    std::uint64_t m_ElapsedTime{0};
+    bool m_AnalysisStatsInitialized{false};
     std::string m_LossType;
     TLossVec m_LossValues;
+    double m_TrainingFractionPerFold{0.0};
     SHyperparameters m_Hyperparameters;
 };
 }

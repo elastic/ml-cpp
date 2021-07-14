@@ -123,10 +123,10 @@ private:
     TSamplerSelector m_Selector;
 };
 
-using TStratifiedSamplerPtr = std::unique_ptr<CStratifiedSampler>;
+using TStratifiedSamplerUPtr = std::unique_ptr<CStratifiedSampler>;
 
 //! Get a classifier stratified row sampler for cross fold validation.
-std::pair<TStratifiedSamplerPtr, TDoubleVec>
+std::pair<TStratifiedSamplerUPtr, TDoubleVec>
 classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
                                               const core::CDataFrame& frame,
                                               std::size_t targetColumn,
@@ -154,7 +154,7 @@ classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
 }
 
 //! Get a regression stratified row sampler for cross fold validation.
-TStratifiedSamplerPtr
+TStratifiedSamplerUPtr
 regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
                                              const core::CDataFrame& frame,
                                              std::size_t targetColumn,
@@ -496,27 +496,50 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                                                    std::size_t targetColumn,
                                                    CPRNG::CXorOShiro128Plus rng,
                                                    std::size_t numberFolds,
+                                                   double trainFractionPerFold,
                                                    std::size_t numberBuckets,
                                                    const core::CPackedBitVector& allTrainingRowsMask) {
-    TDoubleVec frequencies;
-    TStratifiedSamplerPtr sampler;
 
     double numberTrainingRows{allTrainingRowsMask.manhattan()};
-    if (numberTrainingRows < 2.0) {
+    if (static_cast<std::size_t>(numberTrainingRows) < numberFolds) {
         HANDLE_FATAL(<< "Input error: insufficient training data provided.");
         return {{}, {}, {}};
     }
 
-    std::size_t desiredCount{
-        (static_cast<std::size_t>(numberTrainingRows) + numberFolds / 2) / numberFolds};
+    double sampleFraction{std::min(trainFractionPerFold, 1.0 - trainFractionPerFold)};
+    double excessSampleFraction{
+        std::max(sampleFraction - 1.0 / static_cast<double>(numberFolds), 0.0)};
 
-    if (frame.columnIsCategorical()[targetColumn]) {
-        std::tie(sampler, frequencies) = classifierStratifiedCrossValidationRowSampler(
-            numberThreads, frame, targetColumn, rng, desiredCount, allTrainingRowsMask);
-    } else {
-        sampler = regressionStratifiedCrossValiationRowSampler(
-            numberThreads, frame, targetColumn, rng, desiredCount,
-            numberBuckets, allTrainingRowsMask);
+    // We sample the smaller of the test or train set in the loop.
+    std::size_t excessSampleSize{static_cast<std::size_t>(
+        std::ceil(excessSampleFraction * numberTrainingRows))};
+    std::size_t sampleSize{static_cast<std::size_t>(std::max(
+        (1.0 + 1e-8) * (sampleFraction - excessSampleFraction) * numberTrainingRows, 1.0))};
+    LOG_TRACE(<< "excess sample size = " << excessSampleSize
+              << ", sample size = " << sampleSize);
+
+    TDoubleVec frequencies;
+
+    auto makeSampler = [&](std::size_t size) {
+        TStratifiedSamplerUPtr result;
+        if (size > 0) {
+            if (frame.columnIsCategorical()[targetColumn]) {
+                std::tie(result, frequencies) = classifierStratifiedCrossValidationRowSampler(
+                    numberThreads, frame, targetColumn, rng, size, allTrainingRowsMask);
+            } else {
+                result = regressionStratifiedCrossValiationRowSampler(
+                    numberThreads, frame, targetColumn, rng, size,
+                    numberBuckets, allTrainingRowsMask);
+            }
+        }
+        return result;
+    };
+
+    auto excessSampler = makeSampler(excessSampleSize);
+    auto sampler = makeSampler(sampleSize);
+    if (sampler == nullptr) {
+        HANDLE_FATAL(<< "Internal error: failed to create train/test splits.");
+        return {{}, {}, {}};
     }
 
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
@@ -524,36 +547,47 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
     TPackedBitVectorVec testingRowMasks(numberFolds);
 
     TSizeVec rowIndices;
-    core::CPackedBitVector candidateTestingRowsMask{allTrainingRowsMask};
-    for (std::size_t fold = 0; fold < numberFolds - 1; ++fold) {
+    auto sample = [&](const TStratifiedSamplerUPtr& sampler_,
+                      const core::CPackedBitVector& candidateTestingRowsMask) {
         frame.readRows(1, 0, frame.numberRows(),
                        [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
-                               sampler->sample(*row);
+                               sampler_->sample(*row);
                            }
                        },
                        &candidateTestingRowsMask);
-        sampler->finishSampling(rng, rowIndices);
+        sampler_->finishSampling(rng, rowIndices);
         std::sort(rowIndices.begin(), rowIndices.end());
         LOG_TRACE(<< "# row indices = " << rowIndices.size());
 
+        core::CPackedBitVector result;
         for (auto row : rowIndices) {
-            testingRowMasks[fold].extend(false, row - testingRowMasks[fold].size());
-            testingRowMasks[fold].extend(true);
+            result.extend(false, row - result.size());
+            result.extend(true);
         }
-        testingRowMasks[fold].extend(false, allTrainingRowsMask.size() -
-                                                testingRowMasks[fold].size());
+        result.extend(false, allTrainingRowsMask.size() - result.size());
+        return result;
+    };
 
-        // We exclusive or here to remove the rows we've selected for the current
-        //test fold. This is equivalent to samplng without replacement
-        candidateTestingRowsMask ^= testingRowMasks[fold];
+    core::CPackedBitVector candidateTestingRowsMask{allTrainingRowsMask};
+    for (auto& testingRowMask : testingRowMasks) {
+        if (static_cast<std::size_t>(candidateTestingRowsMask.manhattan()) <= sampleSize) {
+            testingRowMask = std::move(candidateTestingRowsMask);
+            candidateTestingRowsMask = core::CPackedBitVector{testingRowMask.size(), false};
+        } else {
+            testingRowMask = sample(sampler, candidateTestingRowsMask);
+            candidateTestingRowsMask ^= testingRowMask;
+        }
+        if (excessSampler != nullptr) {
+            testingRowMask |= sample(excessSampler, allTrainingRowsMask ^ testingRowMask);
+        }
     }
 
-    // Everything which is left.
-    testingRowMasks.back() = std::move(candidateTestingRowsMask);
-    LOG_TRACE(<< "# remaining rows = " << testingRowMasks.back().manhattan());
-
     TPackedBitVectorVec trainingRowMasks{complementRowMasks(testingRowMasks, allTrainingRowsMask)};
+
+    if (trainFractionPerFold < 0.5) {
+        std::swap(trainingRowMasks, testingRowMasks);
+    }
 
     return {std::move(trainingRowMasks), std::move(testingRowMasks), std::move(frequencies)};
 }
@@ -1140,7 +1174,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
 
     // No need to sample if were going to use every row we've been given.
     if (numberSamples < static_cast<std::size_t>(rowMask.manhattan())) {
-        TStratifiedSamplerPtr sampler;
+        TStratifiedSamplerUPtr sampler;
         std::tie(sampler, std::ignore) = classifierStratifiedCrossValidationRowSampler(
             numberThreads, frame, targetColumn, rng, numberSamples, rowMask);
 
