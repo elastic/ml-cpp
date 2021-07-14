@@ -601,7 +601,7 @@ CDataFrameUtils::stratifiedSamplingRowMasks(std::size_t numberThreads,
                                             std::size_t numberBuckets,
                                             const core::CPackedBitVector& allTrainingRowsMask) {
     TDoubleVec frequencies;
-    TStratifiedSamplerPtr sampler;
+    TStratifiedSamplerUPtr sampler;
     core::CPackedBitVector samplesRowMask;
 
     double numberTrainingRows{allTrainingRowsMask.manhattan()};
