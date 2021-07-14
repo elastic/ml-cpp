@@ -176,7 +176,7 @@ void CInferenceModelMetadata::writeTrainParameters(TRapidJsonWriter& writer) con
     if (m_NumberTrainRows > 0) {
         writer.Key(JSON_TRAIN_PARAMETERS_TAG);
         writer.StartObject();
-        writer.Key(JSON_NUM_TRAINING_ROWS_TAG);
+        writer.Key(JSON_NUM_TRAIN_ROWS_TAG);
         writer.Uint64(m_NumberTrainRows);
         writer.EndObject();
     }
@@ -291,7 +291,7 @@ const std::string CInferenceModelMetadata::JSON_MAX_TAG{"max"};
 const std::string CInferenceModelMetadata::JSON_MEAN_MAGNITUDE_TAG{"mean_magnitude"};
 const std::string CInferenceModelMetadata::JSON_MIN_TAG{"min"};
 const std::string CInferenceModelMetadata::JSON_MODEL_METADATA_TAG{"model_metadata"};
-const std::string CInferenceModelMetadata::JSON_NUM_TRAINING_ROWS_TAG{"num_training_rows"};
+const std::string CInferenceModelMetadata::JSON_NUM_TRAIN_ROWS_TAG{"num_train_rows"};
 const std::string CInferenceModelMetadata::JSON_RELATIVE_IMPORTANCE_TAG{"relative_importance"};
 const std::string CInferenceModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
 const std::string CInferenceModelMetadata::JSON_TRAIN_PARAMETERS_TAG{"train_parameters"};

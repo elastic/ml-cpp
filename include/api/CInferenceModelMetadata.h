@@ -40,7 +40,7 @@ public:
     static const std::string JSON_MEAN_MAGNITUDE_TAG;
     static const std::string JSON_MIN_TAG;
     static const std::string JSON_MODEL_METADATA_TAG;
-    static const std::string JSON_NUM_TRAINING_ROWS_TAG;
+    static const std::string JSON_NUM_TRAIN_ROWS_TAG;
     static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
     static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
     static const std::string JSON_TRAIN_PARAMETERS_TAG;

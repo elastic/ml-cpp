@@ -91,6 +91,19 @@
                 ]
             },
             "additionalItems": false
+        },
+        "train_parameters": {
+            "description": "additional training parameters",
+            "type": "object",
+            "properties": {
+                "num_train_rows": {
+                    "type": "number"
+                }
+            },
+            "required": [
+                "num_train_rows"
+            ],
+            "additionalProperties": false
         }
     },
     "additionalProperties": false
