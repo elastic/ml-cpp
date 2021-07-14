@@ -381,7 +381,6 @@ private:
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
 
-
     //! Compute the mean of the loss function on the masked rows of \p frame
     //! adjusted for incremental training.
     double meanAdjustedLoss(const core::CDataFrame& frame,

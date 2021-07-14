@@ -51,7 +51,7 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
             double maximum{-minimum};
             writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
-            for (const auto &classValue : m_ClassValues) {
+            for (const auto& classValue : m_ClassValues) {
                 writer.StartObject();
                 writer.Key(JSON_CLASS_NAME_TAG);
                 m_PredictionFieldTypeResolverWriter(classValue, writer);
@@ -233,8 +233,7 @@ void CInferenceModelMetadata::featureImportanceBaseline(TVector&& baseline) {
     m_ShapBaseline = baseline;
 }
 
-void CInferenceModelMetadata::hyperparameterImportance(
-    const THyperparameterImportanceVec& hyperparameterImportance) {
+void CInferenceModelMetadata::hyperparameterImportance(const THyperparameterImportanceVec& hyperparameterImportance) {
     m_HyperparameterImportance.clear();
     m_HyperparameterImportance.reserve(hyperparameterImportance.size());
     for (const auto& item : hyperparameterImportance) {

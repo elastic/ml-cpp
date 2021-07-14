@@ -562,8 +562,8 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
             TPackedBitVectorVec newTestingRowMasks;
             std::tie(newTrainingRowMasks, newTestingRowMasks, std::ignore) =
                 CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                    numberThreads, frame, dependentVariable, rng, numberFolds,
-                    trainFractionPerFold, numberBuckets, allTrainingRowsMask & newTrainingRowMask);
+                    numberThreads, frame, dependentVariable, rng, numberFolds, trainFractionPerFold,
+                    numberBuckets, allTrainingRowsMask & newTrainingRowMask);
             for (std::size_t i = 0; i < numberFolds; ++i) {
                 m_TreeImpl->m_TrainingRowMasks[i] |= newTrainingRowMasks[i];
                 m_TreeImpl->m_TestingRowMasks[i] |= newTestingRowMasks[i];
