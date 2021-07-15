@@ -46,6 +46,7 @@ const std::string MEMORY_STATUS_HARD_LIMIT_TAG{"hard_limit"};
 const std::string MEMORY_STATUS_OK_TAG{"ok"};
 const std::string MEMORY_STATUS_TAG{"status"};
 const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
+const std::string META_DATA_TAG{"meta_data"};
 const std::string OUTLIER_DETECTION_STATS{"outlier_detection_stats"};
 const std::string PARAMETERS_TAG{"parameters"};
 const std::string PEAK_MEMORY_USAGE_TAG{"peak_usage_bytes"};
@@ -385,7 +386,11 @@ void CDataFrameTrainBoostedTreeInstrumentation::lossType(const std::string& loss
 
 void CDataFrameTrainBoostedTreeInstrumentation::lossValues(std::size_t fold,
                                                            TDoubleVec&& lossValues) {
-    m_LossValues.emplace_back(std::move(fold), std::move(lossValues));
+    m_LossValues.emplace_back(fold, std::move(lossValues));
+}
+
+void CDataFrameTrainBoostedTreeInstrumentation::trainingFractionPerFold(double fraction) {
+    m_TrainingFractionPerFold = fraction;
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
@@ -422,6 +427,12 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
         writer->Key(TIMING_STATS_TAG);
         writer->write(timingStatsObject);
 
+        // TODO enable with Java changes.
+        //rapidjson::Value metaDataObject{writer->makeObject()};
+        //this->writeMetaData(metaDataObject);
+        //writer->Key(META_DATA_TAG);
+        //writer->write(metaDataObject);
+
         writer->EndObject();
     }
     this->reset();
@@ -430,6 +441,14 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
 void CDataFrameTrainBoostedTreeInstrumentation::reset() {
     // Clear the map of loss values before the next iteration
     m_LossValues.clear();
+}
+
+void CDataFrameTrainBoostedTreeInstrumentation::writeMetaData(rapidjson::Value& parentObject) {
+    auto* writer = this->writer();
+    if (writer != nullptr) {
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD,
+                          rapidjson::Value(m_TrainingFractionPerFold).Move(), parentObject);
+    }
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::Value& parentObject) {
@@ -533,6 +552,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(rapidjson::V
         writer->addMember(VALIDATION_FOLD_VALUES_TAG, lossValuesArray, parentObject);
     }
 }
+
 void CDataFrameTrainBoostedTreeInstrumentation::writeTimingStats(rapidjson::Value& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {

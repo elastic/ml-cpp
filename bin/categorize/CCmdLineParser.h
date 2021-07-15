@@ -47,7 +47,8 @@ public:
                       std::string& persistFileName,
                       bool& isPersistFileNamedPipe,
                       bool& isPersistInForeground,
-                      std::string& categorizationFieldName);
+                      std::string& categorizationFieldName,
+                      bool& validElasticLicenseKeyConfirmed);
 
 private:
     static const std::string DESCRIPTION;

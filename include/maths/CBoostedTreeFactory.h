@@ -112,6 +112,10 @@ public:
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
+    //! Set the fraction fold data to use for training.
+    CBoostedTreeFactory& trainFractionPerFold(double fraction);
+    //! Set the maximum number of rows to use for training when tuning hyperparameters.
+    CBoostedTreeFactory& maximumNumberTrainRows(std::size_t rows);
     //! Stratify the cross-validation we do for regression.
     CBoostedTreeFactory& stratifyRegressionCrossValidation(bool stratify);
     //! Stop cross-validation early if the test loss is not promising.
@@ -150,7 +154,7 @@ public:
     CBoostedTreeFactory& predictionChangeCost(double predictionChangeCost);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter for training.
-    CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameterForTrain(std::size_t rounds);
+    CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
     //! Set the number of restarts to use in global probing for Bayesian Optimisation.
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
     //! Set the number of training examples we need per feature we'll include.
@@ -285,9 +289,10 @@ private:
     TDoubleDoublePrVec estimateTreeGainAndCurvature(core::CDataFrame& frame,
                                                     const TDoubleVec& percentiles) const;
 
-    //! Perform a line search for the test loss w.r.t. a single regularization
-    //! hyperparameter and apply Newton's method to find the minimum. The plan
-    //! is to find a value near where the model starts to overfit.
+    //! Perform a line search for the test loss w.r.t. a single hyperparameter.
+    //! At the end we use a smooth curve fit through all test loss values (using
+    //! LOWESS regression) and use this to get a best estimate of where the true
+    //! minimum occurs.
     //!
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
@@ -295,8 +300,6 @@ private:
                                        const TApplyParameter& applyParameterStep,
                                        double intervalLeftEnd,
                                        double intervalRightEnd,
-                                       double returnedIntervalLeftEndOffset,
-                                       double returnedIntervalRightEndOffset,
                                        const TAdjustTestLoss& adjustTestLoss = noopAdjustTestLoss) const;
 
     //! Initialize the state for hyperparameter optimisation.
@@ -357,6 +360,7 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_StratifyRegressionCrossValidation{true};
     double m_InitialDownsampleRowsPerFeature{200.0};
+    std::size_t m_MaximumNumberOfTrainRows{500000};
     double m_GainPerNode1stPercentile{0.0};
     double m_GainPerNode50thPercentile{0.0};
     double m_GainPerNode90thPercentile{0.0};

@@ -30,8 +30,9 @@ namespace ml {
 namespace maths {
 
 namespace {
-const std::string VERSION_7_5_TAG{"7.5"};
+using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
+const std::string VERSION_7_5_TAG{"7.5"};
 const std::string MIN_BOUNDARY_TAG{"min_boundary"};
 const std::string MAX_BOUNDARY_TAG{"max_boundary"};
 const std::string ERROR_VARIANCES_TAG{"error_variances"};
@@ -106,6 +107,10 @@ void CBayesianOptimisation::add(TVector x, double fx, double vx) {
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
+void CBayesianOptimisation::explainedErrorVariance(double vx) {
+    m_ExplainedErrorVariance = CTools::pow2(m_RangeScale) * vx;
+}
+
 std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TVector>
 CBayesianOptimisation::boundingBox() const {
     return {m_MinBoundary, m_MaxBoundary};
@@ -114,7 +119,6 @@ CBayesianOptimisation::boundingBox() const {
 std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TOptionalDouble>
 CBayesianOptimisation::maximumExpectedImprovement() {
 
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMinAccumulator =
         CBasicStatistics::COrderStatisticsHeap<std::pair<double, TVector>>;
 
@@ -583,6 +587,7 @@ void CBayesianOptimisation::precondition() {
     for (auto& variance : m_ErrorVariances) {
         variance /= CTools::pow2(m_RangeScale);
     }
+    m_ExplainedErrorVariance /= CTools::pow2(m_RangeScale);
 
     TMeanVarAccumulator rangeMoments;
     for (const auto& value : m_FunctionMeanValues) {
@@ -599,6 +604,7 @@ void CBayesianOptimisation::precondition() {
     for (auto& variance : m_ErrorVariances) {
         variance *= CTools::pow2(m_RangeScale);
     }
+    m_ExplainedErrorVariance *= CTools::pow2(m_RangeScale);
 }
 
 CBayesianOptimisation::TVector CBayesianOptimisation::function() const {
@@ -610,10 +616,39 @@ CBayesianOptimisation::TVector CBayesianOptimisation::function() const {
 }
 
 double CBayesianOptimisation::meanErrorVariance() const {
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    // So what are we doing here? When we supply function values we also supply their
+    // error variance. Typically these might be the mean test loss function across
+    // folds and their variance for a particular choice of hyperparameters. Sticking
+    // with this example, the variance allows us to estimate the error w.r.t. the
+    // true generalisation error due to finite sample size. We can think of the source
+    // of this variance as being due to two effects: one which shifts the loss values
+    // in each fold (this might be due to some folds simply having more hard examples)
+    // and another which permutes the order of loss values. A shift in the loss function
+    // is not something we wish to capture in the GP: it shouldn't materially affect
+    // where to choose points to test since any sensible optimisation strategy should
+    // only care about the difference in loss between points, which is unaffected by a
+    // shift. More formally, if we assume the shift and permutation errors are independent
+    // we have for losses l_i, mean loss per fold m_i and mean loss for a given set of
+    // hyperparameters m that the variance is
+    //
+    //   sum_i{ (l_i - m)^2 } = sum_i{ (l_i - m_i + m_i - m)^2 }
+    //                        = sum_i{ (l_i - m_i)^2 } + sum_i{ (m_i - m)^2 }
+    //                        = "permutation variance" + "shift variance"          (1)
+    //
+    // with the cross-term expected to be small by independence. (Note, the independence
+    // assumption is reasonable if one assumes that the shift is due to mismatch in hard
+    // examples since the we choose folds independently at random.) We can estimate the
+    // shift variance by looking at mean loss over all distinct hyperparameter settings
+    // and we assume it is supplied as the parameter m_ExplainedErrorVariance. It should
+    // also be smaller than the variance by construction although for numerical stability
+    // we prevent the difference becoming too small. As discussed, here we wish return
+    // the permutation variance which we get by rearranging (1).
+
     TMeanAccumulator variance;
     variance.add(m_ErrorVariances);
-    return CBasicStatistics::mean(variance);
+    return CBasicStatistics::mean(variance) -
+           std::min(m_ExplainedErrorVariance, 0.99 * CBasicStatistics::mean(variance));
 }
 
 CBayesianOptimisation::TMatrix CBayesianOptimisation::dKerneld(const TVector& a, int k) const {

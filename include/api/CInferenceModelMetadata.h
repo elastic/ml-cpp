@@ -42,13 +42,16 @@ public:
     static const std::string JSON_MIN_TAG;
     static const std::string JSON_MODEL_METADATA_TAG;
     static const std::string JSON_NUM_ROWS_TAG;
+    static const std::string JSON_NUM_TRAINING_ROWS_TAG;
     static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
     static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
+    static const std::string JSON_TRAIN_PARAMETERS_TAG;
 
 public:
     using TVector = maths::CDenseVector<double>;
     using TStrVec = std::vector<std::string>;
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using THyperparameterImportanceVec = maths::CBoostedTree::THyperparameterImportanceVec;
     using TPredictionFieldTypeResolverWriter =
         std::function<void(const std::string&, TRapidJsonWriter&)>;
 
@@ -65,8 +68,14 @@ public:
     //! Set the feature importance baseline (the individual feature importances are additive corrections
     //! to the baseline value).
     void featureImportanceBaseline(TVector&& baseline);
-    void hyperparameterImportance(const maths::CBoostedTree::THyperparameterImportanceVec& hyperparameterImportance);
-    void dataSummarizationNumRows(std::size_t numRows);
+    //! Set the hyperparameter importances.
+    void hyperparameterImportance(const THyperparameterImportanceVec& hyperparameterImportance);
+    //! Set the number of rows used to train the model.
+    void numTrainingRows(std::size_t numRows);
+    //! Set the fraction of data per fold used for training when tuning hyperparameters.
+    void trainFractionPerFold(double fraction);
+    //! Set the number of rows in the training data summarization.
+    void numDataSummarizationRows(std::size_t numRows);
 
 private:
     struct SHyperparameterImportance {
@@ -89,8 +98,9 @@ private:
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
-    void writeHyperparameterImportance(TRapidJsonWriter& writer) const;
     void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
+    void writeHyperparameterImportance(TRapidJsonWriter& writer) const;
+    void writeTrainParameters(TRapidJsonWriter& writer) const;
     void writeDataSummarization(TRapidJsonWriter& writer) const;
 
 private:
@@ -99,14 +109,16 @@ private:
     TOptionalVector m_ShapBaseline;
     TStrVec m_ColumnNames;
     TStrVec m_ClassValues;
-    TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter =
+    TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter{
         [](const std::string& value, TRapidJsonWriter& writer) {
             writer.String(value);
-        };
+        }};
     THyperparametersVec m_HyperparameterImportance;
-    std::size_t m_DataSummarizationNumRows{0};
+    std::size_t m_NumDataSummarizationRows{0};
+    std::size_t m_NumTrainingRows{0};
+    double m_TrainFractionPerFold{0.0};
 };
 }
 }
 
-#endif //INCLUDED_ml_api_CInferenceModelMetadata_h
+#endif // INCLUDED_ml_api_CInferenceModelMetadata_h

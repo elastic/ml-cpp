@@ -69,6 +69,12 @@ public:
     //! \warning Will return a nullptr if a trained model isn't available.
     virtual CTreeShapFeatureImportance* shap() const = 0;
 
+    //! Get the number of rows used to train the model.
+    virtual std::size_t numberTrainingRows() const = 0;
+
+    //! Get the fraction of data per fold used for training when tuning hyperparameters.
+    virtual double trainFractionPerFold() const = 0;
+
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
 
