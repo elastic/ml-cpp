@@ -43,7 +43,7 @@ public:
     static const std::string JSON_NUM_TRAIN_ROWS_TAG;
     static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
     static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
-    static const std::string JSON_TRAIN_PARAMETERS_TAG;
+    static const std::string JSON_TRAIN_PROPERTIES_TAG;
 
 public:
     using TVector = maths::CDenseVector<double>;
@@ -92,7 +92,7 @@ private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
     void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
     void writeHyperparameterImportance(TRapidJsonWriter& writer) const;
-    void writeTrainParameters(TRapidJsonWriter& writer) const;
+    void writeTrainProperties(TRapidJsonWriter& writer) const;
 
 private:
     TSizeMeanAccumulatorUMap m_TotalShapValuesMean;

@@ -19,7 +19,7 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
-    this->writeTrainParameters(writer);
+    this->writeTrainProperties(writer);
 }
 
 void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
@@ -172,9 +172,9 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
     writer.EndArray();
 }
 
-void CInferenceModelMetadata::writeTrainParameters(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeTrainProperties(TRapidJsonWriter& writer) const {
     if (m_NumberTrainRows > 0) {
-        writer.Key(JSON_TRAIN_PARAMETERS_TAG);
+        writer.Key(JSON_TRAIN_PROPERTIES_TAG);
         writer.StartObject();
         writer.Key(JSON_NUM_TRAIN_ROWS_TAG);
         writer.Uint64(m_NumberTrainRows);
@@ -294,7 +294,7 @@ const std::string CInferenceModelMetadata::JSON_MODEL_METADATA_TAG{"model_metada
 const std::string CInferenceModelMetadata::JSON_NUM_TRAIN_ROWS_TAG{"num_train_rows"};
 const std::string CInferenceModelMetadata::JSON_RELATIVE_IMPORTANCE_TAG{"relative_importance"};
 const std::string CInferenceModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
-const std::string CInferenceModelMetadata::JSON_TRAIN_PARAMETERS_TAG{"train_parameters"};
+const std::string CInferenceModelMetadata::JSON_TRAIN_PROPERTIES_TAG{"train_properties"};
 // clang-format on
 }
 }

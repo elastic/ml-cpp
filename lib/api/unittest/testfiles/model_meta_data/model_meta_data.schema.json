@@ -92,8 +92,8 @@
             },
             "additionalItems": false
         },
-        "train_parameters": {
-            "description": "additional training parameters",
+        "train_properties": {
+            "description": "properies of the training run which produced this model",
             "type": "object",
             "properties": {
                 "num_train_rows": {
