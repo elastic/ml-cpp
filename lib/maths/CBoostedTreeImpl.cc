@@ -2010,7 +2010,6 @@ std::size_t CBoostedTreeImpl::numberTreesToRetrain() const {
 }
 
 void CBoostedTreeImpl::recordHyperparameters() {
-    m_Instrumentation->trainingFractionPerFold(m_TrainFractionPerFold);
     m_Instrumentation->hyperparameters().s_Eta = m_Eta;
     m_Instrumentation->hyperparameters().s_RetrainedTreeEta = m_RetrainedTreeEta;
     m_Instrumentation->hyperparameters().s_ClassAssignmentObjective = m_ClassAssignmentObjective;
@@ -2762,6 +2761,10 @@ const CBoostedTreeImpl::TNodeVecVec& CBoostedTreeImpl::trainedModel() const {
     return m_BestForest;
 }
 
+double CBoostedTreeImpl::lossGap() const {
+    return m_BestForestLossGap;
+}
+
 CBoostedTreeImpl::TLossFunction& CBoostedTreeImpl::loss() const {
     if (m_Loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: loss function unavailable. "
@@ -2784,10 +2787,6 @@ const CBoostedTreeImpl::TSizeVec& CBoostedTreeImpl::extraColumns() const {
 
 const CBoostedTreeImpl::TVector& CBoostedTreeImpl::classificationWeights() const {
     return m_ClassificationWeights;
-}
-
-double CBoostedTreeImpl::trainFractionPerFold() const {
-    return m_TrainFractionPerFold;
 }
 
 core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {

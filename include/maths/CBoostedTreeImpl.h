@@ -127,6 +127,9 @@ public:
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
 
+    //! Get the mean gap in the loss between test and train examples.
+    double lossGap() const;
+
     //! Get the training loss function.
     TLossFunction& loss() const;
 
@@ -180,9 +183,6 @@ public:
 
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
-
-    //! \return The fraction of data we use for train per fold when tuning hyperparameters.
-    double trainFractionPerFold() const;
 
     //! \return The full training set data mask, i.e. all rows which aren't missing
     //! the dependent variable.

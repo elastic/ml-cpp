@@ -70,10 +70,10 @@ public:
     virtual CTreeShapFeatureImportance* shap() const = 0;
 
     //! Get the number of rows used to train the model.
-    virtual std::size_t numberTrainingRows() const = 0;
+    virtual std::size_t numberTrainRows() const = 0;
 
-    //! Get the fraction of data per fold used for training when tuning hyperparameters.
-    virtual double trainFractionPerFold() const = 0;
+    //! Get the mean gap in the loss between test and train examples.
+    virtual double lossGap() const = 0;
 
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;

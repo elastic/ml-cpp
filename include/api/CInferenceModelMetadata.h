@@ -41,11 +41,11 @@ public:
     static const std::string JSON_MEAN_MAGNITUDE_TAG;
     static const std::string JSON_MIN_TAG;
     static const std::string JSON_MODEL_METADATA_TAG;
-    static const std::string JSON_NUM_ROWS_TAG;
-    static const std::string JSON_NUM_TRAINING_ROWS_TAG;
+    static const std::string JSON_NUM_DATA_SUMMARIZATION_ROWS_TAG;
+    static const std::string JSON_NUM_TRAIN_ROWS_TAG;
     static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
     static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
-    static const std::string JSON_TRAIN_PARAMETERS_TAG;
+    static const std::string JSON_TRAIN_PROPERTIES_TAG;
 
 public:
     using TVector = maths::CDenseVector<double>;
@@ -58,10 +58,10 @@ public:
 public:
     //! Writes metadata using \p writer.
     void write(TRapidJsonWriter& writer) const;
+    static const std::string& typeString();
     void columnNames(const TStrVec& columnNames);
     void classValues(const TStrVec& classValues);
     void predictionFieldTypeResolverWriter(const TPredictionFieldTypeResolverWriter& resolverWriter);
-    static const std::string& typeString();
     //! Add importances \p values to the feature with index \p i to calculate total feature importance.
     //! Total feature importance is the mean of the magnitudes of importances for individual data points.
     void addToFeatureImportance(std::size_t i, const TVector& values);
@@ -71,9 +71,9 @@ public:
     //! Set the hyperparameter importances.
     void hyperparameterImportance(const THyperparameterImportanceVec& hyperparameterImportance);
     //! Set the number of rows used to train the model.
-    void numTrainingRows(std::size_t numRows);
-    //! Set the fraction of data per fold used for training when tuning hyperparameters.
-    void trainFractionPerFold(double fraction);
+    void numTrainRows(std::size_t numRows);
+    //! Set the mean train test loss gap.
+    void lossGap(double lossGap);
     //! Set the number of rows in the training data summarization.
     void numDataSummarizationRows(std::size_t numRows);
 
@@ -100,7 +100,7 @@ private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
     void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
     void writeHyperparameterImportance(TRapidJsonWriter& writer) const;
-    void writeTrainParameters(TRapidJsonWriter& writer) const;
+    void writeTrainProperties(TRapidJsonWriter& writer) const;
     void writeDataSummarization(TRapidJsonWriter& writer) const;
 
 private:
@@ -114,9 +114,9 @@ private:
             writer.String(value);
         }};
     THyperparametersVec m_HyperparameterImportance;
+    std::size_t m_NumTrainRows{0};
+    double m_LossGap{0.0};
     std::size_t m_NumDataSummarizationRows{0};
-    std::size_t m_NumTrainingRows{0};
-    double m_TrainFractionPerFold{0.0};
 };
 }
 }
