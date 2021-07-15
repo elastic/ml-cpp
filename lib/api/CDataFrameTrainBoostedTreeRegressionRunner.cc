@@ -167,7 +167,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     m_InferenceModelMetadata.numTrainRows(this->boostedTree().numberTrainRows());
     m_InferenceModelMetadata.lossGap(this->boostedTree().lossGap());
     m_InferenceModelMetadata.numDataSummarizationRows(static_cast<std::size_t>(
-            this->boostedTree().dataSummarization().manhattan()));
+        this->boostedTree().dataSummarization().manhattan()));
     return m_InferenceModelMetadata;
 }
 

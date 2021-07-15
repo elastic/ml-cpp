@@ -196,10 +196,10 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         m_InferenceModelMetadata.classValues(classValues);
         m_InferenceModelMetadata.predictionFieldTypeResolverWriter(
-                [this](const std::string& categoryValue,
-                       core::CRapidJsonConcurrentLineWriter& writer_) {
-                    this->writePredictedCategoryValue(categoryValue, writer_);
-                });
+            [this](const std::string& categoryValue,
+                   core::CRapidJsonConcurrentLineWriter& writer_) {
+                this->writePredictedCategoryValue(categoryValue, writer_);
+            });
         featureImportance->shap(
             row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,
@@ -334,7 +334,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     m_InferenceModelMetadata.numTrainRows(this->boostedTree().numberTrainRows());
     m_InferenceModelMetadata.lossGap(this->boostedTree().lossGap());
     m_InferenceModelMetadata.numDataSummarizationRows(static_cast<std::size_t>(
-            this->boostedTree().dataSummarization().manhattan()));
+        this->boostedTree().dataSummarization().manhattan()));
     return m_InferenceModelMetadata;
 }
 
