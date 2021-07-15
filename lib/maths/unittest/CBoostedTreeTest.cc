@@ -1720,9 +1720,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
     // target value.
 }
 
-// TODO this needs the fix to acceptance criterion.
-BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain,
-                     *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
 
     // Test incremental training for binomial logistic objective for values out of the
     // training data domain.

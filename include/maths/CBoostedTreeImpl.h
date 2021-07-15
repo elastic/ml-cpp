@@ -61,8 +61,8 @@ public:
     using TVector = CDenseVector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TMeanVarAccumulatorSizeDoubleTuple =
-        std::tuple<TMeanVarAccumulator, std::size_t, double>;
+    using TMeanVarAccumulatorDoubleSizeDoubleTuple =
+        std::tuple<TMeanVarAccumulator, double, std::size_t, double>;
     using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
@@ -214,7 +214,8 @@ private:
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
-    using TNodeVecVecDoubleDoubleVecTr = std::tuple<TNodeVecVec, double, TDoubleVec>;
+    using TNodeVecVecDoubleDoubleDoubleVecTuple =
+        std::tuple<TNodeVecVec, double, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
@@ -277,9 +278,8 @@ private:
 
     //! Train the forest and compute loss moments on each fold.
     template<typename F>
-    TMeanVarAccumulatorSizeDoubleTuple crossValidateForest(core::CDataFrame& frame,
-                                                           std::size_t maximumNumberTrees,
-                                                           const F& trainForest);
+    TMeanVarAccumulatorDoubleSizeDoubleTuple
+    crossValidateForest(core::CDataFrame& frame, std::size_t maximumNumberTrees, const F& trainForest);
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
@@ -288,14 +288,15 @@ private:
                                                      const core::CPackedBitVector& testingRowMask) const;
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
-    TNodeVecVecDoubleDoubleVecTr trainForest(core::CDataFrame& frame,
-                                             const core::CPackedBitVector& trainingRowMask,
-                                             const core::CPackedBitVector& testingRowMask,
-                                             core::CLoopProgress& trainingProgress) const;
+    TNodeVecVecDoubleDoubleDoubleVecTuple
+    trainForest(core::CDataFrame& frame,
+                const core::CPackedBitVector& trainingRowMask,
+                const core::CPackedBitVector& testingRowMask,
+                core::CLoopProgress& trainingProgress) const;
 
     //! Retrain a subset of the trees of one forest on the rows of \p frame in the
     //! mask \p trainingRowMask.
-    TNodeVecVecDoubleDoubleVecTr
+    TNodeVecVecDoubleDoubleDoubleVecTuple
     updateForest(core::CDataFrame& frame,
                  const core::CPackedBitVector& trainingRowMask,
                  const core::CPackedBitVector& testingRowMask,
@@ -324,7 +325,7 @@ private:
 
     //! Estimate the loss we'll get including the missing folds.
     TMeanVarAccumulator correctTestLossMoments(const TSizeVec& missing,
-                                               TMeanVarAccumulator lossMoments) const;
+                                               TMeanVarAccumulator testLossMoments) const;
 
     //! Estimate test losses for the \p missing folds.
     TMeanVarAccumulatorVec estimateMissingTestLosses(const TSizeVec& missing) const;
@@ -393,16 +394,20 @@ private:
     TVector predictRow(const CEncodedDataFrameRowRef& row) const;
 
     //! Select the next hyperparameters for which to train a model.
-    bool selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
+    bool selectNextHyperparameters(const TMeanVarAccumulator& testLossMoments,
                                    CBayesianOptimisation& bopt);
 
     //! Capture the current hyperparameter values.
     //!
+    //! \param[in] testLossMoments The fold test loss mean and variance.
+    //! \param[in] lossGap The mean gap between the train and test loss.
+    //! \param[in] maximumNumberTrees The maximum number of trees to use.
     //! \param[in] numberKeptNodes If incrementally training the number of nodes
     //! in the retained portion of the forest.
     //! \param[in] numberRetrainedNodes The number of trees in the new (portion
     //! of the) forest.
-    void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
+    void captureBestHyperparameters(const TMeanVarAccumulator& testLossMoments,
+                                    double lossGap,
                                     std::size_t maximumNumberTrees,
                                     double numberKeptNodes,
                                     double numberRetrainedNodes);
@@ -516,6 +521,8 @@ private:
     TPackedBitVectorVec m_TestingRowMasks;
     core::CPackedBitVector m_NewTrainingRowMask;
     double m_BestForestTestLoss{boosted_tree_detail::INF};
+    double m_LossGap{0.0};
+    double m_BestForestLossGap{0.0};
     TOptionalDoubleVecVec m_FoldRoundTestLosses;
     CBoostedTreeHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;

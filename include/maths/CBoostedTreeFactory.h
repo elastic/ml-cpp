@@ -169,6 +169,8 @@ public:
     CBoostedTreeFactory& newTrainingRowMask(core::CPackedBitVector rowMask);
     //! Set the fraction of trees in the forest to retrain.
     CBoostedTreeFactory& retrainFraction(double fraction);
+    //! Set the gap between the train and test loss.
+    CBoostedTreeFactory& lossGap(double gap);
     //! Set the data summarization information.
     CBoostedTreeFactory& featureEncoder(TEncoderUPtr encoder);
     //! Set the best forest from the previous training.
