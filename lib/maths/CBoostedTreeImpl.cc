@@ -358,19 +358,35 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     this->startProgressMonitoringTrainIncremental();
 
-    double initialLoss{lossAtNSigma(1.0, [&] {
-        TMeanVarAccumulator lossMoments;
-        for (const auto& mask : m_TestingRowMasks) {
-            lossMoments.add(this->meanAdjustedLoss(frame, mask));
-        }
-        return lossMoments;
-    }())};
-
     double retrainedNumberNodes{0.0};
     for (const auto& i : m_TreesToRetrain) {
         retrainedNumberNodes += static_cast<double>(m_BestForest[i].size());
     }
     double numberKeptNodes{numberForestNodes(m_BestForest) - retrainedNumberNodes};
+
+    // When we decide whether to accept the results of incremental training below
+    // we compare the loss calculated for the best candidate forest with the loss
+    // calculated with the original model. Since the data summary comprises a subset
+    // of the training data we are in effect comparing training error on old data +
+    // validation error on new training data with something closer to validation
+    // error on all data. If we don't have much new data or the improvement we can
+    // make on it is small this typically causes us to reject models which actually
+    // perform better in test. We record gap between the train and validation loss
+    // on the old training data in train and add it on to the threshold to accept
+    // adjusting for the proportion of old training data we have.
+    double numberNewTrainingRows{m_NewTrainingRowMask.manhattan()};
+    double numberOldTrainingRows{this->allTrainingRowsMask().manhattan() - numberNewTrainingRows};
+    double initialLoss{
+        lossAtNSigma(1.0,
+                     [&] {
+                         TMeanVarAccumulator lossMoments;
+                         for (const auto& mask : m_TestingRowMasks) {
+                             lossMoments.add(this->meanAdjustedLoss(frame, mask));
+                         }
+                         return lossMoments;
+                     }()) +
+        numberOldTrainingRows * m_LossGap / (numberOldTrainingRows + numberNewTrainingRows) +
+        this->modelSizePenalty(numberKeptNodes, retrainedNumberNodes)};
 
     // Hyperparameter optimisation loop.
 
@@ -435,8 +451,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
               << "Time per iteration in ms mean: " << CBasicStatistics::mean(timeAccumulator)
               << " std. dev:  " << std::sqrt(CBasicStatistics::variance(timeAccumulator)));
 
-    if (m_BestForestTestLoss <
-        initialLoss + m_LossGap + this->modelSizePenalty(numberKeptNodes, retrainedNumberNodes)) {
+    if (m_BestForestTestLoss < initialLoss) {
         this->restoreBestHyperparameters();
         core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
         TNodeVecVec retrainedTrees;
