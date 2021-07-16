@@ -37,6 +37,7 @@ public:
     static const std::string JSON_HYPERPARAMETER_VALUE_TAG;
     static const std::string JSON_HYPERPARAMETER_SUPPLIED_TAG;
     static const std::string JSON_IMPORTANCE_TAG;
+    static const std::string JSON_LOSS_GAP_TAG;
     static const std::string JSON_MAX_TAG;
     static const std::string JSON_MEAN_MAGNITUDE_TAG;
     static const std::string JSON_MIN_TAG;

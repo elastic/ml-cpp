@@ -385,7 +385,8 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
                          }
                          return lossMoments;
                      }()) +
-        numberOldTrainingRows * m_LossGap / (numberOldTrainingRows + numberNewTrainingRows) +
+        numberOldTrainingRows * m_PreviousTrainLossGap /
+            (numberOldTrainingRows + numberNewTrainingRows) +
         this->modelSizePenalty(numberKeptNodes, retrainedNumberNodes)};
 
     // Hyperparameter optimisation loop.
@@ -400,6 +401,12 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     std::uint64_t lastLap{stopWatch.lap()};
     LOG_TRACE(<< "Number trees to retrain = " << numberTreesToRetrain << "/"
               << m_BestForest.size());
+
+    if (m_PreviousTrainNumberRows > 0) {
+        this->scaleRegularizers(this->meanNumberTrainingRowsPerFold() /
+                                    static_cast<double>(m_PreviousTrainNumberRows),
+                                true /*force*/);
+    }
 
     while (m_CurrentRound < m_NumberRounds) {
 
@@ -454,6 +461,13 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     if (m_BestForestTestLoss < initialLoss) {
         this->restoreBestHyperparameters();
         core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
+
+        if (m_PreviousTrainNumberRows > 0) {
+            this->scaleRegularizers(allTrainingRowsMask.manhattan() /
+                                        this->meanNumberTrainingRowsPerFold(),
+                                    true /*force*/);
+        }
+
         TNodeVecVec retrainedTrees;
         std::tie(retrainedTrees, std::ignore, std::ignore, std::ignore) = this->updateForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
@@ -1967,16 +1981,16 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
               << ", prediction change cost* = " << m_PredictionChangeCost);
 }
 
-void CBoostedTreeImpl::scaleRegularizers(double scale) {
-    if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+void CBoostedTreeImpl::scaleRegularizers(double scale, bool force) {
+    if (force || m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
         m_Regularization.depthPenaltyMultiplier(
             scale * m_Regularization.depthPenaltyMultiplier());
     }
-    if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
+    if (force || m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
         m_Regularization.treeSizePenaltyMultiplier(
             scale * m_Regularization.treeSizePenaltyMultiplier());
     }
-    if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+    if (force || m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
         m_Regularization.leafWeightPenaltyMultiplier(
             scale * m_Regularization.leafWeightPenaltyMultiplier());
     }
@@ -2177,6 +2191,7 @@ const std::string VERSION_7_8_TAG{"7.8"};
 const TStrVec SUPPORTED_VERSIONS{VERSION_7_8_TAG, VERSION_7_11_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
+const std::string BEST_FOREST_LOSS_GAP_TAG{"best_forest_loss_gap"};
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
 const std::string BEST_HYPERPARAMETERS_TAG{"best_hyperparameters"};
@@ -2215,6 +2230,8 @@ const std::string NUMBER_SPLITS_PER_FEATURE_TAG{"number_splits_per_feature"};
 const std::string NUMBER_THREADS_TAG{"number_threads"};
 const std::string PREDICTION_CHANGE_COST_TAG{"prediction_change_cost"};
 const std::string PREDICTION_CHANGE_COST_OVERRIDE_TAG{"prediction_change_cost_override"};
+const std::string PREVIOUS_TRAIN_LOSS_GAP_TAG{"previous_train_loss_gap"};
+const std::string PREVIOUS_TRAIN_NUMBER_ROWS_TAG{"previous_train_number_rows"};
 const std::string RANDOM_NUMBER_GENERATOR_TAG{"random_number_generator"};
 const std::string REGULARIZATION_TAG{"regularization"};
 const std::string REGULARIZATION_OVERRIDE_TAG{"regularization_override"};
@@ -2260,8 +2277,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(VERSION_7_11_TAG, "", inserter);
     core::CPersistUtils::persistIfNotNull(BAYESIAN_OPTIMIZATION_TAG,
                                           m_BayesianOptimization, inserter);
-    core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
+    core::CPersistUtils::persist(BEST_FOREST_LOSS_GAP_TAG, m_BestForestLossGap, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
+    core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(BEST_HYPERPARAMETERS_TAG, m_BestHyperparameters, inserter);
     core::CPersistUtils::persistIfNotNull(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
                                           m_ClassificationWeightsOverride, inserter);
@@ -2315,6 +2333,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(PREDICTION_CHANGE_COST_TAG, m_PredictionChangeCost, inserter);
     core::CPersistUtils::persist(PREDICTION_CHANGE_COST_OVERRIDE_TAG,
                                  m_PredictionChangeCostOverride, inserter);
+    core::CPersistUtils::persist(PREVIOUS_TRAIN_LOSS_GAP_TAG, m_PreviousTrainLossGap, inserter);
+    core::CPersistUtils::persist(PREVIOUS_TRAIN_NUMBER_ROWS_TAG,
+                                 m_PreviousTrainNumberRows, inserter);
     inserter.insertValue(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.toString());
     core::CPersistUtils::persist(REGULARIZATION_OVERRIDE_TAG,
                                  m_RegularizationOverride, inserter);
@@ -2366,6 +2387,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
                          m_BayesianOptimization =
                              std::make_unique<CBayesianOptimisation>(traverser))
+        RESTORE(BEST_FOREST_LOSS_GAP_TAG,
+                core::CPersistUtils::restore(BEST_FOREST_LOSS_GAP_TAG,
+                                             m_BestForestLossGap, traverser))
         RESTORE(BEST_FOREST_TAG,
                 core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
         RESTORE(BEST_FOREST_TEST_LOSS_TAG,
@@ -2469,6 +2493,12 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(PREDICTION_CHANGE_COST_OVERRIDE_TAG,
                 core::CPersistUtils::restore(PREDICTION_CHANGE_COST_OVERRIDE_TAG,
                                              m_PredictionChangeCostOverride, traverser))
+        RESTORE(PREVIOUS_TRAIN_LOSS_GAP_TAG,
+                core::CPersistUtils::restore(PREVIOUS_TRAIN_LOSS_GAP_TAG,
+                                             m_PreviousTrainLossGap, traverser))
+        RESTORE(PREVIOUS_TRAIN_NUMBER_ROWS_TAG,
+                core::CPersistUtils::restore(PREVIOUS_TRAIN_NUMBER_ROWS_TAG,
+                                             m_PreviousTrainNumberRows, traverser))
         RESTORE(RANDOM_NUMBER_GENERATOR_TAG, m_Rng.fromString(traverser.value()))
         RESTORE(REGULARIZATION_TAG,
                 core::CPersistUtils::restore(REGULARIZATION_TAG, m_Regularization, traverser))

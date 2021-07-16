@@ -1405,7 +1405,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr mod
     result.m_TreeImpl->m_FeatureBagFractionOverride = result.m_TreeImpl->m_FeatureBagFraction;
     result.m_TreeImpl->m_CurrentRound = 0;
     result.m_TreeImpl->m_BestForestTestLoss = boosted_tree_detail::INF;
-    result.m_TreeImpl->m_LossGap = result.m_TreeImpl->m_BestForestLossGap;
+    result.m_TreeImpl->m_PreviousTrainLossGap = result.m_TreeImpl->m_BestForestLossGap;
     result.m_TreeImpl->m_FoldRoundTestLosses.clear();
     result.m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_NotInitialized;
     result.m_TreeImpl->m_MeanForestSizeAccumulator = CBoostedTreeImpl::TMeanAccumulator{};
@@ -1697,8 +1697,13 @@ CBoostedTreeFactory& CBoostedTreeFactory::retrainFraction(double fraction) {
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::lossGap(double gap) {
-    m_TreeImpl->m_LossGap = gap;
+CBoostedTreeFactory& CBoostedTreeFactory::previousTrainLossGap(double gap) {
+    m_TreeImpl->m_PreviousTrainLossGap = gap;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::previousTrainNumberRows(std::size_t numberRows) {
+    m_TreeImpl->m_PreviousTrainNumberRows = numberRows;
     return *this;
 }
 

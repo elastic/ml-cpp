@@ -94,7 +94,10 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                {{TASK_TRAIN, int{ETask::E_Train}},
                                 {TASK_UPDATE, int{ETask::E_Update}},
                                 {TASK_PREDICT, int{ETask::E_Predict}}});
-        theReader.addParameter(LOSS_GAP, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(PREVIOUS_TRAIN_LOSS_GAP,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(PREVIOUS_TRAIN_NUM_ROWS,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -156,7 +159,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
     double predictionChangeCost{parameters[PREDICTION_CHANGE_COST].fallback(-1.0)};
     double treeTopologyChangePenalty{parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(-1.0)};
-    double lossGap{parameters[LOSS_GAP].fallback(-1.0)};
+    double previousTrainLossGap{parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0)};
+    std::size_t previousTrainNumberRows{
+        parameters[PREVIOUS_TRAIN_NUM_ROWS].fallback(std::size_t{0})};
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
                                     m_CustomProcessors.GetAllocator());
@@ -273,8 +278,11 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (dataSummarizationFraction > 0) {
         m_BoostedTreeFactory->dataSummarizationFraction(dataSummarizationFraction);
     }
-    if (lossGap > 0.0) {
-        m_BoostedTreeFactory->lossGap(lossGap);
+    if (previousTrainLossGap > 0.0) {
+        m_BoostedTreeFactory->previousTrainLossGap(previousTrainLossGap);
+    }
+    if (previousTrainNumberRows > 0) {
+        m_BoostedTreeFactory->previousTrainNumberRows(previousTrainNumberRows);
     }
 }
 
@@ -566,7 +574,8 @@ const std::string CDataFrameTrainBoostedTreeRunner::TASK{"task"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_TRAIN{"train"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_UPDATE{"update"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_PREDICT{"predict"};
-const std::string CDataFrameTrainBoostedTreeRunner::LOSS_GAP{"loss_gap"};
+const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_LOSS_GAP{"previous_train_loss_gap"};
+const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_NUM_ROWS{"previous_train_num_rows"};
 // clang-format on
 }
 }

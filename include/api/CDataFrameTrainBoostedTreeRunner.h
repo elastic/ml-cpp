@@ -67,7 +67,8 @@ public:
     static const std::string TASK_TRAIN;
     static const std::string TASK_UPDATE;
     static const std::string TASK_PREDICT;
-    static const std::string LOSS_GAP;
+    static const std::string PREVIOUS_TRAIN_LOSS_GAP;
+    static const std::string PREVIOUS_TRAIN_NUM_ROWS;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;

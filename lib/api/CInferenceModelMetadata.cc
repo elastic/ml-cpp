@@ -190,7 +190,7 @@ void CInferenceModelMetadata::writeTrainProperties(TRapidJsonWriter& writer) con
         writer.StartObject();
         writer.Key(JSON_NUM_TRAIN_ROWS_TAG);
         writer.Uint64(m_NumTrainRows);
-        writer.Key(CDataFrameTrainBoostedTreeRunner::LOSS_GAP);
+        writer.Key(JSON_LOSS_GAP_TAG);
         writer.Double(m_LossGap);
         writer.EndObject();
     }
@@ -322,6 +322,7 @@ const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_NAME_TAG{"name"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_VALUE_TAG{"value"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_SUPPLIED_TAG{"supplied"};
 const std::string CInferenceModelMetadata::JSON_IMPORTANCE_TAG{"importance"};
+const std::string CInferenceModelMetadata::JSON_LOSS_GAP_TAG{"loss_gap"};
 const std::string CInferenceModelMetadata::JSON_MAX_TAG{"max"};
 const std::string CInferenceModelMetadata::JSON_MEAN_MAGNITUDE_TAG{"mean_magnitude"};
 const std::string CInferenceModelMetadata::JSON_MIN_TAG{"min"};

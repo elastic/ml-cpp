@@ -419,7 +419,9 @@ private:
     void restoreBestHyperparameters();
 
     //! Scale the regulariser multipliers by \p scale.
-    void scaleRegularizers(double scale);
+    //!
+    //! \note If forced this will scale even if the parameters are overriden.
+    void scaleRegularizers(double scale, bool force = false);
 
     //! Check invariants which are assumed to hold after restoring.
     void checkRestoredInvariants() const;
@@ -485,6 +487,8 @@ private:
     CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective{CBoostedTree::E_MinimumRecall};
     bool m_IncrementalTraining{false};
     bool m_StopCrossValidationEarly{true};
+    double m_PreviousTrainLossGap{0.0};
+    std::size_t m_PreviousTrainNumberRows{0};
     TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
@@ -521,7 +525,6 @@ private:
     TPackedBitVectorVec m_TestingRowMasks;
     core::CPackedBitVector m_NewTrainingRowMask;
     double m_BestForestTestLoss{boosted_tree_detail::INF};
-    double m_LossGap{0.0};
     double m_BestForestLossGap{0.0};
     TOptionalDoubleVecVec m_FoldRoundTestLosses;
     CBoostedTreeHyperparameters m_BestHyperparameters;
