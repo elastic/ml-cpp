@@ -971,7 +971,6 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
             .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train)
-            .dataSummarizationFraction(1.0)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                             dependentVariable, &frameAndDirectory);
     };
