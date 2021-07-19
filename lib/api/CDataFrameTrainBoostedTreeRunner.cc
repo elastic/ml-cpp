@@ -127,21 +127,17 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     m_Task = parameters[TASK].fallback(E_Train);
 
-    bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
-    double dataSummarizationFraction =
-        parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0);
-
     std::size_t seed{parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0})};
-    std::size_t downsampleRowsPerFeature{
-        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
-    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
 
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
+    std::size_t downsampleRowsPerFeature{
+        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
     double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
     std::size_t numberRoundsPerHyperparameter{
         parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
             NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET)};
+    bool earlyStoppingEnabled{parameters[EARLY_STOPPING_ENABLED].fallback(true)};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
@@ -156,12 +152,16 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double retrainedTreeEta{parameters[RETRAINED_TREE_ETA].fallback(-1.0)};
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
+    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
     double predictionChangeCost{parameters[PREDICTION_CHANGE_COST].fallback(-1.0)};
     double treeTopologyChangePenalty{parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(-1.0)};
+
+    double dataSummarizationFraction{parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0)};
     double previousTrainLossGap{parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0)};
     std::size_t previousTrainNumberRows{
         parameters[PREVIOUS_TRAIN_NUM_ROWS].fallback(std::size_t{0})};
+
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
                                     m_CustomProcessors.GetAllocator());

@@ -206,6 +206,12 @@ CDataFrameAnalysisSpecificationFactory::dataSummarizationFraction(double fractio
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::previousTrainLossGap(double lossGap) {
+    m_PreviousTrainLossGap = lossGap;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
     m_NumberClasses = number;
     return *this;
@@ -371,10 +377,13 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Key(TRunner::EARLY_STOPPING_ENABLED);
         writer.Bool(m_EarlyStoppingEnabled);
     }
-
-    if (m_DataSummarizationFraction > 0) {
+    if (m_DataSummarizationFraction > 0.0) {
         writer.Key(TRunner::DATA_SUMMARIZATION_FRACTION);
         writer.Double(m_DataSummarizationFraction);
+    }
+    if (m_PreviousTrainLossGap > 0.0) {
+        writer.Key(TRunner::PREVIOUS_TRAIN_LOSS_GAP);
+        writer.Double(m_PreviousTrainLossGap);
     }
 
     writer.Key(TRunner::TASK);

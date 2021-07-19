@@ -95,6 +95,7 @@ public:
     CDataFrameAnalysisSpecificationFactory& earlyStoppingEnabled(bool earlyStoppingEnabled);
     CDataFrameAnalysisSpecificationFactory& task(TTask task);
     CDataFrameAnalysisSpecificationFactory& dataSummarizationFraction(double fraction);
+    CDataFrameAnalysisSpecificationFactory& previousTrainLossGap(double lossGap);
 
     // Regression
     CDataFrameAnalysisSpecificationFactory& regressionLossFunction(TLossFunctionType lossFunction);
@@ -156,6 +157,7 @@ private:
     rapidjson::Document m_CustomProcessors;
     TTask m_Task{TTask::E_Train};
     double m_DataSummarizationFraction{-1.0};
+    double m_PreviousTrainLossGap{-1.0};
     // Regression
     TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;

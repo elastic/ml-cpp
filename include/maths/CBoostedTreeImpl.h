@@ -478,7 +478,7 @@ private:
 private:
     std::uint64_t m_Seed{0};
     mutable CPRNG::CXorOShiro128Plus m_Rng;
-    EInitializationStage m_InitializationStage = E_NotInitialized;
+    EInitializationStage m_InitializationStage{E_NotInitialized};
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable{std::numeric_limits<std::size_t>::max()};
     TOptionalSize m_PaddedExtraColumns;

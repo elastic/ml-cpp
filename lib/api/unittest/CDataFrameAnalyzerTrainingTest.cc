@@ -334,6 +334,7 @@ void readIncrementalTrainingState(const std::string& resultsJson,
                                   double& etaGrowthRatePerTree,
                                   double& downsampleFactor,
                                   double& featureBagFraction,
+                                  double& lossGap,
                                   std::ostream& incrementalTrainingState) {
 
     rapidjson::Document results;
@@ -381,6 +382,11 @@ void readIncrementalTrainingState(const std::string& resultsJson,
                 } else if (std::strcmp(item["name"].GetString(), "feature_bag_fraction") == 0) {
                     featureBagFraction = item["value"].GetDouble();
                 }
+            }
+            if (result["model_metadata"].HasMember("train_properties") &&
+                result["model_metadata"]["train_properties"].HasMember("loss_gap")) {
+                lossGap =
+                    result["model_metadata"]["train_properties"]["loss_gap"].GetDouble();
             }
         }
     }
@@ -843,7 +849,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
         readPredictions(outputStream.str(), "target_prediction", actualPredictions);
     }
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), predictExamples);
-    for (int i = 0; i < predictExamples; ++i) {
+    for (std::size_t i = 0; i < predictExamples; ++i) {
         BOOST_TEST_REQUIRE(actualPredictions[i] == expectedPredictions[i]);
     }
 }
@@ -941,7 +947,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
         readPredictions(outputStream.str(), "target_prediction", actualPredictions);
     }
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), predictExamples);
-    for (int i = 0; i < predictExamples; ++i) {
+    for (std::size_t i = 0; i < predictExamples; ++i) {
         BOOST_TEST_REQUIRE(actualPredictions[i] == expectedPredictions[i]);
     }
 }
@@ -965,6 +971,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
             .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train)
+            .dataSummarizationFraction(1.0)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                             dependentVariable, &frameAndDirectory);
     };
@@ -978,6 +985,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     double etaGrowthRatePerTree;
     double downsampleFactor;
     double featureBagFraction;
+    double lossGap;
 
     auto makeUpdateSpec = [&](const std::string& dependentVariable,
                               TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
@@ -996,6 +1004,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
             .predictionMaximumNumberTrees(maximumNumberTrees)
             .predictionDownsampleFactor(downsampleFactor)
             .predictionFeatureBagFraction(featureBagFraction)
+            .previousTrainLossGap(lossGap)
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
@@ -1044,7 +1053,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
-                                 featureBagFraction, incrementalTrainingState);
+                                 featureBagFraction, lossGap, incrementalTrainingState);
 
     // Pass model definition and data summarization into the restore stream.
     auto restoreStreamPtr =
@@ -1368,6 +1377,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     double etaGrowthRatePerTree;
     double downsampleFactor;
     double featureBagFraction;
+    double lossGap;
 
     auto makeUpdateSpec = [&](const std::string& dependentVariable,
                               TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
@@ -1387,6 +1397,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
             .predictionMaximumNumberTrees(maximumNumberTrees)
             .predictionDownsampleFactor(downsampleFactor)
             .predictionFeatureBagFraction(featureBagFraction)
+            .previousTrainLossGap(lossGap)
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
@@ -1435,7 +1446,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
-                                 featureBagFraction, incrementalTrainingState);
+                                 featureBagFraction, lossGap, incrementalTrainingState);
 
     // Pass model definition and data summarization into the restore stream.
     auto restoreStreamPtr =

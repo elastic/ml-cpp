@@ -457,6 +457,8 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "Incremental training finished after " << m_CurrentRound << " iterations. "
               << "Time per iteration in ms mean: " << CBasicStatistics::mean(timeAccumulator)
               << " std. dev:  " << std::sqrt(CBasicStatistics::variance(timeAccumulator)));
+    LOG_TRACE(<< "best forest loss = " << m_BestForestTestLoss
+              << ", initial loss = " << initialLoss);
 
     if (m_BestForestTestLoss < initialLoss) {
         this->restoreBestHyperparameters();
