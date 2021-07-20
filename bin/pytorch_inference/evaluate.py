@@ -158,6 +158,7 @@ def main():
             results_match = True
             try:
                 result_docs = json.load(output_file)
+                print(result_docs)
             except:
                 print("Error parsing json: ", sys.exc_info()[0])
                 return
@@ -180,17 +181,17 @@ def main():
                     print()
                     results_match = False
 
-                doc_count = doc_count +1
+                # doc_count = doc_count +1
 
             print()
             print('{} requests evaluated in {} ms'.format(doc_count, total_time_ms))
             print()
 
-            if doc_count != len(test_evaluation): 
-                print()
-                print('ERROR: The number of inference results [{}] does not match expected count [{}]'.format(doc_count, len(test_evaluation)))
-                print()
-                results_match = False
+            # if doc_count != len(test_evaluation): 
+            #     print()
+            #     print('ERROR: The number of inference results [{}] does not match expected count [{}]'.format(doc_count, len(test_evaluation)))
+            #     print()
+            #     results_match = False
 
             if results_match:
                 print()
