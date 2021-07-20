@@ -2111,13 +2111,12 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
                 m_TunableHyperparameters.push_back(E_FeatureBagFraction);
             }
             break;
+        // Incremental train hyperparameters.
         case E_PredictionChangeCost:
-            if (m_IncrementalTraining == false &&
-                m_PredictionChangeCostOverride == boost::none) {
+            if (m_IncrementalTraining && m_PredictionChangeCostOverride == boost::none) {
                 m_TunableHyperparameters.push_back(E_PredictionChangeCost);
             }
             break;
-        // Incremental train hyperparameters.
         case E_RetrainedTreeEta:
             if (m_IncrementalTraining && m_RetrainedTreeEtaOverride == boost::none) {
                 m_TunableHyperparameters.push_back(E_RetrainedTreeEta);
