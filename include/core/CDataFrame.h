@@ -322,6 +322,11 @@ public:
     TSizeVecSizePr resizeColumns(std::size_t numberThreads,
                                  const TSizeAlignmentPrVec& extraColumns);
 
+    //! Resize to contain \p numberRows rows.
+    //!
+    //! \param[in] numberRows The desired number of rows.
+    void resizeRows(std::size_t numberRows);
+
     //! This reads rows using one or more readers.
     //!
     //! One reader is bound to one thread. Each thread reads a disjoint subset

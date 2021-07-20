@@ -352,6 +352,8 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         return;
     }
 
+    LOG_TRACE(<< "Main incremental training loop...");
+
     this->selectTreesToRetrain(frame);
 
     std::int64_t lastMemoryUsage(this->memoryUsage());
