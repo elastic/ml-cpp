@@ -3,7 +3,7 @@
 # or more contributor license agreements. Licensed under the Elastic License;
 # you may not use this file except in compliance with the Elastic License.
 #
-FROM docker.elastic.co/ml-dev/ml-linux-build:15 as builder 
+FROM docker.elastic.co/ml-dev/ml-linux-build:17 as builder 
 
 RUN yum install -y epel-release && \
     yum install -y ccache

@@ -109,14 +109,15 @@ int main(int argc, char** argv) {
     bool isPersistInForeground{false};
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
+    bool validElasticLicenseKeyConfirmed{true};
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, configFile, filtersConfigFile, eventsConfigFile,
             modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
             timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
-            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
-            isPersistInForeground, maxAnomalyRecords, memoryUsage) == false) {
+            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
+            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            persistFileName, isPersistFileNamedPipe, isPersistInForeground,
+            maxAnomalyRecords, memoryUsage, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
@@ -148,6 +149,11 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
+
+    if (validElasticLicenseKeyConfirmed == false) {
+        LOG_FATAL(<< "Failed to confirm valid license key.");
+        return EXIT_FAILURE;
+    }
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();

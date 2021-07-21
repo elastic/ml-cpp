@@ -554,9 +554,14 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     TMeanAccumulator c2TotalShapExpected;
     TMeanAccumulator c3TotalShapExpected;
     TMeanAccumulator c4TotalShapExpected;
-    double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
-    double c1TotalShapActual{0.0}, c2TotalShapActual{0.0},
-        c3TotalShapActual{0.0}, c4TotalShapActual{0.0};
+    double c1Sum{0.0};
+    double c2Sum{0.0};
+    double c3Sum{0.0};
+    double c4Sum{0.0};
+    double c1TotalShapActual{0.0};
+    double c2TotalShapActual{0.0};
+    double c3TotalShapActual{0.0};
+    double c4TotalShapActual{0.0};
     bool hasTotalFeatureImportance{false};
     double baseline{readBaselineValue(results)};
     for (const auto& result : results.GetArray()) {
@@ -591,9 +596,12 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
         }
     }
 
-    // since target is generated using the linear model
-    // 50 c1 + 150 c2 + 50 c3 - 50 c4, with c1 categorical {-10,10}
-    // we expect c2 > c1 > c3 \approx c4
+    // Since the target is generated using the linear model
+    //
+    //   50 c1 + 150 c2 + 50 c3 - 50 c4, with c1 categorical {-10,10}
+    //
+    // we expect c2 > c1 > c3 \approx c4.
+
     BOOST_TEST_REQUIRE(c2Sum > c1Sum);
     // since c1 is categorical -10 or 10, it's influence is generally higher than that of c3 and c4 which are sampled
     // randomly on [-10, 10].
@@ -652,15 +660,20 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     // values are indeed a local approximation of the predicted log-odds.
 
     std::size_t topShapValues{4};
-    auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
+    auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.3, -0.3})};
     auto results{std::move(resultsPair.first)};
     TMeanAccumulator c1TotalShapExpected;
     TMeanAccumulator c2TotalShapExpected;
     TMeanAccumulator c3TotalShapExpected;
     TMeanAccumulator c4TotalShapExpected;
-    double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
-    double c1TotalShapActual[2], c2TotalShapActual[2], c3TotalShapActual[2],
-        c4TotalShapActual[2];
+    double c1Sum{0.0};
+    double c2Sum{0.0};
+    double c3Sum{0.0};
+    double c4Sum{0.0};
+    double c1TotalShapActual[2];
+    double c2TotalShapActual[2];
+    double c3TotalShapActual[2];
+    double c4TotalShapActual[2];
     bool hasTotalFeatureImportance{false};
     double baselineFoo{readBaselineValue(results, "foo")};
     double baselineBar{readBaselineValue(results, "bar")};
@@ -708,13 +721,20 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
         }
     }
 
-    // since the target using a linear model
-    // 0.5 c1 + 0.7 c2 + 0.25 c3 - 0.25 c4
-    // to generate the log odds we expect c2 > c1 > c3 \approx c4
+    // Since the target is using the linear model
+    //
+    //   0.5 c1 - 0.7 c2 + 0.2 c3 - 0.2 c4
+    //
+    // to generate the log odds we expect c2 > c1 > c3 \approx c4.
+
+    LOG_DEBUG(<< "c1Sum = " << c1Sum << ", c2Sum = " << c2Sum
+              << ", c3Sum = " << c3Sum << ", c4Sum = " << c4Sum);
+
     BOOST_TEST_REQUIRE(c2Sum > c1Sum);
     BOOST_TEST_REQUIRE(c1Sum > c3Sum);
     BOOST_TEST_REQUIRE(c1Sum > c4Sum);
-    BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 40.0); // c3 and c4 within 40% of each other
+    BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 20.0); // c3 and c4 within 20% of each other
+
     BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
     for (std::size_t i = 0; i < classes.size(); ++i) {
         if (c1TotalShapActual[i] == 0 || c2TotalShapActual[i] == 0 ||

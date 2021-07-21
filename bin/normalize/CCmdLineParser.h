@@ -44,7 +44,8 @@ public:
                       bool& isOutputFileNamedPipe,
                       std::string& quantilesState,
                       bool& deleteStateFiles,
-                      bool& writeCsv);
+                      bool& writeCsv,
+                      bool& validElasticLicenseKeyConfirmed);
 
 private:
     static const std::string DESCRIPTION;

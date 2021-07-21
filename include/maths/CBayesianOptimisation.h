@@ -72,6 +72,10 @@ public:
     //! variance in the error in \p fx w.r.t. the true value is \p vx.
     void add(TVector x, double fx, double vx);
 
+    //! Any portion of the variance of the function error which is explained and
+    //! shouldn't be included in the kernel.
+    void explainedErrorVariance(double vx);
+
     //! Get the bounding box (in the function domain) in which we're minimizing.
     std::pair<TVector, TVector> boundingBox() const;
 
@@ -170,8 +174,9 @@ private:
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_Restarts;
-    double m_RangeShift = 0.0;
-    double m_RangeScale = 1.0;
+    double m_RangeShift{0.0};
+    double m_RangeScale{1.0};
+    double m_ExplainedErrorVariance{0.0};
     TVector m_MinBoundary;
     TVector m_MaxBoundary;
     TVectorDoublePrVec m_FunctionMeanValues;

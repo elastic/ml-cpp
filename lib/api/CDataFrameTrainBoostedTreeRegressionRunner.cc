@@ -164,10 +164,12 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
         m_InferenceModelMetadata.hyperparameterImportance(
             this->boostedTree().hyperparameterImportance());
     }
-    std::size_t dataSummarizationNumRows{static_cast<std::size_t>(
+    m_InferenceModelMetadata.numTrainingRows(this->boostedTree().numberTrainingRows());
+    m_InferenceModelMetadata.trainFractionPerFold(this->boostedTree().trainFractionPerFold());
+    std::size_t numDataSummarizationRows{static_cast<std::size_t>(
         this->boostedTree().dataSummarization().manhattan())};
-    if (dataSummarizationNumRows > 0) {
-        m_InferenceModelMetadata.dataSummarizationNumRows(dataSummarizationNumRows);
+    if (numDataSummarizationRows > 0) {
+        m_InferenceModelMetadata.numDataSummarizationRows(numDataSummarizationRows);
     }
     return m_InferenceModelMetadata;
 }

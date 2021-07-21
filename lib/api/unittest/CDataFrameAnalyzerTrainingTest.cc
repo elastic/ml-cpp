@@ -836,7 +836,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
         TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
             return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
         }};
-        
+
         std::size_t numberExamples{
             static_cast<std::size_t>(trainExamples * dataSummarizationFraction) + predictExamples};
         runAnalyzer(numberExamples, predictExamples, TTask::E_Predict, &restorerSupplier);
@@ -1110,15 +1110,14 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     regression->predict();
 
     auto prediction = predictions.begin();
-    frame->readRows(
-        1, 0, frame->numberRows(),
-        [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                    (*prediction++), regression->readPrediction(*row)[0], 1e-6);
-            }
-        },
-        &newTrainingRowMask);
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                                (*prediction++), regression->readPrediction(*row)[0], 1e-6);
+                        }
+                    },
+                    &newTrainingRowMask);
 }
 
 BOOST_AUTO_TEST_CASE(testClassificationTraining) {
