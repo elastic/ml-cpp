@@ -59,12 +59,14 @@ public:
     using TDoubleVec = std::vector<double>;
 
     struct SRequest {
+        std::int64_t w;
+        std::int64_t h;
         std::string s_RequestId;
         TUint64Vec s_Tokens;
         TUint64VecVec s_SecondaryArguments;
         TDoubleVec s_Inputs;
 
-        bool hasTokens();
+        bool hasTokens() const;
     };
 
     using TRequestHandlerFunc = std::function<bool(SRequest&)>;
@@ -85,8 +87,8 @@ public:
 private:
     bool validateJson(const rapidjson::Document& doc,
                       const TErrorHandlerFunc& errorHandler) const;
-    bool checkArrayContainsUInts(const rapidjson::Value& arr) const;
-    bool checkArrayContainsDoubles(const rapidjson::Value& arr) const;
+    static bool checkArrayContainsUInts(const rapidjson::Value::ConstArray& arr);
+    static bool checkArrayContainsDoubles(const rapidjson::Value::ConstArray& arr);
     void jsonToRequest(const rapidjson::Document& doc);
 
 private:

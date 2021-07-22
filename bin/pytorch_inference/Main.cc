@@ -51,21 +51,17 @@ torch::Tensor infer(torch::jit::script::Module& module,
     if (request.hasTokens()) {
         inputs.reserve(1 + request.s_SecondaryArguments.size());
 
-        auto numTokens = request.s_Tokens.size() / 2;
-
+        at::IntArrayRef inputSize{request.h, request.w};
 
         // BERT UInt tokens
-        
-        auto t =    torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
-                             {2, static_cast<std::int64_t>(numTokens)},
-                             at::dtype(torch::kInt64));
-        inputs.emplace_back(t);
-
-
+        inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
+                             inputSize,
+                             at::dtype(torch::kInt64)));
+    
         for (auto& args : request.s_SecondaryArguments) {
             inputs.emplace_back(torch::from_blob(
                 static_cast<void*>(args.data()),
-                {2, static_cast<std::int64_t>(numTokens)}, at::dtype(torch::kInt64)));
+                inputSize, at::dtype(torch::kInt64)));
         }
     } else {
         // floating point inputs
@@ -173,9 +169,8 @@ bool handleRequest(ml::torch::CCommandParser::SRequest& request,
         auto sizes = results.sizes();
         // Some models return a 3D tensor in which case
         // the first dimension must have size == 1
-        if (sizes.size() == 3 && sizes[0] == 2) {
-            writePrediction<2>(results[0], request.s_RequestId, timeMs, jsonWriter);
-            writePrediction<2>(results[1], request.s_RequestId, timeMs, jsonWriter);
+        if (sizes.size() == 3 && sizes[0] == 1) {
+            writePrediction<2>(results[0], request.s_RequestId, timeMs, jsonWriter);            
         } else if (sizes.size() == 2) {
             writePrediction<2>(results, request.s_RequestId, timeMs, jsonWriter);
         } else if (sizes.size() == 1) {
