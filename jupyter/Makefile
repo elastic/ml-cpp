@@ -49,7 +49,7 @@ $(REQUIREMENTS_LOG): $(PIP) $(REQUIREMENTS)
 	  $(PIP) install -r $$f | tee -a $(REQUIREMENTS_LOG); \
 	done
 
-src: $(PIP) $(SRC_DIR)
+src: $(PIP) 
 	$(PIP) install -e $(SRC_DIR)
 
 bump-minor: $(SRC_DIR) ## Bump minor version of python packages
