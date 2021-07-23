@@ -7,6 +7,7 @@ from graphviz import Digraph
 import numpy as np
 from math import isclose
 
+
 class TreeNode:
     def __init__(self, json_node, feature_names):
         self.id = json_node['node_index']
@@ -29,12 +30,11 @@ class TreeNode:
             and self.left_child_id == value.left_child_id \
             and self.right_child_id == value.right_child_id \
             and isclose(self.threshold,  value.threshold, abs_tol=1e-6) \
-            and self.split_feature == value.split_feature \
-            and isclose(self.split_gain,  value.split_gain, abs_tol=1e-6)
-    
+            and self.split_feature == value.split_feature
+
     def __ne__(self, value):
         return not self == value
-    
+
     def __str__(self):
         return "Node {}: is_leaf {}, left_child_id {}, right_child_id {}\nthreshold {}, split_feature {}, split_gain {}".format(
             self.id, self.is_leaf, self.left_child_id, self.right_child_id, self.threshold, self.split_feature, self.split_gain)
@@ -56,7 +56,7 @@ class Leaf:
         return self.id == value.id \
             and isclose(self.value, value.value, abs_tol=1e-6) \
             and self.is_leaf == value.is_leaf
-    
+
     def __ne__(self, value):
         return not self == value
 
@@ -154,9 +154,46 @@ class Tree:
             return False
         for i in range(len(self.nodes)):
             if self.nodes[i] != other.nodes[i]:
-                print("Nodes {} not equal\n{}\n{}".format(i, self.nodes[i], other.nodes[i]))
                 return False
         return True
+
+    def show_diff(self, other):
+        diff_dot = Digraph()
+        diff_dot.attr(size='10,8')
+        for i, node in self.nodes.items():
+            if i not in other.nodes.keys() or \
+                    self.nodes[i].is_leaf != other.nodes[i].is_leaf or \
+                    self.nodes[i] != other.nodes[i]:
+                if self.nodes[i].is_leaf:
+                    diff_dot.attr('node', shape='box',
+                                  fillcolor='red', style='filled')
+                else:
+                    diff_dot.attr('node', shape='oval',
+                                  fillcolor='red', style='filled')
+                diff_dot.node(str(self.nodes[i].id),
+                              label=self.nodes[i].label())
+            else:
+                if self.nodes[i].is_leaf:
+                    diff_dot.attr('node', shape='box',
+                                  fillcolor='white', style='')
+                else:
+                    diff_dot.attr('node', shape='oval', style='')
+                diff_dot.node(str(self.nodes[i].id),
+                              label=self.nodes[i].label())
+        for node in self.nodes.values():
+            if not node.is_leaf:
+                diff_dot.edge(str(node.id), str(node.left_child_id))
+                diff_dot.edge(str(node.id), str(node.right_child_id))
+        return diff_dot
+
+    def num_diff_nodes(self, other):
+        diff_nodes = 0.0
+        for i, node in self.nodes.items():
+            if i not in other.nodes.keys() or \
+                    self.nodes[i].is_leaf != other.nodes[i].is_leaf or \
+                    self.nodes[i] != other.nodes[i]:
+                diff_nodes += 1.0
+        return diff_nodes
 
 
 class Forest:

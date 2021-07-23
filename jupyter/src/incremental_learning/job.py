@@ -364,7 +364,8 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
     config['rows'] = dataset.shape[0] + \
         original_job.get_data_summarization_num_rows()
     for name, value in original_job.get_hyperparameters().items():
-        config['analysis']['parameters'][name] = value
+        if name not in ['retrained_tree_eta', 'tree_topology_change_penalty']:
+            config['analysis']['parameters'][name] = value
     config['analysis']['parameters']['task'] = 'update'
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)
