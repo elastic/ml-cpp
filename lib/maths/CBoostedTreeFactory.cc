@@ -229,6 +229,10 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->determineFeatureDataTypes(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        m_TreeImpl->predict(frame);
+        m_TreeImpl->computeClassificationWeights(frame);
+    });
 
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
