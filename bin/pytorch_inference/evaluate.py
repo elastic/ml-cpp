@@ -94,7 +94,10 @@ def launch_pytorch_app(args):
     command = [path_to_app(),
         '--restore=' + args.restore_file,
         '--input=' + args.input_file,
-        '--output=' + args.output_file
+        '--output=' + args.output_file,
+        '--validElasticLicenseKeyConfirmed=true',
+        '--numThreads=4',
+        '--numInterOpThreads=1'
         ]
 
     if args.numThreads:
