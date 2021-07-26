@@ -53,6 +53,8 @@
 
 * Speed up training of regression and classification models on very large data sets.
   (See {ml-pull}1941[#1941].)
+* Improve regression and classification training accuracy for small data sets.
+  (See {ml-pull}1960[#1960].)
 
 == {es} version 7.14.0
 
