@@ -54,13 +54,11 @@ torch::Tensor infer(torch::jit::script::Module& module,
 
     // BERT UInt tokens
     inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
-                            inputSize,
-                            at::dtype(torch::kInt64)));
+                                         inputSize, at::dtype(torch::kInt64)));
 
     for (auto& args : request.s_SecondaryArguments) {
-        inputs.emplace_back(torch::from_blob(
-            static_cast<void*>(args.data()),
-            inputSize, at::dtype(torch::kInt64)));
+        inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data()),
+                                             inputSize, at::dtype(torch::kInt64)));
     }
 
     torch::NoGradGuard noGrad;
@@ -86,7 +84,7 @@ template<typename T>
 void writeTensor(const torch::TensorAccessor<T, 2UL>& accessor,
                  ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     jsonWriter.StartArray();
-    for (int i = 0; i < accessor.size(0); ++i) {        
+    for (int i = 0; i < accessor.size(0); ++i) {
         writeTensor(accessor[i], jsonWriter);
     }
     jsonWriter.EndArray();
@@ -94,12 +92,11 @@ void writeTensor(const torch::TensorAccessor<T, 2UL>& accessor,
 
 template<typename T>
 void writeTensor(const torch::TensorAccessor<T, 3UL>& accessor,
-                 ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {    
-    for (int i = 0; i < accessor.size(0); ++i) {        
+                 ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+    for (int i = 0; i < accessor.size(0); ++i) {
         writeTensor(accessor[i], jsonWriter);
     }
 }
-
 
 void writeError(const std::string& requestId,
                 const std::string& message,
@@ -175,7 +172,7 @@ bool handleRequest(ml::torch::CCommandParser::SRequest& request,
             writePrediction<3>(results, request.s_RequestId, timeMs, jsonWriter);
         } else if (sizes.size() == 2) {
             writePrediction<2>(results, request.s_RequestId, timeMs, jsonWriter);
-        } else if (sizes.size() == 1) {            
+        } else if (sizes.size() == 1) {
             writePrediction<1>(results, request.s_RequestId, timeMs, jsonWriter);
         } else {
             std::ostringstream ss;

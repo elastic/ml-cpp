@@ -248,8 +248,7 @@ BOOST_AUTO_TEST_CASE(testParsingBatch) {
 
     std::string command{
         R"({"request_id": "foo", "tokens": [[1, 2], [3, 4], [5, 6]], "arg_1": [[0, 0], [0, 1], [0, 2]], "arg_2": [[1, 0], [1, 1], [1, 2]]}
-        {"request_id": "bar", "tokens": [[1, 2], [3, 4]], "arg_1": [[0, 0], [0, 1]], "arg_2": [[1, 0], [1, 1]]}"})"
-    };
+        {"request_id": "bar", "tokens": [[1, 2], [3, 4]], "arg_1": [[0, 0], [0, 1]], "arg_2": [[1, 0], [1, 1]]}"})"};
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream};
@@ -264,7 +263,7 @@ BOOST_AUTO_TEST_CASE(testParsingBatch) {
     {
         ml::torch::CCommandParser::TUint64Vec expectedTokens{1, 2, 3, 4, 5, 6};
         ml::torch::CCommandParser::TUint64Vec expectedArg1{0, 0, 0, 1, 0, 2};
-        ml::torch::CCommandParser::TUint64Vec expectedArg2{1, 0, 1, 1, 1, 2};      
+        ml::torch::CCommandParser::TUint64Vec expectedArg2{1, 0, 1, 1, 1, 2};
 
         BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[0].s_Tokens.begin(),
                                         parsed[0].s_Tokens.end(),
@@ -281,7 +280,7 @@ BOOST_AUTO_TEST_CASE(testParsingBatch) {
     {
         ml::torch::CCommandParser::TUint64Vec expectedTokens{1, 2, 3, 4};
         ml::torch::CCommandParser::TUint64Vec expectedArg1{0, 0, 0, 1};
-        ml::torch::CCommandParser::TUint64Vec expectedArg2{1, 0, 1, 1};      
+        ml::torch::CCommandParser::TUint64Vec expectedArg2{1, 0, 1, 1};
 
         BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[1].s_Tokens.begin(),
                                         parsed[1].s_Tokens.end(),
