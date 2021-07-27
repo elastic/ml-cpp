@@ -194,8 +194,6 @@ public:
     void lossType(const std::string& lossType) override;
     //! Set the validation loss values for \p fold for each forest size to \p lossValues.
     void lossValues(std::size_t fold, TDoubleVec&& lossValues) override;
-    //! Set the fraction of data used for training per fold.
-    void trainingFractionPerFold(double fraction) override;
     //! \return A writable object containing the training hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
@@ -208,7 +206,6 @@ private:
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
-    void writeMetaData(rapidjson::Value& parentObject);
     void writeHyperparameters(rapidjson::Value& parentObject);
     void writeValidationLoss(rapidjson::Value& parentObject);
     void writeTimingStats(rapidjson::Value& parentObject);
@@ -222,7 +219,6 @@ private:
     bool m_AnalysisStatsInitialized{false};
     std::string m_LossType;
     TLossVec m_LossValues;
-    double m_TrainingFractionPerFold{0.0};
     SHyperparameters m_Hyperparameters;
 };
 }

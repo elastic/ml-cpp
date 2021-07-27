@@ -252,10 +252,10 @@ public:
     THyperparameterImportanceVec hyperparameterImportance() const;
 
     //! Get the number of rows used to train the model.
-    std::size_t numberTrainingRows() const override;
+    std::size_t numberTrainRows() const override;
 
-    //! Get the fraction of data per fold used for training when tuning hyperparameters.
-    double trainFractionPerFold() const override;
+    //! Get the mean gap in the loss between test and train examples.
+    double lossGap() const override;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;

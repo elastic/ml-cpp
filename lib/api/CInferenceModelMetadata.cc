@@ -19,7 +19,7 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
-    this->writeTrainParameters(writer);
+    this->writeTrainProperties(writer);
     this->writeDataSummarization(writer);
 }
 
@@ -178,24 +178,22 @@ void CInferenceModelMetadata::writeDataSummarization(TRapidJsonWriter& writer) c
     if (m_NumDataSummarizationRows > 0) {
         writer.Key(JSON_DATA_SUMMARIZATION_TAG);
         writer.StartObject();
-        writer.Key(JSON_NUM_ROWS_TAG);
+        writer.Key(JSON_NUM_DATA_SUMMARIZATION_ROWS_TAG);
         writer.Uint64(m_NumDataSummarizationRows);
         writer.EndObject();
     }
 }
 
-void CInferenceModelMetadata::writeTrainParameters(TRapidJsonWriter& writer) const {
-    // TODO enable with Java changes.
-    // Only write out if it has been set.
-    //if (m_TrainingFractionPerFold > 0.0) {
-    //    writer.Key(JSON_TRAIN_PARAMETERS_TAG);
-    //    writer.StartObject();
-    //    writer.Key(JSON_NUM_TRAINING_ROWS_TAG);
-    //    writer.Uint64(m_NumberRowsUsedForTrain);
-    //    writer.Key(CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD);
-    //    writer.Double(m_TrainingFractionPerFold);
-    //    writer.EndObject();
-    //}
+void CInferenceModelMetadata::writeTrainProperties(TRapidJsonWriter& writer) const {
+    if (m_NumTrainRows > 0) {
+        writer.Key(JSON_TRAIN_PROPERTIES_TAG);
+        writer.StartObject();
+        writer.Key(JSON_NUM_TRAIN_ROWS_TAG);
+        writer.Uint64(m_NumTrainRows);
+        writer.Key(JSON_LOSS_GAP_TAG);
+        writer.Double(m_LossGap);
+        writer.EndObject();
+    }
 }
 
 const std::string& CInferenceModelMetadata::typeString() {
@@ -298,12 +296,12 @@ void CInferenceModelMetadata::hyperparameterImportance(const THyperparameterImpo
               });
 }
 
-void CInferenceModelMetadata::numTrainingRows(std::size_t numRows) {
-    m_NumTrainingRows = numRows;
+void CInferenceModelMetadata::numTrainRows(std::size_t numRows) {
+    m_NumTrainRows = numRows;
 }
 
-void CInferenceModelMetadata::trainFractionPerFold(double fraction) {
-    m_TrainFractionPerFold = fraction;
+void CInferenceModelMetadata::lossGap(double lossGap) {
+    m_LossGap = lossGap;
 }
 
 void CInferenceModelMetadata::numDataSummarizationRows(std::size_t numRows) {
@@ -316,7 +314,7 @@ const std::string CInferenceModelMetadata::JSON_BASELINE_TAG{"baseline"};
 const std::string CInferenceModelMetadata::JSON_CLASS_NAME_TAG{"class_name"};
 const std::string CInferenceModelMetadata::JSON_CLASSES_TAG{"classes"};
 const std::string CInferenceModelMetadata::JSON_DATA_SUMMARIZATION_TAG{"data_summarization"};
-const std::string CInferenceModelMetadata::JSON_NUM_ROWS_TAG{"num_rows"};
+const std::string CInferenceModelMetadata::JSON_NUM_DATA_SUMMARIZATION_ROWS_TAG{"num_rows"};
 const std::string CInferenceModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG{"feature_importance_baseline"};
 const std::string CInferenceModelMetadata::JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETERS_TAG{"hyperparameters"};
@@ -324,14 +322,15 @@ const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_NAME_TAG{"name"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_VALUE_TAG{"value"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_SUPPLIED_TAG{"supplied"};
 const std::string CInferenceModelMetadata::JSON_IMPORTANCE_TAG{"importance"};
+const std::string CInferenceModelMetadata::JSON_LOSS_GAP_TAG{"loss_gap"};
 const std::string CInferenceModelMetadata::JSON_MAX_TAG{"max"};
 const std::string CInferenceModelMetadata::JSON_MEAN_MAGNITUDE_TAG{"mean_magnitude"};
 const std::string CInferenceModelMetadata::JSON_MIN_TAG{"min"};
 const std::string CInferenceModelMetadata::JSON_MODEL_METADATA_TAG{"model_metadata"};
-const std::string CInferenceModelMetadata::JSON_NUM_TRAINING_ROWS_TAG{"num_training_rows"};
+const std::string CInferenceModelMetadata::JSON_NUM_TRAIN_ROWS_TAG{"num_train_rows"};
 const std::string CInferenceModelMetadata::JSON_RELATIVE_IMPORTANCE_TAG{"relative_importance"};
 const std::string CInferenceModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
-const std::string CInferenceModelMetadata::JSON_TRAIN_PARAMETERS_TAG{"train_parameters"};
+const std::string CInferenceModelMetadata::JSON_TRAIN_PROPERTIES_TAG{"train_properties"};
 // clang-format on
 }
 }
