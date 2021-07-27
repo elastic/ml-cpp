@@ -1201,10 +1201,11 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
 
     std::size_t maximumNumberOfTrees{1};
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
-    CBoostedTreeImpl::TNodeVecVec forest;
-    std::tie(forest, std::ignore, std::ignore) = m_TreeImpl->trainForest(
-        frame, m_TreeImpl->m_TrainingRowMasks[0],
-        m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
+    CBoostedTreeImpl::TNodeVecVec forest{
+        m_TreeImpl
+            ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
+                          m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress)
+            .s_Forest};
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
 
     TDoubleDoublePrVec result;
@@ -1263,9 +1264,11 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
 
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
-        std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0],
-            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
+        std::tie(forest, testLoss, std::ignore, std::ignore) =
+            m_TreeImpl
+                ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
+                              m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress)
+                .asTuple();
         minTestLoss.add(testLoss);
         testLosses.emplace_back(parameter, testLoss);
     }
@@ -1308,9 +1311,11 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
 
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
-        std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0],
-            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
+        std::tie(forest, testLoss, std::ignore, std::ignore) =
+            m_TreeImpl
+                ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
+                              m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress)
+                .asTuple();
 
         minTestLoss.add(testLoss);
 
@@ -1409,6 +1414,9 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr mod
     result.m_TreeImpl->m_FeatureBagFractionOverride = result.m_TreeImpl->m_FeatureBagFraction;
     result.m_TreeImpl->m_CurrentRound = 0;
     result.m_TreeImpl->m_BestForestTestLoss = boosted_tree_detail::INF;
+    result.m_TreeImpl->m_PreviousTrainNumberRows = static_cast<std::size_t>(
+        result.m_TreeImpl->allTrainingRowsMask().manhattan());
+    result.m_TreeImpl->m_PreviousTrainLossGap = result.m_TreeImpl->m_BestForestLossGap;
     result.m_TreeImpl->m_FoldRoundTestLosses.clear();
     result.m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_NotInitialized;
     result.m_TreeImpl->m_MeanForestSizeAccumulator = CBoostedTreeImpl::TMeanAccumulator{};
@@ -1697,6 +1705,16 @@ CBoostedTreeFactory& CBoostedTreeFactory::newTrainingRowMask(core::CPackedBitVec
 
 CBoostedTreeFactory& CBoostedTreeFactory::retrainFraction(double fraction) {
     m_TreeImpl->m_RetrainFraction = fraction;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::previousTrainLossGap(double gap) {
+    m_TreeImpl->m_PreviousTrainLossGap = gap;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::previousTrainNumberRows(std::size_t numberRows) {
+    m_TreeImpl->m_PreviousTrainNumberRows = numberRows;
     return *this;
 }
 

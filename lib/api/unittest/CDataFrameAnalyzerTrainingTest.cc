@@ -334,6 +334,7 @@ void readIncrementalTrainingState(const std::string& resultsJson,
                                   double& etaGrowthRatePerTree,
                                   double& downsampleFactor,
                                   double& featureBagFraction,
+                                  double& lossGap,
                                   std::ostream& incrementalTrainingState) {
 
     rapidjson::Document results;
@@ -381,6 +382,11 @@ void readIncrementalTrainingState(const std::string& resultsJson,
                 } else if (std::strcmp(item["name"].GetString(), "feature_bag_fraction") == 0) {
                     featureBagFraction = item["value"].GetDouble();
                 }
+            }
+            if (result["model_metadata"].HasMember("train_properties") &&
+                result["model_metadata"]["train_properties"].HasMember("loss_gap")) {
+                lossGap =
+                    result["model_metadata"]["train_properties"]["loss_gap"].GetDouble();
             }
         }
     }
@@ -843,7 +849,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
         readPredictions(outputStream.str(), "target_prediction", actualPredictions);
     }
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), predictExamples);
-    for (int i = 0; i < predictExamples; ++i) {
+    for (std::size_t i = 0; i < predictExamples; ++i) {
         BOOST_TEST_REQUIRE(actualPredictions[i] == expectedPredictions[i]);
     }
 }
@@ -941,7 +947,7 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
         readPredictions(outputStream.str(), "target_prediction", actualPredictions);
     }
     BOOST_REQUIRE_EQUAL(actualPredictions.size(), predictExamples);
-    for (int i = 0; i < predictExamples; ++i) {
+    for (std::size_t i = 0; i < predictExamples; ++i) {
         BOOST_TEST_REQUIRE(actualPredictions[i] == expectedPredictions[i]);
     }
 }
@@ -978,6 +984,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     double etaGrowthRatePerTree;
     double downsampleFactor;
     double featureBagFraction;
+    double lossGap;
 
     auto makeUpdateSpec = [&](const std::string& dependentVariable,
                               TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
@@ -996,6 +1003,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
             .predictionMaximumNumberTrees(maximumNumberTrees)
             .predictionDownsampleFactor(downsampleFactor)
             .predictionFeatureBagFraction(featureBagFraction)
+            .previousTrainLossGap(lossGap)
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_MseRegression)
@@ -1044,7 +1052,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
-                                 featureBagFraction, incrementalTrainingState);
+                                 featureBagFraction, lossGap, incrementalTrainingState);
 
     // Pass model definition and data summarization into the restore stream.
     auto restoreStreamPtr =
@@ -1081,14 +1089,27 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
 
     frame->resizeColumns(1, weights.size() + 1);
+
+    auto summarisation = regression->dataSummarization();
+
     TDoubleVecVec newTrainingData;
-    newTrainingData.reserve(numberExamples);
+    newTrainingData.reserve(numberExamples +
+                            static_cast<std::size_t>(summarisation.manhattan()));
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            newTrainingData.push_back(TDoubleVec(row->numberColumns()));
+                            row->copyTo(newTrainingData.back().begin());
+                        }
+                    },
+                    &summarisation);
     newTrainingDataFrame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             newTrainingData.push_back(TDoubleVec(row->numberColumns()));
             row->copyTo(newTrainingData.back().begin());
         }
     });
+    frame->resizeRows(0);
     for (std::size_t i = 0; i < newTrainingData.size(); ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t& id) {
             for (std::size_t j = 0; j < newTrainingData[i].size(); ++j, ++column) {
@@ -1099,7 +1120,8 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     }
     frame->finishWritingRows();
 
-    core::CPackedBitVector newTrainingRowMask(numberExamples, false);
+    core::CPackedBitVector newTrainingRowMask(
+        static_cast<std::size_t>(summarisation.manhattan()), false);
     newTrainingRowMask.extend(true, numberExamples);
 
     regression = maths::CBoostedTreeFactory::constructFromModel(std::move(regression))
@@ -1368,6 +1390,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     double etaGrowthRatePerTree;
     double downsampleFactor;
     double featureBagFraction;
+    double lossGap;
 
     auto makeUpdateSpec = [&](const std::string& dependentVariable,
                               TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
@@ -1387,6 +1410,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
             .predictionMaximumNumberTrees(maximumNumberTrees)
             .predictionDownsampleFactor(downsampleFactor)
             .predictionFeatureBagFraction(featureBagFraction)
+            .previousTrainLossGap(lossGap)
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
@@ -1435,7 +1459,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
-                                 featureBagFraction, incrementalTrainingState);
+                                 featureBagFraction, lossGap, incrementalTrainingState);
 
     // Pass model definition and data summarization into the restore stream.
     auto restoreStreamPtr =
@@ -1472,14 +1496,27 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
 
     frame->resizeColumns(1, weights.size() + 1);
+
+    auto summarisation = classification->dataSummarization();
+
     TDoubleVecVec newTrainingData;
-    newTrainingData.reserve(numberExamples);
+    newTrainingData.reserve(numberExamples +
+                            static_cast<std::size_t>(summarisation.manhattan()));
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            newTrainingData.push_back(TDoubleVec(row->numberColumns()));
+                            row->copyTo(newTrainingData.back().begin());
+                        }
+                    },
+                    &summarisation);
     newTrainingDataFrame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             newTrainingData.push_back(TDoubleVec(row->numberColumns()));
             row->copyTo(newTrainingData.back().begin());
         }
     });
+    frame->resizeRows(0);
     for (std::size_t i = 0; i < newTrainingData.size(); ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t& id) {
             for (std::size_t j = 0; j < newTrainingData[i].size(); ++j, ++column) {
@@ -1490,7 +1527,8 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     }
     frame->finishWritingRows();
 
-    core::CPackedBitVector newTrainingRowMask(numberExamples, false);
+    core::CPackedBitVector newTrainingRowMask(
+        static_cast<std::size_t>(summarisation.manhattan()), false);
     newTrainingRowMask.extend(true, numberExamples);
 
     classification = maths::CBoostedTreeFactory::constructFromModel(std::move(classification))

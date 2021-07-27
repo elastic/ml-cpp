@@ -94,6 +94,10 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                {{TASK_TRAIN, int{ETask::E_Train}},
                                 {TASK_UPDATE, int{ETask::E_Update}},
                                 {TASK_PREDICT, int{ETask::E_Predict}}});
+        theReader.addParameter(PREVIOUS_TRAIN_LOSS_GAP,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(PREVIOUS_TRAIN_NUM_ROWS,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -123,21 +127,17 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     m_Task = parameters[TASK].fallback(E_Train);
 
-    bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
-    double dataSummarizationFraction =
-        parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0);
-
     std::size_t seed{parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0})};
-    std::size_t downsampleRowsPerFeature{
-        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
-    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
 
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
+    std::size_t downsampleRowsPerFeature{
+        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
     double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
     std::size_t numberRoundsPerHyperparameter{
         parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
             NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET)};
+    bool earlyStoppingEnabled{parameters[EARLY_STOPPING_ENABLED].fallback(true)};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
@@ -152,9 +152,16 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double retrainedTreeEta{parameters[RETRAINED_TREE_ETA].fallback(-1.0)};
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
+    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
     double predictionChangeCost{parameters[PREDICTION_CHANGE_COST].fallback(-1.0)};
     double treeTopologyChangePenalty{parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(-1.0)};
+
+    double dataSummarizationFraction{parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0)};
+    double previousTrainLossGap{parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0)};
+    std::size_t previousTrainNumberRows{
+        parameters[PREVIOUS_TRAIN_NUM_ROWS].fallback(std::size_t{0})};
+
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
                                     m_CustomProcessors.GetAllocator());
@@ -271,6 +278,12 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (dataSummarizationFraction > 0) {
         m_BoostedTreeFactory->dataSummarizationFraction(dataSummarizationFraction);
     }
+    if (previousTrainLossGap > 0.0) {
+        m_BoostedTreeFactory->previousTrainLossGap(previousTrainLossGap);
+    }
+    if (previousTrainNumberRows > 0) {
+        m_BoostedTreeFactory->previousTrainNumberRows(previousTrainNumberRows);
+    }
 }
 
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
@@ -303,11 +316,9 @@ CDataFrameTrainBoostedTreeRunner::rowsToWriteMask(const core::CDataFrame& frame)
     switch (m_Task) {
     case E_Train:
         return {frame.numberRows(), true};
-        break;
     case E_Predict:
     case E_Update:
         return m_BoostedTree->newTrainingRowMask();
-        break;
     }
 }
 
@@ -564,6 +575,8 @@ const std::string CDataFrameTrainBoostedTreeRunner::TASK{"task"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_TRAIN{"train"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_UPDATE{"update"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_PREDICT{"predict"};
+const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_LOSS_GAP{"previous_train_loss_gap"};
+const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_NUM_ROWS{"previous_train_num_rows"};
 // clang-format on
 }
 }

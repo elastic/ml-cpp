@@ -1042,7 +1042,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 90.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -1720,9 +1720,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
     // target value.
 }
 
-// TODO this needs the fix to acceptance criterion.
-BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain,
-                     *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
 
     // Test incremental training for binomial logistic objective for values out of the
     // training data domain.
@@ -1861,7 +1859,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain,
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 1.5 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 1.2 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {

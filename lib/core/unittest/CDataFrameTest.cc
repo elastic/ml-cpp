@@ -582,6 +582,84 @@ BOOST_FIXTURE_TEST_CASE(testResizeColumns, CTestFixture) {
     }
 }
 
+BOOST_FIXTURE_TEST_CASE(testResizeRows, CTestFixture) {
+
+    // Test all rows are correctly resized and the extra elements are zero
+    // initialized.
+
+    std::size_t rows{5000};
+    std::size_t cols{15};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols)};
+
+    TFactoryFunc makeOnDisk = [=] {
+        return core::makeDiskStorageDataFrame(
+                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async)
+            .first;
+    };
+    TFactoryFunc makeMainMemory = [=] {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+            .first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        LOG_DEBUG(<< "Test resize " << type[t++]);
+
+        auto frame = factory();
+
+        for (std::size_t i = 0; i < components.size(); i += cols) {
+            frame->writeRow(makeWriter(components, cols, i));
+        }
+        frame->finishWritingRows();
+
+        for (auto expectedNumberRows : {rows + 500, rows, rows - 2500}) {
+
+            LOG_DEBUG(<< "Resizing to " << expectedNumberRows);
+
+            frame->resizeRows(expectedNumberRows);
+
+            BOOST_REQUIRE_EQUAL(expectedNumberRows, frame->numberRows());
+
+            bool successful;
+            bool passed{true};
+            std::size_t numberRows{0};
+            std::tie(std::ignore, successful) = frame->readRows(
+                1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                    for (auto row = beginRows; row != endRows; ++row) {
+                        if (passed && row->numberColumns() != cols) {
+                            LOG_DEBUG(<< "got " << row->numberColumns() << " columns");
+                            passed = false;
+                        } else if (passed && row->index() < rows) {
+                            for (std::size_t i = 0; i < cols; ++i) {
+                                if (row->data()[i] != components[cols * numberRows + i]) {
+                                    LOG_DEBUG(<< "expected "
+                                              << components[cols * numberRows + i]
+                                              << " got " << row->data()[i]);
+                                    passed = false;
+                                }
+                            }
+                        } else if (passed) {
+                            for (auto* i = row->data(); i != row->data() + cols; ++i) {
+                                if (*i != 0.0) {
+                                    LOG_DEBUG(<< "expected zeros got " << *i);
+                                    passed = false;
+                                }
+                            }
+                        }
+                        ++numberRows;
+                    }
+                });
+            BOOST_TEST_REQUIRE(successful);
+            BOOST_TEST_REQUIRE(passed);
+            BOOST_REQUIRE_EQUAL(expectedNumberRows, numberRows);
+        }
+    }
+}
+
 BOOST_FIXTURE_TEST_CASE(testWriteColumns, CTestFixture) {
 
     // Test writing of extra column values.
