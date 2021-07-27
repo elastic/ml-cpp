@@ -48,28 +48,19 @@ torch::Tensor infer(torch::jit::script::Module& module,
 
     std::vector<torch::jit::IValue> inputs;
 
-    if (request.hasTokens()) {
-        inputs.reserve(1 + request.s_SecondaryArguments.size());
+    inputs.reserve(1 + request.s_SecondaryArguments.size());
 
-        at::IntArrayRef inputSize{request.h, request.w};
+    at::IntArrayRef inputSize{request.h, request.w};
 
-        // BERT UInt tokens
-        inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
-                             inputSize,
-                             at::dtype(torch::kInt64)));
-    
-        for (auto& args : request.s_SecondaryArguments) {
-            inputs.emplace_back(torch::from_blob(
-                static_cast<void*>(args.data()),
-                inputSize, at::dtype(torch::kInt64)));
-        }
-    } else {
-        // floating point inputs
-        inputs.emplace_back(
-            torch::from_blob(static_cast<void*>(request.s_Inputs.data()),
-                             {1, static_cast<std::int64_t>(request.s_Inputs.size())},
-                             at::dtype(torch::kFloat64))
-                .to(torch::kFloat32));
+    // BERT UInt tokens
+    inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
+                            inputSize,
+                            at::dtype(torch::kInt64)));
+
+    for (auto& args : request.s_SecondaryArguments) {
+        inputs.emplace_back(torch::from_blob(
+            static_cast<void*>(args.data()),
+            inputSize, at::dtype(torch::kInt64)));
     }
 
     torch::NoGradGuard noGrad;

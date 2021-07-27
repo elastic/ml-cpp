@@ -37,7 +37,6 @@ namespace torch {
 
 const std::string CCommandParser::REQUEST_ID{"request_id"};
 const std::string CCommandParser::TOKENS{"tokens"};
-const std::string CCommandParser::INPUTS{"inputs"};
 const std::string CCommandParser::VAR_ARG_PREFIX{"arg_"};
 const std::string CCommandParser::UNKNOWN_ID;
 
@@ -113,23 +112,9 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
                 return false;
             }
         }
-    } else if (doc.HasMember(INPUTS)) {
-        const rapidjson::Value& inputs = doc[INPUTS];
-        if (inputs.IsArray() == false) {
-            errorHandler(doc[REQUEST_ID].GetString(),
-                         "Invalid command: expected an array [" + INPUTS + "]");
-            return false;
-        }
-
-        if (checkArrayContainsDoubles(inputs.GetArray()) == false) {
-            errorHandler(doc[REQUEST_ID].GetString(),
-                         "Invalid command: array [" + INPUTS +
-                             "] contains values that are not doubles");
-            return false;
-        }
     } else {
         errorHandler(doc[REQUEST_ID].GetString(),
-                     "Invalid command: missing field [" + TOKENS + "|" + INPUTS + "]");
+                     "Invalid command: missing field [" + TOKENS + "]");
         return false;
     }
 
@@ -200,15 +185,6 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
             for (const auto *innerItr = innerArray.Begin(); innerItr != innerArray.End(); ++innerItr) {                
                 m_Request.s_Tokens.push_back(innerItr->GetUint64());
             }            
-        }
-    }
-
-    m_Request.s_Inputs.clear();
-    if (doc.HasMember(INPUTS)) {
-        const rapidjson::Value& arr = doc[INPUTS];
-        m_Request.s_Inputs.reserve(arr.Size());
-        for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-            m_Request.s_Inputs.push_back(itr->GetDouble());
         }
     }
 
