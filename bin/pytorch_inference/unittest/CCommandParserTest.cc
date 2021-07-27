@@ -47,16 +47,16 @@ BOOST_AUTO_TEST_CASE(testParsingStream) {
     {
         BOOST_REQUIRE_EQUAL("foo", parsed[0].s_RequestId);
         ml::torch::CCommandParser::TUint64Vec expected{1, 2, 3};
-        BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[0].s_Tokens[0].begin(),
-                                        parsed[0].s_Tokens[0].end(),
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[0].s_Tokens.begin(),
+                                        parsed[0].s_Tokens.end(),
                                         expected.begin(), expected.end());
         BOOST_TEST_REQUIRE(parsed[0].hasTokens());
     }
     {
         BOOST_REQUIRE_EQUAL("bar", parsed[1].s_RequestId);
         ml::torch::CCommandParser::TUint64Vec expected{4, 5};
-        BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[1].s_Tokens[0].begin(),
-                                        parsed[1].s_Tokens[0].end(),
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[1].s_Tokens.begin(),
+                                        parsed[1].s_Tokens.end(),
                                         expected.begin(), expected.end());
         BOOST_TEST_REQUIRE(parsed[0].hasTokens());
     }
@@ -182,72 +182,26 @@ BOOST_AUTO_TEST_CASE(testParsingVariableArguments) {
         ml::torch::CCommandParser::TUint64Vec expectedArg1{0, 0};
         ml::torch::CCommandParser::TUint64Vec expectedArg2{0, 1};
 
-        ml::torch::CCommandParser::TUint64VecVecVec extraArgs = parsed[0].s_SecondaryArguments;
+        ml::torch::CCommandParser::TUint64VecVec extraArgs = parsed[0].s_SecondaryArguments;
         BOOST_REQUIRE_EQUAL(2, extraArgs.size());
 
-        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[0][0].begin(), extraArgs[0][0].end(),
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[0].begin(), extraArgs[0].end(),
                                         expectedArg1.begin(), expectedArg1.end());
-        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[1][0].begin(), extraArgs[1][0].end(),
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[1].begin(), extraArgs[1].end(),
                                         expectedArg2.begin(), expectedArg2.end());
     }
     {
         ml::torch::CCommandParser::TUint64Vec expectedArg1{1, 0};
         ml::torch::CCommandParser::TUint64Vec expectedArg2{1, 1};
 
-        ml::torch::CCommandParser::TUint64VecVecVec extraArgs = parsed[1].s_SecondaryArguments;
+        ml::torch::CCommandParser::TUint64VecVec extraArgs = parsed[1].s_SecondaryArguments;
         BOOST_REQUIRE_EQUAL(2, extraArgs.size());
 
-        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[0][0].begin(), extraArgs[0][0].end(),
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[0].begin(), extraArgs[0].end(),
                                         expectedArg1.begin(), expectedArg1.end());
-        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[1][0].begin(), extraArgs[1][0].end(),
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[1].begin(), extraArgs[1].end(),
                                         expectedArg2.begin(), expectedArg2.end());
     }
-}
-
-BOOST_AUTO_TEST_CASE(testParsingFloatInputs) {
-
-    std::vector<ml::torch::CCommandParser::SRequest> parsed;
-
-    std::string command{R"({"request_id": "foo", "inputs": [1.0, 2.2, 3.3]})"};
-    std::istringstream commandStream{command};
-
-    ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop(
-        [&parsed](const ml::torch::CCommandParser::SRequest& request) {
-            parsed.push_back(request);
-            return true;
-        },
-        unexpectedError));
-
-    BOOST_REQUIRE_EQUAL(1, parsed.size());
-    {
-        BOOST_REQUIRE_EQUAL("foo", parsed[0].s_RequestId);
-        ml::torch::CCommandParser::TDoubleVec expected{1.0, 2.2, 3.3};
-        BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[0].s_Inputs.begin(),
-                                        parsed[0].s_Inputs.end(),
-                                        expected.begin(), expected.end());
-        BOOST_TEST_REQUIRE(parsed[0].s_Tokens.empty());
-        BOOST_TEST_REQUIRE(parsed[0].s_SecondaryArguments.empty());
-        BOOST_TEST_REQUIRE(parsed[0].hasTokens() == false);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testParsingFloatInputsArrayNotDoubles) {
-
-    std::vector<std::string> errors;
-
-    std::string command{R"({"request_id": "inputs_should_be_doubles", "inputs": [1, 3]})"};
-
-    std::istringstream commandStream{command};
-
-    ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop(
-        unexpectedRequest, [&errors](const std::string& id, const ::std::string& message) {
-            BOOST_REQUIRE_EQUAL(id, "inputs_should_be_doubles");
-            errors.push_back(message);
-        }));
-
-    BOOST_REQUIRE_EQUAL(1, errors.size());
 }
 
 BOOST_AUTO_TEST_CASE(testParsingInvalidVarArg) {
@@ -286,6 +240,61 @@ BOOST_AUTO_TEST_CASE(testRequestHandlerExitsLoop) {
 
     // ioloop should exit after the first call to the handler
     BOOST_REQUIRE_EQUAL(1, parsed.size());
+}
+
+BOOST_AUTO_TEST_CASE(testParsingBatch) {
+
+    std::vector<ml::torch::CCommandParser::SRequest> parsed;
+
+    std::string command{
+        R"({"request_id": "foo", "tokens": [[1, 2], [3, 4], [5, 6]], "arg_1": [[0, 0], [0, 1], [0, 2]], "arg_2": [[1, 0], [1, 1], [1, 2]]}
+        {"request_id": "bar", "tokens": [[1, 2], [3, 4]], "arg_1": [[0, 0], [0, 1]], "arg_2": [[1, 0], [1, 1]]}"})"
+    };
+    std::istringstream commandStream{command};
+
+    ml::torch::CCommandParser processor{commandStream};
+    BOOST_TEST_REQUIRE(processor.ioLoop(
+        [&parsed](const ml::torch::CCommandParser::SRequest& request) {
+            parsed.push_back(request);
+            return true;
+        },
+        unexpectedError));
+
+    BOOST_REQUIRE_EQUAL(2, parsed.size());
+    {
+        ml::torch::CCommandParser::TUint64Vec expectedTokens{1, 2, 3, 4, 5, 6};
+        ml::torch::CCommandParser::TUint64Vec expectedArg1{0, 0, 0, 1, 0, 2};
+        ml::torch::CCommandParser::TUint64Vec expectedArg2{1, 0, 1, 1, 1, 2};      
+
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[0].s_Tokens.begin(),
+                                        parsed[0].s_Tokens.end(),
+                                        expectedTokens.begin(), expectedTokens.end());
+
+        ml::torch::CCommandParser::TUint64VecVec extraArgs = parsed[0].s_SecondaryArguments;
+        BOOST_REQUIRE_EQUAL(2, extraArgs.size());
+
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[0].begin(), extraArgs[0].end(),
+                                        expectedArg1.begin(), expectedArg1.end());
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[1].begin(), extraArgs[1].end(),
+                                        expectedArg2.begin(), expectedArg2.end());
+    }
+    {
+        ml::torch::CCommandParser::TUint64Vec expectedTokens{1, 2, 3, 4};
+        ml::torch::CCommandParser::TUint64Vec expectedArg1{0, 0, 0, 1};
+        ml::torch::CCommandParser::TUint64Vec expectedArg2{1, 0, 1, 1};      
+
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[1].s_Tokens.begin(),
+                                        parsed[1].s_Tokens.end(),
+                                        expectedTokens.begin(), expectedTokens.end());
+
+        ml::torch::CCommandParser::TUint64VecVec extraArgs = parsed[1].s_SecondaryArguments;
+        BOOST_REQUIRE_EQUAL(2, extraArgs.size());
+
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[0].begin(), extraArgs[0].end(),
+                                        expectedArg1.begin(), expectedArg1.end());
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[1].begin(), extraArgs[1].end(),
+                                        expectedArg2.begin(), expectedArg2.end());
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
