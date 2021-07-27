@@ -204,9 +204,7 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
                 arg.push_back(innerItr->GetUint64());
             }            
         }
-        m_Request.s_SecondaryArguments.push_back(arg);  // TODO move? and not clear??
-        arg.clear();
-
+        m_Request.s_SecondaryArguments.push_back(std::move(arg));
         ++varCount;
         varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
     }

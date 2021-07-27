@@ -6,7 +6,7 @@
 			"tokens": [[101, 1996, 4937, 2001, 5305, 2006, 1996, 2793, 102]],
 			"arg_1": [[1, 1, 1, 1, 1, 1, 1, 1, 1]]
 		},
-		"expected_output": {"request_id": "one", "inference": [[3.9489, -3.2416]]}
+		"expected_output": {"request_id": "one", "inference": [[[3.9489, -3.2416]]]}
 	},
 	{
 		"source_text": "The movie was awesome!!",
@@ -15,7 +15,7 @@
 			"tokens": [[101, 1996, 3185, 2001, 12476, 999, 999, 102]],
 			"arg_1": [[1, 1, 1, 1, 1, 1, 1, 1]]
 		},
-		"expected_output": {"request_id": "two", "inference": [[-4.2720, 4.6515]]}
+		"expected_output": {"request_id": "two", "inference": [[[-4.2720, 4.6515]]]}
 	},
 	{
 		"source_text": "I’m not sure if I like the new design; The support staff was slow to respond to comments; Great, much more than I would have asked for!",
@@ -32,6 +32,6 @@
 				[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 			]
 		},
-		"expected_output": {"request_id": "batch_of_three", "inference": [[ 4.0866, -3.2812], [ 4.5147, -3.6895], [-4.2565,  4.6046]]}
+		"expected_output": {"request_id": "batch_of_three", "inference": [[[ 4.0866, -3.2812], [ 4.5147, -3.6895], [-4.2565,  4.6046]]]}
 	}	
 ]

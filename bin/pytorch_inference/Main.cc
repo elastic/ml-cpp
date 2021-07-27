@@ -85,10 +85,21 @@ void writeTensor(const torch::TensorAccessor<T, 1UL>& accessor,
 template<typename T>
 void writeTensor(const torch::TensorAccessor<T, 2UL>& accessor,
                  ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
-    for (int i = 0; i < accessor.size(0); ++i) {
+    jsonWriter.StartArray();
+    for (int i = 0; i < accessor.size(0); ++i) {        
+        writeTensor(accessor[i], jsonWriter);
+    }
+    jsonWriter.EndArray();
+}
+
+template<typename T>
+void writeTensor(const torch::TensorAccessor<T, 3UL>& accessor,
+                 ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {    
+    for (int i = 0; i < accessor.size(0); ++i) {        
         writeTensor(accessor[i], jsonWriter);
     }
 }
+
 
 void writeError(const std::string& requestId,
                 const std::string& message,
@@ -160,11 +171,11 @@ bool handleRequest(ml::torch::CCommandParser::SRequest& request,
         auto sizes = results.sizes();
         // Some models return a 3D tensor in which case
         // the first dimension must have size == 1
-        if (sizes.size() == 3 && sizes[0] == 1) {
-            writePrediction<2>(results[0], request.s_RequestId, timeMs, jsonWriter);            
+        if (sizes.size() == 3) {
+            writePrediction<3>(results, request.s_RequestId, timeMs, jsonWriter);
         } else if (sizes.size() == 2) {
             writePrediction<2>(results, request.s_RequestId, timeMs, jsonWriter);
-        } else if (sizes.size() == 1) {
+        } else if (sizes.size() == 1) {            
             writePrediction<1>(results, request.s_RequestId, timeMs, jsonWriter);
         } else {
             std::ostringstream ss;
