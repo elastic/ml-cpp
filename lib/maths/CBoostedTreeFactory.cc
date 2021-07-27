@@ -1197,10 +1197,11 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
 
     std::size_t maximumNumberOfTrees{1};
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
-    CBoostedTreeImpl::TNodeVecVec forest;
-    std::tie(forest, std::ignore, std::ignore, std::ignore) = m_TreeImpl->trainForest(
-        frame, m_TreeImpl->m_TrainingRowMasks[0],
-        m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
+    CBoostedTreeImpl::TNodeVecVec forest{
+        m_TreeImpl
+            ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
+                          m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress)
+            .s_Forest};
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
 
     TDoubleDoublePrVec result;
@@ -1259,9 +1260,11 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
 
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
-        std::tie(forest, testLoss, std::ignore, std::ignore) = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0],
-            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
+        std::tie(forest, testLoss, std::ignore, std::ignore) =
+            m_TreeImpl
+                ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
+                              m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress)
+                .asTuple();
         minTestLoss.add(testLoss);
         testLosses.emplace_back(parameter, testLoss);
     }
@@ -1304,9 +1307,11 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
 
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
-        std::tie(forest, testLoss, std::ignore, std::ignore) = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0],
-            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
+        std::tie(forest, testLoss, std::ignore, std::ignore) =
+            m_TreeImpl
+                ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
+                              m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress)
+                .asTuple();
 
         minTestLoss.add(testLoss);
 

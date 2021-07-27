@@ -61,8 +61,6 @@ public:
     using TVector = CDenseVector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TMeanVarAccumulatorDoubleSizeDoubleTuple =
-        std::tuple<TMeanVarAccumulator, double, std::size_t, double>;
     using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
@@ -214,8 +212,6 @@ private:
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
-    using TNodeVecVecDoubleDoubleDoubleVecTuple =
-        std::tuple<TNodeVecVec, double, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
@@ -236,6 +232,25 @@ private:
         std::function<void (const boosted_tree_detail::TRowRef&,
                             boosted_tree_detail::TMemoryMappedFloatVector&)>;
     // clang-format on
+
+    //! \brief The result of cross-validation.
+    struct SCrossValidationResult {
+        TMeanVarAccumulator s_TestLossMoments;
+        double s_MeanLossGap{0.0};
+        std::size_t s_NumberTrees{0};
+        double s_NumberNodes{0.0};
+    };
+
+    //! \brief The result of training a single forest.
+    struct STrainForestResult {
+        std::tuple<TNodeVecVec, double, double, TDoubleVec> asTuple() {
+            return {std::move(s_Forest), s_TestLoss, s_LossGap, std::move(s_TestLosses)};
+        }
+        TNodeVecVec s_Forest;
+        double s_TestLoss{0.0};
+        double s_LossGap{0.0};
+        TDoubleVec s_TestLosses;
+    };
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -278,8 +293,9 @@ private:
 
     //! Train the forest and compute loss moments on each fold.
     template<typename F>
-    TMeanVarAccumulatorDoubleSizeDoubleTuple
-    crossValidateForest(core::CDataFrame& frame, std::size_t maximumNumberTrees, const F& trainForest);
+    SCrossValidationResult crossValidateForest(core::CDataFrame& frame,
+                                               std::size_t maximumNumberTrees,
+                                               const F& trainForest);
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
@@ -288,19 +304,17 @@ private:
                                                      const core::CPackedBitVector& testingRowMask) const;
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
-    TNodeVecVecDoubleDoubleDoubleVecTuple
-    trainForest(core::CDataFrame& frame,
-                const core::CPackedBitVector& trainingRowMask,
-                const core::CPackedBitVector& testingRowMask,
-                core::CLoopProgress& trainingProgress) const;
+    STrainForestResult trainForest(core::CDataFrame& frame,
+                                   const core::CPackedBitVector& trainingRowMask,
+                                   const core::CPackedBitVector& testingRowMask,
+                                   core::CLoopProgress& trainingProgress) const;
 
     //! Retrain a subset of the trees of one forest on the rows of \p frame in the
     //! mask \p trainingRowMask.
-    TNodeVecVecDoubleDoubleDoubleVecTuple
-    updateForest(core::CDataFrame& frame,
-                 const core::CPackedBitVector& trainingRowMask,
-                 const core::CPackedBitVector& testingRowMask,
-                 core::CLoopProgress& trainingProgress) const;
+    STrainForestResult updateForest(core::CDataFrame& frame,
+                                    const core::CPackedBitVector& trainingRowMask,
+                                    const core::CPackedBitVector& testingRowMask,
+                                    core::CLoopProgress& trainingProgress) const;
 
     //! Compute the learn rate for the tree at \p index.
     double etaForTreeAtPosition(std::size_t index) const;
@@ -399,18 +413,12 @@ private:
 
     //! Capture the current hyperparameter values.
     //!
-    //! \param[in] testLossMoments The fold test loss mean and variance.
-    //! \param[in] lossGap The mean gap between the train and test loss.
-    //! \param[in] maximumNumberTrees The maximum number of trees to use.
+    //! \param[in] crossValidationResult The result of cross-validation with the
+    //! current hyperparameter settings.
     //! \param[in] numberKeptNodes If incrementally training the number of nodes
     //! in the retained portion of the forest.
-    //! \param[in] numberRetrainedNodes The number of trees in the new (portion
-    //! of the) forest.
-    void captureBestHyperparameters(const TMeanVarAccumulator& testLossMoments,
-                                    double lossGap,
-                                    std::size_t maximumNumberTrees,
-                                    double numberKeptNodes,
-                                    double numberRetrainedNodes);
+    void captureBestHyperparameters(const SCrossValidationResult& crossValidationResult,
+                                    double numberKeptNodes);
 
     //! Compute the loss penalty for model size.
     double modelSizePenalty(double numberKeptNodes, double numberRetrainedNodes) const;
