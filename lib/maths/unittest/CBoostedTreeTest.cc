@@ -500,7 +500,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
     }
 
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testLinear) {
