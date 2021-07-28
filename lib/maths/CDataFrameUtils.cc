@@ -140,6 +140,8 @@ classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
 
     TDoubleVec categoryFrequencies{CDataFrameUtils::categoryFrequencies(
         numberThreads, frame, rowMask, {targetColumn})[targetColumn]};
+    LOG_TRACE(<< "category frequencies = "
+              << core::CContainerPrinter::print(categoryFrequencies));
 
     TSizeVec categoryCounts;
     CSampling::weightedSample(desiredCount, categoryFrequencies, categoryCounts);
@@ -147,8 +149,8 @@ classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
               << core::CContainerPrinter::print(categoryCounts));
 
     auto sampler = std::make_unique<CStratifiedSampler>(categoryCounts.size());
-    for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
-        sampler->addSampler(categoryCounts[i], rng);
+    for (auto categoryCount : categoryCounts) {
+        sampler->addSampler(categoryCount, rng);
     }
     sampler->samplerSelector([targetColumn](const TRowRef& row) mutable {
         return static_cast<std::size_t>(row[targetColumn]);
@@ -523,28 +525,21 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
               << ", sample size = " << sampleSize);
 
     TDoubleVec frequencies;
-
-    auto makeSampler = [&](std::size_t size) {
+    auto makeSampler = [&](std::size_t size, const core::CPackedBitVector& rowMask) {
         TStratifiedSamplerUPtr result;
         if (size > 0) {
             if (frame.columnIsCategorical()[targetColumn]) {
                 std::tie(result, frequencies) = classifierStratifiedCrossValidationRowSampler(
-                    numberThreads, frame, targetColumn, rng, size, allTrainingRowsMask);
+                    numberThreads, frame, targetColumn, rng, size, rowMask);
             } else {
                 result = regressionStratifiedCrossValiationRowSampler(
-                    numberThreads, frame, targetColumn, rng, size,
-                    numberBuckets, allTrainingRowsMask);
+                    numberThreads, frame, targetColumn, rng, size, numberBuckets, rowMask);
             }
         }
         return result;
     };
 
-    auto excessSampler = makeSampler(excessSampleSize);
-    auto sampler = makeSampler(sampleSize);
-    if (sampler == nullptr) {
-        HANDLE_FATAL(<< "Internal error: failed to create train/test splits.");
-        return {{}, {}, {}};
-    }
+    auto excessSampler = makeSampler(excessSampleSize, allTrainingRowsMask);
 
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
 
@@ -552,14 +547,14 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
 
     TSizeVec rowIndices;
     auto sample = [&](const TStratifiedSamplerUPtr& sampler_,
-                      const core::CPackedBitVector& candidateTestingRowsMask) {
+                      const core::CPackedBitVector& rowMask) {
         frame.readRows(1, 0, frame.numberRows(),
                        [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
                                sampler_->sample(*row);
                            }
                        },
-                       &candidateTestingRowsMask);
+                       &rowMask);
         sampler_->finishSampling(rng, rowIndices);
         std::sort(rowIndices.begin(), rowIndices.end());
         LOG_TRACE(<< "# row indices = " << rowIndices.size());
@@ -569,7 +564,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
             result.extend(false, row - result.size());
             result.extend(true);
         }
-        result.extend(false, allTrainingRowsMask.size() - result.size());
+        result.extend(false, rowMask.size() - result.size());
         return result;
     };
 
@@ -579,6 +574,11 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
             testingRowMask = std::move(candidateTestingRowsMask);
             candidateTestingRowsMask = core::CPackedBitVector{testingRowMask.size(), false};
         } else {
+            auto sampler = makeSampler(sampleSize, candidateTestingRowsMask);
+            if (sampler == nullptr) {
+                HANDLE_FATAL(<< "Internal error: failed to create train/test splits.");
+                return {{}, {}, {}};
+            }
             testingRowMask = sample(sampler, candidateTestingRowsMask);
             candidateTestingRowsMask ^= testingRowMask;
         }

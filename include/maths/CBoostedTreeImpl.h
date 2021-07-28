@@ -272,6 +272,9 @@ private:
     //! Estimate test losses for the \p missing folds.
     TMeanVarAccumulatorVec estimateMissingTestLosses(const TSizeVec& missing) const;
 
+    //! Get the minimum number of rows we require per feature.
+    std::size_t rowsPerFeature(std::size_t numberRows) const;
+
     //! Get the number of features including category encoding.
     std::size_t numberFeatures() const;
 
@@ -386,7 +389,7 @@ private:
     TOptionalDouble m_EtaOverride;
     TOptionalDouble m_EtaGrowthRatePerTreeOverride;
     TOptionalSize m_NumberFoldsOverride;
-    TOptionalSize m_TrainFractionPerFoldOverride;
+    TOptionalDouble m_TrainFractionPerFoldOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     TOptionalStrDoublePrVec m_ClassificationWeightsOverride;

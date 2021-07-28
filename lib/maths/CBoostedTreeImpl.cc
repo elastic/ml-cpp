@@ -336,7 +336,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
     std::size_t maximumNumberLeaves{this->maximumTreeSize(numberRows) + 1};
     std::size_t maximumNumberNodes{2 * maximumNumberLeaves - 1};
-    std::size_t maximumNumberFeatures{std::min(numberColumns - 1, numberRows / m_RowsPerFeature)};
+    std::size_t maximumNumberFeatures{
+        std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
     std::size_t forestMemoryUsage{
         m_MaximumNumberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
@@ -1106,6 +1107,15 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     }
 
     return predictedTestLosses;
+}
+
+std::size_t CBoostedTreeImpl::rowsPerFeature(std::size_t numberRows) const {
+    // For small data sets (fewer than 1k examples) we allow ourselves to use
+    // more features than implied by m_RowsPerFeature. Since we remove nuisance
+    // features which carry little information about the target this is fine
+    // from an accuracy perspective. From a runtime perspective we always train
+    // fast for such small data sets.
+    return std::max(std::min(m_RowsPerFeature, numberRows / 20), std::size_t{1});
 }
 
 std::size_t CBoostedTreeImpl::numberFeatures() const {
