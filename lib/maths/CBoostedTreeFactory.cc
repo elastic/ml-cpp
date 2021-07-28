@@ -399,12 +399,14 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
     TSizeVec regressors(frame.numberColumns() - this->numberExtraColumnsForTrain());
     std::iota(regressors.begin(), regressors.end(), 0);
     regressors.erase(regressors.begin() + m_TreeImpl->m_DependentVariable);
+    std::size_t numberTrainingRows{
+        static_cast<std::size_t>(m_TreeImpl->allTrainingRowsMask().manhattan())};
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
     m_TreeImpl->m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(
         CMakeDataFrameCategoryEncoder{m_TreeImpl->m_NumberThreads, frame,
                                       m_TreeImpl->m_DependentVariable}
-            .minimumRowsPerFeature(m_TreeImpl->m_RowsPerFeature)
+            .minimumRowsPerFeature(m_TreeImpl->rowsPerFeature(numberTrainingRows))
             .minimumFrequencyToOneHotEncode(m_MinimumFrequencyToOneHotEncode)
             .rowMask(m_TreeImpl->allTrainingRowsMask())
             .columnMask(std::move(regressors))
