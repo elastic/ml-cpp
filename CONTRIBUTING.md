@@ -46,7 +46,7 @@ Once your changes and tests are ready to submit for review:
 
 1.  Rebase your changes
 
-    Update your local repository with the most recent code from the main ml-cpp repository, and rebase your branch on top of the latest master branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add them as separate commits. This makes them easier to review. As a final step we will squash all commits when merging your change.
+    Update your local repository with the most recent code from the main ml-cpp repository, and rebase your branch on top of the latest main branch. We prefer your initial changes to be squashed into a single commit. Later, if we ask you to make changes, add them as separate commits. This makes them easier to review. As a final step we will squash all commits when merging your change.
 
 1.  Submit a pull request
 
@@ -54,7 +54,7 @@ Once your changes and tests are ready to submit for review:
 
 Then sit back and wait. There will probably be discussion about the pull request and, if any changes are needed, we would love to work with you to get your pull request merged into ml-cpp.
 
-Please adhere to the general guideline that you should never force push to a publicly shared branch. Once you have opened your pull request, you should consider your branch publicly shared. Instead of force pushing you can just add incremental commits; this is generally easier on your reviewers. If you need to pick up changes from master, you can merge master into your branch. A reviewer might ask you to rebase a long-running pull request in which case force pushing is okay for that request. Note that squashing at the end of the review process should also not be done, that can be done when the pull request is [integrated via GitHub](https://blog.github.com/2016-04-01-squash-your-commits/).
+Please adhere to the general guideline that you should never force push to a publicly shared branch. Once you have opened your pull request, you should consider your branch publicly shared. Instead of force pushing you can just add incremental commits; this is generally easier on your reviewers. If you need to pick up changes from main, you can merge main into your branch. A reviewer might ask you to rebase a long-running pull request in which case force pushing is okay for that request. Note that squashing at the end of the review process should also not be done, that can be done when the pull request is [integrated via GitHub](https://blog.github.com/2016-04-01-squash-your-commits/).
 
 ## Working with the ml-cpp codebase
 **Repository**: https://github.com/elastic/ml-cpp
@@ -73,7 +73,7 @@ The followings lists some guidelines when authoring pull requests. Note, try to 
 
 1. PR title summarizes the change, short and descriptive.
    1. Use prefixes for quick categorization:
-      1. [X.Y] Branch label if backport PR, if omited the PR only applies to master. Note, backport PR's are done after master PR, further explanation can be found below [#backport]
+      1. [X.Y] Branch label if backport PR, if omited the PR only applies to main. Note, backport PR's are done after main PR, further explanation can be found below [#backport]
       1. [ML] mandatory prefix, to be consistent with other repositories
       1. [FEATURE] If your pull requests targets a feature branch, this prefix helps as a filter
 1. A detailed summary of what changed. Some hints:
@@ -84,7 +84,7 @@ The followings lists some guidelines when authoring pull requests. Note, try to 
 1. Label the PR, not all might apply:
     1. `:ml` mandatory label, to be consistent with other repositories.
     1. `>type` Type of the PR, e.g. `>bug`, `>refactoring`, `>enhancement`, `>test`.
-    1. `vX.Y` Versions that PR should be applied to, a PR on master should always contain all backport versions as well, a backport PR should only have one corresponding version.
+    1. `vX.Y` Versions that PR should be applied to, a PR on main should always contain all backport versions as well, a backport PR should only have one corresponding version.
     1. `>non-issue` if the PR is not important for the changelog, e.g. a bugfix for an unreleased feature
     1. `affects-results` If the PR is expected to have a significant impact on results(QA test suite), e.g. changes of scoring. Be aware that changes in terms of memory consumption can indirectly lead to significant result changes.
     1. `discuss` If your PR suggests a change for which you'd first like to discuss regarding its functional changes before going deep into actual implementation details (e.g. you change a default)
@@ -93,13 +93,13 @@ The followings lists some guidelines when authoring pull requests. Note, try to 
 
 ### Backport
 
-Any development usually starts with an implementation on `master`, therefore any PR starts with a PR against `master`. Depending on the type we then decide about backport branches, features usually get backported to the active release branch, e.g. `6.x`, bugfixes might get backported to concrete release branches, e.g. `6.1`. If unsure about the versions to backport to, it can be discussed on the master PR.
+Any development usually starts with an implementation on `main`, therefore any PR starts with a PR against `main`. Depending on the type we then decide about backport branches, features usually get backported to the active release branch, e.g. `6.x`, bugfixes might get backported to concrete release branches, e.g. `6.1`. If unsure about the versions to backport to, it can be discussed on the main PR.
 
-A backport starts right after merging the PR on `master`, please open backport PR's immediately after merging to `master`, even if you intend to merge backports a little later (e.g. to wait/analyse QA results). This helps to ensure that backports do not get lost. Rules for Backport PR's:
+A backport starts right after merging the PR on `main`, please open backport PR's immediately after merging to `main`, even if you intend to merge backports a little later (e.g. to wait/analyse QA results). This helps to ensure that backports do not get lost. Rules for Backport PR's:
 
 1. Prefix the title with `[X.Y]` and the mandatory `[ML]`, e.g. `[6.3][ML] Store expanding window bucket values in a compressed format`.
-1. Link to the originating PR in the description, you do not need to repeat the description as discussions should exclusively happen on the master PR.
+1. Link to the originating PR in the description, you do not need to repeat the description as discussions should exclusively happen on the main PR.
 1. Backports do not need a review, however if you had to do further changes (merge conflicts, compiler specialities) it's advised to let the adjustments get quickly reviewed.
-1. Label the PR with `>backport` and the corresponding version of this backport, the full set of labels remain on the master PR. If the master PR is classified as `>non-issue` also add the `>non-issue` label due to CI checks.
+1. Label the PR with `>backport` and the corresponding version of this backport, the full set of labels remain on the main PR. If the main PR is classified as `>non-issue` also add the `>non-issue` label due to CI checks.
 
 Although it might look simple, always wait for CI to confirm that changes are sound to avoid unnecessary build breaks.
