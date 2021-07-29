@@ -15,11 +15,8 @@ found in the main
 
 ## Elastic License Functionality
 
-Most files in this repository are subject to the Elastic License. The full
-license can be found in [LICENSE.txt](LICENSE.txt). Usage requires a
-[subscription](https://www.elastic.co/subscriptions). Files that are not
-subject to the Elastic License are in the [3rd_party](3rd_party) and
-[build-setup](build-setup) directories.
+Usage in production requires that you have a license key that permits use of
+machine learning features. See [LICENSE.txt](LICENSE.txt) for full information.
 
 ## Getting Started
 

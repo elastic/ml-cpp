@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CBoostedTreeFactory.h>
@@ -583,12 +588,14 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
     TSizeVec regressors(frame.numberColumns() - this->numberExtraColumnsForTrain());
     std::iota(regressors.begin(), regressors.end(), 0);
     regressors.erase(regressors.begin() + m_TreeImpl->m_DependentVariable);
+    std::size_t numberTrainingRows{
+        static_cast<std::size_t>(m_TreeImpl->allTrainingRowsMask().manhattan())};
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
 
     m_TreeImpl->m_Encoder = std::make_unique<CDataFrameCategoryEncoder>(
         CMakeDataFrameCategoryEncoder{m_TreeImpl->m_NumberThreads, frame,
                                       m_TreeImpl->m_DependentVariable}
-            .minimumRowsPerFeature(m_TreeImpl->m_RowsPerFeature)
+            .minimumRowsPerFeature(m_TreeImpl->rowsPerFeature(numberTrainingRows))
             .minimumFrequencyToOneHotEncode(m_MinimumFrequencyToOneHotEncode)
             .rowMask(m_TreeImpl->allTrainingRowsMask())
             .columnMask(std::move(regressors))

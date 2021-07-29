@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CBoostedTreeImpl.h>
@@ -274,7 +279,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             if (this->selectNextHyperparameters(crossValidationResult.s_TestLossMoments,
                                                 *m_BayesianOptimization) == false) {
-                LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
+                LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
+                         << m_CurrentRound << " out of " << m_NumberRounds << ".");
                 break;
             }
 
@@ -524,7 +530,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
     std::size_t maximumNumberLeaves{this->maximumTreeSize(numberRows) + 1};
     std::size_t maximumNumberNodes{2 * maximumNumberLeaves - 1};
-    std::size_t maximumNumberFeatures{std::min(numberColumns - 1, numberRows / m_RowsPerFeature)};
+    std::size_t maximumNumberFeatures{
+        std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
     std::size_t forestMemoryUsage{
         m_MaximumNumberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
@@ -1488,6 +1495,15 @@ CBoostedTreeImpl::estimateMissingTestLosses(const TSizeVec& missing) const {
     }
 
     return predictedTestLosses;
+}
+
+std::size_t CBoostedTreeImpl::rowsPerFeature(std::size_t numberRows) const {
+    // For small data sets (fewer than 1k examples) we allow ourselves to use
+    // more features than implied by m_RowsPerFeature. Since we remove nuisance
+    // features which carry little information about the target this is fine
+    // from an accuracy perspective. From a runtime perspective we always train
+    // fast for such small data sets.
+    return std::max(std::min(m_RowsPerFeature, numberRows / 20), std::size_t{1});
 }
 
 std::size_t CBoostedTreeImpl::numberFeatures() const {

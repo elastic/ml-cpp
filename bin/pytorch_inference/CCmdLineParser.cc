@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include "CCmdLineParser.h"
 
@@ -29,6 +34,8 @@ bool CCmdLineParser::parse(int argc,
                            bool& isRestoreFileNamedPipe,
                            std::string& loggingFileName,
                            std::string& logProperties,
+                           std::int32_t& numThreads,
+                           std::int32_t& numInterOpThreads,
                            bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -52,6 +59,10 @@ bool CCmdLineParser::parse(int argc,
             ("logPipe", boost::program_options::value<std::string>(),
                         "Named pipe to write log messages to")
             ("logProperties", "Optional logger properties file")
+            ("numThreads", boost::program_options::value<std::int32_t>(),
+                        "Optionaly set number of threads LibTorch can use for inference - not present means use the LibTorch defaults")
+            ("numInterOpThreads", boost::program_options::value<std::int32_t>(),
+                        "Optionaly set number of threads LibTorch can use for inter operation parallelism - not present means use the LibTorch defaults")
             ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
              "Confirmation that a valid Elastic license key is in use.")
             ;
@@ -100,7 +111,13 @@ bool CCmdLineParser::parse(int argc,
             loggingFileName = vm["logPipe"].as<std::string>();
         }
         if (vm.count("logProperties") > 0) {
-            vm["logProperties"].as<std::string>();
+            logProperties = vm["logProperties"].as<std::string>();
+        }
+        if (vm.count("numThreads") > 0) {
+            numThreads = vm["numThreads"].as<std::int32_t>();
+        }
+        if (vm.count("numInterOpThreads") > 0) {
+            numInterOpThreads = vm["numInterOpThreads"].as<std::int32_t>();
         }
         if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
             validElasticLicenseKeyConfirmed =

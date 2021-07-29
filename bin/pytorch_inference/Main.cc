@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CBlockingCallCancellingTimer.h>
@@ -12,7 +17,6 @@
 
 #include <seccomp/CSystemCallFilter.h>
 
-#include <torch/csrc/api/include/torch/types.h>
 #include <ver/CBuildInfo.h>
 
 #include <api/CIoManager.h>
@@ -21,9 +25,12 @@
 #include "CCmdLineParser.h"
 #include "CCommandParser.h"
 
+#include <ATen/Parallel.h>
 #include <rapidjson/ostreamwrapper.h>
+#include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
 
+#include <cstdint>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -155,11 +162,9 @@ bool handleRequest(ml::torch::CCommandParser::SRequest& request,
                    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
 
     try {
-        LOG_DEBUG(<< "Inference request with id: " << request.s_RequestId);
         stopWatch.reset(true);
         torch::Tensor results = infer(module, request);
         std::uint64_t timeMs = stopWatch.stop();
-        LOG_DEBUG(<< "Got results for request with id: " << request.s_RequestId);
         auto sizes = results.sizes();
         // Some models return a 3D tensor in which case
         // the first dimension must have size == 1
@@ -197,12 +202,15 @@ int main(int argc, char** argv) {
     std::string logProperties;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
-    bool validElasticLicenseKeyConfirmed{true};
+    std::int32_t numThreads{-1};
+    std::int32_t numInterOpThreads{-1};
+    bool validElasticLicenseKeyConfirmed{false};
 
     if (ml::torch::CCmdLineParser::parse(
-            argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            logFileName, logProperties, validElasticLicenseKeyConfirmed) == false) {
+            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            restoreFileName, isRestoreFileNamedPipe, logFileName, logProperties,
+            numThreads, numInterOpThreads, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
@@ -255,6 +263,14 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
+
+    if (numThreads != -1) {
+        at::set_num_threads(numThreads);
+    }
+    if (numInterOpThreads != -1) {
+        at::set_num_interop_threads(numInterOpThreads);
+    }
+    LOG_DEBUG(<< at::get_parallel_info());
 
     torch::jit::script::Module module;
     try {

@@ -5,7 +5,6 @@ apply plugin: 'idea'
 
 repositories {
   mavenCentral()
-  jcenter()
 }
 
 dependencies {
@@ -14,7 +13,5 @@ dependencies {
   implementation platform('software.amazon.awssdk:bom:2.15.80')
   implementation 'software.amazon.awssdk:s3'
   implementation 'org.apache.velocity:velocity:1.7'
-  // Gradle 4.3.1 stopped releasing the logging jars to jcenter, just use the last available one
-  compileOnly 'org.gradle:gradle-logging:4.3'
 }
 
