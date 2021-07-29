@@ -690,8 +690,12 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
             modelPruneWindowString, core_t::TTime{0});
 
         // Ensure that the model prune window is never smaller than the bucket span.
-        const core_t::TTime minModelPruneWindow{m_BucketSpan};
-        m_ModelPruneWindow = std::max(m_ModelPruneWindow, minModelPruneWindow);
+        if (m_ModelPruneWindow < m_BucketSpan) {
+            LOG_WARN(<< "The value of configuration setting \"model_prune_window\" (" << m_ModelPruneWindow
+                     << ") is less than the value of \"bucket_span\" (" << m_BucketSpan
+                     << "). Setting \"model_prune_window\" to " << m_BucketSpan);
+            m_ModelPruneWindow = m_BucketSpan;
+        }
     }
 
     auto ppc = parameters[PER_PARTITION_CATEGORIZATION].jsonObject();

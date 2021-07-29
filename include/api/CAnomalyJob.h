@@ -413,6 +413,8 @@ protected:
                                               model::CResourceMonitor& resourceMonitor);
 
     //! Prune all the models that exceed \p buckets in age
+    //! A value of 0 for \buckets indicates that only 'obsolete' models will
+    //! be pruned, i.e. those which are so old as to be effectively dead.
     void pruneAllModels(std::size_t buckets = 0);
 
 private:

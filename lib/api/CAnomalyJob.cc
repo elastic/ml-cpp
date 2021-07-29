@@ -688,7 +688,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
     this->writeOutAnnotations(annotations);
     this->writeOutResults(false, results, bucketStartTime, processingTime);
 
-    if (m_ModelConfig.modelPruneWindow() > core_t::TTime{0}) {
+    if (m_ModelConfig.modelPruneWindow() > 0) {
         core_t::TTime bucketPruneWindow{m_ModelConfig.modelPruneWindow() /
                                         m_ModelConfig.bucketLength()};
         this->pruneAllModels(bucketPruneWindow);
@@ -1583,7 +1583,7 @@ CAnomalyJob::detectorForKey(bool isRestoring,
 
 void CAnomalyJob::pruneAllModels(std::size_t buckets) {
     if (buckets == 0) {
-        LOG_INFO(<< "Pruning all models");
+        LOG_INFO(<< "Pruning obsolete models");
     } else {
         LOG_DEBUG(<< "Pruning all models older than " << buckets << " buckets");
     }

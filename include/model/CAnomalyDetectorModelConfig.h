@@ -336,10 +336,12 @@ public:
     //! Get the bucket length.
     core_t::TTime bucketLength() const;
 
-    // Get the period of time at which to perform a potential prune of the models
+    //! Get the period of time at which to perform a potential prune of the models
+    //! expressed in number of seconds.
     core_t::TTime modelPruneWindow() const;
 
-    // Set the period of time at which to perform a potential prune of the models
+    //! Set the period of time at which to perform a potential prune of the models
+    //! expressed in number of seconds.
     void modelPruneWindow(core_t::TTime modelPruneWindow);
 
     //! Get the maximum latency in the arrival of out of order data.
@@ -448,6 +450,7 @@ private:
     //! Bucket length.
     core_t::TTime m_BucketLength;
 
+    //! Prune window length (in seconds)
     core_t::TTime m_ModelPruneWindow;
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
