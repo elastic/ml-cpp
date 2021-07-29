@@ -107,7 +107,7 @@ if ($LastExitCode -ne 0) {
 # If this isn't a PR build and isn't a debug build then upload the artifacts
 if (!(Test-Path Env:PR_AUTHOR) -And !(Test-Path Env:ML_DEBUG)) {
     # The | % { "$_" } at the end converts any error objects on stderr to strings
-    & ".\gradlew.bat" --info -b "upload.gradle" "-Dbuild.version_qualifier=$Env:VERSION_QUALIFIER" "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" upload 2>&1 | % { "$_" }
+    & ".\gradlew.bat" --info "-Dbuild.version_qualifier=$Env:VERSION_QUALIFIER" "-Dbuild.snapshot=$Env:BUILD_SNAPSHOT" upload 2>&1 | % { "$_" }
     if ($LastExitCode -ne 0) {
         Exit $LastExitCode
     }
