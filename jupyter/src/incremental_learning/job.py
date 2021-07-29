@@ -42,7 +42,7 @@ class Job:
                  config: Union[str, tempfile._TemporaryFileWrapper],
                  persist: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  restore: Union[None, str, tempfile._TemporaryFileWrapper] = None,
-                 verbose: bool = True):
+                 verbose: bool = True, run=None):
         """Initialize the class .
 
         Args:
@@ -82,6 +82,7 @@ class Job:
         self.pane = None
         self.output = tempfile.NamedTemporaryFile(mode='wt')
         self.model = ''
+        self.run = run
 
     def _set_dependent_variable_name(self):
         with open(self.config_filename) as fp:
@@ -101,6 +102,15 @@ class Job:
             self.input.close()
         if self.name:
             server.kill_session(target_session=self.name)
+
+    def add_artifacts(self):
+        if self.run:
+            if (self.config_filename):
+                self.run.add_artifact(filename=self.config_filename)
+            if (self.persist_filename):
+                self.run.add_artifact(filename=self.persist_filename)
+            if (self.restore_filename):
+                self.run.add_artifact(filename=self.restore_filename)
 
     def wait_to_complete(self) -> bool:
         """Wait until the job is complete .
@@ -127,7 +137,7 @@ class Job:
                                                                 <td width="50%" style="text-align:left;"><pre>{}</pre></td>
                                                                 </tr>
                                                         </table>"""
-                                                    .format(err, out)))
+                                                      .format(err, out)))
                 else:
                     print(err)
             # the line in main.cc where final output is produced
@@ -147,12 +157,14 @@ class Job:
                     self.model = "\n".join(fp.readlines()[-3:])
             if self.verbose:
                 print('Job succeeded')
+            self.add_artifacts()
             self.clean()
             return True
         elif failure:
             self.results = {}
             if self.verbose:
                 print('Job failed')
+            self.add_artifacts()
             self.clean()
             return False
 
@@ -242,7 +254,7 @@ class Job:
         return self.model
 
 
-def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
+def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -> Job:
     """Run a DFA job.
 
     Args:
@@ -256,7 +268,7 @@ def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
         Job: job object with job process started asynchronously.
     """
     job = Job(input=input, config=config, persist=persist,
-              restore=restore, verbose=verbose)
+              restore=restore, verbose=verbose, run=run)
     job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))
     job_name = 'job_{}'.format(job_suffix)
 
@@ -273,6 +285,9 @@ def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
     cmd = ' '.join(cmd)
     cmd += '; if [ $? -eq 0 ]; then echo "Success"; else echo "Failure";  fi;'
 
+    if run:
+        run.run_logger.info(cmd)
+
     session = server.new_session(job_name)
     window = session.new_window(attach=False)
     pane = window.split_window(attach=False)
@@ -286,7 +301,7 @@ def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
     return job
 
 
-def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) -> Job:
+def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True, run=None) -> Job:
     """Train a model on the dataset .
 
     Args:
@@ -310,11 +325,11 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) ->
     model_file = tempfile.NamedTemporaryFile(mode='wt')
 
     job = run_job(input=data_file, config=config_file,
-                  persist=model_file, verbose=verbose)
+                  persist=model_file, verbose=verbose, run=run)
     return job
 
 
-def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True) -> Job:
+def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True, run=None) -> Job:
     """Evaluate the model on a given dataset .
 
     Args:
@@ -340,11 +355,12 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, ve
     fmodel = tempfile.NamedTemporaryFile(mode='wt')
     fmodel.write(original_job.get_model_update_data())
     fmodel.file.close()
-    job = run_job(input=fdata, config=fconfig, restore=fmodel, verbose=verbose)
+    job = run_job(input=fdata, config=fconfig,
+                  restore=fmodel, verbose=verbose, run=run)
     return job
 
 
-def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True) -> Job:
+def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True, run=None) -> Job:
     """Train a new model incrementally using the model and hyperparameters from the original job.
 
     Args:
@@ -373,5 +389,6 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
     fmodel = tempfile.NamedTemporaryFile(mode='wt')
     fmodel.write(original_job.get_model_update_data())
     fmodel.file.close()
-    job = run_job(input=fdata, config=fconfig, restore=fmodel, verbose=verbose)
+    job = run_job(input=fdata, config=fconfig,
+                  restore=fmodel, verbose=verbose, run=run)
     return job
