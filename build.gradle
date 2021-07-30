@@ -1,6 +1,5 @@
 description = 'Builds the Machine Learning native binaries'
 
-import org.elastic.gradle.UploadS3Task
 import org.gradle.internal.os.OperatingSystem
 import org.gradle.plugins.ide.eclipse.model.SourceFolder
 import org.gradle.util.DistributionLocator
@@ -65,7 +64,7 @@ if (osArch == 'amd64') {
 } else if (osArch == 'arm64') {
   osArch = 'aarch64'
 }
-String artifactClassifier;
+String artifactClassifier
 if (isWindows) {
   artifactClassifier = 'windows-x86_64'
 } else if (isMacOsX || cppCrossCompile == 'macosx') {
@@ -304,19 +303,6 @@ class DownloadPlatformSpecific extends DefaultTask {
   }
 }
 
-// This intentionally doesn't depend on assemble.
-// This gives us the flexibility to build in different
-// ways and still use the same upload code.
-task upload(type: UploadS3Task) {
-  bucket 'prelert-artifacts'
-  // Only upload the platform-specific artifacts in this task
-  def zipFileDir = fileTree("${buildDir}/distributions").matching { include "*-aarch64.zip", "*-x86_64.zip" }
-  for (zipFile in zipFileDir) {
-    upload zipFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${zipFile.name}"
-  }
-  description = 'Upload C++ zips to S3 Bucket'
-}
-
 task downloadPlatformSpecific(type: DownloadPlatformSpecific) {
   baseName = artifactName
   downloadDirectory = "${buildDir}/distributions"
@@ -341,17 +327,34 @@ task buildDependencyReport(type: Exec) {
   description = 'Create a CSV report on 3rd party dependencies we redistribute'
 }
 
-task uberUpload(type: UploadS3Task, dependsOn: [buildUberZipFromDownloads, buildDependencyReport]) {
-  bucket 'prelert-artifacts'
-  upload buildUberZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildUberZipFromDownloads.outputs.files.singleFile.name}"
-  upload buildDependencyReport.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildDependencyReport.outputs.files.singleFile.name}"
-  description = 'Upload C++ uber zip and dependency report to S3 Bucket'
-}
-
-// The wrapper task causes an error when ml-cpp is in elasticsearch-extra
-// because it's only permitted in the root project, so exclude it in this case.
-// See https://github.com/gradle/gradle/issues/5816 for more discussion on this.
 if (rootProject == project) {
+  // The UploadS3Task is only expected to be available when ml-cpp is a
+  // standalone project, not when it's in elasticsearch-extra.
+  Class UploadS3Task = this.class.classLoader.loadClass("org.elastic.gradle.UploadS3Task")
+
+  // This intentionally doesn't depend on assemble.
+  // This gives us the flexibility to build in different
+  // ways and still use the same upload code.
+  task upload(type: UploadS3Task) {
+    bucket 'prelert-artifacts'
+    // Only upload the platform-specific artifacts in this task
+    def zipFileDir = fileTree("${buildDir}/distributions").matching { include "*-aarch64.zip", "*-x86_64.zip" }
+    for (zipFile in zipFileDir) {
+      upload zipFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${zipFile.name}"
+    }
+    description = 'Upload C++ zips to S3 Bucket'
+  }
+
+  task uberUpload(type: UploadS3Task, dependsOn: [buildUberZipFromDownloads, buildDependencyReport]) {
+    bucket 'prelert-artifacts'
+    upload buildUberZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildUberZipFromDownloads.outputs.files.singleFile.name}"
+    upload buildDependencyReport.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildDependencyReport.outputs.files.singleFile.name}"
+    description = 'Upload C++ uber zip and dependency report to S3 Bucket'
+  }
+
+  // The wrapper task also needs to be excluded when ml-cpp is in
+  // elasticsearch-extra because it's only permitted in the root project.
+  // See https://github.com/gradle/gradle/issues/5816 for more discussion on this.
   wrapper {
     distributionType = 'ALL'
     doLast {
