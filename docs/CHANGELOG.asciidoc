@@ -56,12 +56,12 @@
 
 * Give higher weight to multiple adjacent dictionary words when performing categorization. (See
   {ml-pull}1903[#1903].)
-* Ensure bucket `event_count` is calculated for jobs with 1 second bucket spans.
-(See {ml-pull}1908[#1908].)
 
 === Bug Fixes
 
 * Make atomic operations safer for aarch64. (See {ml-pull}1893[#1893].)
+* Ensure bucket `event_count` is calculated for jobs with 1 second bucket spans.
+(See {ml-pull}1908[#1908].)
 
 == {es} version 7.13.0
 
