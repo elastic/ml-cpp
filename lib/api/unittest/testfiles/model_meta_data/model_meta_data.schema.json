@@ -102,6 +102,23 @@
                 ]
             },
             "additionalItems": false
+        },
+        "train_properties" : {
+            "description" : "Properies of the training process which produced the model.",
+            "type" : "object",
+            "properties" : {
+                "num_train_rows" : {
+                    "type" : "number"
+                },
+                "loss_gap" : {
+                    "type" : "number"
+                }
+            },
+            "required" : [
+                "num_train_rows",
+                "loss_gap"
+            ],
+            "additionalProperties" : false
         }
     },
     "additionalProperties": false

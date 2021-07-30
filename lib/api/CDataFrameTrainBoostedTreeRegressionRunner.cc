@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
@@ -164,13 +169,10 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
         m_InferenceModelMetadata.hyperparameterImportance(
             this->boostedTree().hyperparameterImportance());
     }
-    m_InferenceModelMetadata.numTrainingRows(this->boostedTree().numberTrainingRows());
-    m_InferenceModelMetadata.trainFractionPerFold(this->boostedTree().trainFractionPerFold());
-    std::size_t numDataSummarizationRows{static_cast<std::size_t>(
-        this->boostedTree().dataSummarization().manhattan())};
-    if (numDataSummarizationRows > 0) {
-        m_InferenceModelMetadata.numDataSummarizationRows(numDataSummarizationRows);
-    }
+    m_InferenceModelMetadata.numTrainRows(this->boostedTree().numberTrainRows());
+    m_InferenceModelMetadata.lossGap(this->boostedTree().lossGap());
+    m_InferenceModelMetadata.numDataSummarizationRows(static_cast<std::size_t>(
+        this->boostedTree().dataSummarization().manhattan()));
     return m_InferenceModelMetadata;
 }
 

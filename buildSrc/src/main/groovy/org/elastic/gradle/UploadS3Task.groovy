@@ -22,8 +22,6 @@ package org.elastic.gradle
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.logging.progress.ProgressLogger
-import org.gradle.internal.logging.progress.ProgressLoggerFactory
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -48,11 +46,6 @@ class UploadS3Task extends DefaultTask {
         ext.set('needs.aws', true)
     }
 
-    @Inject
-    ProgressLoggerFactory getProgressLoggerFactory() {
-        throw new UnsupportedOperationException()
-    }
-
     /**
      * Add a file to be uploaded to s3. The key object will be evaluated at runtime.
      *
@@ -70,38 +63,32 @@ class UploadS3Task extends DefaultTask {
         AwsCredentialsProvider credsProvider = StaticCredentialsProvider.create(creds)
         S3Client client = S3Client.builder().region(region).credentialsProvider(credsProvider).build()
 
-        ProgressLogger progressLogger = getProgressLoggerFactory().newOperation("s3upload")
-        progressLogger.description = "upload files to s3"
-        progressLogger.started()
-
         for (Map.Entry<File, Object> entry : toUpload) {
             File file = entry.getKey()
             String key = entry.getValue().toString()
             if (file.isDirectory()) {
-                uploadDir(client, progressLogger, file, key)
+                uploadDir(client, file, key)
             } else {
-                uploadFile(client, progressLogger, file, key)
+                uploadFile(client, file, key)
             }
         }
-        progressLogger.completed()
     }
 
     /** Recursively upload all files in a directory. */
-    private void uploadDir(S3Client client, ProgressLogger progressLogger, File dir, String prefix) {
+    private void uploadDir(S3Client client, File dir, String prefix) {
         for (File subfile : dir.listFiles()) {
             if (subfile.isDirectory()) {
-                uploadDir(client, progressLogger, subfile, "${prefix}/${subfile.name}")
+                uploadDir(client, subfile, "${prefix}/${subfile.name}")
             } else {
                 String subkey = "${prefix}/${subfile.name}"
-                uploadFile(client, progressLogger, subfile, subkey)
+                uploadFile(client, subfile, subkey)
             }
         }
     }
 
     /** Upload a single file */
-    private void uploadFile(S3Client client, ProgressLogger progressLogger, File file, String key) {
+    private void uploadFile(S3Client client, File file, String key) {
         logger.info("Uploading ${file.name} to ${key}")
-        progressLogger.progress("uploading ${file.name}")
         PutObjectRequest objectRequest = PutObjectRequest.builder().bucket(bucket).key(key).build()
         client.putObject(objectRequest, file.toPath())
     }

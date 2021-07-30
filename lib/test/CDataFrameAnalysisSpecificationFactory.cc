@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
@@ -206,6 +211,12 @@ CDataFrameAnalysisSpecificationFactory::dataSummarizationFraction(double fractio
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::previousTrainLossGap(double lossGap) {
+    m_PreviousTrainLossGap = lossGap;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
     m_NumberClasses = number;
     return *this;
@@ -371,10 +382,13 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Key(TRunner::EARLY_STOPPING_ENABLED);
         writer.Bool(m_EarlyStoppingEnabled);
     }
-
-    if (m_DataSummarizationFraction > 0) {
+    if (m_DataSummarizationFraction > 0.0) {
         writer.Key(TRunner::DATA_SUMMARIZATION_FRACTION);
         writer.Double(m_DataSummarizationFraction);
+    }
+    if (m_PreviousTrainLossGap > 0.0) {
+        writer.Key(TRunner::PREVIOUS_TRAIN_LOSS_GAP);
+        writer.Double(m_PreviousTrainLossGap);
     }
 
     writer.Key(TRunner::TASK);

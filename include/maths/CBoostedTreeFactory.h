@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CBoostedTreeFactory_h
@@ -169,6 +174,10 @@ public:
     CBoostedTreeFactory& newTrainingRowMask(core::CPackedBitVector rowMask);
     //! Set the fraction of trees in the forest to retrain.
     CBoostedTreeFactory& retrainFraction(double fraction);
+    //! Set the gap between the train and test loss for the last train run.
+    CBoostedTreeFactory& previousTrainLossGap(double gap);
+    //! Set the number of rows for the last train run.
+    CBoostedTreeFactory& previousTrainNumberRows(std::size_t numberRows);
     //! Set the data summarization information.
     CBoostedTreeFactory& featureEncoder(TEncoderUPtr encoder);
     //! Set the best forest from the previous training.

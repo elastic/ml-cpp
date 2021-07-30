@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CDataFrame.h>
@@ -178,6 +183,43 @@ CDataFrame::TSizeVecSizePr CDataFrame::resizeColumns(std::size_t numberThreads,
     std::size_t numberExtraColumns{index - m_NumberColumns};
     this->resizeColumns(numberThreads, index);
     return {result, numberExtraColumns};
+}
+
+void CDataFrame::resizeRows(std::size_t numberRows) {
+    if (numberRows == m_NumberRows) {
+        return;
+    }
+
+    if (numberRows > m_NumberRows) {
+        // Add new rows if the size is being increased.
+        for (std::size_t i = this->numberRows(); i < numberRows; ++i) {
+            this->writeRow([this](TFloatVecItr columns, std::int32_t&) {
+                for (std::size_t j = 0; j < m_NumberColumns; ++j, ++columns) {
+                    *columns = 0.0;
+                }
+            });
+        }
+        this->finishWritingRows();
+        return;
+    }
+
+    m_NumberRows = numberRows;
+
+    // Find the last slice given the new size.
+    auto lastSlice = m_Slices.begin();
+    for (/**/; (*lastSlice)->indexOfLastRow(m_RowCapacity) + 1 < numberRows; ++lastSlice) {
+    }
+
+    // Remove extra rows if the number of rows is being reduced.
+    m_Slices.erase(lastSlice + 1, m_Slices.end());
+    if ((*lastSlice)->indexOfLastRow(m_RowCapacity) + 1 > m_NumberRows) {
+        auto handle = (*lastSlice)->read();
+        auto rows = handle.rows();
+        auto docHashes = handle.docHashes();
+        rows.resize(m_RowCapacity * (m_NumberRows - (*lastSlice)->indexOfFirstRow()));
+        docHashes.resize((m_NumberRows - (*lastSlice)->indexOfFirstRow()));
+        (*lastSlice)->write(rows, docHashes);
+    }
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_test_CDataFrameAnalysisSpecificationFactory_h
@@ -95,6 +100,7 @@ public:
     CDataFrameAnalysisSpecificationFactory& earlyStoppingEnabled(bool earlyStoppingEnabled);
     CDataFrameAnalysisSpecificationFactory& task(TTask task);
     CDataFrameAnalysisSpecificationFactory& dataSummarizationFraction(double fraction);
+    CDataFrameAnalysisSpecificationFactory& previousTrainLossGap(double lossGap);
 
     // Regression
     CDataFrameAnalysisSpecificationFactory& regressionLossFunction(TLossFunctionType lossFunction);
@@ -156,6 +162,7 @@ private:
     rapidjson::Document m_CustomProcessors;
     TTask m_Task{TTask::E_Train};
     double m_DataSummarizationFraction{-1.0};
+    double m_PreviousTrainLossGap{-1.0};
     // Regression
     TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -504,13 +509,13 @@ BOOST_AUTO_TEST_CASE(testMsePiecewiseConstant) {
             0.0, modelBias[i][0],
             10.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.93);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.91);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
 
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testMseLinear) {
@@ -629,7 +634,7 @@ BOOST_AUTO_TEST_CASE(testMseNonLinear) {
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testHuber) {
@@ -1042,7 +1047,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 90.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -1720,9 +1725,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
     // target value.
 }
 
-// TODO this needs the fix to acceptance criterion.
-BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain,
-                     *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
 
     // Test incremental training for binomial logistic objective for values out of the
     // training data domain.
@@ -1861,7 +1864,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain,
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 1.5 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 1.2 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {

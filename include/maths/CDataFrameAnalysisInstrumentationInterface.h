@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h
@@ -126,8 +131,6 @@ public:
     virtual void lossType(const std::string& lossType) = 0;
     //! Set the validation loss values for \p fold for each forest size to \p lossValues.
     virtual void lossValues(std::size_t fold, TDoubleVec&& lossValues) = 0;
-    //! Set the fraction of data used for training per fold.
-    virtual void trainingFractionPerFold(double fraction) = 0;
     //! \return A writable object containing the training hyperparameters.
     virtual SHyperparameters& hyperparameters() = 0;
 };
@@ -158,7 +161,6 @@ public:
     void iterationTime(std::uint64_t /* delta */) override {}
     void lossType(const std::string& /* lossType */) override {}
     void lossValues(std::size_t /* fold */, TDoubleVec&& /* lossValues */) override {}
-    void trainingFractionPerFold(double /* fraction */) override {}
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
 private:
@@ -167,4 +169,4 @@ private:
 }
 }
 
-#endif //INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h
+#endif // INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -644,7 +649,43 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasksRareCategories) {
+
+    // Here we test a case that the desired sample size for a specific class
+    // is zero. In this case we should reassess the class frequencies for
+    // the unsampled set and still get 5 splits with all classes represented
+    // in at least one fold.
+
+    std::size_t numberFolds{5};
+    std::size_t numberBins{10};
+    TDoubleVec categories{0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3,
+                          3, 3, 3, 3, 3, 4, 5, 5, 6, 6, 6, 6};
+
+    auto frame = core::makeMainStorageDataFrame(1).first;
+    frame->categoricalColumns(TBoolVec{true});
+    for (auto category : categories) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column,
+                            std::int32_t&) { *column = category; });
+    }
+    frame->finishWritingRows();
+
+    maths::CPRNG::CXorOShiro128Plus rng;
+    maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
+    std::tie(std::ignore, testingRowMasks, std::ignore) =
+        maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
+            1, *frame, 0, rng, numberFolds, 1.0 - 1.0 / static_cast<double>(numberFolds),
+            numberBins, core::CPackedBitVector{categories.size(), true});
+
+    core::CPackedBitVector allTestingRowsMask(categories.size(), false);
+    for (const auto& testingRowMask : testingRowMasks) {
+        allTestingRowsMask ^= testingRowMask;
+        BOOST_TEST_REQUIRE(5.0, testingRowMask.manhattan());
+    }
+    BOOST_TEST_REQUIRE(25.0, allTestingRowsMask.manhattan());
+}
+
 BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
+
     using TDoubleDoubleUMap = boost::unordered_map<double, double>;
 
     test::CRandomNumbers testRng;
@@ -655,7 +696,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
     std::size_t numberBins{10};
     TSizeVec desiredNumberSamples(1);
 
-    // test categorical targets
+    // Test categorical targets.
     for (std::size_t trial = 0; trial < 10; ++trial) {
 
         TDoubleVec categories;
@@ -706,7 +747,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         }
     }
 
-    // test numerical targets
+    // Test numerical targets.
     for (std::size_t trial = 0; trial < 10; ++trial) {
         TDoubleVec value;
         testRng.generateNormalSamples(0.0, 3.0, numberRows, value);
@@ -729,7 +770,7 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
         BOOST_REQUIRE_CLOSE(static_cast<double>(desiredNumberSamples[0]),
                             samplingRowMask.manhattan(), 1.0);
 
-        // ensure that the targets distribution is similar
+        // Ensure that the target's distribution is similar.
         maths::CQuantileSketch expectedQuantiles(maths::CQuantileSketch::E_Linear, numberRows);
         maths::CQuantileSketch actualQuantiles(
             maths::CQuantileSketch::E_Linear,
