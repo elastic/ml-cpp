@@ -19,10 +19,11 @@ FROM centos:7 as jupyter
 USER root
 WORKDIR /root
 
-COPY jupyter/docker/init.sh jupyter/requirements.txt jupyter/Makefile /root/
+COPY jupyter/docker/init.sh jupyter/requirements.txt jupyter/Makefile jupyter/config.ini /root/
 COPY jupyter/docker/gcsfuse.repo /etc/yum.repos.d/
 COPY jupyter/notebooks /root/notebooks
 COPY jupyter/src /root/src
+COPY jupyter/scripts /root/scripts
 
 RUN \
     yum install -y epel-release && \

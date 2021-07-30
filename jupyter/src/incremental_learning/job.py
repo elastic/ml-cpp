@@ -10,6 +10,7 @@ import string
 import tempfile
 import time
 from typing import Union
+import json
 
 import libtmux
 import numpy as np
@@ -107,12 +108,12 @@ class Job:
         if self.run:
             if (self.config_filename):
                 self.run.add_artifact(filename=self.config_filename)
-            if (self.persist_filename):
-                self.run.add_artifact(filename=self.persist_filename)
-            if (self.restore_filename):
-                self.run.add_artifact(filename=self.restore_filename)
+            # if (self.persist_filename):
+            #     self.run.add_artifact(filename=self.persist_filename)
+            # if (self.restore_filename):
+            #     self.run.add_artifact(filename=self.restore_filename)
 
-    def wait_to_complete(self) -> bool:
+    def wait_to_complete(self, clean=True) -> bool:
         """Wait until the job is complete .
 
         Returns:
@@ -157,16 +158,23 @@ class Job:
                     self.model = "\n".join(fp.readlines()[-3:])
             if self.verbose:
                 print('Job succeeded')
-            self.add_artifacts()
-            self.clean()
+            # self.add_artifacts()
+            if clean:
+                self.clean()
             return True
         elif failure:
             self.results = {}
             if self.verbose:
                 print('Job failed')
-            self.add_artifacts()
-            self.clean()
+            # self.add_artifacts()
+            if clean:
+                self.clean()
             return False
+
+    def get_config(self) -> dict:
+        with open(self.config.name) as fp:
+            config = json.load(fp)
+        return config
 
     def get_predictions(self) -> np.array:
         """Returns a numpy array of the predicted values for the model
@@ -275,7 +283,8 @@ def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -
     cmd = [str(dfa_path),
            "--input", job.input_filename,
            "--config", job.config_filename,
-           "--output", job.output.name]
+           "--output", job.output.name,
+           "--validElasticLicenseKeyConfirmed","true"]
 
     if job.persist:
         cmd += ["--persist", job.persist_filename]
