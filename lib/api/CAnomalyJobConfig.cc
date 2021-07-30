@@ -681,7 +681,6 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     m_SummaryCountFieldName = parameters[SUMMARY_COUNT_FIELD_NAME].fallback(EMPTY_STRING);
     m_CategorizationFieldName = parameters[CATEGORIZATION_FIELD_NAME].fallback(EMPTY_STRING);
     m_CategorizationFilters = parameters[CATEGORIZATION_FILTERS].fallback(TStrVec{});
-
     const std::string& modelPruneWindowString{
         parameters[MODEL_PRUNE_WINDOW].fallback(EMPTY_STRING)};
 
@@ -689,12 +688,13 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
         m_ModelPruneWindow = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
             modelPruneWindowString, core_t::TTime{0});
 
-        // Ensure that the model prune window is never smaller than the bucket span.
-        if (m_ModelPruneWindow < m_BucketSpan) {
-            LOG_WARN(<< "The value of configuration setting \"model_prune_window\" (" << m_ModelPruneWindow
-                     << ") is less than the value of \"bucket_span\" (" << m_BucketSpan
-                     << "). Setting \"model_prune_window\" to " << m_BucketSpan);
-            m_ModelPruneWindow = m_BucketSpan;
+        // Ensure that the model prune window is never smaller than twice the bucket span.
+        if (m_ModelPruneWindow < (2 * m_BucketSpan)) {
+            LOG_WARN(<< "The value of configuration setting \"model_prune_window\" ("
+                     << m_ModelPruneWindow << ") is less than twice the value of \"bucket_span\" ("
+                     << m_BucketSpan << "). Setting \"model_prune_window\" to "
+                     << (2 * m_BucketSpan));
+            m_ModelPruneWindow = 2 * m_BucketSpan;
         }
     }
 

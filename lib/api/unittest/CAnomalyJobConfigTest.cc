@@ -290,7 +290,10 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
 
-        BOOST_REQUIRE_EQUAL(1800, analysisConfig.modelPruneWindow());
+        // This one's a bit special, we enforce that the model_prune_window value
+        // be at least 2 multiples of the bucket_span, i.e. if it is configured
+        // as less then the value is modified to the minimum acceptable value.
+        BOOST_REQUIRE_EQUAL(3600, analysisConfig.modelPruneWindow());
 
         BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
 
@@ -342,7 +345,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
     {
         const std::string validAnomalyJobConfig{
             "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
-            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"model_prune_window\":\"15m\",\"summary_count_field_name\":\"doc_count\",\"multivariate_by_fields\":true,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"model_prune_window\":\"60m\",\"summary_count_field_name\":\"doc_count\",\"multivariate_by_fields\":true,"
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"by\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
             "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true,\"terms\":\"customer_id,category.keyword\"},\"model_snapshot_retention_days\":10,"
@@ -371,8 +374,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
 
-        // We expect the model prune window to be no smaller than the bucket span
-        BOOST_REQUIRE_EQUAL(1800, analysisConfig.modelPruneWindow());
+        BOOST_REQUIRE_EQUAL(3600, analysisConfig.modelPruneWindow());
 
         BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
         BOOST_REQUIRE_EQUAL(true, analysisConfig.multivariateByFields());

@@ -689,8 +689,13 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
     this->writeOutResults(false, results, bucketStartTime, processingTime);
 
     if (m_ModelConfig.modelPruneWindow() > 0) {
-        core_t::TTime bucketPruneWindow{m_ModelConfig.modelPruneWindow() /
-                                        m_ModelConfig.bucketLength()};
+        // Ensure that bucketPruneWindow is always rounded _up_
+        // to the next whole number of buckets (this doesn't really matter if we enforce
+        // that the model prune window always be an exact multiple of bucket span in the
+        // corresponding Java code)
+        core_t::TTime bucketPruneWindow{
+            m_ModelConfig.modelPruneWindow() / m_ModelConfig.bucketLength() +
+            (m_ModelConfig.modelPruneWindow() % m_ModelConfig.bucketLength() != 0)};
         this->pruneAllModels(bucketPruneWindow);
     }
 
