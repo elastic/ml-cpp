@@ -448,13 +448,13 @@ public:
 
 private:
     //! Bucket length.
-    core_t::TTime m_BucketLength;
+    core_t::TTime m_BucketLength{0};
 
     //! Prune window length (in seconds)
-    core_t::TTime m_ModelPruneWindow;
+    core_t::TTime m_ModelPruneWindow{0};
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
-    bool m_MultivariateByFields;
+    bool m_MultivariateByFields{false};
 
     //! The single interim bucket correction calculator.
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;
