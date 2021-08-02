@@ -151,7 +151,7 @@ To create a compute instance using machine type `e2-standard-16` with 200GB loca
 ```bash
 gcloud compute instances create-with-container jupyter-mlcpp-large \
 --container-image=gcr.io/elastic-ml/incremental-learning-jupyter:try42 --boot-disk-size=200GB \
---container-privileged --tags=https-server,incremental-jupyter-server,allow-ssh \
+--container-privileged --tags=https-server,incremental-learning-jupyter-server,allow-ssh \
 --machine-type=e2-standard-16
 ```
 

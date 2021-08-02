@@ -1,6 +1,7 @@
 from pathlib2 import Path
 import platform
 from sys import exit
+import logging
 
 root_dir = Path(__file__).parent.parent.parent.absolute()
 data_dir = root_dir / 'data'
@@ -20,3 +21,14 @@ else:
         print("Cannot find data_frame_analyzer binary")
         exit(1)
     dfa_path = runners[0]
+
+# Google cloud storage bucket with datasets
+bucket_name = 'ml-incremental-learning-datasets'
+
+logger = logging.getLogger("incremental_learning")
+logger.handlers = []
+ch = logging.StreamHandler()
+formatter = logging.Formatter('[%(levelname).1s] %(name)s >> %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+logger.setLevel("INFO")

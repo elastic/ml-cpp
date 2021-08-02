@@ -5,7 +5,7 @@ import shutil
 
 from elasticsearch import Elasticsearch
 
-from .config import root_dir
+from .config import root_dir, logger
 
 def push2es(data_path, name, prefix='experiment-'):
 
@@ -43,4 +43,4 @@ def push2es(data_path, name, prefix='experiment-'):
             doc['cout']=cout
 
         res=es.index(index=prefix+name, body=doc)
-        print('{} {}'.format(data_path, res['result']))
+        logger.info('{} {}'.format(data_path, res['result']))

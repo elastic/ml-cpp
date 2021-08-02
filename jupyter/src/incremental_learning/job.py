@@ -11,13 +11,12 @@ import tempfile
 import time
 from typing import Union
 import json
-
 import libtmux
 import numpy as np
 import pandas
 from IPython import display
 
-from .config import configs_dir, datasets_dir, dfa_path
+from .config import configs_dir, datasets_dir, dfa_path, logger
 from .misc import isnotebook
 
 server = libtmux.Server()

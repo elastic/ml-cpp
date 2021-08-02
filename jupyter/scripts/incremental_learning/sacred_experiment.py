@@ -19,10 +19,12 @@ from sklearn.model_selection import train_test_split
 
 from sklearn.metrics import max_error, mean_absolute_error, mean_squared_error
 from pathlib2 import Path
+import logging
 
 from incremental_learning.job import train, update, evaluate
-from incremental_learning.config import datasets_dir, root_dir
+from incremental_learning.config import datasets_dir, root_dir, logger
 from incremental_learning.elasticsearch import push2es
+from incremental_learning.storage import dataset_exists, download_dataset
 
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
@@ -31,6 +33,7 @@ experiment_name = 'sacred-test-2'
 experiment_data_path = Path('/tmp/'+experiment_name)
 ex = Experiment(experiment_name)
 ex.observers.append(FileStorageObserver(experiment_data_path))
+ex.logger = logger
 
 @ex.config
 def my_config():
@@ -56,6 +59,11 @@ def compute_metrics(_run, ytrue, m1pred, m2pred):
 @ex.main
 def my_main(_run, dataset_name, dataset_size):
     results = {}
+    if dataset_exists(dataset_name) == False:
+        download_successfull = download_dataset(dataset_name)
+        if download_successfull == False:
+            _run.run_logger.error("Data is not available")
+            exit(0)
     D1 = pd.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
     D1.drop_duplicates(inplace=True)
     D1 = D1.sample(dataset_size)
