@@ -590,6 +590,15 @@ void CAnomalyDetector::pruneModels() {
     m_Model->prune(m_Model->defaultPruneWindow());
 }
 
+void CAnomalyDetector::pruneModels(std::size_t buckets) {
+    // Purge out any models that haven't seen activity in the given number of buckets.
+
+    function_t::EFunction function{m_DataGatherer->function()};
+    if (function_t::isAggressivePruningSupported(function)) {
+        m_Model->prune(buckets);
+    }
+}
+
 void CAnomalyDetector::resetBucket(core_t::TTime bucketStart) {
     m_DataGatherer->resetBucket(bucketStart);
 }
