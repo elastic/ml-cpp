@@ -42,10 +42,13 @@
   - the C++ front end to PyTorch and performs inference on models stored in the 
   TorchScript format. (See {ml-pull}1902[#1902].)
 
-=== Bug Fixes
+== {es} version 7.15.0
 
-* Ensure bucket `event_count` is calculated for jobs with 1 second bucket spans.
-  (See {ml-pull}1908[#1908].)
+=== Enhancements
+* Prune models for split fields (by, partition) that haven't seen data updates for
+  a given period of time. (See {ml-pull}1962[#1962].)
+
+=== Bug Fixes
 
 == {es} version 7.15.0
 
@@ -66,6 +69,8 @@
 === Bug Fixes
 
 * Make atomic operations safer for aarch64. (See {ml-pull}1893[#1893].)
+* Ensure bucket `event_count` is calculated for jobs with 1 second bucket spans.
+(See {ml-pull}1908[#1908].)
 
 == {es} version 7.13.0
 

@@ -249,6 +249,10 @@ public:
     //! that may be deleted as a result of this call.
     virtual void pruneModels();
 
+    //! Remove dead models - i.e. those that have not seen activity
+    //! in the last \p pruneWindow buckets
+    virtual void pruneModels(std::size_t pruneWindow);
+
     //! Reset bucket.
     void resetBucket(core_t::TTime bucketStart);
 

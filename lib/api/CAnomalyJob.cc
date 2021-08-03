@@ -693,6 +693,18 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
     this->writeOutAnnotations(annotations);
     this->writeOutResults(false, results, bucketStartTime, processingTime);
 
+    if (m_ModelConfig.modelPruneWindow() > 0) {
+        // Ensure that bucketPruneWindow is always rounded _up_
+        // to the next whole number of buckets (this doesn't really matter if we enforce
+        // that the model prune window always be an exact multiple of bucket span in the
+        // corresponding Java code)
+        core_t::TTime bucketPruneWindow{
+            (m_ModelConfig.modelPruneWindow() + m_ModelConfig.bucketLength() - 1) /
+            m_ModelConfig.bucketLength()};
+        this->pruneAllModels(bucketPruneWindow);
+    }
+
+    // Prune models based on memory resource limits
     m_Limits.resourceMonitor().pruneIfRequired(bucketStartTime);
     model::CStringStore::tidyUpNotThreadSafe();
 }
@@ -1579,8 +1591,12 @@ CAnomalyJob::detectorForKey(bool isRestoring,
     return itr->second;
 }
 
-void CAnomalyJob::pruneAllModels() {
-    LOG_INFO(<< "Pruning all models");
+void CAnomalyJob::pruneAllModels(std::size_t buckets) {
+    if (buckets == 0) {
+        LOG_INFO(<< "Pruning obsolete models");
+    } else {
+        LOG_DEBUG(<< "Pruning all models older than " << buckets << " buckets");
+    }
 
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector = detector_.second.get();
@@ -1589,7 +1605,7 @@ void CAnomalyJob::pruneAllModels() {
                       << pairDebug(detector_.first) << '\'');
             continue;
         }
-        detector->pruneModels();
+        (buckets == 0) ? detector->pruneModels() : detector->pruneModels(buckets);
     }
 }
 
