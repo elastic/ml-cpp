@@ -95,28 +95,36 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
         return false;
     }
 
-    if (doc.HasMember(TOKENS)) {
-        const rapidjson::Value& tokens = doc[TOKENS];
-        if (tokens.IsArray() == false) {
-            errorHandler(doc[REQUEST_ID].GetString(),
-                         "Invalid command: expected an array [" + TOKENS + "]");
-            return false;
-        }
-
-        for (auto itr = tokens.Begin(); itr != tokens.End(); ++itr) {
-            const rapidjson::Value::ConstArray& innerArray = itr->GetArray();
-            if (checkArrayContainsUInts(innerArray) == false) {
-                errorHandler(doc[REQUEST_ID].GetString(),
-                             "Invalid command: array [" + TOKENS +
-                                 "] contains values that are not unsigned integers");
-                return false;
-            }
-        }
-    } else {
+    if (doc.HasMember(TOKENS) == false) {
         errorHandler(doc[REQUEST_ID].GetString(),
                      "Invalid command: missing field [" + TOKENS + "]");
         return false;
     }
+
+    const rapidjson::Value& tokens = doc[TOKENS];
+    if (tokens.IsArray() == false) {
+        errorHandler(doc[REQUEST_ID].GetString(),
+                        "Invalid command: expected an array [" + TOKENS + "]");
+        return false;
+    }
+
+    const rapidjson::Value::ConstArray& outerArray = tokens.GetArray();
+    for (const auto& val : outerArray) {
+        if (val.IsArray() == false) {
+            errorHandler(doc[REQUEST_ID].GetString(),
+                            "Invalid command: expected an array of arrays of [" + TOKENS + "]");
+            return false;            
+        }
+
+        const rapidjson::Value::ConstArray& innerArray = val.GetArray();
+        if (checkArrayContainsUInts(innerArray) == false) {
+            errorHandler(doc[REQUEST_ID].GetString(),
+                            "Invalid command: array [" + TOKENS +
+                                "] contains values that are not unsigned integers");
+            return false;
+        }
+    }
+    
 
     // check optional args
     std::uint64_t varCount{1};
@@ -128,11 +136,18 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
                          "Invalid command: argument [" + varArgName + "] is not an array");
             return false;
         }
+        
+        const rapidjson::Value::ConstArray& outerArgArray = value.GetArray();
+        for (const auto& val : outerArgArray) {
+            if (val.IsArray() == false) {
+                errorHandler(doc[REQUEST_ID].GetString(),
+                            "Invalid command: expected an array of arrays of [" + varArgName + "]");
+                return false;            
+            }
 
-        for (auto itr = value.Begin(); itr != value.End(); ++itr) {
-            const rapidjson::Value::ConstArray& innerArray = itr->GetArray();
+            const rapidjson::Value::ConstArray& innerArgArray = val.GetArray();
 
-            if (checkArrayContainsUInts(innerArray) == false) {
+            if (checkArrayContainsUInts(innerArgArray) == false) {
                 errorHandler(doc[REQUEST_ID].GetString(),
                              "Invalid command: array [" + varArgName +
                                  "] contains values that are not unsigned integers");
@@ -148,23 +163,11 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
 }
 
 bool CCommandParser::checkArrayContainsUInts(const rapidjson::Value::ConstArray& arr) {
-    bool allInts{true};
-
-    for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-        allInts = allInts && itr->IsUint64();
-    }
-
-    return allInts;
+    return std::find_if(arr.Begin(), arr.End(), [](const auto& i) { return i.IsUint64() == false; }) == arr.End();
 }
 
-bool CCommandParser::checkArrayContainsDoubles(const rapidjson::Value::ConstArray& arr) {
-    bool allDoubles{true};
-
-    for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-        allDoubles = allDoubles && itr->IsDouble();
-    }
-
-    return allDoubles;
+bool CCommandParser::checkArrayContainsDoubles(const rapidjson::Value::ConstArray& arr) {    
+    return std::find_if(arr.Begin(), arr.End(), [](const auto& i) { return i.IsDouble() == false; }) == arr.End();
 }
 
 void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
@@ -173,21 +176,20 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
 
     // wipe any previous
     m_Request.s_Tokens.clear();
-    if (doc.HasMember(TOKENS)) {
-        // read 2D array into contiguous memory
-        const rapidjson::Value& arr = doc[TOKENS];
-        m_Request.h = arr.Size();
-        for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-            const auto innerArray = itr->GetArray();
-            m_Request.w = innerArray.Size();
-            m_Request.s_Tokens.reserve(m_Request.h * m_Request.w);
 
-            for (const auto* innerItr = innerArray.Begin();
-                 innerItr != innerArray.End(); ++innerItr) {
-                m_Request.s_Tokens.push_back(innerItr->GetUint64());
-            }
+    // read 2D array into contiguous memory
+    const rapidjson::Value::ConstArray& tokens = doc[TOKENS].GetArray();
+    m_Request.h = tokens.Size();
+    for (const auto& itr : tokens) {
+        const auto& innerArray = itr.GetArray();
+        m_Request.w = innerArray.Size();
+        m_Request.s_Tokens.reserve(m_Request.h * m_Request.w);   // TODO check when size changes
+
+        for (const auto& val : innerArray) {                
+            m_Request.s_Tokens.push_back(val.GetUint64());
         }
     }
+    
 
     std::uint64_t varCount{1};
     std::string varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
@@ -196,14 +198,13 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
     m_Request.s_SecondaryArguments.clear();
     while (doc.HasMember(varArgName)) {
 
-        const rapidjson::Value& arr = doc[varArgName];
+        const rapidjson::Value::ConstArray& outer = doc[varArgName].GetArray();
         TUint64Vec arg;
         arg.reserve(m_Request.h * m_Request.w);
-        for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-            const auto innerArray = itr->GetArray();
-            for (const auto* innerItr = innerArray.Begin();
-                 innerItr != innerArray.End(); ++innerItr) {
-                arg.push_back(innerItr->GetUint64());
+        for (const auto& val : outer) {
+            const auto innerArray = val.GetArray();
+            for (const auto& e : innerArray) {                 
+                arg.push_back(e.GetUint64());
             }
         }
         m_Request.s_SecondaryArguments.push_back(std::move(arg));
@@ -212,8 +213,5 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
     }
 }
 
-bool CCommandParser::SRequest::hasTokens() const {
-    return s_Tokens.empty() == false;
-}
 }
 }
