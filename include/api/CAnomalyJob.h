@@ -404,7 +404,7 @@ protected:
     //! Get all the detectors.
     void detectors(TAnomalyDetectorPtrVec& detectors) const;
 
-    //! Get the detectors by parition
+    //! Get the detectors by partition
     const TKeyAnomalyDetectorPtrUMap& detectorPartitionMap() const;
 
     //! Get all sorted references to the detectors.
@@ -417,8 +417,10 @@ protected:
                                               const std::string& partitionFieldValue,
                                               model::CResourceMonitor& resourceMonitor);
 
-    //! Prune all the models
-    void pruneAllModels();
+    //! Prune all the models that exceed \p buckets in age
+    //! A value of 0 for \buckets indicates that only 'obsolete' models will
+    //! be pruned, i.e. those which are so old as to be effectively dead.
+    void pruneAllModels(std::size_t buckets = 0);
 
 private:
     //! The job ID

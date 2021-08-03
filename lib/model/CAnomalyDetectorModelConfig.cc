@@ -697,6 +697,10 @@ core_t::TTime CAnomalyDetectorModelConfig::bucketLength() const {
     return m_BucketLength;
 }
 
+core_t::TTime CAnomalyDetectorModelConfig::modelPruneWindow() const {
+    return m_ModelPruneWindow;
+}
+
 core_t::TTime CAnomalyDetectorModelConfig::latency() const {
     return m_BucketLength * m_Factories.begin()->second->modelParams().s_LatencyBuckets;
 }
@@ -761,6 +765,10 @@ void CAnomalyDetectorModelConfig::detectionRules(TIntDetectionRuleVecUMapCRef de
 
 void CAnomalyDetectorModelConfig::scheduledEvents(TStrDetectionRulePrVecCRef scheduledEvents) {
     m_ScheduledEvents = scheduledEvents;
+}
+
+void CAnomalyDetectorModelConfig::modelPruneWindow(core_t::TTime modelPruneWindow) {
+    m_ModelPruneWindow = modelPruneWindow;
 }
 
 core_t::TTime CAnomalyDetectorModelConfig::samplingAgeCutoff() const {

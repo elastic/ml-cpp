@@ -187,6 +187,9 @@ public:
 
     public:
         static const std::string BUCKET_SPAN;
+
+        static const std::string MODEL_PRUNE_WINDOW;
+
         static const std::string SUMMARY_COUNT_FIELD_NAME;
         static const std::string CATEGORIZATION_FIELD_NAME;
         static const std::string CATEGORIZATION_FILTERS;
@@ -247,6 +250,12 @@ public:
         bool updateScheduledEvents(const boost::property_tree::ptree& propTree);
 
         core_t::TTime bucketSpan() const { return m_BucketSpan; }
+
+        //! Return the size of the model prune window expressed as a whole number of seconds.
+        //! Note that throughout the code the model prune window may sometimes be expressed in
+        //! seconds, as here, and sometimes as number of buckets. Where any doubt exists
+        //! a comment will explain which is in use.
+        core_t::TTime modelPruneWindow() const { return m_ModelPruneWindow; }
 
         std::string summaryCountFieldName() const {
             return m_SummaryCountFieldName;
@@ -321,6 +330,10 @@ public:
 
     private:
         core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
+
+        //! The size of the model prune window expressed as a whole number of seconds.
+        core_t::TTime m_ModelPruneWindow{0};
+
         std::string m_SummaryCountFieldName{};
         std::string m_CategorizationFieldName{};
         std::string m_CategorizationPartitionFieldName{};
