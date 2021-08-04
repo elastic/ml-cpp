@@ -10,27 +10,27 @@
 # limitation.
 
 
-import pandas as pd
-import numpy as np
-from sklearn.model_selection import train_test_split
-
-from sklearn.metrics import max_error, mean_absolute_error, mean_squared_error
-from pathlib2 import Path
 import logging
 
-from incremental_learning.job import train, update, evaluate
-from incremental_learning.config import datasets_dir, root_dir, logger
-from incremental_learning.elasticsearch import push2es
-from incremental_learning.storage import dataset_exists, download_dataset
-
+import numpy as np
+import pandas as pd
+from pathlib2 import Path
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
+from sklearn.metrics import max_error, mean_absolute_error, mean_squared_error
+from sklearn.model_selection import train_test_split
 
-experiment_name = 'sacred-test-2'
+from incremental_learning.config import datasets_dir, logger, root_dir
+from incremental_learning.elasticsearch import push2es
+from incremental_learning.job import evaluate, train, update
+from incremental_learning.storage import dataset_exists, download_dataset
+
+experiment_name = 'generic-train-update'
 experiment_data_path = Path('/tmp/'+experiment_name)
 ex = Experiment(experiment_name)
 ex.observers.append(FileStorageObserver(experiment_data_path))
 ex.logger = logger
+
 
 @ex.config
 def my_config():
@@ -94,17 +94,21 @@ def my_main(_run, dataset_name, dataset_size):
 
     y_true = D1[job1.dependent_variable]
 
-    results['baseline']['mse'] = mean_squared_error(y_true, job1.get_predictions())
-    
+    results['baseline']['mse'] = mean_squared_error(
+        y_true, job1.get_predictions())
+
     job2_eval = evaluate(dataset_name, D1, job2, verbose=False)
     job2_eval.wait_to_complete()
-    results['trained_model']['mse'] = mean_squared_error(y_true, job2_eval.get_predictions())
-    
+    results['trained_model']['mse'] = mean_squared_error(
+        y_true, job2_eval.get_predictions())
+
     job3_eval = evaluate(dataset_name, D1, job3, verbose=False)
     job3_eval.wait_to_complete()
-    results['updated_model']['mse'] = mean_squared_error(y_true, job3_eval.get_predictions())
+    results['updated_model']['mse'] = mean_squared_error(
+        y_true, job3_eval.get_predictions())
 
     return results
+
 
 if __name__ == '__main__':
     ex.run_commandline()
