@@ -1,4 +1,4 @@
-from incremental_learning.misc import train, update, evaluate
+from incremental_learning.job import train, update, evaluate
 
 from sklearn.datasets import make_regression
 import pandas as pd

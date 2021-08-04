@@ -263,7 +263,8 @@ def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
     cmd = [str(dfa_path),
            "--input", job.input_filename,
            "--config", job.config_filename,
-           "--output", job.output.name]
+           "--output", job.output.name,
+           "--validElasticLicenseKeyConfirmed", "true"]
 
     if job.persist:
         cmd += ["--persist", job.persist_filename]
