@@ -33,5 +33,5 @@
 			]
 		},
 		"expected_output": {"request_id": "batch_of_three", "inference": [[[ 4.0866, -3.2812], [ 4.5147, -3.6895], [-4.2565,  4.6046]]]}
-	}	
+	}
 ]

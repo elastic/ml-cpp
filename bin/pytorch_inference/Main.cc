@@ -80,8 +80,8 @@ void writeTensor(const torch::TensorAccessor<T, 1UL>& accessor,
     jsonWriter.EndArray();
 }
 
-template<typename T>
-void writeTensor(const torch::TensorAccessor<T, 2UL>& accessor,
+template<typename T, std::size_t N_DIMS>
+void writeTensor(const torch::TensorAccessor<T, N_DIMS>& accessor,
                  ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     jsonWriter.StartArray();
     for (int i = 0; i < accessor.size(0); ++i) {
@@ -91,11 +91,22 @@ void writeTensor(const torch::TensorAccessor<T, 2UL>& accessor,
 }
 
 template<typename T>
-void writeTensor(const torch::TensorAccessor<T, 3UL>& accessor,
+void writeInferenceResults(const torch::TensorAccessor<T, 3UL>& accessor,
                  ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
-    for (int i = 0; i < accessor.size(0); ++i) {
-        writeTensor(accessor[i], jsonWriter);
-    }
+
+    jsonWriter.Key(INFERENCE);
+    writeTensor(accessor, jsonWriter);
+}
+
+template<typename T>
+void writeInferenceResults(const torch::TensorAccessor<T, 2UL>& accessor,
+                 ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+    
+    jsonWriter.Key(INFERENCE);
+    // output must be a 3D array so wrap the 2D result in an outer array
+    jsonWriter.StartArray();
+    writeTensor(accessor, jsonWriter);
+    jsonWriter.EndArray();
 }
 
 void writeError(const std::string& requestId,
@@ -116,13 +127,10 @@ void writeDocumentOpening(const std::string& requestId,
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
     jsonWriter.Key(TIME_MS);
-    jsonWriter.Uint64(timeMs);
-    jsonWriter.Key(INFERENCE);
-    jsonWriter.StartArray();
+    jsonWriter.Uint64(timeMs);  
 }
 
-void writeDocumentClosing(ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
-    jsonWriter.EndArray();
+void writeDocumentClosing(ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {    
     jsonWriter.EndObject();
 }
 
@@ -141,14 +149,14 @@ void writePrediction(const torch::Tensor& prediction,
         auto accessor = prediction.accessor<float, N>();
 
         writeDocumentOpening(requestId, timeMs, jsonWriter);
-        writeTensor(accessor, jsonWriter);
+        writeInferenceResults(accessor, jsonWriter);
         writeDocumentClosing(jsonWriter);
 
     } else if (prediction.dtype() == torch::kFloat64) {
         auto accessor = prediction.accessor<double, N>();
 
         writeDocumentOpening(requestId, timeMs, jsonWriter);
-        writeTensor(accessor, jsonWriter);
+        writeInferenceResults(accessor, jsonWriter);
         writeDocumentClosing(jsonWriter);
     } else {
         std::ostringstream ss;
@@ -166,14 +174,13 @@ bool handleRequest(ml::torch::CCommandParser::SRequest& request,
         torch::Tensor results = infer(module, request);
         std::uint64_t timeMs = stopWatch.stop();
         auto sizes = results.sizes();
-        // Some models return a 3D tensor in which case
-        // the first dimension must have size == 1
+
+        // The output is always a 3D array, in the case of a 2D result
+        // it must be wrapped in an outer array
         if (sizes.size() == 3) {
             writePrediction<3>(results, request.s_RequestId, timeMs, jsonWriter);
         } else if (sizes.size() == 2) {
             writePrediction<2>(results, request.s_RequestId, timeMs, jsonWriter);
-        } else if (sizes.size() == 1) {
-            writePrediction<1>(results, request.s_RequestId, timeMs, jsonWriter);
         } else {
             std::ostringstream ss;
             ss << "Cannot convert results tensor of size [" << sizes << "]";
