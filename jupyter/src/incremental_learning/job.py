@@ -1,6 +1,12 @@
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+
 
 import base64
 import gzip
@@ -10,7 +16,7 @@ import string
 import tempfile
 import time
 from typing import Union
-import json
+
 import libtmux
 import numpy as np
 import pandas
@@ -283,7 +289,7 @@ def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -
            "--input", job.input_filename,
            "--config", job.config_filename,
            "--output", job.output.name,
-           "--validElasticLicenseKeyConfirmed","true"]
+           "--validElasticLicenseKeyConfirmed", "true"]
 
     if job.persist:
         cmd += ["--persist", job.persist_filename]

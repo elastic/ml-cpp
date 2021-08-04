@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensednamer the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
-# # Sacred experiment tracking
-#
-# 1. Train model (M1) on the complete dataset (D1).
-# 2. Split the complete dataset (D1) into the base dataset (D2) and the update dataset (D3).
-# 3. Train a new model (M2) on D2 and update it using D3.
-# 4. Compare M1 and M2
-#     1. Evaluation M1 and M2 on the complete dataset D1.
-#     2. TODO: Compare feature importance vectors for individual data points from M1 and M2 (should be very similar)
-#
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+
 
 import pandas as pd
 import numpy as np
@@ -63,7 +60,7 @@ def my_main(_run, dataset_name, dataset_size):
         download_successfull = download_dataset(dataset_name)
         if download_successfull == False:
             _run.run_logger.error("Data is not available")
-            exit(0)
+            exit(1)
     D1 = pd.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
     D1.drop_duplicates(inplace=True)
     D1 = D1.sample(dataset_size)
