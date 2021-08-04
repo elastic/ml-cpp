@@ -49,13 +49,16 @@ if not config_file.exists():
     exit(1)
 config.read(root_dir / 'config.ini')
 
+es_cloud_id = ""
+es_user = ""
+es_password = ""
 # Elasticsearch deployment configuration
 if (not config['cloud']['cloud_id']) or (not config['cloud']['user']) or (not config['cloud']['password']):
-    logger.error("Cloud configuration is missing or incomplete.")
-    exit(1)
-es_cloud_id = config['cloud']['cloud_id']
-es_user = config['cloud']['user']
-es_password = config['cloud']['password']
+    logger.error("Cloud configuration is missing or incomplete. Some functionality will be broken")
+else:
+    es_cloud_id = config['cloud']['cloud_id']
+    es_user = config['cloud']['user']
+    es_password = config['cloud']['password']
 
 if config['logging']['level']:
     logger.setLevel(config['logging']['level'])
