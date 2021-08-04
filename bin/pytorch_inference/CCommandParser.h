@@ -64,8 +64,8 @@ public:
     //! dimensions of in the JSON input. The secondary arguments are
     //! treated in the same manner.
     struct SRequest {
-        std::int64_t w;
-        std::int64_t h;
+        std::int64_t s_NumberInputTokens;
+        std::int64_t s_NumberInferences;
         std::string s_RequestId;
         TUint64Vec s_Tokens;
         TUint64VecVec s_SecondaryArguments;

@@ -50,7 +50,7 @@ torch::Tensor infer(torch::jit::script::Module& module,
 
     inputs.reserve(1 + request.s_SecondaryArguments.size());
 
-    at::IntArrayRef inputSize{request.h, request.w};
+    at::IntArrayRef inputSize{request.s_NumberInferences, request.s_NumberInputTokens};
 
     // BERT UInt tokens
     inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data()),

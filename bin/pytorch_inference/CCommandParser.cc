@@ -179,11 +179,11 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
 
     // read 2D array into contiguous memory
     const rapidjson::Value::ConstArray& tokens = doc[TOKENS].GetArray();
-    m_Request.h = tokens.Size();
+    m_Request.s_NumberInferences = tokens.Size();
     for (const auto& itr : tokens) {
         const auto& innerArray = itr.GetArray();
-        m_Request.w = innerArray.Size();
-        m_Request.s_Tokens.reserve(m_Request.h * m_Request.w);   // TODO check when size changes
+        m_Request.s_NumberInputTokens = innerArray.Size();
+        m_Request.s_Tokens.reserve(m_Request.s_NumberInferences * m_Request.s_NumberInputTokens);
 
         for (const auto& val : innerArray) {                
             m_Request.s_Tokens.push_back(val.GetUint64());
@@ -200,7 +200,7 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
 
         const rapidjson::Value::ConstArray& outer = doc[varArgName].GetArray();
         TUint64Vec arg;
-        arg.reserve(m_Request.h * m_Request.w);
+        arg.reserve(m_Request.s_NumberInferences * m_Request.s_NumberInputTokens);
         for (const auto& val : outer) {
             const auto innerArray = val.GetArray();
             for (const auto& e : innerArray) {                 

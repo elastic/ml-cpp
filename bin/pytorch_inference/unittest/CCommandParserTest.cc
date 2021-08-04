@@ -50,15 +50,13 @@ BOOST_AUTO_TEST_CASE(testParsingStream) {
         BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[0].s_Tokens.begin(),
                                         parsed[0].s_Tokens.end(),
                                         expected.begin(), expected.end());
-        BOOST_TEST_REQUIRE(parsed[0].hasTokens());
     }
     {
         BOOST_REQUIRE_EQUAL("bar", parsed[1].s_RequestId);
         ml::torch::CCommandParser::TUint64Vec expected{4, 5};
         BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[1].s_Tokens.begin(),
                                         parsed[1].s_Tokens.end(),
-                                        expected.begin(), expected.end());
-        BOOST_TEST_REQUIRE(parsed[0].hasTokens());
+                                        expected.begin(), expected.end());        
     }
 }
 
