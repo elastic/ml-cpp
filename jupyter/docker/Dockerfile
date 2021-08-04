@@ -20,14 +20,13 @@ USER root
 WORKDIR /root
 
 COPY jupyter/docker/init.sh jupyter/requirements.txt jupyter/Makefile jupyter/config.ini /root/
-COPY jupyter/docker/gcsfuse.repo /etc/yum.repos.d/
 COPY jupyter/notebooks /root/notebooks
 COPY jupyter/src /root/src
 COPY jupyter/scripts /root/scripts
 
 RUN \
     yum install -y epel-release && \
-    yum install -y python3-pip python3-devel python3-virtualenv openssl gcsfuse htop tmux && \
+    yum install -y python3-pip python3-devel python3-virtualenv openssl htop tmux && \
     yum groupinstall -y 'Development Tools' && \
     python3 -m venv env && \
     source env/bin/activate && \
