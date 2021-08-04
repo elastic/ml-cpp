@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE(testParsingStream) {
         ml::torch::CCommandParser::TUint64Vec expected{4, 5};
         BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[1].s_Tokens.begin(),
                                         parsed[1].s_Tokens.end(),
-                                        expected.begin(), expected.end());        
+                                        expected.begin(), expected.end());
     }
 }
 

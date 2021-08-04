@@ -92,7 +92,7 @@ void writeTensor(const torch::TensorAccessor<T, N_DIMS>& accessor,
 
 template<typename T>
 void writeInferenceResults(const torch::TensorAccessor<T, 3UL>& accessor,
-                 ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+                           ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
 
     jsonWriter.Key(INFERENCE);
     writeTensor(accessor, jsonWriter);
@@ -100,8 +100,8 @@ void writeInferenceResults(const torch::TensorAccessor<T, 3UL>& accessor,
 
 template<typename T>
 void writeInferenceResults(const torch::TensorAccessor<T, 2UL>& accessor,
-                 ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
-    
+                           ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+
     jsonWriter.Key(INFERENCE);
     // output must be a 3D array so wrap the 2D result in an outer array
     jsonWriter.StartArray();
@@ -127,10 +127,10 @@ void writeDocumentOpening(const std::string& requestId,
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
     jsonWriter.Key(TIME_MS);
-    jsonWriter.Uint64(timeMs);  
+    jsonWriter.Uint64(timeMs);
 }
 
-void writeDocumentClosing(ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {    
+void writeDocumentClosing(ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
     jsonWriter.EndObject();
 }
 
