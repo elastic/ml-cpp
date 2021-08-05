@@ -10,11 +10,11 @@
   - [Create a GCP instance from your Docker image](#create-a-gcp-instance-from-your-docker-image)
 - [Directory structure](#directory-structure)
 - [FAQ](#faq)
-  - [Issues with building Docker container](#issues-with-building-docker-container)
-  - [Working with large jobs on GCP](#working-with-large-jobs-on-gcp)
-  - [Working with the GCP buckets](#working-with-the-gcp-buckets)
-  - [Copy data without mounting](#copy-data-without-mounting)
-  - [Generating the service account key file](#generating-the-service-account-key-file)
+  - [How to build parts of the Docker image separately?](#how-to-build-parts-of-the-docker-image-separately)
+  - [What to do if `docker build` fails with the segfault message?](#what-to-do-if-docker-build-fails-with-the-segfault-message)
+  - [How to run large jobs on the Google Cloud Plattform?](#how-to-run-large-jobs-on-the-google-cloud-plattform)
+  - [How to upload data to the GCP buckets?](#how-to-upload-data-to-the-gcp-buckets)
+  - [How to generate the service account key json file?](#how-to-generate-the-service-account-key-json-file)
   - [How to authorize `docker` to push to the Google Image Registry?](#how-to-authorize-docker-to-push-to-the-google-image-registry)
   - [How to choose the GCP machine configuration?](#how-to-choose-the-gcp-machine-configuration)
 
@@ -46,7 +46,7 @@
 
 1. Specify `cloud_id`, `user`, and `password` in the `[cloud]` section of the `config.ini` file.
 
-2. Generate the service account json file by following using [instructions below](#generating-the-service-account-key-file).
+2. Generate the service account json file by following using [instructions below](#how-to-generate-the-service-account-key-json-file).
 
 ### Check that everything works
 
@@ -74,21 +74,22 @@
     IMAGE_NAME=myjupyter make build-docker
     ```
 
-Note that in the [`Dockerfile`](docker/Dockerfile), we fetch the base image from `docker.elastic.co`. To this end, you
-need to be authorized and authenticated to use `docker.elastic.co` (e.g., your GitHub account should be a part of
-*elastic* org). Alternatively, you can create the base image yourself using this
-[`Dockerfile`](../dev-tools/docker/linux_image/Dockerfile), albeit it will take a while.
+> *In the [`Dockerfile`](docker/Dockerfile), we fetch the base image from > `docker.elastic.co`. To this end, you need to be
+> authorized and authenticated to use `docker.elastic.co` (e.g., your > GitHub account should be a part of *elastic* org).
+> Alternatively, you can create the base image yourself using this
+> [`Dockerfile`](../dev-tools/docker/linux_image/Dockerfile), albeit it > will take a while.*
 
 ## Working with Docker and Google Cloud Plattform
 
 ### Running Docker locally
 
-> *Follow [these instructions](#generating-the-service-account-key-file) to generate the service account `json` file if you don't have one.*
+> *Follow [these instructions](#how-to-generate-the-service-account-key-json-file) to generate the service account `json` file if you don't have one.*
 
 1. Run the docker container and forward port 9999. To access the data from the Google Cloud Storage, you'll need to additionally pass the key file of the service account and configure the environment variable `GOOGLE_APPLICATION_CREDENTIALS`:
 
     ```bash
-    docker run -p 9999:9999 -v /path/to/gcp-sa.json:/tmp/keys/gcp-sa.json:ro -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/gcp-sa.json myjupyter:latest
+    docker run -p 9999:9999 -v /path/to/gcp-sa.json:/tmp/keys/gcp-sa.json:ro \
+    -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/gcp-sa.json myjupyter:latest
     ```
 
 2. Navigate to [https://localhost:9999](https://localhost:9999). Since it is HTTPS and we are using self-signed
@@ -96,7 +97,7 @@ certificates, you need to confirm the security exception.
 
 ### Push Docker images to the Google Image Registry
 
->*To push a Docker image to the Google registry, you need to get authorization by following [these instructions](#how-to-authorize-docker-to-push-to-the-google-image-registry).*
+>*To push a Docker image to the Google Image Registry, you need to get authorization by following [these instructions](#how-to-authorize-docker-to-push-to-the-google-image-registry).*
 
 1. Tag your Docker image with a qualified name to push it to the `gcr` registry. Use a unique label (instead of `latest`).
 
@@ -143,7 +144,7 @@ certificates, you need to confirm the security exception.
 
 ## FAQ
 
-### Issues with building Docker container
+### How to build parts of the Docker image separately?
 
 For debugging purposes, it may be useful to build only the C++ part. You can do it like this:
 
@@ -152,17 +153,19 @@ DOCKER_BUILDKIT=1 docker build --target builder -t myjupyter:builder \
 -f ./jupyter/docker/Dockerfile .
 ```
 
+### What to do if `docker build` fails with the segfault message?
+
 If during the build process you face errors due to out-of-memory, consider increasing container memory using `--memory`
 parameter (e.g., `--memory=4g` for 4 GB of memory in the container).
 
-### Working with large jobs on GCP
+### How to run large jobs on the Google Cloud Plattform?
 
 All calls to `data_frame_analyzer` are performed in `tmux`. This ensures that even you lose the connection or close your
 browser, you can go back to your Jupyter notebook and open the running notebook (e.g., from the tab `Running`). If it is
 still in the call to `job.wait_job_complete()`, you can interrupt the kernel and re-run the last cell. The output in the
 cell is updated again. The state of the variables should also be unchanged.
 
-### Working with the GCP buckets
+### How to upload data to the GCP buckets?
 
 To mount the dataset bucket locally to `~/data` (the directory should already exist):
 
@@ -178,18 +181,16 @@ fusermount -u ~/data
 
 You may need to add the parameter `-z` to force the unmounting.
 
-### Copy data without mounting
-
-To copy `dataset.csv` to the bucket:
+To copy `dataset.csv` to the bucket without mounting it:
 
 ```bash
 gsutil cp dataset.csv gs://ml-incremental-learning-datasets
 ```
 
-### Generating the service account key file
+### How to generate the service account key json file?
 
 If you are authorized, you can generate the json file with service account information using the command below.
-Don't forget to subsitute `/path/to/gcp-sa.json` with your path!
+Don't forget to substitute `/path/to/gcp-sa.json` with your path!
 
 ```bash
 gcloud iam service-accounts keys create /path/to/gcp-sa.json --iam-account=incremental-training-reader@elastic-ml.iam.gserviceaccount.com
