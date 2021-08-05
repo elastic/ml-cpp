@@ -1,91 +1,149 @@
-# Evaluation Workbench for Incremental Learning <!-- omit in toc -->
+# Rapid Prototyping with Python <!-- omit in toc -->
 
+- [Development Installation](#development-installation)
+  - [Set up your environment](#set-up-your-environment)
+  - [Complete the configuration](#complete-the-configuration)
+  - [Check that everything works](#check-that-everything-works)
+- [Working with Docker and Google Cloud Plattform](#working-with-docker-and-google-cloud-plattform)
+  - [Running Docker locally](#running-docker-locally)
+  - [Push Docker images to the Google Image Registry](#push-docker-images-to-the-google-image-registry)
+  - [Create a GCP instance from your Docker image](#create-a-gcp-instance-from-your-docker-image)
 - [Directory structure](#directory-structure)
-- [Configuration](#configuration)
-- [Zero-to-hero launching `jupyter notebook`](#zero-to-hero-launchingjupyter-notebook)
-  - [Running locally for development](#running-locally-for-development)
-  - [Running inside the Docker container](#running-inside-the-docker-container)
-    - [Build and push Docker container](#build-and-push-docker-container)
-    - [Running docker container locally](#running-docker-container-locally)
-      - [Authorize docker to push to the google image registry](#authorize-docker-to-push-to-the-google-image-registry)
-      - [Pushing docker container to the google registry](#pushing-docker-container-to-the-google-registry)
-    - [Create a GCP instance from your docker container](#create-a-gcp-instance-from-your-docker-container)
-      - [Using custom machine configuration](#using-custom-machine-configuration)
-- [Miscellaneous topics](#miscellaneous-topics)
+- [FAQ](#faq)
+  - [Issues with building Docker container](#issues-with-building-docker-container)
   - [Working with large jobs on GCP](#working-with-large-jobs-on-gcp)
   - [Working with the GCP buckets](#working-with-the-gcp-buckets)
-    - [Copy data without mounting](#copy-data-without-mounting)
-    - [Generating the service account key file](#generating-the-service-account-key-file)
-- [Running tests with `make`](#running-tests-with-make)
+  - [Copy data without mounting](#copy-data-without-mounting)
+  - [Generating the service account key file](#generating-the-service-account-key-file)
+  - [How to authorize `docker` to push to the Google Image Registry?](#how-to-authorize-docker-to-push-to-the-google-image-registry)
+  - [How to choose the GCP machine configuration?](#how-to-choose-the-gcp-machine-configuration)
 
-## Directory structure
+## Development Installation
 
-- `data/` datasets and config files. For testing purposes, we have some small example datasets.
-- `docker/` scripts and configurations for creating Docker containers.
-- `notebooks/` contains `jupyter` notebooks for different projects. Currently, only `incremental_learning` project is available. The project notebooks are used to test functionality and show different behavior. Since they are subject to smoke-tests, they should run reasonably fast. If you are working on long-running notebooks, you can put them into `prototypes` directory.
-- `scripts/` collection of python and shell scripts, e.g., experiment drivers.
-- `src/` python packages containing supporting code. Currently, only `incremental_learning` package is available.
-- `tests/` pytest unit tests for python packages.
-- `Makefile` for automated tasks. Run `make` to see which tasks are available.
+### Set up your environment
 
-## Configuration
+1. Install [Docker](https://www.docker.com/) following [their installation guide](https://docs.docker.com/get-docker/).
 
-The file `config.ini` in this directory contains various configurations. You need to complete some configurations, like `[cloud]`, for the code to work correctly.
-
-## Zero-to-hero launching `jupyter notebook`
-
-### Running locally for development
-
-Set up a local instance of Jupyter using the following instructions
-
-1. Navigate to `ml-cpp/jupyter` and set up a virtual environment called `env`
+2. Navigate to `ml-cpp/jupyter` and set up a virtual environment called `env`
 
     ```bash
     python3 -m venv env
     ```
 
-2. Activate it
+3. Activate the virtual environment:
 
     ```bash
     source env/bin/activate
     ```
 
-3. Install the required dependencies for your chosen Jupyter notebook
+4. Install the required dependencies:
 
     ```bash
     make env
     ```
 
-4. Launch Jupyter
+### Complete the configuration
+
+1. Specify `cloud_id`, `user`, and `password` in the `[cloud]` section of the `config.ini` file.
+
+2. Generate the service account json file by following using [instructions below](#generating-the-service-account-key-file).
+
+### Check that everything works
+
+1. Activate the virtual environment activated:
 
     ```bash
-    jupyter notebook
+    source env/bin/activate
     ```
 
-### Running inside the Docker container
+2. Run Python tests:
 
-In the following, we assume that you have
-[`docker` installed successfully running](https://docs.docker.com/get-started/) on your host system. 
+    ```bash
+    make tests
+    ```
 
-Furthermore, in the [`Dockerfile`](docker/Dockerfile), we fetch the base image from `docker.elastic.co`. To this end, you
+3. Run Jupyter notebook smoke tests:
+
+    ```bash
+    make test-notebooks
+    ```
+
+4. Build the Docker image:
+
+    ```bash
+    IMAGE_NAME=myjupyter make build-docker
+    ```
+
+Note that in the [`Dockerfile`](docker/Dockerfile), we fetch the base image from `docker.elastic.co`. To this end, you
 need to be authorized and authenticated to use `docker.elastic.co` (e.g., your GitHub account should be a part of
 *elastic* org). Alternatively, you can create the base image yourself using this
-[`Dockerfile`](../dev-tools/docker/linux_image/Dockerfile) albeit it will take a while.
+[`Dockerfile`](../dev-tools/docker/linux_image/Dockerfile), albeit it will take a while.
 
-#### Build and push Docker container
+## Working with Docker and Google Cloud Plattform
 
-Since the jupyter notebooks reside in the same repository as the C++ files, `docker` will try to re-build the
-`data_frame_analyzer` even if you only change the `ipynb` files.
+### Running Docker locally
 
-To remedy this and to accelerate the building process, we use `ccache` within the docker container when building `ml-cpp`.
-To use this experimental functionality, you need to set `DOCKER_BUILDKIT` environment variable before running
-`docker build`.
+> *Follow [these instructions](#generating-the-service-account-key-file) to generate the service account `json` file if you don't have one.*
 
-To build the docker container, run the following command from the root directory of your `ml-cpp` project:
+1. Run the docker container and forward port 9999. To access the data from the Google Cloud Storage, you'll need to additionally pass the key file of the service account and configure the environment variable `GOOGLE_APPLICATION_CREDENTIALS`:
 
-```bash
-DOCKER_BUILDKIT=1 docker build -t myjupyter -f ./jupyter/docker/Dockerfile .
-```
+    ```bash
+    docker run -p 9999:9999 -v /path/to/gcp-sa.json:/tmp/keys/gcp-sa.json:ro -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/gcp-sa.json myjupyter:latest
+    ```
+
+2. Navigate to [https://localhost:9999](https://localhost:9999). Since it is HTTPS and we are using self-signed
+certificates, you need to confirm the security exception.
+
+### Push Docker images to the Google Image Registry
+
+>*To push a Docker image to the Google registry, you need to get authorization by following [these instructions](#how-to-authorize-docker-to-push-to-the-google-image-registry).*
+
+1. Tag your Docker image with a qualified name to push it to the `gcr` registry. Use a unique label (instead of `latest`).
+
+    ```bash
+    docker tag myjupyter:latest gcr.io/elastic-ml/incremental-learning-jupyter:try42
+    ```
+
+2. Push the Docker image to the registry (this may take a while):
+
+    ```bash
+    docker push gcr.io/elastic-ml/incremental-learning-jupyter:try42
+    ```
+
+### Create a GCP instance from your Docker image
+
+1. Create a compute instance using machine type `e2-standard-16` with 200GB local disk space (or use another machine configuration as [descibed here](#how-to-choose-the-gcp-machine-configuration)):
+
+    ```bash
+    gcloud compute instances create-with-container jupyter-mlcpp-large \
+    --container-image=gcr.io/elastic-ml/incremental-learning-jupyter:try42 --boot-disk-size=200GB \
+    --container-privileged --tags=https-server,incremental-learning-jupyter-server,allow-ssh \
+    --machine-type=e2-standard-16
+    ```
+
+    Once the instance is created, you receive the external IP address of the instance.
+
+2. Navigate to `https://<external_ip>:9999`. Since it is HTTPS and we are using self-signed certificates, you need to confirm the security exception.
+
+3. If you don't need it anymore, delete the instance:
+
+    ```bash
+    gcloud compute instances delete jupyter-mlcpp-large
+    ```
+
+## Directory structure
+
+- `data/` datasets and config files. For testing purposes, we have some small example datasets.
+- `docker/` scripts and configurations for creating Docker containers.
+- `notebooks/` contains `jupyter` notebooks for different projects. Currently, only `incremental_learning` project is available. The project notebooks are used to test functionality and show different behavior. Since they are subject to smoke tests, they should run reasonably fast. If you are working on long-running notebooks, you can put them into `prototypes` directory.
+- `scripts/` collection of python and shell scripts, e.g., experiment drivers.
+- `src/` python packages containing supporting code. Currently, only `incremental_learning` package is available.
+- `tests/` pytest unit tests for python packages.
+- `Makefile` for automated tasks. Run `make` to see which tasks are available.
+
+## FAQ
+
+### Issues with building Docker container
 
 For debugging purposes, it may be useful to build only the C++ part. You can do it like this:
 
@@ -96,88 +154,6 @@ DOCKER_BUILDKIT=1 docker build --target builder -t myjupyter:builder \
 
 If during the build process you face errors due to out-of-memory, consider increasing container memory using `--memory`
 parameter (e.g., `--memory=4g` for 4 GB of memory in the container).
-
-#### Running docker container locally
-
-Run the docker container forwarding port 9999. To access the datasets in the Google Cloud Storage, you'll need to additionally pass the key file of the service account and configure the environment variable `GOOGLE_APPLICATION_CREDENTIALS`:
-
-```bash
-docker run -p 9999:9999 -v /path/to/gcp-sa.json:/tmp/keys/gcp-sa.json:ro -e GOOGLE_APPLICATION_CREDENTIALS=/tmp/keys/gcp-sa.json myjupyter:latest
-```
-
-See [these instructions](#generating-the-service-account-key-file) to generate the service account `json` file if you don't have one.
-
-Now, **navigate to** [https://localhost:9999](https://localhost:9999). Since it is HTTPS and we are using self-signed
-certificates, you need to confirm the security exception.
-
-##### Authorize docker to push to the google image registry
-
-Before pushing the docker container for the first time to the `gcr` registry, you need to authorize
-docker to do this.
-
-```bash
-gcloud auth configure-docker
-```
-
-This command leads you to a web page where you need to log in and confirm the authorization.
-
-##### Pushing docker container to the google registry
-
-First, you need to tag your docker container with a qualified name to push it to the `gcr` registry. I suggest that you
-use a unique label (instead of `latest`).
-
-```bash
-docker tag myjupyter:latest gcr.io/elastic-ml/incremental-learning-jupyter:try42
-```
-
-```bash
-docker push gcr.io/elastic-ml/incremental-learning-jupyter:try42
-```
-
-Pushing the Docker image may take a while if some image layers were changed substantially.
-
-#### Create a GCP instance from your docker container
-
-GCP has a predefined set of machines that we can use. For example, you can select one of the following machine types
-
-| Machine type   | Virtual CPUs | Memory |
-| -------------- | ------------ | ------ |
-| e2-standard-2  | 2            | 8GB    |
-| e2-standard-4  | 4            | 16GB   |
-| e2-standard-8  | 8            | 32GB   |
-| e2-standard-16 | 16           | 64GB   |
-| e2-standard-32 | 32           | 128GB  |
-
-E2 machine types offer up to 32 vCPU with up to 128GB memory. This machine type is probably the best cost-optimized
-option for use.
-
-To create a compute instance using machine type `e2-standard-16` with 200GB local disk space:
-
-```bash
-gcloud compute instances create-with-container jupyter-mlcpp-large \
---container-image=gcr.io/elastic-ml/incremental-learning-jupyter:try42 --boot-disk-size=200GB \
---container-privileged --tags=https-server,incremental-learning-jupyter-server,allow-ssh \
---machine-type=e2-standard-16
-```
-
-Once the instance is created, you receive the external IP address of the instance.
-
-Now, **navigate to** `https://<external_ip>:9999`. Since it is HTTPS and we are using self-signed certificates, you will
-need to confirm the security exception.
-
-##### Using custom machine configuration
-
-Alternatively, you can specify a
-[custom machine type](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#gcloud).
-For instance, to create an instance with 16 CPUs and 32 GB memory, you can specify
-
-```bash
---custom-cpu 16 --custom-memory 32GB --custom-vm-type e2
-```
-
-instead of the `--machine-type` parameter.
-
-## Miscellaneous topics
 
 ### Working with large jobs on GCP
 
@@ -202,7 +178,7 @@ fusermount -u ~/data
 
 You may need to add the parameter `-z` to force the unmounting.
 
-#### Copy data without mounting
+### Copy data without mounting
 
 To copy `dataset.csv` to the bucket:
 
@@ -210,7 +186,7 @@ To copy `dataset.csv` to the bucket:
 gsutil cp dataset.csv gs://ml-incremental-learning-datasets
 ```
 
-#### Generating the service account key file
+### Generating the service account key file
 
 If you are authorized, you can generate the json file with service account information using the command below.
 Don't forget to subsitute `/path/to/gcp-sa.json` with your path!
@@ -219,32 +195,38 @@ Don't forget to subsitute `/path/to/gcp-sa.json` with your path!
 gcloud iam service-accounts keys create /path/to/gcp-sa.json --iam-account=incremental-training-reader@elastic-ml.iam.gserviceaccount.com
 ```
 
-## Running tests with `make`
+### How to authorize `docker` to push to the Google Image Registry?
 
-To see all available `make` targets run `make` from this directory. The output will be something like 
-
-```
-all               Run all
-env               Install requirements and python packages
-bump-minor        Bump minor version of python packages
-bump-major        Bump major version of python packages
-test              Run unit tests
-test-notebooks    Run jupyter notebooks smoketests
-help              Print this help
-clean-env         Delete environment
-clean-build       Delete temporary files and directories
-clean-test        Delete temporary files for testing
-clean-notebooks   Delete notebook checkpoints
-```
-
-To execute python integration tests, run
+Before pushing the docker container for the first time to the `gcr` registry, you need to authorize
+docker to do this.
 
 ```bash
-make test
+gcloud auth configure-docker
 ```
 
-To execute jupyter notebooks smoke tests, run
+This command leads you to a web page where you need to log in and confirm the authorization.
+
+### How to choose the GCP machine configuration?
+
+GCP has a predefined set of machines that we can use. For example, you can select one of the following machine types
+
+| Machine type   | Virtual CPUs | Memory |
+| -------------- | ------------ | ------ |
+| e2-standard-2  | 2            | 8GB    |
+| e2-standard-4  | 4            | 16GB   |
+| e2-standard-8  | 8            | 32GB   |
+| e2-standard-16 | 16           | 64GB   |
+| e2-standard-32 | 32           | 128GB  |
+
+E2 machine types offer up to 32 vCPU with up to 128GB memory. This machine type is probably the best cost-optimized
+option for use.
+
+Alternatively, you can specify a
+[custom machine type](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#gcloud).
+For instance, to create an instance with 16 CPUs and 32 GB memory, you can specify
 
 ```bash
-make test-notebooks
+--custom-cpu 16 --custom-memory 32GB --custom-vm-type e2
 ```
+
+instead of the `--machine-type` parameter.
