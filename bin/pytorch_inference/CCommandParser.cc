@@ -205,7 +205,7 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
         TUint64Vec arg;
         arg.reserve(m_Request.s_NumberInferences * m_Request.s_NumberInputTokens);
         for (const auto& val : outer) {
-            const auto innerArray = val.GetArray();
+            const auto& innerArray = val.GetArray();
             for (const auto& e : innerArray) {
                 arg.push_back(e.GetUint64());
             }
