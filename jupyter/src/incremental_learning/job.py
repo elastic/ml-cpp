@@ -109,15 +109,6 @@ class Job:
         if self.name:
             server.kill_session(target_session=self.name)
 
-    def add_artifacts(self):
-        if self.run:
-            if (self.config_filename):
-                self.run.add_artifact(filename=self.config_filename)
-            # if (self.persist_filename):
-            #     self.run.add_artifact(filename=self.persist_filename)
-            # if (self.restore_filename):
-            #     self.run.add_artifact(filename=self.restore_filename)
-
     def wait_to_complete(self, clean=True) -> bool:
         """Wait until the job is complete .
 
@@ -163,7 +154,6 @@ class Job:
                     self.model = "\n".join(fp.readlines()[-3:])
             if self.verbose:
                 print('Job succeeded')
-            # self.add_artifacts()
             if clean:
                 self.clean()
             return True
@@ -171,7 +161,6 @@ class Job:
             self.results = {}
             if self.verbose:
                 print('Job failed')
-            # self.add_artifacts()
             if clean:
                 self.clean()
             return False
