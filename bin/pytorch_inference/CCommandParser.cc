@@ -104,7 +104,7 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
     const rapidjson::Value& tokens = doc[TOKENS];
     if (tokens.IsArray() == false) {
         errorHandler(doc[REQUEST_ID].GetString(),
-                     "Invalid command: expected an array [" + TOKENS + "]");
+                     "Invalid command: expected an array of [" + TOKENS + "]");
         return false;
     }
 
