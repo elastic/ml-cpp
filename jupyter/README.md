@@ -193,7 +193,8 @@ If you are authorized, you can generate the json file with service account infor
 Don't forget to substitute `/path/to/gcp-sa.json` with your path!
 
 ```bash
-gcloud iam service-accounts keys create /path/to/gcp-sa.json --iam-account=incremental-training-reader@elastic-ml.iam.gserviceaccount.com
+gcloud iam service-accounts keys create /path/to/gcp-sa.json \
+--iam-account=incremental-training-reader@elastic-ml.iam.gserviceaccount.com
 ```
 
 ### How to authorize `docker` to push to the Google Image Registry?
