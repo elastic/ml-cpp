@@ -71,6 +71,7 @@ class Job:
         else:
             self.config_filename = config
         self._set_dependent_variable_name()
+        self._set_analysis_name()
 
         self.persist = persist
         if is_temp(self.persist):
@@ -94,6 +95,15 @@ class Job:
         with open(self.config_filename) as fp:
             config = json.load(fp)
         self.dependent_variable = config['analysis']['parameters']['dependent_variable']
+
+    def _set_analysis_name(self):
+        with open(self.config_filename) as fp:
+            config = json.load(fp)
+        self.analysis_name = ""
+        try:
+            self.analysis_name = config['analysis']['name']
+        except:
+            pass
 
     def clean(self):
         if is_temp(self.output):
@@ -171,10 +181,10 @@ class Job:
         return config
 
     def is_regression(self) -> bool:
-        return self.get_config()['analysis']['name'] == 'regression'
+        return self.analysis_name == 'regression'
 
     def is_classification(self) -> bool:
-        return self.get_config()['analysis']['name'] == 'classification'
+        return self.analysis_name == 'classification'
 
     def get_predictions(self) -> np.array:
         """Returns a numpy array of the predicted values for the model

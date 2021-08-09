@@ -37,7 +37,7 @@ def my_config():
     dataset_name = 'ccpp'
     dataset_size = None
 
-
+@ex.capture
 def compute_regression_metrics(_run, y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
     baseline_model_mae = metrics.mean_absolute_error(
         y_true, baseline_model_predictions)
@@ -63,6 +63,7 @@ def compute_regression_metrics(_run, y_true, baseline_model_predictions, trained
     return scores
 
 
+@ex.capture
 def compute_classification_metrics(_run, y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
     baseline_model_acc = metrics.accuracy_score(
         y_true, baseline_model_predictions)
@@ -84,7 +85,8 @@ def compute_classification_metrics(_run, y_true, baseline_model_predictions, tra
         y_true, updated_model_predictions)
     baseline_model_roc_auc = metrics.roc_auc_score(
         y_true, baseline_model_predictions)
-    trained_model_roc_auc = metrics.roc_auc_score(y_true, trained_model_predictions)
+    trained_model_roc_auc = metrics.roc_auc_score(
+        y_true, trained_model_predictions)
     updated_model_roc_auc = metrics.roc_auc(y_true, updated_model_predictions)
     scores = \
         {
@@ -162,15 +164,15 @@ def my_main(_run, dataset_name, dataset_size):
     scores = {}
 
     if job1.is_regression():
-        scores = compute_regression_metrics(y_true,
+        scores = compute_regression_metrics(_run, y_true,
                                             job1.get_predictions(),
                                             job2_eval.get_predictions(),
                                             job3_eval.get_predictions())
     elif job1.is_classification():
-        scores = compute_classification_metrics(y_true,
-                                            job1.get_predictions(),
-                                            job2_eval.get_predictions(),
-                                            job3_eval.get_predictions())
+        scores = compute_classification_metrics(_run, y_true,
+                                                job1.get_predictions(),
+                                                job2_eval.get_predictions(),
+                                                job3_eval.get_predictions())
     else:
         _run.run_logger.warning(
             "Job is neither regression nor classification. No metric scores are available.")
