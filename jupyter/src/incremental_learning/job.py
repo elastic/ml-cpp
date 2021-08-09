@@ -170,6 +170,12 @@ class Job:
             config = json.load(fp)
         return config
 
+    def is_regression(self) -> bool:
+        return self.get_config()['analysis']['name'] == 'regression'
+
+    def is_classification(self) -> bool:
+        return self.get_config()['analysis']['name'] == 'classification'
+
     def get_predictions(self) -> np.array:
         """Returns a numpy array of the predicted values for the model
 

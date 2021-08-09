@@ -17,7 +17,7 @@ import pandas as pd
 from pathlib2 import Path
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
-from sklearn.metrics import max_error, mean_absolute_error, mean_squared_error
+import sklearn.metrics as metrics
 from sklearn.model_selection import train_test_split
 
 from incremental_learning.config import datasets_dir, logger, root_dir
@@ -35,18 +35,80 @@ ex.logger = logger
 @ex.config
 def my_config():
     dataset_name = 'ccpp'
-    dataset_size = 300
+    dataset_size = None
 
 
-def compute_metrics(_run, ytrue, m1pred, m2pred):
-    m1_mae = mean_absolute_error(ytrue, m1pred)
-    m1_mse = mean_squared_error(ytrue, m1pred)
-    m2_mae = mean_absolute_error(ytrue, m2pred)
-    m2_mse = mean_squared_error(ytrue, m2pred)
-    return {"after_train.mae": m1_mae,
-            "after_train.mse": m1_mse,
-            "after_update.mae": m2_mae,
-            "after_update.mse": m2_mse}
+def compute_regression_metrics(_run, y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
+    baseline_model_mae = metrics.mean_absolute_error(
+        y_true, baseline_model_predictions)
+    trained_model_mae = metrics.mean_absolute_error(
+        y_true, trained_model_predictions)
+    updated_model_mae = metrics.mean_absolute_error(
+        y_true, updated_model_predictions)
+    baseline_model_mse = metrics.mean_squared_error(
+        y_true, baseline_model_predictions)
+    trained_model_mse = metrics.mean_squared_error(
+        y_true, trained_model_predictions)
+    updated_model_mse = metrics.mean_squared_error(
+        y_true, updated_model_predictions)
+    scores = \
+        {
+            "baseline": {"mae": baseline_model_mae,
+                         "mse": baseline_model_mse},
+            "trained_model": {"mae": trained_model_mae,
+                              "mse": trained_model_mse},
+            "updated_model": {"mae": updated_model_mae,
+                              "mse": updated_model_mse},
+        }
+    return scores
+
+
+def compute_classification_metrics(_run, y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
+    baseline_model_acc = metrics.accuracy_score(
+        y_true, baseline_model_predictions)
+    trained_model_acc = metrics.accuracy_score(
+        y_true, trained_model_predictions)
+    updated_model_acc = metrics.accuracy_score(
+        y_true, updated_model_predictions)
+    baseline_model_precision = metrics.precision_score(
+        y_true, baseline_model_predictions)
+    trained_model_precision = metrics.precision_score(
+        y_true, trained_model_predictions)
+    updated_model_precision = metrics.precision_score(
+        y_true, updated_model_predictions)
+    baseline_model_recall = metrics.recall_score(
+        y_true, baseline_model_predictions)
+    trained_model_recall = metrics.recall_score(
+        y_true, trained_model_predictions)
+    updated_model_recall = metrics.recall_score(
+        y_true, updated_model_predictions)
+    baseline_model_roc_auc = metrics.roc_auc_score(
+        y_true, baseline_model_predictions)
+    trained_model_roc_auc = metrics.roc_auc_score(y_true, trained_model_predictions)
+    updated_model_roc_auc = metrics.roc_auc(y_true, updated_model_predictions)
+    scores = \
+        {
+            "baseline": {
+                "acc": baseline_model_acc,
+                "precision": baseline_model_precision,
+                "recall": baseline_model_recall,
+                "roc_auc": baseline_model_roc_auc
+            },
+            "trained_model": {
+                "acc": trained_model_acc,
+                "precision": trained_model_precision,
+                "recall": trained_model_recall,
+                "roc_auc": trained_model_roc_auc
+
+            },
+            "updated_model": {
+                "acc": updated_model_acc,
+                "precision": updated_model_precision,
+                "recall": updated_model_recall,
+                "roc_auc": updated_model_roc_auc
+            },
+        }
+    return scores
 
 
 @ex.main
@@ -58,7 +120,9 @@ def my_main(_run, dataset_name, dataset_size):
         exit(1)
     D1 = pd.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
     D1.drop_duplicates(inplace=True)
-    D1 = D1.sample(dataset_size)
+    # sample if size is specified in the config
+    if dataset_size and dataset_size < D1.shape[0]:
+        D1 = D1.sample(dataset_size)
     _run.run_logger.info("Baseline training started")
     job1 = train(dataset_name, D1, verbose=False, run=_run)
     job1.wait_to_complete(clean=False)
@@ -89,20 +153,29 @@ def my_main(_run, dataset_name, dataset_size):
 
     y_true = D1[job1.dependent_variable]
 
-    results['baseline']['mse'] = mean_squared_error(
-        y_true, job1.get_predictions())
-
     job2_eval = evaluate(dataset_name, D1, job2, verbose=False)
     job2_eval.wait_to_complete()
-    results['trained_model']['mse'] = mean_squared_error(
-        y_true, job2_eval.get_predictions())
 
     job3_eval = evaluate(dataset_name, D1, job3, verbose=False)
     job3_eval.wait_to_complete()
-    results['updated_model']['mse'] = mean_squared_error(
-        y_true, job3_eval.get_predictions())
 
-    return results
+    scores = {}
+
+    if job1.is_regression():
+        scores = compute_regression_metrics(y_true,
+                                            job1.get_predictions(),
+                                            job2_eval.get_predictions(),
+                                            job3_eval.get_predictions())
+    elif job1.is_classification():
+        scores = compute_classification_metrics(y_true,
+                                            job1.get_predictions(),
+                                            job2_eval.get_predictions(),
+                                            job3_eval.get_predictions())
+    else:
+        _run.run_logger.warning(
+            "Job is neither regression nor classification. No metric scores are available.")
+
+    return {**results, **scores}
 
 
 if __name__ == '__main__':
