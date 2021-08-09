@@ -23,7 +23,7 @@ from sklearn.model_selection import train_test_split
 from incremental_learning.config import datasets_dir, logger, root_dir
 from incremental_learning.elasticsearch import push2es
 from incremental_learning.job import evaluate, train, update
-from incremental_learning.storage import dataset_exists, download_dataset
+from incremental_learning.storage import download_dataset
 
 experiment_name = 'generic-train-update'
 experiment_data_path = Path('/tmp/'+experiment_name)
@@ -43,10 +43,6 @@ def compute_metrics(_run, ytrue, m1pred, m2pred):
     m1_mse = mean_squared_error(ytrue, m1pred)
     m2_mae = mean_absolute_error(ytrue, m2pred)
     m2_mse = mean_squared_error(ytrue, m2pred)
-    # _run.log_scalar("after_train.mae", m1_mae)
-    # _run.log_scalar("after_train.mse", m1_mse)
-    # _run.log_scalar("after_update.mae", m2_mae)
-    # _run.log_scalar("after_update.mse", m2_mse)
     return {"after_train.mae": m1_mae,
             "after_train.mse": m1_mse,
             "after_update.mae": m2_mae,
@@ -56,11 +52,10 @@ def compute_metrics(_run, ytrue, m1pred, m2pred):
 @ex.main
 def my_main(_run, dataset_name, dataset_size):
     results = {}
-    if dataset_exists(dataset_name) == False:
-        download_successfull = download_dataset(dataset_name)
-        if download_successfull == False:
-            _run.run_logger.error("Data is not available")
-            exit(1)
+    download_successful = download_dataset(dataset_name)
+    if download_successful == False:
+        _run.run_logger.error("Data is not available")
+        exit(1)
     D1 = pd.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
     D1.drop_duplicates(inplace=True)
     D1 = D1.sample(dataset_size)

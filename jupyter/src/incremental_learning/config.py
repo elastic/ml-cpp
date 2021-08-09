@@ -47,8 +47,10 @@ config_file = root_dir / 'config.ini'
 if not config_file.exists():
     logger.error("Configuration file {} not found.".format(config_file))
     exit(1)
-config.read(root_dir / 'config.ini')
-
+if len(config.read(root_dir / 'config.ini')) == 0:
+    logger.error("Failed to read configuration file {}.".format(config_file))
+    exit(1)
+    
 es_cloud_id = ""
 es_user = ""
 es_password = ""

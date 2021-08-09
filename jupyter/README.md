@@ -4,7 +4,7 @@
   - [Set up your environment](#set-up-your-environment)
   - [Complete the configuration](#complete-the-configuration)
   - [Check that everything works](#check-that-everything-works)
-- [Working with Docker and Google Cloud Plattform](#working-with-docker-and-google-cloud-plattform)
+- [Working with Docker and Google Cloud Platform](#working-with-docker-and-google-cloud-platform)
   - [Running Docker locally](#running-docker-locally)
   - [Push Docker images to the Google Image Registry](#push-docker-images-to-the-google-image-registry)
   - [Create a GCP instance from your Docker image](#create-a-gcp-instance-from-your-docker-image)
@@ -12,7 +12,7 @@
 - [FAQ](#faq)
   - [How to build parts of the Docker image separately?](#how-to-build-parts-of-the-docker-image-separately)
   - [What to do if `docker build` fails with the segfault message?](#what-to-do-if-docker-build-fails-with-the-segfault-message)
-  - [How to run large jobs on the Google Cloud Plattform?](#how-to-run-large-jobs-on-the-google-cloud-plattform)
+  - [How to run large jobs on the Google Cloud Platform?](#how-to-run-large-jobs-on-the-google-cloud-platform)
   - [How to upload data to the GCP buckets?](#how-to-upload-data-to-the-gcp-buckets)
   - [How to generate the service account key json file?](#how-to-generate-the-service-account-key-json-file)
   - [How to authorize `docker` to push to the Google Image Registry?](#how-to-authorize-docker-to-push-to-the-google-image-registry)
@@ -79,7 +79,7 @@
 > Alternatively, you can create the base image yourself using this
 > [`Dockerfile`](../dev-tools/docker/linux_image/Dockerfile), albeit it > will take a while.*
 
-## Working with Docker and Google Cloud Plattform
+## Working with Docker and Google Cloud Platform
 
 ### Running Docker locally
 
@@ -158,7 +158,7 @@ DOCKER_BUILDKIT=1 docker build --target builder -t myjupyter:builder \
 If during the build process you face errors due to out-of-memory, consider increasing container memory using `--memory`
 parameter (e.g., `--memory=4g` for 4 GB of memory in the container).
 
-### How to run large jobs on the Google Cloud Plattform?
+### How to run large jobs on the Google Cloud Platform?
 
 All calls to `data_frame_analyzer` are performed in `tmux`. This ensures that even you lose the connection or close your
 browser, you can go back to your Jupyter notebook and open the running notebook (e.g., from the tab `Running`). If it is
