@@ -130,6 +130,15 @@ def partition_on_categories(seed : int,
     return partition
 
 
+def resample_metric_features(seed : int,
+                             fraction : float,
+                             magnitude : float,
+                             features : list,
+                             number : int) -> DataFrame:
+    '''
+    '''
+
+
 def random_shift(seed : int,
                  magnitude : float,
                  number : int) -> list:
@@ -157,16 +166,20 @@ def shift_metric_features(seed : int,
     if matches_columns(categorical_features, data_frame):
         print(list(data_frame.columns), 'does not contain', categorical_features)
         return None
+    if fraction > 1 or fraction <= 0:
+        print('fraction', fraction, 'out of range (0, 1]')
+        return None
 
     features = metric_features(categorical_features, data_frame)
 
     sd = data_frame[features].std()
     shift = random_shift(seed, magnitude, len(features))
 
-    data_frame = data_frame.sample(frac=fraction, random_state=seed)
-    for index in range(len(data_frame.index)):
+    if fraction < 1:
+        data_frame = data_frame.sample(frac=fraction, random_state=seed)
+    for index, _ in data_frame.iterrows():
         for i, feature in enumerate(features):
-            data_frame[index, feature] += 3.0 * sd[feature] * shift[i]
+            data_frame.loc[index, feature] += 3.0 * shift[i] * sd[feature]
 
     return data_frame
 
@@ -218,6 +231,9 @@ def rotate_metric_features(seed : int,
     if matches_columns(categorical_features, data_frame):
         print(list(data_frame.columns), 'does not contain', categorical_features)
         return None
+    if fraction > 1 or fraction <= 0:
+        print('fraction', fraction, 'out of range (0, 1]')
+        return None
 
     features = metric_features(categorical_features, data_frame)
 
@@ -227,7 +243,8 @@ def rotate_metric_features(seed : int,
     # We need to rescale features so they are of comparible magnitude before mixing.
     scales = [sd[feature] for feature in features]
 
-    data_frame = data_frame.sample(frac=fraction, random_state=seed)
+    if fraction < 1:
+        data_frame = data_frame.sample(frac=fraction, random_state=seed)
     for index, row in data_frame.iterrows():
         x = [row[name] - mean for name, mean in centroid.iteritems()]
         apply_givens_rotations(rotations, scales, x)
@@ -260,6 +277,9 @@ def regression_category_drift(seed : int,
     if matches_columns(categorical_features, data_frame):
         print(list(data_frame.columns), 'does not contain', categorical_features)
         return None
+    if fraction > 1 or fraction <= 0:
+        print('fraction', fraction, 'out of range (0, 1]')
+        return None
 
     sd = data_frame.std(target)
 
@@ -268,7 +288,8 @@ def regression_category_drift(seed : int,
         for unique in data_frame[feature].unique():
             shifts[feature + '.' + str(unique)] = 3.0 * sd * magnitude * random.uniform(-1.0, 1.0)
 
-    data_frame = data_frame.sample(frac=fraction, random_state=seed)
+    if fraction < 1:
+        data_frame = data_frame.sample(frac=fraction, random_state=seed)
     for index, row in data_frame.iterrows():
         shift = 0.0
         for feature in categorical_features:
