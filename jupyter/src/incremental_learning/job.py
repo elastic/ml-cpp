@@ -90,6 +90,7 @@ class Job:
         self.output = tempfile.NamedTemporaryFile(mode='wt')
         self.model = ''
         self.run = run
+        self.start_time = time.time()
 
     def _set_dependent_variable_name(self):
         with open(self.config_filename) as fp:
@@ -119,11 +120,11 @@ class Job:
         if self.name:
             server.kill_session(target_session=self.name)
 
-    def wait_to_complete(self, clean=True) -> bool:
+    def wait_to_complete(self, clean=True) -> float:
         """Wait until the job is complete .
 
         Returns:
-            bool: True if job run successfully, False otherwise.
+            float: Job execution time.
         """
         while True:
             err = "\n".join(self.pane.capture_pane())
@@ -155,6 +156,7 @@ class Job:
             if success or failure:
                 break
             time.sleep(5.0)
+        self.stop_time = time.time()
 
         if success:
             with open(self.output.name) as fp:
@@ -166,14 +168,15 @@ class Job:
                 print('Job succeeded')
             if clean:
                 self.clean()
-            return True
+            # return True
         elif failure:
             self.results = {}
             if self.verbose:
                 print('Job failed')
             if clean:
                 self.clean()
-            return False
+            # return False
+        return self.stop_time - self.start_time
 
     def get_config(self) -> dict:
         with open(self.config.name) as fp:
@@ -287,7 +290,7 @@ def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -
     """
     job = Job(input=input, config=config, persist=persist,
               restore=restore, verbose=verbose, run=run)
-    job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))
+    job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))+job.config_filename
     job_name = 'job_{}'.format(job_suffix)
 
     cmd = [str(dfa_path),
@@ -337,6 +340,9 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True, ru
     with open(configs_dir / '{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0]
+    if run and 'threads' in run.config.keys():
+        config['threads'] = run.config['threads']
+
     config_file = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, config_file)
     config_file.file.close()
@@ -368,6 +374,8 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, ve
     config['rows'] = dataset.shape[0] + \
         original_job.get_data_summarization_num_rows()
     config['analysis']['parameters']['task'] = 'predict'
+    if run and 'threads' in run.config.keys():
+        config['threads'] = run.config['threads']
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)
     fconfig.file.close()
@@ -398,6 +406,8 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
         config = json.load(fc)
     config['rows'] = dataset.shape[0] + \
         original_job.get_data_summarization_num_rows()
+    if run and 'threads' in run.config.keys():
+        config['threads'] = run.config['threads']
     for name, value in original_job.get_hyperparameters().items():
         if name not in ['retrained_tree_eta', 'tree_topology_change_penalty']:
             config['analysis']['parameters'][name] = value

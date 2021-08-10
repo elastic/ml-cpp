@@ -11,13 +11,15 @@
 
 
 import logging
+import shutil
 
 import numpy as np
 import pandas as pd
+import sklearn.metrics as metrics
+from deepmerge import always_merger
 from pathlib2 import Path
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
-import sklearn.metrics as metrics
 from sklearn.model_selection import train_test_split
 
 from incremental_learning.config import datasets_dir, logger, root_dir
@@ -36,9 +38,11 @@ ex.logger = logger
 def my_config():
     dataset_name = 'ccpp'
     dataset_size = None
+    test_size = 0.2
+    threads = 1
 
-@ex.capture
-def compute_regression_metrics(_run, y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
+
+def compute_regression_metrics(y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
     baseline_model_mae = metrics.mean_absolute_error(
         y_true, baseline_model_predictions)
     trained_model_mae = metrics.mean_absolute_error(
@@ -63,8 +67,7 @@ def compute_regression_metrics(_run, y_true, baseline_model_predictions, trained
     return scores
 
 
-@ex.capture
-def compute_classification_metrics(_run, y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
+def compute_classification_metrics(y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
     baseline_model_acc = metrics.accuracy_score(
         y_true, baseline_model_predictions)
     trained_model_acc = metrics.accuracy_score(
@@ -114,7 +117,7 @@ def compute_classification_metrics(_run, y_true, baseline_model_predictions, tra
 
 
 @ex.main
-def my_main(_run, dataset_name, dataset_size):
+def my_main(_run, dataset_name, dataset_size, test_size, seed):
     results = {}
     download_successful = download_dataset(dataset_name)
     if download_successful == False:
@@ -127,29 +130,32 @@ def my_main(_run, dataset_name, dataset_size):
         D1 = D1.sample(dataset_size)
     _run.run_logger.info("Baseline training started")
     job1 = train(dataset_name, D1, verbose=False, run=_run)
-    job1.wait_to_complete(clean=False)
+    elapsed_time = job1.wait_to_complete(clean=False)
     results['baseline'] = {}
     results['baseline']['config'] = job1.get_config()
     results['baseline']['hyperparameters'] = job1.get_hyperparameters()
+    results['baseline']['elapsed_time'] = elapsed_time
     job1.clean()
     _run.run_logger.info("Baseline training completed")
-    D2, D3 = train_test_split(D1, test_size=0.2)
+    D2, D3 = train_test_split(D1, test_size=test_size)
 
     _run.run_logger.info("Initial training started")
     job2 = train(dataset_name, D2, verbose=False, run=_run)
-    job2.wait_to_complete(clean=False)
+    elapsed_time = job2.wait_to_complete(clean=False)
     results['trained_model'] = {}
     results['trained_model']['config'] = job2.get_config()
     results['trained_model']['hyperparameters'] = job2.get_hyperparameters()
+    results['trained_model']['elapsed_time'] = elapsed_time
     job2.clean()
     _run.run_logger.info("Initial training completed")
 
     _run.run_logger.info("Update started")
     job3 = update(dataset_name, D3, job2, verbose=False, run=_run)
-    job3.wait_to_complete(clean=False)
+    elapsed_time = job3.wait_to_complete(clean=False)
     results['updated_model'] = {}
     results['updated_model']['config'] = job3.get_config()
     results['updated_model']['hyperparameters'] = job3.get_hyperparameters()
+    results['updated_model']['elapsed_time'] = elapsed_time
     job3.clean()
     _run.run_logger.info("Update completed")
 
@@ -164,25 +170,23 @@ def my_main(_run, dataset_name, dataset_size):
     scores = {}
 
     if job1.is_regression():
-        scores = compute_regression_metrics(_run, y_true,
+        scores = compute_regression_metrics(y_true,
                                             job1.get_predictions(),
                                             job2_eval.get_predictions(),
                                             job3_eval.get_predictions())
     elif job1.is_classification():
-        scores = compute_classification_metrics(_run, y_true,
+        scores = compute_classification_metrics(y_true,
                                                 job1.get_predictions(),
                                                 job2_eval.get_predictions(),
                                                 job3_eval.get_predictions())
     else:
         _run.run_logger.warning(
             "Job is neither regression nor classification. No metric scores are available.")
-
-    return {**results, **scores}
+    return always_merger.merge(results, scores)
 
 
 if __name__ == '__main__':
-    ex.run_commandline()
-    push2es(data_path=experiment_data_path, name=experiment_name)
-
-    import shutil
-    shutil.rmtree(experiment_data_path)
+    run = ex.run_commandline()
+    run_data_path = experiment_data_path / str(run._id)
+    push2es(data_path=run_data_path, name=experiment_name)
+    shutil.rmtree(run_data_path)
