@@ -207,6 +207,9 @@ public:
     //! Persist the state of the models.
     virtual void persistModelsState(core::CStatePersistInserter& inserter) const = 0;
 
+    //! Should the model be persisted?
+    virtual bool shouldPersistModel() const = 0;
+
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
 

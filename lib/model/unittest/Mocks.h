@@ -39,6 +39,8 @@ public:
 
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
+    bool shouldPersistModel() const override;
+
     CAnomalyDetectorModel* cloneForPersistence() const override;
 
     model_t::EModelType category() const override;

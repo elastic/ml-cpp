@@ -179,6 +179,9 @@ protected:
     //! Persist the state of the models only.
     void doPersistModelsState(core::CStatePersistInserter& inserter) const;
 
+    //! Should this model be persisted?
+    bool shouldPersistModel() const;
+
     //! Persist state by passing information to the supplied inserter.
     void doAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
