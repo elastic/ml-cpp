@@ -49,8 +49,8 @@ class TransformsTest(unittest.TestCase):
             delta=100
         )
 
-        # Changing the seed results in the same data frame while repeating with the
-        # same seed produces the same result.
+        # Changing the seed results in different data while repeating with the same
+        # seed produces an identical result.
 
         partition_with_same_seed = partition_on_metric_ranges(
             seed=self.seed,
@@ -67,12 +67,13 @@ class TransformsTest(unittest.TestCase):
             self.assertEqual(len(p_1.index), len(p_2.index))
             self.assertNotEqual(len(p_1.index), len(p_3.index))
             for i in range(len(p_1.index)):
-                self.assertEqual([column for column in p_1.loc[i]],
-                                 [column for column in p_2.loc[i]])
+                self.assertEqual([column for column in p_1.iloc[i]],
+                                 [column for column in p_2.iloc[i]])
 
     def test_partition_on_categories(self) -> None:
         '''
-        Test we get disjoint categories in the partition and that split is roughly 50:50.
+        Test we get disjoint categories in the partition, that the split is roughly
+        50:50 and seeding works as expected.
         '''
         partition = partition_on_categories(
             seed=self.seed,
@@ -81,7 +82,11 @@ class TransformsTest(unittest.TestCase):
         self.assertEqual(partition[0], None)
         self.assertEqual(partition[1], None)
 
-        partition = partition_on_categories(self.seed, ['CHAS', 'RAD'], self.data_frame)
+        partition = partition_on_categories(
+            seed=self.seed,
+            features=['CHAS', 'RAD'],
+            data_frame=self.data_frame
+        )
         self.assertAlmostEqual(
             first=len(partition[0].index),
             second=len(partition[1].index),
@@ -96,9 +101,56 @@ class TransformsTest(unittest.TestCase):
         self.assertGreater(len(categories[1]), 0)
         self.assertEqual(len(categories[0].intersection(categories[1])), 0)
 
+        # Changing the seed results in different data while repeating with the same
+        # seed produces an identical result.
+
+        partition_with_same_seed = partition_on_categories(
+            seed=self.seed,
+            features=['CHAS', 'RAD'],
+            data_frame=self.data_frame
+        )
+        partition_with_different_seed = partition_on_categories(
+            seed=self.seed + 1,
+            features=['CHAS', 'RAD'],
+            data_frame=self.data_frame
+        )
+
+        for p_1, p_2, p_3 in zip(partition, partition_with_same_seed, partition_with_different_seed):
+            self.assertEqual(len(p_1.index), len(p_2.index))
+            self.assertNotEqual(len(p_1.index), len(p_3.index))
+            for i in range(len(p_1.index)):
+                self.assertEqual([column for column in p_1.iloc[i]],
+                                 [column for column in p_2.iloc[i]])
+
+    def test_resample_metric_features(self) -> None:
+        '''
+        Test that the sample size is correctly controlled by fraction.
+        '''
+        resampled_data_frame = resample_metric_features(
+            seed=self.seed,
+            fraction=0.2,
+            magnitude=0.9,
+            features=['this feature does not exist'],
+            data_frame=self.data_frame
+        )
+        self.assertEqual(resampled_data_frame, None)
+
+        resampled_data_frame = resample_metric_features(
+            seed=self.seed,
+            fraction=0.2,
+            magnitude=0.9,
+            features=['AGE', 'MEDV'],
+            data_frame=self.data_frame
+        )
+        self.assertAlmostEqual(
+            first=len(resampled_data_frame.index),
+            second=0.2 * len(self.data_frame),
+            delta=10
+        )
+
     def test_shift_metric_features(self) -> None:
         '''
-        Test that data shift and sample size are controlled by magnitude and fraction correctly.
+        Test that shifts and sample size are controlled by magnitude and fraction correctly.
         '''
         shifts = random_shift(self.seed, 0.1, 10)
         self.assertEqual(len(shifts), 10)
@@ -142,6 +194,7 @@ class TransformsTest(unittest.TestCase):
 
     def test_rotate_metric_features(self) -> None:
         '''
+        Test that rotations and sample size are controlled by magnitude and fraction correctly.
         '''
 
     def test_regression_category_drift(self):

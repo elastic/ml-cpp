@@ -7,8 +7,11 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+import bisect
 import math
 from pandas import DataFrame
+from pandas import Series
+import numpy as np
 import random
 
 import pandas
@@ -24,6 +27,13 @@ def matches_columns(features : list,
                     data_frame : DataFrame) -> bool:
     return [x in features for x in data_frame.columns].count(True) != len(features)
 
+def features_in_bounding_box(bb : list,
+                             features : list,
+                             row : Series) -> bool:
+    for i, feature in enumerate(features):
+        if row[feature] < bb[i][0] or row[feature] > bb[i][1]:
+            return False
+    return True
 
 def partition_on_metric_ranges(seed : int,
                                features : list,
@@ -58,24 +68,18 @@ def partition_on_metric_ranges(seed : int,
     # average.
     q_interval = math.pow(0.5, 1.0 / len(features))
 
-    ranges = []
+    bb = []
     for feature in features:
         q_a = max(0.5 - 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.01)
         q_b = min(0.5 + 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.99)
-        ranges.append([data_frame[feature].quantile(q_a), data_frame[feature].quantile(q_b)])
+        bb.append([data_frame[feature].quantile(q_a), data_frame[feature].quantile(q_b)])
 
-    partition = (pandas.DataFrame(columns=data_frame.columns),
-                 pandas.DataFrame(columns=data_frame.columns))
+    partition = [[], []]
+    for i in range(len(data_frame.index)):
+        partition[features_in_bounding_box(bb, features, data_frame.iloc[i])].append(i)
 
-    for _, row in data_frame.iterrows():
-        subset = 0
-        for index, feature in enumerate(features):
-            if row[feature] < ranges[index][0] or row[feature] > ranges[index][1]:
-                subset = 1
-                break
-        partition[subset].loc[len(partition[subset].index)] = row
-
-    return partition
+    return (pandas.DataFrame([data_frame.iloc[i] for i in partition[0]]),
+            pandas.DataFrame([data_frame.iloc[i] for i in partition[1]]))
 
 class Counters(dict):
     def __missing__(self, key):
@@ -115,28 +119,70 @@ def partition_on_categories(seed : int,
     matching = set()
     total_count = 0
     for value in tuples:
-        if total_count + value[1] < len(data_frame.index) / 2:
+        if random.uniform(0, 1) < 0.5 and total_count + value[1] < len(data_frame.index) / 2:
             matching.add(value[0])
             total_count += value[1]    
 
-    partition = (pandas.DataFrame(columns=data_frame.columns),
-                 pandas.DataFrame(columns=data_frame.columns))
+    partition = [[], []]
+    for i in range(len(data_frame.index)):
+        key = tuple([data_frame.iloc[i][feature] for feature in features])
+        partition[0 if key in matching else 1].append(i)
 
-    for _, row in data_frame.iterrows():
-        key = tuple([row[feature] for feature in features])
-        subset = 0 if key in matching else 1
-        partition[subset].loc[len(partition[subset].index)] = row
-
-    return partition
+    return (pandas.DataFrame([data_frame.iloc[i] for i in partition[0]]),
+            pandas.DataFrame([data_frame.iloc[i] for i in partition[1]]))
 
 
 def resample_metric_features(seed : int,
                              fraction : float,
                              magnitude : float,
                              features : list,
-                             number : int) -> DataFrame:
+                             data_frame : DataFrame) -> DataFrame:
     '''
+    Resample by randomly weighting equally spaced quantile buckets of features.
+
+    Args:
+        seed The random number generation seed.
+        fraction The fraction of rows to sample which should be in the range [0, 1].
+        magnitude Controls the dissimilarity of the feature distribution after resampling.
+        features The features to resample on.
+        data_frame The data to transform.
+
+    Return:
+        The transformed data frame.
     '''
+
+    if matches_columns(features, data_frame):
+        print(list(data_frame.columns), 'does not contain', features)
+        return None
+    if fraction > 1 or fraction <= 0:
+        print('fraction', fraction, 'out of range (0, 1]')
+        return None
+
+    random.seed(seed)
+
+    ranges = []
+    weights = []
+    for feature in features:
+        ranges.append([x[1] for x in data_frame[feature].quantile([q / 10 for q in range(1, 10)]).items()])
+        weights.append([0.5 + magnitude * random.uniform(-0.5, 0.5) for _ in range(10)])
+    weights_normalization = [np.sum(feature_weights) for feature_weights in weights]
+
+    probabilities = []
+    normalization = 0
+    for _, row in data_frame.iterrows():
+        probability = 0
+        for i, feature in enumerate(features):
+            j = bisect.bisect_left(ranges[i], row[feature])
+            probability += weights[i][j] / weights_normalization[i]
+        probability /= len(features)
+        probabilities.append(probability)
+        normalization += probability
+    for i in range(len(probabilities)):
+        probabilities[i] /= normalization
+
+    sample = np.random.choice(range(len(probabilities)), size=int(fraction * len(probabilities) + 0.5), p=probabilities)
+
+    return pandas.DataFrame([data_frame.iloc[i] for i in sample])
 
 
 def random_shift(seed : int,
@@ -161,6 +207,9 @@ def shift_metric_features(seed : int,
         magnitude Controls the size of the shift.
         categorical_features A list of the categorical features.
         data_frame The data to sample and shift.
+
+    Return:
+        The transformed data frame.
     '''
 
     if matches_columns(categorical_features, data_frame):
@@ -226,6 +275,9 @@ def rotate_metric_features(seed : int,
         magnitude Controls the size of the rotation.
         categorical_features A list of the categorical features.
         data_frame The data to sample and rotate.
+
+    Return:
+        The transformed data frame.
     '''
 
     if matches_columns(categorical_features, data_frame):
@@ -272,6 +324,9 @@ def regression_category_drift(seed : int,
         magnitude Controls the size of the shift.
         categorical_features A list of the categorical features to shift.
         data_frame The data to sample and shift.
+
+    Return:
+        The transformed data frame.
     '''
 
     if matches_columns(categorical_features, data_frame):
