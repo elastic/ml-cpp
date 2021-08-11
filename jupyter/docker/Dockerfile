@@ -32,6 +32,13 @@ RUN \
     yum install -y epel-release && \
     yum install -y python3-pip python3-devel python3-virtualenv openssl htop tmux && \
     yum groupinstall -y 'Development Tools' && \
+    curl -L -o ts-1.0.1.tar.gz http://viric.name/soft/ts/ts-1.0.1.tar.gz && \
+    tar -xzf ts-1.0.1.tar.gz && \
+    cd ts-1.0.1 && \
+    make && make install PREFIX=/usr && \
+    ln -s /usr/bin/ts /usr/bin/tsp && \
+    tsp -S `nproc` && \
+    cd /root && \
     python3 -m venv env && \
     source env/bin/activate && \
     make env && \
