@@ -235,27 +235,32 @@ def shift_metric_features(seed : int,
 
 def random_givens_rotations(seed : int,
                             magnitude : float,
-                            number : int) -> list:
+                            dimension : int) -> list:
     random.seed(seed)
+
     result = []
-    while len(result) < number:
-        i = int(random.uniform(0, number))
-        j = int(random.uniform(0, number))
-        if i != j:
+    unique_rotations = set()
+    while len(result) + 1 < dimension:
+        i = int(random.uniform(0, dimension))
+        j = int(random.uniform(0, dimension))
+        if i > j:
+            i, j = j, i
+        if i != j and (i, j) not in unique_rotations:
             theta = 2.0 * math.pi * magnitude * random.uniform(0.0, 1.0)
             result.append({'i': i, 'j': j, 'theta': theta})
+            unique_rotations.add((i, j))
+
     return result
 
 def apply_givens_rotations(rotations : list,
                            scales : list,
                            x : list) -> None:
     for rotation in rotations:
-        i = rotation['i']
-        j = rotation['j']
-        ct = math.cos(rotation['theta'])
-        st = math.sin(rotation['theta'])
-        x[i] = scales[i] * (ct * x[i] / scales[i] - st * x[j] / scales[j])
-        x[j] = scales[j] * (st * x[i] / scales[i] + ct * x[j] / scales[j])
+        i, j = rotation['i'], rotation['j']
+        xi, xj = x[i], x[j]
+        ct, st = math.cos(rotation['theta']), math.sin(rotation['theta'])
+        x[i] = scales[i] * (ct * xi / scales[i] - st * xj / scales[j])
+        x[j] = scales[j] * (st * xi / scales[i] + ct * xj / scales[j])
 
 def rotate_metric_features(seed : int,
                            fraction : float,
@@ -288,20 +293,21 @@ def rotate_metric_features(seed : int,
         return None
 
     features = metric_features(categorical_features, data_frame)
+    features.sort()
 
     centroid = data_frame[features].mean()
-    sd = data_frame[features].std()
-    rotations = random_givens_rotations(seed, len(features), magnitude)
+    rotations = random_givens_rotations(seed, magnitude, len(features))
     # We need to rescale features so they are of comparible magnitude before mixing.
+    sd = data_frame[features].std()
     scales = [sd[feature] for feature in features]
 
     if fraction < 1:
         data_frame = data_frame.sample(frac=fraction, random_state=seed)
     for index, row in data_frame.iterrows():
-        x = [row[name] - mean for name, mean in centroid.iteritems()]
+        x = [row[feature] - centroid[feature] for feature in features]
         apply_givens_rotations(rotations, scales, x)
         for i, feature in enumerate(features):
-            data_frame.at[index, feature] = centroid[feature] + x[i]
+            data_frame.loc[index, feature] = centroid[feature] + x[i]
 
     return data_frame
 

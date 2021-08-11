@@ -194,8 +194,59 @@ class TransformsTest(unittest.TestCase):
 
     def test_rotate_metric_features(self) -> None:
         '''
-        Test that rotations and sample size are controlled by magnitude and fraction correctly.
+        Test that rotations and sample size are controlled by magnitude and fraction
+        correctly and some invariants of the transform.
         '''
+
+        rotations = random_givens_rotations(seed=self.seed, magnitude=0.1, dimension=4)
+        self.assertEqual(len(rotations), 3)
+        unique_rotations = set()
+        for rotation in rotations:
+            self.assertNotEqual(rotation['i'], rotation['j'])
+            self.assertLess(rotation['i'], rotation['j'])
+            self.assertLess(rotation['theta'], 0.1 * 2.0 * math.pi)
+            unique_rotations.add((rotation['i'], rotation['j']))
+        self.assertEqual(len(unique_rotations), 3)
+
+        x = [1, 0]
+        apply_givens_rotations(
+            rotations=[{'i' : 0, 'j' : 1, 'theta' : 0.5 * math.pi}], scales=[1, 1], x=x
+        )
+        self.assertAlmostEqual(first=x[0], second=0, delta=1e-8)
+        self.assertAlmostEqual(first=x[1], second=1, delta=1e-8)
+
+        rotated_data_frame = self.data_frame.copy(deep=True)
+        rotated_data_frame = rotate_metric_features(
+            seed=self.seed,
+            fraction=0.2,
+            magnitude=0.01,
+            categorical_features=['CHAS', 'RAD'],
+            data_frame=rotated_data_frame
+        )
+        self.assertAlmostEqual(
+            first=len(rotated_data_frame.index),
+            second=0.2 * len(self.data_frame),
+            delta=10
+        )
+
+        features = metric_features(['CHAS', 'RAD'], self.data_frame)
+
+        # Check that categorical features are preserved and metric features values
+        # are close on the order of the feature standard deviation.
+        selected = []
+        sd = self.data_frame.std()
+        for index, row in rotated_data_frame.iterrows():
+            for feature in ['CHAS', 'RAD']:
+                self.assertEqual(row[feature], self.data_frame.loc[index, feature])
+            for feature in features:
+                self.assertAlmostEqual(row[feature], self.data_frame.loc[index, feature], delta=sd[feature])
+            selected.append(index)
+
+        # Check data centroid is similar.
+        rotated_centroid = rotated_data_frame.mean()
+        centroid = self.data_frame.loc[selected].mean()
+        for mean, rotated_mean in zip(centroid.items(), rotated_centroid.items()):
+            self.assertAlmostEqual(first=1, second=rotated_mean[1] / mean[1], delta=0.02) # 2 %
 
     def test_regression_category_drift(self):
         '''
