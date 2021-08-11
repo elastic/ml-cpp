@@ -344,13 +344,14 @@ bool CIndividualModel::shouldPersistModel() const {
     // has been pruned and replaced with a stub. If all feature models are
     // such stubs then we choose to not persist the model
     // in order to reclaim memory after a persist/restore cycle.
-    std::size_t modelMemory{0};
     for (const auto& feature : m_FeatureModels) {
         for (const auto& model : feature.s_Models) {
-            modelMemory += model->memoryUsage();
+            if (model->memoryUsage() > 0) {
+                return true;
+            }
         }
     }
-    return modelMemory > 0 ? true : false;
+    return false;
 }
 
 void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
