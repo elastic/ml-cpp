@@ -9,9 +9,9 @@
 
 import bisect
 import math
+import numpy as np
 from pandas import DataFrame
 from pandas import Series
-import numpy as np
 import random
 
 import pandas
@@ -34,6 +34,14 @@ def features_in_bounding_box(bb : list,
         if row[feature] < bb[i][0] or row[feature] > bb[i][1]:
             return False
     return True
+
+def generate_partition_on_metric_ranges(bb : list,
+                                        features : list,
+                                        data_frame : DataFrame,
+                                        subset : bool) -> int:
+    for i in range(len(data_frame.index)):
+        if features_in_bounding_box(bb, features, data_frame.iloc[i]) == subset:
+            yield data_frame.iloc[i]
 
 def partition_on_metric_ranges(seed : int,
                                features : list,
@@ -74,16 +82,21 @@ def partition_on_metric_ranges(seed : int,
         q_b = min(0.5 + 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.99)
         bb.append([data_frame[feature].quantile(q_a), data_frame[feature].quantile(q_b)])
 
-    partition = [[], []]
-    for i in range(len(data_frame.index)):
-        partition[features_in_bounding_box(bb, features, data_frame.iloc[i])].append(i)
-
-    return (pandas.DataFrame([data_frame.iloc[i] for i in partition[0]]),
-            pandas.DataFrame([data_frame.iloc[i] for i in partition[1]]))
+    return (pandas.DataFrame(generate_partition_on_metric_ranges(bb, features, data_frame, True)),
+            pandas.DataFrame(generate_partition_on_metric_ranges(bb, features, data_frame, False)))
 
 class Counters(dict):
     def __missing__(self, key):
         return 0
+
+def generate_partition_on_categories(features : list,
+                                     matching : set,
+                                     data_frame : DataFrame,
+                                     subset : bool) -> int:
+    for i in range(len(data_frame.index)):
+        key = tuple([data_frame.iloc[i][feature] for feature in features])
+        if (key in matching) == subset:
+            yield data_frame.iloc[i]
 
 def partition_on_categories(seed : int,
                             features : list,
@@ -123,13 +136,8 @@ def partition_on_categories(seed : int,
             matching.add(value[0])
             total_count += value[1]    
 
-    partition = [[], []]
-    for i in range(len(data_frame.index)):
-        key = tuple([data_frame.iloc[i][feature] for feature in features])
-        partition[0 if key in matching else 1].append(i)
-
-    return (pandas.DataFrame([data_frame.iloc[i] for i in partition[0]]),
-            pandas.DataFrame([data_frame.iloc[i] for i in partition[1]]))
+    return (pandas.DataFrame(generate_partition_on_categories(features, matching, data_frame, True)),
+            pandas.DataFrame(generate_partition_on_categories(features, matching, data_frame, False)))
 
 
 def resample_metric_features(seed : int,
@@ -148,7 +156,7 @@ def resample_metric_features(seed : int,
         data_frame The data to transform.
 
     Return:
-        The transformed data frame.
+        The resampled data frame.
     '''
 
     if matches_columns(features, data_frame):
@@ -170,19 +178,23 @@ def resample_metric_features(seed : int,
     probabilities = []
     normalization = 0
     for _, row in data_frame.iterrows():
-        probability = 0
+        probability = 1
         for i, feature in enumerate(features):
             j = bisect.bisect_left(ranges[i], row[feature])
-            probability += weights[i][j] / weights_normalization[i]
+            probability *= weights[i][j] / weights_normalization[i]
         probability /= len(features)
         probabilities.append(probability)
         normalization += probability
     for i in range(len(probabilities)):
         probabilities[i] /= normalization
 
-    sample = np.random.choice(range(len(probabilities)), size=int(fraction * len(probabilities) + 0.5), p=probabilities)
+    sample = np.random.choice(
+        range(len(probabilities)),
+        size=int(fraction * len(probabilities) + 0.5),
+        p=probabilities
+    )
 
-    return pandas.DataFrame([data_frame.iloc[i] for i in sample])
+    return pandas.DataFrame(data_frame.iloc[i] for i in sample)
 
 
 def random_shift(seed : int,
@@ -226,9 +238,9 @@ def shift_metric_features(seed : int,
 
     if fraction < 1:
         data_frame = data_frame.sample(frac=fraction, random_state=seed)
-    for index, _ in data_frame.iterrows():
-        for i, feature in enumerate(features):
-            data_frame.loc[index, feature] += 3.0 * shift[i] * sd[feature]
+    for i, _ in data_frame.iterrows():
+        for j, feature in enumerate(features):
+            data_frame.loc[i, feature] += 3.0 * shift[j] * sd[feature]
 
     return data_frame
 
@@ -303,11 +315,11 @@ def rotate_metric_features(seed : int,
 
     if fraction < 1:
         data_frame = data_frame.sample(frac=fraction, random_state=seed)
-    for index, row in data_frame.iterrows():
+    for i, row in data_frame.iterrows():
         x = [row[feature] - centroid[feature] for feature in features]
         apply_givens_rotations(rotations, scales, x)
-        for i, feature in enumerate(features):
-            data_frame.loc[index, feature] = centroid[feature] + x[i]
+        for j, feature in enumerate(features):
+            data_frame.loc[i, feature] = centroid[feature] + x[j]
 
     return data_frame
 
@@ -338,23 +350,26 @@ def regression_category_drift(seed : int,
     if matches_columns(categorical_features, data_frame):
         print(list(data_frame.columns), 'does not contain', categorical_features)
         return None
+    if matches_columns([target], data_frame):
+        print(list(data_frame.columns), 'does not contain', '"' + target + '"')
+        return None
     if fraction > 1 or fraction <= 0:
         print('fraction', fraction, 'out of range (0, 1]')
         return None
 
-    sd = data_frame.std(target)
+    sd = data_frame[target].std()
 
-    shifts = {}
+    shifts = {feature : {} for feature in categorical_features}
     for feature in categorical_features:
         for unique in data_frame[feature].unique():
-            shifts[feature + '.' + str(unique)] = 3.0 * sd * magnitude * random.uniform(-1.0, 1.0)
+            shifts[feature][unique] = 3.0 * sd * magnitude * random.uniform(-1.0, 1.0)
 
     if fraction < 1:
         data_frame = data_frame.sample(frac=fraction, random_state=seed)
-    for index, row in data_frame.iterrows():
+    for i, row in data_frame.iterrows():
         shift = 0.0
         for feature in categorical_features:
-            shift += shifts[feature + '.' + str(row[feature])]
-        data_frame.at[index, target] += shift
+            shift += shifts[feature][row[feature]]
+        data_frame.loc[i, target] += shift
 
     return data_frame
