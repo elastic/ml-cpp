@@ -1,6 +1,12 @@
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+
 
 import base64
 import gzip
@@ -16,7 +22,7 @@ import numpy as np
 import pandas
 from IPython import display
 
-from .config import configs_dir, datasets_dir, dfa_path
+from .config import configs_dir, datasets_dir, dfa_path, logger
 from .misc import isnotebook
 
 server = libtmux.Server()
@@ -42,7 +48,7 @@ class Job:
                  config: Union[str, tempfile._TemporaryFileWrapper],
                  persist: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  restore: Union[None, str, tempfile._TemporaryFileWrapper] = None,
-                 verbose: bool = True):
+                 verbose: bool = True, run=None):
         """Initialize the class .
 
         Args:
@@ -65,6 +71,7 @@ class Job:
         else:
             self.config_filename = config
         self._set_dependent_variable_name()
+        self._set_analysis_name()
 
         self.persist = persist
         if is_temp(self.persist):
@@ -82,11 +89,22 @@ class Job:
         self.pane = None
         self.output = tempfile.NamedTemporaryFile(mode='wt')
         self.model = ''
+        self.run = run
+        self.start_time = time.time()
 
     def _set_dependent_variable_name(self):
         with open(self.config_filename) as fp:
             config = json.load(fp)
         self.dependent_variable = config['analysis']['parameters']['dependent_variable']
+
+    def _set_analysis_name(self):
+        with open(self.config_filename) as fp:
+            config = json.load(fp)
+        self.analysis_name = ""
+        try:
+            self.analysis_name = config['analysis']['name']
+        except:
+            pass
 
     def clean(self):
         if is_temp(self.output):
@@ -102,11 +120,11 @@ class Job:
         if self.name:
             server.kill_session(target_session=self.name)
 
-    def wait_to_complete(self) -> bool:
+    def wait_to_complete(self, clean=True) -> float:
         """Wait until the job is complete .
 
         Returns:
-            bool: True if job run successfully, False otherwise.
+            float: Job execution time.
         """
         while True:
             err = "\n".join(self.pane.capture_pane())
@@ -127,7 +145,7 @@ class Job:
                                                                 <td width="50%" style="text-align:left;"><pre>{}</pre></td>
                                                                 </tr>
                                                         </table>"""
-                                                    .format(err, out)))
+                                                      .format(err, out)))
                 else:
                     print(err)
             # the line in main.cc where final output is produced
@@ -138,6 +156,7 @@ class Job:
             if success or failure:
                 break
             time.sleep(5.0)
+        self.stop_time = time.time()
 
         if success:
             with open(self.output.name) as fp:
@@ -147,14 +166,26 @@ class Job:
                     self.model = "\n".join(fp.readlines()[-3:])
             if self.verbose:
                 print('Job succeeded')
-            self.clean()
-            return True
+            if clean:
+                self.clean()
         elif failure:
             self.results = {}
             if self.verbose:
                 print('Job failed')
-            self.clean()
-            return False
+            if clean:
+                self.clean()
+        return self.stop_time - self.start_time
+
+    def get_config(self) -> dict:
+        with open(self.config.name) as fp:
+            config = json.load(fp)
+        return config
+
+    def is_regression(self) -> bool:
+        return self.analysis_name == 'regression'
+
+    def is_classification(self) -> bool:
+        return self.analysis_name == 'classification'
 
     def get_predictions(self) -> np.array:
         """Returns a numpy array of the predicted values for the model
@@ -242,7 +273,7 @@ class Job:
         return self.model
 
 
-def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
+def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -> Job:
     """Run a DFA job.
 
     Args:
@@ -256,8 +287,8 @@ def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
         Job: job object with job process started asynchronously.
     """
     job = Job(input=input, config=config, persist=persist,
-              restore=restore, verbose=verbose)
-    job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))
+              restore=restore, verbose=verbose, run=run)
+    job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))+job.config_filename
     job_name = 'job_{}'.format(job_suffix)
 
     cmd = [str(dfa_path),
@@ -274,6 +305,9 @@ def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
     cmd = ' '.join(cmd)
     cmd += '; if [ $? -eq 0 ]; then echo "Success"; else echo "Failure";  fi;'
 
+    if run:
+        run.run_logger.info(cmd)
+
     session = server.new_session(job_name)
     window = session.new_window(attach=False)
     pane = window.split_window(attach=False)
@@ -287,7 +321,7 @@ def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
     return job
 
 
-def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) -> Job:
+def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True, run=None) -> Job:
     """Train a model on the dataset .
 
     Args:
@@ -304,6 +338,9 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) ->
     with open(configs_dir / '{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0]
+    if run and 'threads' in run.config.keys():
+        config['threads'] = run.config['threads']
+
     config_file = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, config_file)
     config_file.file.close()
@@ -311,11 +348,11 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) ->
     model_file = tempfile.NamedTemporaryFile(mode='wt')
 
     job = run_job(input=data_file, config=config_file,
-                  persist=model_file, verbose=verbose)
+                  persist=model_file, verbose=verbose, run=run)
     return job
 
 
-def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True) -> Job:
+def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True, run=None) -> Job:
     """Evaluate the model on a given dataset .
 
     Args:
@@ -335,17 +372,20 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, ve
     config['rows'] = dataset.shape[0] + \
         original_job.get_data_summarization_num_rows()
     config['analysis']['parameters']['task'] = 'predict'
+    if run and 'threads' in run.config.keys():
+        config['threads'] = run.config['threads']
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)
     fconfig.file.close()
     fmodel = tempfile.NamedTemporaryFile(mode='wt')
     fmodel.write(original_job.get_model_update_data())
     fmodel.file.close()
-    job = run_job(input=fdata, config=fconfig, restore=fmodel, verbose=verbose)
+    job = run_job(input=fdata, config=fconfig,
+                  restore=fmodel, verbose=verbose, run=run)
     return job
 
 
-def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True) -> Job:
+def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True, run=None) -> Job:
     """Train a new model incrementally using the model and hyperparameters from the original job.
 
     Args:
@@ -364,6 +404,8 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
         config = json.load(fc)
     config['rows'] = dataset.shape[0] + \
         original_job.get_data_summarization_num_rows()
+    if run and 'threads' in run.config.keys():
+        config['threads'] = run.config['threads']
     for name, value in original_job.get_hyperparameters().items():
         if name not in ['retrained_tree_eta', 'tree_topology_change_penalty']:
             config['analysis']['parameters'][name] = value
@@ -374,5 +416,6 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
     fmodel = tempfile.NamedTemporaryFile(mode='wt')
     fmodel.write(original_job.get_model_update_data())
     fmodel.file.close()
-    job = run_job(input=fdata, config=fconfig, restore=fmodel, verbose=verbose)
+    job = run_job(input=fdata, config=fconfig,
+                  restore=fmodel, verbose=verbose, run=run)
     return job
