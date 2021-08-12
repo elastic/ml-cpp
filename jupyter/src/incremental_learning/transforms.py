@@ -19,9 +19,7 @@ import pandas
 def metric_features(categorical_features : list,
                     data_frame : DataFrame) -> list:
 
-    result = {x for x in data_frame.columns}
-    result = result.difference({x for x in categorical_features})
-    return list(result)
+    return [x for x in data_frame.columns if x not in categorical_features]
 
 def matches_columns(features : list,
                     data_frame : DataFrame) -> bool:
