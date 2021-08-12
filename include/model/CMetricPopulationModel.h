@@ -153,7 +153,7 @@ public:
         // NO-OP
     }
 
-    //! Should the model should be persisted?
+    //! Should this model be persisted?
     bool shouldPersist() const override;
 
     //! Persist state by passing information to the supplied inserter
