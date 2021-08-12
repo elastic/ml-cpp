@@ -168,14 +168,12 @@ class Job:
                 print('Job succeeded')
             if clean:
                 self.clean()
-            # return True
         elif failure:
             self.results = {}
             if self.verbose:
                 print('Job failed')
             if clean:
                 self.clean()
-            # return False
         return self.stop_time - self.start_time
 
     def get_config(self) -> dict:
