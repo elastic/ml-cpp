@@ -171,6 +171,11 @@ CEventRatePopulationModel::CEventRatePopulationModel(bool isForPersistence,
     }
 }
 
+bool CEventRatePopulationModel::shouldPersist() const {
+    return std::any_of(m_FeatureModels.begin(), m_FeatureModels.end(),
+                       [](const auto& model) { return model.shouldPersist(); });
+}
+
 void CEventRatePopulationModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(POPULATION_STATE_TAG,
                          std::bind(&CEventRatePopulationModel::doAcceptPersistInserter,

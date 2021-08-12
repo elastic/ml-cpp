@@ -339,19 +339,9 @@ void CIndividualModel::doPersistModelsState(core::CStatePersistInserter& inserte
     }
 }
 
-bool CIndividualModel::shouldPersistModel() const {
-    // If a feature model's memory usage is zero, it indicates that the model
-    // has been pruned and replaced with a stub. If all feature models are
-    // such stubs then we choose to not persist the model
-    // in order to reclaim memory after a persist/restore cycle.
-    for (const auto& feature : m_FeatureModels) {
-        for (const auto& model : feature.s_Models) {
-            if (model->memoryUsage() > 0) {
-                return true;
-            }
-        }
-    }
-    return false;
+bool CIndividualModel::shouldPersist() const {
+    return std::any_of(m_FeatureModels.begin(), m_FeatureModels.end(),
+                       [](const auto& model) { return model.shouldPersist(); });
 }
 
 void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inserter) const {

@@ -309,7 +309,7 @@ bool CAnomalyDetector::shouldPersistDetector() const {
     // This may return false if every constituent feature model is effectively
     // empty, i.e. all the models are stubs due to them being pruned.
     // If the model should not be persisted neither should the detector.
-    if (m_Model->shouldPersistModel() == false) {
+    if (m_Model->shouldPersist() == false) {
         LOG_TRACE(<< "NOT persisting detector \"" << this->description()
                   << "\" due to all feature models being pruned");
         return false;

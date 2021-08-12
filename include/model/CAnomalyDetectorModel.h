@@ -208,7 +208,7 @@ public:
     virtual void persistModelsState(core::CStatePersistInserter& inserter) const = 0;
 
     //! Should the model be persisted?
-    virtual bool shouldPersistModel() const = 0;
+    virtual bool shouldPersist() const = 0;
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
@@ -524,6 +524,9 @@ protected:
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
         //! Get the memory used by this model.
         std::size_t memoryUsage() const;
+
+        //! Determine whether the model should be persisted or not.
+        bool shouldPersist() const;
 
         //! The feature.
         model_t::EFeature s_Feature;

@@ -23,7 +23,7 @@ CMockModel::CMockModel(const SModelParams& params,
       m_IsPopulation(false), m_InterimBucketCorrector(params.s_BucketLength) {
 }
 
-bool CMockModel::shouldPersistModel() const {
+bool CMockModel::shouldPersist() const {
     return true;
 }
 

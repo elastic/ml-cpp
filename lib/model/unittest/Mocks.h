@@ -39,7 +39,7 @@ public:
 
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
-    bool shouldPersistModel() const override;
+    bool shouldPersist() const override;
 
     CAnomalyDetectorModel* cloneForPersistence() const override;
 

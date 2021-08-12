@@ -170,8 +170,8 @@ public:
         // NO-OP
     }
 
-    //! Population models should always be persisted.
-    bool shouldPersistModel() const override { return true; }
+    //! Should this model be persisted?
+    bool shouldPersist() const override;
 
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;

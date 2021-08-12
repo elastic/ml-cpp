@@ -90,7 +90,7 @@ public:
     }
 
     //! Counting model is always persisted.
-    bool shouldPersistModel() const override { return true; }
+    bool shouldPersist() const override { return true; }
 
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
