@@ -40,8 +40,6 @@ def my_config():
     dataset_name = 'ccpp'
     test_fraction = 0.2
     threads = 1
-    # transform_name = ''
-    # transform_parameters = {}
 
 
 def compute_regression_metrics(y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
