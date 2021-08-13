@@ -339,6 +339,11 @@ void CIndividualModel::doPersistModelsState(core::CStatePersistInserter& inserte
     }
 }
 
+bool CIndividualModel::shouldPersist() const {
+    return std::any_of(m_FeatureModels.begin(), m_FeatureModels.end(),
+                       [](const auto& model) { return model.shouldPersist(); });
+}
+
 void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(WINDOW_BUCKET_COUNT_TAG, this->windowBucketCount(),
                          core::CIEEE754::E_SinglePrecision);

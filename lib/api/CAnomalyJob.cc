@@ -1309,6 +1309,11 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                                   << pairDebug(detector_.first) << '\'');
                         continue;
                     }
+                    if (detector->shouldPersistDetector() == false) {
+                        LOG_TRACE(<< "Not persisting state for '"
+                                  << detector->description() << "'");
+                        continue;
+                    }
                     inserter.insertLevel(
                         TOP_LEVEL_DETECTOR_TAG,
                         std::bind(&CAnomalyJob::persistIndividualDetector,

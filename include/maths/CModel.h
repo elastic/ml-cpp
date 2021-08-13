@@ -460,6 +460,9 @@ public:
     //! Get writable model parameters.
     CModelParams& params();
 
+    //! Returns true
+    virtual bool shouldPersist() const;
+
 protected:
     CModel(const CModel&) = default;
 
@@ -601,6 +604,9 @@ public:
 
     //! Returns mixed data type since we don't know.
     maths_t::EDataType dataType() const override;
+
+    //! Returns false
+    virtual bool shouldPersist() const override;
 };
 }
 }

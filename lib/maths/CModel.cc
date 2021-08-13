@@ -270,6 +270,10 @@ CModelParams& CModel::params() {
     return m_Params;
 }
 
+bool CModel::shouldPersist() const {
+    return true;
+}
+
 //////// CModelStub ////////
 
 CModelStub::CModelStub() : CModel(stubParameters()) {
@@ -409,6 +413,10 @@ void CModelStub::persistModelsState(core::CStatePersistInserter& /*inserter*/) c
 
 maths_t::EDataType CModelStub::dataType() const {
     return maths_t::E_MixedData;
+}
+
+bool CModelStub::shouldPersist() const {
+    return false;
 }
 }
 }

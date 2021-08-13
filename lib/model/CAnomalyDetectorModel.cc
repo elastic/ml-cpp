@@ -529,6 +529,11 @@ std::size_t CAnomalyDetectorModel::SFeatureModels::memoryUsage() const {
     return core::CMemory::dynamicSize(s_NewModel) + core::CMemory::dynamicSize(s_Models);
 }
 
+bool CAnomalyDetectorModel::SFeatureModels::shouldPersist() const {
+    return std::any_of(s_Models.begin(), s_Models.end(),
+                       [](const auto& model) { return model->shouldPersist(); });
+}
+
 CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(
     model_t::EFeature feature,
     const TMultivariatePriorSPtr& modelPrior,
