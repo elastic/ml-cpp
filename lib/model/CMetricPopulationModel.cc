@@ -167,6 +167,11 @@ CMetricPopulationModel::CMetricPopulationModel(bool isForPersistence,
     }
 }
 
+bool CMetricPopulationModel::shouldPersist() const {
+    return std::any_of(m_FeatureModels.begin(), m_FeatureModels.end(),
+                       [](const auto& model) { return model.shouldPersist(); });
+}
+
 void CMetricPopulationModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(POPULATION_STATE_TAG,
                          std::bind(&CMetricPopulationModel::doAcceptPersistInserter,

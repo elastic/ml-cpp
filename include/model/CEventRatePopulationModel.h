@@ -170,6 +170,9 @@ public:
         // NO-OP
     }
 
+    //! Should this model be persisted?
+    bool shouldPersist() const override;
+
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 

@@ -181,6 +181,9 @@ public:
     //! created into which other state can be restored.
     void partitionFieldAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    //! Determine whether the detector should be persisted.
+    bool shouldPersistDetector() const;
+
     //! Persist state for statics - this is only called from the
     //! simple count detector to ensure singleton behaviour
     void staticsAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
