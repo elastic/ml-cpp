@@ -16,6 +16,12 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
+def init_task_spooler():
+    cmd = ['tsp', '-S', '`nproc`']
+    process = subprocess.Popen(cmd,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
 
 def generate_job_file(config, cwd):
     job_parameters = ['dataset_name="{}"'.format(
@@ -56,6 +62,7 @@ if __name__ == '__main__':
     file_loader = FileSystemLoader(cwd)
     env = Environment(loader=file_loader)
     tm = env.get_template('job.tpl')
+    init_task_spooler()
     with open('experiments.json') as fp:
         # TODO: validate schema of experiments.json
         experiments = json.load(fp)
