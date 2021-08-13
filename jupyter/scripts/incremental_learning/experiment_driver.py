@@ -26,6 +26,7 @@ from incremental_learning.config import datasets_dir, logger, root_dir
 from incremental_learning.elasticsearch import push2es
 from incremental_learning.job import evaluate, train, update
 from incremental_learning.storage import download_dataset
+from incremental_learning.transforms import resample_metric_features
 
 experiment_name = 'generic-train-update'
 experiment_data_path = Path('/tmp/'+experiment_name)
@@ -37,9 +38,10 @@ ex.logger = logger
 @ex.config
 def my_config():
     dataset_name = 'ccpp'
-    dataset_size = None
-    test_size = 0.2
+    test_fraction = 0.2
     threads = 1
+    # transform_name = ''
+    # transform_parameters = {}
 
 
 def compute_regression_metrics(y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
@@ -116,20 +118,39 @@ def compute_classification_metrics(y_true, baseline_model_predictions, trained_m
     return scores
 
 
-@ex.main
-def my_main(_run, dataset_name, dataset_size, test_size, seed):
-    results = {}
+@ex.capture
+def read_dataset(_run, _seed, dataset_name):
     download_successful = download_dataset(dataset_name)
     if download_successful == False:
         _run.run_logger.error("Data is not available")
         exit(1)
-    D1 = pd.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
-    D1.drop_duplicates(inplace=True)
-    # sample if size is specified in the config
-    if dataset_size and dataset_size < D1.shape[0]:
-        D1 = D1.sample(dataset_size)
+    dataset = pd.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
+    dataset.drop_duplicates(inplace=True)
+    return dataset
+
+
+@ex.capture
+def transform_dataset(dataset: pd.DataFrame, transform_name: str, transform_parameters, _seed: int) -> pd.DataFrame:
+    if transform_name == 'resample_metric_features':
+        transformed_dataset = resample_metric_features(data_frame=dataset,
+                                                       seed=_seed, 
+                                                       fraction=transform_parameters['fraction'], 
+                                                       magnitude=transform_parameters['magnitude'],
+                                                       features=transform_parameters['features'])
+        return transformed_dataset
+    # TODO extend to other transforms
+    else:
+        raise NotImplementedError("This dataset transform is not integrated yet.")
+
+
+@ex.main
+def my_main(_run, dataset_name):
+    results = {}
+    original_dataset = read_dataset()
+    transformed_dataset = transform_dataset(dataset=original_dataset)
+    
     _run.run_logger.info("Baseline training started")
-    job1 = train(dataset_name, D1, verbose=False, run=_run)
+    job1 = train(dataset_name, original_dataset, verbose=False, run=_run)
     elapsed_time = job1.wait_to_complete(clean=False)
     results['baseline'] = {}
     results['baseline']['config'] = job1.get_config()
@@ -137,7 +158,7 @@ def my_main(_run, dataset_name, dataset_size, test_size, seed):
     results['baseline']['elapsed_time'] = elapsed_time
     job1.clean()
     _run.run_logger.info("Baseline training completed")
-    D2, D3 = train_test_split(D1, test_size=test_size)
+    D2, D3 = train_test_split(original_dataset, test_size=test_size)
 
     _run.run_logger.info("Initial training started")
     job2 = train(dataset_name, D2, verbose=False, run=_run)
@@ -159,12 +180,12 @@ def my_main(_run, dataset_name, dataset_size, test_size, seed):
     job3.clean()
     _run.run_logger.info("Update completed")
 
-    y_true = D1[job1.dependent_variable]
+    y_true = original_dataset[job1.dependent_variable]
 
-    job2_eval = evaluate(dataset_name, D1, job2, verbose=False)
+    job2_eval = evaluate(dataset_name, original_dataset, job2, verbose=False)
     job2_eval.wait_to_complete()
 
-    job3_eval = evaluate(dataset_name, D1, job3, verbose=False)
+    job3_eval = evaluate(dataset_name, original_dataset, job3, verbose=False)
     job3_eval.wait_to_complete()
 
     scores = {}
@@ -187,6 +208,6 @@ def my_main(_run, dataset_name, dataset_size, test_size, seed):
 
 if __name__ == '__main__':
     run = ex.run_commandline()
-    run_data_path = experiment_data_path / str(run._id)
-    push2es(data_path=run_data_path, name=experiment_name)
-    shutil.rmtree(run_data_path)
+    # run_data_path = experiment_data_path / str(run._id)
+    # push2es(data_path=run_data_path, name=experiment_name)
+    # shutil.rmtree(run_data_path)
