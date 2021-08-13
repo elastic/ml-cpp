@@ -154,60 +154,60 @@ def my_main(_run, dataset_name, test_fraction):
     test_dataset = pd.concat([test1_dataset, test2_dataset])
     
     _run.run_logger.info("Baseline training started")
-    job1 = train(dataset_name, baseline_dataset, verbose=False, run=_run)
-    elapsed_time = job1.wait_to_complete(clean=False)
+    baseline = train(dataset_name, baseline_dataset, verbose=False, run=_run)
+    elapsed_time = baseline.wait_to_complete(clean=False)
     results['baseline'] = {}
-    results['baseline']['config'] = job1.get_config()
-    results['baseline']['hyperparameters'] = job1.get_hyperparameters()
+    results['baseline']['config'] = baseline.get_config()
+    results['baseline']['hyperparameters'] = baseline.get_hyperparameters()
     results['baseline']['elapsed_time'] = elapsed_time
-    job1.clean()
+    baseline.clean()
     _run.run_logger.info("Baseline training completed")
 
-    dependent_variable = job1.dependent_variable
+    dependent_variable = baseline.dependent_variable
 
     _run.run_logger.info("Initial training started")
-    job2 = train(dataset_name, train_dataset, verbose=False, run=_run)
-    elapsed_time = job2.wait_to_complete(clean=False)
+    trained_model = train(dataset_name, train_dataset, verbose=False, run=_run)
+    elapsed_time = trained_model.wait_to_complete(clean=False)
     results['trained_model'] = {}
-    results['trained_model']['config'] = job2.get_config()
-    results['trained_model']['hyperparameters'] = job2.get_hyperparameters()
+    results['trained_model']['config'] = trained_model.get_config()
+    results['trained_model']['hyperparameters'] = trained_model.get_hyperparameters()
     results['trained_model']['elapsed_time'] = elapsed_time
-    job2.clean()
+    trained_model.clean()
     _run.run_logger.info("Initial training completed")
 
     _run.run_logger.info("Update started")
-    job3 = update(dataset_name, update_dataset, job2, verbose=False, run=_run)
-    elapsed_time = job3.wait_to_complete(clean=False)
+    updated_model = update(dataset_name, update_dataset, trained_model, verbose=False, run=_run)
+    elapsed_time = updated_model.wait_to_complete(clean=False)
     results['updated_model'] = {}
-    results['updated_model']['config'] = job3.get_config()
-    results['updated_model']['hyperparameters'] = job3.get_hyperparameters()
+    results['updated_model']['config'] = updated_model.get_config()
+    results['updated_model']['hyperparameters'] = updated_model.get_hyperparameters()
     results['updated_model']['elapsed_time'] = elapsed_time
-    job3.clean()
+    updated_model.clean()
     _run.run_logger.info("Update completed")
 
     y_true = test_dataset[dependent_variable]
 
-    job1_eval = evaluate(dataset_name, test_dataset, job1, verbose=False)
-    job1_eval.wait_to_complete()
+    baseline_eval = evaluate(dataset_name, test_dataset, baseline, verbose=False)
+    baseline_eval.wait_to_complete()
 
-    job2_eval = evaluate(dataset_name, test_dataset, job2, verbose=False)
-    job2_eval.wait_to_complete()
+    trained_model_eval = evaluate(dataset_name, test_dataset, trained_model, verbose=False)
+    trained_model_eval.wait_to_complete()
 
-    job3_eval = evaluate(dataset_name, test_dataset, job3, verbose=False)
-    job3_eval.wait_to_complete()
+    updated_model_eval = evaluate(dataset_name, test_dataset, updated_model, verbose=False)
+    updated_model_eval.wait_to_complete()
 
     scores = {}
 
-    if job1.is_regression():
+    if baseline.is_regression():
         scores = compute_regression_metrics(y_true,
-                                            job1_eval.get_predictions(),
-                                            job2_eval.get_predictions(),
-                                            job3_eval.get_predictions())
-    elif job1.is_classification():
+                                            baseline_eval.get_predictions(),
+                                            trained_model_eval.get_predictions(),
+                                            updated_model_eval.get_predictions())
+    elif baseline.is_classification():
         scores = compute_classification_metrics(y_true,
-                                                job1_eval.get_predictions(),
-                                                job2_eval.get_predictions(),
-                                                job3_eval.get_predictions())
+                                                baseline_eval.get_predictions(),
+                                                trained_model_eval.get_predictions(),
+                                                updated_model_eval.get_predictions())
     else:
         _run.run_logger.warning(
             "Job is neither regression nor classification. No metric scores are available.")
