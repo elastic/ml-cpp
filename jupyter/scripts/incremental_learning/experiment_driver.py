@@ -119,7 +119,7 @@ def compute_classification_metrics(y_true, baseline_model_predictions, trained_m
 
 
 @ex.capture
-def read_dataset(_run, _seed, dataset_name):
+def read_dataset(_run, dataset_name):
     download_successful = download_dataset(dataset_name)
     if download_successful == False:
         _run.run_logger.error("Data is not available")
@@ -144,13 +144,19 @@ def transform_dataset(dataset: pd.DataFrame, transform_name: str, transform_para
 
 
 @ex.main
-def my_main(_run, dataset_name):
+def my_main(_run, dataset_name, test_fraction):
     results = {}
+
     original_dataset = read_dataset()
-    transformed_dataset = transform_dataset(dataset=original_dataset)
+    train_dataset, test1_dataset = train_test_split(original_dataset, test_size=test_fraction)
+    update_dataset = transform_dataset(dataset=train_dataset)
+    test2_dataset = transform_dataset(dataset=test1_dataset)
+
+    baseline_dataset = pd.concat([train_dataset, update_dataset])
+    test_dataset = pd.concat([test1_dataset, test2_dataset])
     
     _run.run_logger.info("Baseline training started")
-    job1 = train(dataset_name, original_dataset, verbose=False, run=_run)
+    job1 = train(dataset_name, baseline_dataset, verbose=False, run=_run)
     elapsed_time = job1.wait_to_complete(clean=False)
     results['baseline'] = {}
     results['baseline']['config'] = job1.get_config()
@@ -158,10 +164,11 @@ def my_main(_run, dataset_name):
     results['baseline']['elapsed_time'] = elapsed_time
     job1.clean()
     _run.run_logger.info("Baseline training completed")
-    D2, D3 = train_test_split(original_dataset, test_size=test_size)
+
+    dependent_variable = job1.dependent_variable
 
     _run.run_logger.info("Initial training started")
-    job2 = train(dataset_name, D2, verbose=False, run=_run)
+    job2 = train(dataset_name, train_dataset, verbose=False, run=_run)
     elapsed_time = job2.wait_to_complete(clean=False)
     results['trained_model'] = {}
     results['trained_model']['config'] = job2.get_config()
@@ -171,7 +178,7 @@ def my_main(_run, dataset_name):
     _run.run_logger.info("Initial training completed")
 
     _run.run_logger.info("Update started")
-    job3 = update(dataset_name, D3, job2, verbose=False, run=_run)
+    job3 = update(dataset_name, update_dataset, job2, verbose=False, run=_run)
     elapsed_time = job3.wait_to_complete(clean=False)
     results['updated_model'] = {}
     results['updated_model']['config'] = job3.get_config()
@@ -180,24 +187,27 @@ def my_main(_run, dataset_name):
     job3.clean()
     _run.run_logger.info("Update completed")
 
-    y_true = original_dataset[job1.dependent_variable]
+    y_true = test_dataset[dependent_variable]
 
-    job2_eval = evaluate(dataset_name, original_dataset, job2, verbose=False)
+    job1_eval = evaluate(dataset_name, test_dataset, job1, verbose=False)
+    job1_eval.wait_to_complete()
+
+    job2_eval = evaluate(dataset_name, test_dataset, job2, verbose=False)
     job2_eval.wait_to_complete()
 
-    job3_eval = evaluate(dataset_name, original_dataset, job3, verbose=False)
+    job3_eval = evaluate(dataset_name, test_dataset, job3, verbose=False)
     job3_eval.wait_to_complete()
 
     scores = {}
 
     if job1.is_regression():
         scores = compute_regression_metrics(y_true,
-                                            job1.get_predictions(),
+                                            job1_eval.get_predictions(),
                                             job2_eval.get_predictions(),
                                             job3_eval.get_predictions())
     elif job1.is_classification():
         scores = compute_classification_metrics(y_true,
-                                                job1.get_predictions(),
+                                                job1_eval.get_predictions(),
                                                 job2_eval.get_predictions(),
                                                 job3_eval.get_predictions())
     else:
@@ -208,6 +218,6 @@ def my_main(_run, dataset_name):
 
 if __name__ == '__main__':
     run = ex.run_commandline()
-    # run_data_path = experiment_data_path / str(run._id)
-    # push2es(data_path=run_data_path, name=experiment_name)
-    # shutil.rmtree(run_data_path)
+    run_data_path = experiment_data_path / str(run._id)
+    push2es(data_path=run_data_path, name=experiment_name)
+    shutil.rmtree(run_data_path)
