@@ -685,7 +685,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
             0.0, modelBias[i],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.96);
+        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.94);
 
         meanModelRSquared.add(modelRSquared[i]);
     }
@@ -1988,8 +1988,9 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
 
         regression->train();
 
-        // We use a single leaf to centre the data so end up with limit + 1 trees.
-        BOOST_REQUIRE_EQUAL(11, regression->bestHyperparameters().maximumNumberTrees());
+        // We use a single leaf to centre the data which isn't counted so can end
+        // up with limit + 1 trees also since this is a maximum we can use fewer.
+        BOOST_TEST_REQUIRE(regression->bestHyperparameters().maximumNumberTrees() < 11);
         BOOST_REQUIRE_EQUAL(
             0.1, regression->bestHyperparameters().regularization().treeSizePenaltyMultiplier());
         BOOST_REQUIRE_EQUAL(
