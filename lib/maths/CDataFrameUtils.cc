@@ -507,7 +507,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
     double numberTrainingRows{allTrainingRowsMask.manhattan()};
     if (static_cast<std::size_t>(numberTrainingRows) < numberFolds) {
         HANDLE_FATAL(<< "Input error: insufficient training data provided.");
-        return {{}, {}, {}};
+        return {TPackedBitVectorVec{}, TPackedBitVectorVec{}, TDoubleVec{}};
     }
 
     double sampleFraction{std::min(trainFractionPerFold, 1.0 - trainFractionPerFold)};
@@ -543,7 +543,7 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
     auto sampler = makeSampler(sampleSize);
     if (sampler == nullptr) {
         HANDLE_FATAL(<< "Internal error: failed to create train/test splits.");
-        return {{}, {}, {}};
+        return {TPackedBitVectorVec{}, TPackedBitVectorVec{}, TDoubleVec{}};
     }
 
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
