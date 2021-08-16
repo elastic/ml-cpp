@@ -213,7 +213,7 @@ public:
     class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
                                   public CBoostedTreeNode::CVisitor {
     public:
-        virtual ~CVisitor() = default;
+        ~CVisitor() override = default;
         virtual void addTree() = 0;
         virtual void addClassificationWeights(TDoubleVec weights) = 0;
         virtual void addLossFunction(const TLossFunction& lossFunction) = 0;
@@ -240,6 +240,12 @@ public:
 
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;
+
+    //! Get the number of rows used to train the model.
+    std::size_t numberTrainingRows() const override;
+
+    //! Get the fraction of data per fold used for training when tuning hyperparameters.
+    double trainFractionPerFold() const override;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;

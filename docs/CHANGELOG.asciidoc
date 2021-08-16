@@ -39,6 +39,13 @@
 * Prune models for split fields (by, partition) that haven't seen data updates for
   a given period of time. (See {ml-pull}1962[#1962].)
 
+== {es} version 7.15.0
+
+=== Enhancements
+
+* Speed up training of regression and classification models on very large data sets.
+  (See {ml-pull}1941[#1941].)
+
 == {es} version 7.14.0
 
 === Enhancements

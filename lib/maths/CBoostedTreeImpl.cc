@@ -21,6 +21,7 @@
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTree.h>
@@ -266,7 +267,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         this->restoreBestHyperparameters();
         this->scaleRegularizers(allTrainingRowsMask.manhattan() /
-                                m_TrainingRowMasks[0].manhattan());
+                                this->meanNumberTrainingRowsPerFold());
         this->startProgressMonitoringFinalTrain();
         // reinitialize random number generator for reproducible results
         // TODO #1866 introduce accept randomize_seed configuration parameter
@@ -372,8 +373,9 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     // we get a constant 8 / 64.
     std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
     std::size_t trainTestMaskMemoryUsage{
-        2 * static_cast<std::size_t>(std::ceil(std::log2(static_cast<double>(m_NumberFolds)))) *
-        numberRows};
+        2 * m_NumberFolds *
+        static_cast<std::size_t>(std::ceil(
+            std::min(m_TrainFractionPerFold, 1.0 - m_TrainFractionPerFold) * numberRows))};
     std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
         this->numberHyperparametersToTune(), m_NumberRounds)};
     std::size_t worstCaseMemoryUsage{
@@ -407,8 +409,12 @@ bool CBoostedTreeImpl::canTrain() const {
                            m_FeatureSampleProbabilities.end(), 0.0) > 0.0;
 }
 
-core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {
-    return ~m_MissingFeatureRowMasks[m_DependentVariable];
+double CBoostedTreeImpl::meanNumberTrainingRowsPerFold() const {
+    TMeanAccumulator result;
+    for (const auto& mask : m_TrainingRowMasks) {
+        result.add(mask.manhattan());
+    }
+    return CBasicStatistics::mean(result);
 }
 
 CBoostedTreeImpl::TDoubleDoublePr
@@ -719,6 +725,9 @@ CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask) cons
     // curvatures for each tree we train. The sampling scheme should minimize
     // the correlation with previous trees for fixed sample size so randomly
     // sampling without replacement is appropriate.
+    if (trainingRowMask.manhattan() == 0.0) {
+        return trainingRowMask;
+    }
     core::CPackedBitVector result;
     do {
         result = core::CPackedBitVector{};
@@ -1282,6 +1291,20 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     return CBasicStatistics::mean(loss);
 }
 
+double CBoostedTreeImpl::betweenFoldTestLossVariance() const {
+    TMeanVarAccumulator result;
+    for (const auto& testLosses : m_FoldRoundTestLosses) {
+        TMeanAccumulator meanTestLoss;
+        for (std::size_t i = 0; i <= m_CurrentRound; ++i) {
+            if (testLosses[i] != boost::none) {
+                meanTestLoss.add(*testLosses[i]);
+            }
+        }
+        result.add(CBasicStatistics::mean(meanTestLoss));
+    }
+    return CBasicStatistics::maximumLikelihoodVariance(result);
+}
+
 CBoostedTreeNode& CBoostedTreeImpl::root(TNodeVec& tree) {
     return tree[0];
 }
@@ -1362,13 +1385,23 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     double meanLoss{CBasicStatistics::mean(lossMoments)};
     double lossVariance{CBasicStatistics::variance(lossMoments)};
 
-    LOG_TRACE(<< "round = " << m_CurrentRound << " loss = " << meanLoss << " variance = "
-              << lossVariance << ": regularization = " << m_Regularization.print()
+    LOG_TRACE(<< "round = " << m_CurrentRound << ", loss = " << meanLoss
+              << ", total variance = " << lossVariance
+              << ", explained variance = " << this->betweenFoldTestLossVariance());
+    LOG_TRACE(<< "regularization = " << m_Regularization.print()
               << ", downsample factor = " << m_DownsampleFactor << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
 
     bopt.add(parameters, meanLoss, lossVariance);
+    // One fold might have examples which are harder to predict on average than
+    // another fold, particularly if the sample size is small. What we really care
+    // about is the variation between fold loss values after accounting for any
+    // systematic effect due to sampling. Running for multiple rounds allows us
+    // to estimate this effect and we remove it when characterising the uncertainty
+    // in the loss values in the Gaussian Process.
+    bopt.explainedErrorVariance(this->betweenFoldTestLossVariance());
+
     if (m_CurrentRound < m_HyperparameterSamples.size()) {
         std::copy(m_HyperparameterSamples[m_CurrentRound].begin(),
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
@@ -1502,6 +1535,7 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
 }
 
 void CBoostedTreeImpl::recordHyperparameters() {
+    m_Instrumentation->trainingFractionPerFold(m_TrainFractionPerFold);
     m_Instrumentation->hyperparameters().s_Eta = m_Eta;
     m_Instrumentation->hyperparameters().s_ClassAssignmentObjective = m_ClassAssignmentObjective;
     m_Instrumentation->hyperparameters().s_DownsampleFactor = m_DownsampleFactor;
@@ -1645,8 +1679,8 @@ const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{
 const std::string MEAN_FOREST_SIZE_ACCUMULATOR_TAG{"mean_forest_size"};
 const std::string MEAN_LOSS_ACCUMULATOR_TAG{"mean_loss"};
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
-const std::string NUMBER_FOLDS_TAG{"number_folds"};
 const std::string NUMBER_FOLDS_OVERRIDE_TAG{"number_folds_override"};
+const std::string NUMBER_FOLDS_TAG{"number_folds"};
 const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
 const std::string NUMBER_SPLITS_PER_FEATURE_TAG{"number_splits_per_feature"};
 const std::string NUMBER_THREADS_TAG{"number_threads"};
@@ -1657,6 +1691,8 @@ const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string STOP_CROSS_VALIDATION_EARLY_TAG{"stop_cross_validation_eraly"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
+const std::string TRAIN_FRACTION_PER_FOLD_TAG{"train_fraction_per_folds"};
+const std::string TRAIN_FRACTION_PER_FOLD_OVERRIDE_TAG{"train_fraction_per_folds_override"};
 const std::string NUMBER_TOP_SHAP_VALUES_TAG{"top_shap_values"};
 const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
 }
@@ -1728,8 +1764,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(MEAN_LOSS_ACCUMULATOR_TAG, m_MeanLossAccumulator, inserter);
     core::CPersistUtils::persist(MISSING_FEATURE_ROW_MASKS_TAG,
                                  m_MissingFeatureRowMasks, inserter);
-    core::CPersistUtils::persist(NUMBER_FOLDS_TAG, m_NumberFolds, inserter);
     core::CPersistUtils::persist(NUMBER_FOLDS_OVERRIDE_TAG, m_NumberFoldsOverride, inserter);
+    core::CPersistUtils::persist(NUMBER_FOLDS_TAG, m_NumberFolds, inserter);
     core::CPersistUtils::persist(NUMBER_ROUNDS_TAG, m_NumberRounds, inserter);
     core::CPersistUtils::persist(NUMBER_SPLITS_PER_FEATURE_TAG,
                                  m_NumberSplitsPerFeature, inserter);
@@ -1744,6 +1780,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_StopCrossValidationEarly, inserter);
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
+    core::CPersistUtils::persist(TRAIN_FRACTION_PER_FOLD_OVERRIDE_TAG,
+                                 m_TrainFractionPerFoldOverride, inserter);
+    core::CPersistUtils::persist(TRAIN_FRACTION_PER_FOLD_TAG, m_TrainFractionPerFold, inserter);
     core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                  m_StopHyperparameterOptimizationEarly, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is restored from overriden hyperparameters
@@ -1851,11 +1890,11 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(MISSING_FEATURE_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(MISSING_FEATURE_ROW_MASKS_TAG,
                                              m_MissingFeatureRowMasks, traverser))
-        RESTORE(NUMBER_FOLDS_TAG,
-                core::CPersistUtils::restore(NUMBER_FOLDS_TAG, m_NumberFolds, traverser))
         RESTORE(NUMBER_FOLDS_OVERRIDE_TAG,
                 core::CPersistUtils::restore(NUMBER_FOLDS_OVERRIDE_TAG,
                                              m_NumberFoldsOverride, traverser))
+        RESTORE(NUMBER_FOLDS_TAG,
+                core::CPersistUtils::restore(NUMBER_FOLDS_TAG, m_NumberFolds, traverser))
         RESTORE(NUMBER_ROUNDS_TAG,
                 core::CPersistUtils::restore(NUMBER_ROUNDS_TAG, m_NumberRounds, traverser))
         RESTORE(NUMBER_SPLITS_PER_FEATURE_TAG,
@@ -1881,6 +1920,12 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, traverser))
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
+        RESTORE(TRAIN_FRACTION_PER_FOLD_OVERRIDE_TAG,
+                core::CPersistUtils::restore(TRAIN_FRACTION_PER_FOLD_OVERRIDE_TAG,
+                                             m_TrainFractionPerFoldOverride, traverser))
+        RESTORE(TRAIN_FRACTION_PER_FOLD_TAG,
+                core::CPersistUtils::restore(TRAIN_FRACTION_PER_FOLD_TAG,
+                                             m_TrainFractionPerFold, traverser))
         RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                              m_StopHyperparameterOptimizationEarly, traverser))
@@ -2024,7 +2069,7 @@ CBoostedTreeImpl::hyperparameterImportance() const {
         double hyperparameterValue;
         SHyperparameterImportance::EType hyperparameterType{
             boosted_tree_detail::SHyperparameterImportance::E_Double};
-        switch (i) {
+        switch (static_cast<EHyperparameters>(i)) {
         case E_Alpha:
             hyperparameterValue = m_Regularization.depthPenaltyMultiplier();
             break;
@@ -2090,6 +2135,14 @@ const CBoostedTreeImpl::TSizeVec& CBoostedTreeImpl::extraColumns() const {
 
 const CBoostedTreeImpl::TVector& CBoostedTreeImpl::classificationWeights() const {
     return m_ClassificationWeights;
+}
+
+double CBoostedTreeImpl::trainFractionPerFold() const {
+    return m_TrainFractionPerFold;
+}
+
+core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {
+    return ~m_MissingFeatureRowMasks[m_DependentVariable];
 }
 
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};

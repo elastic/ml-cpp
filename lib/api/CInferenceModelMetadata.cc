@@ -24,6 +24,7 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
+    this->writeTrainParameters(writer);
 }
 
 void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
@@ -176,6 +177,20 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
     writer.EndArray();
 }
 
+void CInferenceModelMetadata::writeTrainParameters(TRapidJsonWriter& writer) const {
+    // TODO enable with Java changes.
+    // Only write out if it has been set.
+    //if (m_TrainingFractionPerFold > 0.0) {
+    //    writer.Key(JSON_TRAIN_PARAMETERS_TAG);
+    //    writer.StartObject();
+    //    writer.Key(JSON_NUM_TRAINING_ROWS_TAG);
+    //    writer.Uint64(m_NumberRowsUsedForTrain);
+    //    writer.Key(CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD);
+    //    writer.Double(m_TrainingFractionPerFold);
+    //    writer.EndObject();
+    //}
+}
+
 const std::string& CInferenceModelMetadata::typeString() {
     return JSON_MODEL_METADATA_TAG;
 }
@@ -265,6 +280,14 @@ void CInferenceModelMetadata::hyperparameterImportance(
               });
 }
 
+void CInferenceModelMetadata::numberTrainingRows(std::size_t numberRows) {
+    m_NumberTrainingRows = numberRows;
+}
+
+void CInferenceModelMetadata::trainFractionPerFold(double fraction) {
+    m_TrainFractionPerFold = fraction;
+}
+
 // clang-format off
 const std::string CInferenceModelMetadata::JSON_ABSOLUTE_IMPORTANCE_TAG{"absolute_importance"};
 const std::string CInferenceModelMetadata::JSON_BASELINE_TAG{"baseline"};
@@ -281,8 +304,10 @@ const std::string CInferenceModelMetadata::JSON_MAX_TAG{"max"};
 const std::string CInferenceModelMetadata::JSON_MEAN_MAGNITUDE_TAG{"mean_magnitude"};
 const std::string CInferenceModelMetadata::JSON_MIN_TAG{"min"};
 const std::string CInferenceModelMetadata::JSON_MODEL_METADATA_TAG{"model_metadata"};
+const std::string CInferenceModelMetadata::JSON_NUM_TRAINING_ROWS_TAG{"num_training_rows"};
 const std::string CInferenceModelMetadata::JSON_RELATIVE_IMPORTANCE_TAG{"relative_importance"};
 const std::string CInferenceModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
+const std::string CInferenceModelMetadata::JSON_TRAIN_PARAMETERS_TAG{"train_parameters"};
 // clang-format on
 }
 }

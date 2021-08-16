@@ -63,6 +63,7 @@ SRCS=\
 	CLinearAlgebraTest.cc \
 	CLogNormalMeanPrecConjugateTest.cc \
 	CLogTDistributionTest.cc \
+	CLowessTest.cc \
 	CMathsFuncsTest.cc \
 	CMathsMemoryTest.cc \
 	CMicTest.cc \

@@ -45,8 +45,10 @@ public:
     static const std::string JSON_MEAN_MAGNITUDE_TAG;
     static const std::string JSON_MIN_TAG;
     static const std::string JSON_MODEL_METADATA_TAG;
+    static const std::string JSON_NUM_TRAINING_ROWS_TAG;
     static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
     static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
+    static const std::string JSON_TRAIN_PARAMETERS_TAG;
 
 public:
     using TVector = maths::CDenseVector<double>;
@@ -69,6 +71,10 @@ public:
     //! to the baseline value).
     void featureImportanceBaseline(TVector&& baseline);
     void hyperparameterImportance(const maths::CBoostedTree::THyperparameterImportanceVec& hyperparameterImportance);
+    //! Set the number of rows used to train the model.
+    void numberTrainingRows(std::size_t numberRows);
+    //! Set the fraction of data per fold used for training when tuning hyperparameters.
+    void trainFractionPerFold(double fraction);
 
 private:
     struct SHyperparameterImportance {
@@ -91,8 +97,9 @@ private:
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
-    void writeHyperparameterImportance(TRapidJsonWriter& writer) const;
     void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
+    void writeHyperparameterImportance(TRapidJsonWriter& writer) const;
+    void writeTrainParameters(TRapidJsonWriter& writer) const;
 
 private:
     TSizeMeanAccumulatorUMap m_TotalShapValuesMean;
@@ -100,11 +107,13 @@ private:
     TOptionalVector m_ShapBaseline;
     TStrVec m_ColumnNames;
     TStrVec m_ClassValues;
-    TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter =
+    TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter{
         [](const std::string& value, TRapidJsonWriter& writer) {
             writer.String(value);
-        };
+        }};
     THyperparametersVec m_HyperparameterImportance;
+    std::size_t m_NumberTrainingRows{0};
+    double m_TrainFractionPerFold{0.0};
 };
 }
 }
