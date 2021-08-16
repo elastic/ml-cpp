@@ -26,6 +26,7 @@ from incremental_learning.config import datasets_dir, logger, root_dir
 from incremental_learning.elasticsearch import push2es
 from incremental_learning.job import evaluate, train, update
 from incremental_learning.storage import download_dataset
+from incremental_learning.transforms import resample_metric_features
 
 experiment_name = 'generic-train-update'
 experiment_data_path = Path('/tmp/'+experiment_name)
@@ -37,8 +38,7 @@ ex.logger = logger
 @ex.config
 def my_config():
     dataset_name = 'ccpp'
-    dataset_size = None
-    test_size = 0.2
+    test_fraction = 0.2
     threads = 1
 
 
@@ -116,69 +116,98 @@ def compute_classification_metrics(y_true, baseline_model_predictions, trained_m
     return scores
 
 
-@ex.main
-def my_main(_run, dataset_name, dataset_size, test_size, seed):
-    results = {}
+@ex.capture
+def read_dataset(_run, dataset_name):
     download_successful = download_dataset(dataset_name)
     if download_successful == False:
         _run.run_logger.error("Data is not available")
         exit(1)
-    D1 = pd.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
-    D1.drop_duplicates(inplace=True)
-    # sample if size is specified in the config
-    if dataset_size and dataset_size < D1.shape[0]:
-        D1 = D1.sample(dataset_size)
+    dataset = pd.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
+    dataset.drop_duplicates(inplace=True)
+    return dataset
+
+
+@ex.capture
+def transform_dataset(dataset: pd.DataFrame, transform_name: str, transform_parameters, _seed: int) -> pd.DataFrame:
+    if transform_name == 'resample_metric_features':
+        transformed_dataset = resample_metric_features(data_frame=dataset,
+                                                       seed=_seed, 
+                                                       fraction=transform_parameters['fraction'], 
+                                                       magnitude=transform_parameters['magnitude'],
+                                                       features=transform_parameters['features'])
+        return transformed_dataset
+    # TODO extend to other transforms
+    else:
+        raise NotImplementedError("This dataset transform is not integrated yet.")
+
+
+@ex.main
+def my_main(_run, dataset_name, test_fraction):
+    results = {}
+
+    original_dataset = read_dataset()
+    train_dataset, test1_dataset = train_test_split(original_dataset, test_size=test_fraction)
+    update_dataset = transform_dataset(dataset=train_dataset)
+    test2_dataset = transform_dataset(dataset=test1_dataset)
+
+    baseline_dataset = pd.concat([train_dataset, update_dataset])
+    test_dataset = pd.concat([test1_dataset, test2_dataset])
+    
     _run.run_logger.info("Baseline training started")
-    job1 = train(dataset_name, D1, verbose=False, run=_run)
-    elapsed_time = job1.wait_to_complete(clean=False)
+    baseline = train(dataset_name, baseline_dataset, verbose=False, run=_run)
+    elapsed_time = baseline.wait_to_complete(clean=False)
     results['baseline'] = {}
-    results['baseline']['config'] = job1.get_config()
-    results['baseline']['hyperparameters'] = job1.get_hyperparameters()
+    results['baseline']['config'] = baseline.get_config()
+    results['baseline']['hyperparameters'] = baseline.get_hyperparameters()
     results['baseline']['elapsed_time'] = elapsed_time
-    job1.clean()
+    baseline.clean()
     _run.run_logger.info("Baseline training completed")
-    D2, D3 = train_test_split(D1, test_size=test_size)
+
+    dependent_variable = baseline.dependent_variable
 
     _run.run_logger.info("Initial training started")
-    job2 = train(dataset_name, D2, verbose=False, run=_run)
-    elapsed_time = job2.wait_to_complete(clean=False)
+    trained_model = train(dataset_name, train_dataset, verbose=False, run=_run)
+    elapsed_time = trained_model.wait_to_complete(clean=False)
     results['trained_model'] = {}
-    results['trained_model']['config'] = job2.get_config()
-    results['trained_model']['hyperparameters'] = job2.get_hyperparameters()
+    results['trained_model']['config'] = trained_model.get_config()
+    results['trained_model']['hyperparameters'] = trained_model.get_hyperparameters()
     results['trained_model']['elapsed_time'] = elapsed_time
-    job2.clean()
+    trained_model.clean()
     _run.run_logger.info("Initial training completed")
 
     _run.run_logger.info("Update started")
-    job3 = update(dataset_name, D3, job2, verbose=False, run=_run)
-    elapsed_time = job3.wait_to_complete(clean=False)
+    updated_model = update(dataset_name, update_dataset, trained_model, verbose=False, run=_run)
+    elapsed_time = updated_model.wait_to_complete(clean=False)
     results['updated_model'] = {}
-    results['updated_model']['config'] = job3.get_config()
-    results['updated_model']['hyperparameters'] = job3.get_hyperparameters()
+    results['updated_model']['config'] = updated_model.get_config()
+    results['updated_model']['hyperparameters'] = updated_model.get_hyperparameters()
     results['updated_model']['elapsed_time'] = elapsed_time
-    job3.clean()
+    updated_model.clean()
     _run.run_logger.info("Update completed")
 
-    y_true = D1[job1.dependent_variable]
+    y_true = test_dataset[dependent_variable]
 
-    job2_eval = evaluate(dataset_name, D1, job2, verbose=False)
-    job2_eval.wait_to_complete()
+    baseline_eval = evaluate(dataset_name, test_dataset, baseline, verbose=False)
+    baseline_eval.wait_to_complete()
 
-    job3_eval = evaluate(dataset_name, D1, job3, verbose=False)
-    job3_eval.wait_to_complete()
+    trained_model_eval = evaluate(dataset_name, test_dataset, trained_model, verbose=False)
+    trained_model_eval.wait_to_complete()
+
+    updated_model_eval = evaluate(dataset_name, test_dataset, updated_model, verbose=False)
+    updated_model_eval.wait_to_complete()
 
     scores = {}
 
-    if job1.is_regression():
+    if baseline.is_regression():
         scores = compute_regression_metrics(y_true,
-                                            job1.get_predictions(),
-                                            job2_eval.get_predictions(),
-                                            job3_eval.get_predictions())
-    elif job1.is_classification():
+                                            baseline_eval.get_predictions(),
+                                            trained_model_eval.get_predictions(),
+                                            updated_model_eval.get_predictions())
+    elif baseline.is_classification():
         scores = compute_classification_metrics(y_true,
-                                                job1.get_predictions(),
-                                                job2_eval.get_predictions(),
-                                                job3_eval.get_predictions())
+                                                baseline_eval.get_predictions(),
+                                                trained_model_eval.get_predictions(),
+                                                updated_model_eval.get_predictions())
     else:
         _run.run_logger.warning(
             "Job is neither regression nor classification. No metric scores are available.")

@@ -1,0 +1,36 @@
+{
+    "configurations": [
+        {
+            "dataset_name": "ccpp",
+            "seed": 42,
+            "threads": 4,
+            "transform_name": "resample_metric_features",
+            "transform_parameters": {
+                "fraction": 0.5,
+                "magnitude": 0.1,
+                "features": [
+                    "AP",
+                    "AT",
+                    "RH",
+                    "V"
+                ]
+            }
+        }, 
+        {
+            "dataset_name": "ccpp",
+            "seed": 42,
+            "threads": 4,
+            "transform_name": "resample_metric_features",
+            "transform_parameters": {
+                "fraction": 0.5,
+                "magnitude": 0.5,
+                "features": [
+                    "AP",
+                    "AT",
+                    "RH",
+                    "V"
+                ]
+            }
+        }
+    ]
+}

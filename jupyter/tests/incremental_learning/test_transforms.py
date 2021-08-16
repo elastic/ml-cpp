@@ -11,12 +11,19 @@ import math
 import unittest
 import pandas
 from incremental_learning import transforms
+from incremental_learning.storage import download_dataset
+from incremental_learning.config import datasets_dir
+
 
 class TransformsTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.seed = 100
-        self.data_frame = pandas.read_csv('../../data/datasets/boston.csv')
+        dataset_name = 'boston'
+        download_successful = download_dataset(dataset_name)
+        if download_successful == False:
+            self.fail("Dataset is not available")
+        self.data_frame = pandas.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
 
     def test_metric_features(self) -> None:
         '''
