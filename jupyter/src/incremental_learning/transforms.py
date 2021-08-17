@@ -8,7 +8,6 @@
 # limitation.
 
 import bisect
-import copy
 import math
 import numpy as np
 from pandas import DataFrame
@@ -27,23 +26,23 @@ def matches_columns(features : list,
     return [x in features for x in dataset.columns].count(True) != len(features)
 
 def features_in_bounding_box(bb : list,
-                             features : list,
+                             metric_features : list,
                              row : Series) -> bool:
-    for i, feature in enumerate(features):
+    for i, feature in enumerate(metric_features):
         if row[feature] < bb[i][0] or row[feature] > bb[i][1]:
             return False
     return True
 
 def generate_partition_on_metric_ranges(bb : list,
-                                        features : list,
+                                        metric_features : list,
                                         dataset : DataFrame,
                                         subset : bool) -> int:
     for i in range(len(dataset.index)):
-        if features_in_bounding_box(bb, features, dataset.iloc[i]) == subset:
+        if features_in_bounding_box(bb, metric_features, dataset.iloc[i]) == subset:
             yield dataset.iloc[i]
 
 def partition_on_metric_ranges(seed : int,
-                               features : list,
+                               metric_features : list,
                                dataset : DataFrame) -> tuple:
     '''
     Partition the data frame into values rows not contained and contained in
@@ -55,7 +54,7 @@ def partition_on_metric_ranges(seed : int,
 
     Args:
         seed The random number generation seed.
-        features The features to partition on.
+        metric_features The features to partition on.
         dataset The data to partition.
 
     Return:
@@ -63,42 +62,42 @@ def partition_on_metric_ranges(seed : int,
         rows in feature intervals as the first and second elements, respectively.
     '''
 
-    if matches_columns(features, dataset):
-        print(list(dataset.columns), 'does not contain', features)
+    if matches_columns(metric_features, dataset):
+        print(list(dataset.columns), 'does not contain', metric_features)
         return None, None
 
     random.seed(seed)
 
     # We take the intersection of feature intervals which we expect to contain
     # points with chance P(in interval)^n. We want P(in interval)^n = 0.5 and so
-    # choose the quantile range to equal math.pow(0.5, 1.0 / len(features)) on
-    # average.
-    q_interval = math.pow(0.5, 1.0 / len(features))
+    # choose the quantile range to equal math.pow(0.5, 1.0 / len(metric_features))
+    # on average.
+    q_interval = math.pow(0.5, 1.0 / len(metric_features))
 
     bb = []
-    for feature in features:
+    for feature in metric_features:
         q_a = max(0.5 - 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.01)
         q_b = min(0.5 + 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.99)
         bb.append([dataset[feature].quantile(q_a), dataset[feature].quantile(q_b)])
 
-    return (pandas.DataFrame(generate_partition_on_metric_ranges(bb, features, dataset, True)),
-            pandas.DataFrame(generate_partition_on_metric_ranges(bb, features, dataset, False)))
+    return (pandas.DataFrame(generate_partition_on_metric_ranges(bb, metric_features, dataset, True)),
+            pandas.DataFrame(generate_partition_on_metric_ranges(bb, metric_features, dataset, False)))
 
 class Counters(dict):
     def __missing__(self, key):
         return 0
 
-def generate_partition_on_categories(features : list,
+def generate_partition_on_categories(categorical_features : list,
                                      matching : set,
                                      dataset : DataFrame,
                                      subset : bool) -> int:
     for i in range(len(dataset.index)):
-        key = tuple([dataset.iloc[i][feature] for feature in features])
+        key = tuple([dataset.iloc[i][feature] for feature in categorical_features])
         if (key in matching) == subset:
             yield dataset.iloc[i]
 
 def partition_on_categories(seed : int,
-                            features : list,
+                            categorical_features : list,
                             dataset : DataFrame) -> tuple:
     '''
     Partition the data frame into values rows matching and not matching a random
@@ -106,15 +105,15 @@ def partition_on_categories(seed : int,
 
     Args:
         seed The random number generation seed.
-        features The features to partition on.
+        categorical_features The features to partition on.
         dataset The data to partition.
 
     Return:
         A pair of data frames comprising comprising the partition.
     '''
 
-    if matches_columns(features, dataset):
-        print(list(dataset.columns), 'does not contain', features)
+    if matches_columns(categorical_features, dataset):
+        print(list(dataset.columns), 'does not contain', categorical_features)
         return None, None
 
     random.seed(seed)
@@ -122,7 +121,7 @@ def partition_on_categories(seed : int,
     # Count all distinct category tuples.
     tuple_frequencies = Counters()
     for _, row in dataset.iterrows():
-        key = tuple([row[feature] for feature in features])
+        key = tuple([row[feature] for feature in categorical_features])
         tuple_frequencies[key] += 1
 
     tuples = [item for item in tuple_frequencies.items()]
@@ -135,14 +134,14 @@ def partition_on_categories(seed : int,
             matching.add(value[0])
             total_count += value[1]    
 
-    return (pandas.DataFrame(generate_partition_on_categories(features, matching, dataset, True)),
-            pandas.DataFrame(generate_partition_on_categories(features, matching, dataset, False)))
+    return (pandas.DataFrame(generate_partition_on_categories(categorical_features, matching, dataset, True)),
+            pandas.DataFrame(generate_partition_on_categories(categorical_features, matching, dataset, False)))
 
 
 def resample_metric_features(seed : int,
                              fraction : float,
                              magnitude : float,
-                             features : list,
+                             metric_features : list,
                              dataset : DataFrame) -> DataFrame:
     '''
     Resample by randomly weighting equally spaced quantile buckets of features.
@@ -151,15 +150,15 @@ def resample_metric_features(seed : int,
         seed The random number generation seed.
         fraction The fraction of rows to sample which should be in the range [0, 1].
         magnitude Controls the dissimilarity of the feature distribution after resampling.
-        features The features to resample on.
+        metric_features The features to resample on.
         dataset The data to transform.
 
     Return:
         The resampled data frame.
     '''
 
-    if matches_columns(features, dataset):
-        print(list(dataset.columns), 'does not contain', features)
+    if matches_columns(metric_features, dataset):
+        print(list(dataset.columns), 'does not contain', metric_features)
         return None
     if fraction > 1 or fraction <= 0:
         print('fraction', fraction, 'out of range (0, 1]')
@@ -169,7 +168,7 @@ def resample_metric_features(seed : int,
 
     ranges = []
     weights = []
-    for feature in features:
+    for feature in metric_features:
         ranges.append([x[1] for x in dataset[feature].quantile([q / 10 for q in range(1, 10)]).items()])
         weights.append([0.5 + magnitude * random.uniform(-0.5, 0.5) for _ in range(10)])
     weights_normalization = [np.sum(feature_weights) for feature_weights in weights]
@@ -178,10 +177,10 @@ def resample_metric_features(seed : int,
     normalization = 0
     for _, row in dataset.iterrows():
         probability = 1
-        for i, feature in enumerate(features):
+        for i, feature in enumerate(metric_features):
             j = bisect.bisect_left(ranges[i], row[feature])
             probability *= weights[i][j] / weights_normalization[i]
-        probability /= len(features)
+        probability /= len(metric_features)
         probabilities.append(probability)
         normalization += probability
     for i in range(len(probabilities)):

@@ -41,7 +41,7 @@ class TransformsTest(unittest.TestCase):
         '''
         partition = transforms.partition_on_metric_ranges(
             seed=self.seed,
-            features=['this feature does not exist'],
+            metric_features=['this feature does not exist'],
             dataset=self.dataset
         )
         self.assertEqual(partition[0], None)
@@ -49,7 +49,7 @@ class TransformsTest(unittest.TestCase):
 
         partition = transforms.partition_on_metric_ranges(
             seed=self.seed,
-            features=['AGE', 'DIS'],
+            metric_features=['AGE', 'DIS'],
             dataset=self.dataset
         )
         self.assertAlmostEqual(
@@ -71,12 +71,12 @@ class TransformsTest(unittest.TestCase):
 
         partition_with_same_seed = transforms.partition_on_metric_ranges(
             seed=self.seed,
-            features=['AGE', 'DIS'],
+            metric_features=['AGE', 'DIS'],
             dataset=self.dataset
         )
         partition_with_different_seed = transforms.partition_on_metric_ranges(
             seed=self.seed + 1,
-            features=['AGE', 'DIS'],
+            metric_features=['AGE', 'DIS'],
             dataset=self.dataset
         )
 
@@ -94,14 +94,14 @@ class TransformsTest(unittest.TestCase):
         '''
         partition = transforms.partition_on_categories(
             seed=self.seed,
-            features=['this feature does not exist'],
+            categorical_features=['this feature does not exist'],
             dataset=self.dataset)
         self.assertEqual(partition[0], None)
         self.assertEqual(partition[1], None)
 
         partition = transforms.partition_on_categories(
             seed=self.seed,
-            features=['CHAS', 'RAD'],
+            categorical_features=['CHAS', 'RAD'],
             dataset=self.dataset
         )
         self.assertAlmostEqual(
@@ -131,12 +131,12 @@ class TransformsTest(unittest.TestCase):
 
         partition_with_same_seed = transforms.partition_on_categories(
             seed=self.seed,
-            features=['CHAS', 'RAD'],
+            categorical_features=['CHAS', 'RAD'],
             dataset=self.dataset
         )
         partition_with_different_seed = transforms.partition_on_categories(
             seed=self.seed + 1,
-            features=['CHAS', 'RAD'],
+            categorical_features=['CHAS', 'RAD'],
             dataset=self.dataset
         )
 
@@ -155,7 +155,7 @@ class TransformsTest(unittest.TestCase):
             seed=self.seed,
             fraction=0.2,
             magnitude=0.9,
-            features=['this feature does not exist'],
+            metric_features=['this feature does not exist'],
             dataset=self.dataset
         )
         self.assertEqual(resampled_dataset, None)
@@ -164,7 +164,7 @@ class TransformsTest(unittest.TestCase):
             seed=self.seed,
             fraction=0.2,
             magnitude=0.9,
-            features=['AGE', 'MEDV'],
+            metric_features=['AGE', 'MEDV'],
             dataset=self.dataset
         )
         self.assertAlmostEqual(

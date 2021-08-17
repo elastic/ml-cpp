@@ -32,7 +32,7 @@ datasets_dir = data_dir / 'datasets'
 configs_dir = data_dir / 'configs'
 dfa_path = ''
 
-# I assume, your host OS is not CentOS
+# Assumes your host OS is not CentOS.
 cloud = (platform.system() == 'Linux') and (platform.dist()[0] == 'centos')
 if cloud:
     search_location = Path('/ml-cpp')
@@ -53,7 +53,7 @@ formatter = logging.Formatter('[%(levelname).1s] %(name)s >> %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-# Read config file
+# Read config file.
 config = configparser.ConfigParser()
 config_file = root_dir / 'config.ini'
 if not config_file.exists():
@@ -66,7 +66,8 @@ if len(config.read(root_dir / 'config.ini')) == 0:
 es_cloud_id = ""
 es_user = ""
 es_password = ""
-# Elasticsearch deployment configuration
+
+# Elasticsearch deployment configuration.
 if (not config['cloud']['cloud_id']) or (not config['cloud']['user']) or (not config['cloud']['password']):
     logger.error("Cloud configuration is missing or incomplete. Some functionality will be broken")
 else:
@@ -77,7 +78,7 @@ else:
 if config['logging']['level']:
     logger.setLevel(config['logging']['level'])
 
-# Google cloud storage bucket with datasets
+# Google cloud storage bucket with datasets.
 if not config['storage']['bucket_name']:
     logger.error("Storage bucket configuration is missing")
     exit(1)

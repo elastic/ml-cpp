@@ -5,7 +5,7 @@
     "memory_limit": 50000000,
     "threads": 3,
     "results_field": "ml",
-      "categorical_fields": ["target"],
+    "categorical_fields": ["target"],
     "analysis": {
       "name": "classification",
       "parameters": {

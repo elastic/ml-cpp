@@ -138,69 +138,78 @@ def transform_dataset(dataset: pd.DataFrame,
                       transform_parameters,
                       _seed: int) -> pd.DataFrame:
     if transform_name == 'partition_on_metric_ranges':
-        train_dataset, update_dataset = partition_on_metric_ranges(dataset=dataset,
-                                                                   seed=_seed,
-                                                                   features=transform_parameters['features'])
+        train_dataset, update_dataset = partition_on_metric_ranges(
+            dataset=dataset,
+            seed=_seed,
+            metric_features=transform_parameters['metric_features'])
         train_dataset, test1_dataset = train_test_split(train_dataset, test_size=test_fraction)
         update_dataset, test2_dataset = train_test_split(update_dataset, test_size=test_fraction)
         return train_dataset, update_dataset, test1_dataset, test2_dataset
 
     if transform_name == 'resample_metric_features':
         train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-        update_dataset = resample_metric_features(dataset=train_dataset,
-                                                  seed=_seed, 
-                                                  fraction=transform_parameters['fraction'], 
-                                                  magnitude=transform_parameters['magnitude'],
-                                                  features=transform_parameters['features'])
-        test2_dataset = resample_metric_features(dataset=test1_dataset,
-                                                 seed=_seed, 
-                                                 fraction=transform_parameters['fraction'], 
-                                                 magnitude=transform_parameters['magnitude'],
-                                                 features=transform_parameters['features'])
+        update_dataset = resample_metric_features(
+            dataset=train_dataset,
+            seed=_seed, 
+            fraction=transform_parameters['fraction'], 
+            magnitude=transform_parameters['magnitude'],
+            metric_features=transform_parameters['metric_features'])
+        test2_dataset = resample_metric_features(
+            dataset=test1_dataset,
+            seed=_seed, 
+            fraction=transform_parameters['fraction'], 
+            magnitude=transform_parameters['magnitude'],
+            metric_features=transform_parameters['metric_features'])
         return train_dataset, update_dataset, test1_dataset, test2_dataset
 
     if transform_name == 'shift_metric_features':
         train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-        update_dataset = shift_metric_features(dataset=train_dataset,
-                                               seed=_seed,
-                                               fraction=transform_parameters['fraction'],
-                                               magnitude=transform_parameters['magnitude'],
-                                               categorical_features=transform_parameters['categorical_features'])
-        test2_dataset = shift_metric_features(dataset=test1_dataset,
-                                              seed=_seed,
-                                              fraction=transform_parameters['fraction'],
-                                              magnitude=transform_parameters['magnitude'],
-                                              categorical_features=transform_parameters['categorical_features'])
+        update_dataset = shift_metric_features(
+            dataset=train_dataset,
+            seed=_seed,
+            fraction=transform_parameters['fraction'],
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'])
+        test2_dataset = shift_metric_features(
+            dataset=test1_dataset,
+            seed=_seed,
+            fraction=transform_parameters['fraction'],
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'])
         return train_dataset, update_dataset, test1_dataset, test2_dataset
 
     if transform_name == 'rotate_metric_features':
         train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-        update_dataset = rotate_metric_features(dataset=train_dataset,
-                                                seed=_seed,
-                                                fraction=transform_parameters['fraction'],
-                                                magnitude=transform_parameters['magnitude'],
-                                                categorical_features=transform_parameters['categorical_features'])
-        test2_dataset = rotate_metric_features(dataset=test1_dataset,
-                                               seed=_seed,
-                                               fraction=transform_parameters['fraction'],
-                                               magnitude=transform_parameters['magnitude'],
-                                               categorical_features=transform_parameters['categorical_features'])
+        update_dataset = rotate_metric_features(
+            dataset=train_dataset,
+            seed=_seed,
+            fraction=transform_parameters['fraction'],
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'])
+        test2_dataset = rotate_metric_features(
+            dataset=test1_dataset,
+            seed=_seed,
+            fraction=transform_parameters['fraction'],
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'])
         return train_dataset, update_dataset, test1_dataset, test2_dataset
 
     if transform_name == 'regression_category_drift':
         train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-        update_dataset = regression_category_drift(dataset=train_dataset,
-                                                   seed=_seed,
-                                                   fraction=transform_parameters['fraction'],
-                                                   magnitude=transform_parameters['magnitude'],
-                                                   categorical_features=transform_parameters['categorical_features'],
-                                                   target=transform_parameters['target'])
-        test2_dataset = regression_category_drift(dataset=test1_dataset,
-                                                  seed=_seed,
-                                                  fraction=transform_parameters['fraction'],
-                                                  magnitude=transform_parameters['magnitude'],
-                                                  categorical_features=transform_parameters['categorical_features'],
-                                                  target=transform_parameters['target'])
+        update_dataset = regression_category_drift(
+            dataset=train_dataset,
+            seed=_seed,
+            fraction=transform_parameters['fraction'],
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'],
+            target=transform_parameters['target'])
+        test2_dataset = regression_category_drift(
+            dataset=test1_dataset,
+            seed=_seed,
+            fraction=transform_parameters['fraction'],
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'],
+            target=transform_parameters['target'])
         return train_dataset, update_dataset, test1_dataset, test2_dataset
 
     raise NotImplementedError(transform_name + ' is not implemented.')
