@@ -3,11 +3,11 @@
         {
             "dataset_name": "ccpp",
             "seed": 42,
-            "threads": 4,
+            "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
                 "fraction": 0.5,
-                "magnitude": 0.1,
+                "magnitude": 0.5,
                 "features": [
                     "AP",
                     "AT",
@@ -15,11 +15,11 @@
                     "V"
                 ]
             }
-        }, 
+        },
         {
             "dataset_name": "ccpp",
-            "seed": 42,
-            "threads": 4,
+            "seed": 4200000,
+            "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
                 "fraction": 0.5,

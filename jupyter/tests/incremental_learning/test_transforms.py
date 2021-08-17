@@ -23,14 +23,14 @@ class TransformsTest(unittest.TestCase):
         download_successful = download_dataset(dataset_name)
         if download_successful == False:
             self.fail("Dataset is not available")
-        self.data_frame = pandas.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
+        self.dataset = pandas.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
 
     def test_metric_features(self) -> None:
         '''
         Test extracting metric features from a data frame.
         '''
         expected_metric_features = ['AGE', 'B', 'CRIM', 'DIS', 'INDUS', 'LSTAT', 'MEDV', 'NOX', 'PTRATIO', 'RM', 'TAX', 'ZN']
-        actual_metric_features = transforms.metric_features(['CHAS', 'RAD'], self.data_frame)
+        actual_metric_features = transforms.metric_features(['CHAS', 'RAD'], self.dataset)
         actual_metric_features.sort()
         self.assertEqual(actual_metric_features, expected_metric_features)
 
@@ -42,7 +42,7 @@ class TransformsTest(unittest.TestCase):
         partition = transforms.partition_on_metric_ranges(
             seed=self.seed,
             features=['this feature does not exist'],
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
         self.assertEqual(partition[0], None)
         self.assertEqual(partition[1], None)
@@ -50,7 +50,7 @@ class TransformsTest(unittest.TestCase):
         partition = transforms.partition_on_metric_ranges(
             seed=self.seed,
             features=['AGE', 'DIS'],
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
         self.assertAlmostEqual(
             first=len(partition[0].index),
@@ -60,11 +60,11 @@ class TransformsTest(unittest.TestCase):
 
         # We get a partition of the original data frame.
         self.assertEqual(len(partition[0].index) + len(partition[1].index),
-                         len(self.data_frame.index))
+                         len(self.dataset.index))
         for i in [0, 1]:
             for j, row in partition[i].iterrows():
                 self.assertEqual([value for _, value in row.iteritems()],
-                                 [value for _, value in self.data_frame.loc[j].iteritems()])
+                                 [value for _, value in self.dataset.loc[j].iteritems()])
 
         # Changing the seed results in different data while repeating with the same
         # seed produces an identical result.
@@ -72,12 +72,12 @@ class TransformsTest(unittest.TestCase):
         partition_with_same_seed = transforms.partition_on_metric_ranges(
             seed=self.seed,
             features=['AGE', 'DIS'],
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
         partition_with_different_seed = transforms.partition_on_metric_ranges(
             seed=self.seed + 1,
             features=['AGE', 'DIS'],
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
 
         for p_1, p_2, p_3 in zip(partition, partition_with_same_seed, partition_with_different_seed):
@@ -95,14 +95,14 @@ class TransformsTest(unittest.TestCase):
         partition = transforms.partition_on_categories(
             seed=self.seed,
             features=['this feature does not exist'],
-            data_frame=self.data_frame)
+            dataset=self.dataset)
         self.assertEqual(partition[0], None)
         self.assertEqual(partition[1], None)
 
         partition = transforms.partition_on_categories(
             seed=self.seed,
             features=['CHAS', 'RAD'],
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
         self.assertAlmostEqual(
             first=len(partition[0].index),
@@ -112,11 +112,11 @@ class TransformsTest(unittest.TestCase):
 
         # We get a partition of the original data frame.
         self.assertEqual(len(partition[0].index) + len(partition[1].index),
-                         len(self.data_frame.index))
+                         len(self.dataset.index))
         for i in [0, 1]:
             for j, row in partition[i].iterrows():
                 self.assertEqual([value for _, value in row.iteritems()],
-                                 [value for _, value in self.data_frame.loc[j].iteritems()])
+                                 [value for _, value in self.dataset.loc[j].iteritems()])
 
         categories = (set(), set())
         for i in range(2):
@@ -132,12 +132,12 @@ class TransformsTest(unittest.TestCase):
         partition_with_same_seed = transforms.partition_on_categories(
             seed=self.seed,
             features=['CHAS', 'RAD'],
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
         partition_with_different_seed = transforms.partition_on_categories(
             seed=self.seed + 1,
             features=['CHAS', 'RAD'],
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
 
         for p_1, p_2, p_3 in zip(partition, partition_with_same_seed, partition_with_different_seed):
@@ -151,25 +151,25 @@ class TransformsTest(unittest.TestCase):
         '''
         Test that the sample size is correctly controlled by fraction.
         '''
-        resampled_data_frame = transforms.resample_metric_features(
+        resampled_dataset = transforms.resample_metric_features(
             seed=self.seed,
             fraction=0.2,
             magnitude=0.9,
             features=['this feature does not exist'],
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
-        self.assertEqual(resampled_data_frame, None)
+        self.assertEqual(resampled_dataset, None)
 
-        resampled_data_frame = transforms.resample_metric_features(
+        resampled_dataset = transforms.resample_metric_features(
             seed=self.seed,
             fraction=0.2,
             magnitude=0.9,
             features=['AGE', 'MEDV'],
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
         self.assertAlmostEqual(
-            first=len(resampled_data_frame.index),
-            second=0.2 * len(self.data_frame),
+            first=len(resampled_dataset.index),
+            second=0.2 * len(self.dataset),
             delta=2
         )
 
@@ -182,38 +182,36 @@ class TransformsTest(unittest.TestCase):
         for shift in shifts:
             self.assertLess(abs(shift), 0.1)
 
-        shifted_data_frame = self.data_frame.copy(deep=True)
-        shifted_data_frame = transforms.shift_metric_features(
+        shifted_dataset = transforms.shift_metric_features(
             seed=self.seed,
             fraction=0.2,
             magnitude=0.1,
             categorical_features=['CHAS', 'RAD'],
-            data_frame=shifted_data_frame
+            dataset=self.dataset
         )
         self.assertAlmostEqual(
-            first=len(shifted_data_frame.index),
-            second=0.2 * len(self.data_frame),
+            first=len(shifted_dataset.index),
+            second=0.2 * len(self.dataset),
             delta=2
         )
 
-        shifted_data_frame = self.data_frame.copy(deep=True)
-        shifted_data_frame = transforms.shift_metric_features(
+        shifted_dataset = transforms.shift_metric_features(
             seed=self.seed,
             fraction=1.0,
             magnitude=0.1,
             categorical_features=['CHAS', 'RAD'],
-            data_frame=shifted_data_frame
+            dataset=shifted_dataset
         )
-        self.assertEqual(len(shifted_data_frame.index), len(self.data_frame.index))
+        self.assertEqual(len(shifted_dataset.index), len(self.dataset.index))
 
-        features = transforms.metric_features(['CHAS', 'RAD'], self.data_frame)
-        sd = self.data_frame[features].std()
+        features = transforms.metric_features(['CHAS', 'RAD'], self.dataset)
+        sd = self.dataset[features].std()
 
-        for i in range(len(self.data_frame.index)):
+        for i in range(len(self.dataset.index)):
             for feature in features:
                 self.assertAlmostEqual(
-                    first=shifted_data_frame.loc[i, feature],
-                    second=self.data_frame.loc[i, feature],
+                    first=shifted_dataset.loc[i, feature],
+                    second=self.dataset.loc[i, feature],
                     delta=0.1 * 3.0 * sd[feature]
                 )
 
@@ -240,36 +238,35 @@ class TransformsTest(unittest.TestCase):
         self.assertAlmostEqual(first=x[0], second=0, delta=1e-8)
         self.assertAlmostEqual(first=x[1], second=1, delta=1e-8)
 
-        rotated_data_frame = self.data_frame.copy(deep=True)
-        rotated_data_frame = transforms.rotate_metric_features(
+        rotated_dataset = transforms.rotate_metric_features(
             seed=self.seed,
             fraction=0.2,
             magnitude=0.01,
             categorical_features=['CHAS', 'RAD'],
-            data_frame=rotated_data_frame
+            dataset=self.dataset
         )
         self.assertAlmostEqual(
-            first=len(rotated_data_frame.index),
-            second=0.2 * len(self.data_frame),
+            first=len(rotated_dataset.index),
+            second=0.2 * len(self.dataset),
             delta=2
         )
 
-        features = transforms.metric_features(['CHAS', 'RAD'], self.data_frame)
+        features = transforms.metric_features(['CHAS', 'RAD'], self.dataset)
 
         # Check that categorical features are preserved and metric features values
         # are close on the order of the feature standard deviation.
         selected = []
-        sd = self.data_frame.std()
-        for i, row in rotated_data_frame.iterrows():
+        sd = self.dataset.std()
+        for i, row in rotated_dataset.iterrows():
             for feature in ['CHAS', 'RAD']:
-                self.assertEqual(row[feature], self.data_frame.loc[i, feature])
+                self.assertEqual(row[feature], self.dataset.loc[i, feature])
             for feature in features:
-                self.assertAlmostEqual(row[feature], self.data_frame.loc[i, feature], delta=sd[feature])
+                self.assertAlmostEqual(row[feature], self.dataset.loc[i, feature], delta=sd[feature])
             selected.append(i)
 
         # Check data centroid is similar.
-        rotated_centroid = rotated_data_frame.mean()
-        centroid = self.data_frame.loc[selected].mean()
+        rotated_centroid = rotated_dataset.mean()
+        centroid = self.dataset.loc[selected].mean()
         for mean, rotated_mean in zip(centroid.items(), rotated_centroid.items()):
             self.assertAlmostEqual(first=1, second=rotated_mean[1] / mean[1], delta=0.02) # 2 %
 
@@ -279,53 +276,52 @@ class TransformsTest(unittest.TestCase):
         fraction correctly.
         '''
 
-        drifted_data_frame = transforms.regression_category_drift(
+        drifted_dataset = transforms.regression_category_drift(
             seed=self.seed,
             fraction=0.2,
             magnitude=0.1,
             categorical_features=['this feature does not exist'],
             target='MEDV',
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
-        self.assertEqual(drifted_data_frame, None)
+        self.assertEqual(drifted_dataset, None)
 
-        drifted_data_frame = transforms.regression_category_drift(
+        drifted_dataset = transforms.regression_category_drift(
             seed=self.seed,
             fraction=0.2,
             magnitude=0.1,
             categorical_features=['CHAS', 'RAD'],
             target='this feature does not exist',
-            data_frame=self.data_frame
+            dataset=self.dataset
         )
-        self.assertEqual(drifted_data_frame, None)
+        self.assertEqual(drifted_dataset, None)
 
-        drifted_data_frame = self.data_frame.copy(deep=True)
-        drifted_data_frame = transforms.regression_category_drift(
+        drifted_dataset = transforms.regression_category_drift(
             seed=self.seed,
             fraction=0.2,
             magnitude=0.1,
             categorical_features=['CHAS'],
             target='MEDV',
-            data_frame=drifted_data_frame
+            dataset=self.dataset
         )
         self.assertAlmostEqual(
-            first=len(drifted_data_frame.index),
-            second=0.2 * len(self.data_frame),
+            first=len(drifted_dataset.index),
+            second=0.2 * len(self.dataset),
             delta=2
         )
 
-        sd = self.data_frame['MEDV'].std()
+        sd = self.dataset['MEDV'].std()
 
-        for i, row in drifted_data_frame.iterrows():
-            for feature in self.data_frame.columns:
+        for i, row in drifted_dataset.iterrows():
+            for feature in self.dataset.columns:
                 if feature == 'MEDV':
                     self.assertAlmostEqual(
                         first=row[feature],
-                        second=self.data_frame.loc[i, feature],
+                        second=self.dataset.loc[i, feature],
                         delta=3.0 * sd
                     )
                 else:
-                    self.assertEqual(row[feature], self.data_frame.loc[i, feature])
+                    self.assertEqual(row[feature], self.dataset.loc[i, feature])
 
 
 if __name__ == '__main__':
