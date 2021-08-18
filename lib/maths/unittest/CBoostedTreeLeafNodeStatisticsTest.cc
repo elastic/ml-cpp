@@ -402,10 +402,11 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         std::tie(splitFeature, splitValue) = rootSplit->bestSplit();
         bool assignMissingToLeft{rootSplit->assignMissingToLeft()};
 
-        std::size_t leftChildId, rightChildId;
+        std::size_t leftChildId;
+        std::size_t rightChildId;
         std::tie(leftChildId, rightChildId) = tree[rootSplit->id()].split(
             splitFeature, splitValue, assignMissingToLeft, rootSplit->gain(),
-            rootSplit->curvature(), tree);
+            rootSplit->gainVariance(), rootSplit->curvature(), tree);
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;

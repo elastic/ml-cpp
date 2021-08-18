@@ -16,6 +16,7 @@
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CTools.h>
@@ -292,6 +293,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
         std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
         std::size_t size{derivatives.derivatives(feature).size()};
+        auto gainMoments = CBasicStatistics::momentsAccumulator(0.0, 0.0, 0.0);
 
         for (std::size_t split = 0; split + 1 < size; ++split) {
 
@@ -327,6 +329,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
                 gain[ASSIGN_MISSING_TO_LEFT] =
                     minLossLeft + minLossRight -
                     2.0 * this->penaltyForTreeChange(regularization, feature, split);
+                gainMoments.add(gain[ASSIGN_MISSING_TO_LEFT]);
             }
 
             if (cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c) {
@@ -339,6 +342,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
                 gain[ASSIGN_MISSING_TO_RIGHT] =
                     minLossLeft + minLossRight -
                     2.0 * this->penaltyForTreeChange(regularization, feature, split);
+                gainMoments.add(gain[ASSIGN_MISSING_TO_RIGHT]);
             }
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
@@ -364,8 +368,10 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
                          regularization.treeSizePenaltyMultiplier() -
                          regularization.depthPenaltyMultiplier() *
                              (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
+
         SSplitStatistics candidate{
             totalGain,
+            CBasicStatistics::variance(gainMoments),
             h.trace() / static_cast<double>(this->numberLossParameters()),
             feature,
             splitAt,

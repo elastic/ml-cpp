@@ -113,6 +113,9 @@ public:
     //! Get the gain of the split.
     double gain() const { return m_Gain; }
 
+    //! Get the gain variance for alternative splits.
+    double gainVariance() const { return m_GainVariance; }
+
     //! Get the total curvature at the rows below this node.
     double curvature() const { return m_Curvature; }
 
@@ -139,6 +142,7 @@ public:
                                 double splitValue,
                                 bool assignMissingToLeft,
                                 double gain,
+                                double gainVariance,
                                 double curvature,
                                 TNodeVec& tree);
 
@@ -172,15 +176,16 @@ private:
     doPrint(std::string pad, const TNodeVec& tree, std::ostringstream& result) const;
 
 private:
-    std::size_t m_SplitFeature = 0;
-    double m_SplitValue = 0.0;
-    bool m_AssignMissingToLeft = true;
+    std::size_t m_SplitFeature{0};
+    double m_SplitValue{0.0};
+    bool m_AssignMissingToLeft{true};
     TOptionalNodeIndex m_LeftChild;
     TOptionalNodeIndex m_RightChild;
     TVector m_NodeValue;
-    double m_Gain = 0.0;
-    double m_Curvature = 0.0;
-    std::size_t m_NumberSamples = 0;
+    double m_Gain{0.0};
+    double m_GainVariance{0.0};
+    double m_Curvature{0.0};
+    std::size_t m_NumberSamples{0};
 };
 
 //! \brief A boosted regression tree model.

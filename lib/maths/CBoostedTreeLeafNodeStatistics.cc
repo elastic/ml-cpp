@@ -32,6 +32,10 @@ double CBoostedTreeLeafNodeStatistics::gain() const {
     return m_BestSplit.s_Gain;
 }
 
+double CBoostedTreeLeafNodeStatistics::gainVariance() const {
+    return m_BestSplit.s_GainVariance;
+}
+
 double CBoostedTreeLeafNodeStatistics::leftChildMaxGain() const {
     return m_BestSplit.s_LeftChildMaxGain;
 }

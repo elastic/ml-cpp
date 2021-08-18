@@ -31,13 +31,16 @@ using namespace boosted_tree;
 using namespace boosted_tree_detail;
 
 namespace {
+const std::string ASSIGN_MISSING_TO_LEFT_TAG{"assign_missing_to_left "};
+const std::string CURVATURE_TAG{"curvature"};
+const std::string GAIN_TAG{"gain"};
+const std::string GAIN_VARIANCE_TAG{"gain_variance"};
 const std::string LEFT_CHILD_TAG{"left_child"};
+const std::string NODE_VALUE_TAG{"node_value"};
+const std::string NUMBER_SAMPLES_TAG{"number_samples"};
 const std::string RIGHT_CHILD_TAG{"right_child"};
 const std::string SPLIT_FEATURE_TAG{"split_feature"};
-const std::string ASSIGN_MISSING_TO_LEFT_TAG{"assign_missing_to_left "};
-const std::string NODE_VALUE_TAG{"node_value"};
 const std::string SPLIT_VALUE_TAG{"split_value"};
-const std::string NUMBER_SAMPLES_TAG{"number_samples"};
 }
 
 CBoostedTreeNode::CBoostedTreeNode(std::size_t numberLossParameters)
@@ -61,6 +64,7 @@ CBoostedTreeNode::TNodeIndexNodeIndexPr CBoostedTreeNode::split(std::size_t spli
                                                                 double splitValue,
                                                                 bool assignMissingToLeft,
                                                                 double gain,
+                                                                double gainVariance,
                                                                 double curvature,
                                                                 TNodeVec& tree) {
     m_SplitFeature = splitFeature;
@@ -69,6 +73,7 @@ CBoostedTreeNode::TNodeIndexNodeIndexPr CBoostedTreeNode::split(std::size_t spli
     m_LeftChild = static_cast<TNodeIndex>(tree.size());
     m_RightChild = static_cast<TNodeIndex>(tree.size() + 1);
     m_Gain = gain;
+    m_GainVariance = gainVariance;
     m_Curvature = curvature;
     TNodeIndexNodeIndexPr result{m_LeftChild.get(), m_RightChild.get()};
     // Don't access members after calling resize because this object is likely an
@@ -86,33 +91,41 @@ std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParamete
 }
 
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
+    core::CPersistUtils::persist(CURVATURE_TAG, m_Curvature, inserter);
+    core::CPersistUtils::persist(GAIN_TAG, m_Gain, inserter);
+    core::CPersistUtils::persist(GAIN_VARIANCE_TAG, m_GainVariance, inserter);
     core::CPersistUtils::persist(LEFT_CHILD_TAG, m_LeftChild, inserter);
+    core::CPersistUtils::persist(NODE_VALUE_TAG, m_NodeValue, inserter);
+    core::CPersistUtils::persist(NUMBER_SAMPLES_TAG, m_NumberSamples, inserter);
     core::CPersistUtils::persist(RIGHT_CHILD_TAG, m_RightChild, inserter);
     core::CPersistUtils::persist(SPLIT_FEATURE_TAG, m_SplitFeature, inserter);
-    core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
-    core::CPersistUtils::persist(NODE_VALUE_TAG, m_NodeValue, inserter);
     core::CPersistUtils::persist(SPLIT_VALUE_TAG, m_SplitValue, inserter);
-    core::CPersistUtils::persist(NUMBER_SAMPLES_TAG, m_NumberSamples, inserter);
 }
 
 bool CBoostedTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE(LEFT_CHILD_TAG,
-                core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
-        RESTORE(RIGHT_CHILD_TAG,
-                core::CPersistUtils::restore(RIGHT_CHILD_TAG, m_RightChild, traverser))
-        RESTORE(SPLIT_FEATURE_TAG,
-                core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitFeature, traverser))
         RESTORE(ASSIGN_MISSING_TO_LEFT_TAG,
                 core::CPersistUtils::restore(ASSIGN_MISSING_TO_LEFT_TAG,
                                              m_AssignMissingToLeft, traverser))
+        RESTORE(CURVATURE_TAG,
+                core::CPersistUtils::restore(CURVATURE_TAG, m_Curvature, traverser))
+        RESTORE(GAIN_TAG, core::CPersistUtils::restore(GAIN_TAG, m_Gain, traverser))
+        RESTORE(GAIN_VARIANCE_TAG,
+                core::CPersistUtils::restore(GAIN_VARIANCE_TAG, m_GainVariance, traverser))
+        RESTORE(LEFT_CHILD_TAG,
+                core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
+        RESTORE(SPLIT_FEATURE_TAG,
+                core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitFeature, traverser))
         RESTORE(NODE_VALUE_TAG,
                 core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
-        RESTORE(SPLIT_VALUE_TAG,
-                core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
         RESTORE(NUMBER_SAMPLES_TAG,
                 core::CPersistUtils::restore(NUMBER_SAMPLES_TAG, m_NumberSamples, traverser))
+        RESTORE(RIGHT_CHILD_TAG,
+                core::CPersistUtils::restore(RIGHT_CHILD_TAG, m_RightChild, traverser))
+        RESTORE(SPLIT_VALUE_TAG,
+                core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
     } while (traverser.next());
     return true;
 }

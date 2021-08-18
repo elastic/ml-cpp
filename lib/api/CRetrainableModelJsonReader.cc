@@ -230,7 +230,7 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
                 std::size_t rightChildIndex{ifExists(CTree::CTreeNode::JSON_RIGHT_CHILD_TAG,
                                                      getAsUint64From, node)};
                 nodes[nodeIndex].split(splitFeature, splitValue,
-                                       assignMissingToLeft, gain, 0.0, nodes);
+                                       assignMissingToLeft, gain, 0.0, 0.0, nodes);
                 nodes[nodeIndex].numberSamples(numberSamples);
                 nodes[nodeIndex].leftChildIndex(
                     static_cast<maths::CBoostedTreeNode::TNodeIndex>(leftChildIndex));
