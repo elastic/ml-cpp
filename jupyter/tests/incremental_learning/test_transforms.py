@@ -200,7 +200,7 @@ class TransformsTest(unittest.TestCase):
             fraction=1.0,
             magnitude=0.1,
             categorical_features=['CHAS', 'RAD'],
-            dataset=shifted_dataset
+            dataset=self.dataset
         )
         self.assertEqual(len(shifted_dataset.index), len(self.dataset.index))
 
