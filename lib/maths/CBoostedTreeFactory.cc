@@ -1219,12 +1219,14 @@ void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty(core::CDataFrame& f
                     CTools::stableLog(3.0) +
                     0.5 * CTools::stableLog(std::max(gainVariancePercentiles[2], minimumGain));
                 m_TreeImpl->m_Regularization.treeTopologyChangePenalty(
-                    gainVariancePercentiles[1]);
+                    CTools::stableExp(gainVariancePercentiles[1]));
                 m_LogTreeTopologyChangePenaltySearchInterval = TVector{gainVariancePercentiles};
-            } else {
-                m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty(0.0);
-                m_TreeImpl->m_Regularization.treeTopologyChangePenalty(0.0);
             }
+        }
+
+        if (intervalIsEmpty(m_LogTreeTopologyChangePenaltySearchInterval)) {
+            m_TreeImpl->m_RegularizationOverride.treeTopologyChangePenalty(0.0);
+            m_TreeImpl->m_Regularization.treeTopologyChangePenalty(0.0);
         }
     }
 }
