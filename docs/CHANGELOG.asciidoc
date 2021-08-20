@@ -59,6 +59,11 @@
 * Prune models for split fields (by, partition) that haven't seen data updates for
   a given period of time. (See {ml-pull}1962[#1962].)
 
+=== Bug Fixes
+
+* Fix potential "process stopped unexpectedly: Fatal error" for training regression
+  and classification models. (See {ml-pull}1997[#1997], issue {ml-pull}1956[#1956].)
+
 == {es} version 7.14.0
 
 === Enhancements
