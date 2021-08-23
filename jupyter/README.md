@@ -179,12 +179,13 @@ To unmount the bucket:
 fusermount -u ~/data
 ```
 
-You may need to add the parameter `-z` to force the unmounting.
+You may need to add the parameter `-z` to force the unmounting. (Note that `gcsfuse` does not support the latest build
+of FUSE for macOS; see [this](https://github.com/GoogleCloudPlatform/gcsfuse/issues/514) for more details.) 
 
 To copy `dataset.csv` to the bucket without mounting it:
 
 ```bash
-gsutil cp dataset.csv gs://ml-incremental-learning-datasets
+gsutil cp dataset.csv gs://ml-incremental-learning-datasets/datasets
 ```
 
 ### How to generate the service account key json file?
