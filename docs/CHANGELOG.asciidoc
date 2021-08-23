@@ -48,6 +48,11 @@
 * Improve regression and classification training accuracy for small data sets.
   (See {ml-pull}1960[#1960].)
 
+=== Bug Fixes
+
+* Fix potential "process stopped unexpectedly: Fatal error" for training regression
+  and classification models. (See {ml-pull}1997[#1997], issue {ml-pull}1956[#1956].)
+
 == {es} version 7.14.0
 
 === Enhancements
