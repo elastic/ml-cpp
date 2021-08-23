@@ -2,15 +2,15 @@
     {
         "transform_name": "partition_on_metric_ranges",
         "transform_parameters": {
-            "metric_fraction": []
+            "fraction": 0.0
         }
     },
     {
         "transform_name": "resample_metric_features",
         "transform_parameters": {
-            "metric_fraction": 0.0,
+            "fraction": 0.0,
             "magnitude": 0.0,
-            "features": []
+            "metric_features": []
         }
     },
     {

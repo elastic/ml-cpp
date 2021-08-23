@@ -9,10 +9,20 @@ from incremental_learning.storage import download_dataset
 
 def feature_fields(dataset_name : str):
     with open(datasets_dir / '{}.csv'.format(dataset_name)) as csv_file:
-        reader = csv.reader(csv_file, delimiter=',')
-        field_names = next(reader)
+        try:
+            reader = csv.reader(csv_file, delimiter=',')
+            field_names = next(reader)
+        except:
+            print('Failed reading', datasets_dir / '{}.csv'.format(dataset_name))
+            return None
+
     with open(configs_dir / '{}.json'.format(dataset_name)) as json_file:
-        config = json.load(json_file)
+        try:
+            config = json.load(json_file)
+        except:
+            print('Failed reading', configs_dir / '{}.json'.format(dataset_name))
+            return None
+
     target = [config['analysis']['parameters']['dependent_variable']]
     categorical_features = []
     if 'categorical_fields' in config:
@@ -24,10 +34,20 @@ def features():
     result = {}
     for dataset_name in args.classification_datasets:
         if download_dataset(dataset_name):
-            result[dataset_name] = feature_fields(dataset_name)
+            fields = feature_fields(dataset_name)
+            if fields != None:
+                result[dataset_name] = fields
+        else:
+            print('Missing dataset', dataset_name)
+
     for dataset_name in args.regression_datasets:
         if download_dataset(dataset_name):
-            result[dataset_name] = feature_fields(dataset_name)
+            fields = feature_fields(dataset_name)
+            if fields != None:
+                result[dataset_name] = fields
+        else:
+            print('Missing dataset', dataset_name)
+
     return result
 
 def needs_metric_features(transform_name: str):
@@ -86,6 +106,7 @@ args = parser.parse_args()
 random.seed(args.seed)
 
 dataset_features = features()
+print('Dataset features', dataset_features)
 
 experiments = []
 
@@ -96,20 +117,21 @@ with open(args.transforms_file, 'r') as transforms_file:
             for categorisation, dataset_names in zip([True, False],
                                                      [args.classification_datasets, args.regression_datasets]):
                 for dataset_name in dataset_names:
-                    target, metric_features, categorical_features = dataset_features[dataset_name]
-                    params = generate_parameters(transform=transform,
-                                                 categorisation=categorisation,
-                                                 target=target,
-                                                 metric_features=metric_features,
-                                                 categorical_features=categorical_features)
-                    if params != None:
-                        experiments.append({
-                            'dataset_name': dataset_name,
-                            'threads': 1,
-                            'seed': random.randint(0, 100000000),
-                            'transform_name': transform['transform_name'],
-                            'transform_parameters': params
-                        })
+                    if dataset_name in dataset_features:
+                        target, metric_features, categorical_features = dataset_features[dataset_name]
+                        params = generate_parameters(transform=transform,
+                                                    categorisation=categorisation,
+                                                    target=target,
+                                                    metric_features=metric_features,
+                                                    categorical_features=categorical_features)
+                        if params != None:
+                            experiments.append({
+                                'dataset_name': dataset_name,
+                                'threads': 1,
+                                'seed': random.randint(0, 100000000),
+                                'transform_name': transform['transform_name'],
+                                'transform_parameters': params
+                            })
 
 print('There are', len(experiments), 'experiments in total')
 
