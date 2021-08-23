@@ -22,7 +22,7 @@ def feature_fields(dataset_name : str):
 
 def features():
     result = {}
-    for dataset_name in args.categorisation_datasets:
+    for dataset_name in args.classification_datasets:
         if download_dataset(dataset_name):
             result[dataset_name] = feature_fields(dataset_name)
     for dataset_name in args.regression_datasets:
@@ -76,7 +76,7 @@ def generate_parameters(transform: dict,
 
 parser = argparse.ArgumentParser(description='Generates the experiments.json file for a collection of data and transforms')
 parser.add_argument('--experiments_file', default='experiments.json', help='The experiments file to write')
-parser.add_argument('--categorisation_datasets', nargs='+', default=[], help='The categorisation datasets to use')
+parser.add_argument('--classification_datasets', nargs='+', default=[], help='The classification datasets to use')
 parser.add_argument('--regression_datasets', nargs='+', default=[], help='The regression datasets to use')
 parser.add_argument('--transforms_file', default='transform_templates.json', help='The transforms to apply to each dataset')
 parser.add_argument('--number_random_copies', default=3, help='The number of random verions to use for each base experiment')
@@ -94,7 +94,7 @@ with open(args.transforms_file, 'r') as transforms_file:
         print('Generating experiments for', transform)
         for _ in range(args.number_random_copies):
             for categorisation, dataset_names in zip([True, False],
-                                                     [args.categorisation_datasets, args.regression_datasets]):
+                                                     [args.classification_datasets, args.regression_datasets]):
                 for dataset_name in dataset_names:
                     target, metric_features, categorical_features = dataset_features[dataset_name]
                     params = generate_parameters(transform=transform,
