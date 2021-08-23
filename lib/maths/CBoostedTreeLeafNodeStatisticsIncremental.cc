@@ -27,13 +27,6 @@ namespace maths {
 using namespace boosted_tree_detail;
 
 namespace {
-struct SChildredGainStats {
-    double s_MinLossLeft = -INF;
-    double s_MinLossRight = -INF;
-    double s_GLeft = -INF;
-    double s_GRight = -INF;
-};
-
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 }
@@ -67,7 +60,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
     workspace.reducedDerivatives().swap(this->derivatives());
 
-    if (this->gain() > workspace.minimumGain()) {
+    if (this->gain() >= workspace.minimumGain()) {
         this->rowMask() = rowMask;
         CSplitsDerivatives tmp{workspace.derivatives()[0]};
         this->derivatives() = std::move(tmp);

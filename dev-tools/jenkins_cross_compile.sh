@@ -94,6 +94,6 @@ fi
 
 # If this isn't a PR build and isn't a debug build then upload the artifacts
 if [[ -z "$PR_AUTHOR" && -z "$ML_DEBUG" ]] ; then
-    (cd .. && ./gradlew --info -b upload.gradle -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT upload)
+    (cd .. && ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT upload)
 fi
 

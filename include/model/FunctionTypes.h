@@ -232,6 +232,10 @@ bool isMetric(EFunction function);
 MODEL_EXPORT
 bool isForecastSupported(EFunction function);
 
+//! Is this function for use with aggressive pruning of dead split fields?
+MODEL_EXPORT
+bool isAggressivePruningSupported(EFunction function);
+
 //! Get the mapping from function to data features.
 MODEL_EXPORT
 const model_t::TFeatureVec& features(EFunction function);

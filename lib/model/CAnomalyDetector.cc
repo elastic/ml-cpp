@@ -304,6 +304,19 @@ void CAnomalyDetector::partitionFieldAcceptPersistInserter(core::CStatePersistIn
     inserter.insertValue(PARTITION_FIELD_VALUE_TAG, m_DataGatherer->partitionFieldValue());
 }
 
+bool CAnomalyDetector::shouldPersistDetector() const {
+    // Query the model to determine if it should be persisted.
+    // This may return false if every constituent feature model is effectively
+    // empty, i.e. all the models are stubs due to them being pruned.
+    // If the model should not be persisted neither should the detector.
+    if (m_Model->shouldPersist() == false) {
+        LOG_TRACE(<< "NOT persisting detector \"" << this->description()
+                  << "\" due to all feature models being pruned");
+        return false;
+    }
+    return true;
+}
+
 void CAnomalyDetector::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     // Persist static members only once within the simple count detector
     // and do this first so that other model components can use
@@ -588,6 +601,15 @@ void CAnomalyDetector::buildInterimResults(core_t::TTime bucketStartTime,
 void CAnomalyDetector::pruneModels() {
     // Purge out any ancient models which are effectively dead.
     m_Model->prune(m_Model->defaultPruneWindow());
+}
+
+void CAnomalyDetector::pruneModels(std::size_t buckets) {
+    // Purge out any models that haven't seen activity in the given number of buckets.
+
+    function_t::EFunction function{m_DataGatherer->function()};
+    if (function_t::isAggressivePruningSupported(function)) {
+        m_Model->prune(buckets);
+    }
 }
 
 void CAnomalyDetector::resetBucket(core_t::TTime bucketStart) {

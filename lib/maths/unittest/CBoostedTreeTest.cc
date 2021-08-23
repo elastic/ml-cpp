@@ -2282,27 +2282,32 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
             if (task.s_Name == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
                 // We don't do feature selection (we have enough data to use all of them).
             } else if (task.s_Name == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
-                // We don't have accurate upfront estimate of the number of steps so we
-                // only get progress up to 80% or 90% depending on the compiler and
-                // platform. In non-test code we always pass 100% when the task is complete.
-                if (task.s_TenPercentProgressPoints.size() != 10 ||
-                    task.s_TenPercentProgressPoints.front() != 0 ||
-                    task.s_TenPercentProgressPoints.back() != 90) {
-                    BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80]",
-                                        core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
-                }
+                // We don't have accurate upfront estimate of the number of steps so
+                // we only get progress up to 80% or 90% depending on the compiler and
+                // platform. In non-test code we always pass 100% when the task is
+                // complete.
+                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.size() >= 9);
+                BOOST_TEST_REQUIRE(
+                    std::is_sorted(task.s_TenPercentProgressPoints.begin(),
+                                   task.s_TenPercentProgressPoints.end()));
+                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.front() == 0);
+                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.back() >= 80);
             } else if (task.s_Name == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
-                BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
-                                    core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.size() >= 10);
+                BOOST_TEST_REQUIRE(
+                    std::is_sorted(task.s_TenPercentProgressPoints.begin(),
+                                   task.s_TenPercentProgressPoints.end()));
+                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.front() == 0);
+                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.back() >= 90);
             } else if (task.s_Name == maths::CBoostedTreeFactory::FINAL_TRAINING) {
                 // Progress might be 90% or 100% depending on whether the final
-                // progress update registered
-                if (task.s_TenPercentProgressPoints.size() != 11 ||
-                    task.s_TenPercentProgressPoints.front() != 0 ||
-                    task.s_TenPercentProgressPoints.back() != 100) {
-                    BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
-                                        core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
-                }
+                // progress update registered.
+                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.size() >= 10);
+                BOOST_TEST_REQUIRE(
+                    std::is_sorted(task.s_TenPercentProgressPoints.begin(),
+                                   task.s_TenPercentProgressPoints.end()));
+                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.front() == 0);
+                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.back() >= 90);
             }
             BOOST_TEST_REQUIRE(task.s_Monotonic);
         }

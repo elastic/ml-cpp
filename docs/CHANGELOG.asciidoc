@@ -32,6 +32,12 @@
 
 === Enhancements
 
+* ...
+
+== {es} version 8.0.0-alpha1
+
+=== Enhancements
+
 * The Windows build platform for the {ml} C++ code now uses Visual Studio 2019. (See
   {ml-pull}1352[#1352].)
 * The macOS build platform for the {ml} C++ code is now Mojave running Xcode 11.3.1,
@@ -39,13 +45,8 @@
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
 * Added a new application for evaluating PyTorch models. The app depends on LibTorch
-  - the C++ front end to PyTorch and performs inference on models stored in the 
+  - the C++ front end to PyTorch - and performs inference on models stored in the
   TorchScript format. (See {ml-pull}1902[#1902].)
-
-=== Bug Fixes
-
-* Ensure bucket `event_count` is calculated for jobs with 1 second bucket spans.
-  (See {ml-pull}1908[#1908].)
 
 == {es} version 7.15.0
 
@@ -55,6 +56,13 @@
   (See {ml-pull}1941[#1941].)
 * Improve regression and classification training accuracy for small data sets.
   (See {ml-pull}1960[#1960].)
+* Prune models for split fields (by, partition) that haven't seen data updates for
+  a given period of time. (See {ml-pull}1962[#1962].)
+
+=== Bug Fixes
+
+* Fix potential "process stopped unexpectedly: Fatal error" for training regression
+  and classification models. (See {ml-pull}1997[#1997], issue {ml-pull}1956[#1956].)
 
 == {es} version 7.14.0
 
@@ -66,6 +74,8 @@
 === Bug Fixes
 
 * Make atomic operations safer for aarch64. (See {ml-pull}1893[#1893].)
+* Ensure bucket `event_count` is calculated for jobs with 1 second bucket spans.
+(See {ml-pull}1908[#1908].)
 
 == {es} version 7.13.0
 
@@ -138,7 +148,7 @@
 
 === Enhancements
 
-* During regression and classification training prefer smaller models if performance is 
+* During regression and classification training prefer smaller models if performance is
   similar (See {ml-pull}1516[#1516].)
 * Add a response mechanism for commands sent to the native controller. (See
   {ml-pull}1520[#1520], {es-pull}63542[#63542], issue: {es-issue}62823[#62823].)
@@ -146,7 +156,7 @@
   using longer bucket lengths. (See {ml-pull}1549[#1549].)
 * Fix an edge case which could cause typical and model plot bounds to blow up to around
   max double. (See {ml-pull}1551[#1551].)
-* Estimate upper bound of potential gains before splitting a decision tree node to avoid 
+* Estimate upper bound of potential gains before splitting a decision tree node to avoid
   unnecessary computation. (See {ml-pull}1537[#1537].)
 * Improvements to time series modeling particularly in relation to adaption to change.
   (See {ml-pull})1614[#1614].)
@@ -250,7 +260,7 @@
 * Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
   when CPU is constrained. This change is only implemented for Linux and macOS, not
   for Windows. (See {ml-pull}1109[#1109].)
-* Take `training_percent` into account when estimating memory usage for classification and regression. 
+* Take `training_percent` into account when estimating memory usage for classification and regression.
   (See {ml-pull}1111[#1111].)
 * Support maximize minimum recall when assigning class labels for multiclass classification.
   (See {ml-pull}1113[#1113].)
@@ -300,12 +310,12 @@
 
 * Fixed background persistence of categorizer state (See {ml-pull}1137[#1137],
   issue: {ml-issue}1136[#1136].)
-* Fix classification job failures when number of classes in configuration differs 
+* Fix classification job failures when number of classes in configuration differs
   from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
 * Fix underlying cause for "Failed to calculate splitting significance" log errors.
   (See {ml-pull}1157[#1157].)
 * Fix possible root cause for "Bad variance scale nan" log errors. (See {ml-pull}1225[#1225].)
-* Change data frame analytics instrumentation timestamp resolution to milliseconds. (See 
+* Change data frame analytics instrumentation timestamp resolution to milliseconds. (See
   {ml-pull}1237[#1237].)
 * Fix "autodetect process stopped unexpectedly: Fatal error: 'terminate called after
   throwing an instance of 'std::bad_function_call'". (See {ml-pull}1246[#1246],
@@ -426,7 +436,7 @@ boosted tree training. Hard depth based regularization is often the strategy of
 choice to prevent over fitting for XGBoost. By smoothing we can make better tradeoffs.
 Also, the parameters of the penalty function are mode suited to optimising with our
 Bayesian optimisation based hyperparameter search. (See {ml-pull}698[#698].)
-* Binomial logistic regression targeting cross entropy. (See {ml-pull}713[#713].) 
+* Binomial logistic regression targeting cross entropy. (See {ml-pull}713[#713].)
 * Improvements to count and sum anomaly detection for sparse data. This primarily
 aims to improve handling of data which are predictably present: detecting when they
 are unexpectedly missing. (See {ml-pull}721[#721].)

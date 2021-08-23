@@ -27,11 +27,11 @@ namespace maths {
 using namespace boosted_tree_detail;
 
 namespace {
-struct SChildredGainStats {
-    double s_MinLossLeft = -INF;
-    double s_MinLossRight = -INF;
-    double s_GainLeft = -INF;
-    double s_GainRight = -INF;
+struct SChildrenGainStats {
+    double s_MinLossLeft{-INF};
+    double s_MinLossRight{-INF};
+    double s_GainLeft{-INF};
+    double s_GainRight{-INF};
 };
 
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
@@ -65,7 +65,7 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
     workspace.reducedDerivatives().swap(this->derivatives());
 
-    if (this->gain() > workspace.minimumGain()) {
+    if (this->gain() >= workspace.minimumGain()) {
         this->rowMask() = rowMask;
         CSplitsDerivatives tmp{workspace.derivatives()[0]};
         this->derivatives() = std::move(tmp);
@@ -260,8 +260,8 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
     double gain[2];
     double minLossLeft[2]{0.0, 0.0};
     double minLossRight[2]{0.0, 0.0};
-    SChildredGainStats bestSplitChildrenGainStats;
-    SChildredGainStats featureChildrenGainStats;
+    SChildrenGainStats bestSplitChildrenGainStats;
+    SChildrenGainStats featureChildrenGainStats;
 
     const auto& derivatives = this->derivatives();
 
