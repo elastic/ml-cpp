@@ -1,0 +1,15 @@
+{
+  "job_id": "boston",
+  "rows": 506,
+  "cols": 14,
+  "memory_limit": 50000000,
+  "threads": 1,
+  "results_field": "ml",
+  "categorical_fields": ["CHAS", "RAD"],
+  "analysis": {
+    "name": "regression",
+    "parameters": {
+      "dependent_variable": "MEDV"
+    }
+  }
+}

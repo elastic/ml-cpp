@@ -1,36 +1,158 @@
-{
-    "configurations": [
-        {
-            "dataset_name": "ccpp",
-            "seed": 42,
-            "threads": 4,
-            "transform_name": "resample_metric_features",
+[
+    {
+        "dataset_name": "ccpp",
+        "seed": 58076675,
+        "threads": 1,
+        "transform_name": "partition_on_metric_ranges",
+        "transform_parameters": {
+            "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.5,
-                "magnitude": 0.1,
-                "features": [
-                    "AP",
-                    "AT",
-                    "RH",
-                    "V"
-                ]
-            }
-        }, 
-        {
-            "dataset_name": "ccpp",
-            "seed": 42,
-            "threads": 4,
-            "transform_name": "resample_metric_features",
-            "transform_parameters": {
-                "fraction": 0.5,
-                "magnitude": 0.5,
-                "features": [
-                    "AP",
-                    "AT",
-                    "RH",
-                    "V"
-                ]
+                "metric_fraction": []
             }
         }
-    ]
-}
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 31639532,
+        "threads": 1,
+        "transform_name": "partition_on_metric_ranges",
+        "transform_parameters": {
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "metric_fraction": []
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 9098806,
+        "threads": 1,
+        "transform_name": "partition_on_metric_ranges",
+        "transform_parameters": {
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "metric_fraction": []
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 30429823,
+        "threads": 1,
+        "transform_name": "resample_metric_features",
+        "transform_parameters": {
+            "transform_name": "resample_metric_features",
+            "transform_parameters": {
+                "features": [],
+                "magnitude": 0.57,
+                "metric_fraction": 0.0
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 77429843,
+        "threads": 1,
+        "transform_name": "resample_metric_features",
+        "transform_parameters": {
+            "transform_name": "resample_metric_features",
+            "transform_parameters": {
+                "features": [],
+                "magnitude": 0.16,
+                "metric_fraction": 0.0
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 9946445,
+        "threads": 1,
+        "transform_name": "resample_metric_features",
+        "transform_parameters": {
+            "transform_name": "resample_metric_features",
+            "transform_parameters": {
+                "features": [],
+                "magnitude": 0.59,
+                "metric_fraction": 0.0
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 7450670,
+        "threads": 1,
+        "transform_name": "shift_metric_features",
+        "transform_parameters": {
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "fraction": 0.14,
+                "magnitude": 0.83
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 23508332,
+        "threads": 1,
+        "transform_name": "shift_metric_features",
+        "transform_parameters": {
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "fraction": 0.73,
+                "magnitude": 0.76
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 57666096,
+        "threads": 1,
+        "transform_name": "shift_metric_features",
+        "transform_parameters": {
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "fraction": 0.79,
+                "magnitude": 0.56
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 34186102,
+        "threads": 1,
+        "transform_name": "rotate_metric_features",
+        "transform_parameters": {
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "fraction": 0.65,
+                "magnitude": 0.54
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 89433471,
+        "threads": 1,
+        "transform_name": "rotate_metric_features",
+        "transform_parameters": {
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "fraction": 0.73,
+                "magnitude": 0.65
+            }
+        }
+    },
+    {
+        "dataset_name": "ccpp",
+        "seed": 94941708,
+        "threads": 1,
+        "transform_name": "rotate_metric_features",
+        "transform_parameters": {
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "fraction": 0.63,
+                "magnitude": 0.7
+            }
+        }
+    }
+]

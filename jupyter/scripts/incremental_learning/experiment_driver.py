@@ -22,11 +22,15 @@ from sacred import Experiment
 from sacred.observers import FileStorageObserver
 from sklearn.model_selection import train_test_split
 
-from incremental_learning.config import datasets_dir, logger, root_dir
+from incremental_learning.config import datasets_dir, logger
 from incremental_learning.elasticsearch import push2es
 from incremental_learning.job import evaluate, train, update
 from incremental_learning.storage import download_dataset
+from incremental_learning.transforms import partition_on_metric_ranges
+from incremental_learning.transforms import regression_category_drift
 from incremental_learning.transforms import resample_metric_features
+from incremental_learning.transforms import rotate_metric_features
+from incremental_learning.transforms import shift_metric_features
 
 experiment_name = 'generic-train-update'
 experiment_data_path = Path('/tmp/'+experiment_name)
@@ -128,42 +132,84 @@ def read_dataset(_run, dataset_name):
 
 
 @ex.capture
-def transform_dataset(dataset: pd.DataFrame, transform_name: str, transform_parameters, _seed: int) -> pd.DataFrame:
+def transform_dataset(dataset: pd.DataFrame,
+                      test_fraction: float,
+                      transform_name: str,
+                      transform_parameters,
+                      _seed: int) -> pd.DataFrame:
+    if transform_name == 'partition_on_metric_ranges':
+        train_dataset, update_dataset = partition_on_metric_ranges(
+            dataset=dataset,
+            seed=_seed,
+            metric_features=transform_parameters['metric_features'])
+        train_dataset, test1_dataset = train_test_split(train_dataset, test_size=test_fraction)
+        update_dataset, test2_dataset = train_test_split(update_dataset, test_size=test_fraction)
+        return train_dataset, update_dataset, test1_dataset, test2_dataset
+
+    transform = None
+
     if transform_name == 'resample_metric_features':
-        transformed_dataset = resample_metric_features(data_frame=dataset,
-                                                       seed=_seed, 
-                                                       fraction=transform_parameters['fraction'], 
-                                                       magnitude=transform_parameters['magnitude'],
-                                                       features=transform_parameters['features'])
-        return transformed_dataset
-    # TODO extend to other transforms
-    else:
-        raise NotImplementedError("This dataset transform is not integrated yet.")
+        transform = lambda dataset : resample_metric_features(
+            dataset=dataset,
+            seed=_seed, 
+            fraction=transform_parameters['fraction'], 
+            magnitude=transform_parameters['magnitude'],
+            metric_features=transform_parameters['metric_features'])
+
+    if transform_name == 'shift_metric_features':
+        transform = lambda dataset : shift_metric_features(
+            dataset=dataset,
+            seed=_seed,
+            fraction=transform_parameters['fraction'],
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'])
+
+    if transform_name == 'rotate_metric_features':
+        transform = lambda dataset : rotate_metric_features(
+            dataset=dataset,
+            seed=_seed,
+            fraction=transform_parameters['fraction'],
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'])
+
+    if transform_name == 'regression_category_drift':
+        transform = lambda dataset : regression_category_drift(
+            dataset=dataset,
+            seed=_seed,
+            fraction=transform_parameters['fraction'],
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'],
+            target=transform_parameters['target'])
+
+    if transform != None:
+        raise NotImplementedError(transform_name + ' is not implemented.')
+
+    train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
+    update_dataset = transform(train_dataset)
+    test2_dataset = transform(test1_dataset)
+    return train_dataset, update_dataset, test1_dataset, test2_dataset
 
 
 @ex.main
-def my_main(_run, dataset_name, test_fraction):
+def my_main(_run, dataset_name):
     results = {}
 
     original_dataset = read_dataset()
-    train_dataset, test1_dataset = train_test_split(original_dataset, test_size=test_fraction)
-    update_dataset = transform_dataset(dataset=train_dataset)
-    test2_dataset = transform_dataset(dataset=test1_dataset)
-
+    train_dataset, update_dataset, test1_dataset, test2_dataset = transform_dataset(dataset=original_dataset)
     baseline_dataset = pd.concat([train_dataset, update_dataset])
     test_dataset = pd.concat([test1_dataset, test2_dataset])
     
     _run.run_logger.info("Baseline training started")
-    baseline = train(dataset_name, baseline_dataset, verbose=False, run=_run)
-    elapsed_time = baseline.wait_to_complete(clean=False)
+    baseline_model = train(dataset_name, baseline_dataset, verbose=False, run=_run)
+    elapsed_time = baseline_model.wait_to_complete(clean=False)
     results['baseline'] = {}
-    results['baseline']['config'] = baseline.get_config()
-    results['baseline']['hyperparameters'] = baseline.get_hyperparameters()
+    results['baseline']['config'] = baseline_model.get_config()
+    results['baseline']['hyperparameters'] = baseline_model.get_hyperparameters()
     results['baseline']['elapsed_time'] = elapsed_time
-    baseline.clean()
+    baseline_model.clean()
     _run.run_logger.info("Baseline training completed")
 
-    dependent_variable = baseline.dependent_variable
+    dependent_variable = baseline_model.dependent_variable
 
     _run.run_logger.info("Initial training started")
     trained_model = train(dataset_name, train_dataset, verbose=False, run=_run)
@@ -187,7 +233,7 @@ def my_main(_run, dataset_name, test_fraction):
 
     y_true = test_dataset[dependent_variable]
 
-    baseline_eval = evaluate(dataset_name, test_dataset, baseline, verbose=False)
+    baseline_eval = evaluate(dataset_name, test_dataset, baseline_model, verbose=False)
     baseline_eval.wait_to_complete()
 
     trained_model_eval = evaluate(dataset_name, test_dataset, trained_model, verbose=False)
@@ -198,12 +244,12 @@ def my_main(_run, dataset_name, test_fraction):
 
     scores = {}
 
-    if baseline.is_regression():
+    if baseline_model.is_regression():
         scores = compute_regression_metrics(y_true,
                                             baseline_eval.get_predictions(),
                                             trained_model_eval.get_predictions(),
                                             updated_model_eval.get_predictions())
-    elif baseline.is_classification():
+    elif baseline_model.is_classification():
         scores = compute_classification_metrics(y_true,
                                                 baseline_eval.get_predictions(),
                                                 trained_model_eval.get_predictions(),

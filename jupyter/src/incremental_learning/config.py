@@ -12,21 +12,37 @@ import logging
 import platform
 from sys import exit
 
-from pathlib2 import Path
+from pathlib import Path
 
-root_dir = Path(__file__).parent.parent.parent.absolute()
+def find_ancestor_dir(path: Path, resource: str):
+    '''
+    This searches each parent directory of path looking resource until it finds
+    it or reaches the root directory. If it didn't find resource it calls exit
+    with failure.
+    '''
+    current = path
+    parent = current.parent
+    while parent != current:
+        if (parent / resource).exists():
+            return parent.absolute()
+        current = parent
+        parent = current.parent
+    print('Did not find', resource, 'in parent of', path)
+    exit(1)
+
+root_dir = find_ancestor_dir(path=Path(__file__), resource='data/datasets')
 data_dir = root_dir / 'data'
 datasets_dir = data_dir / 'datasets'
 configs_dir = data_dir / 'configs'
 dfa_path = ''
 
-# I assume, your host OS is not CentOS
+# Assumes your host OS is not CentOS.
 cloud = (platform.system() == 'Linux') and (platform.dist()[0] == 'centos')
 if cloud:
     search_location = Path('/ml-cpp')
     dfa_path = Path('/ml-cpp/bin/data_frame_analyzer')
 else:
-    search_location = Path(__file__).parent.parent.parent.parent
+    search_location = find_ancestor_dir(path=root_dir, resource='build/distribution')
     runners = list(search_location.glob(
         '**/build/distribution/platform/**/data_frame_analyzer'))
     if len(runners) == 0:
@@ -41,7 +57,7 @@ formatter = logging.Formatter('[%(levelname).1s] %(name)s >> %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-# Read config file
+# Read config file.
 config = configparser.ConfigParser()
 config_file = root_dir / 'config.ini'
 if not config_file.exists():
@@ -54,7 +70,8 @@ if len(config.read(root_dir / 'config.ini')) == 0:
 es_cloud_id = ""
 es_user = ""
 es_password = ""
-# Elasticsearch deployment configuration
+
+# Elasticsearch deployment configuration.
 if (not config['cloud']['cloud_id']) or (not config['cloud']['user']) or (not config['cloud']['password']):
     logger.error("Cloud configuration is missing or incomplete. Some functionality will be broken")
 else:
@@ -65,7 +82,7 @@ else:
 if config['logging']['level']:
     logger.setLevel(config['logging']['level'])
 
-# Google cloud storage bucket with datasets
+# Google cloud storage bucket with datasets.
 if not config['storage']['bucket_name']:
     logger.error("Storage bucket configuration is missing")
     exit(1)
