@@ -14,8 +14,12 @@ from sys import exit
 
 from pathlib import Path
 
-# Check for resource called in ancestor directories of path.
 def find_ancestor_dir(path: Path, resource: str):
+    '''
+    This searches each parent directory of path looking resource until it finds
+    it or reaches the root directory. If it didn't find resource it calls exit
+    with failure.
+    '''
     current = path
     parent = current.parent
     while parent != current:
