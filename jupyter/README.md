@@ -44,7 +44,7 @@
 
 ### Complete the configuration
 
-1. Specify `cloud_id`, `user`, and `password` in the `[cloud]` section of the `config.ini` file.
+1. Specify `cloud_id`, `user`, and `password` in the `[cloud]` section of the `config.ini` file. Note that we commit `template_config.ini` to avoid accidentally committing real credentials and this should be copied to create a `config.ini` file.
 
 2. Generate the service account json file by following using [instructions below](#how-to-generate-the-service-account-key-json-file).
 
