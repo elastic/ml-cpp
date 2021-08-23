@@ -146,73 +146,48 @@ def transform_dataset(dataset: pd.DataFrame,
         update_dataset, test2_dataset = train_test_split(update_dataset, test_size=test_fraction)
         return train_dataset, update_dataset, test1_dataset, test2_dataset
 
+    transform = None
+
     if transform_name == 'resample_metric_features':
-        train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-        update_dataset = resample_metric_features(
-            dataset=train_dataset,
+        transform = lambda dataset : resample_metric_features(
+            dataset=dataset,
             seed=_seed, 
             fraction=transform_parameters['fraction'], 
             magnitude=transform_parameters['magnitude'],
             metric_features=transform_parameters['metric_features'])
-        test2_dataset = resample_metric_features(
-            dataset=test1_dataset,
-            seed=_seed, 
-            fraction=transform_parameters['fraction'], 
-            magnitude=transform_parameters['magnitude'],
-            metric_features=transform_parameters['metric_features'])
-        return train_dataset, update_dataset, test1_dataset, test2_dataset
 
     if transform_name == 'shift_metric_features':
-        train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-        update_dataset = shift_metric_features(
-            dataset=train_dataset,
+        transform = lambda dataset : shift_metric_features(
+            dataset=dataset,
             seed=_seed,
             fraction=transform_parameters['fraction'],
             magnitude=transform_parameters['magnitude'],
             categorical_features=transform_parameters['categorical_features'])
-        test2_dataset = shift_metric_features(
-            dataset=test1_dataset,
-            seed=_seed,
-            fraction=transform_parameters['fraction'],
-            magnitude=transform_parameters['magnitude'],
-            categorical_features=transform_parameters['categorical_features'])
-        return train_dataset, update_dataset, test1_dataset, test2_dataset
 
     if transform_name == 'rotate_metric_features':
-        train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-        update_dataset = rotate_metric_features(
-            dataset=train_dataset,
+        transform = lambda dataset : rotate_metric_features(
+            dataset=dataset,
             seed=_seed,
             fraction=transform_parameters['fraction'],
             magnitude=transform_parameters['magnitude'],
             categorical_features=transform_parameters['categorical_features'])
-        test2_dataset = rotate_metric_features(
-            dataset=test1_dataset,
-            seed=_seed,
-            fraction=transform_parameters['fraction'],
-            magnitude=transform_parameters['magnitude'],
-            categorical_features=transform_parameters['categorical_features'])
-        return train_dataset, update_dataset, test1_dataset, test2_dataset
 
     if transform_name == 'regression_category_drift':
-        train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-        update_dataset = regression_category_drift(
-            dataset=train_dataset,
+        transform = lambda dataset : regression_category_drift(
+            dataset=dataset,
             seed=_seed,
             fraction=transform_parameters['fraction'],
             magnitude=transform_parameters['magnitude'],
             categorical_features=transform_parameters['categorical_features'],
             target=transform_parameters['target'])
-        test2_dataset = regression_category_drift(
-            dataset=test1_dataset,
-            seed=_seed,
-            fraction=transform_parameters['fraction'],
-            magnitude=transform_parameters['magnitude'],
-            categorical_features=transform_parameters['categorical_features'],
-            target=transform_parameters['target'])
-        return train_dataset, update_dataset, test1_dataset, test2_dataset
 
-    raise NotImplementedError(transform_name + ' is not implemented.')
+    if transform != None:
+        raise NotImplementedError(transform_name + ' is not implemented.')
+
+    train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
+    update_dataset = transform(train_dataset)
+    test2_dataset = transform(test1_dataset)
+    return train_dataset, update_dataset, test1_dataset, test2_dataset
 
 
 @ex.main
