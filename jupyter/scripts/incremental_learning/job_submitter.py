@@ -24,6 +24,12 @@ def init_task_spooler():
     stdout, stderr = process.communicate()
 
 def generate_job_file(config, cwd):
+
+    job_name = "_".join(map(str, [config['dataset_name'], config['seed'],
+                                  config['threads'], config['transform_name'],
+                                  config['transform_parameters'].get('fraction', ''),
+                                  config['transform_parameters'].get('magnitude', '')]))
+    job_file = "{}.job".format(job_name)
     job_parameters = ['dataset_name="{}"'.format(
         config['dataset_name']),
         'threads={}'.format(config['threads']),
@@ -32,12 +38,6 @@ def generate_job_file(config, cwd):
             config['transform_name']),
         'transform_parameters="{}"'.format(
             config['transform_parameters'])]
-
-    job_name = "_".join(map(str, [config['dataset_name'], config['seed'],
-                                  config['threads'], config['transform_name'],
-                                  config['transform_parameters']['fraction'],
-                                  config['transform_parameters']['magnitude']]))
-    job_file = "{}.job".format(job_name)
 
     job = tm.render(job_name=job_name, job_parameters=" ".join(
         job_parameters), job_file=job_file, cwd=cwd)

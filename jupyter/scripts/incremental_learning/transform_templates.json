@@ -2,7 +2,8 @@
     {
         "transform_name": "partition_on_metric_ranges",
         "transform_parameters": {
-            "fraction": 0.0
+            "fraction": 0.0,
+            "metric_features": []
         }
     },
     {

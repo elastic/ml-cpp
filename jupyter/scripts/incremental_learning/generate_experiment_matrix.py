@@ -103,29 +103,29 @@ def generate_parameters(transform: dict,
     if regression_only(transform['transform_name']) and categorisation:
         return None
 
-    result = copy.deepcopy(transform)
+    result = copy.deepcopy(transform['transform_parameters'])
 
-    if 'fraction' in result['transform_parameters']:
-        result['transform_parameters']['fraction'] = round(random.uniform(0.1, 0.9), 2)
+    if 'fraction' in result:
+        result['fraction'] = round(random.uniform(0.1, 0.9), 2)
 
-    if 'magnitude' in result['transform_parameters']:
-        result['transform_parameters']['magnitude'] = round(random.uniform(0.1, 0.9), 2)
+    if 'magnitude' in result:
+        result['magnitude'] = round(random.uniform(0.1, 0.9), 2)
 
-    if 'metric_features' in result['transform_parameters']:
+    if 'metric_features' in result:
         if len(metric_features) > 0:
-            result['transform_parameters']['metric_features'] = random.choices(
+            result['metric_features'] = random.choices(
                 metric_features, k=random.randint(1, min(len(metric_features), 4)))
         else:
-            del result['transform_parameters']['metric_features']
+            del result['metric_features']
 
-    if 'categorical_features' in result['transform_parameters']:
+    if 'categorical_features' in result:
         if len(categorical_features) > 0:
-            result['transform_parameters']['categorical_features'] = categorical_features
+            result['categorical_features'] = categorical_features
         else:
-            del result['transform_parameters']['categorical_features']
+            del result['categorical_features']
 
-    if 'target' in result['transform_parameters']:
-        result['transform_parameters']['target'] = target
+    if 'target' in result:
+        result['target'] = target
 
     return result
 
@@ -155,10 +155,10 @@ with open(args.transforms_file, 'r') as transforms_file:
                     if dataset_name in dataset_features:
                         target, metric_features, categorical_features = dataset_features[dataset_name]
                         params = generate_parameters(transform=transform,
-                                                    categorisation=categorisation,
-                                                    target=target,
-                                                    metric_features=metric_features,
-                                                    categorical_features=categorical_features)
+                                                     categorisation=categorisation,
+                                                     target=target,
+                                                     metric_features=metric_features,
+                                                     categorical_features=categorical_features)
                         if params != None:
                             experiments.append({
                                 'dataset_name': dataset_name,
@@ -171,4 +171,4 @@ with open(args.transforms_file, 'r') as transforms_file:
 print('There are', len(experiments), 'experiments in total')
 
 with open(args.experiments_file, 'w') as experiments_file:
-    json.dump(experiments, experiments_file, sort_keys=True, indent=4)
+    json.dump({'seed': args.seed, 'configurations': experiments}, experiments_file, sort_keys=True, indent=4)

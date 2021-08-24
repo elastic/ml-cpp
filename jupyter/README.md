@@ -44,7 +44,7 @@
 
 ### Complete the configuration
 
-1. Specify `cloud_id`, `user`, and `password` in the `[cloud]` section of the `config.ini` file. Note that we commit `template_config.ini` to avoid accidentally committing real credentials and this should be copied to create a `config.ini` file.
+1. Specify `cloud_id`, `user`, and `password` in the `[cloud]` section of the `config.ini` file. Note that we commit `template_config.ini` to avoid accidentally committing real credentials and this should be copied and updated to create the `config.ini` file.
 
 2. Generate the service account json file by following using [instructions below](#how-to-generate-the-service-account-key-json-file).
 
@@ -99,16 +99,16 @@ certificates, you need to confirm the security exception.
 
 >*To push a Docker image to the Google Image Registry, you need to get authorization by following [these instructions](#how-to-authorize-docker-to-push-to-the-google-image-registry).*
 
-1. Tag your Docker image with a qualified name to push it to the `gcr` registry. Use a unique label (instead of `latest`).
+1. Tag your Docker image with a qualified name to push it to the `gcr` registry. Use a descriptive unique label (instead of `tag`).
 
     ```bash
-    docker tag myjupyter:latest gcr.io/elastic-ml/incremental-learning-jupyter:try42
+    docker tag myjupyter:latest gcr.io/elastic-ml/incremental-learning-jupyter:tag
     ```
 
 2. Push the Docker image to the registry (this may take a while):
 
     ```bash
-    docker push gcr.io/elastic-ml/incremental-learning-jupyter:try42
+    docker push gcr.io/elastic-ml/incremental-learning-jupyter:tag
     ```
 
 ### Create a GCP instance from your Docker image
@@ -117,12 +117,12 @@ certificates, you need to confirm the security exception.
 
     ```bash
     gcloud compute instances create-with-container jupyter-mlcpp-large \
-    --container-image=gcr.io/elastic-ml/incremental-learning-jupyter:try42 --boot-disk-size=200GB \
+    --container-image=gcr.io/elastic-ml/incremental-learning-jupyter:tag --boot-disk-size=200GB \
     --container-privileged --tags=https-server,incremental-learning-jupyter-server,allow-ssh \
     --machine-type=e2-standard-16
     ```
 
-    Once the instance is created, you receive the external IP address of the instance.
+    Once the instance is created, you receive the external IP address of the instance. `tag` should match the label you chose for the Docker image which you pushed to the registry.
 
 2. Navigate to `https://<external_ip>:9999`. Since it is HTTPS and we are using self-signed certificates, you need to confirm the security exception.
 

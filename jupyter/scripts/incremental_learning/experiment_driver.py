@@ -13,7 +13,6 @@
 import logging
 import shutil
 
-import numpy as np
 import pandas as pd
 import sklearn.metrics as metrics
 from deepmerge import always_merger
