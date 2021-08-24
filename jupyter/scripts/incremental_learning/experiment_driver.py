@@ -108,7 +108,6 @@ def compute_classification_metrics(y_true, baseline_model_predictions, trained_m
                 "precision": trained_model_precision,
                 "recall": trained_model_recall,
                 "roc_auc": trained_model_roc_auc
-
             },
             "updated_model": {
                 "acc": updated_model_acc,
@@ -149,34 +148,34 @@ def transform_dataset(dataset: pd.DataFrame,
     transform = None
 
     if transform_name == 'resample_metric_features':
-        transform = lambda dataset : resample_metric_features(
+        transform = lambda dataset, fraction : resample_metric_features(
             dataset=dataset,
             seed=_seed, 
-            fraction=transform_parameters['fraction'], 
+            fraction=fraction, 
             magnitude=transform_parameters['magnitude'],
             metric_features=transform_parameters['metric_features'])
 
     if transform_name == 'shift_metric_features':
-        transform = lambda dataset : shift_metric_features(
+        transform = lambda dataset, fraction : shift_metric_features(
             dataset=dataset,
             seed=_seed,
-            fraction=transform_parameters['fraction'],
+            fraction=fraction,
             magnitude=transform_parameters['magnitude'],
             categorical_features=transform_parameters['categorical_features'])
 
     if transform_name == 'rotate_metric_features':
-        transform = lambda dataset : rotate_metric_features(
+        transform = lambda dataset, fraction : rotate_metric_features(
             dataset=dataset,
             seed=_seed,
-            fraction=transform_parameters['fraction'],
+            fraction=fraction,
             magnitude=transform_parameters['magnitude'],
             categorical_features=transform_parameters['categorical_features'])
 
     if transform_name == 'regression_category_drift':
-        transform = lambda dataset : regression_category_drift(
+        transform = lambda dataset, fraction : regression_category_drift(
             dataset=dataset,
             seed=_seed,
-            fraction=transform_parameters['fraction'],
+            fraction=fraction,
             magnitude=transform_parameters['magnitude'],
             categorical_features=transform_parameters['categorical_features'],
             target=transform_parameters['target'])
@@ -185,8 +184,8 @@ def transform_dataset(dataset: pd.DataFrame,
         raise NotImplementedError(transform_name + ' is not implemented.')
 
     train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-    update_dataset = transform(train_dataset)
-    test2_dataset = transform(test1_dataset)
+    update_dataset = transform(train_dataset, transform_parameters['fraction'])
+    test2_dataset = transform(test1_dataset, 1.0)
     return train_dataset, update_dataset, test1_dataset, test2_dataset
 
 
