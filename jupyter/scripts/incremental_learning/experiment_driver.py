@@ -84,17 +84,17 @@ def compute_classification_metrics(y_true,
     }
 
     for label in np.unique(y_true):
-        scores['baseline']['precision' + label] = \
+        scores['baseline']['precision_' + label] = \
             metrics.precision_score(y_true, baseline_model_predictions, pos_label=label)
-        scores['trained_model']['precision' + label] = \
+        scores['trained_model']['precision_' + label] = \
             metrics.precision_score(y_true, trained_model_predictions, pos_label=label)
-        scores['updated_model']['precision' + label] = \
+        scores['updated_model']['precision_' + label] = \
             metrics.precision_score(y_true, updated_model_predictions, pos_label=label)
-        scores['baseline']['recall' + label] = \
+        scores['baseline']['recall_' + label] = \
             metrics.recall_score(y_true, baseline_model_predictions, pos_label=label)
-        scores['trained_model']['recall' + label] = \
+        scores['trained_model']['recall_' + label] = \
             metrics.recall_score(y_true, trained_model_predictions, pos_label=label)
-        scores['updated_model']['recall' + label] = \
+        scores['updated_model']['recall_' + label] = \
             metrics.recall_score(y_true, updated_model_predictions, pos_label=label)
 
     # TODO these need predicted probability which are not yet extracted by the framework
