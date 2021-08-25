@@ -124,7 +124,7 @@ certificates, you need to confirm the security exception.
 
     Once the instance is created, you receive the external IP address of the instance. `tag` should match the label you chose for the Docker image which you pushed to the registry.
 
-2. Navigate to `https://<external_ip>:9999`. Since it is HTTPS and we are using self-signed certificates, you need to confirm the security exception.
+2. Navigate to `https://<external_ip>:9999`. Since it is HTTPS and we are using self-signed certificates, you need to confirm the security exception. Note that this can take a short period to become available after creating.
 
 3. If you don't need it anymore, delete the instance:
 
