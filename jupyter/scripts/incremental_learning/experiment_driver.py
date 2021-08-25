@@ -12,6 +12,7 @@
 
 import shutil
 
+import numpy as np
 import pandas as pd
 import sklearn.metrics as metrics
 from deepmerge import always_merger
@@ -45,76 +46,62 @@ def my_config():
     threads = 1
 
 
-def compute_regression_metrics(y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
-    baseline_model_mae = metrics.mean_absolute_error(
-        y_true, baseline_model_predictions)
-    trained_model_mae = metrics.mean_absolute_error(
-        y_true, trained_model_predictions)
-    updated_model_mae = metrics.mean_absolute_error(
-        y_true, updated_model_predictions)
-    baseline_model_mse = metrics.mean_squared_error(
-        y_true, baseline_model_predictions)
-    trained_model_mse = metrics.mean_squared_error(
-        y_true, trained_model_predictions)
-    updated_model_mse = metrics.mean_squared_error(
-        y_true, updated_model_predictions)
-    scores = \
-        {
-            "baseline": {"mae": baseline_model_mae,
-                         "mse": baseline_model_mse},
-            "trained_model": {"mae": trained_model_mae,
-                              "mse": trained_model_mse},
-            "updated_model": {"mae": updated_model_mae,
-                              "mse": updated_model_mse},
-        }
+def compute_regression_metrics(y_true,
+                               baseline_model_predictions,
+                               trained_model_predictions,
+                               updated_model_predictions):
+    scores = {
+        'baseline': {
+            'mae': metrics.mean_absolute_error(y_true, baseline_model_predictions),
+            'mse': metrics.mean_squared_error(y_true, baseline_model_predictions)
+        },
+        'trained_model': {
+            'mae': metrics.mean_absolute_error(y_true, trained_model_predictions),
+            'mse': metrics.mean_squared_error(y_true, trained_model_predictions)
+        },
+        'updated_model': {
+            'mae': metrics.mean_absolute_error(y_true, updated_model_predictions),
+            'mse': metrics.mean_squared_error(y_true, updated_model_predictions)
+        },
+    }
     return scores
 
 
-def compute_classification_metrics(y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
-    baseline_model_acc = metrics.accuracy_score(
-        y_true, baseline_model_predictions)
-    trained_model_acc = metrics.accuracy_score(
-        y_true, trained_model_predictions)
-    updated_model_acc = metrics.accuracy_score(
-        y_true, updated_model_predictions)
-    baseline_model_precision = metrics.precision_score(
-        y_true, baseline_model_predictions)
-    trained_model_precision = metrics.precision_score(
-        y_true, trained_model_predictions)
-    updated_model_precision = metrics.precision_score(
-        y_true, updated_model_predictions)
-    baseline_model_recall = metrics.recall_score(
-        y_true, baseline_model_predictions)
-    trained_model_recall = metrics.recall_score(
-        y_true, trained_model_predictions)
-    updated_model_recall = metrics.recall_score(
-        y_true, updated_model_predictions)
-    baseline_model_roc_auc = metrics.roc_auc_score(
-        y_true, baseline_model_predictions)
-    trained_model_roc_auc = metrics.roc_auc_score(
-        y_true, trained_model_predictions)
-    updated_model_roc_auc = metrics.roc_auc(y_true, updated_model_predictions)
-    scores = \
-        {
-            "baseline": {
-                "acc": baseline_model_acc,
-                "precision": baseline_model_precision,
-                "recall": baseline_model_recall,
-                "roc_auc": baseline_model_roc_auc
-            },
-            "trained_model": {
-                "acc": trained_model_acc,
-                "precision": trained_model_precision,
-                "recall": trained_model_recall,
-                "roc_auc": trained_model_roc_auc
-            },
-            "updated_model": {
-                "acc": updated_model_acc,
-                "precision": updated_model_precision,
-                "recall": updated_model_recall,
-                "roc_auc": updated_model_roc_auc
-            },
-        }
+def compute_classification_metrics(y_true,
+                                   baseline_model_predictions,
+                                   trained_model_predictions,
+                                   updated_model_predictions):
+    scores = {
+        'baseline': {
+            'acc': metrics.accuracy_score(y_true, baseline_model_predictions)
+        },
+        'trained_model': {
+            'acc': metrics.accuracy_score(y_true, trained_model_predictions)
+        },
+        'updated_model': {
+            'acc': metrics.accuracy_score(y_true, updated_model_predictions)
+        },
+    }
+
+    for label in np.unique(y_true):
+        scores['baseline']['precision' + label] = \
+            metrics.precision_score(y_true, baseline_model_predictions, pos_label=label)
+        scores['trained_model']['precision' + label] = \
+            metrics.precision_score(y_true, trained_model_predictions, pos_label=label)
+        scores['updated_model']['precision' + label] = \
+            metrics.precision_score(y_true, updated_model_predictions, pos_label=label)
+        scores['baseline']['recall' + label] = \
+            metrics.recall_score(y_true, baseline_model_predictions, pos_label=label)
+        scores['trained_model']['recall' + label] = \
+            metrics.recall_score(y_true, trained_model_predictions, pos_label=label)
+        scores['updated_model']['recall' + label] = \
+            metrics.recall_score(y_true, updated_model_predictions, pos_label=label)
+
+    # TODO these need predicted probability which are not yet extracted by the framework
+    # metrics.roc_auc_score(y_true, baseline_model_predictions)
+    # metrics.roc_auc_score(y_true, trained_model_predictions)
+    # metrics.roc_auc(y_true, updated_model_predictions)
+
     return scores
 
 
@@ -241,13 +228,13 @@ def my_main(_run, dataset_name, verbose):
     scores = {}
 
     if baseline_model.is_regression():
-        y_true = [y for y in test_dataset[dependent_variable]]
+        y_true = np.array([y for y in test_dataset[dependent_variable]])
         scores = compute_regression_metrics(y_true,
                                             baseline_eval.get_predictions(),
                                             trained_model_eval.get_predictions(),
                                             updated_model_eval.get_predictions())
     elif baseline_model.is_classification():
-        y_true = [str(y) for y in test_dataset[dependent_variable]]
+        y_true = np.array([str(y) for y in test_dataset[dependent_variable]])
         scores = compute_classification_metrics(y_true,
                                                 baseline_eval.get_predictions(),
                                                 trained_model_eval.get_predictions(),
