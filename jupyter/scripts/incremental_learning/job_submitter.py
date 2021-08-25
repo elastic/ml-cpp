@@ -12,9 +12,10 @@
 import json
 import os
 import subprocess
-from pathlib import Path
+import sys
 
 from jinja2 import Environment, FileSystemLoader
+from pathlib import Path
 
 def init_task_spooler():
     cmd = ['tsp', '-S', '`nproc`']
@@ -23,21 +24,19 @@ def init_task_spooler():
                                 stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
-def generate_job_file(config, cwd):
+def generate_job_file(config, cwd, verbose):
 
-    job_name = "_".join(map(str, [config['dataset_name'], config['seed'],
+    job_name = '_'.join(map(str, [config['dataset_name'], config['seed'],
                                   config['threads'], config['transform_name'],
                                   config['transform_parameters'].get('fraction', ''),
                                   config['transform_parameters'].get('magnitude', '')]))
-    job_file = "{}.job".format(job_name)
-    job_parameters = ['dataset_name="{}"'.format(
-        config['dataset_name']),
-        'threads={}'.format(config['threads']),
-        'seed={}'.format(config['seed']),
-        'transform_name="{}"'.format(
-            config['transform_name']),
-        'transform_parameters="{}"'.format(
-            config['transform_parameters'])]
+    job_file = '{}.job'.format(job_name)
+    job_parameters = ['verbose='.format(verbose),
+                      'dataset_name="{}"'.format(config['dataset_name']),
+                      'threads={}'.format(config['threads']),
+                      'seed={}'.format(config['seed']),
+                      'transform_name="{}"'.format(config['transform_name']),
+                      'transform_parameters="{}"'.format(config['transform_parameters'])]
 
     job = tm.render(job_name=job_name, job_parameters=" ".join(
         job_parameters), job_file=job_file, cwd=cwd)
@@ -54,10 +53,24 @@ def submit_to_task_spooler(threads, job_file_path):
     stdout, stderr = process.communicate()
 
 if __name__ == '__main__':
-    """This script reads the experiment configurations from the experiments.json file
-    and creates individual job scripts using job.tpl template. These jobs are submitted to
+    """
+    This script reads the experiment configurations from the experiments.json file and
+    creates individual job scripts using job.tpl template. These jobs are submitted to
     the task spooler for execution.
     """
+
+    verbose = False
+    for arg in sys.argv[1:]:
+        if arg == '--verbose':
+            verbose = True
+        if arg == '--help':
+            print('')
+            print('Usage: ./job_submitter.py [--verbose] [--help]')
+            print('')
+            print('  --help    Displays this help message')
+            print('  --verbose Enables more logging in jobs')
+            exit(0)
+
     cwd = os.getcwd()
     file_loader = FileSystemLoader(cwd)
     env = Environment(loader=file_loader)
@@ -67,7 +80,6 @@ if __name__ == '__main__':
         # TODO: validate schema of experiments.json
         experiments = json.load(fp)
     for config in experiments['configurations']:
-        job_file = generate_job_file(config, cwd)
-
+        job_file = generate_job_file(config, cwd, verbose)
         job_file_path = Path(cwd)/job_file
         submit_to_task_spooler(config['threads'], job_file_path)

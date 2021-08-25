@@ -10,7 +10,6 @@
 # limitation.
 
 
-import logging
 import shutil
 
 import pandas as pd
@@ -40,6 +39,7 @@ ex.logger = logger
 
 @ex.config
 def my_config():
+    verbose = False
     dataset_name = 'ccpp'
     test_fraction = 0.2
     threads = 1
@@ -189,7 +189,7 @@ def transform_dataset(dataset: pd.DataFrame,
 
 
 @ex.main
-def my_main(_run, dataset_name):
+def my_main(_run, dataset_name, verbose):
     results = {}
 
     original_dataset = read_dataset()
@@ -198,7 +198,7 @@ def my_main(_run, dataset_name):
     test_dataset = pd.concat([test1_dataset, test2_dataset])
     
     _run.run_logger.info("Baseline training started")
-    baseline_model = train(dataset_name, baseline_dataset, verbose=False, run=_run)
+    baseline_model = train(dataset_name, baseline_dataset, verbose=verbose, run=_run)
     elapsed_time = baseline_model.wait_to_complete(clean=False)
     results['baseline'] = {}
     results['baseline']['config'] = baseline_model.get_config()
@@ -210,7 +210,7 @@ def my_main(_run, dataset_name):
     dependent_variable = baseline_model.dependent_variable
 
     _run.run_logger.info("Initial training started")
-    trained_model = train(dataset_name, train_dataset, verbose=False, run=_run)
+    trained_model = train(dataset_name, train_dataset, verbose=verbose, run=_run)
     elapsed_time = trained_model.wait_to_complete(clean=False)
     results['trained_model'] = {}
     results['trained_model']['config'] = trained_model.get_config()
@@ -220,7 +220,7 @@ def my_main(_run, dataset_name):
     _run.run_logger.info("Initial training completed")
 
     _run.run_logger.info("Update started")
-    updated_model = update(dataset_name, update_dataset, trained_model, verbose=False, run=_run)
+    updated_model = update(dataset_name, update_dataset, trained_model, verbose=verbose, run=_run)
     elapsed_time = updated_model.wait_to_complete(clean=False)
     results['updated_model'] = {}
     results['updated_model']['config'] = updated_model.get_config()
@@ -229,25 +229,25 @@ def my_main(_run, dataset_name):
     updated_model.clean()
     _run.run_logger.info("Update completed")
 
-    y_true = test_dataset[dependent_variable]
-
-    baseline_eval = evaluate(dataset_name, test_dataset, baseline_model, verbose=False)
+    baseline_eval = evaluate(dataset_name, test_dataset, baseline_model, verbose=verbose)
     baseline_eval.wait_to_complete()
 
-    trained_model_eval = evaluate(dataset_name, test_dataset, trained_model, verbose=False)
+    trained_model_eval = evaluate(dataset_name, test_dataset, trained_model, verbose=verbose)
     trained_model_eval.wait_to_complete()
 
-    updated_model_eval = evaluate(dataset_name, test_dataset, updated_model, verbose=False)
+    updated_model_eval = evaluate(dataset_name, test_dataset, updated_model, verbose=verbose)
     updated_model_eval.wait_to_complete()
 
     scores = {}
 
     if baseline_model.is_regression():
+        y_true = [y for y in test_dataset[dependent_variable]]
         scores = compute_regression_metrics(y_true,
                                             baseline_eval.get_predictions(),
                                             trained_model_eval.get_predictions(),
                                             updated_model_eval.get_predictions())
     elif baseline_model.is_classification():
+        y_true = [str(y) for y in test_dataset[dependent_variable]]
         scores = compute_classification_metrics(y_true,
                                                 baseline_eval.get_predictions(),
                                                 trained_model_eval.get_predictions(),
