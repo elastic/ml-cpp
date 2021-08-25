@@ -20,8 +20,8 @@ from pathlib import Path
 def init_task_spooler():
     cmd = ['tsp', '-S', '`nproc`']
     process = subprocess.Popen(cmd,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
 def generate_job_file(config, cwd, verbose):
@@ -38,8 +38,9 @@ def generate_job_file(config, cwd, verbose):
                       'transform_name="{}"'.format(config['transform_name']),
                       'transform_parameters="{}"'.format(config['transform_parameters'])]
 
-    job = tm.render(job_name=job_name, job_parameters=" ".join(
-        job_parameters), job_file=job_file, cwd=cwd)
+    job = tm.render(job_name=job_name,
+                    job_parameters=" ".join(job_parameters),
+                    job_file=job_file, cwd=cwd)
     with open(job_file, 'wt') as fp:
         fp.write(job)
     os.chmod(job_file, 0o755)
