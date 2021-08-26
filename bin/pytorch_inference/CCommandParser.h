@@ -69,6 +69,8 @@ public:
         std::string s_RequestId;
         TUint64Vec s_Tokens;
         TUint64VecVec s_SecondaryArguments;
+
+        void reset();
     };
 
     using TRequestHandlerFunc = std::function<bool(SRequest&)>;
