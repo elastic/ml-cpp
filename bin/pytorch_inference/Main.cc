@@ -48,6 +48,7 @@ torch::Tensor infer(torch::jit::script::Module& module,
 
     std::vector<torch::jit::IValue> inputs;
 
+    LOG_DEBUG(<< "2ndary args size: " << request.s_SecondaryArguments.size());
     inputs.reserve(1 + request.s_SecondaryArguments.size());
 
     at::IntArrayRef inputSize{request.s_NumberInferences, request.s_NumberInputTokens};
@@ -56,10 +57,13 @@ torch::Tensor infer(torch::jit::script::Module& module,
     // BERT UInt tokens
     inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
                                          inputSize, at::dtype(torch::kInt64)));
+    LOG_DEBUG(<< "tokens: " << request.s_Tokens);
+
 
     for (auto& args : request.s_SecondaryArguments) {
         inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data()),
                                              inputSize, at::dtype(torch::kInt64)));
+        LOG_DEBUG(<< "args: " << args);
     }
 
     torch::NoGradGuard noGrad;
