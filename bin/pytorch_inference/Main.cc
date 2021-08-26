@@ -59,7 +59,6 @@ torch::Tensor infer(torch::jit::script::Module& module,
                                          inputSize, at::dtype(torch::kInt64)));
     LOG_DEBUG(<< "tokens: " << request.s_Tokens);
 
-
     for (auto& args : request.s_SecondaryArguments) {
         inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data()),
                                              inputSize, at::dtype(torch::kInt64)));
