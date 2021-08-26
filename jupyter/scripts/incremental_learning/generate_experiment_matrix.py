@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding: utf-8
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
 # or more contributor license agreements. Licensed under the Elastic License
 # 2.0 and the following additional limitation. Functionality enabled by the
@@ -129,46 +131,47 @@ def generate_parameters(transform: dict,
 
     return result
 
-parser = argparse.ArgumentParser(description='Generates the experiments.json file for a collection of data and transforms')
-parser.add_argument('--experiments_file', default='experiments.json', help='The experiments file to write')
-parser.add_argument('--classification_datasets', nargs='+', default=[], help='The classification datasets to use')
-parser.add_argument('--regression_datasets', nargs='+', default=[], help='The regression datasets to use')
-parser.add_argument('--transforms_file', default='transform_templates.json', help='The transforms to apply to each dataset')
-parser.add_argument('--number_random_copies', default=3, help='The number of random verions to use for each base experiment')
-parser.add_argument('--seed', default=1234567, help='The seed to use to generate experiments')
-args = parser.parse_args()
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Generates the experiments.json file for a collection of data and transforms')
+    parser.add_argument('--experiments_file', default='experiments.json', help='The experiments file to write')
+    parser.add_argument('--classification_datasets', nargs='+', default=[], help='The classification datasets to use')
+    parser.add_argument('--regression_datasets', nargs='+', default=[], help='The regression datasets to use')
+    parser.add_argument('--transforms_file', default='transform_templates.json', help='The transforms to apply to each dataset')
+    parser.add_argument('--number_random_copies', default=3, help='The number of random verions to use for each base experiment')
+    parser.add_argument('--seed', default=1234567, help='The seed to use to generate experiments')
+    args = parser.parse_args()
 
-random.seed(args.seed)
+    random.seed(args.seed)
 
-dataset_features = features()
-print('Dataset features', dataset_features)
+    dataset_features = features()
+    print('Dataset features', dataset_features)
 
-experiments = []
+    experiments = []
 
-with open(args.transforms_file, 'r') as transforms_file:
-    for transform in json.load(transforms_file):
-        print('Generating experiments for', transform)
-        for _ in range(args.number_random_copies):
-            for categorisation, dataset_names in zip([True, False],
-                                                     [args.classification_datasets, args.regression_datasets]):
-                for dataset_name in dataset_names:
-                    if dataset_name in dataset_features:
-                        target, metric_features, categorical_features = dataset_features[dataset_name]
-                        params = generate_parameters(transform=transform,
-                                                     categorisation=categorisation,
-                                                     target=target,
-                                                     metric_features=metric_features,
-                                                     categorical_features=categorical_features)
-                        if params != None:
-                            experiments.append({
-                                'dataset_name': dataset_name,
-                                'threads': 1,
-                                'seed': random.randint(0, 100000000),
-                                'transform_name': transform['transform_name'],
-                                'transform_parameters': params
-                            })
+    with open(args.transforms_file, 'r') as transforms_file:
+        for transform in json.load(transforms_file):
+            print('Generating experiments for', transform)
+            for _ in range(args.number_random_copies):
+                for categorisation, dataset_names in zip([True, False],
+                                                        [args.classification_datasets, args.regression_datasets]):
+                    for dataset_name in dataset_names:
+                        if dataset_name in dataset_features:
+                            target, metric_features, categorical_features = dataset_features[dataset_name]
+                            params = generate_parameters(transform=transform,
+                                                        categorisation=categorisation,
+                                                        target=target,
+                                                        metric_features=metric_features,
+                                                        categorical_features=categorical_features)
+                            if params != None:
+                                experiments.append({
+                                    'dataset_name': dataset_name,
+                                    'threads': 1,
+                                    'seed': random.randint(0, 100000000),
+                                    'transform_name': transform['transform_name'],
+                                    'transform_parameters': params
+                                })
 
-print('There are', len(experiments), 'experiments in total')
+    print('There are', len(experiments), 'experiments in total')
 
-with open(args.experiments_file, 'w') as experiments_file:
-    json.dump({'seed': args.seed, 'configurations': experiments}, experiments_file, sort_keys=True, indent=4)
+    with open(args.experiments_file, 'w') as experiments_file:
+        json.dump({'seed': args.seed, 'configurations': experiments}, experiments_file, sort_keys=True, indent=4)
