@@ -9,10 +9,10 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
+import argparse
 import json
 import os
 import subprocess
-import sys
 
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
@@ -60,17 +60,9 @@ if __name__ == '__main__':
     the task spooler for execution.
     """
 
-    verbose = False
-    for arg in sys.argv[1:]:
-        if arg == '--verbose':
-            verbose = True
-        if arg == '--help':
-            print('')
-            print('Usage: ./job_submitter.py [--verbose] [--help]')
-            print('')
-            print('  --help    Displays this help message')
-            print('  --verbose Enables more logging in jobs')
-            exit(0)
+    parser = argparse.ArgumentParser(description='Run a colletion of experiments defined by experiments.json')
+    parser.add_argument('--verbose', default=False, action='store_true')
+    args = parser.parse_args()
 
     cwd = os.getcwd()
     file_loader = FileSystemLoader(cwd)
@@ -81,6 +73,6 @@ if __name__ == '__main__':
         # TODO: validate schema of experiments.json
         experiments = json.load(fp)
     for config in experiments['configurations']:
-        job_file = generate_job_file(config, cwd, verbose)
+        job_file = generate_job_file(config, cwd, args.verbose)
         job_file_path = Path(cwd)/job_file
         submit_to_task_spooler(config['threads'], job_file_path)
