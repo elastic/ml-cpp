@@ -175,11 +175,9 @@ bool CCommandParser::checkArrayContainsDoubles(const rapidjson::Value::ConstArra
 }
 
 void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
-
-    m_Request.s_RequestId = doc[REQUEST_ID].GetString();
-
     // wipe any previous
-    m_Request.s_Tokens.clear();
+    m_Request.reset();
+    m_Request.s_RequestId = doc[REQUEST_ID].GetString();
 
     // read 2D array into contiguous memory
     const rapidjson::Value::ConstArray& tokens = doc[TOKENS].GetArray();
@@ -197,8 +195,6 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
     std::uint64_t varCount{1};
     std::string varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
 
-    // wipe any previous
-    m_Request.s_SecondaryArguments.clear();
     while (doc.HasMember(varArgName)) {
 
         const rapidjson::Value::ConstArray& outer = doc[varArgName].GetArray();
@@ -214,6 +210,14 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
         ++varCount;
         varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
     }
+}
+
+void CCommandParser::SRequest::reset() {
+    s_NumberInputTokens = 0;
+    s_NumberInferences = 0;
+    s_RequestId.clear();
+    s_Tokens.clear();
+    s_SecondaryArguments.clear();
 }
 }
 }
