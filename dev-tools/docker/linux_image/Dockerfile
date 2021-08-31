@@ -73,11 +73,9 @@ RUN \
   rm -rf libxml2-2.9.7
 
 # Build Boost
-# TODO update the download URL to https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2
-# when the image is next rebuilt
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - http://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2 | tar jxf - && \
   cd boost_1_71_0 && \
   ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu && \
   sed -i -e 's/(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/(3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/' boost/unordered/detail/implementation.hpp && \
@@ -126,11 +124,23 @@ RUN \
 # Add cmake to PATH
 ENV PATH=${PATH}:/usr/local/cmake/bin
 
+
+# Build oneDNN
+RUN \
+  cd ${build_dir} && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v2.3.2 https://github.com/oneapi-src/oneDNN.git && \
+  cd oneDNN && \
+  mkdir build && cd build && \
+  export DNNL_CPU_RUNTIME=OMP && \
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/gcc93/ -DCMAKE_INSTALL_LIBDIR:PATH=lib && \
+  make -j`nproc` && \ 
+  cmake --build . --target install 
+
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v1.8.0 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.9.0 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
@@ -140,12 +150,13 @@ RUN \
   export BUILD_CAFFE2=OFF && \
   export USE_NUMPY=OFF && \
   export USE_DISTRIBUTED=OFF && \
-  export USE_MKLDNN=OFF && \
+  export USE_MKLDNN=ON && \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
   export USE_XNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION=1.8.0 && \
+  export PYTORCH_BUILD_VERSION=1.9.0 && \
   export PYTORCH_BUILD_NUMBER=1 && \
+  export CMAKE_PREFIX_PATH=/usr/local/gcc93/ && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc93/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
