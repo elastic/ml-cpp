@@ -17,7 +17,7 @@ build-eclipse/
 nb-configuration.xml
 nbactions.xml
 
-#vscode files
+# vscode files
 .vscode
 .clangd
 .cache
@@ -46,6 +46,10 @@ compile_commands.json
 # python virtualenv and notebook checkpoints
 **/jupyter/env
 **/jupyter/notebooks/.ipynb_checkpoints
+
+# test data sets we've downloaded
+**/jupyter/data/datasets/*.csv
+**/jupyter/data/configs/*.json
 
 # native binary stuff:
 *.o

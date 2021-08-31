@@ -10,7 +10,6 @@
 # limitation.
 
 
-import logging
 import shutil
 
 import numpy as np
@@ -41,82 +40,68 @@ ex.logger = logger
 
 @ex.config
 def my_config():
+    verbose = False
     dataset_name = 'ccpp'
     test_fraction = 0.2
     threads = 1
 
 
-def compute_regression_metrics(y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
-    baseline_model_mae = metrics.mean_absolute_error(
-        y_true, baseline_model_predictions)
-    trained_model_mae = metrics.mean_absolute_error(
-        y_true, trained_model_predictions)
-    updated_model_mae = metrics.mean_absolute_error(
-        y_true, updated_model_predictions)
-    baseline_model_mse = metrics.mean_squared_error(
-        y_true, baseline_model_predictions)
-    trained_model_mse = metrics.mean_squared_error(
-        y_true, trained_model_predictions)
-    updated_model_mse = metrics.mean_squared_error(
-        y_true, updated_model_predictions)
-    scores = \
-        {
-            "baseline": {"mae": baseline_model_mae,
-                         "mse": baseline_model_mse},
-            "trained_model": {"mae": trained_model_mae,
-                              "mse": trained_model_mse},
-            "updated_model": {"mae": updated_model_mae,
-                              "mse": updated_model_mse},
-        }
+def compute_regression_metrics(y_true,
+                               baseline_model_predictions,
+                               trained_model_predictions,
+                               updated_model_predictions):
+    scores = {
+        'baseline': {
+            'mae': metrics.mean_absolute_error(y_true, baseline_model_predictions),
+            'mse': metrics.mean_squared_error(y_true, baseline_model_predictions)
+        },
+        'trained_model': {
+            'mae': metrics.mean_absolute_error(y_true, trained_model_predictions),
+            'mse': metrics.mean_squared_error(y_true, trained_model_predictions)
+        },
+        'updated_model': {
+            'mae': metrics.mean_absolute_error(y_true, updated_model_predictions),
+            'mse': metrics.mean_squared_error(y_true, updated_model_predictions)
+        },
+    }
     return scores
 
 
-def compute_classification_metrics(y_true, baseline_model_predictions, trained_model_predictions, updated_model_predictions):
-    baseline_model_acc = metrics.accuracy_score(
-        y_true, baseline_model_predictions)
-    trained_model_acc = metrics.accuracy_score(
-        y_true, trained_model_predictions)
-    updated_model_acc = metrics.accuracy_score(
-        y_true, updated_model_predictions)
-    baseline_model_precision = metrics.precision_score(
-        y_true, baseline_model_predictions)
-    trained_model_precision = metrics.precision_score(
-        y_true, trained_model_predictions)
-    updated_model_precision = metrics.precision_score(
-        y_true, updated_model_predictions)
-    baseline_model_recall = metrics.recall_score(
-        y_true, baseline_model_predictions)
-    trained_model_recall = metrics.recall_score(
-        y_true, trained_model_predictions)
-    updated_model_recall = metrics.recall_score(
-        y_true, updated_model_predictions)
-    baseline_model_roc_auc = metrics.roc_auc_score(
-        y_true, baseline_model_predictions)
-    trained_model_roc_auc = metrics.roc_auc_score(
-        y_true, trained_model_predictions)
-    updated_model_roc_auc = metrics.roc_auc(y_true, updated_model_predictions)
-    scores = \
-        {
-            "baseline": {
-                "acc": baseline_model_acc,
-                "precision": baseline_model_precision,
-                "recall": baseline_model_recall,
-                "roc_auc": baseline_model_roc_auc
-            },
-            "trained_model": {
-                "acc": trained_model_acc,
-                "precision": trained_model_precision,
-                "recall": trained_model_recall,
-                "roc_auc": trained_model_roc_auc
+def compute_classification_metrics(y_true,
+                                   baseline_model_predictions,
+                                   trained_model_predictions,
+                                   updated_model_predictions):
+    scores = {
+        'baseline': {
+            'acc': metrics.accuracy_score(y_true, baseline_model_predictions)
+        },
+        'trained_model': {
+            'acc': metrics.accuracy_score(y_true, trained_model_predictions)
+        },
+        'updated_model': {
+            'acc': metrics.accuracy_score(y_true, updated_model_predictions)
+        },
+    }
 
-            },
-            "updated_model": {
-                "acc": updated_model_acc,
-                "precision": updated_model_precision,
-                "recall": updated_model_recall,
-                "roc_auc": updated_model_roc_auc
-            },
-        }
+    for label in np.unique(y_true):
+        scores['baseline']['precision_' + label] = \
+            metrics.precision_score(y_true, baseline_model_predictions, pos_label=label)
+        scores['trained_model']['precision_' + label] = \
+            metrics.precision_score(y_true, trained_model_predictions, pos_label=label)
+        scores['updated_model']['precision_' + label] = \
+            metrics.precision_score(y_true, updated_model_predictions, pos_label=label)
+        scores['baseline']['recall_' + label] = \
+            metrics.recall_score(y_true, baseline_model_predictions, pos_label=label)
+        scores['trained_model']['recall_' + label] = \
+            metrics.recall_score(y_true, trained_model_predictions, pos_label=label)
+        scores['updated_model']['recall_' + label] = \
+            metrics.recall_score(y_true, updated_model_predictions, pos_label=label)
+
+    # TODO these need predicted probability which are not yet extracted by the framework
+    # metrics.roc_auc_score(y_true, baseline_model_predictions)
+    # metrics.roc_auc_score(y_true, trained_model_predictions)
+    # metrics.roc_auc(y_true, updated_model_predictions)
+
     return scores
 
 
@@ -149,34 +134,34 @@ def transform_dataset(dataset: pd.DataFrame,
     transform = None
 
     if transform_name == 'resample_metric_features':
-        transform = lambda dataset : resample_metric_features(
+        transform = lambda dataset, fraction : resample_metric_features(
             dataset=dataset,
             seed=_seed, 
-            fraction=transform_parameters['fraction'], 
+            fraction=fraction, 
             magnitude=transform_parameters['magnitude'],
             metric_features=transform_parameters['metric_features'])
 
     if transform_name == 'shift_metric_features':
-        transform = lambda dataset : shift_metric_features(
+        transform = lambda dataset, fraction : shift_metric_features(
             dataset=dataset,
             seed=_seed,
-            fraction=transform_parameters['fraction'],
+            fraction=fraction,
             magnitude=transform_parameters['magnitude'],
             categorical_features=transform_parameters['categorical_features'])
 
     if transform_name == 'rotate_metric_features':
-        transform = lambda dataset : rotate_metric_features(
+        transform = lambda dataset, fraction : rotate_metric_features(
             dataset=dataset,
             seed=_seed,
-            fraction=transform_parameters['fraction'],
+            fraction=fraction,
             magnitude=transform_parameters['magnitude'],
             categorical_features=transform_parameters['categorical_features'])
 
     if transform_name == 'regression_category_drift':
-        transform = lambda dataset : regression_category_drift(
+        transform = lambda dataset, fraction : regression_category_drift(
             dataset=dataset,
             seed=_seed,
-            fraction=transform_parameters['fraction'],
+            fraction=fraction,
             magnitude=transform_parameters['magnitude'],
             categorical_features=transform_parameters['categorical_features'],
             target=transform_parameters['target'])
@@ -185,13 +170,13 @@ def transform_dataset(dataset: pd.DataFrame,
         raise NotImplementedError(transform_name + ' is not implemented.')
 
     train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
-    update_dataset = transform(train_dataset)
-    test2_dataset = transform(test1_dataset)
+    update_dataset = transform(train_dataset, transform_parameters['fraction'])
+    test2_dataset = transform(test1_dataset, 1.0)
     return train_dataset, update_dataset, test1_dataset, test2_dataset
 
 
 @ex.main
-def my_main(_run, dataset_name):
+def my_main(_run, dataset_name, verbose):
     results = {}
 
     original_dataset = read_dataset()
@@ -200,7 +185,7 @@ def my_main(_run, dataset_name):
     test_dataset = pd.concat([test1_dataset, test2_dataset])
     
     _run.run_logger.info("Baseline training started")
-    baseline_model = train(dataset_name, baseline_dataset, verbose=False, run=_run)
+    baseline_model = train(dataset_name, baseline_dataset, verbose=verbose, run=_run)
     elapsed_time = baseline_model.wait_to_complete(clean=False)
     results['baseline'] = {}
     results['baseline']['config'] = baseline_model.get_config()
@@ -212,7 +197,7 @@ def my_main(_run, dataset_name):
     dependent_variable = baseline_model.dependent_variable
 
     _run.run_logger.info("Initial training started")
-    trained_model = train(dataset_name, train_dataset, verbose=False, run=_run)
+    trained_model = train(dataset_name, train_dataset, verbose=verbose, run=_run)
     elapsed_time = trained_model.wait_to_complete(clean=False)
     results['trained_model'] = {}
     results['trained_model']['config'] = trained_model.get_config()
@@ -222,7 +207,7 @@ def my_main(_run, dataset_name):
     _run.run_logger.info("Initial training completed")
 
     _run.run_logger.info("Update started")
-    updated_model = update(dataset_name, update_dataset, trained_model, verbose=False, run=_run)
+    updated_model = update(dataset_name, update_dataset, trained_model, verbose=verbose, run=_run)
     elapsed_time = updated_model.wait_to_complete(clean=False)
     results['updated_model'] = {}
     results['updated_model']['config'] = updated_model.get_config()
@@ -231,25 +216,25 @@ def my_main(_run, dataset_name):
     updated_model.clean()
     _run.run_logger.info("Update completed")
 
-    y_true = test_dataset[dependent_variable]
-
-    baseline_eval = evaluate(dataset_name, test_dataset, baseline_model, verbose=False)
+    baseline_eval = evaluate(dataset_name, test_dataset, baseline_model, verbose=verbose)
     baseline_eval.wait_to_complete()
 
-    trained_model_eval = evaluate(dataset_name, test_dataset, trained_model, verbose=False)
+    trained_model_eval = evaluate(dataset_name, test_dataset, trained_model, verbose=verbose)
     trained_model_eval.wait_to_complete()
 
-    updated_model_eval = evaluate(dataset_name, test_dataset, updated_model, verbose=False)
+    updated_model_eval = evaluate(dataset_name, test_dataset, updated_model, verbose=verbose)
     updated_model_eval.wait_to_complete()
 
     scores = {}
 
     if baseline_model.is_regression():
+        y_true = np.array([y for y in test_dataset[dependent_variable]])
         scores = compute_regression_metrics(y_true,
                                             baseline_eval.get_predictions(),
                                             trained_model_eval.get_predictions(),
                                             updated_model_eval.get_predictions())
     elif baseline_model.is_classification():
+        y_true = np.array([str(y) for y in test_dataset[dependent_variable]])
         scores = compute_classification_metrics(y_true,
                                                 baseline_eval.get_predictions(),
                                                 trained_model_eval.get_predictions(),
