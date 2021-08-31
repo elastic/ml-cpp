@@ -1,40 +1,40 @@
-from incremental_learning.job import train, update, evaluate
-
-from sklearn.datasets import make_regression
 import pandas as pd
-import numpy as np
+import unittest
 
+from incremental_learning.config import datasets_dir
+from incremental_learning.job import train, update, evaluate
+from incremental_learning.storage import download_dataset
 
-def test_train_update():
-    X, y = make_regression(n_samples = 100, n_features=2, n_informative=2)
-    dataset = pd.DataFrame(data=np.concatenate([X,y.reshape(-1,1)], axis=1), columns=['x1', 'x2', 'y'])
-    dataset_name = 'test_regression'
-    job1 = train(dataset_name, dataset, verbose=False)
-    success = job1.wait_to_complete()
-    assert success
-    assert job1.get_predictions().shape[0] == 100
+class TestUpdateAndEvaluate(unittest.TestCase):
 
-    X, y = make_regression(n_samples = 50, n_features=2, n_informative=2)
-    dataset = pd.DataFrame(data=np.concatenate([X,y.reshape(-1,1)], axis=1), columns=['x1', 'x2', 'y'])
-    job2 = update(dataset_name, dataset, job1, verbose=False)
-    success = job2.wait_to_complete()
-    assert success
-    assert job2.get_predictions().shape[0] == 50
+    def setUp(self) -> None:
+        self.seed = 100
+        self.dataset_name = 'test_regression'
+        download_successful = download_dataset(self.dataset_name)
+        if download_successful == False:
+            self.fail("Dataset is not available")
+        self.dataset = pd.read_csv(datasets_dir / '{}.csv'.format(self.dataset_name))
 
-def test_train_evaluate():
-    X, y = make_regression(n_samples = 100, n_features=2, n_informative=2)
-    dataset = pd.DataFrame(data=np.concatenate([X,y.reshape(-1,1)], axis=1), columns=['x1', 'x2', 'y'])
-    dataset_name = 'test_regression'
-    job1 = train(dataset_name, dataset, verbose=False)
-    success = job1.wait_to_complete()
-    assert success
+    def test_train_update(self) -> None:
+        job1 = train(self.dataset_name, self.dataset, verbose=False)
+        success = job1.wait_to_complete()
+        self.assertTrue(success)
+        self.assertEqual(job1.get_predictions().shape[0], 100)
 
-    X, y = make_regression(n_samples = 50, n_features=2, n_informative=2)
-    dataset = pd.DataFrame(data=np.concatenate([X,y.reshape(-1,1)], axis=1), columns=['x1', 'x2', 'y'])
-    job2 = evaluate(dataset_name, dataset, job1, verbose=False)
-    success = job2.wait_to_complete()
-    assert success
-    assert job2.get_predictions().shape[0] == 50
+        job2 = update(self.dataset_name, self.dataset, job1, verbose=False)
+        success = job2.wait_to_complete()
+        self.assertTrue(success)
+        self.assertEqual(job2.get_predictions().shape[0], 100)
+
+    def test_train_evaluate(self):
+        job1 = train(self.dataset_name, self.dataset, verbose=False)
+        success = job1.wait_to_complete()
+        self.assertTrue(success)
+
+        job2 = evaluate(self.dataset_name, self.dataset, job1, verbose=False)
+        success = job2.wait_to_complete()
+        self.assertTrue(success)
+        self.assertEqual(job2.get_predictions().shape[0], 100)
 
 if __name__ == '__main__':
-    test_train_evaluate()
+    unittest.main()
