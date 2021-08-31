@@ -67,6 +67,8 @@ RUN \
   rm -rf libxml2-2.9.4
 
 # Build Boost
+# TODO update the download URL to https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2
+# when the image is next rebuilt
 RUN \
   wget --quiet -O - http://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2 | tar jxf - && \
   cd boost_1_71_0 && \
