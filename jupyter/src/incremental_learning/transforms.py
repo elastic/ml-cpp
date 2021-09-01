@@ -166,21 +166,25 @@ def resample_metric_features(seed : int,
 
     random.seed(seed)
 
+    useable_metric_features = []
     ranges = []
     weights = []
+    quantiles = dataset.quantile([q / 10 for q in range(1, 10)])
     for feature in metric_features:
-        ranges.append([x[1] for x in dataset[feature].quantile([q / 10 for q in range(1, 10)]).items()])
-        weights.append([0.5 + magnitude * random.uniform(-0.5, 0.5) for _ in range(10)])
+        if feature in quantiles.columns:
+            useable_metric_features.append(feature)
+            ranges.append(quantiles[feature].tolist())
+            weights.append([0.5 + magnitude * random.uniform(-0.5, 0.5) for _ in range(11)])
     weights_normalization = [np.sum(feature_weights) for feature_weights in weights]
 
     probabilities = []
     normalization = 0
     for _, row in dataset.iterrows():
         probability = 1
-        for i, feature in enumerate(metric_features):
+        for i, feature in enumerate(useable_metric_features):
             j = bisect.bisect_left(ranges[i], row[feature])
             probability *= weights[i][j] / weights_normalization[i]
-        probability /= len(metric_features)
+        probability /= len(useable_metric_features)
         probabilities.append(probability)
         normalization += probability
     for i in range(len(probabilities)):
