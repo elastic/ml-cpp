@@ -129,7 +129,7 @@ if __name__ == '__main__':
     parser.add_argument('--experiments_file', default='experiments.json', help='The experiments file to write')
     parser.add_argument('--datasets', nargs='+', default=[], help='The datasets to use')
     parser.add_argument('--transforms_file', default='transform_templates.json', help='The transforms to apply to each dataset')
-    parser.add_argument('--number_random_copies', default=3, help='The number of random verions to use for each base experiment')
+    parser.add_argument('--number_random_copies', default=3, help='The number of random verions to use for each base experiment', type=int)
     parser.add_argument('--seed', default=1234567, help='The seed to use to generate experiments')
     args = parser.parse_args()
 
@@ -164,4 +164,7 @@ if __name__ == '__main__':
     print('There are', len(experiments), 'experiments in total')
 
     with open(args.experiments_file, 'w') as experiments_file:
-        json.dump({'seed': args.seed, 'configurations': experiments}, experiments_file, sort_keys=True, indent=4)
+        json.dump({'seed': args.seed, 
+                   'number_random_copies': args.number_random_copies,
+                   'datasets': args.datasets,
+                   'configurations': experiments}, experiments_file, sort_keys=True, indent=4)
