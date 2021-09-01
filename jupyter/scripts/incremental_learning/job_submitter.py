@@ -32,7 +32,7 @@ def generate_job_file(config, cwd, verbose):
                                   config['transform_parameters'].get('fraction', ''),
                                   config['transform_parameters'].get('magnitude', '')]))
     job_file = '{}.job'.format(job_name)
-    job_parameters = ['verbose='.format(verbose),
+    job_parameters = ['verbose={}'.format(verbose),
                       'dataset_name="{}"'.format(config['dataset_name']),
                       'threads={}'.format(config['threads']),
                       'seed={}'.format(config['seed']),

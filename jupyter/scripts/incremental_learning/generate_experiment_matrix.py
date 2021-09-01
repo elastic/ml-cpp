@@ -19,6 +19,13 @@ from incremental_learning.config import configs_dir
 from incremental_learning.storage import download_dataset
 
 def feature_fields(dataset_name : str):
+    with open(configs_dir / '{}.json'.format(dataset_name)) as json_file:
+        try:
+            config = json.load(json_file)
+        except:
+            print('Failed reading', configs_dir / '{}.json'.format(dataset_name))
+            return None
+
     with open(datasets_dir / '{}.csv'.format(dataset_name)) as csv_file:
         try:
             reader = csv.reader(csv_file, delimiter=',')
@@ -27,34 +34,20 @@ def feature_fields(dataset_name : str):
             print('Failed reading', datasets_dir / '{}.csv'.format(dataset_name))
             return None
 
-    with open(configs_dir / '{}.json'.format(dataset_name)) as json_file:
-        try:
-            config = json.load(json_file)
-        except:
-            print('Failed reading', configs_dir / '{}.json'.format(dataset_name))
-            return None
-
     target = [config['analysis']['parameters']['dependent_variable']]
+    is_classification = (config['analysis']['name'] == 'classification')
     categorical_features = []
     if 'categorical_fields' in config:
         categorical_features = [name for name in config['categorical_fields'] if name not in target]
     metric_features = [name for name in field_names if name not in categorical_features + target]
-    return target, metric_features, categorical_features
+    return target, is_classification, metric_features, categorical_features
 
 def features():
     '''
     Get the data set target, and categorical and metric feature field names.
     '''
     result = {}
-    for dataset_name in args.classification_datasets:
-        if download_dataset(dataset_name):
-            fields = feature_fields(dataset_name)
-            if fields != None:
-                result[dataset_name] = fields
-        else:
-            print('Missing dataset', dataset_name)
-
-    for dataset_name in args.regression_datasets:
+    for dataset_name in args.datasets:
         if download_dataset(dataset_name):
             fields = feature_fields(dataset_name)
             if fields != None:
@@ -91,7 +84,7 @@ def regression_only(transform_name: str):
     return transform_name == 'regression_category_drift'
 
 def generate_parameters(transform: dict,
-                        categorisation: bool,
+                        is_classification: bool,
                         target: str,
                         categorical_features: dict,
                         metric_features: dict):
@@ -102,7 +95,7 @@ def generate_parameters(transform: dict,
         return None
     if needs_categorical_features(transform['transform_name']) and len(categorical_features) == 0:
         return None
-    if regression_only(transform['transform_name']) and categorisation:
+    if regression_only(transform['transform_name']) and is_classification:
         return None
 
     result = copy.deepcopy(transform['transform_parameters'])
@@ -134,8 +127,7 @@ def generate_parameters(transform: dict,
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generates the experiments.json file for a collection of data and transforms')
     parser.add_argument('--experiments_file', default='experiments.json', help='The experiments file to write')
-    parser.add_argument('--classification_datasets', nargs='+', default=[], help='The classification datasets to use')
-    parser.add_argument('--regression_datasets', nargs='+', default=[], help='The regression datasets to use')
+    parser.add_argument('--datasets', nargs='+', default=[], help='The datasets to use')
     parser.add_argument('--transforms_file', default='transform_templates.json', help='The transforms to apply to each dataset')
     parser.add_argument('--number_random_copies', default=3, help='The number of random verions to use for each base experiment')
     parser.add_argument('--seed', default=1234567, help='The seed to use to generate experiments')
@@ -152,24 +144,22 @@ if __name__ == '__main__':
         for transform in json.load(transforms_file):
             print('Generating experiments for', transform)
             for _ in range(args.number_random_copies):
-                for categorisation, dataset_names in zip([True, False],
-                                                        [args.classification_datasets, args.regression_datasets]):
-                    for dataset_name in dataset_names:
-                        if dataset_name in dataset_features:
-                            target, metric_features, categorical_features = dataset_features[dataset_name]
-                            params = generate_parameters(transform=transform,
-                                                        categorisation=categorisation,
+                for dataset_name in args.datasets:
+                    if dataset_name in dataset_features:
+                        target, is_classification, metric_features, categorical_features = dataset_features[dataset_name]
+                        params = generate_parameters(transform=transform,
+                                                        is_classification=is_classification,
                                                         target=target,
                                                         metric_features=metric_features,
                                                         categorical_features=categorical_features)
-                            if params != None:
-                                experiments.append({
-                                    'dataset_name': dataset_name,
-                                    'threads': 1,
-                                    'seed': random.randint(0, 100000000),
-                                    'transform_name': transform['transform_name'],
-                                    'transform_parameters': params
-                                })
+                        if params != None:
+                            experiments.append({
+                                'dataset_name': dataset_name,
+                                'threads': 1,
+                                'seed': random.randint(0, 100000000),
+                                'transform_name': transform['transform_name'],
+                                'transform_parameters': params
+                            })
 
     print('There are', len(experiments), 'experiments in total')
 
