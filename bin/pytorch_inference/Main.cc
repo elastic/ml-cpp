@@ -53,8 +53,9 @@ torch::Tensor infer(torch::jit::script::Module& module,
 
     LOG_DEBUG(<< "batch size: " << request.s_NumberInferences
               << ", number of tokens: " << request.s_NumberInputTokens);
-    
-    std::array<std::int64_t, 2> dimensions = {request.s_NumberInferences, request.s_NumberInputTokens};
+
+    std::array<std::int64_t, 2> dimensions = {request.s_NumberInferences,
+                                              request.s_NumberInputTokens};
     at::IntArrayRef inputSize{dimensions};
     LOG_DEBUG(<< "input size: " << inputSize);
 
