@@ -3365,9 +3365,7 @@
                 ],
                 "fraction": 0.44,
                 "magnitude": 0.52,
-                "target": [
-                    "mpg"
-                ]
+                "target": "mpg"
             }
         },
         {
@@ -3382,9 +3380,7 @@
                 ],
                 "fraction": 0.78,
                 "magnitude": 0.45,
-                "target": [
-                    "MEDV"
-                ]
+                "target": "MEDV"
             }
         },
         {
@@ -3399,9 +3395,7 @@
                 ],
                 "fraction": 0.66,
                 "magnitude": 0.89,
-                "target": [
-                    "mpg"
-                ]
+                "target": "mpg"
             }
         },
         {
@@ -3416,9 +3410,7 @@
                 ],
                 "fraction": 0.37,
                 "magnitude": 0.48,
-                "target": [
-                    "MEDV"
-                ]
+                "target": "MEDV"
             }
         },
         {
@@ -3433,9 +3425,7 @@
                 ],
                 "fraction": 0.88,
                 "magnitude": 0.54,
-                "target": [
-                    "mpg"
-                ]
+                "target": "mpg"
             }
         },
         {
@@ -3450,9 +3440,7 @@
                 ],
                 "fraction": 0.44,
                 "magnitude": 0.78,
-                "target": [
-                    "MEDV"
-                ]
+                "target": "MEDV"
             }
         },
         {
@@ -3467,9 +3455,7 @@
                 ],
                 "fraction": 0.3,
                 "magnitude": 0.53,
-                "target": [
-                    "mpg"
-                ]
+                "target": "mpg"
             }
         },
         {
@@ -3484,9 +3470,7 @@
                 ],
                 "fraction": 0.71,
                 "magnitude": 0.27,
-                "target": [
-                    "MEDV"
-                ]
+                "target": "MEDV"
             }
         },
         {
@@ -3501,9 +3485,7 @@
                 ],
                 "fraction": 0.39,
                 "magnitude": 0.55,
-                "target": [
-                    "mpg"
-                ]
+                "target": "mpg"
             }
         },
         {
@@ -3518,9 +3500,7 @@
                 ],
                 "fraction": 0.33,
                 "magnitude": 0.53,
-                "target": [
-                    "MEDV"
-                ]
+                "target": "MEDV"
             }
         }
     ],

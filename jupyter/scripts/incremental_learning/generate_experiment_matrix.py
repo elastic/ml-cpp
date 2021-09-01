@@ -14,6 +14,7 @@ import copy
 import csv
 import json
 import random
+from typing import List
 from incremental_learning.config import datasets_dir
 from incremental_learning.config import configs_dir
 from incremental_learning.storage import download_dataset
@@ -34,12 +35,12 @@ def feature_fields(dataset_name : str):
             print('Failed reading', datasets_dir / '{}.csv'.format(dataset_name))
             return None
 
-    target = [config['analysis']['parameters']['dependent_variable']]
+    target = config['analysis']['parameters']['dependent_variable']
     is_classification = (config['analysis']['name'] == 'classification')
     categorical_features = []
     if 'categorical_fields' in config:
         categorical_features = [name for name in config['categorical_fields']]
-    metric_features = [name for name in field_names if name not in categorical_features + target]
+    metric_features = [name for name in field_names if name not in categorical_features + [target]]
     return target, is_classification, metric_features, categorical_features
 
 def features():
@@ -86,8 +87,8 @@ def regression_only(transform_name: str):
 def generate_parameters(transform: dict,
                         is_classification: bool,
                         target: str,
-                        categorical_features: dict,
-                        metric_features: dict):
+                        categorical_features: List[str],
+                        metric_features: List[str]):
     '''
     Generates the parameters for an experiment or None if it is not valid.
     '''
@@ -148,10 +149,10 @@ if __name__ == '__main__':
                     if dataset_name in dataset_features:
                         target, is_classification, metric_features, categorical_features = dataset_features[dataset_name]
                         params = generate_parameters(transform=transform,
-                                                        is_classification=is_classification,
-                                                        target=target,
-                                                        metric_features=metric_features,
-                                                        categorical_features=categorical_features)
+                                                     is_classification=is_classification,
+                                                     target=target,
+                                                     metric_features=metric_features,
+                                                     categorical_features=categorical_features)
                         if params != None:
                             experiments.append({
                                 'dataset_name': dataset_name,

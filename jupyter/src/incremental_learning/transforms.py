@@ -12,29 +12,31 @@ import math
 import numpy as np
 from pandas import DataFrame
 from pandas import Series
+from typing import List
+from typing import Set
 import random
 
 import pandas
 
-def metric_features(categorical_features : list,
-                    dataset : DataFrame) -> list:
+def metric_features(categorical_features : List[str],
+                    dataset : DataFrame) -> List[str]:
 
     return [x for x in dataset.columns if x not in categorical_features]
 
-def matches_columns(features : list,
+def matches_columns(features : List[str],
                     dataset : DataFrame) -> bool:
     return [x in features for x in dataset.columns].count(True) != len(features)
 
-def features_in_bounding_box(bb : list,
-                             metric_features : list,
+def features_in_bounding_box(bb : List[float],
+                             metric_features : List[str],
                              row : Series) -> bool:
     for i, feature in enumerate(metric_features):
         if row[feature] < bb[i][0] or row[feature] > bb[i][1]:
             return False
     return True
 
-def generate_partition_on_metric_ranges(bb : list,
-                                        metric_features : list,
+def generate_partition_on_metric_ranges(bb : List[float],
+                                        metric_features : List[str],
                                         dataset : DataFrame,
                                         subset : bool) -> int:
     for i in range(len(dataset.index)):
@@ -42,7 +44,7 @@ def generate_partition_on_metric_ranges(bb : list,
             yield dataset.iloc[i]
 
 def partition_on_metric_ranges(seed : int,
-                               metric_features : list,
+                               metric_features : List[str],
                                dataset : DataFrame) -> tuple:
     '''
     Partition the data frame into values rows not contained and contained in
@@ -66,6 +68,11 @@ def partition_on_metric_ranges(seed : int,
         print(list(dataset.columns), 'does not contain', metric_features)
         return None, None
 
+    numeric_types = dataset.select_dtypes(include='number').columns
+    metric_features = [feature for feature in metric_features if feature in numeric_types]
+    if len(metric_features) == 0:
+        return None, None
+
     random.seed(seed)
 
     # We take the intersection of feature intervals which we expect to contain
@@ -87,8 +94,8 @@ class Counters(dict):
     def __missing__(self, key):
         return 0
 
-def generate_partition_on_categories(categorical_features : list,
-                                     matching : set,
+def generate_partition_on_categories(categorical_features : List[str],
+                                     matching : Set[str],
                                      dataset : DataFrame,
                                      subset : bool) -> int:
     for i in range(len(dataset.index)):
@@ -97,7 +104,7 @@ def generate_partition_on_categories(categorical_features : list,
             yield dataset.iloc[i]
 
 def partition_on_categories(seed : int,
-                            categorical_features : list,
+                            categorical_features : List[str],
                             dataset : DataFrame) -> tuple:
     '''
     Partition the data frame into values rows matching and not matching a random
@@ -141,7 +148,7 @@ def partition_on_categories(seed : int,
 def resample_metric_features(seed : int,
                              fraction : float,
                              magnitude : float,
-                             metric_features : list,
+                             metric_features : List[str],
                              dataset : DataFrame) -> DataFrame:
     '''
     Resample by randomly weighting equally spaced quantile buckets of features.
@@ -164,15 +171,18 @@ def resample_metric_features(seed : int,
         print('fraction', fraction, 'out of range (0, 1]')
         return None
 
+    numeric_types = dataset.select_dtypes(include='number').columns
+    metric_features = [feature for feature in metric_features if feature in numeric_types]
+    if len(metric_features) == 0:
+        return None
+
     random.seed(seed)
 
-    useable_metric_features = []
     ranges = []
     weights = []
     quantiles = dataset.quantile([q / 10 for q in range(1, 10)])
     for feature in metric_features:
         if feature in quantiles.columns:
-            useable_metric_features.append(feature)
             ranges.append(quantiles[feature].tolist())
             weights.append([0.5 + magnitude * random.uniform(-0.5, 0.5) for _ in range(11)])
     weights_normalization = [np.sum(feature_weights) for feature_weights in weights]
@@ -181,10 +191,10 @@ def resample_metric_features(seed : int,
     normalization = 0
     for _, row in dataset.iterrows():
         probability = 1
-        for i, feature in enumerate(useable_metric_features):
+        for i, feature in enumerate(metric_features):
             j = bisect.bisect_left(ranges[i], row[feature])
             probability *= weights[i][j] / weights_normalization[i]
-        probability /= len(useable_metric_features)
+        probability /= len(metric_features)
         probabilities.append(probability)
         normalization += probability
     for i in range(len(probabilities)):
@@ -208,7 +218,7 @@ def random_shift(seed : int,
 def shift_metric_features(seed : int,
                           fraction : float,
                           magnitude : float,
-                          categorical_features : list,
+                          categorical_features : List[str],
                           dataset : DataFrame) -> DataFrame:
     '''
     Apply a random shift to the metric features in dataset.
@@ -234,6 +244,11 @@ def shift_metric_features(seed : int,
         return None
 
     features = metric_features(categorical_features, dataset)
+
+    numeric_types = dataset.select_dtypes(include='number').columns
+    features = [feature for feature in features if feature in numeric_types]
+    if len(features) == 0:
+        return None
 
     sd = dataset[features].std()
     shift = random_shift(seed, magnitude, len(features))
@@ -266,8 +281,8 @@ def random_givens_rotations(seed : int,
     return result
 
 def apply_givens_rotations(rotations : list,
-                           scales : list,
-                           x : list) -> None:
+                           scales : List[float],
+                           x : List[float]) -> None:
     for rotation in rotations:
         i, j = rotation['i'], rotation['j']
         xi, xj = x[i], x[j]
@@ -278,7 +293,7 @@ def apply_givens_rotations(rotations : list,
 def rotate_metric_features(seed : int,
                            fraction : float,
                            magnitude : float,
-                           categorical_features : list,
+                           categorical_features : List[str],
                            dataset : DataFrame) -> DataFrame:
     '''
     Downsample and apply a random rotation to the metric feature values in dataset.
@@ -308,6 +323,11 @@ def rotate_metric_features(seed : int,
     features = metric_features(categorical_features, dataset)
     features.sort()
 
+    numeric_types = dataset.select_dtypes(include='number').columns
+    features = [feature for feature in features if feature in numeric_types]
+    if len(features) == 0:
+        return None
+
     centroid = dataset[features].mean()
     rotations = random_givens_rotations(seed, magnitude, len(features))
     # We need to rescale features so they are of comparible magnitude before mixing.
@@ -327,7 +347,7 @@ def rotate_metric_features(seed : int,
 def regression_category_drift(seed : int,
                               fraction : float,
                               magnitude : float,
-                              categorical_features : list,
+                              categorical_features : List[str],
                               target : str,
                               dataset : DataFrame) -> DataFrame:
     '''
