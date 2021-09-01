@@ -166,7 +166,7 @@ def transform_dataset(dataset: pd.DataFrame,
             categorical_features=transform_parameters['categorical_features'],
             target=transform_parameters['target'])
 
-    if transform != None:
+    if transform == None:
         raise NotImplementedError(transform_name + ' is not implemented.')
 
     train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)

@@ -95,7 +95,7 @@ help: ## Print this help
 
 clean: clean-test clean-build
 
-clean-env: clean  ## Delete environment
+clean-env: ## Delete environment
 	-@rm -rf $(ENV)
 	-@rm -rf $(REQUIREMENTS_LOG)
 	-@rm -rf .tox

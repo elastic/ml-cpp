@@ -49,8 +49,8 @@ def generate_job_file(config, cwd, verbose):
 def submit_to_task_spooler(threads, job_file_path):
     cmd = ['tsp', '-N', str(threads), str(job_file_path)]
     process = subprocess.Popen(cmd,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
 if __name__ == '__main__':
