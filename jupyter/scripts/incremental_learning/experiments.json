@@ -2,203 +2,240 @@
     "configurations": [
         {
             "dataset_name": "autompg",
-            "seed": 58950154,
+            "seed": 35235297,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.28,
+                "fraction": 0.4,
                 "metric_features": [
-                    "model"
+                    "horsepower",
+                    "displacement",
+                    "model",
+                    "weight"
+                ]
+            }
+        },
+        {
+            "dataset_name": "bank-marketing",
+            "seed": 24391870,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.8,
+                "metric_features": [
+                    "V10",
+                    "V14",
+                    "V15",
+                    "V6"
                 ]
             }
         },
         {
             "dataset_name": "boston",
-            "seed": 48834444,
+            "seed": 77481466,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.34,
+                "fraction": 0.4,
                 "metric_features": [
-                    "B",
-                    "RM",
-                    "NOX"
+                    "PTRATIO",
+                    "ZN",
+                    "TAX",
+                    "RM"
                 ]
             }
         },
         {
             "dataset_name": "ccpp",
-            "seed": 94169367,
-            "threads": 1,
-            "transform_name": "partition_on_metric_ranges",
-            "transform_parameters": {
-                "fraction": 0.89,
-                "metric_features": [
-                    "AT",
-                    "AT"
-                ]
-            }
-        },
-        {
-            "dataset_name": "credit",
-            "seed": 77481466,
-            "threads": 1,
-            "transform_name": "partition_on_metric_ranges",
-            "transform_parameters": {
-                "fraction": 0.68,
-                "metric_features": [
-                    "residence_since"
-                ]
-            }
-        },
-        {
-            "dataset_name": "electrical-grid-stability",
-            "seed": 24818793,
+            "seed": 19144836,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
                 "fraction": 0.67,
                 "metric_features": [
-                    "p3"
+                    "RH"
                 ]
             }
         },
         {
-            "dataset_name": "electricity",
-            "seed": 10418924,
+            "dataset_name": "credit",
+            "seed": 27994887,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.21,
+                "fraction": 0.25,
                 "metric_features": [
-                    "vicdemand",
-                    "period",
-                    "vicdemand"
+                    "existing_credits",
+                    "num_dependents",
+                    "credit_amount"
                 ]
             }
         },
         {
-            "dataset_name": "facebook-6000",
-            "seed": 49286476,
-            "threads": 1,
-            "transform_name": "partition_on_metric_ranges",
-            "transform_parameters": {
-                "fraction": 0.21,
-                "metric_features": [
-                    "38"
-                ]
-            }
-        },
-        {
-            "dataset_name": "house",
-            "seed": 37825204,
-            "threads": 1,
-            "transform_name": "partition_on_metric_ranges",
-            "transform_parameters": {
-                "fraction": 0.32,
-                "metric_features": [
-                    "H40p4"
-                ]
-            }
-        },
-        {
-            "dataset_name": "steel-plates",
-            "seed": 4115302,
-            "threads": 1,
-            "transform_name": "partition_on_metric_ranges",
-            "transform_parameters": {
-                "fraction": 0.45,
-                "metric_features": [
-                    "V5",
-                    "V23"
-                ]
-            }
-        },
-        {
-            "dataset_name": "wilt",
-            "seed": 9758555,
-            "threads": 1,
-            "transform_name": "partition_on_metric_ranges",
-            "transform_parameters": {
-                "fraction": 0.44,
-                "metric_features": [
-                    "GLCM_Pan",
-                    "GLCM_Pan",
-                    "GLCM_Pan"
-                ]
-            }
-        },
-        {
-            "dataset_name": "wine-quality-white",
-            "seed": 59133852,
-            "threads": 1,
-            "transform_name": "partition_on_metric_ranges",
-            "transform_parameters": {
-                "fraction": 0.38,
-                "metric_features": [
-                    "V3",
-                    "V9",
-                    "V5",
-                    "V1"
-                ]
-            }
-        },
-        {
-            "dataset_name": "autompg",
-            "seed": 1553063,
+            "dataset_name": "electrical-grid-stability",
+            "seed": 63456090,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
                 "fraction": 0.3,
                 "metric_features": [
-                    "weight",
-                    "acceleration",
-                    "model"
+                    "tau4",
+                    "g1"
+                ]
+            }
+        },
+        {
+            "dataset_name": "electricity",
+            "seed": 91788826,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.17,
+                "metric_features": [
+                    "nswprice",
+                    "vicdemand",
+                    "date"
+                ]
+            }
+        },
+        {
+            "dataset_name": "facebook-6000",
+            "seed": 24998910,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.11,
+                "metric_features": [
+                    "19",
+                    "41",
+                    "22",
+                    "17"
+                ]
+            }
+        },
+        {
+            "dataset_name": "house",
+            "seed": 67607288,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.64,
+                "metric_features": [
+                    "P6p2"
+                ]
+            }
+        },
+        {
+            "dataset_name": "steel-plates",
+            "seed": 9758555,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.39,
+                "metric_features": [
+                    "V12",
+                    "V13",
+                    "V8",
+                    "V6"
+                ]
+            }
+        },
+        {
+            "dataset_name": "wilt",
+            "seed": 42393944,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.38,
+                "metric_features": [
+                    "Mean_G",
+                    "Mean_R",
+                    "Mean_NIR",
+                    "SD_Plan"
+                ]
+            }
+        },
+        {
+            "dataset_name": "wine-quality-white",
+            "seed": 65439997,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.15,
+                "metric_features": [
+                    "V5",
+                    "V1",
+                    "V11",
+                    "V8"
+                ]
+            }
+        },
+        {
+            "dataset_name": "autompg",
+            "seed": 16431710,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.65,
+                "metric_features": [
+                    "displacement"
+                ]
+            }
+        },
+        {
+            "dataset_name": "bank-marketing",
+            "seed": 64720563,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.29,
+                "metric_features": [
+                    "V14",
+                    "V1",
+                    "V13",
+                    "V10"
                 ]
             }
         },
         {
             "dataset_name": "boston",
-            "seed": 64720563,
-            "threads": 1,
-            "transform_name": "partition_on_metric_ranges",
-            "transform_parameters": {
-                "fraction": 0.2,
-                "metric_features": [
-                    "TAX",
-                    "DIS",
-                    "AGE",
-                    "PTRATIO"
-                ]
-            }
-        },
-        {
-            "dataset_name": "ccpp",
-            "seed": 73860281,
+            "seed": 52338276,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
                 "fraction": 0.72,
                 "metric_features": [
+                    "INDUS",
+                    "TAX",
+                    "B",
+                    "LSTAT"
+                ]
+            }
+        },
+        {
+            "dataset_name": "ccpp",
+            "seed": 43071833,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.54,
+                "metric_features": [
                     "AP",
                     "AT",
-                    "V",
+                    "RH",
                     "V"
                 ]
             }
         },
         {
             "dataset_name": "credit",
-            "seed": 95724497,
+            "seed": 62190083,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.32,
+                "fraction": 0.3,
                 "metric_features": [
-                    "duration",
-                    "installment_commitment",
-                    "age",
-                    "installment_commitment"
+                    "age"
                 ]
             }
         },
@@ -210,9 +247,7 @@
             "transform_parameters": {
                 "fraction": 0.2,
                 "metric_features": [
-                    "p1",
-                    "tau2",
-                    "tau4"
+                    "g1"
                 ]
             }
         },
@@ -226,98 +261,110 @@
                 "metric_features": [
                     "period",
                     "nswprice",
-                    "transfer"
+                    "vicprice"
                 ]
             }
         },
         {
             "dataset_name": "facebook-6000",
-            "seed": 91819185,
+            "seed": 4887197,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
                 "fraction": 0.6,
                 "metric_features": [
-                    "2"
+                    "21"
                 ]
             }
         },
         {
             "dataset_name": "house",
-            "seed": 27655674,
+            "seed": 67179343,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.76,
+                "fraction": 0.65,
                 "metric_features": [
-                    "H13p1",
-                    "P14p9",
-                    "P15p1"
+                    "P1",
+                    "H13p1"
                 ]
             }
         },
         {
             "dataset_name": "steel-plates",
-            "seed": 98284732,
+            "seed": 65527436,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.15,
+                "fraction": 0.54,
                 "metric_features": [
-                    "V21",
-                    "V29",
-                    "V10",
-                    "V28"
+                    "V14",
+                    "V4",
+                    "V32"
                 ]
             }
         },
         {
             "dataset_name": "wilt",
-            "seed": 27418893,
+            "seed": 87656965,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.35,
+                "fraction": 0.59,
                 "metric_features": [
-                    "Mean_NIR",
+                    "Mean_R",
                     "SD_Plan"
                 ]
             }
         },
         {
             "dataset_name": "wine-quality-white",
-            "seed": 93789144,
+            "seed": 68123542,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.11,
+                "fraction": 0.68,
                 "metric_features": [
-                    "V3"
+                    "V4",
+                    "V1"
                 ]
             }
         },
         {
             "dataset_name": "autompg",
-            "seed": 95430684,
+            "seed": 78065729,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.12,
+                "fraction": 0.16,
                 "metric_features": [
-                    "weight",
                     "displacement"
                 ]
             }
         },
         {
-            "dataset_name": "boston",
-            "seed": 78347394,
+            "dataset_name": "bank-marketing",
+            "seed": 5753038,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.28,
+                "fraction": 0.85,
                 "metric_features": [
-                    "LSTAT"
+                    "V13",
+                    "V15"
+                ]
+            }
+        },
+        {
+            "dataset_name": "boston",
+            "seed": 71371332,
+            "threads": 1,
+            "transform_name": "partition_on_metric_ranges",
+            "transform_parameters": {
+                "fraction": 0.15,
+                "metric_features": [
+                    "AGE",
+                    "CRIM"
                 ]
             }
         },
@@ -327,22 +374,23 @@
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.88,
+                "fraction": 0.57,
                 "metric_features": [
+                    "AT",
                     "V",
-                    "V"
+                    "RH"
                 ]
             }
         },
         {
             "dataset_name": "credit",
-            "seed": 20632404,
+            "seed": 58108925,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
                 "fraction": 0.3,
                 "metric_features": [
-                    "class",
+                    "residence_since",
                     "num_dependents",
                     "credit_amount"
                 ]
@@ -350,400 +398,433 @@
         },
         {
             "dataset_name": "electrical-grid-stability",
-            "seed": 68451661,
+            "seed": 90447744,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.13,
+                "fraction": 0.83,
                 "metric_features": [
-                    "tau2",
-                    "tau3",
-                    "g1"
+                    "p3"
                 ]
             }
         },
         {
             "dataset_name": "electricity",
-            "seed": 99408683,
+            "seed": 25294181,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.25,
+                "fraction": 0.49,
                 "metric_features": [
-                    "nswdemand",
-                    "vicdemand"
+                    "date",
+                    "vicprice"
                 ]
             }
         },
         {
             "dataset_name": "facebook-6000",
-            "seed": 5113896,
+            "seed": 52192105,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.41,
+                "fraction": 0.72,
                 "metric_features": [
-                    "46",
-                    "44"
+                    "34",
+                    "6",
+                    "35",
+                    "52"
                 ]
             }
         },
         {
             "dataset_name": "house",
-            "seed": 91184796,
+            "seed": 28015495,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.28,
+                "fraction": 0.14,
                 "metric_features": [
-                    "P15p3",
-                    "P14p9"
+                    "H8p2"
                 ]
             }
         },
         {
             "dataset_name": "steel-plates",
-            "seed": 43100167,
+            "seed": 74534104,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.21,
+                "fraction": 0.81,
                 "metric_features": [
-                    "V19"
+                    "V20",
+                    "V9",
+                    "V2"
                 ]
             }
         },
         {
             "dataset_name": "wilt",
-            "seed": 30237327,
+            "seed": 43734101,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.61,
+                "fraction": 0.37,
                 "metric_features": [
-                    "Mean_R",
+                    "Mean_NIR",
                     "GLCM_Pan",
-                    "GLCM_Pan"
+                    "SD_Plan"
                 ]
             }
         },
         {
             "dataset_name": "wine-quality-white",
-            "seed": 1107914,
+            "seed": 39791366,
             "threads": 1,
             "transform_name": "partition_on_metric_ranges",
             "transform_parameters": {
-                "fraction": 0.88,
+                "fraction": 0.28,
                 "metric_features": [
-                    "V9"
+                    "V2",
+                    "V1",
+                    "V5"
                 ]
             }
         },
         {
             "dataset_name": "autompg",
-            "seed": 34745014,
+            "seed": 34036482,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.34,
-                "magnitude": 0.56,
+                "fraction": 0.56,
+                "magnitude": 0.82,
                 "metric_features": [
                     "horsepower",
-                    "horsepower",
-                    "horsepower",
-                    "horsepower"
+                    "acceleration",
+                    "displacement",
+                    "model"
+                ]
+            }
+        },
+        {
+            "dataset_name": "bank-marketing",
+            "seed": 48227008,
+            "threads": 1,
+            "transform_name": "resample_metric_features",
+            "transform_parameters": {
+                "fraction": 0.64,
+                "magnitude": 0.71,
+                "metric_features": [
+                    "V1",
+                    "V6"
                 ]
             }
         },
         {
             "dataset_name": "boston",
-            "seed": 49515604,
+            "seed": 99128625,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.76,
-                "magnitude": 0.11,
+                "fraction": 0.4,
+                "magnitude": 0.32,
                 "metric_features": [
-                    "NOX",
-                    "LSTAT"
+                    "CRIM",
+                    "B",
+                    "AGE",
+                    "DIS"
                 ]
             }
         },
         {
             "dataset_name": "ccpp",
-            "seed": 32631718,
+            "seed": 87503986,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.42,
-                "magnitude": 0.66,
+                "fraction": 0.25,
+                "magnitude": 0.29,
                 "metric_features": [
-                    "RH",
+                    "AP",
                     "AT",
-                    "AP"
+                    "RH"
                 ]
             }
         },
         {
             "dataset_name": "credit",
-            "seed": 71578662,
+            "seed": 88907090,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.79,
-                "magnitude": 0.58,
+                "fraction": 0.81,
+                "magnitude": 0.56,
                 "metric_features": [
-                    "residence_since"
+                    "existing_credits"
                 ]
             }
         },
         {
             "dataset_name": "electrical-grid-stability",
-            "seed": 88907090,
-            "threads": 1,
-            "transform_name": "resample_metric_features",
-            "transform_parameters": {
-                "fraction": 0.83,
-                "magnitude": 0.62,
-                "metric_features": [
-                    "g4"
-                ]
-            }
-        },
-        {
-            "dataset_name": "electricity",
-            "seed": 18558912,
+            "seed": 43214003,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
                 "fraction": 0.38,
                 "magnitude": 0.32,
                 "metric_features": [
-                    "nswprice",
+                    "p1",
+                    "tau4"
+                ]
+            }
+        },
+        {
+            "dataset_name": "electricity",
+            "seed": 70884643,
+            "threads": 1,
+            "transform_name": "resample_metric_features",
+            "transform_parameters": {
+                "fraction": 0.42,
+                "magnitude": 0.28,
+                "metric_features": [
+                    "vicprice",
                     "nswprice"
                 ]
             }
         },
         {
             "dataset_name": "facebook-6000",
-            "seed": 66773129,
+            "seed": 84692657,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.28,
-                "magnitude": 0.27,
+                "fraction": 0.12,
+                "magnitude": 0.63,
                 "metric_features": [
-                    "34",
-                    "29",
-                    "13"
+                    "23",
+                    "48",
+                    "18",
+                    "33"
                 ]
             }
         },
         {
             "dataset_name": "house",
-            "seed": 28396931,
+            "seed": 66133905,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.29,
-                "magnitude": 0.22,
+                "fraction": 0.34,
+                "magnitude": 0.81,
                 "metric_features": [
-                    "P1",
-                    "P27p4",
-                    "H13p1"
+                    "H13p1",
+                    "P6p2",
+                    "P5p1",
+                    "P11p4"
                 ]
             }
         },
         {
             "dataset_name": "steel-plates",
-            "seed": 41658102,
+            "seed": 27884473,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.9,
-                "magnitude": 0.28,
+                "fraction": 0.63,
+                "magnitude": 0.72,
                 "metric_features": [
-                    "V23",
-                    "V26",
-                    "V10",
-                    "V23"
+                    "V20",
+                    "V15",
+                    "V31"
                 ]
             }
         },
         {
             "dataset_name": "wilt",
-            "seed": 73739475,
+            "seed": 62617618,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.28,
-                "magnitude": 0.27,
+                "fraction": 0.55,
+                "magnitude": 0.11,
                 "metric_features": [
-                    "GLCM_Pan",
-                    "GLCM_Pan",
-                    "Mean_G",
-                    "GLCM_Pan"
+                    "SD_Plan",
+                    "Mean_R"
                 ]
             }
         },
         {
             "dataset_name": "wine-quality-white",
-            "seed": 50835488,
+            "seed": 89133744,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.77,
-                "magnitude": 0.21,
+                "fraction": 0.2,
+                "magnitude": 0.54,
                 "metric_features": [
-                    "V3",
-                    "V8"
+                    "V4",
+                    "V5"
                 ]
             }
         },
         {
             "dataset_name": "autompg",
-            "seed": 70619784,
+            "seed": 44285656,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.86,
-                "magnitude": 0.3,
+                "fraction": 0.66,
+                "magnitude": 0.86,
                 "metric_features": [
-                    "model",
-                    "horsepower",
-                    "horsepower"
+                    "weight",
+                    "displacement"
+                ]
+            }
+        },
+        {
+            "dataset_name": "bank-marketing",
+            "seed": 11706376,
+            "threads": 1,
+            "transform_name": "resample_metric_features",
+            "transform_parameters": {
+                "fraction": 0.84,
+                "magnitude": 0.64,
+                "metric_features": [
+                    "V6",
+                    "V15",
+                    "V1"
                 ]
             }
         },
         {
             "dataset_name": "boston",
-            "seed": 67593017,
+            "seed": 39661763,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.51,
-                "magnitude": 0.59,
+                "fraction": 0.5,
+                "magnitude": 0.73,
                 "metric_features": [
-                    "ZN",
-                    "INDUS",
-                    "B"
+                    "CRIM",
+                    "DIS",
+                    "LSTAT"
                 ]
             }
         },
         {
             "dataset_name": "ccpp",
-            "seed": 7062940,
+            "seed": 27631131,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.78,
-                "magnitude": 0.21,
+                "fraction": 0.52,
+                "magnitude": 0.14,
                 "metric_features": [
                     "AP",
                     "AT",
-                    "AT"
+                    "RH"
                 ]
             }
         },
         {
             "dataset_name": "credit",
-            "seed": 94604968,
+            "seed": 74067292,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.55,
-                "magnitude": 0.35,
+                "fraction": 0.7,
+                "magnitude": 0.82,
                 "metric_features": [
-                    "class",
-                    "credit_amount",
-                    "existing_credits",
-                    "age"
+                    "age",
+                    "residence_since",
+                    "num_dependents"
                 ]
             }
         },
         {
             "dataset_name": "electrical-grid-stability",
-            "seed": 36337422,
+            "seed": 87198712,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.7,
-                "magnitude": 0.64,
+                "fraction": 0.42,
+                "magnitude": 0.62,
                 "metric_features": [
                     "p3",
-                    "p3",
-                    "p4",
-                    "p4"
+                    "g2",
+                    "tau1"
                 ]
             }
         },
         {
             "dataset_name": "electricity",
-            "seed": 64474,
+            "seed": 62272394,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.35,
-                "magnitude": 0.26,
+                "fraction": 0.19,
+                "magnitude": 0.75,
                 "metric_features": [
-                    "period"
+                    "date",
+                    "nswprice",
+                    "transfer"
                 ]
             }
         },
         {
             "dataset_name": "facebook-6000",
-            "seed": 87899153,
+            "seed": 5742879,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.38,
-                "magnitude": 0.2,
+                "fraction": 0.74,
+                "magnitude": 0.47,
                 "metric_features": [
-                    "31"
+                    "26",
+                    "52"
                 ]
             }
         },
         {
             "dataset_name": "house",
-            "seed": 92819822,
+            "seed": 72764767,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.47,
-                "magnitude": 0.82,
+                "fraction": 0.53,
+                "magnitude": 0.65,
                 "metric_features": [
-                    "H2p2",
-                    "P27p4"
+                    "P16p2"
                 ]
             }
         },
         {
             "dataset_name": "steel-plates",
-            "seed": 58568007,
+            "seed": 51142805,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.21,
-                "magnitude": 0.2,
+                "fraction": 0.68,
+                "magnitude": 0.85,
                 "metric_features": [
-                    "V18",
-                    "V23",
-                    "V6",
-                    "V20"
+                    "V30",
+                    "V3",
+                    "V26",
+                    "V32"
                 ]
             }
         },
         {
             "dataset_name": "wilt",
-            "seed": 70269259,
+            "seed": 95922246,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.47,
-                "magnitude": 0.42,
+                "fraction": 0.53,
+                "magnitude": 0.26,
                 "metric_features": [
-                    "Mean_R",
                     "Mean_G",
+                    "GLCM_Pan",
                     "Mean_R",
                     "Mean_NIR"
                 ]
@@ -751,186 +832,224 @@
         },
         {
             "dataset_name": "wine-quality-white",
-            "seed": 64821872,
+            "seed": 70395007,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.73,
-                "magnitude": 0.14,
+                "fraction": 0.28,
+                "magnitude": 0.49,
                 "metric_features": [
-                    "V10",
-                    "V3"
+                    "V3",
+                    "V5",
+                    "V2"
                 ]
             }
         },
         {
             "dataset_name": "autompg",
-            "seed": 88268775,
+            "seed": 24074788,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.32,
-                "magnitude": 0.21,
+                "fraction": 0.29,
+                "magnitude": 0.63,
                 "metric_features": [
+                    "acceleration",
+                    "horsepower",
                     "weight"
                 ]
             }
         },
         {
-            "dataset_name": "boston",
-            "seed": 4320944,
+            "dataset_name": "bank-marketing",
+            "seed": 39221840,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.81,
-                "magnitude": 0.43,
+                "fraction": 0.32,
+                "magnitude": 0.12,
                 "metric_features": [
-                    "NOX",
-                    "CRIM"
+                    "V15"
+                ]
+            }
+        },
+        {
+            "dataset_name": "boston",
+            "seed": 33048692,
+            "threads": 1,
+            "transform_name": "resample_metric_features",
+            "transform_parameters": {
+                "fraction": 0.49,
+                "magnitude": 0.46,
+                "metric_features": [
+                    "RM"
                 ]
             }
         },
         {
             "dataset_name": "ccpp",
-            "seed": 71087248,
+            "seed": 75059818,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.76,
-                "magnitude": 0.83,
+                "fraction": 0.86,
+                "magnitude": 0.19,
                 "metric_features": [
-                    "RH",
-                    "V",
-                    "V",
-                    "AP"
+                    "AP",
+                    "V"
                 ]
             }
         },
         {
             "dataset_name": "credit",
-            "seed": 96057311,
+            "seed": 49973491,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.19,
-                "magnitude": 0.56,
+                "fraction": 0.67,
+                "magnitude": 0.72,
                 "metric_features": [
-                    "class",
-                    "credit_amount"
+                    "credit_amount",
+                    "num_dependents",
+                    "age",
+                    "residence_since"
                 ]
             }
         },
         {
             "dataset_name": "electrical-grid-stability",
-            "seed": 76637363,
+            "seed": 2900635,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.16,
-                "magnitude": 0.15,
+                "fraction": 0.13,
+                "magnitude": 0.82,
                 "metric_features": [
-                    "tau4",
-                    "tau3",
-                    "p2",
-                    "p3"
+                    "g4"
                 ]
             }
         },
         {
             "dataset_name": "electricity",
-            "seed": 89687180,
+            "seed": 64569794,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.55,
-                "magnitude": 0.87,
+                "fraction": 0.63,
+                "magnitude": 0.38,
                 "metric_features": [
-                    "vicdemand"
+                    "nswprice",
+                    "nswdemand",
+                    "transfer"
                 ]
             }
         },
         {
             "dataset_name": "facebook-6000",
-            "seed": 72601973,
+            "seed": 24031205,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.51,
-                "magnitude": 0.58,
+                "fraction": 0.13,
+                "magnitude": 0.53,
                 "metric_features": [
-                    "30",
-                    "48",
-                    "11"
+                    "23",
+                    "10",
+                    "5"
                 ]
             }
         },
         {
             "dataset_name": "house",
-            "seed": 11420156,
+            "seed": 9360241,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.54,
-                "magnitude": 0.3,
+                "fraction": 0.68,
+                "magnitude": 0.2,
                 "metric_features": [
-                    "P15p1",
-                    "H10p1"
+                    "P15p1"
                 ]
             }
         },
         {
             "dataset_name": "steel-plates",
-            "seed": 17783040,
+            "seed": 45017734,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.39,
-                "magnitude": 0.64,
+                "fraction": 0.64,
+                "magnitude": 0.88,
                 "metric_features": [
-                    "V14"
+                    "V25",
+                    "V9",
+                    "V3",
+                    "V21"
                 ]
             }
         },
         {
             "dataset_name": "wilt",
-            "seed": 57672786,
+            "seed": 40196402,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.14,
-                "magnitude": 0.37,
+                "fraction": 0.4,
+                "magnitude": 0.3,
                 "metric_features": [
-                    "Mean_G",
                     "SD_Plan",
-                    "Mean_R",
-                    "GLCM_Pan"
+                    "Mean_G",
+                    "GLCM_Pan",
+                    "Mean_NIR"
                 ]
             }
         },
         {
             "dataset_name": "wine-quality-white",
-            "seed": 9028934,
+            "seed": 54448138,
             "threads": 1,
             "transform_name": "resample_metric_features",
             "transform_parameters": {
-                "fraction": 0.34,
-                "magnitude": 0.71,
+                "fraction": 0.32,
+                "magnitude": 0.8,
                 "metric_features": [
-                    "V4",
-                    "V7",
-                    "V5"
+                    "V5",
+                    "V10",
+                    "V4"
                 ]
             }
         },
         {
             "dataset_name": "autompg",
-            "seed": 22280693,
+            "seed": 9028934,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
                 "categorical_features": [
                     "cylinders",
                     "origin"
+                ],
+                "fraction": 0.54,
+                "magnitude": 0.78
+            }
+        },
+        {
+            "dataset_name": "bank-marketing",
+            "seed": 22280693,
+            "threads": 1,
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "categorical_features": [
+                    "V2",
+                    "V3",
+                    "V4",
+                    "V5",
+                    "V7",
+                    "V8",
+                    "V9",
+                    "V11",
+                    "V16",
+                    "target"
                 ],
                 "fraction": 0.89,
                 "magnitude": 0.18
@@ -979,7 +1098,8 @@
                     "housing",
                     "job",
                     "own_telephone",
-                    "foreign_worker"
+                    "foreign_worker",
+                    "target"
                 ],
                 "fraction": 0.43,
                 "magnitude": 0.14
@@ -1002,7 +1122,8 @@
             "transform_name": "shift_metric_features",
             "transform_parameters": {
                 "categorical_features": [
-                    "day"
+                    "day",
+                    "target"
                 ],
                 "fraction": 0.2,
                 "magnitude": 0.82
@@ -1034,6 +1155,9 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "target"
+                ],
                 "fraction": 0.3,
                 "magnitude": 0.28
             }
@@ -1044,6 +1168,9 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "class"
+                ],
                 "fraction": 0.7,
                 "magnitude": 0.56
             }
@@ -1073,8 +1200,30 @@
             }
         },
         {
-            "dataset_name": "boston",
+            "dataset_name": "bank-marketing",
             "seed": 8034926,
+            "threads": 1,
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "categorical_features": [
+                    "V2",
+                    "V3",
+                    "V4",
+                    "V5",
+                    "V7",
+                    "V8",
+                    "V9",
+                    "V11",
+                    "V16",
+                    "target"
+                ],
+                "fraction": 0.16,
+                "magnitude": 0.12
+            }
+        },
+        {
+            "dataset_name": "boston",
+            "seed": 95539512,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
@@ -1082,23 +1231,23 @@
                     "CHAS",
                     "RAD"
                 ],
-                "fraction": 0.16,
-                "magnitude": 0.12
-            }
-        },
-        {
-            "dataset_name": "ccpp",
-            "seed": 95539512,
-            "threads": 1,
-            "transform_name": "shift_metric_features",
-            "transform_parameters": {
                 "fraction": 0.72,
                 "magnitude": 0.77
             }
         },
         {
-            "dataset_name": "credit",
+            "dataset_name": "ccpp",
             "seed": 83320362,
+            "threads": 1,
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "fraction": 0.16,
+                "magnitude": 0.28
+            }
+        },
+        {
+            "dataset_name": "credit",
+            "seed": 95073067,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
@@ -1115,47 +1264,39 @@
                     "housing",
                     "job",
                     "own_telephone",
-                    "foreign_worker"
+                    "foreign_worker",
+                    "target"
                 ],
-                "fraction": 0.16,
-                "magnitude": 0.28
-            }
-        },
-        {
-            "dataset_name": "electrical-grid-stability",
-            "seed": 95073067,
-            "threads": 1,
-            "transform_name": "shift_metric_features",
-            "transform_parameters": {
                 "fraction": 0.29,
                 "magnitude": 0.87
             }
         },
         {
-            "dataset_name": "electricity",
+            "dataset_name": "electrical-grid-stability",
             "seed": 45912521,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
-                "categorical_features": [
-                    "day"
-                ],
                 "fraction": 0.12,
                 "magnitude": 0.1
             }
         },
         {
-            "dataset_name": "facebook-6000",
+            "dataset_name": "electricity",
             "seed": 19154245,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "day",
+                    "target"
+                ],
                 "fraction": 0.63,
                 "magnitude": 0.13
             }
         },
         {
-            "dataset_name": "house",
+            "dataset_name": "facebook-6000",
             "seed": 91617420,
             "threads": 1,
             "transform_name": "shift_metric_features",
@@ -1165,7 +1306,7 @@
             }
         },
         {
-            "dataset_name": "steel-plates",
+            "dataset_name": "house",
             "seed": 25248407,
             "threads": 1,
             "transform_name": "shift_metric_features",
@@ -1175,28 +1316,44 @@
             }
         },
         {
-            "dataset_name": "wilt",
+            "dataset_name": "steel-plates",
             "seed": 84207300,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "target"
+                ],
                 "fraction": 0.12,
                 "magnitude": 0.83
             }
         },
         {
-            "dataset_name": "wine-quality-white",
+            "dataset_name": "wilt",
             "seed": 3568465,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "class"
+                ],
                 "fraction": 0.78,
                 "magnitude": 0.36
             }
         },
         {
-            "dataset_name": "autompg",
+            "dataset_name": "wine-quality-white",
             "seed": 71561074,
+            "threads": 1,
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "fraction": 0.67,
+                "magnitude": 0.53
+            }
+        },
+        {
+            "dataset_name": "autompg",
+            "seed": 17451292,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
@@ -1204,13 +1361,35 @@
                     "cylinders",
                     "origin"
                 ],
-                "fraction": 0.67,
-                "magnitude": 0.53
+                "fraction": 0.23,
+                "magnitude": 0.86
+            }
+        },
+        {
+            "dataset_name": "bank-marketing",
+            "seed": 43540476,
+            "threads": 1,
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "categorical_features": [
+                    "V2",
+                    "V3",
+                    "V4",
+                    "V5",
+                    "V7",
+                    "V8",
+                    "V9",
+                    "V11",
+                    "V16",
+                    "target"
+                ],
+                "fraction": 0.89,
+                "magnitude": 0.33
             }
         },
         {
             "dataset_name": "boston",
-            "seed": 17451292,
+            "seed": 966377,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
@@ -1218,47 +1397,12 @@
                     "CHAS",
                     "RAD"
                 ],
-                "fraction": 0.23,
-                "magnitude": 0.86
-            }
-        },
-        {
-            "dataset_name": "ccpp",
-            "seed": 43540476,
-            "threads": 1,
-            "transform_name": "shift_metric_features",
-            "transform_parameters": {
-                "fraction": 0.89,
-                "magnitude": 0.33
-            }
-        },
-        {
-            "dataset_name": "credit",
-            "seed": 966377,
-            "threads": 1,
-            "transform_name": "shift_metric_features",
-            "transform_parameters": {
-                "categorical_features": [
-                    "checking_status",
-                    "credit_history",
-                    "purpose",
-                    "savings_status",
-                    "employment",
-                    "personal_status",
-                    "other_parties",
-                    "property_magnitude",
-                    "other_payment_plans",
-                    "housing",
-                    "job",
-                    "own_telephone",
-                    "foreign_worker"
-                ],
                 "fraction": 0.71,
                 "magnitude": 0.47
             }
         },
         {
-            "dataset_name": "electrical-grid-stability",
+            "dataset_name": "ccpp",
             "seed": 73575765,
             "threads": 1,
             "transform_name": "shift_metric_features",
@@ -1268,20 +1412,33 @@
             }
         },
         {
-            "dataset_name": "electricity",
+            "dataset_name": "credit",
             "seed": 26721162,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
                 "categorical_features": [
-                    "day"
+                    "checking_status",
+                    "credit_history",
+                    "purpose",
+                    "savings_status",
+                    "employment",
+                    "personal_status",
+                    "other_parties",
+                    "property_magnitude",
+                    "other_payment_plans",
+                    "housing",
+                    "job",
+                    "own_telephone",
+                    "foreign_worker",
+                    "target"
                 ],
                 "fraction": 0.2,
                 "magnitude": 0.65
             }
         },
         {
-            "dataset_name": "facebook-6000",
+            "dataset_name": "electrical-grid-stability",
             "seed": 78228878,
             "threads": 1,
             "transform_name": "shift_metric_features",
@@ -1291,17 +1448,21 @@
             }
         },
         {
-            "dataset_name": "house",
+            "dataset_name": "electricity",
             "seed": 63705369,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "day",
+                    "target"
+                ],
                 "fraction": 0.5,
                 "magnitude": 0.61
             }
         },
         {
-            "dataset_name": "steel-plates",
+            "dataset_name": "facebook-6000",
             "seed": 17432453,
             "threads": 1,
             "transform_name": "shift_metric_features",
@@ -1311,7 +1472,7 @@
             }
         },
         {
-            "dataset_name": "wilt",
+            "dataset_name": "house",
             "seed": 34710489,
             "threads": 1,
             "transform_name": "shift_metric_features",
@@ -1321,18 +1482,44 @@
             }
         },
         {
-            "dataset_name": "wine-quality-white",
+            "dataset_name": "steel-plates",
             "seed": 79790861,
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "target"
+                ],
                 "fraction": 0.75,
                 "magnitude": 0.38
             }
         },
         {
-            "dataset_name": "autompg",
+            "dataset_name": "wilt",
             "seed": 59084364,
+            "threads": 1,
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "categorical_features": [
+                    "class"
+                ],
+                "fraction": 0.65,
+                "magnitude": 0.73
+            }
+        },
+        {
+            "dataset_name": "wine-quality-white",
+            "seed": 67508042,
+            "threads": 1,
+            "transform_name": "shift_metric_features",
+            "transform_parameters": {
+                "fraction": 0.31,
+                "magnitude": 0.51
+            }
+        },
+        {
+            "dataset_name": "autompg",
+            "seed": 43839021,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
@@ -1340,13 +1527,35 @@
                     "cylinders",
                     "origin"
                 ],
-                "fraction": 0.65,
-                "magnitude": 0.73
+                "fraction": 0.62,
+                "magnitude": 0.6
+            }
+        },
+        {
+            "dataset_name": "bank-marketing",
+            "seed": 28869849,
+            "threads": 1,
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "categorical_features": [
+                    "V2",
+                    "V3",
+                    "V4",
+                    "V5",
+                    "V7",
+                    "V8",
+                    "V9",
+                    "V11",
+                    "V16",
+                    "target"
+                ],
+                "fraction": 0.82,
+                "magnitude": 0.63
             }
         },
         {
             "dataset_name": "boston",
-            "seed": 67508042,
+            "seed": 23389648,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
@@ -1354,23 +1563,23 @@
                     "CHAS",
                     "RAD"
                 ],
-                "fraction": 0.31,
-                "magnitude": 0.51
+                "fraction": 0.23,
+                "magnitude": 0.5
             }
         },
         {
             "dataset_name": "ccpp",
-            "seed": 43839021,
+            "seed": 1032762,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
-                "fraction": 0.62,
-                "magnitude": 0.6
+                "fraction": 0.67,
+                "magnitude": 0.87
             }
         },
         {
             "dataset_name": "credit",
-            "seed": 28869849,
+            "seed": 72344579,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
@@ -1387,47 +1596,15 @@
                     "housing",
                     "job",
                     "own_telephone",
-                    "foreign_worker"
+                    "foreign_worker",
+                    "target"
                 ],
-                "fraction": 0.82,
-                "magnitude": 0.63
-            }
-        },
-        {
-            "dataset_name": "electrical-grid-stability",
-            "seed": 23389648,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
-                "fraction": 0.23,
-                "magnitude": 0.5
-            }
-        },
-        {
-            "dataset_name": "electricity",
-            "seed": 1032762,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
-                "categorical_features": [
-                    "day"
-                ],
-                "fraction": 0.67,
-                "magnitude": 0.87
-            }
-        },
-        {
-            "dataset_name": "facebook-6000",
-            "seed": 72344579,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
                 "fraction": 0.81,
                 "magnitude": 0.25
             }
         },
         {
-            "dataset_name": "house",
+            "dataset_name": "electrical-grid-stability",
             "seed": 7982821,
             "threads": 1,
             "transform_name": "rotate_metric_features",
@@ -1437,17 +1614,21 @@
             }
         },
         {
-            "dataset_name": "steel-plates",
+            "dataset_name": "electricity",
             "seed": 12360958,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "day",
+                    "target"
+                ],
                 "fraction": 0.25,
                 "magnitude": 0.29
             }
         },
         {
-            "dataset_name": "wilt",
+            "dataset_name": "facebook-6000",
             "seed": 85862950,
             "threads": 1,
             "transform_name": "rotate_metric_features",
@@ -1457,7 +1638,7 @@
             }
         },
         {
-            "dataset_name": "wine-quality-white",
+            "dataset_name": "house",
             "seed": 15276032,
             "threads": 1,
             "transform_name": "rotate_metric_features",
@@ -1467,35 +1648,33 @@
             }
         },
         {
-            "dataset_name": "autompg",
+            "dataset_name": "steel-plates",
             "seed": 39391347,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
                 "categorical_features": [
-                    "cylinders",
-                    "origin"
+                    "target"
                 ],
                 "fraction": 0.57,
                 "magnitude": 0.54
             }
         },
         {
-            "dataset_name": "boston",
+            "dataset_name": "wilt",
             "seed": 83209973,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
                 "categorical_features": [
-                    "CHAS",
-                    "RAD"
+                    "class"
                 ],
                 "fraction": 0.83,
                 "magnitude": 0.12
             }
         },
         {
-            "dataset_name": "ccpp",
+            "dataset_name": "wine-quality-white",
             "seed": 44129963,
             "threads": 1,
             "transform_name": "rotate_metric_features",
@@ -1505,55 +1684,57 @@
             }
         },
         {
-            "dataset_name": "credit",
+            "dataset_name": "autompg",
             "seed": 98606136,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
                 "categorical_features": [
-                    "checking_status",
-                    "credit_history",
-                    "purpose",
-                    "savings_status",
-                    "employment",
-                    "personal_status",
-                    "other_parties",
-                    "property_magnitude",
-                    "other_payment_plans",
-                    "housing",
-                    "job",
-                    "own_telephone",
-                    "foreign_worker"
+                    "cylinders",
+                    "origin"
                 ],
                 "fraction": 0.21,
                 "magnitude": 0.57
             }
         },
         {
-            "dataset_name": "electrical-grid-stability",
+            "dataset_name": "bank-marketing",
             "seed": 22671935,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "V2",
+                    "V3",
+                    "V4",
+                    "V5",
+                    "V7",
+                    "V8",
+                    "V9",
+                    "V11",
+                    "V16",
+                    "target"
+                ],
                 "fraction": 0.13,
                 "magnitude": 0.29
             }
         },
         {
-            "dataset_name": "electricity",
+            "dataset_name": "boston",
             "seed": 74409180,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
                 "categorical_features": [
-                    "day"
+                    "CHAS",
+                    "RAD"
                 ],
                 "fraction": 0.52,
                 "magnitude": 0.45
             }
         },
         {
-            "dataset_name": "facebook-6000",
+            "dataset_name": "ccpp",
             "seed": 24002258,
             "threads": 1,
             "transform_name": "rotate_metric_features",
@@ -1563,86 +1744,8 @@
             }
         },
         {
-            "dataset_name": "house",
-            "seed": 63731761,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
-                "fraction": 0.11,
-                "magnitude": 0.37
-            }
-        },
-        {
-            "dataset_name": "steel-plates",
-            "seed": 9094619,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
-                "fraction": 0.52,
-                "magnitude": 0.24
-            }
-        },
-        {
-            "dataset_name": "wilt",
-            "seed": 89705696,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
-                "fraction": 0.46,
-                "magnitude": 0.58
-            }
-        },
-        {
-            "dataset_name": "wine-quality-white",
-            "seed": 2048009,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
-                "fraction": 0.2,
-                "magnitude": 0.32
-            }
-        },
-        {
-            "dataset_name": "autompg",
-            "seed": 61895531,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
-                "categorical_features": [
-                    "cylinders",
-                    "origin"
-                ],
-                "fraction": 0.49,
-                "magnitude": 0.25
-            }
-        },
-        {
-            "dataset_name": "boston",
-            "seed": 74514057,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
-                "categorical_features": [
-                    "CHAS",
-                    "RAD"
-                ],
-                "fraction": 0.8,
-                "magnitude": 0.68
-            }
-        },
-        {
-            "dataset_name": "ccpp",
-            "seed": 68123156,
-            "threads": 1,
-            "transform_name": "rotate_metric_features",
-            "transform_parameters": {
-                "fraction": 0.11,
-                "magnitude": 0.28
-            }
-        },
-        {
             "dataset_name": "credit",
-            "seed": 75367455,
+            "seed": 63731761,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
@@ -1659,47 +1762,145 @@
                     "housing",
                     "job",
                     "own_telephone",
-                    "foreign_worker"
+                    "foreign_worker",
+                    "target"
                 ],
+                "fraction": 0.11,
+                "magnitude": 0.37
+            }
+        },
+        {
+            "dataset_name": "electrical-grid-stability",
+            "seed": 9094619,
+            "threads": 1,
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "fraction": 0.52,
+                "magnitude": 0.24
+            }
+        },
+        {
+            "dataset_name": "electricity",
+            "seed": 89705696,
+            "threads": 1,
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "categorical_features": [
+                    "day",
+                    "target"
+                ],
+                "fraction": 0.46,
+                "magnitude": 0.58
+            }
+        },
+        {
+            "dataset_name": "facebook-6000",
+            "seed": 2048009,
+            "threads": 1,
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "fraction": 0.2,
+                "magnitude": 0.32
+            }
+        },
+        {
+            "dataset_name": "house",
+            "seed": 61895531,
+            "threads": 1,
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "fraction": 0.49,
+                "magnitude": 0.25
+            }
+        },
+        {
+            "dataset_name": "steel-plates",
+            "seed": 74514057,
+            "threads": 1,
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "categorical_features": [
+                    "target"
+                ],
+                "fraction": 0.8,
+                "magnitude": 0.68
+            }
+        },
+        {
+            "dataset_name": "wilt",
+            "seed": 68123156,
+            "threads": 1,
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "categorical_features": [
+                    "class"
+                ],
+                "fraction": 0.11,
+                "magnitude": 0.28
+            }
+        },
+        {
+            "dataset_name": "wine-quality-white",
+            "seed": 75367455,
+            "threads": 1,
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
                 "fraction": 0.32,
                 "magnitude": 0.6
             }
         },
         {
-            "dataset_name": "electrical-grid-stability",
+            "dataset_name": "autompg",
             "seed": 74099982,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "cylinders",
+                    "origin"
+                ],
                 "fraction": 0.52,
                 "magnitude": 0.33
             }
         },
         {
-            "dataset_name": "electricity",
+            "dataset_name": "bank-marketing",
             "seed": 40976009,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
                 "categorical_features": [
-                    "day"
+                    "V2",
+                    "V3",
+                    "V4",
+                    "V5",
+                    "V7",
+                    "V8",
+                    "V9",
+                    "V11",
+                    "V16",
+                    "target"
                 ],
                 "fraction": 0.67,
                 "magnitude": 0.45
             }
         },
         {
-            "dataset_name": "facebook-6000",
+            "dataset_name": "boston",
             "seed": 56090957,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "CHAS",
+                    "RAD"
+                ],
                 "fraction": 0.57,
                 "magnitude": 0.37
             }
         },
         {
-            "dataset_name": "house",
+            "dataset_name": "ccpp",
             "seed": 11740808,
             "threads": 1,
             "transform_name": "rotate_metric_features",
@@ -1709,17 +1910,33 @@
             }
         },
         {
-            "dataset_name": "steel-plates",
+            "dataset_name": "credit",
             "seed": 63913832,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "checking_status",
+                    "credit_history",
+                    "purpose",
+                    "savings_status",
+                    "employment",
+                    "personal_status",
+                    "other_parties",
+                    "property_magnitude",
+                    "other_payment_plans",
+                    "housing",
+                    "job",
+                    "own_telephone",
+                    "foreign_worker",
+                    "target"
+                ],
                 "fraction": 0.67,
                 "magnitude": 0.66
             }
         },
         {
-            "dataset_name": "wilt",
+            "dataset_name": "electrical-grid-stability",
             "seed": 95324477,
             "threads": 1,
             "transform_name": "rotate_metric_features",
@@ -1729,112 +1946,172 @@
             }
         },
         {
-            "dataset_name": "wine-quality-white",
+            "dataset_name": "electricity",
             "seed": 78582765,
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [
+                    "day",
+                    "target"
+                ],
                 "fraction": 0.12,
                 "magnitude": 0.65
             }
         },
         {
-            "dataset_name": "autompg",
+            "dataset_name": "facebook-6000",
             "seed": 66567367,
             "threads": 1,
-            "transform_name": "regression_category_drift",
+            "transform_name": "rotate_metric_features",
             "transform_parameters": {
-                "categorical_features": [
-                    "cylinders",
-                    "origin"
-                ],
                 "fraction": 0.45,
-                "magnitude": 0.48,
-                "target": [
-                    "mpg"
-                ]
+                "magnitude": 0.48
             }
         },
         {
-            "dataset_name": "boston",
+            "dataset_name": "house",
             "seed": 6207870,
             "threads": 1,
-            "transform_name": "regression_category_drift",
+            "transform_name": "rotate_metric_features",
             "transform_parameters": {
-                "categorical_features": [
-                    "CHAS",
-                    "RAD"
-                ],
                 "fraction": 0.45,
-                "magnitude": 0.2,
-                "target": [
-                    "MEDV"
-                ]
+                "magnitude": 0.2
             }
         },
         {
-            "dataset_name": "autompg",
+            "dataset_name": "steel-plates",
             "seed": 76774240,
             "threads": 1,
-            "transform_name": "regression_category_drift",
+            "transform_name": "rotate_metric_features",
             "transform_parameters": {
                 "categorical_features": [
-                    "cylinders",
-                    "origin"
+                    "target"
                 ],
                 "fraction": 0.1,
-                "magnitude": 0.44,
-                "target": [
-                    "mpg"
-                ]
+                "magnitude": 0.44
             }
         },
         {
-            "dataset_name": "boston",
+            "dataset_name": "wilt",
             "seed": 89485541,
             "threads": 1,
-            "transform_name": "regression_category_drift",
+            "transform_name": "rotate_metric_features",
             "transform_parameters": {
                 "categorical_features": [
-                    "CHAS",
-                    "RAD"
+                    "class"
                 ],
                 "fraction": 0.39,
-                "magnitude": 0.55,
-                "target": [
-                    "MEDV"
-                ]
+                "magnitude": 0.55
+            }
+        },
+        {
+            "dataset_name": "wine-quality-white",
+            "seed": 76596879,
+            "threads": 1,
+            "transform_name": "rotate_metric_features",
+            "transform_parameters": {
+                "fraction": 0.31,
+                "magnitude": 0.73
             }
         },
         {
             "dataset_name": "autompg",
-            "seed": 76596879,
-            "threads": 1,
-            "transform_name": "regression_category_drift",
-            "transform_parameters": {
-                "categorical_features": [
-                    "cylinders",
-                    "origin"
-                ],
-                "fraction": 0.31,
-                "magnitude": 0.73,
-                "target": [
-                    "mpg"
-                ]
-            }
-        },
-        {
-            "dataset_name": "boston",
             "seed": 63634166,
             "threads": 1,
             "transform_name": "regression_category_drift",
             "transform_parameters": {
                 "categorical_features": [
-                    "CHAS",
-                    "RAD"
+                    "cylinders",
+                    "origin"
                 ],
                 "fraction": 0.12,
                 "magnitude": 0.31,
+                "target": [
+                    "mpg"
+                ]
+            }
+        },
+        {
+            "dataset_name": "boston",
+            "seed": 37342214,
+            "threads": 1,
+            "transform_name": "regression_category_drift",
+            "transform_parameters": {
+                "categorical_features": [
+                    "CHAS",
+                    "RAD"
+                ],
+                "fraction": 0.3,
+                "magnitude": 0.14,
+                "target": [
+                    "MEDV"
+                ]
+            }
+        },
+        {
+            "dataset_name": "autompg",
+            "seed": 47583199,
+            "threads": 1,
+            "transform_name": "regression_category_drift",
+            "transform_parameters": {
+                "categorical_features": [
+                    "cylinders",
+                    "origin"
+                ],
+                "fraction": 0.26,
+                "magnitude": 0.25,
+                "target": [
+                    "mpg"
+                ]
+            }
+        },
+        {
+            "dataset_name": "boston",
+            "seed": 54990176,
+            "threads": 1,
+            "transform_name": "regression_category_drift",
+            "transform_parameters": {
+                "categorical_features": [
+                    "CHAS",
+                    "RAD"
+                ],
+                "fraction": 0.79,
+                "magnitude": 0.69,
+                "target": [
+                    "MEDV"
+                ]
+            }
+        },
+        {
+            "dataset_name": "autompg",
+            "seed": 44720295,
+            "threads": 1,
+            "transform_name": "regression_category_drift",
+            "transform_parameters": {
+                "categorical_features": [
+                    "cylinders",
+                    "origin"
+                ],
+                "fraction": 0.29,
+                "magnitude": 0.6,
+                "target": [
+                    "mpg"
+                ]
+            }
+        },
+        {
+            "dataset_name": "boston",
+            "seed": 92819834,
+            "threads": 1,
+            "transform_name": "regression_category_drift",
+            "transform_parameters": {
+                "categorical_features": [
+                    "CHAS",
+                    "RAD"
+                ],
+                "fraction": 0.55,
+                "magnitude": 0.53,
                 "target": [
                     "MEDV"
                 ]

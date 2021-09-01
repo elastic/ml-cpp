@@ -38,7 +38,7 @@ def feature_fields(dataset_name : str):
     is_classification = (config['analysis']['name'] == 'classification')
     categorical_features = []
     if 'categorical_fields' in config:
-        categorical_features = [name for name in config['categorical_fields'] if name not in target]
+        categorical_features = [name for name in config['categorical_fields']]
     metric_features = [name for name in field_names if name not in categorical_features + target]
     return target, is_classification, metric_features, categorical_features
 
@@ -108,7 +108,7 @@ def generate_parameters(transform: dict,
 
     if 'metric_features' in result:
         if len(metric_features) > 0:
-            result['metric_features'] = random.choices(
+            result['metric_features'] = random.sample(
                 metric_features, k=random.randint(1, min(len(metric_features), 4)))
         else:
             del result['metric_features']
