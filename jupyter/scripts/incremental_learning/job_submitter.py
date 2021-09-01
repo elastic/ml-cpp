@@ -11,6 +11,7 @@
 
 import argparse
 import json
+import multiprocessing
 import os
 import subprocess
 
@@ -18,7 +19,7 @@ from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
 
 def init_task_spooler():
-    cmd = ['tsp', '-S', '`nproc`']
+    cmd = ['tsp', '-S', str(multiprocessing.cpu_count())]
     process = subprocess.Popen(cmd,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
