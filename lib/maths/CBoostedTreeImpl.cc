@@ -433,7 +433,8 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
         if (this->selectNextHyperparameters(crossValidationResult.s_TestLossMoments,
                                             *m_BayesianOptimization) == false) {
-            LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
+            LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
+                     << m_CurrentRound << " out of " << m_NumberRounds << ".");
             break;
         }
 
@@ -1308,9 +1309,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         // add the left and right children to the tree
         std::size_t leftChildId;
         std::size_t rightChildId;
-        std::tie(leftChildId, rightChildId) =
-            tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft,
-                                   leaf->gain(), leaf->curvature(), tree);
+        std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
+            splitFeature, splitValue, assignMissingToLeft, leaf->gain(),
+            leaf->gainVariance(), leaf->curvature(), tree);
 
         featureSampleProbabilities = m_FeatureSampleProbabilities;
         this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
@@ -1334,7 +1335,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             frame, *m_Encoder, m_Regularization, treeFeatureBag, nodeFeatureBag,
             tree[leaf->id()], workspace);
 
-        // Need gain to be computed to compare here
+        // Need gain to be computed to compare here.
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {
             std::swap(leftChild, rightChild);
         }

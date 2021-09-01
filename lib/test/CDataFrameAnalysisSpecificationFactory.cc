@@ -217,6 +217,12 @@ CDataFrameAnalysisSpecificationFactory::previousTrainLossGap(double lossGap) {
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::previousTrainNumberRows(std::size_t number) {
+    m_PreviousTrainNumberRows = number;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
     m_NumberClasses = number;
     return *this;
@@ -389,6 +395,10 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     if (m_PreviousTrainLossGap > 0.0) {
         writer.Key(TRunner::PREVIOUS_TRAIN_LOSS_GAP);
         writer.Double(m_PreviousTrainLossGap);
+    }
+    if (m_PreviousTrainNumberRows > 0) {
+        writer.Key(TRunner::PREVIOUS_TRAIN_NUM_ROWS);
+        writer.Uint64(m_PreviousTrainNumberRows);
     }
 
     writer.Key(TRunner::TASK);

@@ -291,7 +291,7 @@ private:
 
     //! Estimate a good initial value and range to search for the for tree
     //! topology penalty when training incrementally.
-    void initializeUnsetTreeTopologyPenalty();
+    void initializeUnsetTreeTopologyPenalty(core::CDataFrame& frame);
 
     //! Estimate the reduction in gain from a split and the total curvature of
     //! the loss function at a split.

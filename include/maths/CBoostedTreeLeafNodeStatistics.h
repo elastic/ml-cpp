@@ -635,6 +635,9 @@ public:
     //! Get the gain in loss of the best split of this leaf.
     double gain() const;
 
+    //! Get the variance in gain we see for alternative split candidates.
+    double gainVariance() const;
+
     //! Get the gain upper bound for the left child.
     double leftChildMaxGain() const;
 
@@ -696,7 +699,18 @@ protected:
                          std::size_t minimumChildRowCount,
                          bool leftChildHasFewerRows,
                          bool assignMissingToLeft)
+            : SSplitStatistics{gain, 0.0, curvature, feature, splitAt, minimumChildRowCount, leftChildHasFewerRows, assignMissingToLeft} {
+        }
+        SSplitStatistics(double gain,
+                         double gainVariance,
+                         double curvature,
+                         std::size_t feature,
+                         double splitAt,
+                         std::size_t minimumChildRowCount,
+                         bool leftChildHasFewerRows,
+                         bool assignMissingToLeft)
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
+              s_GainVariance{CMathsFuncs::isNan(gain) ? 0.0 : gainVariance},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
               s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
@@ -717,6 +731,7 @@ protected:
         }
 
         double s_Gain{-boosted_tree_detail::INF};
+        double s_GainVariance{0.0};
         double s_Curvature{0.0};
         std::size_t s_Feature{std::numeric_limits<std::size_t>::max()};
         double s_SplitAt{boosted_tree_detail::INF};
