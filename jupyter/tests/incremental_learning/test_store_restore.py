@@ -7,31 +7,19 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-import pandas as pd
-import unittest
-import tempfile
-from pathlib import Path
-import os
 import logging
+import os
+import tempfile
+import unittest
+from pathlib import Path
+
 import numpy.testing
+import pandas as pd
 
-from incremental_learning.config import datasets_dir, logger, es_cloud_id
-from incremental_learning.job import train, update, evaluate, Job
-from incremental_learning.storage import download_dataset
-
-# create console handler and set level to debug
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-
-# create formatter
-formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# add formatter to ch
-ch.setFormatter(formatter)
-
-# add ch to logger
-logger.addHandler(ch)
+from incremental_learning.config import (datasets_dir, es_cloud_id, jobs_dir,
+                                         logger)
+from incremental_learning.job import Job, evaluate, train, update
+from incremental_learning.storage import download_dataset, download_job
 
 
 class TestJobStoreRestore(unittest.TestCase):
@@ -55,7 +43,6 @@ class TestJobStoreRestore(unittest.TestCase):
         self.destination.file.close()
         self.assertTrue(success)
 
-
     @classmethod
     def tearDownClass(cls) -> None:
         cls.job.clean()
@@ -64,6 +51,8 @@ class TestJobStoreRestore(unittest.TestCase):
     def tearDown(self) -> None:
         if self.destination:
             self.destination.close()
+        if hasattr(self, 'downloaded_path') and self.downloaded_path:
+            self.downloaded_path.unlink()
         super().tearDown()
 
     def test_job_store(self):
@@ -71,9 +60,14 @@ class TestJobStoreRestore(unittest.TestCase):
         self.assertTrue(self.path.is_file())
         self.assertTrue(self.path.stat().st_size > 0)
 
-    @unittest.skip('')
-    def test_job_restore_remote(self):
-        self.fail()
+    def test_job_download_restore(self):
+        job_name = 'test_regression_job'
+        self.downloaded_path = download_job(job_name)
+        self.assertIsNotNone(self.downloaded_path)
+        self.assertTrue(self.downloaded_path.exists())
+
+        restoredJob = Job.fromFile(self.downloaded_path)
+        self.assertTrue(restoredJob.initialized)
 
     def test_job_store_restore(self):
         restored_job = Job.fromFile(path=self.path)
@@ -82,25 +76,41 @@ class TestJobStoreRestore(unittest.TestCase):
     def test_job_restore_evaluate(self):
         restored_job = Job.fromFile(path=self.path)
 
-        expected_eval_job = evaluate(dataset=self.dataset, dataset_name=self.dataset_name, original_job=self.job, verbose=False)
+        expected_eval_job = evaluate(
+            dataset=self.dataset, dataset_name=self.dataset_name, original_job=self.job, verbose=False)
         expected_eval_job.wait_to_complete()
 
-        actual_eval_job = evaluate(dataset=self.dataset, dataset_name=self.dataset_name, original_job=restored_job, verbose=False)
+        actual_eval_job = evaluate(
+            dataset=self.dataset, dataset_name=self.dataset_name, original_job=restored_job, verbose=False)
         actual_eval_job.wait_to_complete()
 
-        numpy.testing.assert_array_almost_equal(expected_eval_job.get_predictions(), actual_eval_job.get_predictions())
+        numpy.testing.assert_array_almost_equal(
+            expected_eval_job.get_predictions(), actual_eval_job.get_predictions())
 
     def test_job_restore_update(self):
         restored_job = Job.fromFile(path=self.path)
         update_dataset = self.dataset.sample(frac=0.1, random_state=self.seed)
-        expected_update_job = update(dataset=update_dataset, dataset_name=self.dataset_name, original_job=self.job, verbose=False)
+        expected_update_job = update(
+            dataset=update_dataset, dataset_name=self.dataset_name, original_job=self.job, verbose=False)
         expected_update_job.wait_to_complete()
 
-        actual_update_job = update(dataset=update_dataset, dataset_name=self.dataset_name, original_job=restored_job, verbose=False)
+        actual_update_job = update(
+            dataset=update_dataset, dataset_name=self.dataset_name, original_job=restored_job, verbose=False)
         actual_update_job.wait_to_complete()
 
-        numpy.testing.assert_array_almost_equal(expected_update_job.get_predictions(), actual_update_job.get_predictions())
-        self.assertEqual(expected_update_job.get_hyperparameters(), actual_update_job.get_hyperparameters())
+        numpy.testing.assert_array_almost_equal(
+            expected_update_job.get_predictions(), actual_update_job.get_predictions())
+        self.assertEqual(expected_update_job.get_hyperparameters(),
+                         actual_update_job.get_hyperparameters())
+
 
 if __name__ == '__main__':
+    # log into console output for tests
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
     unittest.main()

@@ -13,11 +13,12 @@ import gzip
 import json
 import random
 import string
+import sys
 import tempfile
 import time
-from typing import Union
 from pathlib import Path
-import sys
+from typing import Union
+
 import libtmux
 import numpy as np
 import pandas
@@ -45,8 +46,8 @@ class Job:
     """Job class .
     """
 
-    def __init__(self, input: Union[str, tempfile._TemporaryFileWrapper] = None,
-                 config: Union[str, tempfile._TemporaryFileWrapper] = None,
+    def __init__(self, input: Union[None, str, tempfile._TemporaryFileWrapper] = None,
+                 config: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  persist: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  restore: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  verbose: bool = True, run=None):
@@ -281,7 +282,7 @@ class Job:
 
     def store(self, destination: Path) -> bool:
         success = True
-        with open(destination, 'wt') as fp:
+        with gzip.open(destination, 'wt') as fp:
             try:
                 json.dump(obj=self, fp=fp, cls=JobJSONEncoder)
             except:
@@ -317,7 +318,7 @@ class Job:
                          .format(path))
             return None
         job = None
-        with open(path, 'rt') as fp:
+        with gzip.open(path, 'rt') as fp:
             state = json.load(fp=fp)
             job = cls.asJob(state)
         return job
