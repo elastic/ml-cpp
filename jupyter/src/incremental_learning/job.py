@@ -200,6 +200,30 @@ class Job:
                                    ['ml']['{}_prediction'.format(self.dependent_variable)])
         return np.array(predictions)
 
+    def get_probabilities(self) -> Union[None, np.array]:
+        """Return prediction probabilities for the class "true".
+
+        Note: Only works for binary classification.
+
+        Returns:
+            Union[None, np.array]: prediction probabilities. 
+        """
+        if self.analysis_name == 'regression':
+            logger.warning(
+                "Failed to obtain prediction probabilities for the regression job {}."
+                .format(self.name))
+            return None
+        probabilities = []
+        for item in self.results:
+            if 'row_results' in item:
+                target_prediction = item['row_results']['results']['ml']['{}_prediction'.format(
+                    self.dependent_variable)]
+                prediction_probability = item['row_results']['results']['ml']['prediction_probability']
+                if target_prediction == 'false':
+                    prediction_probability = 1.0 - prediction_probability
+                probabilities.append(prediction_probability)
+        return np.array(probabilities)
+
     def get_hyperparameters(self) -> dict:
         """Get all the hyperparameter values for the model.
 
