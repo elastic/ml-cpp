@@ -95,9 +95,41 @@ def download_job(job_name) -> Union[None, Path]:
     return result
 
 
-def job_exists(job_name):
-    local_job_path = jobs_dir / "{}.json".format(job_name)
-    if not local_job_path.exists():
-        logger.warning("File {} does not exist.".format(local_job_path))
+def upload_job(job_name: str, local_job_path: Path) -> bool:
+    if job_exists(job_name):
+        logger.warning(
+            "Job {} already exists in the Google storage bucket. Skip uploading.".format(job_name))
         return False
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    remote_job_path = 'jobs/{}'.format(job_name)
+
+    job_blob = bucket.blob(remote_job_path)
+    job_blob.upload_from_filename(str(local_job_path))
     return True
+
+
+def delete_job(job_name: str):
+    if not job_exists(job_name, remote=True):
+        logger.info(
+            "Job {} does not exist in the Google storage bucket. Skip deleting.".format(job_name))
+        return
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    remote_job_path = 'jobs/{}'.format(job_name)
+    job_blob = bucket.blob(remote_job_path)
+    job_blob.delete()
+
+
+def job_exists(job_name, remote=False):
+    if remote == False:
+        local_job_path = jobs_dir / "{}".format(job_name)
+        return local_job_path.exists()
+    else:
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(bucket_name)
+        remote_job_path = 'jobs/{}'.format(job_name)
+        job_blob = bucket.blob(remote_job_path)
+        return job_blob.exists()

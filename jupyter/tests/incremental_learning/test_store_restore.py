@@ -19,7 +19,7 @@ import pandas as pd
 from incremental_learning.config import (datasets_dir, es_cloud_id, jobs_dir,
                                          logger)
 from incremental_learning.job import Job, evaluate, train, update
-from incremental_learning.storage import download_dataset, download_job
+from incremental_learning.storage import download_dataset, download_job, upload_job, delete_job, job_exists
 
 
 class TestJobStoreRestore(unittest.TestCase):
@@ -68,6 +68,14 @@ class TestJobStoreRestore(unittest.TestCase):
 
         restoredJob = Job.fromFile(self.downloaded_path)
         self.assertTrue(restoredJob.initialized)
+
+    def test_job_store_upload(self):
+        job_name = 'test_upload_job'
+        success = upload_job(job_name=job_name, local_job_path=self.path)
+        self.assertTrue(success)
+        self.assertTrue(job_exists(job_name, remote=True))
+        delete_job(job_name)
+        self.assertFalse(job_exists(job_name, remote=True))
 
     def test_job_store_restore(self):
         restored_job = Job.fromFile(path=self.path)
