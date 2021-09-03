@@ -319,22 +319,22 @@ class Job:
         return job
 
     @classmethod
-    def fromFile(cls, path: Path):
+    def fromFile(cls, source: Path):
         """
         Restore a Job object from file.
 
         Args:
-            path (Path): local path to where the Job object should be restored from.
+            source (Path): local path to where the Job object should be restored from.
 
         Returns:
             Job: restored Job object.
         """
-        if path.exists() == False or path.is_file() == False:
+        if source.exists() == False or source.is_file() == False:
             logger.error('File to load Job from file. {} does not exist or is not a file'
-                         .format(path))
+                         .format(source))
             return None
         job = None
-        with gzip.open(path, 'rt') as fp:
+        with gzip.open(source, 'rt') as fp:
             state = json.load(fp=fp)
             job = cls.asJob(state)
         return job

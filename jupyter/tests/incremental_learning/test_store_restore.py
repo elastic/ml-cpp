@@ -66,7 +66,7 @@ class TestJobStoreRestore(unittest.TestCase):
         self.assertIsNotNone(self.downloaded_path)
         self.assertTrue(self.downloaded_path.exists())
 
-        restoredJob = Job.fromFile(self.downloaded_path)
+        restoredJob = Job.fromFile(source=self.downloaded_path)
         self.assertTrue(restoredJob.initialized)
 
     def test_job_store_upload(self):
@@ -78,11 +78,11 @@ class TestJobStoreRestore(unittest.TestCase):
         self.assertFalse(job_exists(job_name, remote=True))
 
     def test_job_store_restore(self):
-        restored_job = Job.fromFile(path=self.path)
+        restored_job = Job.fromFile(source=self.path)
         self.assertEqual(self.job, restored_job)
 
     def test_job_restore_evaluate(self):
-        restored_job = Job.fromFile(path=self.path)
+        restored_job = Job.fromFile(source=self.path)
 
         expected_eval_job = evaluate(
             dataset=self.dataset, dataset_name=self.dataset_name, original_job=self.job, verbose=False)
@@ -96,7 +96,7 @@ class TestJobStoreRestore(unittest.TestCase):
             expected_eval_job.get_predictions(), actual_eval_job.get_predictions())
 
     def test_job_restore_update(self):
-        restored_job = Job.fromFile(path=self.path)
+        restored_job = Job.fromFile(source=self.path)
         update_dataset = self.dataset.sample(frac=0.1, random_state=self.seed)
         expected_update_job = update(
             dataset=update_dataset, dataset_name=self.dataset_name, original_job=self.job, verbose=False)
