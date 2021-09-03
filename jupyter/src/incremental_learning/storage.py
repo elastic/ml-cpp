@@ -95,7 +95,18 @@ def download_job(job_name) -> Union[None, Path]:
     return result
 
 
-def upload_job(job_name: str, local_job_path: Path) -> bool:
+def upload_job(local_job_path: Path) -> bool:
+    """Upload the job file to the Google storage bucket.
+
+    If a file with the name already exists in the bucket, it will not be overwritten.
+
+    Args:
+        local_job_path (Path): local path to the file.
+
+    Returns:
+        bool: True if upload was successful, False otherwise.
+    """
+    job_name = local_job_path.name
     if job_exists(job_name):
         logger.warning(
             "Job {} already exists in the Google storage bucket. Skip uploading.".format(job_name))
@@ -110,7 +121,12 @@ def upload_job(job_name: str, local_job_path: Path) -> bool:
     return True
 
 
-def delete_job(job_name: str):
+def delete_job(job_name: str) -> None:
+    """Delete job file from the Google storage bucket.
+
+    Args:
+        job_name (str): File name.
+    """
     if not job_exists(job_name, remote=True):
         logger.info(
             "Job {} does not exist in the Google storage bucket. Skip deleting.".format(job_name))
@@ -123,7 +139,17 @@ def delete_job(job_name: str):
     job_blob.delete()
 
 
-def job_exists(job_name, remote=False):
+def job_exists(job_name: str, remote: bool=False) -> bool:
+    """Check if file exists locally or in the Google storage bucket.
+
+    Args:
+        job_name (str): File name.
+        remote (bool, optional): Flag that indicates whether to check the Google storage bucket. 
+                                 Defaults to False.
+
+    Returns:
+        bool: True, if the job file exists, False otherwise.
+    """
     if remote == False:
         local_job_path = jobs_dir / "{}".format(job_name)
         return local_job_path.exists()

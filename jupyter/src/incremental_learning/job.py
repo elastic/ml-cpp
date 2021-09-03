@@ -281,16 +281,23 @@ class Job:
         return self.model
 
     def store(self, destination: Path) -> bool:
+        """
+        Store job with trained model into a file.
+
+        Args:
+            destination (Path): local path to where the job should be stored.
+
+        Returns:
+            bool: True if storing was successfull, False otherwise.
+        """
         success = True
         with gzip.open(destination, 'wt') as fp:
             try:
                 json.dump(obj=self, fp=fp, cls=JobJSONEncoder)
             except:
                 ex = sys.exc_info()
-                # print("Failed storing job {}: {}".format(self.name, ex))
                 logger.error("Failed storing job {}: {}".format(self.name, ex))
                 success = False
-                # raise ex
         return success
 
     @classmethod
@@ -313,6 +320,15 @@ class Job:
 
     @classmethod
     def fromFile(cls, path: Path):
+        """
+        Restore a Job object from file.
+
+        Args:
+            path (Path): local path to where the Job object should be restored from.
+
+        Returns:
+            Job: restored Job object.
+        """
         if path.exists() == False or path.is_file() == False:
             logger.error('File to load Job from file. {} does not exist or is not a file'
                          .format(path))
@@ -337,6 +353,9 @@ class Job:
 
 
 class JobJSONEncoder(json.JSONEncoder):
+    """
+    JSON serialization logic for the Job class.
+    """
     def default(self, obj: Job):
         if isinstance(obj, Job):
             state = {

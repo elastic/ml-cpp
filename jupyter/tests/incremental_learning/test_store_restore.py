@@ -70,8 +70,8 @@ class TestJobStoreRestore(unittest.TestCase):
         self.assertTrue(restoredJob.initialized)
 
     def test_job_store_upload(self):
-        job_name = 'test_upload_job'
-        success = upload_job(job_name=job_name, local_job_path=self.path)
+        job_name = self.path.name
+        success = upload_job(local_job_path=self.path)
         self.assertTrue(success)
         self.assertTrue(job_exists(job_name, remote=True))
         delete_job(job_name)
