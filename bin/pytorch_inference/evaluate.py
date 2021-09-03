@@ -138,25 +138,36 @@ def compare_results(expected, actual, tolerance):
             print("request_ids do not match [{}], [{}]".format(expected['request_id'], actual['request_id']), flush=True)
             return False
 
+        request_id = actual['request_id']
+
         if len(expected['inference']) != len(actual['inference']):
-            print("len(inference) does not match [{}], [{}]".format(len(expected['inference']), len(actual['inference'])), flush=True)
+            print("[{}] len(inference) does not match [{}], [{}]".format(request_id, len(expected['inference']), len(actual['inference'])), flush=True)
             return False
 
         for i in range(len(expected['inference'])):
-            expected_row = expected['inference'][i]
-            actual_row = actual['inference'][i]
+            expected_array = expected['inference'][i]
+            actual_array = actual['inference'][i]
 
-            if len(expected_row) != len(actual_row):
-                print("row [{}] lengths are not equal [{}], [{}]".format(i, len(expected_row), len(actual_row)), flush=True)
+            if len(expected_array) != len(actual_array):
+                print("[{}] array [{}] lengths are not equal [{}], [{}]".format(request_id, i, len(expected_array), len(actual_array)), flush=True)
                 return False
 
-            are_close = True
-            for j in range(len(expected_row)):
-                are_close = are_close and math.isclose(expected_row[j], actual_row[j], abs_tol=tolerance)
+            for j in range(len(expected_array)):
+                expected_row = expected_array[j]
+                actual_row = actual_array[j]
 
-            if are_close == False:
-                print("row [{}] values are not close {}, {}".format(i, expected_row, actual_row), flush=True)
-                return False
+                if len(expected_row) != len(actual_row):
+                    print("[{}] row [{}] lengths are not equal [{}], [{}]".format(request_id, i, len(expected_row), len(actual_row)), flush=True)
+                    return False
+
+                are_close = True
+                for k in range(len(expected_row)):
+                    are_close = are_close and math.isclose(expected_row[k], actual_row[k], abs_tol=tolerance)
+
+                if are_close == False:
+                    print("[{}] row [{}] values are not close {}, {}".format(request_id, j, expected_row, actual_row), flush=True)
+                    return False
+
     except KeyError as e:
         print("ERROR: comparing results {}. Actual = {}".format(e, actual))
         return False
@@ -207,8 +218,9 @@ def run_benchmark(args):
 
         
         print()
-        print(f'{doc_count} requests evaluated in {total_time_ms} ms, avg time {total_time_ms / doc_count}')
+        print(f'{doc_count} requests evaluated in {total_time_ms} ms, avg time {total_time_ms / doc_count} ms')
         print()
+
 
 def test_evaluation(args):
     with open(args.input_file, 'w') as input_file:
@@ -235,32 +247,36 @@ def test_evaluation(args):
             return
 
         for result in result_docs:
+            if 'error' in result: 
+                print(f"Inference failed. Request: {result['request_id']}, Msg: {result['error']}")
+                results_match = False
+                continue
+
             expected = test_evaluation[doc_count]['expected_output']
                 
             tolerance = 1e-04
             if 'how_close' in test_evaluation[doc_count]:
-                tolerance = test_evaluation[doc_count]['how_close']                    
-
+                tolerance = test_evaluation[doc_count]['how_close']                                   
 
             total_time_ms += result['time_ms']
-
 
             # compare to expected
             if compare_results(expected, result, tolerance) == False:
                 print()
-                print('ERROR: inference result [{}] does not match expected results'.format(doc_count))
+                print(f'ERROR: inference result [{doc_count}] does not match expected results')
                 print()
                 results_match = False
 
             doc_count = doc_count +1
 
+
         print()
-        print('{} requests evaluated in {} ms'.format(doc_count, total_time_ms))
+        print(f'{doc_count} requests evaluated in {total_time_ms} ms')
         print()
 
         if doc_count != len(test_evaluation): 
             print()
-            print('ERROR: The number of inference results [{}] does not match expected count [{}]'.format(doc_count, len(test_evaluation)))
+            print(f'ERROR: The number of inference results [{doc_count}] does not match expected count [{len(test_evaluation)}]')
             print()
             results_match = False
 

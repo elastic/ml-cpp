@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_torch_CCommandParser_h
@@ -45,7 +50,6 @@ class CCommandParser {
 public:
     static const std::string REQUEST_ID;
     static const std::string TOKENS;
-    static const std::string INPUTS;
     static const std::string VAR_ARG_PREFIX;
     static const std::string UNKNOWN_ID;
 
@@ -53,13 +57,20 @@ public:
     using TUint64VecVec = std::vector<TUint64Vec>;
     using TDoubleVec = std::vector<double>;
 
+    //! The incoming JSON requests contain a 2D array of tokens representing
+    //! a batch of inference calls. To avoid copying, the input tensor
+    //! should be created directly from contiguous data so the 2D token
+    //! array is read into a 1D vector of size w * h where w & h are the
+    //! dimensions of in the JSON input. The secondary arguments are
+    //! treated in the same manner.
     struct SRequest {
+        std::int64_t s_NumberInputTokens;
+        std::int64_t s_NumberInferences;
         std::string s_RequestId;
         TUint64Vec s_Tokens;
         TUint64VecVec s_SecondaryArguments;
-        TDoubleVec s_Inputs;
 
-        bool hasTokens();
+        void reset();
     };
 
     using TRequestHandlerFunc = std::function<bool(SRequest&)>;
@@ -80,8 +91,8 @@ public:
 private:
     bool validateJson(const rapidjson::Document& doc,
                       const TErrorHandlerFunc& errorHandler) const;
-    bool checkArrayContainsUInts(const rapidjson::Value& arr) const;
-    bool checkArrayContainsDoubles(const rapidjson::Value& arr) const;
+    static bool checkArrayContainsUInts(const rapidjson::Value::ConstArray& arr);
+    static bool checkArrayContainsDoubles(const rapidjson::Value::ConstArray& arr);
     void jsonToRequest(const rapidjson::Document& doc);
 
 private:

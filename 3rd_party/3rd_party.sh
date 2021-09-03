@@ -1,8 +1,13 @@
 #!/bin/bash
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 #
@@ -74,10 +79,10 @@ case `uname` in
             STL_LOCATION=/usr/local/gcc93/lib64
             STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
-            ZLIB_LOCATION=            
+            ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
             TORCH_LOCATION=/usr/local/gcc93/lib
-            TORCH_EXTENSION=.so              
+            TORCH_EXTENSION=.so
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
@@ -91,7 +96,7 @@ case `uname` in
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
             TORCH_LOCATION=$SYSROOT/usr/local/lib
-            TORCH_EXTENSION=.dylib            
+            TORCH_EXTENSION=.dylib
         else
             SYSROOT=/usr/local/sysroot-$CPP_CROSS_COMPILE-linux-gnu
             BOOST_LOCATION=$SYSROOT/usr/local/gcc93/lib
@@ -109,10 +114,14 @@ case `uname` in
             GCC_RT_LOCATION=$SYSROOT/usr/local/gcc93/lib64
             GCC_RT_EXTENSION=.so.1
             OMP_LOCATION=$SYSROOT/usr/local/gcc93/lib64
+            OMP_EXTENSION=.so.1
             STL_LOCATION=$SYSROOT/usr/local/gcc93/lib64
             STL_PREFIX=libstdc++
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
+            TORCH_LIBRARIES="torch_cpu c10"
+            TORCH_LOCATION=$SYSROOT/usr/local/gcc93/lib
+            TORCH_EXTENSION=.so
         fi
         ;;
 
@@ -232,14 +241,14 @@ if [ ! -z "$ZLIB_LOCATION" ] ; then
 fi
 if [ ! -z "$TORCH_LOCATION" ] ; then
     if ls $TORCH_LOCATION/*$TORCH_EXTENSION >/dev/null ; then
-        if [ -n "$INSTALL_DIR" ] ; then            
+        if [ -n "$INSTALL_DIR" ] ; then
             for LIBRARY in $TORCH_LIBRARIES
             do
                 rm -f $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
                 cp $TORCH_LOCATION/*$LIBRARY*$TORCH_EXTENSION $INSTALL_DIR
                 chmod u+wx $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
-            done            
-        fi        
+            done
+        fi
     else
         echo "Torch libraries not found"
         exit 11

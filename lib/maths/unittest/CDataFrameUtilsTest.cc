@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -642,6 +647,41 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
                                               static_cast<double>(numberRows));
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasksRareCategories) {
+
+    // Here we test a case that the desired sample size for a specific class
+    // is zero. In this case we should reassess the class frequencies for
+    // the unsampled set and still get 5 splits with all classes represented
+    // in at least one fold.
+
+    std::size_t numberFolds{5};
+    std::size_t numberBins{10};
+    TDoubleVec categories{0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 3,
+                          3, 3, 3, 3, 3, 4, 5, 5, 6, 6, 6, 6};
+
+    auto frame = core::makeMainStorageDataFrame(1).first;
+    frame->categoricalColumns(TBoolVec{true});
+    for (auto category : categories) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column,
+                            std::int32_t&) { *column = category; });
+    }
+    frame->finishWritingRows();
+
+    maths::CPRNG::CXorOShiro128Plus rng;
+    maths::CDataFrameUtils::TPackedBitVectorVec testingRowMasks;
+    std::tie(std::ignore, testingRowMasks, std::ignore) =
+        maths::CDataFrameUtils::stratifiedCrossValidationRowMasks(
+            1, *frame, 0, rng, numberFolds, 1.0 - 1.0 / static_cast<double>(numberFolds),
+            numberBins, core::CPackedBitVector{categories.size(), true});
+
+    core::CPackedBitVector allTestingRowsMask(categories.size(), false);
+    for (const auto& testingRowMask : testingRowMasks) {
+        allTestingRowsMask ^= testingRowMask;
+        BOOST_TEST_REQUIRE(5.0, testingRowMask.manhattan());
+    }
+    BOOST_TEST_REQUIRE(25.0, allTestingRowsMask.manhattan());
 }
 
 BOOST_AUTO_TEST_CASE(testMicWithColumn) {

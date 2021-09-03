@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
@@ -25,11 +30,11 @@ namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 
-struct SChildredGainStats {
-    double s_MinLossLeft = -INF;
-    double s_MinLossRight = -INF;
-    double s_GLeft = -INF;
-    double s_GRight = -INF;
+struct SChildrenGainStats {
+    double s_MinLossLeft{-INF};
+    double s_MinLossRight{-INF};
+    double s_GLeft{-INF};
+    double s_GRight{-INF};
 };
 }
 
@@ -59,7 +64,7 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     m_BestSplit = this->computeBestSplitStatistics(regularization, nodeFeatureBag);
     workspace.reducedDerivatives().swap(m_Derivatives);
 
-    if (this->gain() > workspace.minimumGain()) {
+    if (this->gain() >= workspace.minimumGain()) {
         m_RowMask = rowMask;
         CSplitsDerivatives tmp{workspace.derivatives()[0]};
         m_Derivatives = std::move(tmp);
@@ -403,8 +408,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     double gain[2];
     double minLossLeft[2]{0.0, 0.0};
     double minLossRight[2]{0.0, 0.0};
-    SChildredGainStats childrenGainStatsGlobal;
-    SChildredGainStats childrenGainStatsPerFeature;
+    SChildrenGainStats childrenGainStatsGlobal;
+    SChildrenGainStats childrenGainStatsPerFeature;
 
     for (auto feature : featureBag) {
         std::size_t c{m_Derivatives.missingCount(feature)};

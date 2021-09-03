@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_api_CAnomalyJob_h
 #define INCLUDED_ml_api_CAnomalyJob_h
@@ -399,7 +404,7 @@ protected:
     //! Get all the detectors.
     void detectors(TAnomalyDetectorPtrVec& detectors) const;
 
-    //! Get the detectors by parition
+    //! Get the detectors by partition
     const TKeyAnomalyDetectorPtrUMap& detectorPartitionMap() const;
 
     //! Get all sorted references to the detectors.
@@ -412,8 +417,10 @@ protected:
                                               const std::string& partitionFieldValue,
                                               model::CResourceMonitor& resourceMonitor);
 
-    //! Prune all the models
-    void pruneAllModels();
+    //! Prune all the models that exceed \p buckets in age
+    //! A value of 0 for \buckets indicates that only 'obsolete' models will
+    //! be pruned, i.e. those which are so old as to be effectively dead.
+    void pruneAllModels(std::size_t buckets = 0);
 
 private:
     //! The job ID

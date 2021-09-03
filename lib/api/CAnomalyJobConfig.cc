@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CAnomalyJobConfig.h>
 
@@ -52,6 +57,9 @@ const core_t::TTime CAnomalyJobConfig::BASE_MAX_QUANTILE_INTERVAL{21600}; // 6 h
 const core_t::TTime CAnomalyJobConfig::DEFAULT_BASE_PERSIST_INTERVAL{10800}; // 3 hours
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::BUCKET_SPAN{"bucket_span"};
+
+const std::string CAnomalyJobConfig::CAnalysisConfig::MODEL_PRUNE_WINDOW{"model_prune_window"};
+
 const std::string CAnomalyJobConfig::CAnalysisConfig::SUMMARY_COUNT_FIELD_NAME{
     "summary_count_field_name"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CATEGORIZATION_FIELD_NAME{
@@ -273,6 +281,8 @@ const CAnomalyJobConfigReader CONFIG_READER{[] {
 const CAnomalyJobConfigReader ANALYSIS_CONFIG_READER{[] {
     CAnomalyJobConfigReader theReader;
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::BUCKET_SPAN,
+                           CAnomalyJobConfigReader::E_OptionalParameter);
+    theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::MODEL_PRUNE_WINDOW,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::SUMMARY_COUNT_FIELD_NAME,
                            CAnomalyJobConfigReader::E_OptionalParameter);
@@ -676,6 +686,22 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     m_SummaryCountFieldName = parameters[SUMMARY_COUNT_FIELD_NAME].fallback(EMPTY_STRING);
     m_CategorizationFieldName = parameters[CATEGORIZATION_FIELD_NAME].fallback(EMPTY_STRING);
     m_CategorizationFilters = parameters[CATEGORIZATION_FILTERS].fallback(TStrVec{});
+    const std::string& modelPruneWindowString{
+        parameters[MODEL_PRUNE_WINDOW].fallback(EMPTY_STRING)};
+
+    if (modelPruneWindowString.empty() == false) {
+        m_ModelPruneWindow = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
+            modelPruneWindowString, core_t::TTime{0});
+
+        // Ensure that the model prune window is never smaller than twice the bucket span.
+        if (m_ModelPruneWindow < (2 * m_BucketSpan)) {
+            LOG_WARN(<< "The value of configuration setting \"model_prune_window\" ("
+                     << m_ModelPruneWindow << ") is less than twice the value of \"bucket_span\" ("
+                     << m_BucketSpan << "). Setting \"model_prune_window\" to "
+                     << (2 * m_BucketSpan));
+            m_ModelPruneWindow = 2 * m_BucketSpan;
+        }
+    }
 
     auto ppc = parameters[PER_PARTITION_CATEGORIZATION].jsonObject();
     if (ppc != nullptr) {
@@ -796,6 +822,8 @@ CAnomalyJobConfig::CAnalysisConfig::makeModelConfig() const {
 
     modelConfig.scheduledEvents(
         model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(m_ScheduledEvents));
+
+    modelConfig.modelPruneWindow(m_ModelPruneWindow);
 
     return modelConfig;
 }

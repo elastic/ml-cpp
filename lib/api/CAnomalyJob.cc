@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CAnomalyJob.h>
 
@@ -688,6 +693,18 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
     this->writeOutAnnotations(annotations);
     this->writeOutResults(false, results, bucketStartTime, processingTime);
 
+    if (m_ModelConfig.modelPruneWindow() > 0) {
+        // Ensure that bucketPruneWindow is always rounded _up_
+        // to the next whole number of buckets (this doesn't really matter if we enforce
+        // that the model prune window always be an exact multiple of bucket span in the
+        // corresponding Java code)
+        core_t::TTime bucketPruneWindow{
+            (m_ModelConfig.modelPruneWindow() + m_ModelConfig.bucketLength() - 1) /
+            m_ModelConfig.bucketLength()};
+        this->pruneAllModels(bucketPruneWindow);
+    }
+
+    // Prune models based on memory resource limits
     m_Limits.resourceMonitor().pruneIfRequired(bucketStartTime);
     model::CStringStore::tidyUpNotThreadSafe();
 }
@@ -1292,6 +1309,11 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                                   << pairDebug(detector_.first) << '\'');
                         continue;
                     }
+                    if (detector->shouldPersistDetector() == false) {
+                        LOG_TRACE(<< "Not persisting state for '"
+                                  << detector->description() << "'");
+                        continue;
+                    }
                     inserter.insertLevel(
                         TOP_LEVEL_DETECTOR_TAG,
                         std::bind(&CAnomalyJob::persistIndividualDetector,
@@ -1574,8 +1596,12 @@ CAnomalyJob::detectorForKey(bool isRestoring,
     return itr->second;
 }
 
-void CAnomalyJob::pruneAllModels() {
-    LOG_INFO(<< "Pruning all models");
+void CAnomalyJob::pruneAllModels(std::size_t buckets) {
+    if (buckets == 0) {
+        LOG_INFO(<< "Pruning obsolete models");
+    } else {
+        LOG_DEBUG(<< "Pruning all models older than " << buckets << " buckets");
+    }
 
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector = detector_.second.get();
@@ -1584,7 +1610,7 @@ void CAnomalyJob::pruneAllModels() {
                       << pairDebug(detector_.first) << '\'');
             continue;
         }
-        detector->pruneModels();
+        (buckets == 0) ? detector->pruneModels() : detector->pruneModels(buckets);
     }
 }
 
