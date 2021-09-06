@@ -11,6 +11,7 @@
 
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 
+#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
@@ -91,7 +92,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     : CDataFrameTrainBoostedTreeRunner{
           spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>()), frameAndDirectory} {
 
-    std::size_t numberClasses{parameters[NUM_CLASSES].as<std::size_t>()};
+    m_NumClasses = parameters[NUM_CLASSES].as<std::size_t>();
     auto classAssignmentObjective = parameters[CLASS_ASSIGNMENT_OBJECTIVE].fallback(
         maths::CBoostedTree::E_MinimumRecall);
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::ptrdiff_t{0});
@@ -123,8 +124,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
                      << CLASSIFICATION_WEIGHTS << " but got '"
                      << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[classAssignmentObjective] << "'.");
     }
-    if (classificationWeights.size() > 0 && classificationWeights.size() != numberClasses) {
-        HANDLE_FATAL(<< "Input error: expected " << numberClasses << " " << CLASSIFICATION_WEIGHTS
+    if (classificationWeights.size() > 0 && classificationWeights.size() != m_NumClasses) {
+        HANDLE_FATAL(<< "Input error: expected " << m_NumClasses << " " << CLASSIFICATION_WEIGHTS
                      << " but got " << classificationWeights.size() << ".");
     }
 }
@@ -313,6 +314,12 @@ void CDataFrameTrainBoostedTreeClassifierRunner::validate(const core::CDataFrame
                      << frame.columnNames()[dependentVariableColumn] << "' which has '"
                      << categoryCount << "' categories in the training data. "
                      << "The number of rows read is '" << frame.numberRows() << "'.");
+    } else if (categoryCount != m_NumClasses) {
+        HANDLE_FATAL(<< "Input error: " << m_NumClasses << " provided for " << NUM_CLASSES
+                     << " but there are " << categoryCount << " in the data ("
+                     << core::CContainerPrinter::print(
+                            frame.categoricalColumnValues()[dependentVariableColumn])
+                     << ")");
     }
 }
 
