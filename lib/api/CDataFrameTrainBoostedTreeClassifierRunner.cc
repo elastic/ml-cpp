@@ -316,10 +316,10 @@ void CDataFrameTrainBoostedTreeClassifierRunner::validate(const core::CDataFrame
                      << "The number of rows read is '" << frame.numberRows() << "'.");
     } else if (categoryCount != m_NumClasses) {
         HANDLE_FATAL(<< "Input error: " << m_NumClasses << " provided for " << NUM_CLASSES
-                     << " but there are " << categoryCount << " in the data ("
+                     << " but there are " << categoryCount << " in the data: "
                      << core::CContainerPrinter::print(
                             frame.categoricalColumnValues()[dependentVariableColumn])
-                     << ")");
+                     << ".");
     }
 }
 
