@@ -124,18 +124,6 @@ RUN \
 # Add cmake to PATH
 ENV PATH=${PATH}:/usr/local/cmake/bin
 
-
-# Build oneDNN
-RUN \
-  cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v2.3.2 https://github.com/oneapi-src/oneDNN.git && \
-  cd oneDNN && \
-  mkdir build && cd build && \
-  export DNNL_CPU_RUNTIME=OMP && \
-  cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/gcc93/ -DCMAKE_INSTALL_LIBDIR:PATH=lib && \
-  make -j`nproc` && \ 
-  cmake --build . --target install 
-
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
@@ -156,7 +144,6 @@ RUN \
   export USE_XNNPACK=OFF && \
   export PYTORCH_BUILD_VERSION=1.9.0 && \
   export PYTORCH_BUILD_NUMBER=1 && \
-  export CMAKE_PREFIX_PATH=/usr/local/gcc93/ && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc93/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
