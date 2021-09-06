@@ -1749,6 +1749,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.89,
                 "magnitude": 0.81
             }
@@ -1785,6 +1786,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.61,
                 "magnitude": 0.4
             }
@@ -1809,6 +1811,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.41,
                 "magnitude": 0.48
             }
@@ -1819,6 +1822,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.75,
                 "magnitude": 0.13
             }
@@ -1855,6 +1859,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.33,
                 "magnitude": 0.4
             }
@@ -1915,6 +1920,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.6,
                 "magnitude": 0.52
             }
@@ -1951,6 +1957,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.16,
                 "magnitude": 0.87
             }
@@ -1975,6 +1982,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.6,
                 "magnitude": 0.63
             }
@@ -1985,6 +1993,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.4,
                 "magnitude": 0.8
             }
@@ -2021,6 +2030,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.23,
                 "magnitude": 0.66
             }
@@ -2081,6 +2091,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.38,
                 "magnitude": 0.59
             }
@@ -2117,6 +2128,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.89,
                 "magnitude": 0.17
             }
@@ -2141,6 +2153,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.56,
                 "magnitude": 0.71
             }
@@ -2151,6 +2164,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.28,
                 "magnitude": 0.22
             }
@@ -2187,6 +2201,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.58,
                 "magnitude": 0.3
             }
@@ -2247,6 +2262,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.87,
                 "magnitude": 0.52
             }
@@ -2283,6 +2299,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.35,
                 "magnitude": 0.76
             }
@@ -2307,6 +2324,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.45,
                 "magnitude": 0.37
             }
@@ -2317,6 +2335,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.22,
                 "magnitude": 0.25
             }
@@ -2353,6 +2372,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.57,
                 "magnitude": 0.46
             }
@@ -2413,6 +2433,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.29,
                 "magnitude": 0.45
             }
@@ -2449,6 +2470,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.25,
                 "magnitude": 0.1
             }
@@ -2473,6 +2495,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.36,
                 "magnitude": 0.14
             }
@@ -2483,6 +2506,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.6,
                 "magnitude": 0.86
             }
@@ -2519,6 +2543,7 @@
             "threads": 1,
             "transform_name": "shift_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.59,
                 "magnitude": 0.31
             }
@@ -2579,6 +2604,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.66,
                 "magnitude": 0.3
             }
@@ -2615,6 +2641,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.71,
                 "magnitude": 0.48
             }
@@ -2639,6 +2666,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.7,
                 "magnitude": 0.45
             }
@@ -2649,6 +2677,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.76,
                 "magnitude": 0.62
             }
@@ -2685,6 +2714,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.78,
                 "magnitude": 0.84
             }
@@ -2745,6 +2775,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.16,
                 "magnitude": 0.21
             }
@@ -2781,6 +2812,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.5,
                 "magnitude": 0.43
             }
@@ -2805,6 +2837,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.51,
                 "magnitude": 0.15
             }
@@ -2815,6 +2848,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.54,
                 "magnitude": 0.35
             }
@@ -2851,6 +2885,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.68,
                 "magnitude": 0.38
             }
@@ -2911,6 +2946,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.1,
                 "magnitude": 0.57
             }
@@ -2947,6 +2983,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.13,
                 "magnitude": 0.15
             }
@@ -2971,6 +3008,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.26,
                 "magnitude": 0.32
             }
@@ -2981,6 +3019,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.75,
                 "magnitude": 0.43
             }
@@ -3017,6 +3056,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.87,
                 "magnitude": 0.62
             }
@@ -3077,6 +3117,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.37,
                 "magnitude": 0.84
             }
@@ -3113,6 +3154,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.61,
                 "magnitude": 0.87
             }
@@ -3137,6 +3179,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.13,
                 "magnitude": 0.55
             }
@@ -3147,6 +3190,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.37,
                 "magnitude": 0.34
             }
@@ -3183,6 +3227,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.21,
                 "magnitude": 0.27
             }
@@ -3243,6 +3288,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.57,
                 "magnitude": 0.81
             }
@@ -3279,6 +3325,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.59,
                 "magnitude": 0.2
             }
@@ -3303,6 +3350,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.21,
                 "magnitude": 0.32
             }
@@ -3313,6 +3361,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.42,
                 "magnitude": 0.2
             }
@@ -3349,6 +3398,7 @@
             "threads": 1,
             "transform_name": "rotate_metric_features",
             "transform_parameters": {
+                "categorical_features": [],
                 "fraction": 0.8,
                 "magnitude": 0.89
             }
