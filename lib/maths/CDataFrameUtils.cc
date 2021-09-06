@@ -1117,7 +1117,7 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
                         CTools::inplaceSoftmax(probabilities);
                         quantiles[actualClass].add(probabilities(1));
                     } else {
-                        LOG_WARN(<< "Ignoring class " << actualClass << " whic is out-of-range. "
+                        LOG_WARN(<< "Ignoring class " << actualClass << " which is out-of-range. "
                                  << "Should be less than " << quantiles.size() << ". Classes "
                                  << core::CContainerPrinter::print(
                                         frame.categoricalColumnValues()[targetColumn])
