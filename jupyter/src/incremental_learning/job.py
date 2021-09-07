@@ -185,6 +185,7 @@ class Job:
                 print('Job failed')
             if clean:
                 self.clean()
+            raise RuntimeError("Running data_frame_analyzer failed.")
         return self.stop_time - self.start_time
 
     def get_config(self) -> dict:
