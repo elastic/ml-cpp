@@ -98,6 +98,7 @@ class Job:
             self._set_analysis_name()
             if self.is_classification():
                 self._set_num_classes()
+                self._configure_num_top_classes()
             self.initialized = True
         else:
             self.initialized = False
@@ -118,6 +119,13 @@ class Job:
             with open(self.config_filename) as fp:
                 config = json.load(fp)
             self.num_classes = config['analysis']['parameters']['num_classes']
+
+    def _configure_num_top_classes(self):
+        with open(self.config_filename) as fc:
+            config = json.load(fc)
+        config['analysis']['parameters']['num_top_classes'] = self.num_classes
+        with open(self.config_filename, 'wt') as fc:
+            json.dump(config, fc)
 
     def clean(self):
         if is_temp(self.output):
@@ -236,7 +244,8 @@ class Job:
         for item in self.results:
             if 'row_results' in item:
                 top_classes = item['row_results']['results']['ml']['top_classes']
-                probabilities.append({x['class_name']: x['class_probability'] for x in top_classes})
+                probabilities.append(
+                    {x['class_name']: x['class_probability'] for x in top_classes})
         return probabilities
 
     def get_hyperparameters(self) -> dict:
@@ -387,6 +396,7 @@ class JobJSONEncoder(json.JSONEncoder):
     """
     JSON serialization logic for the Job class.
     """
+
     def default(self, obj: Job):
         if isinstance(obj, Job):
             state = {
