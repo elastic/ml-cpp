@@ -111,14 +111,10 @@ def generate_parameters(transform: dict,
         if len(metric_features) > 0:
             result['metric_features'] = random.sample(
                 metric_features, k=random.randint(1, min(len(metric_features), 4)))
-        else:
-            del result['metric_features']
 
     if 'categorical_features' in result:
         if len(categorical_features) > 0:
             result['categorical_features'] = categorical_features
-        else:
-            del result['categorical_features']
 
     if 'target' in result:
         result['target'] = target

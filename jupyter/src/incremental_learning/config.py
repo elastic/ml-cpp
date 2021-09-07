@@ -34,6 +34,7 @@ root_dir = find_ancestor_dir(path=Path(__file__), resource='data/datasets')
 data_dir = root_dir / 'data'
 datasets_dir = data_dir / 'datasets'
 configs_dir = data_dir / 'configs'
+jobs_dir = data_dir / 'jobs'
 dfa_path = ''
 
 # Assumes your host OS is not CentOS.

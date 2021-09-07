@@ -206,7 +206,8 @@ def resample_metric_features(seed : int,
         p=probabilities
     )
 
-    return pandas.DataFrame(dataset.iloc[i] for i in sample)
+    result = pandas.DataFrame(dataset.iloc[i] for i in sample)
+    return result.astype(dataset.dtypes.to_dict())
 
 
 def random_shift(seed : int,

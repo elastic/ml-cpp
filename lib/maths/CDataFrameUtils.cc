@@ -1108,13 +1108,21 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
                                                 const TReadPredictionFunc& readPrediction) {
     TDoubleVector probabilities;
     auto readQuantiles = core::bindRetrievableState(
-        [=](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) mutable {
+        [&](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (isMissing((*row)[targetColumn]) == false) {
                     std::size_t actualClass{static_cast<std::size_t>((*row)[targetColumn])};
-                    probabilities = readPrediction(*row);
-                    CTools::inplaceSoftmax(probabilities);
-                    quantiles[actualClass].add(probabilities(1));
+                    if (actualClass < quantiles.size()) {
+                        probabilities = readPrediction(*row);
+                        CTools::inplaceSoftmax(probabilities);
+                        quantiles[actualClass].add(probabilities(1));
+                    } else {
+                        LOG_WARN(<< "Ignoring class " << actualClass << " which is out-of-range. "
+                                 << "Should be less than " << quantiles.size() << ". Classes "
+                                 << core::CContainerPrinter::print(
+                                        frame.categoricalColumnValues()[targetColumn])
+                                 << ".");
+                    }
                 }
             }
         },
