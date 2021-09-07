@@ -25,14 +25,15 @@ def init_task_spooler():
                                stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
-def generate_job_file(config, cwd, verbose):
+def generate_job_file(config, cwd, force_update, verbose):
 
     job_name = '_'.join(map(str, [config['dataset_name'], config['seed'],
                                   config['threads'], config['transform_name'],
                                   config['transform_parameters'].get('fraction', ''),
                                   config['transform_parameters'].get('magnitude', '')]))
     job_file = '{}.job'.format(job_name)
-    job_parameters = ['verbose={}'.format(verbose),
+    job_parameters = ['force_update={}'.format(force_update),
+                      'verbose={}'.format(verbose),
                       'dataset_name="{}"'.format(config['dataset_name']),
                       'threads={}'.format(config['threads']),
                       'seed={}'.format(config['seed']),
@@ -62,7 +63,14 @@ if __name__ == '__main__':
     """
 
     parser = argparse.ArgumentParser(description='Run a colletion of experiments defined by experiments.json')
-    parser.add_argument('--verbose', default=False, action='store_true')
+    parser.add_argument('--verbose',
+                        default=False,
+                        action='store_true',
+                        help='Verbose logging')
+    parser.add_argument('--force_update',
+                        default=False,
+                        action='store_true',
+                        help='Force accept the result of incremental training')
     args = parser.parse_args()
 
     cwd = os.getcwd()
@@ -74,6 +82,9 @@ if __name__ == '__main__':
         # TODO: validate schema of experiments.json
         experiments = json.load(fp)
     for config in experiments['configurations']:
-        job_file = generate_job_file(config, cwd, args.verbose)
+        job_file = generate_job_file(config=config,
+                                     cwd=cwd,
+                                     force_update=args.force_update,
+                                     verbose=args.verbose)
         job_file_path = Path(cwd)/job_file
         submit_to_task_spooler(config['threads'], job_file_path)
