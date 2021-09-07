@@ -166,6 +166,9 @@ class Job:
             time.sleep(5.0)
         self.stop_time = time.time()
 
+        if self.run:
+            self.run.run_logger.info(err)
+
         if success:
             with open(self.output.name) as fp:
                 self.results = json.load(fp)
