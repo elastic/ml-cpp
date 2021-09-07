@@ -301,7 +301,7 @@ class Job:
         return success
 
     @classmethod
-    def asJob(cls, state: dict):
+    def as_job(cls, state: dict):
         if '__job__' in state:
             job = Job(input='', config='')
             job.input_filename = state['input_filename']
@@ -319,7 +319,7 @@ class Job:
         return job
 
     @classmethod
-    def fromFile(cls, source: Path):
+    def from_file(cls, source: Path):
         """
         Restore a Job object from file.
 
@@ -336,7 +336,7 @@ class Job:
         job = None
         with gzip.open(source, 'rt') as fp:
             state = json.load(fp=fp)
-            job = cls.asJob(state)
+            job = cls.as_job(state)
         return job
 
     def __eq__(self, other):
