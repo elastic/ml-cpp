@@ -502,6 +502,7 @@ private:
     TLossFunctionUPtr m_Loss;
     CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective{CBoostedTree::E_MinimumRecall};
     bool m_IncrementalTraining{false};
+    bool m_ForceAcceptIncrementalTraining{false};
     bool m_StopCrossValidationEarly{true};
     double m_PreviousTrainLossGap{0.0};
     std::size_t m_PreviousTrainNumberRows{0};

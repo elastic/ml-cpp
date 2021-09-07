@@ -493,14 +493,21 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, ve
     return job
 
 
-def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verbose: bool = True, run=None) -> Job:
+def update(dataset_name: str,
+           dataset: pandas.DataFrame,
+           original_job: Job,
+           force: bool = False,
+           verbose: bool = True,
+           run = None) -> Job:
     """Train a new model incrementally using the model and hyperparameters from the original job.
 
     Args:
         dataset_name (str): dataset name (to get configuration)
         dataset (pandas.DataFrame): new dataset
         original_job (Job): Job object of the original training
-        verbose (bool): Verbosity flag (defalt: True)
+        force (bool): Force accept the update (default: False)
+        verbose (bool): Verbosity flag (default: True)
+        run: The run context (default: None)
 
     Returns:
         Job: new Job object
@@ -514,6 +521,8 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
         original_job.get_data_summarization_num_rows()
     if run and 'threads' in run.config.keys():
         config['threads'] = run.config['threads']
+    if force:
+        config['analysis']['parameters']['force_accept_incremental_training'] = True
     for name, value in original_job.get_hyperparameters().items():
         if name not in ['retrained_tree_eta', 'tree_topology_change_penalty']:
             config['analysis']['parameters'][name] = value

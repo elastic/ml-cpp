@@ -40,6 +40,7 @@ ex.logger = logger
 
 @ex.config
 def my_config():
+    force_update = False
     verbose = False
     dataset_name = 'ccpp'
     test_fraction = 0.2
@@ -176,7 +177,7 @@ def transform_dataset(dataset: pd.DataFrame,
 
 
 @ex.main
-def my_main(_run, dataset_name, verbose):
+def my_main(_run, dataset_name, force_update, verbose):
     results = {}
 
     original_dataset = read_dataset()
@@ -207,7 +208,7 @@ def my_main(_run, dataset_name, verbose):
     _run.run_logger.info("Initial training completed")
 
     _run.run_logger.info("Update started")
-    updated_model = update(dataset_name, update_dataset, trained_model, verbose=verbose, run=_run)
+    updated_model = update(dataset_name, update_dataset, trained_model, force=force_update, verbose=verbose, run=_run)
     elapsed_time = updated_model.wait_to_complete(clean=False)
     results['updated_model'] = {}
     results['updated_model']['config'] = updated_model.get_config()
