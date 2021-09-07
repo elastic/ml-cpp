@@ -13,8 +13,10 @@ import gzip
 import json
 import random
 import string
+import sys
 import tempfile
 import time
+from pathlib import Path
 from typing import Union
 
 import libtmux
@@ -44,8 +46,8 @@ class Job:
     """Job class .
     """
 
-    def __init__(self, input: Union[str, tempfile._TemporaryFileWrapper],
-                 config: Union[str, tempfile._TemporaryFileWrapper],
+    def __init__(self, input: Union[None, str, tempfile._TemporaryFileWrapper] = None,
+                 config: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  persist: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  restore: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  verbose: bool = True, run=None):
@@ -58,20 +60,19 @@ class Job:
             restore (Union[None, str, tempfile._TemporaryFileWrapper], optional): filename or temp file handler for model to restore from. Defaults to None.
             verbose (bool, optional): Verbosity. Defaults to True.
         """
-        self.input = input
-        self.config = config
         self.verbose = verbose
 
+        self.input = input
         if is_temp(self.input):
             self.input_filename = self.input.name
         else:
             self.input_filename = self.input
+
+        self.config = config
         if is_temp(self.config):
             self.config_filename = self.config.name
         else:
             self.config_filename = config
-        self._set_dependent_variable_name()
-        self._set_analysis_name()
 
         self.persist = persist
         if is_temp(self.persist):
@@ -91,6 +92,13 @@ class Job:
         self.model = ''
         self.run = run
         self.start_time = time.time()
+
+        if self.input and self.config:
+            self._set_dependent_variable_name()
+            self._set_analysis_name()
+            self.initialized = True
+        else:
+            self.initialized = False
 
     def _set_dependent_variable_name(self):
         with open(self.config_filename) as fp:
@@ -157,6 +165,9 @@ class Job:
                 break
             time.sleep(5.0)
         self.stop_time = time.time()
+
+        if self.run:
+            self.run.run_logger.info(err)
 
         if success:
             with open(self.output.name) as fp:
@@ -296,6 +307,101 @@ class Job:
     def get_model_blob(self) -> str:
         return self.model
 
+    def store(self, destination: Path) -> bool:
+        """
+        Store job with trained model into a file.
+
+        Args:
+            destination (Path): local path to where the job should be stored.
+
+        Returns:
+            bool: True if storing was successfull, False otherwise.
+        """
+        success = True
+        with gzip.open(destination, 'wt') as fp:
+            try:
+                json.dump(obj=self, fp=fp, cls=JobJSONEncoder)
+            except:
+                ex = sys.exc_info()
+                logger.error("Failed storing job {}: {}".format(self.name, ex))
+                success = False
+        return success
+
+    @classmethod
+    def as_job(cls, state: dict):
+        if '__job__' in state:
+            job = Job(input='', config='')
+            job.input_filename = state['input_filename']
+            job.config_filename = state['config_filename']
+            job.verbose = state['verbose']
+            job.dependent_variable = state['dependent_variable']
+            job.analysis_name = state['analysis_name']
+            job.persist_filename = state['persist_filename']
+            job.restore_filename = state['restore_filename']
+            job.name = state['name']
+            job.model = state['model']
+            if 'results' in state:
+                job.results =  state['results']
+            job.initialized = True
+        return job
+
+    @classmethod
+    def from_file(cls, source: Path):
+        """
+        Restore a Job object from file.
+
+        Args:
+            source (Path): local path to where the Job object should be restored from.
+
+        Returns:
+            Job: restored Job object.
+        """
+        if source.exists() == False or source.is_file() == False:
+            logger.error('File to load Job from file. {} does not exist or is not a file'
+                         .format(source))
+            return None
+        job = None
+        with gzip.open(source, 'rt') as fp:
+            state = json.load(fp=fp)
+            job = cls.as_job(state)
+        return job
+
+    def __eq__(self, other):
+        return self.input_filename == other.input_filename \
+            and self.config_filename == other.config_filename \
+            and self.verbose == other.verbose \
+            and self.dependent_variable == other.dependent_variable \
+            and self.analysis_name == other.analysis_name \
+            and self.persist_filename == other.persist_filename \
+            and self.restore_filename == other.restore_filename \
+            and self.name == other.name \
+            and self.model == other.model \
+            and (hasattr(self, 'results') == hasattr(other, 'results') and (hasattr(self, 'results') == False or self.results == other.results))
+
+
+class JobJSONEncoder(json.JSONEncoder):
+    """
+    JSON serialization logic for the Job class.
+    """
+    def default(self, obj: Job):
+        if isinstance(obj, Job):
+            state = {
+                'input_filename': obj.input_filename,
+                'config_filename': obj.config_filename,
+                'verbose': obj.verbose,
+                'dependent_variable': obj.dependent_variable,
+                'analysis_name': obj.analysis_name,
+                'persist_filename': obj.persist_filename,
+                'restore_filename': obj.restore_filename,
+                'name': obj.name,
+                'model': obj.model,
+                '__job__': True
+            }
+            if hasattr(obj, 'results'):
+                state['results'] = obj.results
+            return state
+        return json.JSONEncoder.default(self, obj)
+
 
 def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -> Job:
     """Run a DFA job.
@@ -312,7 +418,8 @@ def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -
     """
     job = Job(input=input, config=config, persist=persist,
               restore=restore, verbose=verbose, run=run)
-    job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))+job.config_filename
+    job_suffix = ''.join(random.choices(
+        string.ascii_lowercase, k=5))+job.config_filename
     job_name = 'job_{}'.format(job_suffix)
 
     cmd = [str(dfa_path),
