@@ -31,7 +31,7 @@ from incremental_learning.transforms import resample_metric_features
 from incremental_learning.transforms import rotate_metric_features
 from incremental_learning.transforms import shift_metric_features
 
-experiment_name = 'incremental-training-experiments'
+experiment_name = 'incremental-training'
 experiment_data_path = Path('/tmp/'+experiment_name)
 ex = Experiment(experiment_name)
 ex.observers.append(FileStorageObserver(experiment_data_path))
