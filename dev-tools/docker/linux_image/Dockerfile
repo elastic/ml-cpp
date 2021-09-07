@@ -124,6 +124,17 @@ RUN \
 # Add cmake to PATH
 ENV PATH=${PATH}:/usr/local/cmake/bin
 
+# Install Intel MKL
+RUN \
+  yum-config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.repo && \
+  yum -y install intel-mkl-2020.4-912 && \
+  cp /opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so /usr/local/gcc93/lib && \
+  cp /opt/intel/mkl/lib/intel64/libmkl_core.so /usr/local/gcc93/lib && \
+  cp /opt/intel/mkl/lib/intel64/libmkl_def.so /usr/local/gcc93/lib && \
+  cp /opt/intel/mkl/lib/intel64/libmkl_gnu_thread.so /usr/local/gcc93/lib && \
+  cp /opt/intel/mkl/lib/intel64/libmkl_avx*.so /usr/local/gcc93/lib && \
+  cp /opt/intel/mkl/lib/intel64/libmkl_vml*.so /usr/local/gcc93/lib
+
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
@@ -133,7 +144,7 @@ RUN \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
-  export BLAS=Eigen && \
+  export BLAS=MKL && \
   export BUILD_TEST=OFF && \
   export BUILD_CAFFE2=OFF && \
   export USE_NUMPY=OFF && \
