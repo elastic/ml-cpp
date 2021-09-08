@@ -82,7 +82,11 @@ case `uname` in
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
             TORCH_LOCATION=/usr/local/gcc93/lib
-            TORCH_EXTENSION=.so
+            TORCH_EXTENSION=.so            
+            MKL_LOCATION=/usr/local/gcc93/lib
+            MKL_EXTENSION=.so
+            MKL_PREFIX=libmkl_
+            MKL_LIBRARIES=`ls -1 $MKL_LOCATION/$MKL_PREFIX*`
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
@@ -254,7 +258,21 @@ if [ ! -z "$TORCH_LOCATION" ] ; then
         exit 11
     fi
 fi
-
+if [ ! -z "$MKL_LOCATION" ] ; then
+    if ls $MKL_LOCATION/*$MKL_EXTENSION >/dev/null ; then
+        if [ -n "$INSTALL_DIR" ] ; then
+            for LIBRARY in $MKL_LIBRARIES
+            do
+                rm -f $INSTALL_DIR/*$LIBRARY*$MKL_EXTENSION
+                cp $MKL_LOCATION/*$LIBRARY*$MKL_EXTENSION $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/*$LIBRARY*$MKL_EXTENSION
+            done
+        fi
+    else
+        echo "Intel MKL libraries not found"
+        exit 11
+    fi
+fi
 
 # Special extra platform-specific processing
 case `uname` in
