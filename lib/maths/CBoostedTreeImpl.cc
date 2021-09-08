@@ -369,6 +369,11 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     }
     double numberKeptNodes{numberForestNodes(m_BestForest) - retrainedNumberNodes};
 
+    // Make sure that our predictions are correctly initialised.
+    auto allTrainingRowsMask = this->allTrainingRowsMask();
+    auto noRowsMask = core::CPackedBitVector{allTrainingRowsMask.size(), false};
+    this->initializePredictionsAndLossDerivatives(frame, allTrainingRowsMask, noRowsMask);
+
     // When we decide whether to accept the results of incremental training below
     // we compare the loss calculated for the best candidate forest with the loss
     // calculated with the original model. Since the data summary comprises a subset
@@ -380,7 +385,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     // on the old training data in train and add it on to the threshold to accept
     // adjusting for the proportion of old training data we have.
     double numberNewTrainingRows{m_NewTrainingRowMask.manhattan()};
-    double numberOldTrainingRows{this->allTrainingRowsMask().manhattan() - numberNewTrainingRows};
+    double numberOldTrainingRows{allTrainingRowsMask.manhattan() - numberNewTrainingRows};
     double initialLoss{
         lossAtNSigma(1.0,
                      [&] {
@@ -465,8 +470,6 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     if (m_BestForestTestLoss < initialLoss) {
         this->restoreBestHyperparameters();
-        core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
-
         if (m_PreviousTrainNumberRows > 0) {
             this->scaleRegularizers(allTrainingRowsMask.manhattan() /
                                         this->meanNumberTrainingRowsPerFold(),
@@ -1757,7 +1760,8 @@ double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
         loss += result.s_FunctionState;
     }
 
-    return this->meanLoss(frame, rowMask) + CBasicStatistics::mean(loss);
+    return this->meanLoss(frame, rowMask) +
+           oldRowMask.manhattan() / rowMask.manhattan() * CBasicStatistics::mean(loss);
 }
 
 double CBoostedTreeImpl::betweenFoldTestLossVariance() const {

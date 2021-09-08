@@ -65,12 +65,13 @@ def partition_on_metric_ranges(seed : int,
     '''
 
     if matches_columns(metric_features, dataset):
-        print(list(dataset.columns), 'does not contain', metric_features)
+        print('ERROR:', list(dataset.columns), 'does not contain', metric_features)
         return None, None
 
     numeric_types = dataset.select_dtypes(include='number').columns
     metric_features = [feature for feature in metric_features if feature in numeric_types]
     if len(metric_features) == 0:
+        print('ERROR: no pure numeric features')
         return None, None
 
     random.seed(seed)
@@ -165,15 +166,16 @@ def resample_metric_features(seed : int,
     '''
 
     if matches_columns(metric_features, dataset):
-        print(list(dataset.columns), 'does not contain', metric_features)
+        print('ERROR:', list(dataset.columns), 'does not contain', metric_features)
         return None
     if fraction > 1 or fraction <= 0:
-        print('fraction', fraction, 'out of range (0, 1]')
+        print('ERROR: fraction', fraction, 'out of range (0, 1]')
         return None
 
     numeric_types = dataset.select_dtypes(include='number').columns
     metric_features = [feature for feature in metric_features if feature in numeric_types]
     if len(metric_features) == 0:
+        print('ERROR: no pure numeric features')
         return None
 
     random.seed(seed)
@@ -197,8 +199,11 @@ def resample_metric_features(seed : int,
         probability /= len(metric_features)
         probabilities.append(probability)
         normalization += probability
-    for i in range(len(probabilities)):
-        probabilities[i] /= normalization
+    if normalization == 0.0:
+        probabilities = [1 / len(probabilities)] * len(probabilities)
+    else:
+        for i in range(len(probabilities)):
+            probabilities[i] /= normalization
 
     sample = np.random.choice(
         range(len(probabilities)),
@@ -238,10 +243,10 @@ def shift_metric_features(seed : int,
     '''
 
     if matches_columns(categorical_features, dataset):
-        print(list(dataset.columns), 'does not contain', categorical_features)
+        print('ERROR:', list(dataset.columns), 'does not contain', categorical_features)
         return None
     if fraction > 1 or fraction <= 0:
-        print('fraction', fraction, 'out of range (0, 1]')
+        print('ERROR: fraction', fraction, 'out of range (0, 1]')
         return None
 
     features = metric_features(categorical_features, dataset)
@@ -249,6 +254,7 @@ def shift_metric_features(seed : int,
     numeric_types = dataset.select_dtypes(include='number').columns
     features = [feature for feature in features if feature in numeric_types]
     if len(features) == 0:
+        print('ERROR: no pure numeric features')
         return None
 
     sd = dataset[features].std()
@@ -315,10 +321,10 @@ def rotate_metric_features(seed : int,
     '''
 
     if matches_columns(categorical_features, dataset):
-        print(list(dataset.columns), 'does not contain', categorical_features)
+        print('ERROR:', list(dataset.columns), 'does not contain', categorical_features)
         return None
     if fraction > 1 or fraction <= 0:
-        print('fraction', fraction, 'out of range (0, 1]')
+        print('ERROR: fraction', fraction, 'out of range (0, 1]')
         return None
 
     features = metric_features(categorical_features, dataset)
@@ -327,6 +333,7 @@ def rotate_metric_features(seed : int,
     numeric_types = dataset.select_dtypes(include='number').columns
     features = [feature for feature in features if feature in numeric_types]
     if len(features) == 0:
+        print('ERROR: no pure numeric features')
         return None
 
     centroid = dataset[features].mean()
@@ -369,13 +376,13 @@ def regression_category_drift(seed : int,
     '''
 
     if matches_columns(categorical_features, dataset):
-        print(list(dataset.columns), 'does not contain', categorical_features)
+        print('ERROR:', list(dataset.columns), 'does not contain', categorical_features)
         return None
     if matches_columns([target], dataset):
-        print(list(dataset.columns), 'does not contain', '"' + target + '"')
+        print('ERROR:', list(dataset.columns), 'does not contain', '"' + target + '"')
         return None
     if fraction > 1 or fraction <= 0:
-        print('fraction', fraction, 'out of range (0, 1]')
+        print('ERROR: fraction', fraction, 'out of range (0, 1]')
         return None
 
     sd = dataset[target].std()
