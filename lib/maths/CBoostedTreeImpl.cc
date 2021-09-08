@@ -369,7 +369,8 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     }
     double numberKeptNodes{numberForestNodes(m_BestForest) - retrainedNumberNodes};
 
-    // Make sure that our predictions are correctly initialised.
+    // Make sure that our predictions are correctly initialised before computing
+    // the initial loss.
     auto allTrainingRowsMask = this->allTrainingRowsMask();
     auto noRowsMask = core::CPackedBitVector{allTrainingRowsMask.size(), false};
     this->initializePredictionsAndLossDerivatives(frame, allTrainingRowsMask, noRowsMask);
