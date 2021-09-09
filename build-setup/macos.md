@@ -188,10 +188,19 @@ export BUILD_TEST=OFF
 export BUILD_CAFFE2=OFF
 export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
-export USE_MKLDNN=ON
+# TODO: check if this can be made unconditional next time we upgrade.
+# In PyTorch 1.9 the version of oneDNN used doesn't work on Apple M1.
+# In PyTorch 1.10 oneDNN is upgraded and should build, but there
+# might still be further problems.
+[ $(uname -m) = x86_64 ] && export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
+# TODO: recheck if this is still necessary next time we upgrade.
+# At present CMake is set up to build for x86_64 on an Apple M1.
+# This line can be removed if CMake is changed to build for the
+# native architecture on M1.
+[ $(uname -m) != x86_64 ] && export CMAKE_OSX_ARCHITECTURES=`uname -m`
 export PYTORCH_BUILD_VERSION=1.9.0
 export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7 setup.py install
