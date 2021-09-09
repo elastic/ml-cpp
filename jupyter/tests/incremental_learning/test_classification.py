@@ -42,13 +42,15 @@ class TestClassification(unittest.TestCase):
         job.wait_to_complete()
 
         y_true = self.dataset_train['target']
+        classes = np.unique(y_true)
         y_pred = job.get_predictions()
         top_classes = job.get_probabilities()
-        y_score = [prob[c] for c, prob in  zip(y_true, top_classes)]
-        self.assertTrue(metrics.accuracy_score(
-            y_true=y_true, y_pred=y_pred) > 0.96)
-        self.assertTrue(metrics.roc_auc_score(
-            y_true=y_true, y_score=y_score) > 0.5)
+        # roc_auc_score requires the probability of the "greater" class label
+        y_score = np.array([prob[classes[1]] for c, prob in  zip(y_true, top_classes)])
+        accuracy = metrics.accuracy_score(y_true=y_true, y_pred=y_pred)
+        self.assertTrue(accuracy > 0.96, msg = "Low accuracy {}".format(accuracy))
+        actual_roc_auc = metrics.roc_auc_score(y_true=y_true, y_score=y_score)
+        self.assertTrue(actual_roc_auc > 0.98, msg="Low roc auc score {}".format(actual_roc_auc))
 
 
 if __name__ == '__main__':
