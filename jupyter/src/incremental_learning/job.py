@@ -96,6 +96,9 @@ class Job:
         if self.input and self.config:
             self._set_dependent_variable_name()
             self._set_analysis_name()
+            if self.is_classification():
+                self._set_num_classes()
+                self._configure_num_top_classes()
             self.initialized = True
         else:
             self.initialized = False
@@ -109,10 +112,20 @@ class Job:
         with open(self.config_filename) as fp:
             config = json.load(fp)
         self.analysis_name = ""
-        try:
-            self.analysis_name = config['analysis']['name']
-        except:
-            pass
+        self.analysis_name = config['analysis']['name']
+
+    def _set_num_classes(self):
+        if self.is_classification():
+            with open(self.config_filename) as fp:
+                config = json.load(fp)
+            self.num_classes = config['analysis']['parameters']['num_classes']
+
+    def _configure_num_top_classes(self):
+        with open(self.config_filename) as fc:
+            config = json.load(fc)
+        config['analysis']['parameters']['num_top_classes'] = self.num_classes
+        with open(self.config_filename, 'wt') as fc:
+            json.dump(config, fc)
 
     def clean(self):
         if is_temp(self.output):
@@ -211,6 +224,30 @@ class Job:
                 predictions.append(item['row_results']['results']
                                    ['ml']['{}_prediction'.format(self.dependent_variable)])
         return np.array(predictions)
+
+    def get_probabilities(self) -> Union[None, list]:
+        """Return prediction probabilities for the class "true".
+
+        Note: Only works for binary classification.
+
+        Returns:
+            Union[None, list]: prediction probabilities. 
+        """
+        if self.analysis_name == 'regression':
+            raise ValueError(
+                "Failed to obtain prediction probabilities for the regression job {}."
+                .format(self.name))
+        if self.num_classes != 2:
+            raise NotImplementedError(
+                "Only binary classification is implemented at the moment. Configured num_classes {}."
+                .format(self.num_classes))
+        probabilities = []
+        for item in self.results:
+            if 'row_results' in item:
+                top_classes = item['row_results']['results']['ml']['top_classes']
+                probabilities.append(
+                    {x['class_name']: x['class_probability'] for x in top_classes})
+        return probabilities
 
     def get_hyperparameters(self) -> dict:
         """Get all the hyperparameter values for the model.
@@ -361,6 +398,7 @@ class JobJSONEncoder(json.JSONEncoder):
     """
     JSON serialization logic for the Job class.
     """
+
     def default(self, obj: Job):
         if isinstance(obj, Job):
             state = {
