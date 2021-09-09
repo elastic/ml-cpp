@@ -487,6 +487,8 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True, ru
     config['rows'] = dataset.shape[0]
     if run and 'threads' in run.config.keys():
         config['threads'] = run.config['threads']
+    if run and 'seed' in run.config.keys():
+        config['analysis']['parameters']['seed'] = run.config['seed']
 
     config_file = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, config_file)
@@ -521,6 +523,9 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, ve
     config['analysis']['parameters']['task'] = 'predict'
     if run and 'threads' in run.config.keys():
         config['threads'] = run.config['threads']
+    if run and 'seed' in run.config.keys():
+        config['analysis']['parameters']['seed'] = run.config['seed']
+
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)
     fconfig.file.close()
@@ -553,6 +558,9 @@ def update(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, verb
         original_job.get_data_summarization_num_rows()
     if run and 'threads' in run.config.keys():
         config['threads'] = run.config['threads']
+    if run and 'seed' in run.config.keys():
+        config['analysis']['parameters']['seed'] = run.config['seed']
+
     for name, value in original_job.get_hyperparameters().items():
         if name not in ['retrained_tree_eta', 'tree_topology_change_penalty']:
             config['analysis']['parameters'][name] = value
