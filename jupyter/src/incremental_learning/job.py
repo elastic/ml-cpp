@@ -198,6 +198,7 @@ class Job:
                 print('Job failed')
             if clean:
                 self.clean()
+            raise RuntimeError("Running data_frame_analyzer failed.")
         return self.stop_time - self.start_time
 
     def get_config(self) -> dict:
@@ -258,8 +259,9 @@ class Job:
         for item in self.results:
             if 'model_metadata' in item:
                 for hyperparameter in item['model_metadata']['hyperparameters']:
-                    hyperparameters[hyperparameter['name']
-                                    ] = hyperparameter['value']
+                    hyperparameters[hyperparameter['name']] = hyperparameter['value']
+                hyperparameters['previous_train_num_rows'] = item['model_metadata']['train_properties']['num_train_rows']
+                hyperparameters['previous_train_loss_gap'] = item['model_metadata']['train_properties']['loss_gap']
         return hyperparameters
 
     def get_data_summarization_num_rows(self) -> int:
