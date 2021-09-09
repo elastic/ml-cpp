@@ -93,6 +93,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(EARLY_STOPPING_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(FORCE_ACCEPT_INCREMENTAL_TRAINING,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(DATA_SUMMARIZATION_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
@@ -162,6 +164,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double predictionChangeCost{parameters[PREDICTION_CHANGE_COST].fallback(-1.0)};
     double treeTopologyChangePenalty{parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(-1.0)};
 
+    bool forceAcceptIncrementalTraining{
+        parameters[FORCE_ACCEPT_INCREMENTAL_TRAINING].fallback(false)};
     double dataSummarizationFraction{parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0)};
     double previousTrainLossGap{parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0)};
     std::size_t previousTrainNumberRows{
@@ -220,7 +224,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
-        .earlyStoppingEnabled(earlyStoppingEnabled);
+        .earlyStoppingEnabled(earlyStoppingEnabled)
+        .forceAcceptIncrementalTraining(forceAcceptIncrementalTraining);
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -575,6 +580,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"impor
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
 const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"early_stopping_enabled"};
+const std::string CDataFrameTrainBoostedTreeRunner::FORCE_ACCEPT_INCREMENTAL_TRAINING{"force_accept_incremental_training"};
 const std::string CDataFrameTrainBoostedTreeRunner::DATA_SUMMARIZATION_FRACTION{"data_summarization_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK{"task"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_TRAIN{"train"};

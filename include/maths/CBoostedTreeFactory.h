@@ -178,6 +178,8 @@ public:
     CBoostedTreeFactory& previousTrainLossGap(double gap);
     //! Set the number of rows for the last train run.
     CBoostedTreeFactory& previousTrainNumberRows(std::size_t numberRows);
+    //! Set whether or not to always accept the result of incremental training.
+    CBoostedTreeFactory& forceAcceptIncrementalTraining(bool force);
     //! Set the data summarization information.
     CBoostedTreeFactory& featureEncoder(TEncoderUPtr encoder);
     //! Set the best forest from the previous training.
