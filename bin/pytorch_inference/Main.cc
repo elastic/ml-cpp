@@ -47,27 +47,19 @@ torch::Tensor infer(torch::jit::script::Module& module,
                     ml::torch::CCommandParser::SRequest& request) {
 
     std::vector<torch::jit::IValue> inputs;
-
-    LOG_DEBUG(<< "2ndary args size: " << request.s_SecondaryArguments.size());
     inputs.reserve(1 + request.s_SecondaryArguments.size());
-
-    LOG_DEBUG(<< "batch size: " << request.s_NumberInferences
-              << ", number of tokens: " << request.s_NumberInputTokens);
 
     std::array<std::int64_t, 2> dimensions = {request.s_NumberInferences,
                                               request.s_NumberInputTokens};
     at::IntArrayRef inputSize{dimensions};
-    LOG_DEBUG(<< "input size: " << inputSize);
 
     // BERT UInt tokens
     inputs.emplace_back(torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
                                          inputSize, at::dtype(torch::kInt64)));
-    LOG_DEBUG(<< "tokens: " << request.s_Tokens);
 
     for (auto& args : request.s_SecondaryArguments) {
         inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data()),
                                              inputSize, at::dtype(torch::kInt64)));
-        LOG_DEBUG(<< "args: " << args);
     }
 
     torch::NoGradGuard noGrad;
