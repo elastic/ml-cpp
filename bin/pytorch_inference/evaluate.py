@@ -49,6 +49,7 @@ For Benchmarking:
 '''
 
 import argparse
+from datetime import datetime
 import json
 import math
 import os
@@ -69,6 +70,7 @@ def parse_arguments():
     parser.add_argument('--output_file', default='output_file')
     parser.add_argument('--numThreads', type=int, help='The number of inference threads. The system default is used if not set')
     parser.add_argument('--benchmark', action='store_true', help='Benchmark inference time rather than evaluting expected results')
+    parser.add_argument('--numParallelForwardingThreads', type=int, help='The number of threads for parallel forwarding. Defaults to 1')
 
     return parser.parse_args()
 
@@ -101,6 +103,9 @@ def launch_pytorch_app(args):
     if args.numThreads:
         command.append('--numThreads=' + str(args.numThreads))
         command.append('--numInterOpThreads=1')
+
+    if args.numParallelForwardingThreads:
+        command.append('--numParallelForwardingThreads=' + str(args.numParallelForwardingThreads))
 
     subprocess.Popen(command).communicate()
 
@@ -200,7 +205,10 @@ def run_benchmark(args):
                     if benchmark_count == NUM_BENCHMARK_REQUEST:
                         break
    
+    start_time = datetime.now()
     launch_pytorch_app(args)
+    end_time = datetime.now()
+    runtime_ms = int((end_time - start_time).total_seconds() * 1000)
 
     print()
     print("reading benchmark results...", flush=True)
@@ -218,6 +226,7 @@ def run_benchmark(args):
 
         
         print()
+        print(f'Process run in {runtime_ms} ms')
         print(f'{doc_count} requests evaluated in {total_time_ms} ms, avg time {total_time_ms / doc_count} ms')
         print()
 

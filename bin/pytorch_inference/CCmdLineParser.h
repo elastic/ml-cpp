@@ -49,6 +49,7 @@ public:
                       std::string& logProperties,
                       std::int32_t& numThreads,
                       std::int32_t& numInterOpThreads,
+                      std::int32_t& numParallelForwardingThreads,
                       bool& validElasticLicenseKeyConfirmed);
 
 private:

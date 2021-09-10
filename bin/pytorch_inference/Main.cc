@@ -177,9 +177,8 @@ void writePrediction(const torch::Tensor& prediction,
 void inferAndWriteResult(ml::torch::CCommandParser::SRequest& request,
                          torch::jit::script::Module& module,
                          ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
-    ml::core::CStopWatch stopWatch;
     try {
-        stopWatch.reset(true);
+        ml::core::CStopWatch stopWatch(true);
         torch::Tensor results = infer(module, request);
         std::uint64_t timeMs = stopWatch.stop();
         auto sizes = results.sizes();
@@ -231,13 +230,14 @@ int main(int argc, char** argv) {
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::int32_t numThreads{-1};
     std::int32_t numInterOpThreads{-1};
+    std::int32_t numParallelForwardingThreads{1};
     bool validElasticLicenseKeyConfirmed{false};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, logFileName, logProperties,
-            numThreads, numInterOpThreads, validElasticLicenseKeyConfirmed) == false) {
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, logFileName, logProperties, numThreads, numInterOpThreads,
+            numParallelForwardingThreads, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
@@ -298,6 +298,7 @@ int main(int argc, char** argv) {
         at::set_num_interop_threads(numInterOpThreads);
     }
     LOG_DEBUG(<< at::get_parallel_info());
+    LOG_DEBUG(<< "Number of parallel forwarding threads: " << numParallelForwardingThreads);
 
     torch::jit::script::Module module;
     try {
@@ -319,10 +320,10 @@ int main(int argc, char** argv) {
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
 
-    ml::core::startDefaultAsyncExecutor(1);
+    ml::core::startDefaultAsyncExecutor(numParallelForwardingThreads);
 
     commandParser.ioLoop(
-        [&module, &wrappedOutputStream](ml::torch::CCommandParser::SRequest request) {
+        [&module, &wrappedOutputStream](const ml::torch::CCommandParser::SRequest& request) {
             return handleRequest(request, module, wrappedOutputStream);
         },
         [&wrappedOutputStream](const std::string& requestId, const std::string& message) {

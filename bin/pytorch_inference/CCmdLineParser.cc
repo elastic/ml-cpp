@@ -36,6 +36,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& logProperties,
                            std::int32_t& numThreads,
                            std::int32_t& numInterOpThreads,
+                           std::int32_t& numParallelForwardingThreads,
                            bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -63,6 +64,8 @@ bool CCmdLineParser::parse(int argc,
                         "Optionaly set number of threads LibTorch can use for inference - not present means use the LibTorch defaults")
             ("numInterOpThreads", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of threads LibTorch can use for inter operation parallelism - not present means use the LibTorch defaults")
+            ("numParallelForwardingThreads", boost::program_options::value<std::int32_t>(),
+                        "Optionaly set number of threads to parallelize model forwarding - not present means 1")
             ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
              "Confirmation that a valid Elastic license key is in use.")
             ;
@@ -118,6 +121,10 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("numInterOpThreads") > 0) {
             numInterOpThreads = vm["numInterOpThreads"].as<std::int32_t>();
+        }
+        if (vm.count("numParallelForwardingThreads") > 0) {
+            numParallelForwardingThreads =
+                vm["numParallelForwardingThreads"].as<std::int32_t>();
         }
         if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
             validElasticLicenseKeyConfirmed =
