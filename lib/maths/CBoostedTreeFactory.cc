@@ -1754,6 +1754,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::previousTrainNumberRows(std::size_t nu
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::forceAcceptIncrementalTraining(bool force) {
+    m_TreeImpl->m_ForceAcceptIncrementalTraining = force;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::featureEncoder(TEncoderUPtr encoder) {
     m_TreeImpl->m_Encoder = std::move(encoder);
     return *this;

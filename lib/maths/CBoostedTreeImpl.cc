@@ -369,6 +369,12 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     }
     double numberKeptNodes{numberForestNodes(m_BestForest) - retrainedNumberNodes};
 
+    // Make sure that our predictions are correctly initialised before computing
+    // the initial loss.
+    auto allTrainingRowsMask = this->allTrainingRowsMask();
+    auto noRowsMask = core::CPackedBitVector{allTrainingRowsMask.size(), false};
+    this->initializePredictionsAndLossDerivatives(frame, allTrainingRowsMask, noRowsMask);
+
     // When we decide whether to accept the results of incremental training below
     // we compare the loss calculated for the best candidate forest with the loss
     // calculated with the original model. Since the data summary comprises a subset
@@ -380,7 +386,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     // on the old training data in train and add it on to the threshold to accept
     // adjusting for the proportion of old training data we have.
     double numberNewTrainingRows{m_NewTrainingRowMask.manhattan()};
-    double numberOldTrainingRows{this->allTrainingRowsMask().manhattan() - numberNewTrainingRows};
+    double numberOldTrainingRows{allTrainingRowsMask.manhattan() - numberNewTrainingRows};
     double initialLoss{
         lossAtNSigma(1.0,
                      [&] {
@@ -463,10 +469,8 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "best forest loss = " << m_BestForestTestLoss
               << ", initial loss = " << initialLoss);
 
-    if (m_BestForestTestLoss < initialLoss) {
+    if (m_ForceAcceptIncrementalTraining || m_BestForestTestLoss < initialLoss) {
         this->restoreBestHyperparameters();
-        core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
-
         if (m_PreviousTrainNumberRows > 0) {
             this->scaleRegularizers(allTrainingRowsMask.manhattan() /
                                         this->meanNumberTrainingRowsPerFold(),
@@ -1757,7 +1761,8 @@ double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
         loss += result.s_FunctionState;
     }
 
-    return this->meanLoss(frame, rowMask) + CBasicStatistics::mean(loss);
+    return this->meanLoss(frame, rowMask) +
+           oldRowMask.manhattan() / rowMask.manhattan() * CBasicStatistics::mean(loss);
 }
 
 double CBoostedTreeImpl::betweenFoldTestLossVariance() const {
@@ -2224,6 +2229,7 @@ const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
 const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
+const std::string FORCE_ACCEPT_INCREMENTAL_TRAINING_TAG{"force_accept_incremental_training"};
 const std::string INITIALIZATION_STAGE_TAG{"initialization_progress"};
 const std::string INCREMENTAL_TRAINING_TAG{"incremental_training"};
 const std::string LOSS_TAG{"loss"};
@@ -2316,6 +2322,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
     core::CPersistUtils::persist(FOLD_ROUND_TEST_LOSSES_TAG, m_FoldRoundTestLosses, inserter);
+    core::CPersistUtils::persist(FORCE_ACCEPT_INCREMENTAL_TRAINING_TAG,
+                                 m_ForceAcceptIncrementalTraining, inserter);
     core::CPersistUtils::persist(INCREMENTAL_TRAINING_TAG, m_IncrementalTraining, inserter);
     core::CPersistUtils::persist(INITIALIZATION_STAGE_TAG,
                                  static_cast<int>(m_InitializationStage), inserter);
@@ -2454,6 +2462,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(FOLD_ROUND_TEST_LOSSES_TAG,
                 core::CPersistUtils::restore(FOLD_ROUND_TEST_LOSSES_TAG,
                                              m_FoldRoundTestLosses, traverser))
+        RESTORE(FORCE_ACCEPT_INCREMENTAL_TRAINING_TAG,
+                core::CPersistUtils::restore(FORCE_ACCEPT_INCREMENTAL_TRAINING_TAG,
+                                             m_ForceAcceptIncrementalTraining, traverser))
         RESTORE(INCREMENTAL_TRAINING_TAG,
                 core::CPersistUtils::restore(INCREMENTAL_TRAINING_TAG,
                                              m_IncrementalTraining, traverser))
