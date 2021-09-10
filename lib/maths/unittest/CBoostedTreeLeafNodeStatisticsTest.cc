@@ -31,6 +31,8 @@ using namespace ml;
 using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
+using TFloatVec = maths::CBoostedTreeLeafNodeStatistics::TFloatVec;
+using TFloatVecVec = maths::CBoostedTreeLeafNodeStatistics::TFloatVecVec;
 using TSizeVec = std::vector<std::size_t>;
 using TSizeVecVec = std::vector<TSizeVec>;
 using TAlignedFloatVec =
@@ -42,8 +44,6 @@ using TVectorVecVec = std::vector<TVectorVec>;
 using TMatrix = maths::CDenseMatrix<double>;
 using TMatrixVec = std::vector<TMatrix>;
 using TMatrixVecVec = std::vector<TMatrixVec>;
-using TImmutableRadixSet = maths::CBoostedTreeLeafNodeStatistics::TImmutableRadixSet;
-using TImmutableRadixSetVec = maths::CBoostedTreeLeafNodeStatistics::TImmutableRadixSetVec;
 using TDerivatives = maths::CBoostedTreeLeafNodeStatistics::CDerivatives;
 using TSplitsDerivatives = maths::CBoostedTreeLeafNodeStatistics::CSplitsDerivatives;
 
@@ -183,9 +183,9 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
 
     LOG_DEBUG(<< "Testing " << numberParameters << " parameters");
 
-    TImmutableRadixSetVec featureSplits;
-    featureSplits.push_back(TImmutableRadixSet{1.0, 2.0, 3.0});
-    featureSplits.push_back(TImmutableRadixSet{0.1, 0.7, 1.1, 1.4});
+    TFloatVecVec featureSplits;
+    featureSplits.push_back(TFloatVec{1.0, 2.0, 3.0});
+    featureSplits.push_back(TFloatVec{0.1, 0.7, 1.1, 1.4});
 
     test::CRandomNumbers rng;
 
@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
     using TNodeVec = maths::CBoostedTree::TNodeVec;
 
     std::size_t cols{2};
-    TSizeVec extraColumns{2, 3, 4, 5};
+    TSizeVec extraColumns{2, 3, 4, 5, 0, 6};
     std::size_t rows{50};
     std::size_t numberThreads{1};
 
@@ -364,20 +364,33 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
                 *(++column) = targets[i] - predictions[i];
                 *(++column) = curvature[i];
                 *(++column) = weights[i];
-
             });
             sketch.add(features[i]);
         }
         frame->finishWritingRows();
 
-        maths::CDataFrameCategoryEncoder encoder{{numberThreads, *frame, 0}};
-
         TDoubleVec splitValues(3);
         sketch.quantile(25.0, splitValues[0]);
         sketch.quantile(50.0, splitValues[1]);
         sketch.quantile(75.0, splitValues[2]);
-        TImmutableRadixSetVec featureSplits;
-        featureSplits.push_back(TImmutableRadixSet(splitValues));
+        TFloatVecVec featureSplits;
+        featureSplits.emplace_back(splitValues.begin(), splitValues.end());
+
+        maths::CDataFrameCategoryEncoder encoder{{numberThreads, *frame, 1}};
+
+        frame->writeColumns(1, [&](core::CDataFrame::TRowItr beginRows,
+                                   core::CDataFrame::TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                maths::CPackedUInt8Decorator::TUInt8Ary splits;
+                splits.fill(0);
+                splits[0] = static_cast<std::uint8_t>(
+                    std::upper_bound(featureSplits[0].begin(),
+                                     featureSplits[0].end(), (*row)[0]) -
+                    featureSplits[0].begin());
+                *maths::boosted_tree_detail::beginSplits(*row, extraColumns) =
+                    maths::CPackedUInt8Decorator{splits};
+            }
+        });
 
         maths::CBoostedTreeLeafNodeStatistics::CWorkspace workspace{1};
         workspace.reinitialize(numberThreads, featureSplits);
@@ -393,9 +406,8 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         TNodeVec tree(1);
 
         auto rootSplit = std::make_shared<maths::CBoostedTreeLeafNodeStatisticsScratch>(
-            0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder,
-            regularization, featureSplits, treeFeatureBag, nodeFeatureBag,
-            0 /*depth*/, trainingRowMask, workspace);
+            0 /*root*/, extraColumns, 1, numberThreads, *frame, regularization, featureSplits,
+            treeFeatureBag, nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace);
 
         std::size_t splitFeature;
         double splitValue;

@@ -12,7 +12,6 @@
 #include <maths/CBoostedTreeLeafNodeStatisticsIncremental.h>
 
 #include <core/CDataFrame.h>
-#include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 
@@ -38,9 +37,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     std::size_t numberLossParameters,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
-    const TImmutableRadixSetVec& candidateSplits,
+    const TFloatVecVec& candidateSplits,
     const TSizeVec& treeFeatureBag,
     const TSizeVec& nodeFeatureBag,
     std::size_t depth,
@@ -50,7 +48,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
                                      numberLossParameters, candidateSplits} {
 
     this->computeAggregateLossDerivatives(CNoLookAheadBound{}, numberThreads, frame,
-                                          encoder, treeFeatureBag, rowMask, workspace);
+                                          treeFeatureBag, rowMask, workspace);
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 

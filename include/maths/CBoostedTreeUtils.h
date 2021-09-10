@@ -45,7 +45,8 @@ enum EExtraColumn {
     E_Gradient,
     E_Curvature,
     E_Weight,
-    E_PreviousPrediction
+    E_PreviousPrediction,
+    E_BeginSplits
 };
 
 enum EHyperparameter {
@@ -197,6 +198,11 @@ inline double readExampleWeight(const TRowRef& row, const TSizeVec& extraColumns
 //! Write the example weight to \p row .
 inline void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns, double weight) {
     row.writeColumn(extraColumns[E_Weight], weight);
+}
+
+//! Get a writable pointer to the start of the row split indices.
+inline core::CFloatStorage* beginSplits(const TRowRef& row, const TSizeVec& extraColumns) {
+    return row.data() + extraColumns[E_BeginSplits];
 }
 
 //! Read the actual value for the target from \p row.

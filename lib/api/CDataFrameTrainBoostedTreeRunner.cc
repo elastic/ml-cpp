@@ -299,7 +299,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
-    return maths::CBoostedTreeFactory::numberExtraColumnsForTrain(m_NumberLossParameters);
+    return maths::CBoostedTreeFactory::estimatedExtraColumnsForTrain(
+        this->spec().numberColumns(), m_NumberLossParameters);
 }
 
 std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
