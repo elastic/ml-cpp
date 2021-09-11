@@ -72,11 +72,9 @@ RUN \
   rm -rf libxml2-2.9.7
 
 # Build Boost
-# TODO update the download URL to https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2
-# when the image is next rebuilt
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - http://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2 | tar jxf - && \
   cd boost_1_71_0 && \
   ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu && \
   sed -i -e 's/(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/(3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/' boost/unordered/detail/implementation.hpp && \
@@ -129,7 +127,7 @@ ENV PATH=${PATH}:/usr/local/cmake/bin
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v1.8.0 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.9.0 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
@@ -140,10 +138,10 @@ RUN \
   export USE_FBGEMM=OFF && \
   export USE_KINETO=OFF && \
   export USE_DISTRIBUTED=OFF && \
-  export USE_MKLDNN=OFF && \
+  export USE_MKLDNN=ON && \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION=1.8.0 && \
+  export PYTORCH_BUILD_VERSION=1.9.0 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc93/include/pytorch && \
