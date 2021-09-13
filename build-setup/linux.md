@@ -265,7 +265,7 @@ sudo make altinstall
 
 Intel Maths Kernal Library is an optimized BLAS library which
 greatly improves the performance of PyTorch CPU inference 
-when Pytorch is built with it. 
+when PyTorch is built with it. 
 
 ```
 yum-config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.repo
