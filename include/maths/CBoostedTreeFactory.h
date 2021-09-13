@@ -185,6 +185,9 @@ private:
     //! Encode categorical fields and at the same time select the features to use.
     void selectFeaturesAndEncodeCategories(core::CDataFrame& frame) const;
 
+    //! Initialize the cache for the rows' splits.
+    void initializeSplitsCache(core::CDataFrame& frame) const;
+
     //! Determine the encoded feature types.
     void determineFeatureDataTypes(const core::CDataFrame& frame) const;
 
