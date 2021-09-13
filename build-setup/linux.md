@@ -261,7 +261,7 @@ make
 sudo make altinstall
 ```
 
-### PyTorch 1.9.0
+### PyTorch 1.8.0
 
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:
 
@@ -326,11 +326,11 @@ export BUILD_TEST=OFF
 [ $(uname -m) != x86_64 ] && export USE_KINETO=OFF
 [ $(uname -m) = x86_64 ] && export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
-export USE_MKLDNN=ON
+export USE_MKLDNN=OFF
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=1.9.0
+export PYTORCH_BUILD_VERSION=1.8.0
 export PYTORCH_BUILD_NUMBER=1
 /usr/local/gcc93/bin/python3.7 setup.py install
 ```
