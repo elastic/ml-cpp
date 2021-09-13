@@ -261,7 +261,7 @@ make
 sudo make altinstall
 ```
 
-### PyTorch 1.8.0
+### PyTorch 1.9.0
 
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:
 
@@ -278,7 +278,7 @@ sudo /usr/local/gcc93/bin/python3.7 -m pip install install numpy pyyaml setuptoo
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v1.8.0 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v1.9.0 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -319,18 +319,18 @@ and will hopefully become unnecessary if we upgrade to gcc 9.4 or 10.3.)
 Build as follows:
 
 ```
-export BLAS=Eigen
+[ $(uname -m) = x86_64 ] && export BLAS=MKL
 export BUILD_TEST=OFF
 [ $(uname -m) = x86_64 ] && export BUILD_CAFFE2=OFF
 [ $(uname -m) != x86_64 ] && export USE_FBGEMM=OFF
 [ $(uname -m) != x86_64 ] && export USE_KINETO=OFF
 [ $(uname -m) = x86_64 ] && export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
-export USE_MKLDNN=OFF
+export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=1.8.0
+export PYTORCH_BUILD_VERSION=1.9.0
 export PYTORCH_BUILD_NUMBER=1
 /usr/local/gcc93/bin/python3.7 setup.py install
 ```
