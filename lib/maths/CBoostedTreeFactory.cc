@@ -152,8 +152,8 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
                 [&] { this->selectFeaturesAndEncodeCategories(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->determineFeatureDataTypes(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeSplitsCache(frame); });
+
+    this->initializeSplitsCache(frame);
 
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
@@ -202,8 +202,8 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
                 [&] { this->determineFeatureDataTypes(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { m_TreeImpl->selectTreesToRetrain(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeSplitsCache(frame); });
+
+    this->initializeSplitsCache(frame);
 
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
@@ -239,6 +239,7 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
                 true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
         }
     });
+
     this->prepareDataFrameForTrain(frame);
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
@@ -291,6 +292,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     } else {
         this->prepareDataFrameForIncrementalTrain(frame);
     }
+    this->initializeSplitsCache(frame);
 
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
