@@ -199,7 +199,7 @@ public:
     //! will use.
     std::size_t estimateMemoryUsageTrainIncremental(std::size_t numberRows,
                                                     std::size_t numberColumns) const;
-    //! Get the number of columns training the model will add to the data frame.
+    //! Estimate the number of columns training the model will add to the data frame.
     static std::size_t estimatedExtraColumnsForTrain(std::size_t numberColumns,
                                                      std::size_t numberLossParameters);
 
@@ -254,8 +254,7 @@ private:
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;
 
-    //! Encode categorical fields and at the same time select the features to use
-    //! as regressors.
+    //! Encode categorical fields and at the same time select the features to use.
     void selectFeaturesAndEncodeCategories(core::CDataFrame& frame) const;
 
     //! Determine the encoded feature types.

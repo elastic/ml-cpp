@@ -369,11 +369,11 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         }
         frame->finishWritingRows();
 
+        TFloatVecVec featureSplits;
         TDoubleVec splitValues(3);
         sketch.quantile(25.0, splitValues[0]);
         sketch.quantile(50.0, splitValues[1]);
         sketch.quantile(75.0, splitValues[2]);
-        TFloatVecVec featureSplits;
         featureSplits.emplace_back(splitValues.begin(), splitValues.end());
 
         maths::CDataFrameCategoryEncoder encoder{{numberThreads, *frame, 1}};

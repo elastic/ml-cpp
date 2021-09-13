@@ -223,13 +223,14 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivativesWi
         mask.clear();
         splitsDerivatives.zero();
         aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                auto encodedRow = encoder.encode(*row);
+            for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                auto row = *row_;
+                auto encodedRow = encoder.encode(row);
                 if (split.assignToLeft(encodedRow) == isLeftChild) {
-                    std::size_t index{row->index()};
+                    std::size_t index{row.index()};
                     mask.extend(false, index - mask.size());
                     mask.extend(true);
-                    this->addRowDerivatives(bound, featureBag, *row, splitsDerivatives);
+                    this->addRowDerivatives(bound, featureBag, row, splitsDerivatives);
                 }
             }
         });
