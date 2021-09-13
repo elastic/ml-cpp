@@ -422,7 +422,6 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(core::CDataFrame& fr
             .rowMask(m_TreeImpl->allTrainingRowsMask())
             .columnMask(std::move(regressors))
             .progressCallback(m_TreeImpl->m_Instrumentation->progressCallback()));
-
 }
 
 void CBoostedTreeFactory::initializeSplitsCache(core::CDataFrame& frame) const {
