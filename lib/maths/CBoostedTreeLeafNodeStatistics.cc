@@ -409,10 +409,12 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         std::size_t c{m_Derivatives.missingCount(feature)};
         g = m_Derivatives.missingGradient(feature);
         h = m_Derivatives.missingCurvature(feature);
-        for (const auto& derivatives : m_Derivatives.derivatives(feature)) {
-            c += derivatives.count();
-            g += derivatives.gradient();
-            h += derivatives.curvature();
+        for (auto derivatives = m_Derivatives.beginDerivatives(feature);
+             derivatives != m_Derivatives.endDerivatives(feature);
+             ++derivatives) {
+            c += derivatives->count();
+            g += derivatives->gradient();
+            h += derivatives->curvature();
         }
         std::size_t cl[]{m_Derivatives.missingCount(feature), 0};
         gl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingGradient(feature);
@@ -428,7 +430,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         double splitAt{-INF};
         std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
-        std::size_t size{m_Derivatives.derivatives(feature).size()};
+        std::size_t size{m_Derivatives.numberDerivatives(feature)};
 
         for (std::size_t split = 0; split + 1 < size; ++split) {
 
@@ -520,11 +522,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             childrenGainStatsGlobal = childrenGainStatsPerFeature;
         }
     }
-    if (m_Derivatives.numberLossParameters() > 2) {
-        // short-circuit the bound computation for the multi-class case
-        result.s_LeftChildMaxGain = INF;
-        result.s_RightChildMaxGain = INF;
-    } else if (result.s_Gain > 0) {
+
+    if (m_Derivatives.numberLossParameters() <= 2 && result.s_Gain > 0) {
         double childPenaltyForDepth{regularization.penaltyForDepth(m_Depth + 1)};
         double childPenaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 2)};
         double childPenalty{regularization.treeSizePenaltyMultiplier() +
