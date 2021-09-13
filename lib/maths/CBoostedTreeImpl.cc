@@ -12,7 +12,6 @@
 #include <maths/CBoostedTreeImpl.h>
 
 #include <core/CContainerPrinter.h>
-#include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
 #include <core/CPersistUtils.h>
@@ -36,6 +35,7 @@
 #include <maths/CSetTools.h>
 #include <maths/CSpline.h>
 #include <maths/CTreeShapFeatureImportance.h>
+#include <maths/MathsTypes.h>
 
 #include <boost/circular_buffer.hpp>
 
@@ -661,6 +661,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     auto downsampledRowMask = this->downsample(trainingRowMask);
     scopeMemoryUsage.add(downsampledRowMask);
     auto candidateSplits = this->candidateSplits(frame, downsampledRowMask);
+    this->refreshSplitsCache(frame, candidateSplits, trainingRowMask);
     scopeMemoryUsage.add(candidateSplits);
 
     std::size_t retries{0};
@@ -692,6 +693,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         } else {
             // Refresh splits in case it allows us to find tree which can reduce loss.
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
+            this->refreshSplitsCache(frame, candidateSplits, trainingRowMask);
             nextTreeCountToRefreshSplits += static_cast<std::size_t>(
                 std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
         }
@@ -700,6 +702,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
         if (forest.size() == nextTreeCountToRefreshSplits) {
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
+            this->refreshSplitsCache(frame, candidateSplits, trainingRowMask);
             nextTreeCountToRefreshSplits += static_cast<std::size_t>(
                 std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
         }
@@ -745,7 +748,7 @@ CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask) cons
     return result;
 }
 
-CBoostedTreeImpl::TImmutableRadixSetVec
+CBoostedTreeImpl::TFloatVecVec
 CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask) const {
 
@@ -777,29 +780,30 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
             })
             .first;
 
-    TImmutableRadixSetVec candidateSplits(this->numberFeatures());
+    TFloatVecVec candidateSplits(this->numberFeatures());
 
     for (auto i : binaryFeatures) {
-        candidateSplits[i] = core::CImmutableRadixSet<double>{0.5};
-        LOG_TRACE(<< "feature '" << i << "' splits = " << candidateSplits[i].print());
+        candidateSplits[i] = TFloatVec{0.5};
+        LOG_TRACE(<< "feature '" << i << "' splits = "
+                  << core::CContainerPrinter::print(candidateSplits[i]));
     }
     for (std::size_t i = 0; i < features.size(); ++i) {
 
-        TDoubleVec featureSplits;
+        auto& featureCandidateSplits = candidateSplits[features[i]];
 
         // Because we compute candidate splits for downsamples of the rows it's
         // possible that all values are missing for a particular feature. In this
         // case, we can happily initialize the candidate splits to an empty set
         // since we'll only be choosing how to assign missing values.
         if (featureQuantiles[i].count() > 0.0) {
-            featureSplits.reserve(m_NumberSplitsPerFeature - 1);
+            featureCandidateSplits.reserve(m_NumberSplitsPerFeature - 1);
             for (std::size_t j = 1; j < m_NumberSplitsPerFeature; ++j) {
                 double rank{100.0 * static_cast<double>(j) /
                                 static_cast<double>(m_NumberSplitsPerFeature) +
                             CSampling::uniformSample(m_Rng, -0.1, 0.1)};
                 double q;
                 if (featureQuantiles[i].quantile(rank, q)) {
-                    featureSplits.push_back(q);
+                    featureCandidateSplits.push_back(q);
                 } else {
                     LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");
                 }
@@ -814,31 +818,64 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
             // of the data and so always have the same loss. We only need to retain
             // one such split for training. We achieve this by snapping to the midpoint
             // and subsequently deduplicating.
-            std::for_each(featureSplits.begin(), featureSplits.end(),
-                          [](double& split) { split = std::floor(split) + 0.5; });
+            std::for_each(
+                featureCandidateSplits.begin(), featureCandidateSplits.end(),
+                [](CFloatStorage& split) { split = std::floor(split) + 0.5; });
         }
-        featureSplits.erase(std::unique(featureSplits.begin(), featureSplits.end()),
-                            featureSplits.end());
-        featureSplits.erase(std::remove_if(featureSplits.begin(), featureSplits.end(),
-                                           [&dataType](double split) {
-                                               return split < dataType.s_Min ||
-                                                      split > dataType.s_Max;
-                                           }),
-                            featureSplits.end());
-        candidateSplits[features[i]] =
-            core::CImmutableRadixSet<double>{std::move(featureSplits)};
-
-        LOG_TRACE(<< "feature '" << features[i]
-                  << "' splits = " << candidateSplits[features[i]].print());
+        featureCandidateSplits.erase(std::unique(featureCandidateSplits.begin(),
+                                                 featureCandidateSplits.end()),
+                                     featureCandidateSplits.end());
+        featureCandidateSplits.erase(std::remove_if(featureCandidateSplits.begin(),
+                                                    featureCandidateSplits.end(),
+                                                    [&dataType](double split) {
+                                                        return split < dataType.s_Min ||
+                                                               split > dataType.s_Max;
+                                                    }),
+                                     featureCandidateSplits.end());
+        LOG_TRACE(<< "feature '" << features[i] << "' splits = "
+                  << core::CContainerPrinter::print(featureCandidateSplits));
     }
 
     return candidateSplits;
 }
 
+void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
+                                          const TFloatVecVec& candidateSplits,
+                                          const core::CPackedBitVector& trainingRowMask) const {
+    frame.writeColumns(
+        m_NumberThreads, 0, frame.numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                auto row{*row_};
+                auto encodedRow = m_Encoder->encode(row);
+                auto* splits = beginSplits(row, m_ExtraColumns);
+                for (std::size_t i = 0; i < encodedRow.numberColumns(); ++splits) {
+                    CPackedUInt8Decorator::TUInt8Ary packedSplits;
+                    packedSplits.fill(0);
+                    for (std::size_t j = 0;
+                         j < packedSplits.size() && i < encodedRow.numberColumns();
+                         ++i, ++j) {
+                        double feature{encodedRow[i]};
+                        packedSplits[j] =
+                            CDataFrameUtils::isMissing(feature)
+                                ? static_cast<std::uint8_t>(candidateSplits[i].size() + 1)
+                                : packedSplits[j] = static_cast<std::uint8_t>(
+                                      std::upper_bound(candidateSplits[i].begin(),
+                                                       candidateSplits[i].end(),
+                                                       encodedRow[i]) -
+                                      candidateSplits[i].begin());
+                    }
+                    *splits = CPackedUInt8Decorator{packedSplits};
+                }
+            }
+        },
+        &trainingRowMask);
+}
+
 CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
-                            const TImmutableRadixSetVec& candidateSplits,
+                            const TFloatVecVec& candidateSplits,
                             const std::size_t maximumNumberInternalNodes,
                             TWorkspace& workspace) const {
 
@@ -867,7 +904,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
     splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
         0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
-        frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
+        frame, m_Regularization, candidateSplits, treeFeatureBag,
         nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace));
 
     // We update local variables because the callback can be expensive if it

@@ -139,8 +139,10 @@ public:
     //! Estimate the maximum booking memory that training the boosted tree on a
     //! data frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
-    //! Get the number of columns training the model will add to the data frame.
-    std::size_t numberExtraColumnsForTrain() const;
+    //! Estimate the number of columns training the model will add to the data frame.
+    static std::size_t estimatedExtraColumns(std::size_t numberColumns,
+                                             std::size_t numberLossParameters);
+
     //! Build a boosted tree object for a given data frame.
     TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
     //! Restore a boosted tree object for a given data frame.
@@ -180,9 +182,8 @@ private:
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;
 
-    //! Encode categorical fields and at the same time select the features to use
-    //! as regressors.
-    void selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const;
+    //! Encode categorical fields and at the same time select the features to use.
+    void selectFeaturesAndEncodeCategories(core::CDataFrame& frame) const;
 
     //! Determine the encoded feature types.
     void determineFeatureDataTypes(const core::CDataFrame& frame) const;
