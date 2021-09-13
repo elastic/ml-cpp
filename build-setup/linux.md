@@ -261,6 +261,29 @@ make
 sudo make altinstall
 ```
 
+### Intel MKL
+
+Intel Maths Kernal Library is an optimized BLAS library which
+greatly improves the performance of PyTorch CPU inference 
+when Pytorch is built with it. 
+
+```
+yum-config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.repo
+yum -y install intel-mkl-2020.4-912
+```
+
+Then copy the required libraries to the system dircectory
+```
+cp /opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so /usr/local/gcc93/lib
+cp /opt/intel/mkl/lib/intel64/libmkl_core.so /usr/local/gcc93/lib
+cp /opt/intel/mkl/lib/intel64/libmkl_def.so /usr/local/gcc93/lib
+cp /opt/intel/mkl/lib/intel64/libmkl_gnu_thread.so /usr/local/gcc93/lib
+cp /opt/intel/mkl/lib/intel64/libmkl_avx*.so /usr/local/gcc93/lib
+cp /opt/intel/mkl/lib/intel64/libmkl_vml*.so /usr/local/gcc93/lib
+```
+
+If you are building on aarch64 skip this step.
+
 ### PyTorch 1.9.0
 
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:

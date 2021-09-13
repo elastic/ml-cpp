@@ -86,7 +86,7 @@ case `uname` in
             MKL_LOCATION=/usr/local/gcc93/lib
             MKL_EXTENSION=.so
             MKL_PREFIX=libmkl_
-            MKL_LIBRARIES=`ls -1 $MKL_LOCATION/$MKL_PREFIX*`
+            MKL_LIBRARIES=`ls $MKL_LOCATION/$MKL_PREFIX*`
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
@@ -259,7 +259,7 @@ if [ ! -z "$TORCH_LOCATION" ] ; then
     fi
 fi
 if [ ! -z "$MKL_LOCATION" ] ; then
-    if ls $MKL_LOCATION/*$MKL_EXTENSION >/dev/null ; then
+    if ls $MKL_LOCATION/$MKL_PREFIX*$MKL_EXTENSION >/dev/null ; then
         if [ -n "$INSTALL_DIR" ] ; then
             for LIBRARY in $MKL_LIBRARIES
             do
