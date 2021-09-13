@@ -272,7 +272,7 @@ yum-config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.re
 yum -y install intel-mkl-2020.4-912
 ```
 
-Then copy the required libraries to the system dircectory
+Then copy the required libraries to the system directory:
 ```
 cp /opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so /usr/local/gcc93/lib
 cp /opt/intel/mkl/lib/intel64/libmkl_core.so /usr/local/gcc93/lib
