@@ -659,6 +659,7 @@ public:
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatistics(std::size_t id,
                                    CBoostedTreeLeafNodeStatistics&& parent,
+                                   std::size_t numberThreads,
                                    const TRegularization& regularization,
                                    const TSizeVec& treeFeatureBag,
                                    const TSizeVec& nodeFeatureBag,
@@ -735,23 +736,22 @@ private:
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
 
     //! \brief Statistics relating to a split of the node.
-    struct MATHS_EXPORT SSplitStatistics
-        : private boost::less_than_comparable<SSplitStatistics> {
-        SSplitStatistics() = default;
-        SSplitStatistics(double gain,
-                         double curvature,
-                         std::size_t feature,
-                         double splitAt,
-                         std::size_t minimumChildRowCount,
-                         bool leftChildHasFewerRows,
-                         bool assignMissingToLeft)
+    struct MATHS_EXPORT SSplitStats : private boost::less_than_comparable<SSplitStats> {
+        SSplitStats() = default;
+        SSplitStats(double gain,
+                    double curvature,
+                    std::size_t feature,
+                    double splitAt,
+                    std::size_t minimumChildRowCount,
+                    bool leftChildHasFewerRows,
+                    bool assignMissingToLeft)
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
               s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
         }
 
-        bool operator<(const SSplitStatistics& rhs) const {
+        bool operator<(const SSplitStats& rhs) const {
             return COrderings::lexicographical_compare(
                 s_Gain, s_Curvature, s_Feature, s_SplitAt, // <- lhs
                 rhs.s_Gain, rhs.s_Curvature, rhs.s_Feature, rhs.s_SplitAt);
@@ -797,14 +797,17 @@ private:
                            const TRowRef& row,
                            CSplitsDerivatives& splitsDerivatives) const;
 
-    SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
-                                                const TSizeVec& featureBag) const;
+    SSplitStats computeBestSplitStatistics(std::size_t numberThreads,
+                                           const TRegularization& regularization,
+                                           const TSizeVec& featureBag) const;
 
     double childMaxGain(double gChild, double minLossChild, double lambda) const;
 
-    std::size_t numberThreadsForAggregateLossDerivatives(std::size_t features,
+    std::size_t numberThreadsForAggregateLossDerivatives(std::size_t maximumNumberThreads,
+                                                         std::size_t features,
                                                          std::size_t rows) const;
-    std::size_t numberThreadsForComputeBestSplitStatistics() const;
+    std::size_t numberThreadsForComputeBestSplitStatistics(std::size_t maximumNumberThreads,
+                                                           const TSizeVec& featureBag) const;
 
 private:
     std::size_t m_Id;
@@ -814,7 +817,7 @@ private:
     const TFloatVecVec& m_CandidateSplits;
     core::CPackedBitVector m_RowMask;
     CSplitsDerivatives m_Derivatives;
-    SSplitStatistics m_BestSplit;
+    SSplitStats m_BestSplit;
 };
 }
 }

@@ -248,7 +248,7 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
                         columnMajorHessian(numberParameters, curvature);
                 }
             }
-            derivatives.remapCurvature();
+            derivatives.remapCurvature(features);
         };
 
         auto validate = [&](const TSplitsDerivatives& derivatives) {
@@ -288,7 +288,7 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
         TSplitsDerivatives derivatives2{featureSplits, numberParameters};
 
         addDerivatives(derivatives2);
-        derivatives1.add(derivatives2);
+        derivatives1.add(derivatives2, features);
         validate(derivatives1);
 
         LOG_TRACE(<< "Test copy");
