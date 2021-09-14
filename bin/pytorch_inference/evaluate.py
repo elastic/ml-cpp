@@ -34,8 +34,11 @@ the actual benchmarking are controlled by the hard coded values
 Switch to benchmark mode by passing the `--benchmark` argument.
 
 Setting the number of threads used by inference has the biggest affect
-on performance and is controlled by the `--numThreads` argument. If not
-set LibTorch will choose the defaults.
+on performance and is controlled two arguments. First, there is
+`--numLibTorchThreads` which controls the number of threads used by
+LibTorch. If not set LibTorch will choose the defaults. Second, we have
+`--numParallelForwardingThreads` which controls how many threads are
+calling LibTorch's forwarding. If not set it defaults to 1.
 
 EXAMPLES
 --------
@@ -45,10 +48,11 @@ For test evaluation:
     python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json
 
 For Benchmarking:
-    python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --benchmark --numThreads=2
+    python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --benchmark --numLibTorchThreads=2
 '''
 
 import argparse
+from datetime import datetime
 import json
 import math
 import os
@@ -67,8 +71,9 @@ def parse_arguments():
     parser.add_argument('--restore_file', default='restore_file')
     parser.add_argument('--input_file', default='input_file')
     parser.add_argument('--output_file', default='output_file')
-    parser.add_argument('--numThreads', type=int, help='The number of inference threads. The system default is used if not set')
+    parser.add_argument('--numLibTorchThreads', type=int, help='The number of inference threads used by LibTorch. The system default is used if not set')
     parser.add_argument('--benchmark', action='store_true', help='Benchmark inference time rather than evaluting expected results')
+    parser.add_argument('--numParallelForwardingThreads', type=int, help='The number of threads for parallel forwarding. Defaults to 1')
 
     return parser.parse_args()
 
@@ -98,9 +103,12 @@ def launch_pytorch_app(args):
         '--validElasticLicenseKeyConfirmed=true'
         ]
 
-    if args.numThreads:
-        command.append('--numThreads=' + str(args.numThreads))
-        command.append('--numInterOpThreads=1')
+    if args.numLibTorchThreads:
+        command.append('--numLibTorchThreads=' + str(args.numLibTorchThreads))
+        command.append('--numLibTorchInterOpThreads=1')
+
+    if args.numParallelForwardingThreads:
+        command.append('--numParallelForwardingThreads=' + str(args.numParallelForwardingThreads))
 
     subprocess.Popen(command).communicate()
 
@@ -200,7 +208,10 @@ def run_benchmark(args):
                     if benchmark_count == NUM_BENCHMARK_REQUEST:
                         break
    
+    start_time = datetime.now()
     launch_pytorch_app(args)
+    end_time = datetime.now()
+    runtime_ms = int((end_time - start_time).total_seconds() * 1000)
 
     print()
     print("reading benchmark results...", flush=True)
@@ -218,6 +229,7 @@ def run_benchmark(args):
 
         
         print()
+        print(f'Process run in {runtime_ms} ms')
         print(f'{doc_count} requests evaluated in {total_time_ms} ms, avg time {total_time_ms / doc_count} ms')
         print()
 
