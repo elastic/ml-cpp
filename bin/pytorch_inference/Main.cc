@@ -312,7 +312,11 @@ int main(int argc, char** argv) {
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
 
-    ml::core::startDefaultAsyncExecutor(numParallelForwardingThreads);
+    // Starting the executor with 1 thread will use an extra thread that isn't necessary
+    // so we only start it when more than 1 threads are set.
+    if (numParallelForwardingThreads > 1) {
+        ml::core::startDefaultAsyncExecutor(numParallelForwardingThreads);
+    }
 
     commandParser.ioLoop(
         [&module, &wrappedOutputStream](const ml::torch::CCommandParser::SRequest& request) {
