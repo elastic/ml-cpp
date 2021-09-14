@@ -345,10 +345,10 @@ public:
         void add(const CSplitsDerivatives& rhs) {
             m_PositiveDerivativesSum += rhs.m_PositiveDerivativesSum;
             m_NegativeDerivativesSum += rhs.m_NegativeDerivativesSum;
-            m_PositiveDerivativesMax = std::max(m_PositiveDerivativesMax,
-                                                rhs.m_PositiveDerivativesMax);
-            m_PositiveDerivativesMin = std::min(m_PositiveDerivativesMin,
-                                                rhs.m_PositiveDerivativesMin);
+            m_PositiveDerivativesMax =
+                std::max(m_PositiveDerivativesMax, rhs.m_PositiveDerivativesMax);
+            m_PositiveDerivativesMin =
+                std::min(m_PositiveDerivativesMin, rhs.m_PositiveDerivativesMin);
             m_NegativeDerivativesMin =
                 m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
             for (std::size_t i = 0; i < rhs.m_Derivatives.size(); ++i) {

@@ -410,8 +410,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         g = m_Derivatives.missingGradient(feature);
         h = m_Derivatives.missingCurvature(feature);
         for (auto derivatives = m_Derivatives.beginDerivatives(feature);
-             derivatives != m_Derivatives.endDerivatives(feature);
-             ++derivatives) {
+             derivatives != m_Derivatives.endDerivatives(feature); ++derivatives) {
             c += derivatives->count();
             g += derivatives->gradient();
             h += derivatives->curvature();
