@@ -117,10 +117,7 @@ public:
         }
 
         //! Zero all values.
-        void zero() {
-            m_Count = 0;
-            this->flatView().setZero();
-        }
+        void zeroCount() { m_Count = 0; }
 
         //! Add \p count and \p derivatives to the accumulator.
         void add(std::size_t count, const TMemoryMappedFloatVector& derivatives) {
@@ -236,7 +233,9 @@ public:
               m_PositiveDerivativesMin{boosted_tree_detail::INF},
               m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
             this->map(other.m_Derivatives);
-            this->add(other);
+            TSizeVec features(other.m_Derivatives.size());
+            std::iota(features.begin(), features.end(), 0);
+            this->add(other, features);
         }
         CSplitsDerivatives(CSplitsDerivatives&&) = default;
 
@@ -312,6 +311,36 @@ public:
             return m_Derivatives[feature].back().curvature();
         }
 
+        //! \return The sum of positive loss gradients.
+        double positiveDerivativesGSum() const {
+            return m_PositiveDerivativesSum(0);
+        }
+
+        //! \return The sum of negative loss gradients.
+        double negativeDerivativesGSum() const {
+            return m_NegativeDerivativesSum(0);
+        }
+
+        //! \return The largest positive gradient.
+        double positiveDerivativesGMax() const {
+            return m_PositiveDerivativesMax;
+        }
+
+        //! \return The smallest loss curvature.
+        double positiveDerivativesHMin() const {
+            return m_PositiveDerivativesMin;
+        }
+
+        //! \return The smallest negative loss gradient.
+        double negativeDerivativesGMin() const {
+            return m_NegativeDerivativesMin(0);
+        }
+
+        //! \return The smallest loss curvature.
+        double negativeDerivativesHMin() const {
+            return m_NegativeDerivativesMin(1);
+        }
+
         //! Add \p gradient and \p curvature to the accumulated derivatives for
         //! the \p split of \p feature.
         void addDerivatives(std::size_t feature,
@@ -327,6 +356,21 @@ public:
             m_Derivatives[feature].back().add(1, derivatives);
         }
 
+        //! Update the positive derivative statistics.
+        void addPositiveDerivatives(const TMemoryMappedFloatVector& derivatives) {
+            m_PositiveDerivativesSum += derivatives;
+            m_PositiveDerivativesMin = std::min(
+                m_PositiveDerivativesMin, static_cast<double>(derivatives(1)));
+            m_PositiveDerivativesMax = std::max(
+                m_PositiveDerivativesMax, static_cast<double>(derivatives(0)));
+        }
+
+        //! Update the negative derivative statistics.
+        void addNegativeDerivatives(const TMemoryMappedFloatVector& derivatives) {
+            m_NegativeDerivativesSum += derivatives;
+            m_NegativeDerivativesMin = m_NegativeDerivativesMin.cwiseMin(derivatives);
+        }
+
         //! Zero all values.
         void zero() {
             m_PositiveDerivativesSum.fill(0.0);
@@ -334,15 +378,16 @@ public:
             m_PositiveDerivativesMax = -boosted_tree_detail::INF;
             m_PositiveDerivativesMin = boosted_tree_detail::INF;
             m_NegativeDerivativesMin.fill(boosted_tree_detail::INF);
+            std::fill(m_Storage.begin(), m_Storage.end(), 0.0);
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
-                    m_Derivatives[i][j].zero();
+                    m_Derivatives[i][j].zeroCount();
                 }
             }
         }
 
         //! Compute the accumulation of both collections of per split derivatives.
-        void add(const CSplitsDerivatives& rhs) {
+        void add(const CSplitsDerivatives& rhs, const TSizeVec& featureBag) {
             m_PositiveDerivativesSum += rhs.m_PositiveDerivativesSum;
             m_NegativeDerivativesSum += rhs.m_NegativeDerivativesSum;
             m_PositiveDerivativesMax =
@@ -351,7 +396,7 @@ public:
                 std::min(m_PositiveDerivativesMin, rhs.m_PositiveDerivativesMin);
             m_NegativeDerivativesMin =
                 m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
-            for (std::size_t i = 0; i < rhs.m_Derivatives.size(); ++i) {
+            for (std::size_t i : featureBag) {
                 for (std::size_t j = 0; j < rhs.m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].add(rhs.m_Derivatives[i][j]);
                 }
@@ -359,10 +404,10 @@ public:
         }
 
         //! Subtract \p rhs.
-        void subtract(const CSplitsDerivatives& rhs) {
+        void subtract(const CSplitsDerivatives& rhs, const TSizeVec& featureBag) {
             m_PositiveDerivativesSum -= rhs.m_PositiveDerivativesSum;
             m_NegativeDerivativesSum -= rhs.m_NegativeDerivativesSum;
-            for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
+            for (std::size_t i : featureBag) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);
                 }
@@ -370,8 +415,8 @@ public:
         }
 
         //! Remap the accumulated curvature to lower triangle row major format.
-        void remapCurvature() {
-            for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
+        void remapCurvature(const TSizeVec& featureBag) {
+            for (std::size_t i : featureBag) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].remapCurvature();
                 }
@@ -404,45 +449,9 @@ public:
             return seed;
         }
 
+        //! Get the number of loss function parameters.
         std::size_t numberLossParameters() const {
             return m_NumberLossParameters;
-        }
-
-        void addPositiveDerivatives(const TMemoryMappedFloatVector& derivatives) {
-            m_PositiveDerivativesSum += derivatives;
-            m_PositiveDerivativesMin = std::min(
-                m_PositiveDerivativesMin, static_cast<double>(derivatives(1)));
-            m_PositiveDerivativesMax = std::max(
-                m_PositiveDerivativesMax, static_cast<double>(derivatives(0)));
-        }
-
-        void addNegativeDerivatives(const TMemoryMappedFloatVector& derivatives) {
-            m_NegativeDerivativesSum += derivatives;
-            m_NegativeDerivativesMin = m_NegativeDerivativesMin.cwiseMin(derivatives);
-        }
-
-        double positiveDerivativesGSum() const {
-            return m_PositiveDerivativesSum(0);
-        }
-
-        double negativeDerivativesGSum() const {
-            return m_NegativeDerivativesSum(0);
-        }
-
-        double positiveDerivativesGMax() const {
-            return m_PositiveDerivativesMax;
-        }
-
-        double positiveDerivativesHMin() const {
-            return m_PositiveDerivativesMin;
-        }
-
-        double negativeDerivativesGMin() const {
-            return m_NegativeDerivativesMin(0);
-        }
-
-        double negativeDerivativesHMin() const {
-            return m_NegativeDerivativesMin(1);
         }
 
     private:
@@ -575,12 +584,12 @@ public:
         }
 
         //! Get the reduction of the per thread aggregate derivatives.
-        CSplitsDerivatives& reducedDerivatives() {
+        CSplitsDerivatives& reducedDerivatives(const TSizeVec& featureBag) {
             if (m_ReducedDerivatives == false) {
                 for (std::size_t i = 1; i < m_NumberThreads; ++i) {
-                    m_Derivatives[0].add(m_Derivatives[i]);
+                    m_Derivatives[0].add(m_Derivatives[i], featureBag);
                 }
-                m_Derivatives[0].remapCurvature();
+                m_Derivatives[0].remapCurvature(featureBag);
                 m_ReducedDerivatives = true;
             }
             return m_Derivatives[0];
@@ -651,6 +660,7 @@ public:
     CBoostedTreeLeafNodeStatistics(std::size_t id,
                                    CBoostedTreeLeafNodeStatistics&& parent,
                                    const TRegularization& regularization,
+                                   const TSizeVec& treeFeatureBag,
                                    const TSizeVec& nodeFeatureBag,
                                    CWorkspace& workspace);
 
@@ -791,6 +801,10 @@ private:
                                                 const TSizeVec& featureBag) const;
 
     double childMaxGain(double gChild, double minLossChild, double lambda) const;
+
+    std::size_t numberThreadsForAggregateLossDerivatives(std::size_t features,
+                                                         std::size_t rows) const;
+    std::size_t numberThreadsForComputeBestSplitStatistics() const;
 
 private:
     std::size_t m_Id;
