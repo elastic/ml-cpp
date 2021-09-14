@@ -66,7 +66,11 @@ case `uname` in
             if [ `uname -m` = aarch64 ] ; then
                 BOOST_ARCH=a64
             else
-                BOOST_ARCH=x64
+                BOOST_ARCH=x64                
+                MKL_LOCATION=/usr/local/gcc93/lib
+                MKL_EXTENSION=.so
+                MKL_PREFIX=libmkl_
+                MKL_LIBRARIES=`ls $MKL_LOCATION/$MKL_PREFIX*`
             fi
             BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
@@ -83,10 +87,6 @@ case `uname` in
             TORCH_LIBRARIES="torch_cpu c10"
             TORCH_LOCATION=/usr/local/gcc93/lib
             TORCH_EXTENSION=.so            
-            MKL_LOCATION=/usr/local/gcc93/lib
-            MKL_EXTENSION=.so
-            MKL_PREFIX=libmkl_
-            MKL_LIBRARIES=`ls $MKL_LOCATION/$MKL_PREFIX*`
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
