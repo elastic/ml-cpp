@@ -42,6 +42,7 @@ ex.logger = logger
 def my_config():
     force_update = False
     verbose = False
+    tag = ''
     dataset_name = 'ccpp'
     test_fraction = 0.2
     threads = 1
