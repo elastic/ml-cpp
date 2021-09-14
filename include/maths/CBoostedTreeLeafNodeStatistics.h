@@ -264,9 +264,21 @@ public:
             return m_Derivatives[feature][split].curvature();
         }
 
-        //! \return All the split aggregate derivatives for \p feature.
-        const TDerivativesVec& derivatives(std::size_t feature) const {
-            return m_Derivatives[feature];
+        //! \return The number of split aggregate derivatives for \p feature.
+        std::size_t numberDerivatives(std::size_t feature) const {
+            return m_Derivatives[feature].size() - 1;
+        }
+
+        //! \return An iterator to the begining of the split aggregate derivatives
+        //! for \p feature.
+        auto beginDerivatives(std::size_t feature) const {
+            return m_Derivatives[feature].begin();
+        }
+
+        //! \return An iterator to the end of the split aggregate derivatives for
+        //! \p feature.
+        auto endDerivatives(std::size_t feature) const {
+            return m_Derivatives[feature].end() - 1;
         }
 
         //! \return The count for missing \p feature.
@@ -314,19 +326,18 @@ public:
         }
 
         //! Compute the accumulation of both collections of per split derivatives.
-        void add(const CSplitsDerivatives& other) {
-            m_PositiveDerivativesSum += other.m_PositiveDerivativesSum;
-            m_NegativeDerivativesSum += other.m_NegativeDerivativesSum;
-            m_PositiveDerivativesMax = std::max(m_PositiveDerivativesMax,
-                                                other.m_PositiveDerivativesMax);
-            m_PositiveDerivativesMin = std::min(m_PositiveDerivativesMin,
-                                                other.m_PositiveDerivativesMin);
+        void add(const CSplitsDerivatives& rhs) {
+            m_PositiveDerivativesSum += rhs.m_PositiveDerivativesSum;
+            m_NegativeDerivativesSum += rhs.m_NegativeDerivativesSum;
+            m_PositiveDerivativesMax =
+                std::max(m_PositiveDerivativesMax, rhs.m_PositiveDerivativesMax);
+            m_PositiveDerivativesMin =
+                std::min(m_PositiveDerivativesMin, rhs.m_PositiveDerivativesMin);
             m_NegativeDerivativesMin =
-                m_NegativeDerivativesMin.cwiseMin(other.m_NegativeDerivativesMin);
-
-            for (std::size_t i = 0; i < other.m_Derivatives.size(); ++i) {
-                for (std::size_t j = 0; j < other.m_Derivatives[i].size(); ++j) {
-                    m_Derivatives[i][j].add(other.m_Derivatives[i][j]);
+                m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
+            for (std::size_t i = 0; i < rhs.m_Derivatives.size(); ++i) {
+                for (std::size_t j = 0; j < rhs.m_Derivatives[i].size(); ++j) {
+                    m_Derivatives[i][j].add(rhs.m_Derivatives[i][j]);
                 }
             }
         }

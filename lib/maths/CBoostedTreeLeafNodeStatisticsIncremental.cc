@@ -264,10 +264,11 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
         std::size_t c{derivatives.missingCount(feature)};
         g = derivatives.missingGradient(feature);
         h = derivatives.missingCurvature(feature);
-        for (const auto& featureDerivatives : derivatives.derivatives(feature)) {
-            c += featureDerivatives.count();
-            g += featureDerivatives.gradient();
-            h += featureDerivatives.curvature();
+        for (auto featureDerivatives = derivatives.beginDerivatives(feature);
+             featureDerivatives != derivatives.endDerivatives(feature); ++featureDerivatives) {
+            c += featureDerivatives->count();
+            g += featureDerivatives->gradient();
+            h += featureDerivatives->curvature();
         }
         std::size_t cl[]{derivatives.missingCount(feature), 0};
         gl[ASSIGN_MISSING_TO_LEFT] = derivatives.missingGradient(feature);
@@ -283,7 +284,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
         double splitAt{-INF};
         std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
-        std::size_t size{derivatives.derivatives(feature).size()};
+        std::size_t size{derivatives.numberDerivatives(feature)};
         auto gainMoments = CBasicStatistics::momentsAccumulator(0.0, 0.0, 0.0);
 
         for (std::size_t split = 0; split + 1 < size; ++split) {
