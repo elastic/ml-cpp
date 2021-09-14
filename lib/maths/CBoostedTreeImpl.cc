@@ -1193,6 +1193,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                     LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");
                 }
             }
+            std::sort(featureCandidateSplits.begin(), featureCandidateSplits.end());
         }
 
         const auto& dataType = m_FeatureDataTypes[features[i]];
