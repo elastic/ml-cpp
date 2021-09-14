@@ -49,7 +49,6 @@ CFlatPrefixTreeTest.cc \
 CFunctionalTest.cc \
 CHashingTest.cc \
 CIEEE754Test.cc \
-CImmutableRadixSetTest.cc \
 CJsonLogLayoutTest.cc \
 CJsonOutputStreamWrapperTest.cc \
 CJsonStatePersistInserterTest.cc \

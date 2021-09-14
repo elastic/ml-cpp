@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_CBoostedTreeImpl_h
 
 #include <core/CDataFrame.h>
-#include <core/CImmutableRadixSet.h>
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CStatePersistInserter.h>
@@ -42,10 +41,6 @@
 #include <vector>
 
 namespace ml {
-namespace core {
-template<typename>
-class CImmutableRadixSet;
-}
 namespace maths {
 class CBayesianOptimisation;
 class CBoostedTreeImplForTest;
@@ -123,16 +118,6 @@ public:
     //! assigning classes.
     const TVector& classificationWeights() const;
 
-    //! Get the number of columns training the model will add to the data frame.
-    static std::size_t numberExtraColumnsForTrain(std::size_t numberLossParameters) {
-        // We store as follows:
-        //   1. The predicted values for the dependent variable
-        //   2. The gradient of the loss function
-        //   3. The upper triangle of the hessian of the loss function
-        //   4. The example's weight
-        return numberLossParameters * (numberLossParameters + 5) / 2 + 1;
-    }
-
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
@@ -185,8 +170,9 @@ private:
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
     using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
     using TOptionalSize = boost::optional<std::size_t>;
+    using TFloatVec = std::vector<CFloatStorage>;
+    using TFloatVecVec = std::vector<TFloatVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
-    using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
     using TNodeVecVecDoubleDoubleVecTuple = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
@@ -252,13 +238,18 @@ private:
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
 
     //! Get the candidate splits values for each feature.
-    TImmutableRadixSetVec candidateSplits(const core::CDataFrame& frame,
-                                          const core::CPackedBitVector& trainingRowMask) const;
+    TFloatVecVec candidateSplits(const core::CDataFrame& frame,
+                                 const core::CPackedBitVector& trainingRowMask) const;
+
+    //! Updates the row's cached splits if the candidate splits have changed.
+    void refreshSplitsCache(core::CDataFrame& frame,
+                            const TFloatVecVec& candidateSplits,
+                            const core::CPackedBitVector& trainingRowMask) const;
 
     //! Train one tree on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
-                       const TImmutableRadixSetVec& candidateSplits,
+                       const TFloatVecVec& candidateSplits,
                        const std::size_t maximumTreeSize,
                        TWorkspace& workspace) const;
 
@@ -378,7 +369,7 @@ private:
     EInitializationStage m_InitializationStage = E_NotInitialized;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
-    TOptionalSize m_PaddedExtraColumns;
+    std::size_t m_PaddedExtraColumns = 0;
     TSizeVec m_ExtraColumns;
     TLossFunctionUPtr m_Loss;
     CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =

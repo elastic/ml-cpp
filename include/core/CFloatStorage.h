@@ -177,6 +177,10 @@ public:
     //! Implicit conversion to a double.
     operator double() const { return static_cast<double>(m_Value); }
 
+protected:
+    const float& storage() const { return m_Value; }
+    float& storage() { return m_Value; }
+
 private:
     //! Utility to actually set the floating point value.
     void set(double value) {
