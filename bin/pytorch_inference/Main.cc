@@ -228,15 +228,15 @@ int main(int argc, char** argv) {
     std::string logProperties;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
-    std::int32_t numThreads{-1};
-    std::int32_t numInterOpThreads{-1};
+    std::int32_t numLibTorchThreads{-1};
+    std::int32_t numLibTorchInterOpThreads{-1};
     std::int32_t numParallelForwardingThreads{1};
     bool validElasticLicenseKeyConfirmed{false};
 
     if (ml::torch::CCmdLineParser::parse(
-            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, logFileName, logProperties, numThreads, numInterOpThreads,
+            argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            logFileName, logProperties, numLibTorchThreads, numLibTorchInterOpThreads,
             numParallelForwardingThreads, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
@@ -291,11 +291,11 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (numThreads != -1) {
-        at::set_num_threads(numThreads);
+    if (numLibTorchThreads != -1) {
+        at::set_num_threads(numLibTorchThreads);
     }
-    if (numInterOpThreads != -1) {
-        at::set_num_interop_threads(numInterOpThreads);
+    if (numLibTorchInterOpThreads != -1) {
+        at::set_num_interop_threads(numLibTorchInterOpThreads);
     }
     LOG_DEBUG(<< at::get_parallel_info());
     LOG_DEBUG(<< "Number of parallel forwarding threads: " << numParallelForwardingThreads);

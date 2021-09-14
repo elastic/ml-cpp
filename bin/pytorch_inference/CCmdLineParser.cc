@@ -34,8 +34,8 @@ bool CCmdLineParser::parse(int argc,
                            bool& isRestoreFileNamedPipe,
                            std::string& loggingFileName,
                            std::string& logProperties,
-                           std::int32_t& numThreads,
-                           std::int32_t& numInterOpThreads,
+                           std::int32_t& numLibTorchThreads,
+                           std::int32_t& numLibTorchInterOpThreads,
                            std::int32_t& numParallelForwardingThreads,
                            bool& validElasticLicenseKeyConfirmed) {
     try {
@@ -60,9 +60,9 @@ bool CCmdLineParser::parse(int argc,
             ("logPipe", boost::program_options::value<std::string>(),
                         "Named pipe to write log messages to")
             ("logProperties", "Optional logger properties file")
-            ("numThreads", boost::program_options::value<std::int32_t>(),
+            ("numLibTorchThreads", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of threads LibTorch can use for inference - not present means use the LibTorch defaults")
-            ("numInterOpThreads", boost::program_options::value<std::int32_t>(),
+            ("numLibTorchInterOpThreads", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of threads LibTorch can use for inter operation parallelism - not present means use the LibTorch defaults")
             ("numParallelForwardingThreads", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of threads to parallelize model forwarding - not present means 1")
@@ -116,11 +116,11 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();
         }
-        if (vm.count("numThreads") > 0) {
-            numThreads = vm["numThreads"].as<std::int32_t>();
+        if (vm.count("numLibTorchThreads") > 0) {
+            numLibTorchThreads = vm["numLibTorchThreads"].as<std::int32_t>();
         }
-        if (vm.count("numInterOpThreads") > 0) {
-            numInterOpThreads = vm["numInterOpThreads"].as<std::int32_t>();
+        if (vm.count("numLibTorchInterOpThreads") > 0) {
+            numLibTorchInterOpThreads = vm["numLibTorchInterOpThreads"].as<std::int32_t>();
         }
         if (vm.count("numParallelForwardingThreads") > 0) {
             numParallelForwardingThreads =
