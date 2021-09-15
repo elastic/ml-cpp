@@ -13,7 +13,6 @@
 #define INCLUDED_ml_maths_CBoostedTreeLeafNodeStatistics_h
 
 #include <core/CAlignment.h>
-#include <core/CImmutableRadixSet.h>
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 
@@ -45,6 +44,30 @@ class CBoostedTreeNode;
 class CDataFrameCategoryEncoder;
 class CEncodedDataFrameRowRef;
 
+//! \brief Manages accessing the bytes of CFloatStorage.
+//!
+//! DESCRIPTION:\n
+//! We pack the row's split indices (four to a float) into the raw bytes of the
+//! data frame. This means we only need to lookup aggregate derivative bucket to
+//! update in CBoostedTreeLeafNodeStatistics::addRowDerivatives. This manages
+//! reading and writing bits to an array of four std::uint8_t types.
+class MATHS_EXPORT CPackedUInt8Decorator : public core::CFloatStorage {
+public:
+    using TUInt8Ary = std::array<std::uint8_t, sizeof(CFloatStorage)>;
+
+public:
+    explicit CPackedUInt8Decorator(core::CFloatStorage storage)
+        : core::CFloatStorage{storage} {}
+    explicit CPackedUInt8Decorator(TUInt8Ary bytes) {
+        std::memcpy(&this->storage(), &bytes[0], sizeof(CFloatStorage));
+    }
+    TUInt8Ary readBytes() const {
+        TUInt8Ary bytes;
+        std::memcpy(&bytes[0], &this->storage(), sizeof(CFloatStorage));
+        return bytes;
+    }
+};
+
 //! \brief Maintains a collection of statistics about a leaf of the regression
 //! tree as it is built.
 //!
@@ -57,9 +80,9 @@ public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeDoublePr = std::pair<std::size_t, double>;
+    using TFloatVec = std::vector<CFloatStorage>;
+    using TFloatVecVec = std::vector<TFloatVec>;
     using TRegularization = CBoostedTreeRegularization<double>;
-    using TImmutableRadixSet = core::CImmutableRadixSet<double>;
-    using TImmutableRadixSetVec = std::vector<TImmutableRadixSet>;
     using TPtr = std::shared_ptr<CBoostedTreeLeafNodeStatistics>;
     using TPtrPtrPr = std::pair<TPtr, TPtr>;
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
@@ -190,7 +213,7 @@ public:
     public:
         explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
             : m_NumberLossParameters{numberLossParameters} {}
-        CSplitsDerivatives(const TImmutableRadixSetVec& candidateSplits, std::size_t numberLossParameters)
+        CSplitsDerivatives(const TFloatVecVec& candidateSplits, std::size_t numberLossParameters)
             : m_NumberLossParameters{numberLossParameters} {
             this->map(candidateSplits);
         }
@@ -205,13 +228,11 @@ public:
         CSplitsDerivatives& operator=(CSplitsDerivatives&&) = default;
 
         //! Re-initialize recycling the allocated memory.
-        void reinitialize(const TImmutableRadixSetVec& candidateSplits,
-                          std::size_t numberLossParameters) {
+        void reinitialize(const TFloatVecVec& candidateSplits, std::size_t numberLossParameters) {
             m_NumberLossParameters = numberLossParameters;
             for (auto& derivatives : m_Derivatives) {
                 derivatives.clear();
             }
-            m_MissingDerivatives.clear();
             m_Storage.clear();
             this->map(candidateSplits);
         }
@@ -220,7 +241,6 @@ public:
         void swap(CSplitsDerivatives& other) {
             std::swap(m_NumberLossParameters, other.m_NumberLossParameters);
             m_Derivatives.swap(other.m_Derivatives);
-            m_MissingDerivatives.swap(other.m_MissingDerivatives);
             m_Storage.swap(other.m_Storage);
             std::swap(m_PositiveDerivativesSum, other.m_PositiveDerivativesSum);
             std::swap(m_NegativeDerivativesSum, other.m_NegativeDerivativesSum);
@@ -244,24 +264,36 @@ public:
             return m_Derivatives[feature][split].curvature();
         }
 
-        //! \return All the split aggregate derivatives for \p feature.
-        const TDerivativesVec& derivatives(std::size_t feature) const {
-            return m_Derivatives[feature];
+        //! \return The number of split aggregate derivatives for \p feature.
+        std::size_t numberDerivatives(std::size_t feature) const {
+            return m_Derivatives[feature].size() - 1;
+        }
+
+        //! \return An iterator to the begining of the split aggregate derivatives
+        //! for \p feature.
+        auto beginDerivatives(std::size_t feature) const {
+            return m_Derivatives[feature].begin();
+        }
+
+        //! \return An iterator to the end of the split aggregate derivatives for
+        //! \p feature.
+        auto endDerivatives(std::size_t feature) const {
+            return m_Derivatives[feature].end() - 1;
         }
 
         //! \return The count for missing \p feature.
         std::size_t missingCount(std::size_t feature) const {
-            return m_MissingDerivatives[feature].count();
+            return m_Derivatives[feature].back().count();
         }
 
         //! \return The aggregate gradients for missing \p feature.
         const TMemoryMappedDoubleVector& missingGradient(std::size_t feature) const {
-            return m_MissingDerivatives[feature].gradient();
+            return m_Derivatives[feature].back().gradient();
         }
 
         //! \return The aggregate curvatures for missing \p feature.
         const TMemoryMappedDoubleMatrix& missingCurvature(std::size_t feature) const {
-            return m_MissingDerivatives[feature].curvature();
+            return m_Derivatives[feature].back().curvature();
         }
 
         //! Add \p gradient and \p curvature to the accumulated derivatives for
@@ -276,7 +308,7 @@ public:
         //! missing values of \p feature.
         void addMissingDerivatives(std::size_t feature,
                                    const TMemoryMappedFloatVector& derivatives) {
-            m_MissingDerivatives[feature].add(1, derivatives);
+            m_Derivatives[feature].back().add(1, derivatives);
         }
 
         //! Zero all values.
@@ -286,31 +318,27 @@ public:
             m_PositiveDerivativesMax = -boosted_tree_detail::INF;
             m_PositiveDerivativesMin = boosted_tree_detail::INF;
             m_NegativeDerivativesMin.fill(boosted_tree_detail::INF);
-
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].zero();
                 }
-                m_MissingDerivatives[i].zero();
             }
         }
 
         //! Compute the accumulation of both collections of per split derivatives.
-        void add(const CSplitsDerivatives& other) {
-            m_PositiveDerivativesSum += other.m_PositiveDerivativesSum;
-            m_NegativeDerivativesSum += other.m_NegativeDerivativesSum;
-            m_PositiveDerivativesMax = std::max(m_PositiveDerivativesMax,
-                                                other.m_PositiveDerivativesMax);
-            m_PositiveDerivativesMin = std::min(m_PositiveDerivativesMin,
-                                                other.m_PositiveDerivativesMin);
+        void add(const CSplitsDerivatives& rhs) {
+            m_PositiveDerivativesSum += rhs.m_PositiveDerivativesSum;
+            m_NegativeDerivativesSum += rhs.m_NegativeDerivativesSum;
+            m_PositiveDerivativesMax =
+                std::max(m_PositiveDerivativesMax, rhs.m_PositiveDerivativesMax);
+            m_PositiveDerivativesMin =
+                std::min(m_PositiveDerivativesMin, rhs.m_PositiveDerivativesMin);
             m_NegativeDerivativesMin =
-                m_NegativeDerivativesMin.cwiseMin(other.m_NegativeDerivativesMin);
-
-            for (std::size_t i = 0; i < other.m_Derivatives.size(); ++i) {
-                for (std::size_t j = 0; j < other.m_Derivatives[i].size(); ++j) {
-                    m_Derivatives[i][j].add(other.m_Derivatives[i][j]);
+                m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
+            for (std::size_t i = 0; i < rhs.m_Derivatives.size(); ++i) {
+                for (std::size_t j = 0; j < rhs.m_Derivatives[i].size(); ++j) {
+                    m_Derivatives[i][j].add(rhs.m_Derivatives[i][j]);
                 }
-                m_MissingDerivatives[i].add(other.m_MissingDerivatives[i]);
             }
         }
 
@@ -322,7 +350,6 @@ public:
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);
                 }
-                m_MissingDerivatives[i].subtract(rhs.m_MissingDerivatives[i]);
             }
         }
 
@@ -332,14 +359,12 @@ public:
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].remapCurvature();
                 }
-                m_MissingDerivatives[i].remapCurvature();
             }
         }
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const {
             return core::CMemory::dynamicSize(m_Derivatives) +
-                   core::CMemory::dynamicSize(m_MissingDerivatives) +
                    core::CMemory::dynamicSize(m_Storage);
         }
 
@@ -360,7 +385,6 @@ public:
         std::uint64_t checksum(std::uint64_t seed = 0) const {
             seed = CChecksum::calculate(seed, m_NumberLossParameters);
             seed = CChecksum::calculate(seed, m_Derivatives);
-            seed = CChecksum::calculate(seed, m_MissingDerivatives);
             return seed;
         }
 
@@ -423,8 +447,8 @@ public:
         static std::size_t number(const TDerivativesVec& derivatives) {
             return derivatives.size();
         }
-        static std::size_t number(const TImmutableRadixSet& splits) {
-            return splits.size() + 1;
+        static std::size_t number(const TFloatVec& splits) {
+            return splits.size() + 2;
         }
         template<typename SPLITS>
         void map(const SPLITS& splits) {
@@ -451,8 +475,6 @@ public:
             std::size_t numberDerivatives{this->numberDerivatives()};
 
             m_Derivatives.resize(numberFeatures);
-            m_MissingDerivatives.reserve(numberFeatures);
-
             m_Storage.resize((totalNumberSplits + numberFeatures) * numberDerivatives, 0.0);
 
             double* storage{&m_Storage[0]};
@@ -463,8 +485,6 @@ public:
                     m_Derivatives[i].emplace_back(m_NumberLossParameters, storage,
                                                   storage + numberGradients);
                 }
-                m_MissingDerivatives.emplace_back(m_NumberLossParameters, storage,
-                                                  storage + numberGradients);
             }
         }
 
@@ -485,7 +505,6 @@ public:
     private:
         std::size_t m_NumberLossParameters{0};
         TDerivativesVecVec m_Derivatives;
-        TDerivativesVec m_MissingDerivatives;
         TAlignedDoubleVec m_Storage;
         TDerivatives2x1 m_PositiveDerivativesSum{TDerivatives2x1::Zero()};
         TDerivatives2x1 m_NegativeDerivativesSum{TDerivatives2x1::Zero()};
@@ -522,8 +541,7 @@ public:
         void retraining(const TNodeVec& tree) { m_TreeToRetrain = &tree; }
 
         //! Re-initialize the masks and derivatives.
-        void reinitialize(std::size_t maximumNumberThreads,
-                          const TImmutableRadixSetVec& candidateSplits) {
+        void reinitialize(std::size_t maximumNumberThreads, const TFloatVecVec& candidateSplits) {
             m_MinimumGain = 0.0;
             m_Masks.resize(maximumNumberThreads);
             m_Derivatives.reserve(maximumNumberThreads);
@@ -750,7 +768,7 @@ protected:
                                    std::size_t depth,
                                    TSizeVecCRef extraColumns,
                                    std::size_t numberLossParameters,
-                                   const TImmutableRadixSetVec& candidateSplits,
+                                   const TFloatVecVec& candidateSplits,
                                    CSplitsDerivatives derivatives = CSplitsDerivatives{});
 
     static std::size_t
@@ -759,14 +777,12 @@ protected:
     void computeAggregateLossDerivatives(CLookAheadBound,
                                          std::size_t numberThreads,
                                          const core::CDataFrame& frame,
-                                         const CDataFrameCategoryEncoder& encoder,
                                          const TSizeVec& featureBag,
                                          const core::CPackedBitVector& rowMask,
                                          CWorkspace& workspace) const;
     void computeAggregateLossDerivatives(CNoLookAheadBound,
                                          std::size_t numberThreads,
                                          const core::CDataFrame& frame,
-                                         const CDataFrameCategoryEncoder& encoder,
                                          const TSizeVec& featureBag,
                                          const core::CPackedBitVector& rowMask,
                                          CWorkspace& workspace) const;
@@ -794,14 +810,16 @@ protected:
     std::size_t depth() const;
     TSizeVecCRef extraColumns() const;
     std::size_t numberLossParameters() const;
-    const TImmutableRadixSetVec& candidateSplits() const;
+    const TFloatVecVec& candidateSplits() const;
+
+private:
+    using TRowRef = core::CDataFrame::TRowRef;
 
 private:
     template<typename BOUND>
     void computeAggregateLossDerivativesWith(BOUND bound,
                                              std::size_t numberThreads,
                                              const core::CDataFrame& frame,
-                                             const CDataFrameCategoryEncoder& encoder,
                                              const TSizeVec& featureBag,
                                              const core::CPackedBitVector& rowMask,
                                              CWorkspace& workspace) const;
@@ -818,11 +836,11 @@ private:
                                                   CWorkspace& workspace) const;
     void addRowDerivatives(CLookAheadBound,
                            const TSizeVec& featureBag,
-                           const CEncodedDataFrameRowRef& row,
+                           const TRowRef& row,
                            CSplitsDerivatives& splitsDerivatives) const;
     void addRowDerivatives(CNoLookAheadBound,
                            const TSizeVec& featureBag,
-                           const CEncodedDataFrameRowRef& row,
+                           const TRowRef& row,
                            CSplitsDerivatives& splitsDerivatives) const;
 
 private:
@@ -830,7 +848,7 @@ private:
     std::size_t m_Depth;
     TSizeVecCRef m_ExtraColumns;
     std::size_t m_NumberLossParameters;
-    const TImmutableRadixSetVec& m_CandidateSplits;
+    const TFloatVecVec& m_CandidateSplits;
     CSplitsDerivatives m_Derivatives;
     core::CPackedBitVector m_RowMask;
     SSplitStatistics m_BestSplit;

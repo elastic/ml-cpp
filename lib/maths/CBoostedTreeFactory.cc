@@ -153,6 +153,8 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->determineFeatureDataTypes(frame); });
 
+    this->initializeSplitsCache(frame);
+
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
@@ -201,6 +203,8 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { m_TreeImpl->selectTreesToRetrain(frame); });
 
+    this->initializeSplitsCache(frame);
+
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
@@ -235,6 +239,7 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
                 true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
         }
     });
+
     this->prepareDataFrameForTrain(frame);
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
@@ -287,6 +292,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     } else {
         this->prepareDataFrameForIncrementalTrain(frame);
     }
+    this->initializeSplitsCache(frame);
 
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
@@ -490,13 +496,20 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) const {
 
     // Extend the frame with the bookkeeping columns used in train.
+    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
+    TSizeVec extraColumns;
+    std::size_t paddedExtraColumns;
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
-    std::size_t frameMemory{core::CMemory::dynamicSize(frame)};
-    std::tie(m_TreeImpl->m_ExtraColumns, m_TreeImpl->m_PaddedExtraColumns) =
-        frame.resizeColumns(m_TreeImpl->m_NumberThreads,
-                            extraColumnsForTrain(numberLossParameters));
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(
-        core::CMemory::dynamicSize(frame) - frameMemory);
+    std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
+        m_TreeImpl->m_NumberThreads, extraColumnsForTrain(numberLossParameters));
+    auto extraColumnTags = extraColumnTagsForTrain();
+    m_TreeImpl->m_ExtraColumns.resize(E_NumberExtraColumnTags);
+    for (std::size_t i = 0; i < extraColumnTags.size(); ++i) {
+        m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
+    }
+    m_TreeImpl->m_PaddedExtraColumns += paddedExtraColumns;
+    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
     m_TreeImpl->m_Instrumentation->flush();
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
@@ -514,19 +527,19 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
     this->prepareDataFrameForTrain(frame);
 
     // Extend the frame with the bookkeeping columns used in incremental train.
-    std::size_t frameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
     TSizeVec extraColumns;
     std::size_t paddedExtraColumns;
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
     std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumnsForIncrementalTrain(numberLossParameters));
-    m_TreeImpl->m_ExtraColumns.insert(m_TreeImpl->m_ExtraColumns.end(),
-                                      extraColumns.begin(), extraColumns.end());
-    m_TreeImpl->m_PaddedExtraColumns = m_TreeImpl->m_PaddedExtraColumns
-                                           ? *m_TreeImpl->m_PaddedExtraColumns + paddedExtraColumns
-                                           : paddedExtraColumns;
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(
-        core::CMemory::dynamicSize(frame) - frameMemory);
+    auto extraColumnTags = extraColumnTagsForIncrementalTrain();
+    for (std::size_t i = 0; i < extraColumnTags.size(); ++i) {
+        m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
+    }
+    m_TreeImpl->m_PaddedExtraColumns += paddedExtraColumns;
+    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
     m_TreeImpl->m_Instrumentation->flush();
 
     // Compute predictions from the old model.
@@ -586,11 +599,11 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
     }
 }
 
-void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const {
+void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(core::CDataFrame& frame) const {
 
     // TODO we should do feature selection per fold.
 
-    TSizeVec regressors(frame.numberColumns() - this->numberExtraColumnsForTrain());
+    TSizeVec regressors(frame.numberColumns() - m_TreeImpl->m_PaddedExtraColumns);
     std::iota(regressors.begin(), regressors.end(), 0);
     regressors.erase(regressors.begin() + m_TreeImpl->m_DependentVariable);
     std::size_t numberTrainingRows{
@@ -605,6 +618,18 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
             .rowMask(m_TreeImpl->allTrainingRowsMask())
             .columnMask(std::move(regressors))
             .progressCallback(m_TreeImpl->m_Instrumentation->progressCallback()));
+}
+
+void CBoostedTreeFactory::initializeSplitsCache(core::CDataFrame& frame) const {
+    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
+    std::size_t beginSplits{frame.numberColumns()};
+    frame.resizeColumns(m_TreeImpl->m_NumberThreads,
+                        beginSplits + (m_TreeImpl->numberFeatures() + 3) / 4);
+    m_TreeImpl->m_ExtraColumns[E_BeginSplits] = beginSplits;
+    m_TreeImpl->m_PaddedExtraColumns += frame.numberColumns() - beginSplits;
+    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
+    m_TreeImpl->m_Instrumentation->flush();
 }
 
 void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {
@@ -665,8 +690,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
 
 void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame) {
     if (m_TreeImpl->m_EtaOverride == boost::none) {
-        m_TreeImpl->m_Eta =
-            computeEta(frame.numberColumns() - this->numberExtraColumnsForTrain());
+        m_TreeImpl->m_Eta = computeEta(frame.numberColumns() - m_TreeImpl->m_PaddedExtraColumns);
     }
     if (m_TreeImpl->m_EtaGrowthRatePerTreeOverride == boost::none) {
         m_TreeImpl->m_EtaGrowthRatePerTree = 1.0 + m_TreeImpl->m_Eta / 2.0;
@@ -1786,14 +1810,16 @@ CBoostedTreeFactory::estimateMemoryUsageTrainIncremental(std::size_t numberRows,
     return m_TreeImpl->estimateMemoryUsageTrainIncremental(numberRows, numberColumns);
 }
 
-std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
-    return m_TreeImpl->m_PaddedExtraColumns == boost::none
-               ? numberExtraColumnsForTrain(m_TreeImpl->m_Loss->numberParameters())
-               : *m_TreeImpl->m_PaddedExtraColumns;
-}
-
-std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain(std::size_t numberParameters) {
-    return CBoostedTreeImpl::numberExtraColumnsForTrain(numberParameters);
+std::size_t CBoostedTreeFactory::estimatedExtraColumnsForTrain(std::size_t numberColumns,
+                                                               std::size_t numberLossParameters) {
+    // We store as follows:
+    //   1. The predicted values for the dependent variable
+    //   2. The gradient of the loss function
+    //   3. The upper triangle of the hessian of the loss function
+    //   4. The example's weight
+    //   5. The example's splits packed into uint8_t
+    return numberLossParameters * (numberLossParameters + 5) / 2 + 1 +
+           (numberColumns - 1) / 4;
 }
 
 void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {
@@ -1853,7 +1879,7 @@ CBoostedTreeFactory::lineSearchMaximumNumberIterations(const core::CDataFrame& f
                                                        double etaScale) const {
     double eta{m_TreeImpl->m_EtaOverride != boost::none
                    ? *m_TreeImpl->m_EtaOverride
-                   : computeEta(frame.numberColumns() - this->numberExtraColumnsForTrain())};
+                   : computeEta(frame.numberColumns() - m_TreeImpl->m_PaddedExtraColumns)};
     return MAX_LINE_SEARCH_ITERATIONS * computeMaximumNumberTrees(etaScale * eta);
 }
 

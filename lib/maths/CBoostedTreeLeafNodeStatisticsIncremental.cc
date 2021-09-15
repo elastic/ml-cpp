@@ -12,7 +12,6 @@
 #include <maths/CBoostedTreeLeafNodeStatisticsIncremental.h>
 
 #include <core/CDataFrame.h>
-#include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 
@@ -38,9 +37,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     std::size_t numberLossParameters,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
-    const TImmutableRadixSetVec& candidateSplits,
+    const TFloatVecVec& candidateSplits,
     const TSizeVec& treeFeatureBag,
     const TSizeVec& nodeFeatureBag,
     std::size_t depth,
@@ -50,7 +48,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
                                      numberLossParameters, candidateSplits} {
 
     this->computeAggregateLossDerivatives(CNoLookAheadBound{}, numberThreads, frame,
-                                          encoder, treeFeatureBag, rowMask, workspace);
+                                          treeFeatureBag, rowMask, workspace);
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
@@ -266,10 +264,11 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
         std::size_t c{derivatives.missingCount(feature)};
         g = derivatives.missingGradient(feature);
         h = derivatives.missingCurvature(feature);
-        for (const auto& featureDerivatives : derivatives.derivatives(feature)) {
-            c += featureDerivatives.count();
-            g += featureDerivatives.gradient();
-            h += featureDerivatives.curvature();
+        for (auto featureDerivatives = derivatives.beginDerivatives(feature);
+             featureDerivatives != derivatives.endDerivatives(feature); ++featureDerivatives) {
+            c += featureDerivatives->count();
+            g += featureDerivatives->gradient();
+            h += featureDerivatives->curvature();
         }
         std::size_t cl[]{derivatives.missingCount(feature), 0};
         gl[ASSIGN_MISSING_TO_LEFT] = derivatives.missingGradient(feature);
@@ -285,7 +284,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
         double splitAt{-INF};
         std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
-        std::size_t size{derivatives.derivatives(feature).size()};
+        std::size_t size{derivatives.numberDerivatives(feature)};
         auto gainMoments = CBasicStatistics::momentsAccumulator(0.0, 0.0, 0.0);
 
         for (std::size_t split = 0; split + 1 < size; ++split) {

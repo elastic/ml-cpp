@@ -199,11 +199,9 @@ public:
     //! will use.
     std::size_t estimateMemoryUsageTrainIncremental(std::size_t numberRows,
                                                     std::size_t numberColumns) const;
-    //! Get the number of columns training the model will add to the data frame.
-    //! \note This includes padding for alignment so should be prefered if possible.
-    std::size_t numberExtraColumnsForTrain() const;
-    //! Get the number of columns training the model will add to the data frame.
-    static std::size_t numberExtraColumnsForTrain(std::size_t numberParameters);
+    //! Estimate the number of columns training the model will add to the data frame.
+    static std::size_t estimatedExtraColumnsForTrain(std::size_t numberColumns,
+                                                     std::size_t numberLossParameters);
 
     //! Build a boosted tree object for training on \p frame.
     TBoostedTreeUPtr buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable);
@@ -256,9 +254,11 @@ private:
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;
 
-    //! Encode categorical fields and at the same time select the features to use
-    //! as regressors.
-    void selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const;
+    //! Encode categorical fields and at the same time select the features to use.
+    void selectFeaturesAndEncodeCategories(core::CDataFrame& frame) const;
+
+    //! Initialize the cache used for storing row splits.
+    void initializeSplitsCache(core::CDataFrame& frame) const;
 
     //! Determine the encoded feature types.
     void determineFeatureDataTypes(const core::CDataFrame& frame) const;
