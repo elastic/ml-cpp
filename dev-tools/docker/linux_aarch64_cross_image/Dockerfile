@@ -24,7 +24,7 @@ RUN \
 RUN \
   mkdir -p /usr/local/sysroot-aarch64-linux-gnu/usr && \
   cd /usr/local/sysroot-aarch64-linux-gnu/usr && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-4.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-5.tar.bz2 | tar jxf - && \
   cd .. && \
   ln -s usr/lib lib && \
   ln -s usr/lib64 lib64
@@ -48,38 +48,38 @@ RUN \
 # Update the path so that the bootstrap cross tools are visible
 ENV PATH /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
 
-# Build gcc 9.3 cross compiler
+# Build gcc 10.3 cross compiler
 RUN \
-  wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz | tar zxf - && \
-  cd gcc-9.3.0 && \
+  wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-10.3.0/gcc-10.3.0.tar.gz | tar zxf - && \
+  cd gcc-10.3.0 && \
   contrib/download_prerequisites && \
   sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc && \
   cd .. && \
-  mkdir gcc-9.3.0-build && \
-  cd gcc-9.3.0-build && \
-  ../gcc-9.3.0/configure --prefix=/usr/local/gcc93 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
+  mkdir gcc-10.3.0-build && \
+  cd gcc-10.3.0-build && \
+  ../gcc-10.3.0/configure --prefix=/usr/local/gcc103 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf gcc-9.3.0 gcc-9.3.0-build
+  rm -rf gcc-10.3.0 gcc-10.3.0-build
 
 # Build binutils (final version)
 RUN \
-  wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.34.tar.bz2 | tar jxf - && \
-  cd binutils-2.34 && \
-  ./configure --prefix=/usr/local/gcc93 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-vtable-verify --with-system-zlib --disable-multilib --disable-libstdcxx --with-gcc-major-version-only && \
+  wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.37.tar.bz2 | tar jxf - && \
+  cd binutils-2.37 && \
+  ./configure --prefix=/usr/local/gcc103 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-vtable-verify --with-system-zlib --disable-multilib --disable-libstdcxx --with-gcc-major-version-only && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf binutils-2.34
+  rm -rf binutils-2.37
 
 # Build patchelf
 RUN \
-  wget --quiet -O - http://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz | tar zxf - && \
-  cd patchelf-0.10 && \
-  ./configure --prefix=/usr/local/gcc93 && \
+  wget --quiet -O - https://github.com/NixOS/patchelf/releases/download/0.13/patchelf-0.13.tar.bz2 | tar jxf - && \
+  cd patchelf-0.13.20210805.a949ff2 && \
+  ./configure --prefix=/usr/local/gcc103 && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf patchelf-0.10
+  rm -rf patchelf-0.13.20210805.a949ff2
 
