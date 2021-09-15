@@ -12,6 +12,8 @@
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
 #include <core/CMemory.h>
+#include <core/CDataFrame.h>
+#include <core/CLogger.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameCategoryEncoder.h>

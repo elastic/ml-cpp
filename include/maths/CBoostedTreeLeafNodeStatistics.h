@@ -627,6 +627,7 @@ public:
 
 public:
     virtual ~CBoostedTreeLeafNodeStatistics() = default;
+
     CBoostedTreeLeafNodeStatistics(const CBoostedTreeLeafNodeStatistics&) = delete;
     CBoostedTreeLeafNodeStatistics& operator=(const CBoostedTreeLeafNodeStatistics&) = delete;
 

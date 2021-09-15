@@ -1188,7 +1188,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                             CSampling::uniformSample(m_Rng, -0.1, 0.1)};
                 double q;
                 if (featureQuantiles[i].quantile(rank, q)) {
-                    featureCandidateSplits.emplace_back(q);
+                    featureCandidateSplits.push_back(q);
                 } else {
                     LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");
                 }

@@ -69,7 +69,7 @@ at the command prompt.
 
 ### Boost 1.71.0
 
-Download version 1.71.0 of Boost from <https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.71.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
@@ -155,7 +155,7 @@ Download the graphical installer for Python 3.7.9 from <https://www.python.org/f
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
-### PyTorch 1.8.0
+### PyTorch 1.9.0
 
 PyTorch requires that certain Python modules are installed.  To install them:
 
@@ -166,7 +166,7 @@ sudo /Library/Frameworks/Python.framework/Versions/3.7/bin/pip3.7 install instal
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v1.8.0 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v1.9.0 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -183,18 +183,25 @@ external processes.
 Build as follows:
 
 ```
-# TODO: add BLAS=vecLib when we upgrade to 1.9
+export BLAS=vecLib
 export BUILD_TEST=OFF
 export BUILD_CAFFE2=OFF
 export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
-export USE_MKLDNN=OFF
+# TODO: check if this can be made unconditional next time we upgrade.
+# In PyTorch 1.9 the version of oneDNN used doesn't work on Apple M1.
+# In PyTorch 1.10 oneDNN is upgraded and should build, but there
+# might still be further problems.
+[ $(uname -m) = x86_64 ] && export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-# TODO: recheck if this is still necessary next time we upgrade
+# TODO: recheck if this is still necessary next time we upgrade.
+# At present CMake is set up to build for x86_64 on an Apple M1.
+# This line can be removed if CMake is changed to build for the
+# native architecture on M1.
 [ $(uname -m) != x86_64 ] && export CMAKE_OSX_ARCHITECTURES=`uname -m`
-export PYTORCH_BUILD_VERSION=1.8.0
+export PYTORCH_BUILD_VERSION=1.9.0
 export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7 setup.py install
 ```

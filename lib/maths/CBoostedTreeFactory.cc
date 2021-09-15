@@ -1819,7 +1819,7 @@ std::size_t CBoostedTreeFactory::estimatedExtraColumnsForTrain(std::size_t numbe
     //   4. The example's weight
     //   5. The example's splits packed into uint8_t
     return numberLossParameters * (numberLossParameters + 5) / 2 + 1 +
-           (numberColumns - 1) / 4;
+           (numberColumns + 2) / 4;
 }
 
 void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {
