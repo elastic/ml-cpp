@@ -85,7 +85,9 @@ public:
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatisticsScratch(std::size_t id,
                                           CBoostedTreeLeafNodeStatisticsScratch&& parent,
+                                          std::size_t numberThreads,
                                           const TRegularization& regularization,
+                                          const TSizeVec& treeFeatureBag,
                                           const TSizeVec& nodeFeatureBag,
                                           CWorkspace& workspace);
 
@@ -114,8 +116,9 @@ public:
     std::size_t staticSize() const override;
 
 private:
-    SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
-                                                const TSizeVec& featureBag) const;
+    SSplitStats computeBestSplitStats(std::size_t numberThreads,
+                                      const TRegularization& regularization,
+                                      const TSizeVec& featureBag) const;
 
     double childMaxGain(double childGain, double minLossChild, double lambda) const;
 };

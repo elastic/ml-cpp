@@ -85,7 +85,9 @@ public:
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatisticsIncremental(std::size_t id,
                                               CBoostedTreeLeafNodeStatisticsIncremental&& parent,
+                                              std::size_t numberThreads,
                                               const TRegularization& regularization,
+                                              const TSizeVec& treeFeatureBag,
                                               const TSizeVec& nodeFeatureBag,
                                               bool isLeftChild,
                                               CWorkspace& workspace);
@@ -127,8 +129,9 @@ private:
     using TOptionalPreviousSplit = boost::optional<SPreviousSplit>;
 
 private:
-    SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
-                                                const TSizeVec& featureBag) const;
+    SSplitStats computeBestSplitStats(std::size_t numberThreads,
+                                      const TRegularization& regularization,
+                                      const TSizeVec& featureBag) const;
     double penaltyForTreeChange(const TRegularization& regularization,
                                 std::size_t feature,
                                 std::size_t split) const;

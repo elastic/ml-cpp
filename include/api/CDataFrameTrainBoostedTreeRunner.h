@@ -164,7 +164,6 @@ private:
     rapidjson::Document m_CustomProcessors;
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
-    std::size_t m_NumberLossParameters;
     double m_TrainingPercent;
     std::size_t m_NumberLossParameters{0};
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;

@@ -19,6 +19,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
+#include <core/Concurrency.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
@@ -1662,11 +1663,11 @@ void CBoostedTreeImpl::computeLeafValues(core::CDataFrame& frame,
         }
     } while (nextPass());
 
-    for (std::size_t i = 0; i < tree.size(); ++i) {
+    core::parallel_for_each(0, tree.size(), [&](std::size_t i) {
         if (tree[i].isLeaf()) {
             tree[i].value(eta * leafValues[i].value());
         }
-    }
+    });
 
     LOG_TRACE(<< "tree = " << root(tree).print(tree));
 }

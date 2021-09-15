@@ -11,14 +11,18 @@
 
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
-#include <core/CMemory.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/COrderings.h>
+#include <maths/CTools.h>
+
+#include <algorithm>
+#include <array>
 #include <memory>
 
 namespace ml {
@@ -105,22 +109,6 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(std::size_t id,
                                                                CSplitsDerivatives derivatives)
     : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns}, m_NumberLossParameters{numberLossParameters},
       m_CandidateSplits{candidateSplits}, m_Derivatives{std::move(derivatives)} {
-}
-
-std::size_t CBoostedTreeLeafNodeStatistics::maximumNumberThreadsToAggregateDerivatives(
-    const CBoostedTreeLeafNodeStatistics& parent,
-    const TSizeVec& treeFeatureBag) {
-    // The number of threads we'll use breaks down as follows:
-    //   - We need a minimum number of rows per thread to ensure reasonable
-    //     load balancing.
-    //   - We need a minimum amount of work per thread to make the overheads
-    //     of distributing worthwhile.
-    std::size_t features{treeFeatureBag.size()};
-    std::size_t rows{parent.minimumChildRowCount()};
-    std::size_t rowsPerThreadConstraint{rows / 64};
-    std::size_t workPerThreadConstraint{(features * rows) / (8 * 128)};
-    return std::max(std::min(rowsPerThreadConstraint, workPerThreadConstraint),
-                    std::size_t{1});
 }
 
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
@@ -279,8 +267,7 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(CNoLookAheadBound,
     }
 }
 
-CBoostedTreeLeafNodeStatistics::SSplitStatistics&
-CBoostedTreeLeafNodeStatistics::bestSplitStatistics() {
+CBoostedTreeLeafNodeStatistics::SSplitStats& CBoostedTreeLeafNodeStatistics::bestSplitStats() {
     return m_BestSplit;
 }
 
@@ -327,6 +314,63 @@ CBoostedTreeLeafNodeStatistics::CWorkspace::featuresToInclude() const {
     result.erase(std::unique(result.begin(), result.end()), result.end());
 
     return result;
+}
+
+std::size_t CBoostedTreeLeafNodeStatistics::numberThreadsForAggregateLossDerivatives(
+    std::size_t maximumNumberThreads,
+    std::size_t features,
+    std::size_t rows) const {
+
+    // The number of threads we'll use breaks down as follows:
+    //   - We need a minimum number of rows per thread to ensure reasonable
+    //     load balancing.
+    //   - We need a minimum amount of work per thread to make the overheads
+    //     of distributing worthwhile.
+
+    std::size_t rowsPerThreadConstraint{rows / 64};
+    std::size_t workPerThreadConstraint{(features * rows) / (8 * 64)};
+    return std::min(maximumNumberThreads,
+                    std::max(std::min(rowsPerThreadConstraint, workPerThreadConstraint),
+                             std::size_t{1}));
+}
+
+std::size_t CBoostedTreeLeafNodeStatistics::numberThreadsForComputeBestSplitStatistics(
+    std::size_t maximumNumberThreads,
+    const TSizeVec& featureBag) const {
+
+    // Each task we add introduces a fixed overhead and we add one task per
+    // thread. We achieve maximum throughput when we choose the number of
+    // threads to maximize
+    //
+    //   "total work" / "thread count" + "overhead per task" * "number tasks".
+    //
+    // We estimate the total work as proportional to
+    //
+    //   "total number splits" * "number loss parameters"^2.
+
+    using TDoubleAry = std::array<double, 3>;
+
+    double totalWork{static_cast<double>(std::accumulate(
+                         featureBag.begin(), featureBag.end(), std::size_t{0},
+                         [this](std::size_t n, std::size_t feature) {
+                             return n + m_Derivatives.numberDerivatives(feature);
+                         })) +
+                     CTools::pow2(static_cast<double>(m_NumberLossParameters))};
+
+    auto throughput = [&](double threads) {
+        return threads > 1 ? totalWork / 20.0 / threads + 20.0 * threads : totalWork / 20.0;
+    };
+
+    double maxThroughputNumberThreads{std::max(std::sqrt(totalWork / 400.0), 1.0)};
+    TDoubleAry numberThreads{1.0, std::floor(maxThroughputNumberThreads),
+                             std::ceil(maxThroughputNumberThreads)};
+    TDoubleAry throughputs{throughput(1.0),
+                           throughput(std::floor(maxThroughputNumberThreads)),
+                           throughput(std::ceil(maxThroughputNumberThreads))};
+    std::ptrdiff_t i{std::max_element(throughputs.begin(), throughputs.end()) -
+                     throughputs.begin()};
+
+    return std::min(maximumNumberThreads, static_cast<std::size_t>(numberThreads[i]));
 }
 }
 }
