@@ -14,6 +14,7 @@
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CSetEnv.h>
 #include <core/CStopWatch.h>
 #include <core/Concurrency.h>
 
@@ -232,6 +233,11 @@ int main(int argc, char** argv) {
             numParallelForwardingThreads, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
+
+    // Disable multithreading for the math libs.
+    ml::core::CSetEnv::setEnv("MKL_NUM_THREADS", "1", 0);
+    ml::core::CSetEnv::setEnv("OMP_NUM_THREADS", "1", 0);
+    ml::core::CSetEnv::setEnv("VECLIB_MAXIMUM_THREADS", "1", 0);
 
     ml::core::CBlockingCallCancellingTimer cancellerThread{
         ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
