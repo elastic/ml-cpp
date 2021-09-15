@@ -9,9 +9,9 @@
 # limitation.
 #
 $ErrorActionPreference="Stop"
-$Archive="usr-x86_64-windows-2016-3.zip"
+$Archive="usr-x86_64-windows-2016-4.zip"
 $Destination="C:\"
-if (!(Test-Path "$Destination\usr\local\bin\torch_cpu.dll")) {
+if (!(Test-Path "$Destination\usr\local\include\pytorch\torch\csrc\jit\passes\frozen_ops_to_mkldnn.h")) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
     $ZipSource="https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/$Archive"
     $ZipDestination="$Env:TEMP\$Archive"
