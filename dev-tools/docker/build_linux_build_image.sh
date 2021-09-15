@@ -28,7 +28,7 @@ fi
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-build
-VERSION=18
+VERSION=17
 
 set -e
 
