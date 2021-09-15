@@ -63,7 +63,7 @@ if __name__ == '__main__':
     the task spooler for execution.
     """
 
-    parser = argparse.ArgumentParser(description='Run a colletion of experiments defined by experiments.json')
+    parser = argparse.ArgumentParser(description='Run a collection of experiments defined by experiments.json')
     parser.add_argument('--verbose',
                         default=False,
                         action='store_true',
