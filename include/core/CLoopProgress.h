@@ -15,6 +15,7 @@
 #include <core/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 
 namespace ml {

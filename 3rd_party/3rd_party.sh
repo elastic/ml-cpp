@@ -70,7 +70,7 @@ case `uname` in
                 MKL_LOCATION=/usr/local/gcc103/lib
                 MKL_EXTENSION=.so
                 MKL_PREFIX=libmkl_
-                MKL_LIBRARIES=`ls $MKL_LOCATION/$MKL_PREFIX*`
+                MKL_LIBRARIES=`cd "$MKL_LOCATION" && ls $MKL_PREFIX*$MKL_EXTENSION`
             fi
             BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
@@ -259,18 +259,18 @@ if [ ! -z "$TORCH_LOCATION" ] ; then
     fi
 fi
 if [ ! -z "$MKL_LOCATION" ] ; then
-    if ls $MKL_LOCATION/$MKL_PREFIX*$MKL_EXTENSION >/dev/null ; then
+    if [ ! -z "$MKL_LIBRARIES" ] ; then
         if [ -n "$INSTALL_DIR" ] ; then
             for LIBRARY in $MKL_LIBRARIES
             do
-                rm -f $INSTALL_DIR/*$LIBRARY*$MKL_EXTENSION
-                cp $LIBRARY $INSTALL_DIR
-                chmod u+wx $INSTALL_DIR/*$LIBRARY*$MKL_EXTENSION
+                rm -f $INSTALL_DIR/$LIBRARY
+                cp $TORCH_LOCATION/$LIBRARY $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/$LIBRARY
             done
         fi
     else
         echo "Intel MKL libraries not found"
-        exit 11
+        exit 12
     fi
 fi
 
