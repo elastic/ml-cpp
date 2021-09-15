@@ -264,7 +264,7 @@ if [ ! -z "$MKL_LOCATION" ] ; then
             for LIBRARY in $MKL_LIBRARIES
             do
                 rm -f $INSTALL_DIR/$LIBRARY
-                cp $TORCH_LOCATION/$LIBRARY $INSTALL_DIR
+                cp $MKL_LOCATION/$LIBRARY $INSTALL_DIR
                 chmod u+wx $INSTALL_DIR/$LIBRARY
             done
         fi
