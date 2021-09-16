@@ -14,6 +14,7 @@
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
+#include <core/CSetEnv.h>
 #include <core/CStopWatch.h>
 #include <core/Concurrency.h>
 
@@ -233,6 +234,12 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    // Disable multithreading for the math libs.
+    // It doesn't hurt to set variables that won't have any effect on some platforms.
+    ml::core::CSetEnv::setEnv("MKL_NUM_THREADS", "1", 0); // Only expected to affect linux-x86_64
+    ml::core::CSetEnv::setEnv("OMP_NUM_THREADS", "1", 0); // Only expected to affect Linux
+    ml::core::CSetEnv::setEnv("VECLIB_MAXIMUM_THREADS", "1", 0); // Only expected to affect macOS
+
     ml::core::CBlockingCallCancellingTimer cancellerThread{
         ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
 
@@ -312,7 +319,11 @@ int main(int argc, char** argv) {
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
 
-    ml::core::startDefaultAsyncExecutor(numParallelForwardingThreads);
+    // Starting the executor with 1 thread will use an extra thread that isn't necessary
+    // so we only start it when more than 1 threads are set.
+    if (numParallelForwardingThreads > 1) {
+        ml::core::startDefaultAsyncExecutor(numParallelForwardingThreads);
+    }
 
     commandParser.ioLoop(
         [&module, &wrappedOutputStream](const ml::torch::CCommandParser::SRequest& request) {

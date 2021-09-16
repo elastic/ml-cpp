@@ -34,7 +34,13 @@ using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, core::CAlignment:
 using TAlignedMemoryMappedFloatVector =
     CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
 
-enum EExtraColumn { E_Prediction = 0, E_Gradient, E_Curvature, E_Weight };
+enum EExtraColumn {
+    E_Prediction = 0,
+    E_Gradient,
+    E_Curvature,
+    E_Weight,
+    E_BeginSplits
+};
 
 enum EHyperparameters {
     E_DownsampleFactor = 0,
@@ -135,6 +141,11 @@ inline double readExampleWeight(const TRowRef& row, const TSizeVec& extraColumns
 //! Write the example weight to \p row .
 inline void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns, double weight) {
     row.writeColumn(extraColumns[E_Weight], weight);
+}
+
+//! Get a writable pointer to the start of the row split indices.
+inline core::CFloatStorage* beginSplits(const TRowRef& row, const TSizeVec& extraColumns) {
+    return row.data() + extraColumns[E_BeginSplits];
 }
 
 //! Read the actual value for the target from \p row.
