@@ -374,6 +374,7 @@ private:
                                const core::CDataFrame& frame,
                                const core::CPackedBitVector& rowMask,
                                const TLossFunction& loss,
+                               const TSizeVec& leafMap,
                                const TNodeVec& tree,
                                TArgMinLossVecVec& result) const;
 

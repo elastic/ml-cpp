@@ -35,6 +35,9 @@
 #include <numeric>
 #include <vector>
 
+namespace CBoostedTreeLeafNodeStatisticsTest {
+struct testComputeBestSplitStatisticsThreading;
+}
 namespace ml {
 namespace core {
 class CDataFrame;
@@ -59,7 +62,6 @@ public:
     CBoostedTreeLeafNodeStatisticsIncremental(std::size_t id,
                                               const TSizeVec& extraColumns,
                                               std::size_t numberLossParameters,
-                                              std::size_t numberThreads,
                                               const core::CDataFrame& frame,
                                               const TRegularization& regularization,
                                               const TFloatVecVec& candidateSplits,
@@ -72,9 +74,7 @@ public:
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatisticsIncremental(std::size_t id,
                                               const CBoostedTreeLeafNodeStatisticsIncremental& parent,
-                                              std::size_t numberThreads,
                                               const core::CDataFrame& frame,
-                                              const CDataFrameCategoryEncoder& encoder,
                                               const TRegularization& regularization,
                                               const TSizeVec& treeFeatureBag,
                                               const TSizeVec& nodeFeatureBag,
@@ -85,7 +85,6 @@ public:
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatisticsIncremental(std::size_t id,
                                               CBoostedTreeLeafNodeStatisticsIncremental&& parent,
-                                              std::size_t numberThreads,
                                               const TRegularization& regularization,
                                               const TSizeVec& treeFeatureBag,
                                               const TSizeVec& nodeFeatureBag,
@@ -103,10 +102,8 @@ public:
     //! \return Shared pointers to the left and right child node statistics.
     TPtrPtrPr split(std::size_t leftChildId,
                     std::size_t rightChildId,
-                    std::size_t numberThreads,
                     double gainThreshold,
                     const core::CDataFrame& frame,
-                    const CDataFrameCategoryEncoder& encoder,
                     const TRegularization& regularization,
                     const TSizeVec& treeFeatureBag,
                     const TSizeVec& nodeFeatureBag,
@@ -117,8 +114,10 @@ public:
     std::size_t staticSize() const override;
 
 private:
+    using TFeatureBestSplitSearch = std::function<void(std::size_t)>;
+
     //! \brief Describes a split of the tree being incrementally retrained.
-    struct SPreviousSplit {
+    struct MATHS_EXPORT SPreviousSplit {
         SPreviousSplit(std::size_t nodeIndex, std::size_t feature, double splitAt)
             : s_NodeIndex{nodeIndex}, s_Feature{feature}, s_SplitAt{splitAt} {}
 
@@ -129,9 +128,15 @@ private:
     using TOptionalPreviousSplit = boost::optional<SPreviousSplit>;
 
 private:
-    SSplitStats computeBestSplitStats(std::size_t numberThreads,
-                                      const TRegularization& regularization,
-                                      const TSizeVec& featureBag) const;
+    CBoostedTreeLeafNodeStatisticsIncremental(const TSizeVec& extraColumns,
+                                              std::size_t numberLossParameters,
+                                              const TFloatVecVec& candidateSplits,
+                                              CSplitsDerivatives derivatives);
+    SSplitStatistics computeBestSplitStatistics(std::size_t numberThreads,
+                                                const TRegularization& regularization,
+                                                const TSizeVec& featureBag) const;
+    TFeatureBestSplitSearch featureBestSplitSearch(const TRegularization& regularization,
+                                                   SSplitStatistics& bestSplitStatistics) const;
     double penaltyForTreeChange(const TRegularization& regularization,
                                 std::size_t feature,
                                 std::size_t split) const;
@@ -143,6 +148,8 @@ private:
 
 private:
     TOptionalPreviousSplit m_PreviousSplit;
+
+    friend struct CBoostedTreeLeafNodeStatisticsTest::testComputeBestSplitStatisticsThreading;
 };
 }
 }
