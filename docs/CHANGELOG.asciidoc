@@ -52,7 +52,9 @@
 
 === Enhancements
 
-* Speed up training of regression and classification models (See {ml-pull}2024[#2024].)
+* Speed up training of regression and classification models. (See {ml-pull}2024[#2024].)
+* Improve concurrency for training regression and classification models. (See
+  {ml-pull}2031[#2031].)
 
 == {es} version 7.15.0
 
