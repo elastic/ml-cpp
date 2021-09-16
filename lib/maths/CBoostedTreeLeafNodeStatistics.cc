@@ -653,10 +653,10 @@ std::size_t CBoostedTreeLeafNodeStatistics::numberThreadsForComputeBestSplitStat
                      CTools::pow2(static_cast<double>(m_NumberLossParameters))};
 
     auto throughput = [&](double threads) {
-        return threads > 1 ? totalWork / 20.0 / threads + 20.0 * threads : totalWork / 20.0;
+        return threads > 1 ? totalWork / 20.0 / threads + 30.0 * threads : totalWork / 20.0;
     };
 
-    double maxThroughputNumberThreads{std::max(std::sqrt(totalWork / 400.0), 1.0)};
+    double maxThroughputNumberThreads{std::max(std::sqrt(totalWork / 600.0), 1.0)};
     TDoubleAry numberThreads{1.0, std::floor(maxThroughputNumberThreads),
                              std::ceil(maxThroughputNumberThreads)};
     TDoubleAry throughputs{throughput(1.0),

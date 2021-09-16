@@ -863,8 +863,7 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                                 ? static_cast<std::uint8_t>(candidateSplits[i].size() + 1)
                                 : packedSplits[j] = static_cast<std::uint8_t>(
                                       std::upper_bound(candidateSplits[i].begin(),
-                                                       candidateSplits[i].end(),
-                                                       encodedRow[i]) -
+                                                       candidateSplits[i].end(), feature) -
                                       candidateSplits[i].begin());
                     }
                     *splits = CPackedUInt8Decorator{packedSplits};
@@ -1250,7 +1249,15 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
 
     using TArgMinLossVec = std::vector<CArgMinLoss>;
 
-    TArgMinLossVec leafValues(tree.size(), m_Loss->minimizer(lambda, m_Rng));
+    TSizeVec leafMap(tree.size());
+    std::size_t numberLeaves{0};
+    for (std::size_t i = 0; i < tree.size(); ++i) {
+        if (tree[i].isLeaf()) {
+            leafMap[i] = numberLeaves++;
+        }
+    }
+
+    TArgMinLossVec leafValues(numberLeaves, m_Loss->minimizer(lambda, m_Rng));
     auto nextPass = [&] {
         bool done{true};
         for (const auto& value : leafValues) {
@@ -1272,7 +1279,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                                                          numberLossParameters);
                         double actual{readActual(row, m_DependentVariable)};
                         double weight{readExampleWeight(row, m_ExtraColumns)};
-                        leafValues_[rootNode.leafIndex(m_Encoder->encode(row), tree)]
+                        leafValues_[leafMap[rootNode.leafIndex(m_Encoder->encode(row), tree)]]
                             .add(prediction, actual, weight);
                     }
                 },
@@ -1289,7 +1296,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
 
     core::parallel_for_each(0, tree.size(), [&](std::size_t i) {
         if (tree[i].isLeaf()) {
-            tree[i].value(eta * leafValues[i].value());
+            tree[i].value(eta * leafValues[leafMap[i]].value());
         }
     });
 

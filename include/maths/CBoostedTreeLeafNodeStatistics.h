@@ -119,16 +119,19 @@ public:
         //! Zero all values.
         void zeroCount() { m_Count = 0; }
 
-        //! Add \p count and \p derivatives to the accumulator.
+        //! Add \p count.
+        void addCount(std::size_t count) { m_Count += count; }
+
+        //! Add \p count and \p derivatives.
         void add(std::size_t count, const TMemoryMappedFloatVector& derivatives) {
             m_Count += count;
             this->upperTriangularFlatView() += derivatives;
         }
 
         //! Compute the accumulation of both collections of derivatives.
-        void add(const CDerivatives& other) {
-            m_Count += other.m_Count;
-            this->flatView() += const_cast<CDerivatives*>(&other)->flatView();
+        void add(const CDerivatives& rhs) {
+            m_Count += rhs.m_Count;
+            this->flatView() += const_cast<CDerivatives*>(&rhs)->flatView();
         }
 
         //! Set to the difference of \p lhs and \p rhs.
@@ -227,15 +230,18 @@ public:
         }
         CSplitsDerivatives(const CSplitsDerivatives& other)
             : m_NumberLossParameters{other.m_NumberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
-              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
-              m_PositiveDerivativesMin{boosted_tree_detail::INF},
-              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
+              m_PositiveDerivativesSum{other.m_PositiveDerivativesSum},
+              m_NegativeDerivativesSum{other.m_NegativeDerivativesSum},
+              m_PositiveDerivativesMax{other.m_PositiveDerivativesMax},
+              m_PositiveDerivativesMin{other.m_PositiveDerivativesMin},
+              m_NegativeDerivativesMin{other.m_NegativeDerivativesMin} {
             this->map(other.m_Derivatives);
-            TSizeVec features(other.m_Derivatives.size());
-            std::iota(features.begin(), features.end(), 0);
-            this->add(other, features);
+            std::copy(other.m_Storage.begin(), other.m_Storage.end(), m_Storage.begin());
+            for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
+                for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
+                    m_Derivatives[i][j].addCount(other.m_Derivatives[i][j].count());
+                }
+            }
         }
         CSplitsDerivatives(CSplitsDerivatives&&) = default;
 
