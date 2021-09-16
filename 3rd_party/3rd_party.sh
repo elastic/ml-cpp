@@ -120,7 +120,7 @@ case `uname` in
             OMP_LOCATION=$SYSROOT/usr/local/gcc103/lib64
             OMP_EXTENSION=.so.1
             STL_LOCATION=$SYSROOT/usr/local/gcc103/lib64
-            STL_PREFIX=libstdc++
+            STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
