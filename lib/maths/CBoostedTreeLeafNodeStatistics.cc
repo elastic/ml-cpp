@@ -75,7 +75,6 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     const CBoostedTreeLeafNodeStatistics& parent,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
     const TSizeVec& treeFeatureBag,
     const TSizeVec& nodeFeatureBag,
@@ -89,7 +88,7 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     this->computeRowMaskAndAggregateLossDerivatives(
         this->numberThreadsForAggregateLossDerivatives(
             numberThreads, treeFeatureBag.size(), parent.minimumChildRowCount()),
-        frame, encoder, isLeftChild, split, treeFeatureBag, parent.m_RowMask, workspace);
+        frame, isLeftChild, split, treeFeatureBag, parent.m_RowMask, workspace);
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
@@ -133,7 +132,6 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       std::size_t numberThreads,
                                       double gainThreshold,
                                       const core::CDataFrame& frame,
-                                      const CDataFrameCategoryEncoder& encoder,
                                       const TRegularization& regularization,
                                       const TSizeVec& treeFeatureBag,
                                       const TSizeVec& nodeFeatureBag,
@@ -144,8 +142,8 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
     if (this->leftChildHasFewerRows()) {
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-                leftChildId, *this, numberThreads, frame, encoder, regularization,
-                treeFeatureBag, nodeFeatureBag, true /*is left child*/, split, workspace);
+                leftChildId, *this, numberThreads, frame, regularization, treeFeatureBag,
+                nodeFeatureBag, true /*is left child*/, split, workspace);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), numberThreads,
@@ -153,16 +151,16 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
             }
         } else if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
             rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-                rightChildId, *this, numberThreads, frame, encoder, regularization,
-                treeFeatureBag, nodeFeatureBag, false /*is left child*/, split, workspace);
+                rightChildId, *this, numberThreads, frame, regularization, treeFeatureBag,
+                nodeFeatureBag, false /*is left child*/, split, workspace);
         }
         return {std::move(leftChild), std::move(rightChild)};
     }
 
     if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            rightChildId, *this, numberThreads, frame, encoder, regularization,
-            treeFeatureBag, nodeFeatureBag, false /*is left child*/, split, workspace);
+            rightChildId, *this, numberThreads, frame, regularization, treeFeatureBag,
+            nodeFeatureBag, false /*is left child*/, split, workspace);
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), numberThreads, regularization,
@@ -170,8 +168,8 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         }
     } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
         leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            leftChildId, *this, numberThreads, frame, encoder, regularization,
-            treeFeatureBag, nodeFeatureBag, true /*is left child*/, split, workspace);
+            leftChildId, *this, numberThreads, frame, regularization, treeFeatureBag,
+            nodeFeatureBag, true /*is left child*/, split, workspace);
     }
     return {std::move(leftChild), std::move(rightChild)};
 }
@@ -263,7 +261,6 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
 void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     bool isLeftChild,
     const CBoostedTreeNode& split,
     const TSizeVec& featureBag,
@@ -283,8 +280,7 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
         aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
-                auto encodedRow = encoder.encode(row);
-                if (split.assignToLeft(encodedRow) == isLeftChild) {
+                if (split.assignToLeft(row, m_ExtraColumns) == isLeftChild) {
                     std::size_t index{row.index()};
                     mask.extend(false, index - mask.size());
                     mask.extend(true);

@@ -125,7 +125,7 @@ public:
         //! Add \p count and \p derivatives.
         void add(std::size_t count, const TMemoryMappedFloatVector& derivatives) {
             m_Count += count;
-            this->upperTriangularFlatView() += derivatives;
+            this->flatView() += derivatives;
         }
 
         //! Compute the accumulation of both collections of derivatives.
@@ -166,11 +166,10 @@ public:
         //! Remap the accumulated curvature to lower triangle row major format.
         void remapCurvature() {
             // For performance, we accumulate curvatures into the first n + n (n + 1) / 2
-            // elements of the array backing upperTriangularFlatView. However, the memory
-            // mapped matrix class expects them to be stored column major in the lower
-            // triangle of an n x n matrix. This copies them backwards to their correct
-            // positions.
-            TMemoryMappedDoubleVector derivatives{this->upperTriangularFlatView()};
+            // elements of the array backing flatView. However, the memory mapped matrix
+            // class expects them to be stored column major in the lower triangle of an
+            // n x n matrix. This copies them backwards to their correct positions.
+            TMemoryMappedDoubleVector derivatives{this->flatView()};
             for (std::ptrdiff_t j = m_Curvature.cols() - 1, k = derivatives.rows() - 1;
                  j >= 0; --j) {
                 for (std::ptrdiff_t i = m_Curvature.rows() - 1; i >= j; --i, --k) {
@@ -187,17 +186,10 @@ public:
         }
 
     private:
-        TMemoryMappedDoubleVector upperTriangularFlatView() {
+        TMemoryMappedDoubleVector flatView() {
             // Gradient + upper triangle of the Hessian.
             auto n = m_Gradient.rows();
             return {m_Gradient.data(), n * (n + 3) / 2};
-        }
-
-        TMemoryMappedDoubleVector flatView() {
-            // Gradient + pad + full Hessian.
-            auto n = m_Curvature.data() - m_Gradient.data() +
-                     m_Curvature.rows() * m_Curvature.cols();
-            return {m_Gradient.data(), n};
         }
 
     private:
@@ -654,7 +646,6 @@ public:
                                    const CBoostedTreeLeafNodeStatistics& parent,
                                    std::size_t numberThreads,
                                    const core::CDataFrame& frame,
-                                   const CDataFrameCategoryEncoder& encoder,
                                    const TRegularization& regularization,
                                    const TSizeVec& treeFeatureBag,
                                    const TSizeVec& nodeFeatureBag,
@@ -684,7 +675,6 @@ public:
                     std::size_t numberThreads,
                     double gainThreshold,
                     const core::CDataFrame& frame,
-                    const CDataFrameCategoryEncoder& encoder,
                     const TRegularization& regularization,
                     const TSizeVec& treeFeatureBag,
                     const TSizeVec& nodeFeatureBag,
@@ -793,7 +783,6 @@ private:
                                          CWorkspace& workspace) const;
     void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
                                                    const core::CDataFrame& frame,
-                                                   const CDataFrameCategoryEncoder& encoder,
                                                    bool isLeftChild,
                                                    const CBoostedTreeNode& split,
                                                    const TSizeVec& featureBag,

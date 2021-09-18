@@ -93,8 +93,8 @@ void testDerivativesFor(std::size_t numberParameters) {
         core::CAlignment::E_Aligned16, numberGradients)};
 
     TAlignedDoubleVec storage1(paddedNumberGradients + numberGradients * numberGradients, 0.0);
-    TDerivatives derivatives1{numberParameters, &storage1[0],
-                              &storage1[paddedNumberGradients]};
+    TDerivatives derivatives1(static_cast<int>(numberParameters), &storage1[0],
+                              &storage1[paddedNumberGradients]);
 
     for (std::size_t j = 0; j < 10; ++j) {
         TAlignedFloatVec rowStorage;
@@ -127,8 +127,8 @@ void testDerivativesFor(std::size_t numberParameters) {
     LOG_DEBUG(<< "Merge");
 
     TAlignedDoubleVec storage2(paddedNumberGradients + numberGradients * numberGradients, 0.0);
-    TDerivatives derivatives2{numberParameters, &storage2[0],
-                              &storage2[paddedNumberGradients]};
+    TDerivatives derivatives2(static_cast<int>(numberParameters), &storage2[0],
+                              &storage2[paddedNumberGradients]);
 
     for (std::size_t j = 10; j < 20; ++j) {
         TAlignedFloatVec storage;
@@ -413,15 +413,16 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         std::tie(splitFeature, splitValue) = rootSplit->bestSplit();
         bool assignMissingToLeft{rootSplit->assignMissingToLeft()};
 
-        std::size_t leftChildId, rightChildId;
+        std::size_t leftChildId;
+        std::size_t rightChildId;
         std::tie(leftChildId, rightChildId) = tree[rootSplit->id()].split(
-            splitFeature, splitValue, assignMissingToLeft, rootSplit->gain(),
-            rootSplit->curvature(), tree);
+            {}, splitFeature, splitValue, assignMissingToLeft,
+            rootSplit->gain(), rootSplit->curvature(), tree);
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = rootSplit->split(
-            leftChildId, rightChildId, numberThreads, 0.0, *frame, encoder, regularization,
+            leftChildId, rightChildId, numberThreads, 0.0, *frame, regularization,
             treeFeatureBag, nodeFeatureBag, tree[rootSplit->id()], workspace);
         if (leftChild != nullptr) {
             BOOST_TEST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());

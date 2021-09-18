@@ -13,13 +13,16 @@
 
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBoostedTreeImpl.h>
+#include <maths/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CLinearAlgebraPersist.h>
 #include <maths/CLinearAlgebraShims.h>
 
+#include <algorithm>
 #include <limits>
 #include <sstream>
 #include <utility>
@@ -30,13 +33,17 @@ using namespace boosted_tree;
 using namespace boosted_tree_detail;
 
 namespace {
-const std::string LEFT_CHILD_TAG{"left_child"};
-const std::string RIGHT_CHILD_TAG{"right_child"};
-const std::string SPLIT_FEATURE_TAG{"split_feature"};
 const std::string ASSIGN_MISSING_TO_LEFT_TAG{"assign_missing_to_left "};
+const std::string CURVATURE_TAG{"curvature"};
+const std::string GAIN_TAG{"gain"};
+const std::string LEFT_CHILD_TAG{"left_child"};
+const std::string MISSING_SPLIT_TAG{"missing_split_tag"};
 const std::string NODE_VALUE_TAG{"node_value"};
-const std::string SPLIT_VALUE_TAG{"split_value"};
 const std::string NUMBER_SAMPLES_TAG{"number_samples"};
+const std::string RIGHT_CHILD_TAG{"right_child"};
+const std::string SPLIT_TAG{"split_tag"};
+const std::string SPLIT_FEATURE_TAG{"split_feature"};
+const std::string SPLIT_VALUE_TAG{"split_value"};
 }
 
 CBoostedTreeNode::CBoostedTreeNode(std::size_t numberLossParameters)
@@ -49,21 +56,56 @@ CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const CEncodedDataFrame
     if (this->isLeaf()) {
         return index;
     }
-    double value{row[m_SplitFeature]};
-    bool missing{CDataFrameUtils::isMissing(value)};
-    return (missing && m_AssignMissingToLeft) || (missing == false && value < m_SplitValue)
+    return this->assignToLeft(row)
                ? tree[m_LeftChild.get()].leafIndex(row, tree, m_LeftChild.get())
                : tree[m_RightChild.get()].leafIndex(row, tree, m_RightChild.get());
 }
 
-CBoostedTreeNode::TNodeIndexNodeIndexPr CBoostedTreeNode::split(std::size_t splitFeature,
-                                                                double splitValue,
-                                                                bool assignMissingToLeft,
-                                                                double gain,
-                                                                double curvature,
-                                                                TNodeVec& tree) {
+bool CBoostedTreeNode::assignToLeft(const CEncodedDataFrameRowRef& row) const {
+    double value{row[m_SplitFeature]};
+    bool missing{CDataFrameUtils::isMissing(value)};
+    return (missing && m_AssignMissingToLeft) || (missing == false && value < m_SplitValue);
+}
+
+CBoostedTreeNode::TNodeIndex CBoostedTreeNode::leafIndex(const TRowRef& row,
+                                                         const TSizeVec& extraColumns,
+                                                         const TNodeVec& tree,
+                                                         TNodeIndex index) const {
+    if (this->isLeaf()) {
+        return index;
+    }
+    return this->assignToLeft(row, extraColumns)
+               ? tree[m_LeftChild.get()].leafIndex(row, extraColumns, tree,
+                                                   m_LeftChild.get())
+               : tree[m_RightChild.get()].leafIndex(row, extraColumns, tree,
+                                                    m_RightChild.get());
+}
+
+bool CBoostedTreeNode::assignToLeft(const TRowRef& row, const TSizeVec& extraColumns) const {
+    auto* splits = beginSplits(row, extraColumns);
+    std::uint8_t split{
+        CPackedUInt8Decorator{splits[m_SplitFeature >> 2]}.readBytes()[m_SplitFeature & 0x3]};
+    return (split == m_MissingSplit) || (split != m_MissingSplit && split <= m_Split);
+}
+
+CBoostedTreeNode::TNodeIndexNodeIndexPr
+CBoostedTreeNode::split(const TFloatVecVec& candidateSplits,
+                        std::size_t splitFeature,
+                        double splitValue,
+                        bool assignMissingToLeft,
+                        double gain,
+                        double curvature,
+                        TNodeVec& tree) {
     m_SplitFeature = splitFeature;
     m_SplitValue = splitValue;
+    if (splitFeature < candidateSplits.size()) {
+        const auto& featureCandidateSplits = candidateSplits[splitFeature];
+        m_Split = static_cast<std::uint8_t>(
+            std::lower_bound(featureCandidateSplits.begin(),
+                             featureCandidateSplits.end(), splitValue) -
+            featureCandidateSplits.begin());
+        m_MissingSplit = static_cast<std::uint8_t>(missingSplit(featureCandidateSplits));
+    }
     m_AssignMissingToLeft = assignMissingToLeft;
     m_LeftChild = static_cast<TNodeIndex>(tree.size());
     m_RightChild = static_cast<TNodeIndex>(tree.size() + 1);
@@ -85,33 +127,48 @@ std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParamete
 }
 
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(LEFT_CHILD_TAG, m_LeftChild, inserter);
-    core::CPersistUtils::persist(RIGHT_CHILD_TAG, m_RightChild, inserter);
-    core::CPersistUtils::persist(SPLIT_FEATURE_TAG, m_SplitFeature, inserter);
     core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
+    core::CPersistUtils::persist(CURVATURE_TAG, m_Curvature, inserter);
+    core::CPersistUtils::persist(GAIN_TAG, m_Gain, inserter);
+    core::CPersistUtils::persist(LEFT_CHILD_TAG, m_LeftChild, inserter);
+    core::CPersistUtils::persist(MISSING_SPLIT_TAG,
+                                 static_cast<std::size_t>(m_MissingSplit), inserter);
     core::CPersistUtils::persist(NODE_VALUE_TAG, m_NodeValue, inserter);
-    core::CPersistUtils::persist(SPLIT_VALUE_TAG, m_SplitValue, inserter);
     core::CPersistUtils::persist(NUMBER_SAMPLES_TAG, m_NumberSamples, inserter);
+    core::CPersistUtils::persist(RIGHT_CHILD_TAG, m_RightChild, inserter);
+    core::CPersistUtils::persist(SPLIT_TAG, static_cast<std::size_t>(m_Split), inserter);
+    core::CPersistUtils::persist(SPLIT_FEATURE_TAG, m_SplitFeature, inserter);
+    core::CPersistUtils::persist(SPLIT_VALUE_TAG, m_SplitValue, inserter);
 }
 
 bool CBoostedTreeNode::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
-        RESTORE(LEFT_CHILD_TAG,
-                core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
-        RESTORE(RIGHT_CHILD_TAG,
-                core::CPersistUtils::restore(RIGHT_CHILD_TAG, m_RightChild, traverser))
-        RESTORE(SPLIT_FEATURE_TAG,
-                core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitFeature, traverser))
         RESTORE(ASSIGN_MISSING_TO_LEFT_TAG,
                 core::CPersistUtils::restore(ASSIGN_MISSING_TO_LEFT_TAG,
                                              m_AssignMissingToLeft, traverser))
+        RESTORE(CURVATURE_TAG,
+                core::CPersistUtils::restore(CURVATURE_TAG, m_Curvature, traverser))
+        RESTORE(GAIN_TAG, core::CPersistUtils::restore(GAIN_TAG, m_Gain, traverser))
+        RESTORE(LEFT_CHILD_TAG,
+                core::CPersistUtils::restore(LEFT_CHILD_TAG, m_LeftChild, traverser))
+        RESTORE_SETUP_TEARDOWN(
+            MISSING_SPLIT_TAG, std::size_t missingSplit,
+            core::CPersistUtils::restore(MISSING_SPLIT_TAG, missingSplit, traverser),
+            m_MissingSplit = static_cast<std::uint8_t>(missingSplit))
         RESTORE(NODE_VALUE_TAG,
                 core::CPersistUtils::restore(NODE_VALUE_TAG, m_NodeValue, traverser))
-        RESTORE(SPLIT_VALUE_TAG,
-                core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
         RESTORE(NUMBER_SAMPLES_TAG,
                 core::CPersistUtils::restore(NUMBER_SAMPLES_TAG, m_NumberSamples, traverser))
+        RESTORE(RIGHT_CHILD_TAG,
+                core::CPersistUtils::restore(RIGHT_CHILD_TAG, m_RightChild, traverser))
+        RESTORE_SETUP_TEARDOWN(SPLIT_TAG, std::size_t split,
+                               core::CPersistUtils::restore(SPLIT_TAG, split, traverser),
+                               m_Split = static_cast<std::uint8_t>(split))
+        RESTORE(SPLIT_FEATURE_TAG,
+                core::CPersistUtils::restore(SPLIT_FEATURE_TAG, m_SplitFeature, traverser))
+        RESTORE(SPLIT_VALUE_TAG,
+                core::CPersistUtils::restore(SPLIT_VALUE_TAG, m_SplitValue, traverser))
     } while (traverser.next());
     return true;
 }

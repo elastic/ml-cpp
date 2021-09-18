@@ -57,6 +57,9 @@ class CBoostedTreeImpl;
 //! node bit masks from the node's bit mask.
 class MATHS_EXPORT CBoostedTreeNode final {
 public:
+    using TFloatVec = std::vector<CFloatStorage>;
+    using TFloatVecVec = std::vector<TFloatVec>;
+    using TSizeVec = std::vector<std::size_t>;
     using TNodeIndex = std::uint32_t;
     using TNodeIndexNodeIndexPr = std::pair<TNodeIndex, TNodeIndex>;
     using TPackedBitVectorPackedBitVectorPr =
@@ -64,6 +67,7 @@ public:
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TOptionalNodeIndex = boost::optional<TNodeIndex>;
     using TVector = CDenseVector<double>;
+    using TRowRef = core::CDataFrame::TRowRef;
 
     class MATHS_EXPORT CVisitor {
     public:
@@ -91,18 +95,35 @@ public:
                          const TNodeVec& tree,
                          TNodeIndex index = 0) const;
 
-    //! Check if we should assign \p row to the left leaf.
-    bool assignToLeft(const CEncodedDataFrameRowRef& row) const {
-        double value{row[m_SplitFeature]};
-        bool missing{CDataFrameUtils::isMissing(value)};
-        return (missing && m_AssignMissingToLeft) ||
-               (missing == false && value < m_SplitValue);
-    }
-
     //! Get the value predicted by \p tree for the feature vector \p row.
     const TVector& value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
         return tree[this->leafIndex(row, tree)].m_NodeValue;
     }
+
+    //! Check if we should assign \p row to the left leaf.
+    bool assignToLeft(const CEncodedDataFrameRowRef& row) const;
+
+    //! \name Optimized for Train
+    //!
+    //! \note This provides overloads which are optimised for train. They can
+    //! only be used when the splits used used to generate the node are cached
+    //! in the row and should be handled with care.
+    //@{
+    //! Get the leaf index for \p row.
+    TNodeIndex leafIndex(const TRowRef& row,
+                         const TSizeVec& extraColumns,
+                         const TNodeVec& tree,
+                         TNodeIndex index = 0) const;
+
+    //! Get the value predicted by \p tree for the feature vector \p row.
+    const TVector&
+    value(const TRowRef& row, const TSizeVec& extraColumns, const TNodeVec& tree) const {
+        return tree[this->leafIndex(row, extraColumns, tree)].m_NodeValue;
+    }
+
+    //! Check if we should assign \p row to the left leaf.
+    bool assignToLeft(const TRowRef& row, const TSizeVec& extraColumns) const;
+    //@}
 
     //! Get the value of this node.
     const TVector& value() const { return m_NodeValue; }
@@ -129,7 +150,8 @@ public:
     TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
 
     //! Split this node and add its child nodes to \p tree.
-    TNodeIndexNodeIndexPr split(std::size_t splitFeature,
+    TNodeIndexNodeIndexPr split(const TFloatVecVec& candidateSplits,
+                                std::size_t splitFeature,
                                 double splitValue,
                                 bool assignMissingToLeft,
                                 double gain,
@@ -165,6 +187,8 @@ private:
 private:
     std::size_t m_SplitFeature = 0;
     double m_SplitValue = 0.0;
+    std::uint8_t m_Split{0};
+    std::uint8_t m_MissingSplit{0};
     bool m_AssignMissingToLeft = true;
     TOptionalNodeIndex m_LeftChild;
     TOptionalNodeIndex m_RightChild;

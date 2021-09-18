@@ -27,6 +27,7 @@ namespace boosted_tree {
 class CLoss;
 }
 namespace boosted_tree_detail {
+using TFloatVec = std::vector<CFloatStorage>;
 using TSizeVec = std::vector<std::size_t>;
 using TRowRef = core::CDataFrame::TRowRef;
 using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
@@ -66,6 +67,11 @@ struct SHyperparameterImportance {
     bool s_Supplied;
     EType s_Type;
 };
+
+//! Get the split used for storing missing values.
+inline std::size_t missingSplit(const TFloatVec& candidateSplits) {
+    return candidateSplits.size() + 1;
+}
 
 //! Get the size of upper triangle of the loss Hessain.
 inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters) {

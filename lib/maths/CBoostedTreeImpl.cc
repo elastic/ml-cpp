@@ -860,7 +860,7 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                         double feature{encodedRow[i]};
                         packedSplits[j] =
                             CDataFrameUtils::isMissing(feature)
-                                ? static_cast<std::uint8_t>(candidateSplits[i].size() + 1)
+                                ? static_cast<std::uint8_t>(missingSplit(candidateSplits[i]))
                                 : packedSplits[j] = static_cast<std::uint8_t>(
                                       std::upper_bound(candidateSplits[i].begin(),
                                                        candidateSplits[i].end(), feature) -
@@ -957,11 +957,12 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
-        // add the left and right children to the tree
-        std::size_t leftChildId, rightChildId;
-        std::tie(leftChildId, rightChildId) =
-            tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft,
-                                   leaf->gain(), leaf->curvature(), tree);
+        // Add the left and right children to the tree.
+        std::size_t leftChildId;
+        std::size_t rightChildId;
+        std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
+            candidateSplits, splitFeature, splitValue, assignMissingToLeft,
+            leaf->gain(), leaf->curvature(), tree);
 
         featureSampleProbabilities = m_FeatureSampleProbabilities;
         this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
@@ -979,10 +980,10 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
-        std::tie(leftChild, rightChild) = leaf->split(
-            leftChildId, rightChildId, m_NumberThreads, smallestCandidateGain,
-            frame, *m_Encoder, m_Regularization, treeFeatureBag, nodeFeatureBag,
-            tree[leaf->id()], workspace);
+        std::tie(leftChild, rightChild) =
+            leaf->split(leftChildId, rightChildId, m_NumberThreads,
+                        smallestCandidateGain, frame, m_Regularization,
+                        treeFeatureBag, nodeFeatureBag, tree[leaf->id()], workspace);
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {
@@ -1279,8 +1280,9 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                                                          numberLossParameters);
                         double actual{readActual(row, m_DependentVariable)};
                         double weight{readExampleWeight(row, m_ExtraColumns)};
-                        leafValues_[leafMap[rootNode.leafIndex(m_Encoder->encode(row), tree)]]
-                            .add(prediction, actual, weight);
+                        std::size_t index{
+                            leafMap[rootNode.leafIndex(row, m_ExtraColumns, tree)]};
+                        leafValues_[index].add(prediction, actual, weight);
                     }
                 },
                 std::move(leafValues)),
