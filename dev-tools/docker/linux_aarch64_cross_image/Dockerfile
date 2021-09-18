@@ -37,13 +37,13 @@ ENV LDFLAGS_FOR_TARGET "-Wl,-z,relro -Wl,-z,now"
 
 # Build binutils (bootstrap version)
 RUN \
-  wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.25.tar.bz2 | tar jxf - && \
-  cd binutils-2.25 && \
+  wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.27.tar.bz2 | tar jxf - && \
+  cd binutils-2.27 && \
   ./configure --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --with-system-zlib --disable-multilib --disable-libstdcxx && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf binutils-2.25
+  rm -rf binutils-2.27
 
 # Update the path so that the bootstrap cross tools are visible
 ENV PATH /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
