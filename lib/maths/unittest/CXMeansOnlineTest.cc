@@ -755,7 +755,7 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
     LOG_DEBUG(<< "gaussian log(L)  = " << maths::CBasicStatistics::mean(LLR));
     LOG_DEBUG(<< "clustered log(L) = " << maths::CBasicStatistics::mean(LLC));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(LLC) >
-                       0.5 * maths::CBasicStatistics::mean(LLR));
+                       0.55 * maths::CBasicStatistics::mean(LLR));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

@@ -1414,8 +1414,8 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
     };
 
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.005);
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.005);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.007);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {

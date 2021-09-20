@@ -1,2 +1,2 @@
 name,version,revision,url,license,copyright,sourceURL
-GCC Runtime Library,9.3.0,4212a6a3e44f870412d9025eeb323fd4f50a61da,https://gcc.gnu.org,GPL-3.0 WITH GCC-exception-3.1,"Copyright (C) 2020 Free Software Foundation, Inc.",http://ftpmirror.gnu.org/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz
+GCC Runtime Library,10.3.0,f00b5710a30f22efc3171c393e56aeb335c3cd39,https://gcc.gnu.org,GPL-3.0 WITH GCC-exception-3.1,"Copyright (C) 2021 Free Software Foundation, Inc.",http://ftpmirror.gnu.org/gcc/gcc-10.3.0/gcc-10.3.0.tar.gz
