@@ -32,7 +32,8 @@
 
 === Enhancements
 
-* ...
+* The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 10.3. (See
+  {ml-pull}2028[#2028].)
 
 == {es} version 8.0.0-alpha1
 

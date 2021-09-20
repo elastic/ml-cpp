@@ -61,31 +61,31 @@ case `uname` in
 
     Linux)
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
-            BOOST_LOCATION=/usr/local/gcc93/lib
+            BOOST_LOCATION=/usr/local/gcc103/lib
             BOOST_COMPILER=gcc
             if [ `uname -m` = aarch64 ] ; then
                 BOOST_ARCH=a64
             else
                 BOOST_ARCH=x64                
-                MKL_LOCATION=/usr/local/gcc93/lib
+                MKL_LOCATION=/usr/local/gcc103/lib
                 MKL_EXTENSION=.so
                 MKL_PREFIX=libmkl_
-                MKL_LIBRARIES=`ls $MKL_LOCATION/$MKL_PREFIX*`
+                MKL_LIBRARIES=`cd "$MKL_LOCATION" && ls $MKL_PREFIX*$MKL_EXTENSION`
             fi
             BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
-            XML_LOCATION=/usr/local/gcc93/lib
+            XML_LOCATION=/usr/local/gcc103/lib
             XML_EXTENSION=.so.2
-            GCC_RT_LOCATION=/usr/local/gcc93/lib64
+            GCC_RT_LOCATION=/usr/local/gcc103/lib64
             GCC_RT_EXTENSION=.so.1
-            OMP_LOCATION=/usr/local/gcc93/lib64
+            OMP_LOCATION=/usr/local/gcc103/lib64
             OMP_EXTENSION=.so.1
-            STL_LOCATION=/usr/local/gcc93/lib64
+            STL_LOCATION=/usr/local/gcc103/lib64
             STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
-            TORCH_LOCATION=/usr/local/gcc93/lib
+            TORCH_LOCATION=/usr/local/gcc103/lib
             TORCH_EXTENSION=.so            
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
@@ -103,7 +103,7 @@ case `uname` in
             TORCH_EXTENSION=.dylib
         else
             SYSROOT=/usr/local/sysroot-$CPP_CROSS_COMPILE-linux-gnu
-            BOOST_LOCATION=$SYSROOT/usr/local/gcc93/lib
+            BOOST_LOCATION=$SYSROOT/usr/local/gcc103/lib
             BOOST_COMPILER=gcc
             if [ "$CPP_CROSS_COMPILE" = aarch64 ] ; then
                 BOOST_ARCH=a64
@@ -113,18 +113,18 @@ case `uname` in
             fi
             BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
-            XML_LOCATION=$SYSROOT/usr/local/gcc93/lib
+            XML_LOCATION=$SYSROOT/usr/local/gcc103/lib
             XML_EXTENSION=.so.2
-            GCC_RT_LOCATION=$SYSROOT/usr/local/gcc93/lib64
+            GCC_RT_LOCATION=$SYSROOT/usr/local/gcc103/lib64
             GCC_RT_EXTENSION=.so.1
-            OMP_LOCATION=$SYSROOT/usr/local/gcc93/lib64
+            OMP_LOCATION=$SYSROOT/usr/local/gcc103/lib64
             OMP_EXTENSION=.so.1
-            STL_LOCATION=$SYSROOT/usr/local/gcc93/lib64
-            STL_PREFIX=libstdc++
+            STL_LOCATION=$SYSROOT/usr/local/gcc103/lib64
+            STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
-            TORCH_LOCATION=$SYSROOT/usr/local/gcc93/lib
+            TORCH_LOCATION=$SYSROOT/usr/local/gcc103/lib
             TORCH_EXTENSION=.so
         fi
         ;;
@@ -259,18 +259,18 @@ if [ ! -z "$TORCH_LOCATION" ] ; then
     fi
 fi
 if [ ! -z "$MKL_LOCATION" ] ; then
-    if ls $MKL_LOCATION/$MKL_PREFIX*$MKL_EXTENSION >/dev/null ; then
+    if [ ! -z "$MKL_LIBRARIES" ] ; then
         if [ -n "$INSTALL_DIR" ] ; then
             for LIBRARY in $MKL_LIBRARIES
             do
-                rm -f $INSTALL_DIR/*$LIBRARY*$MKL_EXTENSION
-                cp $LIBRARY $INSTALL_DIR
-                chmod u+wx $INSTALL_DIR/*$LIBRARY*$MKL_EXTENSION
+                rm -f $INSTALL_DIR/$LIBRARY
+                cp $MKL_LOCATION/$LIBRARY $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/$LIBRARY
             done
         fi
     else
         echo "Intel MKL libraries not found"
-        exit 11
+        exit 12
     fi
 fi
 
