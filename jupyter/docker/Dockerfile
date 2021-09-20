@@ -7,7 +7,7 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-FROM docker.elastic.co/ml-dev/ml-linux-build:17 as builder 
+FROM docker.elastic.co/ml-dev/ml-linux-build:19 as builder 
 
 RUN yum install -y epel-release && \
     yum install -y ccache
