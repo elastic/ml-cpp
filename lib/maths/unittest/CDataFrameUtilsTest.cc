@@ -1490,7 +1490,7 @@ BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeights) {
             LOG_DEBUG(<< "max recalls = " << core::CContainerPrinter::print(maxRecalls));
 
             // Threaded and non-threaded results are close.
-            BOOST_REQUIRE_CLOSE(minRecalls[0][0], minRecalls[1][0], 1.0); // 1 %
+            BOOST_REQUIRE_CLOSE(minRecalls[0][0], minRecalls[1][0], 1.5); // 1.5 %
 
             // We improved the minimum class recall by at least 10%.
             BOOST_TEST_REQUIRE(minRecalls[0][0] > 1.1 * minRecalls[0][1]);

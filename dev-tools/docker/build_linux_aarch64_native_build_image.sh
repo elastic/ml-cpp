@@ -25,10 +25,16 @@ if [ `uname -m` != aarch64 ] ; then
     exit 1
 fi
 
+DOCKER_DIR=`docker info 2>/dev/null | grep '^Docker Root Dir' | awk -F: '{ print $2 }' | sed 's/^ *//'`
+echo "Building this image may require up to 50GB of space for Docker"
+echo "Current space available in $DOCKER_DIR"
+df -h "$DOCKER_DIR"
+sleep 5
+
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-aarch64-native-build
-VERSION=4
+VERSION=5
 
 set -e
 

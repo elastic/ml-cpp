@@ -32,7 +32,8 @@
 
 === Enhancements
 
-* ...
+* The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 10.3. (See
+  {ml-pull}2028[#2028].)
 
 == {es} version 8.0.0-alpha1
 
@@ -47,6 +48,12 @@
 * Added a new application for evaluating PyTorch models. The app depends on LibTorch
   - the C++ front end to PyTorch - and performs inference on models stored in the
   TorchScript format. (See {ml-pull}1902[#1902].)
+
+== {es} version 7.16.0
+
+=== Enhancements
+
+* Speed up training of regression and classification models (See {ml-pull}2024[#2024].)
 
 == {es} version 7.15.0
 

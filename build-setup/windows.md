@@ -135,7 +135,7 @@ nmake install
 
 ### Boost 1.71.0
 
-Download version 1.71.0 of Boost from <https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2> . You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.71.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2> . You must get this exact version, as the Machine Learning Makefiles expect it.
 
 Assuming you chose the `.bz2` version, extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
 
@@ -213,7 +213,7 @@ On the "Advanced Options" screen, check "Install for all users" and "Add Python 
 
 For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
 
-### PyTorch 1.8.0
+### PyTorch 1.9.0
 
 PyTorch requires that certain Python modules are installed.  Start a command prompt "cmd.exe" using "Run as administrator".  In it run:
 
@@ -227,7 +227,7 @@ Next, in a Git bash shell run:
 
 ```
 cd /c/tools
-git clone --depth=1 --branch=v1.8.0 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v1.9.0 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -265,20 +265,6 @@ doing and never want to do for security reasons. Replacing the calls to
 potentially dangerous function calls in our shipped product will not encounter
 these functions that run external processes.
 
-In `torch/CMakeLists.txt` remove the guards around `onnx_library`, i.e. change lines 98-100 from:
-
-```
-    if(BUILD_TEST)
-      list(APPEND TORCH_PYTHON_LINK_LIBRARIES onnx_library)
-    endif(BUILD_TEST)
-```
-
-to:
-
-```
-    list(APPEND TORCH_PYTHON_LINK_LIBRARIES onnx_library)
-```
-
 Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
@@ -287,11 +273,12 @@ set BUILD_TEST=OFF
 set BUILD_CAFFE2=OFF
 set USE_NUMPY=OFF
 set USE_DISTRIBUTED=OFF
+set USE_MKLDNN=ON
 set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=1.8.0
+set PYTORCH_BUILD_VERSION=1.9.0
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```
@@ -302,6 +289,7 @@ To finish off, in a Git bash shell run:
 
 ```
 cd /c/tools/pytorch
+rm -rf /c/usr/local/include/pytorch
 mkdir /c/usr/local/include/pytorch
 cp -r torch/include/* /c/usr/local/include/pytorch/
 cp torch/lib/torch_cpu.dll /c/usr/local/bin/
@@ -313,4 +301,3 @@ cp torch/lib/fbgemm.lib /c/usr/local/lib/
 cp torch/lib/asmjit.dll /c/usr/local/bin/
 cp torch/lib/asmjit.lib /c/usr/local/lib/
 ```
-

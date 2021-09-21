@@ -28,44 +28,44 @@ ENV LDFLAGS_FOR_TARGET "-Wl,-z,relro -Wl,-z,now"
 
 ARG build_dir=/usr/src
 
-# Build gcc 9.3
+# Build gcc 10.3
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz | tar zxf - && \
-  cd gcc-9.3.0 && \
+  wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-10.3.0/gcc-10.3.0.tar.gz | tar zxf - && \
+  cd gcc-10.3.0 && \
   contrib/download_prerequisites && \
   sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc && \
   cd .. && \
-  mkdir gcc-9.3.0-build && \
-  cd gcc-9.3.0-build && \
-  ../gcc-9.3.0/configure --prefix=/usr/local/gcc93 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
+  mkdir gcc-10.3.0-build && \
+  cd gcc-10.3.0-build && \
+  ../gcc-10.3.0/configure --prefix=/usr/local/gcc103 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf gcc-9.3.0 gcc-9.3.0-build
+  rm -rf gcc-10.3.0 gcc-10.3.0-build
 
 # Update paths to use the newly built compiler in C++17 mode
-ENV LD_LIBRARY_PATH /usr/local/gcc93/lib64:/usr/local/gcc93/lib:/usr/lib:/lib
-ENV PATH /usr/local/gcc93/bin:/usr/bin:/bin:/usr/sbin:/sbin
+ENV LD_LIBRARY_PATH /usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
+ENV PATH /usr/local/gcc103/bin:/usr/bin:/bin:/usr/sbin:/sbin
 ENV CXX "g++ -std=gnu++17"
 
 # Build binutils
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.34.tar.bz2 | tar jxf - && \
-  cd binutils-2.34 && \
-  ./configure --prefix=/usr/local/gcc93 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only && \
+  wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.37.tar.bz2 | tar jxf - && \
+  cd binutils-2.37 && \
+  ./configure --prefix=/usr/local/gcc103 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf binutils-2.34
+  rm -rf binutils-2.37
 
 # Build libxml2
 RUN \
   cd ${build_dir} && \
   wget --quiet -O - ftp://anonymous@ftp.xmlsoft.org/libxml2/libxml2-2.9.7.tar.gz | tar zxf - && \
   cd libxml2-2.9.7 && \
-  ./configure --prefix=/usr/local/gcc93 --without-python --without-readline && \
+  ./configure --prefix=/usr/local/gcc103 --without-python --without-readline && \
   make -j`nproc` && \
   make install && \
   cd .. && \
@@ -74,29 +74,29 @@ RUN \
 # Build Boost
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - http://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2 | tar jxf - && \
   cd boost_1_71_0 && \
   ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu && \
   sed -i -e 's/(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/(3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/' boost/unordered/detail/implementation.hpp && \
   ./b2 -j`nproc` --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
-  ./b2 install --prefix=/usr/local/gcc93 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
+  ./b2 install --prefix=/usr/local/gcc103 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
   cd .. && \
   rm -rf boost_1_71_0
 
 # Build patchelf
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - http://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz | tar zxf - && \
-  cd patchelf-0.10 && \
-  ./configure --prefix=/usr/local/gcc93 && \
+  wget --quiet -O - https://github.com/NixOS/patchelf/releases/download/0.13/patchelf-0.13.tar.bz2 | tar jxf - && \
+  cd patchelf-0.13.20210805.a949ff2 && \
+  ./configure --prefix=/usr/local/gcc103 && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf patchelf-0.10
+  rm -rf patchelf-0.13.20210805.a949ff2
 
 # Build Python 3.7
 # --enable-optimizations for a stable/release build
-# Not using --prefix=/usr/local/gcc93 so that this can be excluded from the final image
+# Not using --prefix=/usr/local/gcc103 so that this can be excluded from the final image
 RUN \
   cd ${build_dir} && \
   wget --quiet -O - https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz | tar xzf - && \
@@ -127,32 +127,31 @@ ENV PATH=${PATH}:/usr/local/cmake/bin
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v1.8.0 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.9.0 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
-  sed -i -e '88d' -e '88,93s/ + begin//' -e '88,93s/end - begin/size/' -e '93d' aten/src/ATen/cpu/vml.h && \
   export BLAS=Eigen && \
   export BUILD_TEST=OFF && \
   export USE_FBGEMM=OFF && \
   export USE_KINETO=OFF && \
   export USE_DISTRIBUTED=OFF && \
-  export USE_MKLDNN=OFF && \
+  export USE_MKLDNN=ON && \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION=1.8.0 && \
+  export PYTORCH_BUILD_VERSION=1.9.0 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   /usr/local/bin/python3.7 setup.py install && \
-  mkdir /usr/local/gcc93/include/pytorch && \
-  cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
-  cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib && \
-  cp torch/lib/libc10.so /usr/local/gcc93/lib && \
+  mkdir /usr/local/gcc103/include/pytorch && \
+  cp -r torch/include/* /usr/local/gcc103/include/pytorch/ && \
+  cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib && \
+  cp torch/lib/libc10.so /usr/local/gcc103/lib && \
   cd .. && \
   rm -rf pytorch
 
 FROM centos:7
-COPY --from=builder /usr/local/gcc93 /usr/local/gcc93
+COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
 RUN \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc git make unzip which zip zlib-devel

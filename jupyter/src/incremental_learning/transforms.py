@@ -89,12 +89,18 @@ def partition_on_metric_ranges(seed: int,
     # on average.
     q_interval = math.pow(0.5, 1.0 / len(metric_features))
 
-    bb = []
-    for feature in metric_features:
-        q_a = max(0.5 - 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.01)
-        q_b = min(0.5 + 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.99)
-        bb.append([dataset[feature].quantile(q_a),
+    for scale in [0.8, 0.88, 0.92, 0.94]:
+        bb = []
+        for feature in metric_features:
+            q_a = max(0.5 - 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.01)
+            q_b = min(0.5 + 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.99)
+            bb.append([dataset[feature].quantile(q_a),
                   dataset[feature].quantile(q_b)])
+
+        n = sum(1 for _ in generate_partition_on_metric_ranges(bb, metric_features, dataset, True))
+        m = sum(1 for _ in generate_partition_on_metric_ranges(bb, metric_features, dataset, False))
+
+        q_interval *= scale if m < n else 1 / scale
 
     return (DataFrame(generate_partition_on_metric_ranges(bb, metric_features, dataset, True)),
             DataFrame(generate_partition_on_metric_ranges(bb, metric_features, dataset, False)))

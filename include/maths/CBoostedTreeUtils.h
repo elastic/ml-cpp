@@ -40,12 +40,14 @@ using TAlignedMemoryMappedFloatVector =
     CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
 using TRegularization = CBoostedTreeRegularization<double>;
 
-enum EExtraColumn {
+enum EExtraColumnTag {
     E_Prediction = 0,
     E_Gradient,
     E_Curvature,
     E_Weight,
-    E_PreviousPrediction
+    E_PreviousPrediction,
+    E_BeginSplits,
+    E_NumberExtraColumnTags // Keep at end!
 };
 
 enum EHyperparameter {
@@ -96,12 +98,22 @@ inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters
     return numberLossParameters * (numberLossParameters + 1) / 2;
 }
 
+//! Get the tags for extra columns needed by training.
+inline TSizeVec extraColumnTagsForTrain() {
+    return {E_Prediction, E_Gradient, E_Curvature, E_Weight};
+}
+
 //! Get the extra columns needed by training.
 inline TSizeAlignmentPrVec extraColumnsForTrain(std::size_t numberLossParameters) {
     return {{numberLossParameters, core::CAlignment::E_Unaligned},
             {numberLossParameters, core::CAlignment::E_Aligned16},
             {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned},
             {1, core::CAlignment::E_Unaligned}};
+}
+
+//! Get the tags for extra columns needed by training.
+inline TSizeVec extraColumnTagsForIncrementalTrain() {
+    return {E_PreviousPrediction};
 }
 
 //! Get the extra columns needed by incremental training.
@@ -197,6 +209,11 @@ inline double readExampleWeight(const TRowRef& row, const TSizeVec& extraColumns
 //! Write the example weight to \p row .
 inline void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns, double weight) {
     row.writeColumn(extraColumns[E_Weight], weight);
+}
+
+//! Get a writable pointer to the start of the row split indices.
+inline core::CFloatStorage* beginSplits(const TRowRef& row, const TSizeVec& extraColumns) {
+    return row.data() + extraColumns[E_BeginSplits];
 }
 
 //! Read the actual value for the target from \p row.

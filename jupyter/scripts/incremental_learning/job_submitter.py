@@ -25,7 +25,7 @@ def init_task_spooler():
                                stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
-def generate_job_file(config, cwd, force_update, verbose):
+def generate_job_file(config, cwd, force_update, verbose, tag):
 
     job_name = '_'.join(map(str, [config['dataset_name'], config['seed'],
                                   config['threads'], config['transform_name'],
@@ -34,6 +34,7 @@ def generate_job_file(config, cwd, force_update, verbose):
     job_file = '{}.job'.format(job_name)
     job_parameters = ['force_update={}'.format(force_update),
                       'verbose={}'.format(verbose),
+                      'tag={}'.format(tag),
                       'dataset_name="{}"'.format(config['dataset_name']),
                       'threads={}'.format(config['threads']),
                       'seed={}'.format(config['seed']),
@@ -62,7 +63,7 @@ if __name__ == '__main__':
     the task spooler for execution.
     """
 
-    parser = argparse.ArgumentParser(description='Run a colletion of experiments defined by experiments.json')
+    parser = argparse.ArgumentParser(description='Run a collection of experiments defined by experiments.json')
     parser.add_argument('--verbose',
                         default=False,
                         action='store_true',
@@ -71,6 +72,9 @@ if __name__ == '__main__':
                         default=False,
                         action='store_true',
                         help='Force accept the result of incremental training')
+    parser.add_argument('--tag',
+                        default='',
+                        help='A user defined tag for this set of runs')
     args = parser.parse_args()
 
     cwd = os.getcwd()
@@ -85,6 +89,7 @@ if __name__ == '__main__':
         job_file = generate_job_file(config=config,
                                      cwd=cwd,
                                      force_update=args.force_update,
-                                     verbose=args.verbose)
+                                     verbose=args.verbose,
+                                     tag=args.tag)
         job_file_path = Path(cwd)/job_file
         submit_to_task_spooler(config['threads'], job_file_path)
