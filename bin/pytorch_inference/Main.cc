@@ -63,7 +63,7 @@ torch::Tensor infer(torch::jit::script::Module& module,
                                              inputSize, at::dtype(torch::kInt64)));
     }
 
-    torch::NoGradGuard noGrad;
+    torch::InferenceMode inferenceModeGuard;
     auto result = module.forward(inputs);
     if (result.isTuple()) {
         // For BERT models the result tensor is the first element in a tuple
