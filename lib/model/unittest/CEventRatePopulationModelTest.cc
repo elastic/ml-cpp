@@ -1194,13 +1194,14 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     CDetectionRule rule;
     rule.action(CDetectionRule::E_SkipModelUpdate);
-    rule.includeScope("", valueFilter);
+    rule.includeScope("byFieldName", valueFilter);
 
     SModelParams paramsNoRules(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CEventRatePopulationModelFactory factory(paramsNoRules, interimBucketCorrector);
     model_t::TFeatureVec features{model_t::E_PopulationCountByBucketPersonAndAttribute};
     factory.features(features);
+    factory.fieldNames("partitionFieldName", "", "byFieldName", "", {});
 
     CModelFactory::SGathererInitializationData gathererNoSkipInitData(startTime);
     CModelFactory::TDataGathererPtr gathererNoSkip(
@@ -1217,6 +1218,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     CEventRatePopulationModelFactory factoryWithSkipRule(
         paramsWithRules, interimBucketCorrectorWithRules);
     factoryWithSkipRule.features(features);
+    factoryWithSkipRule.fieldNames("partitionFieldName", "", "byFieldName", "", {});
 
     CModelFactory::SGathererInitializationData gathererWithSkipInitData(startTime);
     CModelFactory::TDataGathererPtr gathererWithSkip(
