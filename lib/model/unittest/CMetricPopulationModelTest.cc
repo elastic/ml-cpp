@@ -1200,9 +1200,11 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     TMessageVec messages;
     generateTestMessages(1, startTime, bucketLength, messages);
 
-    using TDataGathererPtrModelPtrPr = std::pair<CModelFactory::TDataGathererPtr, CAnomalyDetectorModel::TModelPtr&>;
-    std::vector<TDataGathererPtrModelPtrPr> configs{TDataGathererPtrModelPtrPr{gathererNoSkip, modelNoSkip},
-                                                    TDataGathererPtrModelPtrPr{gathererWithSkip, modelWithSkip}};
+    using TDataGathererPtrModelPtrPr =
+        std::pair<CModelFactory::TDataGathererPtr, CAnomalyDetectorModel::TModelPtr&>;
+    std::vector<TDataGathererPtrModelPtrPr> configs{
+        TDataGathererPtrModelPtrPr{gathererNoSkip, modelNoSkip},
+        TDataGathererPtrModelPtrPr{gathererWithSkip, modelWithSkip}};
     // Run the same data through both models, ignoring messages with the c3 attribute so the skip sampling rule won't apply
     for (auto& config : configs) {
         core_t::TTime start{startTime};
