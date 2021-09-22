@@ -1153,26 +1153,27 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // At the end the checksums for the underlying models should
     // be the same.
 
-    core_t::TTime startTime{100};
-    const std::size_t bucketLength{100};
-    core_t::TTime endTime = startTime + bucketLength;
+    core_t::TTime startTime{1367280000};
+    const core_t::TTime bucketLength{3600};
+    core_t::TTime endTime = startTime + bucketLength * 100u;
 
-    // Create a categorical rule to filter out attribute a3
+    // Create a categorical rule to reduce the weight applied to samples for attribute c3
     std::string filterJson("[\"c3\"]");
     core::CPatternSet valueFilter;
     valueFilter.initFromJson(filterJson);
 
     CDetectionRule rule;
     rule.action(CDetectionRule::E_SkipModelUpdate);
-    rule.includeScope("", valueFilter);
+    rule.includeScope("byFieldName", valueFilter);
 
     model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute};
+    CModelFactory::SGathererInitializationData gathererInitData(startTime);
 
     SModelParams paramsNoRules(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CMetricPopulationModelFactory factoryNoSkip(paramsNoRules, interimBucketCorrector);
     factoryNoSkip.features(features);
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
+    factoryNoSkip.fieldNames("partitionFieldName", "", "byFieldName", "", {});
     CModelFactory::TDataGathererPtr gathererNoSkip(
         factoryNoSkip.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData modelNoSkipInitData(gathererNoSkip);
@@ -1186,49 +1187,65 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     CMetricPopulationModelFactory factoryWithSkip(paramsWithRules, interimBucketCorrectorWithRules);
     factoryWithSkip.features(features);
+    factoryWithSkip.fieldNames("partitionFieldName", "", "byFieldName", "", {});
     CModelFactory::TDataGathererPtr gathererWithSkip(
         factoryWithSkip.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData modelWithSkipInitData(gathererWithSkip);
     CAnomalyDetectorModel::TModelPtr modelWithSkip(
         factoryWithSkip.makeModel(modelWithSkipInitData));
 
-    TMessageVec messages{
-        {startTime + 10, "p1", TOptionalStr{"c1"}, TDouble1Vec{1, 20.0}},
-        {startTime + 10, "p1", TOptionalStr{"c2"}, TDouble1Vec{1, 22.0}},
-        {startTime + 10, "p2", TOptionalStr{"c1"}, TDouble1Vec{1, 20.0}},
-        {startTime + 10, "p2", TOptionalStr{"c2"}, TDouble1Vec{1, 22.0}}};
+    // Use the existing test function to generate a set of messages sufficiently complex
+    // that we know some will cause samples to be added to the models.
+    // Restrict the messages to those for persons p1 and p2.
+    TMessageVec messages;
+    generateTestMessages(1, startTime, bucketLength, messages);
 
-    std::vector<CModelFactory::TDataGathererPtr> gatherers{gathererNoSkip, gathererWithSkip};
-    for (auto& gatherer : gatherers) {
+    using TDataGathererPtrModelPtrPr =
+        std::pair<CModelFactory::TDataGathererPtr, CAnomalyDetectorModel::TModelPtr&>;
+    std::vector<TDataGathererPtrModelPtrPr> configs{
+        TDataGathererPtrModelPtrPr{gathererNoSkip, modelNoSkip},
+        TDataGathererPtrModelPtrPr{gathererWithSkip, modelWithSkip}};
+    // Run the same data through both models, ignoring messages with the c3 attribute so the skip sampling rule won't apply
+    for (auto& config : configs) {
+        core_t::TTime start{startTime};
         for (auto& message : messages) {
-            this->addArrival(message, gatherer);
+            if (message.s_Person != "p1" && message.s_Person != "p2") {
+                continue;
+            }
+            if (message.s_Attribute.get() == "c3") {
+                continue;
+            }
+            if (message.s_Time >= start + bucketLength) {
+                config.second->sample(start, start + bucketLength, m_ResourceMonitor);
+                start += bucketLength;
+            }
+            this->addArrival(message, config.first);
         }
     }
-    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
-    modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
-    startTime = endTime;
-    endTime += bucketLength;
+
+    // The checksums should match
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     messages.clear();
-    messages.emplace_back(startTime + 10, "p1", TOptionalStr{"c1"}, TDouble1Vec{1, 21.0});
-    messages.emplace_back(startTime + 10, "p1", TOptionalStr{"c2"}, TDouble1Vec{1, 21.0});
-    messages.emplace_back(startTime + 10, "p2", TOptionalStr{"c1"}, TDouble1Vec{1, 21.0});
-    messages.emplace_back(startTime + 10, "p2", TOptionalStr{"c2"}, TDouble1Vec{1, 21.0});
-    for (auto& gatherer : gatherers) {
-        for (auto& message : messages) {
-            this->addArrival(message, gatherer);
+    startTime = endTime;
+
+    generateTestMessages(1, startTime, bucketLength, messages);
+
+    // These all should be filtered out by the skip sampling rule
+    core_t::TTime start{startTime};
+    for (auto& message : messages) {
+        if (message.s_Person != "p1" && message.s_Person != "p2") {
+            continue;
         }
+        if (message.s_Attribute.get() != "c3") {
+            continue;
+        }
+        if (message.s_Time >= start + bucketLength) {
+            modelWithSkip->sample(start, start + bucketLength, m_ResourceMonitor);
+            start += bucketLength;
+        }
+        this->addArrival(message, gathererWithSkip);
     }
-
-    // This should be filtered out
-    this->addArrival(SMessage(startTime + 10, "p1", TOptionalStr{"c3"}, TDouble1Vec{1, 21.0}),
-                     gathererWithSkip);
-    this->addArrival(SMessage(startTime + 10, "p2", TOptionalStr{"c3"}, TDouble1Vec{1, 21.0}),
-                     gathererWithSkip);
-
-    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
-    modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
 
     // Checksums will be different because a 3rd model is created for attribute c3
     BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());

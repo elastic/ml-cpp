@@ -2252,6 +2252,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CMetricModelFactory factory(paramsNoRules, interimBucketCorrector);
     model_t::TFeatureVec features{model_t::E_IndividualMeanByPerson};
+    factory.features(features);
     CModelFactory::TDataGathererPtr gathererNoSkip(factory.makeDataGatherer(startTime));
     CModelFactory::TModelPtr modelPtrNoSkip(factory.makeModel(gathererNoSkip));
     CMetricModel* modelNoSkip = dynamic_cast<CMetricModel*>(modelPtrNoSkip.get());
@@ -2261,6 +2262,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     SModelParams::TDetectionRuleVec rules{rule};
     paramsWithRules.s_DetectionRules = SModelParams::TDetectionRuleVecCRef(rules);
     CMetricModelFactory factoryWithSkip(paramsWithRules, interimBucketCorrector);
+    factoryWithSkip.features(features);
     CModelFactory::TDataGathererPtr gathererWithSkip(
         factoryWithSkip.makeDataGatherer(startTime));
     CModelFactory::TModelPtr modelPtrWithSkip(factoryWithSkip.makeModel(gathererWithSkip));
@@ -2312,12 +2314,13 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Checksums will be different due to the data gatherers
     BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
-    // but the underlying models should be the same
-    CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
-        modelWithSkip->details();
-    CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
-
     // TODO this test fails due a different checksums for the decay rate and prior
+
+    // // but the underlying models should be the same
+    // CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
+    //     modelWithSkip->details();
+    // CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
+
     // uint64_t withSkipChecksum = modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();
     // uint64_t noSkipChecksum = modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();
     // BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
