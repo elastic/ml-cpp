@@ -17,7 +17,9 @@
 #include <core/CPackedBitVector.h>
 #include <core/CSmallVector.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeLeafNodeStatisticsThreading.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -29,6 +31,7 @@
 
 #include <boost/operators.hpp>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
@@ -36,6 +39,9 @@
 #include <numeric>
 #include <vector>
 
+namespace CBoostedTreeLeafNodeStatisticsTest {
+struct testComputeBestSplitStatsThreading;
+}
 namespace ml {
 namespace core {
 class CDataFrame;
@@ -89,6 +95,7 @@ public:
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
     using TMemoryMappedDoubleVector = CMemoryMappedDenseVector<double, Eigen::Aligned16>;
     using TMemoryMappedDoubleMatrix = CMemoryMappedDenseMatrix<double, Eigen::Aligned16>;
+    using TThreading = CBoostedTreeLeafNodeStatisticsThreading;
 
     //! \brief Accumulates aggregate derivatives.
     class MATHS_EXPORT CDerivatives {
@@ -202,6 +209,7 @@ public:
     class MATHS_EXPORT CSplitsDerivatives {
     public:
         using TDerivativesVec = std::vector<CDerivatives>;
+        using TLoopBodyVec = std::vector<std::function<void(std::size_t)>>;
 
     public:
         explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
@@ -280,6 +288,14 @@ public:
         //! \return The number of split aggregate derivatives for \p feature.
         std::size_t numberDerivatives(std::size_t feature) const {
             return m_Derivatives[feature].size() - 1;
+        }
+
+        //! \return The total number of split aggregate derivatives for \p featureBag.
+        std::size_t numberDerivatives(const TSizeVec& featureBag) const {
+            return std::accumulate(featureBag.begin(), featureBag.end(),
+                                   std::size_t{0}, [this](auto result, auto feature) {
+                                       return result + this->numberDerivatives(feature);
+                                   });
         }
 
         //! \return An iterator to the begining of the split aggregate derivatives
@@ -385,7 +401,7 @@ public:
         }
 
         //! Compute the accumulation of both collections of per split derivatives.
-        void add(const CSplitsDerivatives& rhs, const TSizeVec& featureBag) {
+        void add(std::size_t numberThreads, const CSplitsDerivatives& rhs, const TSizeVec& featureBag) {
             m_PositiveDerivativesSum += rhs.m_PositiveDerivativesSum;
             m_NegativeDerivativesSum += rhs.m_NegativeDerivativesSum;
             m_PositiveDerivativesMax =
@@ -394,31 +410,45 @@ public:
                 std::min(m_PositiveDerivativesMin, rhs.m_PositiveDerivativesMin);
             m_NegativeDerivativesMin =
                 m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
-            for (std::size_t i : featureBag) {
+            numberThreads = TThreading::numberThreadsForAddSplitsDerivatives(
+                numberThreads, featureBag.size(), m_NumberLossParameters,
+                this->numberDerivatives(featureBag));
+            TLoopBodyVec add(numberThreads, [&](std::size_t i) {
                 for (std::size_t j = 0; j < rhs.m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].add(rhs.m_Derivatives[i][j]);
                 }
-            }
+            });
+            core::parallel_for_each(featureBag.begin(), featureBag.end(), add);
         }
 
         //! Subtract \p rhs.
-        void subtract(const CSplitsDerivatives& rhs, const TSizeVec& featureBag) {
+        void subtract(std::size_t numberThreads,
+                      const CSplitsDerivatives& rhs,
+                      const TSizeVec& featureBag) {
             m_PositiveDerivativesSum -= rhs.m_PositiveDerivativesSum;
             m_NegativeDerivativesSum -= rhs.m_NegativeDerivativesSum;
-            for (std::size_t i : featureBag) {
+            numberThreads = TThreading::numberThreadsForSubtractSplitsDerivatives(
+                numberThreads, featureBag.size(), m_NumberLossParameters,
+                this->numberDerivatives(featureBag));
+            TLoopBodyVec subtract(numberThreads, [&](std::size_t i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);
                 }
-            }
+            });
+            core::parallel_for_each(featureBag.begin(), featureBag.end(), subtract);
         }
 
         //! Remap the accumulated curvature to lower triangle row major format.
-        void remapCurvature(const TSizeVec& featureBag) {
-            for (std::size_t i : featureBag) {
-                for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
-                    m_Derivatives[i][j].remapCurvature();
+        void remapCurvature(std::size_t numberThreads, const TSizeVec& featureBag) {
+            numberThreads = TThreading::numberThreadsForRemapSplitsDerivatives(
+                numberThreads, featureBag.size(), m_NumberLossParameters,
+                this->numberDerivatives(featureBag));
+            TLoopBodyVec remap(numberThreads, [this](std::size_t i) {
+                for (auto& derivatives : m_Derivatives[i]) {
+                    derivatives.remapCurvature();
                 }
-            }
+            });
+            core::parallel_for_each(featureBag.begin(), featureBag.end(), remap);
         }
 
         //! Get the memory used by this object.
@@ -443,8 +473,12 @@ public:
         //! Get a checksum of this object.
         std::uint64_t checksum(std::uint64_t seed = 0) const {
             seed = CChecksum::calculate(seed, m_NumberLossParameters);
-            seed = CChecksum::calculate(seed, m_Derivatives);
-            return seed;
+            seed = CChecksum::calculate(seed, m_PositiveDerivativesSum);
+            seed = CChecksum::calculate(seed, m_NegativeDerivativesSum);
+            seed = CChecksum::calculate(seed, m_PositiveDerivativesMax);
+            seed = CChecksum::calculate(seed, m_PositiveDerivativesMin);
+            seed = CChecksum::calculate(seed, m_NegativeDerivativesMin);
+            return CChecksum::calculate(seed, m_Derivatives);
         }
 
         //! Get the number of loss function parameters.
@@ -545,6 +579,9 @@ public:
         CWorkspace& operator=(const CWorkspace& other) = delete;
         CWorkspace& operator=(CWorkspace&&) = default;
 
+        //! Get the number of threads available.
+        std::size_t numberThreads() const { return m_Derivatives.size(); }
+
         //! Re-initialize the masks and derivatives.
         void reinitialize(std::size_t numberThreads,
                           const TFloatVecVec& candidateSplits,
@@ -575,8 +612,8 @@ public:
         void resetMinimumGain() { m_MinimumGain = 0.0; }
 
         //! Start working on a new leaf.
-        void newLeaf(std::size_t numberThreads) {
-            m_NumberThreads = numberThreads;
+        void newLeaf(std::size_t numberToReduce) {
+            m_NumberToReduce = numberToReduce;
             m_ReducedMasks = false;
             m_ReducedDerivatives = false;
         }
@@ -584,10 +621,10 @@ public:
         //! Get the reduction of the per thread aggregate derivatives.
         CSplitsDerivatives& reducedDerivatives(const TSizeVec& featureBag) {
             if (m_ReducedDerivatives == false) {
-                for (std::size_t i = 1; i < m_NumberThreads; ++i) {
-                    m_Derivatives[0].add(m_Derivatives[i], featureBag);
+                for (std::size_t i = 1; i < m_NumberToReduce; ++i) {
+                    m_Derivatives[0].add(this->numberThreads(), m_Derivatives[i], featureBag);
                 }
-                m_Derivatives[0].remapCurvature(featureBag);
+                m_Derivatives[0].remapCurvature(this->numberThreads(), featureBag);
                 m_ReducedDerivatives = true;
             }
             return m_Derivatives[0];
@@ -597,7 +634,7 @@ public:
         const core::CPackedBitVector& reducedMask(std::size_t size) {
             if (m_ReducedMasks == false) {
                 m_Masks[0].extend(false, size - m_Masks[0].size());
-                for (std::size_t i = 1; i < m_NumberThreads; ++i) {
+                for (std::size_t i = 1; i < m_NumberToReduce; ++i) {
                     m_Masks[i].extend(false, size - m_Masks[i].size());
                     m_Masks[0] |= m_Masks[i];
                 }
@@ -619,7 +656,7 @@ public:
         }
 
     private:
-        std::size_t m_NumberThreads = 0;
+        std::size_t m_NumberToReduce = 0;
         double m_MinimumGain = 0.0;
         bool m_ReducedMasks = false;
         bool m_ReducedDerivatives = false;
@@ -631,7 +668,6 @@ public:
     CBoostedTreeLeafNodeStatistics(std::size_t id,
                                    const TSizeVec& extraColumns,
                                    std::size_t numberLossParameters,
-                                   std::size_t numberThreads,
                                    const core::CDataFrame& frame,
                                    const TRegularization& regularization,
                                    const TFloatVecVec& candidateSplits,
@@ -644,7 +680,6 @@ public:
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatistics(std::size_t id,
                                    const CBoostedTreeLeafNodeStatistics& parent,
-                                   std::size_t numberThreads,
                                    const core::CDataFrame& frame,
                                    const TRegularization& regularization,
                                    const TSizeVec& treeFeatureBag,
@@ -656,7 +691,6 @@ public:
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatistics(std::size_t id,
                                    CBoostedTreeLeafNodeStatistics&& parent,
-                                   std::size_t numberThreads,
                                    const TRegularization& regularization,
                                    const TSizeVec& treeFeatureBag,
                                    const TSizeVec& nodeFeatureBag,
@@ -672,7 +706,6 @@ public:
     //! \return Shared pointers to the left and right child node statistics.
     TPtrPtrPr split(std::size_t leftChildId,
                     std::size_t rightChildId,
-                    std::size_t numberThreads,
                     double gainThreshold,
                     const core::CDataFrame& frame,
                     const TRegularization& regularization,
@@ -776,6 +809,11 @@ private:
     using TRowRef = core::CDataFrame::TRowRef;
 
 private:
+    CBoostedTreeLeafNodeStatistics(const TSizeVec& extraColumns,
+                                   std::size_t numberLossParameters,
+                                   const TFloatVecVec& candidateSplits,
+                                   CSplitsDerivatives derivatives = CSplitsDerivatives{});
+
     void computeAggregateLossDerivatives(std::size_t numberThreads,
                                          const core::CDataFrame& frame,
                                          const TSizeVec& featureBag,
@@ -798,12 +836,6 @@ private:
 
     double childMaxGain(double gChild, double minLossChild, double lambda) const;
 
-    std::size_t numberThreadsForAggregateLossDerivatives(std::size_t maximumNumberThreads,
-                                                         std::size_t features,
-                                                         std::size_t rows) const;
-    std::size_t numberThreadsForComputeBestSplitStatistics(std::size_t maximumNumberThreads,
-                                                           const TSizeVec& featureBag) const;
-
 private:
     std::size_t m_Id;
     std::size_t m_Depth;
@@ -813,6 +845,8 @@ private:
     core::CPackedBitVector m_RowMask;
     CSplitsDerivatives m_Derivatives;
     SSplitStats m_BestSplit;
+
+    friend struct CBoostedTreeLeafNodeStatisticsTest::testComputeBestSplitStatsThreading;
 };
 }
 }

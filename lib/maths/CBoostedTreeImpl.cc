@@ -904,9 +904,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
     splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
-        frame, m_Regularization, candidateSplits, treeFeatureBag,
-        nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace));
+        0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), frame,
+        m_Regularization, candidateSplits, treeFeatureBag, nodeFeatureBag,
+        0 /*depth*/, trainingRowMask, workspace));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
@@ -980,10 +980,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
-        std::tie(leftChild, rightChild) =
-            leaf->split(leftChildId, rightChildId, m_NumberThreads,
-                        smallestCandidateGain, frame, m_Regularization,
-                        treeFeatureBag, nodeFeatureBag, tree[leaf->id()], workspace);
+        std::tie(leftChild, rightChild) = leaf->split(
+            leftChildId, rightChildId, smallestCandidateGain, frame, m_Regularization,
+            treeFeatureBag, nodeFeatureBag, tree[leaf->id()], workspace);
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {

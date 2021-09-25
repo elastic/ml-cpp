@@ -42,7 +42,6 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t id,
     const TSizeVec& extraColumns,
     std::size_t numberLossParameters,
-    std::size_t numberThreads,
     const core::CDataFrame& frame,
     const TRegularization& regularization,
     const TFloatVecVec& candidateSplits,
@@ -54,13 +53,14 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns},
       m_NumberLossParameters{numberLossParameters}, m_CandidateSplits{candidateSplits} {
 
-    this->computeAggregateLossDerivatives(numberThreads, frame, treeFeatureBag,
-                                          rowMask, workspace);
+    this->computeAggregateLossDerivatives(workspace.numberThreads(), frame,
+                                          treeFeatureBag, rowMask, workspace);
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
     m_Derivatives.swap(workspace.reducedDerivatives(treeFeatureBag));
-    m_BestSplit = this->computeBestSplitStatistics(numberThreads, regularization, nodeFeatureBag);
+    m_BestSplit = this->computeBestSplitStatistics(workspace.numberThreads(),
+                                                   regularization, nodeFeatureBag);
     workspace.reducedDerivatives(treeFeatureBag).swap(m_Derivatives);
 
     if (this->gain() >= workspace.minimumGain()) {
@@ -73,7 +73,6 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t id,
     const CBoostedTreeLeafNodeStatistics& parent,
-    std::size_t numberThreads,
     const core::CDataFrame& frame,
     const TRegularization& regularization,
     const TSizeVec& treeFeatureBag,
@@ -86,16 +85,16 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
                                                                  parent.m_CandidateSplits} {
 
     this->computeRowMaskAndAggregateLossDerivatives(
-        this->numberThreadsForAggregateLossDerivatives(
-            numberThreads, treeFeatureBag.size(), parent.minimumChildRowCount()),
+        TThreading::numberThreadsForAggregateLossDerivatives(
+            workspace.numberThreads(), treeFeatureBag.size(), parent.minimumChildRowCount()),
         frame, isLeftChild, split, treeFeatureBag, parent.m_RowMask, workspace);
 
-    // Lazily copy the mask and derivatives to avoid unnecessary allocations.
-
     m_Derivatives.swap(workspace.reducedDerivatives(treeFeatureBag));
-    m_BestSplit = this->computeBestSplitStatistics(numberThreads, regularization, nodeFeatureBag);
+    m_BestSplit = this->computeBestSplitStatistics(workspace.numberThreads(),
+                                                   regularization, nodeFeatureBag);
     workspace.reducedDerivatives(treeFeatureBag).swap(m_Derivatives);
 
+    // Lazily copy the mask and derivatives to avoid unnecessary allocations.
     if (this->gain() >= workspace.minimumGain()) {
         CSplitsDerivatives tmp{workspace.reducedDerivatives(treeFeatureBag)};
         m_RowMask = workspace.reducedMask(parent.m_RowMask.size());
@@ -106,7 +105,6 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t id,
     CBoostedTreeLeafNodeStatistics&& parent,
-    std::size_t numberThreads,
     const TRegularization& regularization,
     const TSizeVec& treeFeatureBag,
     const TSizeVec& nodeFeatureBag,
@@ -116,10 +114,13 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
       m_CandidateSplits{parent.m_CandidateSplits}, m_Derivatives{std::move(
                                                        parent.m_Derivatives)} {
 
-    // Lazily compute the row mask to avoid unnecessary work.
+    // TODO if sum(splits) > |feature| * |rows| aggregate.
+    m_Derivatives.subtract(workspace.numberThreads(),
+                           workspace.reducedDerivatives(treeFeatureBag), treeFeatureBag);
+    m_BestSplit = this->computeBestSplitStatistics(workspace.numberThreads(),
+                                                   regularization, nodeFeatureBag);
 
-    m_Derivatives.subtract(workspace.reducedDerivatives(treeFeatureBag), treeFeatureBag);
-    m_BestSplit = this->computeBestSplitStatistics(numberThreads, regularization, nodeFeatureBag);
+    // Lazily compute the row mask to avoid unnecessary work.
     if (this->gain() >= workspace.minimumGain()) {
         m_RowMask = std::move(parent.m_RowMask);
         m_RowMask ^= workspace.reducedMask(m_RowMask.size());
@@ -129,7 +130,6 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
 CBoostedTreeLeafNodeStatistics::TPtrPtrPr
 CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       std::size_t rightChildId,
-                                      std::size_t numberThreads,
                                       double gainThreshold,
                                       const core::CDataFrame& frame,
                                       const TRegularization& regularization,
@@ -142,16 +142,16 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
     if (this->leftChildHasFewerRows()) {
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-                leftChildId, *this, numberThreads, frame, regularization, treeFeatureBag,
+                leftChildId, *this, frame, regularization, treeFeatureBag,
                 nodeFeatureBag, true /*is left child*/, split, workspace);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-                    rightChildId, std::move(*this), numberThreads,
-                    regularization, treeFeatureBag, nodeFeatureBag, workspace);
+                    rightChildId, std::move(*this), regularization,
+                    treeFeatureBag, nodeFeatureBag, workspace);
             }
         } else if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
             rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-                rightChildId, *this, numberThreads, frame, regularization, treeFeatureBag,
+                rightChildId, *this, frame, regularization, treeFeatureBag,
                 nodeFeatureBag, false /*is left child*/, split, workspace);
         }
         return {std::move(leftChild), std::move(rightChild)};
@@ -159,19 +159,27 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
 
     if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            rightChildId, *this, numberThreads, frame, regularization, treeFeatureBag,
+            rightChildId, *this, frame, regularization, treeFeatureBag,
             nodeFeatureBag, false /*is left child*/, split, workspace);
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-                leftChildId, std::move(*this), numberThreads, regularization,
-                treeFeatureBag, nodeFeatureBag, workspace);
+                leftChildId, std::move(*this), regularization, treeFeatureBag,
+                nodeFeatureBag, workspace);
         }
     } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
         leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            leftChildId, *this, numberThreads, frame, regularization, treeFeatureBag,
+            leftChildId, *this, frame, regularization, treeFeatureBag,
             nodeFeatureBag, true /*is left child*/, split, workspace);
     }
     return {std::move(leftChild), std::move(rightChild)};
+}
+
+CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(const TSizeVec& extraColumns,
+                                                               std::size_t numberLossParameters,
+                                                               const TFloatVecVec& candidateSplits,
+                                                               CSplitsDerivatives derivatives)
+    : m_Id{0}, m_Depth{0}, m_ExtraColumns{extraColumns}, m_NumberLossParameters{numberLossParameters},
+      m_CandidateSplits{candidateSplits}, m_Derivatives{std::move(derivatives)} {
 }
 
 bool CBoostedTreeLeafNodeStatistics::operator<(const CBoostedTreeLeafNodeStatistics& rhs) const {
@@ -344,49 +352,15 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     using TDoubleVectorAry = std::array<TDoubleVector, 2>;
     using TDoubleMatrix = CDenseMatrix<double>;
     using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
-    using TMinimumLoss = std::function<double(const TDoubleVector&, const TDoubleMatrix&)>;
     using TSplitSearchVec = std::vector<std::function<void(std::size_t)>>;
     using TSplitStatsVec = std::vector<SSplitStats>;
     using TChildrenGainStatsVec = std::vector<SChildrenGainStats>;
 
     int d{static_cast<int>(m_NumberLossParameters)};
-
-    TMinimumLoss minimumLoss;
-
     double lambda{regularization.leafWeightPenaltyMultiplier()};
-    Eigen::MatrixXd hessian{d, d};
-    Eigen::MatrixXd hessian_{d, d};
-    Eigen::VectorXd hessianInvg{d};
-    if (m_NumberLossParameters == 1) {
-        // There is a significant overhead for using a matrix decomposition when g and h
-        // are scalar so we have special case handling.
-        minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
-            return CTools::pow2(g(0)) / (h(0, 0) + lambda);
-        };
-    } else {
-        minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
-            hessian_ = hessian =
-                (h + lambda * TDoubleMatrix::Identity(d, d)).selfadjointView<Eigen::Lower>();
-            // Since the Hessian is positive semidefinite, the trace is larger than the
-            // largest eigenvalue. Therefore, H_eps = H + eps * trace(H) * I will have
-            // condition number at least eps. As long as eps >> double epsilon we should
-            // be able to invert it accurately.
-            double eps{std::max(1e-5 * hessian.trace(), 1e-10)};
-            for (std::size_t i = 0; i < 2; ++i) {
-                Eigen::LLT<Eigen::Ref<Eigen::MatrixXd>> llt{hessian};
-                hessianInvg = llt.solve(g);
-                if ((hessian_ * hessianInvg - g).norm() < 1e-2 * g.norm()) {
-                    return g.transpose() * hessianInvg;
-                } else {
-                    hessian_.diagonal().array() += eps;
-                    hessian = hessian_;
-                }
-            }
-            return -INF / 2.0; // We couldn't invert the Hessian: discard this split.
-        };
-    }
+    auto minimumLoss = TThreading::makeThreadLocalMinimumLossFunction(d, lambda);
 
-    auto makeBestSplitSearch = [&](SSplitStats& splitStats,
+    auto makeBestSplitSearch = [&](SSplitStats& bestSplitStats,
                                    SChildrenGainStats& childrenGainStatsGlobal) {
         TDoubleVector g_{d};
         TDoubleMatrix h_{d, d};
@@ -394,16 +368,15 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
         TDoubleVectorAry gr_{TDoubleVector{d}, TDoubleVector{d}};
         TDoubleMatrixAry hl_{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
         TDoubleMatrixAry hr_{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
-        TDoubleAry gain;
-        TDoubleAry minLossLeft{0.0, 0.0};
-        TDoubleAry minLossRight{0.0, 0.0};
-        SChildrenGainStats childrenGainStatsPerFeature;
 
         return [
+            // Inputs
+            minimumLoss, &regularization,
+            // State
             g = std::move(g_), h = std::move(h_), gl = std::move(gl_),
-            gr = std::move(gr_), hl = std::move(hl_), hr = std::move(hr_), gain,
-            minLossLeft, minLossRight, childrenGainStatsPerFeature, &minimumLoss,
-            &regularization, &splitStats, &childrenGainStatsGlobal, this
+            gr = std::move(gr_), hl = std::move(hl_), hr = std::move(hr_),
+            // Results
+            &bestSplitStats, &childrenGainStatsGlobal, this
         ](std::size_t feature) mutable {
 
             std::size_t c{m_Derivatives.missingCount(feature)};
@@ -430,6 +403,10 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
             std::size_t leftChildRowCount{0};
             bool assignMissingToLeft{true};
             std::size_t size{m_Derivatives.numberDerivatives(feature)};
+            TDoubleAry gain;
+            TDoubleAry minLossLeft;
+            TDoubleAry minLossRight;
+            SChildrenGainStats childrenGainStatsPerFeature;
 
             for (std::size_t split = 0; split + 1 < size; ++split) {
 
@@ -438,10 +415,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
                     continue;
                 }
 
-                const TMemoryMappedDoubleVector& gradient{
-                    m_Derivatives.gradient(feature, split)};
-                const TMemoryMappedDoubleMatrix& curvature{
-                    m_Derivatives.curvature(feature, split)};
+                const auto& gradient = m_Derivatives.gradient(feature, split);
+                const auto& curvature = m_Derivatives.curvature(feature, split);
 
                 cl[ASSIGN_MISSING_TO_LEFT] += count;
                 cl[ASSIGN_MISSING_TO_RIGHT] += count;
@@ -519,14 +494,17 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
                 assignMissingToLeft};
             LOG_TRACE(<< "candidate split: " << candidateSplitStats.print());
 
-            if (candidateSplitStats > splitStats) {
-                splitStats = candidateSplitStats;
+            if (candidateSplitStats > bestSplitStats) {
+                bestSplitStats = candidateSplitStats;
                 childrenGainStatsGlobal = childrenGainStatsPerFeature;
             }
         };
     };
 
-    numberThreads = this->numberThreadsForComputeBestSplitStatistics(numberThreads, featureBag);
+    numberThreads = TThreading::numberThreadsForComputeBestSplitStats(
+        numberThreads, featureBag.size(), static_cast<std::size_t>(d),
+        m_Derivatives.numberDerivatives(featureBag));
+    LOG_TRACE(<< "number threads = " << numberThreads);
 
     TSplitSearchVec bestSplitSearches;
     TSplitStatsVec splitStats(numberThreads);
@@ -605,63 +583,6 @@ double CBoostedTreeLeafNodeStatistics::childMaxGain(double gChild,
                                      lambda + 1e-10)
                               : 0.0)};
     return lookAheadGain - minLossChild;
-}
-
-std::size_t CBoostedTreeLeafNodeStatistics::numberThreadsForAggregateLossDerivatives(
-    std::size_t maximumNumberThreads,
-    std::size_t features,
-    std::size_t rows) const {
-
-    // The number of threads we'll use breaks down as follows:
-    //   - We need a minimum number of rows per thread to ensure reasonable
-    //     load balancing.
-    //   - We need a minimum amount of work per thread to make the overheads
-    //     of distributing worthwhile.
-
-    std::size_t rowsPerThreadConstraint{rows / 64};
-    std::size_t workPerThreadConstraint{(features * rows) / (8 * 64)};
-    return std::min(maximumNumberThreads,
-                    std::max(std::min(rowsPerThreadConstraint, workPerThreadConstraint),
-                             std::size_t{1}));
-}
-
-std::size_t CBoostedTreeLeafNodeStatistics::numberThreadsForComputeBestSplitStatistics(
-    std::size_t maximumNumberThreads,
-    const TSizeVec& featureBag) const {
-
-    // Each task we add introduces a fixed overhead and we add one task per
-    // thread. We achieve maximum throughput when we choose the number of
-    // threads to maximize
-    //
-    //   "total work" / "thread count" + "overhead per task" * "number tasks".
-    //
-    // We estimate the total work as proportional to
-    //
-    //   "total number splits" * "number loss parameters"^2.
-
-    using TDoubleAry = std::array<double, 3>;
-
-    double totalWork{static_cast<double>(std::accumulate(
-                         featureBag.begin(), featureBag.end(), std::size_t{0},
-                         [this](std::size_t n, std::size_t feature) {
-                             return n + m_Derivatives.numberDerivatives(feature);
-                         })) +
-                     CTools::pow2(static_cast<double>(m_NumberLossParameters))};
-
-    auto throughput = [&](double threads) {
-        return threads > 1 ? totalWork / 20.0 / threads + 30.0 * threads : totalWork / 20.0;
-    };
-
-    double maxThroughputNumberThreads{std::max(std::sqrt(totalWork / 600.0), 1.0)};
-    TDoubleAry numberThreads{1.0, std::floor(maxThroughputNumberThreads),
-                             std::ceil(maxThroughputNumberThreads)};
-    TDoubleAry throughputs{throughput(1.0),
-                           throughput(std::floor(maxThroughputNumberThreads)),
-                           throughput(std::ceil(maxThroughputNumberThreads))};
-    std::ptrdiff_t i{std::max_element(throughputs.begin(), throughputs.end()) -
-                     throughputs.begin()};
-
-    return std::min(maximumNumberThreads, static_cast<std::size_t>(numberThreads[i]));
 }
 }
 }
