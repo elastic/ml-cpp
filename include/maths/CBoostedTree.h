@@ -158,6 +158,20 @@ public:
                                 double curvature,
                                 TNodeVec& tree);
 
+    //! Split this node and add its child nodes to \p tree.
+    //!
+    //! \note This overload stubs out \p candidateSplits. This is used to optimize
+    //! leaf access and assignToLeft for train so it is fine to supply empty.
+    TNodeIndexNodeIndexPr split(std::size_t splitFeature,
+                                double splitValue,
+                                bool assignMissingToLeft,
+                                double gain,
+                                double curvature,
+                                TNodeVec& tree) {
+        return this->split({}, splitFeature, splitValue, assignMissingToLeft,
+                           gain, curvature, tree);
+    }
+
     //! Get the feature index of the split.
     std::size_t splitFeature() const { return m_SplitFeature; }
 
