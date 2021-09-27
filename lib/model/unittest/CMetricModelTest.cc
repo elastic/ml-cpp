@@ -2315,8 +2315,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     // TODO this test fails due a different checksums for the decay rate and prior
-
-    // // but the underlying models should be the same
+    // but the underlying models should be the same.
+    // See elastic/ml-cpp/issues/2043
     // CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
     //     modelWithSkip->details();
     // CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
@@ -2325,7 +2325,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // uint64_t noSkipChecksum = modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();
     // BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
-    // TODO These checks fail see elastic/machine-learning-cpp/issues/485
+    // TODO These checks fail see elastic/ml-cpp/issues/2043
     // Check the last value times of the underlying models are the same
     // const maths::CUnivariateTimeSeriesModel *timeSeriesModel =
     //     dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
