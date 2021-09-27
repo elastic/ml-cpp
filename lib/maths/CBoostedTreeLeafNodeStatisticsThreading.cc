@@ -230,7 +230,7 @@ CBoostedTreeLeafNodeStatisticsThreading::makeThreadLocalMinimumLossFunction(int 
             hessianInvg.noalias() = g;
             llt.solveInPlace(hessianInvg);
             // Matrix products can allocate memory and using lazyProduct here to
-            // force no allocations was a lerge performance win (especially for
+            // force no allocations was a large performance win (especially for
             // for very small numbers of loss parameters).
             if ((hessian.lazyProduct(hessianInvg) - g).norm() < 1e-2 * g.norm()) {
                 return g.transpose().lazyProduct(hessianInvg);
