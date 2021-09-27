@@ -146,8 +146,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     std::size_t numberLossParameters,
     const TFloatVecVec& candidateSplits,
     CSplitsDerivatives derivatives)
-    : CBoostedTreeLeafNodeStatistics{0,
-                                     0,
+    : CBoostedTreeLeafNodeStatistics{0, // Id
+                                     0, // Depth
                                      extraColumns,
                                      numberLossParameters,
                                      candidateSplits,
