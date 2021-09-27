@@ -1269,7 +1269,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
         modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1)->checksum();
     BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
-    // TODO These checks fail see elastic/machine-learning-cpp/issues/485
+    // TODO These checks fail see elastic/ml-cpp/issues/2043
     // Check the last value times of all the underlying models are the same
     //     const maths::CUnivariateTimeSeriesModel *timeSeriesModel =
     //         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1));
