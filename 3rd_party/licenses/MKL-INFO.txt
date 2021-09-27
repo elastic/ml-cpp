@@ -1,0 +1,2 @@
+name,version,revision,url,license,copyright,sourceURL
+Intel oneAPI Math Kernel Library,2020.4,,https://software.intel.com/content/www/us/en/develop/tools/oneapi/components/onemkl.html,ISSL;https://software.intel.com/content/dam/develop/external/us/en/documents/pdf/intel-simplified-software-license.pdf,(c) Intel Corporation,
