@@ -85,7 +85,8 @@ bool CBoostedTreeNode::assignToLeft(const TRowRef& row, const TSizeVec& extraCol
     auto* splits = beginSplits(row, extraColumns);
     std::uint8_t split{
         CPackedUInt8Decorator{splits[m_SplitFeature >> 2]}.readBytes()[m_SplitFeature & 0x3]};
-    return (split == m_MissingSplit) || (split != m_MissingSplit && split <= m_Split);
+    return (split == m_MissingSplit && m_AssignMissingToLeft) ||
+           (split != m_MissingSplit && split <= m_Split);
 }
 
 CBoostedTreeNode::TNodeIndexNodeIndexPr
