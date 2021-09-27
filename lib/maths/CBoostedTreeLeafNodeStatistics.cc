@@ -353,7 +353,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     using TDoubleMatrix = CDenseMatrix<double>;
     using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
     using TSplitSearchVec = std::vector<std::function<void(std::size_t)>>;
-    using TSplitStatsVec = std::vector<SSplitStatistics>;
+    using TSplitStatisticsVec = std::vector<SSplitStatistics>;
     using TChildrenGainStatsVec = std::vector<SChildrenGainStatistics>;
 
     int d{static_cast<int>(m_NumberLossParameters)};
@@ -507,7 +507,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     LOG_TRACE(<< "number threads = " << numberThreads);
 
     TSplitSearchVec bestSplitSearches;
-    TSplitStatsVec splitStats(numberThreads);
+    TSplitStatisticsVec splitStats(numberThreads);
     TChildrenGainStatsVec childrenGainStats(numberThreads);
     bestSplitSearches.reserve(numberThreads);
 
