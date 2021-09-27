@@ -106,8 +106,8 @@ public:
     //! \name Optimized for Train
     //!
     //! \note This provides overloads which are optimised for train. They can
-    //! only be used when the splits used used to generate the node are cached
-    //! in the row and should be handled with care.
+    //! only be used when the splits used to generate the node are cached in
+    //! the row and should be handled with care.
     //@{
     //! Get the leaf index for \p row.
     TNodeIndex leafIndex(const TRowRef& row,
