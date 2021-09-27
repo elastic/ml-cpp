@@ -340,7 +340,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     //
     //   L(w^*) = -1/2 g^t H(\lambda)^{-1} g
 
-    using TSplitSearchVec = std::vector<std::function<void(std::size_t)>>;
+    using TFeatureBestSplitSearchVec = std::vector<TFeatureBestSplitSearch>;
     using TSplitStatisticsVec = std::vector<SSplitStatistics>;
     using TChildrenGainStatisticsVec = std::vector<SChildrenGainStatistics>;
 
@@ -349,17 +349,17 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
         m_Derivatives.numberDerivatives(featureBag));
     LOG_TRACE(<< "number threads = " << numberThreads);
 
-    TSplitSearchVec bestSplitSearches;
+    TFeatureBestSplitSearchVec featureBestSplitSearches;
     TSplitStatisticsVec splitStats(numberThreads);
     TChildrenGainStatisticsVec childrenGainStatistics(numberThreads);
-    bestSplitSearches.reserve(numberThreads);
+    featureBestSplitSearches.reserve(numberThreads);
 
     for (std::size_t i = 0; i < numberThreads; ++i) {
-        bestSplitSearches.push_back(this->featureBestSplitSearch(
+        featureBestSplitSearches.push_back(this->featureBestSplitSearch(
             regularization, splitStats[i], childrenGainStatistics[i]));
     }
 
-    core::parallel_for_each(featureBag.begin(), featureBag.end(), bestSplitSearches);
+    core::parallel_for_each(featureBag.begin(), featureBag.end(), featureBestSplitSearches);
 
     SSplitStatistics result;
     SChildrenGainStatistics childrenGainStatisticsGlobal;
@@ -393,7 +393,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     return result;
 }
 
-CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics::featureBestSplitSearch(
+CBoostedTreeLeafNodeStatistics::TFeatureBestSplitSearch
+CBoostedTreeLeafNodeStatistics::featureBestSplitSearch(
     const TRegularization& regularization,
     SSplitStatistics& bestSplitStatistics,
     SChildrenGainStatistics& childrenGainStatisticsGlobal) const {

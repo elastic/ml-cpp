@@ -764,7 +764,7 @@ public:
 private:
     using TRowRef = core::CDataFrame::TRowRef;
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
-    using TBestSplitSearch = std::function<void(std::size_t)>;
+    using TFeatureBestSplitSearch = std::function<void(std::size_t)>;
 
     //! \brief Statistics relating to a split of the node.
     struct MATHS_EXPORT SSplitStatistics
@@ -841,7 +841,7 @@ private:
     SSplitStatistics computeBestSplitStatistics(std::size_t numberThreads,
                                                 const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
-    TBestSplitSearch
+    TFeatureBestSplitSearch
     featureBestSplitSearch(const TRegularization& regularization,
                            SSplitStatistics& bestSplitStatistics,
                            SChildrenGainStatistics& childrenGainStatisticsGlobal) const;
