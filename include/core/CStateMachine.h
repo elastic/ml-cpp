@@ -62,12 +62,6 @@ class CStateRestoreTraverser;
 //! pattern in create with an atomic to pass a message to other threads that a
 //! new machine is ready to use.
 //!
-//! \warning Currently this class is NOT thread safe.  The unlocked accesses
-//! to ms_Machines can occur at the same time as ms_Machines is being expanded
-//! leading to segmentation faults as the accessors traverse the deque data
-//! structure while it's being changed.  Do not use this class in multithreaded
-//! code until this is fixed.  The bug reference is:
-//! https://github.com/elastic/machine-learning-cpp/issues/10
 class CORE_EXPORT CStateMachine {
 public:
     using TSizeVec = std::vector<std::size_t>;
