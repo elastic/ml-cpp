@@ -762,7 +762,9 @@ public:
                                            std::size_t numberLossParameters);
 
 private:
+    using TRowRef = core::CDataFrame::TRowRef;
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
+    using TBestSplitSearch = std::function<void(std::size_t)>;
 
     //! \brief Statistics relating to a split of the node.
     struct MATHS_EXPORT SSplitStatistics
@@ -806,8 +808,13 @@ private:
         double s_RightChildMaxGain = boosted_tree_detail::INF;
     };
 
-private:
-    using TRowRef = core::CDataFrame::TRowRef;
+    //! \brief Statistics used to compute the gain bound.
+    struct MATHS_EXPORT SChildrenGainStatistics {
+        double s_MinLossLeft = -boosted_tree_detail::INF;
+        double s_MinLossRight = -boosted_tree_detail::INF;
+        double s_GLeft = -boosted_tree_detail::INF;
+        double s_GRight = -boosted_tree_detail::INF;
+    };
 
 private:
     CBoostedTreeLeafNodeStatistics(const TSizeVec& extraColumns,
@@ -834,7 +841,9 @@ private:
     SSplitStatistics computeBestSplitStatistics(std::size_t numberThreads,
                                                 const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
-
+    TBestSplitSearch featureBestSplitSearch(const TRegularization& regularization,
+                                            SSplitStatistics& bestSplitStats,
+                                            SChildrenGainStatistics& childrenGainStatsGlobal) const;
     double childMaxGain(double gChild, double minLossChild, double lambda) const;
 
 private:

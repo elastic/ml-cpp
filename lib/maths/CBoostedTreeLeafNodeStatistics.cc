@@ -29,13 +29,6 @@ using TRowItr = core::CDataFrame::TRowItr;
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
-
-struct SChildrenGainStatistics {
-    double s_MinLossLeft{-INF};
-    double s_MinLossRight{-INF};
-    double s_GLeft{-INF};
-    double s_GRight{-INF};
-};
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
@@ -347,162 +340,12 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     //
     //   L(w^*) = -1/2 g^t H(\lambda)^{-1} g
 
-    using TDoubleAry = std::array<double, 2>;
-    using TDoubleVector = CDenseVector<double>;
-    using TDoubleVectorAry = std::array<TDoubleVector, 2>;
-    using TDoubleMatrix = CDenseMatrix<double>;
-    using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
     using TSplitSearchVec = std::vector<std::function<void(std::size_t)>>;
     using TSplitStatisticsVec = std::vector<SSplitStatistics>;
     using TChildrenGainStatsVec = std::vector<SChildrenGainStatistics>;
 
-    int d{static_cast<int>(m_NumberLossParameters)};
-    double lambda{regularization.leafWeightPenaltyMultiplier()};
-    auto minimumLoss = TThreading::makeThreadLocalMinimumLossFunction(d, lambda);
-
-    auto makeBestSplitSearch = [&](SSplitStatistics& bestSplitStats,
-                                   SChildrenGainStatistics& childrenGainStatsGlobal) {
-        TDoubleVector g_{d};
-        TDoubleMatrix h_{d, d};
-        TDoubleVectorAry gl_{TDoubleVector{d}, TDoubleVector{d}};
-        TDoubleVectorAry gr_{TDoubleVector{d}, TDoubleVector{d}};
-        TDoubleMatrixAry hl_{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
-        TDoubleMatrixAry hr_{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
-
-        return [
-            // Inputs
-            minimumLoss, &regularization,
-            // State
-            g = std::move(g_), h = std::move(h_), gl = std::move(gl_),
-            gr = std::move(gr_), hl = std::move(hl_), hr = std::move(hr_),
-            // Results
-            &bestSplitStats, &childrenGainStatsGlobal, this
-        ](std::size_t feature) mutable {
-
-            std::size_t c{m_Derivatives.missingCount(feature)};
-            g = m_Derivatives.missingGradient(feature);
-            h = m_Derivatives.missingCurvature(feature);
-            for (auto derivatives = m_Derivatives.beginDerivatives(feature);
-                 derivatives != m_Derivatives.endDerivatives(feature); ++derivatives) {
-                c += derivatives->count();
-                g += derivatives->gradient();
-                h += derivatives->curvature();
-            }
-            std::size_t cl[]{m_Derivatives.missingCount(feature), 0};
-            gl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingGradient(feature);
-            gl[ASSIGN_MISSING_TO_RIGHT] = TDoubleVector::Zero(g.rows());
-            gr[ASSIGN_MISSING_TO_LEFT] = g - m_Derivatives.missingGradient(feature);
-            gr[ASSIGN_MISSING_TO_RIGHT] = g;
-            hl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingCurvature(feature);
-            hl[ASSIGN_MISSING_TO_RIGHT] = TDoubleMatrix::Zero(h.rows(), h.cols());
-            hr[ASSIGN_MISSING_TO_LEFT] = h - m_Derivatives.missingCurvature(feature);
-            hr[ASSIGN_MISSING_TO_RIGHT] = h;
-
-            double maximumGain{-INF};
-            double splitAt{-INF};
-            std::size_t leftChildRowCount{0};
-            bool assignMissingToLeft{true};
-            std::size_t size{m_Derivatives.numberDerivatives(feature)};
-            TDoubleAry gain;
-            TDoubleAry minLossLeft;
-            TDoubleAry minLossRight;
-            SChildrenGainStatistics childrenGainStatsPerFeature;
-
-            for (std::size_t split = 0; split + 1 < size; ++split) {
-
-                std::size_t count{m_Derivatives.count(feature, split)};
-                if (count == 0) {
-                    continue;
-                }
-
-                const auto& gradient = m_Derivatives.gradient(feature, split);
-                const auto& curvature = m_Derivatives.curvature(feature, split);
-
-                cl[ASSIGN_MISSING_TO_LEFT] += count;
-                cl[ASSIGN_MISSING_TO_RIGHT] += count;
-                gl[ASSIGN_MISSING_TO_LEFT] += gradient;
-                gl[ASSIGN_MISSING_TO_RIGHT] += gradient;
-                gr[ASSIGN_MISSING_TO_LEFT] -= gradient;
-                gr[ASSIGN_MISSING_TO_RIGHT] -= gradient;
-                hl[ASSIGN_MISSING_TO_LEFT] += curvature;
-                hl[ASSIGN_MISSING_TO_RIGHT] += curvature;
-                hr[ASSIGN_MISSING_TO_LEFT] -= curvature;
-                hr[ASSIGN_MISSING_TO_RIGHT] -= curvature;
-
-                if (cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c) {
-                    gain[ASSIGN_MISSING_TO_LEFT] = -INF;
-                } else {
-                    minLossLeft[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
-                        gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]);
-                    minLossRight[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
-                        gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
-                    gain[ASSIGN_MISSING_TO_LEFT] = minLossLeft[ASSIGN_MISSING_TO_LEFT] +
-                                                   minLossRight[ASSIGN_MISSING_TO_LEFT];
-                }
-
-                if (cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c) {
-                    gain[ASSIGN_MISSING_TO_RIGHT] = -INF;
-                } else {
-                    minLossLeft[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
-                        gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]);
-                    minLossRight[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
-                        gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
-                    gain[ASSIGN_MISSING_TO_RIGHT] = minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
-                                                    minLossRight[ASSIGN_MISSING_TO_RIGHT];
-                }
-
-                if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
-                    maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
-                    splitAt = m_CandidateSplits[feature][split];
-                    leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
-                    assignMissingToLeft = true;
-                    // If gain > -INF then minLossLeft and minLossRight were initialized.
-                    childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_LEFT],
-                                                   minLossRight[ASSIGN_MISSING_TO_LEFT],
-                                                   gl[ASSIGN_MISSING_TO_LEFT](0),
-                                                   gr[ASSIGN_MISSING_TO_LEFT](0)};
-                }
-                if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
-                    maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
-                    splitAt = m_CandidateSplits[feature][split];
-                    leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
-                    assignMissingToLeft = false;
-                    // If gain > -INF then minLossLeft and minLossRight were initialized.
-                    childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_RIGHT],
-                                                   minLossRight[ASSIGN_MISSING_TO_RIGHT],
-                                                   gl[ASSIGN_MISSING_TO_RIGHT](0),
-                                                   gr[ASSIGN_MISSING_TO_RIGHT](0)};
-                }
-            }
-
-            double penaltyForDepth{regularization.penaltyForDepth(m_Depth)};
-            double penaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 1)};
-
-            // The gain is the difference between the quadratic minimum for loss with
-            // no split and the loss with the minimum loss split we found.
-            double totalGain{0.5 * (maximumGain - minimumLoss(g, h)) -
-                             regularization.treeSizePenaltyMultiplier() -
-                             regularization.depthPenaltyMultiplier() *
-                                 (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
-            SSplitStatistics candidateSplitStats{
-                totalGain,
-                h.trace() / static_cast<double>(m_NumberLossParameters),
-                feature,
-                splitAt,
-                std::min(leftChildRowCount, c - leftChildRowCount),
-                2 * leftChildRowCount < c,
-                assignMissingToLeft};
-            LOG_TRACE(<< "candidate split: " << candidateSplitStats.print());
-
-            if (candidateSplitStats > bestSplitStats) {
-                bestSplitStats = candidateSplitStats;
-                childrenGainStatsGlobal = childrenGainStatsPerFeature;
-            }
-        };
-    };
-
     numberThreads = TThreading::numberThreadsForComputeBestSplitStats(
-        numberThreads, featureBag.size(), static_cast<std::size_t>(d),
+        numberThreads, featureBag.size(), m_NumberLossParameters,
         m_Derivatives.numberDerivatives(featureBag));
     LOG_TRACE(<< "number threads = " << numberThreads);
 
@@ -512,8 +355,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     bestSplitSearches.reserve(numberThreads);
 
     for (std::size_t i = 0; i < numberThreads; ++i) {
-        bestSplitSearches.push_back(
-            makeBestSplitSearch(splitStats[i], childrenGainStats[i]));
+        bestSplitSearches.push_back(this->featureBestSplitSearch(
+            regularization, splitStats[i], childrenGainStats[i]));
     }
 
     core::parallel_for_each(featureBag.begin(), featureBag.end(), bestSplitSearches);
@@ -528,6 +371,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     }
 
     if (m_Derivatives.numberLossParameters() <= 2 && result.s_Gain > 0) {
+        double lambda{regularization.leafWeightPenaltyMultiplier()};
         double childPenaltyForDepth{regularization.penaltyForDepth(m_Depth + 1)};
         double childPenaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 2)};
         double childPenalty{regularization.treeSizePenaltyMultiplier() +
@@ -547,6 +391,159 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     LOG_TRACE(<< "best split: " << result.print());
 
     return result;
+}
+
+CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics::featureBestSplitSearch(
+    const TRegularization& regularization,
+    SSplitStatistics& bestSplitStats,
+    SChildrenGainStatistics& childrenGainStatsGlobal) const {
+    using TDoubleAry = std::array<double, 2>;
+    using TDoubleVector = CDenseVector<double>;
+    using TDoubleVectorAry = std::array<TDoubleVector, 2>;
+    using TDoubleMatrix = CDenseMatrix<double>;
+    using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
+
+    int d{static_cast<int>(m_NumberLossParameters)};
+    double lambda{regularization.leafWeightPenaltyMultiplier()};
+    auto minimumLoss_ = TThreading::makeThreadLocalMinimumLossFunction(d, lambda);
+
+    TDoubleVector g_{d};
+    TDoubleMatrix h_{d, d};
+    TDoubleVectorAry gl_{TDoubleVector{d}, TDoubleVector{d}};
+    TDoubleVectorAry gr_{TDoubleVector{d}, TDoubleVector{d}};
+    TDoubleMatrixAry hl_{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
+    TDoubleMatrixAry hr_{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
+
+    return [
+        // Inputs
+        minimumLoss = std::move(minimumLoss_), &regularization,
+        // State
+        g = std::move(g_), h = std::move(h_), gl = std::move(gl_),
+        gr = std::move(gr_), hl = std::move(hl_), hr = std::move(hr_),
+        // Results
+        &bestSplitStats, &childrenGainStatsGlobal, this
+    ](std::size_t feature) mutable {
+
+        std::size_t c{m_Derivatives.missingCount(feature)};
+        g = m_Derivatives.missingGradient(feature);
+        h = m_Derivatives.missingCurvature(feature);
+        for (auto derivatives = m_Derivatives.beginDerivatives(feature);
+             derivatives != m_Derivatives.endDerivatives(feature); ++derivatives) {
+            c += derivatives->count();
+            g += derivatives->gradient();
+            h += derivatives->curvature();
+        }
+        std::size_t cl[]{m_Derivatives.missingCount(feature), 0};
+        gl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingGradient(feature);
+        gl[ASSIGN_MISSING_TO_RIGHT] = TDoubleVector::Zero(g.rows());
+        gr[ASSIGN_MISSING_TO_LEFT] = g - m_Derivatives.missingGradient(feature);
+        gr[ASSIGN_MISSING_TO_RIGHT] = g;
+        hl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingCurvature(feature);
+        hl[ASSIGN_MISSING_TO_RIGHT] = TDoubleMatrix::Zero(h.rows(), h.cols());
+        hr[ASSIGN_MISSING_TO_LEFT] = h - m_Derivatives.missingCurvature(feature);
+        hr[ASSIGN_MISSING_TO_RIGHT] = h;
+
+        double maximumGain{-INF};
+        double splitAt{-INF};
+        std::size_t leftChildRowCount{0};
+        bool assignMissingToLeft{true};
+        std::size_t size{m_Derivatives.numberDerivatives(feature)};
+        TDoubleAry gain;
+        TDoubleAry minLossLeft;
+        TDoubleAry minLossRight;
+        SChildrenGainStatistics childrenGainStatsPerFeature;
+
+        for (std::size_t split = 0; split + 1 < size; ++split) {
+
+            std::size_t count{m_Derivatives.count(feature, split)};
+            if (count == 0) {
+                continue;
+            }
+
+            const auto& gradient = m_Derivatives.gradient(feature, split);
+            const auto& curvature = m_Derivatives.curvature(feature, split);
+
+            cl[ASSIGN_MISSING_TO_LEFT] += count;
+            cl[ASSIGN_MISSING_TO_RIGHT] += count;
+            gl[ASSIGN_MISSING_TO_LEFT] += gradient;
+            gl[ASSIGN_MISSING_TO_RIGHT] += gradient;
+            gr[ASSIGN_MISSING_TO_LEFT] -= gradient;
+            gr[ASSIGN_MISSING_TO_RIGHT] -= gradient;
+            hl[ASSIGN_MISSING_TO_LEFT] += curvature;
+            hl[ASSIGN_MISSING_TO_RIGHT] += curvature;
+            hr[ASSIGN_MISSING_TO_LEFT] -= curvature;
+            hr[ASSIGN_MISSING_TO_RIGHT] -= curvature;
+
+            if (cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c) {
+                gain[ASSIGN_MISSING_TO_LEFT] = -INF;
+            } else {
+                minLossLeft[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
+                    gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]);
+                minLossRight[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
+                    gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
+                gain[ASSIGN_MISSING_TO_LEFT] = minLossLeft[ASSIGN_MISSING_TO_LEFT] +
+                                               minLossRight[ASSIGN_MISSING_TO_LEFT];
+            }
+
+            if (cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c) {
+                gain[ASSIGN_MISSING_TO_RIGHT] = -INF;
+            } else {
+                minLossLeft[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
+                    gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]);
+                minLossRight[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
+                    gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
+                gain[ASSIGN_MISSING_TO_RIGHT] = minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
+                                                minLossRight[ASSIGN_MISSING_TO_RIGHT];
+            }
+
+            if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
+                maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
+                splitAt = m_CandidateSplits[feature][split];
+                leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
+                assignMissingToLeft = true;
+                // If gain > -INF then minLossLeft and minLossRight were initialized.
+                childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_LEFT],
+                                               minLossRight[ASSIGN_MISSING_TO_LEFT],
+                                               gl[ASSIGN_MISSING_TO_LEFT](0),
+                                               gr[ASSIGN_MISSING_TO_LEFT](0)};
+            }
+            if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
+                maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
+                splitAt = m_CandidateSplits[feature][split];
+                leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
+                assignMissingToLeft = false;
+                // If gain > -INF then minLossLeft and minLossRight were initialized.
+                childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_RIGHT],
+                                               minLossRight[ASSIGN_MISSING_TO_RIGHT],
+                                               gl[ASSIGN_MISSING_TO_RIGHT](0),
+                                               gr[ASSIGN_MISSING_TO_RIGHT](0)};
+            }
+        }
+
+        double penaltyForDepth{regularization.penaltyForDepth(m_Depth)};
+        double penaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 1)};
+
+        // The gain is the difference between the quadratic minimum for loss with
+        // no split and the loss with the minimum loss split we found.
+        double totalGain{0.5 * (maximumGain - minimumLoss(g, h)) -
+                         regularization.treeSizePenaltyMultiplier() -
+                         regularization.depthPenaltyMultiplier() *
+                             (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
+        SSplitStatistics candidateSplitStats{
+            totalGain,
+            h.trace() / static_cast<double>(m_NumberLossParameters),
+            feature,
+            splitAt,
+            std::min(leftChildRowCount, c - leftChildRowCount),
+            2 * leftChildRowCount < c,
+            assignMissingToLeft};
+        LOG_TRACE(<< "candidate split: " << candidateSplitStats.print());
+
+        if (candidateSplitStats > bestSplitStats) {
+            bestSplitStats = candidateSplitStats;
+            childrenGainStatsGlobal = childrenGainStatsPerFeature;
+        }
+    };
 }
 
 double CBoostedTreeLeafNodeStatistics::childMaxGain(double gChild,
