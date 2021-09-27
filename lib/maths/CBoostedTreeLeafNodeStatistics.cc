@@ -30,7 +30,7 @@ namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 
-struct SChildrenGainStats {
+struct SChildrenGainStatistics {
     double s_MinLossLeft{-INF};
     double s_MinLossRight{-INF};
     double s_GLeft{-INF};
@@ -323,7 +323,7 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const TSizeVec& featureBa
     }
 }
 
-CBoostedTreeLeafNodeStatistics::SSplitStats
+CBoostedTreeLeafNodeStatistics::SSplitStatistics
 CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThreads,
                                                            const TRegularization& regularization,
                                                            const TSizeVec& featureBag) const {
@@ -353,15 +353,15 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     using TDoubleMatrix = CDenseMatrix<double>;
     using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
     using TSplitSearchVec = std::vector<std::function<void(std::size_t)>>;
-    using TSplitStatsVec = std::vector<SSplitStats>;
-    using TChildrenGainStatsVec = std::vector<SChildrenGainStats>;
+    using TSplitStatsVec = std::vector<SSplitStatistics>;
+    using TChildrenGainStatsVec = std::vector<SChildrenGainStatistics>;
 
     int d{static_cast<int>(m_NumberLossParameters)};
     double lambda{regularization.leafWeightPenaltyMultiplier()};
     auto minimumLoss = TThreading::makeThreadLocalMinimumLossFunction(d, lambda);
 
-    auto makeBestSplitSearch = [&](SSplitStats& bestSplitStats,
-                                   SChildrenGainStats& childrenGainStatsGlobal) {
+    auto makeBestSplitSearch = [&](SSplitStatistics& bestSplitStats,
+                                   SChildrenGainStatistics& childrenGainStatsGlobal) {
         TDoubleVector g_{d};
         TDoubleMatrix h_{d, d};
         TDoubleVectorAry gl_{TDoubleVector{d}, TDoubleVector{d}};
@@ -406,7 +406,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
             TDoubleAry gain;
             TDoubleAry minLossLeft;
             TDoubleAry minLossRight;
-            SChildrenGainStats childrenGainStatsPerFeature;
+            SChildrenGainStatistics childrenGainStatsPerFeature;
 
             for (std::size_t split = 0; split + 1 < size; ++split) {
 
@@ -484,7 +484,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
                              regularization.treeSizePenaltyMultiplier() -
                              regularization.depthPenaltyMultiplier() *
                                  (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
-            SSplitStats candidateSplitStats{
+            SSplitStatistics candidateSplitStats{
                 totalGain,
                 h.trace() / static_cast<double>(m_NumberLossParameters),
                 feature,
@@ -518,8 +518,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
 
     core::parallel_for_each(featureBag.begin(), featureBag.end(), bestSplitSearches);
 
-    SSplitStats result;
-    SChildrenGainStats childrenGainStatsGlobal;
+    SSplitStatistics result;
+    SChildrenGainStatistics childrenGainStatsGlobal;
     for (std::size_t i = 0; i < numberThreads; ++i) {
         if (splitStats[i] > result) {
             result = splitStats[i];

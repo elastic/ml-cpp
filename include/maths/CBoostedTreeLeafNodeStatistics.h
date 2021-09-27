@@ -765,22 +765,23 @@ private:
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
 
     //! \brief Statistics relating to a split of the node.
-    struct MATHS_EXPORT SSplitStats : private boost::less_than_comparable<SSplitStats> {
-        SSplitStats() = default;
-        SSplitStats(double gain,
-                    double curvature,
-                    std::size_t feature,
-                    double splitAt,
-                    std::size_t minimumChildRowCount,
-                    bool leftChildHasFewerRows,
-                    bool assignMissingToLeft)
+    struct MATHS_EXPORT SSplitStatistics
+        : private boost::less_than_comparable<SSplitStatistics> {
+        SSplitStatistics() = default;
+        SSplitStatistics(double gain,
+                         double curvature,
+                         std::size_t feature,
+                         double splitAt,
+                         std::size_t minimumChildRowCount,
+                         bool leftChildHasFewerRows,
+                         bool assignMissingToLeft)
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
               s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
         }
 
-        bool operator<(const SSplitStats& rhs) const {
+        bool operator<(const SSplitStatistics& rhs) const {
             return COrderings::lexicographical_compare(
                 s_Gain, s_Curvature, s_Feature, s_SplitAt, // <- lhs
                 rhs.s_Gain, rhs.s_Curvature, rhs.s_Feature, rhs.s_SplitAt);
@@ -830,9 +831,9 @@ private:
                            const TRowRef& row,
                            CSplitsDerivatives& splitsDerivatives) const;
 
-    SSplitStats computeBestSplitStatistics(std::size_t numberThreads,
-                                           const TRegularization& regularization,
-                                           const TSizeVec& featureBag) const;
+    SSplitStatistics computeBestSplitStatistics(std::size_t numberThreads,
+                                                const TRegularization& regularization,
+                                                const TSizeVec& featureBag) const;
 
     double childMaxGain(double gChild, double minLossChild, double lambda) const;
 
@@ -844,7 +845,7 @@ private:
     const TFloatVecVec& m_CandidateSplits;
     core::CPackedBitVector m_RowMask;
     CSplitsDerivatives m_Derivatives;
-    SSplitStats m_BestSplit;
+    SSplitStatistics m_BestSplit;
 
     friend struct CBoostedTreeLeafNodeStatisticsTest::testComputeBestSplitStatsThreading;
 };
