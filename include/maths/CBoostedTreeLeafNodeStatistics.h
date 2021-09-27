@@ -841,9 +841,10 @@ private:
     SSplitStatistics computeBestSplitStatistics(std::size_t numberThreads,
                                                 const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
-    TBestSplitSearch featureBestSplitSearch(const TRegularization& regularization,
-                                            SSplitStatistics& bestSplitStatistics,
-                                            SChildrenGainStatistics& childrenGainStatsGlobal) const;
+    TBestSplitSearch
+    featureBestSplitSearch(const TRegularization& regularization,
+                           SSplitStatistics& bestSplitStatistics,
+                           SChildrenGainStatistics& childrenGainStatisticsGlobal) const;
     double childMaxGain(double gChild, double minLossChild, double lambda) const;
 
 private:

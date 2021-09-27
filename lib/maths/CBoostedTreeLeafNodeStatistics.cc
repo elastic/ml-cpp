@@ -342,7 +342,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
 
     using TSplitSearchVec = std::vector<std::function<void(std::size_t)>>;
     using TSplitStatisticsVec = std::vector<SSplitStatistics>;
-    using TChildrenGainStatsVec = std::vector<SChildrenGainStatistics>;
+    using TChildrenGainStatisticsVec = std::vector<SChildrenGainStatistics>;
 
     numberThreads = TThreading::numberThreadsForComputeBestSplitStatistics(
         numberThreads, featureBag.size(), m_NumberLossParameters,
@@ -351,22 +351,22 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
 
     TSplitSearchVec bestSplitSearches;
     TSplitStatisticsVec splitStats(numberThreads);
-    TChildrenGainStatsVec childrenGainStats(numberThreads);
+    TChildrenGainStatisticsVec childrenGainStatistics(numberThreads);
     bestSplitSearches.reserve(numberThreads);
 
     for (std::size_t i = 0; i < numberThreads; ++i) {
         bestSplitSearches.push_back(this->featureBestSplitSearch(
-            regularization, splitStats[i], childrenGainStats[i]));
+            regularization, splitStats[i], childrenGainStatistics[i]));
     }
 
     core::parallel_for_each(featureBag.begin(), featureBag.end(), bestSplitSearches);
 
     SSplitStatistics result;
-    SChildrenGainStatistics childrenGainStatsGlobal;
+    SChildrenGainStatistics childrenGainStatisticsGlobal;
     for (std::size_t i = 0; i < numberThreads; ++i) {
         if (splitStats[i] > result) {
             result = splitStats[i];
-            childrenGainStatsGlobal = childrenGainStats[i];
+            childrenGainStatisticsGlobal = childrenGainStatistics[i];
         }
     }
 
@@ -378,13 +378,13 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
                             regularization.depthPenaltyMultiplier() *
                                 (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
         result.s_LeftChildMaxGain =
-            0.5 * this->childMaxGain(childrenGainStatsGlobal.s_GLeft,
-                                     childrenGainStatsGlobal.s_MinLossLeft, lambda) -
+            0.5 * this->childMaxGain(childrenGainStatisticsGlobal.s_GLeft,
+                                     childrenGainStatisticsGlobal.s_MinLossLeft, lambda) -
             childPenalty;
 
         result.s_RightChildMaxGain =
-            0.5 * this->childMaxGain(childrenGainStatsGlobal.s_GRight,
-                                     childrenGainStatsGlobal.s_MinLossRight, lambda) -
+            0.5 * this->childMaxGain(childrenGainStatisticsGlobal.s_GRight,
+                                     childrenGainStatisticsGlobal.s_MinLossRight, lambda) -
             childPenalty;
     }
 
@@ -396,7 +396,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
 CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics::featureBestSplitSearch(
     const TRegularization& regularization,
     SSplitStatistics& bestSplitStatistics,
-    SChildrenGainStatistics& childrenGainStatsGlobal) const {
+    SChildrenGainStatistics& childrenGainStatisticsGlobal) const {
     using TDoubleAry = std::array<double, 2>;
     using TDoubleVector = CDenseVector<double>;
     using TDoubleVectorAry = std::array<TDoubleVector, 2>;
@@ -421,7 +421,7 @@ CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics:
         g = std::move(g_), h = std::move(h_), gl = std::move(gl_),
         gr = std::move(gr_), hl = std::move(hl_), hr = std::move(hr_),
         // Results
-        &bestSplitStatistics, &childrenGainStatsGlobal, this
+        &bestSplitStatistics, &childrenGainStatisticsGlobal, this
     ](std::size_t feature) mutable {
 
         std::size_t c{m_Derivatives.missingCount(feature)};
@@ -451,7 +451,7 @@ CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics:
         TDoubleAry gain;
         TDoubleAry minLossLeft;
         TDoubleAry minLossRight;
-        SChildrenGainStatistics childrenGainStatsPerFeature;
+        SChildrenGainStatistics childrenGainStatisticsPerFeature;
 
         for (std::size_t split = 0; split + 1 < size; ++split) {
 
@@ -502,10 +502,9 @@ CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics:
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
                 assignMissingToLeft = true;
                 // If gain > -INF then minLossLeft and minLossRight were initialized.
-                childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_LEFT],
-                                               minLossRight[ASSIGN_MISSING_TO_LEFT],
-                                               gl[ASSIGN_MISSING_TO_LEFT](0),
-                                               gr[ASSIGN_MISSING_TO_LEFT](0)};
+                childrenGainStatisticsPerFeature = {
+                    minLossLeft[ASSIGN_MISSING_TO_LEFT], minLossRight[ASSIGN_MISSING_TO_LEFT],
+                    gl[ASSIGN_MISSING_TO_LEFT](0), gr[ASSIGN_MISSING_TO_LEFT](0)};
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
@@ -513,10 +512,10 @@ CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics:
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
                 assignMissingToLeft = false;
                 // If gain > -INF then minLossLeft and minLossRight were initialized.
-                childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_RIGHT],
-                                               minLossRight[ASSIGN_MISSING_TO_RIGHT],
-                                               gl[ASSIGN_MISSING_TO_RIGHT](0),
-                                               gr[ASSIGN_MISSING_TO_RIGHT](0)};
+                childrenGainStatisticsPerFeature = {
+                    minLossLeft[ASSIGN_MISSING_TO_RIGHT],
+                    minLossRight[ASSIGN_MISSING_TO_RIGHT],
+                    gl[ASSIGN_MISSING_TO_RIGHT](0), gr[ASSIGN_MISSING_TO_RIGHT](0)};
             }
         }
 
@@ -541,7 +540,7 @@ CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics:
 
         if (candidateSplitStatistics > bestSplitStatistics) {
             bestSplitStatistics = candidateSplitStatistics;
-            childrenGainStatsGlobal = childrenGainStatsPerFeature;
+            childrenGainStatisticsGlobal = childrenGainStatisticsPerFeature;
         }
     };
 }
