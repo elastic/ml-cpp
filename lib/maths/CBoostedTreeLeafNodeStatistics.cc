@@ -344,7 +344,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     using TSplitStatisticsVec = std::vector<SSplitStatistics>;
     using TChildrenGainStatsVec = std::vector<SChildrenGainStatistics>;
 
-    numberThreads = TThreading::numberThreadsForComputeBestSplitStats(
+    numberThreads = TThreading::numberThreadsForComputeBestSplitStatistics(
         numberThreads, featureBag.size(), m_NumberLossParameters,
         m_Derivatives.numberDerivatives(featureBag));
     LOG_TRACE(<< "number threads = " << numberThreads);
@@ -395,7 +395,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
 
 CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics::featureBestSplitSearch(
     const TRegularization& regularization,
-    SSplitStatistics& bestSplitStats,
+    SSplitStatistics& bestSplitStatistics,
     SChildrenGainStatistics& childrenGainStatsGlobal) const {
     using TDoubleAry = std::array<double, 2>;
     using TDoubleVector = CDenseVector<double>;
@@ -421,7 +421,7 @@ CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics:
         g = std::move(g_), h = std::move(h_), gl = std::move(gl_),
         gr = std::move(gr_), hl = std::move(hl_), hr = std::move(hr_),
         // Results
-        &bestSplitStats, &childrenGainStatsGlobal, this
+        &bestSplitStatistics, &childrenGainStatsGlobal, this
     ](std::size_t feature) mutable {
 
         std::size_t c{m_Derivatives.missingCount(feature)};
@@ -529,7 +529,7 @@ CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics:
                          regularization.treeSizePenaltyMultiplier() -
                          regularization.depthPenaltyMultiplier() *
                              (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
-        SSplitStatistics candidateSplitStats{
+        SSplitStatistics candidateSplitStatistics{
             totalGain,
             h.trace() / static_cast<double>(m_NumberLossParameters),
             feature,
@@ -537,10 +537,10 @@ CBoostedTreeLeafNodeStatistics::TBestSplitSearch CBoostedTreeLeafNodeStatistics:
             std::min(leftChildRowCount, c - leftChildRowCount),
             2 * leftChildRowCount < c,
             assignMissingToLeft};
-        LOG_TRACE(<< "candidate split: " << candidateSplitStats.print());
+        LOG_TRACE(<< "candidate split: " << candidateSplitStatistics.print());
 
-        if (candidateSplitStats > bestSplitStats) {
-            bestSplitStats = candidateSplitStats;
+        if (candidateSplitStatistics > bestSplitStatistics) {
+            bestSplitStatistics = candidateSplitStatistics;
             childrenGainStatsGlobal = childrenGainStatsPerFeature;
         }
     };

@@ -70,10 +70,10 @@ public:
 
     //! Get the number of threads to use to compute the best split statistics.
     static std::size_t
-    numberThreadsForComputeBestSplitStats(std::size_t numberThreads,
-                                          std::size_t features,
-                                          std::size_t numberLossParameters,
-                                          std::size_t numberDerivatives);
+    numberThreadsForComputeBestSplitStatistics(std::size_t numberThreads,
+                                               std::size_t features,
+                                               std::size_t numberLossParameters,
+                                               std::size_t numberDerivatives);
 
     //! Compute the number of threads which optimises throughput given \p totalWork.
     static std::size_t maximumThroughputNumberThreads(double totalWork);
@@ -92,8 +92,8 @@ private:
                                                      std::size_t numberDerivatives);
     static double remapSplitsDerivativesTotalWork(std::size_t numberLossParameters,
                                                   std::size_t numberDerivatives);
-    static double computeBestSplitStatsTotalWork(std::size_t numberLossParameters,
-                                                 std::size_t numberDerivatives);
+    static double computeBestSplitStatisticsTotalWork(std::size_t numberLossParameters,
+                                                      std::size_t numberDerivatives);
     template<int d>
     static TMinimumLoss makeThreadLocalMinimumLossFunction(double lambda);
 };

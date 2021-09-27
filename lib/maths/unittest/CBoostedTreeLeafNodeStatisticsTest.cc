@@ -571,9 +571,9 @@ BOOST_AUTO_TEST_CASE(testSplitsDerivativesThreading) {
     core::stopDefaultAsyncExecutor();
 }
 
-BOOST_AUTO_TEST_CASE(testComputeBestSplitStatsThreading) {
+BOOST_AUTO_TEST_CASE(testComputeBestSplitStatisticsThreading) {
 
-    // Test that computeBestSplitStats produce identical results whether
+    // Test that computeBestSplitStatistics produce identical results whether
     // threaded or not.
 
     core::stopDefaultAsyncExecutor();

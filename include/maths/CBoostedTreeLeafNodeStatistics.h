@@ -40,7 +40,7 @@
 #include <vector>
 
 namespace CBoostedTreeLeafNodeStatisticsTest {
-struct testComputeBestSplitStatsThreading;
+struct testComputeBestSplitStatisticsThreading;
 }
 namespace ml {
 namespace core {
@@ -842,7 +842,7 @@ private:
                                                 const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
     TBestSplitSearch featureBestSplitSearch(const TRegularization& regularization,
-                                            SSplitStatistics& bestSplitStats,
+                                            SSplitStatistics& bestSplitStatistics,
                                             SChildrenGainStatistics& childrenGainStatsGlobal) const;
     double childMaxGain(double gChild, double minLossChild, double lambda) const;
 
@@ -856,7 +856,7 @@ private:
     CSplitsDerivatives m_Derivatives;
     SSplitStatistics m_BestSplit;
 
-    friend struct CBoostedTreeLeafNodeStatisticsTest::testComputeBestSplitStatsThreading;
+    friend struct CBoostedTreeLeafNodeStatisticsTest::testComputeBestSplitStatisticsThreading;
 };
 }
 }

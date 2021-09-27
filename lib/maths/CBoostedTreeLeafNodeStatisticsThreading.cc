@@ -67,12 +67,12 @@ std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForRemapSplits
                                  features, numberThreads);
 }
 
-std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForComputeBestSplitStats(
+std::size_t CBoostedTreeLeafNodeStatisticsThreading::numberThreadsForComputeBestSplitStatistics(
     std::size_t numberThreads,
     std::size_t features,
     std::size_t numberLossParameters,
     std::size_t numberDerivatives) {
-    double totalWork{computeBestSplitStatsTotalWork(numberLossParameters, numberDerivatives)};
+    double totalWork{computeBestSplitStatisticsTotalWork(numberLossParameters, numberDerivatives)};
     return CBasicStatistics::min(maximumThroughputNumberThreads(totalWork),
                                  features, numberThreads);
 }
@@ -106,7 +106,7 @@ double CBoostedTreeLeafNodeStatisticsThreading::remapSplitsDerivativesTotalWork(
     return n * (1.0 / 500.0 + p / 4000.0);
 }
 
-double CBoostedTreeLeafNodeStatisticsThreading::computeBestSplitStatsTotalWork(
+double CBoostedTreeLeafNodeStatisticsThreading::computeBestSplitStatisticsTotalWork(
     std::size_t numberLossParameters,
     std::size_t numberDerivatives) {
     double d{static_cast<double>(numberLossParameters)};
