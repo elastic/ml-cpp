@@ -35,7 +35,9 @@ class CDataFrameAnalysisSpecification;
 //! \brief Handles input to the data_frame_analyzer command.
 class API_EXPORT CDataFrameAnalyzer {
 public:
+    using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
+    using TSizeVecUPtr = std::unique_ptr<TSizeVec>;
     using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
@@ -99,11 +101,12 @@ private:
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).
-    std::ptrdiff_t m_ControlFieldIndex = FIELD_UNSET;
-    std::ptrdiff_t m_BeginDataFieldValues = FIELD_UNSET;
-    std::ptrdiff_t m_EndDataFieldValues = FIELD_UNSET;
-    std::ptrdiff_t m_DocHashFieldIndex = FIELD_UNSET;
-    bool m_CapturedFieldNames = false;
+    std::ptrdiff_t m_ControlFieldIndex{FIELD_UNSET};
+    std::ptrdiff_t m_BeginDataFieldValues{FIELD_UNSET};
+    std::ptrdiff_t m_EndDataFieldValues{FIELD_UNSET};
+    std::ptrdiff_t m_DocHashFieldIndex{FIELD_UNSET};
+    bool m_CapturedFieldNames{false};
+    TSizeVecUPtr m_ColumnMap;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TDataFrameUPtr m_DataFrame;
     TTemporaryDirectoryPtr m_DataFrameDirectory;

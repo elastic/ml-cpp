@@ -8,6 +8,8 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+#include "maths/COrderings.h"
+#include <algorithm>
 #include <api/CDataFrameAnalyzer.h>
 
 #include <core/CContainerPrinter.h>
@@ -17,6 +19,7 @@
 #include <core/CLogger.h>
 #include <core/CStopWatch.h>
 
+#include <iterator>
 #include <maths/CBasicStatistics.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
@@ -25,6 +28,7 @@
 
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -252,8 +256,45 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
     if (m_DataFrame != nullptr && m_CapturedFieldNames == false) {
         TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
                             fieldNames.begin() + m_EndDataFieldValues};
-        m_DataFrame->columnNames(columnNames);
-        m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
+        if (m_DataFrame->columnNames().empty() == false &&
+            m_DataFrame->columnNames() != columnNames) {
+
+            // We take the view that missing features are not fatal, since they may
+            // not be available for the new set, but extra features are likely to
+            // indicate user error.
+
+            TSizeVec positions(columnNames.size());
+            std::iota(positions.begin(), positions.end(), 0);
+            maths::COrderings::simultaneousSort(columnNames, positions);
+
+            TStrVec originalColumnNames{m_DataFrame->columnNames()};
+            std::sort(originalColumnNames.begin(), originalColumnNames.end());
+
+            m_ColumnMap = std::make_unique<TSizeVec>();
+            m_ColumnMap->reserve(columnNames.size());
+
+            TStrVec extraColumnNames;
+            std::set_intersection(
+                columnNames.begin(), columnNames.end(), originalColumnNames.begin(),
+                originalColumnNames.end(), std::back_inserter(extraColumnNames));
+            if (extraColumnNames.empty() == false) {
+                HANDLE_FATAL(<< "Input error: supplying additional columns '"
+                             << core::CContainerPrinter::print(extraColumnNames) << "'.");
+            }
+
+            for (const auto& name : m_DataFrame->columnNames()) {
+                auto i = std::lower_bound(columnNames.begin(), columnNames.end(), name);
+                if (i == columnNames.end() || *i != name) {
+                    LOG_WARN(<< "Missing column '" << name << "'");
+                    m_ColumnMap->push_back(columnNames.size());
+                } else {
+                    m_ColumnMap->push_back(positions[i - columnNames.begin()]);
+                }
+            }
+        } else {
+            m_DataFrame->columnNames(columnNames);
+            m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
+        }
         m_CapturedFieldNames = true;
     }
 }
@@ -264,9 +305,10 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     }
     auto columnValues = core::make_range(fieldValues, m_BeginDataFieldValues,
                                          m_EndDataFieldValues);
-    m_DataFrame->parseAndWriteRow(columnValues, m_DocHashFieldIndex != FIELD_MISSING
-                                                    ? &fieldValues[m_DocHashFieldIndex]
-                                                    : nullptr);
+    m_DataFrame->parseAndWriteRow(columnValues, m_ColumnMap.get(),
+                                  m_DocHashFieldIndex != FIELD_MISSING
+                                      ? &fieldValues[m_DocHashFieldIndex]
+                                      : nullptr);
 }
 
 void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& analysis,

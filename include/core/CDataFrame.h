@@ -472,7 +472,14 @@ public:
     }
 
     //! Parses the strings in \p columnValues and writes one row via writeRow.
-    void parseAndWriteRow(const TStrCRng& columnValues, const std::string* hash = nullptr);
+    //!
+    //! \param[in] columnValues The column values.
+    //! \param[in] columnMap If non-null defines a map between columnValues and
+    //! their position in the data frame.
+    //! \param[in] hash If non-null a hash which identifies the row document.
+    void parseAndWriteRow(const TStrCRng& columnValues,
+                          const TSizeVec* columnMap = nullptr,
+                          const std::string* hash = nullptr);
 
     //! This writes a single row of the data frame via a callback.
     //!
