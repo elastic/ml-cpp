@@ -385,8 +385,21 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
+                // initialCountWeight returns a weight value as double:
+                // 0.0 if checkScheduledEvents is true
+                // 1,0 if both checkScheduledEvents and checkRules are false
+                // A small weight - 0.005 - if checkRules is true.
+                // This weight is applied to countWeight (and therefore scaledCountWeight) as multiplier.
+                // This reduces the impact of the values affected by the skip_model_update rule
+                // on the model while not completely ignoring them. This still allows the model to
+                // learn from the affected values - addressing point 1. and 2. in
+                // https://github.com/elastic/ml-cpp/issues/1272, Namely
+                // 1. If you apply it from the start of the modelling it can stop the model learning anything at all.
+                // 2. It can stop the model ever adapting to some change in data characteristics
                 core_t::TTime sampleTime = model_t::sampleTime(feature, time, bucketLength);
-                if (this->shouldIgnoreSample(feature, pid, cid, sampleTime)) {
+                double initialCountWeight{
+                    this->initialCountWeight(feature, pid, cid, sampleTime)};
+                if (initialCountWeight == 0.0) {
                     core_t::TTime skipTime = sampleTime - attributeLastBucketTimesMap[cid];
                     if (skipTime > 0) {
                         model->skipTime(skipTime);
@@ -423,7 +436,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                                                   return sample.time() >= cutoff;
                                               });
                 double updatesPerBucket = this->params().s_MaximumUpdatesPerBucket;
-                double countWeight = this->sampleRateWeight(pid, cid) *
+                double countWeight = initialCountWeight *
+                                     this->sampleRateWeight(pid, cid) *
                                      this->learnRate(feature) *
                                      (updatesPerBucket > 0.0 && n > 0
                                           ? updatesPerBucket / static_cast<double>(n)
@@ -975,7 +989,7 @@ bool CMetricPopulationModel::fill(model_t::EFeature feature,
     model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, seasonalWeight);
     maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
-    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, cid, time);
+    double initialCountWeight{this->initialCountWeight(feature, pid, cid, time)};
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -994,7 +1008,7 @@ bool CMetricPopulationModel::fill(model_t::EFeature feature,
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature))
         .addWeights(weights)
-        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+        .initialCountWeight(initialCountWeight);
 
     return true;
 }

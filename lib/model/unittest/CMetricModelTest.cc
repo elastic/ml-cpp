@@ -2230,10 +2230,10 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Create 2 models, one of which has a skip sampling rule.
-    // Feed the same data into both models then add extra data
-    // into the first model we know will be filtered out.
-    // At the end the checksums for the underlying models should
-    // be the same.
+    // The skip sampling rule doesn't cause the samples to be completely ignored,
+    // instead it applies a small multiplicative weighting when the rule applies.
+    // Feed the same data into both models including the case when the rule will apply
+    // for one model but not the other.
 
     // Create a rule to filter buckets where the actual value > 100
     CRuleCondition condition;
@@ -2245,7 +2245,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     rule.addCondition(condition);
 
     std::size_t bucketLength(300);
-    std::size_t startTime(300);
+    std::size_t startTime(0);
 
     // Model without the skip sampling rule
     SModelParams paramsNoRules(bucketLength);
@@ -2270,16 +2270,16 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     std::size_t endTime = startTime + bucketLength;
 
-    // Add a bucket to both models
-    for (std::size_t i = 0; i < 60; i++) {
-        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
-        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
+    // Add a few buckets to both models (this seems to be necessary to ensure subsequent calls to 'sample'
+    // actually result in samples being added to the model)
+    for (std::size_t j = 0; j < 3; ++j) {
+        for (std::size_t i = 0; i < 60; i++) {
+            this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
+            this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
+        }
+        startTime = endTime;
+        endTime += bucketLength;
     }
-    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
-    modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
-    startTime = endTime;
-    endTime += bucketLength;
-    BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     // Add a bucket to both models
     for (std::size_t i = 0; i < 60; i++) {
@@ -2292,18 +2292,23 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     endTime += bucketLength;
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
-    // this sample will be skipped by the detection rule
+    // Add data to both models
+    // the model with the detection rule will apply a small weighting to the sample
     for (std::size_t i = 0; i < 60; i++) {
+        this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererWithSkip);
     }
+    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
+
+    // Checksums will be different due to the small weighting applied to the sample
+    // added to the model with the detector rule.
+    BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     startTime = endTime;
     endTime += bucketLength;
 
-    // Wind the other model forward
-    modelNoSkip->skipSampling(startTime);
-
+    // Add more data to both models, for which the detection rule will not apply
     for (std::size_t i = 0; i < 60; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererWithSkip);
@@ -2311,7 +2316,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
 
-    // Checksums will be different due to the data gatherers
+    // Checksums will be different due to the small weighting applied to the sample
+    // added to the model with the detector rule.
     BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     // TODO this test fails due a different checksums for the decay rate and prior
@@ -2329,7 +2335,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Check the last value times of the underlying models are the same
     // const maths::CUnivariateTimeSeriesModel *timeSeriesModel =
     //     dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
-    // BOOST_TEST_REQUIRE(timeSeriesModel != 0);
+    // BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
 
     // core_t::TTime time = timeSeriesModel->trend().lastValueTime();
     // BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_IndividualMeanByPerson, startTime, bucketLength), time);

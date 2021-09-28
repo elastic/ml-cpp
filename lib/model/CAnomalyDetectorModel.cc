@@ -43,6 +43,7 @@ const std::string MODEL_TAG{"a"};
 const std::string EMPTY;
 
 const model_t::CResultType SKIP_SAMPLING_RESULT_TYPE;
+const double SKIP_SAMPLING_WEIGHT{0.005};
 
 const CAnomalyDetectorModel::TStr1Vec EMPTY_STRING_LIST;
 
@@ -451,19 +452,21 @@ bool CAnomalyDetectorModel::shouldIgnoreResult(model_t::EFeature feature,
     return shouldIgnore;
 }
 
-bool CAnomalyDetectorModel::shouldIgnoreSample(model_t::EFeature feature,
-                                               std::size_t pid,
-                                               std::size_t cid,
-                                               core_t::TTime time) const {
-    bool shouldIgnore =
-        checkScheduledEvents(this->params().s_ScheduledEvents.get(), std::cref(*this),
+double CAnomalyDetectorModel::initialCountWeight(model_t::EFeature feature,
+                                                 std::size_t pid,
+                                                 std::size_t cid,
+                                                 core_t::TTime time) const {
+    if (checkScheduledEvents(this->params().s_ScheduledEvents.get(), std::cref(*this),
                              feature, CDetectionRule::E_SkipModelUpdate,
-                             SKIP_SAMPLING_RESULT_TYPE, pid, cid, time) ||
-        checkRules(this->params().s_DetectionRules.get(), std::cref(*this),
+                             SKIP_SAMPLING_RESULT_TYPE, pid, cid, time) == true) {
+        return 0.0;
+    }
+    if (checkRules(this->params().s_DetectionRules.get(), std::cref(*this),
                    feature, CDetectionRule::E_SkipModelUpdate,
-                   SKIP_SAMPLING_RESULT_TYPE, pid, cid, time);
-
-    return shouldIgnore;
+                   SKIP_SAMPLING_RESULT_TYPE, pid, cid, time) == true) {
+        return SKIP_SAMPLING_WEIGHT;
+    }
+    return 1.0;
 }
 
 const CAnomalyDetectorModel::TStr1Vec&

@@ -204,9 +204,9 @@ public:
     bool useAnomalyModel() const;
 
     //! Set whether or not to skip updating the anomaly model.
-    CModelProbabilityParams& skipAnomalyModelUpdate(bool skipAnomalyModelUpdate);
+    CModelProbabilityParams& initialCountWeight(double initialCountWeight);
     //! Get whether or not to skip updating the anomaly model.
-    bool skipAnomalyModelUpdate() const;
+    double initialCountWeight() const;
 
 private:
     //! The coordinates' probability calculations.
@@ -223,9 +223,8 @@ private:
     bool m_UseMultibucketFeatures = true;
     //! Whether or not to use the anomaly model.
     bool m_UseAnomalyModel = true;
-    //! Whether or not to skip updating the anomaly model
-    //! because a rule triggered.
-    bool m_SkipAnomalyModelUpdate = false;
+    //! The initial value of the count weight, in the range 0.0 to 1.0.
+    double m_InitialCountWeight = 1.0;
 };
 
 //! \brief Describes the result of the model probability calculation.

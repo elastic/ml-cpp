@@ -89,7 +89,7 @@ public:
         //  (bucket, people) | (15,3), |         | (44,9)  | (80,1)  |
         //                   | (40,6)  |         |         |         |
         //
-        // There are 10 people, 4 attributes and 100 buckets.
+        // There are 10 people, 5 attributes and 100 buckets.
 
         const std::size_t numberBuckets{100u};
 
@@ -1148,17 +1148,17 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Create 2 models, one of which has a skip sampling rule.
-    // Feed the same data into both models then add extra data
-    // into the first model we know will be filtered out.
-    // At the end the checksums for the underlying models should
-    // be the same.
+    // The skip sampling rule doesn't cause the samples to be completely ignored,
+    // instead it applies a small multiplicative weighting when the rule applies.
+    // Feed the same data into both models including the case when the rule will apply
+    // for one model but not the other.
 
     core_t::TTime startTime{1367280000};
     const core_t::TTime bucketLength{3600};
     core_t::TTime endTime = startTime + bucketLength * 100u;
 
-    // Create a categorical rule to reduce the weight applied to samples for attribute c3
-    std::string filterJson("[\"c3\"]");
+    // Create a categorical rule to reduce the weight applied to samples for attribute c4
+    std::string filterJson("[\"c4\"]");
     core::CPatternSet valueFilter;
     valueFilter.initFromJson(filterJson);
 
@@ -1196,7 +1196,6 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     // Use the existing test function to generate a set of messages sufficiently complex
     // that we know some will cause samples to be added to the models.
-    // Restrict the messages to those for persons p1 and p2.
     TMessageVec messages;
     generateTestMessages(1, startTime, bucketLength, messages);
 
@@ -1205,14 +1204,12 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     std::vector<TDataGathererPtrModelPtrPr> configs{
         TDataGathererPtrModelPtrPr{gathererNoSkip, modelNoSkip},
         TDataGathererPtrModelPtrPr{gathererWithSkip, modelWithSkip}};
-    // Run the same data through both models, ignoring messages with the c3 attribute so the skip sampling rule won't apply
+    // Run the same data through both models, ignoring messages with the c4 attribute
+    // so the skip sampling rule won't apply
     for (auto& config : configs) {
         core_t::TTime start{startTime};
         for (auto& message : messages) {
-            if (message.s_Person != "p1" && message.s_Person != "p2") {
-                continue;
-            }
-            if (message.s_Attribute.get() == "c3") {
+            if (message.s_Attribute.get() == "c4") {
                 continue;
             }
             if (message.s_Time >= start + bucketLength) {
@@ -1226,48 +1223,94 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // The checksums should match
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
+        modelWithSkip->details();
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
+    const maths::CModel* mathsModelWithSkipView = nullptr;
+    const maths::CModel* mathsModelNoSkipView = nullptr;
+
+    // expect models for attributes c0 - c3...
+    for (std::size_t i = 0; i < 4; ++i) {
+        mathsModelWithSkipView = modelWithSkipView->model(
+            model_t::E_PopulationMeanByPersonAndAttribute, i);
+        BOOST_TEST_REQUIRE(mathsModelWithSkipView != nullptr);
+
+        mathsModelNoSkipView =
+            modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i);
+        BOOST_TEST_REQUIRE(mathsModelNoSkipView != nullptr);
+    }
+
+    // ...But not for c4
+    mathsModelWithSkipView =
+        modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 4);
+    BOOST_REQUIRE_EQUAL(mathsModelWithSkipView, nullptr);
+
+    mathsModelNoSkipView =
+        modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 4);
+    BOOST_REQUIRE_EQUAL(mathsModelNoSkipView, nullptr);
+
     messages.clear();
     startTime = endTime;
 
     generateTestMessages(1, startTime, bucketLength, messages);
 
-    // These all should be filtered out by the skip sampling rule
-    core_t::TTime start{startTime};
-    for (auto& message : messages) {
-        if (message.s_Person != "p1" && message.s_Person != "p2") {
-            continue;
+    // Now add messages with the c4 attribute only to both models.
+    // The model with the skip sampling rule will have a small weighting applied
+    // to the samples.
+    for (auto& config : configs) {
+        core_t::TTime start{startTime};
+        for (auto& message : messages) {
+            if (message.s_Attribute.get() != "c4") {
+                continue;
+            }
+            if (message.s_Time >= start + bucketLength) {
+                config.second->sample(start, start + bucketLength, m_ResourceMonitor);
+                start += bucketLength;
+            }
+            this->addArrival(message, config.first);
         }
-        if (message.s_Attribute.get() != "c3") {
-            continue;
-        }
-        if (message.s_Time >= start + bucketLength) {
-            modelWithSkip->sample(start, start + bucketLength, m_ResourceMonitor);
-            start += bucketLength;
-        }
-        this->addArrival(message, gathererWithSkip);
     }
 
-    // Checksums will be different because a 3rd model is created for attribute c3
-    BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
+    // This time we expect the model checksums to differ because of the
+    // different weightings applied to the samples for attribute c4
+    uint64_t withSkipChecksum = modelWithSkip->checksum();
+    uint64_t noSkipChecksum = modelNoSkip->checksum();
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
-    CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
-        modelWithSkip->details();
-    CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
+    // expect models for attributes c0 - c4
+    for (std::size_t i = 0; i < 5; ++i) {
+        mathsModelWithSkipView = modelWithSkipView->model(
+            model_t::E_PopulationMeanByPersonAndAttribute, i);
+        BOOST_TEST_REQUIRE(mathsModelWithSkipView != nullptr);
 
-    // but the underlying models for people p1 and p2 are the same
-    uint64_t withSkipChecksum = modelWithSkipView
-                                    ->model(model_t::E_PopulationMeanByPersonAndAttribute, 0)
-                                    ->checksum();
-    uint64_t noSkipChecksum =
-        modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 0)->checksum();
-    BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+        mathsModelNoSkipView =
+            modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i);
+        BOOST_TEST_REQUIRE(mathsModelNoSkipView != nullptr);
+    }
 
-    withSkipChecksum = modelWithSkipView
-                           ->model(model_t::E_PopulationMeanByPersonAndAttribute, 1)
-                           ->checksum();
-    noSkipChecksum =
-        modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1)->checksum();
-    BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+    // The underlying models for attributes c0 - c3 are the same
+    for (std::size_t i = 0; i < 4; ++i) {
+        mathsModelWithSkipView = modelWithSkipView->model(
+            model_t::E_PopulationMeanByPersonAndAttribute, i);
+        withSkipChecksum = mathsModelWithSkipView->checksum();
+        mathsModelNoSkipView =
+            modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i);
+        noSkipChecksum = mathsModelNoSkipView->checksum();
+        BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+    }
+
+    // While the underlying models for attribute c4 differ due to the different weighting applied to the samples
+    mathsModelWithSkipView =
+        modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 4);
+    BOOST_TEST_REQUIRE(mathsModelWithSkipView != nullptr);
+    withSkipChecksum = mathsModelWithSkipView->checksum();
+
+    mathsModelNoSkipView =
+        modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 4);
+    BOOST_TEST_REQUIRE(mathsModelNoSkipView != nullptr);
+    noSkipChecksum = mathsModelNoSkipView->checksum();
+
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
     // TODO These checks fail see elastic/ml-cpp/issues/2043
     // Check the last value times of all the underlying models are the same
