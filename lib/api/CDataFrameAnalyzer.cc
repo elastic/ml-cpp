@@ -260,8 +260,8 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
         if (m_DataFrame->columnNames().empty() == false &&
             m_DataFrame->columnNames() != columnNames) {
 
-            // We take the view that missing features are not fatal, since they may
-            // not be available for the new set, but extra features are likely to
+            // We take the view that missing fields are not fatal, since they may
+            // not be available for the new set, but extra fields are likely to
             // indicate user error.
 
             TSizeVec positions(columnNames.size());
