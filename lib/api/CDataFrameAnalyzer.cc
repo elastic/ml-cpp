@@ -8,8 +8,7 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#include "maths/COrderings.h"
-#include <algorithm>
+
 #include <api/CDataFrameAnalyzer.h>
 
 #include <core/CContainerPrinter.h>
@@ -19,14 +18,16 @@
 #include <core/CLogger.h>
 #include <core/CStopWatch.h>
 
-#include <iterator>
 #include <maths/CBasicStatistics.h>
+#include <maths/COrderings.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataSummarizationJsonWriter.h>
 
+#include <algorithm>
 #include <cmath>
+#include <iterator>
 #include <limits>
 #include <memory>
 #include <string>
