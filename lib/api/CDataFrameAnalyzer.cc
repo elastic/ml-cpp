@@ -11,6 +11,7 @@
 
 #include <api/CDataFrameAnalyzer.h>
 
+#include <boost/unordered/unordered_map_fwd.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CFloatStorage.h>
@@ -128,7 +129,7 @@ void CDataFrameAnalyzer::run() {
     // We create the writer in run so that when it is finished destructors
     // get called and the wrapped stream does its job to close the array.
 
-    auto analysisRunner = m_AnalysisSpecification->runner();
+    auto* analysisRunner = m_AnalysisSpecification->runner();
     if (analysisRunner != nullptr) {
         // We currently use a stream factory because the results are wrapped in
         // an array. This is managed by the CJsonOutputStreamWrapper constructor
@@ -251,54 +252,76 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
 }
 
 void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
-    if (m_DataFrame == nullptr) {
+    if (m_DataFrame == nullptr || m_CapturedFieldNames) {
         return;
     }
-    if (m_DataFrame != nullptr && m_CapturedFieldNames == false) {
 
-        TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
-                            fieldNames.begin() + m_EndDataFieldValues};
+    TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
+                        fieldNames.begin() + m_EndDataFieldValues};
 
-        if (m_DataFrame->hasColumnNames()) {
+    if (m_DataFrame->hasColumnNames()) {
+        this->initializeDataFrameColumnMap(std::move(columnNames));
+        this->validateCategoricalColumnsMatch();
+    } else {
+        m_DataFrame->columnNames(std::move(columnNames));
+        m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
+    }
 
-            // We take the view that missing fields are not fatal, since they may
-            // not be available for the new set, but extra fields are likely to
-            // indicate user error.
+    m_CapturedFieldNames = true;
+}
 
-            TPtrdiffVec positions(columnNames.size());
-            std::iota(positions.begin(), positions.end(), 0);
-            maths::COrderings::simultaneousSort(columnNames, positions);
+void CDataFrameAnalyzer::initializeDataFrameColumnMap(TStrVec columnNames) {
 
-            TStrVec originalColumnNames{m_DataFrame->columnNames()};
-            std::sort(originalColumnNames.begin(), originalColumnNames.end());
+    // We take the view that missing fields are not fatal, since they may
+    // not be available for the new set, but extra fields are likely to
+    // indicate user error.
 
-            m_ColumnMap = std::make_unique<TPtrdiffVec>();
-            m_ColumnMap->reserve(columnNames.size());
+    TPtrdiffVec positions(columnNames.size());
+    std::iota(positions.begin(), positions.end(), 0);
+    maths::COrderings::simultaneousSort(columnNames, positions);
 
-            TStrVec extraColumnNames;
-            std::set_difference(columnNames.begin(), columnNames.end(),
-                                originalColumnNames.begin(), originalColumnNames.end(),
-                                std::back_inserter(extraColumnNames));
-            if (extraColumnNames.empty() == false) {
-                HANDLE_FATAL(<< "Input error: supplying additional columns "
-                             << core::CContainerPrinter::print(extraColumnNames) << ".");
-            }
+    TStrVec originalColumnNames{m_DataFrame->columnNames()};
+    std::sort(originalColumnNames.begin(), originalColumnNames.end());
 
-            for (const auto& name : m_DataFrame->columnNames()) {
-                auto i = std::lower_bound(columnNames.begin(), columnNames.end(), name);
-                if (i == columnNames.end() || *i != name) {
-                    LOG_WARN(<< "Missing column '" << name << "'");
-                    m_ColumnMap->push_back(FIELD_MISSING);
-                } else {
-                    m_ColumnMap->push_back(positions[i - columnNames.begin()]);
-                }
-            }
-            LOG_TRACE(<< "mapping = " << core::CContainerPrinter::print(*m_ColumnMap));
+    TStrVec extraColumnNames;
+    std::set_difference(columnNames.begin(), columnNames.end(),
+                        originalColumnNames.begin(), originalColumnNames.end(),
+                        std::back_inserter(extraColumnNames));
+    if (extraColumnNames.empty() == false) {
+        HANDLE_FATAL(<< "Input error: supplying additional columns "
+                     << core::CContainerPrinter::print(extraColumnNames) << ".");
+    }
+
+    m_DataFrameColumnMap = std::make_unique<TPtrdiffVec>();
+    m_DataFrameColumnMap->reserve(columnNames.size());
+
+    for (const auto& name : m_DataFrame->columnNames()) {
+        auto i = std::lower_bound(columnNames.begin(), columnNames.end(), name);
+        if (i == columnNames.end() || *i != name) {
+            LOG_WARN(<< "Missing column '" << name << "'.");
+            m_DataFrameColumnMap->push_back(FIELD_MISSING);
         } else {
-            m_DataFrame->columnNames(columnNames);
-            m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
+            m_DataFrameColumnMap->push_back(positions[i - columnNames.begin()]);
         }
-        m_CapturedFieldNames = true;
+    }
+    LOG_TRACE(<< "mapping = " << core::CContainerPrinter::print(*m_DataFrameColumnMap));
+}
+
+void CDataFrameAnalyzer::validateCategoricalColumnsMatch() const {
+    TStrVec originalCategoricalColumns;
+    originalCategoricalColumns.reserve(m_DataFrame->columnNames().size());
+    for (std::size_t i = 0; i < m_DataFrame->columnNames().size(); ++i) {
+        if (m_DataFrame->columnIsCategorical()[i]) {
+            originalCategoricalColumns.push_back(m_DataFrame->columnNames()[i]);
+        }
+    }
+    TStrVec categoricalColumns{m_AnalysisSpecification->categoricalFieldNames()};
+    std::sort(originalCategoricalColumns.begin(), originalCategoricalColumns.end());
+    std::sort(categoricalColumns.begin(), categoricalColumns.end());
+    if (categoricalColumns != originalCategoricalColumns) {
+        HANDLE_FATAL(<< "Input error: mismatch in categorical columns "
+                     << core::CContainerPrinter::print(categoricalColumns) << " doesn't match "
+                     << core::CContainerPrinter::print(originalCategoricalColumns));
     }
 }
 
@@ -308,7 +331,7 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     }
     auto columnValues = core::make_range(fieldValues, m_BeginDataFieldValues,
                                          m_EndDataFieldValues);
-    m_DataFrame->parseAndWriteRow(columnValues, m_ColumnMap.get(),
+    m_DataFrame->parseAndWriteRow(columnValues, m_DataFrameColumnMap.get(),
                                   m_DocHashFieldIndex != FIELD_MISSING
                                       ? &fieldValues[m_DocHashFieldIndex]
                                       : nullptr);
@@ -395,5 +418,7 @@ const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {
 }
 
 const std::string CDataFrameAnalyzer::CONTROL_MESSAGE_FIELD_NAME{"."};
+const std::ptrdiff_t CDataFrameAnalyzer::FIELD_UNSET{-2};
+const std::ptrdiff_t CDataFrameAnalyzer::FIELD_MISSING{-1};
 }
 }

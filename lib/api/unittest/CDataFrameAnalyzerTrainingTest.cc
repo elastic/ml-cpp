@@ -1597,14 +1597,15 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
     double featureBagFraction;
     double lossGap;
 
-    auto makeUpdateSpec = [&](const std::string& dependentVariable,
+    auto makeUpdateSpec = [&](const std::string& dependentVariable, TStrVec categoricalFields,
                               TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
                               TPersisterSupplier* persisterSupplier,
                               TRestoreSearcherSupplier* restorerSupplier) {
         test::CDataFrameAnalysisSpecificationFactory specFactory;
+        categoricalFields.push_back(dependentVariable);
         return specFactory.rows(2 * numberExamples)
             .memoryLimit(15000000)
-            .predictionCategoricalFieldNames({dependentVariable})
+            .predictionCategoricalFieldNames(categoricalFields)
             .predictionAlpha(alpha)
             .predictionLambda(lambda)
             .predictionGamma(gamma)
@@ -1679,7 +1680,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
         }};
 
         // Create a new spec for incremental training.
-        spec = makeUpdateSpec("target", frameAndDirectory, nullptr, &restorerSupplier);
+        spec = makeUpdateSpec("target", {}, frameAndDirectory, nullptr, &restorerSupplier);
 
         api::CDataFrameAnalyzer analyzerIncremental{
             std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
@@ -1703,6 +1704,44 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
         BOOST_TEST_REQUIRE(throws);
     }
 
+    LOG_DEBUG(<< "Test mismatching categorical fields");
+
+    {
+        std::stringstream incrementalTrainingStateCopy;
+        incrementalTrainingStateCopy << incrementalTrainingState.str();
+
+        // Pass model definition and data summarization into the restore stream.
+        auto restoreStreamPtr = std::make_shared<std::stringstream>(
+            std::move(incrementalTrainingStateCopy));
+        TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
+            return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
+        }};
+
+        // Create a new spec for incremental training.
+        spec = makeUpdateSpec("target", {"f4"}, frameAndDirectory, nullptr, &restorerSupplier);
+
+        api::CDataFrameAnalyzer analyzerIncremental{
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
+
+        auto errorHandler = [](std::string error) {
+            throw std::runtime_error(error);
+        };
+        core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+        fieldNames.assign({"f1", "f2", "f3", "f4", "target", ".", "."});
+
+        // Adding an unseen field should be a fatal error.
+        bool throws{false};
+        try {
+            test::CDataFrameAnalyzerTrainingFactory::setupBinaryClassificationData(
+                fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
+        } catch (const std::exception& e) {
+            LOG_DEBUG(<< "Caught '" << e.what() << "'");
+            throws = true;
+        }
+        BOOST_TEST_REQUIRE(throws);
+    }
+
     LOG_DEBUG(<< "Test permute fields");
 
     auto restoreStreamPtr =
@@ -1712,7 +1751,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
     }};
 
     // Create a new spec for incremental training.
-    spec = makeUpdateSpec("target", frameAndDirectory, nullptr, &restorerSupplier);
+    spec = makeUpdateSpec("target", {}, frameAndDirectory, nullptr, &restorerSupplier);
 
     api::CDataFrameAnalyzer analyzerIncremental{
         std::move(spec), std::move(frameAndDirectory), outputWriterFactory};

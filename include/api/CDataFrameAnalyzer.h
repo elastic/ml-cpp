@@ -80,16 +80,18 @@ public:
     const CDataFrameAnalysisRunner* runner() const;
 
 private:
-    static const std::ptrdiff_t FIELD_UNSET{-2};
-    static const std::ptrdiff_t FIELD_MISSING{-1};
+    static const std::ptrdiff_t FIELD_UNSET;
+    static const std::ptrdiff_t FIELD_MISSING;
 
 private:
-    bool sufficientFieldValues(const TStrVec& fieldNames) const;
+    bool sufficientFieldValues(const TStrVec& fieldValues) const;
     bool readyToReceiveControlMessages() const;
     bool prepareToReceiveControlMessages(const TStrVec& fieldNames);
     bool isControlMessage(const TStrVec& fieldValues) const;
     bool handleControlMessage(const TStrVec& fieldValues);
     void captureFieldNames(const TStrVec& fieldNames);
+    void initializeDataFrameColumnMap(TStrVec columnNames);
+    void validateCategoricalColumnsMatch() const;
     void addRowToDataFrame(const TStrVec& fieldValues);
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                         core::CRapidJsonConcurrentLineWriter& writer) const;
@@ -107,9 +109,9 @@ private:
     std::ptrdiff_t m_EndDataFieldValues{FIELD_UNSET};
     std::ptrdiff_t m_DocHashFieldIndex{FIELD_UNSET};
     bool m_CapturedFieldNames{false};
-    TPtrdiffVecUPtr m_ColumnMap;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TDataFrameUPtr m_DataFrame;
+    TPtrdiffVecUPtr m_DataFrameColumnMap;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
     TJsonOutputStreamWrapperUPtrSupplier m_ResultsStreamSupplier;
 };
