@@ -47,9 +47,8 @@ public:
                       bool& isRestoreFileNamedPipe,
                       std::string& loggingFileName,
                       std::string& logProperties,
-                      std::int32_t& numLibTorchThreads,
-                      std::int32_t& numLibTorchInterOpThreads,
-                      std::int32_t& numParallelForwardingThreads,
+                      std::int32_t& inferenceThreads,
+                      std::int32_t& modelThreads,
                       bool& validElasticLicenseKeyConfirmed);
 
 private:

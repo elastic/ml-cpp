@@ -16,6 +16,7 @@
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CSetEnv.h>
 #include <core/CStopWatch.h>
+#include <core/CStringUtils.h>
 #include <core/Concurrency.h>
 
 #include <seccomp/CSystemCallFilter.h>
@@ -221,24 +222,26 @@ int main(int argc, char** argv) {
     std::string logProperties;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
-    std::int32_t numLibTorchThreads{-1};
-    std::int32_t numLibTorchInterOpThreads{-1};
-    std::int32_t numParallelForwardingThreads{1};
+    std::int32_t inferenceThreads{1};
+    std::int32_t modelThreads{1};
     bool validElasticLicenseKeyConfirmed{false};
 
     if (ml::torch::CCmdLineParser::parse(
-            argc, argv, modelId, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            logFileName, logProperties, numLibTorchThreads, numLibTorchInterOpThreads,
-            numParallelForwardingThreads, validElasticLicenseKeyConfirmed) == false) {
+            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, logFileName, logProperties, inferenceThreads,
+            modelThreads, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
-    // Disable multithreading for the math libs.
+    // Setting the number of threads used by libtorch also sets
+    // the number of threads used by MKL or OMP libs. However,
+    // this doesn't address the Accelerated.Framework found on macs.
+    // Thus, we set the environment variable that controls threading for that one.
     // It doesn't hurt to set variables that won't have any effect on some platforms.
-    ml::core::CSetEnv::setEnv("MKL_NUM_THREADS", "1", 0); // Only expected to affect linux-x86_64
-    ml::core::CSetEnv::setEnv("OMP_NUM_THREADS", "1", 0); // Only expected to affect Linux
-    ml::core::CSetEnv::setEnv("VECLIB_MAXIMUM_THREADS", "1", 0); // Only expected to affect macOS
+    ml::core::CSetEnv::setEnv(
+        "VECLIB_MAXIMUM_THREADS",
+        ml::core::CStringUtils::typeToString(inferenceThreads).c_str(), 0);
 
     ml::core::CBlockingCallCancellingTimer cancellerThread{
         ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
@@ -290,14 +293,14 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (numLibTorchThreads != -1) {
-        at::set_num_threads(numLibTorchThreads);
-    }
-    if (numLibTorchInterOpThreads != -1) {
-        at::set_num_interop_threads(numLibTorchInterOpThreads);
-    }
+    at::set_num_threads(inferenceThreads);
+
+    // This is not used as we don't call at::launch anywhere.
+    // Setting it to 1 to ensure there is no thread pool sitting around.
+    at::set_num_interop_threads(1);
+
     LOG_DEBUG(<< at::get_parallel_info());
-    LOG_DEBUG(<< "Number of parallel forwarding threads: " << numParallelForwardingThreads);
+    LOG_DEBUG(<< "Model threads: " << modelThreads);
 
     torch::jit::script::Module module;
     try {
@@ -321,8 +324,8 @@ int main(int argc, char** argv) {
 
     // Starting the executor with 1 thread will use an extra thread that isn't necessary
     // so we only start it when more than 1 threads are set.
-    if (numParallelForwardingThreads > 1) {
-        ml::core::startDefaultAsyncExecutor(numParallelForwardingThreads);
+    if (modelThreads > 1) {
+        ml::core::startDefaultAsyncExecutor(modelThreads);
     }
 
     commandParser.ioLoop(
