@@ -371,6 +371,11 @@ void CDataFrame::writeRow(const TWriteFunc& writeRow) {
     (*m_Writer)(writeRow);
 }
 
+bool CDataFrame::hasColumnNames() const {
+    return std::any_of(m_ColumnNames.begin(), m_ColumnNames.end(),
+                       [](const auto& name) { return name.empty() == false; });
+}
+
 void CDataFrame::columnNames(TStrVec columnNames) {
     if (columnNames.size() != m_NumberColumns) {
         HANDLE_FATAL(<< "Expected '" << m_NumberColumns << "' column names values but got "

@@ -497,6 +497,9 @@ public:
     //! writing rows.
     void writeRow(const TWriteFunc& writeRow);
 
+    //! Check if this has named columns.
+    bool hasColumnNames() const;
+
     //! Write the column names.
     void columnNames(TStrVec columnNames);
 

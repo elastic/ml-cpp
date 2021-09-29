@@ -255,10 +255,11 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
         return;
     }
     if (m_DataFrame != nullptr && m_CapturedFieldNames == false) {
+
         TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
                             fieldNames.begin() + m_EndDataFieldValues};
-        if (m_DataFrame->columnNames().empty() == false &&
-            m_DataFrame->columnNames() != columnNames) {
+
+        if (m_DataFrame->hasColumnNames()) {
 
             // We take the view that missing fields are not fatal, since they may
             // not be available for the new set, but extra fields are likely to
@@ -275,12 +276,12 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
             m_ColumnMap->reserve(columnNames.size());
 
             TStrVec extraColumnNames;
-            std::set_intersection(
-                columnNames.begin(), columnNames.end(), originalColumnNames.begin(),
-                originalColumnNames.end(), std::back_inserter(extraColumnNames));
+            std::set_difference(columnNames.begin(), columnNames.end(),
+                                originalColumnNames.begin(), originalColumnNames.end(),
+                                std::back_inserter(extraColumnNames));
             if (extraColumnNames.empty() == false) {
-                HANDLE_FATAL(<< "Input error: supplying additional columns '"
-                             << core::CContainerPrinter::print(extraColumnNames) << "'.");
+                HANDLE_FATAL(<< "Input error: supplying additional columns "
+                             << core::CContainerPrinter::print(extraColumnNames) << ".");
             }
 
             for (const auto& name : m_DataFrame->columnNames()) {
@@ -292,6 +293,7 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
                     m_ColumnMap->push_back(positions[i - columnNames.begin()]);
                 }
             }
+            LOG_TRACE(<< "mapping = " << core::CContainerPrinter::print(*m_ColumnMap));
         } else {
             m_DataFrame->columnNames(columnNames);
             m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());

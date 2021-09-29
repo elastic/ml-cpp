@@ -231,7 +231,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     m_TrainingProgress.progressCallback(m_Instrumentation->progressCallback());
 
-    std::int64_t lastMemoryUsage(this->memoryUsage());
+    std::int64_t lastMemoryUsage{static_cast<std::int64_t>(this->memoryUsage())};
 
     core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
     core::CPackedBitVector noRowsMask{allTrainingRowsMask.size(), false};
@@ -359,7 +359,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     this->selectTreesToRetrain(frame);
 
-    std::int64_t lastMemoryUsage(this->memoryUsage());
+    std::int64_t lastMemoryUsage{static_cast<std::int64_t>(this->memoryUsage())};
 
     this->startProgressMonitoringTrainIncremental();
 
