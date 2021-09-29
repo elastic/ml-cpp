@@ -282,7 +282,9 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads
     return {std::move(writers), successful};
 }
 
-void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::string* hash) {
+void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues,
+                                  const TPtrdiffVec* columnMap,
+                                  const std::string* hash) {
 
     auto stringToValue = [this](bool isCategorical, TStrSizeUMap& categoryLookup,
                                 TStrVec& categories, const std::string& columnValue) {
@@ -337,10 +339,20 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
     }
 
     this->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
-        for (std::size_t i = 0; i < columnValues.size(); ++i, ++columns) {
-            *columns = stringToValue(m_ColumnIsCategorical[i],
-                                     m_CategoricalColumnValueLookup[i],
-                                     m_CategoricalColumnValues[i], columnValues[i]);
+        if (columnMap != nullptr) {
+            for (std::size_t i = 0; i < columnMap->size(); ++i, ++columns) {
+                std::ptrdiff_t j{(*columnMap)[i]};
+                *columns = stringToValue(m_ColumnIsCategorical[i],
+                                         m_CategoricalColumnValueLookup[i],
+                                         m_CategoricalColumnValues[i],
+                                         j >= 0 ? columnValues[j] : m_MissingString);
+            }
+        } else {
+            for (std::size_t i = 0; i < columnValues.size(); ++i, ++columns) {
+                *columns = stringToValue(
+                    m_ColumnIsCategorical[i], m_CategoricalColumnValueLookup[i],
+                    m_CategoricalColumnValues[i], columnValues[i]);
+            }
         }
         docHash = 0;
         if (hash != nullptr &&
@@ -357,6 +369,11 @@ void CDataFrame::writeRow(const TWriteFunc& writeRow) {
             m_ReadAndWriteToStoreSyncStrategy, m_WriteSliceToStore);
     }
     (*m_Writer)(writeRow);
+}
+
+bool CDataFrame::hasColumnNames() const {
+    return std::any_of(m_ColumnNames.begin(), m_ColumnNames.end(),
+                       [](const auto& name) { return name.empty() == false; });
 }
 
 void CDataFrame::columnNames(TStrVec columnNames) {
