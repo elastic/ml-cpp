@@ -1316,7 +1316,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Check the last value times of all the underlying models are the same
     //     const maths::CUnivariateTimeSeriesModel *timeSeriesModel =
     //         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1));
-    //     BOOST_TEST_REQUIRE(timeSeriesModel != 0);
+    //     BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
 
     //     core_t::TTime time = timeSeriesModel->trend().lastValueTime();
     //     BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_PopulationMeanByPersonAndAttribute, startTime, bucketLength), time);

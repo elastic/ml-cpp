@@ -2320,16 +2320,20 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // added to the model with the detector rule.
     BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
-    // TODO this test fails due a different checksums for the decay rate and prior
-    // but the underlying models should be the same.
-    // See elastic/ml-cpp/issues/2043
-    // CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
-    //     modelWithSkip->details();
-    // CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
+    // The underlying models should also differ due to the different weighting applied to the samples.
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
+        modelWithSkip->details();
+    CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
 
-    // uint64_t withSkipChecksum = modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();
-    // uint64_t noSkipChecksum = modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();
-    // BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+    const maths::CModel* mathsModelWithSkip =
+        modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0);
+    BOOST_TEST_REQUIRE(mathsModelWithSkip != nullptr);
+    uint64_t withSkipChecksum = mathsModelWithSkip->checksum();
+    const maths::CModel* mathsModelNoSkip =
+        modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0);
+    BOOST_TEST_REQUIRE(mathsModelNoSkip != nullptr);
+    uint64_t noSkipChecksum = mathsModelNoSkip->checksum();
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
     // TODO These checks fail see elastic/ml-cpp/issues/2043
     // Check the last value times of the underlying models are the same

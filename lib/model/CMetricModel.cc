@@ -246,7 +246,7 @@ void CMetricModel::sample(core_t::TTime startTime,
 
                 // initialCountWeight returns a weight value as double:
                 // 0.0 if checkScheduledEvents is true
-                // 1,0 if both checkScheduledEvents and checkRules are false
+                // 1.0 if both checkScheduledEvents and checkRules are false
                 // A small weight - 0.005 - if checkRules is true.
                 // This weight is applied to countWeight (and therefore scaledCountWeight) as multiplier.
                 // This reduces the impact of the values affected by the skip_model_update rule

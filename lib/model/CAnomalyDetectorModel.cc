@@ -456,14 +456,14 @@ double CAnomalyDetectorModel::initialCountWeight(model_t::EFeature feature,
                                                  std::size_t pid,
                                                  std::size_t cid,
                                                  core_t::TTime time) const {
-    if (checkScheduledEvents(this->params().s_ScheduledEvents.get(), std::cref(*this),
+    if (checkScheduledEvents(this->params().s_ScheduledEvents.get(), *this,
                              feature, CDetectionRule::E_SkipModelUpdate,
                              SKIP_SAMPLING_RESULT_TYPE, pid, cid, time) == true) {
         return 0.0;
     }
-    if (checkRules(this->params().s_DetectionRules.get(), std::cref(*this),
-                   feature, CDetectionRule::E_SkipModelUpdate,
-                   SKIP_SAMPLING_RESULT_TYPE, pid, cid, time) == true) {
+    if (checkRules(this->params().s_DetectionRules.get(), *this, feature,
+                   CDetectionRule::E_SkipModelUpdate, SKIP_SAMPLING_RESULT_TYPE,
+                   pid, cid, time) == true) {
         return SKIP_SAMPLING_WEIGHT;
     }
     return 1.0;

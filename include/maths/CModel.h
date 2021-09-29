@@ -203,9 +203,9 @@ public:
     //! Get whether or not to use the anomaly model.
     bool useAnomalyModel() const;
 
-    //! Set whether or not to skip updating the anomaly model.
+    //! Set the initial value of the count weight to aaply to the model's samples.
     CModelProbabilityParams& initialCountWeight(double initialCountWeight);
-    //! Get whether or not to skip updating the anomaly model.
+    //! Get the initial value of the count weight to aaply to the model's samples..
     double initialCountWeight() const;
 
 private:
