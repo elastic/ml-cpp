@@ -232,6 +232,7 @@ public:
     using TBoolVec = std::vector<bool>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeVecSizePr = std::pair<TSizeVec, std::size_t>;
+    using TPtrdiffVec = std::vector<std::ptrdiff_t>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TStrCRng = CVectorRange<const TStrVec>;
@@ -475,10 +476,10 @@ public:
     //!
     //! \param[in] columnValues The column values.
     //! \param[in] columnMap If non-null defines a map between columnValues and
-    //! their position in the data frame.
+    //! their position in the data frame. Negative values denote missing columns.
     //! \param[in] hash If non-null a hash which identifies the row document.
     void parseAndWriteRow(const TStrCRng& columnValues,
-                          const TSizeVec* columnMap = nullptr,
+                          const TPtrdiffVec* columnMap = nullptr,
                           const std::string* hash = nullptr);
 
     //! This writes a single row of the data frame via a callback.

@@ -265,14 +265,14 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
             // not be available for the new set, but extra fields are likely to
             // indicate user error.
 
-            TSizeVec positions(columnNames.size());
+            TPtrdiffVec positions(columnNames.size());
             std::iota(positions.begin(), positions.end(), 0);
             maths::COrderings::simultaneousSort(columnNames, positions);
 
             TStrVec originalColumnNames{m_DataFrame->columnNames()};
             std::sort(originalColumnNames.begin(), originalColumnNames.end());
 
-            m_ColumnMap = std::make_unique<TSizeVec>();
+            m_ColumnMap = std::make_unique<TPtrdiffVec>();
             m_ColumnMap->reserve(columnNames.size());
 
             TStrVec extraColumnNames;
@@ -288,7 +288,7 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
                 auto i = std::lower_bound(columnNames.begin(), columnNames.end(), name);
                 if (i == columnNames.end() || *i != name) {
                     LOG_WARN(<< "Missing column '" << name << "'");
-                    m_ColumnMap->push_back(columnNames.size());
+                    m_ColumnMap->push_back(FIELD_MISSING);
                 } else {
                     m_ColumnMap->push_back(positions[i - columnNames.begin()]);
                 }

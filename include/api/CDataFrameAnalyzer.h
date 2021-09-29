@@ -17,6 +17,7 @@
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <cinttypes>
+#include <cstddef>
 #include <functional>
 #include <memory>
 #include <string>
@@ -35,9 +36,9 @@ class CDataFrameAnalysisSpecification;
 //! \brief Handles input to the data_frame_analyzer command.
 class API_EXPORT CDataFrameAnalyzer {
 public:
-    using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
-    using TSizeVecUPtr = std::unique_ptr<TSizeVec>;
+    using TPtrdiffVec = std::vector<std::ptrdiff_t>;
+    using TPtrdiffVecUPtr = std::unique_ptr<TPtrdiffVec>;
     using TJsonOutputStreamWrapperUPtr = std::unique_ptr<core::CJsonOutputStreamWrapper>;
     using TJsonOutputStreamWrapperUPtrSupplier =
         std::function<TJsonOutputStreamWrapperUPtr()>;
@@ -106,7 +107,7 @@ private:
     std::ptrdiff_t m_EndDataFieldValues{FIELD_UNSET};
     std::ptrdiff_t m_DocHashFieldIndex{FIELD_UNSET};
     bool m_CapturedFieldNames{false};
-    TSizeVecUPtr m_ColumnMap;
+    TPtrdiffVecUPtr m_ColumnMap;
     TDataFrameAnalysisSpecificationUPtr m_AnalysisSpecification;
     TDataFrameUPtr m_DataFrame;
     TTemporaryDirectoryPtr m_DataFrameDirectory;

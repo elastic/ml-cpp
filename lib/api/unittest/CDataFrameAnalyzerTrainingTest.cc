@@ -1053,7 +1053,6 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     // Retrieve documents from the result stream that will be used to restore the model.
 
     std::stringstream incrementalTrainingState;
-    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
@@ -1458,7 +1457,6 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     // Retrieve documents from the result stream that will be used to restore the model.
 
     std::stringstream incrementalTrainingState;
-    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
@@ -1659,7 +1657,6 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
 
     // Retrieve documents from the result stream that will be used to restore the model.
     std::stringstream incrementalTrainingState;
-    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,

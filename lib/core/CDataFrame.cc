@@ -283,7 +283,7 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads
 }
 
 void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues,
-                                  const TSizeVec* columnMap,
+                                  const TPtrdiffVec* columnMap,
                                   const std::string* hash) {
 
     auto stringToValue = [this](bool isCategorical, TStrSizeUMap& categoryLookup,
@@ -341,11 +341,11 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues,
     this->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
         if (columnMap != nullptr) {
             for (std::size_t i = 0; i < columnMap->size(); ++i, ++columns) {
-                std::size_t j{(*columnMap)[i]};
-                *columns = stringToValue(
-                    m_ColumnIsCategorical[i], m_CategoricalColumnValueLookup[i],
-                    m_CategoricalColumnValues[i],
-                    j < columnValues.size() ? columnValues[j] : m_MissingString);
+                std::ptrdiff_t j{(*columnMap)[i]};
+                *columns = stringToValue(m_ColumnIsCategorical[i],
+                                         m_CategoricalColumnValueLookup[i],
+                                         m_CategoricalColumnValues[i],
+                                         j >= 0 ? columnValues[j] : m_MissingString);
             }
         } else {
             for (std::size_t i = 0; i < columnValues.size(); ++i, ++columns) {
