@@ -321,17 +321,16 @@ def threading_benchmark(args):
     threading_options = [1, 2, 3, 4, 8, 12, 16]
     results = []
     for libtorch_threads in threading_options:
-        for mkl_threads in threading_options:
-            for parallel_forwarding_threads in threading_options:
-                args.numLibTorchThreads = libtorch_threads
-                args.numParallelForwardingThreads = parallel_forwarding_threads
-                print(f'Running benchmark with libtorch_threads = [{libtorch_threads}]; mkl_threads = [{mkl_threads}]; parallel_forwarding_threads = [{parallel_forwarding_threads}]')
-                (run_time_ms, avg_time_ms) = run_benchmark(args)
-                result = {'libtorch_threads': libtorch_threads, 'mkl_threads': mkl_threads, 'parallel_forwarding_threads': parallel_forwarding_threads, 'run_time_ms': run_time_ms, 'avg_time_ms': avg_time_ms}
-                results.append(result)
-    print(f'libtorch_threads,mkl_threads,parallel_forwarding_threads,run_time_ms,avg_time_ms')
+        for parallel_forwarding_threads in threading_options:
+            args.numLibTorchThreads = libtorch_threads
+            args.numParallelForwardingThreads = parallel_forwarding_threads
+            print(f'Running benchmark with libtorch_threads = [{libtorch_threads}]; parallel_forwarding_threads = [{parallel_forwarding_threads}]')
+            (run_time_ms, avg_time_ms) = run_benchmark(args)
+            result = {'libtorch_threads': libtorch_threads, 'parallel_forwarding_threads': parallel_forwarding_threads, 'run_time_ms': run_time_ms, 'avg_time_ms': avg_time_ms}
+            results.append(result)
+    print(f'libtorch_threads,parallel_forwarding_threads,run_time_ms,avg_time_ms')
     for result in results:
-        print(f"{result['libtorch_threads']},{result['mkl_threads']},{result['parallel_forwarding_threads']},{result['run_time_ms']},{result['avg_time_ms']}")
+        print(f"{result['libtorch_threads']},{result['parallel_forwarding_threads']},{result['run_time_ms']},{result['avg_time_ms']}")
 
 def main():
 
