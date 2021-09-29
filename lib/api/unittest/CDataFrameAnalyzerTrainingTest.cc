@@ -1796,14 +1796,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 double expectedPrediction{classification->readPrediction(*row)[0]};
-                // The prediction_probability result contains the highest scoring
-                // class probability which is usually, but not always, the highest
-                // class probability. The probability of the prediction result is
-                // therefore not a consistent class while readPrediction always
-                // returns the probability of class 1. Here, we simply check that
-                // the prediction_probability matches the probability of one of the
-                // classes, since it is very unlikely to match the wrong class by
-                // chance.
+                // See testClassificationIncrementalTraining for an explanation.
                 BOOST_REQUIRE((std::fabs(*prediction - expectedPrediction) < 1e-6) ||
                               (std::fabs(*prediction + expectedPrediction - 1.0) < 1e-6));
                 ++prediction;
