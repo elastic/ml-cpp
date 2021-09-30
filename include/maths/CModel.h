@@ -205,7 +205,7 @@ public:
 
     //! Set the initial value of the count weight to apply to the model's samples.
     CModelProbabilityParams& initialCountWeight(double initialCountWeight);
-    //! Get the initial value of the count weight to aaply to the model's samples..
+    //! Get the initial value of the count weight to apply to the model's samples..
     double initialCountWeight() const;
 
 private:
