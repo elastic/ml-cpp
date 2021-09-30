@@ -1311,26 +1311,6 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     noSkipChecksum = mathsModelNoSkipView->checksum();
 
     BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
-
-    // TODO These checks fail see elastic/ml-cpp/issues/2043
-    // Check the last value times of all the underlying models are the same
-    //     const maths::CUnivariateTimeSeriesModel *timeSeriesModel =
-    //         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1));
-    //     BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
-
-    //     core_t::TTime time = timeSeriesModel->trend().lastValueTime();
-    //     BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_PopulationMeanByPersonAndAttribute, startTime, bucketLength), time);
-
-    //     // The last times of the underlying time series models should all be the same
-    //     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1));
-    //     BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
-
-    //     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 0));
-    //     BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
-    //     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1));
-    //     BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
-    //     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 2));
-    //     BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
