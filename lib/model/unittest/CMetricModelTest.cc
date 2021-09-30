@@ -2273,7 +2273,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Add a few buckets to both models (this seems to be necessary to ensure subsequent calls to 'sample'
     // actually result in samples being added to the model)
     for (std::size_t j = 0; j < 3; ++j) {
-        for (std::size_t i = 0; i < 60; i++) {
+        for (std::size_t i = 0; i < bucketLength; i++) {
             this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
             this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
         }
@@ -2282,7 +2282,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     }
 
     // Add a bucket to both models
-    for (std::size_t i = 0; i < 60; i++) {
+    for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
     }
@@ -2294,7 +2294,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     // Add data to both models
     // the model with the detection rule will apply a small weighting to the sample
-    for (std::size_t i = 0; i < 60; i++) {
+    for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererWithSkip);
     }
@@ -2309,7 +2309,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     endTime += bucketLength;
 
     // Add more data to both models, for which the detection rule will not apply
-    for (std::size_t i = 0; i < 60; i++) {
+    for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererWithSkip);
     }
@@ -2334,6 +2334,30 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     BOOST_TEST_REQUIRE(mathsModelNoSkip != nullptr);
     uint64_t noSkipChecksum = mathsModelNoSkip->checksum();
     BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
+
+    // Check the last value times of the underlying models are the same
+    const maths::CUnivariateTimeSeriesModel* timeSeriesModel =
+        dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0));
+    BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
+    const auto* trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+        &timeSeriesModel->trendModel());
+    BOOST_TEST_REQUIRE(trendModel != nullptr);
+    core_t::TTime modelNoSkipTime = trendModel->lastValueTime();
+
+    // The last times of model with a skip should be the same
+    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
+    BOOST_TEST_REQUIRE(timeSeriesModel);
+    trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+        &timeSeriesModel->trendModel());
+    BOOST_TEST_REQUIRE(trendModel != nullptr);
+    core_t::TTime modelWithSkipTime = trendModel->lastValueTime();
+
+    BOOST_REQUIRE_EQUAL(modelNoSkipTime, modelWithSkipTime);
+    BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_IndividualMeanByPerson,
+                                            startTime, bucketLength),
+                        modelNoSkipTime);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

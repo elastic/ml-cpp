@@ -1153,8 +1153,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Feed the same data into both models including the case when the rule will apply
     // for one model but not the other.
 
-    core_t::TTime startTime{1367280000};
-    const core_t::TTime bucketLength{3600};
+    core_t::TTime startTime{0};
+    const core_t::TTime bucketLength{300};
     core_t::TTime endTime = startTime + bucketLength * 100u;
 
     // Create a categorical rule to reduce the weight applied to samples for attribute c4
@@ -1311,6 +1311,29 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     noSkipChecksum = mathsModelNoSkipView->checksum();
 
     BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
+
+    // Check the last value times are the same for each of the underlying models with the skip rule
+    // and the corresponding model with no skip rule
+    for (std::size_t i = 0; i < 5; ++i) {
+        const maths::CUnivariateTimeSeriesModel* timeSeriesModel =
+            dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+                modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i));
+        BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
+        const auto* trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+            &timeSeriesModel->trendModel());
+        BOOST_TEST_REQUIRE(trendModel != nullptr);
+        core_t::TTime modelWithSkipTime = trendModel->lastValueTime();
+
+        timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i));
+        BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
+        trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+            &timeSeriesModel->trendModel());
+        BOOST_TEST_REQUIRE(trendModel != nullptr);
+        core_t::TTime modelNoSkipTime = trendModel->lastValueTime();
+
+        BOOST_REQUIRE_EQUAL(modelWithSkipTime, modelNoSkipTime);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
