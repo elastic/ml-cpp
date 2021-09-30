@@ -35,16 +35,16 @@ Switch to benchmark mode by passing the `--benchmark` argument.
 
 Setting the number of threads used by inference has the biggest affect
 on performance and is controlled two arguments. First, there is
-`--numLibTorchThreads` which controls the number of threads used by
+`--inferenceThreads` which controls the number of threads used by
 LibTorch. If not set LibTorch will choose the defaults. Second, we have
-`--numParallelForwardingThreads` which controls how many threads are
+`--modelThreads` which controls how many threads are
 calling LibTorch's forwarding. If not set it defaults to 1.
 
 THREADING_BENCHMARK MODE
 -----------
 
 This mode will execute multiple runs setting various options to the two threading
-parameters, `--numLibTorchThreads` and `--numParallelForwardingThreads`.
+parameters, `--inferenceThreads` and `--modelThreads`.
 Define those options by setting the variable `threading_options`.
 At the end of the execution the output will be a CSV format summary of the runs
 with the total runtime and the avg time per request.
@@ -59,7 +59,7 @@ For test evaluation:
     python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json
 
 For Benchmarking:
-    python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --benchmark --numLibTorchThreads=2
+    python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --benchmark --inferenceThreads=2
 
 For threading benchmark:
     python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --threading_benchmark
@@ -85,8 +85,8 @@ def parse_arguments():
     parser.add_argument('--restore_file', default='restore_file')
     parser.add_argument('--input_file', default='input_file')
     parser.add_argument('--output_file', default='output_file')
-    parser.add_argument('--numLibTorchThreads', type=int, help='The number of inference threads used by LibTorch. The system default is used if not set')
-    parser.add_argument('--numParallelForwardingThreads', type=int, help='The number of threads for parallel forwarding. Defaults to 1')
+    parser.add_argument('--inferenceThreads', type=int, help='The number of inference threads used by LibTorch. Defaults to 1.')
+    parser.add_argument('--modelThreads', type=int, help='The number of threads for parallel forwarding. Defaults to 1')
     benchmark_group = parser.add_mutually_exclusive_group()
     benchmark_group.add_argument('--benchmark', action='store_true', help='Benchmark inference time rather than evaluting expected results')
     benchmark_group.add_argument('--threading_benchmark', action='store_true', help='Threading benchmark')
@@ -119,12 +119,11 @@ def launch_pytorch_app(args):
         '--validElasticLicenseKeyConfirmed=true'
         ]
 
-    if args.numLibTorchThreads:
-        command.append('--numLibTorchThreads=' + str(args.numLibTorchThreads))
-        command.append('--numLibTorchInterOpThreads=1')
+    if args.inferenceThreads:
+        command.append('--inferenceThreads=' + str(args.inferenceThreads))
 
-    if args.numParallelForwardingThreads:
-        command.append('--numParallelForwardingThreads=' + str(args.numParallelForwardingThreads))
+    if args.modelThreads:
+        command.append('--modelThreads=' + str(args.modelThreads))
 
     subprocess.Popen(command).communicate()
 
@@ -320,17 +319,17 @@ def test_evaluation(args):
 def threading_benchmark(args):
     threading_options = [1, 2, 3, 4, 8, 12, 16]
     results = []
-    for libtorch_threads in threading_options:
-        for parallel_forwarding_threads in threading_options:
-            args.numLibTorchThreads = libtorch_threads
-            args.numParallelForwardingThreads = parallel_forwarding_threads
-            print(f'Running benchmark with libtorch_threads = [{libtorch_threads}]; parallel_forwarding_threads = [{parallel_forwarding_threads}]')
+    for inference_threads in threading_options:
+        for model_threads in threading_options:
+            args.inferenceThreads = inference_threads
+            args.modelThreads = model_threads
+            print(f'Running benchmark with inference_threads = [{inference_threads}]; model_threads = [{model_threads}]')
             (run_time_ms, avg_time_ms) = run_benchmark(args)
-            result = {'libtorch_threads': libtorch_threads, 'parallel_forwarding_threads': parallel_forwarding_threads, 'run_time_ms': run_time_ms, 'avg_time_ms': avg_time_ms}
+            result = {'inference_threads': inference_threads, 'model_threads': model_threads, 'run_time_ms': run_time_ms, 'avg_time_ms': avg_time_ms}
             results.append(result)
-    print(f'libtorch_threads,parallel_forwarding_threads,run_time_ms,avg_time_ms')
+    print(f'inference_threads,model_threads,run_time_ms,avg_time_ms')
     for result in results:
-        print(f"{result['libtorch_threads']},{result['parallel_forwarding_threads']},{result['run_time_ms']},{result['avg_time_ms']}")
+        print(f"{result['inference_threads']},{result['model_threads']},{result['run_time_ms']},{result['avg_time_ms']}")
 
 def main():
 
