@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.16.0
+
+=== Enhancements
+
+* Speed up training of regression and classification models (See {ml-pull}2024[#2024].)
+* Improve aspects of implementation of skip_model_update rule (See {ml-pull}2053[#2053].)
+
 == {es} version 7.15.0
 
 === Enhancements
@@ -38,15 +45,6 @@
   (See {ml-pull}1960[#1960].)
 * Prune models for split fields (by, partition) that haven't seen data updates for
   a given period of time. (See {ml-pull}1962[#1962].)
-
-== {es} version 7.15.0
-
-=== Enhancements
-
-* Speed up training of regression and classification models on very large data sets.
-  (See {ml-pull}1941[#1941].)
-* Improve regression and classification training accuracy for small data sets.
-  (See {ml-pull}1960[#1960].)
 
 === Bug Fixes
 
