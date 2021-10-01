@@ -2465,7 +2465,7 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
             // We create anomalies in 10 consecutive buckets
             if (bucket >= 1700 && bucket < 1710) {
                 sample = 100.0;
-                currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
+                currentComputeProbabilityParams.initialCountWeight(0.0);
                 model.probability(currentComputeProbabilityParams, {{time}},
                                   {{sample}}, result);
                 probabilities.push_back(result.s_Probability);
@@ -2509,7 +2509,7 @@ BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {
                 for (auto& coordinate : sample) {
                     coordinate += 100.0;
                 }
-                currentComputeProbabilityParams.skipAnomalyModelUpdate(true);
+                currentComputeProbabilityParams.initialCountWeight(0.0);
                 model.probability(currentComputeProbabilityParams, {{time}},
                                   {(sample)}, result);
                 probabilities.push_back(result.s_Probability);

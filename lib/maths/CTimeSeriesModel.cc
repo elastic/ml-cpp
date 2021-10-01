@@ -437,9 +437,11 @@ void CTimeSeriesAnomalyModel::sample(const CModelProbabilityParams& params, doub
     // this is the bit that we want to skip.
     // The rest of sample is necessary as it creates
     // the feature vector related to the current anomaly.
-    if (params.skipAnomalyModelUpdate() == false) {
+    double initialCountWeight{params.initialCountWeight()};
+    if (initialCountWeight > 0.0) {
         auto& model = m_AnomalyFeatureModels[m_Anomaly->positive() ? 0 : 1];
-        model.addSamples({m_Anomaly->features()}, {maths_t::countWeight(weight, 2)});
+        model.addSamples({m_Anomaly->features()},
+                         {maths_t::countWeight(weight * initialCountWeight, 2)});
     }
 }
 

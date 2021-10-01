@@ -231,13 +231,13 @@ bool CModelProbabilityParams::useAnomalyModel() const {
     return m_UseAnomalyModel;
 }
 
-CModelProbabilityParams& CModelProbabilityParams::skipAnomalyModelUpdate(bool skipAnomalyModelUpdate) {
-    m_SkipAnomalyModelUpdate = skipAnomalyModelUpdate;
+CModelProbabilityParams& CModelProbabilityParams::initialCountWeight(double initialCountWeight) {
+    m_InitialCountWeight = initialCountWeight;
     return *this;
 }
 
-bool CModelProbabilityParams::skipAnomalyModelUpdate() const {
-    return m_SkipAnomalyModelUpdate;
+double CModelProbabilityParams::initialCountWeight() const {
+    return m_InitialCountWeight;
 }
 
 //////// SModelProbabilityResult::SFeatureProbability ////////
