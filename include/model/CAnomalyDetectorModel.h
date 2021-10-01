@@ -681,11 +681,12 @@ protected:
     //! Get the object which calculates corrections for interim buckets.
     virtual const CInterimBucketCorrector& interimValueCorrector() const = 0;
 
-    //! Check if any of the sample-filtering detection rules apply to this series.
-    bool shouldIgnoreSample(model_t::EFeature feature,
-                            std::size_t pid,
-                            std::size_t cid,
-                            core_t::TTime time) const;
+    //! Get the value of the initial count weight to apply to the model's
+    //! samples, as determined by the detection rules.
+    double initialCountWeight(model_t::EFeature feature,
+                              std::size_t pid,
+                              std::size_t cid,
+                              core_t::TTime time) const;
 
     //! Check if any of the result-filtering detection rules apply to this series.
     bool shouldIgnoreResult(model_t::EFeature feature,

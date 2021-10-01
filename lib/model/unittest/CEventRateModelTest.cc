@@ -2858,7 +2858,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
             modelNoSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0))
             ->residualModel()
             .checksum()};
-    BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+    // Checksums differ due to different weighting applied to samples for the "skip" model
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
     // Check the last value times of the underlying models are the same
     const maths::CUnivariateTimeSeriesModel* timeSeriesModel =
