@@ -49,7 +49,7 @@ namespace core {
 template<typename T, std::size_t CAPACITY>
 class CConcurrentQueue final {
 public:
-    CConcurrentQueue(std::size_t capacityMultiplier = 1)
+    explicit CConcurrentQueue(std::size_t capacityMultiplier = 1)
         : m_Capacity{nextPow2(CAPACITY * capacityMultiplier)}, m_Front{0}, m_Back{0},
           m_Elements(m_Capacity) {}
 
@@ -62,8 +62,8 @@ public:
         // This is only a ballpark estimate, since we can't simultaneously
         // atomically read both the front and back, so we only ensure the
         // reads are atomic (and not that they'll see all writes).
-        std::size_t front{m_Front.load(std::memory_order_relaxed)};
-        std::size_t back{m_Back.load(std::memory_order_relaxed)};
+        std::size_t front{m_Front.load(std::memory_order_acquire)};
+        std::size_t back{m_Back.load(std::memory_order_acquire)};
         return static_cast<double>(back < front ? back + m_Capacity - front : back - front) /
                static_cast<double>(m_Capacity);
     }
@@ -120,7 +120,8 @@ private:
                 std::uint8_t state{READ};
                 if (this->swapIfStateIs(state, WRITING)) {
                     break;
-                } else if (state != READING) {
+                }
+                if (state != READING) {
                     std::unique_lock<std::mutex> lock{m_Mutex};
                     state = READ;
                     if (this->swapIfStateIs(state, WRITING)) {
@@ -147,7 +148,8 @@ private:
                 std::uint8_t state{WRITTEN};
                 if (this->swapIfStateIs(state, READING)) {
                     break;
-                } else if (state != WRITING) {
+                }
+                if (state != WRITING) {
                     std::unique_lock<std::mutex> lock{m_Mutex};
                     state = WRITTEN;
                     if (this->swapIfStateIs(state, READING)) {
