@@ -1,15 +1,23 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CAllocationStrategyTest.h"
 
 #include <core/CAllocationStrategy.h>
 #include <core/CLogger.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <algorithm>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CAllocationStrategyTest)
 
 using namespace ml;
 
@@ -24,15 +32,15 @@ void assertSize(const T& t) {
     std::size_t s = t.size();
     std::size_t c = t.capacity();
     LOG_DEBUG(<< "Size " << s << ", capacity " << c);
-    CPPUNIT_ASSERT(double(c) <= std::max(double(s) * RATIO, double(s) + TOLERANCE));
+    BOOST_TEST_REQUIRE(double(c) <= std::max(double(s) * RATIO, double(s) + TOLERANCE));
 }
 
-void CAllocationStrategyTest::test() {
+BOOST_AUTO_TEST_CASE(test) {
     using TIntVec = std::vector<int>;
 
     {
         TIntVec v;
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), v.capacity());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), v.capacity());
 
         core::CAllocationStrategy::resize(v, 1);
         assertSize(v);
@@ -70,10 +78,4 @@ void CAllocationStrategyTest::test() {
     }
 }
 
-CppUnit::Test* CAllocationStrategyTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAllocationStrategyTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAllocationStrategyTest>(
-        "CAllocationStrategyTest::test", &CAllocationStrategyTest::test));
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

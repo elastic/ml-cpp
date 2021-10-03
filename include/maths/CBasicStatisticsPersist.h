@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CBasicStatisticsPersist_h
@@ -124,7 +129,7 @@ bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std:
 
     std::size_t lastDelimPos{delimPos};
     std::size_t index{0};
-    while (lastDelimPos != std::string::npos) {
+    while (lastDelimPos != std::string::npos && index < ORDER) {
         delimPos = str.find(INTERNAL_DELIMITER, lastDelimPos + 1);
         if (delimPos == std::string::npos) {
             token.assign(str, lastDelimPos + 1, str.length() - lastDelimPos);
@@ -159,7 +164,7 @@ template<typename T, unsigned int ORDER>
 uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum() const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
-    for (std::size_t i = 0u; i < ORDER; ++i) {
+    for (std::size_t i = 0; i < ORDER; ++i) {
         raw << ' ';
         raw << basic_statistics_detail::typeToString(s_Moments[i]);
     }
@@ -178,7 +183,7 @@ bool CBasicStatistics::SSampleCovariances<POINT>::fromDelimited(std::string str)
     str = str.substr(pos + 1);
 
     std::size_t count{0u};
-    for (std::size_t i = 0u; i < dimension; ++i) {
+    for (std::size_t i = 0; i < dimension; ++i) {
         count = str.find_first_of(CLinearAlgebra::DELIMITER, count + 1);
     }
     if (!s_Count.fromDelimited(str.substr(0, count))) {
@@ -188,7 +193,7 @@ bool CBasicStatistics::SSampleCovariances<POINT>::fromDelimited(std::string str)
 
     str = str.substr(count + 1);
     std::size_t means{0u};
-    for (std::size_t i = 0u; i < dimension; ++i) {
+    for (std::size_t i = 0; i < dimension; ++i) {
         means = str.find_first_of(CLinearAlgebra::DELIMITER, means + 1);
     }
     if (!s_Mean.fromDelimited(str.substr(0, means))) {
@@ -265,7 +270,12 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(
     }
     m_Statistics[--m_UnusedCount] = statistic;
 
-    while (delimPos != value.size()) {
+    while (delimPos < value.size()) {
+        if (m_UnusedCount == 0) {
+            LOG_ERROR(<< "Too many statistics in '" << value
+                      << "' - expected at most " << m_Statistics.size());
+            return false;
+        }
         std::size_t nextDelimPos{
             std::min(value.find(INTERNAL_DELIMITER, delimPos + 1), value.size())};
         token.assign(value, delimPos + 1, nextDelimPos - delimPos - 1);
@@ -311,7 +321,7 @@ uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(ui
     std::sort(sorted.begin(), sorted.end(), m_Less);
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(sorted[0]);
-    for (std::size_t i = 1u; i < sorted.size(); ++i) {
+    for (std::size_t i = 1; i < sorted.size(); ++i) {
         raw << ' ';
         raw << basic_statistics_detail::typeToString(sorted[i]);
     }

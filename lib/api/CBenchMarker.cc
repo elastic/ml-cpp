@@ -1,12 +1,19 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CBenchMarker.h>
 
 #include <core/CLogger.h>
 #include <core/CoreTypes.h>
+
+#include <model/CDataCategorizer.h>
 
 #include <algorithm>
 #include <fstream>
@@ -42,23 +49,25 @@ bool CBenchMarker::init(const std::string& regexFilename) {
             return false;
         }
 
-        m_Measures.push_back(TRegexIntSizeStrPrMapPr(regex, TIntSizeStrPrMap()));
+        m_Measures.push_back(TRegexLocalCategoryIdSizeStrPrMapPr(
+            regex, TLocalCategoryIdSizeStrPrMap()));
     }
 
     return (m_Measures.size() > 0);
 }
 
-void CBenchMarker::addResult(const std::string& message, int type) {
-    bool scored(false);
-    size_t position(0);
-    for (TRegexIntSizeStrPrMapPrVecItr measureVecIter = m_Measures.begin();
+void CBenchMarker::addResult(const std::string& message, model::CLocalCategoryId categoryId) {
+    bool scored{false};
+    std::size_t position{0};
+    for (auto measureVecIter = m_Measures.begin();
          measureVecIter != m_Measures.end(); ++measureVecIter) {
         const core::CRegex& regex = measureVecIter->first;
         if (regex.search(message, position) == true) {
-            TIntSizeStrPrMap& counts = measureVecIter->second;
-            TIntSizeStrPrMapItr mapIter = counts.find(type);
+            TLocalCategoryIdSizeStrPrMap& counts = measureVecIter->second;
+            auto mapIter = counts.find(categoryId);
             if (mapIter == counts.end()) {
-                counts.insert(TIntSizeStrPrMap::value_type(type, TSizeStrPr(1, message)));
+                counts.insert(TLocalCategoryIdSizeStrPrMap::value_type(
+                    categoryId, TSizeStrPr(1, message)));
             } else {
                 ++(mapIter->second.first);
             }
@@ -76,73 +85,70 @@ void CBenchMarker::addResult(const std::string& message, int type) {
 }
 
 void CBenchMarker::dumpResults() const {
-    // Sort the results in descending order of actual type occurrence
-    using TSizeRegexIntSizeStrPrMapPrVecCItrPr = std::pair<size_t, TRegexIntSizeStrPrMapPrVecCItr>;
-    using TSizeRegexIntSizeStrPrMapPrVecCItrPrVec =
-        std::vector<TSizeRegexIntSizeStrPrMapPrVecCItrPr>;
-    using TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr =
-        TSizeRegexIntSizeStrPrMapPrVecCItrPrVec::const_iterator;
+    // Sort the results in descending order of actual category occurrence
+    using TSizeRegexLocalCategoryIdSizeStrPrMapPrVecCItrPr =
+        std::pair<std::size_t, TRegexLocalCategoryIdSizeStrPrMapPrVecCItr>;
+    using TSizeRegexLocalCategoryIdSizeStrPrMapPrVecCItrPrVec =
+        std::vector<TSizeRegexLocalCategoryIdSizeStrPrMapPrVecCItrPr>;
 
-    TSizeRegexIntSizeStrPrMapPrVecCItrPrVec sortVec;
+    TSizeRegexLocalCategoryIdSizeStrPrMapPrVecCItrPrVec sortVec;
     sortVec.reserve(m_Measures.size());
 
-    for (TRegexIntSizeStrPrMapPrVecCItr measureVecIter = m_Measures.begin();
+    for (auto measureVecIter = m_Measures.begin();
          measureVecIter != m_Measures.end(); ++measureVecIter) {
-        const TIntSizeStrPrMap& counts = measureVecIter->second;
+        const TLocalCategoryIdSizeStrPrMap& counts = measureVecIter->second;
 
-        size_t total(0);
-        for (TIntSizeStrPrMapCItr mapIter = counts.begin();
-             mapIter != counts.end(); ++mapIter) {
+        std::size_t total{0};
+        for (auto mapIter = counts.begin(); mapIter != counts.end(); ++mapIter) {
             total += mapIter->second.first;
         }
 
-        sortVec.push_back(TSizeRegexIntSizeStrPrMapPrVecCItrPr(total, measureVecIter));
+        sortVec.emplace_back(total, measureVecIter);
     }
 
     // Sort descending
-    using TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr =
-        std::greater<TSizeRegexIntSizeStrPrMapPrVecCItrPr>;
-    TGreaterSizeRegexIntSizeStrPrMapPrVecCItrPr comp;
+    using TGreaterSizeRegexLocalCategoryIdSizeStrPrMapPrVecCItrPr =
+        std::greater<TSizeRegexLocalCategoryIdSizeStrPrMapPrVecCItrPr>;
+    TGreaterSizeRegexLocalCategoryIdSizeStrPrMapPrVecCItrPr comp;
     std::sort(sortVec.begin(), sortVec.end(), comp);
 
     std::ostringstream strm;
     strm << "Results:" << core_t::LINE_ENDING;
 
-    using TIntSet = std::set<int>;
+    using TLocalCategoryIdSet = std::set<model::CLocalCategoryId>;
 
-    TIntSet usedTypes;
-    size_t observedActuals(0);
-    size_t good(0);
+    TLocalCategoryIdSet usedCategories;
+    std::size_t observedActuals{0};
+    std::size_t good{0};
 
     // Iterate backwards through the sorted vector, so that the most common
-    // actual types are looked at first
-    for (TSizeRegexIntSizeStrPrMapPrVecCItrPrVecCItr sortedVecIter = sortVec.begin();
-         sortedVecIter != sortVec.end(); ++sortedVecIter) {
-        size_t total(sortedVecIter->first);
+    // actual categories are looked at first
+    for (auto sortedVecIter = sortVec.begin(); sortedVecIter != sortVec.end(); ++sortedVecIter) {
+        std::size_t total{sortedVecIter->first};
         if (total > 0) {
             ++observedActuals;
         }
 
-        TRegexIntSizeStrPrMapPrVecCItr measureVecIter = sortedVecIter->second;
+        auto measureVecIter = sortedVecIter->second;
 
         const core::CRegex& regex = measureVecIter->first;
         strm << "Manual category defined by regex " << regex.str()
              << core_t::LINE_ENDING << "\tNumber of messages in manual category "
              << total << core_t::LINE_ENDING;
 
-        const TIntSizeStrPrMap& counts = measureVecIter->second;
-        strm << "\tNumber of Ml categories that include this manual category "
+        const TLocalCategoryIdSizeStrPrMap& counts = measureVecIter->second;
+        strm << "\tNumber of ML categories that include this manual category "
              << counts.size() << core_t::LINE_ENDING;
 
         if (counts.size() == 1) {
-            size_t count(counts.begin()->second.first);
-            int type(counts.begin()->first);
-            if (usedTypes.find(type) != usedTypes.end()) {
+            std::size_t count{counts.begin()->second.first};
+            model::CLocalCategoryId categoryId{counts.begin()->first};
+            if (usedCategories.find(categoryId) != usedCategories.end()) {
                 strm << "\t\t" << count << "\t(CATEGORY ALREADY USED)\t"
                      << counts.begin()->second.second << core_t::LINE_ENDING;
             } else {
                 good += count;
-                usedTypes.insert(type);
+                usedCategories.insert(categoryId);
             }
         } else if (counts.size() > 1) {
             strm << "\tBreakdown:" << core_t::LINE_ENDING;
@@ -150,39 +156,38 @@ void CBenchMarker::dumpResults() const {
             // Assume the category with the count closest to the actual count is
             // good (as long as it's not already used), and all other categories
             // are bad.
-            size_t max(0);
-            int maxType(-1);
-            for (TIntSizeStrPrMapCItr mapIter = counts.begin();
-                 mapIter != counts.end(); ++mapIter) {
-                int type(mapIter->first);
+            std::size_t max{0};
+            model::CLocalCategoryId maxCategoryId;
+            for (auto mapIter = counts.begin(); mapIter != counts.end(); ++mapIter) {
+                model::CLocalCategoryId categoryId{mapIter->first};
 
-                size_t count(mapIter->second.first);
+                std::size_t count{mapIter->second.first};
                 const std::string& example = mapIter->second.second;
                 strm << "\t\t" << count;
-                if (usedTypes.find(type) != usedTypes.end()) {
+                if (usedCategories.find(categoryId) != usedCategories.end()) {
                     strm << "\t(CATEGORY ALREADY USED)";
                 } else {
                     if (count > max) {
                         max = count;
-                        maxType = type;
+                        maxCategoryId = categoryId;
                     }
                 }
                 strm << '\t' << example << core_t::LINE_ENDING;
             }
-            if (maxType > -1) {
+            if (maxCategoryId.isSoftFailure() == false) {
                 good += max;
-                usedTypes.insert(maxType);
+                usedCategories.insert(maxCategoryId);
             }
         }
     }
 
     strm << "Total number of messages passed to benchmarker " << m_TotalMessages
          << core_t::LINE_ENDING << "Total number of scored messages " << m_ScoredMessages
-         << core_t::LINE_ENDING << "Number of scored messages correctly categorised by Ml "
+         << core_t::LINE_ENDING << "Number of scored messages correctly categorised by ML "
          << good << core_t::LINE_ENDING << "Overall accuracy for scored messages "
          << (double(good) / double(m_ScoredMessages)) * 100.0 << '%'
          << core_t::LINE_ENDING << "Percentage of manual categories detected at all "
-         << (double(usedTypes.size()) / double(observedActuals)) * 100.0 << '%';
+         << (double(usedCategories.size()) / double(observedActuals)) * 100.0 << '%';
 
     LOG_DEBUG(<< strm.str());
 }

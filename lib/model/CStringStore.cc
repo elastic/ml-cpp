@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CStringStore.h>
@@ -98,7 +103,7 @@ core::CStoredStringPtr CStringStore::get(const std::string& value) {
                 }
                 m_Writing.fetch_sub(1, std::memory_order_release);
             } else {
-                m_Writing.fetch_sub(1, std::memory_order_relaxed);
+                m_Writing.fetch_sub(1, std::memory_order_release);
                 // This is leaked in the sense that it will never be shared and
                 // won't count towards our reported memory usage.  But it is not
                 // leaked in the traditional sense of the word, as its memory
@@ -107,7 +112,7 @@ core::CStoredStringPtr CStringStore::get(const std::string& value) {
             }
         }
     } else {
-        m_Reading.fetch_sub(1, std::memory_order_relaxed);
+        m_Reading.fetch_sub(1, std::memory_order_release);
         // This is leaked in the sense that it will never be shared and won't
         // count towards our reported memory usage.  But it is not leaked
         // in the traditional sense of the word, as its memory will be freed
@@ -147,7 +152,7 @@ void CStringStore::pruneNotThreadSafe() {
     }
 }
 
-void CStringStore::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CStringStore::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName(this == &CStringStore::names()
                      ? "names StringStore"
                      : (this == &CStringStore::influencers() ? "influencers StringStore"

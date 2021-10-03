@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_t_MathsTypes_h
@@ -9,6 +14,7 @@
 
 #include <core/CFloatStorage.h>
 #include <core/CSmallVector.h>
+#include <core/CoreTypes.h>
 
 #include <maths/ImportExport.h>
 
@@ -79,6 +85,9 @@ using TDouble2VecWeightsAry1Vec = core::CSmallVector<TDouble2VecWeightsAry, 1>;
 using TDouble10VecWeightsAry = TWeightsAry<TDouble10Vec>;
 using TDouble10VecWeightsAry1Vec = core::CSmallVector<TDouble10VecWeightsAry, 1>;
 
+//! Functional type used for reporting model annotations to higher-level layers.
+using TModelAnnotationCallback = std::function<void(const std::string&)>;
+
 namespace maths_types_detail {
 
 //! \brief Constructs a unit weight.
@@ -100,12 +109,12 @@ struct SUnitWeightFactory<double> {
 template<typename VECTOR>
 struct SWeightArithmetic {
     static void add(const VECTOR& lhs, VECTOR& rhs) {
-        for (std::size_t i = 0u; i < lhs.size(); ++i) {
+        for (std::size_t i = 0; i < lhs.size(); ++i) {
             rhs[i] += lhs[i];
         }
     }
     static void multiply(const VECTOR& lhs, VECTOR& rhs) {
-        for (std::size_t i = 0u; i < lhs.size(); ++i) {
+        for (std::size_t i = 0; i < lhs.size(); ++i) {
             rhs[i] *= lhs[i];
         }
     }

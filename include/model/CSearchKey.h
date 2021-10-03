@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CSearchKey_h
@@ -99,7 +104,7 @@ public:
     //!
     //! \note Use the pass-by-value-and-swap trick to improve performance
     //! when the arguments are temporaries.
-    explicit CSearchKey(int identifier = 0,
+    explicit CSearchKey(int detectorIndex = 0,
                         function_t::EFunction function = function_t::E_IndividualCount,
                         bool useNull = false,
                         model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
@@ -120,12 +125,16 @@ private:
     //! Initialise by traversing a state document.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
 public:
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Efficiently swap the contents of two objects of this class.
-    void swap(CSearchKey& other);
+    void swap(CSearchKey& other) noexcept;
 
     //! Check if this and \p rhs are equal.
     bool operator==(const CSearchKey& rhs) const;
@@ -134,7 +143,7 @@ public:
     bool operator<(const CSearchKey& rhs) const;
 
     //! Get an identifier for this search.
-    int identifier() const;
+    int detectorIndex() const;
 
     //! Get the unique simple counting search key.
     //!
@@ -194,7 +203,7 @@ public:
     uint64_t hash() const;
 
 private:
-    int m_Identifier;
+    int m_DetectorIndex;
     function_t::EFunction m_Function;
     bool m_UseNull;
     model_t::EExcludeFrequent m_ExcludeFrequent;

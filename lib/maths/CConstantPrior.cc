@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CConstantPrior.h>
@@ -53,8 +58,10 @@ CConstantPrior::CConstantPrior(const TOptionalDouble& constant)
 
 CConstantPrior::CConstantPrior(core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_DiscreteData, 0.0) {
-    traverser.traverseSubLevel(std::bind(&CConstantPrior::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CConstantPrior::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -166,7 +173,7 @@ CConstantPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
 
     double numberSamples = 0.0;
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] != *m_Constant) {
             // Technically infinite, but just use minus max double.
             result = boost::numeric::bounds<double>::lowest();
@@ -203,7 +210,7 @@ bool CConstantPrior::minusLogJointCdf(const TDouble1Vec& samples,
 
     double numberSamples = 0.0;
     try {
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             numberSamples += maths_t::count(weights[i]);
         }
     } catch (const std::exception& e) {
@@ -217,7 +224,7 @@ bool CConstantPrior::minusLogJointCdf(const TDouble1Vec& samples,
         return true;
     }
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] < *m_Constant) {
             lowerBound = upperBound = core::constants::LOG_MAX_DOUBLE;
             return true;
@@ -244,7 +251,7 @@ bool CConstantPrior::minusLogJointCdfComplement(const TDouble1Vec& samples,
 
     double numberSamples = 0.0;
     try {
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             numberSamples += maths_t::count(weights[i]);
         }
     } catch (const std::exception& e) {
@@ -258,7 +265,7 @@ bool CConstantPrior::minusLogJointCdfComplement(const TDouble1Vec& samples,
         return true;
     }
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] > *m_Constant) {
             lowerBound = upperBound = core::constants::LOG_MAX_DOUBLE;
             return true;
@@ -293,7 +300,7 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
     }
 
     int tail_ = 0;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i] != *m_Constant) {
             lowerBound = upperBound = 0.0;
         }
@@ -341,7 +348,7 @@ uint64_t CConstantPrior::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Constant);
 }
 
-void CConstantPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CConstantPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CConstantPrior");
 }
 

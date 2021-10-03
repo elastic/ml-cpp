@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CAnomalyJob.h>
 
@@ -36,8 +41,9 @@
 #include <model/CSimpleCountDetector.h>
 #include <model/CStringStore.h>
 
+#include <api/CAnnotationJsonWriter.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CConfigUpdater.h>
-#include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelPlotDataJsonWriter.h>
@@ -84,7 +90,12 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 
 //! The minimum version required to read the state corresponding to a model snapshot.
 //! This should be updated every time there is a breaking change to the model state.
-const std::string MODEL_SNAPSHOT_MIN_VERSION("6.4.0");
+//! Newer versions are able to read the model state of older versions, but older
+//! versions cannot read the model state of newer versions following a breaking
+//! change.  This constant tells the node assignment code not to load new model states
+//! on old nodes in a mixed version cluster.  (The last breaking change was in 7.11 in
+//! lib/maths/CTimeSeriesDecomposition.cc in https://github.com/elastic/ml-cpp/pull/1614.)
+const std::string MODEL_SNAPSHOT_MIN_VERSION("7.11.0");
 
 //! Persist state as JSON with meaningful tag names.
 class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter {
@@ -113,7 +124,6 @@ private:
 }
 
 // Statics
-const std::string CAnomalyJob::ML_STATE_INDEX(".ml-state");
 const std::string CAnomalyJob::STATE_TYPE("model_state");
 const std::string CAnomalyJob::DEFAULT_TIME_FIELD_NAME("time");
 const std::string CAnomalyJob::EMPTY_STRING;
@@ -122,26 +132,25 @@ const CAnomalyJob::TAnomalyDetectorPtr CAnomalyJob::NULL_DETECTOR;
 
 CAnomalyJob::CAnomalyJob(const std::string& jobId,
                          model::CLimits& limits,
-                         CFieldConfig& fieldConfig,
+                         CAnomalyJobConfig& jobConfig,
                          model::CAnomalyDetectorModelConfig& modelConfig,
                          core::CJsonOutputStreamWrapper& outputStream,
                          const TPersistCompleteFunc& persistCompleteFunc,
-                         CPersistenceManager* periodicPersister,
+                         CPersistenceManager* persistenceManager,
                          core_t::TTime maxQuantileInterval,
                          const std::string& timeFieldName,
                          const std::string& timeFieldFormat,
                          size_t maxAnomalyRecords)
-    : m_JobId(jobId), m_Limits(limits), m_OutputStream(outputStream),
-      m_ForecastRunner(m_JobId, m_OutputStream, limits.resourceMonitor()),
-      m_JsonOutputWriter(m_JobId, m_OutputStream), m_FieldConfig(fieldConfig),
-      m_ModelConfig(modelConfig), m_NumRecordsHandled(0),
-      m_LastFinalisedBucketEndTime(0), m_PersistCompleteFunc(persistCompleteFunc),
-      m_TimeFieldName(timeFieldName), m_TimeFieldFormat(timeFieldFormat),
-      m_MaxDetectors(std::numeric_limits<size_t>::max()),
-      m_PeriodicPersister(periodicPersister),
-      m_MaxQuantileInterval(maxQuantileInterval),
-      m_LastNormalizerPersistTime(core::CTimeUtils::now()), m_LatestRecordTime(0),
-      m_LastResultsTime(0), m_Aggregator(modelConfig), m_Normalizer(modelConfig) {
+    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{jobId}, m_Limits{limits},
+      m_OutputStream{outputStream}, m_ForecastRunner{m_JobId, m_OutputStream,
+                                                     limits.resourceMonitor()},
+      m_JsonOutputWriter{m_JobId, m_OutputStream}, m_JobConfig{jobConfig},
+      m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
+      m_LastFinalisedBucketEndTime{0}, m_PersistCompleteFunc{persistCompleteFunc},
+      m_MaxDetectors{std::numeric_limits<size_t>::max()},
+      m_PersistenceManager{persistenceManager}, m_MaxQuantileInterval{maxQuantileInterval},
+      m_LastNormalizerPersistTime{core::CTimeUtils::now()}, m_LatestRecordTime{0},
+      m_LastResultsTime{0}, m_Aggregator{modelConfig}, m_Normalizer{modelConfig} {
     m_JsonOutputWriter.limitNumberRecords(maxAnomalyRecords);
 
     m_Limits.resourceMonitor().memoryUsageReporter(std::bind(
@@ -152,45 +161,19 @@ CAnomalyJob::~CAnomalyJob() {
     m_ForecastRunner.finishForecasts();
 }
 
-void CAnomalyJob::newOutputStream() {
-    m_JsonOutputWriter.newOutputStream();
-}
-
-COutputHandler& CAnomalyJob::outputHandler() {
-    return m_JsonOutputWriter;
-}
-
-bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
+bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) {
     // Non-empty control fields take precedence over everything else
     TStrStrUMapCItr iter = dataRowFields.find(CONTROL_FIELD_NAME);
     if (iter != dataRowFields.end() && !iter->second.empty()) {
         return this->handleControlMessage(iter->second);
     }
 
-    core_t::TTime time(0);
-    iter = dataRowFields.find(m_TimeFieldName);
-    if (iter == dataRowFields.end()) {
-        ++core::CProgramCounters::counter(counter_t::E_TSADNumberRecordsNoTimeField);
-        LOG_ERROR(<< "Found record with no " << m_TimeFieldName << " field:"
-                  << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
-        return true;
-    }
-    if (m_TimeFieldFormat.empty()) {
-        if (core::CStringUtils::stringToType(iter->second, time) == false) {
-            ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeFieldConversionErrors);
-            LOG_ERROR(<< "Cannot interpret " << m_TimeFieldName
-                      << " field in record:" << core_t::LINE_ENDING
-                      << this->debugPrintRecord(dataRowFields));
-            return true;
-        }
-    } else {
-        // Use this library function instead of raw strptime() as it works
-        // around many operating system specific issues.
-        if (core::CTimeUtils::strptime(m_TimeFieldFormat, iter->second, time) == false) {
-            ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeFieldConversionErrors);
-            LOG_ERROR(<< "Cannot interpret " << m_TimeFieldName << " field using format "
-                      << m_TimeFieldFormat << " in record:" << core_t::LINE_ENDING
-                      << this->debugPrintRecord(dataRowFields));
+    // Time may have been parsed already further back along the chain
+    if (time == boost::none) {
+        time = this->parseTime(dataRowFields);
+        if (time == boost::none) {
+            // Time is compulsory for anomaly detection - the base class will
+            // have logged the parse error
             return true;
         }
     }
@@ -199,7 +182,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
     // is zero, then it should be after the current bucket end. If
     // latency is non-zero, then it should be after the current bucket
     // end minus the latency.
-    if (time < m_LastFinalisedBucketEndTime) {
+    if (*time < m_LastFinalisedBucketEndTime) {
         ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeOrderErrors);
         std::ostringstream ss;
         ss << "Records must be in ascending time order. "
@@ -209,13 +192,13 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
         return true;
     }
 
-    this->outputBucketResultsUntil(time);
+    this->outputBucketResultsUntil(*time);
 
     if (m_DetectorKeys.empty()) {
-        this->populateDetectorKeys(m_FieldConfig, m_DetectorKeys);
+        this->populateDetectorKeys(m_JobConfig, m_DetectorKeys);
     }
 
-    for (std::size_t i = 0u; i < m_DetectorKeys.size(); ++i) {
+    for (std::size_t i = 0; i < m_DetectorKeys.size(); ++i) {
         const std::string& partitionFieldName(m_DetectorKeys[i].partitionFieldName());
 
         // An empty partitionFieldName means no partitioning
@@ -229,19 +212,19 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
 
         const TAnomalyDetectorPtr& detector = this->detectorForKey(
             false, // not restoring
-            time, m_DetectorKeys[i], partitionFieldValue, m_Limits.resourceMonitor());
+            *time, m_DetectorKeys[i], partitionFieldValue, m_Limits.resourceMonitor());
         if (detector == nullptr) {
             // There wasn't enough memory to create the detector
             continue;
         }
 
-        this->addRecord(detector, time, dataRowFields);
+        this->addRecord(detector, *time, dataRowFields);
     }
 
     ++core::CProgramCounters::counter(counter_t::E_TSADNumberApiRecordsHandled);
 
     ++m_NumRecordsHandled;
-    m_LatestRecordTime = std::max(m_LatestRecordTime, time);
+    m_LatestRecordTime = std::max(m_LatestRecordTime, *time);
 
     return true;
 }
@@ -260,9 +243,11 @@ void CAnomalyJob::finalise() {
     // Wait for any ongoing periodic persist to complete, so that the data adder
     // is not used by both a periodic background persist and foreground persist at the
     // same time
-    if (m_PeriodicPersister != nullptr) {
-        m_PeriodicPersister->waitForIdle();
+    if (m_PersistenceManager != nullptr) {
+        m_PersistenceManager->waitForIdle();
     }
+
+    m_JsonOutputWriter.finalise();
 }
 
 bool CAnomalyJob::initNormalizer(const std::string& quantilesStateFile) {
@@ -271,7 +256,7 @@ bool CAnomalyJob::initNormalizer(const std::string& quantilesStateFile) {
            model::CHierarchicalResultsNormalizer::E_Ok;
 }
 
-uint64_t CAnomalyJob::numRecordsHandled() const {
+std::uint64_t CAnomalyJob::numRecordsHandled() const {
     return m_NumRecordsHandled;
 }
 
@@ -288,7 +273,7 @@ void CAnomalyJob::description() const {
     LOG_INFO(<< "\tpartition " << partition.get());
     LOG_INFO(<< "\t\tkey " << detectors[0].first.second.get());
     LOG_INFO(<< "\t\t\t" << detectors[0].second->description());
-    for (std::size_t i = 1u; i < detectors.size(); ++i) {
+    for (std::size_t i = 1; i < detectors.size(); ++i) {
         if (detectors[i].first.first.get() != partition.get()) {
             partition = detectors[i].first.first;
             LOG_INFO(<< "\tpartition " << partition.get());
@@ -315,7 +300,7 @@ void CAnomalyJob::descriptionAndDebugMemoryUsage() const {
     ss << "\t\t\t" << detectors[0].second->description() << std::endl;
     detectors[0].second->showMemoryUsage(ss);
 
-    for (std::size_t i = 1u; i < detectors.size(); ++i) {
+    for (std::size_t i = 1; i < detectors.size(); ++i) {
         ss << std::endl;
         if (detectors[i].first.first.get() != partition.get()) {
             partition = detectors[i].first.first;
@@ -373,9 +358,7 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         this->doForecast(controlMessage);
         break;
     case 'w':
-        if (m_PeriodicPersister != nullptr && this->isPersistenceNeeded("state")) {
-            m_PeriodicPersister->startPersist(core::CTimeUtils::now());
-        }
+        this->processPersistControlMessage(controlMessage.substr(1));
         break;
     default:
         LOG_WARN(<< "Ignoring unknown control message of length "
@@ -389,6 +372,83 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
     return true;
 }
 
+bool CAnomalyJob::parsePersistControlMessageArgs(const std::string& controlMessageArgs,
+                                                 core_t::TTime& snapshotTimestamp,
+                                                 std::string& snapshotId,
+                                                 std::string& snapshotDescription) {
+    // Expect at least 3 space separated strings - timestamp snapshotId snapshotDescription, where:
+    // timestamp = string representation of seconds since epoch
+    // snapshotId = short string identifier for snapshot - containing no spaces
+    // snapshotDescription = description of snapshot. May contain spaces.
+
+    std::size_t pos{controlMessageArgs.find(' ')};
+    if (pos == std::string::npos) {
+        LOG_ERROR(<< "Invalid control message format: \"" << controlMessageArgs << "\"");
+        return false;
+    }
+
+    std::string timestampStr{controlMessageArgs.substr(0, pos)};
+    if (timestampStr.empty()) {
+        LOG_ERROR(<< "Received empty snapshot timestamp.");
+        return false;
+    }
+
+    if (core::CStringUtils::stringToType(timestampStr, snapshotTimestamp) == false) {
+        LOG_ERROR(<< "Received invalid snapshotTimestamp " << timestampStr);
+        return false;
+    }
+
+    std::size_t pos2{controlMessageArgs.find(' ', pos + 1)};
+    if (pos2 == std::string::npos) {
+        LOG_ERROR(<< "Invalid control message format: \"" << controlMessageArgs << "\"");
+        return false;
+    }
+    snapshotId = controlMessageArgs.substr(pos + 1, pos2 - pos - 1);
+    snapshotDescription = controlMessageArgs.substr(pos2 + 1);
+
+    if (snapshotId.empty()) {
+        LOG_ERROR(<< "Received empty snapshotId.");
+        return false;
+    }
+
+    return true;
+}
+
+void CAnomalyJob::processPersistControlMessage(const std::string& controlMessageArgs) {
+    if (m_PersistenceManager != nullptr) {
+        // There is a subtle difference between these two cases.  When there
+        // are no control message arguments this triggers persistence of all
+        // chained processors, i.e. maybe the categorizer as well as the anomaly
+        // detector if there is one.  But when control message arguments are
+        // passed, ONLY the persistence of the anomaly detector is triggered.
+        if (controlMessageArgs.empty()) {
+            if (this->isPersistenceNeeded("state")) {
+                m_PersistenceManager->startPersist(core::CTimeUtils::now());
+            }
+        } else {
+            core_t::TTime snapshotTimestamp{0};
+            std::string snapshotId;
+            std::string snapshotDescription;
+            if (parsePersistControlMessageArgs(controlMessageArgs, snapshotTimestamp,
+                                               snapshotId, snapshotDescription)) {
+                // Since this is not going through the full persistence call
+                // chain, make sure model size stats are up to date before
+                // persisting
+                m_Limits.resourceMonitor().forceRefreshAll();
+                if (m_PersistenceManager->doForegroundPersist(
+                        [this, &snapshotDescription, &snapshotId,
+                         &snapshotTimestamp](core::CDataAdder& persister) {
+                            return this->doPersistStateInForeground(
+                                persister, snapshotDescription, snapshotId, snapshotTimestamp);
+                        }) == false) {
+                    LOG_ERROR(<< "Failed to persist state with parameters \""
+                              << controlMessageArgs << "\"");
+                }
+            }
+        }
+    }
+}
+
 void CAnomalyJob::acknowledgeFlush(const std::string& flushId) {
     if (flushId.empty()) {
         LOG_ERROR(<< "Received flush control message with no ID");
@@ -400,7 +460,7 @@ void CAnomalyJob::acknowledgeFlush(const std::string& flushId) {
 
 void CAnomalyJob::updateConfig(const std::string& config) {
     LOG_DEBUG(<< "Received update config request: " << config);
-    CConfigUpdater configUpdater(m_FieldConfig, m_ModelConfig);
+    CConfigUpdater configUpdater(m_JobConfig, m_ModelConfig);
     if (configUpdater.update(config) == false) {
         LOG_ERROR(<< "Failed to update configuration");
     }
@@ -460,14 +520,15 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
          lastBucketEndTime += bucketLength) {
         this->outputResults(lastBucketEndTime);
         m_Limits.resourceMonitor().decreaseMargin(bucketLength);
-        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(lastBucketEndTime);
+        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(
+            lastBucketEndTime, bucketLength);
         m_LastFinalisedBucketEndTime = lastBucketEndTime + bucketLength;
 
         // Check for periodic persistence immediately after calculating results
         // for the last bucket but before adding the first piece of data for the
         // next bucket
-        if (m_PeriodicPersister != nullptr) {
-            m_PeriodicPersister->startPersistIfAppropriate();
+        if (m_PersistenceManager != nullptr) {
+            m_PersistenceManager->startPersistIfAppropriate();
         }
     }
 
@@ -587,6 +648,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
     model::CHierarchicalResults results;
     TModelPlotDataVec modelPlotData;
+    TAnnotationVec annotations;
 
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
     this->sortedDetectors(detectors);
@@ -603,6 +665,8 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
         this->generateModelPlot(bucketStartTime, bucketStartTime + bucketLength,
                                 *detector, modelPlotData);
+        detector->generateAnnotations(bucketStartTime,
+                                      bucketStartTime + bucketLength, annotations);
     }
 
     if (!results.empty()) {
@@ -621,13 +685,26 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
         this->updateNormalizerAndNormalizeResults(false, results);
     }
 
-    uint64_t processingTime = timer.stop();
+    std::uint64_t processingTime = timer.stop();
 
     // Model plots must be written first so the Java persists them
     // once the bucket result is processed
     this->writeOutModelPlot(modelPlotData);
+    this->writeOutAnnotations(annotations);
     this->writeOutResults(false, results, bucketStartTime, processingTime);
 
+    if (m_ModelConfig.modelPruneWindow() > 0) {
+        // Ensure that bucketPruneWindow is always rounded _up_
+        // to the next whole number of buckets (this doesn't really matter if we enforce
+        // that the model prune window always be an exact multiple of bucket span in the
+        // corresponding Java code)
+        core_t::TTime bucketPruneWindow{
+            (m_ModelConfig.modelPruneWindow() + m_ModelConfig.bucketLength() - 1) /
+            m_ModelConfig.bucketLength()};
+        this->pruneAllModels(bucketPruneWindow);
+    }
+
+    // Prune models based on memory resource limits
     m_Limits.resourceMonitor().pruneIfRequired(bucketStartTime);
     model::CStringStore::tidyUpNotThreadSafe();
 }
@@ -669,14 +746,14 @@ void CAnomalyJob::outputInterimResults(core_t::TTime bucketStartTime) {
         this->updateNormalizerAndNormalizeResults(true, results);
     }
 
-    uint64_t processingTime = timer.stop();
+    std::uint64_t processingTime = timer.stop();
     this->writeOutResults(true, results, bucketStartTime, processingTime);
 }
 
 void CAnomalyJob::writeOutResults(bool interim,
                                   model::CHierarchicalResults& results,
                                   core_t::TTime bucketTime,
-                                  uint64_t processingTime) {
+                                  std::uint64_t processingTime) {
     if (!results.empty()) {
         LOG_TRACE(<< "Got results object here: " << results.root()->s_RawAnomalyScore
                   << " / " << results.root()->s_NormalizedAnomalyScore
@@ -737,16 +814,12 @@ void CAnomalyJob::resetBuckets(const std::string& controlMessage) {
 
 bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
                                core_t::TTime& completeToTime) {
-    // Pass on the request in case we're chained
-    if (this->outputHandler().restoreState(restoreSearcher, completeToTime) == false) {
-        return false;
-    }
-
     size_t numDetectors(0);
     try {
-        // Restore from Elasticsearch compressed data
+        // Restore from Elasticsearch compressed data.
+        // (To restore from uncompressed data for testing, comment the next line
+        // and substitute decompressor with restoreSearcher two lines below.)
         core::CStateDecompressor decompressor(restoreSearcher);
-        decompressor.setStateRestoreSearch(ML_STATE_INDEX);
 
         core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));
         if (strm == nullptr) {
@@ -1013,24 +1086,31 @@ bool CAnomalyJob::persistModelsState(core::CDataAdder& persister,
     return this->persistModelsState(detectors, persister, timestamp, outputFormat);
 }
 
-bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) {
-    if (m_PeriodicPersister != nullptr) {
+bool CAnomalyJob::persistStateInForeground(core::CDataAdder& persister,
+                                           const std::string& descriptionPrefix) {
+    if (m_LastFinalisedBucketEndTime == 0) {
+        LOG_INFO(<< "Will not persist detectors as no results have been output");
+        return true;
+    }
+
+    core_t::TTime snapshotTimestamp{core::CTimeUtils::now()};
+    const std::string snapshotId{core::CStringUtils::typeToString(snapshotTimestamp)};
+    const std::string description{descriptionPrefix +
+                                  core::CTimeUtils::toIso8601(snapshotTimestamp)};
+    return this->doPersistStateInForeground(persister, description, snapshotId, snapshotTimestamp);
+}
+
+bool CAnomalyJob::doPersistStateInForeground(core::CDataAdder& persister,
+                                             const std::string& description,
+                                             const std::string& snapshotId,
+                                             core_t::TTime snapshotTimestamp) {
+    if (m_PersistenceManager != nullptr) {
         // This will not happen if finalise() was called before persisting state
-        if (m_PeriodicPersister->isBusy()) {
+        if (m_PersistenceManager->isBusy()) {
             LOG_ERROR(<< "Cannot perform foreground persistence of state - periodic "
                          "background persistence is still in progress");
             return false;
         }
-    }
-
-    // Pass on the request in case we're chained
-    if (this->outputHandler().persistState(persister, descriptionPrefix) == false) {
-        return false;
-    }
-
-    if (m_LastFinalisedBucketEndTime == 0) {
-        LOG_INFO(<< "Will not persist detectors as no results have been output");
-        return true;
     }
 
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
@@ -1038,13 +1118,14 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& d
     std::string normaliserState;
     m_Normalizer.toJson(m_LastResultsTime, "api", normaliserState, true);
 
-    // Persistence operates on a cached collection of counters rather than on the live counters directly.
-    // This is in order that background persistence operates on a consistent set of counters however we
-    // also must ensure that foreground persistence has access to an up-to-date cache of counters as well.
+    // Persistence of static counters is expected to operate on a cached collection of counters rather
+    // than on the live counters directly. This is in order that the more frequently used background persistence
+    // operates on a consistent set of counters. Hence, to avoid an error regarding the cache not existing, we
+    // also must ensure that foreground persistence has access to an up-to-date cache of counters.
     core::CProgramCounters::cacheCounters();
 
     return this->persistCopiedState(
-        descriptionPrefix, m_LastFinalisedBucketEndTime, detectors,
+        description, snapshotId, snapshotTimestamp, m_LastFinalisedBucketEndTime, detectors,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
         m_ModelConfig.interimBucketCorrector(), m_Aggregator, normaliserState,
@@ -1054,7 +1135,7 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& d
 bool CAnomalyJob::backgroundPersistState() {
     LOG_INFO(<< "Background persist starting data copy");
 
-    if (m_PeriodicPersister == nullptr) {
+    if (m_PersistenceManager == nullptr) {
         return false;
     }
 
@@ -1096,13 +1177,13 @@ bool CAnomalyJob::backgroundPersistState() {
     std::sort(copiedDetectors.begin(), copiedDetectors.end(),
               maths::COrderings::SFirstLess());
 
-    if (m_PeriodicPersister->addPersistFunc(std::bind(
+    if (m_PersistenceManager->addPersistFunc(std::bind(
             &CAnomalyJob::runBackgroundPersist, this, args, std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add anomaly detector background persistence function");
         return false;
     }
 
-    m_PeriodicPersister->useBackgroundPersistence();
+    m_PersistenceManager->useBackgroundPersistence();
 
     return true;
 }
@@ -1113,7 +1194,7 @@ bool CAnomalyJob::runForegroundPersist(core::CDataAdder& persister) {
     // Prune the models so that the persisted state is as neat as possible
     this->pruneAllModels();
 
-    return this->persistState(persister, "Periodic foreground persist at ");
+    return this->persistStateInForeground(persister, "Periodic foreground persist at ");
 }
 
 bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
@@ -1123,9 +1204,14 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
         return false;
     }
 
+    core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
+    const std::string snapshotId(core::CStringUtils::typeToString(snapshotTimestamp));
+    const std::string description{"Periodic background persist at " +
+                                  core::CTimeUtils::toIso8601(snapshotTimestamp)};
+
     return this->persistCopiedState(
-        "Periodic background persist at ", args->s_Time, args->s_Detectors,
-        args->s_ModelSizeStats, args->s_InterimBucketCorrector,
+        description, snapshotId, snapshotTimestamp, args->s_Time,
+        args->s_Detectors, args->s_ModelSizeStats, args->s_InterimBucketCorrector,
         args->s_Aggregator, args->s_NormalizerState, args->s_LatestRecordTime,
         args->s_LastResultsTime, persister);
 }
@@ -1136,8 +1222,8 @@ bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& dete
                                      const std::string& outputFormat) {
     try {
         const std::string snapShotId{core::CStringUtils::typeToString(timestamp)};
-        core::CDataAdder::TOStreamP strm = persister.addStreamed(
-            ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
+        core::CDataAdder::TOStreamP strm =
+            persister.addStreamed(m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
         if (strm != nullptr) {
             {
                 // The JSON inserter must be destroyed before the stream is complete
@@ -1176,24 +1262,30 @@ bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& dete
     return true;
 }
 
-bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
+bool CAnomalyJob::persistCopiedState(const std::string& description,
+                                     const std::string& snapshotId,
+                                     core_t::TTime snapshotTimestamp,
                                      core_t::TTime time,
                                      const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
-                                     const model::CResourceMonitor::SResults& modelSizeStats,
+                                     const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
                                      const model::CInterimBucketCorrector& interimBucketCorrector,
                                      const model::CHierarchicalResultsAggregator& aggregator,
                                      const std::string& normalizerState,
                                      core_t::TTime latestRecordTime,
                                      core_t::TTime lastResultsTime,
                                      core::CDataAdder& persister) {
+    // Ensure that the cache of program counters is cleared upon exiting the current scope.
+    // As the cache is cleared when the simple count detector is persisted this may seem
+    // unnecessary at first, but there are occasions when the simple count detector does not exist,
+    // e.g. when no data is seen but time is advanced.
+    core::CProgramCounters::CCacheManager cacheMgr;
+
     // Persist state for each detector separately by streaming
     try {
         core::CStateCompressor compressor(persister);
 
-        core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
-        const std::string snapShotId(core::CStringUtils::typeToString(snapshotTimestamp));
-        core::CDataAdder::TOStreamP strm = compressor.addStreamed(
-            ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
+        core::CDataAdder::TOStreamP strm =
+            compressor.addStreamed(m_JobId + '_' + STATE_TYPE + '_' + snapshotId);
         if (strm != nullptr) {
             // IMPORTANT - this method can run in a background thread while the
             // analytics carries on processing new buckets in the main thread.
@@ -1215,6 +1307,11 @@ bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
                     if (detector == nullptr) {
                         LOG_ERROR(<< "Unexpected NULL pointer for key '"
                                   << pairDebug(detector_.first) << '\'');
+                        continue;
+                    }
+                    if (detector->shouldPersistDetector() == false) {
+                        LOG_TRACE(<< "Not persisting state for '"
+                                  << detector->description() << "'");
                         continue;
                     }
                     inserter.insertLevel(
@@ -1241,9 +1338,8 @@ bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
 
             if (m_PersistCompleteFunc) {
                 CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport{
-                    MODEL_SNAPSHOT_MIN_VERSION, snapshotTimestamp,
-                    descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
-                    snapShotId, compressor.numCompressedDocs(), modelSizeStats,
+                    MODEL_SNAPSHOT_MIN_VERSION, snapshotTimestamp, description,
+                    snapshotId, compressor.numCompressedDocs(), modelSizeStats,
                     normalizerState, latestRecordTime,
                     // This needs to be the last final result time as it serves
                     // as the time after which all results are deleted when a
@@ -1262,10 +1358,6 @@ bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
 }
 
 bool CAnomalyJob::periodicPersistStateInBackground() {
-    // Pass on the request in case we're chained
-    if (this->outputHandler().periodicPersistStateInBackground() == false) {
-        return false;
-    }
 
     // Prune the models so that the persisted state is as neat as possible
     this->pruneAllModels();
@@ -1285,19 +1377,20 @@ bool CAnomalyJob::periodicPersistStateInBackground() {
 }
 
 bool CAnomalyJob::periodicPersistStateInForeground() {
-    // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
+    // Do NOT pass this request on to the output chainer.
+    // That logic is already present in persistStateInForeground.
 
-    if (m_PeriodicPersister == nullptr) {
+    if (m_PersistenceManager == nullptr) {
         return false;
     }
 
-    if (m_PeriodicPersister->addPersistFunc(std::bind(
+    if (m_PersistenceManager->addPersistFunc(std::bind(
             &CAnomalyJob::runForegroundPersist, this, std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add anomaly detector foreground persistence function");
         return false;
     }
 
-    m_PeriodicPersister->useForegroundPersistence();
+    m_PersistenceManager->useForegroundPersistence();
 
     return true;
 }
@@ -1364,7 +1457,7 @@ void CAnomalyJob::outputResultsWithinRange(bool isInterim, core_t::TTime start, 
         } else {
             this->outputResults(time);
         }
-        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(time);
+        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(time, bucketLength);
         time += bucketLength;
     }
 }
@@ -1389,11 +1482,19 @@ void CAnomalyJob::writeOutModelPlot(const TModelPlotDataVec& modelPlotData) {
     }
 }
 
+void CAnomalyJob::writeOutAnnotations(const TAnnotationVec& annotations) {
+    CAnnotationJsonWriter annotationWriter(m_OutputStream);
+    for (const auto& annotation : annotations) {
+        annotationWriter.writeResult(m_JobId, annotation);
+    }
+}
+
 void CAnomalyJob::refreshMemoryAndReport() {
-    if (m_LastFinalisedBucketEndTime < m_ModelConfig.bucketLength()) {
+    core_t::TTime bucketLength{m_ModelConfig.bucketLength()};
+    if (m_LastFinalisedBucketEndTime < bucketLength) {
         LOG_ERROR(<< "Cannot report memory usage because last finalized bucket end time ("
-                  << m_LastFinalisedBucketEndTime << ") is smaller than bucket span ("
-                  << m_ModelConfig.bucketLength() << ')');
+                  << m_LastFinalisedBucketEndTime
+                  << ") is smaller than bucket span (" << bucketLength << ')');
         return;
     }
     // Make sure model size stats are up to date and then send a final memory
@@ -1408,7 +1509,7 @@ void CAnomalyJob::refreshMemoryAndReport() {
         m_Limits.resourceMonitor().forceRefresh(*detector);
     }
     m_Limits.resourceMonitor().sendMemoryUsageReport(
-        m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength());
+        m_LastFinalisedBucketEndTime - bucketLength, bucketLength);
 }
 
 void CAnomalyJob::persistIndividualDetector(const model::CAnomalyDetector& detector,
@@ -1471,8 +1572,8 @@ CAnomalyJob::detectorForKey(bool isRestoring,
                   << partition << '\'' << ", time " << time);
         LOG_TRACE(<< "Detector count " << m_Detectors.size());
 
-        detector = this->makeDetector(key.identifier(), m_ModelConfig, m_Limits,
-                                      partition, time, m_ModelConfig.factory(key));
+        detector = this->makeDetector(m_ModelConfig, m_Limits, partition, time,
+                                      m_ModelConfig.factory(key));
         if (detector == nullptr) {
             // This should never happen as CAnomalyDetectorUtils::makeDetector()
             // contracts to never return NULL
@@ -1495,8 +1596,12 @@ CAnomalyJob::detectorForKey(bool isRestoring,
     return itr->second;
 }
 
-void CAnomalyJob::pruneAllModels() {
-    LOG_INFO(<< "Pruning all models");
+void CAnomalyJob::pruneAllModels(std::size_t buckets) {
+    if (buckets == 0) {
+        LOG_INFO(<< "Pruning obsolete models");
+    } else {
+        LOG_DEBUG(<< "Pruning all models older than " << buckets << " buckets");
+    }
 
     for (const auto& detector_ : m_Detectors) {
         model::CAnomalyDetector* detector = detector_.second.get();
@@ -1505,38 +1610,37 @@ void CAnomalyJob::pruneAllModels() {
                       << pairDebug(detector_.first) << '\'');
             continue;
         }
-        detector->pruneModels();
+        (buckets == 0) ? detector->pruneModels() : detector->pruneModels(buckets);
     }
 }
 
 CAnomalyJob::TAnomalyDetectorPtr
-CAnomalyJob::makeDetector(int identifier,
-                          const model::CAnomalyDetectorModelConfig& modelConfig,
+CAnomalyJob::makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                           model::CLimits& limits,
                           const std::string& partitionFieldValue,
                           core_t::TTime firstTime,
                           const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory) {
     return modelFactory->isSimpleCount()
                ? std::make_shared<model::CSimpleCountDetector>(
-                     identifier, modelFactory->summaryMode(), modelConfig,
-                     std::ref(limits), partitionFieldValue, firstTime, modelFactory)
-               : std::make_shared<model::CAnomalyDetector>(
-                     identifier, std::ref(limits), modelConfig,
-                     partitionFieldValue, firstTime, modelFactory);
+                     modelFactory->summaryMode(), modelConfig, std::ref(limits),
+                     partitionFieldValue, firstTime, modelFactory)
+               : std::make_shared<model::CAnomalyDetector>(std::ref(limits), modelConfig,
+                                                           partitionFieldValue,
+                                                           firstTime, modelFactory);
 }
 
-void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys) {
+void CAnomalyJob::populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys) {
     keys.clear();
 
-    // Add a key for the simple count detector.
+    // Always add a key for the simple count detector.
     keys.push_back(model::CSearchKey::simpleCountKey());
 
-    for (const auto& fieldOptions : fieldConfig.fieldOptions()) {
-        keys.emplace_back(fieldOptions.configKey(), fieldOptions.function(),
+    for (const auto& fieldOptions : jobConfig.analysisConfig().detectorsConfig()) {
+        keys.emplace_back(fieldOptions.detectorIndex(), fieldOptions.function(),
                           fieldOptions.useNull(), fieldOptions.excludeFrequent(),
                           fieldOptions.fieldName(), fieldOptions.byFieldName(),
                           fieldOptions.overFieldName(), fieldOptions.partitionFieldName(),
-                          fieldConfig.influencerFieldNames());
+                          jobConfig.analysisConfig().influencers());
     }
 }
 
@@ -1554,7 +1658,7 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector,
     model::CAnomalyDetector::TStrCPtrVec fieldValues;
     const TStrVec& fieldNames = detector->fieldsOfInterest();
     fieldValues.reserve(fieldNames.size());
-    for (std::size_t i = 0u; i < fieldNames.size(); ++i) {
+    for (std::size_t i = 0; i < fieldNames.size(); ++i) {
         fieldValues.push_back(fieldValue(fieldNames[i], dataRowFields));
     }
 
@@ -1563,7 +1667,7 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector,
 
 CAnomalyJob::SBackgroundPersistArgs::SBackgroundPersistArgs(
     core_t::TTime time,
-    const model::CResourceMonitor::SResults& modelSizeStats,
+    const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
     const model::CInterimBucketCorrector& interimBucketCorrector,
     const model::CHierarchicalResultsAggregator& aggregator,
     core_t::TTime latestRecordTime,

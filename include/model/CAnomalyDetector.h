@@ -1,34 +1,32 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_model_CAnomalyDetector_h
 #define INCLUDED_ml_model_CAnomalyDetector_h
 
-#include <core/CNonCopyable.h>
-#include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CAnomalyDetectorModelConfig.h>
-#include <model/CEventData.h>
 #include <model/CForecastDataSink.h>
 #include <model/CHierarchicalResults.h>
 #include <model/CLimits.h>
 #include <model/CModelFactory.h>
 #include <model/CModelPlotData.h>
-#include <model/FunctionTypes.h>
+#include <model/CMonitoredResource.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
 #include <functional>
-#include <map>
 #include <memory>
-#include <string>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -65,11 +63,12 @@ class CSearchKey;
 //! choose to analyse certain field values either individually or as
 //! a population.
 
-class MODEL_EXPORT CAnomalyDetector : private core::CNonCopyable {
+class MODEL_EXPORT CAnomalyDetector : public CMonitoredResource {
 public:
     using TStrVec = std::vector<std::string>;
     using TStrCPtrVec = std::vector<const std::string*>;
     using TModelPlotDataVec = std::vector<CModelPlotData>;
+    using TAnnotationVec = CAnomalyDetectorModel::TAnnotationVec;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TModelFactoryCPtr = std::shared_ptr<const CModelFactory>;
     using TModelPtr = std::unique_ptr<CAnomalyDetectorModel>;
@@ -112,8 +111,7 @@ public:
     static const std::string EMPTY_STRING;
 
 public:
-    CAnomalyDetector(int detectorIndex,
-                     CLimits& limits,
+    CAnomalyDetector(CLimits& limits,
                      const CAnomalyDetectorModelConfig& modelConfig,
                      const std::string& partitionFieldValue,
                      core_t::TTime firstTime,
@@ -126,7 +124,11 @@ public:
     //! a general purpose copy constructor.
     CAnomalyDetector(bool isForPersistence, const CAnomalyDetector& other);
 
-    virtual ~CAnomalyDetector();
+    //! No general copying allowed.
+    CAnomalyDetector(const CAnomalyDetector&) = delete;
+    CAnomalyDetector& operator=(const CAnomalyDetector&) = delete;
+
+    ~CAnomalyDetector() override;
 
     //! Get the total number of people which this is modeling.
     size_t numberActivePeople() const;
@@ -179,6 +181,9 @@ public:
     //! created into which other state can be restored.
     void partitionFieldAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    //! Determine whether the detector should be persisted.
+    bool shouldPersistDetector() const;
+
     //! Persist state for statics - this is only called from the
     //! simple count detector to ensure singleton behaviour
     void staticsAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -228,6 +233,11 @@ public:
                            const TStrSet& terms,
                            TModelPlotDataVec& modelPlots) const;
 
+    //! Generate the annotations.
+    void generateAnnotations(core_t::TTime bucketStartTime,
+                             core_t::TTime bucketEndTime,
+                             TAnnotationVec& annotations) const;
+
     //! Generate ForecastPrerequistes, e.g. memory requirements
     CForecastDataSink::SForecastModelPrerequisites getForecastPrerequisites() const;
 
@@ -242,6 +252,10 @@ public:
     //! that may be deleted as a result of this call.
     virtual void pruneModels();
 
+    //! Remove dead models - i.e. those that have not seen activity
+    //! in the last \p pruneWindow buckets
+    virtual void pruneModels(std::size_t pruneWindow);
+
     //! Reset bucket.
     void resetBucket(core_t::TTime bucketStart);
 
@@ -252,10 +266,30 @@ public:
     void showMemoryUsage(std::ostream& stream) const;
 
     //! Get the memory used by this detector
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Return the total memory usage
-    std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
+
+    //! Get the static size of this object - used for virtual hierarchies
+    std::size_t staticSize() const override;
+
+    //! Returns true, as anomaly detectors do support pruning.
+    bool supportsPruning() const override;
+
+    //! Initialize the pruning window.
+    bool initPruneWindow(std::size_t& defaultPruneWindow,
+                         std::size_t& minimumPruneWindow) const override;
+
+    //! Get the bucket length.
+    core_t::TTime bucketLength() const override;
+
+    //! Prune the model.
+    void prune(std::size_t maximumAge) override;
+
+    //! Update the overall model size stats with information from this anomaly
+    //! detector.
+    void updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const override;
 
     //! Get end of the last complete bucket we've observed.
     const core_t::TTime& lastBucketEndTime() const;
@@ -333,9 +367,6 @@ private:
     void legacyModelsAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
 private:
-    //! An identifier for the search for which this is detecting anomalies.
-    int m_DetectorIndex;
-
     //! Configurable limits
     CLimits& m_Limits;
 

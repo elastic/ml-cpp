@@ -1,13 +1,37 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CompressUtils.h>
 
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 
 #include <string.h>
+
+namespace {
+// The value of 5952 was found using this program compiled in the zlib 1.2.11
+// source directory:
+//
+// #include "deflate.h"
+// #include <iostream>
+// int main(int, char**) {
+//     std::cout << sizeof(internal_state) << '\n';
+//     return 0;
+// }
+//
+// There is no way to find this number dynamically in the ML code, as it is a
+// hidden implementation detail protected by an opaque pointer.  The size may
+// vary between zlib versions, but probably not by enough to be worth worrying
+// about.
+const std::size_t ZLIB_INTERNAL_STATE_SIZE{5952};
+}
 
 namespace ml {
 namespace core {
@@ -115,6 +139,23 @@ bool CCompressUtil::prepareToReturnData(bool finish) {
         }
     }
     return true;
+}
+
+void CCompressUtil::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    mem->setName("CCompressUtil");
+    core::CMemoryDebug::dynamicSize("m_FullResult", m_FullResult, mem);
+    if (m_ZlibStrm.state != nullptr) {
+        mem->addItem("m_ZlibStrm", ZLIB_INTERNAL_STATE_SIZE);
+    }
+}
+
+std::size_t CCompressUtil::memoryUsage() const {
+    std::size_t mem = 0;
+    mem += core::CMemory::dynamicSize(m_FullResult);
+    if (m_ZlibStrm.state != nullptr) {
+        mem += ZLIB_INTERNAL_STATE_SIZE;
+    }
+    return mem;
 }
 
 CDeflator::CDeflator(bool lengthOnly, int level) : CCompressUtil{lengthOnly} {

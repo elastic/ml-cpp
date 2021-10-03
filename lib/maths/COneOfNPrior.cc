@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/COneOfNPrior.h>
@@ -126,8 +131,11 @@ COneOfNPrior::COneOfNPrior(const TDoublePriorPtrPrVec& models,
 COneOfNPrior::COneOfNPrior(const SDistributionRestoreParams& params,
                            core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
-    traverser.traverseSubLevel(std::bind(&COneOfNPrior::acceptRestoreTraverser, this,
-                                         std::cref(params), std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&COneOfNPrior::acceptRestoreTraverser,
+                                             this, std::cref(params),
+                                             std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool COneOfNPrior::acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -237,8 +245,8 @@ void COneOfNPrior::setToNonInformative(double offset, double decayRate) {
 void COneOfNPrior::removeModels(CModelFilter& filter) {
     CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
 
-    std::size_t last = 0u;
-    for (std::size_t i = 0u; i < m_Models.size(); ++i) {
+    std::size_t last = 0;
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
         if (last != i) {
             std::swap(m_Models[last], m_Models[i]);
         }
@@ -271,7 +279,7 @@ double COneOfNPrior::adjustOffset(const TDouble1Vec& samples,
 
     if (CBasicStatistics::mean(result) != 0.0) {
         CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
-        for (std::size_t i = 0u; i < penalties.size(); ++i) {
+        for (std::size_t i = 0; i < penalties.size(); ++i) {
             if (m_Models[i].second->participatesInModelSelection() &&
                 CMathsFuncs::isFinite(penalties)) {
                 CModelWeight& weight = m_Models[i].first;
@@ -310,7 +318,11 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
     n = this->numberSamples() - n;
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
-        m_SampleMoments.add(samples[i], maths_t::countForUpdate(weights[i]));
+        double xi = samples[i];
+        double ni = maths_t::countForUpdate(weights[i]);
+        if (CMathsFuncs::isFinite(xi) && CMathsFuncs::isFinite(ni)) {
+            m_SampleMoments.add(xi, ni);
+        }
     }
 
     // For this 1-of-n model we assume that all the data come from one
@@ -754,7 +766,7 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples,
 
     samples.reserve(numberSamples);
     TDouble1Vec modelSamples;
-    for (std::size_t i = 0u; i < m_Models.size(); ++i) {
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
         modelSamples.clear();
         m_Models[i].second->sampleMarginalLikelihood(sampling[i], modelSamples);
         for (auto sample : modelSamples) {
@@ -842,7 +854,7 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
     if (!CTools::logWillUnderflow<double>(maxLogUpperBound[0])) {
         maxLogUpperBound[0] = 0.0;
     }
-    for (std::size_t i = 0u; i < logLowerBounds.size(); ++i) {
+    for (std::size_t i = 0; i < logLowerBounds.size(); ++i) {
         lowerBound += std::exp(logLowerBounds[i] - maxLogLowerBound[0]);
         upperBound += std::exp(logUpperBounds[i] - maxLogUpperBound[0]);
     }
@@ -911,7 +923,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     TDoubleSizePr5Vec logWeights = this->normalizedLogWeights();
 
     TDoubleTailPrMaxAccumulator tail_;
-    for (std::size_t i = 0u; i < logWeights.size(); ++i) {
+    for (std::size_t i = 0; i < logWeights.size(); ++i) {
         double weight = std::exp(logWeights[i].first);
         const CPrior& model = *m_Models[logWeights[i].second].second;
 
@@ -1000,7 +1012,7 @@ uint64_t COneOfNPrior::checksum(uint64_t seed) const {
     return seed;
 }
 
-void COneOfNPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void COneOfNPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("COneOfNPrior");
     core::CMemoryDebug::dynamicSize("m_Models", m_Models, mem);
 }
@@ -1099,7 +1111,7 @@ COneOfNPrior::TDoubleSizePr5Vec COneOfNPrior::normalizedLogWeights() const {
 
     TDoubleSizePr5Vec result;
     double Z = 0.0;
-    for (std::size_t i = 0u; i < m_Models.size(); ++i) {
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
         if (m_Models[i].second->participatesInModelSelection()) {
             double logWeight = m_Models[i].first.logWeight();
             result.emplace_back(logWeight, i);

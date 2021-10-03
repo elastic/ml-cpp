@@ -1,13 +1,19 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CStringUtils.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameOutliersRunner.h>
@@ -28,18 +34,19 @@ namespace ml {
 namespace api {
 
 // These must be consistent with Java names.
-const std::string CDataFrameAnalysisSpecification::JOB_ID("job_id");
-const std::string CDataFrameAnalysisSpecification::ROWS("rows");
-const std::string CDataFrameAnalysisSpecification::COLS("cols");
-const std::string CDataFrameAnalysisSpecification::MEMORY_LIMIT("memory_limit");
-const std::string CDataFrameAnalysisSpecification::THREADS("threads");
-const std::string CDataFrameAnalysisSpecification::TEMPORARY_DIRECTORY("temp_dir");
-const std::string CDataFrameAnalysisSpecification::RESULTS_FIELD("results_field");
+const std::string CDataFrameAnalysisSpecification::JOB_ID{"job_id"};
+const std::string CDataFrameAnalysisSpecification::ROWS{"rows"};
+const std::string CDataFrameAnalysisSpecification::COLS{"cols"};
+const std::string CDataFrameAnalysisSpecification::MEMORY_LIMIT{"memory_limit"};
+const std::string CDataFrameAnalysisSpecification::THREADS{"threads"};
+const std::string CDataFrameAnalysisSpecification::TEMPORARY_DIRECTORY{"temp_dir"};
+const std::string CDataFrameAnalysisSpecification::RESULTS_FIELD{"results_field"};
+const std::string CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE{"missing_field_value"};
 const std::string CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES{"categorical_fields"};
-const std::string CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED("disk_usage_allowed");
-const std::string CDataFrameAnalysisSpecification::ANALYSIS("analysis");
-const std::string CDataFrameAnalysisSpecification::NAME("name");
-const std::string CDataFrameAnalysisSpecification::PARAMETERS("parameters");
+const std::string CDataFrameAnalysisSpecification::DISK_USAGE_ALLOWED{"disk_usage_allowed"};
+const std::string CDataFrameAnalysisSpecification::ANALYSIS{"analysis"};
+const std::string CDataFrameAnalysisSpecification::NAME{"name"};
+const std::string CDataFrameAnalysisSpecification::PARAMETERS{"parameters"};
 
 namespace {
 using TBoolVec = std::vector<bool>;
@@ -74,6 +81,8 @@ const CDataFrameAnalysisConfigReader CONFIG_READER{[] {
     theReader.addParameter(CDataFrameAnalysisSpecification::TEMPORARY_DIRECTORY,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::RESULTS_FIELD,
+                           CDataFrameAnalysisConfigReader::E_OptionalParameter);
+    theReader.addParameter(CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
     theReader.addParameter(CDataFrameAnalysisSpecification::CATEGORICAL_FIELD_NAMES,
                            CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -112,7 +121,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
       m_RestoreSearcherSupplier{std::move(restoreSearcherSupplier)} {
 
     rapidjson::Document specification;
-    if (specification.Parse(jsonSpecification.c_str()) == false) {
+    if (specification.Parse(jsonSpecification) == false) {
         HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
                      << jsonSpecification << "'. Please report this problem.");
     } else {
@@ -131,9 +140,17 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
         m_TemporaryDirectory = parameters[TEMPORARY_DIRECTORY].fallback(std::string{});
         m_JobId = parameters[JOB_ID].fallback(std::string{});
         m_ResultsField = parameters[RESULTS_FIELD].fallback(DEFAULT_RESULT_FIELD);
+        m_MissingFieldValue = parameters[MISSING_FIELD_VALUE].fallback(
+            core::CDataFrame::DEFAULT_MISSING_STRING);
         m_CategoricalFieldNames = parameters[CATEGORICAL_FIELD_NAMES].fallback(TStrVec{});
         m_DiskUsageAllowed = parameters[DISK_USAGE_ALLOWED].fallback(DEFAULT_DISK_USAGE_ALLOWED);
 
+        double missing;
+        if (m_MissingFieldValue != core::CDataFrame::DEFAULT_MISSING_STRING &&
+            core::CStringUtils::stringToTypeSilent(m_MissingFieldValue, missing)) {
+            HANDLE_FATAL(<< "Input error: you can't use a number (" << missing
+                         << ") to denote a missing field value.");
+        }
         if (m_DiskUsageAllowed && m_TemporaryDirectory.empty()) {
             HANDLE_FATAL(<< "Input error: temporary directory path should be explicitly set if disk"
                             " usage is allowed! Please report this problem.");
@@ -186,20 +203,48 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
     }
 
     auto result = m_Runner->storeDataFrameInMainMemory()
-                      ? core::makeMainStorageDataFrame(m_NumberColumns)
-                      : core::makeDiskStorageDataFrame(m_TemporaryDirectory,
-                                                       m_NumberColumns, m_NumberRows);
+                      ? core::makeMainStorageDataFrame(
+                            m_NumberColumns, m_Runner->dataFrameSliceCapacity())
+                      : core::makeDiskStorageDataFrame(
+                            m_TemporaryDirectory, m_NumberColumns, m_NumberRows,
+                            m_Runner->dataFrameSliceCapacity());
+    result.first->missingString(m_MissingFieldValue);
     result.first->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
 
     return result;
 }
 
-CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame& frame) const {
-    if (m_Runner != nullptr) {
-        m_Runner->run(frame);
-        return m_Runner.get();
+bool CDataFrameAnalysisSpecification::validate(const core::CDataFrame& frame) const {
+
+    // The main condition to care about is if the analysis might use more memory
+    // than was budgeted for. There are circumstances in which rows are excluded
+    // after the search filter is applied so this can't trap the case that the row
+    // counts are not equal.
+    if (frame.numberRows() > this->numberRows()) {
+        HANDLE_FATAL(<< "Input error: expected no more than '" << this->numberRows()
+                     << "' rows but got '" << frame.numberRows() << "' rows"
+                     << ". Please report this problem.");
+        return false;
     }
-    return nullptr;
+    // As with rows, we only care if the analysis might use more memory than was
+    // budgeted for.
+    if (frame.numberColumns() > this->numberColumns()) {
+        HANDLE_FATAL(<< "Input error: expected '" << this->numberColumns()
+                     << "' columns but got '" << frame.numberRows() << "' columns"
+                     << ". Please report this problem.");
+        return false;
+    }
+
+    if (frame.numberRows() == 0) {
+        HANDLE_FATAL(<< "Input error: no data sent.");
+        return false;
+    }
+
+    return m_Runner == nullptr || m_Runner->validate(frame);
+}
+
+CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
+    return m_Runner.get();
 }
 
 void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
@@ -211,24 +256,17 @@ void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimation
     m_Runner->estimateMemoryUsage(writer);
 }
 
-TBoolVec CDataFrameAnalysisSpecification::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
-    if (m_Runner == nullptr) {
-        HANDLE_FATAL(<< "Internal error: no runner available. Please report this problem.");
-        return TBoolVec(fieldNames.size(), false);
-    }
-    return m_Runner->columnsForWhichEmptyIsMissing(fieldNames);
-}
-
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {
     // We pass of the interpretation of the parameters object to the appropriate
     // analysis runner.
 
     auto analysis = ANALYSIS_READER.read(jsonAnalysis);
 
-    std::string name{analysis[NAME].as<std::string>()};
+    m_AnalysisName = analysis[NAME].as<std::string>();
+    LOG_TRACE(<< "Parsed analysis with name '" << m_AnalysisName << "'");
 
     for (const auto& factory : m_RunnerFactories) {
-        if (name == factory->name()) {
+        if (m_AnalysisName == factory->name()) {
             auto parameters = analysis[PARAMETERS].jsonObject();
             m_Runner = parameters != nullptr ? factory->make(*this, *parameters)
                                              : factory->make(*this);
@@ -236,7 +274,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
         }
     }
 
-    HANDLE_FATAL(<< "Input error: unexpected analysis name '" << name
+    HANDLE_FATAL(<< "Input error: unexpected analysis name '" << m_AnalysisName
                  << "'. Please report this problem.");
 }
 
@@ -264,8 +302,8 @@ const std::string& CDataFrameAnalysisSpecification::jobId() const {
     return m_JobId;
 }
 
-const CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
-    return m_Runner.get();
+const std::string& CDataFrameAnalysisSpecification::analysisName() const {
+    return m_AnalysisName;
 }
 }
 }

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CResultNormalizer.h>
 
@@ -32,8 +37,8 @@ const std::string CResultNormalizer::INFLUENCER_LEVEL("infl");
 const std::string CResultNormalizer::ZERO("0");
 
 CResultNormalizer::CResultNormalizer(const model::CAnomalyDetectorModelConfig& modelConfig,
-                                     COutputHandler& outputHandler)
-    : m_ModelConfig(modelConfig), m_OutputHandler(outputHandler),
+                                     CSimpleOutputWriter& outputWriter)
+    : m_ModelConfig(modelConfig), m_OutputWriter(outputWriter),
       m_WriteFieldNames(true),
       m_OutputFieldNormalizedScore(m_OutputFields[NORMALIZED_SCORE_NAME]),
       m_Normalizer(m_ModelConfig) {
@@ -61,7 +66,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         TStrVec extraFieldNames;
         extraFieldNames.push_back(NORMALIZED_SCORE_NAME);
 
-        if (m_OutputHandler.fieldNames(fieldNames, extraFieldNames) == false) {
+        if (m_OutputWriter.fieldNames(fieldNames, extraFieldNames) == false) {
             LOG_ERROR(<< "Unable to set field names for output");
             return false;
         }
@@ -131,7 +136,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         m_OutputFieldNormalizedScore.clear();
     }
 
-    if (m_OutputHandler.writeRow(dataRowFields, m_OutputFields) == false) {
+    if (m_OutputWriter.writeRow(dataRowFields, m_OutputFields) == false) {
         LOG_ERROR(<< "Unable to write normalized output");
         return false;
     }

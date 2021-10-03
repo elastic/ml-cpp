@@ -1,17 +1,24 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CBase64FilterTest.h"
 
 #include <core/CBase64Filter.h>
 
 #include <boost/iostreams/filtering_stream.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <boost/generator_iterator.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_int.hpp>
+
+BOOST_AUTO_TEST_SUITE(CBase64FilterTest)
 
 using TRandom = boost::mt19937;
 using TDistribution = boost::uniform_int<>;
@@ -98,12 +105,12 @@ void testEncodeDecode(const std::string& input) {
 
         std::istreambuf_iterator<char> eos;
         std::string s(std::istreambuf_iterator<char>(filter), eos);
-        CPPUNIT_ASSERT_EQUAL(input, s);
+        BOOST_REQUIRE_EQUAL(input, s);
     }
 }
 }
 
-void CBase64FilterTest::testEncode() {
+BOOST_AUTO_TEST_CASE(testEncode) {
     {
         // Test encode ability, with known test data
 
@@ -124,7 +131,7 @@ void CBase64FilterTest::testEncode() {
             "dGhlIG1pbmQsIHRoYXQgYnkgYSBwZXJzZXZlcmFuY2Ugb2YgZGVsaWdodCBpbiB0aGUgY29udGlu"
             "dWVkIGFuZCBpbmRlZmF0aWdhYmxlIGdlbmVyYXRpb24gb2Yga25vd2xlZGdlLCBleGNlZWRzIHRo"
             "ZSBzaG9ydCB2ZWhlbWVuY2Ugb2YgYW55IGNhcm5hbCBwbGVhc3VyZS4=";
-        CPPUNIT_ASSERT_EQUAL(expected, sink.getData());
+        BOOST_REQUIRE_EQUAL(expected, sink.getData());
     }
     {
         // Test a much longer string
@@ -141,11 +148,11 @@ void CBase64FilterTest::testEncode() {
         for (std::size_t i = 0; i < 50000; i++) {
             result << "T25lVHdvVGhyZWVGb3VyRml2ZVNpeFNldmVuRWlnaHROaW5lVGVu";
         }
-        CPPUNIT_ASSERT_EQUAL(result.str(), sink.getData());
+        BOOST_REQUIRE_EQUAL(result.str(), sink.getData());
     }
 }
 
-void CBase64FilterTest::testDecode() {
+BOOST_AUTO_TEST_CASE(testDecode) {
     {
         // Test decoding
         std::string encoded =
@@ -165,7 +172,7 @@ void CBase64FilterTest::testDecode() {
         filter.push(boost::ref(source));
         std::istreambuf_iterator<char> eos;
         std::string s(std::istreambuf_iterator<char>(filter), eos);
-        CPPUNIT_ASSERT_EQUAL(expected, s);
+        BOOST_REQUIRE_EQUAL(expected, s);
     }
     {
         // Test decoding
@@ -177,21 +184,21 @@ void CBase64FilterTest::testDecode() {
         filter.push(boost::ref(source));
         std::istreambuf_iterator<char> eos;
         std::string s(std::istreambuf_iterator<char>(filter), eos);
-        CPPUNIT_ASSERT_EQUAL(expected, s);
+        BOOST_REQUIRE_EQUAL(expected, s);
     }
 }
 
-void CBase64FilterTest::testBoth() {
+BOOST_AUTO_TEST_CASE(testBoth) {
     {
-        ::testEncodeDecode("a");
-        ::testEncodeDecode("aa");
-        ::testEncodeDecode("aaa");
-        ::testEncodeDecode("aaaa");
-        ::testEncodeDecode("aaaaa");
-        ::testEncodeDecode("aaaaaa");
-        ::testEncodeDecode("aaaaaaa");
-        ::testEncodeDecode("aaaaaaaa");
-        ::testEncodeDecode("OneTwoThreeFourFiveSixSevenEightNineTen");
+        testEncodeDecode("a");
+        testEncodeDecode("aa");
+        testEncodeDecode("aaa");
+        testEncodeDecode("aaaa");
+        testEncodeDecode("aaaaa");
+        testEncodeDecode("aaaaaa");
+        testEncodeDecode("aaaaaaa");
+        testEncodeDecode("aaaaaaaa");
+        testEncodeDecode("OneTwoThreeFourFiveSixSevenEightNineTen");
     }
     {
         TRandom rng(3632638936UL);
@@ -202,19 +209,8 @@ void CBase64FilterTest::testBoth() {
         for (std::size_t i = 0; i < 5000000; i++) {
             ss << char(*randItr++);
         }
-        ::testEncodeDecode(ss.str());
+        testEncodeDecode(ss.str());
     }
 }
 
-CppUnit::Test* CBase64FilterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBase64FilterTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBase64FilterTest>(
-        "CBase64FilterTest::testDecode", &CBase64FilterTest::testDecode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBase64FilterTest>(
-        "CBase64FilterTest::testEncode", &CBase64FilterTest::testEncode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBase64FilterTest>(
-        "CBase64FilterTest::testBoth", &CBase64FilterTest::testBoth));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

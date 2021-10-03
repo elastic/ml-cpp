@@ -1,2 +1,2 @@
-name,version,revision,url,license,copyright
-Boost C++ Libraries,1.71.0,,http://www.boost.org,BSL-1.0,
+name,version,revision,url,license,copyright,sourceURL
+Boost C++ Libraries,1.71.0,,http://www.boost.org,BSL-1.0,,

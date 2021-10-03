@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CMultivariatePrior.h>
@@ -35,28 +40,18 @@ void setDecayRate(double value, double fallback, double& result) {
 }
 
 CMultivariatePrior::CMultivariatePrior()
-    : m_Forecasting(false), m_DataType(maths_t::E_DiscreteData),
-      m_DecayRate(0.0), m_NumberSamples(0) {
+    : m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
 }
 
 CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType, double decayRate)
-    : m_Forecasting(false), m_DataType(dataType), m_NumberSamples(0) {
+    : m_DataType(dataType), m_NumberSamples(0) {
     setDecayRate(decayRate, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
-void CMultivariatePrior::swap(CMultivariatePrior& other) {
-    std::swap(m_Forecasting, other.m_Forecasting);
+void CMultivariatePrior::swap(CMultivariatePrior& other) noexcept {
     std::swap(m_DataType, other.m_DataType);
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_NumberSamples, other.m_NumberSamples);
-}
-
-void CMultivariatePrior::forForecasting() {
-    m_Forecasting = true;
-}
-
-bool CMultivariatePrior::isForForecasting() const {
-    return m_Forecasting;
 }
 
 bool CMultivariatePrior::isDiscrete() const {
@@ -89,7 +84,7 @@ void CMultivariatePrior::addSamples(const TDouble10Vec1Vec& /*samples*/,
     TDouble10Vec n(d, 0.0);
     for (const auto& weight : weights) {
         TDouble10Vec n_ = maths_t::countForUpdate(weight);
-        for (std::size_t i = 0u; i < d; ++i) {
+        for (std::size_t i = 0; i < d; ++i) {
             n[i] += n_[i];
         }
     }
@@ -164,15 +159,15 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
             return false;
         }
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
-            for (std::size_t k = 0u, l = 0u; k < d; ++k) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
+            for (std::size_t k = 0u, l = 0; k < d; ++k) {
                 if (k != coordinate) {
                     condition[l++] = std::make_pair(k, samples[j][k]);
                 }
             }
 
             sc[0] = samples[j][coordinate];
-            for (std::size_t k = 0u; k < weights[j].size(); ++k) {
+            for (std::size_t k = 0; k < weights[j].size(); ++k) {
                 wc[0][k] = weights[j][k][coordinate];
             }
 
@@ -241,7 +236,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     TDouble10VecWeightsAry1Vec weight(1);
     TDouble10Vec2Vec lbs;
     TDouble10Vec2Vec ubs;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         sample[0] = samples[i];
         weight[0] = weights[i];
         if (!this->probabilityOfLessLikelySamples(calculation, sample, weight,
@@ -249,7 +244,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
             return false;
         }
 
-        for (std::size_t j = 0u; j < this->dimension(); ++j) {
+        for (std::size_t j = 0; j < this->dimension(); ++j) {
             lowerBound_[0].add(lbs[0][j]);
             upperBound_[0].add(ubs[0][j]);
             lowerBound_[1].add(lbs[1][j]);
@@ -289,7 +284,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
     xm.reserve(d - 1);
     ym.reserve(d - 1);
     xym.reserve(d - 2);
-    for (std::size_t i = 0u; i < d; ++i) {
+    for (std::size_t i = 0; i < d; ++i) {
         if (i != x && i != y) {
             xm.push_back(i);
             ym.push_back(i);
@@ -326,7 +321,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
     yabscissa << "y = [";
     double x_ = xRange.first;
     double y_ = yRange.first;
-    for (std::size_t i = 0u; i < POINTS; ++i, x_ += dx, y_ += dy) {
+    for (std::size_t i = 0; i < POINTS; ++i, x_ += dx, y_ += dy) {
         xabscissa << x_ << " ";
         yabscissa << y_ << " ";
     }
@@ -337,9 +332,9 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
     TDouble10Vec1Vec sample{TDouble10Vec(2)};
     TDouble10VecWeightsAry1Vec weight(TWeights::singleUnit<TDouble10Vec>(2));
     x_ = xRange.first;
-    for (std::size_t i = 0u; i < POINTS; ++i, x_ += dx) {
+    for (std::size_t i = 0; i < POINTS; ++i, x_ += dx) {
         y_ = yRange.first;
-        for (std::size_t j = 0u; j < POINTS; ++j, y_ += dy) {
+        for (std::size_t j = 0; j < POINTS; ++j, y_ += dy) {
             sample[0][0] = x_;
             sample[0][1] = y_;
             double l;
@@ -353,8 +348,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
     return xabscissa.str() + yabscissa.str() + likelihood.str();
 }
 
-uint64_t CMultivariatePrior::checksum(uint64_t seed) const {
-    seed = CChecksum::calculate(seed, m_Forecasting);
+std::uint64_t CMultivariatePrior::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DataType);
     seed = CChecksum::calculate(seed, m_DecayRate);
     return CChecksum::calculate(seed, m_NumberSamples);
@@ -401,7 +395,7 @@ bool CMultivariatePrior::check(const TDouble10Vec1Vec& samples,
                   << weights << "'");
         return false;
     }
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         if (samples[i].size() != this->dimension()) {
             LOG_ERROR(<< "Invalid sample '" << samples[i] << "'");
             return false;
@@ -439,7 +433,7 @@ void CMultivariatePrior::remainingVariables(const TSize10Vec& marginalize,
                                             TSize10Vec& result) const {
     std::size_t d = this->dimension();
     result.reserve(d - marginalize.size() - condition.size());
-    for (std::size_t i = 0u, j = 0u, k = 0u; k < d; ++k) {
+    for (std::size_t i = 0u, j = 0u, k = 0; k < d; ++k) {
         if (i < marginalize.size() && k == marginalize[i]) {
             ++i;
             continue;

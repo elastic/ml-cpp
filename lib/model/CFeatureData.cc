@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CFeatureData.h>
@@ -86,7 +91,7 @@ std::size_t SEventRateFeatureData::memoryUsage() const {
     return mem;
 }
 
-void SEventRateFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void SEventRateFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SMetricFeatureData", sizeof(*this));
     core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);
 }
@@ -125,7 +130,7 @@ std::size_t SMetricFeatureData::memoryUsage() const {
     return mem;
 }
 
-void SMetricFeatureData::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void SMetricFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SMetricFeatureData");
     core::CMemoryDebug::dynamicSize("s_BucketValue", s_BucketValue, mem);
     core::CMemoryDebug::dynamicSize("s_InfluenceValues", s_InfluenceValues, mem);

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CTools_h
@@ -12,6 +17,7 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CLinearAlgebraFwd.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -22,9 +28,11 @@
 
 #include <array>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <iosfwd>
 #include <limits>
+#include <numeric>
 #include <vector>
 
 namespace ml {
@@ -454,12 +462,12 @@ private:
             //      (interpreted as an integer) to the corresponding
             //      double value and fastLog uses the same approach
             //      to extract the mantissa.
-            uint64_t dx = 0x10000000000000ull / BINS;
+            std::uint64_t dx = 0x10000000000000ull / BINS;
             core::CIEEE754::SDoubleRep x;
             x.s_Sign = 0;
             x.s_Mantissa = (dx / 2) & core::CIEEE754::IEEE754_MANTISSA_MASK;
             x.s_Exponent = 1022;
-            for (std::size_t i = 0u; i < BINS;
+            for (std::size_t i = 0; i < BINS;
                  ++i, x.s_Mantissa = (x.s_Mantissa + dx) & core::CIEEE754::IEEE754_MANTISSA_MASK) {
                 double value;
                 static_assert(sizeof(double) == sizeof(core::CIEEE754::SDoubleRep),
@@ -467,12 +475,12 @@ private:
                 // Use memcpy() rather than union to adhere to strict
                 // aliasing rules
                 std::memcpy(&value, &x, sizeof(double));
-                m_Table[i] = std::log2(value);
+                m_Table[i] = stable(std::log2(value));
             }
         }
 
         //! Lookup log2 for a given mantissa.
-        const double& operator[](uint64_t mantissa) const {
+        const double& operator[](std::uint64_t mantissa) const {
             return m_Table[mantissa >> FAST_LOG_SHIFT];
         }
 
@@ -492,117 +500,12 @@ public:
     //! \note This is taken from the approach given in
     //! http://www.icsi.berkeley.edu/pubs/techreports/TR-07-002.pdf
     static double fastLog(double x) {
-        uint64_t mantissa;
+        std::uint64_t mantissa;
         int log2;
         core::CIEEE754::decompose(x, mantissa, log2);
         return 0.693147180559945 * (FAST_LOG_TABLE[mantissa] + log2);
     }
     //@}
-
-private:
-    //! Get the location of the point \p x.
-    template<typename T>
-    static double location(T x) {
-        return x;
-    }
-    //! Set \p x to \p y.
-    template<typename T>
-    static void setLocation(T& x, double y) {
-        x = static_cast<T>(y);
-    }
-    //! Get a writable location of the point \p x.
-    template<typename T>
-    static double
-    location(const typename CBasicStatistics::SSampleMean<T>::TAccumulator& x) {
-        return CBasicStatistics::mean(x);
-    }
-    //! Set the mean of \p x to \p y.
-    template<typename T>
-    static void
-    setLocation(typename CBasicStatistics::SSampleMean<T>::TAccumulator& x, double y) {
-        x.s_Moments[0] = static_cast<T>(y);
-    }
-
-    //! \brief Utility class to represent points which are adjacent
-    //! in the spreading algorithm.
-    class MATHS_EXPORT CGroup {
-    public:
-        using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-    public:
-        //! Create a new points group.
-        template<typename T>
-        CGroup(std::size_t index, const T& points)
-            : m_A(index), m_B(index), m_Centre() {
-            m_Centre.add(location(points[index]));
-        }
-
-        //! Merge this group and \p other group.
-        void merge(const CGroup& other, double separation, double min, double max);
-
-        //! Check if this group and \p other group overlap.
-        bool overlap(const CGroup& other, double separation) const;
-
-        //! Update the locations of the points in this group based
-        //! on its centre position.
-        template<typename T>
-        bool spread(double separation, T& points) const {
-            if (m_A == m_B) {
-                return false;
-            }
-            bool result = false;
-            double x = this->leftEndpoint(separation);
-            for (std::size_t i = m_A; i <= m_B; ++i, x += separation) {
-                if (location(points[i]) != x) {
-                    setLocation(points[i], x);
-                    result = true;
-                }
-            }
-            return result;
-        }
-
-    private:
-        //! Get the position of the left end point of this group.
-        double leftEndpoint(double separation) const;
-
-        //! Get the position of the right end point of this group.
-        double rightEndpoint(double separation) const;
-
-        std::size_t m_A;
-        std::size_t m_B;
-        TMeanAccumulator m_Centre;
-    };
-
-    //! \brief Orders two points by their position.
-    class CPointLess {
-    public:
-        template<typename T>
-        bool operator()(const T& lhs, const T& rhs) const {
-            return location(lhs) < location(rhs);
-        }
-    };
-
-public:
-    //! \brief Ensure the points are at least \p separation apart.\n\n
-    //! This solves the problem of finding the new positions for the
-    //! points \f$\{x_i\}\f$ such that there is no pair of points for
-    //! which \f$\left \|x_j - x_i \right \| < s\f$ where \f$s\f$
-    //! denotes the minimum separation \p separation and the total
-    //! square distance the points move, i.e.
-    //! <pre class="fragment">
-    //!   \f$ \sum_i{(x_i' - x_i)^2} \f$
-    //! </pre>
-    //! is minimized.
-    //!
-    //! \param[in] a The left end point of the interval containing
-    //! the shifted points.
-    //! \param[in] b The right end point of the interval containing
-    //! the shifted points.
-    //! \param[in] separation The minimum permitted separation between
-    //! points.
-    //! \param[in,out] points The points to spread.
-    template<typename T>
-    static void spread(double a, double b, double separation, T& points);
 
     //! Compute the sign of \p x and return T(-1) if it is negative and T(1)
     //! otherwise.
@@ -629,7 +532,7 @@ public:
                                      const CVectorNx1<T, N>& a,
                                      const CVectorNx1<T, N>& b) {
         CVectorNx1<T, N> result(x);
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             result(i) = truncate(result(i), a(i), b(i));
         }
         return result;
@@ -640,7 +543,7 @@ public:
     static CVector<T>
     truncate(const CVector<T>& x, const CVector<T>& a, const CVector<T>& b) {
         CVector<T> result(x);
-        for (std::size_t i = 0u; i < result.dimension(); ++i) {
+        for (std::size_t i = 0; i < result.dimension(); ++i) {
             result(i) = truncate(result(i), a(i), b(i));
         }
         return result;
@@ -652,7 +555,7 @@ public:
                                              const core::CSmallVector<T, N>& a,
                                              const core::CSmallVector<T, N>& b) {
         core::CSmallVector<T, N> result(x);
-        for (std::size_t i = 0u; i < result.size(); ++i) {
+        for (std::size_t i = 0; i < result.size(); ++i) {
             result[i] = truncate(result[i], a[i], b[i]);
         }
         return result;
@@ -667,6 +570,15 @@ public:
     //! Compute \f$x^2\f$.
     static double pow2(double x) { return x * x; }
 
+    //! Compute a value from \p x which will be stable across platforms.
+    static double stable(double x) { return core::CIEEE754::dropbits(x, 1); }
+
+    //! A version of std::log which is stable across platforms.
+    static double stableLog(double x) { return stable(std::log(x)); }
+
+    //! A version of std::log which is stable across platforms.
+    static double stableExp(double x) { return stable(std::exp(x)); }
+
     //! Sigmoid function of \p p.
     static double sigmoid(double p) { return 1.0 / (1.0 + 1.0 / p); }
 
@@ -680,11 +592,58 @@ public:
     //! \param[in] sign Determines whether it's a step up or down.
     static double
     logisticFunction(double x, double width = 1.0, double x0 = 0.0, double sign = 1.0) {
-        return sigmoid(std::exp(std::copysign(1.0, sign) * (x - x0) / width));
+        return sigmoid(stableExp(std::copysign(1.0, sign) * (x - x0) / width));
     }
+
+    //! Compute the softmax for the multinomial logit values \p logit.
+    //!
+    //! i.e. \f$[\sigma(z)]_i = \frac{exp(z_i)}{\sum_j exp(z_j)}\f$.
+    //!
+    //! \tparam COLLECTION Is assumed to be a collection type, i.e. it
+    //! must support iterator based access.
+    template<typename COLLECTION>
+    static void inplaceSoftmax(COLLECTION& z) {
+        double Z{0.0};
+        double zmax{*std::max_element(z.begin(), z.end())};
+        for (auto& zi : z) {
+            zi = stableExp(zi - zmax);
+            Z += zi;
+        }
+        for (auto& zi : z) {
+            zi /= Z;
+        }
+    }
+
+    //! Compute the log of the softmax for the multinomial logit values \p logit.
+    template<typename COLLECTION>
+    static void inplaceLogSoftmax(COLLECTION& z) {
+        double zmax{*std::max_element(z.begin(), z.end())};
+        for (auto& zi : z) {
+            zi -= zmax;
+        }
+        double logZ{std::log(std::accumulate(
+            z.begin(), z.end(), 0.0,
+            [](double sum, const auto& zi) { return sum + std::exp(zi); }))};
+        for (auto& zi : z) {
+            zi -= logZ;
+        }
+    }
+
+    //! Specialize the softmax for CDenseVector.
+    template<typename T>
+    static void inplaceSoftmax(CDenseVector<T>& z);
+
+    //! Specialize the log(softmax) for CDenseVector.
+    template<typename SCALAR>
+    static void inplaceLogSoftmax(CDenseVector<SCALAR>& z);
 
     //! Linearly interpolate a function on the interval [\p a, \p b].
     static double linearlyInterpolate(double a, double b, double fa, double fb, double x);
+
+    //! Log-linearly interpolate a function on the interval [\p a, \p b].
+    //!
+    //! \warning The caller must ensure that \p a and \p b are positive.
+    static double logLinearlyInterpolate(double a, double b, double fa, double fb, double x);
 
     //! A custom, numerically robust, implementation of \f$(1 - x) ^ p\f$.
     //!

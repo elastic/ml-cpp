@@ -1,25 +1,34 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CBoostedTree_h
 #define INCLUDED_ml_maths_CBoostedTree_h
 
 #include <core/CDataFrame.h>
+#include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameCategoryEncoder.h>
-#include <maths/CDataFrameRegressionModel.h>
-#include <maths/CLinearAlgebra.h>
+#include <maths/CDataFramePredictiveModel.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace ml {
@@ -27,191 +36,11 @@ namespace core {
 class CPackedBitVector;
 }
 namespace maths {
+namespace boosted_tree {
+class CLoss;
+}
 class CDataFrameCategoryEncoder;
 class CEncodedDataFrameRowRef;
-
-namespace boosted_tree_detail {
-class MATHS_EXPORT CArgMinLossImpl {
-public:
-    CArgMinLossImpl(double lambda);
-    virtual ~CArgMinLossImpl() = default;
-
-    virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
-    virtual bool nextPass() = 0;
-    virtual void add(double prediction, double actual, double weight = 1.0) = 0;
-    virtual void merge(const CArgMinLossImpl& other) = 0;
-    virtual double value() const = 0;
-
-protected:
-    double lambda() const;
-
-private:
-    double m_Lambda;
-};
-
-//! \brief Finds the value to add to a set of predictions which minimises the
-//! regularized MSE w.r.t. the actual values.
-class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
-public:
-    CArgMinMseImpl(double lambda);
-    std::unique_ptr<CArgMinLossImpl> clone() const override;
-    bool nextPass() override;
-    void add(double prediction, double actual, double weight = 1.0) override;
-    void merge(const CArgMinLossImpl& other) override;
-    double value() const override;
-
-private:
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-private:
-    TMeanAccumulator m_MeanError;
-};
-
-//! \brief Finds the value to add to a set of predicted log-odds which minimises
-//! regularised cross entropy loss w.r.t. the actual categories.
-class MATHS_EXPORT CArgMinLogisticImpl final : public CArgMinLossImpl {
-public:
-    CArgMinLogisticImpl(double lambda);
-    std::unique_ptr<CArgMinLossImpl> clone() const override;
-    bool nextPass() override;
-    void add(double prediction, double actual, double weight = 1.0) override;
-    void merge(const CArgMinLossImpl& other) override;
-    double value() const override;
-
-private:
-    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
-    using TVector = CVectorNx1<double, 2>;
-    using TVectorVec = std::vector<TVector>;
-
-private:
-    std::size_t bucket(double prediction) const {
-        double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
-        return std::min(static_cast<std::size_t>(bucket),
-                        m_BucketCategoryCounts.size() - 1);
-    }
-
-    double bucketCentre(std::size_t bucket) const {
-        return m_PredictionMinMax.min() +
-               (static_cast<double>(bucket) + 0.5) * this->bucketWidth();
-    }
-
-    double bucketWidth() const {
-        return m_PredictionMinMax.range() /
-               static_cast<double>(m_BucketCategoryCounts.size());
-    }
-
-private:
-    std::size_t m_CurrentPass = 0;
-    TMinMaxAccumulator m_PredictionMinMax;
-    TVector m_CategoryCounts;
-    TVectorVec m_BucketCategoryCounts;
-};
-}
-
-namespace boosted_tree {
-
-//! \brief Computes the leaf value which minimizes the loss function.
-class MATHS_EXPORT CArgMinLoss {
-public:
-    CArgMinLoss(const CArgMinLoss& other);
-    CArgMinLoss(CArgMinLoss&& other) = default;
-
-    CArgMinLoss& operator=(const CArgMinLoss& other);
-    CArgMinLoss& operator=(CArgMinLoss&& other) = default;
-
-    //! Start another pass over the predictions and actuals.
-    //!
-    //! \return True if we need to perform another pass to compute value().
-    bool nextPass() const;
-
-    //! Update with a point prediction and actual value.
-    void add(double prediction, double actual, double weight = 1.0);
-
-    //! Get the minimiser over the predictions and actual values added to both
-    //! this and \p other.
-    void merge(CArgMinLoss& other);
-
-    //! Returns the value to add to the predictions which minimises the loss
-    //! with respect to the actuals.
-    //!
-    //! Formally, returns \f$x^* = arg\min_x\{\sum_i{L(p_i + x, a_i)}\}\f$
-    //! for predictions and actuals \f$p_i\f$ and \f$a_i\f$, respectively.
-    double value() const;
-
-private:
-    using TArgMinLossImplUPtr = std::unique_ptr<boosted_tree_detail::CArgMinLossImpl>;
-
-private:
-    CArgMinLoss(const boosted_tree_detail::CArgMinLossImpl& impl);
-
-private:
-    TArgMinLossImplUPtr m_Impl;
-
-    friend class CLoss;
-};
-
-//! \brief Defines the loss function for the regression problem.
-class MATHS_EXPORT CLoss {
-public:
-    virtual ~CLoss() = default;
-    //! Clone the loss.
-    virtual std::unique_ptr<CLoss> clone() const = 0;
-    //! The value of the loss function.
-    virtual double value(double prediction, double actual, double weight = 1.0) const = 0;
-    //! The slope of the loss function.
-    virtual double gradient(double prediction, double actual, double weight = 1.0) const = 0;
-    //! The curvature of the loss function.
-    virtual double curvature(double prediction, double actual, double weight = 1.0) const = 0;
-    //! Returns true if the loss curvature is constant.
-    virtual bool isCurvatureConstant() const = 0;
-    //! Get an object which computes the leaf value that minimises loss.
-    virtual CArgMinLoss minimizer(double lambda) const = 0;
-    //! Get the name of the loss function
-    virtual const std::string& name() const = 0;
-
-protected:
-    CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
-};
-
-//! \brief The MSE loss function.
-class MATHS_EXPORT CMse final : public CLoss {
-public:
-    std::unique_ptr<CLoss> clone() const override;
-    double value(double prediction, double actual, double weight = 1.0) const override;
-    double gradient(double prediction, double actual, double weight = 1.0) const override;
-    double curvature(double prediction, double actual, double weight = 1.0) const override;
-    bool isCurvatureConstant() const override;
-    CArgMinLoss minimizer(double lambda) const override;
-    const std::string& name() const override;
-
-public:
-    static const std::string NAME;
-};
-
-//! \brief Implements loss for binomial logistic regression.
-//!
-//! DESCRIPTION:\n
-//! This targets the cross entropy loss using the tree to predict class log-odds:
-//! <pre class="fragment">
-//!   \f$\displaystyle l_i(p) = -(1 - a_i) \log(1 - S(p)) - a_i \log(S(p))\f$
-//! </pre>
-//! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
-//! prediction and \f$S(\cdot)\f$ denotes the logistic function.
-class MATHS_EXPORT CLogistic final : public CLoss {
-public:
-    std::unique_ptr<CLoss> clone() const override;
-    double value(double prediction, double actual, double weight = 1.0) const override;
-    double gradient(double prediction, double actual, double weight = 1.0) const override;
-    double curvature(double prediction, double actual, double weight = 1.0) const override;
-    bool isCurvatureConstant() const override;
-    CArgMinLoss minimizer(double lambda) const override;
-    const std::string& name() const override;
-
-public:
-    static const std::string NAME;
-};
-}
-
 class CBoostedTreeImpl;
 
 //! \brief A node of a regression tree.
@@ -229,11 +58,12 @@ class CBoostedTreeImpl;
 class MATHS_EXPORT CBoostedTreeNode final {
 public:
     using TNodeIndex = std::uint32_t;
-    using TSizeSizePr = std::pair<TNodeIndex, TNodeIndex>;
+    using TNodeIndexNodeIndexPr = std::pair<TNodeIndex, TNodeIndex>;
     using TPackedBitVectorPackedBitVectorPr =
         std::pair<core::CPackedBitVector, core::CPackedBitVector>;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TOptionalNodeIndex = boost::optional<TNodeIndex>;
+    using TVector = CDenseVector<double>;
 
     class MATHS_EXPORT CVisitor {
     public:
@@ -242,15 +72,16 @@ public:
         virtual void addNode(std::size_t splitFeature,
                              double splitValue,
                              bool assignMissingToLeft,
-                             double nodeValue,
+                             const TVector& nodeValue,
                              double gain,
+                             std::size_t numberSamples,
                              TOptionalNodeIndex leftChild,
                              TOptionalNodeIndex rightChild) = 0;
     };
 
 public:
-    //! See core::CMemory.
-    static bool dynamicSizeAlwaysZero() { return true; }
+    CBoostedTreeNode() = default;
+    explicit CBoostedTreeNode(std::size_t numberLossParameters);
 
     //! Check if this is a leaf node.
     bool isLeaf() const { return m_LeftChild.is_initialized() == false; }
@@ -269,21 +100,27 @@ public:
     }
 
     //! Get the value predicted by \p tree for the feature vector \p row.
-    double value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
+    const TVector& value(const CEncodedDataFrameRowRef& row, const TNodeVec& tree) const {
         return tree[this->leafIndex(row, tree)].m_NodeValue;
     }
 
     //! Get the value of this node.
-    double value() const { return m_NodeValue; }
+    const TVector& value() const { return m_NodeValue; }
 
     //! Set the node value to \p value.
-    void value(double value) { m_NodeValue = value; }
+    void value(TVector value) { m_NodeValue = std::move(value); }
 
     //! Get the gain of the split.
     double gain() const { return m_Gain; }
 
     //! Get the total curvature at the rows below this node.
     double curvature() const { return m_Curvature; }
+
+    //! Set the number of samples to \p value.
+    void numberSamples(std::size_t value);
+
+    //! Get number of samples affected by the node.
+    std::size_t numberSamples() const;
 
     //! Get the index of the left child node.
     TNodeIndex leftChildIndex() const { return m_LeftChild.get(); }
@@ -292,12 +129,22 @@ public:
     TNodeIndex rightChildIndex() const { return m_RightChild.get(); }
 
     //! Split this node and add its child nodes to \p tree.
-    TSizeSizePr split(std::size_t splitFeature,
-                      double splitValue,
-                      bool assignMissingToLeft,
-                      double gain,
-                      double curvature,
-                      TNodeVec& tree);
+    TNodeIndexNodeIndexPr split(std::size_t splitFeature,
+                                double splitValue,
+                                bool assignMissingToLeft,
+                                double gain,
+                                double curvature,
+                                TNodeVec& tree);
+
+    //! Get the feature index of the split.
+    std::size_t splitFeature() const { return m_SplitFeature; }
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
+
+    //! Get the node's memory usage for a loss function with \p numberLossParameters
+    //! parameters.
+    static std::size_t estimateMemoryUsage(std::size_t numberLossParameters);
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -321,9 +168,10 @@ private:
     bool m_AssignMissingToLeft = true;
     TOptionalNodeIndex m_LeftChild;
     TOptionalNodeIndex m_RightChild;
-    double m_NodeValue = 0.0;
+    TVector m_NodeValue;
     double m_Gain = 0.0;
     double m_Curvature = 0.0;
+    std::size_t m_NumberSamples = 0;
 };
 
 //! \brief A boosted regression tree model.
@@ -351,20 +199,24 @@ private:
 //! encoding. We choose the "best" strategy based on simultaneously maximising measures
 //! of relevancy and redundancy in the feature set as a whole. We use the MICe statistic
 //! proposed by Reshef for this purpose. See CDataFrameCategoryEncoder for more details.
-class MATHS_EXPORT CBoostedTree final : public CDataFrameRegressionModel {
+class MATHS_EXPORT CBoostedTree final : public CDataFramePredictiveModel {
 public:
     using TStrVec = std::vector<std::string>;
-    using TRowRef = core::CDataFrame::TRowRef;
-    using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
+    using TLossFunction = boosted_tree::CLoss;
+    using TLossFunctionUPtr = std::unique_ptr<TLossFunction>;
     using TDataFramePtr = core::CDataFrame*;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
+    using THyperparameterImportanceVec =
+        std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
     class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
                                   public CBoostedTreeNode::CVisitor {
     public:
-        virtual ~CVisitor() = default;
+        ~CVisitor() override = default;
         virtual void addTree() = 0;
+        virtual void addClassificationWeights(TDoubleVec weights) = 0;
+        virtual void addLossFunction(const TLossFunction& lossFunction) = 0;
     };
 
 public:
@@ -381,22 +233,52 @@ public:
     //! \warning This can only be called after train.
     void predict() const override;
 
-    //! Write the trained model to \p writer.
+    //! Get the SHAP value calculator.
     //!
-    //! \warning This can only be called after train.
-    void write(core::CRapidJsonConcurrentLineWriter& writer) const override;
+    //! \warning Will return a nullptr if a trained model isn't available.
+    CTreeShapFeatureImportance* shap() const override;
 
-    //! Get the feature weights the model has chosen.
-    const TDoubleVec& featureWeights() const override;
+    //! Get the vector of hyperparameter importances.
+    THyperparameterImportanceVec hyperparameterImportance() const;
+
+    //! Get the number of rows used to train the model.
+    std::size_t numberTrainingRows() const override;
+
+    //! Get the fraction of data per fold used for training when tuning hyperparameters.
+    double trainFractionPerFold() const override;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;
 
-    //! Get the column containing the model's prediction for the dependent variable.
-    std::size_t columnHoldingPrediction(std::size_t numberColumns) const override;
+    //! Read the model prediction from \p row.
+    TDouble2Vec readPrediction(const TRowRef& row) const override;
+
+    //! Read the raw model prediction from \p row and make posthoc adjustments.
+    //!
+    //! For example, classification multiplicative weights are used for each
+    //! class to target different objectives (accuracy or minimum recall) when
+    //! assigning classes.
+    TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const override;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
+
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    //! Visit this tree trainer.
+    void accept(CVisitor& visitor) const;
+
+    //! \name Test Only
+    //@{
+    //! Get the implementation.
+    CBoostedTreeImpl& impl();
+
+    //! Get the weight that has been chosen for each feature for training.
+    const TDoubleVec& featureWeightsForTraining() const;
 
     //! The name of the object holding the best hyperaparameters in the state document.
     static const std::string& bestHyperparametersName();
@@ -408,21 +290,18 @@ public:
     //! A list of the names of the best individual hyperparameters in the state document.
     static TStrVec bestHyperparameterNames();
 
-    //! Persist by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    //! \return The best hyperparameters.
+    const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
-    //! Populate the object from serialized data.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    void accept(CVisitor& visitor) const;
+    //! \return The classification weights vector.
+    TDoubleVec classificationWeights() const;
+    //@}
 
 private:
     using TImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
 
 private:
     CBoostedTree(core::CDataFrame& frame,
-                 TProgressCallback recordProgress,
-                 TMemoryUsageCallback recordMemoryUsage,
                  TTrainingStateCallback recordTrainingState,
                  TImplUPtr&& impl);
 

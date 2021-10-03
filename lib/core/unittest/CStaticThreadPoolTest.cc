@@ -1,19 +1,26 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CStaticThreadPoolTest.h"
 
 #include <core/CStaticThreadPool.h>
 #include <core/CStopWatch.h>
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <atomic>
 #include <chrono>
 #include <thread>
+
+BOOST_AUTO_TEST_SUITE(CStaticThreadPoolTest)
 
 using namespace ml;
 
@@ -39,7 +46,7 @@ void slowTask(std::atomic_uint& counter) {
 // IF YOU MAKE CHANGES TO THE THREAD POOL COMMENT THEM BACK IN AND CHECK THAT YOU
 // HAVEN'T DEGRADED PERFORMANCE.
 
-void CStaticThreadPoolTest::testScheduleDelayMinimisation() {
+BOOST_AUTO_TEST_CASE(testScheduleDelayMinimisation) {
 
     // Check we have no delay in scheduling even if one thread is blocked.
 
@@ -63,12 +70,12 @@ void CStaticThreadPoolTest::testScheduleDelayMinimisation() {
 
         uint64_t timeToSchedule{watch.stop()};
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
-        //CPPUNIT_ASSERT(timeToSchedule <= 1);
+        //BOOST_TEST_REQUIRE(timeToSchedule <= 1);
     }
-    CPPUNIT_ASSERT_EQUAL(200u, counter.load());
+    BOOST_REQUIRE_EQUAL(200u, counter.load());
 }
 
-void CStaticThreadPoolTest::testThroughputStability() {
+BOOST_AUTO_TEST_CASE(testThroughputStability) {
 
     // Check for stability of throughput.
 
@@ -105,15 +112,15 @@ void CStaticThreadPoolTest::testThroughputStability() {
         //CPPUNIT_ASSERT(timeToSchedule <= 340);
     }
 
-    CPPUNIT_ASSERT_EQUAL(2000u, counter.load());
+    BOOST_REQUIRE_EQUAL(2000u, counter.load());
 
     // The best we can achieve is 2000ms ignoring all overheads.
     std::uint64_t totalTime{totalTimeWatch.stop()};
     LOG_DEBUG(<< "Total time = " << totalTime);
-    //CPPUNIT_ASSERT(totalTime <= 2400);
+    //BOOST_TEST_REQUIRE(totalTime <= 2400);
 }
 
-void CStaticThreadPoolTest::testManyTasksThroughput() {
+BOOST_AUTO_TEST_CASE(testManyTasksThroughput) {
 
     // Check overheads for many instant tasks.
 
@@ -141,15 +148,17 @@ void CStaticThreadPoolTest::testManyTasksThroughput() {
         }
     }
 
-    CPPUNIT_ASSERT_EQUAL(10000u, counter.load());
+    BOOST_REQUIRE_EQUAL(10000u, counter.load());
 
     // We have 1400ms of delays so the best we can achieve here is 700ms elapsed.
     std::uint64_t totalTime{watch.stop()};
     LOG_DEBUG(<< "Total time = " << totalTime);
-    //CPPUNIT_ASSERT(totalTime <= 780);
+    //BOOST_TEST_REQUIRE(totalTime <= 780);
 }
 
-void CStaticThreadPoolTest::testSchedulingOverhead() {
+// Disabled as the only assertion can fail due to VM scheduling when run in
+// a virtual environment
+BOOST_AUTO_TEST_CASE(testSchedulingOverhead, *boost::unit_test::disabled()) {
 
     // For a bare metal test on 2.9GHz i9 processor the time per task in the following
     // is consistently less than 0.15 microseconds for a range of task sizes. When the
@@ -180,7 +189,7 @@ void CStaticThreadPoolTest::testSchedulingOverhead() {
     }
 }
 
-void CStaticThreadPoolTest::testWithExceptions() {
+BOOST_AUTO_TEST_CASE(testWithExceptions) {
 
     // Check we don't deadlock because we don't kill worker threads if we do stupid
     // things.
@@ -202,26 +211,7 @@ void CStaticThreadPoolTest::testWithExceptions() {
     }
 
     // We didn't lose any real tasks.
-    CPPUNIT_ASSERT_EQUAL(200u, counter.load());
+    BOOST_REQUIRE_EQUAL(200u, counter.load());
 }
 
-CppUnit::Test* CStaticThreadPoolTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStaticThreadPoolTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStaticThreadPoolTest>(
-        "CStaticThreadPoolTest::testScheduleDelayMinimisation",
-        &CStaticThreadPoolTest::testScheduleDelayMinimisation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStaticThreadPoolTest>(
-        "CStaticThreadPoolTest::testThroughputStability",
-        &CStaticThreadPoolTest::testThroughputStability));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStaticThreadPoolTest>(
-        "CStaticThreadPoolTest::testManyTasksThroughput",
-        &CStaticThreadPoolTest::testManyTasksThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStaticThreadPoolTest>(
-        "CStaticThreadPoolTest::testSchedulingOverhead",
-        &CStaticThreadPoolTest::testSchedulingOverhead));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStaticThreadPoolTest>(
-        "CStaticThreadPoolTest::testWithExceptions", &CStaticThreadPoolTest::testWithExceptions));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

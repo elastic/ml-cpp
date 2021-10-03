@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CToolsTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -12,11 +15,13 @@
 #include <maths/CCompositeFunctions.h>
 #include <maths/CIntegration.h>
 #include <maths/CLinearAlgebra.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CLogTDistribution.h>
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/concepts/real_concept.hpp>
@@ -25,8 +30,13 @@
 #include <boost/math/distributions/students_t.hpp>
 #include <boost/optional.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <array>
+#include <bitset>
+#include <numeric>
+
+BOOST_AUTO_TEST_SUITE(CToolsTest)
 
 using namespace ml;
 using namespace maths;
@@ -287,12 +297,12 @@ double numericalIntervalExpectation(const DISTRIBUTION& distribution, double a, 
     CPdf<DISTRIBUTION> fx(distribution);
     maths::CCompositeFunctions::CProduct<CPdf<DISTRIBUTION>, CIdentity> xfx(fx);
     double dx = (b - a) / 10.0;
-    for (std::size_t i = 0u; i < 10; ++i, a += dx) {
+    for (std::size_t i = 0; i < 10; ++i, a += dx) {
         double fxi;
-        CPPUNIT_ASSERT(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
+        BOOST_TEST_REQUIRE(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
             fx, a, a + dx, fxi));
         double xfxi;
-        CPPUNIT_ASSERT(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
+        BOOST_TEST_REQUIRE(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
             xfx, a, a + dx, xfxi));
         numerator += xfxi;
         denominator += fxi;
@@ -338,9 +348,23 @@ public:
 private:
     const maths::CMixtureDistribution<T>& m_Mixture;
 };
+
+void printByte(const unsigned char& byte, std::ostream& o) {
+    o << std::bitset<CHAR_BIT>{byte};
 }
 
-void CToolsTest::testProbabilityOfLessLikelySample() {
+template<typename T>
+std::string printBits(const T& t) {
+    std::ostringstream o;
+    const unsigned char* byte{reinterpret_cast<const unsigned char*>(&t)};
+    for (std::size_t s = 0; s < sizeof(t); ++s, ++byte) {
+        printByte(*byte, o);
+    }
+    return o.str();
+}
+}
+
+BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
     // The probability of a lower likelihood sample x from a single
     // mode distribution is:
     //   F(a) + 1 - F(b)
@@ -367,23 +391,23 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
     p1 = numericalProbabilityOfLessLikelySample(normal, -1.0);
     p2 = probabilityOfLessLikelySample(normal, -1.0, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.01 * std::max(p1, p2));
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
     m = adapters::stationaryPoint(normal).first;
     tail = maths_t::E_UndeterminedTail;
     p1 = 1.0;
     p2 = probabilityOfLessLikelySample(normal, m, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    CPPUNIT_ASSERT_EQUAL(p1, p2);
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+    BOOST_REQUIRE_EQUAL(p1, p2);
+    BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
     tail = maths_t::E_UndeterminedTail;
     p1 = numericalProbabilityOfLessLikelySample(normal, 8.0);
     p2 = probabilityOfLessLikelySample(normal, 8.0, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.01 * std::max(p1, p2));
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
 
     LOG_DEBUG(<< "******** student's t ********");
 
@@ -393,23 +417,23 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
     p1 = numericalProbabilityOfLessLikelySample(students, -4.0);
     p2 = probabilityOfLessLikelySample(students, -4.0, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.01 * std::max(p1, p2));
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
     m = adapters::stationaryPoint(students).first;
     tail = maths_t::E_UndeterminedTail;
     p1 = 1.0;
     p2 = probabilityOfLessLikelySample(students, m, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    CPPUNIT_ASSERT_EQUAL(p1, p2);
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+    BOOST_REQUIRE_EQUAL(p1, p2);
+    BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
     tail = maths_t::E_UndeterminedTail;
     p1 = numericalProbabilityOfLessLikelySample(students, 3.0);
     p2 = probabilityOfLessLikelySample(students, 3.0, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.01 * std::max(p1, p2));
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
 
     LOG_DEBUG(<< "******** negative binomial ********");
 
@@ -434,18 +458,18 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                         p1 = CTools::safeCdfComplement(negativeBinomial, x) +
                              CTools::safePdf(negativeBinomial, x);
                         p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                        CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 1e-3 * std::max(p1, p2));
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
                     continue;
                 }
 
                 double m1 = boost::math::mode(negativeBinomial);
 
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(
                     1.0, probabilityOfLessLikelySample(negativeBinomial, m1, tail));
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
                 double offset = m1;
                 for (int l = 0; l < 5; ++l) {
@@ -455,28 +479,28 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    CPPUNIT_ASSERT(
-                        std::fabs(p1 - p2) <= 0.02 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.02 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST_REQUIRE(
+                        (std::fabs(p1 - p2) <= 0.02 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.02 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     if (offset > 0.0)
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                     if (offset == 0.0)
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
                     x = std::ceil(m1 + offset);
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.02 * std::max(p1, p2));
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
                     if (offset > 0.0)
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     if (offset == 0.0)
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                 }
 
                 double factor = 1.0;
@@ -487,33 +511,33 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    CPPUNIT_ASSERT(
-                        std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST_REQUIRE(
+                        (std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.05 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     if (x != m1)
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                     if (x == m1)
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
                     x = std::ceil(m1 * factor);
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(negativeBinomial, x);
                     p2 = probabilityOfLessLikelySample(negativeBinomial, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    CPPUNIT_ASSERT(
-                        std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                    BOOST_TEST_REQUIRE(
+                        (std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.05 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                     if (x != m1)
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     if (x == m1)
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                 }
             }
         }
@@ -530,23 +554,23 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
     p1 = -std::log(numericalProbabilityOfLessLikelySample(logNormal, 0.3));
     p2 = -std::log(probabilityOfLessLikelySample(logNormal, 0.3, tail));
     LOG_DEBUG(<< "-log(p1) = " << p1 << ", -log(p2) = " << p2);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.05 * std::max(p1, p2));
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.05 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
     m = adapters::stationaryPoint(logNormal).first;
     tail = maths_t::E_UndeterminedTail;
     p1 = 1.0;
     p2 = probabilityOfLessLikelySample(logNormal, m, tail);
     LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-    CPPUNIT_ASSERT_EQUAL(p1, p2);
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+    BOOST_REQUIRE_EQUAL(p1, p2);
+    BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
     tail = maths_t::E_UndeterminedTail;
     p1 = -std::log(numericalProbabilityOfLessLikelySample(logNormal, 12.0));
     p2 = -std::log(probabilityOfLessLikelySample(logNormal, 12.0, tail));
     LOG_DEBUG(<< "-log(p1) = " << p1 << ", -log(p2) = " << p2);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.01 * std::max(p1, p2));
-    CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.01 * std::max(p1, p2));
+    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
 
     LOG_DEBUG(<< "******** log t ********");
 
@@ -572,10 +596,10 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                             x *= 2.0;
                             p1 = cdfComplement(logt, x);
                             p2 = probabilityOfLessLikelySample(logt, x, tail);
-                            LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                            CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 1e-3 * std::max(p1, p2));
+                            LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                            BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
                         }
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                         continue;
                     }
 
@@ -587,17 +611,17 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                        CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.02 * std::max(p1, p2));
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                         x = m1 + offset;
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                        CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.02 * std::max(p1, p2));
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.02 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
 
                     double factor = 1.0;
@@ -608,28 +632,28 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                                   << ", log(p1) = " << std::log(p1)
                                   << ", log(p2) = " << std::log(p2));
-                        CPPUNIT_ASSERT(
-                            std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                            std::fabs(std::log(p1) - std::log(p2)) <=
-                                0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                        BOOST_TEST_REQUIRE(
+                            (std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                             std::fabs(std::log(p1) - std::log(p2)) <=
+                                 0.05 * std::fabs(std::min(std::log(p1), std::log(p2)))));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                         x = m1 * factor;
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(logt, x);
                         p2 = probabilityOfLessLikelySample(logt, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                                   << ", log(p1) = " << std::log(p1)
                                   << ", log(p2) = " << std::log(p2));
 
-                        CPPUNIT_ASSERT(
-                            std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
-                            std::fabs(std::log(p1) - std::log(p2)) <=
-                                0.05 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_TEST_REQUIRE(
+                            (std::fabs(p1 - p2) <= 0.01 * std::max(p1, p2) ||
+                             std::fabs(std::log(p1) - std::log(p2)) <=
+                                 0.05 * std::fabs(std::min(std::log(p1), std::log(p2)))));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
                 }
             }
@@ -656,9 +680,9 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                         x *= 2.0;
                         p1 = CTools::safeCdfComplement(gamma, x);
                         p2 = probabilityOfLessLikelySample(gamma, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
-                        CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 1e-3 * std::max(p1, p2));
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                        LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
                     continue;
                 }
@@ -674,27 +698,27 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(gamma, x);
                     p2 = probabilityOfLessLikelySample(gamma, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    CPPUNIT_ASSERT(
-                        std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                    BOOST_TEST_REQUIRE(
+                        (std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.01 * std::fabs(std::min(std::log(p1), std::log(p2)))));
+                    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                     double y = (1.0 + offset) * m1;
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(gamma, y);
                     p2 = probabilityOfLessLikelySample(gamma, y, tail);
-                    LOG_DEBUG(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    CPPUNIT_ASSERT(
-                        std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                    BOOST_TEST_REQUIRE(
+                        (std::fabs(p1 - p2) <= 0.06 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.01 * std::fabs(std::min(std::log(p1), std::log(p2)))));
+                    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                 }
 
                 double factor = 1.0;
@@ -705,27 +729,27 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(gamma, x);
                     p2 = probabilityOfLessLikelySample(gamma, x, tail);
-                    LOG_DEBUG(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "x = " << x << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    CPPUNIT_ASSERT(
-                        std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                    BOOST_TEST_REQUIRE(
+                        (std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.01 * std::fabs(std::min(std::log(p1), std::log(p2)))));
+                    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
 
                     double y = factor * m1;
                     tail = maths_t::E_UndeterminedTail;
                     p1 = numericalProbabilityOfLessLikelySample(gamma, y);
                     p2 = probabilityOfLessLikelySample(gamma, y, tail);
-                    LOG_DEBUG(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
+                    LOG_TRACE(<< "y = " << y << ", p1 = " << p1 << ", p2 = " << p2
                               << ", log(p1) = " << std::log(p1)
                               << ", log(p2) = " << std::log(p2));
-                    CPPUNIT_ASSERT(
-                        std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
-                        std::fabs(std::log(p1) - std::log(p2)) <=
-                            0.01 * std::fabs(std::min(std::log(p1), std::log(p2))));
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                    BOOST_TEST_REQUIRE(
+                        (std::fabs(p1 - p2) <= 0.1 * std::max(p1, p2) ||
+                         std::fabs(std::log(p1) - std::log(p2)) <=
+                             0.01 * std::fabs(std::min(std::log(p1), std::log(p2)))));
+                    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                 }
             }
         }
@@ -751,10 +775,10 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = 1.0;
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
+                        LOG_TRACE(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
                                   << ", p1 = " << p1 << ", p2 = " << p2);
-                        CPPUNIT_ASSERT_EQUAL(p1, p2);
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                        BOOST_REQUIRE_EQUAL(p1, p2);
+                        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     }
                 } else if (alphas[i] <= 1.0 && betas[j] >= 1.0) {
                     // Monotone decreasing.
@@ -763,10 +787,10 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = CTools::safeCdfComplement(beta, x);
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
+                        LOG_TRACE(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
                                   << ", p1 = " << p1 << ", p2 = " << p2);
-                        CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 1e-3 * std::max(p1, p2));
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                     }
                 } else if (alphas[i] >= 1.0 && betas[j] <= 1.0) {
                     // Monotone increasing.
@@ -775,10 +799,10 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = CTools::safeCdf(beta, x);
                         p2 = probabilityOfLessLikelySample(beta, x, tail);
-                        LOG_DEBUG(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
+                        LOG_TRACE(<< "x = " << x << ", f(x) = " << CTools::safePdf(beta, x)
                                   << ", p1 = " << p1 << ", p2 = " << p2);
-                        CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 1e-3 * std::max(p1, p2));
-                        CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 1e-3 * std::max(p1, p2));
+                        BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                     }
                 } else {
                     double stationaryPoint = adapters::stationaryPoint(beta).first;
@@ -793,29 +817,29 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(beta, xMinus);
                         p2 = probabilityOfLessLikelySample(beta, xMinus, tail);
-                        LOG_DEBUG(<< "x- = " << xMinus << ", p1 = " << p1
+                        LOG_TRACE(<< "x- = " << xMinus << ", p1 = " << p1
                                   << ", p2 = " << p2 << ", log(p1) = " << log(p1)
                                   << ", log(p2) = " << std::log(p2));
-                        CPPUNIT_ASSERT(
-                            std::fabs(p1 - p2) <= 0.05 * std::max(p1, p2) ||
-                            std::fabs(std::log(p1) - std::log(p2)) <
-                                0.25 * std::fabs(std::min(std::log(p1), std::log(p2))));
+                        BOOST_TEST_REQUIRE(
+                            (std::fabs(p1 - p2) <= 0.05 * std::max(p1, p2) ||
+                             std::fabs(std::log(p1) - std::log(p2)) <
+                                 0.25 * std::fabs(std::min(std::log(p1), std::log(p2)))));
                         if (maximum)
-                            CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                            BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                         if (!maximum)
-                            CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                            BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
 
                         epsPlus /= 2.0;
                         double xPlus = stationaryPoint + epsPlus;
                         tail = maths_t::E_UndeterminedTail;
                         p1 = numericalProbabilityOfLessLikelySample(beta, xPlus);
                         p2 = probabilityOfLessLikelySample(beta, xPlus, tail);
-                        LOG_DEBUG(<< "x+ = " << xPlus << ", p1 = " << p1 << ", p2 = " << p2);
-                        CPPUNIT_ASSERT_DOUBLES_EQUAL(p1, p2, 0.05 * std::max(p1, p2));
+                        LOG_TRACE(<< "x+ = " << xPlus << ", p1 = " << p1 << ", p2 = " << p2);
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(p1, p2, 0.05 * std::max(p1, p2));
                         if (maximum)
-                            CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                            BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                         if (!maximum)
-                            CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                            BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     }
                 }
             }
@@ -830,8 +854,8 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
         p1 = 1.0;
         p2 = probabilityOfLessLikelySample(beta, mode, tail);
         LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-        CPPUNIT_ASSERT_EQUAL(p1, p2);
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+        BOOST_REQUIRE_EQUAL(p1, p2);
+        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
     }
     {
         // x at minimum
@@ -841,12 +865,12 @@ void CToolsTest::testProbabilityOfLessLikelySample() {
         p1 = 0.0;
         p2 = probabilityOfLessLikelySample(beta, mode, tail);
         LOG_DEBUG(<< "p1 = " << p1 << ", p2 = " << p2);
-        CPPUNIT_ASSERT_EQUAL(p1, p2);
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+        BOOST_REQUIRE_EQUAL(p1, p2);
+        BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
     }
 }
 
-void CToolsTest::testIntervalExpectation() {
+BOOST_AUTO_TEST_CASE(testIntervalExpectation) {
     // We check the expectations agree with numerical integration
     // and also some corner cases. Specifically, that we handle
     // +/- infinity correctly and the also the case that a and b
@@ -863,23 +887,23 @@ void CToolsTest::testIntervalExpectation() {
         expected = numericalIntervalExpectation(normal, 0.0, 12.0);
         actual = expectation(normal, 0.0, 12.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = numericalIntervalExpectation(normal, -40.0, 13.0);
         actual = expectation(normal, boost::numeric::bounds<double>::lowest(), 13.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = 7.0;
         actual = expectation(normal, 7.0, 7.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
 
         expected = 8.1;
         actual = expectation(normal, 8.1,
                              8.1 * (1.0 + std::numeric_limits<double>::epsilon()));
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
     }
 
     LOG_DEBUG(<< "*** Log-Normal ***");
@@ -888,23 +912,23 @@ void CToolsTest::testIntervalExpectation() {
         expected = numericalIntervalExpectation(logNormal, 0.5, 7.0);
         actual = expectation(logNormal, 0.5, 7.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = numericalIntervalExpectation(logNormal, 0.0, 9.0);
         actual = expectation(logNormal, boost::numeric::bounds<double>::lowest(), 9.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = 6.0;
         actual = expectation(logNormal, 6.0, 6.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
 
         expected = 8.1;
         actual = expectation(logNormal, 8.1,
                              8.1 * (1.0 + std::numeric_limits<double>::epsilon()));
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
     }
 
     LOG_DEBUG(<< "*** Gamma ***");
@@ -913,27 +937,27 @@ void CToolsTest::testIntervalExpectation() {
         expected = numericalIntervalExpectation(gamma, 0.5, 4.0);
         actual = expectation(gamma, 0.5, 4.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = numericalIntervalExpectation(gamma, 0.0, 5.0);
         actual = expectation(gamma, boost::numeric::bounds<double>::lowest(), 5.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-5 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
 
         expected = 6.0;
         actual = expectation(gamma, 6.0, 6.0);
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
 
         expected = 8.1;
         actual = expectation(gamma, 8.1,
                              8.1 * (1.0 + std::numeric_limits<double>::epsilon()));
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-12 * expected);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
     }
 }
 
-void CToolsTest::testMixtureProbabilityOfLessLikelySample() {
+BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
@@ -949,17 +973,17 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample() {
     TDoubleVec weights;
     rng.generateUniformSamples(1.0, 10.0, n, weights);
 
-    for (std::size_t i = 4u; i <= 20; i += 4) {
+    for (std::size_t i = 4; i <= 20; i += 4) {
         LOG_DEBUG(<< "*** modes = " << i << " ***");
 
         TMeanAccumulator meanError;
         TMeanAccumulator meanLogError;
-        for (std::size_t j = 0u; j < n - i; j += i) {
+        for (std::size_t j = 0; j < n - i; j += i) {
             TDoubleVec modeWeights;
             std::vector<boost::math::normal> modes;
             double a = std::numeric_limits<double>::max();
             double b = -std::numeric_limits<double>::max();
-            for (std::size_t k = 0u; k < i; ++k) {
+            for (std::size_t k = 0; k < i; ++k) {
                 modeWeights.push_back(weights[j + k]);
                 modes.push_back(boost::math::normal(means[j + k], sd[j + k]));
                 a = std::min(a, means[j + k]);
@@ -967,7 +991,7 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample() {
             }
 
             maths::CMixtureDistribution<boost::math::normal> mixture(modeWeights, modes);
-            for (std::size_t k = 0u; k < x.size(); ++k) {
+            for (std::size_t k = 0; k < x.size(); ++k) {
                 double logFx = maths::pdf(mixture, x[k]);
                 if (logFx == 0.0) {
                     logFx = 10.0 * core::constants::LOG_MIN_DOUBLE;
@@ -977,7 +1001,7 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample() {
 
                 maths::CTools::CMixtureProbabilityOfLessLikelySample calculator(
                     i, x[k], logFx, a, b);
-                for (std::size_t l = 0u; l < modeWeights.size(); ++l) {
+                for (std::size_t l = 0; l < modeWeights.size(); ++l) {
                     calculator.addMode((mixture.weights())[l],
                                        boost::math::mean(modes[l]),
                                        boost::math::standard_deviation(modes[l]));
@@ -989,10 +1013,10 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample() {
                 maths::CEqualWithTolerance<double> equal(
                     maths::CToleranceTypes::E_AbsoluteTolerance, 0.5);
                 double xleft;
-                CPPUNIT_ASSERT(calculator.leftTail(logPdf, 10, equal, xleft));
+                BOOST_TEST_REQUIRE(calculator.leftTail(logPdf, 10, equal, xleft));
                 pTails += maths::cdf(mixture, xleft);
                 double xright;
-                CPPUNIT_ASSERT(calculator.rightTail(logPdf, 10, equal, xright));
+                BOOST_TEST_REQUIRE(calculator.rightTail(logPdf, 10, equal, xright));
                 pTails += maths::cdfComplement(mixture, xright);
 
                 double p = pTails + calculator.calculate(logPdf, pTails);
@@ -1007,20 +1031,18 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample() {
                     pExpected += pi;
                 }
 
-                if (j % 50 == 0) {
-                    LOG_DEBUG(<< "pTails = " << pTails);
-                    LOG_DEBUG(<< "x = " << x[k] << ", log(f(x)) = " << logFx
-                              << ", P(x) = " << p << ", expected P(x) = " << pExpected);
-                }
+                LOG_TRACE(<< "pTails = " << pTails);
+                LOG_TRACE(<< "x = " << x[k] << ", log(f(x)) = " << logFx
+                          << ", P(x) = " << p << ", expected P(x) = " << pExpected);
 
-                CPPUNIT_ASSERT(pExpected > 0.0);
+                BOOST_TEST_REQUIRE(pExpected > 0.0);
                 if (pExpected > 0.1) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(pExpected, p, 0.12);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(pExpected, p, 0.12);
                 } else if (pExpected > 1e-10) {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(pExpected), std::log(p),
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(pExpected), std::log(p),
                                                  0.15 * std::fabs(std::log(pExpected)));
                 } else {
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(pExpected), std::log(p),
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(pExpected), std::log(p),
                                                  0.015 * std::fabs(std::log(pExpected)));
                 }
                 meanError.add(std::fabs(p - pExpected));
@@ -1032,102 +1054,43 @@ void CToolsTest::testMixtureProbabilityOfLessLikelySample() {
 
         LOG_DEBUG(<< "meanError    = " << maths::CBasicStatistics::mean(meanError));
         LOG_DEBUG(<< "meanLogError = " << maths::CBasicStatistics::mean(meanLogError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.005);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanLogError) < 0.03);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.005);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogError) < 0.03);
     }
 }
 
-void CToolsTest::testAnomalyScore() {
+BOOST_AUTO_TEST_CASE(testAnomalyScore) {
     // Test p = inverseAnomalyScore(anomalyScore(p))
 
     double p = 0.04;
-    for (std::size_t i = 0u; i < 305; ++i, p *= 0.1) {
+    for (std::size_t i = 0; i < 305; ++i, p *= 0.1) {
         double anomalyScore = CTools::anomalyScore(p);
         LOG_DEBUG(<< "p = " << p << ", anomalyScore = " << anomalyScore);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(p, CTools::inverseAnomalyScore(anomalyScore), 1e-3 * p);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(p, CTools::inverseAnomalyScore(anomalyScore), 1e-3 * p);
     }
 }
 
-void CToolsTest::testSpread() {
-    double period = 86400.0;
-    {
-        double raw[] = {15.0,    120.0,   4500.0,  9000.0, 25700.0,
-                        43100.0, 73000.0, 74000.0, 84300.0};
-        double separation = 20.0;
-        TDoubleVec points(std::begin(raw), std::end(raw));
-        std::string expected = core::CContainerPrinter::print(points);
-        CTools::spread(0.0, period, separation, points);
-        CPPUNIT_ASSERT_EQUAL(expected, core::CContainerPrinter::print(points));
-        separation = 200.0;
-        expected = "[0, 200, 4500, 9000, 25700, 43100, 73000, 74000, 84300]";
-        CTools::spread(0.0, period, separation, points);
-        LOG_DEBUG(<< "spread = " << core::CContainerPrinter::print(points));
-        CPPUNIT_ASSERT_EQUAL(expected, core::CContainerPrinter::print(points));
-    }
-    {
-        double raw[] = {150.0,   170.0,   4500.0,  4650.0,  4700.0,  4800.0,
-                        73000.0, 73150.0, 73500.0, 73600.0, 73800.0, 74000.0};
-        double separation = 126.0;
-        std::string expected = "[97, 223, 4473.5, 4599.5, 4725.5, 4851.5, 73000, 73150, 73487, 73613, 73800, 74000]";
-        TDoubleVec points(std::begin(raw), std::end(raw));
-        CTools::spread(0.0, period, separation, points);
-        LOG_DEBUG(<< "spread = " << core::CContainerPrinter::print(points));
-        CPPUNIT_ASSERT_EQUAL(expected, core::CContainerPrinter::print(points));
-    }
-    {
-        CRandomNumbers rng;
-        for (std::size_t i = 0u; i < 100; ++i) {
-            TDoubleVec origSamples;
-            rng.generateUniformSamples(1000.0, static_cast<double>(period) - 1000.0,
-                                       100, origSamples);
-            TDoubleVec samples(origSamples);
-            CTools::spread(0.0, period, 150.0, samples);
-
-            std::sort(origSamples.begin(), origSamples.end());
-            double eps = 1e-3;
-            double dcost = (samples[0] + eps - origSamples[0]) *
-                               (samples[0] + eps - origSamples[0]) -
-                           (samples[0] - eps - origSamples[0]) *
-                               (samples[0] - eps - origSamples[0]);
-            for (std::size_t j = 1u; j < samples.size(); ++j) {
-                CPPUNIT_ASSERT(samples[j] - samples[j - 1] >= 150.0 - eps);
-                dcost += (samples[j] + eps - origSamples[j]) *
-                             (samples[j] + eps - origSamples[j]) -
-                         (samples[j] - eps - origSamples[j]) *
-                             (samples[j] - eps - origSamples[j]);
-            }
-            dcost /= 2.0 * eps;
-            LOG_DEBUG(<< "d(cost)/dx = " << dcost);
-            CPPUNIT_ASSERT(std::fabs(dcost) < 2e-6);
-        }
-    }
-}
-
-void CToolsTest::testFastLog() {
+BOOST_AUTO_TEST_CASE(testFastLog) {
     test::CRandomNumbers rng;
 
     // Small
     {
         TDoubleVec x;
         rng.generateUniformSamples(-100.0, 0.0, 10000, x);
-        for (std::size_t i = 0u; i < x.size(); ++i) {
-            if (i % 100 == 0) {
-                LOG_DEBUG(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i] << ", fast log(x) = "
-                          << maths::CTools::fastLog(std::exp(x[i])));
-            }
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
+        for (std::size_t i = 0; i < x.size(); ++i) {
+            LOG_TRACE(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i]
+                      << ", fast log(x) = " << maths::CTools::fastLog(std::exp(x[i])));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
         }
     }
     // Mid
     {
         TDoubleVec x;
         rng.generateUniformSamples(1.0, 1e6, 10000, x);
-        for (std::size_t i = 0u; i < x.size(); ++i) {
-            if (i % 100 == 0) {
-                LOG_DEBUG(<< "x = " << x[i] << ", log(x) = " << std::log(x[i])
-                          << ", fast log(x) = " << maths::CTools::fastLog(x[i]));
-            }
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(x[i]),
+        for (std::size_t i = 0; i < x.size(); ++i) {
+            LOG_TRACE(<< "x = " << x[i] << ", log(x) = " << std::log(x[i])
+                      << ", fast log(x) = " << maths::CTools::fastLog(x[i]));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(x[i]),
                                          maths::CTools::fastLog(x[i]), 5e-5);
         }
     }
@@ -1135,17 +1098,15 @@ void CToolsTest::testFastLog() {
     {
         TDoubleVec x;
         rng.generateUniformSamples(20.0, 80.0, 10000, x);
-        for (std::size_t i = 0u; i < x.size(); ++i) {
-            if (i % 100 == 0) {
-                LOG_DEBUG(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i] << ", fast log(x) = "
-                          << maths::CTools::fastLog(std::exp(x[i])));
-            }
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
+        for (std::size_t i = 0; i < x.size(); ++i) {
+            LOG_TRACE(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i]
+                      << ", fast log(x) = " << maths::CTools::fastLog(std::exp(x[i])));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
         }
     }
 }
 
-void CToolsTest::testMiscellaneous() {
+BOOST_AUTO_TEST_CASE(testMiscellaneous) {
     double x_[] = {0.0, 3.2, 2.1, -1.8, 4.5};
 
     maths::CVectorNx1<double, 5> x(x_, x_ + 5);
@@ -1158,19 +1119,18 @@ void CToolsTest::testMiscellaneous() {
         {0.0, 3.0, 2.1, 0.0, 3.0},  {0.5, 2.5, 2.1, 0.5, 2.5},
         {1.0, 2.0, 2.0, 1.0, 2.0},  {1.5, 1.5, 1.5, 1.5, 1.5}};
 
-    for (std::size_t i = 0u; a <= b; ++i) {
+    for (std::size_t i = 0; a <= b; ++i) {
         maths::CVectorNx1<double, 5> expect(expected[i]);
         maths::CVectorNx1<double, 5> actual = maths::CTools::truncate(x, a, b);
 
-        LOG_DEBUG(<< "truncated = " << actual);
-        CPPUNIT_ASSERT_EQUAL(expect, actual);
+        BOOST_REQUIRE_EQUAL(expect, actual);
 
         a = a + maths::CVectorNx1<double, 5>(0.5);
         b = b - maths::CVectorNx1<double, 5>(0.5);
     }
 }
 
-void CToolsTest::testLgamma() {
+BOOST_AUTO_TEST_CASE(testLgamma) {
     std::array<double, 8> testData = {{3.5, 0.125, -0.125, 0.000244140625, 1.3552527156068805e-20,
                                        4.95547e+25, 5.01753e+25, 8.64197e+25}};
 
@@ -1182,56 +1142,110 @@ void CToolsTest::testLgamma() {
          45.7477139169563926657247066032141447067260742187500,
          2.882355039447984e+27, 2.919076782442754e+27, 5.074673490557339e+27}};
 
-    for (std::size_t i = 0u; i < testData.size(); ++i) {
+    for (std::size_t i = 0; i < testData.size(); ++i) {
         double actual;
         double expected = expectedData[i];
-        CPPUNIT_ASSERT(maths::CTools::lgamma(testData[i], actual, true));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-5 * expected);
+        BOOST_TEST_REQUIRE(maths::CTools::lgamma(testData[i], actual, true));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-5 * expected);
     }
 
     double result;
-    CPPUNIT_ASSERT(maths::CTools::lgamma(0, result, false));
-    CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE(maths::CTools::lgamma(0, result, false));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    CPPUNIT_ASSERT((maths::CTools::lgamma(0, result, true) == false));
-    CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE((maths::CTools::lgamma(0, result, true) == false));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    CPPUNIT_ASSERT((maths::CTools::lgamma(-1, result, false)));
-    CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE((maths::CTools::lgamma(-1, result, false)));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    CPPUNIT_ASSERT((maths::CTools::lgamma(-1, result, true) == false));
-    CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE((maths::CTools::lgamma(-1, result, true) == false));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    CPPUNIT_ASSERT((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
-                                          result, false)));
-    CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE(
+        (maths::CTools::lgamma(std::numeric_limits<double>::max() - 1, result, false)));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 
-    CPPUNIT_ASSERT((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
-                                          result, true) == false));
-    CPPUNIT_ASSERT_EQUAL(result, std::numeric_limits<double>::infinity());
+    BOOST_TEST_REQUIRE((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
+                                              result, true) == false));
+    BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 }
 
-CppUnit::Test* CToolsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CToolsTest");
+BOOST_AUTO_TEST_CASE(testSoftmax) {
+    // Test some invariants and that std::vector and maths::CDenseVector versions agree.
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
-        "CToolsTest::testProbabilityOfLessLikelySample",
-        &CToolsTest::testProbabilityOfLessLikelySample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
-        "CToolsTest::testIntervalExpectation", &CToolsTest::testIntervalExpectation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
-        "CToolsTest::testMixtureProbabilityOfLessLikelySample",
-        &CToolsTest::testMixtureProbabilityOfLessLikelySample));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
-        "CToolsTest::testAnomalyScore", &CToolsTest::testAnomalyScore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
-        "CToolsTest::testSpread", &CToolsTest::testSpread));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
-        "CToolsTest::testFastLog", &CToolsTest::testFastLog));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
-        "CToolsTest::testMiscellaneous", &CToolsTest::testMiscellaneous));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CToolsTest>(
-        "CToolsTest::testLgamma", &CToolsTest::testLgamma));
+    using TDoubleVector = maths::CDenseVector<double>;
 
-    return suiteOfTests;
+    test::CRandomNumbers rng;
+
+    TDoubleVec z;
+    for (std::size_t t = 0; t < 100; ++t) {
+
+        rng.generateUniformSamples(-3.0, 3.0, 5, z);
+        TDoubleVec p{z};
+        CTools::inplaceSoftmax(p);
+
+        BOOST_REQUIRE_CLOSE(1.0, std::accumulate(p.begin(), p.end(), 0.0), 1e-6);
+        BOOST_TEST_REQUIRE(*std::min_element(p.begin(), p.end()) >= 0.0);
+
+        TDoubleVector p_{TDoubleVector::fromStdVector(z)};
+        CTools::inplaceSoftmax(p_);
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_CLOSE(p[i], p_[i], 1e-6);
+        }
+    }
 }
+
+BOOST_AUTO_TEST_CASE(testLogSoftmax) {
+    // Test some invariants and that std::vector and maths::CDenseVector versions agree.
+
+    using TDoubleVector = maths::CDenseVector<double>;
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec z;
+    for (std::size_t t = 0; t < 100; ++t) {
+
+        rng.generateUniformSamples(-3.0, 3.0, 5, z);
+        TDoubleVec p{z};
+        CTools::inplaceSoftmax(p);
+        TDoubleVec logP{z};
+        CTools::inplaceLogSoftmax(logP);
+
+        BOOST_TEST_REQUIRE(*std::max_element(logP.begin(), logP.end()) <= 0.0);
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_CLOSE(std::log(p[i]), logP[i], 1e-6);
+        }
+
+        TDoubleVector logP_{TDoubleVector::fromStdVector(z)};
+        CTools::inplaceLogSoftmax(logP_);
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_CLOSE(logP[i], logP_[i], 1e-6);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testStable) {
+    // Test the bit representation of the stable log and exp of some random values.
+    // This will fail if they're different on any of our target platforms.
+
+    BOOST_REQUIRE_EQUAL("1001000010101011111010010001000011111110001100011111001110111111",
+                        printBits(CTools::stableLog(0.301283021)));
+    BOOST_REQUIRE_EQUAL("1001010011010100101100111011101001100110101100010010110101000000",
+                        printBits(CTools::stableLog(2803801.9332)));
+    BOOST_REQUIRE_EQUAL("1100010011111111100101000001110111100000001011010001001101000000",
+                        printBits(CTools::stableLog(120.880233)));
+    BOOST_REQUIRE_EQUAL("1110111001101001111010100000001100101010100100110000011001000000",
+                        printBits(CTools::stableLog(16.808042323)));
+
+    BOOST_REQUIRE_EQUAL("1000000001000110101011010011001110111111101111000001000101000000",
+                        printBits(CTools::stableExp(1.48937498342)));
+    BOOST_REQUIRE_EQUAL("1101111011000110011111000001010001101011111111000011000001000000",
+                        printBits(CTools::stableExp(2.832390)));
+    BOOST_REQUIRE_EQUAL("0101111001100101111110101101101100100100111001101001001100111111",
+                        printBits(CTools::stableExp(-3.94080233)));
+    BOOST_REQUIRE_EQUAL("1111100000011010010001001000000100011011010100100000010101000000",
+                        printBits(CTools::stableExp(0.98023840)));
+}
+
+BOOST_AUTO_TEST_SUITE_END()

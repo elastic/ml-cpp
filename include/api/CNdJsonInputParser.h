@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_api_CNdJsonInputParser_h
 #define INCLUDED_ml_api_CNdJsonInputParser_h
@@ -51,38 +56,53 @@ public:
     //! generated.
     CNdJsonInputParser(std::istream& strmIn, bool allDocsSameStructure = false);
 
-    //! Read records from the stream.  The supplied reader function is called
-    //! once per record.  If the supplied reader function returns false, reading
-    //! will stop.  This method keeps reading until it reaches the end of the
-    //! stream or an error occurs.  If it successfully reaches the end of
-    //! the stream it returns true, otherwise it returns false.
-    bool readStreamIntoMaps(const TMapReaderFunc& readerFunc) override;
+    //! As above but also provide some mutable field names
+    CNdJsonInputParser(TStrVec mutableFieldNames,
+                       std::istream& strmIn,
+                       bool allDocsSameStructure = false);
 
     //! Read records from the stream.  The supplied reader function is called
     //! once per record.  If the supplied reader function returns false, reading
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) override;
+    bool readStreamIntoMaps(const TMapReaderFunc& readerFunc,
+                            const TRegisterMutableFieldFunc& registerFunc) override;
+
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
+    //! stream or an error occurs.  If it successfully reaches the end of
+    //! the stream it returns true, otherwise it returns false.
+    bool readStreamIntoVecs(const TVecReaderFunc& readerFunc,
+                            const TRegisterMutableFieldFunc& registerFunc) override;
+
+    // Bring the other overloads into scope
+    using CInputParser::readStreamIntoMaps;
+    using CInputParser::readStreamIntoVecs;
 
 private:
     //! Attempt to parse the current working record into data fields.
     bool parseDocument(char* begin, rapidjson::Document& document);
 
-    bool decodeDocumentWithCommonFields(const rapidjson::Document& document,
+    bool decodeDocumentWithCommonFields(const TRegisterMutableFieldFunc& registerFunc,
+                                        const rapidjson::Document& document,
                                         TStrVec& fieldNames,
                                         TStrRefVec& fieldValRefs,
                                         TStrStrUMap& recordFields);
 
-    bool decodeDocumentWithCommonFields(const rapidjson::Document& document,
+    bool decodeDocumentWithCommonFields(const TRegisterMutableFieldFunc& registerFunc,
+                                        const rapidjson::Document& document,
                                         TStrVec& fieldNames,
                                         TStrVec& fieldValues);
 
-    bool decodeDocumentWithArbitraryFields(const rapidjson::Document& document,
+    bool decodeDocumentWithArbitraryFields(const TRegisterMutableFieldFunc& registerFunc,
+                                           const rapidjson::Document& document,
                                            TStrVec& fieldNames,
                                            TStrStrUMap& recordFields);
 
-    bool decodeDocumentWithArbitraryFields(const rapidjson::Document& document,
+    bool decodeDocumentWithArbitraryFields(const TRegisterMutableFieldFunc& registerFunc,
+                                           const rapidjson::Document& document,
                                            TStrVec& fieldNames,
                                            TStrVec& fieldValues);
 

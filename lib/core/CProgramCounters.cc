@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CProgramCounters.h>
@@ -37,7 +42,7 @@ const std::string VALUE_TAG("b");
 void addStringInt(TGenericLineWriter& writer,
                   const std::string& name,
                   const std::string& description,
-                  uint64_t counter) {
+                  std::uint64_t counter) {
     writer.StartObject();
 
     writer.String(NAME_TYPE);
@@ -53,22 +58,26 @@ void addStringInt(TGenericLineWriter& writer,
 }
 }
 
+CProgramCounters::CCacheManager::~CCacheManager() {
+    CProgramCounters::clearCachedCounters();
+}
+
 CProgramCounters& CProgramCounters::instance() {
     return ms_Instance;
 }
 
 CProgramCounters::TCounter& CProgramCounters::counter(counter_t::ECounterTypes counterType) {
-    size_t counterPos = static_cast<size_t>(counterType);
+    std::size_t counterPos = static_cast<std::size_t>(counterType);
     return counter(counterPos);
 }
 
-CProgramCounters::TCounter& CProgramCounters::counter(size_t index) {
+CProgramCounters::TCounter& CProgramCounters::counter(std::size_t index) {
     if (index >= ms_Instance.m_Counters.size()) {
         // If the enum values in ECounterTypes have been maintained in a contiguous block then logically this
         // can only happen when restoring state that contains one or more counters that are unknown to this version of the application.
         // As this doesn't indicate a problem with the analytics in the running application we simply log a warning.
         // A dummy counter is returned in which to store the unknown counter.
-        LOG_WARN(<< "Bad index " << index);
+        LOG_WARN(<< "Bad counter index " << index);
         return ms_Instance.m_DummyCounter;
     }
     return ms_Instance.m_Counters[index];
@@ -79,7 +88,7 @@ void CProgramCounters::cacheCounters() {
         // The cache should only exist for a very brief period of time,
         // while persistence is in operation.
         // Elsewhere there are checks to ensure that only one persistence
-        // operation occurs at any point in time,so the cache _should_ be
+        // operation occurs at any point in time, so the cache _should_ be
         // empty at this point.  Warn if that isn't the case.
         LOG_WARN(<< "Overwriting existing counters cache.");
 
@@ -88,6 +97,15 @@ void CProgramCounters::cacheCounters() {
     }
     ms_Instance.m_Cache.assign(ms_Instance.m_Counters.begin(),
                                ms_Instance.m_Counters.end());
+    LOG_TRACE(<< "Cached " << ms_Instance.m_Cache.size() << " counters.");
+}
+
+void CProgramCounters::clearCachedCounters() {
+    if (ms_Instance.m_Cache.empty() == false) {
+        LOG_TRACE(<< "Clearing cache of " << ms_Instance.m_Cache.size() << " counters.");
+        // clear the cache
+        TUInt64Vec().swap(ms_Instance.m_Cache);
+    }
 }
 
 void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inserter) {
@@ -101,7 +119,7 @@ void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inser
         if (ms_Instance.m_ProgramCounterTypes.size() > 0) {
             for (const auto& counterType : ms_Instance.m_ProgramCounterTypes) {
                 const auto& counter = container[counterType];
-                if (counter != uint64_t{0}) {
+                if (counter != 0) {
                     inserter.insertValue(KEY_TAG, counterType);
                     inserter.insertValue(VALUE_TAG, counter);
                 }
@@ -118,28 +136,28 @@ void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inser
         }
     };
 
-    if (ms_Instance.m_Cache.size() == 0) {
+    if (ms_Instance.m_Cache.empty()) {
         // Programmatic error, cacheCounters has not been called immediately prior to this call.
         // Choose to populate the persisted counters with the live values.
         LOG_ERROR(<< "Unexpectedly empty counters cache.");
 
         staticsAcceptPersistInserter(ms_Instance.m_Counters);
     } else {
+        LOG_TRACE(<< "Persisting " << ms_Instance.m_Cache.size() << " cached counters.");
         staticsAcceptPersistInserter(ms_Instance.m_Cache);
 
         // clear the cache
-        TUInt64Vec().swap(ms_Instance.m_Cache);
+        clearCachedCounters();
     }
 }
 
 bool CProgramCounters::staticsAcceptRestoreTraverser(CStateRestoreTraverser& traverser) {
-    uint64_t value = 0;
-    int key = 0;
+    std::uint64_t value{0};
+    int key{-1};
     do {
         const std::string& name = traverser.name();
         if (name == KEY_TAG) {
-            value = 0;
-            if (CStringUtils::stringToType(traverser.value(), key) == false) {
+            if (CStringUtils::stringToType(traverser.value(), key) == false || key < 0) {
                 LOG_ERROR(<< "Invalid key value in " << traverser.value());
                 return false;
             }
@@ -157,9 +175,13 @@ bool CProgramCounters::staticsAcceptRestoreTraverser(CStateRestoreTraverser& tra
                     value = 0;
                 }
             }
-            counter(key) = value;
-            key = 0;
-            value = 0;
+            if (key < 0) {
+                LOG_ERROR(<< "Found counter value without corresponding key "
+                          << traverser.value());
+            } else {
+                counter(key) = value;
+                key = -1;
+            }
         }
     } while (traverser.next());
 

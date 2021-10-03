@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CProbabilityAndInfluenceCalculatorTest.h"
 
 #include <core/CLogger.h>
 #include <core/Constants.h>
@@ -19,14 +22,18 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CStringStore.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CProbabilityAndInfluenceCalculatorTest)
 
 using namespace ml;
 
@@ -124,9 +131,11 @@ void computeProbability(core_t::TTime time,
                         const maths::CModel& model,
                         double& probability,
                         TTail2Vec& tail) {
+    TDouble2Vec varianceScale;
+    model.seasonalWeight(0.0, time, varianceScale);
     maths_t::TDouble2VecWeightsAry weight(
         maths_t::CUnitWeights::unit<TDouble2Vec>(sample.size()));
-    maths_t::setSeasonalVarianceScale(model.seasonalWeight(0.0, time), weight);
+    maths_t::setSeasonalVarianceScale(varianceScale, weight);
     maths::CModelProbabilityParams params;
     params.addCalculation(calculation).addWeights(weight);
     maths::SModelProbabilityResult result;
@@ -153,9 +162,11 @@ void computeInfluences(CALCULATOR& calculator,
                        const std::string& influencerName,
                        const TStrCRefDouble1VecDoublePrPrVec& influencerValues,
                        TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
-    model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+    TDouble2Vec varianceScale;
+    model.seasonalWeight(0.0, time, varianceScale);
     maths_t::TDouble2VecWeightsAry weight(maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-    maths_t::setSeasonalVarianceScale(model.seasonalWeight(0.0, time), weight);
+    maths_t::setSeasonalVarianceScale(varianceScale, weight);
+    model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
     model::CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
     params.s_Feature = feature;
     params.s_Model = &model;
@@ -224,7 +235,7 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
     maths::CJointProbabilityOfLessLikelySamples pJoint;
     maths::CProbabilityOfExtremeSample pExtreme;
 
-    for (std::size_t i = 0u; i < values.size(); ++i) {
+    for (std::size_t i = 0; i < values.size(); ++i) {
         std::size_t dimension{values[i].size() - 1};
         TTime2Vec1Vec time{TTime2Vec{time_}};
         TDouble2Vec1Vec value{TDouble2Vec(&values[i][0], &values[i][dimension])};
@@ -266,19 +277,19 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
     }
 
     double probability;
-    CPPUNIT_ASSERT(calculator.calculate(probability, influences));
+    BOOST_TEST_REQUIRE(calculator.calculate(probability, influences));
 
     double pj, pe;
-    CPPUNIT_ASSERT(pJoint.calculate(pj));
-    CPPUNIT_ASSERT(pExtreme.calculate(pe));
+    BOOST_TEST_REQUIRE(pJoint.calculate(pj));
+    BOOST_TEST_REQUIRE(pExtreme.calculate(pe));
 
     LOG_DEBUG(<< "  probability = " << probability
               << ", expected probability = " << std::min(pj, pe));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(std::min(pe, pj), probability, 1e-10);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(std::min(pe, pj), probability, 1e-10);
 }
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator() {
+BOOST_AUTO_TEST_CASE(testInfluenceUnavailableCalculator) {
     test::CRandomNumbers rng;
 
     core_t::TTime bucketLength{1800};
@@ -308,7 +319,7 @@ void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(
                           influencerValues, influences);
 
         LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(influences));
-        CPPUNIT_ASSERT(influences.empty());
+        BOOST_TEST_REQUIRE(influences.empty());
     }
     {
         LOG_DEBUG(<< "Test correlated");
@@ -323,7 +334,7 @@ void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(
 
         TDoubleVec samples_;
         rng.generateNormalSamples(10.0, 1.0, 50, samples_);
-        for (std::size_t i = 0u; i < samples_.size(); ++i) {
+        for (std::size_t i = 0; i < samples_.size(); ++i) {
             prior.addSamples({TDouble10Vec(2, samples_[i])},
                              maths_t::CUnitWeights::singleUnit<maths_t::TDouble10Vec>(2));
         }
@@ -343,11 +354,11 @@ void CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator(
                           influencerValues, influences);
 
         LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(influences));
-        CPPUNIT_ASSERT(influences.empty());
+        BOOST_TEST_REQUIRE(influences.empty());
     }
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator() {
+BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
     test::CRandomNumbers rng;
 
     model::CLogProbabilityComplementInfluenceCalculator calculator;
@@ -381,8 +392,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1)]"),
-                                 core::CContainerPrinter::print(influences));
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
+                                core::CContainerPrinter::print(influences));
         }
         {
             LOG_DEBUG(<< "No trend");
@@ -411,8 +422,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i3), 1)]"),
-                                 core::CContainerPrinter::print(influences));
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i3), 1)]"),
+                                core::CContainerPrinter::print(influences));
         }
         {
             LOG_DEBUG(<< "Trend");
@@ -441,7 +452,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
             std::string expectedInfluencerValues[]{"i1", "i2"};
             TDoubleVecVec expectedInfluences{{1.0, 1.0}, {0.0, 0.0}, {1.0, 1.0}, {0.8, 0.6}};
 
-            for (std::size_t i = 0u; i < testTimes.size(); ++i) {
+            for (std::size_t i = 0; i < testTimes.size(); ++i) {
                 core_t::TTime time = testTimes[i];
                 LOG_DEBUG(<< "  time = " << time);
                 LOG_DEBUG(<< "  baseline = " << model.predict(time));
@@ -458,10 +469,10 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                for (std::size_t j = 0u; j < influences.size(); ++j) {
-                    CPPUNIT_ASSERT_EQUAL(expectedInfluencerValues[j],
-                                         *influences[j].first.second);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedInfluences[i][j],
+                for (std::size_t j = 0; j < influences.size(); ++j) {
+                    BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
+                                        *influences[j].first.second);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j],
                                                  influences[j].second, 0.06);
                 }
             }
@@ -487,7 +498,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
             covariances[0][1] = covariances[1][0] = 4.0;
             TDoubleVecVec samples_;
             rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
-            for (std::size_t i = 0u; i < samples_.size(); ++i) {
+            for (std::size_t i = 0; i < samples_.size(); ++i) {
                 prior.addSamples({TDouble10Vec(samples_[i])},
                                  maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
             }
@@ -508,8 +519,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                               tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1)]"),
-                                 core::CContainerPrinter::print(influences));
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
+                                core::CContainerPrinter::print(influences));
         }
         /*{
             LOG_DEBUG(<< "No trend");
@@ -526,7 +537,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
             covariances[0][1] = covariances[1][0] = 4.0;
             TDoubleVecVec samples_;
             rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
-            for (std::size_t i = 0u; i < samples_.size(); ++i) {
+            for (std::size_t i = 0; i < samples_.size(); ++i) {
                 prior.addSamples({TDouble10Vec(samples_[i])},
                                  maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
             }
@@ -549,7 +560,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                               tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i3), 1)]"),
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i3), 1)]"),
                                  core::CContainerPrinter::print(influences));
         }
         {
@@ -592,7 +603,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                     {0.8, 0.65}
                 };
 
-            for (std::size_t i = 0u; i < boost::size(testTimes); ++i)
+            for (std::size_t i = 0; i < boost::size(testTimes); ++i)
             {
                 core_t::TTime time = testTimes[i];
                 LOG_DEBUG(<< "  time = " << time);
@@ -642,17 +653,17 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluen
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                for (std::size_t j = 0u; j < influences.size(); ++j)
+                for (std::size_t j = 0; j < influences.size(); ++j)
                 {
-                    CPPUNIT_ASSERT_EQUAL(expectedInfluencerValues[j], *influences[j].first.second);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedInfluences[i][j], influences[j].second, 0.05);
+                    BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j], *influences[j].first.second);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j], influences[j].second, 0.05);
                 }
             }
         }*/
     }
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
+BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
     test::CRandomNumbers rng;
 
     model::CMeanInfluenceCalculator calculator;
@@ -686,8 +697,8 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1)]"),
-                                 core::CContainerPrinter::print(influences));
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
+                                core::CContainerPrinter::print(influences));
         }
         {
             LOG_DEBUG(<< "No trend");
@@ -720,8 +731,8 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1)]"),
-                                     core::CContainerPrinter::print(influences));
+                BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
+                                    core::CContainerPrinter::print(influences));
             }
             {
                 LOG_DEBUG(<< "Right tail, no clear influences");
@@ -741,7 +752,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                CPPUNIT_ASSERT(influences.empty());
+                BOOST_TEST_REQUIRE(influences.empty());
             }
             {
                 LOG_DEBUG(<< "Left tail, no clear influences");
@@ -761,7 +772,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                CPPUNIT_ASSERT(influences.empty());
+                BOOST_TEST_REQUIRE(influences.empty());
             }
             {
                 LOG_DEBUG(<< "Left tail, two influences");
@@ -782,11 +793,11 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(2), influences.size());
-                CPPUNIT_ASSERT_EQUAL(i3, *influences[0].first.second);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(0.7, influences[0].second, 0.04);
-                CPPUNIT_ASSERT_EQUAL(i1, *influences[1].first.second);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, influences[1].second, 0.03);
+                BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+                BOOST_REQUIRE_EQUAL(i3, *influences[0].first.second);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.7, influences[0].second, 0.04);
+                BOOST_REQUIRE_EQUAL(i1, *influences[1].first.second);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, influences[1].second, 0.03);
             }
         }
     }
@@ -811,7 +822,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                 covariances[0][1] = covariances[1][0] = 4.0;
                 TDoubleVecVec samples_;
                 rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
-                for (std::size_t i = 0u; i < samples_.size(); ++i) {
+                for (std::size_t i = 0; i < samples_.size(); ++i) {
                     prior.addSamples({TDouble10Vec(samples_[i])},
                                      maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
                 }
@@ -834,8 +845,8 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                               tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1)]"),
-                                 core::CContainerPrinter::print(influences));
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
+                                core::CContainerPrinter::print(influences));
         }
         /*{
             LOG_DEBUG(<< "No trend");
@@ -850,7 +861,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                 TDoubleVecVec samples_;
                 rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
                 TDouble10Vec1Vec samples;
-                for (std::size_t i = 0u; i < samples_.size(); ++i)
+                for (std::size_t i = 0; i < samples_.size(); ++i)
                 {
                     samples.push_back(samples_[i]);
                 }
@@ -888,7 +899,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1)]"),
+                BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
                                      core::CContainerPrinter::print(influences));
             }
             {
@@ -921,7 +932,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                CPPUNIT_ASSERT(influences.empty());
+                BOOST_TEST_REQUIRE(influences.empty());
             }
             {
                 LOG_DEBUG(<< "Left tail, no clear influences");
@@ -953,7 +964,7 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                CPPUNIT_ASSERT(influences.empty());
+                BOOST_TEST_REQUIRE(influences.empty());
             }
             {
                 LOG_DEBUG(<< "Left tail, two influences");
@@ -986,17 +997,17 @@ void CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator() {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(2), influences.size());
-                CPPUNIT_ASSERT_EQUAL(i1, *influences[0].first.second);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, influences[0].second, 0.04);
-                CPPUNIT_ASSERT_EQUAL(i3, *influences[1].first.second);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, influences[1].second, 0.08);
+                BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+                BOOST_REQUIRE_EQUAL(i1, *influences[0].first.second);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, influences[0].second, 0.04);
+                BOOST_REQUIRE_EQUAL(i3, *influences[1].first.second);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, influences[1].second, 0.08);
             }
         }*/
     }
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator() {
+BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     test::CRandomNumbers rng;
 
     model::CLogProbabilityInfluenceCalculator calculator;
@@ -1030,8 +1041,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1)]"),
-                                 core::CContainerPrinter::print(influences));
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
+                                core::CContainerPrinter::print(influences));
         }
         {
             LOG_DEBUG(<< "No trend");
@@ -1060,8 +1071,8 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
                               p, tail, I, influencerValues, influences);
 
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i2), 1), ((I, i3), 1)]"),
-                                 core::CContainerPrinter::print(influences));
+            BOOST_REQUIRE_EQUAL(std::string("[((I, i2), 1), ((I, i3), 1)]"),
+                                core::CContainerPrinter::print(influences));
         }
         {
             LOG_DEBUG(<< "Trend");
@@ -1091,7 +1102,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
             std::string expectedInfluencerValues[] = {"i1", "i2"};
             TDoubleVecVec expectedInfluences{{1.0, 1.0}, {1.0, 1.0}, {1.0, 1.0}, {1.0, 0.7}};
 
-            for (std::size_t i = 0u; i < testTimes.size(); ++i) {
+            for (std::size_t i = 0; i < testTimes.size(); ++i) {
                 core_t::TTime time = testTimes[i];
                 LOG_DEBUG(<< "  time = " << time);
 
@@ -1109,10 +1120,10 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
                 std::sort(influences.begin(), influences.end(),
                           maths::COrderings::SFirstLess());
-                for (std::size_t j = 0u; j < influences.size(); ++j) {
-                    CPPUNIT_ASSERT_EQUAL(expectedInfluencerValues[j],
-                                         *influences[j].first.second);
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedInfluences[i][j],
+                for (std::size_t j = 0; j < influences.size(); ++j) {
+                    BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
+                                        *influences[j].first.second);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j],
                                                  influences[j].second, 0.03);
                 }
             }
@@ -1136,7 +1147,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
     //                TDoubleVecVec samples_;
     //                rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
     //                TDouble10Vec1Vec samples;
-    //                for (std::size_t i = 0u; i < samples_.size(); ++i)
+    //                for (std::size_t i = 0; i < samples_.size(); ++i)
     //                {
     //                    samples.push_back(samples_[i]);
     //                }
@@ -1166,7 +1177,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
     //                              I, influencerValues, influences);
     //
     //            LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-    //            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1)]"),
+    //            BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1)]"),
     //                                 core::CContainerPrinter::print(influences));
     //        }
     //        {
@@ -1183,7 +1194,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
     //                TDoubleVecVec samples_;
     //                rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
     //                TDouble10Vec1Vec samples;
-    //                for (std::size_t i = 0u; i < samples_.size(); ++i)
+    //                for (std::size_t i = 0; i < samples_.size(); ++i)
     //                {
     //                    samples.push_back(samples_[i]);
     //                }
@@ -1219,7 +1230,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
     //                              I, influencerValues, influences);
     //
     //            LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-    //            CPPUNIT_ASSERT_EQUAL(std::string("[((I, i2), 1), ((I, i3), 1)]"),
+    //            BOOST_REQUIRE_EQUAL(std::string("[((I, i2), 1), ((I, i3), 1)]"),
     //                                 core::CContainerPrinter::print(influences));
     //        }
     //        {
@@ -1266,7 +1277,7 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
     //                    {1.0, 0.85}
     //                };
     //
-    //            for (std::size_t i = 0u; i < boost::size(testTimes); ++i)
+    //            for (std::size_t i = 0; i < boost::size(testTimes); ++i)
     //            {
     //                core_t::TTime time = testTimes[i];
     //                LOG_DEBUG(<< "  time = " << time);
@@ -1316,18 +1327,18 @@ void CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculat
     //                                  I, influencerValues, influences);
     //
     //                LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-    //                for (std::size_t j = 0u; j < influences.size(); ++j)
+    //                for (std::size_t j = 0; j < influences.size(); ++j)
     //                {
-    //                    CPPUNIT_ASSERT_EQUAL(expectedInfluencerValues[j],
+    //                    BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
     //                                         *influences[j].first.second);
-    //                    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedInfluences[i][j], influences[j].second, 0.04);
+    //                    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j], influences[j].second, 0.04);
     //                }
     //            }
     //        }
     //    }
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator() {
+BOOST_AUTO_TEST_CASE(testIndicatorInfluenceCalculator) {
     {
         LOG_DEBUG(<< "Test univariate");
 
@@ -1349,8 +1360,8 @@ void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator() 
                           {maths_t::E_RightTail}, I, influencerValues, influences);
 
         LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(influences));
-        CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
-                             core::CContainerPrinter::print(influences));
+        BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
+                            core::CContainerPrinter::print(influences));
     }
     {
         LOG_DEBUG(<< "Test correlated");
@@ -1381,12 +1392,12 @@ void CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator() 
                           influencerValues, influences);
 
         LOG_DEBUG(<< "influences = " << core::CContainerPrinter::print(influences));
-        CPPUNIT_ASSERT_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
-                             core::CContainerPrinter::print(influences));
+        BOOST_REQUIRE_EQUAL(std::string("[((I, i1), 1), ((I, i2), 1), ((I, i3), 1)]"),
+                            core::CContainerPrinter::print(influences));
     }
 }
 
-void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator() {
+BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
     test::CRandomNumbers rng;
 
     core_t::TTime bucketLength{600};
@@ -1444,8 +1455,8 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
         maths::CJointProbabilityOfLessLikelySamples pJoint;
         maths::CProbabilityOfExtremeSample pExtreme;
 
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < features.size(); ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < features.size(); ++j) {
                 TDouble2Vec1Vec value{TDouble2Vec(&values[i + 5 * j][0],
                                                   &values[i + 5 * j][1 + j])};
                 maths_t::TDouble2VecWeightsAry weights(
@@ -1486,15 +1497,15 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
 
         double probability;
         TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
-        CPPUNIT_ASSERT(calculator.calculate(probability, influences));
+        BOOST_TEST_REQUIRE(calculator.calculate(probability, influences));
 
         double pj, pe;
-        CPPUNIT_ASSERT(pJoint.calculate(pj));
-        CPPUNIT_ASSERT(pExtreme.calculate(pe));
+        BOOST_TEST_REQUIRE(pJoint.calculate(pj));
+        BOOST_TEST_REQUIRE(pExtreme.calculate(pe));
 
         LOG_DEBUG(<< "  probability = " << probability
                   << ", expected probability = " << std::min(pj, pe));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(std::min(pe, pj), probability, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(std::min(pe, pj), probability, 1e-10);
     }
     {
         LOG_DEBUG(<< "influencing joint probability");
@@ -1513,14 +1524,14 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
              {{TStrCRef(i2), make_pair(7.0, 12.0, 1.5)}},
              {{TStrCRef(i2), make_pair(9.0, 14.0, 1.0)}},
              {{TStrCRef(i1), make_pair(17.0, 22.0, 2.0)}}}};
-        for (std::size_t i = 0u; i < features.size(); ++i) {
+        for (std::size_t i = 0; i < features.size(); ++i) {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
-            CPPUNIT_ASSERT_EQUAL(i1, *influences[0].first.second);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.95, influences[0].second, 0.06);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), influences.size());
+            BOOST_REQUIRE_EQUAL(i1, *influences[0].first.second);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.95, influences[0].second, 0.06);
         }
     }
     {
@@ -1541,14 +1552,14 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
              {{TStrCRef(i1), make_pair(10.8, 15.8, 1.0)}},
              {{TStrCRef(i2), make_pair(19.0, 24.0, 1.0)}}}};
 
-        for (std::size_t i = 0u; i < features.size(); ++i) {
+        for (std::size_t i = 0; i < features.size(); ++i) {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
-            CPPUNIT_ASSERT_EQUAL(i2, *influences[0].first.second);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, influences[0].second, 0.03);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), influences.size());
+            BOOST_REQUIRE_EQUAL(i2, *influences[0].first.second);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, influences[0].second, 0.03);
         }
     }
     {
@@ -1580,9 +1591,9 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                                             univariateModel, now, values[0],
                                             influencerValues[0], influences);
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::size_t(1), influences.size());
-            CPPUNIT_ASSERT_EQUAL(i1, *influences[0].first.second);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.75, influences[0].second, 0.05);
+            BOOST_REQUIRE_EQUAL(std::size_t(1), influences.size());
+            BOOST_REQUIRE_EQUAL(i1, *influences[0].first.second);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.75, influences[0].second, 0.05);
         }
         {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
@@ -1590,37 +1601,13 @@ void CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculat
                                             multivariateModel, now, values[1],
                                             influencerValues[1], influences);
             LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-            CPPUNIT_ASSERT_EQUAL(std::size_t(2), influences.size());
-            CPPUNIT_ASSERT_EQUAL(i2, *influences[0].first.second);
-            CPPUNIT_ASSERT_EQUAL(i1, *influences[1].first.second);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, influences[0].second, 1e-3);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, influences[1].second, 1e-3);
+            BOOST_REQUIRE_EQUAL(std::size_t(2), influences.size());
+            BOOST_REQUIRE_EQUAL(i2, *influences[0].first.second);
+            BOOST_REQUIRE_EQUAL(i1, *influences[1].first.second);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, influences[0].second, 1e-3);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, influences[1].second, 1e-3);
         }
     }
 }
 
-CppUnit::Test* CProbabilityAndInfluenceCalculatorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CProbabilityAndInfluenceCalculatorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator",
-        &CProbabilityAndInfluenceCalculatorTest::testInfluenceUnavailableCalculator));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator",
-        &CProbabilityAndInfluenceCalculatorTest::testLogProbabilityComplementInfluenceCalculator));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator",
-        &CProbabilityAndInfluenceCalculatorTest::testMeanInfluenceCalculator));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator",
-        &CProbabilityAndInfluenceCalculatorTest::testLogProbabilityInfluenceCalculator));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator",
-        &CProbabilityAndInfluenceCalculatorTest::testIndicatorInfluenceCalculator));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityAndInfluenceCalculatorTest>(
-        "CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator",
-        &CProbabilityAndInfluenceCalculatorTest::testProbabilityAndInfluenceCalculator));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

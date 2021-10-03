@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <model/CSimpleCountDetector.h>
 
@@ -12,14 +17,13 @@
 namespace ml {
 namespace model {
 
-CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
-                                           model_t::ESummaryMode summaryMode,
+CSimpleCountDetector::CSimpleCountDetector(model_t::ESummaryMode summaryMode,
                                            const CAnomalyDetectorModelConfig& modelConfig,
                                            CLimits& limits,
                                            const std::string& partitionFieldValue,
                                            core_t::TTime firstTime,
                                            const TModelFactoryCPtr& modelFactory)
-    : CAnomalyDetector(detectorIndex, limits, modelConfig, partitionFieldValue, firstTime, modelFactory),
+    : CAnomalyDetector(limits, modelConfig, partitionFieldValue, firstTime, modelFactory),
       m_FieldValues(summaryMode == model_t::E_None ? 1 : 2) {
     // We use a single event rate detector to maintain the counts, and for the
     // special case of the simple count detector, we'll create it before we've

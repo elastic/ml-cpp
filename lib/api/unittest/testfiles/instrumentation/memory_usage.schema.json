@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/instrumentation/memory_usage.schema.json",
+  "description": "Data frame analytics peak memory usage",
+  "title": "analytics_memory_usage",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "description": "Data Frame Analytics Job ID. Populated by Java.",
+      "type": "string"
+    },
+    "timestamp": {
+      "description": "Milliseconds since Unix Epoch",
+      "type": "integer"
+    },
+    "peak_usage_bytes": {
+      "description": "Peak memory usage for the data frame analytics job in bytes",
+      "type": "integer"
+    },
+    "status": {
+      "type":"string",
+      "enum": ["ok", "hard-limit"],
+      "description": "Describes how current memory usage relates to the configured memory limit. If the limit is exceeded, 'status' is 'hard-limit'."
+    },
+    "memory_reestimate_bytes": {
+      "type": "integer",
+      "description": "If 'status' is set to 'hard-limit', this optional field provides the new advised memory limit."
+    }
+  },
+  "required": [
+    "peak_usage_bytes",
+    "status"
+  ],
+  "additionalProperties": false
+}

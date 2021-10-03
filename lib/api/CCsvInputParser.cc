@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CCsvInputParser.h>
 
@@ -9,43 +14,34 @@
 #include <core/CTimeUtils.h>
 
 #include <algorithm>
+#include <cstring>
 #include <istream>
-
-#include <string.h>
 
 namespace ml {
 namespace api {
 
 // Initialise statics
-const char CCsvInputParser::COMMA(',');
-const char CCsvInputParser::QUOTE('"');
-const char CCsvInputParser::RECORD_END('\n');
-const char CCsvInputParser::STRIP_BEFORE_END('\r');
-const size_t CCsvInputParser::WORK_BUFFER_SIZE(131072); // 128kB
-
-CCsvInputParser::CCsvInputParser(const std::string& input, char separator)
-    : CInputParser(), m_StringInputBuf(input), m_StrmIn(m_StringInputBuf),
-      m_WorkBuffer(nullptr), m_WorkBufferPtr(nullptr), m_WorkBufferEnd(nullptr),
-      m_NoMoreRecords(false), m_LineParser(separator) {
-}
+const char CCsvInputParser::RECORD_END{'\n'};
+const char CCsvInputParser::STRIP_BEFORE_END{'\r'};
+const std::size_t CCsvInputParser::WORK_BUFFER_SIZE{131072}; // 128kB
 
 CCsvInputParser::CCsvInputParser(std::istream& strmIn, char separator)
-    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(nullptr),
-      m_WorkBufferPtr(nullptr), m_WorkBufferEnd(nullptr),
-      m_NoMoreRecords(false), m_LineParser(separator) {
+    : CInputParser{TStrVec{}}, m_StrmIn{strmIn}, m_LineParser(separator) {
 }
 
-const std::string& CCsvInputParser::fieldNameStr() const {
-    return m_FieldNameStr;
+CCsvInputParser::CCsvInputParser(TStrVec mutableFieldNames, std::istream& strmIn, char separator)
+    : CInputParser{std::move(mutableFieldNames)}, m_StrmIn{strmIn},
+      m_LineParser(separator) {
 }
 
-bool CCsvInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
+bool CCsvInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc,
+                                         const TRegisterMutableFieldFunc& registerFunc) {
 
     if (this->readFieldNames() == false) {
         return false;
     }
 
-    TStrVec& fieldNames = this->fieldNames();
+    TStrVec& fieldNames{this->fieldNames()};
 
     // We reuse the same field map for every record
     TStrStrUMap recordFields;
@@ -58,26 +54,34 @@ bool CCsvInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
         fieldValRefs.emplace_back(recordFields[name]);
     }
 
+    this->registerMutableFields(registerFunc, recordFields);
+
     return this->parseRecordLoop(
         [&readerFunc, &recordFields] { return readerFunc(recordFields); }, fieldValRefs);
 }
 
-bool CCsvInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
+bool CCsvInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
+                                         const TRegisterMutableFieldFunc& registerFunc) {
 
     if (this->readFieldNames() == false) {
         return false;
     }
 
-    TStrVec& fieldNames = this->fieldNames();
+    TStrVec& fieldNames{this->fieldNames()};
+    std::size_t parsedFieldCount{fieldNames.size()};
 
     // We reuse the same value vector for every record
-    TStrVec fieldValues(fieldNames.size());
+    TStrVec fieldValues{fieldNames.size()};
+
+    this->registerMutableFields(registerFunc, fieldNames, fieldValues);
+
+    TStrRefVec fieldValRefs{fieldValues.begin(), fieldValues.begin() + parsedFieldCount};
 
     return parseRecordLoop(
         [&readerFunc, &fieldNames, &fieldValues] {
             return readerFunc(fieldNames, fieldValues);
         },
-        fieldValues);
+        fieldValRefs);
 }
 
 bool CCsvInputParser::readFieldNames() {
@@ -85,22 +89,21 @@ bool CCsvInputParser::readFieldNames() {
     m_WorkBufferEnd = m_WorkBufferPtr;
     m_NoMoreRecords = false;
 
-    if (this->gotFieldNames() == false) {
-        if (this->parseCsvRecordFromStream() == false) {
-            LOG_ERROR(<< "Failed to parse CSV record from stream");
-            return false;
-        }
-
-        if (this->parseFieldNames() == false) {
-            LOG_ERROR(<< "Failed to parse field names from stream");
-            return false;
-        }
+    if (this->parseCsvRecordFromStream() == false) {
+        LOG_ERROR(<< "Failed to parse CSV record from stream");
+        return false;
     }
+
+    if (this->parseFieldNames() == false) {
+        LOG_ERROR(<< "Failed to parse field names from stream");
+        return false;
+    }
+
     return true;
 }
 
-template<typename READER_FUNC, typename STR_VEC>
-bool CCsvInputParser::parseRecordLoop(const READER_FUNC& readerFunc, STR_VEC& workSpace) {
+template<typename READER_FUNC>
+bool CCsvInputParser::parseRecordLoop(const READER_FUNC& readerFunc, TStrRefVec& workSpace) {
 
     while (!m_NoMoreRecords) {
         if (this->parseCsvRecordFromStream() == false) {
@@ -140,10 +143,10 @@ bool CCsvInputParser::parseCsvRecordFromStream() {
         m_WorkBufferEnd = m_WorkBufferPtr;
     }
 
-    bool startOfRecord(true);
-    size_t quoteCount(0);
+    bool startOfRecord{true};
+    std::size_t quoteCount{0};
     for (;;) {
-        size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
+        std::ptrdiff_t avail{m_WorkBufferEnd - m_WorkBufferPtr};
         if (avail == 0) {
             if (m_StrmIn.eof()) {
                 // We have no buffered data and there's no more to read, so stop
@@ -160,13 +163,13 @@ bool CCsvInputParser::parseCsvRecordFromStream() {
                 return false;
             }
 
-            avail = static_cast<size_t>(m_StrmIn.gcount());
+            avail = static_cast<std::ptrdiff_t>(m_StrmIn.gcount());
             m_WorkBufferEnd = m_WorkBufferPtr + avail;
         }
 
-        const char* delimPtr(reinterpret_cast<const char*>(
-            ::memchr(m_WorkBufferPtr, RECORD_END, avail)));
-        const char* endPtr(m_WorkBufferEnd);
+        const char* delimPtr{reinterpret_cast<const char*>(
+            std::memchr(m_WorkBufferPtr, RECORD_END, avail))};
+        const char* endPtr{m_WorkBufferEnd};
         if (delimPtr != nullptr) {
             endPtr = delimPtr;
             if (endPtr > m_WorkBufferPtr && *(endPtr - 1) == STRIP_BEFORE_END) {
@@ -179,7 +182,7 @@ bool CCsvInputParser::parseCsvRecordFromStream() {
             startOfRecord = false;
         } else {
             if (endPtr == m_WorkBufferPtr) {
-                size_t strLen(m_CurrentRowStr.length());
+                std::size_t strLen{m_CurrentRowStr.length()};
                 if (strLen > 0 && m_CurrentRowStr[strLen - 1] == STRIP_BEFORE_END) {
                     m_CurrentRowStr.erase(strLen - 1);
                 }
@@ -188,7 +191,7 @@ bool CCsvInputParser::parseCsvRecordFromStream() {
             }
         }
 
-        quoteCount += std::count(m_WorkBufferPtr, endPtr, QUOTE);
+        quoteCount += std::count(m_WorkBufferPtr, endPtr, core::CCsvLineParser::QUOTE);
         if (delimPtr != nullptr) {
             m_WorkBufferPtr = delimPtr + 1;
 
@@ -213,7 +216,7 @@ bool CCsvInputParser::parseFieldNames() {
     LOG_TRACE(<< "Parse field names");
 
     m_FieldNameStr.clear();
-    TStrVec& fieldNames = this->fieldNames();
+    TStrVec& fieldNames{this->fieldNames()};
     fieldNames.clear();
 
     m_LineParser.reset(m_CurrentRowStr);
@@ -239,15 +242,13 @@ bool CCsvInputParser::parseFieldNames() {
     }
 
     m_FieldNameStr = m_CurrentRowStr;
-    this->gotFieldNames(true);
 
     LOG_TRACE(<< "Field names " << m_FieldNameStr);
 
     return true;
 }
 
-template<typename STR_VEC>
-bool CCsvInputParser::parseDataRecord(STR_VEC& values) {
+bool CCsvInputParser::parseDataRecord(TStrRefVec& values) {
     for (auto& value : values) {
         if (m_LineParser.parseNext(value) == false) {
             LOG_ERROR(<< "Failed to get next CSV token");
@@ -257,124 +258,13 @@ bool CCsvInputParser::parseDataRecord(STR_VEC& values) {
 
     if (!m_LineParser.atEnd()) {
         std::string extraField;
-        size_t numExtraFields(0);
+        std::size_t numExtraFields{0};
         while (m_LineParser.parseNext(extraField) == true) {
             ++numExtraFields;
         }
         LOG_ERROR(<< "Data record contains " << numExtraFields << " more fields than header:"
                   << core_t::LINE_ENDING << m_CurrentRowStr << core_t::LINE_ENDING
                   << "and:" << core_t::LINE_ENDING << m_FieldNameStr);
-        return false;
-    }
-
-    this->gotData(true);
-
-    return true;
-}
-
-CCsvInputParser::CCsvLineParser::CCsvLineParser(char separator)
-    : m_Separator(separator), m_SeparatorAfterLastField(false), m_Line(nullptr),
-      m_LineCurrent(nullptr), m_LineEnd(nullptr), m_WorkFieldEnd(nullptr),
-      m_WorkFieldCapacity(0) {
-}
-
-void CCsvInputParser::CCsvLineParser::reset(const std::string& line) {
-    m_SeparatorAfterLastField = false;
-
-    m_Line = &line;
-    m_LineCurrent = line.data();
-    m_LineEnd = line.data() + line.length();
-
-    // Ensure that m_WorkField is big enough to hold the entire record, even if
-    // it turns out to be a single field - this avoids the need to check if it's
-    // big enough when it's populated (unlike std::vector or std::string)
-    size_t minCapacity(line.length() + 1);
-    if (m_WorkFieldCapacity < minCapacity) {
-        m_WorkFieldCapacity = minCapacity;
-        m_WorkField.reset(new char[minCapacity]);
-    }
-    m_WorkFieldEnd = m_WorkField.get();
-}
-
-bool CCsvInputParser::CCsvLineParser::parseNext(std::string& value) {
-    if (m_Line == nullptr) {
-        return false;
-    }
-    if (this->parseNextToken(m_LineEnd, m_LineCurrent) == false) {
-        return false;
-    }
-    value.assign(m_WorkField.get(), m_WorkFieldEnd - m_WorkField.get());
-    return true;
-}
-
-bool CCsvInputParser::CCsvLineParser::atEnd() const {
-    return m_LineCurrent == m_LineEnd;
-}
-
-bool CCsvInputParser::CCsvLineParser::parseNextToken(const char* end, const char*& current) {
-    m_WorkFieldEnd = m_WorkField.get();
-
-    if (current == end) {
-        // Allow one empty token at the end of a line
-        if (!m_SeparatorAfterLastField) {
-            LOG_ERROR(<< "Trying to read too many fields from record:" << core_t::LINE_ENDING
-                      << *m_Line);
-            return false;
-        }
-        m_SeparatorAfterLastField = false;
-        return true;
-    }
-
-    bool insideQuotes(false);
-    do {
-        if (insideQuotes) {
-            if (*current == QUOTE) {
-                // We need to look at the character after the quote
-                ++current;
-                if (current == end) {
-                    m_SeparatorAfterLastField = false;
-                    return true;
-                }
-
-                // The quoting state needs to be reversed UNLESS there are two
-                // adjacent quotes
-                if (*current != QUOTE) {
-                    insideQuotes = false;
-
-                    // Cater for the case where the character after the quote is
-                    // the separator
-                    if (*current == m_Separator) {
-                        ++current;
-                        m_SeparatorAfterLastField = true;
-                        return true;
-                    }
-                }
-            }
-
-            *(m_WorkFieldEnd++) = *current;
-        } else {
-            if (*current == m_Separator) {
-                ++current;
-                m_SeparatorAfterLastField = true;
-                return true;
-            }
-
-            if (*current == QUOTE) {
-                // We're not currently inside quotes so a quote puts us inside
-                // quotes regardless of the next character, and we never want to
-                // include this quote in the field value
-                insideQuotes = true;
-            } else {
-                *(m_WorkFieldEnd++) = *current;
-            }
-        }
-    } while (++current != end);
-
-    m_SeparatorAfterLastField = false;
-
-    // Inconsistency if the last character of the string is an unmatched quote
-    if (insideQuotes) {
-        LOG_ERROR(<< "Unmatched final quote in record:" << core_t::LINE_ENDING << *m_Line);
         return false;
     }
 

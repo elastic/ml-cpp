@@ -1,69 +1,51 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CConfigUpdaterTest.h"
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDetectionRule.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CConfigUpdater.h>
-#include <api/CFieldConfig.h>
 
-#include <boost/property_tree/ptree.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <sstream>
 #include <string>
 
+using TStrSet = ml::model::CAnomalyDetectorModelConfig::TStrSet;
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TStrSet::iterator)
+
+BOOST_AUTO_TEST_SUITE(CConfigUpdaterTest)
+
 using namespace ml;
 using namespace api;
 
-CppUnit::Test* CConfigUpdaterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConfigUpdaterTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed",
-        &CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenUnknownStanzas",
-        &CConfigUpdaterTest::testUpdateGivenUnknownStanzas));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenModelPlotConfig",
-        &CConfigUpdaterTest::testUpdateGivenModelPlotConfig));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenDetectorRules",
-        &CConfigUpdaterTest::testUpdateGivenDetectorRules));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex",
-        &CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenFilters", &CConfigUpdaterTest::testUpdateGivenFilters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConfigUpdaterTest>(
-        "CConfigUpdaterTest::testUpdateGivenScheduledEvents",
-        &CConfigUpdaterTest::testUpdateGivenScheduledEvents));
-    return suiteOfTests;
-}
-
-void CConfigUpdaterTest::testUpdateGivenUpdateCannotBeParsed() {
-    CFieldConfig fieldConfig;
+BOOST_AUTO_TEST_CASE(testUpdateGivenUpdateCannotBeParsed) {
+    CAnomalyJobConfig jobConfig;
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
-    CConfigUpdater configUpdater(fieldConfig, modelConfig);
-    CPPUNIT_ASSERT(configUpdater.update("this is invalid") == false);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
+    BOOST_TEST_REQUIRE(configUpdater.update("this is invalid") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenUnknownStanzas() {
-    CFieldConfig fieldConfig;
+BOOST_AUTO_TEST_CASE(testUpdateGivenUnknownStanzas) {
+    CAnomalyJobConfig jobConfig;
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
-    CConfigUpdater configUpdater(fieldConfig, modelConfig);
-    CPPUNIT_ASSERT(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
+    BOOST_TEST_REQUIRE(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
-    using TStrSet = model::CAnomalyDetectorModelConfig::TStrSet;
-
-    CFieldConfig fieldConfig;
+BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
+    CAnomalyJobConfig jobConfig;
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     modelConfig.modelPlotBoundsPercentile(95.0);
@@ -72,190 +54,193 @@ void CConfigUpdaterTest::testUpdateGivenModelPlotConfig() {
     terms.insert(std::string("b"));
     modelConfig.modelPlotTerms(terms);
 
-    std::string configUpdate("[modelPlotConfig]\nboundspercentile = 83.5\nterms = c,d\n");
+    std::string configUpdate{"{\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true,\"terms\":\"c,d\"}}"};
 
-    CConfigUpdater configUpdater(fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate));
-    CPPUNIT_ASSERT_EQUAL(83.5, modelConfig.modelPlotBoundsPercentile());
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
+    BOOST_REQUIRE_EQUAL(true, modelConfig.modelPlotEnabled());
+    BOOST_REQUIRE_EQUAL(true, modelConfig.modelPlotAnnotationsEnabled());
 
     terms = modelConfig.modelPlotTerms();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), terms.size());
-    CPPUNIT_ASSERT(terms.find(std::string("c")) != terms.end());
-    CPPUNIT_ASSERT(terms.find(std::string("d")) != terms.end());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), terms.size());
+    BOOST_TEST_REQUIRE(terms.find(std::string("c")) != terms.end());
+    BOOST_TEST_REQUIRE(terms.find(std::string("d")) != terms.end());
 }
 
-void CConfigUpdaterTest::testUpdateGivenDetectorRules() {
-    CFieldConfig fieldConfig;
+BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
+    CAnomalyJobConfig jobConfig;
     std::string originalRules0("[{\"actions\":[\"skip_result\"],");
     originalRules0 += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
     std::string originalRules1("[{\"actions\":[\"skip_result\"],");
     originalRules1 += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"gt\",\"value\": 5.0}]}]";
-    fieldConfig.parseRules(0, originalRules0);
-    fieldConfig.parseRules(1, originalRules1);
+    jobConfig.analysisConfig().parseRules(0, originalRules0);
+    jobConfig.analysisConfig().parseRules(1, originalRules1);
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
-    std::string configUpdate0("[detectorRules]\ndetectorIndex = 0\nrulesJson = []\n");
-    std::string configUpdate1("[detectorRules]\ndetectorIndex = 1\nrulesJson = "
-                              "[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"typical\","
-                              "\"operator\":\"lt\",\"value\": 15.0}]}]");
+    std::string configUpdate0{"{\"detector_rules\": {\"detector_index\":0, \"custom_rules\":[]}}"};
+    std::string configUpdate1{"{\"detector_rules\": {\"detector_index\":1, \"custom_rules\":[{\"actions\":[\"skip_result\"], \"conditions\":[{\"applies_to\":\"typical\",\"operator\":\"lt\",\"value\": 15.0}]}]}}"};
 
-    CConfigUpdater configUpdater(fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate0));
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate1));
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate0));
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate1));
 
-    CFieldConfig::TIntDetectionRuleVecUMap::const_iterator itr =
-        fieldConfig.detectionRules().find(0);
-    CPPUNIT_ASSERT(itr->second.empty());
-    itr = fieldConfig.detectionRules().find(1);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), itr->second.size());
-    CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
-                         itr->second[0].print());
+    BOOST_REQUIRE_EQUAL(2, jobConfig.analysisConfig().detectionRules().size());
+    CAnomalyJobConfig::CAnalysisConfig::TIntDetectionRuleVecUMap::const_iterator itr =
+        jobConfig.analysisConfig().detectionRules().find(0);
+    BOOST_TEST_REQUIRE(itr->second.empty());
+    itr = jobConfig.analysisConfig().detectionRules().find(1);
+    BOOST_REQUIRE_EQUAL(std::size_t(1), itr->second.size());
+    BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
+                        itr->second[0].print());
 }
 
-void CConfigUpdaterTest::testUpdateGivenRulesWithInvalidDetectorIndex() {
-    CFieldConfig fieldConfig;
-    std::string originalRules("[{\"actions\":[\"skip_result\"],");
-    originalRules += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
-    fieldConfig.parseRules(0, originalRules);
+BOOST_AUTO_TEST_CASE(testUpdateGivenRulesWithInvalidDetectorIndex) {
+    CAnomalyJobConfig jobConfig;
+    const std::string validAnomalyJobConfigWithCustomRule{
+        "{\"job_id\":\"count_with_range\","
+        "\"analysis_config\":{\"detectors\":[{\"function\":\"count\","
+        "\"custom_rules\":[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}],"
+        "\"detector_index\":0}]},\"analysis_limits\":{\"model_memory_limit\":\"11mb\",\"categorization_examples_limit\":5},"
+        "\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"}}"};
+
+    BOOST_TEST_REQUIRE(jobConfig.parse(validAnomalyJobConfigWithCustomRule));
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
     std::string configUpdate("[detectorRules]\ndetectorIndex = invalid\nrulesJson = []\n");
 
-    CConfigUpdater configUpdater(fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate) == false);
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate) == false);
 }
 
-void CConfigUpdaterTest::testUpdateGivenFilters() {
-    CFieldConfig fieldConfig;
-    fieldConfig.processFilter("filter.filter_1", "[\"aaa\",\"bbb\"]");
-    fieldConfig.processFilter("filter.filter_2", "[\"ccc\",\"ddd\"]");
+BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
+    CAnomalyJobConfig jobConfig;
+
+    const std::string jsonFilterConfig{
+        "{\"filters\":[{\"filter_id\":\"filter_1\", \"items\":[\"aaa\",\"bbb\"]}, {\"filter_id\":\"filter_2\", \"items\":[\"ccc\",\"ddd\"]}]}"};
+
+    BOOST_TEST_REQUIRE(jobConfig.parseFilterConfig(jsonFilterConfig));
+    jobConfig.initRuleFilters();
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
-    auto ruleFilters = fieldConfig.ruleFilters();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), ruleFilters.size());
+    auto ruleFilters = jobConfig.ruleFilters();
+    BOOST_REQUIRE_EQUAL(std::size_t(2), ruleFilters.size());
 
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("aaa"));
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("bbb"));
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("ccc") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("ddd") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("aaa"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("bbb"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("ccc") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("ddd") == false);
 
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("aaa") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("bbb") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ccc"));
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ddd"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("aaa") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("bbb") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ccc"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ddd"));
 
     // Update existing ones
-    std::string configUpdate("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
+    std::string configUpdateOld("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
 
-    CConfigUpdater configUpdater(fieldConfig, modelConfig);
+    std::string configUpdate{"{\"filters\": [{\"filter_id\": \"filter_1\", \"items\":[\"ccc\", \"ddd\"]}, {\"filter_id\": \"filter_2\", \"items\":[\"aaa\", \"bbb\"]}]}"};
 
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate));
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
-    ruleFilters = fieldConfig.ruleFilters();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), ruleFilters.size());
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("aaa") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("bbb") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("ccc"));
-    CPPUNIT_ASSERT(ruleFilters["filter_1"].contains("ddd"));
+    ruleFilters = jobConfig.analysisConfig().ruleFilters();
+    BOOST_REQUIRE_EQUAL(std::size_t(2), ruleFilters.size());
 
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("aaa"));
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("bbb"));
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ccc") == false);
-    CPPUNIT_ASSERT(ruleFilters["filter_2"].contains("ddd") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("aaa") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("bbb") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("ccc"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("ddd"));
+
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("aaa"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("bbb"));
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ccc") == false);
+    BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ddd") == false);
 
     // Now update by adding a new filter
-    configUpdate = "[filters]\nfilter.filter_3=[\"new\"]\n";
-    CPPUNIT_ASSERT(configUpdater.update(configUpdate));
+    configUpdateOld = "[filters]\nfilter.filter_3=[\"new\"]\n";
+    configUpdate = "{\"filters\": [{\"filter_id\":\"filter_3\",\"items\":[\"new\"]}]}";
+    BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
-    ruleFilters = fieldConfig.ruleFilters();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), ruleFilters.size());
-    CPPUNIT_ASSERT(ruleFilters["filter_3"].contains("new"));
+    ruleFilters = jobConfig.analysisConfig().ruleFilters();
+    BOOST_REQUIRE_EQUAL(std::size_t(3), ruleFilters.size());
+    BOOST_TEST_REQUIRE(ruleFilters["filter_3"].contains("new"));
 }
 
-void CConfigUpdaterTest::testUpdateGivenScheduledEvents() {
-    std::string validRule1 =
-        "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
-        "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},"
-        "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 2.0}]}]";
-    std::string validRule2 =
-        "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
-        "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 3.0},"
-        "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 4.0}]}]";
+BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
+    const std::string validScheduledEvents{
+        "{\"events\":["
+        "{\"description\":\"old_event_1\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 2.0}]}]},"
+        "{\"description\":\"old_event_2\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 3.0},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 4.0}]}]}"
+        "]}"};
 
-    CFieldConfig fieldConfig;
+    CAnomalyJobConfig jobConfig;
 
     // Set up some events
     {
-        boost::property_tree::ptree propTree;
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.description", '\t'),
-                     "old_event_1");
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.rules", '\t'),
-                     validRule1);
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.description", '\t'),
-                     "old_event_2");
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.rules", '\t'),
-                     validRule2);
-        fieldConfig.updateScheduledEvents(propTree);
+        BOOST_TEST_REQUIRE(jobConfig.parseEventConfig(validScheduledEvents));
+        jobConfig.initScheduledEvents();
 
-        const auto& events = fieldConfig.scheduledEvents();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("old_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
-                             events[0].second.print());
-        CPPUNIT_ASSERT_EQUAL(std::string("old_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
-                             events[1].second.print());
+        const auto& events = jobConfig.analysisConfig().scheduledEvents();
+        BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
+        BOOST_REQUIRE_EQUAL(std::string("old_event_1"), events[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
+                            events[0].second.print());
+        BOOST_REQUIRE_EQUAL(std::string("old_event_2"), events[1].first);
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
+                            events[1].second.print());
     }
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
-    CConfigUpdater configUpdater(fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
     // Test an update that replaces the events
     {
-        std::stringstream configUpdate;
-        configUpdate << "[scheduledEvents]"
-                     << "\n";
-        configUpdate << "scheduledevent.0.description = new_event_1"
-                     << "\n";
-        configUpdate << "scheduledevent.0.rules = " << validRule2 << "\n";
-        configUpdate << "scheduledevent.1.description = new_event_2"
-                     << "\n";
-        configUpdate << "scheduledevent.1.rules = " << validRule1 << "\n";
+        std::string validRule1 =
+            "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
+            "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},"
+            "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 2.0}]}]";
+        std::string validRule2 =
+            "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
+            "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 3.0},"
+            "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 4.0}]}]";
 
-        CPPUNIT_ASSERT(configUpdater.update(configUpdate.str()));
+        std::string configUpdate{
+            "{\"events\": [{\"description\":\"new_event_1\", \"rules\": " + validRule2 +
+            "}, {\"description\":\"new_event_2\", \"rules\": " + validRule1 + " }] }"};
 
-        const auto& events = fieldConfig.scheduledEvents();
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), events.size());
-        CPPUNIT_ASSERT_EQUAL(std::string("new_event_1"), events[0].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
-                             events[0].second.print());
-        CPPUNIT_ASSERT_EQUAL(std::string("new_event_2"), events[1].first);
-        CPPUNIT_ASSERT_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
-                             events[1].second.print());
+        BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
+
+        const auto& events = jobConfig.analysisConfig().scheduledEvents();
+        BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
+        BOOST_REQUIRE_EQUAL(std::string("new_event_1"), events[0].first);
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
+                            events[0].second.print());
+        BOOST_REQUIRE_EQUAL(std::string("new_event_2"), events[1].first);
+        BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
+                            events[1].second.print());
     }
 
     // Now test an update that clears the events
     {
         std::stringstream configUpdate;
-        configUpdate << "[scheduledEvents]"
-                     << "\n";
-        configUpdate << "clear = true"
-                     << "\n";
+        configUpdate << "{\"events\":[]}";
 
-        CPPUNIT_ASSERT(configUpdater.update(configUpdate.str()));
+        BOOST_TEST_REQUIRE(configUpdater.update(configUpdate.str()));
 
-        const auto& events = fieldConfig.scheduledEvents();
-        CPPUNIT_ASSERT(events.empty());
+        const auto& events = jobConfig.analysisConfig().scheduledEvents();
+        BOOST_TEST_REQUIRE(events.empty());
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

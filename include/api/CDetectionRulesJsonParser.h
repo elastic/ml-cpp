@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_api_CDetectionRulesJsonParser_h
 #define INCLUDED_ml_api_CDetectionRulesJsonParser_h
@@ -31,11 +36,16 @@ public:
 
 public:
     //! Default constructor
-    CDetectionRulesJsonParser(TStrPatternSetUMap& filtersByIdMap);
+    CDetectionRulesJsonParser(const TStrPatternSetUMap& filtersByIdMap);
 
     //! Parses a string expected to contain a JSON array with
     //! detection rules and adds the rule objects into the given vector.
     bool parseRules(const std::string& json, TDetectionRuleVec& rules);
+
+    //! Parses a JSON value object expected to represent a JSON array of
+    //! detection rules. Adds rule objects to the given vector. Any error messages
+    //! are passed back in the error string.
+    bool parseRules(const rapidjson::Value& value, TDetectionRuleVec& rules, std::string& errorString);
 
 private:
     bool parseRuleScope(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
@@ -57,7 +67,7 @@ private:
 
 private:
     //! The filters per id used by categorical rule conditions.
-    TStrPatternSetUMap& m_FiltersByIdMap;
+    const TStrPatternSetUMap& m_FiltersByIdMap;
 };
 }
 }

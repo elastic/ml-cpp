@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CPackedBitVectorTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -12,15 +15,21 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <numeric>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CPackedBitVectorTest)
 
 using namespace ml;
 
 using TBoolVec = std::vector<bool>;
 using TBoolVecVec = std::vector<TBoolVec>;
+using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
@@ -40,59 +49,253 @@ std::string toBitString(const T& v) {
     }
     return result.str();
 }
+
+class CPackedBitVectorInternals : public core::CPackedBitVector {
+public:
+    static std::size_t maximumOneByteRunLength() {
+        return MAXIMUM_ONE_BYTE_RUN_LENGTH;
+    }
+    static std::size_t maximumTwoByteRunLength() {
+        return MAXIMUM_TWO_BYTE_RUN_LENGTH;
+    }
+    static std::size_t maximumThreeByteRunLength() {
+        return MAXIMUM_THREE_BYTE_RUN_LENGTH;
+    }
+    static std::size_t maximumFourByteRunLength() {
+        return MAXIMUM_FOUR_BYTE_RUN_LENGTH;
+    }
+    static void appendRun(std::size_t runLength, std::uint8_t& lastRunBytes, TUInt8Vec& runLengthBytes) {
+        core::CPackedBitVector::appendRun(runLength, lastRunBytes, runLengthBytes);
+    }
+    static void extendLastRun(std::size_t runLength, std::uint8_t& runBytes, TUInt8Vec& runLengthBytes) {
+        core::CPackedBitVector::extendLastRun(runLength, runBytes, runLengthBytes);
+    }
+    static std::uint8_t bytes(std::size_t runLength) {
+        return core::CPackedBitVector::bytes(runLength);
+    }
+    static std::size_t readLastRunLength(std::uint8_t lastRunBytes,
+                                         const TUInt8Vec& runLengthBytes) {
+        return core::CPackedBitVector::readLastRunLength(lastRunBytes, runLengthBytes);
+    }
+    static std::size_t readRunLength(TUInt8VecCItr runLengthBytes) {
+        return core::CPackedBitVector::readRunLength(runLengthBytes);
+    }
+    static std::size_t popRunLength(TUInt8VecCItr& runLengthBytes) {
+        return core::CPackedBitVector::popRunLength(runLengthBytes);
+    }
+    static void writeRunLength(std::size_t runLength, TUInt8VecItr runLengthBytes) {
+        core::CPackedBitVector::writeRunLength(runLength, runLengthBytes);
+    }
+};
 }
 
-void CPackedBitVectorTest::testCreation() {
+BOOST_AUTO_TEST_CASE(testInternals) {
+
+    using TUInt8Vec = std::vector<std::uint8_t>;
+
+    LOG_DEBUG(<< "bytes");
+
+    BOOST_REQUIRE_EQUAL(1, CPackedBitVectorInternals::bytes(1));
+    BOOST_REQUIRE_EQUAL(1, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumOneByteRunLength()));
+    BOOST_REQUIRE_EQUAL(2, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumOneByteRunLength() + 1));
+    BOOST_REQUIRE_EQUAL(2, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumTwoByteRunLength()));
+    BOOST_REQUIRE_EQUAL(3, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumTwoByteRunLength() + 1));
+    BOOST_REQUIRE_EQUAL(3, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumThreeByteRunLength()));
+    BOOST_REQUIRE_EQUAL(4, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumThreeByteRunLength() + 1));
+    BOOST_REQUIRE_EQUAL(4, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumFourByteRunLength()));
+
+    test::CRandomNumbers rng;
+    TSizeVec ranges{1, 1 << 8, 1 << 16, 1 << 24, 1 << 30};
+    TUInt8Vec runLengthBytes;
+    TSizeVec runLengths;
+
+    LOG_DEBUG(<< "read/writeRunLength");
+
+    // We test some edge cases and then do a randomized test that write followed
+    // by read is idempotent.
+
+    runLengthBytes.resize(4);
+    for (auto expectedRunLength :
+         {std::size_t{1}, CPackedBitVectorInternals::maximumOneByteRunLength(),
+          CPackedBitVectorInternals::maximumOneByteRunLength() + 1,
+          CPackedBitVectorInternals::maximumTwoByteRunLength(),
+          CPackedBitVectorInternals::maximumOneByteRunLength() + 1,
+          CPackedBitVectorInternals::maximumThreeByteRunLength(),
+          CPackedBitVectorInternals::maximumThreeByteRunLength() + 1,
+          CPackedBitVectorInternals::maximumFourByteRunLength()}) {
+        CPackedBitVectorInternals::writeRunLength(expectedRunLength,
+                                                  runLengthBytes.begin());
+        BOOST_REQUIRE_EQUAL(expectedRunLength, CPackedBitVectorInternals::readRunLength(
+                                                   runLengthBytes.begin()));
+    }
+
+    for (std::size_t i = 0; i < 1000; ++i) {
+        for (std::size_t j = 1; j < ranges.size(); ++j) {
+            rng.generateUniformSamples(ranges[j - 1], ranges[j], 20, runLengths);
+            for (auto expectedRunLength : runLengths) {
+                CPackedBitVectorInternals::writeRunLength(expectedRunLength,
+                                                          runLengthBytes.begin());
+                BOOST_REQUIRE_EQUAL(expectedRunLength, CPackedBitVectorInternals::readRunLength(
+                                                           runLengthBytes.begin()));
+            }
+        }
+    }
+
+    LOG_DEBUG(<< "readLastRunLength");
+
+    // Randomized test that write followed by read is idempotent.
+
+    for (std::size_t i = 0; i < 1000; ++i) {
+        for (std::size_t j = 1; j < ranges.size(); ++j) {
+            rng.generateUniformSamples(ranges[j - 1], ranges[j], 20, runLengths);
+            for (auto expectedRunLength : runLengths) {
+                std::uint8_t bytes{CPackedBitVectorInternals::bytes(expectedRunLength)};
+                runLengthBytes.resize(bytes);
+                CPackedBitVectorInternals::writeRunLength(expectedRunLength,
+                                                          runLengthBytes.begin());
+                BOOST_REQUIRE_EQUAL(expectedRunLength, CPackedBitVectorInternals::readLastRunLength(
+                                                           bytes, runLengthBytes));
+            }
+        }
+    }
+
+    LOG_DEBUG(<< "appendRun");
+
+    // Test we append the run length we actually added.
+
+    for (std::size_t i = 0; i < 1000; ++i) {
+        runLengthBytes.clear();
+        for (std::size_t j = 1; j < ranges.size(); ++j) {
+            rng.generateUniformSamples(ranges[j - 1], ranges[j], 1, runLengths);
+            std::uint8_t lastRunBytes;
+            CPackedBitVectorInternals::appendRun(runLengths[0], lastRunBytes, runLengthBytes);
+            BOOST_REQUIRE_EQUAL(CPackedBitVectorInternals::bytes(runLengths[0]), lastRunBytes);
+            BOOST_REQUIRE_EQUAL(runLengths[0], CPackedBitVectorInternals::readLastRunLength(
+                                                   lastRunBytes, runLengthBytes));
+        }
+    }
+
+    LOG_DEBUG(<< "extendRun");
+
+    // Test when we extend a range we get the new range we expect.
+
+    runLengthBytes.resize(4);
+
+    for (std::size_t i = 0; i < 1000; ++i) {
+        for (auto runLength :
+             {CPackedBitVectorInternals::maximumOneByteRunLength(),
+              CPackedBitVectorInternals::maximumTwoByteRunLength(),
+              CPackedBitVectorInternals::maximumThreeByteRunLength(),
+              CPackedBitVectorInternals::maximumFourByteRunLength() - 15}) {
+            runLengthBytes.clear();
+            for (int j = -10; j < 10; ++j) {
+                for (int k = 1; k < 5; ++k) {
+                    std::uint8_t lastRunBytes;
+                    CPackedBitVectorInternals::appendRun(runLength + j, lastRunBytes,
+                                                         runLengthBytes);
+                    CPackedBitVectorInternals::extendLastRun(k, lastRunBytes, runLengthBytes);
+                    BOOST_REQUIRE_EQUAL(runLength + j + k,
+                                        CPackedBitVectorInternals::readLastRunLength(
+                                            lastRunBytes, runLengthBytes));
+                }
+            }
+        }
+        for (std::size_t j = 1; j < ranges.size(); ++j) {
+            rng.generateUniformSamples(ranges[j - 1], ranges[j], 1, runLengths);
+            std::uint8_t lastRunBytes;
+            CPackedBitVectorInternals::appendRun(runLengths[0], lastRunBytes, runLengthBytes);
+            BOOST_REQUIRE_EQUAL(CPackedBitVectorInternals::bytes(runLengths[0]), lastRunBytes);
+            BOOST_REQUIRE_EQUAL(runLengths[0], CPackedBitVectorInternals::readLastRunLength(
+                                                   lastRunBytes, runLengthBytes));
+        }
+    }
+
+    LOG_DEBUG(<< "popRunLength");
+
+    // Test reading a sequence with pop run length.
+
+    TSizeVec allRunLengths;
+    for (std::size_t i = 0; i < 1000; ++i) {
+        allRunLengths.clear();
+        for (std::size_t j = 1; j < ranges.size(); ++j) {
+            rng.generateUniformSamples(ranges[j - 1], ranges[j], 10, runLengths);
+            allRunLengths.insert(allRunLengths.end(), runLengths.begin(),
+                                 runLengths.end());
+        }
+        rng.random_shuffle(allRunLengths.begin(), allRunLengths.end());
+
+        runLengthBytes.clear();
+        for (auto runLength : allRunLengths) {
+            std::uint8_t dummy;
+            CPackedBitVectorInternals::appendRun(runLength, dummy, runLengthBytes);
+        }
+
+        auto byteItr = runLengthBytes.cbegin();
+        for (std::size_t j = 0; j < allRunLengths.size(); ++j) {
+            std::size_t readLength{CPackedBitVectorInternals::popRunLength(byteItr)};
+            BOOST_REQUIRE_EQUAL(allRunLengths[j], readLength);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testCreation) {
     core::CPackedBitVector test1(3, true);
     LOG_DEBUG(<< "test1 = " << test1);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), test1.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(TBoolVec(3, true)),
-                         core::CContainerPrinter::print(test1.toBitVector()));
+    BOOST_REQUIRE_EQUAL(std::size_t(3), test1.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(3, true)),
+                        core::CContainerPrinter::print(test1.toBitVector()));
 
     core::CPackedBitVector test2(5, false);
     LOG_DEBUG(<< "test2 = " << test2);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(5), test2.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(TBoolVec(5, false)),
-                         core::CContainerPrinter::print(test2.toBitVector()));
+    BOOST_REQUIRE_EQUAL(std::size_t(5), test2.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(5, false)),
+                        core::CContainerPrinter::print(test2.toBitVector()));
 
     core::CPackedBitVector test3(255, true);
     LOG_DEBUG(<< "test3 = " << test3);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(255), test3.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(TBoolVec(255, true)),
-                         core::CContainerPrinter::print(test3.toBitVector()));
+    BOOST_REQUIRE_EQUAL(std::size_t(255), test3.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(255, true)),
+                        core::CContainerPrinter::print(test3.toBitVector()));
 
     core::CPackedBitVector test4(279, true);
     LOG_DEBUG(<< "test4 = " << test4);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(279), test4.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(TBoolVec(279, true)),
-                         core::CContainerPrinter::print(test4.toBitVector()));
+    BOOST_REQUIRE_EQUAL(std::size_t(279), test4.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(279, true)),
+                        core::CContainerPrinter::print(test4.toBitVector()));
 
     core::CPackedBitVector test5(512, false);
     LOG_DEBUG(<< "test5 = " << test5);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(512), test5.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(TBoolVec(512, false)),
-                         core::CContainerPrinter::print(test5.toBitVector()));
+    BOOST_REQUIRE_EQUAL(std::size_t(512), test5.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(TBoolVec(512, false)),
+                        core::CContainerPrinter::print(test5.toBitVector()));
 
     core::CPackedBitVector test6((TBoolVec()));
     LOG_DEBUG(<< "test6 = " << test6);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(0), test6.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print((TBoolVec())),
-                         core::CContainerPrinter::print(test6.toBitVector()));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), test6.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print((TBoolVec())),
+                        core::CContainerPrinter::print(test6.toBitVector()));
 
     TBoolVec bits1{true, true};
     core::CPackedBitVector test7(bits1);
     LOG_DEBUG(<< "test7 = " << test7);
-    CPPUNIT_ASSERT_EQUAL(bits1.size(), test7.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1),
-                         core::CContainerPrinter::print(test7.toBitVector()));
+    BOOST_REQUIRE_EQUAL(bits1.size(), test7.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
+                        core::CContainerPrinter::print(test7.toBitVector()));
 
     TBoolVec bits2{true,  false, false, true, true, false, false,
                    false, false, true,  true, true, true,  false};
     core::CPackedBitVector test8(bits2);
     LOG_DEBUG(<< "test8 = " << test8);
-    CPPUNIT_ASSERT_EQUAL(bits2.size(), test8.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits2),
-                         core::CContainerPrinter::print(test8.toBitVector()));
+    BOOST_REQUIRE_EQUAL(bits2.size(), test8.dimension());
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits2),
+                        core::CContainerPrinter::print(test8.toBitVector()));
 
     test::CRandomNumbers rng;
 
@@ -104,59 +307,59 @@ void CPackedBitVectorTest::testCreation() {
         if ((t + 1) % 10 == 0) {
             LOG_DEBUG(<< "test9 = " << test9);
         }
-        CPPUNIT_ASSERT_EQUAL(bits3.size(), test9.dimension());
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits3),
-                             core::CContainerPrinter::print(test9.toBitVector()));
+        BOOST_REQUIRE_EQUAL(bits3.size(), test9.dimension());
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits3),
+                            core::CContainerPrinter::print(test9.toBitVector()));
     }
 }
 
-void CPackedBitVectorTest::testExtend() {
+BOOST_AUTO_TEST_CASE(testExtend) {
     core::CPackedBitVector test1;
     test1.extend(true);
-    LOG_DEBUG(<< "test1 = " << test1);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), test1.dimension());
-    CPPUNIT_ASSERT_EQUAL(std::string("[1]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1]"), print(test1));
 
     test1.extend(true);
-    LOG_DEBUG(<< "test1 = " << test1);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), test1.dimension());
-    CPPUNIT_ASSERT_EQUAL(std::string("[1 1]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(2), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1 1]"), print(test1));
 
     test1.extend(false);
-    LOG_DEBUG(<< "test1 = " << test1);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(3), test1.dimension());
-    CPPUNIT_ASSERT_EQUAL(std::string("[1 1 0]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(3), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1 1 0]"), print(test1));
 
     test1.extend(false);
-    LOG_DEBUG(<< "test1 = " << test1);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), test1.dimension());
-    CPPUNIT_ASSERT_EQUAL(std::string("[1 1 0 0]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(4), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1 1 0 0]"), print(test1));
 
     test1.extend(true);
-    LOG_DEBUG(<< "test1 = " << test1);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(5), test1.dimension());
-    CPPUNIT_ASSERT_EQUAL(std::string("[1 1 0 0 1]"), print(test1));
+    BOOST_REQUIRE_EQUAL(std::size_t(5), test1.dimension());
+    BOOST_REQUIRE_EQUAL(std::string("[1 1 0 0 1]"), print(test1));
 
-    core::CPackedBitVector test2(254, true);
-    test2.extend(true);
-    LOG_DEBUG(<< "test2 = " << test2);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(255), test2.dimension());
-    TBoolVec bits1(255, true);
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1),
-                         core::CContainerPrinter::print(test2.toBitVector()));
-    test2.extend(false);
-    bits1.push_back(false);
-    LOG_DEBUG(<< "test2 = " << test2);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(256), test2.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1),
-                         core::CContainerPrinter::print(test2.toBitVector()));
+    for (auto runLength : {CPackedBitVectorInternals::maximumOneByteRunLength(),
+                           CPackedBitVectorInternals::maximumTwoByteRunLength()}) {
+        LOG_DEBUG(<< "run length = " << runLength);
 
-    core::CPackedBitVector test3(255, true);
-    test3.extend(false);
-    LOG_DEBUG(<< "test3 = " << test2);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(256), test3.dimension());
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1),
-                         core::CContainerPrinter::print(test3.toBitVector()));
+        core::CPackedBitVector test2(runLength, true);
+        test2.extend(true);
+        BOOST_REQUIRE_EQUAL(runLength + 1, test2.dimension());
+        TBoolVec bits1(runLength + 1, true);
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
+                            core::CContainerPrinter::print(test2.toBitVector()));
+
+        test2.extend(false);
+        bits1.push_back(false);
+        BOOST_REQUIRE_EQUAL(runLength + 2, test2.dimension());
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
+                            core::CContainerPrinter::print(test2.toBitVector()));
+
+        core::CPackedBitVector test3(runLength + 1, true);
+        test3.extend(false);
+        BOOST_REQUIRE_EQUAL(runLength + 2, test3.dimension());
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
+                            core::CContainerPrinter::print(test3.toBitVector()));
+    }
+
+    LOG_DEBUG(<< "randomized");
 
     test::CRandomNumbers rng;
 
@@ -169,12 +372,12 @@ void CPackedBitVectorTest::testExtend() {
     for (std::size_t i = 0; i < components.size(); ++i) {
         bits2.push_back(components[i] > 0);
         test4.extend(components[i] > 0);
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits2),
-                             core::CContainerPrinter::print(test4.toBitVector()));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits2),
+                            core::CContainerPrinter::print(test4.toBitVector()));
     }
 }
 
-void CPackedBitVectorTest::testContract() {
+BOOST_AUTO_TEST_CASE(testContract) {
     core::CPackedBitVector test1;
     test1.extend(true);
     test1.extend(true);
@@ -182,38 +385,28 @@ void CPackedBitVectorTest::testContract() {
     test1.extend(true);
     std::string expected[] = {"[1 1 0 1]", "[1 0 1]", "[0 1]", "[1]"};
     for (const std::string* e = expected; test1.dimension() > 0; ++e) {
-        LOG_DEBUG(<< "test1 = " << test1);
-        CPPUNIT_ASSERT_EQUAL(*e, print(test1));
+        BOOST_REQUIRE_EQUAL(*e, print(test1));
         test1.contract();
     }
 
-    TBoolVec bits1(256, true);
-    bits1.push_back(false);
-    bits1.push_back(true);
-    bits1.push_back(false);
-    core::CPackedBitVector test2(bits1);
-    for (std::size_t i = 0; i < 10; ++i) {
-        bits1.erase(bits1.begin());
-        test2.contract();
-        LOG_DEBUG(<< "test2 = " << test2);
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits1),
-                             core::CContainerPrinter::print(test2.toBitVector()));
-    }
-
-    TBoolVec bits2(1024, true);
-    bits2.push_back(false);
-    core::CPackedBitVector test3(1024, true);
-    test3.extend(false);
-    for (std::size_t i = 0; i < 10; ++i) {
-        bits2.erase(bits2.begin());
-        test3.contract();
-        LOG_DEBUG(<< "test3 = " << test3);
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(bits2),
-                             core::CContainerPrinter::print(test3.toBitVector()));
+    for (auto runLength : {CPackedBitVectorInternals::maximumOneByteRunLength() + 2,
+                           CPackedBitVectorInternals::maximumTwoByteRunLength() + 2}) {
+        LOG_DEBUG(<< "run length = " << runLength);
+        TBoolVec bits1(runLength, true);
+        bits1.push_back(false);
+        bits1.push_back(true);
+        bits1.push_back(false);
+        core::CPackedBitVector test2(bits1);
+        for (std::size_t i = 0; i < 10; ++i) {
+            bits1.erase(bits1.begin());
+            test2.contract();
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(bits1),
+                                core::CContainerPrinter::print(test2.toBitVector()));
+        }
     }
 }
 
-void CPackedBitVectorTest::testComparisonAndLess() {
+BOOST_AUTO_TEST_CASE(testComparisonAndLess) {
     test::CRandomNumbers rng;
 
     TPackedBitVectorVec test;
@@ -227,12 +420,13 @@ void CPackedBitVectorTest::testComparisonAndLess() {
 
     for (std::size_t i = 0; i < test.size(); ++i) {
         for (std::size_t j = i; j < test.size(); ++j) {
-            CPPUNIT_ASSERT(test[i] < test[j] || test[i] > test[j] || test[i] == test[j]);
+            BOOST_TEST_REQUIRE(
+                (test[i] < test[j] || test[i] > test[j] || test[i] == test[j]));
         }
     }
 }
 
-void CPackedBitVectorTest::testBitwiseComplement() {
+BOOST_AUTO_TEST_CASE(testBitwiseComplement) {
     test::CRandomNumbers rng;
 
     TSizeVec components;
@@ -243,12 +437,12 @@ void CPackedBitVectorTest::testBitwiseComplement() {
         TBoolVec expectedComplement(bits.size());
         std::transform(bits.begin(), bits.end(), expectedComplement.begin(),
                        std::logical_not<bool>());
-        CPPUNIT_ASSERT_EQUAL(toBitString(expectedComplement), toBitString(actualComplement));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedComplement), toBitString(actualComplement));
     }
 }
 
-void CPackedBitVectorTest::testBitwise() {
-    std::size_t run(core::CPackedBitVector::MAX_RUN_LENGTH);
+BOOST_AUTO_TEST_CASE(testBitwise) {
+    std::size_t run{CPackedBitVectorInternals::maximumOneByteRunLength()};
 
     // Test some run length edge cases.
     {
@@ -260,13 +454,13 @@ void CPackedBitVectorTest::testBitwise() {
         b.extend(false, 2 * run);
 
         TBoolVec expectedBitwiseAnd(3 * run, false);
-        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
 
         TBoolVec expectedBitwiseOr(3 * run, true);
-        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
 
         TBoolVec expectedBitwiseXor(3 * run, true);
-        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
     }
     {
         core::CPackedBitVector a;
@@ -278,14 +472,14 @@ void CPackedBitVectorTest::testBitwise() {
 
         TBoolVec expectedBitwiseAnd(run, false);
         expectedBitwiseAnd.resize(3 * run, true);
-        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseAnd), toBitString(a & b));
 
         TBoolVec expectedBitwiseOr(run, false);
         expectedBitwiseOr.resize(3 * run, true);
-        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseOr), toBitString(a | b));
 
         TBoolVec expectedBitwiseXor(3 * run, false);
-        CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
+        BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseXor), toBitString(a ^ b));
     }
 
     test::CRandomNumbers rng;
@@ -301,82 +495,79 @@ void CPackedBitVectorTest::testBitwise() {
         reference.push_back(std::move(bits));
     }
 
+    TBoolVec expectedBitwiseAnd(500);
+    TBoolVec expectedBitwiseOr(500);
+    TBoolVec expectedBitwiseXor(500);
+
     for (std::size_t i = 0; i < test.size(); ++i) {
         for (std::size_t j = 0; j < test.size(); ++j) {
             core::CPackedBitVector actualBitwiseAnd{test[i] & test[j]};
-            TBoolVec expectedBitwiseAnd(500);
             std::transform(reference[i].begin(), reference[i].end(),
                            reference[j].begin(), expectedBitwiseAnd.begin(),
                            std::logical_and<bool>());
-            if (j % 500 == 0) {
-                LOG_DEBUG(<< "and = " << toBitString(expectedBitwiseAnd));
-            }
-            CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseAnd),
-                                 toBitString(actualBitwiseAnd));
+            BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseAnd),
+                                toBitString(actualBitwiseAnd));
             // Also check hidden state...
-            CPPUNIT_ASSERT_EQUAL(core::CPackedBitVector{expectedBitwiseAnd}.checksum(),
-                                 actualBitwiseAnd.checksum());
+            BOOST_REQUIRE_EQUAL(core::CPackedBitVector{expectedBitwiseAnd}.checksum(),
+                                actualBitwiseAnd.checksum());
 
             core::CPackedBitVector actualBitwiseOr{test[i] | test[j]};
-            TBoolVec expectedBitwiseOr(500);
             std::transform(reference[i].begin(), reference[i].end(),
                            reference[j].begin(), expectedBitwiseOr.begin(),
                            std::logical_or<bool>());
-            if (j % 100 == 0) {
-                LOG_DEBUG(<< "or = " << toBitString(expectedBitwiseOr));
-            }
-            CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseOr), toBitString(actualBitwiseOr));
+            BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseOr), toBitString(actualBitwiseOr));
             // Also check hidden state...
-            CPPUNIT_ASSERT_EQUAL(core::CPackedBitVector{expectedBitwiseOr}.checksum(),
-                                 actualBitwiseOr.checksum());
+            BOOST_REQUIRE_EQUAL(core::CPackedBitVector{expectedBitwiseOr}.checksum(),
+                                actualBitwiseOr.checksum());
 
             core::CPackedBitVector actualBitwiseXor{test[i] ^ test[j]};
-            TBoolVec expectedBitwiseXor(500);
             std::transform(reference[i].begin(), reference[i].end(),
                            reference[j].begin(), expectedBitwiseXor.begin(),
                            [](bool lhs, bool rhs) { return lhs ^ rhs; });
-            if (j % 100 == 0) {
-                LOG_DEBUG(<< "xor = " << toBitString(expectedBitwiseXor));
-            }
-            CPPUNIT_ASSERT_EQUAL(toBitString(expectedBitwiseXor),
-                                 toBitString(actualBitwiseXor));
+            BOOST_REQUIRE_EQUAL(toBitString(expectedBitwiseXor),
+                                toBitString(actualBitwiseXor));
             // Also check hidden state...
-            CPPUNIT_ASSERT_EQUAL(core::CPackedBitVector{expectedBitwiseXor}.checksum(),
-                                 actualBitwiseXor.checksum());
+            BOOST_REQUIRE_EQUAL(core::CPackedBitVector{expectedBitwiseXor}.checksum(),
+                                actualBitwiseXor.checksum());
         }
     }
 }
 
-void CPackedBitVectorTest::testOneBitIterators() {
+BOOST_AUTO_TEST_CASE(testOneBitIterators) {
+    {
+        // Empty.
+        core::CPackedBitVector test;
+        TSizeVec indices{test.beginOneBits(), test.endOneBits()};
+        BOOST_TEST_REQUIRE(indices.empty());
+    }
     {
         // All ones.
-        core::CPackedBitVector test(2000, true);
+        core::CPackedBitVector test{2000, true};
         TSizeVec actualIndices{test.beginOneBits(), test.endOneBits()};
         TSizeVec expectedIndices(2000);
         std::iota(expectedIndices.begin(), expectedIndices.end(), 0);
-        CPPUNIT_ASSERT(actualIndices == expectedIndices);
+        BOOST_TEST_REQUIRE(actualIndices == expectedIndices);
     }
     {
         // All zeros.
-        core::CPackedBitVector test(1000, false);
+        core::CPackedBitVector test{1000, false};
         TSizeVec actualIndices{test.beginOneBits(), test.endOneBits()};
-        CPPUNIT_ASSERT(actualIndices.empty());
+        BOOST_TEST_REQUIRE(actualIndices.empty());
     }
-    {
-        // Test end edge cases.
-
-        std::size_t run(core::CPackedBitVector::MAX_RUN_LENGTH);
+    // Test end edge cases.
+    for (auto runLength : {CPackedBitVectorInternals::maximumOneByteRunLength(),
+                           CPackedBitVectorInternals::maximumTwoByteRunLength()}) {
 
         core::CPackedBitVector test;
-        test.extend(false, run);
-        test.extend(true, 2 * run);
+        test.extend(false, runLength);
+        test.extend(true, 2 * runLength);
 
         TSizeVec actualIndices{test.beginOneBits(), test.endOneBits()};
         TSizeVec expectedIndices;
-        for (std::size_t i = run; i < 3 * run; ++i) {
+        for (std::size_t i = runLength; i < 3 * runLength; ++i) {
             expectedIndices.push_back(i);
         }
-        CPPUNIT_ASSERT(actualIndices == expectedIndices);
+        BOOST_TEST_REQUIRE(actualIndices == expectedIndices);
     }
 
     test::CRandomNumbers rng;
@@ -401,14 +592,15 @@ void CPackedBitVectorTest::testOneBitIterators() {
         if (actualIndices != expectedIndices) {
             LOG_ERROR(<< "expected = " << core::CContainerPrinter::print(expectedIndices));
             LOG_ERROR(<< "actual   = " << core::CContainerPrinter::print(actualIndices));
-        } else if (t % 100 == 0) {
+        } else if (t % 200 == 0) {
             LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(expectedIndices));
         }
-        CPPUNIT_ASSERT(actualIndices == expectedIndices);
+        BOOST_TEST_REQUIRE(actualIndices == expectedIndices);
     }
 }
 
-void CPackedBitVectorTest::testInnerProductBitwiseAnd() {
+BOOST_AUTO_TEST_CASE(testInnerProductBitwiseAnd) {
+
     core::CPackedBitVector test1(10, true);
     core::CPackedBitVector test2(10, false);
     TBoolVec bits1{true,  true,  false, false, true,
@@ -418,16 +610,16 @@ void CPackedBitVectorTest::testInnerProductBitwiseAnd() {
                    false, false, false, false, false};
     core::CPackedBitVector test4(bits2);
 
-    CPPUNIT_ASSERT_EQUAL(10.0, test1.inner(test1));
-    CPPUNIT_ASSERT_EQUAL(0.0, test1.inner(test2));
-    CPPUNIT_ASSERT_EQUAL(5.0, test1.inner(test3));
-    CPPUNIT_ASSERT_EQUAL(2.0, test1.inner(test4));
-    CPPUNIT_ASSERT_EQUAL(0.0, test2.inner(test2));
-    CPPUNIT_ASSERT_EQUAL(0.0, test2.inner(test3));
-    CPPUNIT_ASSERT_EQUAL(0.0, test2.inner(test4));
-    CPPUNIT_ASSERT_EQUAL(5.0, test3.inner(test3));
-    CPPUNIT_ASSERT_EQUAL(1.0, test3.inner(test4));
-    CPPUNIT_ASSERT_EQUAL(2.0, test4.inner(test4));
+    BOOST_REQUIRE_EQUAL(10.0, test1.inner(test1));
+    BOOST_REQUIRE_EQUAL(0.0, test1.inner(test2));
+    BOOST_REQUIRE_EQUAL(5.0, test1.inner(test3));
+    BOOST_REQUIRE_EQUAL(2.0, test1.inner(test4));
+    BOOST_REQUIRE_EQUAL(0.0, test2.inner(test2));
+    BOOST_REQUIRE_EQUAL(0.0, test2.inner(test3));
+    BOOST_REQUIRE_EQUAL(0.0, test2.inner(test4));
+    BOOST_REQUIRE_EQUAL(5.0, test3.inner(test3));
+    BOOST_REQUIRE_EQUAL(1.0, test3.inner(test4));
+    BOOST_REQUIRE_EQUAL(2.0, test4.inner(test4));
 
     core::CPackedBitVector test5(570, true);
     test5.extend(false);
@@ -443,7 +635,7 @@ void CPackedBitVectorTest::testInnerProductBitwiseAnd() {
     test6.extend(false);
     test6.extend(true);
 
-    CPPUNIT_ASSERT_EQUAL(566.0, test5.inner(test6));
+    BOOST_REQUIRE_EQUAL(566.0, test5.inner(test6));
 
     test::CRandomNumbers rng;
 
@@ -467,12 +659,13 @@ void CPackedBitVectorTest::testInnerProductBitwiseAnd() {
             for (std::size_t k = 0; k < 50; ++k) {
                 expected += (reference7[i][k] && reference7[j][k] ? 1.0 : 0.0);
             }
-            CPPUNIT_ASSERT_EQUAL(expected, test7[i].inner(test7[j]));
+            BOOST_REQUIRE_EQUAL(expected, test7[i].inner(test7[j]));
         }
     }
 }
 
-void CPackedBitVectorTest::testInnerProductBitwiseOr() {
+BOOST_AUTO_TEST_CASE(testInnerProductBitwiseOr) {
+
     test::CRandomNumbers rng;
 
     TPackedBitVectorVec test;
@@ -487,35 +680,24 @@ void CPackedBitVectorTest::testInnerProductBitwiseOr() {
     }
 
     for (std::size_t i = 0; i < test.size(); ++i) {
-        LOG_DEBUG(<< "Testing " << test[i]);
         for (std::size_t j = 0; j < test.size(); ++j) {
-            {
-                double expected = 0.0;
-                for (std::size_t k = 0; k < 50; ++k) {
-                    expected += (reference[i][k] || reference[j][k] ? 1.0 : 0.0);
-                }
-                if (j % 100 == 0) {
-                    LOG_DEBUG(<< "or  = " << expected);
-                }
-                CPPUNIT_ASSERT_EQUAL(
-                    expected, test[i].inner(test[j], core::CPackedBitVector::E_OR));
+            double expected{0.0};
+            for (std::size_t k = 0; k < 50; ++k) {
+                expected += (reference[i][k] || reference[j][k] ? 1.0 : 0.0);
             }
-            {
-                double expected = 0.0;
-                for (std::size_t k = 0; k < 50; ++k) {
-                    expected += (reference[i][k] != reference[j][k] ? 1.0 : 0.0);
-                }
-                if (j % 100 == 0) {
-                    LOG_DEBUG(<< "xor = " << expected);
-                }
-                CPPUNIT_ASSERT_EQUAL(
-                    expected, test[i].inner(test[j], core::CPackedBitVector::E_XOR));
+            BOOST_REQUIRE_EQUAL(
+                expected, test[i].inner(test[j], core::CPackedBitVector::E_OR));
+            expected = 0.0;
+            for (std::size_t k = 0; k < 50; ++k) {
+                expected += (reference[i][k] != reference[j][k] ? 1.0 : 0.0);
             }
+            BOOST_REQUIRE_EQUAL(
+                expected, test[i].inner(test[j], core::CPackedBitVector::E_XOR));
         }
     }
 }
 
-void CPackedBitVectorTest::testLineScanProblemCase() {
+BOOST_AUTO_TEST_CASE(testLineScanProblemCase) {
 
     // Test a problem case with line scan. We were accidentally inverting the bits
     // of the covector in bitwise operations if a run in both vectors stopped at the
@@ -573,19 +755,18 @@ void CPackedBitVectorTest::testLineScanProblemCase() {
     core::CPackedBitVector lhs{lhs_};
     core::CPackedBitVector rhs{rhs_};
 
-    CPPUNIT_ASSERT_EQUAL(rhs.manhattan(), (lhs & rhs).manhattan());
-    CPPUNIT_ASSERT_EQUAL(lhs.manhattan() - rhs.manhattan(), (lhs ^ rhs).manhattan());
+    BOOST_REQUIRE_EQUAL(rhs.manhattan(), (lhs & rhs).manhattan());
+    BOOST_REQUIRE_EQUAL(lhs.manhattan() - rhs.manhattan(), (lhs ^ rhs).manhattan());
 }
 
-void CPackedBitVectorTest::testZeroLengthRunProblemCase() {
+BOOST_AUTO_TEST_CASE(testZeroLengthRunProblemCase) {
 
     test::CRandomNumbers rng;
 
     auto toBits = [](const TSizeVec& components) {
         TBoolVec result;
         for (auto component : components) {
-            std::fill_n(std::back_inserter(result),
-                        core::CPackedBitVector::MAX_RUN_LENGTH, component);
+            std::fill_n(std::back_inserter(result), 255, component);
         }
         return result;
     };
@@ -612,64 +793,100 @@ void CPackedBitVectorTest::testZeroLengthRunProblemCase() {
             }
         }
         core::CPackedBitVector actual{(test[0] | test[1]) & test[2]};
-        CPPUNIT_ASSERT_EQUAL(toBitString(expected), toBitString(actual));
+        BOOST_REQUIRE_EQUAL(toBitString(expected), toBitString(actual));
 
         TSizeVec actualIndices(actual.beginOneBits(), actual.endOneBits());
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expectedIndices),
-                             core::CContainerPrinter::print(actualIndices));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedIndices),
+                            core::CContainerPrinter::print(actualIndices));
     }
 }
 
-void CPackedBitVectorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testCompression) {
+
+    // Check the number of bytes we use per bit for a range of different one-bit
+    // densities.
+
+    test::CRandomNumbers rng;
+
+    double averageOverhead{0.0};
+
+    for (auto density : {0.5, 0.1, 0.01, 0.001, 0.0002}) {
+
+        std::size_t meanMemoryUsage{0};
+        for (std::size_t i = 0; i < 100; ++i) {
+            TDoubleVec u01;
+            rng.generateUniformSamples(0.0, 1.0, 100000, u01);
+            core::CPackedBitVector vector;
+            bool parity{true};
+            for (auto selector : u01) {
+                parity = selector < density ? !parity : parity;
+                vector.extend(parity);
+            }
+            meanMemoryUsage += vector.memoryUsage();
+        }
+        meanMemoryUsage /= 100;
+
+        // Optimal encoding uses log2(E[run length]) bits per run. This gives
+        // expected memory usage of log2(E[run length]) / E[run length] / 8
+        // bytes per vector bit.
+
+        double minimumMeanBytesPerBit{density * std::log2(1.0 / density) / 8.0};
+        double meanBytesPerBit{static_cast<double>(meanMemoryUsage) / 100000.0};
+        LOG_DEBUG(<< "minimum bytes per bit = " << minimumMeanBytesPerBit);
+        LOG_DEBUG(<< "bytes per bit         = " << meanBytesPerBit);
+
+        averageOverhead += meanBytesPerBit / minimumMeanBytesPerBit;
+        BOOST_TEST_REQUIRE(meanBytesPerBit < 15.0 * minimumMeanBytesPerBit);
+    }
+
+    averageOverhead /= 4.0;
+
+    LOG_DEBUG(<< "average overhead = " << averageOverhead);
+
+    BOOST_TEST_REQUIRE(averageOverhead < 6.0);
+}
+
+BOOST_AUTO_TEST_CASE(testPersist) {
+
+    // Test persist + restore is idempotent.
+
     TBoolVec bits{true,  true,  false, false, true,
                   false, false, false, true,  true};
 
     for (std::size_t t = 0; t < bits.size(); ++t) {
-        core::CPackedBitVector origVector(bits);
+        core::CPackedBitVector originalVector(bits);
 
-        std::string origXml = origVector.toDelimited();
-        LOG_DEBUG(<< "xml = " << origXml);
+        std::string originalDelimited{originalVector.toDelimited()};
+        LOG_DEBUG(<< "delimited = " << originalDelimited);
 
         core::CPackedBitVector restoredVector;
-        restoredVector.fromDelimited(origXml);
+        restoredVector.fromDelimited(originalDelimited);
 
-        CPPUNIT_ASSERT_EQUAL(origVector.checksum(), restoredVector.checksum());
+        BOOST_REQUIRE_EQUAL(originalVector.checksum(), restoredVector.checksum());
     }
 }
 
-CppUnit::Test* CPackedBitVectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPackedBitVectorTest");
+BOOST_AUTO_TEST_CASE(testUpgrade) {
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testCreation", &CPackedBitVectorTest::testCreation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testExtend", &CPackedBitVectorTest::testExtend));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testContract", &CPackedBitVectorTest::testContract));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testComparisonAndLess",
-        &CPackedBitVectorTest::testComparisonAndLess));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testBitwiseComplement",
-        &CPackedBitVectorTest::testBitwiseComplement));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testBitwise", &CPackedBitVectorTest::testBitwise));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testOneBitIterators", &CPackedBitVectorTest::testOneBitIterators));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testInnerProductBitwiseAnd",
-        &CPackedBitVectorTest::testInnerProductBitwiseAnd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testInnerProductBitwiseOr",
-        &CPackedBitVectorTest::testInnerProductBitwiseOr));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testLineScanProblemCase",
-        &CPackedBitVectorTest::testLineScanProblemCase));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testZeroLengthRunProblemCase",
-        &CPackedBitVectorTest::testZeroLengthRunProblemCase));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPackedBitVectorTest>(
-        "CPackedBitVectorTest::testPersist", &CPackedBitVectorTest::testPersist));
+    // Test restoring old state produces the correct vector.
 
-    return suiteOfTests;
+    std::string state{"1310:1:1:0:255:1:5:19:7:52:255:255:206"};
+
+    core::CPackedBitVector expected;
+    expected.extend(true, 255);
+    expected.extend(false, 256);
+    expected.extend(true, 5);
+    expected.extend(false, 19);
+    expected.extend(true, 7);
+    expected.extend(false, 52);
+    expected.extend(true, 716);
+
+    core::CPackedBitVector actual;
+    actual.fromDelimited(state);
+
+    LOG_DEBUG(<< "upgraded = " << actual.toDelimited());
+
+    BOOST_REQUIRE_EQUAL(expected.checksum(), actual.checksum());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

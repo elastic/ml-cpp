@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CForecastRunner.h>
@@ -17,7 +22,6 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/system/error_code.hpp>
 
-#include <memory>
 #include <sstream>
 
 namespace ml {
@@ -27,6 +31,9 @@ namespace {
 const std::string EMPTY_STRING;
 }
 
+const std::size_t CForecastRunner::DEFAULT_MAX_FORECAST_MODEL_MEMORY{20971520}; // 20MB
+const std::size_t CForecastRunner::DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE{4294967296ull}; // 4GB
+
 const std::string CForecastRunner::ERROR_FORECAST_REQUEST_FAILED_TO_PARSE("Failed to parse forecast request: ");
 const std::string CForecastRunner::ERROR_NO_FORECAST_ID("forecast ID must be specified and non empty");
 const std::string CForecastRunner::ERROR_TOO_MANY_JOBS("Forecast cannot be executed due to queue limit. Please wait for requests to finish and try again");
@@ -35,7 +42,8 @@ const std::string CForecastRunner::ERROR_NO_DATA_PROCESSED(
     "Forecast cannot be executed as job requires data to have been processed and modeled");
 const std::string CForecastRunner::ERROR_NO_CREATE_TIME("Forecast create time must be specified and non zero");
 const std::string CForecastRunner::ERROR_BAD_MEMORY_STATUS("Forecast cannot be executed as model memory status is not OK");
-const std::string CForecastRunner::ERROR_MEMORY_LIMIT("Forecast cannot be executed as forecast memory usage is predicted to exceed 20MB while disk space is exceeded");
+const std::string CForecastRunner::ERROR_BAD_MODEL_MEMORY_LIMIT(
+    "Forecast max_model_memory must be below 500MB and must not exceed 40% of the job's configured model memory limit.");
 const std::string CForecastRunner::ERROR_MEMORY_LIMIT_DISK(
     "Forecast cannot be executed as forecast memory usage is predicted to exceed 500MB");
 const std::string CForecastRunner::ERROR_MEMORY_LIMIT_DISKSPACE(
@@ -47,55 +55,17 @@ const std::string CForecastRunner::INFO_DEFAULT_DURATION("Forecast duration not 
 const std::string CForecastRunner::INFO_DEFAULT_EXPIRY("Forecast expires_in not specified, setting to 14 days");
 const std::string CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST("Insufficient history to forecast for all models");
 
-CForecastRunner::SForecast::SForecast()
-    : s_ForecastId(), s_ForecastAlias(), s_ForecastSeries(), s_CreateTime(0),
-      s_StartTime(0), s_Duration(0), s_ExpiryTime(0), s_BoundsPercentile(0),
-      s_NumberOfModels(0), s_NumberOfForecastableModels(0), s_MemoryUsage(0),
-      s_Messages(), s_TemporaryFolder() {
-}
-
-CForecastRunner::SForecast::SForecast(SForecast&& other)
-    : s_ForecastId(std::move(other.s_ForecastId)),
-      s_ForecastAlias(std::move(other.s_ForecastAlias)),
-      s_ForecastSeries(std::move(other.s_ForecastSeries)),
-      s_CreateTime(other.s_CreateTime), s_StartTime(other.s_StartTime),
-      s_Duration(other.s_Duration), s_ExpiryTime(other.s_ExpiryTime),
-      s_BoundsPercentile(other.s_BoundsPercentile),
-      s_NumberOfModels(other.s_NumberOfModels),
-      s_NumberOfForecastableModels(other.s_NumberOfForecastableModels),
-      s_MemoryUsage(other.s_MemoryUsage), s_Messages(other.s_Messages),
-      s_TemporaryFolder(std::move(other.s_TemporaryFolder)) {
-}
-
-CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& other) {
-    s_ForecastId = std::move(other.s_ForecastId);
-    s_ForecastAlias = std::move(other.s_ForecastAlias);
-    s_ForecastSeries = std::move(other.s_ForecastSeries);
-    s_CreateTime = other.s_CreateTime;
-    s_StartTime = other.s_StartTime;
-    s_Duration = other.s_Duration;
-    s_ExpiryTime = other.s_ExpiryTime;
-    s_BoundsPercentile = other.s_BoundsPercentile;
-    s_NumberOfModels = other.s_NumberOfModels;
-    s_NumberOfForecastableModels = other.s_NumberOfForecastableModels;
-    s_MemoryUsage = other.s_MemoryUsage;
-    s_Messages = other.s_Messages;
-    s_TemporaryFolder = std::move(other.s_TemporaryFolder);
-
-    return *this;
-}
-
 CForecastRunner::CForecastRunner(const std::string& jobId,
                                  core::CJsonOutputStreamWrapper& strmOut,
                                  model::CResourceMonitor& resourceMonitor)
-    : m_JobId(jobId), m_ConcurrentOutputStream(strmOut),
-      m_ResourceMonitor(resourceMonitor), m_Shutdown(false) {
+    : m_JobId{jobId}, m_ConcurrentOutputStream{strmOut},
+      m_ResourceMonitor{resourceMonitor}, m_Shutdown{false} {
     m_Worker = std::thread([this] { this->forecastWorker(); });
 }
 
 CForecastRunner::~CForecastRunner() {
     // shutdown
-    m_Shutdown = true;
+    m_Shutdown.store(true);
     // signal the worker
     {
         std::unique_lock<std::mutex> lock(m_Mutex);
@@ -107,7 +77,7 @@ CForecastRunner::~CForecastRunner() {
 void CForecastRunner::finishForecasts() {
     std::unique_lock<std::mutex> lock(m_Mutex);
     // note: forecast could still be active
-    while (!m_Shutdown && !m_ForecastJobs.empty()) {
+    while (m_Shutdown.load() == false && m_ForecastJobs.empty() == false) {
         // items in the queue, wait
         m_WorkCompleteCondition.wait(lock);
     }
@@ -115,14 +85,14 @@ void CForecastRunner::finishForecasts() {
 
 void CForecastRunner::forecastWorker() {
     SForecast forecastJob;
-    while (!m_Shutdown) {
+    while (m_Shutdown.load() == false) {
         if (this->tryGetJob(forecastJob)) {
             LOG_INFO(<< "Start forecasting from "
                      << core::CTimeUtils::toIso8601(forecastJob.s_StartTime) << " to "
                      << core::CTimeUtils::toIso8601(forecastJob.forecastEnd()));
 
             core::CStopWatch timer(true);
-            uint64_t lastStatsUpdate = 0;
+            std::uint64_t lastStatsUpdate = 0;
 
             LOG_TRACE(<< "about to create sink");
             model::CForecastDataSink sink(
@@ -138,7 +108,7 @@ void CForecastRunner::forecastWorker() {
             double processedModels = 0;
             double totalNumberOfForecastableModels =
                 static_cast<double>(forecastJob.s_NumberOfForecastableModels);
-            size_t failedForecasts = 0;
+            std::size_t failedForecasts = 0;
             sink.writeStats(0.0, 0, forecastJob.s_Messages);
 
             // while loops allow us to free up memory for every model right after each forecast is done
@@ -195,7 +165,7 @@ void CForecastRunner::forecastWorker() {
                     ++processedModels;
 
                     if (processedModels != totalNumberOfForecastableModels) {
-                        uint64_t elapsedTime = timer.lap();
+                        std::uint64_t elapsedTime = timer.lap();
                         if (elapsedTime - lastStatsUpdate > MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE) {
                             sink.writeStats(processedModels / totalNumberOfForecastableModels,
                                             elapsedTime, forecastJob.s_Messages);
@@ -252,7 +222,7 @@ bool CForecastRunner::tryGetJob(SForecast& forecastJob) {
     }
 
     // m_Shutdown might have been set meanwhile
-    if (m_Shutdown) {
+    if (m_Shutdown.load()) {
         return false;
     }
 
@@ -266,21 +236,22 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
     SForecast forecastJob;
     if (parseAndValidateForecastRequest(
             controlMessage, forecastJob, lastResultsTime,
+            m_ResourceMonitor.getBytesMemoryLimit(),
             std::bind(&CForecastRunner::sendErrorMessage, this,
                       std::placeholders::_1, std::placeholders::_2)) == false) {
         return false;
     }
 
-    if (m_ResourceMonitor.getMemoryStatus() != model_t::E_MemoryStatusOk) {
+    if (m_ResourceMonitor.memoryStatus() != model_t::E_MemoryStatusOk) {
         this->sendErrorMessage(forecastJob, ERROR_BAD_MEMORY_STATUS);
         return false;
     }
 
-    size_t totalNumberOfModels = 0;
-    size_t totalNumberOfForecastModels = 0;
+    std::size_t totalNumberOfModels = 0;
+    std::size_t totalNumberOfForecastModels = 0;
     bool atLeastOneNonPopulationModel = false;
     bool atLeastOneSupportedFunction = false;
-    size_t totalMemoryUsage = 0;
+    std::size_t totalMemoryUsage = 0;
 
     // 1st loop over the detectors to check prerequisites
     for (const auto& detector : detectors) {
@@ -300,10 +271,12 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
                                       prerequisites.s_IsSupportedFunction;
         totalMemoryUsage += prerequisites.s_MemoryUsageForDetector;
 
-        if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY &&
+        if (totalMemoryUsage >= forecastJob.s_MaxForecastModelMemory &&
             forecastJob.s_TemporaryFolder.empty()) {
-            // note: for now MAX_FORECAST_MODEL_MEMORY is a static limit, a user can not change it
-            this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT);
+            this->sendErrorMessage(
+                forecastJob, "Forecast cannot be executed as forecast memory usage is predicted to exceed " +
+                                 std::to_string(forecastJob.s_MaxForecastModelMemory) +
+                                 " bytes while disk space is exceeded");
             return false;
         }
     }
@@ -337,15 +310,17 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
 
     // 2nd loop over the detectors to clone models for forecasting
     bool persistOnDisk = false;
-    if (totalMemoryUsage >= MAX_FORECAST_MODEL_MEMORY) {
+    if (totalMemoryUsage >= forecastJob.s_MaxForecastModelMemory) {
         boost::filesystem::path temporaryFolder(forecastJob.s_TemporaryFolder);
 
-        if (this->sufficientAvailableDiskSpace(temporaryFolder) == false) {
+        if (this->sufficientAvailableDiskSpace(forecastJob.s_MinForecastAvailableDiskSpace,
+                                               temporaryFolder) == false) {
             this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT_DISKSPACE);
             return false;
         }
 
-        LOG_INFO(<< "Forecast of large model requested (requires "
+        LOG_WARN(<< "Forecast [" << forecastJob.s_ForecastId << "] memory usage exceeds configured byte limit ["
+                 << std::to_string(forecastJob.s_MaxForecastModelMemory) << "] (requires "
                  << std::to_string(1 + (totalMemoryUsage >> 20)) << " MB), using disk.");
 
         // create a subdirectory using the unique forecast id
@@ -404,11 +379,12 @@ bool CForecastRunner::push(SForecast& forecastJob) {
 bool CForecastRunner::parseAndValidateForecastRequest(const std::string& controlMessage,
                                                       SForecast& forecastJob,
                                                       const core_t::TTime lastResultsTime,
+                                                      std::size_t jobBytesSizeLimit,
                                                       const TErrorFunc& errorFunction) {
     std::istringstream stringStream(controlMessage.substr(1));
     forecastJob.s_StartTime = lastResultsTime;
 
-    core_t::TTime expiresIn = 0l;
+    core_t::TTime expiresIn = 0;
     boost::property_tree::ptree properties;
     try {
         boost::property_tree::read_json(stringStream, properties);
@@ -418,6 +394,10 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
             properties.get<std::string>("forecast_alias", EMPTY_STRING);
         forecastJob.s_Duration = properties.get<core_t::TTime>("duration", 0);
         forecastJob.s_CreateTime = properties.get<core_t::TTime>("create_time", 0);
+        forecastJob.s_MaxForecastModelMemory = properties.get<std::size_t>(
+            "max_model_memory", DEFAULT_MAX_FORECAST_MODEL_MEMORY);
+        forecastJob.s_MinForecastAvailableDiskSpace = properties.get<std::size_t>(
+            "min_available_disk_space", DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE);
 
         // tmp storage if available
         forecastJob.s_TemporaryFolder = properties.get<std::string>("tmp_storage", EMPTY_STRING);
@@ -425,7 +405,8 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         expiresIn = properties.get<core_t::TTime>("expires_in", -1l);
 
         // note: this is not exposed on the Java side
-        forecastJob.s_BoundsPercentile = properties.get<double>("boundspercentile", 95.0);
+        forecastJob.s_BoundsPercentile = properties.get<double>(
+            "boundspercentile", maths::CModel::DEFAULT_BOUNDS_PERCENTILE);
     } catch (const std::exception& e) {
         LOG_ERROR(<< ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
         return false;
@@ -437,7 +418,15 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     }
 
     // from now we have a forecast ID and can send error messages
-    if (lastResultsTime == 0l) {
+    if (forecastJob.s_MaxForecastModelMemory != DEFAULT_MAX_FORECAST_MODEL_MEMORY &&
+        (forecastJob.s_MaxForecastModelMemory >= MAX_FORECAST_MODEL_PERSISTANCE_MEMORY ||
+         forecastJob.s_MaxForecastModelMemory >=
+             static_cast<std::size_t>(jobBytesSizeLimit * 0.40))) {
+        errorFunction(forecastJob, ERROR_BAD_MODEL_MEMORY_LIMIT);
+        return false;
+    }
+
+    if (lastResultsTime == 0) {
         errorFunction(forecastJob, ERROR_NO_DATA_PROCESSED);
         return false;
     }
@@ -453,11 +442,11 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         LOG_INFO(<< INFO_DEFAULT_DURATION);
     }
 
-    if (expiresIn < -1l) {
+    if (expiresIn < -1) {
         // only log
         expiresIn = DEFAULT_EXPIRY_TIME;
         LOG_INFO(<< WARNING_INVALID_EXPIRY);
-    } else if (expiresIn == -1l) {
+    } else if (expiresIn == -1) {
         // only log
         expiresIn = DEFAULT_EXPIRY_TIME;
         LOG_DEBUG(<< INFO_DEFAULT_EXPIRY);
@@ -468,7 +457,8 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     return true;
 }
 
-bool CForecastRunner::sufficientAvailableDiskSpace(const boost::filesystem::path& path) {
+bool CForecastRunner::sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
+                                                   const boost::filesystem::path& path) {
     boost::system::error_code errorCode;
     auto spaceInfo = boost::filesystem::space(path, errorCode);
 
@@ -478,7 +468,13 @@ bool CForecastRunner::sufficientAvailableDiskSpace(const boost::filesystem::path
         return false;
     }
 
-    return spaceInfo.available > MIN_FORECAST_AVAILABLE_DISK_SPACE;
+    if (spaceInfo.available < minForecastAvailableDiskSpace) {
+        LOG_WARN(<< "Checked disk space for " << path << " - required: " << minForecastAvailableDiskSpace
+                 << ", available: " << spaceInfo.available);
+        return false;
+    }
+
+    return true;
 }
 
 void CForecastRunner::sendScheduledMessage(const SForecast& forecastJob) const {

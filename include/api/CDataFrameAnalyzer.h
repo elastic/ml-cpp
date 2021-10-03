@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_api_CDataFrameAnalyzer_h
@@ -44,6 +49,9 @@ public:
                        TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier);
     ~CDataFrameAnalyzer();
 
+    CDataFrameAnalyzer(const CDataFrameAnalyzer&) = delete;
+    CDataFrameAnalyzer& operator=(const CDataFrameAnalyzer&) = delete;
+
     //! This is true if the analyzer is receiving control messages.
     bool usingControlMessages() const;
 
@@ -80,11 +88,12 @@ private:
     bool handleControlMessage(const TStrVec& fieldValues);
     void captureFieldNames(const TStrVec& fieldNames);
     void addRowToDataFrame(const TStrVec& fieldValues);
-    void monitorProgress(const CDataFrameAnalysisRunner& analysis,
-                         core::CRapidJsonConcurrentLineWriter& writer) const;
-    void writeProgress(int progress, core::CRapidJsonConcurrentLineWriter& writer) const;
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                         core::CRapidJsonConcurrentLineWriter& writer) const;
+    void writeInferenceModel(const CDataFrameAnalysisRunner& analysis,
+                             core::CRapidJsonConcurrentLineWriter& writer) const;
+    void writeInferenceModelMetadata(const CDataFrameAnalysisRunner& analysis,
+                                     core::CRapidJsonConcurrentLineWriter& writer) const;
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).

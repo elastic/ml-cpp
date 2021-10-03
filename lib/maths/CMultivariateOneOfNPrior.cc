@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CMultivariateOneOfNPrior.h>
@@ -54,7 +59,7 @@ const std::string DECAY_RATE_TAG("e");
 //! Get the min of \p x and \p y.
 TDouble10Vec min(const TDouble10Vec& x, const TDouble10Vec& y) {
     TDouble10Vec result(x);
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         result[i] = std::min(result[i], y[i]);
     }
     return result;
@@ -63,7 +68,7 @@ TDouble10Vec min(const TDouble10Vec& x, const TDouble10Vec& y) {
 //! Get the max of \p x and \p y.
 TDouble10Vec max(const TDouble10Vec& x, const TDouble10Vec& y) {
     TDouble10Vec result(x);
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         result[i] = std::max(result[i], y[i]);
     }
     return result;
@@ -74,7 +79,7 @@ void updateMean(const TDouble10Vec& x, double nx, TDouble10Vec& mean, double& n)
     if (nx <= 0.0) {
         return;
     }
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         mean[i] = (n * mean[i] + nx * x[i]) / (n + nx);
     }
     n += nx;
@@ -85,8 +90,8 @@ void updateMean(const TDouble10Vec10Vec& x, double nx, TDouble10Vec10Vec& mean, 
     if (nx <= 0.0) {
         return;
     }
-    for (std::size_t i = 0u; i < x.size(); ++i) {
-        for (std::size_t j = 0u; j < x[i].size(); ++j) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
+        for (std::size_t j = 0; j < x[i].size(); ++j) {
             mean[i][j] = (n * mean[i][j] + nx * x[i][j]) / (n + nx);
         }
     }
@@ -392,7 +397,7 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
 }
 
 void CMultivariateOneOfNPrior::propagateForwardsByTime(double time) {
-    if (!CMathsFuncs::isFinite(time) || time < 0.0) {
+    if (CMathsFuncs::isFinite(time) == false || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
@@ -402,9 +407,7 @@ void CMultivariateOneOfNPrior::propagateForwardsByTime(double time) {
     double alpha = std::exp(-this->scaledDecayRate() * time);
 
     for (auto& model : m_Models) {
-        if (!this->isForForecasting()) {
-            model.first.age(alpha);
-        }
+        model.first.age(alpha);
         model.second->propagateForwardsByTime(time);
     }
 
@@ -434,7 +437,7 @@ CMultivariateOneOfNPrior::univariate(const TSize10Vec& marginalize,
         }
     }
 
-    for (std::size_t i = 0u; i < weights.size(); ++i) {
+    for (std::size_t i = 0; i < weights.size(); ++i) {
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
@@ -467,7 +470,7 @@ CMultivariateOneOfNPrior::bivariate(const TSize10Vec& marginalize,
         }
     }
 
-    for (std::size_t i = 0u; i < weights.size(); ++i) {
+    for (std::size_t i = 0; i < weights.size(); ++i) {
         models[i].first *= std::exp(weights[i] - maxWeight[0]) / Z;
     }
 
@@ -534,7 +537,7 @@ TDouble10Vec10Vec CMultivariateOneOfNPrior::marginalLikelihoodCovariance() const
 
     TDouble10Vec10Vec result(m_Dimension, TDouble10Vec(m_Dimension, 0.0));
     if (this->isNonInformative()) {
-        for (std::size_t i = 0u; i < m_Dimension; ++i) {
+        for (std::size_t i = 0; i < m_Dimension; ++i) {
             result[i][i] = INF;
         }
         return result;
@@ -694,14 +697,14 @@ void CMultivariateOneOfNPrior::sampleMarginalLikelihood(std::size_t numberSample
     }
 
     TDouble10VecDouble10VecPr support = this->marginalLikelihoodSupport();
-    for (std::size_t i = 0u; i < m_Dimension; ++i) {
+    for (std::size_t i = 0; i < m_Dimension; ++i) {
         support.first[i] = CTools::shiftRight(support.first[i]);
         support.second[i] = CTools::shiftLeft(support.second[i]);
     }
 
     samples.reserve(numberSamples);
     TDouble10Vec1Vec modelSamples;
-    for (std::size_t i = 0u; i < m_Models.size(); ++i) {
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
         modelSamples.clear();
         m_Models[i].second->sampleMarginalLikelihood(sampling[i], modelSamples);
         for (const auto& sample : modelSamples) {
@@ -747,7 +750,7 @@ uint64_t CMultivariateOneOfNPrior::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Models);
 }
 
-void CMultivariateOneOfNPrior::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMultivariateOneOfNPrior::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMultivariateOneOfNPrior");
     core::CMemoryDebug::dynamicSize("m_Models", m_Models, mem);
 }

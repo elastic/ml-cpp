@@ -1,59 +1,61 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CStopWatchTest.h"
 
 #include <core/CLogger.h>
-#include <core/CSleep.h>
 #include <core/CStopWatch.h>
 
-#include <stdint.h>
+#include <chrono>
+#include <cstdint>
+#include <thread>
 
-CppUnit::Test* CStopWatchTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStopWatchTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStopWatchTest>(
-        "CStopWatchTest::testStopWatch", &CStopWatchTest::testStopWatch));
+BOOST_AUTO_TEST_SUITE(CStopWatchTest)
 
-    return suiteOfTests;
-}
-
-void CStopWatchTest::testStopWatch() {
+BOOST_AUTO_TEST_CASE(testStopWatch) {
     ml::core::CStopWatch stopWatch;
 
     LOG_DEBUG(<< "About to start stop watch test");
 
     stopWatch.start();
 
-    ml::core::CSleep::sleep(5500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5500));
 
-    uint64_t elapsed(stopWatch.lap());
+    std::uint64_t elapsed{stopWatch.lap()};
 
     LOG_DEBUG(<< "After a 5.5 second wait, the stop watch reads " << elapsed << " milliseconds");
 
-    // Elapsed time should be between 5.4 and 5.6 seconds
-    CPPUNIT_ASSERT(elapsed >= 5400);
-    CPPUNIT_ASSERT(elapsed <= 5600);
+    // Elapsed time should be between 5.4 and 5.7 seconds
+    BOOST_TEST_REQUIRE(elapsed >= 5400);
+    BOOST_TEST_REQUIRE(elapsed <= 5700);
+    std::uint64_t previousElapsed{elapsed};
 
-    ml::core::CSleep::sleep(3500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(3500));
 
     elapsed = stopWatch.stop();
 
     LOG_DEBUG(<< "After a further 3.5 second wait, the stop watch reads "
               << elapsed << " milliseconds");
 
-    // Elapsed time should be between 8.9 and 9.1 seconds
-    CPPUNIT_ASSERT(elapsed >= 8900);
-    CPPUNIT_ASSERT(elapsed <= 9100);
+    // Elapsed time should have increased by between 3.4 and 3.7 seconds
+    BOOST_TEST_REQUIRE(elapsed >= previousElapsed + 3400);
+    BOOST_TEST_REQUIRE(elapsed <= previousElapsed + 3700);
+    previousElapsed = elapsed;
 
     // The stop watch should not count this time, as it's stopped
-    ml::core::CSleep::sleep(2000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
     stopWatch.start();
 
-    ml::core::CSleep::sleep(500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     elapsed = stopWatch.stop();
 
@@ -62,7 +64,9 @@ void CStopWatchTest::testStopWatch() {
                  "reads "
               << elapsed << " milliseconds");
 
-    // Elapsed time should be between 9.4 and 9.6 seconds
-    CPPUNIT_ASSERT(elapsed >= 9400);
-    CPPUNIT_ASSERT(elapsed <= 9600);
+    // Elapsed time should have increased by between 0.4 and 0.7 seconds
+    BOOST_TEST_REQUIRE(elapsed >= previousElapsed + 400);
+    BOOST_TEST_REQUIRE(elapsed <= previousElapsed + 700);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

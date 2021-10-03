@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CNaiveBayes_h
@@ -67,7 +72,7 @@ public:
     virtual void propagateForwardsByTime(double time) = 0;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const = 0;
@@ -120,7 +125,7 @@ public:
     virtual void propagateForwardsByTime(double time);
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the static size of this object.
     virtual std::size_t staticSize() const;
@@ -133,6 +138,11 @@ public:
 
     //! Get a human readable description of the class density function.
     virtual std::string print() const;
+
+private:
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
 
 private:
     using TPriorPtr = std::unique_ptr<CPrior>;
@@ -221,7 +231,7 @@ public:
     TDoubleSizePrVec classProbabilities(const TDouble1VecVec& x) const;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
@@ -261,7 +271,7 @@ private:
         TFeatureDensityPtrVec& conditionalDensities();
 
         //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
         //! Get the memory used by this object.
         std::size_t memoryUsage() const;
 

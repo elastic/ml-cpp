@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CBjkstUniqueValues.h>
@@ -50,17 +55,20 @@ using TUInt8UInt8Pr = std::pair<uint8_t, uint8_t>;
 //!   |(g(x) >> 8) % 256|    g(x) % 256   |    zeros(x)     |
 //! \endcode
 // clang-format off
-class CHashIterator : public std::iterator<std::random_access_iterator_tag, uint16_t>,
-                      private boost::less_than_comparable<CHashIterator,
-                              boost::addable<CHashIterator, ptrdiff_t,
-                              boost::subtractable<CHashIterator, ptrdiff_t>> > {
+class EMPTY_BASE_OPT CHashIterator final
+    : private boost::less_than_comparable<CHashIterator,
+              boost::addable<CHashIterator, ptrdiff_t,
+              boost::subtractable<CHashIterator, ptrdiff_t>>> {
     // clang-format on
 public:
-    //! The STL that comes with g++ requires a default constructor - this
-    //! will create an object that's suitable only to be assigned to, which
-    //! is hopefully all g++'s STL does with it!
-    CHashIterator() : m_Itr() {}
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = uint16_t;
+    using difference_type = ptrdiff_t;
+    using pointer = void;
+    using reference = void;
 
+public:
+    CHashIterator() = default;
     CHashIterator(TUInt8VecItr itr) : m_Itr(itr) {}
 
     TUInt8VecItr base() const { return m_Itr; }
@@ -161,8 +169,8 @@ void prune(TUInt8Vec& b, uint8_t z) {
     //  |<---8 bits--->|<---8 bits--->|<---8 bits--->|
     //  |(g >> 8) % 256|    g % 256   |    zeros     |
 
-    std::size_t j = 0u;
-    for (std::size_t i = 0u; i < b.size(); i += 3) {
+    std::size_t j = 0;
+    for (std::size_t i = 0; i < b.size(); i += 3) {
         if (b[i + 2] >= z) {
             b[j] = b[i];
             b[j + 1] = b[i + 1];
@@ -231,8 +239,8 @@ uint8_t CBjkstUniqueValues::trailingZeros(uint32_t value) {
     static const uint32_t MASKS[] = {0xffff, 0xff, 0xf, 0x3, 0x1};
     static const uint8_t SHIFTS[] = {16, 8, 4, 2, 1};
 
-    uint8_t result = 0u;
-    for (std::size_t i = 0u; i < 5; ++i) {
+    uint8_t result = 0;
+    for (std::size_t i = 0; i < 5; ++i) {
         switch (value & MASKS[i]) {
         case 0:
             value >>= SHIFTS[i];
@@ -252,11 +260,13 @@ CBjkstUniqueValues::CBjkstUniqueValues(std::size_t numberHashes, std::size_t max
 
 CBjkstUniqueValues::CBjkstUniqueValues(core::CStateRestoreTraverser& traverser)
     : m_MaxSize(0), m_NumberHashes(0) {
-    traverser.traverseSubLevel(std::bind(&CBjkstUniqueValues::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CBjkstUniqueValues::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
-void CBjkstUniqueValues::swap(CBjkstUniqueValues& other) {
+void CBjkstUniqueValues::swap(CBjkstUniqueValues& other) noexcept {
     if (this == &other) {
         return;
     }
@@ -328,7 +338,19 @@ bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         }
     } while (traverser.next());
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CBjkstUniqueValues::checkRestoredInvariants() const {
+    const SSketch* sketch = boost::get<SSketch>(&m_Sketch);
+    if (sketch != nullptr) {
+        VIOLATES_INVARIANT(sketch->s_G.size(), !=, sketch->s_H.size());
+        VIOLATES_INVARIANT(sketch->s_H.size(), !=, sketch->s_Z.size());
+        VIOLATES_INVARIANT(sketch->s_Z.size(), !=, sketch->s_B.size());
+        VIOLATES_INVARIANT(sketch->s_B.size(), !=, m_NumberHashes);
+    }
 }
 
 void CBjkstUniqueValues::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -415,7 +437,7 @@ uint64_t CBjkstUniqueValues::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, *values);
 }
 
-void CBjkstUniqueValues::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CBjkstUniqueValues::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CBjkstUniqueValues");
     const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
     if (values) {
@@ -484,7 +506,7 @@ void CBjkstUniqueValues::sketch() {
             TUInt32Vec values_;
             values_.swap(*values);
             m_Sketch = SSketch(m_NumberHashes);
-            for (std::size_t i = 0u; i < values_.size(); ++i) {
+            for (std::size_t i = 0; i < values_.size(); ++i) {
                 this->add(values_[i]);
             }
         }
@@ -501,7 +523,7 @@ CBjkstUniqueValues::SSketch::SSketch(std::size_t numberHashes) {
     s_B.resize(numberHashes, TUInt8Vec());
 }
 
-void CBjkstUniqueValues::SSketch::swap(SSketch& other) {
+void CBjkstUniqueValues::SSketch::swap(SSketch& other) noexcept {
     s_G.swap(other.s_G);
     s_H.swap(other.s_H);
     s_Z.swap(other.s_Z);
@@ -560,7 +582,7 @@ void CBjkstUniqueValues::SSketch::acceptPersistInserter(core::CStatePersistInser
         HASH_H_TAG, core::CPersistUtils::toString(s_H, hashToString, DELIMITER));
     inserter.insertValue(
         Z_TAG, core::CPersistUtils::toString(s_Z, CToString<int>(), DELIMITER));
-    for (std::size_t i = 0u; i < s_B.size(); ++i) {
+    for (std::size_t i = 0; i < s_B.size(); ++i) {
         inserter.insertValue(B_TAG, core::CPersistUtils::toString(
                                         s_B[i], CToString<int>(), DELIMITER));
     }
@@ -568,7 +590,7 @@ void CBjkstUniqueValues::SSketch::acceptPersistInserter(core::CStatePersistInser
 
 void CBjkstUniqueValues::SSketch::add(std::size_t maxSize, uint32_t value) {
     LOG_TRACE(<< "Adding " << value);
-    for (std::size_t i = 0u; i < s_Z.size(); ++i) {
+    for (std::size_t i = 0; i < s_Z.size(); ++i) {
         uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
             TUInt8Vec& b = s_B[i];
@@ -593,7 +615,7 @@ void CBjkstUniqueValues::SSketch::add(std::size_t maxSize, uint32_t value) {
 }
 
 void CBjkstUniqueValues::SSketch::remove(uint32_t value) {
-    for (std::size_t i = 0u; i < s_Z.size(); ++i) {
+    for (std::size_t i = 0; i < s_Z.size(); ++i) {
         uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
             TUInt8Vec& b = s_B[i];
@@ -608,7 +630,7 @@ uint32_t CBjkstUniqueValues::SSketch::number() const {
     // This uses the median trick to reduce the error.
     TUInt32Vec estimates;
     estimates.reserve(s_Z.size());
-    for (std::size_t i = 0u; i < s_Z.size(); ++i) {
+    for (std::size_t i = 0; i < s_Z.size(); ++i) {
         LOG_TRACE(<< "|B| = " << s_B[i].size()
                   << ", z = " << static_cast<uint32_t>(s_Z[i]));
         estimates.push_back(static_cast<uint32_t>(s_B[i].size() / 3) * (1 << s_Z[i]));

@@ -1,21 +1,24 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/ModelTypes.h>
 
 #include <core/Constants.h>
 
-#include <maths/CMultivariatePrior.h>
-#include <maths/CPrior.h>
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CTimeSeriesMultibucketFeatures.h>
 
 #include <model/CAnomalyDetector.h>
-#include <model/CModelParams.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
+#include <model/SModelParams.h>
 
 namespace ml {
 namespace model_t {
@@ -640,7 +643,7 @@ double offsetCountToZero(EFeature feature, double count) {
 }
 
 void offsetCountToZero(EFeature feature, TDouble1Vec& count) {
-    for (std::size_t i = 0u; i < count.size(); ++i) {
+    for (std::size_t i = 0; i < count.size(); ++i) {
         count[i] = offsetCountToZero(feature, count[i]);
     }
 }
@@ -688,7 +691,7 @@ double inverseOffsetCountToZero(EFeature feature, double count) {
 }
 
 void inverseOffsetCountToZero(EFeature feature, TDouble1Vec& count) {
-    for (std::size_t i = 0u; i < count.size(); ++i) {
+    for (std::size_t i = 0; i < count.size(); ++i) {
         count[i] = inverseOffsetCountToZero(feature, count[i]);
     }
 }
@@ -2042,6 +2045,30 @@ std::string print(EMemoryStatus memoryStatus) {
         return "soft_limit";
     case E_MemoryStatusHardLimit:
         return "hard_limit";
+    }
+    return "-";
+}
+
+std::string print(EAssignmentMemoryBasis assignmentMemoryBasis) {
+    switch (assignmentMemoryBasis) {
+    case E_AssignmentBasisUnknown:
+        return "unknown";
+    case E_AssignmentBasisModelMemoryLimit:
+        return "model_memory_limit";
+    case E_AssignmentBasisCurrentModelBytes:
+        return "current_model_bytes";
+    case E_AssignmentBasisPeakModelBytes:
+        return "peak_model_bytes";
+    }
+    return "-";
+}
+
+std::string print(ECategorizationStatus categorizationStatus) {
+    switch (categorizationStatus) {
+    case E_CategorizationStatusOk:
+        return "ok";
+    case E_CategorizationStatusWarn:
+        return "warn";
     }
     return "-";
 }

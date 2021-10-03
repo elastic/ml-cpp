@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CEventRateAnomalyDetectorTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -24,7 +27,11 @@
 #include <model/CSearchKey.h>
 #include <model/FunctionTypes.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <fstream>
+
+BOOST_AUTO_TEST_SUITE(CEventRateAnomalyDetectorTest)
 
 namespace {
 
@@ -120,19 +127,19 @@ void importData(ml::core_t::TTime firstTime,
     using TifstreamPtrVec = std::vector<TifstreamPtr>;
 
     TifstreamPtrVec ifss;
-    for (std::size_t i = 0u; i < fileNames.size(); ++i) {
+    for (std::size_t i = 0; i < fileNames.size(); ++i) {
         TifstreamPtr ifs(new std::ifstream(fileNames[i].c_str()));
-        CPPUNIT_ASSERT(ifs->is_open());
+        BOOST_TEST_REQUIRE(ifs->is_open());
         ifss.push_back(ifs);
     }
 
     ml::core_t::TTime lastBucketTime = ml::maths::CIntegerTools::ceil(firstTime, bucketLength);
 
     TTimeVec times(ifss.size());
-    for (std::size_t i = 0u; i < ifss.size(); ++i) {
+    for (std::size_t i = 0; i < ifss.size(); ++i) {
         std::string line;
         std::getline(*ifss[i], line);
-        CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(line, times[i]));
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(line, times[i]));
     }
 
     ml::core_t::TTime time(0);
@@ -159,7 +166,7 @@ void importData(ml::core_t::TTime firstTime,
             times[file] = std::numeric_limits<ml::core_t::TTime>::max();
             ifss[file].reset();
         } else {
-            CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(line, times[file]));
+            BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(line, times[file]));
         }
     }
 
@@ -169,7 +176,7 @@ void importData(ml::core_t::TTime firstTime,
 }
 }
 
-void CEventRateAnomalyDetectorTest::testAnomalies() {
+BOOST_AUTO_TEST_CASE(testAnomalies) {
     // We have 11 instances of correlated rare 503s and SQL statements.
     static const double HIGH_ANOMALY_SCORE(0.0014);
     static const size_t EXPECTED_ANOMALOUS_HOURS(11);
@@ -182,11 +189,10 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
-    ml::model::CSearchKey key(1, // identifier
+    ml::model::CSearchKey key(1, // detectorIndex
                               ml::model::function_t::E_IndividualRare, false,
                               ml::model_t::E_XF_None, EMPTY_STRING, "status");
-    ml::model::CAnomalyDetector detector(1, // identifier
-                                         limits, modelConfig, EMPTY_STRING,
+    ml::model::CAnomalyDetector detector(limits, modelConfig, EMPTY_STRING,
                                          FIRST_TIME, modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
     TStrVec files;
@@ -206,11 +212,11 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
         }
     }
 
-    CPPUNIT_ASSERT_EQUAL(EXPECTED_ANOMALOUS_HOURS, peaks.size());
+    BOOST_REQUIRE_EQUAL(EXPECTED_ANOMALOUS_HOURS, peaks.size());
 
-    std::size_t detected503 = 0u;
-    std::size_t detectedMySQL = 0u;
-    for (std::size_t i = 0u; i < peaks.size(); ++i) {
+    std::size_t detected503 = 0;
+    std::size_t detectedMySQL = 0;
+    for (std::size_t i = 0; i < peaks.size(); ++i) {
         LOG_DEBUG(<< "Checking for status 503 anomaly at " << peaks[i]);
         if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/status503.txt"))) {
             ++detected503;
@@ -221,11 +227,11 @@ void CEventRateAnomalyDetectorTest::testAnomalies() {
         }
     }
     LOG_DEBUG(<< "# 503 = " << detected503 << ", # My SQL = " << detectedMySQL);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(11), detected503);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(11), detectedMySQL);
+    BOOST_REQUIRE_EQUAL(std::size_t(11), detected503);
+    BOOST_REQUIRE_EQUAL(std::size_t(11), detectedMySQL);
 }
 
-void CEventRateAnomalyDetectorTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     static const ml::core_t::TTime FIRST_TIME(1346713620);
     static const ml::core_t::TTime LAST_TIME(1347317974);
     static const ml::core_t::TTime BUCKET_SIZE(3600);
@@ -234,12 +240,11 @@ void CEventRateAnomalyDetectorTest::testPersist() {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
-    ml::model::CSearchKey key(1, // identifier
+    ml::model::CSearchKey key(1, // detectorIndex
                               ml::model::function_t::E_IndividualCount, false,
                               ml::model_t::E_XF_None, EMPTY_STRING, "status");
 
-    ml::model::CAnomalyDetector origDetector(1, // identifier
-                                             limits, modelConfig, EMPTY_STRING,
+    ml::model::CAnomalyDetector origDetector(limits, modelConfig, EMPTY_STRING,
                                              FIRST_TIME, modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
     TStrVec files;
@@ -257,37 +262,25 @@ void CEventRateAnomalyDetectorTest::testPersist() {
     LOG_TRACE(<< "Event rate detector XML representation:\n" << origXml);
 
     // Restore the XML into a new detector
-    ml::model::CAnomalyDetector restoredDetector(1, // identifier
-                                                 limits, modelConfig, "", 0,
+    ml::model::CAnomalyDetector restoredDetector(limits, modelConfig, "", 0,
                                                  modelConfig.factory(key));
     {
         ml::core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&ml::model::CAnomalyDetector::acceptRestoreTraverser,
                       &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
 
-    // The XML representation of the new typer should be the same as the original
+    // The XML representation of the new detector should be the same as the original
     std::string newXml;
     {
         ml::core::CRapidXmlStatePersistInserter inserter("root");
         restoredDetector.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CEventRateAnomalyDetectorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CEventRateAnomalyDetectorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-        "CEventRateAnomalyDetectorTest::testAnomalies",
-        &CEventRateAnomalyDetectorTest::testAnomalies));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CEventRateAnomalyDetectorTest>(
-        "CEventRateAnomalyDetectorTest::testPersist",
-        &CEventRateAnomalyDetectorTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

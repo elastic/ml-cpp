@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CCalendarComponent_h
@@ -93,6 +98,9 @@ public:
     //! less influence it has on the component.
     void add(core_t::TTime time, double value, double weight = 1.0);
 
+    //! Check whether to reinterpolate the component predictions.
+    bool shouldInterpolate(core_t::TTime time) const;
+
     //! Update the interpolation of the bucket values.
     //!
     //! \param[in] time The time at which to interpolate.
@@ -135,7 +143,7 @@ public:
     uint64_t checksum(uint64_t seed = 0) const;
 
     //! Debug the memory used by this component.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component.
     std::size_t memoryUsage() const;
@@ -152,6 +160,9 @@ private:
 private:
     //! The mean and variance in collection of buckets covering the period.
     CCalendarComponentAdaptiveBucketing m_Bucketing;
+
+    //! The last interpolation time.
+    core_t::TTime m_LastInterpolationTime;
 };
 
 //! Create a free function which will be found by Koenig lookup.

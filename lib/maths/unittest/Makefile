@@ -1,7 +1,12 @@
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 include $(CPP_SRC_HOME)/mk/defines.mk
 
@@ -9,6 +14,7 @@ TARGET=ml_test$(EXE_EXT)
 
 USE_BOOST=1
 USE_BOOST_FILESYSTEM_LIBS=1
+USE_BOOST_TEST_LIBS=1
 USE_RAPIDJSON=1
 USE_EIGEN=1
 
@@ -18,11 +24,14 @@ all: build
 
 SRCS=\
 	Main.cc \
+	CAdaptiveBucketingTest.cc \
 	CAgglomerativeClustererTest.cc \
 	CAssignmentTest.cc \
 	CBasicStatisticsTest.cc \
 	CBayesianOptimisationTest.cc \
 	CBjkstUniqueValuesTest.cc \
+	CBoostedTreeLeafNodeStatisticsTest.cc \
+	CBoostedTreeLossTest.cc \
 	CBoostedTreeTest.cc \
 	CBootstrapClustererTest.cc \
 	CBoundingBoxTest.cc \
@@ -54,6 +63,7 @@ SRCS=\
 	CLinearAlgebraTest.cc \
 	CLogNormalMeanPrecConjugateTest.cc \
 	CLogTDistributionTest.cc \
+	CLowessTest.cc \
 	CMathsFuncsTest.cc \
 	CMathsMemoryTest.cc \
 	CMicTest.cc \
@@ -73,7 +83,6 @@ SRCS=\
 	COrdinalTest.cc \
 	COrthogonaliserTest.cc \
 	COutliersTest.cc \
-	CPeriodicityHypothesisTestsTest.cc \
 	CPoissonMeanConjugateTest.cc \
 	CPriorTest.cc \
 	CPRNGTest.cc \
@@ -82,26 +91,28 @@ SRCS=\
 	CQDigestTest.cc \
 	CQuantileSketchTest.cc \
 	CRadialBasisFunctionTest.cc \
-	CRandomizedPeriodicityTestTest.cc \
 	CRandomProjectionClustererTest.cc \
 	CSamplingTest.cc \
 	CSeasonalComponentTest.cc \
 	CSeasonalComponentAdaptiveBucketingTest.cc \
+	CSeasonalTimeTest.cc \
 	CSetToolsTest.cc \
 	CSignalTest.cc \
 	CSolversTest.cc \
 	CSplineTest.cc \
 	CStatisticalTestsTest.cc \
-	CTimeSeriesChangeDetectorTest.cc \
 	CTimeSeriesDecompositionTest.cc \
 	CTimeSeriesModelTest.cc \
 	CTimeSeriesMultibucketFeaturesTest.cc \
 	CTimeSeriesSegmentationTest.cc \
+	CTimeSeriesTestForChangeTest.cc \
+	CTimeSeriesTestForSeasonalityTest.cc \
 	CToolsTest.cc \
+	CTreeShapFeatureImportanceTest.cc \
 	CTrendComponentTest.cc \
 	CXMeansOnlineTest.cc \
 	CXMeansOnline1dTest.cc \
 	CXMeansTest.cc \
 	TestUtils.cc \
 
-include $(CPP_SRC_HOME)/mk/stdcppunit.mk
+include $(CPP_SRC_HOME)/mk/stdboosttest.mk

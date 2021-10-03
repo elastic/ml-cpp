@@ -190,7 +190,8 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
        Reference                                   | Calling function
        Const reference                             | Calling function
 
-1.  Explicit integer definitions, specifying size, SHOULD be used
+1. `if` statements SHOULD be fully qualified. The exception is where it is clear that a boolean expression is being tested.
+1. Explicit integer definitions, specifying size, SHOULD be used
 1.  Member functions MUST be scoped with `this->` when called
 1.  Floating point variables SHOULD be `double`
 1.  Lambdas SHOULD be used in preference to any form of `bind`
@@ -244,7 +245,7 @@ The use of the words SHOULD, MUST etc., comply with RFC 2119.
 
 ## Testing
 
-The CPPUNIT framework is used for testing the Elastic Machine Learning C++ code.
+The Boost.Test framework is used for testing the Elastic Machine Learning C++ code.
 
 1.  Every class SHOULD have a corresponding unit test suite
 1.  Test classes SHOULD belong to the parent or global namespace

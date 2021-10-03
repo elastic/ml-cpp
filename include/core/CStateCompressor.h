@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CStateCompressor_h
 #define INCLUDED_ml_core_CStateCompressor_h
@@ -69,15 +74,15 @@ public:
         //! Interface method: flush the output and close the stream
         void close();
 
-        //! Set the search ID to use
-        void index(const std::string& index, const std::string& id);
+        //! Set the base ID to use in searches
+        void baseId(const std::string& baseId);
 
         //! True if all of the chunked writes were successful.
         //! If one or any of the writes failed the result is false
         bool allWritesSuccessful();
 
         //! How many compressed documents have been generated?
-        size_t numCompressedDocs() const;
+        std::size_t numCompressedDocs() const;
 
     private:
         //! Handle the details of writing a stream of bytes to the internal
@@ -103,9 +108,6 @@ public:
         //! The largest document size permitted by the downstream CDataAdder
         std::size_t m_MaxDocSize;
 
-        //! The search index to use - set by the upstream CDataAdder
-        std::string m_Index;
-
         //! The base ID
         std::string m_BaseId;
 
@@ -125,24 +127,21 @@ public:
     //! As this class compresses incoming stream data, it is responsible for
     //! dealing with the underlying storage layer, so only 1 stream will ever
     //! be given out to clients.
-    virtual TOStreamP addStreamed(const std::string& index, const std::string& id);
+    TOStreamP addStreamed(const std::string& id) override;
 
     //! Clients that get a stream using addStreamed() must call this
     //! method one they've finished sending data to the stream.
     //! They should set force to true.
     //! Returns true if all of the chunked uploads were
     //! successful
-    virtual bool streamComplete(TOStreamP& strm, bool force);
+    bool streamComplete(TOStreamP& strm, bool force) override;
 
     //! How many compressed documents have been generated?
-    size_t numCompressedDocs() const;
+    std::size_t numCompressedDocs() const;
 
 private:
     //! The chunking part of the iostreams filter chain
     CChunkFilter m_FilterSink;
-
-    //! The iostreams filter chain that handles compression/chunking
-    TFilteredOutputP m_OutFilter;
 
     TCompressOStreamP m_OutStream;
 };

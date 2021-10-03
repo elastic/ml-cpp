@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CTimeSeriesModel.h>
@@ -12,6 +17,7 @@
 #include <core/RestoreMacros.h>
 #include <core/UnwrapRef.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CDecayRateController.h>
 #include <maths/CModelDetail.h>
@@ -21,7 +27,6 @@
 #include <maths/CPrior.h>
 #include <maths/CPriorStateSerialiser.h>
 #include <maths/CRestoreParams.h>
-#include <maths/CTimeSeriesChangeDetector.h>
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CTimeSeriesDecompositionStateSerialiser.h>
 #include <maths/CTimeSeriesMultibucketFeatureSerialiser.h>
@@ -29,6 +34,7 @@
 #include <maths/CTimeSeriesSegmentation.h>
 #include <maths/CTools.h>
 #include <maths/Constants.h>
+#include <maths/MathsTypes.h>
 
 #include <cmath>
 #include <cstddef>
@@ -69,21 +75,6 @@ const std::size_t MAXIMUM_CORRELATIONS{5000};
 const double MINIMUM_CORRELATE_PRIOR_SAMPLE_COUNT{24.0};
 const TSize10Vec NOTHING_TO_MARGINALIZE;
 const TSizeDoublePr10Vec NOTHING_TO_CONDITION;
-const double CHANGE_P_VALUE{5e-4};
-
-//! Convert \p value to comma separated string.
-std::string toDelimited(const TTimeDoublePr& value) {
-    return core::CStringUtils::typeToString(value.first) + ',' +
-           core::CStringUtils::typeToStringPrecise(value.second, core::CIEEE754::E_SinglePrecision);
-}
-
-//! Extract \p value from comma separated string.
-bool fromDelimited(const std::string& str, TTimeDoublePr& value) {
-    std::size_t pos{str.find(',')};
-    return pos != std::string::npos &&
-           core::CStringUtils::stringToType(str.substr(0, pos), value.first) &&
-           core::CStringUtils::stringToType(str.substr(pos + 1), value.second);
-}
 
 //! Expand \p calculation for computing multibucket anomalies.
 TCalculation2Vec expand(maths_t::EProbabilityCalculation calculation) {
@@ -111,9 +102,23 @@ double aggregateFeatureProbabilities(const TDouble4Vec& probabilities, double co
     return probabilities[0];
 }
 
+std::shared_ptr<CPrior> conditional(const CMultivariatePrior& prior,
+                                    std::size_t dimension,
+                                    const core::CSmallVector<double, 10>& value) {
+    std::size_t dimensions{prior.dimension()};
+    TSizeDoublePr10Vec condition(dimensions - 1);
+    for (std::size_t i = 0, j = 0; i < dimensions; ++i) {
+        if (i != dimension) {
+            condition[j++] = std::make_pair(i, value[i]);
+        }
+    }
+    return prior.univariate(NOTHING_TO_MARGINALIZE, condition).first;
+}
+
 const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_5_TAG("6.5");
 const std::string VERSION_7_3_TAG("7.3");
+const std::string VERSION_7_11_TAG("7.11");
 
 // Models
 // Version >= 6.3
@@ -127,9 +132,9 @@ const core::TPersistenceTag RESIDUAL_MODEL_6_3_TAG{"g", "residual_model"};
 const std::string ANOMALY_MODEL_6_3_TAG{"h"};
 
 //const std::string RECENT_SAMPLES_6_3_TAG{"i"}; Removed in 6.5
-const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"};
-const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"k"};
-const std::string CHANGE_DETECTOR_6_3_TAG{"l"};
+//const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"}; Removed in 7.11
+//const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"k"}; Removed in 7.11
+//const std::string CHANGE_DETECTOR_6_3_TAG{"l"}; Removed in 7.11
 const std::string MULTIBUCKET_FEATURE_6_3_TAG{"m"};
 const std::string MULTIBUCKET_FEATURE_MODEL_6_3_TAG{"n"};
 // Version < 6.3
@@ -163,24 +168,20 @@ const std::string FIRST_CORRELATE_ID_TAG{"a"};
 const std::string SECOND_CORRELATE_ID_TAG{"b"};
 const std::string CORRELATION_MODEL_TAG{"c"};
 const std::string CORRELATION_TAG{"d"};
-}
 
 namespace forecast {
-namespace {
 const std::string INFO_INSUFFICIENT_HISTORY{"Insufficient history to forecast"};
 const std::string INFO_COULD_NOT_FORECAST_FOR_FULL_DURATION{
     "Unable to accurately forecast for the full requested time interval"};
 const std::string ERROR_MULTIVARIATE{"Forecast not supported for multivariate features"};
 }
-}
 
 namespace winsorisation {
-namespace {
+constexpr double MINIMUM_WEIGHT{0.01};
 const double MAXIMUM_P_VALUE{1e-3};
-const double MINIMUM_P_VALUE{1e-6};
+const double MINIMUM_P_VALUE{1e-5};
 const double LOG_MAXIMUM_P_VALUE{std::log(MAXIMUM_P_VALUE)};
 const double LOG_MINIMUM_P_VALUE{std::log(MINIMUM_P_VALUE)};
-const double LOG_MINIMUM_WEIGHT{std::log(MINIMUM_WEIGHT)};
 const double MINUS_LOG_TOLERANCE{
     -std::log(1.0 - 100.0 * std::numeric_limits<double>::epsilon())};
 
@@ -190,44 +191,32 @@ double deratedMinimumWeight(double derate) {
     return MINIMUM_WEIGHT + (0.5 - MINIMUM_WEIGHT) * derate;
 }
 
-//! Get the one tail p-value from a specified Winsorisation weight.
-double pValueFromWeight(double weight) {
-    if (weight >= 1.0) {
-        return 1.0;
-    }
-
-    double logw{std::log(std::max(weight, MINIMUM_WEIGHT))};
-    return std::exp(0.5 * (LOG_MAXIMUM_P_VALUE -
-                           std::sqrt(CTools::pow2(LOG_MAXIMUM_P_VALUE) +
-                                     4.0 * logw / LOG_MINIMUM_WEIGHT * LOG_MINIMUM_P_VALUE *
-                                         (LOG_MINIMUM_P_VALUE - LOG_MAXIMUM_P_VALUE))));
-}
-}
-
-double weight(const CPrior& prior, double derate, double scale, double value) {
-    double minimumWeight{deratedMinimumWeight(derate)};
-
-    double f{};
+//! Compute the one tail p-value of \p value.
+double computePValue(const CPrior& prior, const maths_t::TDoubleWeightsAry& weights, double value) {
     double lowerBound;
     double upperBound;
-    if (!prior.minusLogJointCdf({value}, {maths_t::seasonalVarianceScaleWeight(scale)},
-                                lowerBound, upperBound)) {
+    if (prior.minusLogJointCdf({value}, {weights}, lowerBound, upperBound) == false) {
         return 1.0;
-    } else if (upperBound >= MINUS_LOG_TOLERANCE) {
-        f = std::exp(-(lowerBound + upperBound) / 2.0);
-        f = std::min(f, 1.0 - f);
-    } else if (!prior.minusLogJointCdfComplement(
-                   {value}, {maths_t::seasonalVarianceScaleWeight(scale)},
-                   lowerBound, upperBound)) {
+    }
+    if (upperBound >= MINUS_LOG_TOLERANCE) {
+        double f{std::exp(-(lowerBound + upperBound) / 2.0)};
+        return std::min(f, 1.0 - f);
+    }
+    if (prior.minusLogJointCdfComplement({value}, {weights}, lowerBound, upperBound) == false) {
         return 1.0;
-    } else {
-        f = std::exp(-(lowerBound + upperBound) / 2.0);
+    }
+    return std::exp(-(lowerBound + upperBound) / 2.0);
+}
+
+double weight(const CPrior& prior, const maths_t::TDoubleWeightsAry& weights, double derate, double value) {
+
+    double pValue{computePValue(prior, weights, value)};
+    if (pValue >= MAXIMUM_P_VALUE) {
+        return 1.0;
     }
 
-    if (f >= MAXIMUM_P_VALUE) {
-        return 1.0;
-    }
-    if (f <= MINIMUM_P_VALUE) {
+    double minimumWeight{deratedMinimumWeight(derate)};
+    if (pValue <= MINIMUM_P_VALUE) {
         return minimumWeight;
     }
 
@@ -236,33 +225,12 @@ double weight(const CPrior& prior, double derate, double scale, double value) {
 
     double maximumExponent{-std::log(minimumWeight) / LOG_MINIMUM_P_VALUE /
                            (LOG_MINIMUM_P_VALUE - LOG_MAXIMUM_P_VALUE)};
-    double logf{std::log(f)};
-    double result{std::exp(-maximumExponent * logf * (logf - LOG_MAXIMUM_P_VALUE))};
+    double logPValue{std::log(pValue)};
+    double weight{std::exp(-maximumExponent * logPValue * (logPValue - LOG_MAXIMUM_P_VALUE))};
+    LOG_TRACE(<< "sample = " << value << " p-value = " << pValue << ", weight = " << weight);
 
-    if (CMathsFuncs::isNan(result)) {
-        return 1.0;
-    }
-
-    LOG_TRACE(<< "sample = " << value << " min(F, 1-F) = " << f << ", weight = " << result);
-
-    return result;
+    return CMathsFuncs::isNan(weight) ? 1.0 : weight;
 }
-
-double weight(const CMultivariatePrior& prior,
-              std::size_t dimension,
-              double derate,
-              double scale,
-              const core::CSmallVector<double, 10>& value) {
-    std::size_t dimensions = prior.dimension();
-    TSizeDoublePr10Vec condition(dimensions - 1);
-    for (std::size_t i = 0u, j = 0u; i < dimensions; ++i) {
-        if (i != dimension) {
-            condition[j++] = std::make_pair(i, value[i]);
-        }
-    }
-    std::shared_ptr<CPrior> conditional(
-        prior.univariate(NOTHING_TO_MARGINALIZE, condition).first);
-    return weight(*conditional, derate, scale, value[dimension]);
 }
 }
 
@@ -294,10 +262,10 @@ public:
     void propagateForwardsByTime(double time);
 
     //! Compute a checksum for this object.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
@@ -347,7 +315,7 @@ private:
         }
 
         //! Compute a checksum for this object.
-        uint64_t checksum(uint64_t seed) const {
+        std::uint64_t checksum(std::uint64_t seed) const {
             seed = CChecksum::calculate(seed, m_FirstAnomalousBucketTime);
             seed = CChecksum::calculate(seed, m_LastAnomalousBucketTime);
             seed = CChecksum::calculate(seed, m_SumPredictionError);
@@ -469,9 +437,11 @@ void CTimeSeriesAnomalyModel::sample(const CModelProbabilityParams& params, doub
     // this is the bit that we want to skip.
     // The rest of sample is necessary as it creates
     // the feature vector related to the current anomaly.
-    if (params.skipAnomalyModelUpdate() == false) {
+    double initialCountWeight{params.initialCountWeight()};
+    if (initialCountWeight > 0.0) {
         auto& model = m_AnomalyFeatureModels[m_Anomaly->positive() ? 0 : 1];
-        model.addSamples({m_Anomaly->features()}, {maths_t::countWeight(weight, 2)});
+        model.addSamples({m_Anomaly->features()},
+                         {maths_t::countWeight(weight * initialCountWeight, 2)});
     }
 }
 
@@ -556,14 +526,14 @@ void CTimeSeriesAnomalyModel::propagateForwardsByTime(double time) {
     m_AnomalyFeatureModels[1].propagateForwardsByTime(time);
 }
 
-uint64_t CTimeSeriesAnomalyModel::checksum(uint64_t seed) const {
+std::uint64_t CTimeSeriesAnomalyModel::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_BucketLength);
     seed = CChecksum::calculate(seed, m_Anomaly);
     seed = CChecksum::calculate(seed, m_AnomalyFeatureModels[0]);
     return CChecksum::calculate(seed, m_AnomalyFeatureModels[1]);
 }
 
-void CTimeSeriesAnomalyModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTimeSeriesAnomalyModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesAnomalyModel");
     core::CMemoryDebug::dynamicSize("m_Anomalies", m_Anomaly, mem);
     core::CMemoryDebug::dynamicSize("m_AnomalyFeatureModels", m_AnomalyFeatureModels, mem);
@@ -641,7 +611,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(
                                           params.bucketLength(),
                                           params.decayRate())
                                     : nullptr),
-      m_CurrentChangeInterval(0), m_Correlations(nullptr) {
+      m_Correlations(nullptr) {
     if (controllers) {
         m_Controllers = std::make_unique<TDecayRateController2Ary>(*controllers);
     }
@@ -697,7 +667,7 @@ CUnivariateTimeSeriesModel::TSize2Vec1Vec CUnivariateTimeSeriesModel::correlates
     TModelCPtr1Vec correlatedTimeSeriesModels;
     this->correlationModels(correlated, variables, correlationModels, correlatedTimeSeriesModels);
     result.resize(correlated.size(), TSize2Vec(2));
-    for (std::size_t i = 0u; i < correlated.size(); ++i) {
+    for (std::size_t i = 0; i < correlated.size(); ++i) {
         result[i][variables[i][0]] = m_Id;
         result[i][variables[i][1]] = correlated[i];
     }
@@ -726,9 +696,6 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
                          return samples[lhs].second < samples[rhs].second;
                      });
 
-    // Change detection.
-    EUpdateResult result{this->testAndApplyChange(params, valueorder, samples)};
-
     // Update the data characteristics.
     m_IsNonNegative = params.isNonNegative();
     maths_t::EDataType type{params.type()};
@@ -738,7 +705,7 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     }
     m_TrendModel->dataType(type);
 
-    result = CModel::combine(result, this->updateTrend(samples, params.trendWeights()));
+    EUpdateResult result{this->updateTrend(params, samples)};
 
     for (auto& sample : samples) {
         sample.second[0] = m_TrendModel->detrend(sample.first, sample.second[0], 0.0);
@@ -772,10 +739,11 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
 
     // Update the multi-bucket residual feature model.
     if (m_MultibucketFeatureModel != nullptr) {
+        TDouble2Vec seasonalWeight;
         for (auto i : valueorder) {
             core_t::TTime time{samples[i].first};
-            maths_t::setSeasonalVarianceScale(this->seasonalWeight(0.0, time)[0],
-                                              weights_[i]);
+            this->seasonalWeight(0.0, time, seasonalWeight);
+            maths_t::setSeasonalVarianceScale(seasonalWeight[0], weights_[i]);
         }
         m_MultibucketFeature->add(averageTime, this->params().bucketLength(),
                                   samples_, weights_);
@@ -833,7 +801,7 @@ CUnivariateTimeSeriesModel::correlateModes(core_t::TTime time,
 
         double baseline[2];
         baseline[0] = CBasicStatistics::mean(m_TrendModel->value(time));
-        for (std::size_t i = 0u; i < correlated.size(); ++i) {
+        for (std::size_t i = 0; i < correlated.size(); ++i) {
             baseline[1] = CBasicStatistics::mean(
                 correlatedTimeSeriesModels[i]->m_TrendModel->value(time));
             TDouble10Vec mode(correlationModels[i].first->marginalLikelihoodMode(
@@ -873,7 +841,7 @@ void CUnivariateTimeSeriesModel::detrend(const TTime2Vec1Vec& time,
         TModelCPtr1Vec correlatedTimeSeriesModels;
         if (this->correlationModels(correlated, variables, correlationModels,
                                     correlatedTimeSeriesModels)) {
-            for (std::size_t i = 0u; i < variables.size(); ++i) {
+            for (std::size_t i = 0; i < variables.size(); ++i) {
                 if (!value[i].empty()) {
                     value[i][variables[i][0]] = m_TrendModel->detrend(
                         time[i][variables[i][0]], value[i][variables[i][0]], confidenceInterval);
@@ -1073,9 +1041,11 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
     double pOverall{aggregateFeatureProbabilities(probabilities, correlation)};
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
+        TDouble2Vec seasonalWeight;
+        this->seasonalWeight(0.0, time, seasonalWeight);
         double residual{
             (sample[0] - m_ResidualModel->nearestMarginalLikelihoodMean(sample[0])) /
-            std::max(std::sqrt(this->seasonalWeight(0.0, time)[0]), 1.0)};
+            std::max(std::sqrt(seasonalWeight[0]), 1.0)};
         double pSingleBucket{probabilities[0]};
 
         m_AnomalyModel->sample(params, time, residual, pSingleBucket, pOverall);
@@ -1203,10 +1173,11 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     double pOverall{pSingleBucket};
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
-        double residual{
-            (mostAnomalousSample - mostAnomalousCorrelationModel->nearestMarginalLikelihoodMean(
-                                       mostAnomalousSample)) /
-            std::max(std::sqrt(this->seasonalWeight(0.0, mostAnomalousTime)[0]), 1.0)};
+        TDouble2Vec seasonalWeight;
+        this->seasonalWeight(0.0, mostAnomalousTime, seasonalWeight);
+        double residual{(mostAnomalousSample - mostAnomalousCorrelationModel->nearestMarginalLikelihoodMean(
+                                                   mostAnomalousSample)) /
+                        std::max(std::sqrt(seasonalWeight[0]), 1.0)};
 
         m_AnomalyModel->sample(params, mostAnomalousTime, residual, pSingleBucket, pOverall);
 
@@ -1226,24 +1197,70 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     return true;
 }
 
-CUnivariateTimeSeriesModel::TDouble2Vec
-CUnivariateTimeSeriesModel::winsorisationWeight(double derate,
-                                                core_t::TTime time,
-                                                const TDouble2Vec& value) const {
-    double scale{this->seasonalWeight(0.0, time)[0]};
+void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
+                                              const TDouble2Vec& value,
+                                              double trendCountWeight,
+                                              double residualCountWeight,
+                                              double winsorisationDerate,
+                                              double countVarianceScale,
+                                              TDouble2VecWeightsAry& trendWeights,
+                                              TDouble2VecWeightsAry& residuaWeights) const {
+    if (m_TrendModel->seasonalComponents().size() > 0) {
+        countVarianceScale = 1.0;
+    }
+
+    TDouble2Vec seasonalWeight;
+    this->seasonalWeight(0.0, time, seasonalWeight);
     double sample{m_TrendModel->detrend(time, value[0], 0.0)};
-    return {winsorisation::weight(*m_ResidualModel, derate, scale, sample)};
+    auto weights = maths_t::CUnitWeights::UNIT;
+    maths_t::setCount(std::min(residualCountWeight / trendCountWeight, 1.0), weights);
+    maths_t::setSeasonalVarianceScale(seasonalWeight[0], weights);
+    double winsorisationWeight{winsorisation::weight(
+        *m_ResidualModel, weights,
+        std::max(winsorisationDerate, m_TrendModel->winsorisationDerate(time)), sample)};
+
+    double changeWeight{m_TrendModel->countWeight(time)};
+    trendCountWeight /= countVarianceScale;
+    residualCountWeight *= changeWeight;
+
+    TDouble2Vec trendWinsorisationWeight{winsorisationWeight * changeWeight};
+    TDouble2Vec residualWinsorisationWeight{winsorisationWeight};
+
+    maths_t::setCount(TDouble2Vec{trendCountWeight}, trendWeights);
+    maths_t::setCount(TDouble2Vec{residualCountWeight}, residuaWeights);
+    maths_t::setWinsorisationWeight(trendWinsorisationWeight, trendWeights);
+    maths_t::setWinsorisationWeight(residualWinsorisationWeight, residuaWeights);
+    maths_t::setCountVarianceScale(TDouble2Vec{countVarianceScale}, trendWeights);
+    maths_t::setCountVarianceScale(TDouble2Vec{countVarianceScale}, residuaWeights);
 }
 
-CUnivariateTimeSeriesModel::TDouble2Vec
-CUnivariateTimeSeriesModel::seasonalWeight(double confidence, core_t::TTime time) const {
+void CUnivariateTimeSeriesModel::addCountWeights(core_t::TTime time,
+                                                 double trendCountWeight,
+                                                 double residualCountWeight,
+                                                 double countVarianceScale,
+                                                 TDouble2VecWeightsAry& trendWeights,
+                                                 TDouble2VecWeightsAry& residuaWeights) const {
+    if (m_TrendModel->seasonalComponents().empty()) {
+        countVarianceScale = 1.0;
+    }
+
+    residualCountWeight *= m_TrendModel->countWeight(time);
+    trendCountWeight /= countVarianceScale;
+
+    maths_t::addCount(TDouble2Vec{trendCountWeight}, trendWeights);
+    maths_t::addCount(TDouble2Vec{residualCountWeight}, residuaWeights);
+}
+
+void CUnivariateTimeSeriesModel::seasonalWeight(double confidence,
+                                                core_t::TTime time,
+                                                TDouble2Vec& weight) const {
     double scale{m_TrendModel
-                     ->scale(time, m_ResidualModel->marginalLikelihoodVariance(), confidence)
+                     ->varianceScaleWeight(time, m_ResidualModel->marginalLikelihoodVariance(), confidence)
                      .second};
-    return {std::max(scale, this->params().minimumSeasonalVarianceScale())};
+    weight.assign(1, std::max(scale, this->params().minimumSeasonalVarianceScale()));
 }
 
-uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const {
+std::uint64_t CUnivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_IsNonNegative);
     seed = CChecksum::calculate(seed, m_Controllers);
     seed = CChecksum::calculate(seed, m_TrendModel);
@@ -1251,13 +1268,10 @@ uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MultibucketFeature);
     seed = CChecksum::calculate(seed, m_MultibucketFeatureModel);
     seed = CChecksum::calculate(seed, m_AnomalyModel);
-    seed = CChecksum::calculate(seed, m_CandidateChangePoint);
-    seed = CChecksum::calculate(seed, m_CurrentChangeInterval);
-    seed = CChecksum::calculate(seed, m_ChangeDetector);
     return CChecksum::calculate(seed, m_Correlations != nullptr);
 }
 
-void CUnivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CUnivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CUnivariateTimeSeriesModel");
     core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
@@ -1266,7 +1280,6 @@ void CUnivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsa
     core::CMemoryDebug::dynamicSize("m_MultibucketFeatureModel",
                                     m_MultibucketFeatureModel, mem);
     core::CMemoryDebug::dynamicSize("m_AnomalyModel", m_AnomalyModel, mem);
-    core::CMemoryDebug::dynamicSize("m_ChangeDetector", m_ChangeDetector, mem);
 }
 
 std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
@@ -1275,13 +1288,14 @@ std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
            core::CMemory::dynamicSize(m_ResidualModel) +
            core::CMemory::dynamicSize(m_MultibucketFeature) +
            core::CMemory::dynamicSize(m_MultibucketFeatureModel) +
-           core::CMemory::dynamicSize(m_AnomalyModel) +
-           core::CMemory::dynamicSize(m_ChangeDetector);
+           core::CMemory::dynamicSize(m_AnomalyModel);
 }
 
 bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                         core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() == VERSION_6_3_TAG) {
+    bool stateMissingControllerChecks{false};
+    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_7_11_TAG) {
+        stateMissingControllerChecks = (traverser.name() == VERSION_6_3_TAG);
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_BUILT_IN(ID_6_3_TAG, m_Id)
@@ -1316,20 +1330,10 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
                     &CTimeSeriesAnomalyModel::acceptRestoreTraverser,
                     m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
                 /**/)
-            RESTORE(CANDIDATE_CHANGE_POINT_6_3_TAG,
-                    fromDelimited(traverser.value(), m_CandidateChangePoint))
-            RESTORE_BUILT_IN(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval)
-            RESTORE_SETUP_TEARDOWN(
-                CHANGE_DETECTOR_6_3_TAG,
-                m_ChangeDetector = std::make_unique<CUnivariateTimeSeriesChangeDetector>(
-                    m_TrendModel, m_ResidualModel),
-                traverser.traverseSubLevel(std::bind(
-                    &CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser,
-                    m_ChangeDetector.get(), std::cref(params), std::placeholders::_1)),
-                /**/)
         }
     } else {
         // There is no version string this is historic state.
+        stateMissingControllerChecks = true;
         do {
             const std::string& name{traverser.name()};
             RESTORE_BUILT_IN(ID_OLD_TAG, m_Id)
@@ -1357,7 +1361,25 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
                 /**/)
         } while (traverser.next());
     }
+
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
+        (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
+                                                CDecayRateController::E_PredictionErrorIncrease);
+    }
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
+        (*m_Controllers)[E_ResidualControl].checks(
+            CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
+            maths::CDecayRateController::E_PredictionErrorDecrease);
+    }
+
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CUnivariateTimeSeriesModel::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_TrendModel, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_ResidualModel, ==, nullptr);
 }
 
 void CUnivariateTimeSeriesModel::persistModelsState(core::CStatePersistInserter& inserter) const {
@@ -1379,7 +1401,7 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
 
     // Note that we don't persist this->params() or the correlations
     // because that state is reinitialized.
-    inserter.insertValue(VERSION_6_3_TAG, "");
+    inserter.insertValue(VERSION_7_11_TAG, "");
     inserter.insertValue(ID_6_3_TAG, m_Id);
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     inserter.insertValue(IS_FORECASTABLE_6_3_TAG, static_cast<int>(m_IsForecastable));
@@ -1409,13 +1431,6 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
                                              std::cref(*m_MultibucketFeatureModel),
                                              std::placeholders::_1));
     }
-    inserter.insertValue(CANDIDATE_CHANGE_POINT_6_3_TAG, toDelimited(m_CandidateChangePoint));
-    inserter.insertValue(CURRENT_CHANGE_INTERVAL_6_3_TAG, m_CurrentChangeInterval);
-    if (m_ChangeDetector != nullptr) {
-        inserter.insertLevel(CHANGE_DETECTOR_6_3_TAG,
-                             std::bind(&CUnivariateTimeSeriesChangeDetector::acceptPersistInserter,
-                                       m_ChangeDetector.get(), std::placeholders::_1));
-    }
     if (m_AnomalyModel != nullptr) {
         inserter.insertLevel(ANOMALY_MODEL_6_3_TAG,
                              std::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
@@ -1430,7 +1445,7 @@ maths_t::EDataType CUnivariateTimeSeriesModel::dataType() const {
 CUnivariateTimeSeriesModel::TDoubleWeightsAry
 CUnivariateTimeSeriesModel::unpack(const TDouble2VecWeightsAry& weights) {
     TDoubleWeightsAry result{maths_t::CUnitWeights::UNIT};
-    for (std::size_t i = 0u; i < weights.size(); ++i) {
+    for (std::size_t i = 0; i < weights.size(); ++i) {
         result[i] = weights[i][0];
     }
     return result;
@@ -1442,6 +1457,11 @@ const CTimeSeriesDecompositionInterface& CUnivariateTimeSeriesModel::trendModel(
 
 const CPrior& CUnivariateTimeSeriesModel::residualModel() const {
     return *m_ResidualModel;
+}
+
+const CUnivariateTimeSeriesModel::TDecayRateController2Ary*
+CUnivariateTimeSeriesModel::decayRateControllers() const {
+    return m_Controllers.get();
 }
 
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,
@@ -1460,12 +1480,6 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
       m_AnomalyModel(!isForForecast && other.m_AnomalyModel != nullptr
                          ? std::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : nullptr),
-      m_CandidateChangePoint(other.m_CandidateChangePoint),
-      m_CurrentChangeInterval(other.m_CurrentChangeInterval),
-      m_ChangeDetector(!isForForecast && other.m_ChangeDetector
-                           ? std::make_unique<CUnivariateTimeSeriesChangeDetector>(
-                                 *other.m_ChangeDetector)
-                           : nullptr),
       m_Correlations(nullptr) {
     if (!isForForecast && other.m_Controllers != nullptr) {
         m_Controllers = std::make_unique<TDecayRateController2Ary>(*other.m_Controllers);
@@ -1473,77 +1487,12 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
 }
 
 CUnivariateTimeSeriesModel::EUpdateResult
-CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& params,
-                                               const TSizeVec& order,
-                                               const TTimeDouble2VecSizeTrVec& values) {
-    std::size_t median{order[order.size() / 2]};
-    TDoubleWeightsAry weights{unpack(params.priorWeights()[median])};
-    core_t::TTime time{values[median].first};
+CUnivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
+                                        const TTimeDouble2VecSizeTrVec& samples) {
 
-    if (m_ChangeDetector == nullptr) {
-        core_t::TTime minimumTimeToDetect{this->params().minimumTimeToDetectChange()};
-        core_t::TTime maximumTimeToTest{this->params().maximumTimeToTestForChange()};
-        double weight{maths_t::winsorisationWeight(weights)};
-        if (minimumTimeToDetect < maximumTimeToTest &&
-            winsorisation::pValueFromWeight(weight) <= CHANGE_P_VALUE) {
-            m_CurrentChangeInterval += this->params().bucketLength();
-            if (this->params().testForChange(m_CurrentChangeInterval)) {
-                LOG_TRACE(<< "Starting to test for change at " << time);
-                m_ChangeDetector = std::make_unique<CUnivariateTimeSeriesChangeDetector>(
-                    m_TrendModel, m_ResidualModel, minimumTimeToDetect, maximumTimeToTest);
-                m_TrendModel->testingForChange(true);
-                m_CurrentChangeInterval = 0;
-            }
-        } else {
-            m_CandidateChangePoint = {time, values[median].second[0]};
-            m_CurrentChangeInterval = 0;
-        }
-    }
+    const TDouble2VecWeightsAryVec& weights = params.trendWeights();
+    const auto& modelAnnotationCallback = params.annotationCallback();
 
-    if (m_ChangeDetector != nullptr) {
-        m_ChangeDetector->addSamples({{time, values[median].second[0]}}, {weights});
-        if (m_ChangeDetector->stopTesting()) {
-            m_ChangeDetector.reset();
-            m_TrendModel->testingForChange(false);
-        } else if (auto change = m_ChangeDetector->change()) {
-            LOG_DEBUG(<< "Detected " << change->print() << " at " << time);
-            m_ChangeDetector.reset();
-            m_TrendModel->testingForChange(false);
-            return this->applyChange(*change);
-        }
-    }
-
-    return E_Success;
-}
-
-CUnivariateTimeSeriesModel::EUpdateResult
-CUnivariateTimeSeriesModel::applyChange(const SChangeDescription& change) {
-    core_t::TTime timeOfChangePoint{m_CandidateChangePoint.first};
-    double valueAtChangePoint{m_CandidateChangePoint.second};
-
-    auto& newTrendModel = change.s_TrendModel;
-    auto& newResidualModel = change.s_ResidualModel;
-    newTrendModel->decayRate(m_TrendModel->decayRate());
-    newResidualModel->decayRate(m_ResidualModel->decayRate());
-
-    if (newTrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
-        TFloatMeanAccumulatorVec window(m_TrendModel->windowValues([this](core_t::TTime time) {
-            return CBasicStatistics::mean(m_TrendModel->value(time, 0.0));
-        }));
-        TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(window)};
-        this->reinitializeStateGivenNewComponent(
-            CTimeSeriesSegmentation::removePiecewiseLinear(std::move(window), segmentation));
-    } else {
-        m_ResidualModel = newResidualModel;
-    }
-    m_TrendModel = newTrendModel;
-
-    return E_Success;
-}
-
-CUnivariateTimeSeriesModel::EUpdateResult
-CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
-                                        const TDouble2VecWeightsAryVec& weights) {
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
             LOG_ERROR(<< "Dimension mismatch: '" << sample.second.size() << " != 1'");
@@ -1551,8 +1500,9 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
         }
     }
 
-    // Time order is not reliable, for example if the data are polled
-    // or for count feature, the times of all samples will be the same.
+    // Time order is not a total order, for example if the data are polled
+    // the times of all samples will be the same. So break ties using the
+    // sample value.
     TSizeVec timeorder(samples.size());
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
@@ -1567,22 +1517,20 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
     TFloatMeanAccumulatorVec window;
     EUpdateResult result{E_Success};
     auto componentChangeCallback = [&window, &result](TFloatMeanAccumulatorVec window_) {
-        window = std::move(window_);
+        if (window_.empty() == false) {
+            window = std::move(window_);
+        }
         result = E_Reset;
     };
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
         TDoubleWeightsAry weight{unpack(weights[i])};
-        m_TrendModel->addPoint(time, value, weight, componentChangeCallback);
+        m_TrendModel->addPoint(time, value, weight, componentChangeCallback,
+                               modelAnnotationCallback);
     }
 
     if (result == E_Reset) {
-        if (window.empty()) {
-            window = m_TrendModel->windowValues([this](core_t::TTime time) {
-                return CBasicStatistics::mean(m_TrendModel->value(time, 0.0));
-            });
-        }
         this->reinitializeStateGivenNewComponent(std::move(window));
     }
 
@@ -1649,36 +1597,6 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
 
 void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals) {
 
-    // Reinitialize the residual model with any values we've been given. We
-    // re-weight so that the total sample weight corresponds to the sample
-    // weight the model receives from a fixed (shortish) time interval.
-
-    // We can't properly handle periodicity in the variance of the rate if
-    // using a Poisson process so remove it from model detectio if we detect
-    // seasonality.
-    m_ResidualModel->removeModels(
-        maths::CPrior::CModelFilter().remove(maths::CPrior::E_Poisson));
-    m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
-
-    if (residuals.size() > 0) {
-        double Z{std::accumulate(residuals.begin(), residuals.end(), 0.0,
-                                 [](double weight, const TFloatMeanAccumulator& sample) {
-                                     return weight + CBasicStatistics::count(sample);
-                                 })};
-        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / Z};
-        maths_t::TDoubleWeightsAry1Vec weights(1);
-        for (const auto& residual : residuals) {
-            double weight(CBasicStatistics::count(residual));
-            if (weight > 0.0) {
-                weights[0] = maths_t::countWeight(weightScale * weight);
-                m_ResidualModel->addSamples({CBasicStatistics::mean(residual)}, weights);
-            }
-        }
-    }
-
-    if (m_Correlations != nullptr) {
-        m_Correlations->clearCorrelationModels(m_Id);
-    }
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
                                    (*m_Controllers)[E_ResidualControl].multiplier());
@@ -1689,8 +1607,36 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
         }
     }
 
-    // Note we can't reinitialize this from the initial values because we do
-    // not expect these to be at the bucket length granularity.
+    // We can't properly handle periodicity in the variance of the rate if
+    // using a Poisson process so remove it from model selection if we detect
+    // seasonality.
+    m_ResidualModel->removeModels(
+        maths::CPrior::CModelFilter().remove(maths::CPrior::E_Poisson));
+    m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
+
+    // Reinitialize the residual model with any values we've been given.
+    if (residuals.size() > 0) {
+        maths_t::TDoubleWeightsAry1Vec weights(1);
+        double buckets{std::accumulate(residuals.begin(), residuals.end(), 0.0,
+                                       [](auto partialBuckets, const auto& residual) {
+                                           return partialBuckets +
+                                                  CBasicStatistics::count(residual);
+                                       }) /
+                       this->params().learnRate()};
+        double time{buckets / static_cast<double>(residuals.size())};
+        for (const auto& residual : residuals) {
+            double weight{CBasicStatistics::count(residual)};
+            if (weight > 0.0) {
+                weights[0] = maths_t::countWeight(weight);
+                m_ResidualModel->addSamples({CBasicStatistics::mean(residual)}, weights);
+                m_ResidualModel->propagateForwardsByTime(time);
+            }
+        }
+    }
+
+    // Reset the multi-bucket residual model. We can't reinitialize this from
+    // the initial values because they are not typically at the granularity of
+    // the job's bucket length.
     if (m_MultibucketFeature != nullptr) {
         m_MultibucketFeature->clear();
     }
@@ -1700,10 +1646,13 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
         m_MultibucketFeatureModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
     }
 
+    if (m_Correlations != nullptr) {
+        m_Correlations->clearCorrelationModels(m_Id);
+    }
+
     if (m_AnomalyModel != nullptr) {
         m_AnomalyModel->reset();
     }
-    m_ChangeDetector.reset();
 }
 
 bool CUnivariateTimeSeriesModel::correlationModels(TSize1Vec& correlated,
@@ -1807,7 +1756,7 @@ void CTimeSeriesCorrelations::processSamples() {
             j = k;
         }
 
-        for (std::size_t j1 = 0u; j1 < n1; ++j1) {
+        for (std::size_t j1 = 0; j1 < n1; ++j1) {
             std::size_t j2{0u};
             if (n2 > 1) {
                 std::size_t tag{samples1->s_Tags[j1]};
@@ -1826,7 +1775,7 @@ void CTimeSeriesCorrelations::processSamples() {
             }
             multivariateSamples[j1][indices[0]] = samples1->s_Samples[j1];
             multivariateSamples[j1][indices[1]] = samples2->s_Samples[j2];
-            for (std::size_t w = 0u; w < maths_t::NUMBER_WEIGHT_STYLES; ++w) {
+            for (std::size_t w = 0; w < maths_t::NUMBER_WEIGHT_STYLES; ++w) {
                 multivariateWeights[j1][w][indices[0]] = samples1->s_Weights[j1][w];
                 multivariateWeights[j1][w][indices[1]] = samples2->s_Weights[j2][w];
             }
@@ -1895,7 +1844,7 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator& 
         presentRank.reserve(np);
         missing.reserve(nm);
         missingRank.reserve(nm);
-        for (std::size_t j = 0u; j < correlated.size(); ++j) {
+        for (std::size_t j = 0; j < correlated.size(); ++j) {
             bool isPresent{m_CorrelationDistributionModels.count(correlated[j]) > 0};
             (isPresent ? present : missing).push_back(correlated[j]);
             (isPresent ? presentRank : missingRank).push_back(j);
@@ -1920,8 +1869,8 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator& 
         // Remove the remaining most weakly correlated models subject
         // to the capacity constraint.
         COrderings::simultaneousSort(presentRank, present, std::greater<std::size_t>());
-        for (std::size_t i = 0u; m_CorrelationDistributionModels.size() >
-                                 allocator.maxNumberCorrelations();
+        for (std::size_t i = 0; m_CorrelationDistributionModels.size() >
+                                allocator.maxNumberCorrelations();
              ++i) {
             m_CorrelationDistributionModels.erase(present[i]);
         }
@@ -1956,7 +1905,7 @@ CTimeSeriesCorrelations::correlationModels() const {
     return m_CorrelationDistributionModels;
 }
 
-void CTimeSeriesCorrelations::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CTimeSeriesCorrelations::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesCorrelations");
     core::CMemoryDebug::dynamicSize("m_SampleData", m_SampleData, mem);
     core::CMemoryDebug::dynamicSize("m_Correlations", m_Correlations, mem);
@@ -2097,7 +2046,7 @@ void CTimeSeriesCorrelations::addSamples(std::size_t id,
     data.s_Times.reserve(samples.size());
     data.s_Samples.reserve(samples.size());
     data.s_Tags.reserve(samples.size());
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         data.s_Times.push_back(samples[i].first);
         data.s_Samples.push_back(samples[i].second[0]);
         data.s_Tags.push_back(samples[i].third);
@@ -2197,7 +2146,7 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(
     if (controllers) {
         m_Controllers = std::make_unique<TDecayRateController2Ary>(*controllers);
     }
-    for (std::size_t d = 0u; d < this->dimension(); ++d) {
+    for (std::size_t d = 0; d < this->dimension(); ++d) {
         m_TrendModel.emplace_back(trend.clone());
     }
 }
@@ -2291,7 +2240,7 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
         trendModel->dataType(type);
     }
 
-    EUpdateResult result{this->updateTrend(samples, params.trendWeights())};
+    EUpdateResult result{this->updateTrend(params, samples)};
 
     std::size_t dimension{this->dimension()};
     for (auto& sample : samples) {
@@ -2300,7 +2249,7 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
                       << " != " << dimension << "' discarding");
         } else {
             core_t::TTime time{sample.first};
-            for (std::size_t d = 0u; d < dimension; ++d) {
+            for (std::size_t d = 0; d < dimension; ++d) {
                 sample.second[d] = m_TrendModel[d]->detrend(time, sample.second[d], 0.0);
             }
         }
@@ -2318,13 +2267,14 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     samples_.reserve(samples.size());
     weights_.reserve(samples.size());
     TMeanAccumulator averageTime_;
+    TDouble2Vec seasonalWeight;
     for (auto i : valueorder) {
         core_t::TTime time{samples[i].first};
         auto weight = unpack(params.priorWeights()[i]);
+        this->seasonalWeight(0.0, time, seasonalWeight);
         samples_.push_back(samples[i].second);
         weights_.push_back(weight);
-        scales_.push_back(sqrt(TVector(maths_t::countVarianceScale(weight)) *
-                               TVector(this->seasonalWeight(0.0, time)))
+        scales_.push_back(sqrt(TVector(maths_t::countVarianceScale(weight)) * TVector(seasonalWeight))
                               .toVector<TDouble10Vec>());
         averageTime_.add(static_cast<double>(time));
     }
@@ -2338,8 +2288,8 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     if (m_MultibucketFeatureModel != nullptr) {
         for (auto i : valueorder) {
             core_t::TTime time{samples[i].first};
-            maths_t::setSeasonalVarianceScale(
-                TDouble10Vec(this->seasonalWeight(0.0, time)), weights_[i]);
+            this->seasonalWeight(0.0, time, seasonalWeight);
+            maths_t::setSeasonalVarianceScale(TDouble10Vec(seasonalWeight), weights_[i]);
         }
         m_MultibucketFeature->add(averageTime, this->params().bucketLength(),
                                   samples_, weights_);
@@ -2379,7 +2329,7 @@ CMultivariateTimeSeriesModel::mode(core_t::TTime time,
     std::size_t dimension{this->dimension()};
     TDouble2Vec result(dimension);
     TDouble10Vec mode(m_ResidualModel->marginalLikelihoodMode(unpack(weights)));
-    for (std::size_t d = 0u; d < dimension; ++d) {
+    for (std::size_t d = 0; d < dimension; ++d) {
         result[d] = mode[d] + CBasicStatistics::mean(m_TrendModel[d]->value(time));
     }
     return result;
@@ -2407,7 +2357,7 @@ void CMultivariateTimeSeriesModel::detrend(const TTime2Vec1Vec& time_,
                                            TDouble2Vec1Vec& value) const {
     std::size_t dimension{this->dimension()};
     core_t::TTime time{time_[0][0]};
-    for (std::size_t d = 0u; d < dimension; ++d) {
+    for (std::size_t d = 0; d < dimension; ++d) {
         value[0][d] = m_TrendModel[d]->detrend(time, value[0][d], confidenceInterval);
     }
 }
@@ -2421,7 +2371,7 @@ CMultivariateTimeSeriesModel::predict(core_t::TTime time,
     std::size_t dimension{this->dimension()};
 
     if (hint.size() == dimension) {
-        for (std::size_t d = 0u; d < dimension; ++d) {
+        for (std::size_t d = 0; d < dimension; ++d) {
             hint[d] = m_TrendModel[d]->detrend(time, hint[d], 0.0);
         }
     }
@@ -2431,8 +2381,7 @@ CMultivariateTimeSeriesModel::predict(core_t::TTime time,
 
     TDouble2Vec result(dimension);
     TDouble10Vec mean(m_ResidualModel->marginalLikelihoodMean());
-    for (std::size_t d = 0u; d < dimension;
-         --marginalize[std::min(d, dimension - 2)], ++d) {
+    for (std::size_t d = 0; d < dimension; --marginalize[std::min(d, dimension - 2)], ++d) {
         double trend{0.0};
         if (m_TrendModel[d]->initialized()) {
             trend = CBasicStatistics::mean(m_TrendModel[d]->value(time));
@@ -2474,13 +2423,12 @@ CMultivariateTimeSeriesModel::confidenceInterval(core_t::TTime time,
     TDouble2Vec3Vec result(3, TDouble2Vec(dimension));
 
     maths_t::TDoubleWeightsAry weights{maths_t::CUnitWeights::UNIT};
-    for (std::size_t d = 0u; d < dimension;
-         --marginalize[std::min(d, dimension - 2)], ++d) {
+    for (std::size_t d = 0; d < dimension; --marginalize[std::min(d, dimension - 2)], ++d) {
         double trend{m_TrendModel[d]->initialized()
                          ? CBasicStatistics::mean(m_TrendModel[d]->value(time, confidenceInterval))
                          : 0.0};
 
-        for (std::size_t i = 0u; i < maths_t::NUMBER_WEIGHT_STYLES; ++i) {
+        for (std::size_t i = 0; i < maths_t::NUMBER_WEIGHT_STYLES; ++i) {
             weights[i] = weights_[i][d];
         }
 
@@ -2634,9 +2582,11 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
         double residual{0.0};
         TDouble10Vec nearest(m_ResidualModel->nearestMarginalLikelihoodMean(sample[0]));
-        TDouble2Vec scale(this->seasonalWeight(0.0, time));
+        TDouble2Vec seasonalWeight;
+        this->seasonalWeight(0.0, time, seasonalWeight);
         for (std::size_t i = 0; i < dimension; ++i) {
-            residual += (sample[0][i] - nearest[i]) / std::max(std::sqrt(scale[i]), 1.0);
+            residual += (sample[0][i] - nearest[i]) /
+                        std::max(std::sqrt(seasonalWeight[i]), 1.0);
         }
         double pSingleBucket{probabilities[0]};
 
@@ -2656,39 +2606,89 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     return true;
 }
 
-CMultivariateTimeSeriesModel::TDouble2Vec
-CMultivariateTimeSeriesModel::winsorisationWeight(double derate,
-                                                  core_t::TTime time,
-                                                  const TDouble2Vec& value) const {
-
-    TDouble2Vec result(this->dimension());
-
+void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
+                                                const TDouble2Vec& value,
+                                                double trendCountWeight,
+                                                double residualCountWeight,
+                                                double winsorisationDerate,
+                                                double countVarianceScale,
+                                                TDouble2VecWeightsAry& trendWeights,
+                                                TDouble2VecWeightsAry& residuaWeights) const {
     std::size_t dimension{this->dimension()};
-    TDouble2Vec scale(this->seasonalWeight(0.0, time));
+
+    TDouble2Vec seasonalWeight;
+    this->seasonalWeight(0.0, time, seasonalWeight);
+
+    TDouble2Vec trendCountWeights(dimension, trendCountWeight);
+    TDouble2Vec residualCountWeights(dimension, residualCountWeight);
+    TDouble2Vec trendWinsorisationWeight(dimension);
+    TDouble2Vec residualWinsorisationWeight(dimension);
+    TDouble2Vec countVarianceScales(dimension, 1.0);
     TDouble10Vec sample(dimension);
-    for (std::size_t d = 0u; d < dimension; ++d) {
+    for (std::size_t d = 0; d < dimension; ++d) {
         sample[d] = m_TrendModel[d]->detrend(time, value[d], 0.0);
+        if (m_TrendModel[d]->seasonalComponents().size() == 0) {
+            trendCountWeights[d] /= countVarianceScale;
+            countVarianceScales[d] = countVarianceScale;
+        }
+    }
+    for (std::size_t d = 0; d < dimension; ++d) {
+        double changeWeight{m_TrendModel[d]->countWeight(time)};
+        auto weights = maths_t::CUnitWeights::UNIT;
+        maths_t::setCount(std::min(residualCountWeight / trendCountWeight, 1.0), weights);
+        maths_t::setSeasonalVarianceScale(seasonalWeight[d], weights);
+        double winsorisationWeight{winsorisation::weight(
+            *conditional(*m_ResidualModel, d, sample), weights,
+            std::max(winsorisationDerate, m_TrendModel[d]->winsorisationDerate(time)),
+            sample[d])};
+        residualCountWeights[d] *= changeWeight;
+        trendWinsorisationWeight[d] = winsorisationWeight * changeWeight;
+        residualWinsorisationWeight[d] = winsorisationWeight;
     }
 
-    for (std::size_t d = 0u; d < dimension; ++d) {
-        result[d] = winsorisation::weight(*m_ResidualModel, d, derate, scale[d], sample);
-    }
-
-    return result;
+    maths_t::setCount(trendCountWeights, trendWeights);
+    maths_t::setCount(residualCountWeights, residuaWeights);
+    maths_t::setWinsorisationWeight(trendWinsorisationWeight, trendWeights);
+    maths_t::setWinsorisationWeight(trendWinsorisationWeight, residuaWeights);
+    maths_t::setCountVarianceScale(countVarianceScales, trendWeights);
+    maths_t::setCountVarianceScale(countVarianceScales, residuaWeights);
 }
 
-CMultivariateTimeSeriesModel::TDouble2Vec
-CMultivariateTimeSeriesModel::seasonalWeight(double confidence, core_t::TTime time) const {
-    TDouble2Vec result(this->dimension());
+void CMultivariateTimeSeriesModel::addCountWeights(core_t::TTime time,
+                                                   double trendCountWeight,
+                                                   double residualCountWeight,
+                                                   double countVarianceScale,
+                                                   TDouble2VecWeightsAry& trendWeights,
+                                                   TDouble2VecWeightsAry& residuaWeights) const {
+    std::size_t dimension{this->dimension()};
+
+    TDouble2Vec trendCountWeights(dimension, trendCountWeight);
+    TDouble2Vec residualCountWeights(dimension, residualCountWeight);
+    for (std::size_t d = 0; d < dimension; ++d) {
+        if (m_TrendModel[d]->seasonalComponents().empty()) {
+            trendCountWeights[d] /= countVarianceScale;
+        }
+        residualCountWeights[d] *= m_TrendModel[d]->countWeight(time);
+    }
+
+    maths_t::addCount(trendCountWeights, trendWeights);
+    maths_t::addCount(residualCountWeights, residuaWeights);
+}
+
+void CMultivariateTimeSeriesModel::seasonalWeight(double confidence,
+                                                  core_t::TTime time,
+                                                  TDouble2Vec& weight) const {
+    std::size_t dimension{this->dimension()};
+    weight.resize(dimension);
     TDouble10Vec variances(m_ResidualModel->marginalLikelihoodVariances());
-    for (std::size_t d = 0u, dimension = this->dimension(); d < dimension; ++d) {
-        double scale{m_TrendModel[d]->scale(time, variances[d], confidence).second};
-        result[d] = std::max(scale, this->params().minimumSeasonalVarianceScale());
+    for (std::size_t d = 0; d < dimension; ++d) {
+        double scale{
+            m_TrendModel[d]->varianceScaleWeight(time, variances[d], confidence).second};
+        weight[d] = std::max(scale, this->params().minimumSeasonalVarianceScale());
     }
-    return result;
 }
 
-uint64_t CMultivariateTimeSeriesModel::checksum(uint64_t seed) const {
+std::uint64_t CMultivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_IsNonNegative);
     seed = CChecksum::calculate(seed, m_Controllers);
     seed = CChecksum::calculate(seed, m_TrendModel);
@@ -2698,8 +2698,8 @@ uint64_t CMultivariateTimeSeriesModel::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_AnomalyModel);
 }
 
-void CMultivariateTimeSeriesModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
-    mem->setName("CUnivariateTimeSeriesModel");
+void CMultivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    mem->setName("CMultivariateTimeSeriesModel");
     core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
     core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
@@ -2720,7 +2720,9 @@ std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
 
 bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                           core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() == VERSION_6_3_TAG) {
+    bool stateMissingControllerChecks{false};
+    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_7_11_TAG) {
+        stateMissingControllerChecks = (traverser.name() == VERSION_6_3_TAG);
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_BOOL(IS_NON_NEGATIVE_6_3_TAG, m_IsNonNegative)
@@ -2756,13 +2758,14 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
                 /**/)
         }
     } else {
+        stateMissingControllerChecks = true;
         do {
             const std::string& name{traverser.name()};
             RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_OLD_TAG,
                 m_Controllers = std::make_unique<TDecayRateController2Ary>(),
-                core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
+                core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
                 TREND_OLD_TAG, m_TrendModel.push_back(TDecompositionPtr()),
@@ -2783,13 +2786,38 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
                 /**/)
         } while (traverser.next());
     }
+
+    this->checkRestoredInvariants();
+
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
+        (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
+                                                CDecayRateController::E_PredictionErrorIncrease);
+    }
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
+        (*m_Controllers)[E_ResidualControl].checks(
+            CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
+            maths::CDecayRateController::E_PredictionErrorDecrease);
+    }
+
     return true;
+}
+
+void CMultivariateTimeSeriesModel::checkRestoredInvariants() const {
+    for (const auto& trendModel : m_TrendModel) {
+        VIOLATES_INVARIANT_NO_EVALUATION(trendModel, ==, nullptr);
+    }
+    VIOLATES_INVARIANT_NO_EVALUATION(m_ResidualModel, ==, nullptr);
+    VIOLATES_INVARIANT(m_TrendModel.size(), !=, this->dimension());
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Controllers, ==, nullptr);
+    VIOLATES_INVARIANT((*m_Controllers)[E_TrendControl].dimension(), !=, this->dimension());
+    VIOLATES_INVARIANT((*m_Controllers)[E_ResidualControl].dimension(), !=,
+                       this->dimension());
 }
 
 void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     // Note that we don't persist this->params() because that state
     // is reinitialized.
-    inserter.insertValue(VERSION_6_3_TAG, "");
+    inserter.insertValue(VERSION_7_11_TAG, "");
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     if (m_Controllers) {
         core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
@@ -2834,7 +2862,7 @@ maths_t::EDataType CMultivariateTimeSeriesModel::dataType() const {
 CMultivariateTimeSeriesModel::TDouble10VecWeightsAry
 CMultivariateTimeSeriesModel::unpack(const TDouble2VecWeightsAry& weights) {
     TDouble10VecWeightsAry result{maths_t::CUnitWeights::unit<TDouble10Vec>(weights[0])};
-    for (std::size_t i = 0u; i < weights.size(); ++i) {
+    for (std::size_t i = 0; i < weights.size(); ++i) {
         result[i] = weights[i];
     }
     return result;
@@ -2849,9 +2877,18 @@ const CMultivariatePrior& CMultivariateTimeSeriesModel::residualModel() const {
     return *m_ResidualModel;
 }
 
+const CMultivariateTimeSeriesModel::TDecayRateController2Ary*
+CMultivariateTimeSeriesModel::decayRateControllers() const {
+    return m_Controllers.get();
+}
+
 CMultivariateTimeSeriesModel::EUpdateResult
-CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
-                                          const TDouble2VecWeightsAryVec& weights) {
+CMultivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
+                                          const TTimeDouble2VecSizeTrVec& samples) {
+
+    const TDouble2VecWeightsAryVec& weights = params.trendWeights();
+    const auto& modelAnnotationCallback = params.annotationCallback();
+
     std::size_t dimension{this->dimension()};
 
     for (const auto& sample : samples) {
@@ -2862,8 +2899,9 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
         }
     }
 
-    // Time order is not reliable, for example if the data are polled
-    // or for count feature, the times of all samples will be the same.
+    // Time order is not a total order, for example if the data are polled
+    // the times of all samples will be the same. So break ties using the
+    // sample value.
     TSizeVec timeorder(samples.size());
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
@@ -2884,20 +2922,19 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         TDouble10Vec value(samples[i].second);
-        for (std::size_t d = 0u; d < dimension; ++d) {
+        for (std::size_t d = 0; d < dimension; ++d) {
             for (std::size_t j = 0; j < maths_t::NUMBER_WEIGHT_STYLES; ++j) {
                 weight[j] = weights[i][j][d];
             }
-            m_TrendModel[d]->addPoint(time, value[d], weight, componentChangeCallback);
+            m_TrendModel[d]->addPoint(time, value[d], weight, componentChangeCallback,
+                                      modelAnnotationCallback);
         }
     }
 
     if (result == E_Reset) {
         TFloatMeanAccumulatorVec10Vec window(dimension);
         for (std::size_t d = 0; d < dimension; ++d) {
-            window[d] = m_TrendModel[d]->windowValues([this, d](core_t::TTime time) {
-                return CBasicStatistics::mean(m_TrendModel[d]->value(time));
-            });
+            window[d] = m_TrendModel[d]->residuals();
         }
         this->reinitializeStateGivenNewComponent(std::move(window));
     }
@@ -2918,7 +2955,7 @@ void CMultivariateTimeSeriesModel::updateDecayRates(const CModelAddSamplesParams
         {
             CDecayRateController& controller{(*m_Controllers)[E_TrendControl]};
             TDouble1Vec trendMean(this->dimension());
-            for (std::size_t d = 0u; d < trendMean.size(); ++d) {
+            for (std::size_t d = 0; d < trendMean.size(); ++d) {
                 trendMean[d] = m_TrendModel[d]->meanValue(time);
             }
             double multiplier{controller.multiplier(
@@ -2961,43 +2998,6 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
     using TDoubleVec = std::vector<double>;
     using TDouble10VecVec = std::vector<TDouble10Vec>;
 
-    // Reinitialize the residual model with any values we've been given. We
-    // re-weight so that the total sample weight corresponds to the sample
-    // weight the model receives from a fixed (shortish) time interval.
-
-    m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
-
-    if (residuals.size() > 0) {
-        std::size_t dimension{this->dimension()};
-
-        TDouble10VecVec samples;
-        TDoubleVec weights;
-        for (std::size_t d = 0; d < dimension; ++d) {
-            TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(residuals[d])};
-            residuals[d] = CTimeSeriesSegmentation::removePiecewiseLinear(
-                std::move(residuals[d]), segmentation);
-
-            samples.resize(residuals[d].size(), TDouble10Vec(dimension));
-            weights.resize(residuals[d].size(), std::numeric_limits<double>::max());
-            for (std::size_t i = 0; i < residuals[d].size(); ++i) {
-                samples[i][d] = CBasicStatistics::mean(residuals[d][i]);
-                weights[i] = std::min(
-                    weights[i],
-                    static_cast<double>(CBasicStatistics::count(residuals[d][i])));
-            }
-        }
-
-        double Z{std::accumulate(weights.begin(), weights.end(), 0.0)};
-        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / Z};
-        maths_t::TDouble10VecWeightsAry1Vec weight(1);
-        for (std::size_t i = 0; i < samples.size(); ++i) {
-            if (weights[i] > 0.0) {
-                weight[0] = maths_t::countWeight(weightScale * weights[i], dimension);
-                m_ResidualModel->addSamples({samples[i]}, weight);
-            }
-        }
-    }
-
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
                                    (*m_Controllers)[E_ResidualControl].multiplier());
@@ -3010,12 +3010,49 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
         }
     }
 
-    // Note we can't reinitialize this from the initial values because we do
-    // not expect these to be at the bucket length granularity.
+    // Reinitialize the residual model with any values we've been given.
+    m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
+    if (residuals.size() > 0) {
+        std::size_t dimension{this->dimension()};
+
+        TDouble10VecVec samples;
+        TDoubleVec weights;
+        double time{0.0};
+        for (std::size_t d = 0; d < dimension; ++d) {
+            samples.resize(residuals[d].size(), TDouble10Vec(dimension));
+            weights.resize(residuals[d].size(), std::numeric_limits<double>::max());
+            double buckets{std::accumulate(residuals[d].begin(), residuals[d].end(), 0.0,
+                                           [](auto partialBuckets, const auto& residual) {
+                                               return partialBuckets +
+                                                      CBasicStatistics::count(residual);
+                                           }) /
+                           this->params().learnRate()};
+            time += buckets / static_cast<double>(residuals.size());
+            for (std::size_t i = 0; i < residuals[d].size(); ++i) {
+                samples[i][d] = CBasicStatistics::mean(residuals[d][i]);
+                weights[i] = std::min(
+                    weights[i],
+                    static_cast<double>(CBasicStatistics::count(residuals[d][i])));
+            }
+        }
+        time /= static_cast<double>(dimension);
+
+        maths_t::TDouble10VecWeightsAry1Vec weight(1);
+        for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (weights[i] > 0.0) {
+                weight[0] = maths_t::countWeight(weights[i], dimension);
+                m_ResidualModel->addSamples({samples[i]}, weight);
+                m_ResidualModel->propagateForwardsByTime(time);
+            }
+        }
+    }
+
+    // Reset the multi-bucket residual model. We can't reinitialize this from
+    // the initial values because they are not typically at the granularity of
+    // the job's bucket length.
     if (m_MultibucketFeature != nullptr) {
         m_MultibucketFeature->clear();
     }
-
     if (m_MultibucketFeatureModel != nullptr) {
         m_MultibucketFeatureModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
     }

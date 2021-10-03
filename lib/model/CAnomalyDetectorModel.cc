@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CAnomalyDetectorModel.h>
@@ -38,6 +43,7 @@ const std::string MODEL_TAG{"a"};
 const std::string EMPTY;
 
 const model_t::CResultType SKIP_SAMPLING_RESULT_TYPE;
+const double SKIP_SAMPLING_WEIGHT{0.005};
 
 const CAnomalyDetectorModel::TStr1Vec EMPTY_STRING_LIST;
 
@@ -124,7 +130,7 @@ std::string CAnomalyDetectorModel::printPeople(const TSizeVec& pids, std::size_t
         return core::CStringUtils::typeToString(pids.size()) + " in total";
     }
     std::string result{this->personName(pids[0])};
-    for (std::size_t i = 1u; i < std::min(limit, pids.size()); ++i) {
+    for (std::size_t i = 1; i < std::min(limit, pids.size()); ++i) {
         result += ' ';
         result += this->personName(pids[i]);
     }
@@ -158,7 +164,7 @@ std::string CAnomalyDetectorModel::printAttributes(const TSizeVec& cids,
         return core::CStringUtils::typeToString(cids.size()) + " in total";
     }
     std::string result{this->attributeName(cids[0])};
-    for (std::size_t i = 1u; i < std::min(limit, cids.size()); ++i) {
+    for (std::size_t i = 1; i < std::min(limit, cids.size()); ++i) {
         result += ' ';
         result += this->attributeName(cids[i]);
     }
@@ -192,7 +198,7 @@ void CAnomalyDetectorModel::sample(core_t::TTime startTime,
         m_BucketCount += 1.0;
 
         double alpha{std::exp(-this->params().s_DecayRate)};
-        for (std::size_t pid = 0u; pid < m_PersonBucketCounts.size(); ++pid) {
+        for (std::size_t pid = 0; pid < m_PersonBucketCounts.size(); ++pid) {
             m_PersonBucketCounts[pid] *= alpha;
         }
         m_BucketCount *= alpha;
@@ -212,8 +218,7 @@ void CAnomalyDetectorModel::skipSampling(core_t::TTime endTime) {
     this->currentBucketStartTime(endTime - gatherer.bucketLength());
 }
 
-bool CAnomalyDetectorModel::addResults(int detector,
-                                       core_t::TTime startTime,
+bool CAnomalyDetectorModel::addResults(core_t::TTime startTime,
                                        core_t::TTime endTime,
                                        std::size_t numberAttributeProbabilities,
                                        CHierarchicalResults& results) const {
@@ -249,8 +254,9 @@ bool CAnomalyDetectorModel::addResults(int detector,
                                          numberAttributeProbabilities, annotatedProbability)) {
                 function_t::EFunction function{m_DataGatherer->function()};
                 results.addModelResult(
-                    detector, this->isPopulation(), function_t::name(function),
-                    function, m_DataGatherer->partitionFieldName(),
+                    m_DataGatherer->searchKey().detectorIndex(),
+                    this->isPopulation(), function_t::name(function), function,
+                    m_DataGatherer->partitionFieldName(),
                     m_DataGatherer->partitionFieldValue(),
                     m_DataGatherer->personFieldName(), this->personName(pid),
                     m_DataGatherer->valueFieldName(), annotatedProbability, this, startTime);
@@ -288,7 +294,7 @@ uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) con
     seed = maths::CChecksum::calculate(seed, m_Params);
     seed = maths::CChecksum::calculate(seed, m_BucketCount);
     TStrCRefUInt64Map hashes;
-    for (std::size_t pid = 0u; pid < m_PersonBucketCounts.size(); ++pid) {
+    for (std::size_t pid = 0; pid < m_PersonBucketCounts.size(); ++pid) {
         if (m_DataGatherer->isPersonActive(pid)) {
             uint64_t& hash{hashes[std::cref(m_DataGatherer->personName(pid))]};
             hash = maths::CChecksum::calculate(hash, m_PersonBucketCounts[pid]);
@@ -299,7 +305,7 @@ uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) con
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CAnomalyDetectorModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CAnomalyDetectorModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CAnomalyDetectorModel");
     core::CMemoryDebug::dynamicSize("m_DataGatherer", m_DataGatherer, mem);
     core::CMemoryDebug::dynamicSize("m_Params", m_Params, mem);
@@ -446,19 +452,21 @@ bool CAnomalyDetectorModel::shouldIgnoreResult(model_t::EFeature feature,
     return shouldIgnore;
 }
 
-bool CAnomalyDetectorModel::shouldIgnoreSample(model_t::EFeature feature,
-                                               std::size_t pid,
-                                               std::size_t cid,
-                                               core_t::TTime time) const {
-    bool shouldIgnore =
-        checkScheduledEvents(this->params().s_ScheduledEvents.get(), std::cref(*this),
+double CAnomalyDetectorModel::initialCountWeight(model_t::EFeature feature,
+                                                 std::size_t pid,
+                                                 std::size_t cid,
+                                                 core_t::TTime time) const {
+    if (checkScheduledEvents(this->params().s_ScheduledEvents.get(), *this,
                              feature, CDetectionRule::E_SkipModelUpdate,
-                             SKIP_SAMPLING_RESULT_TYPE, pid, cid, time) ||
-        checkRules(this->params().s_DetectionRules.get(), std::cref(*this),
-                   feature, CDetectionRule::E_SkipModelUpdate,
-                   SKIP_SAMPLING_RESULT_TYPE, pid, cid, time);
-
-    return shouldIgnore;
+                             SKIP_SAMPLING_RESULT_TYPE, pid, cid, time) == true) {
+        return 0.0;
+    }
+    if (checkRules(this->params().s_DetectionRules.get(), *this, feature,
+                   CDetectionRule::E_SkipModelUpdate, SKIP_SAMPLING_RESULT_TYPE,
+                   pid, cid, time) == true) {
+        return SKIP_SAMPLING_WEIGHT;
+    }
+    return 1.0;
 }
 
 const CAnomalyDetectorModel::TStr1Vec&
@@ -513,7 +521,8 @@ void CAnomalyDetectorModel::SFeatureModels::acceptPersistInserter(core::CStatePe
     }
 }
 
-void CAnomalyDetectorModel::SFeatureModels::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CAnomalyDetectorModel::SFeatureModels::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SFeatureModels");
     core::CMemoryDebug::dynamicSize("s_NewModel", s_NewModel, mem);
     core::CMemoryDebug::dynamicSize("s_Models", s_Models, mem);
@@ -521,6 +530,11 @@ void CAnomalyDetectorModel::SFeatureModels::debugMemoryUsage(core::CMemoryUsage:
 
 std::size_t CAnomalyDetectorModel::SFeatureModels::memoryUsage() const {
     return core::CMemory::dynamicSize(s_NewModel) + core::CMemory::dynamicSize(s_Models);
+}
+
+bool CAnomalyDetectorModel::SFeatureModels::shouldPersist() const {
+    return std::any_of(s_Models.begin(), s_Models.end(),
+                       [](const auto& model) { return model->shouldPersist(); });
 }
 
 CAnomalyDetectorModel::SFeatureCorrelateModels::SFeatureCorrelateModels(
@@ -556,7 +570,7 @@ void CAnomalyDetectorModel::SFeatureCorrelateModels::acceptPersistInserter(
 }
 
 void CAnomalyDetectorModel::SFeatureCorrelateModels::debugMemoryUsage(
-    core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("SFeatureCorrelateModels");
     core::CMemoryDebug::dynamicSize("s_ModelPrior", s_ModelPrior, mem);
     core::CMemoryDebug::dynamicSize("s_Models", s_Models, mem);

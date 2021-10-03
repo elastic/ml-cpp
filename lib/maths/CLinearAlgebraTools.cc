@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CLinearAlgebraTools.h>
@@ -109,7 +114,7 @@ public:
             }
             y = covariance.solve(y);
             double logDeterminant = 0.0;
-            for (std::size_t i = 0u; i < rank; ++i) {
+            for (std::size_t i = 0; i < rank; ++i) {
                 logDeterminant += std::log(covariance.singularValues()(i));
             }
             result = -0.5 * (residual.inner(y) +
@@ -159,7 +164,7 @@ public:
             double scale = std::sqrt(static_cast<double>(rank));
             LOG_TRACE(<< "scale = " << scale);
 
-            for (std::size_t i = 0u; i < rank; ++i) {
+            for (std::size_t i = 0; i < rank; ++i) {
                 VECTOR_PRECISE u(fromDenseVector(covariance.matrixU().col(i)));
                 try {
                     double variance = covariance.singularValues()(i);
@@ -169,7 +174,7 @@ public:
                     LOG_TRACE(<< "u = " << u);
 
                     double lastPartialExpectation = 0.0;
-                    for (std::size_t j = 1u; j < numberIntervals; ++j) {
+                    for (std::size_t j = 1; j < numberIntervals; ++j) {
                         double q = static_cast<double>(j) / static_cast<double>(numberIntervals);
                         double xq = boost::math::quantile(normal, q);
                         double partialExpectation = -variance * CTools::safePdf(normal, xq);
@@ -220,7 +225,7 @@ public:
                 return maths_t::E_FpOverflowed;
             }
             result = 0.0;
-            for (std::size_t i = 0u; i < rank; ++i) {
+            for (std::size_t i = 0; i < rank; ++i) {
                 result += std::log(svd.singularValues()(i));
             }
             return maths_t::E_FpNoErrors;

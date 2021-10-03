@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CDualThreadStreamBuf.h>
 
@@ -19,13 +24,11 @@ namespace core {
 const size_t CDualThreadStreamBuf::DEFAULT_BUFFER_CAPACITY(65536);
 
 CDualThreadStreamBuf::CDualThreadStreamBuf(size_t bufferCapacity)
-    : m_WriteBuffer(new char[bufferCapacity]), m_WriteBufferCapacity(bufferCapacity),
-      m_ReadBuffer(new char[bufferCapacity]), m_ReadBufferCapacity(bufferCapacity),
-      m_IntermediateBuffer(new char[bufferCapacity]),
-      m_IntermediateBufferCapacity(bufferCapacity),
-      m_IntermediateBufferEnd(m_IntermediateBuffer.get()), m_ReadBytesSwapped(0),
-      m_WriteBytesSwapped(0), m_IntermediateBufferCondition(m_IntermediateBufferMutex),
-      m_Eof(false), m_FatalError(false) {
+    : m_WriteBuffer{new char[bufferCapacity]}, m_WriteBufferCapacity{bufferCapacity},
+      m_ReadBuffer{new char[bufferCapacity]}, m_ReadBufferCapacity{bufferCapacity},
+      m_IntermediateBuffer{new char[bufferCapacity]}, m_IntermediateBufferCapacity{bufferCapacity},
+      m_IntermediateBufferEnd{m_IntermediateBuffer.get()}, m_ReadBytesSwapped{0}, m_WriteBytesSwapped{0},
+      m_IntermediateBufferCondition{m_IntermediateBufferMutex}, m_Eof{false}, m_FatalError{false} {
     // Initialise write buffer pointers to indicate an empty buffer
     char* begin(m_WriteBuffer.get());
     char* end(begin + m_WriteBufferCapacity);
@@ -40,14 +43,14 @@ CDualThreadStreamBuf::CDualThreadStreamBuf(size_t bufferCapacity)
 void CDualThreadStreamBuf::signalEndOfFile() {
     CScopedLock lock(m_IntermediateBufferMutex);
 
-    if (m_Eof) {
+    if (m_Eof.load()) {
         return;
     }
 
-    if (m_FatalError) {
+    if (m_FatalError.load()) {
         // If there's been a fatal error we don't care about losing data, so
         // just set the end-of-file flag and return
-        m_Eof = true;
+        m_Eof.store(true);
 
         return;
     }
@@ -67,11 +70,11 @@ void CDualThreadStreamBuf::signalEndOfFile() {
     // end-of-file flag isn't set until the write buffer has been swapped,
     // because otherwise the reader can act on it while the swapWriteBuffer()
     // method is waiting on m_IntermediateBufferCondition
-    m_Eof = true;
+    m_Eof.store(true);
 }
 
 bool CDualThreadStreamBuf::endOfFile() const {
-    return m_Eof;
+    return m_Eof.load();
 }
 
 void CDualThreadStreamBuf::signalFatalError() {
@@ -82,13 +85,13 @@ void CDualThreadStreamBuf::signalFatalError() {
     this->setg(begin, begin, begin);
 
     // Set a flag to indicate that future reads and writes should fail
-    m_FatalError = true;
+    m_FatalError.store(true);
 
     m_IntermediateBufferCondition.signal();
 }
 
 bool CDualThreadStreamBuf::hasFatalError() const {
-    return m_FatalError;
+    return m_FatalError.load();
 }
 
 std::streamsize CDualThreadStreamBuf::showmanyc() {
@@ -100,7 +103,7 @@ std::streamsize CDualThreadStreamBuf::showmanyc() {
 
     CScopedLock lock(m_IntermediateBufferMutex);
 
-    if (!m_FatalError) {
+    if (m_FatalError.load() == false) {
         // Add on unread contents of intermediate buffer
         ret += (m_IntermediateBufferEnd - m_IntermediateBuffer.get());
     }
@@ -111,7 +114,7 @@ std::streamsize CDualThreadStreamBuf::showmanyc() {
 int CDualThreadStreamBuf::sync() {
     CScopedLock lock(m_IntermediateBufferMutex);
 
-    if (m_FatalError) {
+    if (m_FatalError.load()) {
         return -1;
     }
 
@@ -132,7 +135,7 @@ std::streamsize CDualThreadStreamBuf::xsgetn(char* s, std::streamsize n) {
     // comments)
 
     std::streamsize ret(0);
-    if (m_FatalError) {
+    if (m_FatalError.load()) {
         return ret;
     }
 
@@ -163,7 +166,7 @@ std::streamsize CDualThreadStreamBuf::xsgetn(char* s, std::streamsize n) {
 int CDualThreadStreamBuf::underflow() {
     CScopedLock lock(m_IntermediateBufferMutex);
 
-    if (m_FatalError || this->swapReadBuffer() == false) {
+    if (m_FatalError.load() || this->swapReadBuffer() == false) {
         return traits_type::eof();
     }
 
@@ -215,12 +218,12 @@ std::streamsize CDualThreadStreamBuf::xsputn(const char* s, std::streamsize n) {
 
     std::streamsize ret(0);
 
-    if (m_Eof) {
+    if (m_Eof.load()) {
         LOG_ERROR(<< "Inconsistency - trying to add data to stream buffer after end-of-file");
         return ret;
     }
 
-    if (m_FatalError) {
+    if (m_FatalError.load()) {
         return ret;
     }
 
@@ -252,12 +255,12 @@ int CDualThreadStreamBuf::overflow(int c) {
 
     CScopedLock lock(m_IntermediateBufferMutex);
 
-    if (m_Eof || m_FatalError || this->swapWriteBuffer() == false) {
+    if (m_Eof.load() || m_FatalError.load() || this->swapWriteBuffer() == false) {
         return ret;
     }
 
     if (c == ret) {
-        m_Eof = true;
+        m_Eof.store(true);
         // If the argument indicated EOF, we don't put it in the new buffer
         ret = traits_type::not_eof(c);
     } else {
@@ -304,7 +307,7 @@ bool CDualThreadStreamBuf::swapWriteBuffer() {
     // Wait until the intermediate buffer is empty
     while (m_IntermediateBufferEnd > m_IntermediateBuffer.get()) {
         m_IntermediateBufferCondition.wait();
-        if (m_FatalError) {
+        if (m_FatalError.load()) {
             return false;
         }
     }
@@ -328,9 +331,10 @@ bool CDualThreadStreamBuf::swapWriteBuffer() {
 // NB: m_IntermediateBufferMutex MUST be locked when this method is called
 bool CDualThreadStreamBuf::swapReadBuffer() {
     // Wait until the intermediate buffer contains data
-    while (!m_Eof && m_IntermediateBufferEnd == m_IntermediateBuffer.get()) {
+    while (m_Eof.load() == false &&
+           m_IntermediateBufferEnd == m_IntermediateBuffer.get()) {
         m_IntermediateBufferCondition.wait();
-        if (m_FatalError) {
+        if (m_FatalError.load()) {
             return false;
         }
     }
@@ -338,7 +342,7 @@ bool CDualThreadStreamBuf::swapReadBuffer() {
     char* begin(m_IntermediateBuffer.get());
     char* end(m_IntermediateBufferEnd);
     if (begin >= end) {
-        if (!m_Eof) {
+        if (m_Eof.load() == false) {
             LOG_ERROR(<< "Inconsistency - intermediate buffer empty after wait "
                          "when not at end-of-file: begin = "
                       << static_cast<void*>(begin)

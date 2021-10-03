@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CRapidJsonConcurrentLineWriter_h
@@ -14,13 +19,27 @@ namespace ml {
 namespace core {
 
 //! \brief
-//! A Json line writer for concurrently writing to a shared output stream
+//! A Json line writer for concurrently writing to a shared output stream.
 //!
 //! DESCRIPTION:\n
 //! Takes a wrapped output stream, hides all buffering/pooling/concurrency.
+//! CRapidJsonConcurrentLineWriter objects must not be shared between threads.
+//! The intended usage is as follows:
+//! \code{.cpp}
+//! std::ostringstream stream;
+//! core::CJsonOutputStreamWrapper streamWrapper{stream};
+//! std::thread thread{[&streamWrapper]() {
+//!     core::CRapidJsonConcurrentLineWriter writer{streamWrapper};
+//!     writer.StartObject();
+//!     writer.Key("foo");
+//!     writer.Int(1);
+//!     writer.EndObject();
+//! }};
+//! ...
+//! \endcode
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! hard code encoding and stream type
+//! Hardcode encoding and stream type.
 //!
 class CORE_EXPORT CRapidJsonConcurrentLineWriter
     : public CRapidJsonLineWriter<rapidjson::StringBuffer> {
@@ -43,7 +62,7 @@ public:
     bool EndObject(rapidjson::SizeType memberCount = 0);
 
     //! Debug the memory used by this component.
-    void debugMemoryUsage(CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component.
     std::size_t memoryUsage() const;

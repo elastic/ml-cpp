@@ -1,0 +1,13 @@
+{
+  "job_id": "new_persist_dc",
+  "analysis_config": {
+    "detectors": [
+     {
+        "function": "distinct_count",
+        "field_name": "file",
+        "by_field_name": "program"
+     }
+    ]
+  }
+}
+

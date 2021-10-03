@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CProcessPriority_h
 #define INCLUDED_ml_core_CProcessPriority_h
@@ -26,19 +31,24 @@ namespace core {
 //! IMPLEMENTATION DECISIONS:\n
 //! This is a static class - it's not possible to construct an instance of it.
 //!
-//! The basic implementation does nothing.  Platform-specific implementations
-//! exist for platforms where we have decided to do something.
+//! On Linux and macOS we reduce the CPU scheduling priority using "nice".
+//! This should be done after connecting named pipes to the JVM, because
+//! named pipe connection can be time-sensitive and failures are hard to
+//! diagnose.
 //!
-//! Currently the only platform-specific implementation is for Linux, and it
-//! attempts to increase the OOM killer adjustment for the process such that
-//! it is more likely to be killed than other processes when the Linux kernel
-//! decides that there isn't enough free memory.
+//! On Linux we also attempt to increase the OOM killer adjustment for the
+//! process such that it is more likely to be killed than other processes
+//! when the Linux kernel decides that there isn't enough free memory.
 //!
 class CORE_EXPORT CProcessPriority : private CNonInstantiatable {
 public:
-    //! Reduce whatever priority measures are deemed appropriate for the
+    //! Reduce priority for memory if deemed appropriate for the
     //! current OS.
-    static void reducePriority();
+    static void reduceMemoryPriority();
+
+    //! Reduce priority for CPU if deemed appropriate for the
+    //! current OS.
+    static void reduceCpuPriority();
 };
 }
 }

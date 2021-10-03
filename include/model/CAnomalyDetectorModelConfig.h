@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CAnomalyDetectorModelConfig_h
@@ -336,6 +341,14 @@ public:
     //! Get the bucket length.
     core_t::TTime bucketLength() const;
 
+    //! Get the period of time at which to perform a potential prune of the models
+    //! expressed in number of seconds.
+    core_t::TTime modelPruneWindow() const;
+
+    //! Set the period of time at which to perform a potential prune of the models
+    //! expressed in number of seconds.
+    void modelPruneWindow(core_t::TTime modelPruneWindow);
+
     //! Get the maximum latency in the arrival of out of order data.
     core_t::TTime latency() const;
 
@@ -355,8 +368,18 @@ public:
     bool configureModelPlot(const std::string& modelPlotConfigFile);
 
     //! Configure modelPlotConfig params from a property tree
-    //! expected to contain two properties: 'boundsPercentile' and 'terms'
+    //! expected to contain three properties: 'boundsPercentile', 'annotationsEnabled'
+    //! and 'terms'
     bool configureModelPlot(const boost::property_tree::ptree& propTree);
+
+    //! Configure modelPlotConfig params directly, from the three properties
+    //! 'modelPlotEnabled', 'annotationPlotEnabled' and 'terms'.
+    //! This initialisation method does not allow setting the value of the
+    //! 'boundsPercentile' property, instead a default value is used when 'modelPlotEnabled'
+    //! is true and a value of -1.0 is used otherwise.
+    void configureModelPlot(bool modelPlotEnabled,
+                            bool annotationsEnabled,
+                            const std::string& terms);
 
     //! Set the central confidence interval for the model debug plot
     //! to \p percentage.
@@ -368,6 +391,12 @@ public:
 
     //! Get the central confidence interval for the model debug plot.
     double modelPlotBoundsPercentile() const;
+
+    //! Is model plot enabled?
+    bool modelPlotEnabled() const;
+
+    //! Are annotations enabled for each of the models?
+    bool modelPlotAnnotationsEnabled() const;
 
     //! Set terms (by, over, or partition field values) to filter
     //! model debug data. When empty, no filtering is applied.
@@ -424,10 +453,13 @@ public:
 
 private:
     //! Bucket length.
-    core_t::TTime m_BucketLength;
+    core_t::TTime m_BucketLength{0};
+
+    //! Prune window length (in seconds)
+    core_t::TTime m_ModelPruneWindow{0};
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
-    bool m_MultivariateByFields;
+    bool m_MultivariateByFields{false};
 
     //! The single interim bucket correction calculator.
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;
@@ -437,6 +469,12 @@ private:
 
     //! A cache of customized factories requested from this config.
     mutable TSearchKeyFactoryCPtrMap m_FactoryCache;
+
+    //! Is model plot enabled?
+    bool m_ModelPlotEnabled{false};
+
+    //! Are annotations enabled for each of the models?
+    bool m_ModelPlotAnnotationsEnabled{false};
 
     //! The central confidence interval for the model debug plot.
     double m_ModelPlotBoundsPercentile;
@@ -472,11 +510,11 @@ private:
     //@}
 
     //! A reference to the map containing detection rules per
-    //! detector key. Note that the owner of the map is CFieldConfig.
+    //! detector key. Note that the owner of the map is CAnomalyJobConfig::CAnalysisConfig.
     TIntDetectionRuleVecUMapCRef m_DetectionRules;
 
     //! A reference to the vector of scheduled events.
-    //! The owner of the vector is CFieldConfig
+    //! The owner of the vector is CAnomalyJobConfig::CAnalysisConfig.
     TStrDetectionRulePrVecCRef m_ScheduledEvents;
 };
 }

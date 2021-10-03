@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CCountingModel_h
@@ -15,7 +20,9 @@
 
 #include <memory>
 
-class CCountingModelTest;
+namespace CCountingModelTest {
+struct testCheckScheduledEvents;
+}
 
 namespace ml {
 namespace model {
@@ -81,6 +88,9 @@ public:
     void persistModelsState(core::CStatePersistInserter& /*inserter*/) const override {
         // NO-OP
     }
+
+    //! Counting model is always persisted.
+    bool shouldPersist() const override { return true; }
 
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
@@ -203,7 +213,7 @@ public:
     uint64_t checksum(bool includeCurrentBucketStats = true) const override;
 
     //! Get the memory used by this model
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this model
     std::size_t memoryUsage() const override;
@@ -216,6 +226,9 @@ public:
 
     //! Get the descriptions of any occurring scheduled event descriptions for the bucket time
     const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const override;
+
+    //! Get the annotations produced by this model.
+    const TAnnotationVec& annotations() const override;
 
 protected:
     //! Get the start time of the current bucket.
@@ -291,7 +304,10 @@ private:
     //! Calculates corrections for interim buckets.
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;
 
-    friend class ::CCountingModelTest;
+    //! Annotations produced by this model.
+    TAnnotationVec m_Annotations;
+
+    friend struct CCountingModelTest::testCheckScheduledEvents;
 };
 }
 }

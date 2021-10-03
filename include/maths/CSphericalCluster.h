@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CSphericalCluster_h
@@ -149,9 +154,9 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<POINT, SCountAndVariance>> {
 
         TCoordinate mn{s.trace() / d};
         TCoordinate norm(0);
-        for (std::size_t i = 0u; i < dimension; ++i) {
+        for (std::size_t i = 0; i < dimension; ++i) {
             norm += pow2(s(i, i) - mn);
-            for (std::size_t j = 0u; j < i; ++j) {
+            for (std::size_t j = 0; j < i; ++j) {
                 norm += TCoordinate(2) * pow2(s(i, j));
             }
         }
@@ -162,9 +167,9 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<POINT, SCountAndVariance>> {
             TCoordinate ni{static_cast<TCoordinate>(point.annotation().s_Count)};
             TCoordinate vi{static_cast<TCoordinate>(point.annotation().s_Variance)};
             norm = TCoordinate(0);
-            for (std::size_t i = 0u; i < dimension; ++i) {
+            for (std::size_t i = 0; i < dimension; ++i) {
                 norm += pow2(pow2(TCoordinate(point(i)) - m(i)) + vi - s(i, i));
-                for (std::size_t j = 0u; j < i; ++j) {
+                for (std::size_t j = 0; j < i; ++j) {
                     norm += TCoordinate(2) * pow2((TCoordinate(point(i)) - m(i)) *
                                                       (TCoordinate(point(j)) - m(j)) -
                                                   s(i, j));
@@ -176,7 +181,7 @@ struct SCovariancesLedoitWolf<CAnnotatedVector<POINT, SCountAndVariance>> {
         LOG_TRACE(<< "m = " << mn << ", d = " << dn << ", b = " << bn);
 
         covariances.s_Covariances *= std::max((TCoordinate(1) - bn / dn), 0.0);
-        for (std::size_t i = 0u; i < dimension; ++i) {
+        for (std::size_t i = 0; i < dimension; ++i) {
             covariances.s_Covariances(i, i) += bn / dn * mn;
         }
     }

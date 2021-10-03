@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CCompressedDictionary_h
@@ -125,7 +130,7 @@ public:
     };
 
     //! \brief A fast hash of a dictionary word.
-    class CHash : public std::unary_function<CWord, uint64_t> {
+    class CHash {
     public:
         inline std::size_t operator()(const CWord& word) const {
             return word.hash();
@@ -155,7 +160,7 @@ public:
         // generators can generate different numbers on different
         // platforms, even with the same random number generator seed.
         m_Seeds[0] = 472882027;
-        for (std::size_t i = 1u; i < N; ++i) {
+        for (std::size_t i = 1; i < N; ++i) {
             m_Seeds[i] = m_Seeds[i - 1] * 982451653ull;
         }
     }
@@ -163,7 +168,7 @@ public:
     //! Extract the dictionary word corresponding to \p word.
     CWord word(const std::string& word) const {
         TUInt64Array hash;
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             hash[i] = CHashing::safeMurmurHash64(
                 word.c_str(), static_cast<int>(word.size()), m_Seeds[i]);
         }
@@ -195,7 +200,7 @@ private:
     template<std::size_t NUMBER_OF_WORDS>
     CWord word(const TStrCPtr (&words)[NUMBER_OF_WORDS]) const {
         TUInt64Array hashes;
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             uint64_t& hash = hashes[i];
             for (std::size_t wordIndex = 0; wordIndex < NUMBER_OF_WORDS; ++wordIndex) {
                 const std::string& word = *words[wordIndex];

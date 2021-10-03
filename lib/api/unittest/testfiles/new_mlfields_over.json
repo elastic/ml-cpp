@@ -1,0 +1,48 @@
+{
+  "job_id": "new_ml_fields_over",
+  "analysis_config": {
+    "detectors": [
+      {
+        "function": "count",
+        "over_field_name": "mlcategory",
+        "partition_field_name": "agent"
+      },
+      {
+        "function": "count",
+        "over_field_name": "remote_ip"
+      },
+      {
+        "function": "count",
+        "over_field_name": "remote_user"
+     },
+     {
+        "function": "count",
+        "over_field_name": "request"
+     },
+     {
+        "function": "count",
+        "over_field_name": "response"
+     },
+     {
+        "function": "freq_rare",
+        "by_field_name": "request",
+        "over_field_name": "remote_ip"
+     },
+     {
+        "function": "info_content",
+        "field_name": "agent",
+        "over_field_name": "remote_ip"
+     },
+     {
+        "function": "avg",
+        "field_name": "bytes",
+        "over_field_name": "request"
+     },
+     {
+        "function": "high_sum",
+        "field_name": "bytes",
+        "over_field_name": "response"
+     }
+    ]
+  }
+}

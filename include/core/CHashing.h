@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CHashing_h
@@ -181,7 +186,7 @@ public:
                 //     < p^2 + 2*p
                 //     < 2^64
                 uint64_t h = static_cast<uint64_t>(m_A[0]) * x[0];
-                for (std::size_t i = 1u; i < x.size(); ++i) {
+                for (std::size_t i = 1; i < x.size(); ++i) {
                     h = (h % BIG_PRIME + static_cast<uint64_t>(m_A[i]) * x[i]);
                 }
                 return static_cast<uint32_t>(((h + static_cast<uint64_t>(m_B)) % BIG_PRIME) %
@@ -362,7 +367,7 @@ public:
     //! \warning This is slower than boost::hash for the types I tested
     //! std::size_t, int, uint64_t, but does have better distributions.
     template<typename T>
-    class CMurmurHash2BT : public std::unary_function<T, std::size_t> {
+    class CMurmurHash2BT {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
@@ -380,8 +385,7 @@ public:
     //!
     //! \note This is significantly faster than boost::hash<std::string>
     //! and has better distributions.
-    class CORE_EXPORT CMurmurHash2String
-        : public std::unary_function<std::string, std::size_t> {
+    class CORE_EXPORT CMurmurHash2String {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
@@ -410,8 +414,7 @@ public:
     //! example would be where the hash value somehow affects data that is
     //! visible outside the program, such as state persisted to a data
     //! store.  This is also immune to endianness issues.
-    class CORE_EXPORT CSafeMurmurHash2String64
-        : public std::unary_function<std::string, uint64_t> {
+    class CORE_EXPORT CSafeMurmurHash2String64 {
     public:
         //! See CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }

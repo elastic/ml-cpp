@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CPRNG_h
@@ -12,9 +17,9 @@
 #include <maths/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
+#include <limits>
 #include <string>
-
-#include <stdint.h>
 
 namespace ml {
 namespace maths {
@@ -51,11 +56,11 @@ public:
     //! on Java's splittable random number generator.
     class MATHS_EXPORT CSplitMix64 {
     public:
-        using result_type = uint64_t;
+        using result_type = std::uint64_t;
 
     public:
         CSplitMix64();
-        CSplitMix64(uint64_t seed);
+        CSplitMix64(result_type seed);
 
         //! Compare for equality.
         bool operator==(CSplitMix64 other) const;
@@ -65,15 +70,18 @@ public:
         }
 
         void seed();
-        void seed(uint64_t seed);
+        void seed(result_type seed);
 
         //! The minimum value returnable by operator().
-        static uint64_t min();
+        constexpr static result_type min() { return 0; }
+
         //! The maximum value returnable by operator().
-        static uint64_t max();
+        constexpr static result_type max() {
+            return std::numeric_limits<result_type>::max();
+        }
 
         //! Generate the next random number.
-        uint64_t operator()();
+        result_type operator()();
 
         //! Fill the sequence [\p begin, \p end) with the next
         //! \p end - \p begin random numbers.
@@ -83,21 +91,24 @@ public:
         }
 
         //! Discard the next \p n random numbers.
-        void discard(uint64_t n);
+        void discard(result_type n);
 
         //! Persist to a string.
         std::string toString() const;
         //! Restore from a string.
         bool fromString(const std::string& state);
 
+        //! Get a checksum for this object.
+        std::uint64_t checksum(std::uint64_t seed) const;
+
     private:
-        static const uint64_t A;
-        static const uint64_t B;
-        static const uint64_t C;
+        static const result_type A;
+        static const result_type B;
+        static const result_type C;
 
     private:
         //! The state.
-        uint64_t m_X;
+        result_type m_X;
     };
 
     //! \brief The xoroshiro128+ pseudo-random number generator.
@@ -110,11 +121,11 @@ public:
     //! a random Boolean value.
     class MATHS_EXPORT CXorOShiro128Plus {
     public:
-        using result_type = uint64_t;
+        using result_type = std::uint64_t;
 
     public:
         CXorOShiro128Plus();
-        CXorOShiro128Plus(uint64_t seed);
+        CXorOShiro128Plus(result_type seed);
         template<typename ITR>
         CXorOShiro128Plus(ITR begin, ITR end) {
             this->seed(begin, end);
@@ -134,12 +145,12 @@ public:
         //! Set to a seeded generator.
         //!
         //! As per recommendations we use CSplitMix64 for seeding.
-        void seed(uint64_t seed);
+        void seed(result_type seed);
         //! Seed from [\p begin, \p end) which should have two 64 bit
         //! seeds.
         template<typename ITR>
         void seed(ITR begin, ITR end) {
-            std::size_t i = 0u;
+            std::size_t i = 0;
             for (/**/; i < 2 && begin != end; ++i, ++begin) {
                 m_X[i] = *begin;
             }
@@ -150,12 +161,15 @@ public:
         }
 
         //! The minimum value returnable by operator().
-        static uint64_t min();
+        constexpr static result_type min() { return 0; }
+
         //! The maximum value returnable by operator().
-        static uint64_t max();
+        constexpr static result_type max() {
+            return std::numeric_limits<result_type>::max();
+        }
 
         //! Generate the next random number.
-        uint64_t operator()();
+        result_type operator()();
 
         //! Fill the sequence [\p begin, \p end) with the next
         //! \p end - \p begin random numbers.
@@ -165,7 +179,7 @@ public:
         }
 
         //! Discard the next \p n random numbers.
-        void discard(uint64_t n);
+        void discard(result_type n);
 
         //! This is equivalent to \f$2^{64}\f$ calls to next();
         //! it can be used to generate \f$2^{64}\f$ non-overlapping
@@ -178,12 +192,15 @@ public:
         //! Restore from a string.
         bool fromString(const std::string& state);
 
+        //! Get a checksum for this object.
+        std::uint64_t checksum(std::uint64_t seed) const;
+
     private:
-        static const uint64_t JUMP[2];
+        static const result_type JUMP[2];
 
     private:
         //! The state.
-        uint64_t m_X[2];
+        result_type m_X[2];
     };
 
     //! \brief The xorshift1024* pseudo-random number generator.
@@ -199,11 +216,11 @@ public:
     //! \sa https://en.wikipedia.org/wiki/Xorshift#cite_note-vigna2-9.
     class MATHS_EXPORT CXorShift1024Mult {
     public:
-        using result_type = uint64_t;
+        using result_type = std::uint64_t;
 
     public:
         CXorShift1024Mult();
-        CXorShift1024Mult(uint64_t seed);
+        CXorShift1024Mult(result_type seed);
         template<typename ITR>
         CXorShift1024Mult(ITR begin, ITR end) : m_P(0) {
             this->seed(begin, end);
@@ -223,12 +240,12 @@ public:
         //! Set to a seeded generator.
         //!
         //! As per recommendations we use CSplitMix64 for seeding.
-        void seed(uint64_t seed);
+        void seed(result_type seed);
         //! Seed from [\p begin, \p end) which should have sixteen
         //! 64 bit seeds.
         template<typename ITR>
         void seed(ITR begin, ITR end) {
-            std::size_t i = 0u;
+            std::size_t i = 0;
             for (/**/; i < 16 && begin != end; ++i, ++begin) {
                 m_X[i] = *begin;
             }
@@ -239,12 +256,15 @@ public:
         }
 
         //! The minimum value returnable by operator().
-        static uint64_t min();
+        constexpr static result_type min() { return 0; }
+
         //! The maximum value returnable by operator().
-        static uint64_t max();
+        constexpr static result_type max() {
+            return std::numeric_limits<result_type>::max();
+        }
 
         //! Generate the next random number.
-        uint64_t operator()();
+        result_type operator()();
 
         //! Fill the sequence [\p begin, \p end) with the next
         //! \p end - \p begin random numbers.
@@ -254,7 +274,7 @@ public:
         }
 
         //! Discard the next \p n random numbers.
-        void discard(uint64_t n);
+        void discard(result_type n);
 
         //! This is equivalent to \f$2^{512}\f$ calls to next();
         //! it can be used to generate \f$2^{512}\f$ non-overlapping
@@ -267,13 +287,16 @@ public:
         //! Restore from a string.
         bool fromString(std::string state);
 
+        //! Get a checksum for this object.
+        std::uint64_t checksum(std::uint64_t seed) const;
+
     private:
-        static const uint64_t A;
-        static const uint64_t JUMP[16];
+        static const result_type A;
+        static const result_type JUMP[16];
 
     private:
         //! The state.
-        uint64_t m_X[16];
+        result_type m_X[16];
         //! The current pair.
         int m_P;
     };

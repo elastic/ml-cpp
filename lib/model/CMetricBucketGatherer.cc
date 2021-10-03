@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CMetricBucketGatherer.h>
@@ -196,44 +201,44 @@ void registerMemoryCallbacks() {
 //! Apply a function \p f to a gatherer held as a value by map entry \p i
 //! of an explicit metric category
 template<model_t::EMetricCategory CATEGORY, typename ITR, typename F>
-void apply(ITR i, const F& f) {
+void applyFunc(ITR i, const F& f) {
     using TDataType = typename SDataType<CATEGORY>::Type;
     f(i->first, boost::any_cast<typename SMaybeConst<ITR, TDataType>::Type&>(i->second));
 }
 
 //! Apply a function \p f to all the gatherers held in [\p begin, \p end).
 template<typename ITR, typename F>
-bool apply(ITR begin, ITR end, const F& f) {
+bool applyFunc(ITR begin, ITR end, const F& f) {
     for (ITR i = begin; i != end; ++i) {
         model_t::EMetricCategory category = i->first.first;
         try {
             switch (category) {
             case model_t::E_Mean:
-                apply<model_t::E_Mean>(i, f);
+                applyFunc<model_t::E_Mean>(i, f);
                 break;
             case model_t::E_Median:
-                apply<model_t::E_Median>(i, f);
+                applyFunc<model_t::E_Median>(i, f);
                 break;
             case model_t::E_Min:
-                apply<model_t::E_Min>(i, f);
+                applyFunc<model_t::E_Min>(i, f);
                 break;
             case model_t::E_Max:
-                apply<model_t::E_Max>(i, f);
+                applyFunc<model_t::E_Max>(i, f);
                 break;
             case model_t::E_Variance:
-                apply<model_t::E_Variance>(i, f);
+                applyFunc<model_t::E_Variance>(i, f);
                 break;
             case model_t::E_Sum:
-                apply<model_t::E_Sum>(i, f);
+                applyFunc<model_t::E_Sum>(i, f);
                 break;
             case model_t::E_MultivariateMean:
-                apply<model_t::E_MultivariateMean>(i, f);
+                applyFunc<model_t::E_MultivariateMean>(i, f);
                 break;
             case model_t::E_MultivariateMin:
-                apply<model_t::E_MultivariateMin>(i, f);
+                applyFunc<model_t::E_MultivariateMin>(i, f);
                 break;
             case model_t::E_MultivariateMax:
-                apply<model_t::E_MultivariateMax>(i, f);
+                applyFunc<model_t::E_MultivariateMax>(i, f);
                 break;
             }
         } catch (const std::exception& e) {
@@ -247,8 +252,8 @@ bool apply(ITR begin, ITR end, const F& f) {
 
 //! Apply a function \p f to all the gatherers held in \p data.
 template<typename T, typename F>
-bool apply(T& data, const F& f) {
-    return apply(data.begin(), data.end(), f);
+bool applyFunc(T& data, const F& f) {
+    return applyFunc(data.begin(), data.end(), f);
 }
 
 //! Initialize feature data for a specific category
@@ -945,9 +950,12 @@ CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
     : CBucketGatherer(dataGatherer, 0, influenceFieldNames.size()),
       m_ValueFieldName(valueFieldName), m_BeginValueFields(0) {
     this->initializeFieldNamesPart1(personFieldName, attributeFieldName, influenceFieldNames);
-    traverser.traverseSubLevel(std::bind(&CMetricBucketGatherer::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
-    this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
+    if (traverser.traverseSubLevel(std::bind(&CMetricBucketGatherer::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    } else {
+        this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
+    }
 }
 
 CMetricBucketGatherer::CMetricBucketGatherer(bool isForPersistence,
@@ -965,8 +973,9 @@ void CMetricBucketGatherer::acceptPersistInserter(core::CStatePersistInserter& i
     inserter.insertLevel(BASE_TAG, std::bind(&CBucketGatherer::baseAcceptPersistInserter,
                                              this, std::placeholders::_1));
     inserter.insertValue(VERSION_TAG, CURRENT_VERSION);
-    apply(m_FeatureData, std::bind<void>(CPersistFeatureData(), std::placeholders::_1,
-                                         std::placeholders::_2, std::ref(inserter)));
+    applyFunc(m_FeatureData,
+              std::bind<void>(CPersistFeatureData(), std::placeholders::_1,
+                              std::placeholders::_2, std::ref(inserter)));
 }
 
 bool CMetricBucketGatherer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1171,7 +1180,7 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
                       << m_FieldMetricCategories.size());
             allOk = false;
         }
-        for (std::size_t j = 0u; allOk && i < m_FieldNames.size(); ++i, ++j) {
+        for (std::size_t j = 0; allOk && i < m_FieldNames.size(); ++i, ++j) {
             model_t::EMetricCategory category = m_FieldMetricCategories[j];
             if (fieldValues[i] == nullptr ||
                 m_DataGatherer.extractMetricFromField(
@@ -1270,16 +1279,17 @@ void CMetricBucketGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
         return;
     }
 
-    apply(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
-                                         std::placeholders::_2, std::cref(peopleToRemove)));
+    applyFunc(m_FeatureData,
+              std::bind<void>(SRemovePeople(), std::placeholders::_1,
+                              std::placeholders::_2, std::cref(peopleToRemove)));
 
     this->CBucketGatherer::recyclePeople(peopleToRemove);
 }
 
 void CMetricBucketGatherer::removePeople(std::size_t lowestPersonToRemove) {
-    apply(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
-                                         std::placeholders::_2, lowestPersonToRemove,
-                                         m_DataGatherer.numberPeople()));
+    applyFunc(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
+                                             std::placeholders::_2, lowestPersonToRemove,
+                                             m_DataGatherer.numberPeople()));
 
     this->CBucketGatherer::removePeople(lowestPersonToRemove);
 }
@@ -1290,9 +1300,9 @@ void CMetricBucketGatherer::recycleAttributes(const TSizeVec& attributesToRemove
     }
 
     if (m_DataGatherer.isPopulation()) {
-        apply(m_FeatureData,
-              std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                              std::placeholders::_2, std::cref(attributesToRemove)));
+        applyFunc(m_FeatureData,
+                  std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
+                                  std::placeholders::_2, std::cref(attributesToRemove)));
     }
 
     this->CBucketGatherer::recycleAttributes(attributesToRemove);
@@ -1300,9 +1310,10 @@ void CMetricBucketGatherer::recycleAttributes(const TSizeVec& attributesToRemove
 
 void CMetricBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
     if (m_DataGatherer.isPopulation()) {
-        apply(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                                             std::placeholders::_2, lowestAttributeToRemove,
-                                             m_DataGatherer.numberAttributes()));
+        applyFunc(m_FeatureData,
+                  std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
+                                  std::placeholders::_2, lowestAttributeToRemove,
+                                  m_DataGatherer.numberAttributes()));
     }
 
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
@@ -1312,14 +1323,15 @@ uint64_t CMetricBucketGatherer::checksum() const {
     uint64_t seed = this->CBucketGatherer::checksum();
     seed = maths::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
     TStrCRefStrCRefPrUInt64Map hashes;
-    apply(m_FeatureData, std::bind<void>(SHash(), std::placeholders::_1, std::placeholders::_2,
-                                         std::cref(*this), std::ref(hashes)));
+    applyFunc(m_FeatureData, std::bind<void>(SHash(), std::placeholders::_1,
+                                             std::placeholders::_2,
+                                             std::cref(*this), std::ref(hashes)));
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CMetricBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMetricBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     registerMemoryCallbacks();
     mem->setName("CMetricBucketGatherer");
     this->CBucketGatherer::debugMemoryUsage(mem->addChild());
@@ -1353,22 +1365,22 @@ bool CMetricBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     if (this->CBucketGatherer::resetBucket(bucketStart) == false) {
         return false;
     }
-    apply(m_FeatureData, std::bind<void>(SResetBucket(), std::placeholders::_1,
-                                         std::placeholders::_2, bucketStart));
+    applyFunc(m_FeatureData, std::bind<void>(SResetBucket(), std::placeholders::_1,
+                                             std::placeholders::_2, bucketStart));
     return true;
 }
 
 void CMetricBucketGatherer::releaseMemory(core_t::TTime samplingCutoffTime) {
-    apply(m_FeatureData, std::bind<void>(SReleaseMemory(), std::placeholders::_1,
-                                         std::placeholders::_2, samplingCutoffTime));
+    applyFunc(m_FeatureData, std::bind<void>(SReleaseMemory(), std::placeholders::_1,
+                                             std::placeholders::_2, samplingCutoffTime));
 }
 
 void CMetricBucketGatherer::sample(core_t::TTime time) {
     if (m_DataGatherer.sampleCounts()) {
-        apply(m_FeatureData,
-              std::bind<void>(SDoSample(), std::placeholders::_1,
-                              std::placeholders::_2, time, std::cref(*this),
-                              std::ref(*m_DataGatherer.sampleCounts())));
+        applyFunc(m_FeatureData,
+                  std::bind<void>(SDoSample(), std::placeholders::_1,
+                                  std::placeholders::_2, time, std::cref(*this),
+                                  std::ref(*m_DataGatherer.sampleCounts())));
     }
 }
 
@@ -1392,10 +1404,10 @@ void CMetricBucketGatherer::featureData(core_t::TTime time,
             if (begin != m_FeatureData.end()) {
                 auto end = begin;
                 ++end;
-                apply(begin, end,
-                      std::bind<void>(SExtractFeatureData(), std::placeholders::_1,
-                                      std::placeholders::_2, std::cref(*this), feature,
-                                      time, bucketLength, std::ref(result)));
+                applyFunc(begin, end,
+                          std::bind<void>(SExtractFeatureData(), std::placeholders::_1,
+                                          std::placeholders::_2, std::cref(*this), feature,
+                                          time, bucketLength, std::ref(result)));
             } else {
                 LOG_ERROR(<< "No data for category " << model_t::print(category));
             }
@@ -1436,9 +1448,9 @@ void CMetricBucketGatherer::addValue(std::size_t pid,
     }
 
     stat.s_Influences = &influences;
-    apply(m_FeatureData, std::bind<void>(SAddValue(), std::placeholders::_1,
-                                         std::placeholders::_2, pid, cid,
-                                         std::cref(*this), std::ref(stat)));
+    applyFunc(m_FeatureData, std::bind<void>(SAddValue(), std::placeholders::_1,
+                                             std::placeholders::_2, pid, cid,
+                                             std::cref(*this), std::ref(stat)));
 }
 
 void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates) {
@@ -1480,8 +1492,8 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
             m_DataGatherer.sampleCounts()->refresh(m_DataGatherer);
         }
     }
-    apply(m_FeatureData, std::bind<void>(SStartNewBucket(), std::placeholders::_1,
-                                         std::placeholders::_2, time));
+    applyFunc(m_FeatureData, std::bind<void>(SStartNewBucket(), std::placeholders::_1,
+                                             std::placeholders::_2, time));
 }
 
 void CMetricBucketGatherer::initializeFieldNamesPart1(const std::string& personFieldName,

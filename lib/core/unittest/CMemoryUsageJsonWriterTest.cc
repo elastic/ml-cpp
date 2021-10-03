@@ -1,38 +1,36 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CMemoryUsageJsonWriterTest.h"
 
 #include <core/CMemoryUsage.h>
 #include <core/CMemoryUsageJsonWriter.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <sstream>
+
+BOOST_AUTO_TEST_SUITE(CMemoryUsageJsonWriterTest)
 
 using namespace ml;
 
-CppUnit::Test* CMemoryUsageJsonWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMemoryUsageJsonWriterTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMemoryUsageJsonWriterTest>(
-        "CMemoryUsageJsonWriterTest::test", &CMemoryUsageJsonWriterTest::test));
-
-    return suiteOfTests;
-}
-
-void CMemoryUsageJsonWriterTest::test() {
+BOOST_AUTO_TEST_CASE(test) {
     {
         // Check that adding nothing produces nothing
         std::ostringstream ss;
-        CPPUNIT_ASSERT_EQUAL(std::string(""), ss.str());
+        BOOST_REQUIRE_EQUAL(std::string(""), ss.str());
 
         core::CMemoryUsageJsonWriter writer(ss);
-        CPPUNIT_ASSERT_EQUAL(std::string(""), ss.str());
+        BOOST_REQUIRE_EQUAL(std::string(""), ss.str());
 
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string(""), ss.str());
+        BOOST_REQUIRE_EQUAL(std::string(""), ss.str());
     }
     {
         // Check one object
@@ -43,7 +41,7 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.addItem(description);
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223}}\n"), ss.str());
+        BOOST_REQUIRE_EQUAL(std::string("{\"Hello\":{\"memory\":223}}\n"), ss.str());
     }
     {
         // Check one object with unused space
@@ -54,8 +52,8 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.addItem(description);
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223,\"unused\":45678}}\n"),
-                             ss.str());
+        BOOST_REQUIRE_EQUAL(std::string("{\"Hello\":{\"memory\":223,\"unused\":45678}}\n"),
+                            ss.str());
     }
     {
         // Check one empty array
@@ -68,7 +66,7 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.endArray();
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(
+        BOOST_REQUIRE_EQUAL(
             std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[]}\n"), ss.str());
     }
     {
@@ -92,9 +90,9 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.endArray();
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Womple\":{\"memory\":44}},{\"Whimple\":{\"memory\":"
-                                         "66},\"magic\":{\"memory\":7777}}]}\n"),
-                             ss.str());
+        BOOST_REQUIRE_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Womple\":{\"memory\":44}},{\"Whimple\":{\"memory\":"
+                                        "66},\"magic\":{\"memory\":7777}}]}\n"),
+                            ss.str());
     }
     {
         // Check sub-object
@@ -113,7 +111,9 @@ void CMemoryUsageJsonWriterTest::test() {
         writer.endArray();
         writer.endObject();
         writer.finalise();
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Dumplings\":{\"memory\":345},\"Gravy\":{\"memory\":12341234}}]}\n"),
-                             ss.str());
+        BOOST_REQUIRE_EQUAL(std::string("{\"Hello\":{\"memory\":223},\"Sheeple\":[{\"Dumplings\":{\"memory\":345},\"Gravy\":{\"memory\":12341234}}]}\n"),
+                            ss.str());
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CLinearAlgebraTest.h"
 
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -18,36 +21,41 @@
 #include <maths/CLinearAlgebraPersist.h>
 #include <maths/CLinearAlgebraTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
+
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CLinearAlgebraTest)
 
 using namespace ml;
 
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 
-void CLinearAlgebraTest::testSymmetricMatrixNxN() {
+BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
     // Construction.
     {
         maths::CSymmetricMatrixNxN<double, 3> matrix;
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
-                CPPUNIT_ASSERT_EQUAL(0.0, matrix(i, j));
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                BOOST_REQUIRE_EQUAL(0.0, matrix(i, j));
             }
         }
-        CPPUNIT_ASSERT_EQUAL(0.0, matrix.trace());
+        BOOST_REQUIRE_EQUAL(0.0, matrix.trace());
     }
     {
         maths::CSymmetricMatrixNxN<double, 3> matrix(3.0);
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
-                CPPUNIT_ASSERT_EQUAL(3.0, matrix(i, j));
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                BOOST_REQUIRE_EQUAL(3.0, matrix(i, j));
             }
         }
-        CPPUNIT_ASSERT_EQUAL(9.0, matrix.trace());
+        BOOST_REQUIRE_EQUAL(9.0, matrix.trace());
     }
     {
         double m[][5]{{1.1, 2.4, 1.4, 3.7, 4.0},
@@ -57,33 +65,33 @@ void CLinearAlgebraTest::testSymmetricMatrixNxN() {
                       {4.0, 1.0, 3.1, 1.1, 1.0}};
         maths::CSymmetricMatrixNxN<double, 5> matrix(m);
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
-                CPPUNIT_ASSERT_EQUAL(m[i][j], matrix(i, j));
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
+                BOOST_REQUIRE_EQUAL(m[i][j], matrix(i, j));
             }
         }
-        CPPUNIT_ASSERT_EQUAL(10.8, matrix.trace());
+        BOOST_REQUIRE_EQUAL(10.8, matrix.trace());
     }
     {
         double v[]{1.0, 2.0, 3.0, 4.0};
         maths::CVectorNx1<double, 4> vector(v);
         maths::CSymmetricMatrixNxN<double, 4> matrix(maths::E_OuterProduct, vector);
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
-                CPPUNIT_ASSERT_EQUAL(static_cast<double>((i + 1) * (j + 1)), matrix(i, j));
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
+                BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)), matrix(i, j));
             }
         }
-        CPPUNIT_ASSERT_EQUAL(30.0, matrix.trace());
+        BOOST_REQUIRE_EQUAL(30.0, matrix.trace());
     }
     {
         double v[]{1.0, 2.0, 3.0, 4.0};
         maths::CVectorNx1<double, 4> vector(v);
         maths::CSymmetricMatrixNxN<double, 4> matrix(maths::E_Diagonal, vector);
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
-                CPPUNIT_ASSERT_EQUAL(i == j ? vector(i) : 0.0, matrix(i, j));
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
+                BOOST_REQUIRE_EQUAL(i == j ? vector(i) : 0.0, matrix(i, j));
             }
         }
     }
@@ -100,9 +108,9 @@ void CLinearAlgebraTest::testSymmetricMatrixNxN() {
         maths::CSymmetricMatrixNxN<double, 5> matrix(m);
         maths::CSymmetricMatrixNxN<double, 5> sum = matrix + matrix;
         LOG_DEBUG(<< "sum = " << sum);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
-                CPPUNIT_ASSERT_EQUAL(2.0 * m[i][j], sum(i, j));
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
+                BOOST_REQUIRE_EQUAL(2.0 * m[i][j], sum(i, j));
             }
         }
     }
@@ -115,9 +123,9 @@ void CLinearAlgebraTest::testSymmetricMatrixNxN() {
         maths::CSymmetricMatrixNxN<double, 3> matrix2(m2);
         maths::CSymmetricMatrixNxN<double, 3> difference = matrix1 - matrix2;
         LOG_DEBUG(<< "difference = " << difference);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
-                CPPUNIT_ASSERT_EQUAL(m1[i][j] - m2[i][j], difference(i, j));
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                BOOST_REQUIRE_EQUAL(m1[i][j] - m2[i][j], difference(i, j));
             }
         }
     }
@@ -129,10 +137,10 @@ void CLinearAlgebraTest::testSymmetricMatrixNxN() {
         maths::CSymmetricMatrixNxN<double, 5> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrixNxN<double, 5> ms = m * 3.0;
         LOG_DEBUG(<< "3 * m = " << ms);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
-                CPPUNIT_ASSERT_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)),
-                                     ms(i, j));
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
+                BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)),
+                                    ms(i, j));
             }
         }
     }
@@ -144,37 +152,37 @@ void CLinearAlgebraTest::testSymmetricMatrixNxN() {
         maths::CSymmetricMatrixNxN<double, 5> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrixNxN<double, 5> ms = m / 4.0;
         LOG_DEBUG(<< "m / 4.0 = " << ms);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
-                CPPUNIT_ASSERT_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0,
-                                     ms(i, j));
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
+                BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0,
+                                    ms(i, j));
             }
         }
     }
 }
 
-void CLinearAlgebraTest::testVectorNx1() {
+BOOST_AUTO_TEST_CASE(testVectorNx1) {
     // Construction.
     {
         maths::CVectorNx1<double, 3> vector;
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            CPPUNIT_ASSERT_EQUAL(0.0, vector(i));
+        for (std::size_t i = 0; i < 3; ++i) {
+            BOOST_REQUIRE_EQUAL(0.0, vector(i));
         }
     }
     {
         maths::CVectorNx1<double, 3> vector(3.0);
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            CPPUNIT_ASSERT_EQUAL(3.0, vector(i));
+        for (std::size_t i = 0; i < 3; ++i) {
+            BOOST_REQUIRE_EQUAL(3.0, vector(i));
         }
     }
     {
         double v[]{1.1, 2.4, 1.4, 3.7, 4.0};
         maths::CVectorNx1<double, 5> vector(v);
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL(v[i], vector(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL(v[i], vector(i));
         }
     }
 
@@ -186,8 +194,8 @@ void CLinearAlgebraTest::testVectorNx1() {
         maths::CVectorNx1<double, 5> vector(v);
         maths::CVectorNx1<double, 5> sum = vector + vector;
         LOG_DEBUG(<< "vector = " << sum);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL(2.0 * v[i], sum(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL(2.0 * v[i], sum(i));
         }
     }
     {
@@ -199,8 +207,8 @@ void CLinearAlgebraTest::testVectorNx1() {
         maths::CVectorNx1<double, 3> vector2(v2);
         maths::CVectorNx1<double, 3> difference = vector1 - vector2;
         LOG_DEBUG(<< "vector = " << difference);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            CPPUNIT_ASSERT_EQUAL(v1[i] - v2[i], difference(i));
+        for (std::size_t i = 0; i < 3; ++i) {
+            BOOST_REQUIRE_EQUAL(v1[i] - v2[i], difference(i));
         }
     }
     {
@@ -208,7 +216,7 @@ void CLinearAlgebraTest::testVectorNx1() {
 
         Eigen::Matrix4d randomMatrix;
         Eigen::Vector4d randomVector;
-        for (std::size_t t = 0u; t < 20; ++t) {
+        for (std::size_t t = 0; t < 20; ++t) {
             randomMatrix.setRandom();
             Eigen::Matrix4d a = randomMatrix.selfadjointView<Eigen::Lower>();
             LOG_DEBUG(<< "A   =\n" << a);
@@ -223,8 +231,8 @@ void CLinearAlgebraTest::testVectorNx1() {
             LOG_DEBUG(<< "y   =\n" << y);
             maths::CVectorNx1<double, 4> sy = s * y;
             LOG_DEBUG(<< "Sy = " << sy);
-            for (std::size_t i = 0u; i < 4; ++i) {
-                CPPUNIT_ASSERT_EQUAL(expected(i), sy(i));
+            for (std::size_t i = 0; i < 4; ++i) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected(i), sy(i), 1e-14);
             }
         }
     }
@@ -235,8 +243,8 @@ void CLinearAlgebraTest::testVectorNx1() {
         maths::CVectorNx1<double, 5> vector(v);
         maths::CVectorNx1<double, 5> vs = vector * 3.0;
         LOG_DEBUG(<< "3 * v = " << vs);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL(3.0 * static_cast<double>((i + 1)), vs(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1)), vs(i));
         }
     }
     {
@@ -246,33 +254,33 @@ void CLinearAlgebraTest::testVectorNx1() {
         maths::CVectorNx1<double, 5> vector(v);
         maths::CVectorNx1<double, 5> vs = vector / 4.0;
         LOG_DEBUG(<< "v / 4.0 = " << vs);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL(static_cast<double>((i + 1)) / 4.0, vs(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1)) / 4.0, vs(i));
         }
     }
 }
 
-void CLinearAlgebraTest::testSymmetricMatrix() {
+BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
     // Construction.
     {
         maths::CSymmetricMatrix<double> matrix(3);
         LOG_DEBUG(<< "matrix = " << matrix);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), matrix.rows());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), matrix.columns());
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
-                CPPUNIT_ASSERT_EQUAL(0.0, matrix(i, j));
+        BOOST_REQUIRE_EQUAL(std::size_t(3), matrix.rows());
+        BOOST_REQUIRE_EQUAL(std::size_t(3), matrix.columns());
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                BOOST_REQUIRE_EQUAL(0.0, matrix(i, j));
             }
         }
     }
     {
         maths::CSymmetricMatrix<double> matrix(4, 3.0);
         LOG_DEBUG(<< "matrix = " << matrix);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), matrix.rows());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), matrix.columns());
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
-                CPPUNIT_ASSERT_EQUAL(3.0, matrix(i, j));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.rows());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.columns());
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
+                BOOST_REQUIRE_EQUAL(3.0, matrix(i, j));
             }
         }
     }
@@ -283,61 +291,61 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
                        {3.7, 0.7, 4.7, 4.7, 1.1},
                        {4.0, 1.0, 3.1, 1.1, 1.0}};
         TDoubleVecVec m(5, TDoubleVec(5));
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
                 m[i][j] = m_[i][j];
             }
         }
         maths::CSymmetricMatrix<double> matrix(m);
         LOG_DEBUG(<< "matrix = " << matrix);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5), matrix.rows());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5), matrix.columns());
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
-                CPPUNIT_ASSERT_EQUAL(m[i][j], matrix(i, j));
+        BOOST_REQUIRE_EQUAL(std::size_t(5), matrix.rows());
+        BOOST_REQUIRE_EQUAL(std::size_t(5), matrix.columns());
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
+                BOOST_REQUIRE_EQUAL(m[i][j], matrix(i, j));
             }
         }
-        CPPUNIT_ASSERT_EQUAL(10.8, matrix.trace());
+        BOOST_REQUIRE_EQUAL(10.8, matrix.trace());
     }
     {
         double m[]{1.1, 2.4, 3.2, 1.4, 1.8, 0.8, 3.7, 0.7,
                    4.7, 4.7, 4.0, 1.0, 3.1, 1.1, 1.0};
         maths::CSymmetricMatrix<double> matrix(std::begin(m), std::end(m));
         LOG_DEBUG(<< "matrix = " << matrix);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5), matrix.rows());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5), matrix.columns());
-        for (std::size_t i = 0u, k = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++k) {
-                CPPUNIT_ASSERT_EQUAL(m[k], matrix(i, j));
-                CPPUNIT_ASSERT_EQUAL(m[k], matrix(j, i));
+        BOOST_REQUIRE_EQUAL(std::size_t(5), matrix.rows());
+        BOOST_REQUIRE_EQUAL(std::size_t(5), matrix.columns());
+        for (std::size_t i = 0u, k = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++k) {
+                BOOST_REQUIRE_EQUAL(m[k], matrix(i, j));
+                BOOST_REQUIRE_EQUAL(m[k], matrix(j, i));
             }
         }
-        CPPUNIT_ASSERT_EQUAL(10.8, matrix.trace());
+        BOOST_REQUIRE_EQUAL(10.8, matrix.trace());
     }
     {
         double v[]{1.0, 2.0, 3.0, 4.0};
         maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CSymmetricMatrix<double> matrix(maths::E_OuterProduct, vector);
         LOG_DEBUG(<< "matrix = " << matrix);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), matrix.rows());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), matrix.columns());
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
-                CPPUNIT_ASSERT_EQUAL(static_cast<double>((i + 1) * (j + 1)), matrix(i, j));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.rows());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.columns());
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
+                BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)), matrix(i, j));
             }
         }
-        CPPUNIT_ASSERT_EQUAL(30.0, matrix.trace());
+        BOOST_REQUIRE_EQUAL(30.0, matrix.trace());
     }
     {
         double v[]{1.0, 2.0, 3.0, 4.0};
         maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CSymmetricMatrix<double> matrix(maths::E_Diagonal, vector);
         LOG_DEBUG(<< "matrix = " << matrix);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), matrix.rows());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), matrix.columns());
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
-                CPPUNIT_ASSERT_EQUAL(i == j ? vector(i) : 0.0, matrix(i, j));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.rows());
+        BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.columns());
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
+                BOOST_REQUIRE_EQUAL(i == j ? vector(i) : 0.0, matrix(i, j));
             }
         }
     }
@@ -351,10 +359,10 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
         maths::CSymmetricMatrix<double> matrix(std::begin(m), std::end(m));
         maths::CSymmetricMatrix<double> sum = matrix + matrix;
         LOG_DEBUG(<< "sum = " << sum);
-        for (std::size_t i = 0u, k = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++k) {
-                CPPUNIT_ASSERT_EQUAL(2.0 * m[k], sum(i, j));
-                CPPUNIT_ASSERT_EQUAL(2.0 * m[k], sum(j, i));
+        for (std::size_t i = 0u, k = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++k) {
+                BOOST_REQUIRE_EQUAL(2.0 * m[k], sum(i, j));
+                BOOST_REQUIRE_EQUAL(2.0 * m[k], sum(j, i));
             }
         }
     }
@@ -367,10 +375,10 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
         maths::CSymmetricMatrix<double> matrix2(std::begin(m2), std::end(m2));
         maths::CSymmetricMatrix<double> difference = matrix1 - matrix2;
         LOG_DEBUG(<< "difference = " << difference);
-        for (std::size_t i = 0u, k = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++k) {
-                CPPUNIT_ASSERT_EQUAL(m1[k] - m2[k], difference(i, j));
-                CPPUNIT_ASSERT_EQUAL(m1[k] - m2[k], difference(j, i));
+        for (std::size_t i = 0u, k = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++k) {
+                BOOST_REQUIRE_EQUAL(m1[k] - m2[k], difference(i, j));
+                BOOST_REQUIRE_EQUAL(m1[k] - m2[k], difference(j, i));
             }
         }
     }
@@ -382,10 +390,10 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
         maths::CSymmetricMatrix<double> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrix<double> ms = m * 3.0;
         LOG_DEBUG(<< "3 * m = " << ms);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
-                CPPUNIT_ASSERT_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)),
-                                     ms(i, j));
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
+                BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)),
+                                    ms(i, j));
             }
         }
     }
@@ -397,50 +405,50 @@ void CLinearAlgebraTest::testSymmetricMatrix() {
         maths::CSymmetricMatrix<double> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrix<double> ms = m / 4.0;
         LOG_DEBUG(<< "m / 4.0 = " << ms);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
-                CPPUNIT_ASSERT_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0,
-                                     ms(i, j));
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
+                BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0,
+                                    ms(i, j));
             }
         }
     }
 }
 
-void CLinearAlgebraTest::testVector() {
+BOOST_AUTO_TEST_CASE(testVector) {
     // Construction.
     {
         maths::CVector<double> vector(3);
         LOG_DEBUG(<< "vector = " << vector);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(3), vector.dimension());
-        for (std::size_t i = 0u; i < 3; ++i) {
-            CPPUNIT_ASSERT_EQUAL(0.0, vector(i));
+        BOOST_REQUIRE_EQUAL(std::size_t(3), vector.dimension());
+        for (std::size_t i = 0; i < 3; ++i) {
+            BOOST_REQUIRE_EQUAL(0.0, vector(i));
         }
     }
     {
         maths::CVector<double> vector(4, 3.0);
         LOG_DEBUG(<< "vector = " << vector);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), vector.dimension());
-        for (std::size_t i = 0u; i < 4; ++i) {
-            CPPUNIT_ASSERT_EQUAL(3.0, vector(i));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), vector.dimension());
+        for (std::size_t i = 0; i < 4; ++i) {
+            BOOST_REQUIRE_EQUAL(3.0, vector(i));
         }
     }
     {
         double v_[]{1.1, 2.4, 1.4, 3.7, 4.0};
         TDoubleVec v(std::begin(v_), std::end(v_));
         maths::CVector<double> vector(v);
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5), vector.dimension());
+        BOOST_REQUIRE_EQUAL(std::size_t(5), vector.dimension());
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL(v[i], vector(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL(v[i], vector(i));
         }
     }
     {
         double v[]{1.1, 2.4, 1.4, 3.7, 4.0};
         maths::CVector<double> vector(std::begin(v), std::end(v));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(5), vector.dimension());
+        BOOST_REQUIRE_EQUAL(std::size_t(5), vector.dimension());
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL(v[i], vector(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL(v[i], vector(i));
         }
     }
 
@@ -452,8 +460,8 @@ void CLinearAlgebraTest::testVector() {
         maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CVector<double> sum = vector + vector;
         LOG_DEBUG(<< "vector = " << sum);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL(2.0 * v[i], sum(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL(2.0 * v[i], sum(i));
         }
     }
     {
@@ -465,8 +473,8 @@ void CLinearAlgebraTest::testVector() {
         maths::CVector<double> vector2(std::begin(v2), std::end(v2));
         maths::CVector<double> difference = vector1 - vector2;
         LOG_DEBUG(<< "vector = " << difference);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            CPPUNIT_ASSERT_EQUAL(v1[i] - v2[i], difference(i));
+        for (std::size_t i = 0; i < 3; ++i) {
+            BOOST_REQUIRE_EQUAL(v1[i] - v2[i], difference(i));
         }
     }
     {
@@ -474,7 +482,7 @@ void CLinearAlgebraTest::testVector() {
 
         Eigen::MatrixXd randomMatrix(std::size_t(4), std::size_t(4));
         Eigen::VectorXd randomVector(4);
-        for (std::size_t t = 0u; t < 20; ++t) {
+        for (std::size_t t = 0; t < 20; ++t) {
             randomMatrix.setRandom();
             Eigen::MatrixXd a = randomMatrix.selfadjointView<Eigen::Lower>();
             LOG_DEBUG(<< "A   =\n" << a);
@@ -489,8 +497,8 @@ void CLinearAlgebraTest::testVector() {
             LOG_DEBUG(<< "y   =\n" << y);
             maths::CVector<double> sy = s * y;
             LOG_DEBUG(<< "Sy = " << sy);
-            for (std::size_t i = 0u; i < 4; ++i) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected(i), sy(i), 1e-10);
+            for (std::size_t i = 0; i < 4; ++i) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected(i), sy(i), 1e-10);
             }
         }
     }
@@ -501,8 +509,8 @@ void CLinearAlgebraTest::testVector() {
         maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CVector<double> vs = vector * 3.0;
         LOG_DEBUG(<< "3 * v = " << vs);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL(3.0 * static_cast<double>((i + 1)), vs(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1)), vs(i));
         }
     }
     {
@@ -512,22 +520,22 @@ void CLinearAlgebraTest::testVector() {
         maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CVector<double> vs = vector / 4.0;
         LOG_DEBUG(<< "v / 4.0 = " << vs);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL(static_cast<double>((i + 1)) / 4.0, vs(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1)) / 4.0, vs(i));
         }
     }
 }
 
-void CLinearAlgebraTest::testNorms() {
+BOOST_AUTO_TEST_CASE(testNorms) {
     double v[][5]{{1.0, 2.1, 3.2, 1.7, 0.1},
                   {0.0, -2.1, 1.2, 1.9, 4.1},
                   {-1.0, 7.1, 5.2, 1.7, -0.1},
                   {-3.0, 1.1, -3.3, 1.8, 6.1}};
     double expectedEuclidean[]{4.30697, 5.12543, 9.01942, 7.84538};
 
-    for (std::size_t i = 0u; i < boost::size(v); ++i) {
+    for (std::size_t i = 0; i < boost::size(v); ++i) {
         maths::CVectorNx1<double, 5> v_(v[i]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedEuclidean[i], v_.euclidean(), 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedEuclidean[i], v_.euclidean(), 5e-6);
     }
 
     double m[][15]{
@@ -537,13 +545,13 @@ void CLinearAlgebraTest::testNorms() {
         {-3.0, 1.1, -3.3, 1.8, 6.1, -1.3, 1.3, 4.2, 3.1, 1.9, -2.3, 3.1, 2.4, 2.3, 1.0}};
     double expectedFrobenius[]{13.78550, 18.00250, 20.72052, 14.80844};
 
-    for (std::size_t i = 0u; i < boost::size(m); ++i) {
+    for (std::size_t i = 0; i < boost::size(m); ++i) {
         maths::CSymmetricMatrixNxN<double, 5> m_(std::begin(m[i]), std::end(m[i]));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedFrobenius[i], m_.frobenius(), 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedFrobenius[i], m_.frobenius(), 5e-6);
     }
 }
 
-void CLinearAlgebraTest::testUtils() {
+BOOST_AUTO_TEST_CASE(testUtils) {
     // Test component min, max, sqrt and fabs.
     {
         LOG_DEBUG(<< "Vector min, max, fabs, sqrt");
@@ -558,36 +566,36 @@ void CLinearAlgebraTest::testUtils() {
         {
             double expected[]{1.0, 3.1, 2.2, 4.0, 4.0};
             LOG_DEBUG(<< "min(v1, 4.0) = " << maths::min(v1, 4.0));
-            for (std::size_t i = 0u; i < 5; ++i) {
-                CPPUNIT_ASSERT_EQUAL(expected[i], (maths::min(v1, 4.0))(i));
+            for (std::size_t i = 0; i < 5; ++i) {
+                BOOST_REQUIRE_EQUAL(expected[i], (maths::min(v1, 4.0))(i));
             }
         }
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL((maths::min(v1, 4.0))(i), (maths::min(4.0, v1))(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL((maths::min(v1, 4.0))(i), (maths::min(4.0, v1))(i));
         }
         {
             double expected[]{1.0, 3.0, 2.2, 4.9, 8.0};
             LOG_DEBUG(<< "min(v1, v2) = " << maths::min(v1, v2));
-            for (std::size_t i = 0u; i < 5; ++i) {
-                CPPUNIT_ASSERT_EQUAL(expected[i], (maths::min(v1, v2))(i));
+            for (std::size_t i = 0; i < 5; ++i) {
+                BOOST_REQUIRE_EQUAL(expected[i], (maths::min(v1, v2))(i));
             }
         }
 
         {
             double expected[]{3.0, 3.1, 3.0, 4.9, 12.0};
             LOG_DEBUG(<< "max(v1, 3.0) = " << maths::max(v1, 3.0));
-            for (std::size_t i = 0u; i < 5; ++i) {
-                CPPUNIT_ASSERT_EQUAL(expected[i], (maths::max(v1, 3.0))(i));
+            for (std::size_t i = 0; i < 5; ++i) {
+                BOOST_REQUIRE_EQUAL(expected[i], (maths::max(v1, 3.0))(i));
             }
         }
-        for (std::size_t i = 0u; i < 5; ++i) {
-            CPPUNIT_ASSERT_EQUAL((maths::max(v1, 3.0))(i), (maths::max(3.0, v1))(i));
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_EQUAL((maths::max(v1, 3.0))(i), (maths::max(3.0, v1))(i));
         }
         {
             double expected[]{1.5, 3.1, 2.7, 5.2, 12.0};
             LOG_DEBUG(<< "max(v1, v2) = " << maths::max(v1, v2));
-            for (std::size_t i = 0u; i < 5; ++i) {
-                CPPUNIT_ASSERT_EQUAL(expected[i], (maths::max(v1, v2))(i));
+            for (std::size_t i = 0; i < 5; ++i) {
+                BOOST_REQUIRE_EQUAL(expected[i], (maths::max(v1, v2))(i));
             }
         }
 
@@ -595,16 +603,16 @@ void CLinearAlgebraTest::testUtils() {
             double expected[]{1.0, std::sqrt(3.1), std::sqrt(2.2),
                               std::sqrt(4.9), std::sqrt(12.0)};
             LOG_DEBUG(<< "sqrt(v1) = " << maths::sqrt(v1));
-            for (std::size_t i = 0u; i < 5; ++i) {
-                CPPUNIT_ASSERT_EQUAL(expected[i], (maths::sqrt(v1))(i));
+            for (std::size_t i = 0; i < 5; ++i) {
+                BOOST_REQUIRE_EQUAL(expected[i], (maths::sqrt(v1))(i));
             }
         }
 
         {
             const double expected[]{1.0, 3.1, 2.2, 4.9, 12.0};
             LOG_DEBUG(<< "fabs(v3) = " << maths::fabs(v3));
-            for (std::size_t i = 0u; i < 5; ++i) {
-                CPPUNIT_ASSERT_EQUAL(expected[i], (maths::fabs(v3))(i));
+            for (std::size_t i = 0; i < 5; ++i) {
+                BOOST_REQUIRE_EQUAL(expected[i], (maths::fabs(v3))(i));
             }
         }
     }
@@ -621,24 +629,24 @@ void CLinearAlgebraTest::testUtils() {
         {
             double expected[][3]{{2.1, 0.3, 0.4}, {0.3, 1.2, 3.0}, {0.4, 3.0, 0.2}};
             LOG_DEBUG(<< "min(m1, 3.0) = " << maths::min(m1, 3.0));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(expected[i][j], (maths::min(m1, 3.0))(i, j));
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
+                    BOOST_REQUIRE_EQUAL(expected[i][j], (maths::min(m1, 3.0))(i, j));
                 }
             }
         }
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
-                CPPUNIT_ASSERT_EQUAL((maths::min(m1, 3.0))(i, j),
-                                     (maths::min(3.0, m1))(i, j));
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                BOOST_REQUIRE_EQUAL((maths::min(m1, 3.0))(i, j),
+                                    (maths::min(3.0, m1))(i, j));
             }
         }
         {
             double expected[][3]{{1.1, 0.3, 0.4}, {0.3, 1.2, 1.8}, {0.4, 1.8, 0.2}};
             LOG_DEBUG(<< "min(m1, m2) = " << maths::min(m1, m2));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(expected[i][j], (maths::min(m1, m2))(i, j));
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
+                    BOOST_REQUIRE_EQUAL(expected[i][j], (maths::min(m1, m2))(i, j));
                 }
             }
         }
@@ -646,24 +654,24 @@ void CLinearAlgebraTest::testUtils() {
         {
             double expected[][3]{{2.1, 2.0, 2.0}, {2.0, 2.0, 3.8}, {2.0, 3.8, 2.0}};
             LOG_DEBUG(<< "max(m1, 2.0) = " << maths::max(m1, 2.0));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(expected[i][j], (maths::max(m1, 2.0))(i, j));
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
+                    BOOST_REQUIRE_EQUAL(expected[i][j], (maths::max(m1, 2.0))(i, j));
                 }
             }
         }
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
-                CPPUNIT_ASSERT_EQUAL((maths::max(m1, 2.0))(i, j),
-                                     (maths::max(2.0, m1))(i, j));
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                BOOST_REQUIRE_EQUAL((maths::max(m1, 2.0))(i, j),
+                                    (maths::max(2.0, m1))(i, j));
             }
         }
         {
             double expected[][3]{{2.1, 0.4, 1.4}, {0.4, 1.2, 3.8}, {1.4, 3.8, 0.8}};
             LOG_DEBUG(<< "max(m1, m2) = " << maths::max(m1, m2));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(expected[i][j], (maths::max(m1, m2))(i, j));
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
+                    BOOST_REQUIRE_EQUAL(expected[i][j], (maths::max(m1, m2))(i, j));
                 }
             }
         }
@@ -673,9 +681,9 @@ void CLinearAlgebraTest::testUtils() {
                                  {std::sqrt(0.3), std::sqrt(1.2), std::sqrt(3.8)},
                                  {std::sqrt(0.4), std::sqrt(3.8), std::sqrt(0.2)}};
             LOG_DEBUG(<< "sqrt(m1) = " << maths::sqrt(m1));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(expected[i][j], (maths::sqrt(m1))(i, j));
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
+                    BOOST_REQUIRE_EQUAL(expected[i][j], (maths::sqrt(m1))(i, j));
                 }
             }
         }
@@ -683,16 +691,16 @@ void CLinearAlgebraTest::testUtils() {
         {
             double expected[][3]{{2.1, 0.3, 0.4}, {0.3, 1.2, 3.8}, {0.4, 3.8, 0.2}};
             LOG_DEBUG(<< "fabs(m3) = " << maths::fabs(m3));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
-                    CPPUNIT_ASSERT_EQUAL(expected[i][j], (maths::fabs(m3))(i, j));
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
+                    BOOST_REQUIRE_EQUAL(expected[i][j], (maths::fabs(m3))(i, j));
                 }
             }
         }
     }
 }
 
-void CLinearAlgebraTest::testScaleCovariances() {
+BOOST_AUTO_TEST_CASE(testScaleCovariances) {
     const double scale_[]{0.8, 1.5, 2.0, 0.5};
     const double covariance_[][4]{{10.0, 0.1, 1.5, 2.0},
                                   {0.1, 11.0, 2.5, 1.9},
@@ -706,13 +714,13 @@ void CLinearAlgebraTest::testScaleCovariances() {
         maths::scaleCovariances(scale, covariance);
         LOG_DEBUG(<< "scaled covariances =" << covariance);
 
-        for (std::size_t i = 0u; i < 4; ++i) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(scale_[i] * covariance_[i][i],
+        for (std::size_t i = 0; i < 4; ++i) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(scale_[i] * covariance_[i][i],
                                          covariance(i, i), 1e-10);
             for (std::size_t j = i + 1; j < 4; ++j) {
                 double expected = ::sqrt(scale_[i] * scale_[j]) * covariance_[i][j];
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, covariance(i, j), 1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, covariance(j, i), 1e-10);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, covariance(i, j), 1e-10);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, covariance(j, i), 1e-10);
             }
         }
     }
@@ -730,19 +738,19 @@ void CLinearAlgebraTest::testScaleCovariances() {
         maths::scaleCovariances(scale, covariance);
         LOG_DEBUG(<< "scaled covariances =\n" << covariance);
 
-        for (std::size_t i = 0u; i < 4; ++i) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(scale_[i] * covariance_[i][i],
+        for (std::size_t i = 0; i < 4; ++i) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(scale_[i] * covariance_[i][i],
                                          covariance(i, i), 1e-10);
             for (std::size_t j = i + 1; j < 4; ++j) {
                 double expected = ::sqrt(scale_[i] * scale_[j]) * covariance_[i][j];
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, covariance(i, j), 1e-10);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, covariance(j, i), 1e-10);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, covariance(i, j), 1e-10);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, covariance(j, i), 1e-10);
             }
         }
     }
 }
 
-void CLinearAlgebraTest::testGaussianLogLikelihood() {
+BOOST_AUTO_TEST_CASE(testGaussianLogLikelihood) {
     // Test the log likelihood (expected from octave).
     {
         const double covariance_[][4]{{10.70779, 0.14869, 1.44263, 2.26889},
@@ -766,14 +774,14 @@ void CLinearAlgebraTest::testGaussianLogLikelihood() {
                                 -9.794163, -8.602336, -8.462027, -9.096402,
                                 -8.521042, -8.590054};
 
-        for (std::size_t i = 0u; i < boost::size(x_); ++i) {
+        for (std::size_t i = 0; i < boost::size(x_); ++i) {
             maths::CVectorNx1<double, 4> x(x_[i]);
             double likelihood;
-            CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                                 maths::gaussianLogLikelihood(covariance, x, likelihood));
+            BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                                maths::gaussianLogLikelihood(covariance, x, likelihood));
             LOG_DEBUG(<< "expected log(L(x)) = " << expected[i]);
             LOG_DEBUG(<< "got      log(L(x)) = " << likelihood);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i], likelihood, 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], likelihood, 1e-6);
         }
     }
 
@@ -796,33 +804,33 @@ void CLinearAlgebraTest::testGaussianLogLikelihood() {
                                                         e3 / e3.euclidean()));
 
         double likelihood;
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                             maths::gaussianLogLikelihood(covariance, e1, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                            maths::gaussianLogLikelihood(covariance, e1, likelihood));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (3.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0) + 4.0 / 10.0),
             likelihood, 1e-10);
 
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                             maths::gaussianLogLikelihood(covariance, e2, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                            maths::gaussianLogLikelihood(covariance, e2, likelihood));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (3.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0) + 2.0 / 5.0),
             likelihood, 1e-10);
 
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                             maths::gaussianLogLikelihood(covariance, e3, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                            maths::gaussianLogLikelihood(covariance, e3, likelihood));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (3.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0) + 6.0 / 5.0),
             likelihood, 1e-10);
 
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_FpOverflowed,
-                             maths::gaussianLogLikelihood(covariance, e1, likelihood, false));
-        CPPUNIT_ASSERT(likelihood > 0.0);
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_FpOverflowed,
-                             maths::gaussianLogLikelihood(covariance, e4, likelihood, false));
-        CPPUNIT_ASSERT(likelihood < 0.0);
+        BOOST_REQUIRE_EQUAL(maths_t::E_FpOverflowed,
+                            maths::gaussianLogLikelihood(covariance, e1, likelihood, false));
+        BOOST_TEST_REQUIRE(likelihood > 0.0);
+        BOOST_REQUIRE_EQUAL(maths_t::E_FpOverflowed,
+                            maths::gaussianLogLikelihood(covariance, e4, likelihood, false));
+        BOOST_TEST_REQUIRE(likelihood < 0.0);
     }
 
     // Construct a matrix whose eigenvalues and vectors are known.
@@ -846,34 +854,34 @@ void CLinearAlgebraTest::testGaussianLogLikelihood() {
                                                         e4 / e4.euclidean()));
 
         double likelihood;
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                             maths::gaussianLogLikelihood(covariance, e1, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                            maths::gaussianLogLikelihood(covariance, e1, likelihood));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0 * 2.0) + 4.0 / 10.0),
             likelihood, 1e-10);
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                             maths::gaussianLogLikelihood(covariance, e2, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                            maths::gaussianLogLikelihood(covariance, e2, likelihood));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0 * 2.0) + 2.0 / 5.0),
             likelihood, 1e-10);
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                             maths::gaussianLogLikelihood(covariance, e3, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                            maths::gaussianLogLikelihood(covariance, e3, likelihood));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0 * 2.0) + 6.0 / 5.0),
             likelihood, 1e-10);
-        CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                             maths::gaussianLogLikelihood(covariance, e4, likelihood));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                            maths::gaussianLogLikelihood(covariance, e4, likelihood));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             -0.5 * (4.0 * std::log(boost::math::double_constants::two_pi) +
                     std::log(10.0 * 5.0 * 5.0 * 2.0) + 12.0 / 2.0),
             likelihood, 1e-10);
     }
 }
 
-void CLinearAlgebraTest::testSampleGaussian() {
+BOOST_AUTO_TEST_CASE(testSampleGaussian) {
     // Test singular matrix.
     {
         double m[]{1.0, 2.0, 3.0, 4.0};
@@ -898,11 +906,11 @@ void CLinearAlgebraTest::testSampleGaussian() {
         std::vector<maths::CVectorNx1<double, 4>> samples;
         maths::sampleGaussian(100, mean, covariance, samples);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(99), samples.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(99), samples.size());
 
         maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 4>> covariances(4);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             covariances.add(samples[i]);
         }
 
@@ -921,8 +929,8 @@ void CLinearAlgebraTest::testSampleGaussian() {
         LOG_DEBUG(<< "|error| / |mean| = " << meanError.euclidean() / mean.euclidean());
         LOG_DEBUG(<< "|error| / |covariance| = "
                   << covarianceError.frobenius() / covariance.frobenius());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, meanError.euclidean() / mean.euclidean(), 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, meanError.euclidean() / mean.euclidean(), 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, covarianceError.frobenius() / covariance.frobenius(), 0.01);
     }
 
@@ -952,11 +960,11 @@ void CLinearAlgebraTest::testSampleGaussian() {
         std::vector<maths::CVectorNx1<double, 4>> samples;
         maths::sampleGaussian(100, mean, covariance, samples);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(100), samples.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(100), samples.size());
 
         maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 4>> covariances(4);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             covariances.add(samples[i]);
         }
 
@@ -975,13 +983,13 @@ void CLinearAlgebraTest::testSampleGaussian() {
         LOG_DEBUG(<< "|error| / |mean| = " << meanError.euclidean() / mean.euclidean());
         LOG_DEBUG(<< "|error| / |covariance| = "
                   << covarianceError.frobenius() / covariance.frobenius());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, meanError.euclidean() / mean.euclidean(), 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, meanError.euclidean() / mean.euclidean(), 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, covarianceError.frobenius() / covariance.frobenius(), 0.02);
     }
 }
 
-void CLinearAlgebraTest::testLogDeterminant() {
+BOOST_AUTO_TEST_CASE(testLogDeterminant) {
     // Test the determinant (expected from octave).
     {
         const double matrices[][3][3]{
@@ -1000,13 +1008,13 @@ void CLinearAlgebraTest::testLogDeterminant() {
                                 3.1654e-06, 8.5319e-02, 2.0840e-03, 6.8008e-03,
                                 1.4755e-02, 2.6315e-05};
 
-        for (std::size_t i = 0u; i < boost::size(matrices); ++i) {
+        for (std::size_t i = 0; i < boost::size(matrices); ++i) {
             maths::CSymmetricMatrixNxN<double, 3> M(matrices[i]);
             double logDeterminant;
             maths::logDeterminant(M, logDeterminant);
             LOG_DEBUG(<< "expected |M| = " << expected[i]);
             LOG_DEBUG(<< "got      |M| = " << std::exp(logDeterminant));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expected[i], std::exp(logDeterminant),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], std::exp(logDeterminant),
                                          1e-4 * expected[i]);
         }
     }
@@ -1032,7 +1040,7 @@ void CLinearAlgebraTest::testLogDeterminant() {
                                                         e4 / e4.euclidean()));
         double logDeterminant;
         maths::logDeterminant(M, logDeterminant);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(10.0 * 5.0 * 5.0 * 2.0), logDeterminant, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(10.0 * 5.0 * 5.0 * 2.0), logDeterminant, 1e-10);
     }
 }
 
@@ -1046,7 +1054,7 @@ std::string print(const MATRIX& m) {
 }
 }
 
-void CLinearAlgebraTest::testProjected() {
+BOOST_AUTO_TEST_CASE(testProjected) {
     using TSizeVec = std::vector<std::size_t>;
 
     const double m[][5]{{1.2, 2.4, 1.9, 3.8, 8.3},
@@ -1067,8 +1075,8 @@ void CLinearAlgebraTest::testProjected() {
         Eigen::MatrixXd projectedVector = maths::projectedVector(subspace, vector);
         LOG_DEBUG(<< "projectedMatrix =\n" << projectedMatrix);
         LOG_DEBUG(<< "projectedVector =\n" << projectedVector);
-        CPPUNIT_ASSERT_EQUAL(std::string("1.2 2.4\n2.4   1"), print(projectedMatrix));
-        CPPUNIT_ASSERT_EQUAL(std::string("0.3\n3.4"), print(projectedVector));
+        BOOST_REQUIRE_EQUAL(std::string("1.2 2.4\n2.4   1"), print(projectedMatrix));
+        BOOST_REQUIRE_EQUAL(std::string("0.3\n3.4"), print(projectedVector));
     }
     {
         std::size_t ss[]{1, 0};
@@ -1078,8 +1086,8 @@ void CLinearAlgebraTest::testProjected() {
         Eigen::MatrixXd projectedVector = maths::projectedVector(subspace, vector);
         LOG_DEBUG(<< "projectedMatrix =\n" << projectedMatrix);
         LOG_DEBUG(<< "projectedVector =\n" << projectedVector);
-        CPPUNIT_ASSERT_EQUAL(std::string("  1 2.4\n2.4 1.2"), print(projectedMatrix));
-        CPPUNIT_ASSERT_EQUAL(std::string("3.4\n0.3"), print(projectedVector));
+        BOOST_REQUIRE_EQUAL(std::string("  1 2.4\n2.4 1.2"), print(projectedMatrix));
+        BOOST_REQUIRE_EQUAL(std::string("3.4\n0.3"), print(projectedVector));
     }
     {
         std::size_t ss[]{1, 0, 4};
@@ -1089,13 +1097,13 @@ void CLinearAlgebraTest::testProjected() {
         Eigen::MatrixXd projectedVector = maths::projectedVector(subspace, vector);
         LOG_DEBUG(<< "projectedMatrix =\n" << projectedMatrix);
         LOG_DEBUG(<< "projectedVector =\n" << projectedVector);
-        CPPUNIT_ASSERT_EQUAL(std::string("  1 2.4 3.1\n2.4 1.2 8.3\n3.1 8.3 0.9"),
-                             print(projectedMatrix));
-        CPPUNIT_ASSERT_EQUAL(std::string("3.4\n0.3\n5.7"), print(projectedVector));
+        BOOST_REQUIRE_EQUAL(std::string("  1 2.4 3.1\n2.4 1.2 8.3\n3.1 8.3 0.9"),
+                            print(projectedMatrix));
+        BOOST_REQUIRE_EQUAL(std::string("3.4\n0.3\n5.7"), print(projectedVector));
     }
 }
 
-void CLinearAlgebraTest::testShims() {
+BOOST_AUTO_TEST_CASE(testShims) {
     using TVector4 = maths::CVectorNx1<double, 4>;
     using TMatrix4 = maths::CSymmetricMatrixNxN<double, 4>;
     using TVector = maths::CVector<double>;
@@ -1117,49 +1125,52 @@ void CLinearAlgebraTest::testShims() {
 
     LOG_DEBUG(<< "Test dimension");
     {
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector1));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector2));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector3));
-        CPPUNIT_ASSERT_EQUAL(std::size_t(4), maths::las::dimension(vector4));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), maths::las::dimension(vector1));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), maths::las::dimension(vector2));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), maths::las::dimension(vector3));
+        BOOST_REQUIRE_EQUAL(std::size_t(4), maths::las::dimension(vector4));
     }
     LOG_DEBUG(<< "Test zero");
     {
-        CPPUNIT_ASSERT(TVector4(0.0) == maths::las::zero(vector1));
-        CPPUNIT_ASSERT(TVector(4, 0.0) == maths::las::zero(vector2));
-        CPPUNIT_ASSERT(TDenseVector::Zero(4) == maths::las::zero(vector3));
-        CPPUNIT_ASSERT(TDenseVector::Zero(4) == maths::las::zero(vector4));
+        BOOST_TEST_REQUIRE(TVector4(0.0) == maths::las::zero(vector1));
+        BOOST_TEST_REQUIRE(TVector(4, 0.0) == maths::las::zero(vector2));
+        BOOST_TEST_REQUIRE(TDenseVector::Zero(4) == maths::las::zero(vector3));
+        BOOST_TEST_REQUIRE(TDenseVector::Zero(4) == maths::las::zero(vector4));
     }
     LOG_DEBUG(<< "Test conformableZeroMatrix");
     {
-        CPPUNIT_ASSERT(TMatrix4(0.0) == maths::las::conformableZeroMatrix(vector1));
-        CPPUNIT_ASSERT(TMatrix(4, 0.0) == maths::las::conformableZeroMatrix(vector2));
-        CPPUNIT_ASSERT(TDenseMatrix::Zero(4, 4) == maths::las::conformableZeroMatrix(vector3));
-        CPPUNIT_ASSERT(TDenseMatrix::Zero(4, 4) == maths::las::conformableZeroMatrix(vector4));
+        BOOST_TEST_REQUIRE(TMatrix4(0.0) == maths::las::conformableZeroMatrix(vector1));
+        BOOST_TEST_REQUIRE(TMatrix(4, 0.0) == maths::las::conformableZeroMatrix(vector2));
+        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) ==
+                           maths::las::conformableZeroMatrix(vector3));
+        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) ==
+                           maths::las::conformableZeroMatrix(vector4));
     }
     LOG_DEBUG(<< "Test isZero");
     {
-        CPPUNIT_ASSERT(maths::las::isZero(vector1) == false);
-        CPPUNIT_ASSERT(maths::las::isZero(vector2) == false);
-        CPPUNIT_ASSERT(maths::las::isZero(vector3) == false);
-        CPPUNIT_ASSERT(maths::las::isZero(vector4) == false);
-        CPPUNIT_ASSERT(maths::las::isZero(maths::las::zero(vector1)));
-        CPPUNIT_ASSERT(maths::las::isZero(maths::las::zero(vector2)));
-        CPPUNIT_ASSERT(maths::las::isZero(maths::las::zero(vector3)));
-        CPPUNIT_ASSERT(maths::las::isZero(maths::las::zero(vector4)));
+        BOOST_TEST_REQUIRE(maths::las::isZero(vector1) == false);
+        BOOST_TEST_REQUIRE(maths::las::isZero(vector2) == false);
+        BOOST_TEST_REQUIRE(maths::las::isZero(vector3) == false);
+        BOOST_TEST_REQUIRE(maths::las::isZero(vector4) == false);
+        BOOST_TEST_REQUIRE(maths::las::isZero(maths::las::zero(vector1)));
+        BOOST_TEST_REQUIRE(maths::las::isZero(maths::las::zero(vector2)));
+        BOOST_TEST_REQUIRE(maths::las::isZero(maths::las::zero(vector3)));
+        BOOST_TEST_REQUIRE(maths::las::isZero(maths::las::zero(vector4)));
     }
     LOG_DEBUG(<< "Test ones");
     {
-        CPPUNIT_ASSERT(TVector4(1.0) == maths::las::ones(vector1));
-        CPPUNIT_ASSERT(TVector(4, 1.0) == maths::las::ones(vector2));
-        CPPUNIT_ASSERT(TDenseVector::Ones(4) == maths::las::ones(vector3));
-        CPPUNIT_ASSERT(TDenseVector::Ones(4) == maths::las::ones(vector4));
+        BOOST_TEST_REQUIRE(TVector4(1.0) == maths::las::ones(vector1));
+        BOOST_TEST_REQUIRE(TVector(4, 1.0) == maths::las::ones(vector2));
+        BOOST_TEST_REQUIRE(TDenseVector::Ones(4) == maths::las::ones(vector3));
+        BOOST_TEST_REQUIRE(TDenseVector::Ones(4) == maths::las::ones(vector4));
     }
     LOG_DEBUG(<< "Test constant");
     {
-        CPPUNIT_ASSERT(TVector4(5.1) == maths::las::constant(vector1, 5.1));
-        CPPUNIT_ASSERT(TVector(4, 5.1) == maths::las::constant(vector2, 5.1));
-        CPPUNIT_ASSERT(5.1 * TDenseVector::Ones(4) == maths::las::constant(vector3, 5.1));
-        CPPUNIT_ASSERT(5.1 * TDenseVector::Ones(4) == maths::las::constant(vector4, 5.1));
+        BOOST_TEST_REQUIRE(TVector4(5.1) == maths::las::constant(vector1, 5.1));
+        BOOST_TEST_REQUIRE(TVector(4, 5.1) == maths::las::constant(vector2, 5.1));
+        const auto expected = 5.1 * TDenseVector::Ones(4);
+        BOOST_TEST_REQUIRE(expected == maths::las::constant(vector3, 5.1));
+        BOOST_TEST_REQUIRE(expected == maths::las::constant(vector4, 5.1));
     }
     LOG_DEBUG(<< "Test min");
     {
@@ -1204,18 +1215,18 @@ void CLinearAlgebraTest::testShims() {
         o11 << vector11.transpose();
         std::ostringstream o12;
         o12 << vector12.transpose();
-        CPPUNIT_ASSERT_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"),
-                             core::CContainerPrinter::print(vector5));
-        CPPUNIT_ASSERT_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"),
-                             core::CContainerPrinter::print(vector6));
-        CPPUNIT_ASSERT_EQUAL(std::string("0.9 3.1 2.1 1.5"), o7.str());
-        CPPUNIT_ASSERT_EQUAL(std::string("0.9 3.1 2.1 1.5"), o8.str());
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 1.6, 4, 0.2]"),
-                             core::CContainerPrinter::print(vector9));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 1.6, 4, 0.2]"),
-                             core::CContainerPrinter::print(vector10));
-        CPPUNIT_ASSERT_EQUAL(std::string("  1 1.6   4 0.2"), o11.str());
-        CPPUNIT_ASSERT_EQUAL(std::string("  1 1.6   4 0.2"), o12.str());
+        BOOST_REQUIRE_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"),
+                            core::CContainerPrinter::print(vector5));
+        BOOST_REQUIRE_EQUAL(std::string("[0.9, 3.1, 2.1, 1.5]"),
+                            core::CContainerPrinter::print(vector6));
+        BOOST_REQUIRE_EQUAL(std::string("0.9 3.1 2.1 1.5"), o7.str());
+        BOOST_REQUIRE_EQUAL(std::string("0.9 3.1 2.1 1.5"), o8.str());
+        BOOST_REQUIRE_EQUAL(std::string("[1, 1.6, 4, 0.2]"),
+                            core::CContainerPrinter::print(vector9));
+        BOOST_REQUIRE_EQUAL(std::string("[1, 1.6, 4, 0.2]"),
+                            core::CContainerPrinter::print(vector10));
+        BOOST_REQUIRE_EQUAL(std::string("  1 1.6   4 0.2"), o11.str());
+        BOOST_REQUIRE_EQUAL(std::string("  1 1.6   4 0.2"), o12.str());
     }
     LOG_DEBUG(<< "Test max");
     {
@@ -1260,18 +1271,18 @@ void CLinearAlgebraTest::testShims() {
         o11 << vector11.transpose();
         std::ostringstream o12;
         o12 << vector12.transpose();
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 3.2, 4, 1.7]"),
-                             core::CContainerPrinter::print(vector5));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1, 3.2, 4, 1.7]"),
-                             core::CContainerPrinter::print(vector6));
-        CPPUNIT_ASSERT_EQUAL(std::string("  1 3.2   4 1.7"), o7.str());
-        CPPUNIT_ASSERT_EQUAL(std::string("  1 3.2   4 1.7"), o8.str());
-        CPPUNIT_ASSERT_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"),
-                             core::CContainerPrinter::print(vector9));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"),
-                             core::CContainerPrinter::print(vector10));
-        CPPUNIT_ASSERT_EQUAL(std::string("1.3 3.1 8.9 1.5"), o11.str());
-        CPPUNIT_ASSERT_EQUAL(std::string("1.3 3.1 8.9 1.5"), o12.str());
+        BOOST_REQUIRE_EQUAL(std::string("[1, 3.2, 4, 1.7]"),
+                            core::CContainerPrinter::print(vector5));
+        BOOST_REQUIRE_EQUAL(std::string("[1, 3.2, 4, 1.7]"),
+                            core::CContainerPrinter::print(vector6));
+        BOOST_REQUIRE_EQUAL(std::string("  1 3.2   4 1.7"), o7.str());
+        BOOST_REQUIRE_EQUAL(std::string("  1 3.2   4 1.7"), o8.str());
+        BOOST_REQUIRE_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"),
+                            core::CContainerPrinter::print(vector9));
+        BOOST_REQUIRE_EQUAL(std::string("[1.3, 3.1, 8.9, 1.5]"),
+                            core::CContainerPrinter::print(vector10));
+        BOOST_REQUIRE_EQUAL(std::string("1.3 3.1 8.9 1.5"), o11.str());
+        BOOST_REQUIRE_EQUAL(std::string("1.3 3.1 8.9 1.5"), o12.str());
     }
     LOG_DEBUG(<< "Test componentwise divide");
     {
@@ -1295,12 +1306,12 @@ void CLinearAlgebraTest::testShims() {
         o3 << d3.transpose();
         std::ostringstream o4;
         o4 << d4.transpose();
-        CPPUNIT_ASSERT_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
-                             core::CContainerPrinter::print(d1));
-        CPPUNIT_ASSERT_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
-                             core::CContainerPrinter::print(d2));
-        CPPUNIT_ASSERT_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o3.str());
-        CPPUNIT_ASSERT_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o4.str());
+        BOOST_REQUIRE_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
+                            core::CContainerPrinter::print(d1));
+        BOOST_REQUIRE_EQUAL(std::string("[1.111111, 0.96875, 1.904762, 0.8823529]"),
+                            core::CContainerPrinter::print(d2));
+        BOOST_REQUIRE_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o3.str());
+        BOOST_REQUIRE_EQUAL(std::string(" 1.11111  0.96875  1.90476 0.882353"), o4.str());
     }
     LOG_DEBUG(<< "Test distance");
     {
@@ -1318,10 +1329,10 @@ void CLinearAlgebraTest::testShims() {
         LOG_DEBUG(<< " d1 = " << d2);
         LOG_DEBUG(<< " d1 = " << d3);
         LOG_DEBUG(<< " d1 = " << d4);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d1, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d2, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d3, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.29528091794949, d4, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(5.29528091794949, d1, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(5.29528091794949, d2, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(5.29528091794949, d3, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(5.29528091794949, d4, 1e-10);
     }
     LOG_DEBUG(<< "Test Euclidean norm");
     {
@@ -1333,10 +1344,10 @@ void CLinearAlgebraTest::testShims() {
         LOG_DEBUG(<< " n1 = " << n2);
         LOG_DEBUG(<< " n1 = " << n3);
         LOG_DEBUG(<< " n1 = " << n4);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n1, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n2, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n3, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(5.37215040742532, n4, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(5.37215040742532, n1, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(5.37215040742532, n2, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(5.37215040742532, n3, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(5.37215040742532, n4, 1e-10);
     }
     LOG_DEBUG(<< "Test L1");
     {
@@ -1354,10 +1365,10 @@ void CLinearAlgebraTest::testShims() {
         LOG_DEBUG(<< " l1 = " << l2);
         LOG_DEBUG(<< " l1 = " << l3);
         LOG_DEBUG(<< " l1 = " << l4);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l1, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l2, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l3, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(11.8, l4, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(11.8, l1, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(11.8, l2, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(11.8, l3, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(11.8, l4, 1e-10);
     }
     LOG_DEBUG(<< "Test Frobenius");
     {
@@ -1393,10 +1404,10 @@ void CLinearAlgebraTest::testShims() {
         LOG_DEBUG(<< " f1 = " << f2);
         LOG_DEBUG(<< " f1 = " << f3);
         LOG_DEBUG(<< " f1 = " << f4);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f1, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f2, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f3, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(7.92906047397799, f4, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(7.92906047397799, f1, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(7.92906047397799, f2, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(7.92906047397799, f3, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(7.92906047397799, f4, 1e-10);
     }
     LOG_DEBUG(<< "Test inner");
     {
@@ -1414,10 +1425,10 @@ void CLinearAlgebraTest::testShims() {
         LOG_DEBUG(<< "i1 = " << i2);
         LOG_DEBUG(<< "i1 = " << i3);
         LOG_DEBUG(<< "i1 = " << i4);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i1, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i2, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i3, 1e-10);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(21.77, i4, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(21.77, i1, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(21.77, i2, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(21.77, i3, 1e-10);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(21.77, i4, 1e-10);
     }
     LOG_DEBUG(<< "Test outer");
     {
@@ -1428,18 +1439,52 @@ void CLinearAlgebraTest::testShims() {
         LOG_DEBUG(<< "outer = " << outer1);
         LOG_DEBUG(<< "outer = " << outer2);
         LOG_DEBUG(<< "outer =\n" << outer3);
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
-                CPPUNIT_ASSERT_EQUAL(vector1(i) * vector1(j), outer1(i, j));
-                CPPUNIT_ASSERT_EQUAL(vector2(i) * vector2(j), outer2(i, j));
-                CPPUNIT_ASSERT_EQUAL(vector3(i) * vector3(j), outer3(i, j));
-                CPPUNIT_ASSERT_EQUAL(vector4(i) * vector4(j), outer4(i, j));
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
+                BOOST_REQUIRE_EQUAL(vector1(i) * vector1(j), outer1(i, j));
+                BOOST_REQUIRE_EQUAL(vector2(i) * vector2(j), outer2(i, j));
+                BOOST_REQUIRE_EQUAL(vector3(i) * vector3(j), outer3(i, j));
+                BOOST_REQUIRE_EQUAL(vector4(i) * vector4(j), outer4(i, j));
             }
         }
     }
 }
 
-void CLinearAlgebraTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testMemoryMapped) {
+    using TDenseVector = maths::CDenseVector<double>;
+    using TDenseMatrix = maths::CDenseMatrix<double>;
+    using TMappedFloatVector = maths::CMemoryMappedDenseVector<float>;
+    using TMappedFloatMatrix = maths::CMemoryMappedDenseMatrix<float>;
+
+    {
+        float components[4];
+        TMappedFloatVector mappedVector(components, 4);
+
+        TDenseVector vector{4};
+        vector << 1.1, 2.7, 0.1, -3.0;
+        mappedVector = vector;
+
+        for (int i = 0; i < 4; ++i) {
+            BOOST_REQUIRE_CLOSE(vector(i), mappedVector(i), 1e-4);
+        }
+    }
+    {
+        float components[9];
+        TMappedFloatMatrix mappedMatrix(components, 3, 3);
+
+        TDenseMatrix matrix{3, 3};
+        matrix << 1.1, 2.7, 0.1, 3.0, 1.2, 0.4, 5.1, 0.2, 9.3;
+        mappedMatrix = matrix;
+
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 3; ++j) {
+                BOOST_REQUIRE_CLOSE(matrix(i, j), mappedMatrix(i, j), 1e-4);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check conversion to and from delimited is idempotent and parsing
     // bad input produces an error.
 
@@ -1454,22 +1499,22 @@ void CLinearAlgebraTest::testPersist() {
         std::string str = matrix.toDelimited();
 
         maths::CSymmetricMatrixNxN<double, 4> restoredMatrix;
-        CPPUNIT_ASSERT(restoredMatrix.fromDelimited(str));
+        BOOST_TEST_REQUIRE(restoredMatrix.fromDelimited(str));
 
         LOG_DEBUG(<< "delimited = " << str);
 
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
-                CPPUNIT_ASSERT_EQUAL(matrix(i, j), restoredMatrix(i, j));
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
+                BOOST_REQUIRE_EQUAL(matrix(i, j), restoredMatrix(i, j));
             }
         }
 
-        CPPUNIT_ASSERT(!restoredMatrix.fromDelimited(std::string()));
+        BOOST_TEST_REQUIRE(!restoredMatrix.fromDelimited(std::string()));
 
         std::string bad("0.1,0.3,0.5,3");
-        CPPUNIT_ASSERT(!restoredMatrix.fromDelimited(bad));
+        BOOST_TEST_REQUIRE(!restoredMatrix.fromDelimited(bad));
         bad = "0.1,0.3,a,0.1,0.3,0.1,0.3,0.1,1.0,3";
-        CPPUNIT_ASSERT(!restoredMatrix.fromDelimited(bad));
+        BOOST_TEST_REQUIRE(!restoredMatrix.fromDelimited(bad));
     }
     {
         double vector_[]{11.2, 2.1, 1.5};
@@ -1479,20 +1524,20 @@ void CLinearAlgebraTest::testPersist() {
         std::string str = vector.toDelimited();
 
         maths::CVectorNx1<double, 3> restoredVector;
-        CPPUNIT_ASSERT(restoredVector.fromDelimited(str));
+        BOOST_TEST_REQUIRE(restoredVector.fromDelimited(str));
 
         LOG_DEBUG(<< "delimited = " << str);
 
-        for (std::size_t i = 0u; i < 3; ++i) {
-            CPPUNIT_ASSERT_EQUAL(vector(i), restoredVector(i));
+        for (std::size_t i = 0; i < 3; ++i) {
+            BOOST_REQUIRE_EQUAL(vector(i), restoredVector(i));
         }
 
-        CPPUNIT_ASSERT(!restoredVector.fromDelimited(std::string()));
+        BOOST_TEST_REQUIRE(!restoredVector.fromDelimited(std::string()));
 
         std::string bad("0.1,0.3,0.5,3");
-        CPPUNIT_ASSERT(!restoredVector.fromDelimited(bad));
+        BOOST_TEST_REQUIRE(!restoredVector.fromDelimited(bad));
         bad = "0.1,0.3,a";
-        CPPUNIT_ASSERT(!restoredVector.fromDelimited(bad));
+        BOOST_TEST_REQUIRE(!restoredVector.fromDelimited(bad));
     }
     {
         maths::CDenseVector<double> origVector(4);
@@ -1509,47 +1554,15 @@ void CLinearAlgebraTest::testPersist() {
 
         // Restore the XML into a new vector.
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
         maths::CDenseVector<double> restoredVector;
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&maths::CDenseVector<double>::acceptRestoreTraverser,
                       &restoredVector, std::placeholders::_1)));
 
-        CPPUNIT_ASSERT_EQUAL(origVector.checksum(), restoredVector.checksum());
+        BOOST_REQUIRE_EQUAL(origVector.checksum(), restoredVector.checksum());
     }
 }
 
-CppUnit::Test* CLinearAlgebraTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLinearAlgebraTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testSymmetricMatrixNxN", &CLinearAlgebraTest::testSymmetricMatrixNxN));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testVectorNx1", &CLinearAlgebraTest::testVectorNx1));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testSymmetricMatrix", &CLinearAlgebraTest::testSymmetricMatrix));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testVector", &CLinearAlgebraTest::testVector));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testNorms", &CLinearAlgebraTest::testNorms));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testUtils", &CLinearAlgebraTest::testUtils));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testScaleCovariances", &CLinearAlgebraTest::testScaleCovariances));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testGaussianLogLikelihood",
-        &CLinearAlgebraTest::testGaussianLogLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testSampleGaussian", &CLinearAlgebraTest::testSampleGaussian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testLogDeterminant", &CLinearAlgebraTest::testLogDeterminant));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testProjected", &CLinearAlgebraTest::testProjected));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testShims", &CLinearAlgebraTest::testShims));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLinearAlgebraTest>(
-        "CLinearAlgebraTest::testPersist", &CLinearAlgebraTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

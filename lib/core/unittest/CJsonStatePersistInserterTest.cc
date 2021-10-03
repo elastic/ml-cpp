@@ -1,25 +1,24 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CJsonStatePersistInserterTest.h"
 
+#include <core/CIEEE754.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <sstream>
 
-CppUnit::Test* CJsonStatePersistInserterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CJsonStatePersistInserterTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CJsonStatePersistInserterTest>(
-        "CJsonStatePersistInserterTest::testPersist",
-        &CJsonStatePersistInserterTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE(CJsonStatePersistInserterTest)
 
 namespace {
 //! Persist state as JSON with meaningful tag names.
@@ -43,7 +42,7 @@ void insert2ndLevel(ml::core::CStatePersistInserter& inserter) {
 }
 }
 
-void CJsonStatePersistInserterTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     {
         std::ostringstream strm;
 
@@ -60,8 +59,11 @@ void CJsonStatePersistInserterTest::testPersist() {
 
         LOG_DEBUG(<< "JSON is: " << json);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"3.14\",\"b\":\"z\"}}"),
-                             json);
+        BOOST_REQUIRE_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"" +
+                                        ml::core::CStringUtils::typeToStringPrecise(
+                                            3.14, ml::core::CIEEE754::E_SinglePrecision) +
+                                        "\",\"b\":\"z\"}}"),
+                            json);
     }
 
     {
@@ -81,7 +83,12 @@ void CJsonStatePersistInserterTest::testPersist() {
 
         LOG_DEBUG(<< "JSON is: " << json);
 
-        CPPUNIT_ASSERT_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
-                             json);
+        BOOST_REQUIRE_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"" +
+                                        ml::core::CStringUtils::typeToStringPrecise(
+                                            3.14, ml::core::CIEEE754::E_SinglePrecision) +
+                                        "\",\"level2B\":\"z\"}}"),
+                            json);
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

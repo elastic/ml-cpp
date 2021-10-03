@@ -1,19 +1,48 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CTimeUtils.h>
 
 #include <core/CLogger.h>
+#include <core/CRegex.h>
 #include <core/CScopedFastLock.h>
 #include <core/CStrFTime.h>
 #include <core/CStrPTime.h>
+#include <core/CStringUtils.h>
 #include <core/CTimezone.h>
+#include <core/Constants.h>
 #include <core/CoreTypes.h>
+
+#include <chrono>
 
 #include <errno.h>
 #include <string.h>
+
+namespace {
+
+// Constants for parsing & converting time duration strings in standard ES format
+const std::string TIME_DURATION_FORMAT{"([\\d]+)(d|h|m|s|ms|micros|nanos)"};
+const std::string DAY{"d"};
+const std::string HOUR{"h"};
+const std::string MINUTE{"m"};
+const std::string SECOND{"s"};
+const std::string MILLI_SECOND{"ms"};
+const std::string MICRO_SECOND{"micros"};
+const std::string NANO_SECOND{"nanos"};
+const ml::core_t::TTime SECONDS_IN_DAY{24 * 60 * 60};
+const ml::core_t::TTime SECONDS_IN_HOUR{60 * 60};
+const ml::core_t::TTime SECONDS_IN_MINUTE{60};
+const ml::core_t::TTime MILLI_SECONDS_IN_SECOND{1000};
+const ml::core_t::TTime MICRO_SECONDS_IN_SECOND{1000 * 1000};
+const ml::core_t::TTime NANO_SECONDS_IN_SECOND{1000 * 1000 * 1000};
+}
 
 namespace ml {
 namespace core {
@@ -23,6 +52,12 @@ const core_t::TTime CTimeUtils::MAX_CLOCK_DISCREPANCY(300);
 
 core_t::TTime CTimeUtils::now() {
     return ::time(nullptr);
+}
+
+std::int64_t CTimeUtils::nowMs() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::system_clock::now().time_since_epoch())
+        .count();
 }
 
 std::string CTimeUtils::toIso8601(core_t::TTime t) {
@@ -140,25 +175,101 @@ bool CTimeUtils::isDateWord(const std::string& word) {
     return CDateWordCache::instance().isDateWord(word);
 }
 
+std::string CTimeUtils::durationToString(core_t::TTime duration) {
+    core_t::TTime days = duration / constants::DAY;
+    duration -= days * constants::DAY;
+    core_t::TTime hours = duration / constants::HOUR;
+    duration -= hours * constants::HOUR;
+    core_t::TTime minutes = duration / constants::MINUTE;
+    duration -= minutes * constants::MINUTE;
+    std::string res;
+    if (days > 0) {
+        res += std::to_string(days) + "d";
+    }
+    if (hours > 0) {
+        res += std::to_string(hours) + "h";
+    }
+    if (minutes > 0) {
+        res += std::to_string(minutes) + "m";
+    }
+    if ((duration > 0) || res.empty()) {
+        res += std::to_string(duration) + "s";
+    }
+    return res;
+}
+
+CTimeUtils::TTimeBoolPr
+CTimeUtils::timeDurationStringToSeconds(const std::string& timeDurationString,
+                                        core_t::TTime defaultValue) {
+    if (timeDurationString.empty()) {
+        LOG_ERROR(<< "Unable to parse empty time duration string");
+        return {defaultValue, false};
+    }
+
+    CRegex regex;
+
+    if (regex.init(TIME_DURATION_FORMAT) == false) {
+        LOG_ERROR(<< "Unable to init regex " << TIME_DURATION_FORMAT);
+        return {defaultValue, false};
+    }
+
+    CRegex::TStrVec tokens;
+    const std::string lowerDurationString{CStringUtils::toLower(timeDurationString)};
+    if (regex.tokenise(lowerDurationString, tokens) == false) {
+        LOG_ERROR(<< "Unable to parse a time duration from " << timeDurationString);
+        return {defaultValue, false};
+    }
+
+    if (tokens.size() != 2) {
+        LOG_INFO(<< "Got wrong number of tokens:: " << tokens.size());
+        return {defaultValue, false};
+    }
+
+    const std::string& spanStr = tokens[0];
+    const std::string& multiplierStr = tokens[1];
+
+    core_t::TTime span{0};
+    if (CStringUtils::stringToType(spanStr, span) == false) {
+        LOG_ERROR(<< "Could not convert " << spanStr << " to type long.");
+        return {defaultValue, false};
+    }
+
+    // The assumption here is that the bucket span string has already been validated
+    // in the sense that it is convertible to a whole number of seconds with a minimum
+    // value of 1s.
+    if (multiplierStr == DAY) {
+        span *= SECONDS_IN_DAY;
+    } else if (multiplierStr == HOUR) {
+        span *= SECONDS_IN_HOUR;
+    } else if (multiplierStr == MINUTE) {
+        span *= SECONDS_IN_MINUTE;
+    } else if (multiplierStr == SECOND) {
+        // no-op
+    } else if (multiplierStr == MILLI_SECOND) {
+        span /= MILLI_SECONDS_IN_SECOND;
+    } else if (multiplierStr == MICRO_SECOND) {
+        span /= MICRO_SECONDS_IN_SECOND;
+    } else if (multiplierStr == NANO_SECOND) {
+        span /= NANO_SECONDS_IN_SECOND;
+    }
+
+    return {span, true};
+}
+
 // Initialise statics for the inner class CDateWordCache
-CFastMutex CTimeUtils::CDateWordCache::ms_InitMutex;
-volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(nullptr);
+CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance{nullptr};
 
 const CTimeUtils::CDateWordCache& CTimeUtils::CDateWordCache::instance() {
     if (ms_Instance == nullptr) {
-        CScopedFastLock lock(ms_InitMutex);
-
-        // Even if we get into this code block in more than one thread, whatever
-        // measures the compiler is taking to ensure this variable is only
-        // constructed once should be fine given that the block is protected by
-        // a mutex.
-        static volatile CDateWordCache instance;
+        // This initialisation is thread safe due to the "magic statics" feature
+        // introduced in C++11.  This is implemented in Visual Studio 2015 and
+        // above.
+        static CDateWordCache instance;
 
         ms_Instance = &instance;
     }
 
-    // Need to explicitly cast away volatility
-    return *const_cast<const CDateWordCache*>(ms_Instance);
+    return *ms_Instance;
 }
 
 bool CTimeUtils::CDateWordCache::isDateWord(const std::string& word) const {

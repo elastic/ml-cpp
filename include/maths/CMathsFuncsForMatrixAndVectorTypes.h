@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CMathsFuncsForMatrixAndVectorTypes_h
@@ -15,7 +20,7 @@ namespace maths {
 
 template<typename VECTOR, typename F>
 bool CMathsFuncs::aComponent(const F& f, const VECTOR& val) {
-    for (std::size_t i = 0u; i < val.dimension(); ++i) {
+    for (std::size_t i = 0; i < val.dimension(); ++i) {
         if (f(val(i))) {
             return true;
         }
@@ -25,7 +30,7 @@ bool CMathsFuncs::aComponent(const F& f, const VECTOR& val) {
 
 template<typename VECTOR, typename F>
 bool CMathsFuncs::everyComponent(const F& f, const VECTOR& val) {
-    for (std::size_t i = 0u; i < val.dimension(); ++i) {
+    for (std::size_t i = 0; i < val.dimension(); ++i) {
         if (!f(val(i))) {
             return false;
         }
@@ -35,7 +40,7 @@ bool CMathsFuncs::everyComponent(const F& f, const VECTOR& val) {
 
 template<typename SYMMETRIC_MATRIX, typename F>
 bool CMathsFuncs::anElement(const F& f, const SYMMETRIC_MATRIX& val) {
-    for (std::size_t i = 0u; i < val.rows(); ++i) {
+    for (std::size_t i = 0; i < val.rows(); ++i) {
         for (std::size_t j = i; j < val.columns(); ++j) {
             if (f(val(i, j))) {
                 return true;
@@ -47,7 +52,7 @@ bool CMathsFuncs::anElement(const F& f, const SYMMETRIC_MATRIX& val) {
 
 template<typename SYMMETRIC_MATRIX, typename F>
 bool CMathsFuncs::everyElement(const F& f, const SYMMETRIC_MATRIX& val) {
-    for (std::size_t i = 0u; i < val.rows(); ++i) {
+    for (std::size_t i = 0; i < val.rows(); ++i) {
         for (std::size_t j = i; j < val.columns(); ++j) {
             if (!f(val(i, j))) {
                 return false;

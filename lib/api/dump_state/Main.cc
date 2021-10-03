@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 //! \brief
 //! Creates model state files for Anomaly Detectors, Categorizers and the
@@ -31,9 +36,9 @@
 #include <model/CLimits.h>
 
 #include <api/CAnomalyJob.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/CNdJsonInputParser.h>
@@ -123,21 +128,29 @@ bool writeNormalizerState(const std::string& outputFileName) {
     return true;
 }
 
-bool persistCategorizerStateToFile(const std::string& outputFileName) {
+bool persistCategorizerStateToFile(const std::string& outputFileName,
+                                   const std::string& timeFormat = std::string()) {
     ml::model::CLimits limits(true);
-    ml::api::CFieldConfig config("count", "mlcategory");
+    const std::string jsonConfig{
+        "{\"job_id\":\"new_ml_fields\",\"analysis_config\":{\"detectors\":[{\"function\":\"count\",\"by_field_name\":\"mlcategory\"}]}}"};
+    ml::api::CAnomalyJobConfig jobConfig;
+    if (jobConfig.parse(jsonConfig) == false) {
+        LOG_ERROR(<< "Failed to parse json: \"" << jsonConfig << "\"");
+        return false;
+    }
 
     std::ofstream outStream(ml::core::COsFileFuncs::NULL_FILENAME);
-    ml::core::CJsonOutputStreamWrapper wrappendOutStream(outStream);
-    ml::api::CJsonOutputWriter writer("job", wrappendOutStream);
+    ml::core::CJsonOutputStreamWrapper wrappedOutStream(outStream);
 
-    ml::api::CFieldDataTyper typer("job", config, limits, writer, writer);
+    ml::api::CFieldDataCategorizer categorizer{
+        "job",   jobConfig.analysisConfig(), limits,  "time", timeFormat,
+        nullptr, wrappedOutStream,           nullptr, false};
 
-    ml::api::CFieldDataTyper::TStrStrUMap dataRowFields;
+    ml::api::CFieldDataCategorizer::TStrStrUMap dataRowFields;
     dataRowFields["_raw"] = "thing";
     dataRowFields["two"] = "other";
 
-    typer.handleRecord(dataRowFields);
+    categorizer.handleRecord(dataRowFields, ml::api::CFieldDataCategorizer::TOptionalTime{});
 
     // Persist the categorizer state to file
     {
@@ -149,7 +162,7 @@ bool persistCategorizerStateToFile(const std::string& outputFileName) {
         }
 
         ml::api::CSingleStreamDataAdder persister(ptr);
-        if (!typer.persistState(persister, "State persisted due to job close at ")) {
+        if (!categorizer.persistStateInForeground(persister, "State persisted due to job close at ")) {
             LOG_ERROR(<< "Error persisting state to " << outputFileName);
             return false;
         }
@@ -175,8 +188,8 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
     ml::model::CLimits limits(true);
-    ml::api::CFieldConfig fieldConfig;
-    if (!fieldConfig.initFromFile(configFileName)) {
+    ml::api::CAnomalyJobConfig jobConfig;
+    if (!jobConfig.initFromFile(configFileName)) {
         LOG_ERROR(<< "Failed to init field config from " << configFileName);
         return false;
     }
@@ -187,9 +200,9 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
             bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, false);
 
-    ml::api::CAnomalyJob origJob(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
+    ml::api::CAnomalyJob origJob(jobId, limits, jobConfig, modelConfig, wrappedOutputStream,
                                  std::bind(&reportPersistComplete, std::placeholders::_1),
-                                 nullptr, -1, "time", timeFormat);
+                                 nullptr, -1, "time", timeFormat, 0);
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     const TInputParserUPtr parser{[&inputFilename, &inputStrm]() -> TInputParserUPtr {
@@ -199,8 +212,10 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    if (!parser->readStreamIntoMaps(std::bind(&ml::api::CAnomalyJob::handleRecord,
-                                              &origJob, std::placeholders::_1))) {
+    if (parser->readStreamIntoMaps([&origJob](const ml::api::CAnomalyJob::TStrStrUMap& dataRowFields) {
+            return origJob.handleRecord(dataRowFields,
+                                        ml::api::CAnomalyJob::TOptionalTime{});
+        }) == false) {
         LOG_ERROR(<< "Failed to processs input");
         return false;
     }
@@ -215,7 +230,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         }
 
         ml::api::CSingleStreamDataAdder persister(ptr);
-        if (!origJob.persistState(persister, "State persisted due to job close at ")) {
+        if (!origJob.persistStateInForeground(persister, "State persisted due to job close at ")) {
             LOG_ERROR(<< "Error persisting state to " << outputFileName);
             return false;
         }
@@ -228,31 +243,31 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
 
 bool persistByDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        TEST_FILES_PATH + "new_mlfields.conf", TEST_FILES_PATH + "big_ascending.txt",
+        TEST_FILES_PATH + "new_mlfields.json", TEST_FILES_PATH + "big_ascending.txt",
         stateFilesPath + "by_detector_state.json", 0, "%d/%b/%Y:%T %z");
 }
 
 bool persistOverDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        TEST_FILES_PATH + "new_mlfields_over.conf", TEST_FILES_PATH + "big_ascending.txt",
+        TEST_FILES_PATH + "new_mlfields_over.json", TEST_FILES_PATH + "big_ascending.txt",
         stateFilesPath + "over_detector_state.json", 0, "%d/%b/%Y:%T %z");
 }
 
 bool persistPartitionDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        TEST_FILES_PATH + "new_mlfields_partition.conf", TEST_FILES_PATH + "big_ascending.txt",
+        TEST_FILES_PATH + "new_mlfields_partition.json", TEST_FILES_PATH + "big_ascending.txt",
         stateFilesPath + "partition_detector_state.json", 0, "%d/%b/%Y:%T %z");
 }
 
 bool persistDcDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        TEST_FILES_PATH + "new_persist_dc.conf", TEST_FILES_PATH + "files_users_programs.csv",
+        TEST_FILES_PATH + "new_persist_dc.json", TEST_FILES_PATH + "files_users_programs.csv",
         stateFilesPath + "dc_detector_state.json", 5);
 }
 
 bool persistCountDetector(const std::string& stateFilesPath) {
     return persistAnomalyDetectorStateToFile(
-        TEST_FILES_PATH + "new_persist_count.conf", TEST_FILES_PATH + "files_users_programs.csv",
+        TEST_FILES_PATH + "new_persist_count.json", TEST_FILES_PATH + "files_users_programs.csv",
         stateFilesPath + "count_detector_state.json", 5);
 }
 

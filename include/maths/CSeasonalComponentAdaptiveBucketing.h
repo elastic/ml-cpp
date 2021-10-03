@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CSeasonalComponentAdaptiveBucketing_h
@@ -16,12 +21,13 @@
 #include <maths/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
-#include <stdint.h>
-
+namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
+}
 
 namespace ml {
 namespace core {
@@ -93,20 +99,31 @@ public:
     //! at \p time fixed.
     void shiftSlope(core_t::TTime time, double shift);
 
-    //! Linearly scale the regressions by \p scale.
-    void linearScale(double scale);
+    //! Linearly scale the regressions by \p scale at \p time.
+    void linearScale(core_t::TTime time, double scale);
 
     //! Add the function value at \p time.
     //!
     //! \param[in] time The time of \p value.
     //! \param[in] value The value of the function at \p time.
     //! \param[in] prediction The prediction for \p value.
-    //! \param[in] weight The weight of function point. The smaller
-    //! this is the less influence it has on the bucket.
-    void add(core_t::TTime time, double value, double prediction, double weight = 1.0);
+    //! \param[in] weight The weight of function point. The smaller this is
+    //! the less influence it has on the bucket.
+    //! \param[in] gradientLearnRate Must be in the range [0,1] with lower
+    //! values reduce the rate at which we adapt bucket regression model
+    //! gradients.
+    void add(core_t::TTime time,
+             double value,
+             double prediction,
+             double weight = 1.0,
+             double gradientLearnRate = 1.0);
 
     //! Age the bucket values to account for \p time elapsed time.
-    void propagateForwardsByTime(double time, bool meanRevert = false);
+    //!
+    //! \param[in] meanRevertFactor Controls how quicly the components mean
+    //! revert as a multiplier of the rate at which data is aged out of the
+    //! component. By default components don't mean revert.
+    void propagateForwardsByTime(double time, double meanRevertFactor = 0.0);
 
     //! Get the time provider.
     const CSeasonalTime& time() const;
@@ -124,10 +141,10 @@ public:
     bool slopeAccurate(core_t::TTime time) const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get the memory used by this component
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const;
@@ -152,7 +169,8 @@ private:
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        uint64_t checksum(uint64_t seed) const;
+        //! Get a checksum for this object.
+        std::uint64_t checksum(std::uint64_t seed) const;
 
         //! Check that the state is valid.
         bool isBad() const;
@@ -165,6 +183,10 @@ private:
     using TBucketVec = std::vector<SBucket>;
 
 private:
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! Restore by traversing a state document
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
@@ -179,8 +201,8 @@ private:
     //! Check if \p time is in the this component's window.
     bool inWindow(core_t::TTime time) const override;
 
-    //! Add the function value at \p time.
-    void add(std::size_t bucket, core_t::TTime time, double value, double weight) override;
+    //! Add the function initial value at \p time.
+    void addInitialValue(std::size_t bucket, core_t::TTime time, double value, double weight) override;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
     double offset(core_t::TTime time) const override;
@@ -208,7 +230,7 @@ private:
     TBucketVec m_Buckets;
 
     //! Befriend a helper class used by the unit tests
-    friend class ::CNanInjector;
+    friend class CTimeSeriesDecompositionTest::CNanInjector;
 };
 
 //! Create a free function which will be found by Koenig lookup.

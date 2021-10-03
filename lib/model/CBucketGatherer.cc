@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CBucketGatherer.h>
@@ -286,7 +291,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
         }
 
         TStoredStringPtrVec canonicalInfluences(influencerCounts.size());
-        for (std::size_t i = 0u; i < influences.size(); ++i) {
+        for (std::size_t i = 0; i < influences.size(); ++i) {
             const CEventData::TOptionalStr& influence = influences[i];
             if (influence) {
                 const auto& inf = CStringStore::influencers().get(*influence);
@@ -551,7 +556,7 @@ uint64_t CBucketGatherer::checksum() const {
     return result;
 }
 
-void CBucketGatherer::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CBucketGatherer");
     core::CMemoryDebug::dynamicSize("m_PersonAttributeCounts", m_PersonAttributeCounts, mem);
     core::CMemoryDebug::dynamicSize("m_PersonAttributeExplicitNulls",

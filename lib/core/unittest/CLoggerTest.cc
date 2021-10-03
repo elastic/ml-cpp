@@ -1,24 +1,33 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CLoggerTest.h"
 
 #include <core/CLogger.h>
 #include <core/CNamedPipeFactory.h>
 #include <core/COsFileFuncs.h>
-#include <core/CSleep.h>
 
 #include <rapidjson/document.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <algorithm>
+#include <chrono>
+#include <fstream>
 #include <ios>
 #include <iterator>
-#include <stdexcept>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CLoggerTest)
 
 namespace {
 #ifdef Windows
@@ -26,32 +35,64 @@ const char* const TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
 #else
 const char* const TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
+
+using TStrVec = std::vector<std::string>;
+
+class CTestFixture {
+public:
+    ~CTestFixture() {
+        // Tests in this file can leave the logger in an unusual state, so reset it
+        // after each test
+        ml::core::CLogger::instance().reset();
+    }
+};
+
+std::function<void()> makeReader(std::ostringstream& loggedData) {
+    return [&loggedData] {
+        for (std::size_t attempt = 1; attempt <= 100; ++attempt) {
+            // wait a bit so that pipe has been created
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::ifstream strm(TEST_PIPE_NAME);
+            if (strm.is_open()) {
+                std::copy(std::istreambuf_iterator<char>(strm),
+                          std::istreambuf_iterator<char>(),
+                          std::ostreambuf_iterator<char>(loggedData));
+                return;
+            }
+        }
+        BOOST_FAIL("Failed to connect to logging pipe within a reasonable time");
+    };
 }
 
-CppUnit::Test* CLoggerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLoggerTest");
+void loggedExpectedMessages(const std::string& logging, const TStrVec& messages) {
+    std::istringstream inputStream{logging};
+    std::string line;
+    std::size_t foundMessages{0};
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testLogging", &CLoggerTest::testLogging));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testReconfiguration", &CLoggerTest::testReconfiguration));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testSetLevel", &CLoggerTest::testSetLevel));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testLogEnvironment", &CLoggerTest::testLogEnvironment));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoggerTest>(
-        "CLoggerTest::testNonAsciiJsonLogging", &CLoggerTest::testNonAsciiJsonLogging));
+    // test that we found the messages we put in,
+    while (std::getline(inputStream, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        rapidjson::Document doc;
+        doc.Parse<rapidjson::kParseDefaultFlags>(line);
+        BOOST_TEST_REQUIRE(doc.HasParseError() == false);
+        BOOST_TEST_REQUIRE(doc.HasMember("message"));
+        const rapidjson::Value& messageValue = doc["message"];
+        std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
 
-    return suiteOfTests;
+        // we expect messages to be in order, so we only need to test the current one
+        if (messageString.find(messages[foundMessages]) != std::string::npos) {
+            ++foundMessages;
+        } else if (foundMessages > 0) {
+            BOOST_FAIL(messageString + " did not contain " + messages[foundMessages]);
+        }
+    }
+    BOOST_REQUIRE_EQUAL(messages.size(), foundMessages);
+}
 }
 
-void CLoggerTest::tearDown() {
-    // Tests in this file can leave the logger in an unusual state, so reset it
-    // after each test
-    ml::core::CLogger::instance().reset();
-}
-
-void CLoggerTest::testLogging() {
+BOOST_FIXTURE_TEST_CASE(testLogging, CTestFixture) {
     std::string t("Test message");
 
     LOG_TRACE(<< "Trace");
@@ -67,40 +108,37 @@ void CLoggerTest::testLogging() {
     LOG_AT_LEVEL(ml::core::CLogger::E_Error, << "Dynamic ERROR");
     LOG_FATAL(<< "Fatal - application to handle exit");
     LOG_AT_LEVEL(ml::core::CLogger::E_Fatal, << "Dynamic FATAL " << t);
-    try {
-        LOG_ABORT(<< "Throwing exception " << 1221U << ' ' << 0.23124);
 
-        CPPUNIT_ASSERT(false);
-    } catch (std::runtime_error&) { CPPUNIT_ASSERT(true); }
+    // It's not possible to test LOG_ABORT as it calls std::terminate
 }
 
-void CLoggerTest::testReconfiguration() {
-    ml::core::CLogger& logger = ml::core::CLogger::instance();
+BOOST_FIXTURE_TEST_CASE(testReconfiguration, CTestFixture) {
+    ml::core::CLogger& logger{ml::core::CLogger::instance()};
 
     LOG_DEBUG(<< "Starting logger reconfiguration test");
 
     LOG_TRACE(<< "This shouldn't be seen because the hardcoded default log level is DEBUG");
-    CPPUNIT_ASSERT(!logger.hasBeenReconfigured());
+    BOOST_TEST_REQUIRE(logger.hasBeenReconfigured() == false);
 
-    CPPUNIT_ASSERT(!logger.reconfigureFromFile("nonexistantfile"));
+    BOOST_TEST_REQUIRE(logger.reconfigureFromFile("nonexistantfile") == false);
 
-    CPPUNIT_ASSERT(logger.reconfigureLogJson());
+    BOOST_TEST_REQUIRE(logger.reconfigureLogJson());
     LOG_INFO(<< "This should be logged as JSON!");
 
     // The test boost.log.ini is very similar to the hardcoded default, but
     // with the level set to TRACE rather than DEBUG
-    CPPUNIT_ASSERT(logger.reconfigureFromFile("testfiles/boost.log.ini"));
+    BOOST_TEST_REQUIRE(logger.reconfigureFromFile("testfiles/boost.log.ini"));
 
     LOG_TRACE(<< "This should be seen because the reconfigured log level is TRACE");
-    CPPUNIT_ASSERT(logger.hasBeenReconfigured());
+    BOOST_TEST_REQUIRE(logger.hasBeenReconfigured());
 }
 
-void CLoggerTest::testSetLevel() {
-    ml::core::CLogger& logger = ml::core::CLogger::instance();
+BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
+    ml::core::CLogger& logger{ml::core::CLogger::instance()};
 
     LOG_DEBUG(<< "Starting logger level test");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Error));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Error));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -109,7 +147,7 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Info));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Info));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -118,7 +156,7 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Trace));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Trace));
 
     LOG_TRACE(<< "Should be seen");
     LOG_DEBUG(<< "Should be seen");
@@ -127,7 +165,7 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Warn));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Warn));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -136,7 +174,7 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "Should be seen");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Fatal));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Fatal));
 
     LOG_TRACE(<< "SHOULD NOT BE SEEN");
     LOG_DEBUG(<< "SHOULD NOT BE SEEN");
@@ -145,33 +183,20 @@ void CLoggerTest::testSetLevel() {
     LOG_ERROR(<< "SHOULD NOT BE SEEN");
     LOG_FATAL(<< "Should be seen");
 
-    CPPUNIT_ASSERT(logger.setLoggingLevel(ml::core::CLogger::E_Debug));
+    BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Debug));
 
     LOG_DEBUG(<< "Finished logger level test");
 }
 
-void CLoggerTest::testNonAsciiJsonLogging() {
-    std::vector<std::string> messages{"Non-iso8859-15: 编码", "Non-ascii: üaöä",
-                                      "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
+BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
+    TStrVec messages{"Non-iso8859-15: 编码", "Non-ascii: üaöä",
+                     "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
 
     std::ostringstream loggedData;
-    std::thread reader([&loggedData] {
-        for (std::size_t attempt = 1; attempt <= 100; ++attempt) {
-            // wait a bit so that pipe has been created
-            ml::core::CSleep::sleep(50);
-            std::ifstream strm(TEST_PIPE_NAME);
-            if (strm.is_open()) {
-                std::copy(std::istreambuf_iterator<char>(strm),
-                          std::istreambuf_iterator<char>(),
-                          std::ostreambuf_iterator<char>(loggedData));
-                return;
-            }
-        }
-        CPPUNIT_FAIL("Failed to connect to logging pipe within a reasonable time");
-    });
+    std::thread reader(makeReader(loggedData));
 
     ml::core::CLogger& logger = ml::core::CLogger::instance();
-    // logger might got reconfigured in previous tests, so reset and reconfigure it
+    // logger might have been reconfigured in previous tests, so reset and reconfigure it
     logger.reset();
     logger.reconfigure(TEST_PIPE_NAME, "");
 
@@ -183,32 +208,37 @@ void CLoggerTest::testNonAsciiJsonLogging() {
     logger.reset();
 
     reader.join();
-    std::istringstream inputStream(loggedData.str());
-    std::string line;
-    size_t foundMessages = 0;
-
-    // test that we found the messages we put in,
-    while (std::getline(inputStream, line)) {
-        if (line.empty()) {
-            continue;
-        }
-        rapidjson::Document doc;
-        doc.Parse<rapidjson::kParseDefaultFlags>(line);
-        CPPUNIT_ASSERT(!doc.HasParseError());
-        CPPUNIT_ASSERT(doc.HasMember("message"));
-        const rapidjson::Value& messageValue = doc["message"];
-        std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
-
-        // we expect messages to be in order, so we only need to test the current one
-        if (messageString.find(messages[foundMessages]) != std::string::npos) {
-            ++foundMessages;
-        } else if (foundMessages > 0) {
-            CPPUNIT_FAIL(messageString + " did not contain " + messages[foundMessages]);
-        }
-    }
-    CPPUNIT_ASSERT_EQUAL(messages.size(), foundMessages);
+    loggedExpectedMessages(loggedData.str(), messages);
 }
 
-void CLoggerTest::testLogEnvironment() {
+BOOST_FIXTURE_TEST_CASE(testWarnAndErrorThrottling, CTestFixture) {
+
+    std::ostringstream loggedData;
+    std::thread reader{makeReader(loggedData)};
+
+    TStrVec messages{"Warn should only be seen once", "Error should only be seen once"};
+
+    ml::core::CLogger& logger = ml::core::CLogger::instance();
+    // logger might have been reconfigured in previous tests, so reset and reconfigure it
+    logger.reset();
+    logger.reconfigure(TEST_PIPE_NAME, "");
+
+    for (std::size_t i = 0; i < 10; ++i) {
+        LOG_WARN(<< messages[0]);
+        LOG_ERROR(<< messages[1]);
+    }
+
+    // reset the logger to end the stream and revert state for following tests
+    logger.reset();
+
+    reader.join();
+    loggedExpectedMessages(loggedData.str(), messages);
+}
+
+// Disabled because it doesn't assert
+// Run ad hoc if required
+BOOST_FIXTURE_TEST_CASE(testLogEnvironment, CTestFixture, *boost::unit_test::disabled()) {
     ml::core::CLogger::instance().logEnvironment();
 }
+
+BOOST_AUTO_TEST_SUITE_END()

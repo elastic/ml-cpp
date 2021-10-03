@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CEventRatePopulationModel.h>
@@ -23,11 +28,13 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotation.h>
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <algorithm>
@@ -50,7 +57,8 @@ using TSizeFuzzyDeduplicateUMap =
 //! \brief The values and weights for an attribute.
 struct SValuesAndWeights {
     maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_Weights;
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
 };
 using TSizeValuesAndWeightsUMap = boost::unordered_map<std::size_t, SValuesAndWeights>;
 
@@ -61,7 +69,6 @@ const std::string ATTRIBUTE_PROBABILITY_PRIOR_TAG("c");
 const std::string FEATURE_MODELS_TAG("d");
 const std::string FEATURE_CORRELATE_MODELS_TAG("e");
 const std::string MEMORY_ESTIMATOR_TAG("f");
-const std::string EMPTY_STRING("");
 }
 
 CEventRatePopulationModel::CEventRatePopulationModel(
@@ -101,8 +108,10 @@ CEventRatePopulationModel::CEventRatePopulationModel(
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
     this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
                      std::move(featureCorrelatesModels));
-    traverser.traverseSubLevel(std::bind(&CEventRatePopulationModel::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CEventRatePopulationModel::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CEventRatePopulationModel::initialize(
@@ -120,7 +129,7 @@ void CEventRatePopulationModel::initialize(
 
     if (this->params().s_MultivariateByFields) {
         m_FeatureCorrelatesModels.reserve(featureCorrelatesModels.size());
-        for (std::size_t i = 0u; i < featureCorrelatesModels.size(); ++i) {
+        for (std::size_t i = 0; i < featureCorrelatesModels.size(); ++i) {
             m_FeatureCorrelatesModels.emplace_back(
                 featureCorrelatesModels[i].first,
                 newFeatureCorrelateModelPriors[i].second,
@@ -162,6 +171,11 @@ CEventRatePopulationModel::CEventRatePopulationModel(bool isForPersistence,
     }
 }
 
+bool CEventRatePopulationModel::shouldPersist() const {
+    return std::any_of(m_FeatureModels.begin(), m_FeatureModels.end(),
+                       [](const auto& model) { return model.shouldPersist(); });
+}
+
 void CEventRatePopulationModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(POPULATION_STATE_TAG,
                          std::bind(&CEventRatePopulationModel::doAcceptPersistInserter,
@@ -186,7 +200,7 @@ void CEventRatePopulationModel::acceptPersistInserter(core::CStatePersistInserte
 }
 
 bool CEventRatePopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t i = 0u, j = 0u;
+    std::size_t i = 0u, j = 0;
     do {
         const std::string& name = traverser.name();
         RESTORE(POPULATION_STATE_TAG,
@@ -338,6 +352,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
     this->createUpdateNewModels(startTime, resourceMonitor);
     this->currentBucketInterimCorrections().clear();
+    m_CurrentBucketStats.s_Annotations.clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
@@ -420,7 +435,20 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
-                if (this->shouldIgnoreSample(feature, pid, cid, sampleTime)) {
+                // initialCountWeight returns a weight value as double:
+                // 0.0 if checkScheduledEvents is true
+                // 1.0 if both checkScheduledEvents and checkRules are false
+                // A small weight - 0.005 - if checkRules is true.
+                // This weight is applied to countWeight (and therefore scaledCountWeight) as multiplier.
+                // This reduces the impact of the values affected by the skip_model_update rule
+                // on the model while not completely ignoring them. This still allows the model to
+                // learn from the affected values - addressing point 1. and 2. in
+                // https://github.com/elastic/ml-cpp/issues/1272, Namely
+                // 1. If you apply it from the start of the modelling it can stop the model learning anything at all.
+                // 2. It can stop the model ever adapting to some change in data characteristics
+                double initialCountWeight{
+                    this->initialCountWeight(feature, pid, cid, sampleTime)};
+                if (initialCountWeight == 0.0) {
                     core_t::TTime skipTime = sampleTime - attributeLastBucketTimesMap[cid];
                     if (skipTime > 0) {
                         model->skipTime(skipTime);
@@ -434,7 +462,8 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 double count =
                     static_cast<double>(CDataGatherer::extractData(data_).s_Count);
                 double value = model_t::offsetCountToZero(feature, count);
-                double countWeight = this->sampleRateWeight(pid, cid) *
+                double countWeight = initialCountWeight *
+                                     this->sampleRateWeight(pid, cid) *
                                      this->learnRate(feature);
                 LOG_TRACE(<< "Adding " << value
                           << " for person = " << gatherer.personName(pid)
@@ -444,27 +473,48 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 std::size_t duplicate = duplicates[cid].duplicate(sampleTime, {value});
 
                 if (duplicate < attribute.s_Values.size()) {
-                    maths_t::addCount(TDouble2Vec{countWeight},
-                                      attribute.s_Weights[duplicate]);
+                    model->addCountWeights(sampleTime, countWeight, countWeight,
+                                           1.0, attribute.s_TrendWeights[duplicate],
+                                           attribute.s_ResidualWeights[duplicate]);
                 } else {
                     attribute.s_Values.emplace_back(sampleTime, TDouble2Vec{value}, pid);
-                    attribute.s_Weights.push_back(
+                    attribute.s_TrendWeights.push_back(
                         maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-                    auto& weight = attribute.s_Weights.back();
-                    maths_t::setCount(TDouble2Vec{countWeight}, weight);
-                    maths_t::setWinsorisationWeight(
-                        model->winsorisationWeight(1.0, sampleTime, {value}), weight);
+                    attribute.s_ResidualWeights.push_back(
+                        maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+                    model->countWeights(sampleTime, {value}, countWeight,
+                                        countWeight, 1.0, // winsorisation derate
+                                        1.0, // count variance scale
+                                        attribute.s_TrendWeights.back(),
+                                        attribute.s_ResidualWeights.back());
                 }
             }
 
             for (auto& attribute : attributeValuesAndWeights) {
                 std::size_t cid = attribute.first;
+                auto annotationCallback = [&](const std::string& annotation) {
+                    if (this->params().s_AnnotationsEnabled) {
+                        m_CurrentBucketStats.s_Annotations.emplace_back(
+                            time, CAnnotation::E_ModelChange, annotation,
+                            gatherer.searchKey().detectorIndex(),
+                            gatherer.searchKey().partitionFieldName(),
+                            gatherer.partitionFieldValue(),
+                            gatherer.searchKey().overFieldName(),
+                            gatherer.attributeName(cid),
+                            gatherer.searchKey().byFieldName(), EMPTY_STRING);
+                    }
+                };
+
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(this->propagationTime(cid, sampleTime))
-                    .trendWeights(attribute.second.s_Weights)
-                    .priorWeights(attribute.second.s_Weights);
+                    .trendWeights(attribute.second.s_TrendWeights)
+                    .priorWeights(attribute.second.s_ResidualWeights)
+                    .annotationCallback([&](const std::string& annotation) {
+                        annotationCallback(annotation);
+                    });
+
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {
                     LOG_TRACE(<< "Model unexpectedly null");
@@ -583,7 +633,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
     resultBuilder.attributeProbabilityPrior(&m_AttributeProbabilityPrior);
     resultBuilder.personAttributeProbabilityPrior(&personAttributeProbabilityPrior);
 
-    for (std::size_t i = 0u; i < gatherer.numberFeatures(); ++i) {
+    for (std::size_t i = 0; i < gatherer.numberFeatures(); ++i) {
         model_t::EFeature feature = gatherer.feature(i);
         LOG_TRACE(<< "feature = " << model_t::print(feature));
 
@@ -640,7 +690,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
                         pConditional.emplace(cid, pConditionalTemplate).first->second;
                     const auto& influenceValues =
                         CDataGatherer::extractData(featureData[j]).s_InfluenceValues;
-                    for (std::size_t k = 0u; k < influenceValues.size(); ++k) {
+                    for (std::size_t k = 0; k < influenceValues.size(); ++k) {
                         if (const CInfluenceCalculator* influenceCalculator =
                                 this->influenceCalculator(feature, k)) {
                             calculator.plugin(*influenceCalculator);
@@ -745,7 +795,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
 
     const TDoubleVec& categories = m_AttributeProbabilityPrior.categories();
     const TDoubleVec& concentrations = m_AttributeProbabilityPrior.concentrations();
-    for (std::size_t i = 0u; i < categories.size(); ++i) {
+    for (std::size_t i = 0; i < categories.size(); ++i) {
         std::size_t cid = static_cast<std::size_t>(categories[i]);
         uint64_t& hash =
             hashes[{std::cref(EMPTY_STRING), std::cref(this->attributeName(cid))}];
@@ -753,7 +803,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     }
 
     for (const auto& feature : m_FeatureModels) {
-        for (std::size_t cid = 0u; cid < feature.s_Models.size(); ++cid) {
+        for (std::size_t cid = 0; cid < feature.s_Models.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
                 uint64_t& hash =
                     hashes[{std::cref(EMPTY_STRING), std::cref(gatherer.attributeName(cid))}];
@@ -798,7 +848,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CEventRatePopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CEventRatePopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CEventRatePopulationModel");
     this->CPopulationModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
@@ -807,6 +857,8 @@ void CEventRatePopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsag
                                     m_CurrentBucketStats.s_FeatureData, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+                                    m_CurrentBucketStats.s_Annotations, mem);
     core::CMemoryDebug::dynamicSize("m_AttributeProbabilities",
                                     m_AttributeProbabilities, mem);
     core::CMemoryDebug::dynamicSize("m_NewPersonAttributePrior",
@@ -834,6 +886,7 @@ std::size_t CEventRatePopulationModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
     mem += core::CMemory::dynamicSize(m_AttributeProbabilities);
     mem += core::CMemory::dynamicSize(m_NewAttributeProbabilityPrior);
     mem += core::CMemory::dynamicSize(m_AttributeProbabilityPrior);
@@ -842,6 +895,10 @@ std::size_t CEventRatePopulationModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
     mem += core::CMemory::dynamicSize(m_MemoryEstimator);
     return mem;
+}
+
+const CEventRatePopulationModel::TAnnotationVec& CEventRatePopulationModel::annotations() const {
+    return m_CurrentBucketStats.s_Annotations;
 }
 
 CMemoryUsageEstimator* CEventRatePopulationModel::memoryUsageEstimator() const {
@@ -1019,11 +1076,14 @@ bool CEventRatePopulationModel::fill(model_t::EFeature feature,
         return false;
     }
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
-    maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
-        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
+    maths_t::TDouble2VecWeightsAry weight{[&] {
+        TDouble2Vec result;
+        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, result);
+        return maths_t::seasonalVarianceScaleWeight(result);
+    }()};
     double value{model_t::offsetCountToZero(
         feature, static_cast<double>(CDataGatherer::extractData(*data).s_Count))};
-    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, cid, time);
+    double initialCountWeight{this->initialCountWeight(feature, pid, cid, time)};
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -1041,7 +1101,7 @@ bool CEventRatePopulationModel::fill(model_t::EFeature feature,
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature))
         .addWeights(weight)
-        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+        .initialCountWeight(initialCountWeight);
 
     return true;
 }

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CModel.h>
@@ -130,6 +135,16 @@ CModelAddSamplesParams::priorWeights() const {
     return *m_PriorWeights;
 }
 
+CModelAddSamplesParams&
+CModelAddSamplesParams::annotationCallback(const maths_t::TModelAnnotationCallback& modelAnnotationCallback) {
+    m_ModelAnnotationCallback = modelAnnotationCallback;
+    return *this;
+}
+
+const maths_t::TModelAnnotationCallback& CModelAddSamplesParams::annotationCallback() const {
+    return m_ModelAnnotationCallback;
+}
+
 //////// CModelProbabilityParams ////////
 
 CModelProbabilityParams::CModelProbabilityParams()
@@ -216,13 +231,13 @@ bool CModelProbabilityParams::useAnomalyModel() const {
     return m_UseAnomalyModel;
 }
 
-CModelProbabilityParams& CModelProbabilityParams::skipAnomalyModelUpdate(bool skipAnomalyModelUpdate) {
-    m_SkipAnomalyModelUpdate = skipAnomalyModelUpdate;
+CModelProbabilityParams& CModelProbabilityParams::initialCountWeight(double initialCountWeight) {
+    m_InitialCountWeight = initialCountWeight;
     return *this;
 }
 
-bool CModelProbabilityParams::skipAnomalyModelUpdate() const {
-    return m_SkipAnomalyModelUpdate;
+double CModelProbabilityParams::initialCountWeight() const {
+    return m_InitialCountWeight;
 }
 
 //////// SModelProbabilityResult::SFeatureProbability ////////
@@ -238,17 +253,7 @@ SModelProbabilityResult::SFeatureProbability::SFeatureProbability(EFeatureProbab
 
 //////// CModel ////////
 
-CModel::EUpdateResult CModel::combine(EUpdateResult lhs, EUpdateResult rhs) {
-    switch (lhs) {
-    case E_Success:
-        return rhs;
-    case E_Reset:
-        return rhs == E_Failure ? E_Failure : E_Reset;
-    case E_Failure:
-        return E_Failure;
-    }
-    return E_Failure;
-}
+const double CModel::DEFAULT_BOUNDS_PERCENTILE{95.0};
 
 CModel::CModel(const CModelParams& params) : m_Params(params) {
 }
@@ -263,6 +268,10 @@ const CModelParams& CModel::params() const {
 
 CModelParams& CModel::params() {
     return m_Params;
+}
+
+bool CModel::shouldPersist() const {
+    return true;
 }
 
 //////// CModelStub ////////
@@ -362,22 +371,34 @@ bool CModelStub::probability(const CModelProbabilityParams& /*params*/,
     return true;
 }
 
-CModelStub::TDouble2Vec CModelStub::winsorisationWeight(double /*derate*/,
-                                                        core_t::TTime /*time*/,
-                                                        const TDouble2Vec& /*value*/) const {
-    return {};
+void CModelStub::countWeights(core_t::TTime /*time*/,
+                              const TDouble2Vec& /*value*/,
+                              double /*trendCountWeight*/,
+                              double /*residualCountWeight*/,
+                              double /*winsorisationDerate*/,
+                              double /*countVarianceScale*/,
+                              TDouble2VecWeightsAry& /*trendWeights*/,
+                              TDouble2VecWeightsAry& /*residualWeights*/) const {
 }
 
-CModelStub::TDouble2Vec CModelStub::seasonalWeight(double /*confidence*/,
-                                                   core_t::TTime /*time*/) const {
-    return {};
+void CModelStub::addCountWeights(core_t::TTime /*time*/,
+                                 double /*trendCountWeight*/,
+                                 double /*residualCountWeight*/,
+                                 double /*countVarianceScale*/,
+                                 TDouble2VecWeightsAry& /*trendWeights*/,
+                                 TDouble2VecWeightsAry& /*residualWeights*/) const {
+}
+
+void CModelStub::seasonalWeight(double /*confidence*/,
+                                core_t::TTime /*time*/,
+                                TDouble2Vec& /*weight*/) const {
 }
 
 std::uint64_t CModelStub::checksum(std::uint64_t seed) const {
     return seed;
 }
 
-void CModelStub::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr /*mem*/) const {
+void CModelStub::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& /*mem*/) const {
 }
 
 std::size_t CModelStub::memoryUsage() const {
@@ -392,6 +413,10 @@ void CModelStub::persistModelsState(core::CStatePersistInserter& /*inserter*/) c
 
 maths_t::EDataType CModelStub::dataType() const {
     return maths_t::E_MixedData;
+}
+
+bool CModelStub::shouldPersist() const {
+    return false;
 }
 }
 }

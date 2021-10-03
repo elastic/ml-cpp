@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CCountingModel.h>
@@ -46,8 +51,10 @@ CCountingModel::CCountingModel(const SModelParams& params,
     : CAnomalyDetectorModel(params, dataGatherer, {}),
       m_StartTime(CAnomalyDetectorModel::TIME_UNSET),
       m_InterimBucketCorrector(interimBucketCorrector) {
-    traverser.traverseSubLevel(std::bind(&CCountingModel::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CCountingModel::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 CCountingModel::CCountingModel(bool isForPersistence, const CCountingModel& other)
@@ -280,7 +287,7 @@ bool CCountingModel::computeProbability(std::size_t pid,
                                         SAnnotatedProbability& result) const {
     result = SAnnotatedProbability(1.0);
     result.s_CurrentBucketCount =
-        this->currentBucketCount(pid, (startTime + endTime) / 2 - 1);
+        this->currentBucketCount(pid, (startTime + endTime + 1) / 2 - 1);
     result.s_BaselineBucketCount = this->baselineBucketCount(pid);
     return true;
 }
@@ -304,7 +311,7 @@ uint64_t CCountingModel::checksum(bool includeCurrentBucketStats) const {
     return result;
 }
 
-void CCountingModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCountingModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCountingModel");
     this->CAnomalyDetectorModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_Counts", m_Counts, mem);
@@ -348,6 +355,10 @@ CCountingModel::scheduledEventDescriptions(core_t::TTime time) const {
         return EMPTY_STRING_LIST;
     }
     return it->second;
+}
+
+const CCountingModel::TAnnotationVec& CCountingModel::annotations() const {
+    return m_Annotations;
 }
 
 double CCountingModel::attributeFrequency(std::size_t /*cid*/) const {

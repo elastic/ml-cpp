@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CBootstrapClustererTest.h"
 
 #include <core/CLogger.h>
 
@@ -12,11 +15,25 @@
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <vector>
+
+using TVector2 = ml::maths::CVectorNx1<double, 2>;
+struct SVector2Hash {
+    std::size_t operator()(const TVector2& x) const {
+        return static_cast<std::size_t>(x.checksum());
+    }
+};
+using TVector2SizeUMap = boost::unordered_map<TVector2, std::size_t, SVector2Hash>;
+
+BOOST_TEST_DONT_PRINT_LOG_VALUE(TVector2SizeUMap::iterator)
+
+BOOST_AUTO_TEST_SUITE(CBootstrapClustererTest)
 
 using namespace ml;
 
@@ -26,19 +43,11 @@ using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TSizeVecVec = std::vector<TSizeVec>;
-using TVector2 = maths::CVectorNx1<double, 2>;
 using TVector2Vec = std::vector<TVector2>;
 using TVector2VecVec = std::vector<TVector2Vec>;
 using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
 using TMatrix2Vec = std::vector<TMatrix2>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-struct SVector2Hash {
-    std::size_t operator()(const TVector2& x) const {
-        return static_cast<std::size_t>(x.checksum());
-    }
-};
-using TVector2SizeUMap = boost::unordered_map<TVector2, std::size_t, SVector2Hash>;
 
 template<typename POINT>
 class CBootstrapClustererForTest : public maths::CBootstrapClusterer<POINT> {
@@ -97,21 +106,21 @@ void clique(std::size_t a, std::size_t b, TGraph& graph) {
 }
 
 void connect(const TSizeVec& U, const TSizeVec& V, TGraph& graph) {
-    CPPUNIT_ASSERT_EQUAL(U.size(), V.size());
-    for (std::size_t i = 0u; i < U.size(); ++i) {
+    BOOST_REQUIRE_EQUAL(U.size(), V.size());
+    for (std::size_t i = 0; i < U.size(); ++i) {
         boost::put(boost::edge_weight, graph, boost::add_edge(U[i], V[i], graph).first, 1.0);
     }
 }
 }
 
-void CBootstrapClustererTest::testFacade() {
+BOOST_AUTO_TEST_CASE(testFacade) {
     // Check that clustering by facade produces the sample result.
 
     std::size_t improveParamsKmeansIterations = 4;
     std::size_t improveStructureClusterSeeds = 2;
     std::size_t improveStructureKmeansIterations = 3;
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "Trial " << t);
 
         double m1_[] = {2.0, 2.0};
@@ -145,9 +154,9 @@ void CBootstrapClustererTest::testFacade() {
                 TSizeVecVec clusters;
                 clusterer.cluster(points, clusters);
                 actual.resize(clusters.size());
-                for (std::size_t i = 0u; i < clusters.size(); ++i) {
+                for (std::size_t i = 0; i < clusters.size(); ++i) {
                     std::sort(clusters[i].begin(), clusters[i].end());
-                    for (std::size_t j = 0u; j < clusters[i].size(); ++j) {
+                    for (std::size_t j = 0; j < clusters[i].size(); ++j) {
                         actual[i].push_back(points[clusters[i][j]]);
                     }
                 }
@@ -160,21 +169,21 @@ void CBootstrapClustererTest::testFacade() {
                        improveStructureKmeansIterations);
 
             TVector2VecVec expected(xmeans.clusters().size());
-            for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+            for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
                 expected[i] = xmeans.clusters()[i].points();
                 std::sort(expected[i].begin(), expected[i].end());
             }
 
-            CPPUNIT_ASSERT_EQUAL(expected.size(), actual.size());
-            for (std::size_t i = 0u; i < expected.size(); ++i) {
-                CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected[i]),
-                                     core::CContainerPrinter::print(actual[i]));
+            BOOST_REQUIRE_EQUAL(expected.size(), actual.size());
+            for (std::size_t i = 0; i < expected.size(); ++i) {
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected[i]),
+                                    core::CContainerPrinter::print(actual[i]));
             }
         }
     }
 }
 
-void CBootstrapClustererTest::testBuildClusterGraph() {
+BOOST_AUTO_TEST_CASE(testBuildClusterGraph) {
     // Test we get the graph edges we expect for different overlap
     // thresholds.
 
@@ -185,10 +194,10 @@ void CBootstrapClustererTest::testBuildClusterGraph() {
         {{0, 1, 2, 3, _}, {5, 6, 7, 8, 9}, {_, _, 12, 13, 14}, {4, _, _, _, _}, {10, 11, _, _, _}},
         {{_, _, 2, 3, 4}, {_, _, _, 8, 9}, {10, 11, 12, 13, 14}, {0, 1, 5, 6, 7}, {_, _, _, _, _}}};
     TBootstrapClustererForTest2::TSizeVecVecVec clusters(boost::size(clusters_));
-    for (std::size_t i = 0u; i < boost::size(clusters_); ++i) {
-        for (std::size_t j = 0u; j < boost::size(clusters_[i]); ++j) {
+    for (std::size_t i = 0; i < boost::size(clusters_); ++i) {
+        for (std::size_t j = 0; j < boost::size(clusters_[i]); ++j) {
             TSizeVec cluster;
-            for (std::size_t k = 0u; k < boost::size(clusters_[i][j]); ++k) {
+            for (std::size_t k = 0; k < boost::size(clusters_[i][j]); ++k) {
                 if (clusters_[i][j][k] != _) {
                     cluster.push_back(clusters_[i][j][k]);
                 }
@@ -249,7 +258,7 @@ void CBootstrapClustererTest::testBuildClusterGraph() {
                                           "14: [2, 5, 9, 11]\n"
                                           "15: [4]\n")};
 
-    for (std::size_t i = 0u; i < boost::size(overlaps); ++i) {
+    for (std::size_t i = 0; i < boost::size(overlaps); ++i) {
         LOG_DEBUG(<< "*** overlap threshold = " << overlaps[i] << " ***");
 
         TGraph graph;
@@ -273,11 +282,11 @@ void CBootstrapClustererTest::testBuildClusterGraph() {
         }
 
         LOG_DEBUG(<< "Overlap graph " << rep);
-        CPPUNIT_ASSERT_EQUAL(expected[i], rep);
+        BOOST_REQUIRE_EQUAL(expected[i], rep);
     }
 }
 
-void CBootstrapClustererTest::testCutSearch() {
+BOOST_AUTO_TEST_CASE(testCutSearch) {
     // Test we generally find the sparsest cut in a graph with two cliques.
 
     std::size_t trials = 50;
@@ -290,8 +299,8 @@ void CBootstrapClustererTest::testCutSearch() {
     rng.generateUniformSamples(1, 15, trials, connections);
 
     TMeanAccumulator quality;
-    for (std::size_t t = 0u; t < trials; ++t) {
-        std::size_t v = 20u;
+    for (std::size_t t = 0; t < trials; ++t) {
+        std::size_t v = 20;
 
         TGraph graph(v);
 
@@ -325,15 +334,15 @@ void CBootstrapClustererTest::testCutSearch() {
     }
 
     LOG_DEBUG(<< "quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
-    CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.98);
+    BOOST_TEST_REQUIRE(1.0 - maths::CBasicStatistics::mean(quality) > 0.98);
 }
 
-void CBootstrapClustererTest::testSeparate() {
+BOOST_AUTO_TEST_CASE(testSeparate) {
     // Test we separate a graph with three cliques when we can.
 
     test::CRandomNumbers rng;
 
-    const std::size_t trials = 100u;
+    const std::size_t trials = 100;
 
     TSizeVec splits1;
     rng.generateUniformSamples(5, 15, trials, splits1);
@@ -344,8 +353,8 @@ void CBootstrapClustererTest::testSeparate() {
 
     std::size_t errors = 0;
     TMeanAccumulator quality;
-    for (std::size_t t = 0u; t < trials; ++t) {
-        std::size_t v = 40u;
+    for (std::size_t t = 0; t < trials; ++t) {
+        std::size_t v = 40;
 
         TGraph graph(v);
 
@@ -378,7 +387,7 @@ void CBootstrapClustererTest::testSeparate() {
         double a = 0.0;
         double b = 0.0;
         double cut = 0.0;
-        for (std::size_t i = 0u; i < v; ++i) {
+        for (std::size_t i = 0; i < v; ++i) {
             (parities[i] ? a : b) += 1.0;
         }
         TEdgeItr i, end;
@@ -406,17 +415,17 @@ void CBootstrapClustererTest::testSeparate() {
 
     LOG_DEBUG(<< "errors = " << errors);
     LOG_DEBUG(<< "quality = " << 1.0 - maths::CBasicStatistics::mean(quality));
-    CPPUNIT_ASSERT(errors < 4);
-    CPPUNIT_ASSERT(1.0 - maths::CBasicStatistics::mean(quality) > 0.99);
+    BOOST_TEST_REQUIRE(errors < 4);
+    BOOST_TEST_REQUIRE(1.0 - maths::CBasicStatistics::mean(quality) > 0.99);
 }
 
-void CBootstrapClustererTest::testThickets() {
+BOOST_AUTO_TEST_CASE(testThickets) {
     // Test we find the correct thickets in a graph with two
     // components and three cliques.
 
     test::CRandomNumbers rng;
 
-    const std::size_t trials = 10u;
+    const std::size_t trials = 10;
 
     TSizeVec splits1;
     rng.generateUniformSamples(5, 15, trials, splits1);
@@ -428,8 +437,8 @@ void CBootstrapClustererTest::testThickets() {
     int error = 0;
 
     TMeanAccumulator meanJaccard;
-    for (std::size_t t = 0u; t < trials; ++t) {
-        std::size_t v = 40u;
+    for (std::size_t t = 0; t < trials; ++t) {
+        std::size_t v = 40;
 
         TGraph graph(v);
 
@@ -439,7 +448,7 @@ void CBootstrapClustererTest::testThickets() {
         clique(k[1], v, graph);
 
         TSizeVecVec expectedClusters(3);
-        for (std::size_t i = 0u; i < v; ++i) {
+        for (std::size_t i = 0; i < v; ++i) {
             if (i < k[0]) {
                 expectedClusters[0].push_back(i);
             } else if (i < k[1]) {
@@ -475,11 +484,11 @@ void CBootstrapClustererTest::testThickets() {
             }
             std::sort(clusters.begin(), clusters.end());
 
-            for (std::size_t i = 0u; i < 3; ++i) {
+            for (std::size_t i = 0; i < 3; ++i) {
                 double jaccard = maths::CSetTools::jaccard(
                     expectedClusters[i].begin(), expectedClusters[i].end(),
                     clusters[i].begin(), clusters[i].end());
-                CPPUNIT_ASSERT(jaccard > 0.8);
+                BOOST_TEST_REQUIRE(jaccard > 0.8);
                 meanJaccard.add(jaccard);
             }
         }
@@ -487,11 +496,11 @@ void CBootstrapClustererTest::testThickets() {
 
     LOG_DEBUG(<< "error = " << error);
     LOG_DEBUG(<< "mean Jaccard = " << maths::CBasicStatistics::mean(meanJaccard));
-    CPPUNIT_ASSERT(error < 2);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanJaccard) > 0.99);
+    BOOST_TEST_REQUIRE(error < 2);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanJaccard) > 0.99);
 }
 
-void CBootstrapClustererTest::testNonConvexClustering() {
+BOOST_AUTO_TEST_CASE(testNonConvexClustering) {
     // Check the improvement in clustering when the underlying
     // assumptions of x-means (specifically cluster convexness
     // and Gaussian noise) are violated.
@@ -539,7 +548,7 @@ void CBootstrapClustererTest::testNonConvexClustering() {
     std::size_t clusters[] = {0, 31, 62, boost::size(x)};
 
     TSizeVecVec perfect(3);
-    for (std::size_t i = 1u; i < boost::size(clusters); ++i) {
+    for (std::size_t i = 1; i < boost::size(clusters); ++i) {
         for (std::size_t j = clusters[i - 1]; j < clusters[i]; ++j) {
             perfect[i - 1].push_back(j);
         }
@@ -559,13 +568,13 @@ void CBootstrapClustererTest::testNonConvexClustering() {
     TVector2Vec flatPoints;
     TVector2SizeUMap lookup;
     TDoubleVec noise;
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "Trial " << t);
 
         flatPoints.clear();
         lookup.clear();
         rng.generateUniformSamples(0, 4.0, 2 * boost::size(x), noise);
-        for (std::size_t i = 0u; i < boost::size(x); ++i) {
+        for (std::size_t i = 0; i < boost::size(x); ++i) {
             TVector2 point(&x[i][0], &x[i][2]);
             point(0) += noise[2 * i];
             point(1) += noise[2 * i + 1];
@@ -584,19 +593,19 @@ void CBootstrapClustererTest::testNonConvexClustering() {
                                 bootstrapClusters);
 
         bootstrap.resize(bootstrapClusters.size());
-        for (std::size_t i = 0u; i < bootstrapClusters.size(); ++i) {
+        for (std::size_t i = 0; i < bootstrapClusters.size(); ++i) {
             bootstrap[i].clear();
-            for (std::size_t j = 0u; j < bootstrapClusters[i].size(); ++j) {
+            for (std::size_t j = 0; j < bootstrapClusters[i].size(); ++j) {
                 auto k = lookup.find(bootstrapClusters[i][j]);
-                CPPUNIT_ASSERT(k != lookup.end());
+                BOOST_TEST_REQUIRE(k != lookup.end());
                 bootstrap[i].push_back(k->second);
             }
             std::sort(bootstrap[i].begin(), bootstrap[i].end());
         }
         TDoubleVec jaccard;
-        for (std::size_t i = 0u; i < perfect.size(); ++i) {
+        for (std::size_t i = 0; i < perfect.size(); ++i) {
             double jmax = 0.0;
-            for (std::size_t j = 0u; j < bootstrap.size(); ++j) {
+            for (std::size_t j = 0; j < bootstrap.size(); ++j) {
                 jmax = std::max(jmax, maths::CSetTools::jaccard(
                                           bootstrap[j].begin(), bootstrap[j].end(),
                                           perfect[i].begin(), perfect[i].end()));
@@ -614,19 +623,19 @@ void CBootstrapClustererTest::testNonConvexClustering() {
                    improveStructureKmeansIterations);
 
         vanilla.resize(xmeans.clusters().size());
-        for (std::size_t i = 0u; i < xmeans.clusters().size(); ++i) {
+        for (std::size_t i = 0; i < xmeans.clusters().size(); ++i) {
             vanilla[i].clear();
-            for (std::size_t j = 0u; j < xmeans.clusters()[i].points().size(); ++j) {
+            for (std::size_t j = 0; j < xmeans.clusters()[i].points().size(); ++j) {
                 auto k = lookup.find(xmeans.clusters()[i].points()[j]);
-                CPPUNIT_ASSERT(k != lookup.end());
+                BOOST_TEST_REQUIRE(k != lookup.end());
                 vanilla[i].push_back(k->second);
             }
             std::sort(vanilla[i].begin(), vanilla[i].end());
         }
         jaccard.clear();
-        for (std::size_t i = 0u; i < perfect.size(); ++i) {
+        for (std::size_t i = 0; i < perfect.size(); ++i) {
             double jmax = 0.0;
-            for (std::size_t j = 0u; j < vanilla.size(); ++j) {
+            for (std::size_t j = 0; j < vanilla.size(); ++j) {
                 jmax = std::max(jmax, maths::CSetTools::jaccard(
                                           vanilla[j].begin(), vanilla[j].end(),
                                           perfect[i].begin(), perfect[i].end()));
@@ -648,15 +657,15 @@ void CBootstrapClustererTest::testNonConvexClustering() {
     LOG_DEBUG(<< "# clusters vanilla   = "
               << maths::CBasicStatistics::mean(numberClustersVanilla));
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         1.0, maths::CBasicStatistics::mean(jaccardBootstrapToPerfect), 0.1);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         3.0, maths::CBasicStatistics::mean(numberClustersBootstrap), 0.6);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(jaccardBootstrapToPerfect) >
-                   maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(jaccardBootstrapToPerfect) >
+                       maths::CBasicStatistics::mean(jaccardVanillaToPerfect));
 }
 
-void CBootstrapClustererTest::testClusteringStability() {
+BOOST_AUTO_TEST_CASE(testClusteringStability) {
     // Test that when we think there is sufficient certainty
     // to create clusters the assignment of points to clusters
     // is stable over multiple samplings of the data.
@@ -677,10 +686,10 @@ void CBootstrapClustererTest::testClusteringStability() {
     maths::CSampling::multivariateNormalSample(m2, v2, 50, points2);
 
     TSizeVecVec perfect(2);
-    for (std::size_t i = 0u; i < points1.size(); ++i) {
+    for (std::size_t i = 0; i < points1.size(); ++i) {
         perfect[0].push_back(i);
     }
-    for (std::size_t i = 0u; i < points2.size(); ++i) {
+    for (std::size_t i = 0; i < points2.size(); ++i) {
         perfect[1].push_back(points1.size() + i);
     }
 
@@ -691,13 +700,13 @@ void CBootstrapClustererTest::testClusteringStability() {
     points.insert(points.end(), points2.begin(), points2.end());
 
     TVector2SizeUMap lookup;
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    for (std::size_t i = 0; i < points.size(); ++i) {
         lookup[points[i]] = i;
     }
 
     TSizeVecVec clusterCounts(perfect.size(), TSizeVec(points.size(), 0));
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "Trial " << t);
 
         rng.random_shuffle(points1.begin(), points1.end());
@@ -722,28 +731,28 @@ void CBootstrapClustererTest::testClusteringStability() {
         LOG_DEBUG(<< "# clusters = " << bootstrapClusters.size());
         if (bootstrapClusters.size() > 1) {
             bootstrap.resize(bootstrapClusters.size());
-            for (std::size_t i = 0u; i < bootstrapClusters.size(); ++i) {
+            for (std::size_t i = 0; i < bootstrapClusters.size(); ++i) {
                 bootstrap[i].clear();
-                for (std::size_t j = 0u; j < bootstrapClusters[i].size(); ++j) {
+                for (std::size_t j = 0; j < bootstrapClusters[i].size(); ++j) {
                     auto k = lookup.find(bootstrapClusters[i][j]);
-                    CPPUNIT_ASSERT(k != lookup.end());
+                    BOOST_TEST_REQUIRE(k != lookup.end());
                     bootstrap[i].push_back(k->second);
                 }
                 std::sort(bootstrap[i].begin(), bootstrap[i].end());
             }
 
             LOG_DEBUG(<< "clusters = " << core::CContainerPrinter::print(bootstrap));
-            for (std::size_t i = 0u; i < bootstrap.size(); ++i) {
+            for (std::size_t i = 0; i < bootstrap.size(); ++i) {
                 double Jmax = 0.0;
                 std::size_t cluster = 0;
-                for (std::size_t j = 0u; j < perfect.size(); ++j) {
+                for (std::size_t j = 0; j < perfect.size(); ++j) {
                     double J = maths::CSetTools::jaccard(
                         bootstrap[i].begin(), bootstrap[i].end(),
                         perfect[j].begin(), perfect[j].end());
                     boost::tie(Jmax, cluster) = std::max(
                         std::make_pair(Jmax, cluster), std::make_pair(J, j));
                 }
-                for (std::size_t j = 0u; j < bootstrap[i].size(); ++j) {
+                for (std::size_t j = 0; j < bootstrap[i].size(); ++j) {
                     ++clusterCounts[cluster][bootstrap[i][j]];
                 }
             }
@@ -751,7 +760,7 @@ void CBootstrapClustererTest::testClusteringStability() {
     }
 
     TDoubleVec consistency(points.size(), 1.0);
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    for (std::size_t i = 0; i < points.size(); ++i) {
         double c0 = static_cast<double>(clusterCounts[0][i]);
         double c1 = static_cast<double>(clusterCounts[1][i]);
         if (c0 > 0.0 || c1 > 0.0) {
@@ -764,29 +773,7 @@ void CBootstrapClustererTest::testClusteringStability() {
     TMeanAccumulator meanConsistency;
     meanConsistency.add(consistency);
     LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanConsistency));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanConsistency) > 0.95);
 }
 
-CppUnit::Test* CBootstrapClustererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CBootstrapClustererTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testFacade", &CBootstrapClustererTest::testFacade));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testBuildClusterGraph",
-        &CBootstrapClustererTest::testBuildClusterGraph));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testCutSearch", &CBootstrapClustererTest::testCutSearch));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testSeparate", &CBootstrapClustererTest::testSeparate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testThickets", &CBootstrapClustererTest::testThickets));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testNonConvexClustering",
-        &CBootstrapClustererTest::testNonConvexClustering));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CBootstrapClustererTest>(
-        "CBootstrapClustererTest::testClusteringStability",
-        &CBootstrapClustererTest::testClusteringStability));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

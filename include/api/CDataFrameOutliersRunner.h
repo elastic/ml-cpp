@@ -1,15 +1,20 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_api_CDataFrameOutliersRunner_h
 #define INCLUDED_ml_api_CDataFrameOutliersRunner_h
 
 #include <api/CDataFrameAnalysisConfigReader.h>
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
-
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -19,6 +24,14 @@ namespace api {
 
 //! \brief Runs outlier detection on a core::CDataFrame.
 class API_EXPORT CDataFrameOutliersRunner final : public CDataFrameAnalysisRunner {
+public:
+    static const std::string STANDARDIZATION_ENABLED;
+    static const std::string N_NEIGHBORS;
+    static const std::string METHOD;
+    static const std::string COMPUTE_FEATURE_INFLUENCE;
+    static const std::string FEATURE_INFLUENCE_THRESHOLD;
+    static const std::string OUTLIER_FRACTION;
+
 public:
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
@@ -30,10 +43,21 @@ public:
     //! \return The number of columns this adds to the data frame.
     std::size_t numberExtraColumns() const override;
 
+    //! \return The capacity of the data frame slice to use.
+    std::size_t dataFrameSliceCapacity() const override;
+
     //! Write the extra columns of \p row added by outlier analysis to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
+
+    //! Validate if \p frame is suitable for running the analysis on.
+    bool validate(const core::CDataFrame& frame) const override;
+
+    //! \return Reference to the analysis state.
+    const CDataFrameAnalysisInstrumentation& instrumentation() const override;
+    //! \return Reference to the analysis state.
+    CDataFrameAnalysisInstrumentation& instrumentation() override;
 
 private:
     void runImpl(core::CDataFrame& frame) override;
@@ -67,15 +91,17 @@ private:
     //! The fraction of true outliers amoung the points.
     double m_OutlierFraction = 0.05;
     //@}
+
+    CDataFrameOutliersInstrumentation m_Instrumentation;
 };
 
 //! \brief Makes a core::CDataFrame outlier analysis runner.
 class API_EXPORT CDataFrameOutliersRunnerFactory final : public CDataFrameAnalysisRunnerFactory {
 public:
-    const std::string& name() const override;
-
-private:
     static const std::string NAME;
+
+public:
+    const std::string& name() const override;
 
 private:
     TRunnerUPtr makeImpl(const CDataFrameAnalysisSpecification& spec) const override;

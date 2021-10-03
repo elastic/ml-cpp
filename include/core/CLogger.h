@@ -1,11 +1,17 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CLogger_h
 #define INCLUDED_ml_core_CLogger_h
 
+#include <core/CLoggerThrottler.h>
 #include <core/CNamedPipeFactory.h>
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
@@ -13,12 +19,11 @@
 
 #include <boost/log/sources/severity_logger.hpp>
 
+#include <atomic>
 #include <functional>
 #include <iosfwd>
 
 #include <stdio.h> // fileno() is not C++ so need the C header
-
-class CLoggerTest;
 
 namespace ml {
 namespace core {
@@ -92,11 +97,22 @@ public:
     //! If both are supplied the named pipe takes precedence.
     bool reconfigure(const std::string& pipeName, const std::string& propertiesFile);
 
+    //! As above, but with a flag to indicate named pipe connection attempts
+    //! should be cancelled.
+    bool reconfigure(const std::string& pipeName,
+                     const std::string& propertiesFile,
+                     const std::atomic_bool& isCancelled);
+
     //! Reconfigure to use provided stream.
     bool reconfigure(boost::shared_ptr<std::ostream> streamPtr);
 
     //! Tell the logger to log to a named pipe rather than a file.
     bool reconfigureLogToNamedPipe(const std::string& pipeName);
+
+    //! As above, but with a flag to indicate named pipe connection attempts
+    //! should be cancelled.
+    bool reconfigureLogToNamedPipe(const std::string& pipeName,
+                                   const std::atomic_bool& isCancelled);
 
     //! Tell the logger to reconfigure itself by reading a specified
     //! properties file, if the file exists.
@@ -125,7 +141,7 @@ public:
     //! Access to underlying logger (must only be called from macros)
     TLevelSeverityLogger& logger();
 
-    //! Throw a fatal exception
+    //! Terminate the program.
     [[noreturn]] static void fatal();
 
     //! Register a new global fatal error handler.
@@ -150,6 +166,9 @@ public:
     //! CLogger is a singleton, so we can not just create new instances
     void reset();
 
+    //! Get the object which performs log throttling.
+    CLoggerThrottler& throttler();
+
 private:
     //! Constructor for a singleton is private.
     CLogger();
@@ -165,11 +184,8 @@ private:
 private:
     TLevelSeverityLogger m_Logger;
 
-    //! Has the logger ever been reconfigured?  This is not protected by a
-    //! lock despite the fact that it may be accessed from different
-    //! threads.  It is declared volatile to prevent the compiler optimising
-    //! away reads of it.
-    volatile bool m_Reconfigured;
+    //! Has the logger ever been reconfigured?
+    std::atomic_bool m_Reconfigured;
 
     //! Custom Boost.Log attribute names
     boost::log::attribute_name m_FileAttributeName;
@@ -187,8 +203,8 @@ private:
     //! The default handler for fatal errors.
     TFatalErrorHandler m_FatalErrorHandler;
 
-    //! friend class for testing
-    friend class ::CLoggerTest;
+    //! The log throttler.
+    CLoggerThrottler m_Throttler;
 };
 
 CORE_EXPORT std::ostream& operator<<(std::ostream& strm, CLogger::ELevel level);

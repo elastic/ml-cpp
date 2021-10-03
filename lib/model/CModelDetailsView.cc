@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CModelDetailsView.h>
@@ -84,10 +89,11 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
         std::size_t dimension = model_t::dimension(feature);
         time = model_t::sampleTime(feature, time, model->params().bucketLength());
 
-        maths_t::TDouble2VecWeightsAry weights(
-            maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-        maths_t::setSeasonalVarianceScale(
-            model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
+        maths_t::TDouble2VecWeightsAry weights{
+            maths_t::CUnitWeights::unit<TDouble2Vec>(dimension)};
+        TDouble2Vec seasonalWeight;
+        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, seasonalWeight);
+        maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
         maths_t::setCountVarianceScale(
             TDouble2Vec(dimension, this->countVarianceScale(feature, byFieldId, time)), weights);
 
@@ -133,10 +139,10 @@ void CModelDetailsView::addCurrentBucketValues(core_t::TTime time,
     };
 
     if (model_t::includeEmptyBuckets(feature)) {
-        for (std::size_t pid = 0u; pid < gatherer.numberPeople(); ++pid) {
+        for (std::size_t pid = 0; pid < gatherer.numberPeople(); ++pid) {
             if (gatherer.isPersonActive(pid)) {
                 if (isPopulation) {
-                    for (std::size_t cid = 0u; cid < gatherer.numberAttributes(); ++cid) {
+                    for (std::size_t cid = 0; cid < gatherer.numberAttributes(); ++cid) {
                         if (gatherer.isAttributeActive(cid)) {
                             addCurrentBucketValue(pid, cid);
                         }

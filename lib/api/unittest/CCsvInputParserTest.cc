@@ -1,9 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CCsvInputParserTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -14,38 +18,29 @@
 
 #include <api/CCsvInputParser.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <algorithm>
 #include <fstream>
 #include <functional>
+#include <sstream>
 #include <vector>
 
-CppUnit::Test* CCsvInputParserTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CCsvInputParserTest");
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVec::iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVec::const_iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrStrUMap::const_iterator)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testSimpleDelims", &CCsvInputParserTest::testSimpleDelims));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testComplexDelims", &CCsvInputParserTest::testComplexDelims));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testThroughput", &CCsvInputParserTest::testThroughput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testDateParse", &CCsvInputParserTest::testDateParse));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testQuoteParsing", &CCsvInputParserTest::testQuoteParsing));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CCsvInputParserTest>(
-        "CCsvInputParserTest::testLineParser", &CCsvInputParserTest::testLineParser));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE(CCsvInputParserTest)
 
 namespace {
 
 class CVisitor {
 public:
-    CVisitor() : m_Fast(true), m_RecordCount(0) {}
+    CVisitor() : m_Fast{true}, m_RecordCount{0} {}
 
-    CVisitor(const ml::api::CCsvInputParser::TStrVec& expectedFieldNames)
-        : m_Fast(false), m_RecordCount(0), m_ExpectedFieldNames(expectedFieldNames) {}
+    CVisitor(ml::api::CCsvInputParser::TStrVec expectedFieldNames)
+        : m_Fast{false}, m_RecordCount{0}, m_ExpectedFieldNames{std::move(expectedFieldNames)} {
+    }
 
     //! Reset the record count ready for another run
     void reset() { m_RecordCount = 0; }
@@ -64,23 +59,23 @@ public:
         for (const auto& entry : dataRowFields) {
             auto iter = std::find(m_ExpectedFieldNames.begin(),
                                   m_ExpectedFieldNames.end(), entry.first);
-            CPPUNIT_ASSERT(iter != m_ExpectedFieldNames.end());
+            BOOST_TEST_REQUIRE(iter != m_ExpectedFieldNames.end());
         }
 
-        CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
+        BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
 
         // Check the line count is consistent with the _raw field
-        ml::api::CCsvInputParser::TStrStrUMapCItr rawIter = dataRowFields.find("_raw");
-        CPPUNIT_ASSERT(rawIter != dataRowFields.end());
-        ml::api::CCsvInputParser::TStrStrUMapCItr lineCountIter =
-            dataRowFields.find("linecount");
-        CPPUNIT_ASSERT(lineCountIter != dataRowFields.end());
+        auto rawIter = dataRowFields.find("_raw");
+        BOOST_TEST_REQUIRE(rawIter != dataRowFields.end());
+        auto lineCountIter = dataRowFields.find("linecount");
+        BOOST_TEST_REQUIRE(lineCountIter != dataRowFields.end());
 
-        size_t expectedLineCount(1 + std::count(rawIter->second.begin(),
-                                                rawIter->second.end(), '\n'));
-        size_t lineCount(0);
-        CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
-        CPPUNIT_ASSERT_EQUAL(expectedLineCount, lineCount);
+        std::size_t expectedLineCount{
+            1 + static_cast<std::size_t>(std::count(rawIter->second.begin(),
+                                                    rawIter->second.end(), '\n'))};
+        std::size_t lineCount{0};
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
+        BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
         return true;
     }
@@ -97,32 +92,33 @@ public:
         }
 
         // Check the field names
-        CPPUNIT_ASSERT_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
-                             ml::core::CContainerPrinter::print(fieldNames));
+        BOOST_REQUIRE_EQUAL(ml::core::CContainerPrinter::print(m_ExpectedFieldNames),
+                            ml::core::CContainerPrinter::print(fieldNames));
 
-        CPPUNIT_ASSERT_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
+        BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), fieldValues.size());
 
         // Check the line count is consistent with the _raw field
         auto rawIter = std::find(fieldNames.begin(), fieldNames.end(), "_raw");
-        CPPUNIT_ASSERT(rawIter != fieldNames.end());
+        BOOST_TEST_REQUIRE(rawIter != fieldNames.end());
         auto lineCountIter = std::find(fieldNames.begin(), fieldNames.end(), "linecount");
-        CPPUNIT_ASSERT(lineCountIter != fieldNames.end());
+        BOOST_TEST_REQUIRE(lineCountIter != fieldNames.end());
 
-        const std::string& rawStr = fieldValues[rawIter - fieldNames.begin()];
-        std::size_t expectedLineCount(1 + std::count(rawStr.begin(), rawStr.end(), '\n'));
-        std::size_t lineCount(0);
-        const std::string& lineCountStr = fieldValues[lineCountIter - fieldNames.begin()];
-        CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
-        CPPUNIT_ASSERT_EQUAL(expectedLineCount, lineCount);
+        const std::string& rawStr{fieldValues[rawIter - fieldNames.begin()]};
+        std::size_t expectedLineCount{
+            1 + static_cast<std::size_t>(std::count(rawStr.begin(), rawStr.end(), '\n'))};
+        std::size_t lineCount{0};
+        const std::string& lineCountStr{fieldValues[lineCountIter - fieldNames.begin()]};
+        BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
+        BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
         return true;
     }
 
-    size_t recordCount() const { return m_RecordCount; }
+    std::size_t recordCount() const { return m_RecordCount; }
 
 private:
     bool m_Fast;
-    size_t m_RecordCount;
+    std::size_t m_RecordCount;
     ml::api::CCsvInputParser::TStrVec m_ExpectedFieldNames;
 };
 
@@ -134,40 +130,40 @@ public:
     CTimeCheckingVisitor(const std::string& timeField,
                          const std::string& timeFormat,
                          const TTimeVec& expectedTimes)
-        : m_RecordCount(0), m_TimeField(timeField), m_TimeFormat(timeFormat),
-          m_ExpectedTimes(expectedTimes) {}
+        : m_RecordCount{0}, m_TimeField{timeField}, m_TimeFormat{timeFormat}, m_ExpectedTimes{expectedTimes} {
+    }
 
     //! Handle a record
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         // Check the time field exists
-        CPPUNIT_ASSERT(m_RecordCount < m_ExpectedTimes.size());
+        BOOST_TEST_REQUIRE(m_RecordCount < m_ExpectedTimes.size());
 
         auto iter = dataRowFields.find(m_TimeField);
-        CPPUNIT_ASSERT(iter != dataRowFields.end());
+        BOOST_TEST_REQUIRE(iter != dataRowFields.end());
 
         // Now check the actual time
-        ml::api::CCsvInputParser::TStrStrUMapCItr fieldIter = dataRowFields.find(m_TimeField);
-        CPPUNIT_ASSERT(fieldIter != dataRowFields.end());
-        ml::core_t::TTime timeVal(0);
+        auto fieldIter = dataRowFields.find(m_TimeField);
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
+        ml::core_t::TTime timeVal{0};
         if (m_TimeFormat.empty()) {
-            CPPUNIT_ASSERT(ml::core::CStringUtils::stringToType(fieldIter->second, timeVal));
+            BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(fieldIter->second, timeVal));
         } else {
-            CPPUNIT_ASSERT(ml::core::CTimeUtils::strptime(
+            BOOST_TEST_REQUIRE(ml::core::CTimeUtils::strptime(
                 m_TimeFormat, fieldIter->second, timeVal));
             LOG_DEBUG(<< "Converted " << fieldIter->second << " to " << timeVal
                       << " using format " << m_TimeFormat);
         }
-        CPPUNIT_ASSERT_EQUAL(m_ExpectedTimes[m_RecordCount], timeVal);
+        BOOST_REQUIRE_EQUAL(m_ExpectedTimes[m_RecordCount], timeVal);
 
         ++m_RecordCount;
 
         return true;
     }
 
-    size_t recordCount() const { return m_RecordCount; }
+    std::size_t recordCount() const { return m_RecordCount; }
 
 private:
-    size_t m_RecordCount;
+    std::size_t m_RecordCount;
     std::string m_TimeField;
     std::string m_TimeFormat;
     TTimeVec m_ExpectedTimes;
@@ -175,138 +171,98 @@ private:
 
 class CQuoteCheckingVisitor {
 public:
-    CQuoteCheckingVisitor() : m_RecordCount(0) {}
+    CQuoteCheckingVisitor() : m_RecordCount{0} {}
 
     //! Handle a record
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         // Now check quoted fields
-        ml::api::CCsvInputParser::TStrStrUMapCItr fieldIter = dataRowFields.find("q1");
-        CPPUNIT_ASSERT(fieldIter != dataRowFields.end());
-        CPPUNIT_ASSERT_EQUAL(std::string(""), fieldIter->second);
+        auto fieldIter = dataRowFields.find("q1");
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
+        BOOST_REQUIRE_EQUAL(std::string(""), fieldIter->second);
 
         fieldIter = dataRowFields.find("q2");
-        CPPUNIT_ASSERT(fieldIter != dataRowFields.end());
-        CPPUNIT_ASSERT_EQUAL(std::string(""), fieldIter->second);
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
+        BOOST_REQUIRE_EQUAL(std::string(""), fieldIter->second);
 
         fieldIter = dataRowFields.find("q3");
-        CPPUNIT_ASSERT(fieldIter != dataRowFields.end());
-        CPPUNIT_ASSERT_EQUAL(std::string("\""), fieldIter->second);
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
+        BOOST_REQUIRE_EQUAL(std::string("\""), fieldIter->second);
 
         fieldIter = dataRowFields.find("q4");
-        CPPUNIT_ASSERT(fieldIter != dataRowFields.end());
-        CPPUNIT_ASSERT_EQUAL(std::string("\"\""), fieldIter->second);
+        BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
+        BOOST_REQUIRE_EQUAL(std::string("\"\""), fieldIter->second);
 
         ++m_RecordCount;
 
         return true;
     }
 
-    size_t recordCount() const { return m_RecordCount; }
+    std::size_t recordCount() const { return m_RecordCount; }
 
 private:
-    size_t m_RecordCount;
+    std::size_t m_RecordCount;
 };
 }
 
-void CCsvInputParserTest::testSimpleDelims() {
-    std::ifstream simpleStrm("testfiles/simple.txt");
-    CPPUNIT_ASSERT(simpleStrm.is_open());
+BOOST_AUTO_TEST_CASE(testSimpleDelims) {
+    std::ifstream simpleStrm{"testfiles/simple.txt"};
+    BOOST_TEST_REQUIRE(simpleStrm.is_open());
 
-    ml::api::CCsvInputParser::TStrVec expectedFieldNames;
-    expectedFieldNames.emplace_back("_cd");
-    expectedFieldNames.emplace_back("_indextime");
-    expectedFieldNames.emplace_back("_kv");
-    expectedFieldNames.emplace_back("_raw");
-    expectedFieldNames.emplace_back("_serial");
-    expectedFieldNames.emplace_back("_si");
-    expectedFieldNames.emplace_back("_sourcetype");
-    expectedFieldNames.emplace_back("_time");
-    expectedFieldNames.emplace_back("date_hour");
-    expectedFieldNames.emplace_back("date_mday");
-    expectedFieldNames.emplace_back("date_minute");
-    expectedFieldNames.emplace_back("date_month");
-    expectedFieldNames.emplace_back("date_second");
-    expectedFieldNames.emplace_back("date_wday");
-    expectedFieldNames.emplace_back("date_year");
-    expectedFieldNames.emplace_back("date_zone");
-    expectedFieldNames.emplace_back("eventtype");
-    expectedFieldNames.emplace_back("host");
-    expectedFieldNames.emplace_back("index");
-    expectedFieldNames.emplace_back("linecount");
-    expectedFieldNames.emplace_back("punct");
-    expectedFieldNames.emplace_back("source");
-    expectedFieldNames.emplace_back("sourcetype");
-    expectedFieldNames.emplace_back("server");
-    expectedFieldNames.emplace_back("timeendpos");
-    expectedFieldNames.emplace_back("timestartpos");
+    ml::api::CCsvInputParser::TStrVec expectedFieldNames{
+        "_cd",         "_indextime",  "_kv",         "_raw",      "_serial",
+        "_si",         "_sourcetype", "_time",       "date_hour", "date_mday",
+        "date_minute", "date_month",  "date_second", "date_wday", "date_year",
+        "date_zone",   "eventtype",   "host",        "index",     "linecount",
+        "punct",       "source",      "sourcetype",  "server",    "timeendpos",
+        "timestartpos"};
 
-    CVisitor visitor(expectedFieldNames);
+    CVisitor visitor{expectedFieldNames};
 
     // First read to a map
-    ml::api::CCsvInputParser parser1(simpleStrm);
-    CPPUNIT_ASSERT(parser1.readStreamIntoMaps(std::ref(visitor)));
-    CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
+    ml::api::CCsvInputParser parser1{simpleStrm};
+    BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_REQUIRE_EQUAL(15, visitor.recordCount());
 
     // Now re-read to vectors
     simpleStrm.clear();
     simpleStrm.seekg(0);
     visitor.reset();
 
-    ml::api::CCsvInputParser parser2(simpleStrm);
-    CPPUNIT_ASSERT(parser2.readStreamIntoVecs(std::ref(visitor)));
-    CPPUNIT_ASSERT_EQUAL(size_t(15), visitor.recordCount());
+    ml::api::CCsvInputParser parser2{simpleStrm};
+    BOOST_TEST_REQUIRE(parser2.readStreamIntoVecs(std::ref(visitor)));
+    BOOST_REQUIRE_EQUAL(15, visitor.recordCount());
 }
 
-void CCsvInputParserTest::testComplexDelims() {
-    std::ifstream complexStrm("testfiles/complex.txt");
-    CPPUNIT_ASSERT(complexStrm.is_open());
+BOOST_AUTO_TEST_CASE(testComplexDelims) {
+    std::ifstream complexStrm{"testfiles/complex.txt"};
+    BOOST_TEST_REQUIRE(complexStrm.is_open());
 
-    ml::api::CCsvInputParser::TStrVec expectedFieldNames;
-    expectedFieldNames.emplace_back("_cd");
-    expectedFieldNames.emplace_back("_indextime");
-    expectedFieldNames.emplace_back("_kv");
-    expectedFieldNames.emplace_back("_raw");
-    expectedFieldNames.emplace_back("_serial");
-    expectedFieldNames.emplace_back("_si");
-    expectedFieldNames.emplace_back("_sourcetype");
-    expectedFieldNames.emplace_back("_time");
-    expectedFieldNames.emplace_back("date_hour");
-    expectedFieldNames.emplace_back("date_mday");
-    expectedFieldNames.emplace_back("date_minute");
-    expectedFieldNames.emplace_back("date_month");
-    expectedFieldNames.emplace_back("date_second");
-    expectedFieldNames.emplace_back("date_wday");
-    expectedFieldNames.emplace_back("date_year");
-    expectedFieldNames.emplace_back("date_zone");
-    expectedFieldNames.emplace_back("eventtype");
-    expectedFieldNames.emplace_back("host");
-    expectedFieldNames.emplace_back("index");
-    expectedFieldNames.emplace_back("linecount");
-    expectedFieldNames.emplace_back("punct");
-    expectedFieldNames.emplace_back("source");
-    expectedFieldNames.emplace_back("sourcetype");
-    expectedFieldNames.emplace_back("server");
-    expectedFieldNames.emplace_back("timeendpos");
-    expectedFieldNames.emplace_back("timestartpos");
+    ml::api::CCsvInputParser::TStrVec expectedFieldNames{
+        "_cd",         "_indextime",  "_kv",         "_raw",      "_serial",
+        "_si",         "_sourcetype", "_time",       "date_hour", "date_mday",
+        "date_minute", "date_month",  "date_second", "date_wday", "date_year",
+        "date_zone",   "eventtype",   "host",        "index",     "linecount",
+        "punct",       "source",      "sourcetype",  "server",    "timeendpos",
+        "timestartpos"};
 
-    CVisitor visitor(expectedFieldNames);
+    CVisitor visitor{expectedFieldNames};
 
     // First read to a map
-    ml::api::CCsvInputParser parser1(complexStrm);
-    CPPUNIT_ASSERT(parser1.readStreamIntoMaps(std::ref(visitor)));
+    ml::api::CCsvInputParser parser1{complexStrm};
+    BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::ref(visitor)));
 
     // Now re-read to vectors
     complexStrm.clear();
     complexStrm.seekg(0);
     visitor.reset();
 
-    ml::api::CCsvInputParser parser2(complexStrm);
-    CPPUNIT_ASSERT(parser2.readStreamIntoVecs(std::ref(visitor)));
+    ml::api::CCsvInputParser parser2{complexStrm};
+    BOOST_TEST_REQUIRE(parser2.readStreamIntoVecs(std::ref(visitor)));
 }
 
-void CCsvInputParserTest::testThroughput() {
-    std::ifstream ifs("testfiles/simple.txt");
-    CPPUNIT_ASSERT(ifs.is_open());
+BOOST_AUTO_TEST_CASE(testThroughput) {
+    std::ifstream ifs{"testfiles/simple.txt"};
+    BOOST_TEST_REQUIRE(ifs.is_open());
 
     std::string line;
 
@@ -317,7 +273,7 @@ void CCsvInputParserTest::testThroughput() {
     }
 
     std::string restOfFile;
-    size_t nonHeaderLines(0);
+    std::size_t nonHeaderLines{0};
     while (std::getline(ifs, line).good()) {
         if (line.empty()) {
             break;
@@ -328,190 +284,126 @@ void CCsvInputParserTest::testThroughput() {
     }
 
     // Assume there are two lines per record in the input file
-    CPPUNIT_ASSERT((nonHeaderLines % 2) == 0);
-    size_t recordsPerBlock(nonHeaderLines / 2);
+    BOOST_TEST_REQUIRE((nonHeaderLines % 2) == 0);
+    std::size_t recordsPerBlock{nonHeaderLines / 2};
 
     // Construct a large test input
-    static const size_t TEST_SIZE(10000);
-    std::string input(header);
-    for (size_t count = 0; count < TEST_SIZE; ++count) {
-        input += restOfFile;
+    static const std::size_t TEST_SIZE{10000};
+    std::stringstream input;
+    input << header;
+    for (std::size_t count = 0; count < TEST_SIZE; ++count) {
+        input << restOfFile;
     }
-    LOG_DEBUG(<< "Input size is " << input.length());
+    LOG_DEBUG(<< "Input size is " << input.tellp());
 
-    ml::api::CCsvInputParser parser(input);
+    ml::api::CCsvInputParser parser{input};
 
     CVisitor visitor;
 
-    ml::core_t::TTime start(ml::core::CTimeUtils::now());
+    ml::core_t::TTime start{ml::core::CTimeUtils::now()};
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
-    CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
 
-    ml::core_t::TTime end(ml::core::CTimeUtils::now());
+    ml::core_t::TTime end{ml::core::CTimeUtils::now()};
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
-    CPPUNIT_ASSERT_EQUAL(recordsPerBlock * TEST_SIZE, visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(recordsPerBlock * TEST_SIZE, visitor.recordCount());
 
     LOG_INFO(<< "Parsing " << visitor.recordCount() << " records took "
              << (end - start) << " seconds");
 }
 
-void CCsvInputParserTest::testDateParse() {
-    static const ml::core_t::TTime EXPECTED_TIMES[] = {
-        1359331200, 1359331200, 1359331207, 1359331220, 1359331259, 1359331262,
-        1359331269, 1359331270, 1359331272, 1359331296, 1359331301, 1359331311,
-        1359331314, 1359331315, 1359331316, 1359331321, 1359331328, 1359331333,
-        1359331349, 1359331352, 1359331370, 1359331382, 1359331385, 1359331386,
-        1359331395, 1359331404, 1359331416, 1359331416, 1359331424, 1359331429};
+BOOST_AUTO_TEST_CASE(testDateParse) {
 
-    CTimeCheckingVisitor::TTimeVec expectedTimes(std::begin(EXPECTED_TIMES),
-                                                 std::end(EXPECTED_TIMES));
+    CTimeCheckingVisitor::TTimeVec expectedTimes(
+        {1359331200, 1359331200, 1359331207, 1359331220, 1359331259,
+         1359331262, 1359331269, 1359331270, 1359331272, 1359331296,
+         1359331301, 1359331311, 1359331314, 1359331315, 1359331316,
+         1359331321, 1359331328, 1359331333, 1359331349, 1359331352,
+         1359331370, 1359331382, 1359331385, 1359331386, 1359331395,
+         1359331404, 1359331416, 1359331416, 1359331424, 1359331429});
 
     // Ensure we are in UK timewise
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("Europe/London"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("Europe/London"));
 
     {
-        std::ifstream csvStrm("testfiles/s.csv");
-        CPPUNIT_ASSERT(csvStrm.is_open());
+        std::ifstream csvStrm{"testfiles/s.csv"};
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("time", "", expectedTimes);
+        CTimeCheckingVisitor visitor{"time", "", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
     {
-        std::ifstream csvStrm("testfiles/bdYIMSp.csv");
-        CPPUNIT_ASSERT(csvStrm.is_open());
+        std::ifstream csvStrm{"testfiles/bdYIMSp.csv"};
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("date", "%b %d %Y %I:%M:%S %p", expectedTimes);
+        CTimeCheckingVisitor visitor{"date", "%b %d %Y %I:%M:%S %p", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
     {
-        std::ifstream csvStrm("testfiles/YmdHMS.csv");
-        CPPUNIT_ASSERT(csvStrm.is_open());
+        std::ifstream csvStrm{"testfiles/YmdHMS.csv"};
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("time", "%Y-%m-%d %H:%M:%S", expectedTimes);
+        CTimeCheckingVisitor visitor{"time", "%Y-%m-%d %H:%M:%S", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
     {
-        std::ifstream csvStrm("testfiles/YmdHMSZ_GMT.csv");
-        CPPUNIT_ASSERT(csvStrm.is_open());
+        std::ifstream csvStrm{"testfiles/YmdHMSZ_GMT.csv"};
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("mytime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes);
+        CTimeCheckingVisitor visitor{"mytime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
 
     // Switch to US Eastern time for this test
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone("America/New_York"));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("America/New_York"));
 
     {
-        std::ifstream csvStrm("testfiles/YmdHMSZ_EST.csv");
-        CPPUNIT_ASSERT(csvStrm.is_open());
+        std::ifstream csvStrm{"testfiles/YmdHMSZ_EST.csv"};
+        BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("datetime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes);
+        CTimeCheckingVisitor visitor{"datetime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
-        CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
 
     // Set the timezone back to nothing, i.e. let the operating system decide
     // what to use
-    CPPUNIT_ASSERT(ml::core::CTimezone::setTimezone(""));
+    BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone(""));
 }
 
-void CCsvInputParserTest::testQuoteParsing() {
+BOOST_AUTO_TEST_CASE(testQuoteParsing) {
     // Expect:
     // q1 =
     // q2 =
     // q3 = "
     // q4 = ""
-    std::string input("b,q1,q2,q3,q4,e\n"
-                      "x,,\"\",\"\"\"\",\"\"\"\"\"\",x\n");
+    std::stringstream input;
+    input << "b,q1,q2,q3,q4,e\n"
+             "x,,\"\",\"\"\"\",\"\"\"\"\"\",x\n";
 
-    ml::api::CCsvInputParser parser(input);
+    ml::api::CCsvInputParser parser{input};
 
     CQuoteCheckingVisitor visitor;
 
-    CPPUNIT_ASSERT(parser.readStreamIntoMaps(std::ref(visitor)));
+    BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
 
-    CPPUNIT_ASSERT_EQUAL(size_t(1), visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(1, visitor.recordCount());
 }
 
-void CCsvInputParserTest::testLineParser() {
-    ml::api::CCsvInputParser::CCsvLineParser lineParser;
-    std::string token;
-
-    {
-        std::string simple{"a,b,c"};
-        lineParser.reset(simple);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("a"), token);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("b"), token);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("c"), token);
-
-        CPPUNIT_ASSERT(lineParser.atEnd());
-        CPPUNIT_ASSERT(!lineParser.parseNext(token));
-    }
-    {
-        std::string quoted{"\"a,b,c\",b and some spaces,\"c quoted unecessarily\",\"d with a literal \"\"\""};
-        lineParser.reset(quoted);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("a,b,c"), token);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("b and some spaces"), token);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("c quoted unecessarily"), token);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("d with a literal \""), token);
-
-        CPPUNIT_ASSERT(lineParser.atEnd());
-        CPPUNIT_ASSERT(!lineParser.parseNext(token));
-    }
-    {
-        std::string cjk{"编码,コーディング,코딩"};
-        lineParser.reset(cjk);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("编码"), token);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("コーディング"), token);
-
-        CPPUNIT_ASSERT(!lineParser.atEnd());
-        CPPUNIT_ASSERT(lineParser.parseNext(token));
-        CPPUNIT_ASSERT_EQUAL(std::string("코딩"), token);
-
-        CPPUNIT_ASSERT(lineParser.atEnd());
-        CPPUNIT_ASSERT(!lineParser.parseNext(token));
-    }
-}
+BOOST_AUTO_TEST_SUITE_END()

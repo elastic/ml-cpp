@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CAdaptiveBucketing.h>
@@ -13,8 +18,10 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
+#include <maths/CSpline.h>
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
 
@@ -32,17 +39,63 @@ namespace ml {
 namespace maths {
 namespace {
 
+using TSpline = CSpline<>;
 using TSizeVec = std::vector<std::size_t>;
 using TFloatUInt32Pr = std::pair<CFloatStorage, std::uint32_t>;
 
+//! \brief Used to keep track of continguous points after spreading.
+class MATHS_EXPORT CContinugousPoints {
+public:
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+public:
+    explicit CContinugousPoints(double point) { m_Centre.add(point); }
+
+    std::size_t size() const {
+        return static_cast<std::size_t>(CBasicStatistics::count(m_Centre));
+    }
+
+    double centre() const { return CBasicStatistics::mean(m_Centre); }
+
+    double location(std::size_t j, double separation) const {
+        return CBasicStatistics::mean(m_Centre) +
+               static_cast<double>(j) * separation - this->radius(separation);
+    }
+
+    bool overlap(const CContinugousPoints& other, double separation) const {
+        double left{CBasicStatistics::mean(m_Centre)};
+        double right{CBasicStatistics::mean(other.m_Centre)};
+        return std::fabs(right - left) <
+               this->radius(separation) + other.radius(separation) + separation;
+    }
+
+    void merge(const CContinugousPoints& other, double a, double b, double separation) {
+        m_Centre += other.m_Centre;
+        CBasicStatistics::moment<0>(m_Centre) =
+            this->truncate(CBasicStatistics::mean(m_Centre), a, b, separation);
+    }
+
+private:
+    double truncate(double point, double a, double b, double separation) const {
+        return CTools::truncate(point, a + this->radius(separation),
+                                b - this->radius(separation));
+    }
+    double radius(double separation) const {
+        return (CBasicStatistics::count(m_Centre) - 1.0) * separation / 2.0;
+    }
+
+private:
+    TMeanAccumulator m_Centre;
+};
+
 //! Convert to a delimited string.
-std::string significanceToDelimited(const TFloatUInt32Pr& value) {
+std::string pValueToDelimited(const TFloatUInt32Pr& value) {
     return value.first.toString() + CBasicStatistics::EXTERNAL_DELIMITER +
            core::CStringUtils::typeToString(value.second);
 }
 
 //! Initialize from a delimited string.
-bool significanceFromDelimited(const std::string& delimited, TFloatUInt32Pr& value) {
+bool pValueFromDelimited(const std::string& delimited, TFloatUInt32Pr& value) {
     std::size_t pos{delimited.find(CBasicStatistics::EXTERNAL_DELIMITER)};
     if (pos == std::string::npos) {
         LOG_ERROR(<< "Failed to delimiter in '" << delimited << "'");
@@ -74,13 +127,13 @@ const core::TPersistenceTag LARGE_ERROR_COUNTS_TAG{"f", "large_error_counts"};
 const core::TPersistenceTag TARGET_SIZE_TAG{"g", "target size"};
 const core::TPersistenceTag LAST_LARGE_ERROR_BUCKET_TAG{"h", "last_large_error_bucket"};
 const core::TPersistenceTag LAST_LARGE_ERROR_PERIOD_TAG{"i", "last_large_error_period"};
-const core::TPersistenceTag LARGE_ERROR_COUNT_SIGNIFICANCES_TAG{"j", "large_error_counts_significance"};
+const core::TPersistenceTag LARGE_ERROR_COUNT_P_VALUES_TAG{"j", "large_error_counts_p_values"};
 const core::TPersistenceTag MEAN_WEIGHT_TAG{"k", "mean weight"};
 const std::string EMPTY_STRING;
 
 const double SMOOTHING_FUNCTION[]{0.25, 0.5, 0.25};
 const std::size_t WIDTH{boost::size(SMOOTHING_FUNCTION) / 2};
-const double ALPHA{0.25};
+const double ALPHA{0.35};
 const double EPS{std::numeric_limits<double>::epsilon()};
 const double WEIGHTS[]{1.0, 1.0, 1.0, 0.75, 0.5};
 const double MINIMUM_DECAY_RATE{0.001};
@@ -112,8 +165,8 @@ bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE_BUILT_IN(TARGET_SIZE_TAG, m_TargetSize)
         RESTORE_BUILT_IN(LAST_LARGE_ERROR_BUCKET_TAG, m_LastLargeErrorBucket)
         RESTORE_BUILT_IN(LAST_LARGE_ERROR_PERIOD_TAG, m_LastLargeErrorPeriod)
-        RESTORE(LARGE_ERROR_COUNT_SIGNIFICANCES_TAG,
-                m_LargeErrorCountSignificances.fromDelimited(traverser.value(), significanceFromDelimited))
+        RESTORE(LARGE_ERROR_COUNT_P_VALUES_TAG,
+                m_LargeErrorCountPValues.fromDelimited(traverser.value(), pValueFromDelimited))
         RESTORE(MEAN_WEIGHT_TAG, m_MeanWeight.fromDelimited(traverser.value()))
         RESTORE(ENDPOINT_TAG, core::CPersistUtils::fromString(traverser.value(), m_Endpoints))
         RESTORE(CENTRES_TAG, core::CPersistUtils::fromString(traverser.value(), m_Centres))
@@ -130,7 +183,27 @@ bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
     if (m_LargeErrorCounts.empty()) {
         m_LargeErrorCounts.resize(m_Centres.size(), 0.0);
     }
+
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CAdaptiveBucketing::checkRestoredInvariants() const {
+
+    // Fail if the invariant "m_Endpoints.size() == m_Centres.size() + 1 or both empty"
+    // does not hold true.
+    if ((m_Endpoints.size() != m_Centres.size() + 1) &&
+        (m_Endpoints.empty() == false || m_Centres.empty() == false)) {
+        LOG_ABORT(<< "Invariance check failed: m_Endpoints.size() != m_Centres.size() + 1."
+                  << " [" << m_Endpoints.size() << " != " << m_Centres.size() + 1 << "]"
+                  << " && "
+                  << "(m_Endpoints.empty() == false || m_Centres.empty() == false)"
+                  << " [" << std::boolalpha << m_Endpoints.empty() << " || "
+                  << m_Centres.empty() << "]");
+    }
+
+    VIOLATES_INVARIANT(m_Centres.size(), !=, m_LargeErrorCounts.size());
 }
 
 void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -138,8 +211,8 @@ void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inse
     inserter.insertValue(TARGET_SIZE_TAG, m_TargetSize);
     inserter.insertValue(LAST_LARGE_ERROR_BUCKET_TAG, m_LastLargeErrorBucket);
     inserter.insertValue(LAST_LARGE_ERROR_PERIOD_TAG, m_LastLargeErrorPeriod);
-    inserter.insertValue(LARGE_ERROR_COUNT_SIGNIFICANCES_TAG,
-                         m_LargeErrorCountSignificances.toDelimited(significanceToDelimited));
+    inserter.insertValue(LARGE_ERROR_COUNT_P_VALUES_TAG,
+                         m_LargeErrorCountPValues.toDelimited(pValueToDelimited));
     inserter.insertValue(MEAN_WEIGHT_TAG, m_MeanWeight.toDelimited());
     inserter.insertValue(ENDPOINT_TAG, core::CPersistUtils::toString(m_Endpoints));
     inserter.insertValue(CENTRES_TAG, core::CPersistUtils::toString(m_Centres));
@@ -151,13 +224,13 @@ void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inse
                          m_MeanAbsDesiredDisplacement.toDelimited());
 }
 
-void CAdaptiveBucketing::swap(CAdaptiveBucketing& other) {
+void CAdaptiveBucketing::swap(CAdaptiveBucketing& other) noexcept {
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_MinimumBucketLength, other.m_MinimumBucketLength);
     std::swap(m_TargetSize, other.m_TargetSize);
     std::swap(m_LastLargeErrorBucket, other.m_LastLargeErrorBucket);
     std::swap(m_LastLargeErrorPeriod, other.m_LastLargeErrorPeriod);
-    std::swap(m_LargeErrorCountSignificances, other.m_LargeErrorCountSignificances);
+    std::swap(m_LargeErrorCountPValues, other.m_LargeErrorCountPValues);
     std::swap(m_MeanWeight, other.m_MeanWeight);
     m_Endpoints.swap(other.m_Endpoints);
     m_Centres.swap(other.m_Centres);
@@ -187,7 +260,7 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
     m_Endpoints.clear();
     m_Endpoints.reserve(n + 1);
     double width{(b - a) / static_cast<double>(n)};
-    for (std::size_t i = 0u; i < n + 1; ++i) {
+    for (std::size_t i = 0; i < n + 1; ++i) {
         m_Endpoints.push_back(a + static_cast<double>(i) * width);
     }
     m_Centres.clear();
@@ -201,28 +274,66 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
 void CAdaptiveBucketing::initialValues(core_t::TTime start,
                                        core_t::TTime end,
                                        const TFloatMeanAccumulatorVec& values) {
-    if (!this->initialized()) {
+    if (this->initialized() == false) {
         return;
     }
 
-    core_t::TTime size{static_cast<core_t::TTime>(values.size())};
-    core_t::TTime dT{(end - start) / size};
-    core_t::TTime dt{static_cast<core_t::TTime>(
-        CTools::truncate(m_MinimumBucketLength, 1.0, static_cast<double>(dT)))};
+    std::size_t n{values.size()};
+    core_t::TTime bucketLength{(end - start) / static_cast<core_t::TTime>(n)};
+    core_t::TTime dt{static_cast<core_t::TTime>(CTools::truncate(
+        m_MinimumBucketLength, 1.0, static_cast<double>(bucketLength)))};
+    core_t::TTime repeat{static_cast<core_t::TTime>(
+        m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0])};
 
-    double scale{std::pow(static_cast<double>(dt) / static_cast<double>(dT), 2.0)};
+    // Initialize splines for seed values:
+    //   - For missing bucket values we use linear interpolation.
+    //   - For intrabucket interpolation we use cubic spline interpolation.
+    //   - For value weights we use linear interpolation.
+    TDoubleVec knots;
+    TDoubleVec knotValues;
+    TDoubleVec knotWeights;
+    knots.reserve(values.size());
+    knotValues.reserve(values.size());
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (CBasicStatistics::count(values[i]) > 0.0) {
+            knots.push_back(static_cast<double>(start + bucketLength * i));
+            knotValues.push_back(CBasicStatistics::mean(values[i]));
+        }
+    }
+    TSpline interpolateMissingValues{TSpline::E_Linear};
+    if (knots.size() >= 2) {
+        interpolateMissingValues.interpolate(knots, knotValues, TSpline::E_Natural);
+    }
+    knots.resize(values.size());
+    knotValues.resize(values.size());
+    knotWeights.resize(values.size());
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        knots[i] = static_cast<double>(start + bucketLength * i);
+        knotValues[i] = interpolateMissingValues.initialized()
+                            ? interpolateMissingValues.value(knots[i])
+                            : static_cast<double>(CBasicStatistics::mean(values[i]));
+        knotWeights[i] = CBasicStatistics::count(values[i]);
+    }
+    TSpline seedValues{TSpline::E_Cubic};
+    TSpline seedWeights{TSpline::E_Linear};
+    seedValues.interpolate(knots, knotValues, TSpline::E_Natural);
+    seedWeights.interpolate(knots, knotWeights, TSpline::E_Natural);
 
-    for (core_t::TTime time = start + dt / 2; time < end; time += dt) {
+    double scale{std::pow(static_cast<double>(dt) / static_cast<double>(bucketLength), 2.0)};
+
+    core_t::TTime observedSinceLastRefine{0};
+    for (core_t::TTime time = start; time < end; time += dt) {
         if (this->inWindow(time)) {
-            core_t::TTime i{(time - start) / dT};
-            double value{CBasicStatistics::mean(values[i])};
-            double weight{scale * CBasicStatistics::count(values[i])};
-            if (weight > 0.0) {
-                std::size_t bucket;
-                if (this->bucket(time, bucket)) {
-                    this->add(bucket, time, weight);
-                    this->add(bucket, time, value, weight);
-                }
+            double value{seedValues.value(static_cast<double>(time))};
+            double weight{scale * seedWeights.value(static_cast<double>(time))};
+            std::size_t bucket;
+            if (this->bucket(time, bucket) && weight > 0.0) {
+                this->addInitialValue(bucket, time, value, weight);
+            }
+            observedSinceLastRefine += dt;
+            if (observedSinceLastRefine >= repeat) {
+                this->refine(time);
+                observedSinceLastRefine = 0;
             }
         }
     }
@@ -300,7 +411,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     // Extract the bucket means.
     TDoubleDoublePrVec values;
     values.reserve(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         values.emplace_back(this->bucketCount(i), this->predict(i, time, m_Centres[i]));
     }
     LOG_TRACE(<< "values = " << core::CContainerPrinter::print(values));
@@ -309,13 +420,13 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     // boundary conditions at the start and end of the interval.
     TDoubleVec ranges;
     ranges.reserve(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         TDoubleDoublePr v[]{values[(n + i - 2) % n], values[(n + i - 1) % n],
                             values[(n + i + 0) % n], // centre
                             values[(n + i + 1) % n], values[(n + i + 2) % n]};
 
         TMinMaxAccumulator minmax;
-        for (std::size_t j = 0u; j < sizeof(v) / sizeof(v[0]); ++j) {
+        for (std::size_t j = 0; j < sizeof(v) / sizeof(v[0]); ++j) {
             if (v[j].first > 0.0) {
                 minmax.add({v[j].second, j});
             }
@@ -337,11 +448,11 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     // bucket by multiplying the smoothed range by the bucket width.
     TDoubleVec averagingErrors;
     averagingErrors.reserve(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         double ai{m_Endpoints[i]};
         double bi{m_Endpoints[i + 1]};
         double error{0.0};
-        for (std::size_t j = 0u; j < boost::size(SMOOTHING_FUNCTION); ++j) {
+        for (std::size_t j = 0; j < boost::size(SMOOTHING_FUNCTION); ++j) {
             error += SMOOTHING_FUNCTION[j] * ranges[(n + i + j - WIDTH) % n];
         }
         double h{bi - ai};
@@ -350,9 +461,9 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     }
     double maxAveragingError{
         *std::max_element(averagingErrors.begin(), averagingErrors.end())};
-    for (const auto& significance : m_LargeErrorCountSignificances) {
-        if (significance.first < MODERATE_SIGNIFICANCE) {
-            averagingErrors[significance.second] = maxAveragingError;
+    for (const auto& pValue : m_LargeErrorCountPValues) {
+        if (pValue.first < MODERATE_SIGNIFICANCE) {
+            averagingErrors[pValue.second] = maxAveragingError;
         }
     }
     double totalAveragingError{
@@ -361,7 +472,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     LOG_TRACE(<< "totalAveragingError = " << totalAveragingError);
 
     double n_{static_cast<double>(n)};
-    double step{(1 - n_ * EPS) * totalAveragingError / n_};
+    double step{(1.0 - n_ * EPS) * totalAveragingError / n_};
     TFloatVec endpoints{m_Endpoints};
     LOG_TRACE(<< "step = " << step);
 
@@ -369,7 +480,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     // should be equidistant. We check step in case of underflow.
     if (step == 0.0) {
         m_Endpoints[0] = a;
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             m_Endpoints[i] = (b - a) * static_cast<double>(i) / n_;
         }
         m_Endpoints[n] = b;
@@ -392,32 +503,33 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         LOG_TRACE(<< "alpha = " << alpha);
         double displacement{0.0};
 
-        // Linearly interpolate between the current end points
-        // and points separated by equal total averaging error.
-        // Interpolating is equivalent to adding a drag term in
-        // the differential equation governing the end point
-        // dynamics and damps any oscillatory behavior which
-        // might otherwise occur.
-        double error{0.0};
-        for (std::size_t i = 0u, j = 1u; i < n && j < n + 1; ++i) {
+        // Linearly interpolate between the current end points and points
+        // separated by equal total averaging error. Interpolating is
+        // equivalent to adding drag to the end point dynamics and damps
+        // any oscillations.
+        double unassignedAveragingError{0.0};
+        for (std::size_t i = 0, j = 1; i < n && j < n + 1; ++i) {
             double ai{endpoints[i]};
             double bi{endpoints[i + 1]};
-            double h{bi - ai};
-            double e{averagingErrors[i]};
-            error += e;
-            for (double e_ = step - (error - e); error >= step; e_ += step, error -= step) {
-                double x{h * e_ / averagingErrors[i]};
-                m_Endpoints[j] = endpoints[j] + alpha * (ai + x - endpoints[j]);
-                displacement += (ai + x) - endpoints[j];
-                LOG_TRACE(<< "interval averaging error = " << e
-                          << ", a(i) = " << ai << ", x = " << x << ", endpoint "
-                          << endpoints[j] << " -> " << ai + x);
-                ++j;
+            double hi{bi - ai};
+            double ei{averagingErrors[i]};
+            unassignedAveragingError += ei;
+            for (double ej = step - (unassignedAveragingError - ei);
+                 unassignedAveragingError >= step;
+                 ej += step, unassignedAveragingError -= step, ++j) {
+                double xj{hi * ej / ei};
+                m_Endpoints[j] = std::max(
+                    m_Endpoints[j - 1] + 1e-8 * std::fabs(m_Endpoints[j - 1]),
+                    endpoints[j] + alpha * (ai + xj - endpoints[j]));
+                displacement += (ai + xj) - endpoints[j];
+                LOG_TRACE(<< "interval = [" << ai << "," << bi << "]"
+                          << " averaging error / unit length = " << ei / hi << ", desired translation "
+                          << endpoints[j] << " -> " << ai + xj);
             }
         }
-        if (m_MinimumBucketLength > 0.0) {
-            CTools::spread(a, b, m_MinimumBucketLength, m_Endpoints);
-        }
+
+        // Add a margin to guaranty we'll meet the separation constraint.
+        spread(a, b, (1.0 + 1e-8) * m_MinimumBucketLength, m_Endpoints);
 
         // By construction, the first and last end point should be
         // close "a" and "b", respectively, but we snap them to "a"
@@ -443,7 +555,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
     variances.clear();
 
     std::size_t n{m_Centres.size()};
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         if (this->bucketCount(i) > 0.0) {
             double wide{3.0 * (m_Endpoints[n] - m_Endpoints[0]) / static_cast<double>(n)};
             LOG_TRACE(<< "period " << m_Endpoints[n] - m_Endpoints[0]
@@ -456,29 +568,29 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
             values.reserve(4 * n / 3);
             variances.reserve(4 * n / 3);
 
-            double a{m_Endpoints[i]};
-            double b{m_Endpoints[i + 1]};
             double c{m_Centres[i]};
-            double c0{c};
+            double c0{c - m_Endpoints[0]};
             knots.push_back(m_Endpoints[0]);
             values.push_back(this->predict(i, time, c));
             variances.push_back(this->variance(i));
             for (/**/; i < n; ++i) {
                 if (this->bucketCount(i) > 0.0) {
-                    a = m_Endpoints[i];
-                    b = m_Endpoints[i + 1];
+                    double a{m_Endpoints[i]};
+                    double b{m_Endpoints[i + 1]};
+                    double min{(9.0 * a + b) / 10.0};
+                    double max{(a + 9.0 * b) / 10.0};
                     c = m_Centres[i];
                     double m{this->predict(i, time, c)};
                     double v{this->variance(i)};
                     if (b - a > wide) {
-                        knots.push_back(std::max(c - (b - a) / 4.0, a));
+                        knots.push_back(std::max(c - (b - a) / 4.0, min));
                         values.push_back(m);
                         variances.push_back(v);
-                        knots.push_back(std::min(c + (b - a) / 4.0, b));
+                        knots.push_back(std::min(c + (b - a) / 4.0, max));
                         values.push_back(m);
                         variances.push_back(v);
                     } else {
-                        knots.push_back(c);
+                        knots.push_back(std::min(std::max(c, min), max));
                         values.push_back(m);
                         variances.push_back(v);
                     }
@@ -503,26 +615,37 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
                         double alpha{m_Endpoints[n] - m_Centres[j]};
                         double beta{c0};
                         double Z{alpha + beta};
+                        if (Z == 0.0) {
+                            alpha = beta = 0.5;
+                        } else {
+                            alpha /= Z;
+                            beta /= Z;
+                        }
                         double lastPeriodValue{
                             this->predict(j, time, m_Centres[j] - m_Endpoints[n])};
                         double lastPeriodVariance{this->variance(j)};
                         knots[0] = m_Endpoints[0];
-                        values[0] = (alpha * values[0] + beta * lastPeriodValue) / Z;
-                        variances[0] = (alpha * variances[0] + beta * lastPeriodVariance) / Z;
+                        values[0] = alpha * values[0] + beta * lastPeriodValue;
+                        variances[0] = alpha * variances[0] + beta * lastPeriodVariance;
                         break;
                     }
                 }
-                for (std::size_t j = 0u; j < n; ++j) {
+                for (std::size_t j = 0; j < n; ++j) {
                     if (this->bucketCount(j) > 0.0) {
                         double alpha{m_Centres[j]};
                         double beta{m_Endpoints[n] - knots.back()};
                         double Z{alpha + beta};
+                        if (Z == 0.0) {
+                            alpha = beta = 0.5;
+                        } else {
+                            alpha /= Z;
+                            beta /= Z;
+                        }
                         double nextPeriodValue{
                             this->predict(j, time, m_Endpoints[n] + m_Centres[j])};
                         double nextPeriodVariance{this->variance(j)};
-                        values.push_back((alpha * values.back() + beta * nextPeriodValue) / Z);
-                        variances.push_back(
-                            (alpha * variances.back() + beta * nextPeriodVariance) / Z);
+                        values.push_back(alpha * values.back() + beta * nextPeriodValue);
+                        variances.push_back(alpha * variances.back() + beta * nextPeriodVariance);
                         knots.push_back(m_Endpoints[n]);
                         break;
                     }
@@ -545,7 +668,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
                                      }),
                       indices.end() - 1);
         if (indices.size() < knots.size()) {
-            for (std::size_t i = 0u; i < indices.size(); ++i) {
+            for (std::size_t i = 0; i < indices.size(); ++i) {
                 knots[i] = knots[indices[i]];
                 values[i] = values[indices[i]];
                 variances[i] = variances[indices[i]];
@@ -557,6 +680,78 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
     }
 
     return knots.size() >= 2;
+}
+
+void CAdaptiveBucketing::spread(double a, double b, double separation, TFloatVec& points) {
+
+    if (separation <= 0.0 || points.size() < 2) {
+        return;
+    }
+    if (b <= a) {
+        LOG_ERROR(<< "Bad interval [" << a << "," << b << "]");
+        return;
+    }
+
+    // Check if we just need to space the points uniformly.
+    std::size_t n{points.size() - 1};
+    if (b - a <= separation * static_cast<double>(n + 1)) {
+        for (std::size_t i = 0; i <= n; ++i) {
+            points[i] = a + (b - a) * static_cast<double>(i) / static_cast<double>(n);
+        }
+        return;
+    }
+
+    // Check if there's nothing to do.
+    double minSeparation{points[1] - points[0]};
+    for (std::size_t i = 2; i < points.size(); ++i) {
+        minSeparation = std::min(minSeparation, points[i] - points[i - 1]);
+    }
+    if (minSeparation > separation) {
+        return;
+    }
+
+    // We can do this in n * log(n) complexity with at most log(n)
+    // passes through the points. Provided the minimum separation
+    // is at least "interval" / "# centres" the problem is feasible.
+    //
+    // We want to find the solution which minimizes the sum of the
+    // distances the points move. This is possible by repeatedly
+    // merging clusters of contiguous points and then placing them
+    // at the mean of the points they contain. The process repeats
+    // until no clusters merge.
+
+    std::sort(points.begin(), points.end(),
+              [](double lhs, double rhs) { return lhs < rhs; });
+
+    std::vector<CContinugousPoints> contiguousPoints;
+    contiguousPoints.reserve(points.size());
+    for (const auto& point : points) {
+        contiguousPoints.emplace_back(point);
+    }
+
+    for (std::size_t previousSize = 0; contiguousPoints.size() != previousSize;
+         /**/) {
+        previousSize = contiguousPoints.size();
+        std::size_t last{0};
+        for (std::size_t i = 1; i < contiguousPoints.size(); ++i) {
+            if (contiguousPoints[last].overlap(contiguousPoints[i], separation)) {
+                contiguousPoints[last].merge(contiguousPoints[i], a, b, separation);
+            } else {
+                std::swap(contiguousPoints[++last], contiguousPoints[i]);
+            }
+        }
+        contiguousPoints.erase(contiguousPoints.begin() + last + 1,
+                               contiguousPoints.end());
+    }
+
+    double last{-std::numeric_limits<double>::max()};
+    for (std::size_t i = 0, j = 0; i < contiguousPoints.size(); ++i) {
+        for (std::size_t k = 0; k < contiguousPoints[i].size(); ++j, ++k) {
+            points[j] = std::max(last + separation,
+                                 contiguousPoints[i].location(k, separation));
+            last = points[j];
+        }
+    }
 }
 
 const CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::endpoints() const {
@@ -580,20 +775,20 @@ CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::largeErrorCounts() {
 }
 
 double CAdaptiveBucketing::adjustedWeight(std::size_t bucket, double weight) const {
-    for (const auto& significance : m_LargeErrorCountSignificances) {
-        if (bucket == significance.second) {
-            double maxWeight{CBasicStatistics::mean(m_MeanWeight)};
-            double logSignificance{CTools::fastLog(significance.first)};
+    for (const auto& pValue : m_LargeErrorCountPValues) {
+        if (bucket == pValue.second) {
+            double largeWeight{2.0 * CBasicStatistics::mean(m_MeanWeight)};
+            double logPValue{CTools::fastLog(pValue.first)};
             return CTools::linearlyInterpolate(LOG_HIGH_SIGNIFICANCE, LOG_MODERATE_SIGNIFICANCE,
-                                               maxWeight, weight, logSignificance);
+                                               largeWeight, weight, logPValue);
         }
     }
     return weight;
 }
 
 double CAdaptiveBucketing::count() const {
-    double result = 0.0;
-    for (std::size_t i = 0u; i < m_Centres.size(); ++i) {
+    double result{0.0};
+    for (std::size_t i = 0; i < m_Centres.size(); ++i) {
         result += this->bucketCount(i);
     }
     return result;
@@ -602,7 +797,7 @@ double CAdaptiveBucketing::count() const {
 CAdaptiveBucketing::TDoubleVec CAdaptiveBucketing::values(core_t::TTime time) const {
     TDoubleVec result;
     result.reserve(m_Centres.size());
-    for (std::size_t i = 0u; i < m_Centres.size(); ++i) {
+    for (std::size_t i = 0; i < m_Centres.size(); ++i) {
         result.push_back(this->predict(i, time, m_Centres[i]));
     }
     return result;
@@ -611,7 +806,7 @@ CAdaptiveBucketing::TDoubleVec CAdaptiveBucketing::values(core_t::TTime time) co
 CAdaptiveBucketing::TDoubleVec CAdaptiveBucketing::variances() const {
     TDoubleVec result;
     result.reserve(m_Centres.size());
-    for (std::size_t i = 0u; i < m_Centres.size(); ++i) {
+    for (std::size_t i = 0; i < m_Centres.size(); ++i) {
         result.push_back(this->variance(i));
     }
     return result;
@@ -631,14 +826,13 @@ bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t& result) const {
     return true;
 }
 
-uint64_t CAdaptiveBucketing::checksum(uint64_t seed) const {
+std::uint64_t CAdaptiveBucketing::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_MinimumBucketLength);
     seed = CChecksum::calculate(seed, m_TargetSize);
     seed = CChecksum::calculate(seed, m_LastLargeErrorBucket);
     seed = CChecksum::calculate(seed, m_LastLargeErrorPeriod);
-    seed = CChecksum::calculate(
-        seed, m_LargeErrorCountSignificances.toDelimited(significanceToDelimited));
+    seed = CChecksum::calculate(seed, m_LargeErrorCountPValues.toDelimited(pValueToDelimited));
     seed = CChecksum::calculate(seed, m_MeanWeight);
     seed = CChecksum::calculate(seed, m_Endpoints);
     seed = CChecksum::calculate(seed, m_Centres);
@@ -654,53 +848,66 @@ std::size_t CAdaptiveBucketing::memoryUsage() const {
     return mem;
 }
 
+double CAdaptiveBucketing::bucketLargeErrorCountPValue(double totalLargeErrorCount,
+                                                       std::size_t bucket) const {
+    // We compute the right tail p-value of the count of large errors
+    // in a bucket for the null hypothesis that they are uniformly
+    // distributed on the total bucketed period, i.e. that there is
+    // not some poorly modelled periodic pattern.
+
+    if (m_LargeErrorCounts[bucket] > 2.0) { // Are there repeats?
+        double interval{m_Endpoints[bucket + 1] - m_Endpoints[bucket]};
+        double period{m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0]};
+        try {
+            boost::math::binomial binomial{totalLargeErrorCount, interval / period};
+            return CTools::safeCdfComplement(binomial, m_LargeErrorCounts[bucket]);
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Failed to calculate splitting significance: '" << e.what()
+                      << "' interval = " << interval << " period = " << period
+                      << " buckets = " << core::CContainerPrinter::print(m_Endpoints)
+                      << " type = " << this->name());
+        }
+    }
+    return 1.0;
+}
+
 void CAdaptiveBucketing::maybeSplitBucket() {
-    double largeErrorCount{std::accumulate(m_LargeErrorCounts.begin(),
-                                           m_LargeErrorCounts.end(), 0.0)};
+
+    double totalLargeErrorCount{std::accumulate(m_LargeErrorCounts.begin(),
+                                                m_LargeErrorCounts.end(), 0.0)};
+
+    // We do this indepedent of whether we'll split because we also use the
+    // significances to adjust the bucket update weight.
+    m_LargeErrorCountPValues = TFloatUInt32PrMinAccumulator{};
+    for (std::size_t i = 0; i + 1 < m_Endpoints.size(); ++i) {
+        m_LargeErrorCountPValues.add({this->bucketLargeErrorCountPValue(totalLargeErrorCount, i),
+                                      static_cast<std::uint32_t>(i)});
+    }
+
+    // We're choosing the minimum p-value of number of buckets independent
+    // statistics so the significance is one minus the chance that all of
+    // them are greater than the observation.
+    for (auto& candidateSplit : m_LargeErrorCountPValues) {
+        candidateSplit.first = CTools::oneMinusPowOneMinusX(
+            candidateSplit.first, static_cast<double>(this->size()));
+        LOG_TRACE(<< "bucket [" << m_Endpoints[candidateSplit.second] << ","
+                  << m_Endpoints[candidateSplit.second + 1]
+                  << ") split p-value = " << candidateSplit.first);
+    }
+    m_LargeErrorCountPValues.sort();
+
     double period{m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0]};
+    double pValue;
+    std::size_t bucketToSplit;
+    std::tie(pValue, bucketToSplit) = m_LargeErrorCountPValues[0];
 
-    if (static_cast<double>(this->size() + 1) * m_MinimumBucketLength <= period &&
-        largeErrorCount >= MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT) {
-
-        m_LargeErrorCountSignificances = TFloatUInt32PrMinAccumulator{};
-
-        // We compute the right tail p-value of the count of large errors
-        // in a bucket for the null hypothesis that they are uniformly
-        // distributed on the total bucketed period and split if this is
-        // less than a specified threshold.
-        for (std::size_t i = 1u; i < m_Endpoints.size(); ++i) {
-            double interval{m_Endpoints[i] - m_Endpoints[i - 1]};
-            try {
-                boost::math::binomial binomial{largeErrorCount, interval / period};
-                double oneMinusCdf{
-                    CTools::safeCdfComplement(binomial, m_LargeErrorCounts[i - 1])};
-                m_LargeErrorCountSignificances.add({oneMinusCdf, i - 1});
-            } catch (const std::exception& e) {
-                LOG_ERROR(<< "Failed to calculate splitting significance: " << e.what()
-                          << " interval = " << interval << " period = " << period
-                          << " type = " << this->name());
-            }
-        }
-        if (m_LargeErrorCountSignificances.count() > 0) {
-            // We're choosing the minimum p-value of number of buckets
-            // independent statistics so the significance is one minus
-            // the chance that all of them are greater than the observation.
-            for (auto& significance : m_LargeErrorCountSignificances) {
-                significance.first = CTools::oneMinusPowOneMinusX(
-                    significance.first, static_cast<double>(this->size()));
-                LOG_TRACE(<< "bucket [" << m_Endpoints[significance.second]
-                          << "," << m_Endpoints[significance.second + 1]
-                          << ") split significance = " << significance.first);
-            }
-            m_LargeErrorCountSignificances.sort();
-        }
-
-        if (2 * this->size() < 3 * m_TargetSize &&
-            largeErrorCount > MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT &&
-            m_LargeErrorCountSignificances.count() > 0 &&
-            m_LargeErrorCountSignificances[0].first < HIGH_SIGNIFICANCE) {
-            this->splitBucket(m_LargeErrorCountSignificances[0].second);
-        }
+    // Split if we have received enough data, can divide the interval further
+    // and the significance is high.
+    if (totalLargeErrorCount >= MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT &&
+        m_LargeErrorCountPValues.count() > 0 &&
+        static_cast<double>(this->size() + 1) * m_MinimumBucketLength < period &&
+        2 * this->size() < 3 * m_TargetSize && pValue < HIGH_SIGNIFICANCE) {
+        this->splitBucket(bucketToSplit);
     }
 }
 

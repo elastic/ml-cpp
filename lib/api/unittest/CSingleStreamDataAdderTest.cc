@@ -1,9 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CSingleStreamDataAdderTest.h"
 
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/COsFileFuncs.h>
@@ -15,23 +19,25 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
-#include <api/CAnomalyJob.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
-#include <api/CJsonOutputWriter.h>
 #include <api/CNdJsonInputParser.h>
-#include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
 
+#include "CTestAnomalyJob.h"
+#include "CTestFieldDataCategorizer.h"
+
 #include <boost/iostreams/filtering_stream.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <fstream>
 #include <memory>
 #include <sstream>
 #include <string>
+
+BOOST_AUTO_TEST_SUITE(CSingleStreamDataAdderTest)
 
 namespace {
 
@@ -42,127 +48,77 @@ void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotRepo
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
-}
 
-CppUnit::Test* CSingleStreamDataAdderTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CSingleStreamDataAdderTest");
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistBy",
-        &CSingleStreamDataAdderTest::testDetectorPersistBy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistOver",
-        &CSingleStreamDataAdderTest::testDetectorPersistOver));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistPartition",
-        &CSingleStreamDataAdderTest::testDetectorPersistPartition));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistDc",
-        &CSingleStreamDataAdderTest::testDetectorPersistDc));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistCount",
-        &CSingleStreamDataAdderTest::testDetectorPersistCount));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CSingleStreamDataAdderTest>(
-        "CSingleStreamDataAdderTest::testDetectorPersistCategorization",
-        &CSingleStreamDataAdderTest::testDetectorPersistCategorization));
-    return suiteOfTests;
-}
-
-void CSingleStreamDataAdderTest::testDetectorPersistBy() {
-    this->detectorPersistHelper("testfiles/new_mlfields.conf",
-                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
-}
-
-void CSingleStreamDataAdderTest::testDetectorPersistOver() {
-    this->detectorPersistHelper("testfiles/new_mlfields_over.conf",
-                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
-}
-
-void CSingleStreamDataAdderTest::testDetectorPersistPartition() {
-    this->detectorPersistHelper("testfiles/new_mlfields_partition.conf",
-                                "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
-}
-
-void CSingleStreamDataAdderTest::testDetectorPersistDc() {
-    this->detectorPersistHelper("testfiles/new_persist_dc.conf",
-                                "testfiles/files_users_programs.csv", 5);
-}
-
-void CSingleStreamDataAdderTest::testDetectorPersistCount() {
-    this->detectorPersistHelper("testfiles/new_persist_count.conf",
-                                "testfiles/files_users_programs.csv", 5);
-}
-
-void CSingleStreamDataAdderTest::testDetectorPersistCategorization() {
-    this->detectorPersistHelper("testfiles/new_persist_categorization.conf",
-                                "testfiles/time_messages.csv", 0);
-}
-
-void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& configFileName,
-                                                       const std::string& inputFilename,
-                                                       int latencyBuckets,
-                                                       const std::string& timeFormat) {
+void detectorPersistHelper(const std::string& configFileName,
+                           const std::string& inputFilename,
+                           int latencyBuckets,
+                           const std::string& timeFormat = std::string()) {
     // Start by creating a detector with non-trivial state
     static const ml::core_t::TTime BUCKET_SIZE(3600);
     static const std::string JOB_ID("job");
 
     // Open the input and output files
     std::ifstream inputStrm(inputFilename.c_str());
-    CPPUNIT_ASSERT(inputStrm.is_open());
+    BOOST_TEST_REQUIRE(inputStrm.is_open());
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
-    CPPUNIT_ASSERT(outputStrm.is_open());
+    BOOST_TEST_REQUIRE(outputStrm.is_open());
 
     ml::model::CLimits limits;
-    ml::api::CFieldConfig fieldConfig;
-    CPPUNIT_ASSERT(fieldConfig.initFromFile(configFileName));
+    ml::api::CAnomalyJobConfig jobConfig;
+    BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
             BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, false);
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-    ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);
-    ml::api::CAnomalyJob origJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        std::bind(&reportPersistComplete, std::placeholders::_1,
-                  std::ref(origSnapshotId), std::ref(numOrigDocs)),
-        nullptr, -1, "time", timeFormat);
-
-    ml::api::CDataProcessor* firstProcessor(&origJob);
-
-    // Chain the detector's input
-    ml::api::COutputChainer outputChainer(origJob);
-
-    // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(JOB_ID, fieldConfig, limits, outputChainer, outputWriter);
-
-    if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-        LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
-        firstProcessor = &typer;
-    }
-
-    using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
-    const TInputParserUPtr parser{[&inputFilename, &inputStrm]() -> TInputParserUPtr {
-        if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
-            return std::make_unique<ml::api::CCsvInputParser>(inputStrm);
-        }
-        return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
-    }()};
-
-    CPPUNIT_ASSERT(parser->readStreamIntoMaps(std::bind(
-        &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
-
-    // Persist the detector state to a stringstream
-
     std::string origPersistedState;
+
     {
+        CTestAnomalyJob origJob(
+            JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
+            std::bind(&reportPersistComplete, std::placeholders::_1,
+                      std::ref(origSnapshotId), std::ref(numOrigDocs)),
+            nullptr, -1, "time", timeFormat);
+
+        // The categorizer knows how to assign categories to records
+        CTestFieldDataCategorizer categorizer(JOB_ID, jobConfig.analysisConfig(),
+                                              limits, &origJob, wrappedOutputStream);
+
+        ml::api::CDataProcessor* firstProcessor{nullptr};
+        if (jobConfig.analysisConfig().categorizationFieldName().empty() == false) {
+            LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
+            firstProcessor = &categorizer;
+        } else {
+            firstProcessor = &origJob;
+        }
+
+        using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
+        const TInputParserUPtr parser{[&inputFilename, &inputStrm]() -> TInputParserUPtr {
+            ml::api::CInputParser::TStrVec mutableFields{CTestFieldDataCategorizer::MLCATEGORY_NAME};
+            if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
+                return std::make_unique<ml::api::CCsvInputParser>(
+                    std::move(mutableFields), inputStrm);
+            }
+            return std::make_unique<ml::api::CNdJsonInputParser>(
+                std::move(mutableFields), inputStrm);
+        }()};
+
+        BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(
+            [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
+                return firstProcessor->handleRecord(
+                    dataRowFields, ml::api::CDataProcessor::TOptionalTime{});
+            }));
+
+        // Persist the detector state to a stringstream
         std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
-        CPPUNIT_ASSERT(firstProcessor->persistState(persister, ""));
+        BOOST_TEST_REQUIRE(firstProcessor->persistStateInForeground(persister, ""));
         origPersistedState = strm->str();
     }
 
@@ -170,63 +126,100 @@ void CSingleStreamDataAdderTest::detectorPersistHelper(const std::string& config
 
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
-    ml::api::CAnomalyJob restoredJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        std::bind(&reportPersistComplete, std::placeholders::_1,
-                  std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
-
-    ml::api::CDataProcessor* restoredFirstProcessor(&restoredJob);
-
-    // Chain the detector's input
-    ml::api::COutputChainer restoredOutputChainer(restoredJob);
-
-    // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper restoredTyper(JOB_ID, fieldConfig, limits,
-                                           restoredOutputChainer, outputWriter);
-
-    size_t numCategorizerDocs(0);
-
-    if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-        LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
-        numCategorizerDocs = 1;
-        restoredFirstProcessor = &restoredTyper;
-    }
-
-    {
-        ml::core_t::TTime completeToTime(0);
-
-        auto strm = std::make_shared<boost::iostreams::filtering_istream>();
-        strm->push(ml::api::CStateRestoreStreamFilter());
-        std::istringstream inputStream(origPersistedState);
-        strm->push(inputStream);
-
-        ml::api::CSingleStreamSearcher retriever(strm);
-
-        CPPUNIT_ASSERT(restoredFirstProcessor->restoreState(retriever, completeToTime));
-        CPPUNIT_ASSERT(completeToTime > 0);
-        CPPUNIT_ASSERT_EQUAL(
-            numOrigDocs + numCategorizerDocs,
-            strm->component<ml::api::CStateRestoreStreamFilter>(0)->getDocCount());
-    }
-
-    // Finally, persist the new detector state and compare the result
     std::string newPersistedState;
+
     {
+        CTestAnomalyJob restoredJob(
+            JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
+            std::bind(&reportPersistComplete, std::placeholders::_1,
+                      std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
+
+        // The categorizer knows how to assign categories to records
+        CTestFieldDataCategorizer restoredCategorizer(
+            JOB_ID, jobConfig.analysisConfig(), limits, &restoredJob, wrappedOutputStream);
+
+        size_t numCategorizerDocs(0);
+
+        ml::api::CDataProcessor* restoredFirstProcessor{nullptr};
+        if (jobConfig.analysisConfig().categorizationFieldName().empty() == false) {
+            LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
+            numCategorizerDocs = 1;
+            restoredFirstProcessor = &restoredCategorizer;
+        } else {
+            restoredFirstProcessor = &restoredJob;
+        }
+
+        {
+            ml::core_t::TTime completeToTime(0);
+
+            auto strm = std::make_shared<boost::iostreams::filtering_istream>();
+            strm->push(ml::api::CStateRestoreStreamFilter());
+            std::istringstream inputStream(origPersistedState);
+            strm->push(inputStream);
+
+            ml::api::CSingleStreamSearcher retriever(strm);
+
+            BOOST_TEST_REQUIRE(restoredFirstProcessor->restoreState(retriever, completeToTime));
+            BOOST_TEST_REQUIRE(completeToTime > 0);
+            BOOST_REQUIRE_EQUAL(
+                numOrigDocs + numCategorizerDocs,
+                strm->component<ml::api::CStateRestoreStreamFilter>(0)->getDocCount());
+        }
+
+        // Finally, persist the new detector state and compare the result
         std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
-        CPPUNIT_ASSERT(restoredFirstProcessor->persistState(persister, ""));
+        BOOST_TEST_REQUIRE(restoredFirstProcessor->persistStateInForeground(persister, ""));
         newPersistedState = strm->str();
     }
 
-    CPPUNIT_ASSERT_EQUAL(numOrigDocs, numRestoredDocs);
+    BOOST_REQUIRE_EQUAL(numOrigDocs, numRestoredDocs);
 
     // The snapshot ID can be different between the two persists, so replace the
     // first occurrence of it (which is in the bulk metadata)
-    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                        origSnapshotId, "snap", origPersistedState));
-    CPPUNIT_ASSERT_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                        restoredSnapshotId, "snap", newPersistedState));
+    BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+                                       origSnapshotId, "snap", origPersistedState));
+    BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
+                                       restoredSnapshotId, "snap", newPersistedState));
 
-    CPPUNIT_ASSERT_EQUAL(origPersistedState, newPersistedState);
+    // Replace the zero byte separators to avoid '\0's in the output if the
+    // test fails
+    std::replace(origPersistedState.begin(), origPersistedState.end(), '\0', ',');
+    std::replace(newPersistedState.begin(), newPersistedState.end(), '\0', ',');
+
+    BOOST_REQUIRE_EQUAL(origPersistedState, newPersistedState);
 }
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
+    detectorPersistHelper("testfiles/new_mlfields.json",
+                          "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistOver) {
+    detectorPersistHelper("testfiles/new_mlfields_over.json",
+                          "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistPartition) {
+    detectorPersistHelper("testfiles/new_mlfields_partition.json",
+                          "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistDc) {
+    detectorPersistHelper("testfiles/new_persist_dc.json",
+                          "testfiles/files_users_programs.csv", 5);
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistCount) {
+    detectorPersistHelper("testfiles/new_persist_count.json",
+                          "testfiles/files_users_programs.csv", 5);
+}
+
+BOOST_AUTO_TEST_CASE(testDetectorPersistCategorization) {
+    detectorPersistHelper("testfiles/new_persist_categorization.json",
+                          "testfiles/time_messages.csv", 0);
+}
+
+BOOST_AUTO_TEST_SUITE_END()

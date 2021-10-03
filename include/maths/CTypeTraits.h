@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CTypeTraits_h
@@ -70,14 +75,14 @@ struct SPromoted<CDenseVector<SCALAR>> {
 };
 
 //! \brief Defines the promoted type for an Eigen memory mapped matrix.
-template<typename SCALAR>
-struct SPromoted<CMemoryMappedDenseMatrix<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SPromoted<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>> {
     using Type = CDenseMatrix<typename SPromoted<SCALAR>::Type>;
 };
 
 //! \brief Defines the promoted type for an Eigen memory mapped vector.
-template<typename SCALAR>
-struct SPromoted<CMemoryMappedDenseVector<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SPromoted<CMemoryMappedDenseVector<SCALAR, ALIGNMENT>> {
     using Type = CDenseVector<typename SPromoted<SCALAR>::Type>;
 };
 
@@ -142,14 +147,14 @@ struct SFloatingPoint<CDenseVector<SCALAR>, U> {
 };
 
 //! \brief Defines an Eigen dense matrix on a suitable floating point type.
-template<typename SCALAR, typename U>
-struct SFloatingPoint<CMemoryMappedDenseMatrix<SCALAR>, U> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT, typename U>
+struct SFloatingPoint<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>, U> {
     using Type = CDenseMatrix<typename SFloatingPoint<SCALAR, U>::Type>;
 };
 
 //! \brief Defines an Eigen dense vector on a suitable floating point type.
-template<typename SCALAR, typename U>
-struct SFloatingPoint<CMemoryMappedDenseVector<SCALAR>, U> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT, typename U>
+struct SFloatingPoint<CMemoryMappedDenseVector<SCALAR, ALIGNMENT>, U> {
     using Type = CDenseVector<typename SFloatingPoint<SCALAR, U>::Type>;
 };
 
@@ -214,14 +219,14 @@ struct SCoordinate<CDenseVector<SCALAR>> {
 };
 
 //! \brief Extracts the coordinate type for an Eigen memory mapped matrix.
-template<typename SCALAR>
-struct SCoordinate<CMemoryMappedDenseMatrix<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SCoordinate<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>> {
     using Type = SCALAR;
 };
 
 //! \brief Extracts the coordinate type for an Eigen memory mapped vector.
-template<typename SCALAR>
-struct SCoordinate<CMemoryMappedDenseVector<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SCoordinate<CMemoryMappedDenseVector<SCALAR, ALIGNMENT>> {
     using Type = SCALAR;
 };
 
@@ -268,9 +273,9 @@ struct SConformableMatrix<CDenseVector<SCALAR>> {
 };
 
 //! \brief Extracts the conformable matrix type for an Eigen memory mapped vector.
-template<typename SCALAR>
-struct SConformableMatrix<CMemoryMappedDenseVector<SCALAR>> {
-    using Type = CMemoryMappedDenseMatrix<SCALAR>;
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SConformableMatrix<CMemoryMappedDenseVector<SCALAR, ALIGNMENT>> {
+    using Type = CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>;
 };
 
 //! \brief Extracts the conformable matrix type for an Eigen sparse vector.
@@ -283,68 +288,6 @@ struct SConformableMatrix<Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>> {
 template<typename VECTOR, typename ANNOTATION>
 struct SConformableMatrix<CAnnotatedVector<VECTOR, ANNOTATION>> {
     using Type = typename SConformableMatrix<VECTOR>::Type;
-};
-
-//! \brief Defines the array view for componentwise operations on our internal
-//! vectors and matrices.
-template<typename VECTOR>
-struct SArrayView {
-    using Type = VECTOR&;
-};
-
-//! \brief Defines the array view for componentwise operations on a Eigen dense matrix.
-template<typename SCALAR>
-struct SArrayView<const CDenseMatrix<SCALAR>> {
-    using Type =
-        Eigen::ArrayWrapper<const Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>>;
-};
-template<typename SCALAR>
-struct SArrayView<CDenseMatrix<SCALAR>> {
-    using Type =
-        Eigen::ArrayWrapper<Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>>;
-};
-
-//! \brief Defines the array view for componentwise operations on an Eigen dense matrix.
-template<typename SCALAR>
-struct SArrayView<const CDenseVector<SCALAR>> {
-    using Type =
-        Eigen::ArrayWrapper<const Eigen::Matrix<SCALAR, Eigen::Dynamic, 1, 0, Eigen::Dynamic, 1>>;
-};
-template<typename SCALAR>
-struct SArrayView<CDenseVector<SCALAR>> {
-    using Type =
-        Eigen::ArrayWrapper<Eigen::Matrix<SCALAR, Eigen::Dynamic, 1, 0, Eigen::Dynamic, 1>>;
-};
-
-//! \brief Defines the array view for componentwise operations on an Eigen memory mapped matrix.
-template<typename SCALAR>
-struct SArrayView<const CMemoryMappedDenseMatrix<SCALAR>> {
-    using Type = Eigen::ArrayWrapper<
-        const Eigen::Map<Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>, 0, Eigen::Stride<0, 0>>>;
-};
-template<typename SCALAR>
-struct SArrayView<CMemoryMappedDenseMatrix<SCALAR>> {
-    using Type = Eigen::ArrayWrapper<
-        Eigen::Map<Eigen::Matrix<SCALAR, Eigen::Dynamic, Eigen::Dynamic, 0, Eigen::Dynamic, Eigen::Dynamic>, 0, Eigen::Stride<0, 0>>>;
-};
-
-//! \brief Defines the array view for componentwise operations on an Eigen memory mapped vector.
-template<typename SCALAR>
-struct SArrayView<const CMemoryMappedDenseVector<SCALAR>> {
-    using Type = Eigen::ArrayWrapper<
-        const Eigen::Map<Eigen::Matrix<SCALAR, Eigen::Dynamic, 1, 0, Eigen::Dynamic, 1>, 0, Eigen::Stride<0, 0>>>;
-};
-template<typename SCALAR>
-struct SArrayView<CMemoryMappedDenseVector<SCALAR>> {
-    using Type = Eigen::ArrayWrapper<
-        Eigen::Map<Eigen::Matrix<SCALAR, Eigen::Dynamic, 1, 0, Eigen::Dynamic, 1>, 0, Eigen::Stride<0, 0>>>;
-};
-
-//! \brief Defines the array view for componentwise operations on Eigen dense
-//! vectors and matrices.
-template<typename VECTOR, typename ANNOTATION>
-struct SArrayView<CAnnotatedVector<VECTOR, ANNOTATION>> {
-    using Type = typename SArrayView<VECTOR>::Type;
 };
 
 //! \brief Defines the type of a singular value decomposition of a matrix.
@@ -372,14 +315,14 @@ struct SJacobiSvd<Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>
 //! \brief Defines a type which strips off any annotation from a vector.
 //! This is the raw vector type by default.
 template<typename VECTOR>
-struct SStripped {
+struct SUnannotated {
     using Type = VECTOR;
 };
 
 //! \brief Specialisation for annotated vectors. This is the underlying
 //! vector type.
 template<typename VECTOR, typename ANNOTATION>
-struct SStripped<CAnnotatedVector<VECTOR, ANNOTATION>> {
+struct SUnannotated<CAnnotatedVector<VECTOR, ANNOTATION>> {
     using Type = VECTOR;
 };
 }

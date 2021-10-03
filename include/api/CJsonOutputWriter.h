@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_api_CJsonOutputWriter_h
 #define INCLUDED_ml_api_CJsonOutputWriter_h
@@ -11,22 +16,21 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
+#include <model/CCategoryExamplesCollector.h>
 #include <model/CHierarchicalResults.h>
 #include <model/CResourceMonitor.h>
 
-#include <api/CCategoryExamplesCollector.h>
+#include <api/CGlobalCategoryId.h>
 #include <api/CHierarchicalResultsWriter.h>
-#include <api/COutputHandler.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
 
 #include <boost/optional.hpp>
 
-#include <iosfwd>
+#include <cstdint>
 #include <map>
 #include <memory>
-#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -95,7 +99,7 @@ namespace api {
 //! re-normalisation of previous results using the normalize
 //! process, so it's best that this doesn't happen too often.)
 //!
-class API_EXPORT CJsonOutputWriter : public COutputHandler {
+class API_EXPORT CJsonOutputWriter {
 public:
     using TDocumentPtr = std::shared_ptr<rapidjson::Document>;
     using TDocumentWeakPtr = std::weak_ptr<rapidjson::Document>;
@@ -111,6 +115,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStr1Vec = core::CSmallVector<std::string, 1>;
     using TTimeVec = std::vector<core_t::TTime>;
+    using TGlobalCategoryIdVec = std::vector<CGlobalCategoryId>;
     using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
@@ -130,11 +135,11 @@ public:
         double s_MaxBucketInfluencerNormalizedAnomalyScore;
 
         //! Count of input events for the bucket
-        size_t s_InputEventCount;
+        std::size_t s_InputEventCount;
 
         //! Count of result records in the bucket for which results are
         //! being built up
-        size_t s_RecordCount;
+        std::size_t s_RecordCount;
 
         //! The bucketspan of this bucket
         core_t::TTime s_BucketSpan;
@@ -166,31 +171,23 @@ public:
         TStr1Vec s_ScheduledEventDescriptions;
     };
 
+    using TOptionalTime = boost::optional<core_t::TTime>;
+
     using TTimeBucketDataMap = std::map<core_t::TTime, SBucketData>;
     using TTimeBucketDataMapItr = TTimeBucketDataMap::iterator;
     using TTimeBucketDataMapCItr = TTimeBucketDataMap::const_iterator;
-
-private:
-    using TStrSet = CCategoryExamplesCollector::TStrSet;
-    using TStrSetCItr = TStrSet::const_iterator;
+    using TStrFSet = model::CCategoryExamplesCollector::TStrFSet;
+    using TStrFSetCItr = TStrFSet::const_iterator;
 
 public:
     //! Constructor that causes output to be written to the specified wrapped stream
     CJsonOutputWriter(const std::string& jobId, core::CJsonOutputStreamWrapper& strmOut);
 
     //! Destructor flushes the stream
-    virtual ~CJsonOutputWriter();
+    ~CJsonOutputWriter();
 
-    // Bring the other overload of fieldNames() into scope
-    using COutputHandler::fieldNames;
-
-    //! Set field names.  In this class this function has no effect and it
-    //! always returns true
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
-
-    //! Write the data row fields as a JSON object
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+    //! Access to job ID
+    const std::string& jobId() const;
 
     //! Limit the output to the top count anomalous records and influencers.
     //! Each detector will write no more than count records and influencers
@@ -198,22 +195,19 @@ public:
     //! influencers).
     //! The bucket time influencer does not add to this count but only
     //! if it is added after all the other bucket influencers
-    void limitNumberRecords(size_t count);
+    void limitNumberRecords(std::size_t count);
 
     //! A value of 0 indicates no limit has been set
-    size_t limitNumberRecords() const;
+    std::size_t limitNumberRecords() const;
 
     //! Close the JSON structures and flush output.
     //! This method should only be called once and will have no affect
     //! on subsequent invocations
-    virtual void finalise();
-
-    //! Receive a count of possible results
-    void possibleResultCount(core_t::TTime time, size_t count);
+    void finalise();
 
     //! Accept a result from the anomaly detector
     //! Virtual for testing mocks
-    virtual bool acceptResult(const CHierarchicalResultsWriter::TResults& results);
+    bool acceptResult(const CHierarchicalResultsWriter::TResults& results);
 
     //! Accept the influencer
     bool acceptInfluencer(core_t::TTime time,
@@ -226,28 +220,38 @@ public:
     //! than the others.
     //! Only one per bucket is expected, this does not add to the influencer
     //! count if limitNumberRecords is used
-    virtual void acceptBucketTimeInfluencer(core_t::TTime time,
-                                            double probability,
-                                            double rawAnomalyScore,
-                                            double normalizedAnomalyScore);
+    void acceptBucketTimeInfluencer(core_t::TTime time,
+                                    double probability,
+                                    double rawAnomalyScore,
+                                    double normalizedAnomalyScore);
 
     //! This method must be called after all the results for a given bucket
     //! are available.  It triggers the writing of the results.
-    bool endOutputBatch(bool isInterim, uint64_t bucketProcessingTime);
+    bool endOutputBatch(bool isInterim, std::uint64_t bucketProcessingTime);
 
     //! Report the current levels of resource usage, as given to us
     //! from the CResourceMonitor via a callback
-    void reportMemoryUsage(const model::CResourceMonitor::SResults& results);
+    void reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& modelSizeStats);
+
+    //! Write categorizer stats
+    void writeCategorizerStats(const std::string& partitionFieldName,
+                               const std::string& partitionFieldValue,
+                               const model::SCategorizerStats& categorizerStats,
+                               const TOptionalTime& timestamp);
 
     //! Acknowledge a flush request by echoing back the flush ID
     void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd);
 
     //! Write a category definition
-    void writeCategoryDefinition(int categoryId,
+    void writeCategoryDefinition(const std::string& partitionFieldName,
+                                 const std::string& partitionFieldValue,
+                                 const CGlobalCategoryId& categoryId,
                                  const std::string& terms,
                                  const std::string& regex,
                                  std::size_t maxMatchingFieldLength,
-                                 const TStrSet& examples);
+                                 const TStrFSet& examples,
+                                 std::size_t numMatches,
+                                 const TGlobalCategoryIdVec& usurpedCategories);
 
     //! Persist a normalizer by writing its state to the output
     void persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer,
@@ -271,7 +275,7 @@ private:
     void writeBucket(bool isInterim,
                      core_t::TTime bucketTime,
                      SBucketData& bucketData,
-                     uint64_t bucketProcessingTime);
+                     std::uint64_t bucketProcessingTime);
 
     //! Add the fields for a metric detector
     void addMetricFields(const CHierarchicalResultsWriter::TResults& results,
@@ -312,7 +316,7 @@ private:
     bool m_Finalised;
 
     //! Max number of records to write for each bucket/detector
-    size_t m_RecordOutputLimit;
+    std::size_t m_RecordOutputLimit;
 
     //! Vector for building up documents representing nested sub-results.
     //! The documents in this vector will reference memory owned by

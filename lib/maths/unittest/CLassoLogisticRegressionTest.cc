@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CLassoLogisticRegressionTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -15,9 +18,12 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <cmath>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CLassoLogisticRegressionTest)
 
 using namespace ml;
 
@@ -32,8 +38,8 @@ using TSizeSizePrDoublePrVec = std::vector<TSizeSizePrDoublePr>;
 template<typename ARRAY>
 void initializeMatrix(const ARRAY& x_, TDoubleVecVec& x) {
     x.resize(boost::size(x_[0]), TDoubleVec(boost::size(x_), 0.0));
-    for (std::size_t i = 0u; i < boost::size(x_); ++i) {
-        for (std::size_t j = 0u; j < boost::size(x_[i]); ++j) {
+    for (std::size_t i = 0; i < boost::size(x_); ++i) {
+        for (std::size_t j = 0; j < boost::size(x_[i]); ++j) {
             x[j][i] = x_[i][j];
         }
     }
@@ -41,8 +47,8 @@ void initializeMatrix(const ARRAY& x_, TDoubleVecVec& x) {
 
 template<typename ARRAY>
 void initializeMatrix(const ARRAY& x_, TSizeSizePrDoublePrVec& x) {
-    for (std::size_t i = 0u; i < boost::size(x_); ++i) {
-        for (std::size_t j = 0u; j < boost::size(x_[i]); ++j) {
+    for (std::size_t i = 0; i < boost::size(x_); ++i) {
+        for (std::size_t j = 0; j < boost::size(x_[i]); ++j) {
             if (x_[i][j] > 0.0) {
                 x.push_back(TSizeSizePrDoublePr(TSizeSizePr(j, i), x_[i][j]));
             }
@@ -52,7 +58,7 @@ void initializeMatrix(const ARRAY& x_, TSizeSizePrDoublePrVec& x) {
 
 double inner(const TDoubleVec& x, const TDoubleVec& y) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         result += x[i] * y[i];
     }
     return result;
@@ -63,21 +69,21 @@ double logLikelihood(const TDoubleVecVec& x,
                      const TDoubleVec& lambda,
                      const TDoubleVec& beta) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < y.size(); ++i) {
+    for (std::size_t i = 0; i < y.size(); ++i) {
         double f = 0.0;
-        for (std::size_t j = 0u; j < beta.size(); ++j) {
+        for (std::size_t j = 0; j < beta.size(); ++j) {
             f += beta[j] * x[j][i];
         }
         result -= std::log(1.0 + std::exp(-f * y[i]));
     }
-    for (std::size_t j = 0u; j < beta.size(); ++j) {
+    for (std::size_t j = 0; j < beta.size(); ++j) {
         result -= lambda[j] * std::fabs(beta[j]);
     }
     return result;
 }
 }
 
-void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
+BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescent) {
     static const double EPS = 5e-3;
 
     test::CRandomNumbers rng;
@@ -117,8 +123,8 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
         LOG_DEBUG(<< "sparse beta = " << core::CContainerPrinter::print(beta2)
                   << ", numberIterations = " << numberIterations);
 
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(beta1),
-                             core::CContainerPrinter::print(beta2));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(beta1),
+                            core::CContainerPrinter::print(beta2));
 
         initializeMatrix(x_, x);
         double ll = logLikelihood(x, y, lambda, beta1);
@@ -126,14 +132,14 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
 
         double llMinusEps = 0.0;
         double llPlusEps = 0.0;
-        for (std::size_t i = 0u; i < 10; ++i) {
+        for (std::size_t i = 0; i < 10; ++i) {
             TDoubleVec step;
             rng.generateUniformSamples(0.0, EPS, beta1.size(), step);
 
             TDoubleVec betaMinusEps;
             TDoubleVec betaPlusEps;
             double length = 0.0;
-            for (std::size_t j = 0u; j < beta1.size(); ++j) {
+            for (std::size_t j = 0; j < beta1.size(); ++j) {
                 betaMinusEps.push_back(beta1[j] - step[j]);
                 betaPlusEps.push_back(beta1[j] + step[j]);
                 length += step[j] * step[j];
@@ -149,10 +155,10 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
 
             double slope = (llPlusEps - llMinusEps) / length;
             LOG_DEBUG(<< "slope = " << slope);
-            CPPUNIT_ASSERT(slope < 0.015);
+            BOOST_TEST_REQUIRE(slope < 0.015);
         }
-        CPPUNIT_ASSERT(ll > llMinusEps / 10.0);
-        CPPUNIT_ASSERT(ll > llPlusEps / 10.0);
+        BOOST_TEST_REQUIRE(ll > llMinusEps / 10.0);
+        BOOST_TEST_REQUIRE(ll > llPlusEps / 10.0);
     }
 
     double lambdas[] = {2.5, 5.0, 10.0, 15.0, 20.0};
@@ -166,25 +172,25 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
     TDoubleVec decisionNormal;
     rng.generateUniformSamples(0.0, 1.0, 5, decisionNormal);
     double length = std::sqrt(inner(decisionNormal, decisionNormal));
-    for (std::size_t j = 0u; j < decisionNormal.size(); ++j) {
+    for (std::size_t j = 0; j < decisionNormal.size(); ++j) {
         decisionNormal[j] /= length;
     }
     LOG_DEBUG(<< "decisionNormal = " << core::CContainerPrinter::print(decisionNormal));
 
     TDoubleVecVec x_(6, TDoubleVec(100, 0.0));
     TDoubleVec y_(100, 0.0);
-    for (std::size_t i = 0u; i < 100; ++i) {
+    for (std::size_t i = 0; i < 100; ++i) {
         TDoubleVec xi;
         rng.generateUniformSamples(-20.0, 20.0, 5, xi);
         double yi = std::sqrt(inner(decisionNormal, xi)) > decision ? 1.0 : -1.0;
-        for (std::size_t j = 0u; j < xi.size(); ++j) {
+        for (std::size_t j = 0; j < xi.size(); ++j) {
             x_[j][i] = xi[j];
         }
         x_[5][i] = 1.0;
         y_[i] = yi;
     }
 
-    for (std::size_t k = 0u; k < boost::size(lambdas); ++k) {
+    for (std::size_t k = 0; k < boost::size(lambdas); ++k) {
         TDoubleVec lambda(6, lambdas[k]);
         TDoubleVecVec x(x_);
         TDoubleVec y(y_);
@@ -196,7 +202,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
                   << ", numberIterations = " << numberIterations);
 
         TDoubleVec effectiveDecisionNormal;
-        for (std::size_t j = 0u; j < decisionNormal.size(); ++j) {
+        for (std::size_t j = 0; j < decisionNormal.size(); ++j) {
             effectiveDecisionNormal.push_back(beta[j]);
         }
 
@@ -205,7 +211,7 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
                       std::sqrt(inner(effectiveDecisionNormal, effectiveDecisionNormal))) *
             360.0 / boost::math::double_constants::two_pi;
         LOG_DEBUG(<< "angular error = " << theta << " deg");
-        CPPUNIT_ASSERT(theta < 7.5);
+        BOOST_TEST_REQUIRE(theta < 7.5);
     }
 
     // Generate three features with monotonically increasing
@@ -213,40 +219,20 @@ void CLassoLogisticRegressionTest::testCyclicCoordinateDescent() {
     // in order as we increase lambda.
 }
 
-void CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse() {
+BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescentLargeSparse, *boost::unit_test::disabled()) {
     // TODO
 }
 
-void CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental() {
+BOOST_AUTO_TEST_CASE(testCyclicCoordinateDescentIncremental, *boost::unit_test::disabled()) {
     // TODO
 }
 
-void CLassoLogisticRegressionTest::testNormBasedLambda() {
+BOOST_AUTO_TEST_CASE(testNormBasedLambda, *boost::unit_test::disabled()) {
     // TODO
 }
 
-void CLassoLogisticRegressionTest::testCrossValidatedLambda() {
+BOOST_AUTO_TEST_CASE(testCrossValidatedLambda, *boost::unit_test::disabled()) {
     // TODO
 }
 
-CppUnit::Test* CLassoLogisticRegressionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLassoLogisticRegressionTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCyclicCoordinateDescent",
-        &CLassoLogisticRegressionTest::testCyclicCoordinateDescent));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse",
-        &CLassoLogisticRegressionTest::testCyclicCoordinateDescentLargeSparse));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental",
-        &CLassoLogisticRegressionTest::testCyclicCoordinateDescentIncremental));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testNormBasedLambda",
-        &CLassoLogisticRegressionTest::testNormBasedLambda));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLassoLogisticRegressionTest>(
-        "CLassoLogisticRegressionTest::testCrossValidatedLambda",
-        &CLassoLogisticRegressionTest::testCrossValidatedLambda));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

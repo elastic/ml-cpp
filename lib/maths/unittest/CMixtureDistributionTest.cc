@@ -1,19 +1,26 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CMixtureDistributionTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/CMixtureDistribution.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CMixtureDistributionTest)
 
 using namespace ml;
 using namespace maths;
@@ -24,7 +31,7 @@ using TNormalVec = std::vector<boost::math::normal_distribution<>>;
 using TLogNormalVec = std::vector<boost::math::lognormal_distribution<>>;
 using TGammaVec = std::vector<boost::math::gamma_distribution<>>;
 
-void CMixtureDistributionTest::testSupport() {
+BOOST_AUTO_TEST_CASE(testSupport) {
     {
         boost::math::normal_distribution<> n1(0.0, 1.0);
         boost::math::normal_distribution<> n2(5.0, 1.0);
@@ -35,8 +42,8 @@ void CMixtureDistributionTest::testSupport() {
         modes.push_back(n1);
         modes.push_back(n2);
         CMixtureDistribution<boost::math::normal_distribution<>> mixture(weights, modes);
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(boost::math::support(n1)),
-                             core::CContainerPrinter::print(support(mixture)));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(boost::math::support(n1)),
+                            core::CContainerPrinter::print(support(mixture)));
     }
     {
         boost::math::lognormal_distribution<> l1(1.0, 0.5);
@@ -48,12 +55,12 @@ void CMixtureDistributionTest::testSupport() {
         modes.push_back(l1);
         modes.push_back(l2);
         CMixtureDistribution<boost::math::lognormal_distribution<>> mixture(weights, modes);
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(boost::math::support(l1)),
-                             core::CContainerPrinter::print(support(mixture)));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(boost::math::support(l1)),
+                            core::CContainerPrinter::print(support(mixture)));
     }
 }
 
-void CMixtureDistributionTest::testMode() {
+BOOST_AUTO_TEST_CASE(testMode) {
     // The mode of the distribution should be at the maximum
     // of the distribution, i.e. p.d.f. derivative should be
     // zero and curvature should be positive.
@@ -67,7 +74,7 @@ void CMixtureDistributionTest::testMode() {
                              {0.0, 6.0},  {0.0, 5.0}, {0.0, 4.0}, {0.0, 3.0},
                              {0.0, 2.0},  {0.0, 1.0}};
 
-        for (std::size_t i = 0u; i < boost::size(means); ++i) {
+        for (std::size_t i = 0; i < boost::size(means); ++i) {
             LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means[i]));
             TDoubleVec weights;
             weights.push_back(0.6);
@@ -92,8 +99,8 @@ void CMixtureDistributionTest::testMode() {
                       << ", d^2f/dx^2 = " << curvature);
 
             // Gradient zero + curvature negative => maximum.
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, derivative, 1e-6);
-            CPPUNIT_ASSERT(curvature < 0.0);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
+            BOOST_TEST_REQUIRE(curvature < 0.0);
         }
     }
 
@@ -124,8 +131,8 @@ void CMixtureDistributionTest::testMode() {
         LOG_DEBUG(<< "x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
 
         // Gradient zero + curvature negative => maximum.
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, derivative, 1e-6);
-        CPPUNIT_ASSERT(curvature < 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
+        BOOST_TEST_REQUIRE(curvature < 0.0);
     }
     {
         LOG_DEBUG(<< "Mixture Two Log-Normals");
@@ -151,12 +158,12 @@ void CMixtureDistributionTest::testMode() {
         LOG_DEBUG(<< "x = " << x << ", df/dx = " << derivative << ", d^2f/dx^2 = " << curvature);
 
         // Gradient zero + curvature negative => maximum.
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, derivative, 1e-6);
-        CPPUNIT_ASSERT(curvature < 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, derivative, 1e-6);
+        BOOST_TEST_REQUIRE(curvature < 0.0);
     }
 }
 
-void CMixtureDistributionTest::testPdf() {
+BOOST_AUTO_TEST_CASE(testPdf) {
     // Check that the p.d.f. is the derivative of the c.d.f.
 
     const double tolerance = 1e-6;
@@ -173,11 +180,11 @@ void CMixtureDistributionTest::testPdf() {
             {0.3, 10.0}, {1.0, 0.4}, {1.4, 6.0}, {3.0, 1.1}, {3.0, 3.5},
             {1.0, 5.0},  {2.3, 4.0}, {3.0, 1.0}, {1.1, 1.0}, {3.0, 3.2}};
 
-        CPPUNIT_ASSERT_EQUAL(boost::size(weights), boost::size(means));
-        CPPUNIT_ASSERT_EQUAL(boost::size(means), boost::size(variances));
+        BOOST_REQUIRE_EQUAL(boost::size(weights), boost::size(means));
+        BOOST_REQUIRE_EQUAL(boost::size(means), boost::size(variances));
 
-        for (size_t i = 0u; i < boost::size(weights); ++i) {
-            LOG_DEBUG(<< "*** Test Case " << i << " ***");
+        for (size_t i = 0; i < boost::size(weights); ++i) {
+            LOG_TRACE(<< "*** Test Case " << i << " ***");
 
             TDoubleVec w;
             w.push_back(weights[i][0]);
@@ -196,20 +203,20 @@ void CMixtureDistributionTest::testPdf() {
                 double f = pdf(mixture, x);
                 double dFdx = (cdf(mixture, x + eps) - cdf(mixture, x - eps)) / 2.0 / eps;
 
-                LOG_DEBUG(<< "percentile = " << p << "%"
+                LOG_TRACE(<< "percentile = " << p << "%"
                           << ", f = " << f << ", dF/dx = " << dFdx);
 
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(f, dFdx, tolerance);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(f, dFdx, tolerance);
             }
         }
     }
 }
 
-void CMixtureDistributionTest::testCdf() {
+BOOST_AUTO_TEST_CASE(testCdf) {
     // The idea here is that the distribution should describe data
     // generated by a mixture of distributions.
 
-    const std::size_t nSamples = 100000u;
+    const std::size_t nSamples = 100000;
 
     const double weights[][2] = {
         {0.3, 0.7}, {0.5, 0.5}, {0.6, 0.4}, {0.35, 0.65}, {0.55, 0.45}};
@@ -217,13 +224,13 @@ void CMixtureDistributionTest::testCdf() {
         {10.0, 30.0}, {5.0, 25.0}, {20.0, 25.0}, {4.0, 50.0}, {11.0, 33.0}};
     const double scales[][2] = {{0.3, 0.2}, {1.0, 1.1}, {0.9, 0.95}, {0.4, 1.2}, {2.3, 2.1}};
 
-    CPPUNIT_ASSERT_EQUAL(boost::size(weights), boost::size(shapes));
-    CPPUNIT_ASSERT_EQUAL(boost::size(shapes), boost::size(scales));
+    BOOST_REQUIRE_EQUAL(boost::size(weights), boost::size(shapes));
+    BOOST_REQUIRE_EQUAL(boost::size(shapes), boost::size(scales));
 
     CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(weights); ++i) {
-        LOG_DEBUG(<< "*** Test Case " << i << " ***");
+    for (std::size_t i = 0; i < boost::size(weights); ++i) {
+        LOG_TRACE(<< "*** Test Case " << i << " ***");
 
         TDoubleVec samples1;
         rng.generateGammaSamples(
@@ -257,17 +264,17 @@ void CMixtureDistributionTest::testCdf() {
             double actualCdf = cdf(mixture, x);
             double expectedCdf = static_cast<double>(p) / 100;
 
-            LOG_DEBUG(<< "percentile = " << p << "%"
+            LOG_TRACE(<< "percentile = " << p << "%"
                       << ", actual cdf = " << actualCdf
                       << ", expected cdf = " << expectedCdf);
 
             // No more than a 10% error in the sample percentile.
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCdf, actualCdf, 0.1 * expectedCdf);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedCdf, actualCdf, 0.1 * expectedCdf);
         }
     }
 }
 
-void CMixtureDistributionTest::testQuantile() {
+BOOST_AUTO_TEST_CASE(testQuantile) {
     // Check that the quantile is the inverse of the c.d.f.
 
     const double weights[][3] = {
@@ -277,11 +284,11 @@ void CMixtureDistributionTest::testQuantile() {
     const double scales[][3] = {
         {0.1, 0.04, 0.5}, {0.8, 0.3, 0.6}, {0.5, 0.3, 0.4}, {0.3, 0.08, 0.9}, {0.1, 0.2, 1.0}};
 
-    CPPUNIT_ASSERT_EQUAL(boost::size(weights), boost::size(locations));
-    CPPUNIT_ASSERT_EQUAL(boost::size(locations), boost::size(scales));
+    BOOST_REQUIRE_EQUAL(boost::size(weights), boost::size(locations));
+    BOOST_REQUIRE_EQUAL(boost::size(locations), boost::size(scales));
 
-    for (std::size_t i = 0u; i < boost::size(weights); ++i) {
-        LOG_DEBUG(<< "*** Test " << i << " ***");
+    for (std::size_t i = 0; i < boost::size(weights); ++i) {
+        LOG_TRACE(<< "*** Test " << i << " ***");
 
         TDoubleVec w;
         w.push_back(weights[i][0]);
@@ -299,25 +306,10 @@ void CMixtureDistributionTest::testQuantile() {
         for (unsigned int p = 1; p < 100; ++p) {
             double q = static_cast<double>(p) / 100.0;
             double f = cdf(mixture, quantile(mixture, q));
-            LOG_DEBUG(<< "Error = " << std::fabs(q - f));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(q, f, 1e-10);
+            LOG_TRACE(<< "Error = " << std::fabs(q - f));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(q, f, 1e-10);
         }
     }
 }
 
-CppUnit::Test* CMixtureDistributionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CMixtureDistributionTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>(
-        "CMixtureDistributionTest::testSupport", &CMixtureDistributionTest::testSupport));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>(
-        "CMixtureDistributionTest::testMode", &CMixtureDistributionTest::testMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>(
-        "CMixtureDistributionTest::testPdf", &CMixtureDistributionTest::testPdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>(
-        "CMixtureDistributionTest::testCdf", &CMixtureDistributionTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CMixtureDistributionTest>(
-        "CMixtureDistributionTest::testQuantile", &CMixtureDistributionTest::testQuantile));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

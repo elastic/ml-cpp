@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CModelDetail_h
@@ -30,7 +35,7 @@ template<typename TREND, typename VECTOR>
 boost::optional<VECTOR> CModel::predictionError(const TREND& trend, const VECTOR& sample) {
     boost::optional<VECTOR> result;
     std::size_t dimension = sample.size();
-    for (std::size_t i = 0u; i < dimension; ++i) {
+    for (std::size_t i = 0; i < dimension; ++i) {
         if (trend[i]->initialized()) {
             result.reset(VECTOR(dimension, 0.0));
             for (/**/; i < dimension; ++i) {
@@ -52,7 +57,7 @@ boost::optional<VECTOR> CModel::predictionError(double propagationInterval,
         std::size_t dimension{sample.size()};
         result.reset(sample);
         VECTOR mean(marginalLikelihoodMean<VECTOR>(*prior));
-        for (std::size_t d = 0u; d < dimension; ++d) {
+        for (std::size_t d = 0; d < dimension; ++d) {
             (*result)[d] -= mean[d];
         }
     }

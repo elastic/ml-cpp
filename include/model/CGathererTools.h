@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CGathererTools_h
@@ -267,7 +272,7 @@ public:
             }
             (sum[0].value())[0] += value[0];
             sum[0].count() += static_cast<double>(count);
-            for (std::size_t i = 0u; i < influences.size(); ++i) {
+            for (std::size_t i = 0; i < influences.size(); ++i) {
                 if (!influences[i]) {
                     continue;
                 }
@@ -295,7 +300,7 @@ public:
         uint64_t checksum() const;
 
         //! Debug the memory used by this gatherer.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this gatherer.
         std::size_t memoryUsage() const;

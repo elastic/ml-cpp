@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CDecompositionComponent.h>
@@ -137,7 +142,7 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
         }
 
         try {
-            boost::math::normal_distribution<> normal{m, sd};
+            boost::math::normal normal{m, sd};
             double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
             double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
@@ -170,7 +175,7 @@ TDoubleDoublePr CDecompositionComponent::variance(double offset, double n, doubl
             return {v, v};
         }
         try {
-            boost::math::chi_squared_distribution<> chi{n - 1.0};
+            boost::math::chi_squared chi{n - 1.0};
             double ql{boost::math::quantile(chi, (100.0 - confidence) / 200.0)};
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return std::make_pair(ql * v / (n - 1.0), qu * v / (n - 1.0));
@@ -245,7 +250,14 @@ bool CDecompositionComponent::CPackedSplines::acceptRestoreTraverser(
         this->interpolate(knots, values, variances, boundary);
     }
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CDecompositionComponent::CPackedSplines::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT(m_Knots.size(), !=, m_Values[0].size());
+    VIOLATES_INVARIANT(m_Values[0].size(), !=, m_Values[1].size());
 }
 
 void CDecompositionComponent::CPackedSplines::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -257,7 +269,7 @@ void CDecompositionComponent::CPackedSplines::acceptPersistInserter(core::CState
     }
 }
 
-void CDecompositionComponent::CPackedSplines::swap(CPackedSplines& other) {
+void CDecompositionComponent::CPackedSplines::swap(CPackedSplines& other) noexcept {
     std::swap(m_Types, other.m_Types);
     m_Knots.swap(other.m_Knots);
     m_Values[0].swap(other.m_Values[0]);
@@ -325,7 +337,8 @@ uint64_t CDecompositionComponent::CPackedSplines::checksum(uint64_t seed) const 
     return CChecksum::calculate(seed, m_Curvatures);
 }
 
-void CDecompositionComponent::CPackedSplines::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CDecompositionComponent::CPackedSplines::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPackedSplines");
     core::CMemoryDebug::dynamicSize("m_Knots", m_Knots, mem);
     core::CMemoryDebug::dynamicSize("m_Values[0]", m_Values[0], mem);

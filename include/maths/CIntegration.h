@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CIntegration_h
@@ -298,16 +303,16 @@ public:
 
         TDoubleVec corrections;
         corrections.reserve(fIntervals.size());
-        for (std::size_t i = 0u; i < fIntervals.size(); ++i) {
+        for (std::size_t i = 0; i < fIntervals.size(); ++i) {
             corrections.push_back(std::fabs(fIntervals[i]));
         }
 
-        for (std::size_t i = 0u; !intervals.empty() && i < refinements; ++i) {
+        for (std::size_t i = 0; !intervals.empty() && i < refinements; ++i) {
             std::size_t n = intervals.size();
             double cutoff = tolerance * std::fabs(result) / static_cast<double>(n);
 
-            std::size_t end = 0u;
-            for (std::size_t j = 0u; j < corrections.size(); ++j) {
+            std::size_t end = 0;
+            for (std::size_t j = 0; j < corrections.size(); ++j) {
                 if (corrections[j] > cutoff) {
                     std::swap(intervals[end], intervals[j]);
                     std::swap(fIntervals[end], fIntervals[j]);
@@ -328,7 +333,7 @@ public:
                 corrections.reserve(splitsPerRefinement * n);
             }
 
-            for (std::size_t j = 0u; j < n; ++j) {
+            for (std::size_t j = 0; j < n; ++j) {
                 if (corrections[j] <= cutoff) {
                     corrections[j] = 0.0;
                     continue;
@@ -340,7 +345,7 @@ public:
                 double aj = intervals[j].first;
                 double dj = (intervals[j].second - intervals[j].first) /
                             static_cast<double>(splitsPerRefinement);
-                for (std::size_t k = 0u; k < splitsPerRefinement; ++k, aj += dj) {
+                for (std::size_t k = 0; k < splitsPerRefinement; ++k, aj += dj) {
                     double df;
                     if (CIntegration::gaussLegendre<ORDER>(f, aj, aj + dj, df)) {
                         fjNew += df;
@@ -413,10 +418,10 @@ public:
         static const CSparseGaussLegendreQuadrature& instance() {
             const CSparseGaussLegendreQuadrature* tmp =
                 ms_Instance.load(std::memory_order_acquire);
-            if (!tmp) {
+            if (tmp == nullptr) {
                 core::CScopedFastLock scopedLock(CIntegration::ms_Mutex);
-                tmp = ms_Instance.load(std::memory_order_relaxed);
-                if (!tmp) {
+                tmp = ms_Instance.load(std::memory_order_acquire);
+                if (tmp == nullptr) {
                     tmp = new CSparseGaussLegendreQuadrature();
                     ms_Instance.store(tmp, std::memory_order_release);
                 }
@@ -450,7 +455,7 @@ public:
                         stop[j] = stop[d] - indices[d] + 1;
                     }
                     indices[0] = stop[0];
-                    d = 0u;
+                    d = 0;
                     return true;
                 }
             }
@@ -473,7 +478,7 @@ public:
             for (unsigned int l = ORDER > DIMENSION ? ORDER - DIMENSION : 0;
                  l < ORDER; ++l) {
                 LOG_TRACE(<< "order = " << l);
-                std::size_t d = 0u;
+                std::size_t d = 0;
                 TUIntVec indices(DIMENSION, 1);
                 indices[0] = l + 1;
                 TUIntVec stop(DIMENSION, l + 1);
@@ -486,16 +491,16 @@ public:
                 do {
                     LOG_TRACE(<< "indices = " << core::CContainerPrinter::print(indices));
 
-                    unsigned int n = 1u;
-                    for (std::size_t i = 0u; i < indices.size(); ++i) {
+                    unsigned int n = 1;
+                    for (std::size_t i = 0; i < indices.size(); ++i) {
                         n *= indices[i];
                     }
                     LOG_TRACE(<< "Number of points = " << n);
 
                     TDoubleVec weights(n, 1.0);
                     TVectorVec points(n, TVector(0.0));
-                    for (unsigned int i = 0u; i < n; ++i) {
-                        for (unsigned int i_ = i, j = 0u; j < indices.size();
+                    for (unsigned int i = 0; i < n; ++i) {
+                        for (unsigned int i_ = i, j = 0; j < indices.size();
                              i_ /= indices[j], ++j) {
                             EOrder order = static_cast<EOrder>(indices[j]);
                             const double* w = CGaussLegendreQuadrature::weights(order);
@@ -507,7 +512,7 @@ public:
                     }
                     LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
                     LOG_TRACE(<< "points =  " << core::CContainerPrinter::print(points));
-                    for (std::size_t i = 0u; i < n; ++i) {
+                    for (std::size_t i = 0; i < n; ++i) {
                         ordered[points[i]] += scale * weights[i];
                     }
                 } while (next(d, indices, stop));
@@ -587,7 +592,7 @@ public:
             result += fx;
         }
 
-        for (std::size_t i = 0u; i < DIMENSION; ++i) {
+        for (std::size_t i = 0; i < DIMENSION; ++i) {
             result *= range(i);
         }
 

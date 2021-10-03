@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CEventRatePopulationModel_h
@@ -98,6 +103,8 @@ public:
         TFeatureSizeSizePrFeatureDataPrVecMap s_FeatureData;
         //! A cache of the corrections applied to interim results.
         mutable TCorrectionKeyDouble1VecUMap s_InterimCorrections;
+        //! Annotations produced by this model.
+        TAnnotationVec s_Annotations;
     };
 
     //! Lift the overloads of currentBucketValue into the class scope.
@@ -162,6 +169,9 @@ public:
     void persistModelsState(core::CStatePersistInserter& /*inserter*/) const override {
         // NO-OP
     }
+
+    //! Should this model be persisted?
+    bool shouldPersist() const override;
 
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
@@ -290,7 +300,7 @@ public:
     uint64_t checksum(bool includeCurrentBucketStats = true) const override;
 
     //! Debug the memory used by this model.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this model.
     std::size_t memoryUsage() const override;
@@ -307,6 +317,9 @@ public:
     //! Get the feature data corresponding to \p feature at \p time.
     const TSizeSizePrFeatureDataPrVec& featureData(model_t::EFeature feature,
                                                    core_t::TTime time) const;
+
+    //! Get the annotations produced by this model.
+    const TAnnotationVec& annotations() const override;
 
 private:
     //! Initialize the feature models.

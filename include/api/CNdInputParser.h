@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_api_CNdInputParser_h
 #define INCLUDED_ml_api_CNdInputParser_h
@@ -38,13 +43,13 @@ public:
     //! For example, if std::cin is passed, no other object should read from
     //! std::cin, otherwise unpredictable and incorrect results will be
     //! generated.
-    CNdInputParser(std::istream& strmIn);
+    CNdInputParser(TStrVec mutableFieldNames, std::istream& strmIn);
 
 protected:
     //! Line end character
     static const char LINE_END;
 
-    using TCharPSizePr = std::pair<char*, size_t>;
+    using TCharPSizePr = std::pair<char*, std::size_t>;
 
 protected:
     //! Return a pointer to the start of the next line and its length,
@@ -62,7 +67,7 @@ protected:
 
 private:
     //! Allocate this much memory for the working buffer
-    static const size_t WORK_BUFFER_SIZE;
+    static const std::size_t WORK_BUFFER_SIZE;
 
     //! Reference to the stream we're going to read from
     std::istream& m_StrmIn;
@@ -81,11 +86,11 @@ private:
     //! characters is NOT zero terminated, which is something to be aware of
     //! when accessing it.
     TScopedCharArray m_WorkBuffer;
-    size_t m_WorkBufferCapacity;
+    std::size_t m_WorkBufferCapacity;
     char* m_WorkBufferPtr;
     char* m_WorkBufferEnd;
 };
 }
 }
 
-#endif // INCLUDED_ml_api_CNdJsonInputParser_h
+#endif // INCLUDED_ml_api_CNdInputParser_h

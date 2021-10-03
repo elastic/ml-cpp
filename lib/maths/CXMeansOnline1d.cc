@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CXMeansOnline1d.h>
@@ -418,6 +423,10 @@ void BICGain(maths_t::EDataType dataType,
 //! \param[in,out] category The category to Winsorise.
 void winsorise(const TDoubleDoublePr& interval, TTuple& category) {
 
+    if (CBasicStatistics::maximumLikelihoodVariance(category) < 0.0) {
+        CBasicStatistics::moment<1>(category) = 0.0;
+    }
+
     double a = interval.first;
     double b = interval.second;
     double m = CBasicStatistics::mean(category);
@@ -432,7 +441,7 @@ void winsorise(const TDoubleDoublePr& interval, TTuple& category) {
     }
 
     try {
-        boost::math::normal_distribution<> normal(m, sigma);
+        boost::math::normal normal(m, sigma);
         double pa = xa > t ? 0.0 : CTools::safeCdf(normal, a);
         double pb = xb > t ? 0.0 : CTools::safeCdfComplement(normal, b);
 
@@ -456,8 +465,8 @@ void winsorise(const TDoubleDoublePr& interval, TTuple& category) {
 
         double n = CBasicStatistics::count(category);
 
-        category.s_Moments[0] = wm;
-        category.s_Moments[1] = std::max((n - 1.0) / n * wv, 0.0);
+        CBasicStatistics::moment<0>(category) = wm;
+        CBasicStatistics::moment<1>(category) = std::max((n - 1.0) / n * wv, 0.0);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Bad category = " << category << ": " << e.what());
     }
@@ -548,7 +557,7 @@ bool splitSearch(double minimumCount,
         LOG_TRACE(<< "max(BIC(1) - BIC(2), 0) = " << distance << " (to split "
                   << minimumDistance << ")");
 
-        if (!satisfiesCount) {
+        if (satisfiesCount == false) {
             // Recurse to the (one) node with sufficient count.
             if (nl > minimumCount && candidate[0] - node.first > 1) {
                 node = {node.first, candidate[0]};
@@ -790,7 +799,7 @@ bool CXMeansOnline1d::hasCluster(std::size_t index) const {
 
 bool CXMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
     const CCluster* cluster = this->cluster(index);
-    if (!cluster) {
+    if (cluster == nullptr) {
         LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
@@ -800,7 +809,7 @@ bool CXMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
 
 bool CXMeansOnline1d::clusterSpread(std::size_t index, double& result) const {
     const CCluster* cluster = this->cluster(index);
-    if (!cluster) {
+    if (cluster == nullptr) {
         LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
@@ -983,7 +992,7 @@ void CXMeansOnline1d::propagateForwardsByTime(double time) {
 
 bool CXMeansOnline1d::sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const {
     const CCluster* cluster = this->cluster(index);
-    if (!cluster) {
+    if (cluster == nullptr) {
         LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
@@ -1003,7 +1012,7 @@ double CXMeansOnline1d::probability(std::size_t index) const {
     return Z == 0.0 ? 0.0 : weight / Z;
 }
 
-void CXMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CXMeansOnline1d::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CXMeansOnline1d");
     core::CMemoryDebug::dynamicSize("m_ClusterIndexGenerator", m_ClusterIndexGenerator, mem);
     core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
@@ -1019,7 +1028,7 @@ std::size_t CXMeansOnline1d::staticSize() const {
     return sizeof(*this);
 }
 
-uint64_t CXMeansOnline1d::checksum(uint64_t seed) const {
+std::uint64_t CXMeansOnline1d::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DataType);
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_HistoryLength);
@@ -1079,8 +1088,8 @@ std::string CXMeansOnline1d::printClusters() const {
         for (const auto& cluster : m_Clusters) {
             double logLikelihood;
             const CPrior& prior = cluster.prior();
-            if (!(prior.jointLogMarginalLikelihood(x, maths_t::CUnitWeights::SINGLE_UNIT, logLikelihood) &
-                  (maths_t::E_FpFailed | maths_t::E_FpOverflowed))) {
+            if ((prior.jointLogMarginalLikelihood(x, maths_t::CUnitWeights::SINGLE_UNIT, logLikelihood) &
+                 (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) == false) {
                 likelihood += cluster.weight(m_WeightCalc) / Z * std::exp(logLikelihood);
             }
         }
@@ -1199,7 +1208,7 @@ bool CXMeansOnline1d::prune() {
     bool result = false;
 
     double minimumCount = this->minimumSplitCount() * CLUSTER_DELETE_FRACTION;
-    for (std::size_t i = 1u; i < m_Clusters.size(); /**/) {
+    for (std::size_t i = 1; i < m_Clusters.size(); /**/) {
         CCluster& left = m_Clusters[i - 1];
         CCluster& right = m_Clusters[i];
         if (left.count() < minimumCount || right.count() < minimumCount) {
@@ -1218,6 +1227,35 @@ bool CXMeansOnline1d::prune() {
     }
 
     return result;
+}
+
+bool CXMeansOnline1d::remove(std::size_t index) {
+
+    if (m_Clusters.size() <= 1) {
+        return false;
+    }
+
+    auto i = std::find_if(m_Clusters.begin(), m_Clusters.end(), [&](const auto& cluster) {
+        return cluster.index() == index;
+    });
+    if (i == m_Clusters.begin()) {
+        ++i;
+    }
+
+    if (i != m_Clusters.end()) {
+        CCluster& left = *(i - 1);
+        CCluster& right = *i;
+        std::size_t leftIndex = left.index();
+        std::size_t rightIndex = right.index();
+        LOG_TRACE(<< "Merging cluster " << leftIndex << " at " << left.centre()
+                  << " and cluster " << rightIndex << " at " << right.centre());
+        CCluster merge = left.merge(right, m_ClusterIndexGenerator);
+        left = merge;
+        m_Clusters.erase(i);
+        (this->mergeFunc())(leftIndex, rightIndex, merge.index());
+        return true;
+    }
+    return false;
 }
 
 TDoubleDoublePr CXMeansOnline1d::winsorisationInterval() const {
@@ -1411,8 +1449,8 @@ CXMeansOnline1d::CCluster::split(CAvailableModeDistributions distributions,
         for (auto& category : categories) {
             detail::winsorise(interval, category);
         }
-        if (!detail::splitSearch(minimumCount, MINIMUM_SPLIT_DISTANCE, dataType,
-                                 distributions, smallest, categories, split)) {
+        if (detail::splitSearch(minimumCount, MINIMUM_SPLIT_DISTANCE, dataType,
+                                distributions, smallest, categories, split) == false) {
             return {};
         }
     }
@@ -1448,11 +1486,11 @@ bool CXMeansOnline1d::CCluster::shouldMerge(CCluster& other,
 
     maths_t::EDataType dataType = m_Prior.dataType();
     TTupleVec categories;
-    if (!m_Structure.categories(m_Structure.size(), 0, categories)) {
+    if (m_Structure.categories(m_Structure.size(), 0, categories) == false) {
         return false;
     }
     std::size_t split = categories.size();
-    if (!other.m_Structure.categories(other.m_Structure.size(), 0, categories, true)) {
+    if (other.m_Structure.categories(other.m_Structure.size(), 0, categories, true) == false) {
         return false;
     }
 
@@ -1510,13 +1548,13 @@ const CNormalMeanPrecConjugate& CXMeansOnline1d::CCluster::prior() const {
     return m_Prior;
 }
 
-uint64_t CXMeansOnline1d::CCluster::checksum(uint64_t seed) const {
+std::uint64_t CXMeansOnline1d::CCluster::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Index);
     seed = CChecksum::calculate(seed, m_Prior);
     return CChecksum::calculate(seed, m_Structure);
 }
 
-void CXMeansOnline1d::CCluster::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CXMeansOnline1d::CCluster::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CXMeansOnline1d::CCluster");
     core::CMemoryDebug::dynamicSize("m_Prior", m_Prior, mem);
     core::CMemoryDebug::dynamicSize("m_Structure", m_Structure, mem);

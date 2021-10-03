@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CDataFrameRowSlice.h>
@@ -20,7 +25,7 @@
 
 namespace ml {
 namespace core {
-using TFloatVec = std::vector<CFloatStorage>;
+using TFloatVec = std::vector<CFloatStorage, CAlignedAllocator<CFloatStorage>>;
 using TFloatVecItr = TFloatVec::iterator;
 using TInt32Vec = std::vector<std::int32_t>;
 using TInt32VecCItr = TInt32Vec::const_iterator;
@@ -104,8 +109,8 @@ private:
 };
 
 //! Checksum \p vec.
-template<typename T>
-std::uint64_t computeChecksum(const std::vector<T>& vec) {
+template<typename T, typename ALLOCATOR>
+std::uint64_t computeChecksum(const std::vector<T, ALLOCATOR>& vec) {
     return CHashing::murmurHash64(vec.data(), static_cast<int>(sizeof(T) * vec.size()), 0);
 }
 
@@ -125,7 +130,7 @@ CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(const CDataFrameRowSliceHandl
     : m_Impl{other.m_Impl != nullptr ? other.m_Impl->clone() : nullptr} {
 }
 
-CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& other)
+CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& other) noexcept
     : m_Impl{std::move(other.m_Impl)} {
 }
 
@@ -137,10 +142,8 @@ operator=(const CDataFrameRowSliceHandle& other) {
     return *this;
 }
 
-CDataFrameRowSliceHandle& CDataFrameRowSliceHandle::operator=(CDataFrameRowSliceHandle&& other) {
-    m_Impl = std::move(other.m_Impl);
-    return *this;
-}
+CDataFrameRowSliceHandle& CDataFrameRowSliceHandle::
+operator=(CDataFrameRowSliceHandle&& other) noexcept = default;
 
 std::size_t CDataFrameRowSliceHandle::size() const {
     return m_Impl->rows().size();
@@ -183,7 +186,7 @@ bool CDataFrameRowSliceHandle::bad() const {
 CMainMemoryDataFrameRowSlice::CMainMemoryDataFrameRowSlice(std::size_t firstRow,
                                                            TFloatVec rows,
                                                            TInt32Vec docHashes)
-    : m_FirstRow{firstRow}, m_Rows{std::move(rows)}, m_DocHashes(docHashes) {
+    : m_FirstRow{firstRow}, m_Rows{std::move(rows)}, m_DocHashes{std::move(docHashes)} {
     LOG_TRACE(<< "slice size = " << m_Rows.size() << " capacity = " << m_Rows.capacity());
     m_Rows.shrink_to_fit();
     m_DocHashes.shrink_to_fit();

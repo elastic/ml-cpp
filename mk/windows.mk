@@ -1,7 +1,12 @@
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 OS=Windows
@@ -9,7 +14,7 @@ OS=Windows
 CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/windows-x86_64
 
 CC=cl
-CXX=cl
+CXX=cl -std:c++17
 
 # Generally we'll want to build with a DLL version of the C runtime library, but
 # occasionally we may need to override this
@@ -23,16 +28,16 @@ OPTCPPFLAGS=-DNDEBUG -DEXCLUDE_TRACE_LOGGING
 endif
 
 SHELL:=$(LOCAL_DRIVE):/PROGRA~1/Git/bin/bash.exe
-# On 64 bit Windows Visual Studio 2017 is in C:\Program Files (x86) aka C:\PROGRA~2
+# On 64 bit Windows Visual Studio 2019 is in C:\Program Files (x86) aka C:\PROGRA~2
 
 # compiler and sdk are dependent on your local install, tweak them with overwriting VCBASE and WINSDKBASE in your .bashrc
 # do not override them here
-# default: VS Professional 2017
-VCBASE?=$(shell cd /$(LOCAL_DRIVE) && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2017/Professional")
+# default: VS Professional 2019
+VCBASE?=$(shell cd /$(LOCAL_DRIVE) && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2019/Professional")
 WINSDKBASE?=$(shell cd /$(LOCAL_DRIVE) && cygpath -m -s "Program Files (x86)/Windows Kits")
 
-# example compiler defaults for VS Build Tools 2017, c&p into your .bashrc, note 8.3 paths might be different on your install
-# export VCBASE=PROGRA~2/MICROS~2/2017/BUILDT~1
+# example compiler defaults for VS Build Tools 2019, c&p into your .bashrc, note 8.3 paths might be different on your install
+# export VCBASE=PROGRA~2/MICROS~2/2019/BUILDT~1
 # export WINSDKBASE=PROGRA~2/WI3CF2~1
 
 VCVER:=$(shell ls -1 /$(LOCAL_DRIVE)/$(VCBASE)/VC/Tools/MSVC | tail -1)
@@ -45,7 +50,7 @@ CFLAGS=-nologo $(OPTCFLAGS) -W4 $(CRT_OPT) -EHsc -Zi -Gw -FS -Zc:inline -diagnos
 CXXFLAGS=-TP $(CFLAGS) -Zc:rvalueCast -Zc:strictStrings -wd4127 -we4150 -wd4201 -wd4231 -wd4251 -wd4355 -wd4512 -wd4702 -bigobj
 ANALYZEFLAGS=-nologo -analyze:only -analyze:stacksize100000 $(CRT_OPT)
 
-CPPFLAGS=-X -I$(CPP_SRC_HOME)/3rd_party/include -I$(LOCAL_DRIVE):/usr/local/include $(VCINCLUDES) $(WINSDKINCLUDES) -D$(OS) -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -DWIN32_LEAN_AND_MEAN -DNTDDI_VERSION=0x06010000 -D_WIN32_WINNT=0x0601 -DCPPUNIT_DLL -DBUILDING_$(basename $(notdir $(TARGET))) $(OPTCPPFLAGS)
+CPPFLAGS=-X -I$(CPP_SRC_HOME)/3rd_party/include -I$(LOCAL_DRIVE):/usr/local/include $(VCINCLUDES) $(WINSDKINCLUDES) -D$(OS) -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -DWIN32_LEAN_AND_MEAN -DNTDDI_VERSION=0x06010000 -D_WIN32_WINNT=0x0601 -DBUILDING_$(basename $(notdir $(TARGET))) $(OPTCPPFLAGS)
 # -MD defines _DLL and _MT - for dependency determination we must define these
 # otherwise the Boost headers will throw errors during preprocessing
 ifeq ($(CRT_OPT),-MD)
@@ -77,7 +82,7 @@ RESOURCES_DIR=resources
 LOCALLIBS=AdvAPI32.lib shell32.lib Version.lib
 NETLIBS=WS2_32.lib
 BOOSTVER=1_71
-BOOSTVCVER=141
+BOOSTVCVER=142
 BOOSTINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_ALL_NO_LIB -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 BOOSTLOGLIBS=boost_log-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib
@@ -88,16 +93,20 @@ BOOSTPROGRAMOPTIONSLIBS=boost_program_options-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER)
 BOOSTTHREADLIBS=boost_thread-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib boost_chrono-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib boost_system-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib
 BOOSTFILESYSTEMLIBS=boost_filesystem-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib boost_system-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib
 BOOSTDATETIMELIBS=boost_date_time-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib
+BOOSTTESTLIBS=boost_unit_test_framework-vc$(BOOSTVCVER)-mt-x64-$(BOOSTVER).lib
 RAPIDJSONINCLUDES=-I$(CPP_SRC_HOME)/3rd_party/rapidjson/include
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 # Eigen automatically uses SSE and SSE2 on 64 bit Windows - only the higher
 # versions need to be explicitly enabled
-EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_VECTORIZE_SSE3 -DEIGEN_VECTORIZE_SSE4_1 -DEIGEN_VECTORIZE_SSE4_2
+EIGENINCLUDES=-I$(CPP_SRC_HOME)/3rd_party/eigen
+EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_VECTORIZE_SSE3 -DEIGEN_VECTORIZE_SSE4_1 -DEIGEN_VECTORIZE_SSE4_2 -DEIGEN_MAX_ALIGN_BYTES=32
+TORCHINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/pytorch
+TORCHCPULIB=torch_cpu.lib
+C10LIB=c10.lib
 XMLINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/libxml2
 XMLLIBLDFLAGS=-LIBPATH:$(LOCAL_DRIVE):/usr/local/lib
 XMLLIBS=libxml2.lib
 DYNAMICLIBLDFLAGS=-nologo -Zi $(CRT_OPT) -LD -link -MAP -OPT:REF -INCREMENTAL:NO -LIBPATH:$(CPP_PLATFORM_HOME)/$(IMPORT_LIB_DIR)
-CPPUNITLIBS=cppunit_dll.lib
 ZLIBLIBS=zdll.lib
 STRPTIMELIBS=strptime.lib
 EXELDFLAGS=-nologo -Zi $(CRT_OPT) -link -MAP -OPT:REF -SUBSYSTEM:CONSOLE,6.1 -STACK:0x800000 -INCREMENTAL:NO -LIBPATH:$(CPP_PLATFORM_HOME)/$(IMPORT_LIB_DIR)
@@ -110,7 +119,6 @@ LIB_ML_VER=libMlVer.lib
 ML_VER_LDFLAGS=-LIBPATH:$(CPP_SRC_HOME)/lib/ver/.objs
 LIB_ML_API=libMlApi.lib
 LIB_ML_MATHS=libMlMaths.lib
-LIB_ML_CONFIG=libMlConfig.lib
 LIB_ML_MODEL=libMlModel.lib
 LIB_ML_SECCOMP=libMlSeccomp.lib
 ML_SECCOMP_LDFLAGS=-LIBPATH:$(CPP_SRC_HOME)/lib/seccomp/.objs

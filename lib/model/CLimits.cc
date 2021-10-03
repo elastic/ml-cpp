@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <model/CLimits.h>
 
@@ -17,7 +22,6 @@ namespace ml {
 namespace model {
 
 // Initialise statics
-const size_t CLimits::DEFAULT_AUTOCONFIG_EVENTS(10000);
 const size_t CLimits::DEFAULT_ANOMALY_MAX_FIELD_VALUES(100000);
 const size_t CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS(1000000);
 const size_t CLimits::DEFAULT_RESULTS_MAX_EXAMPLES(4);
@@ -25,8 +29,7 @@ const size_t CLimits::DEFAULT_RESULTS_MAX_EXAMPLES(4);
 const double CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD(3.5);
 
 CLimits::CLimits(bool persistenceInForeground, double byteLimitMargin)
-    : m_AutoConfigEvents(DEFAULT_AUTOCONFIG_EVENTS),
-      m_AnomalyMaxTimeBuckets(DEFAULT_ANOMALY_MAX_TIME_BUCKETS),
+    : m_AnomalyMaxTimeBuckets(DEFAULT_ANOMALY_MAX_TIME_BUCKETS),
       m_MaxExamples(DEFAULT_RESULTS_MAX_EXAMPLES),
       m_UnusualProbabilityThreshold(DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD),
       m_MemoryLimitMB(CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB),
@@ -49,9 +52,7 @@ bool CLimits::init(const std::string& configFile) {
         return false;
     }
 
-    if (this->processSetting(propTree, "autoconfig.events",
-                             DEFAULT_AUTOCONFIG_EVENTS, m_AutoConfigEvents) == false ||
-        this->processSetting(propTree, "anomaly.maxtimebuckets", DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+    if (this->processSetting(propTree, "anomaly.maxtimebuckets", DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
                              m_AnomalyMaxTimeBuckets) == false ||
         this->processSetting(propTree, "results.maxexamples",
                              DEFAULT_RESULTS_MAX_EXAMPLES, m_MaxExamples) == false ||
@@ -69,8 +70,11 @@ bool CLimits::init(const std::string& configFile) {
     return true;
 }
 
-size_t CLimits::autoConfigEvents() const {
-    return m_AutoConfigEvents;
+void CLimits::init(std::size_t maxExamples, std::size_t modelMemoryLimitMB) {
+    m_MaxExamples = maxExamples;
+    m_MemoryLimitMB = modelMemoryLimitMB;
+
+    m_ResourceMonitor.memoryLimit(m_MemoryLimitMB);
 }
 
 size_t CLimits::anomalyMaxTimeBuckets() const {

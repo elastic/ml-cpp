@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include "CCmdLineParser.h"
 
@@ -21,7 +26,8 @@ bool CCmdLineParser::parse(int argc,
                            const char* const* argv,
                            std::string& jvmPidStr,
                            std::string& logPipe,
-                           std::string& commandPipe) {
+                           std::string& commandPipe,
+                           std::string& outputPipe) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -29,11 +35,13 @@ bool CCmdLineParser::parse(int argc,
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
             ("jvmPid", boost::program_options::value<std::string>(),
-                        "Process ID of the JVM to communicate with - default is parent process PID")
+                    "Process ID of the JVM to communicate with - default is parent process PID")
             ("logPipe", boost::program_options::value<std::string>(),
-                        "Named pipe to log to - default is controller_log_<JVM PID>")
+                    "Named pipe to log to - default is controller_log_<JVM PID>")
             ("commandPipe", boost::program_options::value<std::string>(),
-                        "Named pipe to accept commands from - default is controller_command_<JVM PID>")
+                    "Named pipe to accept commands from - default is controller_command_<JVM PID>")
+            ("outputPipe", boost::program_options::value<std::string>(),
+                    "Named pipe to output responses to - default is controller_output_<JVM PID>")
         ;
         // clang-format on
 
@@ -58,6 +66,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("commandPipe") > 0) {
             commandPipe = vm["commandPipe"].as<std::string>();
+        }
+        if (vm.count("outputPipe") > 0) {
+            outputPipe = vm["outputPipe"].as<std::string>();
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

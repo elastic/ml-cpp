@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CMetricModelFactory.h>
@@ -203,7 +208,7 @@ CMetricModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
 
 const CSearchKey& CMetricModelFactory::searchKey() const {
     if (!m_SearchKeyCache) {
-        m_SearchKeyCache.emplace(m_Identifier, function_t::function(m_Features),
+        m_SearchKeyCache.emplace(m_DetectorIndex, function_t::function(m_Features),
                                  m_UseNull, this->modelParams().s_ExcludeFrequent,
                                  m_ValueFieldName, m_PersonFieldName, "",
                                  m_PartitionFieldName, m_InfluenceFieldNames);
@@ -223,8 +228,8 @@ maths_t::EDataType CMetricModelFactory::dataType() const {
     return maths_t::E_ContinuousData;
 }
 
-void CMetricModelFactory::identifier(int identifier) {
-    m_Identifier = identifier;
+void CMetricModelFactory::detectorIndex(int detectorIndex) {
+    m_DetectorIndex = detectorIndex;
     m_SearchKeyCache.reset();
 }
 

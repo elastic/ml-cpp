@@ -1,26 +1,31 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CSingleStreamDataAdder.h>
 
 #include <core/CLogger.h>
+#include <core/Constants.h>
 
 #include <ostream>
 
 namespace ml {
 namespace api {
 
-const size_t CSingleStreamDataAdder::MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
+const std::size_t CSingleStreamDataAdder::MAX_DOCUMENT_SIZE(16 * core::constants::BYTES_IN_MEGABYTES);
 
 CSingleStreamDataAdder::CSingleStreamDataAdder(const TOStreamP& stream)
     : m_Stream(stream) {
 }
 
-CSingleStreamDataAdder::TOStreamP
-CSingleStreamDataAdder::addStreamed(const std::string& /*index*/, const std::string& id) {
-    if (m_Stream != nullptr && !m_Stream->bad()) {
+CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std::string& id) {
+    if (m_Stream != nullptr && m_Stream->bad() == false) {
         // Start with metadata, leaving the index for the receiving code to set
         (*m_Stream) << "{\"index\":{\"_id\":\"" << id << "\"}}\n";
     }
@@ -34,7 +39,7 @@ bool CSingleStreamDataAdder::streamComplete(TOStreamP& stream, bool force) {
         return false;
     }
 
-    if (stream != nullptr && !stream->bad()) {
+    if (stream != nullptr && stream->bad() == false) {
         // Each Elasticsearch document must be followed by a newline
         stream->put('\n');
 
@@ -47,7 +52,7 @@ bool CSingleStreamDataAdder::streamComplete(TOStreamP& stream, bool force) {
         }
     }
 
-    return stream != nullptr && !stream->bad();
+    return stream != nullptr && stream->bad() == false;
 }
 
 std::size_t CSingleStreamDataAdder::maxDocumentSize() const {

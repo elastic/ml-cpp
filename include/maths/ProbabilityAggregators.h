@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_ProbabilityAggregators_h
@@ -125,7 +130,7 @@ std::ostream& operator<<(std::ostream& o,
 //! joint probabilities, which should respect the error in the bounds.
 //! For example, two probabilities should be treated as equal if the
 //! intervals defined by their upper and lower bounds intersect.
-class MATHS_EXPORT CLogJointProbabilityOfLessLikelySamples
+class MATHS_EXPORT EMPTY_BASE_OPT CLogJointProbabilityOfLessLikelySamples
     : protected CJointProbabilityOfLessLikelySamples,
       private boost::addable<CLogJointProbabilityOfLessLikelySamples> {
 public:

@@ -1,19 +1,22 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CDataSearcher_h
 #define INCLUDED_ml_core_CDataSearcher_h
 
-#include <core/CDataAdder.h>
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
 #include <iosfwd>
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace ml {
 namespace core {
@@ -33,9 +36,6 @@ namespace core {
 //!
 class CORE_EXPORT CDataSearcher : private CNonCopyable {
 public:
-    using TStrVec = std::vector<std::string>;
-    using TStrVecCItr = TStrVec::const_iterator;
-
     using TIStreamP = std::shared_ptr<std::istream>;
 
 public:
@@ -43,23 +43,13 @@ public:
     static const std::string EMPTY_STRING;
 
 public:
-    CDataSearcher();
     virtual ~CDataSearcher();
 
     //! Do a search that results in an input stream.
     //! A return value of NULL indicates a technical problem with the
     //! creation of the stream.  Other errors may be indicated by the
     //! returned stream going into the "bad" state.
-    virtual TIStreamP search(size_t currentDocNum, size_t limit) = 0;
-
-    //! Set the search for all documents in the index
-    virtual void setStateRestoreSearch(const std::string& index);
-
-    //! Set the search for all documents in the index with the ID
-    virtual void setStateRestoreSearch(const std::string& index, const std::string& id);
-
-protected:
-    TStrVec m_SearchTerms;
+    virtual TIStreamP search(std::size_t currentDocNum, std::size_t limit) = 0;
 };
 }
 }

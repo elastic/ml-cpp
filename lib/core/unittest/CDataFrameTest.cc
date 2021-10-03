@@ -1,14 +1,19 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
-#include "CDataFrameTest.h"
-
+#include <core/CAlignment.h>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataFrameRowSlice.h>
+#include <core/CFloatStorage.h>
 #include <core/CPackedBitVector.h>
 #include <core/Concurrency.h>
 
@@ -16,18 +21,23 @@
 #include <test/CTestTmpDir.h>
 
 #include <boost/filesystem.hpp>
+#include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <functional>
 #include <mutex>
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CDataFrameTest)
+
 using namespace ml;
 
 namespace {
 using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
-using TFloatVec = std::vector<core::CFloatStorage>;
+using TSizeVec = std::vector<std::size_t>;
+using TFloatVec =
+    std::vector<core::CFloatStorage, core::CAlignedAllocator<core::CFloatStorage>>;
 using TFloatVecItr = TFloatVec::iterator;
 using TFloatVecCItr = TFloatVec::const_iterator;
 using TSizeFloatVecUMap = boost::unordered_map<std::size_t, TFloatVec>;
@@ -81,7 +91,7 @@ makeReader(TFloatVec& components, std::size_t cols, bool& passed) {
 
 class CThreadReader {
 public:
-    void operator()(TRowItr beginRows, TRowItr endRows) {
+    void operator()(const TRowItr& beginRows, const TRowItr& endRows) {
         TSizeFloatVecUMap::iterator entry;
         for (auto row = beginRows; row != endRows; ++row) {
             bool added;
@@ -102,15 +112,14 @@ private:
 };
 }
 
-void CDataFrameTest::setUp() {
-    core::startDefaultAsyncExecutor();
-}
+class CTestFixture {
+public:
+    CTestFixture() { core::startDefaultAsyncExecutor(); }
 
-void CDataFrameTest::tearDown() {
-    core::stopDefaultAsyncExecutor();
-}
+    ~CTestFixture() { core::stopDefaultAsyncExecutor(); }
+};
 
-void CDataFrameTest::testInMainMemoryBasicReadWrite() {
+BOOST_FIXTURE_TEST_CASE(testInMainMemoryBasicReadWrite, CTestFixture) {
 
     // Check we get the rows we write to the data frame in the order we write them.
 
@@ -141,13 +150,13 @@ void CDataFrameTest::testInMainMemoryBasicReadWrite() {
             std::tie(std::ignore, successful) = frame->readRows(
                 1, std::bind(makeReader(components, cols, passed), std::ref(i),
                              std::placeholders::_1, std::placeholders::_2));
-            CPPUNIT_ASSERT(successful);
-            CPPUNIT_ASSERT(passed);
+            BOOST_TEST_REQUIRE(successful);
+            BOOST_TEST_REQUIRE(passed);
         }
     }
 }
 
-void CDataFrameTest::testInMainMemoryParallelRead() {
+BOOST_FIXTURE_TEST_CASE(testInMainMemoryParallelRead, CTestFixture) {
 
     // Check we get the rows we write to the data frame and that we get balanced
     // reads per thread.
@@ -170,27 +179,27 @@ void CDataFrameTest::testInMainMemoryParallelRead() {
         std::vector<CThreadReader> readers;
         bool successful;
         std::tie(readers, successful) = frame->readRows(3, CThreadReader{});
-        CPPUNIT_ASSERT(successful);
-        CPPUNIT_ASSERT_EQUAL(std::size_t{3}, readers.size());
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_REQUIRE_EQUAL(std::size_t{3}, readers.size());
 
         TBoolVec rowRead(rows, false);
         for (const auto& reader : readers) {
-            CPPUNIT_ASSERT_EQUAL(false, reader.duplicates());
-            CPPUNIT_ASSERT(reader.rowsRead().size() <= 2000);
+            BOOST_REQUIRE_EQUAL(false, reader.duplicates());
+            BOOST_TEST_REQUIRE(reader.rowsRead().size() <= 2000);
             for (const auto& row : reader.rowsRead()) {
-                CPPUNIT_ASSERT(std::equal(components.begin() + row.first * cols,
-                                          components.begin() + (row.first + 1) * cols,
-                                          row.second.begin()));
+                BOOST_TEST_REQUIRE(std::equal(components.begin() + row.first * cols,
+                                              components.begin() + (row.first + 1) * cols,
+                                              row.second.begin()));
                 rowRead[row.first] = true;
             }
         }
 
         std::size_t rowsRead(std::count(rowRead.begin(), rowRead.end(), true));
-        CPPUNIT_ASSERT_EQUAL(rows, rowsRead);
+        BOOST_REQUIRE_EQUAL(rows, rowsRead);
     }
 }
 
-void CDataFrameTest::testOnDiskBasicReadWrite() {
+BOOST_FIXTURE_TEST_CASE(testOnDiskBasicReadWrite, CTestFixture) {
 
     // Check we get the rows we write to the data frame in the order we write them.
 
@@ -214,11 +223,11 @@ void CDataFrameTest::testOnDiskBasicReadWrite() {
     std::tie(std::ignore, successful) = frame->readRows(
         1, std::bind(makeReader(components, cols, passed), std::ref(i),
                      std::placeholders::_1, std::placeholders::_2));
-    CPPUNIT_ASSERT(successful);
-    CPPUNIT_ASSERT(passed);
+    BOOST_TEST_REQUIRE(successful);
+    BOOST_TEST_REQUIRE(passed);
 }
 
-void CDataFrameTest::testOnDiskParallelRead() {
+BOOST_FIXTURE_TEST_CASE(testOnDiskParallelRead, CTestFixture) {
 
     // Check we get the rows we write to the data frame and that we get balanced
     // reads per thread.
@@ -240,26 +249,26 @@ void CDataFrameTest::testOnDiskParallelRead() {
     std::vector<CThreadReader> readers;
     bool successful;
     std::tie(readers, successful) = frame->readRows(3, CThreadReader{});
-    CPPUNIT_ASSERT(successful);
-    CPPUNIT_ASSERT_EQUAL(std::size_t{(rows + 1999) / 2000}, readers.size());
+    BOOST_TEST_REQUIRE(successful);
+    BOOST_REQUIRE_EQUAL(std::size_t{(rows + 1999) / 2000}, readers.size());
 
     TBoolVec rowRead(rows, false);
     for (const auto& reader : readers) {
-        CPPUNIT_ASSERT_EQUAL(false, reader.duplicates());
-        CPPUNIT_ASSERT(reader.rowsRead().size() <= 2000);
+        BOOST_REQUIRE_EQUAL(false, reader.duplicates());
+        BOOST_TEST_REQUIRE(reader.rowsRead().size() <= 2000);
         for (const auto& row : reader.rowsRead()) {
-            CPPUNIT_ASSERT(std::equal(components.begin() + row.first * cols,
-                                      components.begin() + (row.first + 1) * cols,
-                                      row.second.begin()));
+            BOOST_TEST_REQUIRE(std::equal(components.begin() + row.first * cols,
+                                          components.begin() + (row.first + 1) * cols,
+                                          row.second.begin()));
             rowRead[row.first] = true;
         }
     }
 
     std::size_t rowsRead(std::count(rowRead.begin(), rowRead.end(), true));
-    CPPUNIT_ASSERT_EQUAL(rows, rowsRead);
+    BOOST_REQUIRE_EQUAL(rows, rowsRead);
 }
 
-void CDataFrameTest::testReadRange() {
+BOOST_FIXTURE_TEST_CASE(testReadRange, CTestFixture) {
 
     // Check we get the only the rows rows we request.
 
@@ -298,7 +307,7 @@ void CDataFrameTest::testReadRange() {
                     bool passed{true};
                     frame->readRows(
                         threads, beginRowsInRange, endRowsInRange,
-                        [&](TRowItr beginRows, TRowItr endRows) {
+                        [&](const TRowItr& beginRows, const TRowItr& endRows) {
                             for (auto row = beginRows; row != endRows; ++row) {
                                 if (passed && (row->index() < beginRowsInRange ||
                                                row->index() >= endRowsInRange)) {
@@ -319,14 +328,14 @@ void CDataFrameTest::testReadRange() {
                                 }
                             }
                         });
-                    CPPUNIT_ASSERT(passed);
+                    BOOST_TEST_REQUIRE(passed);
                 }
             }
         }
     }
 }
 
-void CDataFrameTest::testWriteRange() {
+BOOST_FIXTURE_TEST_CASE(testWriteRange, CTestFixture) {
 
     // Check we get the only write the rows we specify.
 
@@ -367,16 +376,16 @@ void CDataFrameTest::testWriteRange() {
                     LOG_DEBUG(<< "Writing [" << beginRowsInRange << ","
                               << endRowsInRange << ")");
 
-                    frame->writeColumns(threads, beginRowsInRange, endRowsInRange,
-                                        [&](TRowItr beginRows, TRowItr endRows) {
-                                            for (auto row = beginRows;
-                                                 row != endRows; ++row) {
-                                                (*row)[0] += 2.0;
-                                            }
-                                        });
+                    frame->writeColumns(
+                        threads, beginRowsInRange, endRowsInRange,
+                        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                            for (auto row = beginRows; row != endRows; ++row) {
+                                (*row)[0] += 2.0;
+                            }
+                        });
 
                     bool passed{true};
-                    frame->readRows(threads, [&](TRowItr beginRows, TRowItr endRows) {
+                    frame->readRows(threads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
                         for (auto row = beginRows; row != endRows; ++row) {
                             if (passed) {
                                 auto column = components.begin() + row->index() * cols;
@@ -392,14 +401,14 @@ void CDataFrameTest::testWriteRange() {
                             }
                         }
                     });
-                    CPPUNIT_ASSERT(passed);
+                    BOOST_TEST_REQUIRE(passed);
                 }
             }
         }
     }
 }
 
-void CDataFrameTest::testMemoryUsage() {
+BOOST_FIXTURE_TEST_CASE(testMemoryUsage, CTestFixture) {
 
     // This asserts on the memory used by the different types of data frames. This
     // is meant to catch large regressions in memory usage and as such the thresholds
@@ -424,9 +433,10 @@ void CDataFrameTest::testMemoryUsage() {
 
     // Memory usage should be less than:
     //   1) 1075 + 4 times the root directory length bytes for on disk, and
-    //   2) data size + doc ids size + 900 byte overhead in main memory.
+    //   2) data size + doc ids size + 900 byte overhead in main memory. Note that
+    //      we round up the number of columns to the next multiple of the alignment.
     std::size_t maximumMemory[]{1075 + 4 * rootDirectory.length(),
-                                rows * (cols + 1) * 4 + 900};
+                                rows * (4 * ((cols + 3) / 4) + 1) * 4 + 900};
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};
@@ -442,11 +452,11 @@ void CDataFrameTest::testMemoryUsage() {
 
         LOG_DEBUG(<< "Memory = " << frame->memoryUsage()
                   << ", limit = " << maximumMemory[t]);
-        CPPUNIT_ASSERT(frame->memoryUsage() < maximumMemory[t++]);
+        BOOST_TEST_REQUIRE(frame->memoryUsage() < maximumMemory[t++]);
     }
 }
 
-void CDataFrameTest::testReserve() {
+BOOST_FIXTURE_TEST_CASE(testReserve, CTestFixture) {
 
     // Check that we preserve the visible rows after reserving.
 
@@ -488,8 +498,8 @@ void CDataFrameTest::testReserve() {
         std::tie(std::ignore, successful) = frame->readRows(
             1, std::bind(makeReader(components, cols, passed), std::ref(i),
                          std::placeholders::_1, std::placeholders::_2));
-        CPPUNIT_ASSERT(successful);
-        CPPUNIT_ASSERT(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 
     LOG_DEBUG(<< "*** Test reserve after write ***");
@@ -513,12 +523,12 @@ void CDataFrameTest::testReserve() {
         std::tie(std::ignore, successful) = frame->readRows(
             1, std::bind(makeReader(components, cols, passed), std::ref(i),
                          std::placeholders::_1, std::placeholders::_2));
-        CPPUNIT_ASSERT(successful);
-        CPPUNIT_ASSERT(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
-void CDataFrameTest::testResizeColumns() {
+BOOST_FIXTURE_TEST_CASE(testResizeColumns, CTestFixture) {
 
     // Test all rows are correctly resized and the extra elements are zero
     // initialized.
@@ -556,8 +566,8 @@ void CDataFrameTest::testResizeColumns() {
 
         bool successful;
         bool passed{true};
-        std::tie(std::ignore, successful) =
-            frame->readRows(1, [&passed](TRowItr beginRows, TRowItr endRows) {
+        std::tie(std::ignore, successful) = frame->readRows(
+            1, [&passed](const TRowItr& beginRows, const TRowItr& endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     if (passed && row->numberColumns() != 18) {
                         LOG_DEBUG(<< "got " << row->numberColumns() << " columns");
@@ -572,12 +582,12 @@ void CDataFrameTest::testResizeColumns() {
                     }
                 }
             });
-        CPPUNIT_ASSERT(successful);
-        CPPUNIT_ASSERT(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
-void CDataFrameTest::testWriteColumns() {
+BOOST_FIXTURE_TEST_CASE(testWriteColumns, CTestFixture) {
 
     // Test writing of extra column values.
 
@@ -612,7 +622,7 @@ void CDataFrameTest::testWriteColumns() {
         frame->finishWritingRows();
 
         frame->resizeColumns(2, 18);
-        frame->writeColumns(2, [&](TRowItr beginRows, TRowItr endRows) mutable {
+        frame->writeColumns(2, [&](const TRowItr& beginRows, const TRowItr& endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t j = 15; j < 18; ++j) {
                     std::size_t index{row->index() * (cols + extraCols) + j};
@@ -627,12 +637,12 @@ void CDataFrameTest::testWriteColumns() {
         std::tie(std::ignore, successful) = frame->readRows(
             1, std::bind(makeReader(components, cols + extraCols, passed),
                          std::ref(i), std::placeholders::_1, std::placeholders::_2));
-        CPPUNIT_ASSERT(successful);
-        CPPUNIT_ASSERT(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
-void CDataFrameTest::testDocHashes() {
+BOOST_FIXTURE_TEST_CASE(testDocHashes, CTestFixture) {
 
     // Test we preserve the document hashes we write originally.
 
@@ -667,7 +677,7 @@ void CDataFrameTest::testDocHashes() {
         frame->finishWritingRows();
 
         frame->resizeColumns(2, 18);
-        frame->writeColumns(2, [&](TRowItr beginRows, TRowItr endRows) mutable {
+        frame->writeColumns(2, [&](const TRowItr& beginRows, const TRowItr& endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t j = 15; j < 18; ++j) {
                     std::size_t index{row->index() * (cols + extraCols) + j};
@@ -680,7 +690,7 @@ void CDataFrameTest::testDocHashes() {
         bool passed{true};
         std::tie(std::ignore, successful) = frame->readRows(1, [
             &passed, cols, extraCols, expectedDocHash = std::int32_t{0}
-        ](TRowItr beginRows, TRowItr endRows) mutable {
+        ](const TRowItr& beginRows, const TRowItr& endRows) mutable {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (passed && row->docHash() != expectedDocHash) {
                     LOG_ERROR(<< "Got doc hash " << row->docHash() << " expected "
@@ -690,16 +700,14 @@ void CDataFrameTest::testDocHashes() {
                 expectedDocHash += static_cast<std::int32_t>(cols + extraCols);
             }
         });
-        CPPUNIT_ASSERT(successful);
-        CPPUNIT_ASSERT(passed);
+        BOOST_TEST_REQUIRE(successful);
+        BOOST_TEST_REQUIRE(passed);
     }
 }
 
-void CDataFrameTest::testRowMask() {
+BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
 
     // Test we read only the rows in a mask.
-
-    using TSizeVec = std::vector<std::size_t>;
 
     TSizeVec rowsRead;
 
@@ -761,8 +769,8 @@ void CDataFrameTest::testRowMask() {
                         ->readRows(
                             numberThreads, ranges[i][0], ranges[i][1],
                             core::bindRetrievableState(
-                                [](TSizeVec& readerReadRowsIndices,
-                                   TRowItr beginRows, TRowItr endRows) mutable {
+                                [](TSizeVec& readerReadRowsIndices, const TRowItr& beginRows,
+                                   const TRowItr& endRows) mutable {
                                     for (auto row = beginRows; row != endRows; ++row) {
                                         readerReadRowsIndices.push_back(row->index());
                                     }
@@ -779,9 +787,8 @@ void CDataFrameTest::testRowMask() {
                 }
                 std::sort(readRowsIndices.begin(), readRowsIndices.end());
 
-                CPPUNIT_ASSERT_EQUAL(
-                    core::CContainerPrinter::print(rangeRowMaskIndices[i]),
-                    core::CContainerPrinter::print(readRowsIndices));
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(rangeRowMaskIndices[i]),
+                                    core::CContainerPrinter::print(readRowsIndices));
             }
 
             TSizeVec strides;
@@ -807,8 +814,8 @@ void CDataFrameTest::testRowMask() {
                         ->readRows(
                             numberThreads, 0, rows,
                             core::bindRetrievableState(
-                                [](TSizeVec& readerReadRowsIndices,
-                                   TRowItr beginRows, TRowItr endRows) mutable {
+                                [](TSizeVec& readerReadRowsIndices, const TRowItr& beginRows,
+                                   const TRowItr& endRows) mutable {
                                     for (auto row = beginRows; row != endRows; ++row) {
                                         readerReadRowsIndices.push_back(row->index());
                                     }
@@ -825,42 +832,128 @@ void CDataFrameTest::testRowMask() {
                 }
                 std::sort(readRowsIndices.begin(), readRowsIndices.end());
 
-                CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(rowMaskIndices),
-                                     core::CContainerPrinter::print(readRowsIndices));
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(rowMaskIndices),
+                                    core::CContainerPrinter::print(readRowsIndices));
             }
         }
     }
 }
 
-CppUnit::Test* CDataFrameTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDataFrameTest");
+BOOST_FIXTURE_TEST_CASE(testAlignment, CTestFixture) {
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testInMainMemoryBasicReadWrite",
-        &CDataFrameTest::testInMainMemoryBasicReadWrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testInMainMemoryParallelRead",
-        &CDataFrameTest::testInMainMemoryParallelRead));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testOnDiskBasicReadWrite", &CDataFrameTest::testOnDiskBasicReadWrite));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testOnDiskParallelRead", &CDataFrameTest::testOnDiskParallelRead));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testReadRange", &CDataFrameTest::testReadRange));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testWriteRange", &CDataFrameTest::testWriteRange));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testMemoryUsage", &CDataFrameTest::testMemoryUsage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testReserve", &CDataFrameTest::testReserve));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testResizeColumns", &CDataFrameTest::testResizeColumns));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testWriteColumns", &CDataFrameTest::testWriteColumns));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testDocHashes", &CDataFrameTest::testDocHashes));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameTest>(
-        "CDataFrameTest::testRowMask", &CDataFrameTest::testRowMask));
+    // Test all the rows have the requested alignment.
 
-    return suiteOfTests;
+    using TAlignedFactoryFunc =
+        std::function<std::unique_ptr<core::CDataFrame>(core::CAlignment::EType)>;
+
+    std::size_t rows{5000};
+    std::size_t cols{15};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols)};
+
+    test::CRandomNumbers rng;
+
+    TAlignedFactoryFunc makeOnDisk = [=](core::CAlignment::EType alignment) {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async, alignment)
+            .first;
+    };
+    TAlignedFactoryFunc makeMainMemory = [=](core::CAlignment::EType alignment) {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync, alignment)
+            .first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        for (auto alignment : {core::CAlignment::E_Aligned8, core::CAlignment::E_Aligned16,
+                               core::CAlignment::E_Aligned32}) {
+            LOG_DEBUG(<< "Test aligned " << alignment << " " << type[t]);
+
+            auto frame = factory(alignment);
+
+            for (std::size_t i = 0; i < components.size(); i += cols) {
+                frame->writeRow(makeWriter(components, cols, i));
+            }
+            frame->finishWritingRows();
+
+            frame->readRows(1, [alignment](const TRowItr& beginRows, const TRowItr& endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    BOOST_TEST_REQUIRE(core::CAlignment::isAligned(row->data(), alignment));
+                }
+            });
+        }
+        ++t;
+    }
 }
+
+BOOST_FIXTURE_TEST_CASE(testAlignedExtraColumns, CTestFixture) {
+
+    // Test all the rows have the requested alignment.
+
+    using TAlignedFactoryFunc =
+        std::function<std::unique_ptr<core::CDataFrame>(core::CAlignment::EType)>;
+
+    std::size_t rows{5000};
+    std::size_t cols{15};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols)};
+    core::CDataFrame::TSizeAlignmentPrVec extraCols{{2, core::CAlignment::E_Unaligned},
+                                                    {3, core::CAlignment::E_Aligned16},
+                                                    {1, core::CAlignment::E_Unaligned}};
+    test::CRandomNumbers rng;
+
+    TAlignedFactoryFunc makeOnDisk = [=](core::CAlignment::EType alignment) {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async, alignment)
+            .first;
+    };
+    TAlignedFactoryFunc makeMainMemory = [=](core::CAlignment::EType alignment) {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync, alignment)
+            .first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        for (auto alignment : {core::CAlignment::E_Aligned16, core::CAlignment::E_Aligned32}) {
+            LOG_DEBUG(<< "Test aligned " << alignment << " " << type[t]);
+
+            auto frame = factory(alignment);
+
+            for (std::size_t i = 0; i < components.size(); i += cols) {
+                frame->writeRow(makeWriter(components, cols, i));
+            }
+            frame->finishWritingRows();
+
+            std::size_t numberColumns{frame->numberColumns()};
+
+            TSizeVec offsets;
+            std::size_t extraColumns;
+            std::tie(offsets, extraColumns) = frame->resizeColumns(1, extraCols);
+
+            BOOST_REQUIRE_EQUAL(frame->numberColumns() - numberColumns, extraColumns);
+            for (std::size_t i = 1; i < offsets.size(); ++i) {
+                BOOST_TEST_REQUIRE(offsets[i] - offsets[i - 1] >=
+                                   extraCols[i - 1].first);
+            }
+
+            BOOST_TEST_REQUIRE(extraCols.size() == offsets.size());
+            frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    for (std::size_t i = 0; i < extraCols.size(); ++i) {
+                        BOOST_TEST_REQUIRE(core::CAlignment::isAligned(
+                            row->data() + offsets[i], extraCols[i].second));
+                    }
+                }
+            });
+        }
+        ++t;
+    }
+}
+
+BOOST_AUTO_TEST_SUITE_END()

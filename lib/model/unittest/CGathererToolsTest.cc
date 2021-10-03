@@ -1,12 +1,20 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CGathererToolsTest.h"
 
 #include <model/CGathererTools.h>
-#include <model/CModelParams.h>
+#include <model/SModelParams.h>
+
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CGathererToolsTest)
 
 using namespace ml;
 using namespace model;
@@ -16,17 +24,7 @@ const CGathererTools::CSumGatherer::TStrVec EMPTY_STR_VEC;
 const CGathererTools::CSumGatherer::TStoredStringPtrVec EMPTY_STR_PTR_VEC;
 }
 
-CppUnit::Test* CGathererToolsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CGathererToolsTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CGathererToolsTest>(
-        "CGathererToolsTest::testSumGathererIsRedundant",
-        &CGathererToolsTest::testSumGathererIsRedundant));
-
-    return suiteOfTests;
-}
-
-void CGathererToolsTest::testSumGathererIsRedundant() {
+BOOST_AUTO_TEST_CASE(testSumGathererIsRedundant) {
     using TDouble1Vec = CGathererTools::CSumGatherer::TDouble1Vec;
 
     core_t::TTime bucketLength(100);
@@ -44,12 +42,14 @@ void CGathererToolsTest::testSumGathererIsRedundant() {
     sumGatherer.add(400, TDouble1Vec{1.0}, 1, 0, EMPTY_STR_PTR_VEC);
     sumGatherer.startNewBucket(400);
 
-    CPPUNIT_ASSERT(sumGatherer.isRedundant(400) == false);
+    BOOST_TEST_REQUIRE(sumGatherer.isRedundant(400) == false);
 
     sumGatherer.startNewBucket(500);
-    CPPUNIT_ASSERT(sumGatherer.isRedundant(500) == false);
+    BOOST_TEST_REQUIRE(sumGatherer.isRedundant(500) == false);
     sumGatherer.startNewBucket(600);
-    CPPUNIT_ASSERT(sumGatherer.isRedundant(600) == false);
+    BOOST_TEST_REQUIRE(sumGatherer.isRedundant(600) == false);
     sumGatherer.startNewBucket(700);
-    CPPUNIT_ASSERT(sumGatherer.isRedundant(700));
+    BOOST_TEST_REQUIRE(sumGatherer.isRedundant(700));
 }
+
+BOOST_AUTO_TEST_SUITE_END()

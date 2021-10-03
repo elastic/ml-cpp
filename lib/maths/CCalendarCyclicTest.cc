@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CCalendarCyclicTest.h>
@@ -108,8 +113,15 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
         } while (traverser.next());
         errors.resize(SIZE);
     }
+    this->checkRestoredInvariants(errors);
     this->deflate(errors);
     return true;
+}
+
+void CCalendarCyclicTest::checkRestoredInvariants(const TErrorStatsVec& errors) const {
+    VIOLATES_INVARIANT(m_CurrentBucketIndex, >=,
+                       static_cast<core_t::TTime>(errors.size()));
+    VIOLATES_INVARIANT(errors.size(), !=, SIZE);
 }
 
 void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -236,7 +248,7 @@ std::uint64_t CCalendarCyclicTest::checksum(std::uint64_t seed) const {
     return CChecksum::calculate(seed, errors);
 }
 
-void CCalendarCyclicTest::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCalendarCyclicTest::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCalendarCyclicTest");
     core::CMemoryDebug::dynamicSize("m_ErrorQuantiles", m_ErrorQuantiles, mem);
     core::CMemoryDebug::dynamicSize("m_CompressedBucketErrorStats",

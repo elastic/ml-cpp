@@ -1,23 +1,28 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CJsonOutputWriter.h>
 
 #include <core/CScopedRapidJsonPoolAllocator.h>
-#include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/ModelTypes.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CModelSizeStatsJsonWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
 
 #include <algorithm>
-#include <ostream>
+#include <sstream>
 
 namespace ml {
 namespace api {
@@ -68,11 +73,16 @@ const std::string TERMS("terms");
 const std::string REGEX("regex");
 const std::string MAX_MATCHING_LENGTH("max_matching_length");
 const std::string EXAMPLES("examples");
+const std::string NUM_MATCHES("num_matches");
+const std::string PREFERRED_TO_CATEGORIES("preferred_to_categories");
 const std::string BUCKET_SPAN("bucket_span");
 const std::string PROCESSING_TIME("processing_time_ms");
 const std::string TIME_INFLUENCER("bucket_time");
 const std::string SCHEDULED_EVENTS("scheduled_events");
 const std::string QUANTILES("quantiles");
+const std::string GEO_RESULTS("geo_results");
+const std::string ACTUAL_POINT("actual_point");
+const std::string TYPICAL_POINT("typical_point");
 
 //! Get a numeric field from a JSON document.
 //! Assumes the document contains the field.
@@ -154,6 +164,10 @@ CJsonOutputWriter::CJsonOutputWriter(const std::string& jobId,
 
 CJsonOutputWriter::~CJsonOutputWriter() {
     finalise();
+}
+
+const std::string& CJsonOutputWriter::jobId() const {
+    return m_JobId;
 }
 
 void CJsonOutputWriter::finalise() {
@@ -325,7 +339,7 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
     bucketData.s_BucketInfluencerDocuments.push_back(doc);
 }
 
-bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessingTime) {
+bool CJsonOutputWriter::endOutputBatch(bool isInterim, std::uint64_t bucketProcessingTime) {
     for (TTimeBucketDataMapItr iter = m_BucketDataByTime.begin();
          iter != m_BucketDataByTime.end(); ++iter) {
         this->writeBucket(isInterim, iter->first, iter->second, bucketProcessingTime);
@@ -342,50 +356,10 @@ bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessing
     return true;
 }
 
-bool CJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
-                                   const TStrVec& /*extraFieldNames*/) {
-    return true;
-}
-
-bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
-                                 const TStrStrUMap& overrideDataRowFields) {
-    using TScopedAllocator =
-        core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
-
-    TScopedAllocator scopedAllocator("CJsonOutputWriter::writeRow", m_Writer);
-
-    rapidjson::Document doc = m_Writer.makeDoc();
-
-    // Write all the fields to the document as strings
-    // No need to copy the strings as the doc is written straight away
-    for (TStrStrUMapCItr fieldValueIter = dataRowFields.begin();
-         fieldValueIter != dataRowFields.end(); ++fieldValueIter) {
-        const std::string& name = fieldValueIter->first;
-        const std::string& value = fieldValueIter->second;
-
-        // Only output fields that aren't overridden
-        if (overrideDataRowFields.find(name) == overrideDataRowFields.end()) {
-            m_Writer.addMemberRef(name, value, doc);
-        }
-    }
-
-    for (TStrStrUMapCItr fieldValueIter = overrideDataRowFields.begin();
-         fieldValueIter != overrideDataRowFields.end(); ++fieldValueIter) {
-        const std::string& name = fieldValueIter->first;
-        const std::string& value = fieldValueIter->second;
-
-        m_Writer.addMemberRef(name, value, doc);
-    }
-
-    m_Writer.write(doc);
-
-    return true;
-}
-
 void CJsonOutputWriter::writeBucket(bool isInterim,
                                     core_t::TTime bucketTime,
                                     SBucketData& bucketData,
-                                    uint64_t bucketProcessingTime) {
+                                    std::uint64_t bucketProcessingTime) {
     // Write records
     if (!bucketData.s_DocumentsToWrite.empty()) {
         // Sort the results so they are grouped by detector and
@@ -553,6 +527,25 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
                                      results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_BaselineMean, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
+    if (results.s_FunctionName ==
+        CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LAT_LONG) {
+        rapidjson::Value geoResults = m_Writer.makeObject();
+        auto geoPointToString = [](const auto& point) -> std::string {
+            std::ostringstream result;
+            // We don't want scientific notation and geo points only have precision up to 12 digits
+            result << std::fixed << std::setprecision(12) << point[0] << "," << point[1];
+            return result.str();
+        };
+        if (results.s_BaselineMean.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(
+                TYPICAL_POINT, geoPointToString(results.s_BaselineMean), geoResults);
+        }
+        if (results.s_CurrentMean.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(
+                ACTUAL_POINT, geoPointToString(results.s_CurrentMean), geoResults);
+        }
+        m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
+    }
 }
 
 void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TResults& results,
@@ -594,7 +587,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
     // Add nested causes
     if (m_NestedDocs.size() > 0) {
         rapidjson::Value causeArray = m_Writer.makeArray(m_NestedDocs.size());
-        for (size_t index = 0; index < m_NestedDocs.size(); ++index) {
+        for (std::size_t index = 0; index < m_NestedDocs.size(); ++index) {
             TDocumentWeakPtr nwDocPtr = m_NestedDocs[index];
             TDocumentPtr nDocPtr = nwDocPtr.lock();
             if (!nDocPtr) {
@@ -653,6 +646,25 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
                                      results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_PopulationAverage, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_FunctionValue, *docPtr);
+    if (results.s_FunctionName ==
+        CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LAT_LONG) {
+        rapidjson::Value geoResults = m_Writer.makeObject();
+        auto geoPointToString = [](const auto& point) -> std::string {
+            std::ostringstream result;
+            // We don't want scientific notation and geo points only have precision up to 12 digits
+            result << std::fixed << std::setprecision(12) << point[0] << "," << point[1];
+            return result.str();
+        };
+        if (results.s_BaselineMean.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(
+                TYPICAL_POINT, geoPointToString(results.s_PopulationAverage), geoResults);
+        }
+        if (results.s_FunctionValue.size() == 2) {
+            m_Writer.addStringFieldCopyToObj(
+                ACTUAL_POINT, geoPointToString(results.s_FunctionValue), geoResults);
+        }
+        m_Writer.addMember(GEO_RESULTS, geoResults, *docPtr);
+    }
 }
 
 void CJsonOutputWriter::addInfluences(const CHierarchicalResultsWriter::TStoredStringPtrStoredStringPtrPrDoublePrVec& influenceResults,
@@ -785,11 +797,11 @@ void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
     }
 }
 
-void CJsonOutputWriter::limitNumberRecords(size_t count) {
+void CJsonOutputWriter::limitNumberRecords(std::size_t count) {
     m_RecordOutputLimit = count;
 }
 
-size_t CJsonOutputWriter::limitNumberRecords() const {
+std::size_t CJsonOutputWriter::limitNumberRecords() const {
     return m_RecordOutputLimit;
 }
 
@@ -817,12 +829,23 @@ void CJsonOutputWriter::popAllocator() {
     m_Writer.popAllocator();
 }
 
-void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SResults& results) {
+void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& results) {
     m_Writer.StartObject();
     CModelSizeStatsJsonWriter::write(m_JobId, results, m_Writer);
     m_Writer.EndObject();
 
     LOG_TRACE(<< "Wrote memory usage results");
+}
+
+void CJsonOutputWriter::writeCategorizerStats(const std::string& partitionFieldName,
+                                              const std::string& partitionFieldValue,
+                                              const model::SCategorizerStats& categorizerStats,
+                                              const TOptionalTime& timestamp) {
+    m_Writer.StartObject();
+    CModelSizeStatsJsonWriter::writeCategorizerStats(m_JobId, partitionFieldName,
+                                                     partitionFieldValue, categorizerStats,
+                                                     timestamp, m_Writer);
+    m_Writer.EndObject();
 }
 
 void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
@@ -844,29 +867,47 @@ void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
     LOG_TRACE(<< "Wrote flush with ID " << flushId);
 }
 
-void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
+void CJsonOutputWriter::writeCategoryDefinition(const std::string& partitionFieldName,
+                                                const std::string& partitionFieldValue,
+                                                const CGlobalCategoryId& categoryId,
                                                 const std::string& terms,
                                                 const std::string& regex,
                                                 std::size_t maxMatchingFieldLength,
-                                                const TStrSet& examples) {
+                                                const TStrFSet& examples,
+                                                std::size_t numMatches,
+                                                const TGlobalCategoryIdVec& usurpedCategories) {
     m_Writer.StartObject();
-    m_Writer.String(CATEGORY_DEFINITION);
+    m_Writer.Key(CATEGORY_DEFINITION);
     m_Writer.StartObject();
-    m_Writer.String(JOB_ID);
+    m_Writer.Key(JOB_ID);
     m_Writer.String(m_JobId);
-    m_Writer.String(CATEGORY_ID);
-    m_Writer.Int(categoryId);
-    m_Writer.String(TERMS);
+    if (partitionFieldName.empty() == false) {
+        m_Writer.Key(PARTITION_FIELD_NAME);
+        m_Writer.String(partitionFieldName);
+        m_Writer.Key(PARTITION_FIELD_VALUE);
+        m_Writer.String(partitionFieldValue);
+    }
+    m_Writer.Key(CATEGORY_ID);
+    m_Writer.Int(categoryId.globalId());
+    m_Writer.Key(TERMS);
     m_Writer.String(terms);
-    m_Writer.String(REGEX);
+    m_Writer.Key(REGEX);
     m_Writer.String(regex);
-    m_Writer.String(MAX_MATCHING_LENGTH);
+    m_Writer.Key(MAX_MATCHING_LENGTH);
     m_Writer.Uint64(maxMatchingFieldLength);
-    m_Writer.String(EXAMPLES);
+    m_Writer.Key(EXAMPLES);
     m_Writer.StartArray();
-    for (TStrSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
+    for (TStrFSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
         const std::string& example = *itr;
         m_Writer.String(example);
+    }
+    m_Writer.EndArray();
+    m_Writer.Key(NUM_MATCHES);
+    m_Writer.Uint64(numMatches);
+    m_Writer.Key(PREFERRED_TO_CATEGORIES);
+    m_Writer.StartArray();
+    for (const auto& globalCategoryId : usurpedCategories) {
+        m_Writer.Int(globalCategoryId.globalId());
     }
     m_Writer.EndArray();
     m_Writer.EndObject();

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CMultimodalPrior_h
@@ -275,10 +280,10 @@ public:
     virtual std::string printJointDensityFunction() const;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this component.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component.
     virtual std::size_t memoryUsage() const;
@@ -329,6 +334,10 @@ private:
     bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
                                 core::CStateRestoreTraverser& traverser);
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! We should only use this prior when it has multiple modes.
     virtual bool participatesInModelSelection() const;
 
@@ -336,6 +345,14 @@ private:
     //!
     //! This is just number modes - 1 due to the normalization constraint.
     virtual double unmarginalizedParameters() const;
+
+    //! Implementation of log of the joint c.d.f. of the marginal likelihood.
+    template<typename CDF>
+    bool minusLogJointCdfImpl(CDF minusLogCdf,
+                              const TDouble1Vec& samples,
+                              const TDoubleWeightsAry1Vec& weights,
+                              double& lowerBound,
+                              double& upperBound) const;
 
     //! Full debug dump of the mode weights.
     std::string debugWeights() const;

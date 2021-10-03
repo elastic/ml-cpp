@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CTimeSeriesDecompositionStub_h
@@ -23,92 +28,95 @@ namespace maths {
 class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositionInterface {
 public:
     //! Clone this decomposition.
-    virtual CTimeSeriesDecompositionStub* clone(bool isForForecast = false) const;
+    CTimeSeriesDecompositionStub* clone(bool isForForecast = false) const override;
 
     //! No-op.
-    virtual void dataType(maths_t::EDataType dataType);
+    void dataType(maths_t::EDataType dataType) override;
 
     //! No-op.
-    virtual void decayRate(double decayRate);
+    void decayRate(double decayRate) override;
 
     //! Get the decay rate.
-    virtual double decayRate() const;
+    double decayRate() const override;
 
     //! Returns false.
-    virtual bool initialized() const;
-
-    //! No-op.
-    virtual void testingForChange(bool value);
+    bool initialized() const override;
 
     //! No-op returning false.
-    virtual void addPoint(core_t::TTime time,
-                          double value,
-                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-                          const TComponentChangeCallback& componentChangeCallback = noop);
-
-    //! No-op returning false.
-    virtual bool applyChange(core_t::TTime time, double value, const SChangeDescription& change);
+    void addPoint(core_t::TTime time,
+                  double value,
+                  const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+                  const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
+                  const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
 
     //! No-op.
-    virtual void propagateForwardsTo(core_t::TTime time);
+    void shiftTime(core_t::TTime time, core_t::TTime shift) override;
+
+    //! No-op.
+    void propagateForwardsTo(core_t::TTime time) override;
 
     //! Returns 0.
-    virtual double meanValue(core_t::TTime time) const;
+    double meanValue(core_t::TTime time) const override;
 
     //! Returns (0.0, 0.0).
-    virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
-                                           double confidence = 0.0,
-                                           int components = E_All,
-                                           bool smooth = true) const;
+    maths_t::TDoubleDoublePr value(core_t::TTime time,
+                                   double confidence = 0.0,
+                                   int components = E_All,
+                                   const TBoolVec& removedSeasonalMask = {},
+                                   bool smooth = true) const override;
 
     //! Returns 0.
-    virtual core_t::TTime maximumForecastInterval() const;
+    core_t::TTime maximumForecastInterval() const override;
 
     //! No-op.
-    virtual void forecast(core_t::TTime startTime,
-                          core_t::TTime endTime,
-                          core_t::TTime step,
-                          double confidence,
-                          double minimumScale,
-                          const TWriteForecastResult& writer);
+    void forecast(core_t::TTime startTime,
+                  core_t::TTime endTime,
+                  core_t::TTime step,
+                  double confidence,
+                  double minimumScale,
+                  const TWriteForecastResult& writer) override;
 
     //! Returns \p value.
-    virtual double
-    detrend(core_t::TTime time, double value, double confidence, int components = E_All) const;
+    double detrend(core_t::TTime time, double value, double confidence, int components = E_All) const override;
 
     //! Returns 0.0.
-    virtual double meanVariance() const;
+    double meanVariance() const override;
 
     //! Returns (1.0, 1.0).
-    virtual maths_t::TDoubleDoublePr
-    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
+    maths_t::TDoubleDoublePr varianceScaleWeight(core_t::TTime time,
+                                                 double variance,
+                                                 double confidence,
+                                                 bool smooth = true) const override;
+
+    //! Returns 1.0.
+    double countWeight(core_t::TTime time) const override;
+
+    //! Returns 0.0.
+    double winsorisationDerate(core_t::TTime time) const override;
 
     //! Returns an empty vector.
-    virtual TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const;
+    TFloatMeanAccumulatorVec residuals() const override;
 
     //! No-op.
-    virtual void skipTime(core_t::TTime skipInterval);
+    void skipTime(core_t::TTime skipInterval) override;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
 
     //! Get the static size of this object.
-    virtual std::size_t staticSize() const;
+    std::size_t staticSize() const override;
 
     //! Returns zero.
-    virtual core_t::TTime timeShift() const;
+    core_t::TTime timeShift() const override;
 
     //! Returns an empty vector.
-    virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const;
-
-    //! Returns 0.
-    virtual core_t::TTime lastValueTime() const;
+    const maths_t::TSeasonalComponentVec& seasonalComponents() const override;
 };
 }
 }

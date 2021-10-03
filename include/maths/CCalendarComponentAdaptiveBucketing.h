@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CCalendarComponentAdaptiveBucketing_h
@@ -88,10 +93,10 @@ public:
     const TFloatMeanVarAccumulator* value(core_t::TTime time) const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get the memory used by this component
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const;
@@ -109,6 +114,10 @@ private:
     //! Restore by traversing a state document
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! Compute the values corresponding to the change in end
     //! points from \p endpoints. The values are assigned based
     //! on their intersection with each bucket in the previous
@@ -120,8 +129,8 @@ private:
     //! Check if \p time is in the this component's window.
     bool inWindow(core_t::TTime time) const override;
 
-    //! Add the function value to \p bucket.
-    void add(std::size_t bucket, core_t::TTime time, double value, double weight) override;
+    //! Add the function initial value at \p time.
+    void addInitialValue(std::size_t bucket, core_t::TTime time, double value, double weight) override;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
     double offset(core_t::TTime time) const override;

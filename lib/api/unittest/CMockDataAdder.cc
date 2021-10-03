@@ -1,50 +1,43 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include "CMockDataAdder.h"
 
 #include <core/CLogger.h>
-#include <core/CStringUtils.h>
-
-#include "CMockSearcher.h"
 
 CMockDataAdder::CMockDataAdder() {
 }
 
-CMockDataAdder::TOStreamP CMockDataAdder::addStreamed(const std::string& index,
-                                                      const std::string& /*id*/) {
-    LOG_TRACE(<< "Add Streamed for index " << index);
-    if (m_Streams.find(index) == m_Streams.end()) {
-        m_Streams[index] = TOStreamP(new std::ostringstream);
+CMockDataAdder::TOStreamP CMockDataAdder::addStreamed(const std::string& /*id*/) {
+    if (m_Stream == nullptr) {
+        m_Stream.reset(new std::ostringstream{});
     }
-    return m_Streams[index];
+    return m_Stream;
 }
 
 bool CMockDataAdder::streamComplete(TOStreamP& strm, bool /*force*/) {
-    LOG_TRACE(<< "Stream complete");
-    bool found = false;
-    for (TStrOStreamPMapItr i = m_Streams.begin(); i != m_Streams.end(); ++i) {
-        if (i->second == strm) {
-            LOG_TRACE(<< "Found stream for " << i->first);
-            std::ostringstream* ss = dynamic_cast<std::ostringstream*>(i->second.get());
-            if (ss != nullptr) {
-                const std::string& result = ss->str();
-                LOG_TRACE(<< "Adding data: " << result);
-                m_Events[i->first].push_back('[' + result + ']');
-                found = true;
-            }
-        }
+    if (strm == nullptr || m_Stream != strm) {
+        return false;
     }
-    return found;
+    const std::string& result = dynamic_cast<std::ostringstream&>(*m_Stream).str();
+    LOG_TRACE(<< "Stream complete - adding data: " << result);
+    m_Events.push_back('[' + result + ']');
+    m_Stream.reset();
+    return true;
 }
 
-const CMockDataAdder::TStrStrVecMap& CMockDataAdder::events() const {
+const CMockDataAdder::TStrVec& CMockDataAdder::events() const {
     return m_Events;
 }
 
 void CMockDataAdder::clear() {
     m_Events.clear();
-    m_Streams.clear();
+    m_Stream.reset();
 }

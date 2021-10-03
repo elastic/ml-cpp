@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CMetricPopulationModel_h
@@ -26,6 +31,7 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace model {
+
 //! \brief The model for computing the anomalousness of the values
 //! each person in a population generates in a data stream.
 //!
@@ -74,6 +80,8 @@ public:
         TFeatureSizeSizePrFeatureDataPrVecMap s_FeatureData;
         //! A cache of the corrections applied to interim results.
         mutable TCorrectionKeyDouble1VecUMap s_InterimCorrections;
+        //! Annotations produced by this model.
+        TAnnotationVec s_Annotations;
     };
 
     //! Lift the overloads of currentBucketValue into the class scope.
@@ -144,6 +152,9 @@ public:
     void persistModelsState(core::CStatePersistInserter& /* inserter*/) const override {
         // NO-OP
     }
+
+    //! Should this model be persisted?
+    bool shouldPersist() const override;
 
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
@@ -273,7 +284,7 @@ public:
                                                    core_t::TTime time) const;
 
     //! Debug the memory used by this model.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this model.
     std::size_t memoryUsage() const override;
@@ -283,6 +294,9 @@ public:
 
     //! Get the non-estimated memory used by this model.
     std::size_t computeMemoryUsage() const override;
+
+    //! Get the annotations produced by this model.
+    const TAnnotationVec& annotations() const override;
 
 private:
     //! Initialize the feature models.

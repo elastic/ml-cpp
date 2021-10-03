@@ -1,8 +1,13 @@
 #!/bin/bash
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 # Strips ML native code binaries to make them smaller before distribution.
@@ -16,15 +21,12 @@ case `uname` in
         ;;
 
     Linux)
-        if [ -z "$CPP_CROSS_COMPILE" ] ; then
-            EXE_DIR=bin
-            DYNAMIC_LIB_DIR=lib
-        elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
+        if [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             EXE_DIR="$ML_APP_NAME.app/Contents/MacOS"
             DYNAMIC_LIB_DIR="$ML_APP_NAME.app/Contents/lib"
         else
-            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
-            exit 1
+            EXE_DIR=bin
+            DYNAMIC_LIB_DIR=lib
         fi
         ;;
 
@@ -33,19 +35,19 @@ esac
 # Ensure $CPP_PLATFORM_HOME is set
 if [ -z "$CPP_PLATFORM_HOME" ] ; then
     echo '$CPP_PLATFORM_HOME is not set'
-    exit 2
+    exit 1
 fi
 
 # Ensure the executable programs folder has been created.
 if [ ! -d "$CPP_PLATFORM_HOME/$EXE_DIR" ] ; then
     echo "$CPP_PLATFORM_HOME/$EXE_DIR does not exist"
-    exit 3
+    exit 2
 fi
 
 # Ensure the lib folder has been created.
 if [ ! -d "$CPP_PLATFORM_HOME/$DYNAMIC_LIB_DIR" ] ; then
     echo "$CPP_PLATFORM_HOME/$DYNAMIC_LIB_DIR does not exist"
-    exit 4
+    exit 3
 fi
 
 cd "$CPP_PLATFORM_HOME"
@@ -90,24 +92,39 @@ case `uname` in
                 objcopy --add-gnu-debuglink="$LIBRARY-debug" "$LIBRARY"
             done
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
+            CROSS_TARGET_PLATFORM=x86_64-apple-macosx10.14
             for PROGRAM in `ls -1d "$EXE_DIR"/* | grep -v '\.dSYM$'`
             do
                 echo "Stripping $PROGRAM"
-                llvm-dsymutil-3.9 $PROGRAM
-                /usr/local/bin/x86_64-apple-macosx10.11-strip -u -r $PROGRAM
+                dsymutil-8 $PROGRAM
+                /usr/local/bin/$CROSS_TARGET_PLATFORM-strip -u -r $PROGRAM
             done
             for LIBRARY in `ls -1d "$DYNAMIC_LIB_DIR"/* | grep -v '\.dSYM$'`
             do
                 echo "Stripping $LIBRARY"
                 case $LIBRARY in
                     *Ml*)
-                        llvm-dsymutil-3.9 $LIBRARY
+                        dsymutil-8 $LIBRARY
                 esac
-                /usr/local/bin/x86_64-apple-macosx10.11-strip -x $LIBRARY
+                /usr/local/bin/$CROSS_TARGET_PLATFORM-strip -x $LIBRARY
             done
         else
-            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
-            exit 5
+            CROSS_TARGET_PLATFORM=$CPP_CROSS_COMPILE-linux-gnu
+            for PROGRAM in `ls -1 "$EXE_DIR"/* | egrep -v "$EXE_DIR"'/core|-debug$'`
+            do
+                echo "Stripping $PROGRAM"
+                $CROSS_TARGET_PLATFORM-objcopy --only-keep-debug "$PROGRAM" "$PROGRAM-debug"
+                $CROSS_TARGET_PLATFORM-strip --strip-all $PROGRAM
+                $CROSS_TARGET_PLATFORM-objcopy --add-gnu-debuglink="$PROGRAM-debug" "$PROGRAM"
+                chmod -x "$PROGRAM-debug"
+            done
+            for LIBRARY in `ls -1 "$DYNAMIC_LIB_DIR"/* | egrep -v 'lib/core|-debug$'`
+            do
+                echo "Stripping $LIBRARY"
+                $CROSS_TARGET_PLATFORM-objcopy --only-keep-debug "$LIBRARY" "$LIBRARY-debug"
+                $CROSS_TARGET_PLATFORM-strip --strip-unneeded $LIBRARY
+                $CROSS_TARGET_PLATFORM-objcopy --add-gnu-debuglink="$LIBRARY-debug" "$LIBRARY"
+            done
         fi
         ;;
 

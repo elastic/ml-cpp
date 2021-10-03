@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_COutliers_h
@@ -33,6 +38,9 @@
 
 namespace ml {
 namespace maths {
+
+class CDataFrameOutliersInstrumentationInterface;
+
 namespace outliers_detail {
 using TDoubleVec = std::vector<double>;
 using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -41,7 +49,7 @@ using TDouble1VecVec = std::vector<TDouble1Vec>;
 using TDouble1VecVec2Vec = core::CSmallVector<TDouble1VecVec, 2>;
 using TDouble1Vec2Vec = core::CSmallVector<TDouble1Vec, 2>;
 using TProgressCallback = std::function<void(double)>;
-using TMemoryUsageCallback = std::function<void(std::uint64_t)>;
+using TMemoryUsageCallback = std::function<void(std::int64_t)>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 //! Get the distance in the complement space of the projection.
@@ -656,6 +664,18 @@ public:
     template<typename POINT>
     using TAnnotatedPoint = CAnnotatedVector<POINT, std::size_t>;
 
+    //! \name Method Names
+    //@{
+    static const std::string LOF;
+    static const std::string LDOF;
+    static const std::string DISTANCE_KNN;
+    static const std::string TOTAL_DISTANCE_KNN;
+    static const std::string ENSEMBLE;
+    //@}
+
+    //! Instrumentation phase.
+    static const std::string COMPUTING_OUTLIERS;
+
     //! The outlier detection methods which are available.
     enum EMethod {
         E_Lof,
@@ -679,7 +699,7 @@ public:
         std::size_t s_NumberNeighbours;
         //! If true also compute the feature influence.
         bool s_ComputeFeatureInfluence;
-        //! The fraction of true outliers amoung the points.
+        //! The fraction of true outliers among the points.
         double s_OutlierFraction;
     };
 
@@ -689,14 +709,10 @@ public:
     //! \param[in] params The calculation parameters.
     //! \param[in] frame The data frame whose rows hold the coordinated of
     //! the points for which to compute outliers.
-    //! \param[in] recordProgress A function to which fractional progress
-    //! is written.
-    //! \param[in] recordMemoryUsage A function to which changes in the
-    //! memory being used is written.
+    //! \param[in] instrumentation Manages writing out telemetry.
     static void compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        TProgressCallback recordProgress = noopRecordProgress,
-                        TMemoryUsageCallback recordMemoryUsage = noopRecordMemoryUsage);
+                        CDataFrameOutliersInstrumentationInterface& instrumentation);
 
     //! Estimate the amount of memory that will be used computing outliers
     //! for a data frame.
@@ -712,6 +728,9 @@ public:
                                                    std::size_t totalNumberPoints,
                                                    std::size_t partitionNumberPoints,
                                                    std::size_t dimension);
+
+    //! Return string representation of the \p method.
+    static const std::string& print(EMethod method);
 
     //! \name Test Interface
     //@{

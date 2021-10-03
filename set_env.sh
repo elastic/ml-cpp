@@ -1,17 +1,24 @@
 #!/bin/bash
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 # Set up a build environment, to ensure repeatable builds
 
 umask 0002
 
-# Modify some limits (soft limits only, hence -S)
-ulimit -S -c unlimited
-ulimit -S -n 1024
+# Modify some limits if not running in Docker (soft limits only, hence -S)
+if [ ! -f /.dockerenv ]; then
+    ulimit -S -c unlimited
+    ulimit -S -n 1024
+fi
 
 # Set $CPP_SRC_HOME to be an absolute path to this script's location, as
 # different builds will come from different repositories and go to different
@@ -24,18 +31,17 @@ case `uname` in
 
     Darwin)
         SIMPLE_PLATFORM=macos
-        BUNDLE_PLATFORM=darwin-x86_64
+        BUNDLE_PLATFORM=darwin-`uname -m | sed 's/arm64/aarch64/'`
         ;;
 
     Linux)
         SIMPLE_PLATFORM=linux
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
-            BUNDLE_PLATFORM=linux-x86_64
+            BUNDLE_PLATFORM=linux-`uname -m`
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             BUNDLE_PLATFORM=darwin-x86_64
         else
-            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
-            exit 1
+            BUNDLE_PLATFORM=linux-$CPP_CROSS_COMPILE
         fi
         ;;
 
@@ -46,7 +52,7 @@ case `uname` in
 
     *)
         echo `uname 2>&1` "- unsupported operating system"
-        exit 2
+        exit 1
         ;;
 
 esac
@@ -73,10 +79,10 @@ if [ "$SIMPLE_PLATFORM" = "windows" ] ; then
     PFX86_DIR=`cd $ROOT && cygpath -m -s "Program Files (x86)"`
     MSVC_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Microsoft Visual Studio"`
     WIN_KITS_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Windows Kits"`
-    VCVER=`/bin/ls -1 $ROOT/$PFX86_DIR/$MSVC_DIR/2017/Professional/VC/Tools/MSVC | tail -1`
+    VCVER=`/bin/ls -1 $ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/VC/Tools/MSVC | tail -1`
     # NB: Some SDK tools are 32 bit only, hence the 64 bit SDK bin directory
     #     is followed by the 32 bit SDK bin directory
-    COMPILER_PATH=$ROOT/$PFX86_DIR/$MSVC_DIR/2017/Professional/VC/Tools/MSVC/$VCVER/bin/HostX64/x64:$ROOT/$PFX86_DIR/$MSVC_DIR/2017/Professional/Common7/IDE:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x64:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x86
+    COMPILER_PATH=$ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:$ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/Common7/IDE:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x64:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x86
 fi
 
 # Git
@@ -89,11 +95,7 @@ fi
 case $SIMPLE_PLATFORM in
 
     linux)
-        PATH=/usr/local/gcc73/bin:/usr/bin:/bin:/usr/local/gcc73/sbin:/usr/sbin:/sbin
-        ;;
-
-    linux-musl)
-        PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
+        PATH=/usr/local/gcc103/bin:/usr/bin:/bin:/usr/local/gcc103/sbin:/usr/sbin:/sbin:/usr/local/bin
         ;;
 
     macos)
@@ -118,11 +120,7 @@ fi
 case $SIMPLE_PLATFORM in
 
     linux)
-        export LD_LIBRARY_PATH=/usr/local/gcc73/lib64:/usr/local/gcc73/lib:/usr/lib:/lib
-        ;;
-
-    linux-musl)
-        export LD_LIBRARY_PATH=/usr/local/lib64:/usr/local/lib:/usr/lib:/lib
+        export LD_LIBRARY_PATH=/usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
         ;;
 
     windows)
@@ -189,13 +187,5 @@ fi
 # possible from an automated build (Jenkins sets $JOB_NAME)
 if [ -n "$JOB_NAME" ] ; then
     export ML_KEEP_GOING=1
-fi
-
-# Finally, switch off debug if we are not in Jenkins doing the debug build
-if [[ ! "$JOB_NAME" == *Debug* ]] ; then
-    unset ML_DEBUG
-    echo "Building $JOB_NAME with ML_DEBUG unset"
-else
-    echo "Building $JOB_NAME with ML_DEBUG=$ML_DEBUG"
 fi
 

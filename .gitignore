@@ -17,10 +17,19 @@ build-eclipse/
 nb-configuration.xml
 nbactions.xml
 
+#vscode files
+.vscode
+.clangd
+.cache
+
 # gradle stuff
 .gradle/
 build/
 generated-resources/
+
+# python environment stuff
+**/env/*
+*.pyc
 
 # testing stuff
 **/.local*
@@ -58,7 +67,8 @@ ml_test
 .cproject
 unit_test_skip_dirs.csv
 gcovr-unit-report.xml
+junit_results.xml
 cppunit_results.xml
+boost_test_results.xml
 **/.objs/*.*
 !**/.objs/.gitignore
-

@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CDetectorEqualizerTest.h"
 
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -18,6 +21,9 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CDetectorEqualizerTest)
 
 using namespace ml;
 
@@ -29,7 +35,7 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 const double THRESHOLD = std::log(0.05);
 }
 
-void CDetectorEqualizerTest::testCorrect() {
+BOOST_AUTO_TEST_CASE(testCorrect) {
     // Test that the distribution of scores are more similar after correcting.
 
     double scales[] = {1.0, 2.1, 3.2};
@@ -38,11 +44,11 @@ void CDetectorEqualizerTest::testCorrect() {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
@@ -52,11 +58,11 @@ void CDetectorEqualizerTest::testCorrect() {
 
     TDoubleVec raw[3];
     TDoubleVec corrected[3];
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 raw[i].push_back(p);
@@ -66,22 +72,22 @@ void CDetectorEqualizerTest::testCorrect() {
     }
 
     TMeanAccumulator similarityIncrease;
-    for (std::size_t i = 1u, k = 0u; i < 3; ++i) {
-        for (std::size_t j = 0u; j < i; ++j, ++k) {
+    for (std::size_t i = 1u, k = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < i; ++j, ++k) {
             double increase =
                 maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) /
                 maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
             similarityIncrease.add(std::log(increase));
             LOG_DEBUG(<< "similarity increase = " << increase);
-            CPPUNIT_ASSERT(increase > 3.0);
+            BOOST_TEST_REQUIRE(increase > 3.0);
         }
     }
     LOG_DEBUG(<< "mean similarity increase = "
               << std::exp(maths::CBasicStatistics::mean(similarityIncrease)));
-    CPPUNIT_ASSERT(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
+    BOOST_TEST_REQUIRE(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
 }
 
-void CDetectorEqualizerTest::testAge() {
+BOOST_AUTO_TEST_CASE(testAge) {
     // Test that propagation doesn't introduce a bias into the corrections.
 
     double scales[] = {1.0, 2.1, 3.2};
@@ -91,11 +97,11 @@ void CDetectorEqualizerTest::testAge() {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
@@ -109,23 +115,23 @@ void CDetectorEqualizerTest::testAge() {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
         double logp = THRESHOLD;
-        for (std::size_t j = 0u; j < 150; ++j, logp += std::log(0.9)) {
+        for (std::size_t j = 0; j < 150; ++j, logp += std::log(0.9)) {
             double p = std::exp(logp);
             double pc = equalizer.correct(i, p);
             double pca = equalizerAged.correct(i, p);
             double error = std::fabs((std::log(pca) - std::log(pc)) / std::log(pc));
             meanError.add(error);
             meanBias.add((std::log(pca) - std::log(pc)) / std::log(pc));
-            CPPUNIT_ASSERT(error < 0.18);
+            BOOST_TEST_REQUIRE(error < 0.18);
         }
         LOG_DEBUG(<< "mean bias  = " << maths::CBasicStatistics::mean(meanBias));
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.053);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.053);
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.053);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.053);
     }
 }
 
-void CDetectorEqualizerTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     double scales[] = {1.0, 2.1, 3.2};
 
     model::CDetectorEqualizer origEqualizer;
@@ -135,10 +141,10 @@ void CDetectorEqualizerTest::testPersist() {
     TDoubleVec logp;
     rng.generateGammaSamples(1.0, 3.1, 1000, logp);
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 origEqualizer.add(static_cast<int>(i), p);
@@ -158,15 +164,15 @@ void CDetectorEqualizerTest::testPersist() {
     model::CDetectorEqualizer restoredEqualizer;
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&model::CDetectorEqualizer::acceptRestoreTraverser,
                       &restoredEqualizer, std::placeholders::_1)));
     }
 
     // Checksums should agree.
-    CPPUNIT_ASSERT_EQUAL(origEqualizer.checksum(), restoredEqualizer.checksum());
+    BOOST_REQUIRE_EQUAL(origEqualizer.checksum(), restoredEqualizer.checksum());
 
     // The persist and restore should be idempotent.
     std::string newXml;
@@ -175,18 +181,7 @@ void CDetectorEqualizerTest::testPersist() {
         restoredEqualizer.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CDetectorEqualizerTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDetectorEqualizerTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
-        "CDetectorEqualizerTest::testCorrect", &CDetectorEqualizerTest::testCorrect));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
-        "CDetectorEqualizerTest::testAge", &CDetectorEqualizerTest::testAge));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDetectorEqualizerTest>(
-        "CDetectorEqualizerTest::testPersist", &CDetectorEqualizerTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CDataFrameUtils.h>
@@ -13,26 +18,37 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameCategoryEncoder.h>
-#include <maths/CMathsFuncs.h>
+#include <maths/CLbfgs.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CMic.h>
 #include <maths/COrderings.h>
+#include <maths/CPRNG.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
+#include <maths/CSolvers.h>
+#include <maths/CTools.h>
+#include <maths/CToolsDetail.h>
 
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
+#include <limits>
 #include <memory>
+#include <numeric>
 #include <vector>
 
 namespace ml {
 namespace maths {
 namespace {
 using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
+using TSizeVecVec = std::vector<TSizeVec>;
 using TFloatVec = std::vector<CFloatStorage>;
 using TFloatVecVec = std::vector<TFloatVec>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
-using TRowSampler = CSampling::CRandomStreamSampler<TRowRef>;
+using TRowSampler = CSampling::CReservoirSampler<TRowRef>;
+using TRowSamplerVec = std::vector<TRowSampler>;
 using TSizeEncoderPtrUMap =
     boost::unordered_map<std::size_t, std::unique_ptr<CDataFrameUtils::CColumnValue>>;
 using TPackedBitVectorVec = CDataFrameUtils::TPackedBitVectorVec;
@@ -55,6 +71,163 @@ bool doReduce(std::pair<std::vector<READER>, bool> readResults,
         reduce(std::move(readResults.first[i].s_FunctionState), reduction);
     }
     return true;
+}
+
+//! \brief Manages stratified sampling.
+class CStratifiedSampler {
+public:
+    using TSamplerSelector = std::function<std::size_t(const TRowRef&)>;
+
+public:
+    CStratifiedSampler(std::size_t size) : m_SampledRowIndices(size) {
+        m_DesiredCounts.reserve(size);
+        m_Samplers.reserve(size);
+    }
+
+    void sample(const TRowRef& row) { m_Samplers[m_Selector(row)].sample(row); }
+
+    //! Add one of the strata samplers.
+    void addSampler(std::size_t count, CPRNG::CXorOShiro128Plus rng) {
+        TSizeVec& samples{m_SampledRowIndices[m_Samplers.size()]};
+        samples.reserve(count);
+        auto sampler = [&](std::size_t slot, const TRowRef& row) {
+            if (slot >= samples.size()) {
+                samples.resize(slot + 1);
+            }
+            samples[slot] = row.index();
+        };
+        m_DesiredCounts.push_back(count);
+        m_Samplers.emplace_back(count, sampler, rng);
+    }
+
+    //! Define the callback to select the sampler.
+    void samplerSelector(TSamplerSelector selector) {
+        m_Selector = std::move(selector);
+    }
+
+    //! This selects the final samples, writing to \p result, and resets the sampling
+    //! state so this is ready to sample again.
+    void finishSampling(CPRNG::CXorOShiro128Plus& rng, TSizeVec& result) {
+        result.clear();
+        for (std::size_t i = 0; i < m_SampledRowIndices.size(); ++i) {
+            std::size_t sampleSize{m_Samplers[i].sampleSize()};
+            std::size_t desiredCount{std::min(m_DesiredCounts[i], sampleSize)};
+            CSampling::random_shuffle(rng, m_SampledRowIndices[i].begin(),
+                                      m_SampledRowIndices[i].begin() + sampleSize);
+            result.insert(result.end(), m_SampledRowIndices[i].begin(),
+                          m_SampledRowIndices[i].begin() + desiredCount);
+            m_SampledRowIndices[i].clear();
+            m_Samplers[i].reset();
+        }
+    }
+
+private:
+    TSizeVec m_DesiredCounts;
+    TSizeVecVec m_SampledRowIndices;
+    TRowSamplerVec m_Samplers;
+    TSamplerSelector m_Selector;
+};
+using TStratifiedSamplerUPtr = std::unique_ptr<CStratifiedSampler>;
+
+//! Get a classifier stratified row sampler for cross fold validation.
+std::pair<TStratifiedSamplerUPtr, TDoubleVec>
+classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
+                                              const core::CDataFrame& frame,
+                                              std::size_t targetColumn,
+                                              CPRNG::CXorOShiro128Plus rng,
+                                              std::size_t desiredCount,
+                                              const core::CPackedBitVector& rowMask) {
+
+    TDoubleVec categoryFrequencies{CDataFrameUtils::categoryFrequencies(
+        numberThreads, frame, rowMask, {targetColumn})[targetColumn]};
+    LOG_TRACE(<< "category frequencies = "
+              << core::CContainerPrinter::print(categoryFrequencies));
+
+    TSizeVec categoryCounts;
+    CSampling::weightedSample(desiredCount, categoryFrequencies, categoryCounts);
+    LOG_TRACE(<< "desired category counts per test fold = "
+              << core::CContainerPrinter::print(categoryCounts));
+
+    auto sampler = std::make_unique<CStratifiedSampler>(categoryCounts.size());
+    for (auto categoryCount : categoryCounts) {
+        sampler->addSampler(categoryCount, rng);
+    }
+    sampler->samplerSelector([targetColumn](const TRowRef& row) mutable {
+        return static_cast<std::size_t>(row[targetColumn]);
+    });
+
+    return {std::move(sampler), std::move(categoryFrequencies)};
+}
+
+//! Get a regression stratified row sampler for cross fold validation.
+TStratifiedSamplerUPtr
+regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
+                                             const core::CDataFrame& frame,
+                                             std::size_t targetColumn,
+                                             CPRNG::CXorOShiro128Plus rng,
+                                             std::size_t desiredCount,
+                                             std::size_t numberBuckets,
+                                             const core::CPackedBitVector& rowMask) {
+
+    auto quantiles = CDataFrameUtils::columnQuantiles(
+                         numberThreads, frame, rowMask, {targetColumn},
+                         CQuantileSketch{CQuantileSketch::E_Linear, 50})
+                         .first;
+
+    TDoubleVec buckets;
+    for (double step = 100.0 / static_cast<double>(numberBuckets), percentile = step;
+         percentile < 100.0; percentile += step) {
+        double xQuantile;
+        quantiles[0].quantile(percentile, xQuantile);
+        buckets.push_back(xQuantile);
+    }
+    buckets.erase(std::unique(buckets.begin(), buckets.end()), buckets.end());
+    buckets.push_back(std::numeric_limits<double>::max());
+    LOG_TRACE(<< "buckets = " << core::CContainerPrinter::print(buckets));
+
+    auto bucketSelector = [buckets, targetColumn](const TRowRef& row) mutable {
+        return static_cast<std::size_t>(
+            std::upper_bound(buckets.begin(), buckets.end(), row[targetColumn]) -
+            buckets.begin());
+    };
+
+    auto countBucketRows = core::bindRetrievableState(
+        [&](TDoubleVec& bucketCounts, const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                bucketCounts[bucketSelector(*row)] += 1.0;
+            }
+        },
+        TDoubleVec(buckets.size(), 0.0));
+    auto copyBucketRowCounts = [](TDoubleVec counts_, TDoubleVec& counts) {
+        counts = std::move(counts_);
+    };
+    auto reduceBucketRowCounts = [](TDoubleVec counts_, TDoubleVec& counts) {
+        for (std::size_t i = 0; i < counts.size(); ++i) {
+            counts[i] += counts_[i];
+        }
+    };
+
+    TDoubleVec bucketFrequencies;
+    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), countBucketRows, &rowMask),
+             copyBucketRowCounts, reduceBucketRowCounts, bucketFrequencies);
+    double totalCount{std::accumulate(bucketFrequencies.begin(),
+                                      bucketFrequencies.end(), 0.0)};
+    for (auto& frequency : bucketFrequencies) {
+        frequency /= totalCount;
+    }
+
+    TSizeVec bucketCounts;
+    CSampling::weightedSample(desiredCount, bucketFrequencies, bucketCounts);
+    LOG_TRACE(<< "desired bucket counts per fold = "
+              << core::CContainerPrinter::print(bucketCounts));
+
+    auto sampler = std::make_unique<CStratifiedSampler>(buckets.size());
+    for (std::size_t i = 0; i < buckets.size(); ++i) {
+        sampler->addSampler(bucketCounts[i], rng);
+    }
+    sampler->samplerSelector(bucketSelector);
+
+    return sampler;
 }
 
 //! Get the test row masks corresponding to \p foldRowMasks.
@@ -125,14 +298,15 @@ std::string CDataFrameUtils::SDataType::toDelimited() const {
 
 bool CDataFrameUtils::SDataType::fromDelimited(const std::string& delimited) {
     TDoubleVec state(3);
-    int pos{0}, i{0};
-    for (auto delimiter = delimited.find(INTERNAL_DELIMITER); delimiter != std::string::npos;
+    std::size_t pos{0}, i{0};
+    for (auto delimiter = delimited.find(INTERNAL_DELIMITER);
+         delimiter != std::string::npos && i < state.size();
          delimiter = delimited.find(INTERNAL_DELIMITER, pos)) {
         if (core::CStringUtils::stringToType(delimited.substr(pos, delimiter - pos),
                                              state[i++]) == false) {
             return false;
         }
-        pos = static_cast<int>(delimiter + 1);
+        pos = delimiter + 1;
     }
     std::tie(s_IsInteger, s_Min, s_Max) =
         std::make_tuple(state[0] == 1.0, state[1], state[2]);
@@ -152,7 +326,7 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
     }
 
     auto readColumnMoments = core::bindRetrievableState(
-        [](TMeanVarAccumulatorVec& moments_, TRowItr beginRows, TRowItr endRows) {
+        [](TMeanVarAccumulatorVec& moments_, const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                     if (isMissing((*row)[i]) == false) {
@@ -191,7 +365,8 @@ bool CDataFrameUtils::standardizeColumns(std::size_t numberThreads, core::CDataF
     LOG_TRACE(<< "means = " << core::CContainerPrinter::print(mean));
     LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scale));
 
-    auto standardiseColumns = [&mean, &scale](TRowItr beginRows, TRowItr endRows) {
+    auto standardiseColumns = [&mean, &scale](const TRowItr& beginRows,
+                                              const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                 row->writeColumn(i, scale[i] * ((*row)[i] - mean[i]));
@@ -217,7 +392,7 @@ CDataFrameUtils::columnDataTypes(std::size_t numberThreads,
     using TMinMaxBoolPrVec = std::vector<std::pair<TMinMax, bool>>;
 
     auto readDataTypes = core::bindRetrievableState(
-        [&](TMinMaxBoolPrVec& types, TRowItr beginRows, TRowItr endRows) {
+        [&](TMinMaxBoolPrVec& types, const TRowItr& beginRows, const TRowItr& endRows) {
             double integerPart;
             if (encoder != nullptr) {
                 for (auto row = beginRows; row != endRows; ++row) {
@@ -271,17 +446,17 @@ CDataFrameUtils::columnDataTypes(std::size_t numberThreads,
     return result;
 }
 
-bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
-                                      const core::CDataFrame& frame,
-                                      const core::CPackedBitVector& rowMask,
-                                      const TSizeVec& columnMask,
-                                      const CQuantileSketch& sketch,
-                                      TQuantileSketchVec& result,
-                                      const CDataFrameCategoryEncoder* encoder,
-                                      TWeightFunction weight) {
+std::pair<CDataFrameUtils::TQuantileSketchVec, bool>
+CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
+                                 const core::CDataFrame& frame,
+                                 const core::CPackedBitVector& rowMask,
+                                 const TSizeVec& columnMask,
+                                 CQuantileSketch estimateQuantiles,
+                                 const CDataFrameCategoryEncoder* encoder,
+                                 const TWeightFunc& weight) {
 
     auto readQuantiles = core::bindRetrievableState(
-        [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
+        [&](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) {
             if (encoder != nullptr) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     CEncodedDataFrameRowRef encodedRow{encoder->encode(*row)};
@@ -301,23 +476,24 @@ bool CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                 }
             }
         },
-        TQuantileSketchVec(columnMask.size(), sketch));
-    auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result_) {
-        result_ = std::move(quantiles);
+        TQuantileSketchVec(columnMask.size(), std::move(estimateQuantiles)));
+    auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+        result = std::move(quantiles);
     };
-    auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result_) {
+    auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
         for (std::size_t i = 0; i < columnMask.size(); ++i) {
-            result_[i] += quantiles[i];
+            result[i] += quantiles[i];
         }
     };
 
+    TQuantileSketchVec result;
     if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
                  copyQuantiles, reduceQuantiles, result) == false) {
         LOG_ERROR(<< "Failed to compute column quantiles");
-        return false;
+        return {std::move(result), false};
     }
 
-    return true;
+    return {std::move(result), true};
 }
 
 std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>
@@ -326,114 +502,98 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                                                    std::size_t targetColumn,
                                                    CPRNG::CXorOShiro128Plus rng,
                                                    std::size_t numberFolds,
-                                                   core::CPackedBitVector allTrainingRowsMask) {
+                                                   double trainFractionPerFold,
+                                                   std::size_t numberBuckets,
+                                                   const core::CPackedBitVector& allTrainingRowsMask) {
 
-    if (frame.columnIsCategorical()[targetColumn] == false) {
-        HANDLE_FATAL(<< "Internal error: stratified cross validation is only supported"
-                     << " for classification");
-        return std::tuple<TPackedBitVectorVec, TPackedBitVectorVec, TDoubleVec>{};
+    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    if (static_cast<std::size_t>(numberTrainingRows) < numberFolds) {
+        HANDLE_FATAL(<< "Input error: insufficient training data provided.");
+        return {{}, {}, {}};
     }
 
-    using TSizeVecVec = std::vector<TSizeVec>;
-    using TRowSamplerVec = std::vector<TRowSampler>;
+    double sampleFraction{std::min(trainFractionPerFold, 1.0 - trainFractionPerFold)};
+    double excessSampleFraction{
+        std::max(sampleFraction - 1.0 / static_cast<double>(numberFolds), 0.0)};
 
-    TDoubleVec frequencies{categoryFrequencies(
-        numberThreads, frame, allTrainingRowsMask, {targetColumn})[targetColumn]};
+    // We sample the smaller of the test or train set in the loop.
+    std::size_t excessSampleSize{static_cast<std::size_t>(
+        std::ceil(excessSampleFraction * numberTrainingRows))};
+    std::size_t sampleSize{static_cast<std::size_t>(std::max(
+        (1.0 + 1e-8) * (sampleFraction - excessSampleFraction) * numberTrainingRows, 1.0))};
+    LOG_TRACE(<< "excess sample size = " << excessSampleSize
+              << ", sample size = " << sampleSize);
 
-    TSizeVec categoryCounts;
-    categoryCounts.reserve(frequencies.size());
-    double Z{allTrainingRowsMask.manhattan()};
-    for (auto& frequency : frequencies) {
-        std::size_t desiredCount{static_cast<std::size_t>(
-            Z * frequency / static_cast<double>(numberFolds) + 0.5)};
-        categoryCounts.push_back(std::max(desiredCount, std::size_t{1}));
-    }
-    LOG_TRACE(<< "desired category counts per test fold = "
-              << core::CContainerPrinter::print(categoryCounts));
-
-    TSizeVecVec sampledRowIndices(categoryCounts.size());
-    TRowSamplerVec samplers;
-    samplers.reserve(categoryCounts.size());
-
-    for (std::size_t i = 0; i < categoryCounts.size(); ++i) {
-        TSizeVec& categorySampledRowIndices{sampledRowIndices[i]};
-        categorySampledRowIndices.reserve(categoryCounts[i]);
-        auto sampler = [&](std::size_t slot, const TRowRef& row) {
-            if (slot >= categorySampledRowIndices.size()) {
-                categorySampledRowIndices.resize(slot + 1);
+    TDoubleVec frequencies;
+    auto makeSampler = [&](std::size_t size, const core::CPackedBitVector& rowMask) {
+        TStratifiedSamplerUPtr result;
+        if (size > 0) {
+            if (frame.columnIsCategorical()[targetColumn]) {
+                std::tie(result, frequencies) = classifierStratifiedCrossValidationRowSampler(
+                    numberThreads, frame, targetColumn, rng, size, rowMask);
+            } else {
+                result = regressionStratifiedCrossValiationRowSampler(
+                    numberThreads, frame, targetColumn, rng, size, numberBuckets, rowMask);
             }
-            categorySampledRowIndices[slot] = row.index();
-        };
-        samplers.emplace_back(categoryCounts[i], sampler, rng);
-    }
+        }
+        return result;
+    };
+
+    auto excessSampler = makeSampler(excessSampleSize, allTrainingRowsMask);
+
+    LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
 
     TPackedBitVectorVec testingRowMasks(numberFolds);
 
     TSizeVec rowIndices;
-    core::CPackedBitVector candidateTestingRowsMask{allTrainingRowsMask};
-    for (std::size_t fold = 0; fold < numberFolds - 1; ++fold) {
+    auto sample = [&](const TStratifiedSamplerUPtr& sampler_,
+                      const core::CPackedBitVector& rowMask) {
         frame.readRows(1, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
-                               std::size_t category{
-                                   static_cast<std::size_t>((*row)[targetColumn])};
-                               samplers[category].sample(*row);
+                               sampler_->sample(*row);
                            }
                        },
-                       &candidateTestingRowsMask);
-
-        rowIndices.clear();
-        for (std::size_t i = 0; i < sampledRowIndices.size(); ++i) {
-            std::size_t sampleSize{samplers[i].sampleSize()};
-            std::size_t desiredCount{std::min(categoryCounts[i], sampleSize)};
-            CSampling::random_shuffle(rng, sampledRowIndices[i].begin(),
-                                      sampledRowIndices[i].begin() + sampleSize);
-            rowIndices.insert(rowIndices.end(), sampledRowIndices[i].begin(),
-                              sampledRowIndices[i].begin() + desiredCount);
-            sampledRowIndices[i].clear();
-            samplers[i].reset();
-        }
+                       &rowMask);
+        sampler_->finishSampling(rng, rowIndices);
         std::sort(rowIndices.begin(), rowIndices.end());
         LOG_TRACE(<< "# row indices = " << rowIndices.size());
 
+        core::CPackedBitVector result;
         for (auto row : rowIndices) {
-            testingRowMasks[fold].extend(false, row - testingRowMasks[fold].size());
-            testingRowMasks[fold].extend(true);
+            result.extend(false, row - result.size());
+            result.extend(true);
         }
-        testingRowMasks[fold].extend(false, allTrainingRowsMask.size() -
-                                                testingRowMasks[fold].size());
-        candidateTestingRowsMask ^= testingRowMasks[fold];
+        result.extend(false, rowMask.size() - result.size());
+        return result;
+    };
+
+    core::CPackedBitVector candidateTestingRowsMask{allTrainingRowsMask};
+    for (auto& testingRowMask : testingRowMasks) {
+        if (static_cast<std::size_t>(candidateTestingRowsMask.manhattan()) <= sampleSize) {
+            testingRowMask = std::move(candidateTestingRowsMask);
+            candidateTestingRowsMask = core::CPackedBitVector{testingRowMask.size(), false};
+        } else {
+            auto sampler = makeSampler(sampleSize, candidateTestingRowsMask);
+            if (sampler == nullptr) {
+                HANDLE_FATAL(<< "Internal error: failed to create train/test splits.");
+                return {{}, {}, {}};
+            }
+            testingRowMask = sample(sampler, candidateTestingRowsMask);
+            candidateTestingRowsMask ^= testingRowMask;
+        }
+        if (excessSampler != nullptr) {
+            testingRowMask |= sample(excessSampler, allTrainingRowsMask ^ testingRowMask);
+        }
     }
-    testingRowMasks.back() = std::move(candidateTestingRowsMask);
 
     TPackedBitVectorVec trainingRowMasks{complementRowMasks(testingRowMasks, allTrainingRowsMask)};
 
+    if (trainFractionPerFold < 0.5) {
+        std::swap(trainingRowMasks, testingRowMasks);
+    }
+
     return {std::move(trainingRowMasks), std::move(testingRowMasks), std::move(frequencies)};
-}
-
-std::pair<TPackedBitVectorVec, TPackedBitVectorVec>
-CDataFrameUtils::crossValidationRowMasks(CPRNG::CXorOShiro128Plus rng,
-                                         std::size_t numberFolds,
-                                         core::CPackedBitVector allTrainingRowsMask) {
-
-    TPackedBitVectorVec trainingRowMasks(numberFolds);
-
-    for (auto row = allTrainingRowsMask.beginOneBits();
-         row != allTrainingRowsMask.endOneBits(); ++row) {
-        std::size_t fold{CSampling::uniformSample(rng, 0, numberFolds)};
-        trainingRowMasks[fold].extend(true, *row - trainingRowMasks[fold].size());
-        trainingRowMasks[fold].extend(false);
-    }
-
-    for (auto& fold : trainingRowMasks) {
-        fold.extend(true, allTrainingRowsMask.size() - fold.size());
-        fold &= allTrainingRowsMask;
-        LOG_TRACE(<< "# training = " << fold.manhattan());
-    }
-
-    TPackedBitVectorVec testingRowMasks{complementRowMasks(trainingRowMasks, allTrainingRowsMask)};
-
-    return {std::move(trainingRowMasks), std::move(testingRowMasks)};
 }
 
 CDataFrameUtils::TDoubleVecVec
@@ -449,12 +609,14 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
 
     // Note this can throw a length_error in resize hence the try block around read.
     auto readCategoryCounts = core::bindRetrievableState(
-        [&](TDoubleVecVec& counts, TRowItr beginRows, TRowItr endRows) {
+        [&](TDoubleVecVec& counts, const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i : columnMask) {
-                    std::size_t category{static_cast<std::size_t>((*row)[i])};
-                    counts[i].resize(std::max(counts[i].size(), category + 1), 0.0);
-                    counts[i][category] += 1.0;
+                    if (isMissing((*row)[i]) == false) {
+                        std::size_t category{static_cast<std::size_t>((*row)[i])};
+                        counts[i].resize(std::max(counts[i].size(), category + 1), 0.0);
+                        counts[i][category] += 1.0;
+                    }
                 }
             }
         },
@@ -473,13 +635,9 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
 
     TDoubleVecVec result;
     try {
-        if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
-                                    readCategoryCounts, &rowMask),
-                     copyCategoryCounts, reduceCategoryCounts, result) == false) {
-            HANDLE_FATAL(<< "Internal error: failed to calculate category"
-                         << " frequencies. Please report this problem.");
-            return result;
-        }
+        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
+                                readCategoryCounts, &rowMask),
+                 copyCategoryCounts, reduceCategoryCounts, result);
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
                      << " category frequencies. Please report this problem.");
@@ -514,10 +672,10 @@ CDataFrameUtils::meanValueOfTargetForCategories(const CColumnValue& target,
 
     // Note this can throw a length_error in resize hence the try block around read.
     auto readColumnMeans = core::bindRetrievableState(
-        [&](TMeanAccumulatorVecVec& means_, TRowItr beginRows, TRowItr endRows) {
+        [&](TMeanAccumulatorVecVec& means_, const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i : columnMask) {
-                    if (isMissing(target(*row)) == false) {
+                    if (isMissing((*row)[i]) == false && isMissing(target(*row)) == false) {
                         std::size_t category{static_cast<std::size_t>((*row)[i])};
                         means_[i].resize(std::max(means_[i].size(), category + 1));
                         means_[i][category].add(target(*row));
@@ -540,12 +698,8 @@ CDataFrameUtils::meanValueOfTargetForCategories(const CColumnValue& target,
 
     TMeanAccumulatorVecVec means;
     try {
-        if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readColumnMeans, &rowMask),
-                     copyColumnMeans, reduceColumnMeans, means) == false) {
-            HANDLE_FATAL(<< "Internal error: failed to calculate mean target values"
-                         << " for categories. Please report this problem.");
-            return result;
-        }
+        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readColumnMeans, &rowMask),
+                 copyColumnMeans, reduceColumnMeans, means);
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
                      << " mean target values for categories. Please report this problem.");
@@ -620,8 +774,23 @@ CDataFrameUtils::metricMicWithColumn(const CColumnValue& target,
                   std::min(NUMBER_SAMPLES_TO_COMPUTE_MIC, frame.numberRows()));
 }
 
-bool CDataFrameUtils::isMissing(double x) {
-    return CMathsFuncs::isFinite(x) == false;
+CDataFrameUtils::TDoubleVector
+CDataFrameUtils::maximumMinimumRecallClassWeights(std::size_t numberThreads,
+                                                  const core::CDataFrame& frame,
+                                                  const core::CPackedBitVector& rowMask,
+                                                  std::size_t numberClasses,
+                                                  std::size_t targetColumn,
+                                                  const TReadPredictionFunc& readPrediction) {
+
+    return numberClasses == 2
+               ? maximizeMinimumRecallForBinary(numberThreads, frame, rowMask,
+                                                targetColumn, readPrediction)
+               : maximizeMinimumRecallForMulticlass(numberThreads, frame, rowMask, numberClasses,
+                                                    targetColumn, readPrediction);
+}
+
+bool CDataFrameUtils::isMissing(double value) {
+    return std::isfinite(value) == false;
 }
 
 CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColumnDataFrameInMemory(
@@ -658,11 +827,13 @@ CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColum
             TRowSampler sampler{numberSamples, rowFeatureSampler(i, target, samples)};
             frame.readRows(
                 1, 0, frame.numberRows(),
-                [&](TRowItr beginRows, TRowItr endRows) {
+                [&](const TRowItr& beginRows, const TRowItr& endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
+                        if (isMissing((*row)[i]) || isMissing(target(*row))) {
+                            continue;
+                        }
                         std::size_t category{static_cast<std::size_t>((*row)[i])};
-                        if (frequencies[i][category] >= minimumFrequency &&
-                            isMissing(target(*row)) == false) {
+                        if (frequencies[i][category] >= minimumFrequency) {
                             sampler.sample(*row);
                         }
                     }
@@ -725,7 +896,7 @@ CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColum
         samples.clear();
         TRowSampler sampler{numberSamples, rowSampler(samples)};
         frame.readRows(1, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
                            for (auto row = beginRows; row != endRows; ++row) {
                                if (isMissing(target(*row)) == false) {
                                    sampler.sample(*row);
@@ -741,6 +912,9 @@ CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColum
 
             encoders.clear();
             for (const auto& sample : samples) {
+                if (isMissing(sample[i])) {
+                    continue;
+                }
                 std::size_t category{static_cast<std::size_t>(sample[i])};
                 if (frequencies[i][category] >= minimumFrequency) {
                     auto encoder = makeEncoder(i, i, category);
@@ -779,7 +953,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameInMemory(const CColumnValue& target
         auto missingCount = frame.readRows(
             1, 0, frame.numberRows(),
             core::bindRetrievableState(
-                [&](std::size_t& missing, TRowItr beginRows, TRowItr endRows) {
+                [&](std::size_t& missing, const TRowItr& beginRows, const TRowItr& endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
                         if (isMissing((*row)[i])) {
                             ++missing;
@@ -830,7 +1004,7 @@ CDataFrameUtils::metricMicWithColumnDataFrameOnDisk(const CColumnValue& target,
     auto missingCounts = frame.readRows(
         1, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](TSizeVec& missing, TRowItr beginRows, TRowItr endRows) {
+            [&](TSizeVec& missing, const TRowItr& beginRows, const TRowItr& endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
                     for (std::size_t i = 0; i < row->numberColumns(); ++i) {
                         missing[i] += isMissing((*row)[i]) ? 1 : 0;
@@ -867,6 +1041,264 @@ CDataFrameUtils::metricMicWithColumnDataFrameOnDisk(const CColumnValue& target,
     }
 
     return mics;
+}
+
+CDataFrameUtils::TDoubleVector
+CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
+                                                const core::CDataFrame& frame,
+                                                const core::CPackedBitVector& rowMask,
+                                                std::size_t targetColumn,
+                                                const TReadPredictionFunc& readPrediction) {
+    TDoubleVector probabilities;
+    auto readQuantiles = core::bindRetrievableState(
+        [=](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) mutable {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (isMissing((*row)[targetColumn]) == false) {
+                    std::size_t actualClass{static_cast<std::size_t>((*row)[targetColumn])};
+                    probabilities = readPrediction(*row);
+                    CTools::inplaceSoftmax(probabilities);
+                    quantiles[actualClass].add(probabilities(1));
+                }
+            }
+        },
+        TQuantileSketchVec(2, CQuantileSketch{CQuantileSketch::E_Linear, 100}));
+    auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+        result = std::move(quantiles);
+    };
+    auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+        for (std::size_t i = 0; i < 2; ++i) {
+            result[i] += quantiles[i];
+        }
+    };
+
+    TQuantileSketchVec classProbabilityClassOneQuantiles;
+    if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
+                 copyQuantiles, reduceQuantiles, classProbabilityClassOneQuantiles) == false) {
+        HANDLE_FATAL(<< "Failed to compute category quantiles");
+        return TDoubleVector::Ones(2);
+    }
+
+    auto minRecall = [&](double threshold) {
+        double cdf[2];
+        classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
+        classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
+        double recalls[]{cdf[0], 1.0 - cdf[1]};
+        return std::min(recalls[0], recalls[1]);
+    };
+
+    double threshold;
+    double minRecallAtThreshold;
+    std::size_t maxIterations{20};
+    CSolvers::maximize(0.0, 1.0, minRecall(0.0), minRecall(1.0), minRecall,
+                       1e-3, maxIterations, threshold, minRecallAtThreshold);
+    LOG_TRACE(<< "threshold = " << threshold
+              << ", min recall at threshold = " << minRecallAtThreshold);
+
+    TDoubleVector result{2};
+    result(0) = threshold < 0.5 ? threshold / (1.0 - threshold) : 1.0;
+    result(1) = threshold < 0.5 ? 1.0 : (1.0 - threshold) / threshold;
+    return result;
+}
+
+CDataFrameUtils::TDoubleVector
+CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
+                                                    const core::CDataFrame& frame,
+                                                    const core::CPackedBitVector& rowMask,
+                                                    std::size_t numberClasses,
+                                                    std::size_t targetColumn,
+                                                    const TReadPredictionFunc& readPrediction) {
+
+    // Use a large random sample of the data frame and compute the expected
+    // optimisation objective for the whole data set from this.
+
+    using TDoubleMatrix = CDenseMatrix<double>;
+    using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
+
+    CPRNG::CXorOShiro128Plus rng;
+    std::size_t numberSamples{
+        static_cast<std::size_t>(std::min(1000.0, rowMask.manhattan()))};
+
+    core::CPackedBitVector sampleMask;
+
+    // No need to sample if were going to use every row we've been given.
+    if (numberSamples < static_cast<std::size_t>(rowMask.manhattan())) {
+        TStratifiedSamplerUPtr sampler;
+        std::tie(sampler, std::ignore) = classifierStratifiedCrossValidationRowSampler(
+            numberThreads, frame, targetColumn, rng, numberSamples, rowMask);
+
+        TSizeVec rowIndices;
+        frame.readRows(1, 0, frame.numberRows(),
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               sampler->sample(*row);
+                           }
+                       },
+                       &rowMask);
+        sampler->finishSampling(rng, rowIndices);
+        std::sort(rowIndices.begin(), rowIndices.end());
+        LOG_TRACE(<< "# row indices = " << rowIndices.size());
+
+        for (auto row : rowIndices) {
+            sampleMask.extend(false, row - sampleMask.size());
+            sampleMask.extend(true);
+        }
+        sampleMask.extend(false, rowMask.size() - sampleMask.size());
+    } else {
+        sampleMask = rowMask;
+    }
+
+    // Compute the count of each class in the sample set.
+    auto readClassCountsAndRecalls = core::bindRetrievableState(
+        [&](TDoubleVector& state, const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (isMissing((*row)[targetColumn]) == false) {
+                    int j{static_cast<int>((*row)[targetColumn])};
+                    int k;
+                    readPrediction(*row).maxCoeff(&k);
+                    state(j) += 1.0;
+                    state(numberClasses + j) += j == k ? 1.0 : 0.0;
+                }
+            }
+        },
+        TDoubleVector{TDoubleVector::Zero(2 * numberClasses)});
+    auto copyClassCountsAndRecalls = [](TDoubleVector state, TDoubleVector& result) {
+        result = std::move(state);
+    };
+    auto reduceClassCountsAndRecalls =
+        [&](TDoubleVector state, TDoubleVector& result) { result += state; };
+    TDoubleVector classCountsAndRecalls;
+    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
+                            readClassCountsAndRecalls, &sampleMask),
+             copyClassCountsAndRecalls, reduceClassCountsAndRecalls, classCountsAndRecalls);
+    TDoubleVector classCounts{classCountsAndRecalls.topRows(numberClasses)};
+    TDoubleVector classRecalls{classCountsAndRecalls.bottomRows(numberClasses)};
+    // If a class count is zero the derivative of the loss functin w.r.t. that
+    // class is not well defined. The objective is independent of such a class
+    // so the choice for its count and recall is not important. However, its
+    // count must be non-zero so that we don't run into a NaN cascade.
+    classCounts = classCounts.cwiseMax(1.0);
+    classRecalls.array() /= classCounts.array();
+    LOG_TRACE(<< "class counts = " << classCounts.transpose());
+    LOG_TRACE(<< "class recalls = " << classRecalls.transpose());
+
+    TSizeVec recallOrder(numberClasses);
+    std::iota(recallOrder.begin(), recallOrder.end(), 0);
+    std::sort(recallOrder.begin(), recallOrder.end(), [&](std::size_t lhs, std::size_t rhs) {
+        return classRecalls(lhs) > classRecalls(rhs);
+    });
+    LOG_TRACE(<< "decreasing recall order = " << core::CContainerPrinter::print(recallOrder));
+
+    // We want to solve max_w{min_j{recall(class_j)}} = max_w{min_j{c_j(w) / n_j}}
+    // where c_j(w) and n_j are correct predictions for weight w and count of class_j
+    // in the sample set, respectively. We use an equivalent formulation
+    //
+    //   min_w{max_j{f_j(w)}} = min_w{max_j{1 - c_j(w) / n_j}}
+    //
+    // We can write f_j(w) as
+    //
+    //    max_j{sum_i{1 - 1{argmax_i(w_i p_i) == j}} / n_j}                     (1)
+    //
+    // where 1{.} denotes the indicator function. (1) has a smooth relaxation given
+    // by f_j(w) = max_j{sum_i{1 - softmax_j(w_i p_i)} / n_j}. Note that this isn't
+    // convex so we use multiple restarts.
+
+    auto objective = [&](const TDoubleVector& weights) {
+        TDoubleVector probabilities;
+        TDoubleVector scores;
+        auto computeObjective = core::bindRetrievableState(
+            [=](TDoubleVector& state, const TRowItr& beginRows, const TRowItr& endRows) mutable {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    if (isMissing((*row)[targetColumn]) == false) {
+                        std::size_t j{static_cast<std::size_t>((*row)[targetColumn])};
+                        probabilities = readPrediction(*row);
+                        CTools::inplaceSoftmax(probabilities);
+                        scores = probabilities.cwiseProduct(weights);
+                        CTools::inplaceSoftmax(scores);
+                        state(j) += (1.0 - scores(j)) / classCounts(j);
+                    }
+                }
+            },
+            TDoubleVector{TDoubleVector::Zero(numberClasses)});
+        auto copyObjective = [](TDoubleVector state, TDoubleVector& result) {
+            result = std::move(state);
+        };
+        auto reduceObjective = [&](TDoubleVector state, TDoubleVector& result) {
+            result += state;
+        };
+
+        TDoubleVector objective_;
+        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
+                                computeObjective, &sampleMask),
+                 copyObjective, reduceObjective, objective_);
+        return objective_.maxCoeff();
+    };
+
+    auto objectiveGradient = [&](const TDoubleVector& weights) {
+        TDoubleVector probabilities;
+        TDoubleVector scores;
+        auto computeObjectiveAndGradient = core::bindRetrievableState(
+            [=](TDoubleMatrix& state, const TRowItr& beginRows, const TRowItr& endRows) mutable {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    if (isMissing((*row)[targetColumn]) == false) {
+                        std::size_t j{static_cast<std::size_t>((*row)[targetColumn])};
+                        probabilities = readPrediction(*row);
+                        CTools::inplaceSoftmax(probabilities);
+                        scores = probabilities.cwiseProduct(weights);
+                        CTools::inplaceSoftmax(scores);
+                        state(j, 0) += (1.0 - scores(j)) / classCounts(j);
+                        state.col(j + 1) +=
+                            scores(j) *
+                            probabilities
+                                .cwiseProduct(scores - TDoubleVector::Unit(numberClasses, j))
+                                .cwiseQuotient(classCounts);
+                    }
+                }
+            },
+            TDoubleMatrix{TDoubleMatrix::Zero(numberClasses, numberClasses + 1)});
+        auto copyObjectiveAndGradient = [](TDoubleMatrix state, TDoubleMatrix& result) {
+            result = std::move(state);
+        };
+        auto reduceObjectiveAndGradient =
+            [&](TDoubleMatrix state, TDoubleMatrix& result) { result += state; };
+
+        TDoubleMatrix objectiveAndGradient;
+        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
+                                computeObjectiveAndGradient, &sampleMask),
+                 copyObjectiveAndGradient, reduceObjectiveAndGradient, objectiveAndGradient);
+        std::size_t max;
+        objectiveAndGradient.col(0).maxCoeff(&max);
+        return TDoubleVector{objectiveAndGradient.col(max + 1)};
+    };
+
+    // We always try initialising with all weights equal because our minimization
+    // algorithm ensures we'll only decrease the initial value of the optimisation
+    // objective. This means we'll never do worse than not reweighting. Also, we
+    // expect weights to be (roughly) monotonic increasing for decreasing recall
+    // and use this to bias initial values.
+
+    TMinAccumulator minLoss;
+    TDoubleVector minLossWeights;
+    TDoubleVector w0{TDoubleVector::Ones(numberClasses)};
+    for (std::size_t i = 0; i < 5; ++i) {
+        CLbfgs<TDoubleVector> lbfgs{5};
+        double loss;
+        std::tie(w0, loss) = lbfgs.minimize(objective, objectiveGradient, std::move(w0));
+        LOG_TRACE(<< "weights* = " << w0.transpose() << ", loss* = " << loss);
+        if (minLoss.add(loss)) {
+            minLossWeights = std::move(w0);
+        }
+        w0 = TDoubleVector::Ones(numberClasses);
+        for (std::size_t j = 1; j < numberClasses; ++j) {
+            w0(j) = w0(j - 1) * CSampling::uniformSample(rng, 0.9, 1.3);
+        }
+    }
+
+    // Since we take argmax_i w_i p_i we can multiply by a constant. We arrange for
+    // the largest weight to always be one.
+    minLossWeights.array() /= minLossWeights.maxCoeff();
+    LOG_TRACE(<< "weights = " << minLossWeights.transpose());
+
+    return minLossWeights;
 }
 
 void CDataFrameUtils::removeMetricColumns(const core::CDataFrame& frame, TSizeVec& columnMask) {

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include "Mocks.h"
@@ -16,6 +21,10 @@ CMockModel::CMockModel(const SModelParams& params,
                        const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
     : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators),
       m_IsPopulation(false), m_InterimBucketCorrector(params.s_BucketLength) {
+}
+
+bool CMockModel::shouldPersist() const {
+    return true;
 }
 
 void CMockModel::persistModelsState(core::CStatePersistInserter& /*inserter*/) const {
@@ -117,7 +126,7 @@ uint64_t CMockModel::checksum(bool /*includeCurrentBucketStats*/) const {
     return 0;
 }
 
-void CMockModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr /*mem*/) const {
+void CMockModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& /*mem*/) const {
 }
 
 std::size_t CMockModel::memoryUsage() const {
@@ -126,6 +135,10 @@ std::size_t CMockModel::memoryUsage() const {
 
 std::size_t CMockModel::computeMemoryUsage() const {
     return 0;
+}
+
+const CMockModel::TAnnotationVec& CMockModel::annotations() const {
+    return m_Annotations;
 }
 
 std::size_t CMockModel::staticSize() const {

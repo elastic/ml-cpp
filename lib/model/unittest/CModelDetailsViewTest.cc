@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CModelDetailsViewTest.h"
 
 #include <core/CLogger.h>
 #include <core/Constants.h>
@@ -15,12 +18,19 @@
 
 #include <model/CDataGatherer.h>
 #include <model/CModelPlotData.h>
+#include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
 
 #include "Mocks.h"
 
+#include <boost/test/unit_test.hpp>
+
 #include <memory>
 #include <vector>
+
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::model::CModelPlotData::TFeatureStrByFieldDataUMapUMapCItr);
+
+BOOST_AUTO_TEST_SUITE(CModelDetailsViewTest)
 
 using namespace ml;
 
@@ -30,7 +40,12 @@ const std::string EMPTY_STRING;
 
 } // unnamed
 
-void CModelDetailsViewTest::testModelPlot() {
+class CTestFixture {
+protected:
+    model::CResourceMonitor m_ResourceMonitor;
+};
+
+BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
     using TDoubleVec = std::vector<double>;
     using TStrVec = std::vector<std::string>;
     using TMockModelPtr = std::unique_ptr<model::CMockModel>;
@@ -89,15 +104,15 @@ void CModelDetailsViewTest::testModelPlot() {
 
         model::CModelPlotData plotData;
         model->details()->modelPlot(0, 90.0, {}, plotData);
-        CPPUNIT_ASSERT(plotData.begin() != plotData.end());
+        BOOST_TEST_REQUIRE(plotData.begin() != plotData.end());
         for (const auto& featureByFieldData : plotData) {
-            CPPUNIT_ASSERT_EQUAL(values.size(), featureByFieldData.second.size());
+            BOOST_REQUIRE_EQUAL(values.size(), featureByFieldData.second.size());
             for (const auto& byFieldData : featureByFieldData.second) {
-                CPPUNIT_ASSERT(gatherer->personId(byFieldData.first, pid));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1),
-                                     byFieldData.second.s_ValuesPerOverField.size());
+                BOOST_TEST_REQUIRE(gatherer->personId(byFieldData.first, pid));
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    byFieldData.second.s_ValuesPerOverField.size());
                 for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
-                    CPPUNIT_ASSERT_EQUAL(values[pid], currentBucketValue.second);
+                    BOOST_REQUIRE_EQUAL(values[pid], currentBucketValue.second);
                 }
             }
         }
@@ -117,26 +132,19 @@ void CModelDetailsViewTest::testModelPlot() {
 
         model::CModelPlotData plotData;
         model->details()->modelPlot(0, 90.0, {}, plotData);
-        CPPUNIT_ASSERT(plotData.begin() != plotData.end());
+        BOOST_TEST_REQUIRE(plotData.begin() != plotData.end());
         for (const auto& featureByFieldData : plotData) {
-            CPPUNIT_ASSERT_EQUAL(values.size(), featureByFieldData.second.size());
+            BOOST_REQUIRE_EQUAL(values.size(), featureByFieldData.second.size());
             for (const auto& byFieldData : featureByFieldData.second) {
-                CPPUNIT_ASSERT(gatherer->personId(byFieldData.first, pid));
-                CPPUNIT_ASSERT_EQUAL(std::size_t(1),
-                                     byFieldData.second.s_ValuesPerOverField.size());
+                BOOST_TEST_REQUIRE(gatherer->personId(byFieldData.first, pid));
+                BOOST_REQUIRE_EQUAL(std::size_t(1),
+                                    byFieldData.second.s_ValuesPerOverField.size());
                 for (const auto& currentBucketValue : byFieldData.second.s_ValuesPerOverField) {
-                    CPPUNIT_ASSERT_EQUAL(values[pid], currentBucketValue.second);
+                    BOOST_REQUIRE_EQUAL(values[pid], currentBucketValue.second);
                 }
             }
         }
     }
 }
 
-CppUnit::Test* CModelDetailsViewTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CModelDetailsViewTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CModelDetailsViewTest>(
-        "CModelDetailsViewTest::testModelPlot", &CModelDetailsViewTest::testModelPlot));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

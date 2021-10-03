@@ -1,95 +1,106 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "seccomp/CSystemCallFilter.h"
+#include <seccomp/CSystemCallFilter.h>
 
 #include <core/CLogger.h>
-
-#include <linux/audit.h>
-#include <linux/filter.h>
-#include <sys/prctl.h>
-#include <sys/syscall.h>
 
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
+
+#include <linux/audit.h>
+#include <linux/filter.h>
+#include <linux/seccomp.h>
+#include <sys/prctl.h>
+#include <sys/syscall.h>
 
 namespace ml {
 namespace seccomp {
 
 namespace {
 // The old x32 ABI always has bit 30 set in the sys call numbers.
-// The x64 architecture should fail these calls
+// The x64 ABI should fail these calls
 const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 
 // Offset to the nr field in struct seccomp_data
 const std::uint32_t SECCOMP_DATA_NR_OFFSET = 0x00;
 
-// Copied from seccomp.h
-// seccomp.h cannot be included as it was added in Linux kernel 3.17
-// and this must build on older versions.
-// TODO: remove on the minumum build kernel version supports seccomp
-#define SECCOMP_MODE_FILTER 2
-#define SECCOMP_RET_ERRNO 0x00050000U
-#define SECCOMP_RET_ALLOW 0x7fff0000U
-#define SECCOMP_RET_DATA 0x0000ffffU
-#define SECCOMP_RET_KILL 0x00000000U
-
-// Added in Linux 3.5
-#ifndef PR_SET_NO_NEW_PRIVS
-#define PR_SET_NO_NEW_PRIVS 38
-#endif
-
 const struct sock_filter FILTER[] = {
     // Load the system call number into accumulator
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
-    // Only applies to X86_64 arch. Jump to disallow for calls using the x32 ABI
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 40, 0),
+
+#ifdef __x86_64__
+    // Only applies to x86_64 arch. Jump to disallow for calls using the x32 ABI
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 48, 0),
     // If any sys call filters are added or removed then the jump
     // destination for each statement including the one above must
     // be updated accordingly
 
-    // Allowed sys calls, jump to return allow on match
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 40, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 39, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 38, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 37, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 36, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 35, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clock_gettime, 34, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_gettimeofday, 33, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 32, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 31, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fstat, 30, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 29, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_close, 28, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_connect, 27, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone, 26, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statfs, 25, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 24, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 23, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 22, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlinkat, 21, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 20, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents64, 19, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_openat, 18, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_tgkill, 17, 0), // for the crash handler
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigaction, 16, 0), // for the crash handler
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigreturn, 15, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_futex, 14, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_madvise, 13, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 12, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 11, 0),
+    // Allowed architecture-specific sys calls, jump to return allow on match
+    // Some of these are not used in latest glibc, and not supported in Linux
+    // kernels for recent architectures, but in a few cases different sys calls
+    // are used on different architectures
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 48, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 47, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 46, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 45, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 44, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 43, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 42, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 41, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 40, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 39, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 38, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 37, 0),
+#elif defined(__aarch64__)
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 37, 0),
+#else
+#error Unsupported hardware architecture
+#endif
+
+    // Allowed sys calls for all architectures, jump to return allow on match
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 36, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_newfstatat, 35, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 34, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup3, 33, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpriority, 32, 0), // for nice
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_setpriority, 31, 0), // for nice
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 30, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 29, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 28, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 27, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clock_gettime, 26, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_gettimeofday, 25, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fstat, 24, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_close, 23, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_connect, 22, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone, 21, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statfs, 20, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdirat, 19, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlinkat, 18, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents64, 17, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_openat, 16, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_tgkill, 15, 0), // for the crash handler
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigaction, 14, 0), // for the crash handler
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigreturn, 13, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_futex, 12, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_madvise, 11, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_nanosleep, 10, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_set_robust_list, 9, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mprotect, 8, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_munmap, 7, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mmap, 6, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getuid, 5, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_exit_group, 4, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 3, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mprotect, 8, 0), // for malloc arenas and pthread stacks
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mremap, 7, 0), // for malloc arenas
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_munmap, 6, 0), // for malloc arenas
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mmap, 5, 0),   // for malloc arenas
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getuid, 4, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_exit_group, 3, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_brk, 2, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_exit, 1, 0),
     // Disallow call with error code EACCES

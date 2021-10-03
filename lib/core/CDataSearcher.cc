@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CDataSearcher.h>
 
@@ -10,20 +15,7 @@ namespace core {
 
 const std::string CDataSearcher::EMPTY_STRING;
 
-CDataSearcher::CDataSearcher() : m_SearchTerms(2) {
-}
-
 CDataSearcher::~CDataSearcher() {
-}
-
-void CDataSearcher::setStateRestoreSearch(const std::string& index) {
-    m_SearchTerms[0] = index;
-    m_SearchTerms[1].clear();
-}
-
-void CDataSearcher::setStateRestoreSearch(const std::string& index, const std::string& id) {
-    m_SearchTerms[0] = index;
-    m_SearchTerms[1] = id;
 }
 }
 }

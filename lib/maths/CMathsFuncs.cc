@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CMathsFuncs.h>
@@ -24,7 +29,7 @@ bool CMathsFuncs::isNan(const CVector<double>& val) {
     return aComponent(static_cast<bool (*)(double)>(&isNan), val);
 }
 bool CMathsFuncs::isNan(const core::CSmallVectorBase<double>& val) {
-    for (std::size_t i = 0u; i < val.size(); ++i) {
+    for (std::size_t i = 0; i < val.size(); ++i) {
         if (isNan(val[i])) {
             return true;
         }
@@ -42,7 +47,7 @@ bool CMathsFuncs::isInf(const CSymmetricMatrix<double>& val) {
     return anElement(static_cast<bool (*)(double)>(&isInf), val);
 }
 bool CMathsFuncs::isInf(const core::CSmallVectorBase<double>& val) {
-    for (std::size_t i = 0u; i < val.size(); ++i) {
+    for (std::size_t i = 0; i < val.size(); ++i) {
         if (isInf(val[i])) {
             return true;
         }
@@ -60,7 +65,7 @@ bool CMathsFuncs::isFinite(const CSymmetricMatrix<double>& val) {
     return everyElement(static_cast<bool (*)(double)>(&isFinite), val);
 }
 bool CMathsFuncs::isFinite(const core::CSmallVectorBase<double>& val) {
-    for (std::size_t i = 0u; i < val.size(); ++i) {
+    for (std::size_t i = 0; i < val.size(); ++i) {
         if (!isFinite(val[i])) {
             return false;
         }

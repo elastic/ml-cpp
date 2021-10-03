@@ -1,13 +1,20 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CDataFrame_h
 #define INCLUDED_ml_core_CDataFrame_h
 
+#include <core/CAlignment.h>
 #include <core/CFloatStorage.h>
+#include <core/CPackedBitVector.h>
 #include <core/CVectorRange.h>
 #include <core/Concurrency.h>
 #include <core/ImportExport.h>
@@ -19,6 +26,7 @@
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -26,16 +34,37 @@ namespace ml {
 namespace core {
 class CDataFrameRowSlice;
 class CDataFrameRowSliceHandle;
-class CPackedBitVector;
 class CTemporaryDirectory;
 
 namespace data_frame_detail {
 
-using TFloatVec = std::vector<CFloatStorage>;
+using TFloatVec = std::vector<CFloatStorage, CAlignedAllocator<CFloatStorage>>;
 using TFloatVecItr = TFloatVec::iterator;
 using TInt32Vec = std::vector<std::int32_t>;
 using TInt32VecCItr = TInt32Vec::const_iterator;
-using TPopMaskedRowFunc = std::function<std::size_t()>;
+
+//! \brief A callback used to iterate over only the masked rows.
+class CORE_EXPORT CPopMaskedRow {
+public:
+    CPopMaskedRow(std::size_t endSliceRows,
+                  CPackedBitVector::COneBitIndexConstIterator& maskedRow,
+                  const CPackedBitVector::COneBitIndexConstIterator& endMaskedRows)
+        : m_EndSliceRows{endSliceRows}, m_MaskedRow{&maskedRow}, m_EndMaskedRows{&endMaskedRows} {
+    }
+
+    std::size_t operator()() const {
+        return ++(*m_MaskedRow) == *m_EndMaskedRows
+                   ? m_EndSliceRows
+                   : std::min(**m_MaskedRow, m_EndSliceRows);
+    }
+
+private:
+    std::size_t m_EndSliceRows;
+    CPackedBitVector::COneBitIndexConstIterator* m_MaskedRow;
+    const CPackedBitVector::COneBitIndexConstIterator* m_EndMaskedRows;
+};
+
+using TOptionalPopMaskedRow = boost::optional<CPopMaskedRow>;
 
 //! \brief A lightweight wrapper around a single row of the data frame.
 //!
@@ -57,7 +86,7 @@ public:
     CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docHash);
 
     //! Get column \p i value.
-    CFloatStorage operator[](std::size_t i) const;
+    CFloatStorage operator[](std::size_t i) const { return m_BeginColumns[i]; }
 
     //! Get the row's index.
     std::size_t index() const;
@@ -105,8 +134,14 @@ public:
 //! DESCRIPTION:\n
 //! This is a helper class used to read rows of a CDataFrame object which
 //! dereferences to CRowRef objects.
-class CORE_EXPORT CRowIterator final
-    : public std::iterator<std::forward_iterator_tag, CRowRef, std::ptrdiff_t, CRowPtr, CRowRef> {
+class CORE_EXPORT CRowIterator final {
+public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = CRowRef;
+    using difference_type = std::ptrdiff_t;
+    using pointer = CRowPtr;
+    using reference = CRowRef;
+
 public:
     CRowIterator() = default;
 
@@ -123,7 +158,7 @@ public:
                  std::size_t index,
                  TFloatVecItr rowItr,
                  TInt32VecCItr docHashItr,
-                 TPopMaskedRowFunc popMaskedRow = nullptr);
+                 const TOptionalPopMaskedRow& popMaskedRow);
 
     //! \name Forward Iterator Contract
     //@{
@@ -141,7 +176,7 @@ private:
     std::size_t m_Index = 0;
     TFloatVecItr m_RowItr;
     TInt32VecCItr m_DocHashItr;
-    TPopMaskedRowFunc m_PopMaskedRow;
+    TOptionalPopMaskedRow m_PopMaskedRow;
 };
 }
 
@@ -155,8 +190,9 @@ private:
 //! parallelized in which case each reader reads a disjoint subset of the data
 //! frame's rows.
 //!
-//! Space can be reserved at any point to hold one or more additional columns.
-//! These are not visible until they are written.
+//! Space can be reserved for additional rows and the data frame can be resized
+//! to hold one or more additional columns. Resizing is a heavyweight operation
+//! and should be minimized.
 //!
 //! IMPLEMENTATION:\n
 //! This is a fairly lightweight container which is essentially responsible
@@ -164,8 +200,9 @@ private:
 //! The store format is determined by the user implementing functionality to
 //! read and write state from the store. For example, these could copy to /
 //! from main memory, "write to" / "read from" disk, etc. A factory function
-//! must be provided to the constructor which effectively that determines the
-//! type of storage used. It is assumed that copying this has no side effects.
+//! for new chunks of storage must be provided to the constructor and this
+//! effectively determines the type of storage used. It is assumed that copying
+//! this function has no side effects.
 //!
 //! The data frame is divided into slices each of which represent a number of
 //! contiguous rows. The idea is that they contain a reasonable amount of memory
@@ -173,32 +210,38 @@ private:
 //! "reads from" disk (a whole slice being written or read in one go), mean we'll
 //! get good locality of reference and mean there is minimal book keeping overhead
 //! (such as state for vector sizes, pointers to starts of memory blocks, etc).
-//! In addition, it is assumed that access to the individual slices is thread
-//! safe. If they share state the implementation must ensure that access to this
-//! is synchronized.
+//! It is possible to choose an alignment for each row in which case the address
+//! of the start of each row is 8, 16, etc byte aligned. This comes with a memory
+//! overhead as row sizes are then rounded up to the nearest multiple of the
+//! alignment size. Finally, note that it is assumed that access to the individual
+//! slices is thread safe. If they share state the implementation must ensure that
+//! access to this is synchronized.
 //!
-//! Reads and writes of a single row are also done via call backs supplied to the
+//! Reads and writes of a single row are done via call backs supplied to the
 //! readRows and writeRow functions. This is to achieve maximum decoupling from
 //! the calling code for how the underlying values are used or where they come
 //! from. It also means certain operations can be done very efficiently. For example,
 //! a stream can be attached to a row writer function to copy the values directly
-//! into the data frame storage.
+//! into the data frame storage with no marshalling costs.
 //!
-//! Read and writes to storage can optionally happen in a separate thread to the
-//! row reading and writing to deal with the case that these operations can by
-//! time consuming.
+//! Read from and writes to storage can optionally happen in a separate thread
+//! to the row reading and writing to deal with the case that these operations
+//! can by time consuming.
 class CORE_EXPORT CDataFrame final {
 public:
     using TBoolVec = std::vector<bool>;
+    using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecSizePr = std::pair<TSizeVec, std::size_t>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TStrCRng = CVectorRange<const TStrVec>;
-    using TFloatVec = std::vector<CFloatStorage>;
+    using TFloatVec = std::vector<CFloatStorage, CAlignedAllocator<CFloatStorage>>;
     using TFloatVecItr = TFloatVec::iterator;
     using TInt32Vec = std::vector<std::int32_t>;
+    using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, CAlignment::EType>>;
     using TRowRef = data_frame_detail::CRowRef;
     using TRowItr = data_frame_detail::CRowIterator;
-    using TRowFunc = std::function<void(TRowItr, TRowItr)>;
+    using TRowFunc = std::function<void(const TRowItr&, const TRowItr&)>;
     using TRowFuncVec = std::vector<TRowFunc>;
     using TRowFuncVecBoolPr = std::pair<TRowFuncVec, bool>;
     using TWriteFunc = std::function<void(TFloatVecItr, std::int32_t&)>;
@@ -216,9 +259,13 @@ public:
     //! The maximum number of distinct categorical fields we can faithfully represent.
     static const std::size_t MAX_CATEGORICAL_CARDINALITY;
 
+    //! The default value indicating that a value is missing.
+    static const std::string DEFAULT_MISSING_STRING;
+
 public:
     //! \param[in] inMainMemory True if the data frame is stored in main memory.
     //! \param[in] numberColumns The number of columns in the data frame.
+    //! \param[in] rowAlignment The alignment to use for the start of each row.
     //! \param[in] sliceCapacityInRows The capacity of a slice of the data frame
     //! as a number of rows.
     //! \param[in] readAndWriteToStoreSyncStrategy Controls whether reads and
@@ -230,13 +277,8 @@ public:
     //! the implementers responsibility to ensure these conditions are satisfied.
     CDataFrame(bool inMainMemory,
                std::size_t numberColumns,
+               CAlignment::EType rowAlignment,
                std::size_t sliceCapacityInRows,
-               EReadWriteToStorage readAndWriteToStoreSyncStrategy,
-               const TWriteSliceToStoreFunc& writeSliceToStore);
-
-    //! Overload which manages the setting of slice capacity to a sensible default.
-    CDataFrame(bool inMainMemory,
-               std::size_t numberColumns,
                EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                const TWriteSliceToStoreFunc& writeSliceToStore);
 
@@ -256,7 +298,7 @@ public:
     //! Get the number of columns in the data frame.
     std::size_t numberColumns() const;
 
-    //! Reserve space for up to \p numberColumns.
+    //! Reserve space for up to \p rowCapacity.
     //!
     //! This enables in-place updates of the data frame for analytics operations
     //! that append columns.
@@ -270,6 +312,20 @@ public:
     //! \param[in] numberThreads The target number of threads to use.
     //! \param[in] numberColumns The desired number of columns.
     void resizeColumns(std::size_t numberThreads, std::size_t numberColumns);
+
+    //! Resize to contain \p extraColumns columns.
+    //!
+    //! These are split up into blocks of columns with their required alignment.
+    //! Pads are automatically inserted for alignment and a vector of the start
+    //! position of each block of columns is returned.
+    //!
+    //! \param[in] numberThreads The target number of threads to use.
+    //! \param[in] extraColumns The desired additional columns.
+    //! \return The index of each (block of) columns in \p extraColumns and the
+    //! number of columns added to the data frame.
+    //! \warning This only supports alignments less than or equal the row alignment.
+    TSizeVecSizePr resizeColumns(std::size_t numberThreads,
+                                 const TSizeAlignmentPrVec& extraColumns);
 
     //! This reads rows using one or more readers.
     //!
@@ -303,6 +359,17 @@ public:
         return this->readRows(numberThreads, 0, this->numberRows(), std::move(reader));
     }
 
+    //! Overload taking a collection of functions to run, using one thread to
+    //! run each function.
+    //!
+    //! \note This is intended for stateful readers whose state is large and
+    //! provides a mechanism for reading multi-threaded without having to copy
+    //! that state.
+    bool readRows(std::size_t beginRows,
+                  std::size_t endRows,
+                  TRowFuncVec& readers,
+                  const CPackedBitVector* rowMask) const;
+
     //! Convenience overload for typed readers.
     //!
     //! The reason for this is to wrap up the code to extract the typed readers
@@ -325,7 +392,7 @@ public:
         std::vector<READER> readers;
         readers.reserve(result.first.size());
         for (auto& reader_ : result.first) {
-            readers.push_back(std::move(*reader_.target<READER>()));
+            readers.emplace_back(std::move(*reader_.target<READER>()));
         }
 
         return {std::move(readers), result.second};
@@ -386,7 +453,7 @@ public:
         std::vector<WRITER> writers;
         writers.reserve(result.first.size());
         for (auto& writer_ : result.first) {
-            writers.push_back(std::move(*writer_.target<WRITER>()));
+            writers.emplace_back(std::move(*writer_.target<WRITER>()));
         }
 
         return {std::move(writers), result.second};
@@ -421,8 +488,8 @@ public:
     //! Write the column names.
     void columnNames(TStrVec columnNames);
 
-    //! Write for which columns an empty string implies the value is missing.
-    void emptyIsMissing(TBoolVec emptyIsMissing);
+    //! Write the string which indicates that a value is missing.
+    void missingString(std::string missing);
 
     //! Write which columns contain categorical data.
     void categoricalColumns(TStrVec categoricalColumnNames);
@@ -459,17 +526,20 @@ public:
     //! \p numberColumns columns.
     static std::size_t estimateMemoryUsage(bool inMainMemory,
                                            std::size_t numberRows,
-                                           std::size_t numberColumns);
+                                           std::size_t numberColumns,
+                                           CAlignment::EType alignment);
 
     //! Get the value to use for a missing element in a data frame.
-    static double valueOfMissing();
+    static constexpr double valueOfMissing() {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
 
 private:
     using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
     using TStrSizeUMapVec = std::vector<TStrSizeUMap>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeDataFrameRowSlicePtrVecPr = std::pair<std::size_t, TRowSlicePtrVec>;
-    using TPopMaskedRowFunc = data_frame_detail::TPopMaskedRowFunc;
+    using TOptionalPopMaskedRow = data_frame_detail::TOptionalPopMaskedRow;
 
     //! \brief Writes rows to the data frame.
     class CDataFrameRowSliceWriter final {
@@ -501,22 +571,21 @@ private:
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
 
 private:
-    TRowFuncVecBoolPr parallelApplyToAllRows(std::size_t numberThreads,
-                                             std::size_t beginRows,
-                                             std::size_t endRows,
-                                             TRowFunc func,
-                                             const CPackedBitVector* rowMask,
-                                             bool commitResult) const;
-    TRowFuncVecBoolPr sequentialApplyToAllRows(std::size_t beginRows,
-                                               std::size_t endRows,
-                                               TRowFunc func,
-                                               const CPackedBitVector* rowMask,
-                                               bool commitResult) const;
+    bool parallelApplyToAllRows(std::size_t beginRows,
+                                std::size_t endRows,
+                                TRowFuncVec& funcs,
+                                const CPackedBitVector* rowMask,
+                                bool commitResult) const;
+    bool sequentialApplyToAllRows(std::size_t beginRows,
+                                  std::size_t endRows,
+                                  TRowFuncVec& func,
+                                  const CPackedBitVector* rowMask,
+                                  bool commitResult) const;
 
     void applyToRowsOfOneSlice(TRowFunc& func,
                                std::size_t firstRowToRead,
                                std::size_t endRowsToRead,
-                               TPopMaskedRowFunc popMaskedRow,
+                               const TOptionalPopMaskedRow& popMaskedRow,
                                const CDataFrameRowSliceHandle& slice) const;
 
     TRowSlicePtrVecCItr beginSlices(std::size_t beginRows) const;
@@ -540,6 +609,8 @@ private:
     std::size_t m_RowCapacity;
     //! The capacity of a slice of the data frame as a number of rows.
     std::size_t m_SliceCapacityInRows;
+    //! The start of row memory alignment.
+    core::CAlignment::EType m_RowAlignment;
 
     //! If true read and write asynchronously to storage.
     EReadWriteToStorage m_ReadAndWriteToStoreSyncStrategy;
@@ -555,8 +626,8 @@ private:
     //! A lookup for the integer value of categories.
     TStrSizeUMapVec m_CategoricalColumnValueLookup;
 
-    //! Indicator vector for treating empty strings as missing values.
-    TBoolVec m_EmptyIsMissing;
+    //! The string which indicates that a category is missing.
+    std::string m_MissingString;
 
     //! Indicator vector of the columns which contain categorical values.
     TBoolVec m_ColumnIsCategorical;
@@ -575,6 +646,12 @@ private:
     TRowSliceWriterPtr m_Writer;
 };
 
+//! Compute the default data frame slice capacity in rows.
+//!
+//! \param[in] numberColumns The number of columns in the data frame.
+CORE_EXPORT
+std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns);
+
 //! Make a data frame which uses main memory storage for its slices.
 //!
 //! \param[in] numberColumns The number of columns in the data frame created.
@@ -582,12 +659,14 @@ private:
 //! capacity in rows.
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
+//! \param[in] alignment The alignment to use for the start of each row.
 CORE_EXPORT
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity = boost::none,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
-                             CDataFrame::EReadWriteToStorage::E_Sync);
+                             CDataFrame::EReadWriteToStorage::E_Sync,
+                         CAlignment::EType alignment = CAlignment::E_Aligned16);
 
 //! Make a data frame which uses disk storage for its slices.
 //!
@@ -599,6 +678,7 @@ makeMainStorageDataFrame(std::size_t numberColumns,
 //! capacity in rows.
 //! \param[in] readWriteToStoreSyncStrategy Controls whether reads and writes
 //! from slice storage are synchronous or asynchronous.
+//! \param[in] alignment The alignment to use for the start of each row.
 CORE_EXPORT
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
@@ -606,7 +686,8 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberRows,
                          boost::optional<std::size_t> sliceCapacity = boost::none,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
-                             CDataFrame::EReadWriteToStorage::E_Async);
+                             CDataFrame::EReadWriteToStorage::E_Async,
+                         CAlignment::EType alignment = CAlignment::E_Aligned16);
 }
 }
 

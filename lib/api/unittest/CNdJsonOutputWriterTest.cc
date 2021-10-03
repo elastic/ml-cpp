@@ -1,28 +1,21 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CNdJsonOutputWriterTest.h"
-
-#include <core/CLogger.h>
 
 #include <api/CNdJsonOutputWriter.h>
 
-#include <sstream>
+#include <boost/test/unit_test.hpp>
 
-CppUnit::Test* CNdJsonOutputWriterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CNdJsonOutputWriterTest");
+BOOST_AUTO_TEST_SUITE(CNdJsonOutputWriterTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonOutputWriterTest>(
-        "CNdJsonOutputWriterTest::testStringOutput", &CNdJsonOutputWriterTest::testStringOutput));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CNdJsonOutputWriterTest>(
-        "CNdJsonOutputWriterTest::testNumericOutput", &CNdJsonOutputWriterTest::testNumericOutput));
-
-    return suiteOfTests;
-}
-
-void CNdJsonOutputWriterTest::testStringOutput() {
+BOOST_AUTO_TEST_CASE(testStringOutput) {
     ml::api::CNdJsonOutputWriter::TStrStrUMap dataRowFields;
     dataRowFields["probability"] = "0.01";
     dataRowFields["normalized_score"] = "2.2";
@@ -30,26 +23,26 @@ void CNdJsonOutputWriterTest::testStringOutput() {
     overrideDataRowFields["normalized_score"] = "3.3";
 
     ml::api::CNdJsonOutputWriter writer;
-    CPPUNIT_ASSERT(writer.writeRow(dataRowFields, overrideDataRowFields));
+    BOOST_TEST_REQUIRE(writer.writeRow(dataRowFields, overrideDataRowFields));
 
-    const std::string& output = writer.internalString();
+    const std::string& output{writer.internalString()};
 
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n"), output);
+    BOOST_REQUIRE_EQUAL("{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n", output);
 }
 
-void CNdJsonOutputWriterTest::testNumericOutput() {
+BOOST_AUTO_TEST_CASE(testNumericOutput) {
     ml::api::CNdJsonOutputWriter::TStrStrUMap dataRowFields;
     dataRowFields["probability"] = "0.01";
     dataRowFields["normalized_score"] = "2.2";
     ml::api::CNdJsonOutputWriter::TStrStrUMap overrideDataRowFields;
     overrideDataRowFields["normalized_score"] = "3.3";
 
-    ml::api::CNdJsonOutputWriter writer({"probability", "normalized_score"});
-    CPPUNIT_ASSERT(writer.writeRow(dataRowFields, overrideDataRowFields));
+    ml::api::CNdJsonOutputWriter writer{{"probability", "normalized_score"}};
+    BOOST_TEST_REQUIRE(writer.writeRow(dataRowFields, overrideDataRowFields));
 
-    const std::string& output = writer.internalString();
+    const std::string& output{writer.internalString()};
 
-    CPPUNIT_ASSERT_EQUAL(
-        std::string("{\"probability\":0.01,\"normalized_score\":3.3}\n"), output);
+    BOOST_REQUIRE_EQUAL("{\"probability\":0.01,\"normalized_score\":3.3}\n", output);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

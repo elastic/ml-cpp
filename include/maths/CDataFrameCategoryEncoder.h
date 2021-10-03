@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CDataFrameCategoryEncoder_h
@@ -42,7 +47,7 @@ public:
     using TRowRef = core::CDataFrame::TRowRef;
 
 public:
-    CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder);
+    CEncodedDataFrameRowRef(const TRowRef& row, const CDataFrameCategoryEncoder& encoder);
 
     //! Get column \p i value.
     CFloatStorage operator[](std::size_t encodedColumnIndex) const;
@@ -106,19 +111,27 @@ public:
     public:
         CEncoding(std::size_t inputColumnIndex, double mic);
         virtual ~CEncoding() = default;
+        //! Get the encoding type.
         virtual EEncoding type() const = 0;
+        //! Encode \p value.
         virtual double encode(double value) const = 0;
-        virtual std::uint64_t checksum() const = 0;
+        //! \return True if this is a binary feature.
         virtual bool isBinary() const = 0;
         //! \return The encoding type as string.
         virtual const std::string& typeString() const = 0;
+        //! \return A checksum for this object.
+        virtual std::uint64_t checksum() const = 0;
 
+        //! \return The data frame column index this encodes.
         std::size_t inputColumnIndex() const;
+        //! \return Encode \p row.
         double encode(const TRowRef& row) const;
+        //! \return The MICe of this feature with the target variable.
         double mic() const;
+
         //! Persist by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-        //! Populate the object from serialized data.
+        //! Initialize the object reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     private:
@@ -142,8 +155,8 @@ public:
         EEncoding type() const override;
         double encode(double value) const override;
         bool isBinary() const override;
-        std::uint64_t checksum() const override;
         const std::string& typeString() const override;
+        std::uint64_t checksum() const override;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -157,9 +170,9 @@ public:
         EEncoding type() const override;
         double encode(double value) const override;
         bool isBinary() const override;
-        std::uint64_t checksum() const override;
         const std::string& typeString() const override;
-        size_t hotCategory() const;
+        std::uint64_t checksum() const override;
+        std::size_t hotCategory() const;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -180,8 +193,8 @@ public:
         EEncoding type() const override;
         double encode(double value) const override;
         bool isBinary() const override;
-        std::uint64_t checksum() const override;
         const std::string& typeString() const override;
+        std::uint64_t checksum() const override;
         const TDoubleVec& map() const;
         double fallback() const;
 
@@ -211,7 +224,8 @@ public:
     };
 
 public:
-    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder parameters);
+    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder& builder);
+    CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder&& builder);
 
     //! Initialize from serialized data.
     CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
@@ -220,12 +234,19 @@ public:
     CDataFrameCategoryEncoder& operator=(const CDataFrameCategoryEncoder&) = delete;
 
     //! Get a row reference which encodes the categories in \p row.
-    CEncodedDataFrameRowRef encode(TRowRef row) const;
+    CEncodedDataFrameRowRef encode(const TRowRef& row) const;
 
     //! Get the MICs of the selected features.
     TDoubleVec encodedColumnMics() const;
 
-    //! Get the total number of dimensions in the feature vector.
+    //! Get the dimension of the feature vector.
+    //!
+    //! \note Strictly this is the dimension of the selected features vector. If the
+    //! *last* five features from the original vector are dropped then this will be
+    //! "number of input features" - 5.
+    std::size_t numberInputColumns() const;
+
+    //! Get the dimension of the encoded feature vector.
     std::size_t numberEncodedColumns() const;
 
     //! Get the encoded feature at position \p encodedColumnIndex.
@@ -263,6 +284,7 @@ public:
     using TSizeVec = std::vector<std::size_t>;
     using TOptionalDouble = boost::optional<double>;
     using TEncodingUPtrVec = CDataFrameCategoryEncoder::TEncodingUPtrVec;
+    using TProgressCallback = std::function<void(double)>;
 
 public:
     //! The minimum number of training rows needed per feature used.
@@ -288,6 +310,8 @@ public:
                                   const core::CDataFrame& frame,
                                   std::size_t targetColumn);
 
+    virtual ~CMakeDataFrameCategoryEncoder() = default;
+
     //! Set the minimum number of training rows needed per feature used.
     CMakeDataFrameCategoryEncoder& minimumRowsPerFeature(std::size_t minimumRowsPerFeature);
 
@@ -312,8 +336,11 @@ public:
     //! Set a mask of the columns to include.
     CMakeDataFrameCategoryEncoder& columnMask(TSizeVec columnMask);
 
+    //! Set a callback to monitor progress.
+    CMakeDataFrameCategoryEncoder& progressCallback(TProgressCallback callback);
+
     //! Make the encoding.
-    TEncodingUPtrVec makeEncodings();
+    virtual TEncodingUPtrVec makeEncodings();
 
     //! \name Test Methods
     //@{
@@ -376,6 +403,7 @@ private:
     TDoubleVec m_EncodedColumnMics;
     TSizeVec m_EncodedColumnInputColumnMap;
     TSizeVec m_EncodedColumnEncodingMap;
+    TProgressCallback m_RecordProgress;
 };
 }
 }

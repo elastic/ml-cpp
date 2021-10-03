@@ -1,18 +1,23 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CTimeUtils_h
 #define INCLUDED_ml_core_CTimeUtils_h
 
-#include <core/CFastMutex.h>
 #include <core/CNonInstantiatable.h>
 #include <core/CoreTypes.h>
 #include <core/ImportExport.h>
 
 #include <boost/unordered_set.hpp>
 
+#include <cstdint>
 #include <string>
 
 namespace ml {
@@ -35,9 +40,14 @@ public:
     //! customer site
     static const core_t::TTime MAX_CLOCK_DISCREPANCY;
 
+    using TTimeBoolPr = std::pair<core_t::TTime, bool>;
+
 public:
-    //! Current time
+    //! Current time in seconds since the epoch
     static core_t::TTime now();
+
+    //! Current time in milliseconds since the epoch
+    static std::int64_t nowMs();
 
     //! Date and time to string according to http://www.w3.org/TR/NOTE-datetime
     //! E.g. 1997-07-16T19:20:30+01:00
@@ -68,6 +78,15 @@ public:
     //! whitespace before calling this function.
     static bool isDateWord(const std::string& word);
 
+    //! Formats the given duration as human-readable string.
+    static std::string durationToString(core_t::TTime duration);
+
+    //! Convert a string representation of a time duration (in ES format e.g. "1000ms") to a whole number
+    //! of seconds. Returns a default value if any error occurs, however the assumption is that the input string
+    //! has already been validated by ES.
+    static TTimeBoolPr timeDurationStringToSeconds(const std::string& timeDurationString,
+                                                   core_t::TTime defaultValue);
+
 private:
     //! Factor out common code from the three string conversion methods
     static void toStringCommon(core_t::TTime t, const std::string& format, std::string& result);
@@ -89,15 +108,11 @@ private:
         ~CDateWordCache();
 
     private:
-        //! Protect the singleton's initialisation, preventing it from
-        //! being constructed simultaneously in different threads.
-        static CFastMutex ms_InitMutex;
-
-        //! This pointer is set after the singleton object has been
-        //! constructed, and avoids the need to lock the mutex on
-        //! subsequent calls of the instance() method (once the updated
-        //! value of this variable has made its way into every thread).
-        static volatile CDateWordCache* ms_Instance;
+        //! This pointer is set after the singleton object has been constructed,
+        //! and avoids the need to lock the magic static initialisation mutex on
+        //! subsequent calls of the instance() method (once the updated value of
+        //! this variable is visible in every thread).
+        static CDateWordCache* ms_Instance;
 
         using TStrUSet = boost::unordered_set<std::string>;
 

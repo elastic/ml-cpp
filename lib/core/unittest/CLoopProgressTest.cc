@@ -1,26 +1,35 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CLoopProgressTest.h"
 
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
 #include <core/CLoopProgress.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <functional>
 #include <sstream>
 
+BOOST_AUTO_TEST_SUITE(CLoopProgressTest)
+
 using namespace ml;
 
+using TIntVec = std::vector<int>;
 using TSizeVec = std::vector<std::size_t>;
 
-void CLoopProgressTest::testShort() {
+BOOST_AUTO_TEST_CASE(testShort) {
 
     double progress{0.0};
     auto recordProgress = [&progress](double p) { progress += p; };
@@ -35,11 +44,11 @@ void CLoopProgressTest::testShort() {
         core::CLoopProgress loopProgress{n, recordProgress};
 
         for (std::size_t i = 0; i < n; ++i, loopProgress.increment()) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 static_cast<double>(i) / static_cast<double>(n), progress, 1e-15);
         }
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, progress, 1e-15);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, progress, 1e-15);
     }
 
     LOG_DEBUG(<< "Test with stride > 1");
@@ -52,13 +61,13 @@ void CLoopProgressTest::testShort() {
         core::CLoopProgress loopProgress{n, recordProgress};
 
         for (std::size_t i = 0; i < n; i += 2, loopProgress.increment(2)) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 static_cast<double>(i) / static_cast<double>(n), progress, 1e-15);
         }
     }
 }
 
-void CLoopProgressTest::testRandom() {
+BOOST_AUTO_TEST_CASE(testRandom) {
 
     double progress{0.0};
     auto recordProgress = [&progress](double p) { progress += p; };
@@ -80,10 +89,10 @@ void CLoopProgressTest::testRandom() {
         core::CLoopProgress loopProgress{size[0], recordProgress};
 
         for (std::size_t i = 0; i < size[0]; ++i, loopProgress.increment()) {
-            CPPUNIT_ASSERT_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
+            BOOST_REQUIRE_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
         }
 
-        CPPUNIT_ASSERT_EQUAL(1.0, progress);
+        BOOST_REQUIRE_EQUAL(1.0, progress);
     }
 
     LOG_DEBUG(<< "Test with stride > 1");
@@ -101,14 +110,14 @@ void CLoopProgressTest::testRandom() {
         core::CLoopProgress loopProgress{size[0], recordProgress};
 
         for (std::size_t i = 0; i < size[0]; i += 20, loopProgress.increment(20)) {
-            CPPUNIT_ASSERT_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
+            BOOST_REQUIRE_EQUAL(static_cast<double>(32 * i / size[0]) / 32.0, progress);
         }
 
-        CPPUNIT_ASSERT_EQUAL(1.0, progress);
+        BOOST_REQUIRE_EQUAL(1.0, progress);
     }
 }
 
-void CLoopProgressTest::testScaled() {
+BOOST_AUTO_TEST_CASE(testScaled) {
 
     double progress{0.0};
     auto recordProgress = [&progress](double p) { progress += p; };
@@ -135,11 +144,68 @@ void CLoopProgressTest::testScaled() {
             // We're only interested in checking the progress at the end.
         }
 
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0 / static_cast<double>(step[0]), progress, 1e-15);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0 / static_cast<double>(step[0]), progress, 1e-15);
     }
 }
 
-void CLoopProgressTest::testSerialization() {
+BOOST_AUTO_TEST_CASE(testIncrementRange) {
+
+    // We're interested in four separate cases:
+    //   1) Number steps < range, decrement range followed by increment range.
+    //   2) Number steps > range, decrement range followed by increment range.
+    //   3) Number steps < range, increment range followed by decrement range.
+    //   4) Number steps > range, increment range followed by decrement range.
+
+    for (std::size_t steps : {30, 100}) {
+        double progress{0.0};
+        auto recordProgress = [&progress](double p) { progress += p; };
+        core::CLoopProgress loopProgress{50, recordProgress, 1.0, steps};
+
+        for (std::size_t i = 0; i < 20; ++i) {
+            loopProgress.increment();
+        }
+
+        // This should advance progress to iteration 20 out of (range) 30.
+        loopProgress.incrementRange(-20);
+        BOOST_REQUIRE_CLOSE(20.0 / 30.0, progress, 2.0);
+
+        // We've already incremented progress 20 times. We should be stuck at
+        // progress 2/3 until the iteration exceeds 2/3 x 60 = 40 and thereafter
+        // track (i + 20) / 60.
+        loopProgress.incrementRange(30);
+        for (std::size_t i = 0; i < 40; ++i) {
+            loopProgress.increment();
+            BOOST_REQUIRE_CLOSE(std::max(static_cast<double>(20 + i) / 60.0, 20.0 / 30.0),
+                                progress, 4.0);
+        }
+    }
+
+    for (std::size_t steps : {30, 100}) {
+        double progress{0.0};
+        auto recordProgress = [&progress](double p) { progress += p; };
+        core::CLoopProgress loopProgress{50, recordProgress, 1.0, steps};
+
+        for (std::size_t i = 0; i < 20; ++i) {
+            loopProgress.increment();
+        }
+
+        // Progress should remain unchanged at 20 out of (original range) 50.
+        loopProgress.incrementRange(30);
+        BOOST_REQUIRE_CLOSE(20.0 / 50.0, progress, 2.0);
+
+        // We've already incremented progress 20 times. We should be stuck at
+        // progress 2/5 until the iteration exceeds 2/5 x 60 = 24 and thereafter
+        // track (i + 20) / 60.
+        loopProgress.incrementRange(-20);
+        for (std::size_t i = 0; i < 40; ++i) {
+            loopProgress.increment();
+            BOOST_REQUIRE_CLOSE(std::max(static_cast<double>(20 + i) / 60.0, 20.0 / 50.0),
+                                progress, 4.0);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testSerialization) {
 
     double progress{0.0};
     auto recordProgress = [&progress](double p) { progress += p; };
@@ -168,25 +234,12 @@ void CLoopProgressTest::testSerialization() {
     restoredLoopProgress.progressCallback(restoredRecordProgress);
     restoredLoopProgress.resumeRestored();
 
-    CPPUNIT_ASSERT_EQUAL(loopProgress.checksum(), restoredLoopProgress.checksum());
+    BOOST_REQUIRE_EQUAL(loopProgress.checksum(), restoredLoopProgress.checksum());
     for (std::size_t i = 20; i < 50; ++i) {
         loopProgress.increment();
         restoredLoopProgress.increment();
-        CPPUNIT_ASSERT_EQUAL(progress, restoredProgress);
+        BOOST_REQUIRE_EQUAL(progress, restoredProgress);
     }
 }
 
-CppUnit::Test* CLoopProgressTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLoopProgressTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoopProgressTest>(
-        "CLoopProgressTest::testShort", &CLoopProgressTest::testShort));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoopProgressTest>(
-        "CLoopProgressTest::testRandom", &CLoopProgressTest::testRandom));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoopProgressTest>(
-        "CLoopProgressTest::testScaled", &CLoopProgressTest::testScaled));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLoopProgressTest>(
-        "CLoopProgressTest::testSerialization", &CLoopProgressTest::testSerialization));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

@@ -1,12 +1,19 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CIoManager.h>
 
+#include <core/CBlockingCallCancellerThread.h>
 #include <core/CLogger.h>
 
+#include <atomic>
 #include <fstream>
 #include <ios>
 #include <iostream>
@@ -18,38 +25,49 @@ namespace {
 
 bool setUpIStream(const std::string& fileName,
                   bool isFileNamedPipe,
+                  core::CBlockingCallCancellerThread& cancellerThread,
                   core::CNamedPipeFactory::TIStreamP& stream) {
     if (fileName.empty()) {
         stream.reset();
         return true;
     }
     if (isFileNamedPipe) {
-        stream = core::CNamedPipeFactory::openPipeStreamRead(fileName);
+        cancellerThread.reset();
+        cancellerThread.start();
+        stream = core::CNamedPipeFactory::openPipeStreamRead(
+            fileName, cancellerThread.hasCancelledBlockingCall());
+        cancellerThread.stop();
         return stream != nullptr && !stream->bad();
     }
-    std::ifstream* fileStream(nullptr);
-    stream.reset(fileStream = new std::ifstream(fileName.c_str()));
+    std::ifstream* fileStream{nullptr};
+    stream.reset(fileStream = new std::ifstream(fileName, std::ios::binary | std::ios::in));
     return fileStream->is_open();
 }
 
 bool setUpOStream(const std::string& fileName,
                   bool isFileNamedPipe,
+                  core::CBlockingCallCancellerThread& cancellerThread,
                   core::CNamedPipeFactory::TOStreamP& stream) {
     if (fileName.empty()) {
         stream.reset();
         return true;
     }
     if (isFileNamedPipe) {
-        stream = core::CNamedPipeFactory::openPipeStreamWrite(fileName);
+        cancellerThread.reset();
+        cancellerThread.start();
+        stream = core::CNamedPipeFactory::openPipeStreamWrite(
+            fileName, cancellerThread.hasCancelledBlockingCall());
+        cancellerThread.stop();
         return stream != nullptr && !stream->bad();
     }
-    std::ofstream* fileStream(nullptr);
-    stream.reset(fileStream = new std::ofstream(fileName.c_str()));
+    std::ofstream* fileStream{nullptr};
+    stream.reset(fileStream = new std::ofstream(fileName, std::ios::binary | std::ios::out));
     return fileStream->is_open();
 }
 }
 
-CIoManager::CIoManager(const std::string& inputFileName,
+CIoManager::CIoManager(core::CBlockingCallCancellerThread& cancellerThread,
+                       const std::string& inputFileName,
                        bool isInputFileNamedPipe,
                        const std::string& outputFileName,
                        bool isOutputFileNamedPipe,
@@ -57,17 +75,18 @@ CIoManager::CIoManager(const std::string& inputFileName,
                        bool isRestoreFileNamedPipe,
                        const std::string& persistFileName,
                        bool isPersistFileNamedPipe)
-    : m_IoInitialised(false), m_InputFileName(inputFileName),
-      m_IsInputFileNamedPipe(isInputFileNamedPipe && !inputFileName.empty()),
-      m_OutputFileName(outputFileName),
-      m_IsOutputFileNamedPipe(isOutputFileNamedPipe && !outputFileName.empty()),
-      m_RestoreFileName(restoreFileName),
-      m_IsRestoreFileNamedPipe(isRestoreFileNamedPipe && !restoreFileName.empty()),
-      m_PersistFileName(persistFileName),
-      m_IsPersistFileNamedPipe(isPersistFileNamedPipe && !persistFileName.empty()) {
+    : m_CancellerThread{cancellerThread}, m_IoInitialised{false}, m_InputFileName{inputFileName},
+      m_IsInputFileNamedPipe{isInputFileNamedPipe && !inputFileName.empty()},
+      m_OutputFileName{outputFileName}, m_IsOutputFileNamedPipe{isOutputFileNamedPipe &&
+                                                                !outputFileName.empty()},
+      m_RestoreFileName{restoreFileName},
+      m_IsRestoreFileNamedPipe{isRestoreFileNamedPipe && !restoreFileName.empty()},
+      m_PersistFileName{persistFileName}, m_IsPersistFileNamedPipe{
+                                              isPersistFileNamedPipe &&
+                                              !persistFileName.empty()} {
     // On some platforms input/output can be considerably faster if C and C++ IO
     // functionality is NOT synchronised.
-    bool wasSynchronised(std::ios::sync_with_stdio(false));
+    bool wasSynchronised{std::ios::sync_with_stdio(false)};
     if (wasSynchronised) {
         LOG_TRACE(<< "C++ streams no longer synchronised with C stdio");
     }
@@ -83,11 +102,14 @@ CIoManager::~CIoManager() {
 }
 
 bool CIoManager::initIo() {
-    m_IoInitialised =
-        setUpIStream(m_InputFileName, m_IsInputFileNamedPipe, m_InputStream) &&
-        setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe, m_OutputStream) &&
-        setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe, m_RestoreStream) &&
-        setUpOStream(m_PersistFileName, m_IsPersistFileNamedPipe, m_PersistStream);
+    m_IoInitialised = setUpIStream(m_InputFileName, m_IsInputFileNamedPipe,
+                                   m_CancellerThread, m_InputStream) &&
+                      setUpOStream(m_OutputFileName, m_IsOutputFileNamedPipe,
+                                   m_CancellerThread, m_OutputStream) &&
+                      setUpIStream(m_RestoreFileName, m_IsRestoreFileNamedPipe,
+                                   m_CancellerThread, m_RestoreStream) &&
+                      setUpOStream(m_PersistFileName, m_IsPersistFileNamedPipe,
+                                   m_CancellerThread, m_PersistStream);
     return m_IoInitialised;
 }
 

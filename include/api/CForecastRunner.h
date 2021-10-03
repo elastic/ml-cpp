@@ -1,13 +1,16 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_api_CForecastRunner_h
 #define INCLUDED_ml_api_CForecastRunner_h
-
-#include <api/ImportExport.h>
 
 #include <core/CConcurrentWrapper.h>
 #include <core/CJsonOutputStreamWrapper.h>
@@ -21,10 +24,14 @@
 #include <model/CForecastDataSink.h>
 #include <model/CResourceMonitor.h>
 
+#include <api/ImportExport.h>
+
 #include <boost/filesystem.hpp>
 #include <boost/unordered_set.hpp>
 
+#include <atomic>
 #include <condition_variable>
+#include <cstdint>
 #include <functional>
 #include <list>
 #include <memory>
@@ -33,9 +40,20 @@
 #include <thread>
 #include <vector>
 
-#include <stdint.h>
-
-class CForecastRunnerTest;
+namespace CForecastRunnerTest {
+struct testPopulation;
+struct testRare;
+struct testInsufficientData;
+struct testValidateDefaultExpiry;
+struct testValidateNoExpiry;
+struct testValidateInvalidExpiry;
+struct testValidateBrokenMessage;
+struct testValidateMissingId;
+struct testValidateProvidedMinDiskSpace;
+struct testValidateProvidedMaxMemoryLimit;
+struct testValidateProvidedTooLargeMaxMemoryLimit;
+struct testSufficientDiskSpace;
+}
 
 namespace ml {
 namespace api {
@@ -63,28 +81,30 @@ class API_EXPORT CForecastRunner final : private core::CNonCopyable {
 public:
     //! max open forecast requests
     //! if you change this, also change the ERROR_TOO_MANY_JOBS message accordingly
-    static const size_t MAX_FORECAST_JOBS_IN_QUEUE = 3;
+    static const std::size_t MAX_FORECAST_JOBS_IN_QUEUE = 3;
 
     //! default expiry time
-    static const size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
+    static const std::size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
 
     //! max memory allowed to use for forecast models
-    static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
+    //! (not defined inline because we need its address)
+    static const std::size_t DEFAULT_MAX_FORECAST_MODEL_MEMORY;
 
     //! Note: This value measures the size in memory, not the size of the persistence,
     //! which is likely higher and would be hard to calculate upfront
     //! max memory allowed to use for forecast models persisting to disk
-    static const size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000ull; // 500MB
+    static const std::size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000ull; // 500MB
 
     //! Note: This value is lower than in the ML Java code to prevent side-effects.
     //! If you change this value also change the limit in the ML Java code.
     //! The purpose of this value is to guard the rest of the system against
     //! running out of disk space.
     //! minimum disk space required for disk persistence
-    static const size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296ull; // 4GB
+    //! (not defined inline because we need its address)
+    static const std::size_t DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE;
 
     //! minimum time between stat updates to prevent to many updates in a short time
-    static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000ul; // 3s
+    static const std::uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000ul; // 3s
 
 private:
     static const std::string ERROR_FORECAST_REQUEST_FAILED_TO_PARSE;
@@ -94,7 +114,7 @@ private:
     static const std::string ERROR_NO_DATA_PROCESSED;
     static const std::string ERROR_NO_CREATE_TIME;
     static const std::string ERROR_BAD_MEMORY_STATUS;
-    static const std::string ERROR_MEMORY_LIMIT;
+    static const std::string ERROR_BAD_MODEL_MEMORY_LIMIT;
     static const std::string ERROR_MEMORY_LIMIT_DISK;
     static const std::string ERROR_MEMORY_LIMIT_DISKSPACE;
     static const std::string ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS;
@@ -155,10 +175,10 @@ public:
 
 private:
     struct API_EXPORT SForecast {
-        SForecast();
+        SForecast() = default;
 
-        SForecast(SForecast&& other);
-        SForecast& operator=(SForecast&& other);
+        SForecast(SForecast&& other) = default;
+        SForecast& operator=(SForecast&& other) = default;
 
         SForecast(const SForecast& that) = delete;
         SForecast& operator=(const SForecast&) = delete;
@@ -179,28 +199,34 @@ private:
         TForecastResultSeriesVec s_ForecastSeries;
 
         //! Forecast create time
-        core_t::TTime s_CreateTime;
+        core_t::TTime s_CreateTime{0};
 
         //! Forecast start time
-        core_t::TTime s_StartTime;
+        core_t::TTime s_StartTime{0};
 
         //! Forecast duration
-        core_t::TTime s_Duration;
+        core_t::TTime s_Duration{0};
 
         //! Expiration of the forecast (for automatic deletion)
-        core_t::TTime s_ExpiryTime;
+        core_t::TTime s_ExpiryTime{0};
 
         //! Forecast bounds
-        double s_BoundsPercentile;
+        double s_BoundsPercentile{maths::CModel::DEFAULT_BOUNDS_PERCENTILE};
 
         //! total number of models
-        size_t s_NumberOfModels;
+        std::size_t s_NumberOfModels{0};
 
         //! total number of models able to forecast
-        size_t s_NumberOfForecastableModels;
+        std::size_t s_NumberOfForecastableModels{0};
 
         //! total memory required for this forecasting job (only the models)
-        size_t s_MemoryUsage;
+        std::size_t s_MemoryUsage{0};
+
+        //! maximum allowed memory (in bytes) that this forecast can use
+        std::size_t s_MaxForecastModelMemory{DEFAULT_MAX_FORECAST_MODEL_MEMORY};
+
+        //! minimum free disk space (in bytes) for a forecast to use disk
+        std::size_t s_MinForecastAvailableDiskSpace{DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE};
 
         //! A collection storing important messages from forecasting
         TStrUSet s_Messages;
@@ -221,7 +247,8 @@ private:
     bool tryGetJob(SForecast& forecastJob);
 
     //! check for sufficient disk space
-    bool sufficientAvailableDiskSpace(const boost::filesystem::path& path);
+    static bool sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
+                                             const boost::filesystem::path& path);
 
     //! pushes new jobs into the internal 'queue' (thread boundary)
     bool push(SForecast& forecastJob);
@@ -240,11 +267,12 @@ private:
     void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
     //! parse and validate a forecast request and turn it into a forecast job
-    static bool
-    parseAndValidateForecastRequest(const std::string& controlMessage,
-                                    SForecast& forecastJob,
-                                    const core_t::TTime lastResultsTime,
-                                    const TErrorFunc& errorFunction = TErrorFunc());
+    static bool parseAndValidateForecastRequest(
+        const std::string& controlMessage,
+        SForecast& forecastJob,
+        const core_t::TTime lastResultsTime,
+        std::size_t jobBytesSizeLimit = std::numeric_limits<std::size_t>::max() / 2,
+        const TErrorFunc& errorFunction = TErrorFunc());
 
 private:
     //! This job ID
@@ -261,7 +289,7 @@ private:
     std::thread m_Worker;
 
     //! indicator for worker
-    volatile bool m_Shutdown;
+    std::atomic_bool m_Shutdown;
 
     //! The 'queue' of forecast jobs to be executed
     std::list<SForecast> m_ForecastJobs;
@@ -275,7 +303,18 @@ private:
     //! Condition variable for notifications on done requests
     std::condition_variable m_WorkCompleteCondition;
 
-    friend class ::CForecastRunnerTest;
+    friend struct CForecastRunnerTest::testPopulation;
+    friend struct CForecastRunnerTest::testRare;
+    friend struct CForecastRunnerTest::testInsufficientData;
+    friend struct CForecastRunnerTest::testValidateDefaultExpiry;
+    friend struct CForecastRunnerTest::testValidateNoExpiry;
+    friend struct CForecastRunnerTest::testValidateInvalidExpiry;
+    friend struct CForecastRunnerTest::testValidateBrokenMessage;
+    friend struct CForecastRunnerTest::testValidateMissingId;
+    friend struct CForecastRunnerTest::testValidateProvidedMinDiskSpace;
+    friend struct CForecastRunnerTest::testValidateProvidedMaxMemoryLimit;
+    friend struct CForecastRunnerTest::testValidateProvidedTooLargeMaxMemoryLimit;
+    friend struct CForecastRunnerTest::testSufficientDiskSpace;
 };
 }
 }

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CWordDictionary.h>
 
@@ -67,24 +72,19 @@ CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode) {
 
 const char* const CWordDictionary::DICTIONARY_FILE("ml-en.dict");
 
-CFastMutex CWordDictionary::ms_LoadMutex;
-volatile CWordDictionary* CWordDictionary::ms_Instance(nullptr);
+CWordDictionary* CWordDictionary::ms_Instance{nullptr};
 
 const CWordDictionary& CWordDictionary::instance() {
     if (ms_Instance == nullptr) {
-        CScopedFastLock lock(ms_LoadMutex);
-
-        // Even if we get into this code block in more than one thread, whatever
-        // measures the compiler is taking to ensure this variable is only
-        // constructed once should be fine given that the block is protected by
-        // a mutex.
-        static volatile CWordDictionary instance;
+        // This initialisation is thread safe due to the "magic statics" feature
+        // introduced in C++11.  This is implemented in Visual Studio 2015 and
+        // above.
+        static CWordDictionary instance;
 
         ms_Instance = &instance;
     }
 
-    // Need to explicitly cast away volatility
-    return *const_cast<const CWordDictionary*>(ms_Instance);
+    return *ms_Instance;
 }
 
 bool CWordDictionary::isInDictionary(const std::string& str) const {

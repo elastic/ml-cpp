@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_model_CLimits_h
 #define INCLUDED_ml_model_CLimits_h
@@ -44,9 +49,6 @@ namespace model {
 //!
 class MODEL_EXPORT CLimits {
 public:
-    //! Default number of events to consume during auto-config
-    static const size_t DEFAULT_AUTOCONFIG_EVENTS;
-
     //! Default maximum number of distinct values of a single field before
     //! analysis of that field will be halted
     static const size_t DEFAULT_ANOMALY_MAX_FIELD_VALUES;
@@ -72,8 +74,12 @@ public:
     //! in the config file will be reset to their default values.
     bool init(const std::string& configFile);
 
+    //! Initialise with given values for the maximum number of
+    //! (categorisation) examples and the model memory limit (in MB).
+    //! All other settings take their default values.
+    void init(std::size_t maxExamples, std::size_t modelMemoryLimitMB);
+
     //! Access to settings
-    size_t autoConfigEvents() const;
     size_t anomalyMaxTimeBuckets() const;
     size_t maxExamples() const;
     double unusualProbabilityThreshold() const;
@@ -109,9 +115,6 @@ private:
     }
 
 private:
-    //! Number of events to consume during auto-config
-    size_t m_AutoConfigEvents;
-
     //! Maximum number of time buckets to process during anomaly detection
     //! before ceasing to output results
     size_t m_AnomalyMaxTimeBuckets;

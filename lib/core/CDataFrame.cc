@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CDataFrame.h>
@@ -14,6 +19,7 @@
 #include <core/CPackedBitVector.h>
 #include <core/CStringUtils.h>
 #include <core/Concurrency.h>
+#include <core/Constants.h>
 
 #include <algorithm>
 #include <future>
@@ -33,10 +39,6 @@ namespace data_frame_detail {
 
 CRowRef::CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docHash)
     : m_Index{index}, m_BeginColumns{beginColumns}, m_EndColumns{endColumns}, m_DocHash{docHash} {
-}
-
-CFloatStorage CRowRef::operator[](std::size_t i) const {
-    return *(m_BeginColumns + i);
 }
 
 std::size_t CRowRef::index() const {
@@ -64,17 +66,17 @@ CRowIterator::CRowIterator(std::size_t numberColumns,
                            std::size_t index,
                            TFloatVecItr rowItr,
                            TInt32VecCItr docHashItr,
-                           TPopMaskedRowFunc popMaskedRow)
+                           const TOptionalPopMaskedRow& popMaskedRow)
     : m_NumberColumns{numberColumns}, m_RowCapacity{rowCapacity}, m_Index{index},
       m_RowItr{rowItr}, m_DocHashItr{docHashItr}, m_PopMaskedRow{popMaskedRow} {
 }
 
 bool CRowIterator::operator==(const CRowIterator& rhs) const {
-    return m_RowItr == rhs.m_RowItr && m_DocHashItr == rhs.m_DocHashItr;
+    return m_RowItr == rhs.m_RowItr;
 }
 
 bool CRowIterator::operator!=(const CRowIterator& rhs) const {
-    return m_RowItr != rhs.m_RowItr || m_DocHashItr != rhs.m_DocHashItr;
+    return m_RowItr != rhs.m_RowItr;
 }
 
 CRowRef CRowIterator::operator*() const {
@@ -86,8 +88,8 @@ CRowPtr CRowIterator::operator->() const {
 }
 
 CRowIterator& CRowIterator::operator++() {
-    if (m_PopMaskedRow != nullptr) {
-        std::size_t nextIndex{m_PopMaskedRow()};
+    if (m_PopMaskedRow != boost::none) {
+        std::size_t nextIndex{(*m_PopMaskedRow)()};
         m_RowItr += m_RowCapacity * (nextIndex - m_Index);
         m_DocHashItr += nextIndex - m_Index;
         m_Index = nextIndex;
@@ -108,34 +110,19 @@ CRowIterator CRowIterator::operator++(int) {
 
 using namespace data_frame_detail;
 
-namespace {
-//! Compute the default slice capacity in rows.
-std::size_t computeSliceCapacity(std::size_t numberColumns) {
-    // TODO This probably needs some careful tuning, which I haven't performed
-    // yet, and probably needs to be different for different storage strategies.
-    return std::max(1048576 / sizeof(CFloatStorage) / numberColumns, std::size_t(100));
-}
-}
-
 CDataFrame::CDataFrame(bool inMainMemory,
                        std::size_t numberColumns,
+                       CAlignment::EType rowAlignment,
                        std::size_t sliceCapacityInRows,
                        EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                        const TWriteSliceToStoreFunc& writeSliceToStore)
     : m_InMainMemory{inMainMemory}, m_NumberColumns{numberColumns},
-      m_RowCapacity{numberColumns}, m_SliceCapacityInRows{sliceCapacityInRows},
-      m_ReadAndWriteToStoreSyncStrategy{readAndWriteToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore},
-      m_ColumnNames(numberColumns), m_CategoricalColumnValues(numberColumns),
-      m_EmptyIsMissing(numberColumns, false),
+      m_RowCapacity{CAlignment::roundup<CFloatStorage>(rowAlignment, numberColumns)},
+      m_SliceCapacityInRows{sliceCapacityInRows}, m_RowAlignment{rowAlignment},
+      m_ReadAndWriteToStoreSyncStrategy{readAndWriteToStoreSyncStrategy},
+      m_WriteSliceToStore{writeSliceToStore}, m_ColumnNames(numberColumns),
+      m_CategoricalColumnValues(numberColumns), m_MissingString{DEFAULT_MISSING_STRING},
       m_ColumnIsCategorical(numberColumns, false) {
-}
-
-CDataFrame::CDataFrame(bool inMainMemory,
-                       std::size_t numberColumns,
-                       EReadWriteToStorage readAndWriteToStoreSyncStrategy,
-                       const TWriteSliceToStoreFunc& writeSliceToStore)
-    : CDataFrame{inMainMemory, numberColumns, computeSliceCapacity(numberColumns),
-                 readAndWriteToStoreSyncStrategy, writeSliceToStore} {
 }
 
 CDataFrame::~CDataFrame() = default;
@@ -153,24 +140,49 @@ std::size_t CDataFrame::numberColumns() const {
 }
 
 void CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
+
+    rowCapacity = CAlignment::roundup<CFloatStorage>(m_RowAlignment, rowCapacity);
+
     if (m_RowCapacity >= rowCapacity) {
         return;
     }
 
+    std::size_t oldRowCapacity{m_RowCapacity};
     m_RowCapacity = rowCapacity;
 
-    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(), [this](TRowSlicePtr& slice) {
-        slice->reserve(m_NumberColumns, m_RowCapacity - m_NumberColumns);
-    });
+    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(),
+                      [oldRowCapacity, this](TRowSlicePtr& slice) {
+                          slice->reserve(oldRowCapacity, m_RowCapacity - oldRowCapacity);
+                      });
 }
 
 void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColumns) {
     this->reserve(numberThreads, numberColumns);
     m_ColumnNames.resize(numberColumns);
     m_CategoricalColumnValues.resize(numberColumns);
-    m_EmptyIsMissing.resize(numberColumns, false);
     m_ColumnIsCategorical.resize(numberColumns, false);
     m_NumberColumns = numberColumns;
+}
+
+CDataFrame::TSizeVecSizePr CDataFrame::resizeColumns(std::size_t numberThreads,
+                                                     const TSizeAlignmentPrVec& extraColumns) {
+    TSizeVec result;
+    result.reserve(extraColumns.size());
+    std::size_t index{m_NumberColumns};
+    for (const auto& columns : extraColumns) {
+        std::size_t count;
+        CAlignment::EType alignment;
+        std::tie(count, alignment) = columns;
+        if (CAlignment::less(m_RowAlignment, alignment)) {
+            HANDLE_FATAL(<< "Unsupported column alignment " << CAlignment::print(alignment));
+        }
+        index = CAlignment::roundup<CFloatStorage>(alignment, index);
+        result.push_back(index);
+        index += count;
+    }
+    std::size_t numberExtraColumns{index - m_NumberColumns};
+    this->resizeColumns(numberThreads, index);
+    return {result, numberExtraColumns};
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
@@ -186,11 +198,30 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
         return {{std::move(reader)}, true};
     }
 
-    return numberThreads > 1
-               ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
-                                              std::move(reader), rowMask, false)
-               : this->sequentialApplyToAllRows(beginRows, endRows,
-                                                std::move(reader), rowMask, false);
+    TRowFuncVec readers(numberThreads, std::move(reader));
+    bool successful{
+        numberThreads > 1
+            ? this->parallelApplyToAllRows(beginRows, endRows, readers, rowMask, false)
+            : this->sequentialApplyToAllRows(beginRows, endRows, readers, rowMask, false)};
+
+    return {std::move(readers), successful};
+}
+
+bool CDataFrame::readRows(std::size_t beginRows,
+                          std::size_t endRows,
+                          TRowFuncVec& readers,
+                          const CPackedBitVector* rowMask) const {
+
+    beginRows = std::min(beginRows, m_NumberRows);
+    endRows = std::min(endRows, m_NumberRows);
+
+    if (beginRows >= endRows) {
+        return true;
+    }
+
+    return readers.size() > 1
+               ? this->parallelApplyToAllRows(beginRows, endRows, readers, rowMask, false)
+               : this->sequentialApplyToAllRows(beginRows, endRows, readers, rowMask, false);
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads,
@@ -206,23 +237,24 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads
         return {{std::move(writer)}, true};
     }
 
-    return numberThreads > 1
-               ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
-                                              std::move(writer), rowMask, true)
-               : this->sequentialApplyToAllRows(beginRows, endRows,
-                                                std::move(writer), rowMask, true);
+    TRowFuncVec writers(numberThreads, writer);
+    bool successful{
+        numberThreads > 1
+            ? this->parallelApplyToAllRows(beginRows, endRows, writers, rowMask, true)
+            : this->sequentialApplyToAllRows(beginRows, endRows, writers, rowMask, true)};
+    return {std::move(writers), successful};
 }
 
 void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::string* hash) {
 
     auto stringToValue = [this](bool isCategorical, TStrSizeUMap& categoryLookup,
-                                TStrVec& categories, bool emptyIsMissing,
-                                const std::string& columnValue) {
-        if (isCategorical) {
-            if (columnValue.empty() && emptyIsMissing) {
-                return core::CFloatStorage{valueOfMissing()};
-            }
+                                TStrVec& categories, const std::string& columnValue) {
+        if (columnValue == m_MissingString) {
+            ++m_MissingValueCount;
+            return core::CFloatStorage{valueOfMissing()};
+        }
 
+        if (isCategorical) {
             // This encodes in a format suitable for efficient storage. The
             // actual encoding approach is chosen when the analysis runs.
             std::size_t id;
@@ -252,10 +284,7 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
         // otherwise we must impute or exit with failure.
 
         double value;
-        if (columnValue.empty()) {
-            ++m_MissingValueCount;
-            return core::CFloatStorage{valueOfMissing()};
-        } else if (core::CStringUtils::stringToTypeSilent(columnValue, value) == false) {
+        if (core::CStringUtils::stringToTypeSilent(columnValue, value) == false) {
             ++m_BadValueCount;
             return core::CFloatStorage{valueOfMissing()};
         }
@@ -272,9 +301,9 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
 
     this->writeRow([&](TFloatVecItr columns, std::int32_t& docHash) {
         for (std::size_t i = 0; i < columnValues.size(); ++i, ++columns) {
-            *columns = stringToValue(
-                m_ColumnIsCategorical[i], m_CategoricalColumnValueLookup[i],
-                m_CategoricalColumnValues[i], m_EmptyIsMissing[i], columnValues[i]);
+            *columns = stringToValue(m_ColumnIsCategorical[i],
+                                     m_CategoricalColumnValueLookup[i],
+                                     m_CategoricalColumnValues[i], columnValues[i]);
         }
         docHash = 0;
         if (hash != nullptr &&
@@ -302,14 +331,8 @@ void CDataFrame::columnNames(TStrVec columnNames) {
     }
 }
 
-void CDataFrame::emptyIsMissing(TBoolVec emptyIsMissing) {
-    if (emptyIsMissing.size() != m_NumberColumns) {
-        HANDLE_FATAL(<< "Internal error: expected '" << m_NumberColumns
-                     << "' 'empty is missing' column indicator values but got "
-                     << CContainerPrinter::print(emptyIsMissing));
-    } else {
-        m_EmptyIsMissing = std::move(emptyIsMissing);
-    }
+void CDataFrame::missingString(std::string missing) {
+    m_MissingString = std::move(missing);
 }
 
 void CDataFrame::categoricalColumns(TStrVec categoricalColumnNames) {
@@ -376,7 +399,7 @@ std::size_t CDataFrame::memoryUsage() const {
     std::size_t memory{CMemory::dynamicSize(m_ColumnNames)};
     memory += CMemory::dynamicSize(m_CategoricalColumnValues);
     memory += CMemory::dynamicSize(m_CategoricalColumnValueLookup);
-    memory += CMemory::dynamicSize(m_EmptyIsMissing);
+    memory += CMemory::dynamicSize(m_MissingString);
     memory += CMemory::dynamicSize(m_ColumnIsCategorical);
     memory += CMemory::dynamicSize(m_Slices);
     memory += CMemory::dynamicSize(m_Writer);
@@ -398,29 +421,28 @@ std::uint64_t CDataFrame::checksum() const {
 
 std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
                                             std::size_t numberRows,
-                                            std::size_t numberColumns) {
-    return inMainMemory ? numberRows * numberColumns * sizeof(float) : 0;
+                                            std::size_t numberColumns,
+                                            CAlignment::EType alignment) {
+    return inMainMemory
+               ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
+               : 0;
 }
 
-double CDataFrame::valueOfMissing() {
-    return std::numeric_limits<double>::quiet_NaN();
-}
+bool CDataFrame::parallelApplyToAllRows(std::size_t beginRows,
+                                        std::size_t endRows,
+                                        TRowFuncVec& funcs,
+                                        const CPackedBitVector* rowMask,
+                                        bool commitResult) const {
 
-CDataFrame::TRowFuncVecBoolPr
-CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
-                                   std::size_t beginRows,
-                                   std::size_t endRows,
-                                   TRowFunc func,
-                                   const CPackedBitVector* rowMask,
-                                   bool commitResult) const {
+    // If we're reading in parallel then we don't want to interleave reads
+    // from storage and applying the function because we're already fully
+    // balancing our work across the slices.
 
-    // If we're reading in parallel then we don't want to interleave
-    // reads from storage and applying the function because we're
-    // already fully balancing our work across the slices.
+    using TSliceFuncVec = std::vector<std::function<void(const TRowSlicePtr&)>>;
 
     CPackedBitVector::COneBitIndexConstIterator maskedRow;
     CPackedBitVector::COneBitIndexConstIterator endMaskedRows;
-    if (rowMask) {
+    if (rowMask != nullptr) {
         maskedRow = rowMask->beginOneBits();
         endMaskedRows = rowMask->endOneBits();
     }
@@ -428,63 +450,55 @@ CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
     std::atomic_bool successful{true};
     CDataFrameRowSliceHandle readSlice;
 
-    auto results = parallel_for_each(
-        numberThreads, this->beginSlices(beginRows), this->endSlices(endRows),
-        bindRetrievableState(
-            [=, &successful](TRowFunc& func_, const TRowSlicePtr& slice) mutable {
-                if (successful.load() == false) {
-                    return;
-                }
+    TSliceFuncVec sliceFuncs;
+    sliceFuncs.reserve(funcs.size());
 
-                std::size_t beginSliceRows{std::max(slice->indexOfFirstRow(), beginRows)};
-                std::size_t endSliceRows{
-                    std::min(slice->indexOfLastRow(m_RowCapacity) + 1, endRows)};
+    for (auto& func : funcs) {
+        sliceFuncs.push_back([=, &func, &successful](const TRowSlicePtr& slice) mutable {
+            if (successful.load() == false) {
+                return;
+            }
 
-                if (rowMask != nullptr &&
-                    this->maskedRowsInSlice(maskedRow, endMaskedRows, beginSliceRows,
-                                            endSliceRows) == false) {
-                    return;
-                }
+            std::size_t beginSliceRows{std::max(slice->indexOfFirstRow(), beginRows)};
+            std::size_t endSliceRows{
+                std::min(slice->indexOfLastRow(m_RowCapacity) + 1, endRows)};
 
-                readSlice = slice->read();
-                if (readSlice.bad()) {
-                    successful.store(false);
-                    return;
-                }
+            if (rowMask != nullptr &&
+                this->maskedRowsInSlice(maskedRow, endMaskedRows,
+                                        beginSliceRows, endSliceRows) == false) {
+                return;
+            }
 
-                TPopMaskedRowFunc popMaskedRow;
-                if (rowMask != nullptr) {
-                    beginSliceRows = *maskedRow;
-                    popMaskedRow = [endSliceRows, &maskedRow, endMaskedRows]() mutable {
-                        return ++maskedRow == endMaskedRows
-                                   ? endSliceRows
-                                   : std::min(*maskedRow, endSliceRows);
-                    };
-                }
+            readSlice = slice->read();
+            if (readSlice.bad()) {
+                successful.store(false);
+                return;
+            }
 
-                this->applyToRowsOfOneSlice(func_, beginSliceRows, endSliceRows,
-                                            popMaskedRow, readSlice);
-                if (commitResult) {
-                    slice->write(readSlice.rows(), readSlice.docHashes());
-                }
-            },
-            std::move(func)));
+            TOptionalPopMaskedRow popMaskedRow;
+            if (rowMask != nullptr) {
+                beginSliceRows = *maskedRow;
+                popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
+            }
 
-    TRowFuncVec functions;
-    functions.reserve(results.size());
-    for (auto& result : results) {
-        functions.emplace_back(std::move(result.s_FunctionState));
+            this->applyToRowsOfOneSlice(func, beginSliceRows, endSliceRows,
+                                        popMaskedRow, readSlice);
+            if (commitResult) {
+                slice->write(readSlice.rows(), readSlice.docHashes());
+            }
+        });
     }
 
-    return {std::move(functions), successful.load()};
+    parallel_for_each(this->beginSlices(beginRows), this->endSlices(endRows), sliceFuncs);
+
+    return successful.load();
 }
 
-CDataFrame::TRowFuncVecBoolPr
-CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
-                                     std::size_t endRows,
-                                     TRowFunc func,
-                                     const CPackedBitVector* rowMask,
-                                     bool commitResult) const {
+bool CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
+                                          std::size_t endRows,
+                                          TRowFuncVec& func,
+                                          const CPackedBitVector* rowMask,
+                                          bool commitResult) const {
 
     CPackedBitVector::COneBitIndexConstIterator maskedRow;
     CPackedBitVector::COneBitIndexConstIterator endMaskedRows;
@@ -521,7 +535,7 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
 
             readSlice = (*slice)->read();
             if (readSlice.bad()) {
-                return {{std::move(func)}, false};
+                return false;
             }
 
             // We wait here so at most one slice is copied into memory.
@@ -531,17 +545,13 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
                 defaultAsyncExecutor(),
                 [ =, &func, readSlice_ = std::move(readSlice) ]() mutable {
 
-                    TPopMaskedRowFunc popMaskedRow;
+                    TOptionalPopMaskedRow popMaskedRow;
                     if (rowMask != nullptr) {
                         beginSliceRows = *maskedRow;
-                        popMaskedRow = [endSliceRows, maskedRow, endMaskedRows]() mutable {
-                            return ++maskedRow == endMaskedRows
-                                       ? endSliceRows
-                                       : std::min(*maskedRow, endSliceRows);
-                        };
+                        popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
                     }
 
-                    this->applyToRowsOfOneSlice(func, beginSliceRows, endSliceRows,
+                    this->applyToRowsOfOneSlice(func[0], beginSliceRows, endSliceRows,
                                                 popMaskedRow, readSlice_);
 
                     if (commitResult) {
@@ -567,20 +577,16 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
 
             readSlice = (*slice)->read();
             if (readSlice.bad()) {
-                return {{std::move(func)}, false};
+                return false;
             }
 
-            TPopMaskedRowFunc popMaskedRow;
+            TOptionalPopMaskedRow popMaskedRow;
             if (rowMask != nullptr) {
                 beginSliceRows = *maskedRow;
-                popMaskedRow = [endSliceRows, &maskedRow, endMaskedRows]() mutable {
-                    return ++maskedRow == endMaskedRows
-                               ? endSliceRows
-                               : std::min(*maskedRow, endSliceRows);
-                };
+                popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
             }
 
-            this->applyToRowsOfOneSlice(func, beginSliceRows, endSliceRows,
+            this->applyToRowsOfOneSlice(func[0], beginSliceRows, endSliceRows,
                                         popMaskedRow, readSlice);
 
             if (commitResult) {
@@ -590,13 +596,13 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
         break;
     }
 
-    return {{std::move(func)}, true};
+    return true;
 }
 
 void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
                                        std::size_t firstRowToRead,
                                        std::size_t endRowsToRead,
-                                       TPopMaskedRowFunc popMaskedRow,
+                                       const TOptionalPopMaskedRow& popMaskedRow,
                                        const CDataFrameRowSliceHandle& slice) const {
 
     LOG_TRACE(<< "Applying function to rows [" << firstRowToRead << ","
@@ -644,6 +650,7 @@ bool CDataFrame::maskedRowsInSlice(ITR& maskedRow,
 
 const std::size_t CDataFrame::MAX_CATEGORICAL_CARDINALITY{
     1 << (std::numeric_limits<float>::digits)};
+const std::string CDataFrame::DEFAULT_MISSING_STRING{"\0", 1};
 
 CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
     std::size_t numberRows,
@@ -661,11 +668,10 @@ void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow
     // Write the next row at the end of the current slice being written
     // and if the slice is full pass to the thread storing slices.
 
-    std::size_t end{m_RowsOfSliceBeingWritten.size()};
-
-    m_RowsOfSliceBeingWritten.resize(end + m_RowCapacity);
+    std::size_t start{m_RowsOfSliceBeingWritten.size()};
+    m_RowsOfSliceBeingWritten.resize(start + m_RowCapacity);
     m_DocHashesOfSliceBeingWritten.emplace_back();
-    writeRow(m_RowsOfSliceBeingWritten.begin() + end,
+    writeRow(m_RowsOfSliceBeingWritten.begin() + start,
              m_DocHashesOfSliceBeingWritten.back());
     ++m_NumberRows;
 
@@ -715,22 +721,27 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
     return {m_NumberRows, std::move(m_SlicesWrittenToStore)};
 }
 
+std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns) {
+    std::size_t oneMbChunkSize{constants::BYTES_IN_MEGABYTES /
+                               sizeof(CFloatStorage) / numberColumns};
+    return std::max(oneMbChunkSize, std::size_t{128});
+}
+
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity,
-                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy,
+                         CAlignment::EType alignment) {
     auto writer = [](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
         return std::make_unique<CMainMemoryDataFrameRowSlice>(
             firstRow, std::move(rows), std::move(docHashes));
     };
 
-    if (sliceCapacity != boost::none) {
-        return {std::make_unique<CDataFrame>(true, numberColumns, *sliceCapacity,
-                                             readWriteToStoreSyncStrategy, writer),
-                nullptr};
+    if (sliceCapacity == boost::none) {
+        sliceCapacity = dataFrameDefaultSliceCapacity(numberColumns);
     }
 
-    return {std::make_unique<CDataFrame>(true, numberColumns,
+    return {std::make_unique<CDataFrame>(true, numberColumns, alignment, *sliceCapacity,
                                          readWriteToStoreSyncStrategy, writer),
             nullptr};
 }
@@ -740,7 +751,8 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
                          boost::optional<std::size_t> sliceCapacity,
-                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy,
+                         CAlignment::EType alignment) {
     std::size_t minimumSpace{2 * numberRows * numberColumns * sizeof(CFloatStorage)};
 
     auto directory = std::make_shared<CTemporaryDirectory>(rootDirectory, minimumSpace);
@@ -754,12 +766,11 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
             directory, firstRow, std::move(rows), std::move(docHashes));
     };
 
-    if (sliceCapacity != boost::none) {
-        return {std::make_unique<CDataFrame>(false, numberColumns, *sliceCapacity,
-                                             readWriteToStoreSyncStrategy, writer),
-                directory};
+    if (sliceCapacity == boost::none) {
+        sliceCapacity = dataFrameDefaultSliceCapacity(numberColumns);
     }
-    return {std::make_unique<CDataFrame>(false, numberColumns,
+
+    return {std::make_unique<CDataFrame>(false, numberColumns, alignment, *sliceCapacity,
                                          readWriteToStoreSyncStrategy, writer),
             directory};
 }

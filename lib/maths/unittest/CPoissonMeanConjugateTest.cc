@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CPoissonMeanConjugateTest.h"
 
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -16,12 +19,14 @@
 #include <maths/CRestoreParams.h>
 #include <maths/CTools.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include "TestUtils.h"
 
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -29,6 +34,8 @@
 #include <iostream>
 #include <iterator>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CPoissonMeanConjugateTest)
 
 using namespace ml;
 using namespace handy_typedefs;
@@ -44,7 +51,7 @@ using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAc
 using CPoissonMeanConjugate = CPriorTestInterfaceMixin<maths::CPoissonMeanConjugate>;
 }
 
-void CPoissonMeanConjugateTest::testMultipleUpdate() {
+BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     // Test that we get the same result updating once with a vector of 100
     // samples of an R.V. versus updating individually 100 times.
 
@@ -56,7 +63,7 @@ void CPoissonMeanConjugateTest::testMultipleUpdate() {
     TUIntVec samples_;
     rng.generatePoissonSamples(rate, 100, samples_);
     TDoubleVec samples;
-    for (std::size_t i = 0u; i < samples_.size(); ++i) {
+    for (std::size_t i = 0; i < samples_.size(); ++i) {
         samples.push_back(static_cast<double>(samples_[i]));
     }
 
@@ -64,13 +71,13 @@ void CPoissonMeanConjugateTest::testMultipleUpdate() {
         CPoissonMeanConjugate filter1(CPoissonMeanConjugate::nonInformativePrior());
         CPoissonMeanConjugate filter2(filter1);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             filter1.addSamples(TDouble1Vec(1, samples[i]));
         }
         filter2.addSamples(samples);
 
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5);
-        CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
+        BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
     }
 
     // Test with variance scale.
@@ -81,16 +88,14 @@ void CPoissonMeanConjugateTest::testMultipleUpdate() {
 
         maths_t::TDoubleWeightsAry1Vec weights;
         weights.resize(samples.size(), maths_t::countVarianceScaleWeight(2.0));
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             filter1.addSamples({samples[j]}, {weights[j]});
         }
         filter2.addSamples(samples, weights);
 
-        LOG_DEBUG(<< filter1.print());
-        LOG_DEBUG(<< "vs");
-        LOG_DEBUG(<< filter2.print());
+        LOG_DEBUG(<< filter1.print() << "\nvs" << filter2.print());
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5);
-        CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
+        BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
     }
 
     // Test the count weight is equivalent to adding repeated samples.
@@ -101,20 +106,18 @@ void CPoissonMeanConjugateTest::testMultipleUpdate() {
 
         double x = 3.0;
         std::size_t count = 10;
-        for (std::size_t j = 0u; j < count; ++j) {
+        for (std::size_t j = 0; j < count; ++j) {
             filter1.addSamples(TDouble1Vec(1, x));
         }
         filter2.addSamples({x}, {maths_t::countWeight(10.0)});
 
-        LOG_DEBUG(<< filter1.print());
-        LOG_DEBUG(<< "vs");
-        LOG_DEBUG(<< filter2.print());
+        LOG_DEBUG(<< filter1.print() << "\nvs" << filter2.print());
         TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, 1e-5);
-        CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
+        BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
     }
 }
 
-void CPoissonMeanConjugateTest::testPropagation() {
+BOOST_AUTO_TEST_CASE(testPropagation) {
     // Test that propagation doesn't affect the expected values
     // of likelihood mean.
 
@@ -127,7 +130,7 @@ void CPoissonMeanConjugateTest::testPropagation() {
 
     CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior(0.0, 0.1));
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[i])));
     }
 
@@ -139,10 +142,10 @@ void CPoissonMeanConjugateTest::testPropagation() {
 
     LOG_DEBUG(<< "mean = " << mean << ", propagatedMean = " << propagatedMean);
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(mean, propagatedMean, eps);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(mean, propagatedMean, eps);
 }
 
-void CPoissonMeanConjugateTest::testMeanEstimation() {
+BOOST_AUTO_TEST_CASE(testMeanEstimation) {
     // We are going to test that we correctly estimate a distribution
     // for the mean of the Poisson process by checking that the true
     // mean of a Poisson process lies in various confidence intervals
@@ -150,7 +153,7 @@ void CPoissonMeanConjugateTest::testMeanEstimation() {
 
     const double decayRates[] = {0.0, 0.001, 0.01};
 
-    const unsigned int nTests = 500u;
+    const unsigned int nTests = 500;
     const double testIntervals[] = {50.0, 60.0, 70.0, 80.0,
                                     85.0, 90.0, 95.0, 99.0};
 
@@ -167,7 +170,7 @@ void CPoissonMeanConjugateTest::testMeanEstimation() {
             CPoissonMeanConjugate filter(
                 CPoissonMeanConjugate::nonInformativePrior(0.0, decayRates[i]));
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[j])));
                 filter.propagateForwardsByTime(1.0);
             }
@@ -191,15 +194,15 @@ void CPoissonMeanConjugateTest::testMeanEstimation() {
             // If the decay rate is zero the intervals should be accurate.
             // Otherwise, they should be an upper bound.
             if (decayRates[i] == 0.0) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(interval, (100.0 - testIntervals[j]), 4.0);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(interval, (100.0 - testIntervals[j]), 4.0);
             } else {
-                CPPUNIT_ASSERT(interval <= (100.0 - testIntervals[j]));
+                BOOST_TEST_REQUIRE(interval <= (100.0 - testIntervals[j]));
             }
         }
     }
 }
 
-void CPoissonMeanConjugateTest::testMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     {
         // Check that the marginal likelihood and c.d.f. agree for some
         // test data and that the c.d.f. <= 1.
@@ -213,11 +216,11 @@ void CPoissonMeanConjugateTest::testMarginalLikelihood() {
 
         const double decayRates[] = {0.0, 0.001, 0.01};
 
-        for (std::size_t i = 0u; i < boost::size(decayRates); ++i) {
+        for (std::size_t i = 0; i < boost::size(decayRates); ++i) {
             CPoissonMeanConjugate filter(
                 CPoissonMeanConjugate::nonInformativePrior(0.0, decayRates[i]));
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[j])));
                 filter.propagateForwardsByTime(1.0);
             }
@@ -226,20 +229,20 @@ void CPoissonMeanConjugateTest::testMarginalLikelihood() {
             for (unsigned int x = 0; x < 20; ++x) {
                 double logLikelihood = 0.0;
                 TDouble1Vec sample(1, static_cast<double>(x));
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                                     filter.jointLogMarginalLikelihood(sample, logLikelihood));
+                BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                                    filter.jointLogMarginalLikelihood(sample, logLikelihood));
                 cdf += std::exp(logLikelihood);
 
                 double lb, ub;
-                CPPUNIT_ASSERT(filter.minusLogJointCdf(sample, lb, ub));
-                CPPUNIT_ASSERT_EQUAL(lb, ub);
+                BOOST_TEST_REQUIRE(filter.minusLogJointCdf(sample, lb, ub));
+                BOOST_REQUIRE_EQUAL(lb, ub);
                 double minusLogCdf = (lb + ub) / 2.0;
 
-                LOG_DEBUG(<< "sample = " << x << ", -log(cdf) = " << (-std::log(cdf))
+                LOG_TRACE(<< "sample = " << x << ", -log(cdf) = " << (-std::log(cdf))
                           << ", minusLogCdf = " << minusLogCdf);
 
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(minusLogCdf, -std::log(cdf), epsilon);
-                CPPUNIT_ASSERT(minusLogCdf >= 0.0);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(minusLogCdf, -std::log(cdf), epsilon);
+                BOOST_TEST_REQUIRE(minusLogCdf >= 0.0);
             }
         }
     }
@@ -249,7 +252,7 @@ void CPoissonMeanConjugateTest::testMarginalLikelihood() {
 
         const double shapes[] = {25.0, 80.0, 600.0, 1200.0};
         const double rates[] = {5.0, 4.0, 10.0, 3.0};
-        CPPUNIT_ASSERT(boost::size(shapes) == boost::size(rates));
+        BOOST_TEST_REQUIRE(boost::size(shapes) == boost::size(rates));
 
         // We'll sample the c.d.f. at mean -2, -1, 0, 1 and 2 s.t.d.
         const double sampleStds[] = {-2.0, -1.0, 0.0, 1.0, 2.0};
@@ -264,29 +267,28 @@ void CPoissonMeanConjugateTest::testMarginalLikelihood() {
                     static_cast<unsigned int>(mean + sampleStds[j] * std::sqrt(mean));
 
                 double lb = 0.0, ub = 0.0;
-                CPPUNIT_ASSERT(filter.minusLogJointCdf(
+                BOOST_TEST_REQUIRE(filter.minusLogJointCdf(
                     TDouble1Vec(1, static_cast<double>(sample)), lb, ub));
-                CPPUNIT_ASSERT_EQUAL(lb, ub);
+                BOOST_REQUIRE_EQUAL(lb, ub);
                 double minusLogCdf = (lb + ub) / 2.0;
-                CPPUNIT_ASSERT(minusLogCdf >= 0.0);
+                BOOST_TEST_REQUIRE(minusLogCdf >= 0.0);
 
                 double cdf = 0.0;
                 for (unsigned int x = 0; x <= sample; ++x) {
                     double logLikelihood = 0.0;
-                    CPPUNIT_ASSERT_EQUAL(
-                        maths_t::E_FpNoErrors,
-                        filter.jointLogMarginalLikelihood(
-                            TDouble1Vec(1, static_cast<double>(x)), logLikelihood));
+                    BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                                        filter.jointLogMarginalLikelihood(
+                                            TDouble1Vec(1, static_cast<double>(x)), logLikelihood));
                     cdf += std::exp(logLikelihood);
                     cdf = std::min(cdf, 1.0);
                 }
 
-                LOG_DEBUG(<< "-log(cdf) = " << -std::log(cdf)
+                LOG_TRACE(<< "-log(cdf) = " << -std::log(cdf)
                           << ", minusLogCdf = " << minusLogCdf);
 
                 // We'll tolerate a 5% error in the -log(c.d.f.) since
                 // we're approximating for large mean.
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(minusLogCdf, -std::log(cdf),
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(minusLogCdf, -std::log(cdf),
                                              -0.05 * std::log(cdf));
             }
         }
@@ -311,18 +313,18 @@ void CPoissonMeanConjugateTest::testMarginalLikelihood() {
 
         TUIntVec seedSamples;
         rng.generatePoissonSamples(rate, 100, seedSamples);
-        for (std::size_t i = 0u; i < seedSamples.size(); ++i) {
+        for (std::size_t i = 0; i < seedSamples.size(); ++i) {
             filter.addSamples(TDouble1Vec(1, static_cast<double>(seedSamples[i])));
         }
 
         TUIntVec samples;
         rng.generatePoissonSamples(rate, 5000, samples);
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             TDouble1Vec sample(1, static_cast<double>(samples[i]));
             filter.addSamples(sample);
             double logLikelihood = 0.0;
-            CPPUNIT_ASSERT_EQUAL(maths_t::E_FpNoErrors,
-                                 filter.jointLogMarginalLikelihood(sample, logLikelihood));
+            BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
+                                filter.jointLogMarginalLikelihood(sample, logLikelihood));
             differentialEntropy -= logLikelihood;
         }
 
@@ -331,11 +333,11 @@ void CPoissonMeanConjugateTest::testMarginalLikelihood() {
         LOG_DEBUG(<< "differentialEntropy = " << differentialEntropy
                   << ", expectedDifferentialEntropy = " << expectedDifferentialEntropy);
 
-        CPPUNIT_ASSERT(std::fabs(differentialEntropy - expectedDifferentialEntropy) < 0.01);
+        BOOST_TEST_REQUIRE(std::fabs(differentialEntropy - expectedDifferentialEntropy) < 0.01);
     }
 }
 
-void CPoissonMeanConjugateTest::testMarginalLikelihoodMode() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
     // Test that the marginal likelihood mode is what we'd expect
     // with variances variance scales.
 
@@ -346,7 +348,7 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodMode() {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(rates); ++i) {
+    for (std::size_t i = 0; i < boost::size(rates); ++i) {
         LOG_DEBUG(<< "*** rate = " << rates[i] << " ***");
 
         boost::math::poisson_distribution<> poisson(rates[i]);
@@ -354,36 +356,36 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodMode() {
         CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior());
         TUIntVec samples;
         rng.generatePoissonSamples(rates[i], 1000, samples);
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[j])));
         }
 
         maths_t::TDoubleWeightsAry weight(maths_t::CUnitWeights::UNIT);
 
-        for (std::size_t j = 0u; j < boost::size(varianceScales); ++j) {
+        for (std::size_t j = 0; j < boost::size(varianceScales); ++j) {
             double vs = varianceScales[j];
             maths_t::setCountVarianceScale(vs, weight);
             double expectedMode = boost::math::mode(poisson);
             LOG_DEBUG(<< "marginalLikelihoodMode = " << filter.marginalLikelihoodMode(weight)
                       << ", expectedMode = " << expectedMode);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMode,
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMode,
                                          filter.marginalLikelihoodMode(weight), 1.0);
         }
     }
 }
 
-void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance() {
+BOOST_AUTO_TEST_CASE(testMarginalLikelihoodVariance) {
     const double rates[] = {0.1, 5.0, 100.0};
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(rates); ++i) {
+    for (std::size_t i = 0; i < boost::size(rates); ++i) {
         LOG_DEBUG(<< "*** rate = " << rates[i] << " ***");
         CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior());
 
         TUIntVec seedSamples;
         rng.generatePoissonSamples(rates[i], 5, seedSamples);
-        for (std::size_t j = 0u; j < seedSamples.size(); ++j) {
+        for (std::size_t j = 0; j < seedSamples.size(); ++j) {
             filter.addSamples(TDouble1Vec(1, static_cast<double>(seedSamples[j])));
         }
 
@@ -391,17 +393,15 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance() {
         rng.generatePoissonSamples(rates[i], 100, samples);
 
         TMeanAccumulator relativeError;
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[j])));
             double expectedVariance;
-            CPPUNIT_ASSERT(filter.marginalLikelihoodVarianceForTest(expectedVariance));
-            if (j % 10 == 0) {
-                LOG_DEBUG(<< "marginalLikelihoodVariance = " << filter.marginalLikelihoodVariance()
-                          << ", expectedVariance = " << expectedVariance);
-            }
+            BOOST_TEST_REQUIRE(filter.marginalLikelihoodVarianceForTest(expectedVariance));
+            LOG_TRACE(<< "marginalLikelihoodVariance = " << filter.marginalLikelihoodVariance()
+                      << ", expectedVariance = " << expectedVariance);
 
             // The error is at the precision of the numerical integration.
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedVariance,
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedVariance,
                                          filter.marginalLikelihoodVariance(),
                                          0.3 * expectedVariance);
 
@@ -410,11 +410,11 @@ void CPoissonMeanConjugateTest::testMarginalLikelihoodVariance() {
         }
 
         LOG_DEBUG(<< "relativeError = " << maths::CBasicStatistics::mean(relativeError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(relativeError) < 0.16);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(relativeError) < 0.16);
     }
 }
 
-void CPoissonMeanConjugateTest::testSampleMarginalLikelihood() {
+BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     // We're going to test two properties of the sampling:
     //   1) That the sample mean is equal to the marginal
     //      likelihood mean.
@@ -440,13 +440,13 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihood() {
 
         TMeanAccumulator meanVarError;
 
-        std::size_t numberSampled = 20u;
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        std::size_t numberSampled = 20;
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             filter.addSamples(TDouble1Vec(1, samples[j]));
 
             sampled.clear();
             filter.sampleMarginalLikelihood(numberSampled, sampled);
-            CPPUNIT_ASSERT_EQUAL(numberSampled, sampled.size());
+            BOOST_REQUIRE_EQUAL(numberSampled, sampled.size());
 
             TMeanVarAccumulator sampledMomemts;
             sampledMomemts = std::for_each(sampled.begin(), sampled.end(), sampledMomemts);
@@ -456,9 +456,9 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihood() {
             LOG_DEBUG(<< "expectedMean = " << filter.marginalLikelihoodVariance() << ", sampledVariance = "
                       << maths::CBasicStatistics::variance(sampledMomemts));
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodMean(),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(filter.marginalLikelihoodMean(),
                                          maths::CBasicStatistics::mean(sampledMomemts), 1e-8);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(filter.marginalLikelihoodVariance(),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(filter.marginalLikelihoodVariance(),
                                          maths::CBasicStatistics::variance(sampledMomemts),
                                          0.15 * filter.marginalLikelihoodVariance());
             meanVarError.add(std::fabs(filter.marginalLikelihoodVariance() -
@@ -466,13 +466,14 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihood() {
                              filter.marginalLikelihoodVariance());
 
             std::sort(sampled.begin(), sampled.end());
-            for (std::size_t k = 3u; k < sampled.size(); ++k) {
+            for (std::size_t k = 3; k < sampled.size(); ++k) {
                 double q = 100.0 * static_cast<double>(k) / static_cast<double>(numberSampled);
 
                 double expectedQuantile;
-                CPPUNIT_ASSERT(filter.marginalLikelihoodQuantileForTest(q, eps, expectedQuantile));
+                BOOST_TEST_REQUIRE(filter.marginalLikelihoodQuantileForTest(
+                    q, eps, expectedQuantile));
 
-                LOG_DEBUG(<< "quantile = " << q << ", x_quantile = " << expectedQuantile
+                LOG_TRACE(<< "quantile = " << q << ", x_quantile = " << expectedQuantile
                           << ", quantile range = [" << sampled[k - 3] << ","
                           << sampled[k] << "]");
 
@@ -484,17 +485,17 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihood() {
                 // equals 0.4 then that single point contains the first to
                 // fortieth percentile points of the distribution.
 
-                CPPUNIT_ASSERT(expectedQuantile >= sampled[k - 3] - 0.5);
-                CPPUNIT_ASSERT(expectedQuantile <= sampled[k] + 0.5);
+                BOOST_TEST_REQUIRE(expectedQuantile >= sampled[k - 3] - 0.5);
+                BOOST_TEST_REQUIRE(expectedQuantile <= sampled[k] + 0.5);
             }
         }
 
         LOG_DEBUG(<< "mean variance error = " << maths::CBasicStatistics::mean(meanVarError));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanVarError) < 0.05);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanVarError) < 0.05);
     }
 }
 
-void CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds() {
+BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihoodInSupportBounds) {
     // Here we test that the retrieved samples are
     // a) positive
     // b) monotonically increasing
@@ -506,7 +507,7 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds() {
 
     std::remove(logFile);
     // log at level ERROR only
-    CPPUNIT_ASSERT(ml::core::CLogger::instance().reconfigureFromFile(
+    BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigureFromFile(
         "testfiles/testLogErrors.boost.log.ini"));
 
     CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior());
@@ -516,15 +517,15 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds() {
 
     filter.addSamples(sampleVec, weightVec);
 
-    std::size_t numberSampled = 50u;
+    std::size_t numberSampled = 50;
     TDouble1Vec sampled;
 
     filter.sampleMarginalLikelihood(numberSampled, sampled);
 
     double prevSample{0.0};
     for (double sample : sampled) {
-        CPPUNIT_ASSERT(sample > prevSample);
-        CPPUNIT_ASSERT(sample >= 0.0);
+        BOOST_TEST_REQUIRE(sample > prevSample);
+        BOOST_TEST_REQUIRE(sample >= 0.0);
         prevSample = sample;
     }
 
@@ -538,14 +539,14 @@ void CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds() {
         char line[256];
         while (log.getline(line, 256)) {
             LOG_DEBUG(<< "Got '" << line << "'");
-            CPPUNIT_ASSERT(false);
+            BOOST_TEST_REQUIRE(false);
         }
         log.close();
         std::remove(logFile);
     }
 }
 
-void CPoissonMeanConjugateTest::testCdf() {
+BOOST_AUTO_TEST_CASE(testCdf) {
     // Test error cases.
     //
     // Test some invariants:
@@ -560,42 +561,42 @@ void CPoissonMeanConjugateTest::testCdf() {
 
     CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior());
 
-    for (std::size_t i = 0u; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < boost::size(n); ++i) {
         TUIntVec samples;
         rng.generatePoissonSamples(rate, n[i], samples);
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             filter.addSamples(TDouble1Vec(1, samples[j]));
         }
 
         double lb, ub;
-        CPPUNIT_ASSERT(!filter.minusLogJointCdf(TDouble1Vec(), lb, ub));
-        CPPUNIT_ASSERT(!filter.minusLogJointCdfComplement(TDouble1Vec(), lb, ub));
+        BOOST_TEST_REQUIRE(!filter.minusLogJointCdf(TDouble1Vec(), lb, ub));
+        BOOST_TEST_REQUIRE(!filter.minusLogJointCdfComplement(TDouble1Vec(), lb, ub));
 
-        CPPUNIT_ASSERT(filter.minusLogJointCdf(TDouble1Vec(1, -1.0), lb, ub));
+        BOOST_TEST_REQUIRE(filter.minusLogJointCdf(TDouble1Vec(1, -1.0), lb, ub));
         double f = (lb + ub) / 2.0;
-        CPPUNIT_ASSERT(filter.minusLogJointCdfComplement(TDouble1Vec(1, -1.0), lb, ub));
+        BOOST_TEST_REQUIRE(filter.minusLogJointCdfComplement(TDouble1Vec(1, -1.0), lb, ub));
         double fComplement = (lb + ub) / 2.0;
         LOG_DEBUG(<< "log(F(x)) = " << -f << ", log(1 - F(x)) = " << fComplement);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(std::log(std::numeric_limits<double>::min()), -f, 1e-10);
-        CPPUNIT_ASSERT_EQUAL(1.0, std::exp(-fComplement));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(std::numeric_limits<double>::min()), -f, 1e-10);
+        BOOST_REQUIRE_EQUAL(1.0, std::exp(-fComplement));
 
-        for (std::size_t j = 1u; j < 500; ++j) {
+        for (std::size_t j = 1; j < 500; ++j) {
             double x = static_cast<double>(j) / 2.0;
 
-            CPPUNIT_ASSERT(filter.minusLogJointCdf(TDouble1Vec(1, x), lb, ub));
+            BOOST_TEST_REQUIRE(filter.minusLogJointCdf(TDouble1Vec(1, x), lb, ub));
             f = (lb + ub) / 2.0;
-            CPPUNIT_ASSERT(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
+            BOOST_TEST_REQUIRE(filter.minusLogJointCdfComplement(TDouble1Vec(1, x), lb, ub));
             fComplement = (lb + ub) / 2.0;
 
-            LOG_DEBUG(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
+            LOG_TRACE(<< "log(F(x)) = " << (f == 0.0 ? f : -f) << ", log(1 - F(x)) = "
                       << (fComplement == 0.0 ? fComplement : -fComplement));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, std::exp(-f) + std::exp(-fComplement), 1e-10);
         }
     }
 }
 
-void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
+BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     // We test that the probability of less likely samples calculation
     // agrees with the chance of seeing a sample with lower marginal
     // likelihood, up to the sampling error.
@@ -617,14 +618,14 @@ void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
         rng.generatePoissonSamples(rates[i], 1000, samples);
 
         CPoissonMeanConjugate filter(CPoissonMeanConjugate::nonInformativePrior());
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[j])));
         }
 
         double mean = filter.priorMean();
 
         TDoubleVec likelihoods;
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             double likelihood;
             filter.jointLogMarginalLikelihood(TDouble1Vec(1, samples[j]), likelihood);
             likelihoods.push_back(likelihood);
@@ -632,7 +633,7 @@ void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
         std::sort(likelihoods.begin(), likelihoods.end());
 
         boost::math::poisson_distribution<> poisson(mean);
-        for (std::size_t k = 1u; k < 10; ++k) {
+        for (std::size_t k = 1; k < 10; ++k) {
             double x = boost::math::quantile(poisson, static_cast<double>(k) / 10.0);
 
             TDouble1Vec sample(1, x);
@@ -649,15 +650,15 @@ void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
 
             double ssd = std::sqrt(px * (1.0 - px) / static_cast<double>(samples.size()));
 
-            LOG_DEBUG(<< "x = " << x << ", expected P(x) = " << px << ", actual P(x) = "
+            LOG_TRACE(<< "x = " << x << ", expected P(x) = " << px << ", actual P(x) = "
                       << (lb + ub) / 2.0 << " sample sd = " << ssd);
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(px, (lb + ub) / 2.0, 8.0 * ssd);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(px, (lb + ub) / 2.0, 8.0 * ssd);
 
             meanError.add(std::fabs(px - (lb + ub) / 2.0));
         }
 
-        for (std::size_t k = 0u; k < boost::size(vs); ++k) {
+        for (std::size_t k = 0; k < boost::size(vs); ++k) {
             double mode = filter.marginalLikelihoodMode(
                 maths_t::countVarianceScaleWeight(vs[k]));
             double ss[] = {0.9 * mode, 1.1 * mode};
@@ -671,60 +672,60 @@ void CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples() {
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_TwoSided, {ss[0]},
                     {maths_t::countVarianceScaleWeight(vs[k])}, lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                 if (mode > 0.0) {
                     filter.probabilityOfLessLikelySamples(
                         maths_t::E_TwoSided, TDouble1Vec(ss, ss + 2),
                         maths_t::TDoubleWeightsAry1Vec(
                             2, maths_t::countVarianceScaleWeight(vs[k])),
                         lb, ub, tail);
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                    BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                     filter.probabilityOfLessLikelySamples(
                         maths_t::E_OneSidedBelow, TDouble1Vec(ss, ss + 2),
                         maths_t::TDoubleWeightsAry1Vec(
                             2, maths_t::countVarianceScaleWeight(vs[k])),
                         lb, ub, tail);
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                    BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                     filter.probabilityOfLessLikelySamples(
                         maths_t::E_OneSidedAbove, TDouble1Vec(ss, ss + 2),
                         maths_t::TDoubleWeightsAry1Vec(
                             2, maths_t::countVarianceScaleWeight(vs[k])),
                         lb, ub, tail);
-                    CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                    BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                 }
             }
             if (mode > 0.0) {
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_TwoSided, {ss[1]},
                     {maths_t::countVarianceScaleWeight(vs[k])}, lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_TwoSided, TDouble1Vec(ss, ss + 2),
                     maths_t::TDoubleWeightsAry1Vec(
                         2, maths_t::countVarianceScaleWeight(vs[k])),
                     lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
+                BOOST_REQUIRE_EQUAL(maths_t::E_MixedOrNeitherTail, tail);
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_OneSidedBelow, TDouble1Vec(ss, ss + 2),
                     maths_t::TDoubleWeightsAry1Vec(
                         2, maths_t::countVarianceScaleWeight(vs[k])),
                     lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_LeftTail, tail);
+                BOOST_REQUIRE_EQUAL(maths_t::E_LeftTail, tail);
                 filter.probabilityOfLessLikelySamples(
                     maths_t::E_OneSidedAbove, TDouble1Vec(ss, ss + 2),
                     maths_t::TDoubleWeightsAry1Vec(
                         2, maths_t::countVarianceScaleWeight(vs[k])),
                     lb, ub, tail);
-                CPPUNIT_ASSERT_EQUAL(maths_t::E_RightTail, tail);
+                BOOST_REQUIRE_EQUAL(maths_t::E_RightTail, tail);
             }
         }
     }
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.02);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.02);
 }
 
-void CPoissonMeanConjugateTest::testAnomalyScore() {
+BOOST_AUTO_TEST_CASE(testAnomalyScore) {
     // This test pushes 500 samples through the filter and adds in
     // anomalous signals in the bins at 30, 120, 300 and 420 with
     // magnitude 4, 5, 10 and 15 standard deviations, respectively,
@@ -818,10 +819,10 @@ void CPoissonMeanConjugateTest::testAnomalyScore() {
                       << ", positives = " << positives.size());
 
             // False alarm rate should be less than 0.4%.
-            CPPUNIT_ASSERT(falsePositiveRate <= 0.02);
+            BOOST_TEST_REQUIRE(falsePositiveRate <= 0.02);
 
             // Should detect at least the three biggest anomalies.
-            CPPUNIT_ASSERT(positives.size() >= 3u);
+            BOOST_TEST_REQUIRE(positives.size() >= 3u);
 
             totalPositives[j] += positives.size();
         }
@@ -834,14 +835,14 @@ void CPoissonMeanConjugateTest::testAnomalyScore() {
         LOG_DEBUG(<< "positives = " << totalPositives[i]);
 
         // Should detect all but one anomaly.
-        CPPUNIT_ASSERT(totalPositives[i] >= 11u);
+        BOOST_TEST_REQUIRE(totalPositives[i] >= 11u);
     }
 
     // Total false alarm rate should be less than 0.2%.
-    CPPUNIT_ASSERT(totalFalsePositiveRate <= 0.004);
+    BOOST_TEST_REQUIRE(totalFalsePositiveRate <= 0.004);
 }
 
-void CPoissonMeanConjugateTest::testOffset() {
+BOOST_AUTO_TEST_CASE(testOffset) {
     // The idea of this test is to check that the offset correctly cancels
     // out a translation applied to a log-normally distributed data set.
 
@@ -864,7 +865,7 @@ void CPoissonMeanConjugateTest::testOffset() {
             CPoissonMeanConjugate filter2(
                 CPoissonMeanConjugate::nonInformativePrior(0.0, decayRates[j]));
 
-            for (std::size_t k = 0u; k < samples.size(); ++k) {
+            for (std::size_t k = 0; k < samples.size(); ++k) {
                 TDouble1Vec offsetSample(1, samples[k] - offsets[i]);
                 filter1.addSamples(offsetSample);
                 filter1.propagateForwardsByTime(1.0);
@@ -879,7 +880,7 @@ void CPoissonMeanConjugateTest::testOffset() {
                 double lb1, ub1;
                 filter1.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                        offsetSample, lb1, ub1);
-                CPPUNIT_ASSERT_EQUAL(lb1, ub1);
+                BOOST_REQUIRE_EQUAL(lb1, ub1);
                 double probability1 = (lb1 + ub1) / 2.0;
 
                 double likelihood2;
@@ -887,21 +888,21 @@ void CPoissonMeanConjugateTest::testOffset() {
                 double lb2, ub2;
                 filter2.probabilityOfLessLikelySamples(maths_t::E_TwoSided,
                                                        sample, lb2, ub2);
-                CPPUNIT_ASSERT_EQUAL(lb2, ub2);
+                BOOST_REQUIRE_EQUAL(lb2, ub2);
                 double probability2 = (lb2 + ub2) / 2.0;
 
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(likelihood1, likelihood2, eps);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(probability1, probability2, eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(likelihood1, likelihood2, eps);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(probability1, probability2, eps);
             }
 
             using TEqual = maths::CEqualWithTolerance<double>;
             TEqual equal(maths::CToleranceTypes::E_AbsoluteTolerance, eps);
-            CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
+            BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
         }
     }
 }
 
-void CPoissonMeanConjugateTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     const double rate = 5.0;
 
     test::CRandomNumbers rng;
@@ -910,7 +911,7 @@ void CPoissonMeanConjugateTest::testPersist() {
     rng.generatePoissonSamples(rate, 100, samples);
 
     maths::CPoissonMeanConjugate origFilter(CPoissonMeanConjugate::nonInformativePrior());
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         origFilter.addSamples({samples[i]}, maths_t::CUnitWeights::SINGLE_UNIT);
     }
     double decayRate = origFilter.decayRate();
@@ -927,7 +928,7 @@ void CPoissonMeanConjugateTest::testPersist() {
 
     // Restore the XML into a new filter.
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::SDistributionRestoreParams params(
@@ -937,7 +938,7 @@ void CPoissonMeanConjugateTest::testPersist() {
 
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredFilter.checksum());
-    CPPUNIT_ASSERT_EQUAL(checksum, restoredFilter.checksum());
+    BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());
 
     // The XML representation of the new filter should be the same
     // as the original.
@@ -947,10 +948,10 @@ void CPoissonMeanConjugateTest::testPersist() {
         restoredFilter.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-void CPoissonMeanConjugateTest::testNegativeSample() {
+BOOST_AUTO_TEST_CASE(testNegativeSample) {
     // Test that we recover roughly the same distribution after adjusting
     // the offset. The idea of this test is to run two priors side by side,
     // one with a large enough offset that it never needs to adjust the
@@ -965,7 +966,7 @@ void CPoissonMeanConjugateTest::testNegativeSample() {
     rng.generatePoissonSamples(rate, 100, samples_);
     TDoubleVec samples;
     samples.reserve(samples_.size());
-    for (std::size_t i = 0u; i < samples_.size(); ++i) {
+    for (std::size_t i = 0; i < samples_.size(); ++i) {
         samples.push_back(static_cast<double>(samples_[i]));
     }
 
@@ -979,54 +980,11 @@ void CPoissonMeanConjugateTest::testNegativeSample() {
     filter1.addSamples(negative);
     filter2.addSamples(negative);
 
-    CPPUNIT_ASSERT_EQUAL(filter1.numberSamples(), filter2.numberSamples());
+    BOOST_REQUIRE_EQUAL(filter1.numberSamples(), filter2.numberSamples());
 
     using TEqual = maths::CEqualWithTolerance<double>;
     TEqual equal(maths::CToleranceTypes::E_RelativeTolerance, 0.002);
-    CPPUNIT_ASSERT(filter1.equalTolerance(filter2, equal));
+    BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
 }
 
-CppUnit::Test* CPoissonMeanConjugateTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CPoissonMeanConjugateTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMultipleUpdate",
-        &CPoissonMeanConjugateTest::testMultipleUpdate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testPropagation", &CPoissonMeanConjugateTest::testPropagation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMeanEstimation",
-        &CPoissonMeanConjugateTest::testMeanEstimation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMarginalLikelihood",
-        &CPoissonMeanConjugateTest::testMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMarginalLikelihoodMode",
-        &CPoissonMeanConjugateTest::testMarginalLikelihoodMode));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testMarginalLikelihoodVariance",
-        &CPoissonMeanConjugateTest::testMarginalLikelihoodVariance));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testSampleMarginalLikelihood",
-        &CPoissonMeanConjugateTest::testSampleMarginalLikelihood));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testCdf", &CPoissonMeanConjugateTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds",
-        &CPoissonMeanConjugateTest::testSampleMarginalLikelihoodInSupportBounds));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples",
-        &CPoissonMeanConjugateTest::testProbabilityOfLessLikelySamples));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testAnomalyScore",
-        &CPoissonMeanConjugateTest::testAnomalyScore));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testOffset", &CPoissonMeanConjugateTest::testOffset));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testPersist", &CPoissonMeanConjugateTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CPoissonMeanConjugateTest>(
-        "CPoissonMeanConjugateTest::testNegativeSample",
-        &CPoissonMeanConjugateTest::testNegativeSample));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

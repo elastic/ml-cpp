@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_api_CAnomalyJob_h
 #define INCLUDED_ml_api_CAnomalyJob_h
@@ -27,6 +32,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <memory>
@@ -34,10 +40,9 @@
 #include <utility>
 #include <vector>
 
-#include <stdint.h>
-
-class CPersistenceManagerTest;
-class CAnomalyJobTest;
+namespace CAnomalyJobTest {
+struct testParsePersistControlMessageArgs;
+}
 
 namespace ml {
 namespace core {
@@ -50,9 +55,9 @@ class CHierarchicalResults;
 class CLimits;
 }
 namespace api {
+class CAnomalyJobConfig;
 class CPersistenceManager;
 class CModelPlotDataJsonWriter;
-class CFieldConfig;
 
 //! \brief
 //! The Ml anomaly detector.
@@ -70,9 +75,6 @@ class CFieldConfig;
 //!
 class API_EXPORT CAnomalyJob : public CDataProcessor {
 public:
-    //! Elasticsearch index for state
-    static const std::string ML_STATE_INDEX;
-
     //! Discriminant for Elasticsearch IDs
     static const std::string STATE_TYPE;
 
@@ -115,6 +117,7 @@ public:
         std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr>;
     using TKeyCRefAnomalyDetectorPtrPrVec = std::vector<TKeyCRefAnomalyDetectorPtrPr>;
     using TModelPlotDataVec = model::CAnomalyDetector::TModelPlotDataVec;
+    using TAnnotationVec = model::CAnomalyDetector::TAnnotationVec;
 
     struct API_EXPORT SRestoredStateDetail {
         ERestoreStateStatus s_RestoredStateStatus;
@@ -123,14 +126,14 @@ public:
 
     struct SBackgroundPersistArgs {
         SBackgroundPersistArgs(core_t::TTime time,
-                               const model::CResourceMonitor::SResults& modelSizeStats,
+                               const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
                                const model::CInterimBucketCorrector& interimBucketCorrector,
                                const model::CHierarchicalResultsAggregator& aggregator,
                                core_t::TTime latestRecordTime,
                                core_t::TTime lastResultsTime);
 
         core_t::TTime s_Time;
-        model::CResourceMonitor::SResults s_ModelSizeStats;
+        model::CResourceMonitor::SModelSizeStats s_ModelSizeStats;
         model::CInterimBucketCorrector s_InterimBucketCorrector;
         model::CHierarchicalResultsAggregator s_Aggregator;
         std::string s_NormalizerState;
@@ -144,27 +147,21 @@ public:
 public:
     CAnomalyJob(const std::string& jobId,
                 model::CLimits& limits,
-                CFieldConfig& fieldConfig,
+                CAnomalyJobConfig& jobConfig,
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
-                const TPersistCompleteFunc& persistCompleteFunc = TPersistCompleteFunc(),
-                CPersistenceManager* periodicPersister = nullptr,
-                core_t::TTime maxQuantileInterval = -1,
-                const std::string& timeFieldName = DEFAULT_TIME_FIELD_NAME,
-                const std::string& timeFieldFormat = EMPTY_STRING,
-                size_t maxAnomalyRecords = 0u);
+                const TPersistCompleteFunc& persistCompleteFunc,
+                CPersistenceManager* persistenceManager,
+                core_t::TTime maxQuantileInterval,
+                const std::string& timeFieldName,
+                const std::string& timeFieldFormat,
+                std::size_t maxAnomalyRecords);
 
     ~CAnomalyJob() override;
 
-    //! We're going to be writing to a new output stream
-    void newOutputStream() override;
-
-    //! Access the output handler
-    COutputHandler& outputHandler() override;
-
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
-    bool handleRecord(const TStrStrUMap& dataRowFields) override;
+    bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) override;
 
     //! Perform any final processing once all input data has been seen.
     void finalise() override;
@@ -173,10 +170,22 @@ public:
     bool restoreState(core::CDataSearcher& restoreSearcher,
                       core_t::TTime& completeToTime) override;
 
-    //! Persist current state
-    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
+    //! Persist state in the foreground. As this blocks the current thread of execution
+    //! it should only be called in special circumstances, e.g. at job close, where it won't impact job analysis.
+    bool persistStateInForeground(core::CDataAdder& persister,
+                                  const std::string& descriptionPrefix) override;
 
-    //! Persist state of the residual models only
+    //! Persist the current model state in the foreground regardless of whether
+    //! any results have been output.
+    bool doPersistStateInForeground(core::CDataAdder& persister,
+                                    const std::string& description,
+                                    const std::string& snapshotId,
+                                    core_t::TTime snapshotTimestamp);
+
+    //! Persist state of the residual models only.
+    //! This method is not intended to be called in production code
+    //! as it only persists a very small subset of model state with longer,
+    //! human readable tags.
     bool persistModelsState(core::CDataAdder& persister,
                             core_t::TTime timestamp,
                             const std::string& outputFormat);
@@ -185,7 +194,7 @@ public:
     virtual bool initNormalizer(const std::string& quantilesStateFile);
 
     //! How many records did we handle?
-    uint64_t numRecordsHandled() const override;
+    std::uint64_t numRecordsHandled() const override;
 
     //! Is persistence needed?
     bool isPersistenceNeeded(const std::string& description) const override;
@@ -228,7 +237,7 @@ private:
     void writeOutResults(bool interim,
                          model::CHierarchicalResults& results,
                          core_t::TTime bucketTime,
-                         uint64_t processingTime);
+                         std::uint64_t processingTime);
 
     //! Reset buckets in the range specified by the control message.
     void resetBuckets(const std::string& controlMessage);
@@ -258,10 +267,12 @@ private:
     bool runForegroundPersist(core::CDataAdder& persister);
 
     //! Persist the detectors to a stream.
-    bool persistCopiedState(const std::string& descriptionPrefix,
+    bool persistCopiedState(const std::string& description,
+                            const std::string& snapshotId,
+                            core_t::TTime snapshotTimestamp,
                             core_t::TTime time,
                             const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
-                            const model::CResourceMonitor::SResults& modelSizeStats,
+                            const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
                             const model::CInterimBucketCorrector& interimBucketCorrector,
                             const model::CHierarchicalResultsAggregator& aggregator,
                             const std::string& normalizerState,
@@ -273,7 +284,10 @@ private:
     bool periodicPersistStateInBackground() override;
     bool periodicPersistStateInForeground() override;
 
-    //! Persist state of the residual models only
+    //! Persist state of the residual models only.
+    //! This method is not intended to be called in production code.
+    //! \p outputFormat specifies the format of the output document and may
+    //! either be JSON or XML.
     bool persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                             core::CDataAdder& persister,
                             core_t::TTime timestamp,
@@ -338,6 +352,9 @@ private:
     //! choosing: either file or streamed to the API
     void writeOutModelPlot(const TModelPlotDataVec& modelPlotData);
 
+    //! Write the annotations to the output stream.
+    void writeOutAnnotations(const TAnnotationVec& annotations);
+
     //! Persist one detector to a stream.
     //! This method is static so that there is no danger of it accessing
     //! the member variables of an object.  This makes it safer to call
@@ -354,15 +371,14 @@ private:
     void doForecast(const std::string& controlMessage);
 
     TAnomalyDetectorPtr
-    makeDetector(int identifier,
-                 const model::CAnomalyDetectorModelConfig& modelConfig,
+    makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                  model::CLimits& limits,
                  const std::string& partitionFieldValue,
                  core_t::TTime firstTime,
                  const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
 
-    //! Populate detector keys from the field config.
-    void populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys);
+    //! Populate detector keys from the anomaly job config.
+    void populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys);
 
     //! Extract the field called \p fieldName from \p dataRowFields.
     const std::string* fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields);
@@ -373,11 +389,22 @@ private:
                    core_t::TTime time,
                    const TStrStrUMap& dataRowFields);
 
+    //! Parses a control message requesting that model state be persisted.
+    //! Extracts optional arguments to be used for persistence.
+    static bool parsePersistControlMessageArgs(const std::string& controlMessageArgs,
+                                               core_t::TTime& snapshotTimestamp,
+                                               std::string& snapshotId,
+                                               std::string& snapshotDescription);
+
+    //! Perform foreground persistence if control message contains valid optional
+    //! arguments else request a background persist
+    void processPersistControlMessage(const std::string& controlMessageArgs);
+
 protected:
     //! Get all the detectors.
     void detectors(TAnomalyDetectorPtrVec& detectors) const;
 
-    //! Get the detectors by parition
+    //! Get the detectors by partition
     const TKeyAnomalyDetectorPtrUMap& detectorPartitionMap() const;
 
     //! Get all sorted references to the detectors.
@@ -390,8 +417,10 @@ protected:
                                               const std::string& partitionFieldValue,
                                               model::CResourceMonitor& resourceMonitor);
 
-    //! Prune all the models
-    void pruneAllModels();
+    //! Prune all the models that exceed \p buckets in age
+    //! A value of 0 for \buckets indicates that only 'obsolete' models will
+    //! be pruned, i.e. those which are so old as to be effectively dead.
+    void pruneAllModels(std::size_t buckets = 0);
 
 private:
     //! The job ID
@@ -409,14 +438,18 @@ private:
     //! Object to which the output is passed
     CJsonOutputWriter m_JsonOutputWriter;
 
-    //! Field names to use for the analysis
-    CFieldConfig& m_FieldConfig;
+    //! Configuration settings for the analysis parsed from
+    //! JSON configuration file.
+    //! Note that this is a non-const reference as it needs to be capable of
+    //! being modified by job updates (and those changes reflected wherever a
+    //! reference is held).
+    CAnomalyJobConfig& m_JobConfig;
 
     //! The model configuration
     model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! Keep count of how many records we've handled
-    uint64_t m_NumRecordsHandled;
+    std::uint64_t m_NumRecordsHandled;
 
     //! Detector keys.
     TKeyVec m_DetectorKeys;
@@ -430,21 +463,12 @@ private:
     //! Optional function to be called when persistence is complete
     TPersistCompleteFunc m_PersistCompleteFunc;
 
-    //! Name of field holding the time
-    std::string m_TimeFieldName;
-
-    //! Time field format.  Blank means seconds since the epoch, i.e. the
-    //! time field can be converted to a time_t by simply converting the
-    //! string to a number.
-    std::string m_TimeFieldFormat;
-
     //! License restriction on the number of detectors allowed
-    size_t m_MaxDetectors;
+    std::size_t m_MaxDetectors;
 
-    //! Pointer to periodic persister that works in the background.  May be
-    //! nullptr if this object is not responsible for starting periodic
-    //! persistence.
-    CPersistenceManager* m_PeriodicPersister;
+    //! Pointer to the persistence manager. May be nullptr if state persistence
+    //! is not required, for example in unit tests.
+    CPersistenceManager* m_PersistenceManager;
 
     //! If we haven't output quantiles for this long due to a big anomaly
     //! we'll output them to reflect decay.  Non-positive values mean never.
@@ -475,8 +499,8 @@ private:
     //! Flag indicating whether or not time has been advanced.
     bool m_TimeAdvanced{false};
 
-    friend class ::CPersistenceManagerTest;
-    friend class ::CAnomalyJobTest;
+    // Test case access
+    friend struct CAnomalyJobTest::testParsePersistControlMessageArgs;
 };
 }
 }

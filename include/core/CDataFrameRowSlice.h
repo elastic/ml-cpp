@@ -1,12 +1,18 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CDataFrameRowSlice_h
 #define INCLUDED_ml_core_CDataFrameRowSlice_h
 
+#include <core/CAlignment.h>
 #include <core/CFloatStorage.h>
 #include <core/CompressUtils.h>
 #include <core/ImportExport.h>
@@ -24,7 +30,7 @@ namespace data_frame_row_slice_detail {
 //! \brief The implementation backing a data frame row slice handle.
 class CORE_EXPORT CDataFrameRowSliceHandleImpl {
 public:
-    using TFloatVec = std::vector<CFloatStorage>;
+    using TFloatVec = std::vector<CFloatStorage, CAlignedAllocator<CFloatStorage>>;
     using TInt32Vec = std::vector<std::int32_t>;
     using TImplPtr = std::unique_ptr<CDataFrameRowSliceHandleImpl>;
 
@@ -42,7 +48,7 @@ public:
 //! CDataFrame storage.
 class CORE_EXPORT CDataFrameRowSliceHandle {
 public:
-    using TFloatVec = std::vector<CFloatStorage>;
+    using TFloatVec = std::vector<CFloatStorage, CAlignedAllocator<CFloatStorage>>;
     using TFloatVecItr = TFloatVec::iterator;
     using TInt32Vec = std::vector<std::int32_t>;
     using TInt32VecCItr = TInt32Vec::const_iterator;
@@ -52,10 +58,10 @@ public:
     CDataFrameRowSliceHandle() = default;
     CDataFrameRowSliceHandle(TImplPtr impl);
     CDataFrameRowSliceHandle(const CDataFrameRowSliceHandle& other);
-    CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& other);
+    CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& other) noexcept;
 
     CDataFrameRowSliceHandle& operator=(const CDataFrameRowSliceHandle& other);
-    CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other);
+    CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other) noexcept;
 
     //! The size of the slice in floats.
     std::size_t size() const;
@@ -83,7 +89,7 @@ private:
 //! \brief CDataFrame slice storage interface.
 class CORE_EXPORT CDataFrameRowSlice {
 public:
-    using TFloatVec = std::vector<CFloatStorage>;
+    using TFloatVec = std::vector<CFloatStorage, CAlignedAllocator<CFloatStorage>>;
     using TInt32Vec = std::vector<std::int32_t>;
 
 public:

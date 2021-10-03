@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CLogNormalMeanPrecConjugate.h>
@@ -143,7 +148,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // The non-informative prior is improper and effectively 0 everywhere.
             // (It is acceptable to approximate all finite samples as at the median
             // of this distribution.)
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weights[i]);
                 result = aggregate(
                     result, func(CTools::SImproperDistribution(), samples[i] + offset), n);
@@ -169,7 +174,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             double r = rate / shape;
             double s = std::exp(-r);
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weights[i]);
                 double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                        maths_t::countVarianceScale(weights[i]);
@@ -187,7 +192,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             double r = rate / shape;
             double s = std::exp(-r);
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weights[i]);
                 double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                        maths_t::countVarianceScale(weights[i]);
@@ -429,7 +434,7 @@ public:
         TMeanVarAccumulator logSampleMoments;
 
         try {
-            for (std::size_t i = 0u; i < m_Samples.size(); ++i) {
+            for (std::size_t i = 0; i < m_Samples.size(); ++i) {
                 double n = maths_t::countForUpdate(m_Weights[i]);
                 double sample = m_Samples[i] + m_Offset + x;
                 if (sample <= 0.0) {
@@ -494,7 +499,7 @@ private:
             m_Scales.reserve(m_Weights.size());
             double r = m_Rate / m_Shape;
             double s = std::exp(-r);
-            for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
+            for (std::size_t i = 0; i < m_Weights.size(); ++i) {
                 double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
                                        maths_t::countVarianceScale(m_Weights[i]);
 
@@ -512,7 +517,7 @@ private:
         m_NumberSamples = 0.0;
         double weightedNumberSamples = 0.0;
 
-        for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
+        for (std::size_t i = 0; i < m_Weights.size(); ++i) {
             double n = maths_t::countForUpdate(m_Weights[i]);
             m_NumberSamples += n;
             weightedNumberSamples += n / (m_Scales.empty() ? 1.0 : m_Scales[i].first);
@@ -575,13 +580,14 @@ public:
 
     bool operator()(double x, double& result) const {
         result = 0.0;
-        for (std::size_t i = 0u; i < m_Samples.size(); ++i) {
-            double residual = m_Samples[i];
-            if (residual <= 0.0) {
+        for (std::size_t i = 0; i < m_Samples.size(); ++i) {
+            double residual = m_Samples[i] + x;
+            double n = maths_t::countForUpdate(m_Weights[i]);
+            if (residual <= 0.0 || !CMathsFuncs::isFinite(residual) ||
+                !CMathsFuncs::isFinite(n)) {
                 continue;
             }
-            double n = maths_t::countForUpdate(m_Weights[i]);
-            residual = std::log(residual + x) - m_Mean;
+            residual = std::log(residual) - m_Mean;
             result += n * CTools::pow2(residual);
         }
         return true;
@@ -628,8 +634,10 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRest
     : CPrior(params.s_DataType, params.s_DecayRate), m_Offset(0.0),
       m_OffsetMargin(offsetMargin), m_GaussianMean(0.0),
       m_GaussianPrecision(0.0), m_GammaShape(0.0), m_GammaRate(0.0) {
-    traverser.traverseSubLevel(std::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CLogNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -778,11 +786,18 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
         scaledSamples.resize(samples.size(), 1.0);
 
         TMeanAccumulator logSamplesMean_;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
+            double x = samples[i] + m_Offset;
             double n = maths_t::countForUpdate(weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                    maths_t::countVarianceScale(weights[i]);
-            double x = samples[i] + m_Offset;
+            if (x <= 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
+                !CMathsFuncs::isFinite(varianceScale)) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
+                          << ", variance scale = " << varianceScale);
+                continue;
+            }
+
             numberSamples += n;
             double t = varianceScale == 1.0
                            ? r
@@ -799,7 +814,7 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
 
         double mean = (m_GaussianPrecision * m_GaussianMean + scaledNumberSamples * logSamplesMean) /
                       (m_GaussianPrecision + scaledNumberSamples);
-        for (std::size_t i = 0u; i < scaledSamples.size(); ++i) {
+        for (std::size_t i = 0; i < scaledSamples.size(); ++i) {
             double scale = scaledSamples[i];
             scaledSamples[i] =
                 scale == 1.0 ? samples[i] + m_Offset
@@ -813,15 +828,18 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
             deviationFunction, 0.0, 1.0, logSamplesSquareDeviation);
     } else {
         TMeanVarAccumulator logSamplesMoments;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
+            double x = samples[i] + m_Offset;
             double n = maths_t::countForUpdate(weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                    maths_t::countVarianceScale(weights[i]);
-            double x = samples[i] + m_Offset;
-            if (x <= 0.0) {
-                LOG_ERROR(<< "Discarding " << x << " it's not log-normal");
+            if (x <= 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
+                !CMathsFuncs::isFinite(varianceScale)) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
+                          << ", variance scale = " << varianceScale);
                 continue;
             }
+
             numberSamples += n;
             double t = varianceScale == 1.0
                            ? r
@@ -1215,7 +1233,7 @@ void CLogNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSam
 
         double lastPartialExpectation = 0.0;
 
-        for (std::size_t i = 1u; i < numberSamples; ++i) {
+        for (std::size_t i = 1; i < numberSamples; ++i) {
             double q = static_cast<double>(i) / static_cast<double>(numberSamples);
             double xq = std::log(boost::math::quantile(lognormal, q));
 
@@ -1453,7 +1471,7 @@ std::string CLogNormalMeanPrecConjugate::printJointDensityFunction() const {
     std::ostringstream yCoordinates;
     xCoordinates << "x = [";
     yCoordinates << "y = [";
-    for (unsigned int i = 0u; i < POINTS; ++i, x += xIncrement, y += yIncrement) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += xIncrement, y += yIncrement) {
         xCoordinates << x << " ";
         yCoordinates << y << " ";
     }
@@ -1463,9 +1481,9 @@ std::string CLogNormalMeanPrecConjugate::printJointDensityFunction() const {
     std::ostringstream pdf;
     pdf << "pdf = [";
     x = xStart;
-    for (unsigned int i = 0u; i < POINTS; ++i, x += xIncrement) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += xIncrement) {
         y = yStart;
-        for (unsigned int j = 0u; j < POINTS; ++j, y += yIncrement) {
+        for (unsigned int j = 0; j < POINTS; ++j, y += yIncrement) {
             double conditionalPrecision = m_GaussianPrecision * x;
             boost::math::normal conditionalGaussian(
                 m_GaussianMean, 1.0 / std::sqrt(conditionalPrecision));
@@ -1489,7 +1507,7 @@ uint64_t CLogNormalMeanPrecConjugate::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_GammaRate);
 }
 
-void CLogNormalMeanPrecConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CLogNormalMeanPrecConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CLogNormalMeanPrecConjugate");
 }
 

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_t_ModelTypes_h
@@ -20,17 +25,8 @@
 #include <string>
 #include <utility>
 
-#include <stdint.h>
-
 namespace ml {
-namespace core {
-class CStatePersistInserter;
-class CStateRestoreTraverser;
-}
 namespace maths {
-class CMultivariatePrior;
-class CPrior;
-class CTimeSeriesDecompositionInterface;
 template<typename>
 class CTimeSeriesMultibucketFeature;
 }
@@ -75,7 +71,7 @@ std::string print(EModelType type);
 //!   -# Conditional: if a result corresponds to a feature value which
 //!      is unusual only after conditioning on some other.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Uses 1-of-n bitwise encoding of the different result binary descriptors
 //! so the size is just that of an unsigned int.
 class MODEL_EXPORT CResultType {
@@ -802,6 +798,34 @@ enum EMemoryStatus {
 MODEL_EXPORT
 std::string print(EMemoryStatus memoryStatus);
 
+//! Where to get the job memory from for use in node assignment decisions.
+//! Prior to 7.11 this decision was made in Java code, indicated by the
+//! "unknown" value of this enum.  From 7.11 onwards the CResourceMonitor
+//! class makes the decision, and uses this enum to report that to the Java
+//! code.
+enum EAssignmentMemoryBasis {
+    E_AssignmentBasisUnknown = 0,           //!< Decision made in Java code
+    E_AssignmentBasisModelMemoryLimit = 1,  //!< Use model memory limit
+    E_AssignmentBasisCurrentModelBytes = 2, //!< Use current actual model size
+    E_AssignmentBasisPeakModelBytes = 3 //!< Use highest ever actual model size
+};
+
+//! Get a string description of \p assignmentMemoryBasis.
+MODEL_EXPORT
+std::string print(EAssignmentMemoryBasis assignmentMemoryBasis);
+
+//! An enumeration of the TokenListDataCategorizer status -
+//! Start in the OK state. Moves into the "warn" state if too
+//! few categories are being seen frequently.
+enum ECategorizationStatus {
+    E_CategorizationStatusOk = 0,  //!< Categorization working as intended
+    E_CategorizationStatusWarn = 1 //!< Too many categories being created
+};
+
+//! Get a string description of \p categorizationStatus.
+MODEL_EXPORT
+std::string print(ECategorizationStatus categorizationStatus);
+
 //! Styles of probability aggregation available:
 //!   -# AggregatePeople: the style used to aggregate results for distinct
 //!      values of the over and partition field.
@@ -834,7 +858,7 @@ enum EAggregationParam {
 const std::size_t NUMBER_AGGREGATION_PARAMS = E_MaxExtremeSamples + 1;
 
 //! The dummy attribute identifier used for modeling individual features.
-const std::size_t INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID = 0u;
+const std::size_t INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID = 0;
 }
 }
 

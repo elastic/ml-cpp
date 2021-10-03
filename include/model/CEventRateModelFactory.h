@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CEventRateModelFactory_h
@@ -113,7 +118,7 @@ public:
     //! \name Customization by a specific search
     //@{
     //! Set the identifier of the search for which this generates models.
-    virtual void identifier(int identifier);
+    virtual void detectorIndex(int detectorIndex);
 
     //! Set the name of the field whose values will be counted.
     virtual void fieldNames(const std::string& partitionFieldName,
@@ -138,7 +143,7 @@ private:
 
 private:
     //! The identifier of the search for which this generates models.
-    int m_Identifier = 0;
+    int m_DetectorIndex = 0;
 
     //! Indicates whether the data being gathered are already summarized
     //! by an external aggregation process

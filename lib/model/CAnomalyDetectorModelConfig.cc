@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -154,7 +159,7 @@ double CAnomalyDetectorModelConfig::bucketNormalizationFactor(core_t::TTime buck
 double CAnomalyDetectorModelConfig::trendDecayRate(double modelDecayRate,
                                                    core_t::TTime bucketLength) {
     double scale = static_cast<double>(bucketLength / 24 / STANDARD_BUCKET_LENGTH);
-    return std::min(24.0 * modelDecayRate / bucketNormalizationFactor(bucketLength) /
+    return std::min(48.0 * modelDecayRate / bucketNormalizationFactor(bucketLength) /
                         std::max(scale, 1.0),
                     0.1);
 }
@@ -168,8 +173,8 @@ CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig()
       m_NormalizedScoreKnotPoints(std::begin(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS),
                                   std::end(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS)),
       m_DetectionRules(EMPTY_RULES_MAP), m_ScheduledEvents(EMPTY_EVENTS) {
-    for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
-        for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
+    for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+        for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
             m_AggregationStyleParams[i][j] = DEFAULT_AGGREGATION_STYLE_PARAMS[i][j];
         }
     }
@@ -284,7 +289,7 @@ bool CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(const TDoubleDoubleP
         LOG_ERROR(<< "Last knot point must be (100,100)");
         return false;
     }
-    for (std::size_t i = 0u; i < points.size(); i += 2) {
+    for (std::size_t i = 0; i < points.size(); i += 2) {
         if (points[i].first < 0.0 || points[i].first > 100.0) {
             LOG_ERROR(<< "Unexpected value " << points[i].first << " for percentile");
             return false;
@@ -372,6 +377,33 @@ bool CAnomalyDetectorModelConfig::init(const boost::property_tree::ptree& propTr
     return result;
 }
 
+void CAnomalyDetectorModelConfig::configureModelPlot(bool modelPlotEnabled,
+                                                     bool annotationsEnabled,
+                                                     const std::string& terms) {
+    m_ModelPlotEnabled = modelPlotEnabled;
+
+    if (m_ModelPlotEnabled) {
+        m_ModelPlotBoundsPercentile = maths::CModel::DEFAULT_BOUNDS_PERCENTILE;
+    }
+
+    m_ModelPlotAnnotationsEnabled = annotationsEnabled;
+    for (auto& factory : m_Factories) {
+        factory.second->annotationsEnabled(annotationsEnabled);
+    }
+
+    TStrVec tokens;
+    std::string remainder;
+    core::CStringUtils::tokenise(",", terms, tokens, remainder);
+    if (remainder.empty() == false) {
+        tokens.push_back(remainder);
+    }
+
+    m_ModelPlotTerms.clear();
+    for (const auto& token : tokens) {
+        m_ModelPlotTerms.insert(token);
+    }
+}
+
 bool CAnomalyDetectorModelConfig::configureModelPlot(const std::string& modelPlotConfigFile) {
     LOG_DEBUG(<< "Reading model plot config file " << modelPlotConfigFile);
 
@@ -403,6 +435,7 @@ namespace {
 // Model debug config properties
 const std::string BOUNDS_PERCENTILE_PROPERTY("boundspercentile");
 const std::string TERMS_PROPERTY("terms");
+const std::string ANNOTATIONS_ENABLED_PROPERTY("annotations_enabled");
 }
 
 bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree::ptree& propTree) {
@@ -437,7 +470,32 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
         return false;
     }
 
+    try {
+        std::string valueStr(propTree.get<std::string>(ANNOTATIONS_ENABLED_PROPERTY));
+        bool annotationsEnabled = false;
+        if (core::CStringUtils::stringToType(valueStr, annotationsEnabled) == false) {
+            LOG_ERROR(<< "Cannot parse as bool: " << valueStr);
+            return false;
+        }
+        m_ModelPlotAnnotationsEnabled = annotationsEnabled;
+        for (auto& factory : m_Factories) {
+            factory.second->annotationsEnabled(annotationsEnabled);
+        }
+    } catch (boost::property_tree::ptree_error&) {
+        LOG_ERROR(<< "Error reading model debug config. Property '"
+                  << ANNOTATIONS_ENABLED_PROPERTY << "' is missing");
+        return false;
+    }
+
     return true;
+}
+
+bool CAnomalyDetectorModelConfig::modelPlotEnabled() const {
+    return m_ModelPlotEnabled;
+}
+
+bool CAnomalyDetectorModelConfig::modelPlotAnnotationsEnabled() const {
+    return m_ModelPlotAnnotationsEnabled;
 }
 
 CAnomalyDetectorModelConfig::TModelFactoryCPtr
@@ -445,11 +503,11 @@ CAnomalyDetectorModelConfig::factory(const CSearchKey& key) const {
     TModelFactoryCPtr result = m_FactoryCache[key];
     if (!result) {
         result = key.isSimpleCount()
-                     ? this->factory(key.identifier(), key.function(), true,
+                     ? this->factory(key.detectorIndex(), key.function(), true,
                                      key.excludeFrequent(), key.partitionFieldName(),
                                      key.overFieldName(), key.byFieldName(),
                                      key.fieldName(), key.influenceFieldNames())
-                     : this->factory(key.identifier(), key.function(), key.useNull(),
+                     : this->factory(key.detectorIndex(), key.function(), key.useNull(),
                                      key.excludeFrequent(), key.partitionFieldName(),
                                      key.overFieldName(), key.byFieldName(),
                                      key.fieldName(), key.influenceFieldNames());
@@ -458,7 +516,7 @@ CAnomalyDetectorModelConfig::factory(const CSearchKey& key) const {
 }
 
 CAnomalyDetectorModelConfig::TModelFactoryCPtr
-CAnomalyDetectorModelConfig::factory(int identifier,
+CAnomalyDetectorModelConfig::factory(int detectorIndex,
                                      function_t::EFunction function,
                                      bool useNull,
                                      model_t::EExcludeFrequent excludeFrequent,
@@ -472,7 +530,7 @@ CAnomalyDetectorModelConfig::factory(int identifier,
     // Simple state machine to deduce the factory type from
     // a collection of features.
     EFactoryType factory = E_UnknownFactory;
-    for (std::size_t i = 0u; i < features.size(); ++i) {
+    for (std::size_t i = 0; i < features.size(); ++i) {
         switch (factory) {
         case E_EventRateFactory:
             switch (model_t::analysisCategory(features[i])) {
@@ -604,7 +662,7 @@ CAnomalyDetectorModelConfig::factory(int identifier,
     }
 
     TModelFactoryPtr result(prototype->second->clone());
-    result->identifier(identifier);
+    result->detectorIndex(detectorIndex);
     TStrVec influences;
     influences.reserve(influenceFieldNames.size());
     for (const auto& influenceFieldName : influenceFieldNames) {
@@ -616,7 +674,7 @@ CAnomalyDetectorModelConfig::factory(int identifier,
     result->excludeFrequent(excludeFrequent);
     result->features(features);
     result->multivariateByFields(m_MultivariateByFields);
-    TIntDetectionRuleVecUMapCItr rulesItr = m_DetectionRules.get().find(identifier);
+    TIntDetectionRuleVecUMapCItr rulesItr = m_DetectionRules.get().find(detectorIndex);
     if (rulesItr != m_DetectionRules.get().end()) {
         result->detectionRules(TDetectionRuleVecCRef(rulesItr->second));
     }
@@ -637,6 +695,10 @@ double CAnomalyDetectorModelConfig::decayRate() const {
 
 core_t::TTime CAnomalyDetectorModelConfig::bucketLength() const {
     return m_BucketLength;
+}
+
+core_t::TTime CAnomalyDetectorModelConfig::modelPruneWindow() const {
+    return m_ModelPruneWindow;
 }
 
 core_t::TTime CAnomalyDetectorModelConfig::latency() const {
@@ -703,6 +765,10 @@ void CAnomalyDetectorModelConfig::detectionRules(TIntDetectionRuleVecUMapCRef de
 
 void CAnomalyDetectorModelConfig::scheduledEvents(TStrDetectionRulePrVecCRef scheduledEvents) {
     m_ScheduledEvents = scheduledEvents;
+}
+
+void CAnomalyDetectorModelConfig::modelPruneWindow(core_t::TTime modelPruneWindow) {
+    m_ModelPruneWindow = modelPruneWindow;
 }
 
 core_t::TTime CAnomalyDetectorModelConfig::samplingAgeCutoff() const {
@@ -885,8 +951,8 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (std::size_t j = 0u, l = 0u; j < model_t::NUMBER_AGGREGATION_STYLES; ++j) {
-                for (std::size_t k = 0u; k < model_t::NUMBER_AGGREGATION_PARAMS; ++k, ++l) {
+            for (std::size_t j = 0u, l = 0; j < model_t::NUMBER_AGGREGATION_STYLES; ++j) {
+                for (std::size_t k = 0; k < model_t::NUMBER_AGGREGATION_PARAMS; ++k, ++l) {
                     double value;
                     if (core::CStringUtils::stringToType(strings[l], value) == false) {
                         LOG_ERROR(<< "Unexpected value " << strings[l]
@@ -944,7 +1010,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             TDoubleDoublePrVec points;
             points.reserve(strings.size() / 2 + 2);
             points.emplace_back(0.0, 0.0);
-            for (std::size_t j = 0u; j < strings.size(); j += 2) {
+            for (std::size_t j = 0; j < strings.size(); j += 2) {
                 double rate;
                 double score;
                 if (core::CStringUtils::stringToType(strings[j], rate) == false) {

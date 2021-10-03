@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CProbabilityAndInfluenceCalculator.h>
@@ -157,7 +162,7 @@ public:
                     double /*ni*/,
                     maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& difference) const {
-        for (std::size_t i = 0u; i < v.size(); ++i) {
+        for (std::size_t i = 0; i < v.size(); ++i) {
             difference[i] = v[i] - vi[i];
         }
         return true;
@@ -170,7 +175,7 @@ public:
                     const TDouble1Vec& /*ni*/,
                     maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& difference) const {
-        for (std::size_t d = 0u; d < 2; ++d) {
+        for (std::size_t d = 0; d < 2; ++d) {
             difference[d] = v[d] - vi[d];
         }
         return true;
@@ -187,7 +192,7 @@ public:
                     double /*ni*/,
                     maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& intersection) const {
-        for (std::size_t i = 0u; i < vi.size(); ++i) {
+        for (std::size_t i = 0; i < vi.size(); ++i) {
             intersection[i] = vi[i];
         }
         return true;
@@ -200,7 +205,7 @@ public:
                     const TDouble1Vec& /*ni*/,
                     maths::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& intersection) const {
-        for (std::size_t d = 0u; d < 2; ++d) {
+        for (std::size_t d = 0; d < 2; ++d) {
             intersection[d] = vi[d];
         }
         return true;
@@ -229,7 +234,7 @@ public:
         }
 
         std::size_t dimension = v.size();
-        for (std::size_t d = 0u; d < dimension; ++d) {
+        for (std::size_t d = 0; d < dimension; ++d) {
             difference[d] = maths::CBasicStatistics::mean(
                 maths::CBasicStatistics::momentsAccumulator(n, v[d]) -
                 maths::CBasicStatistics::momentsAccumulator(ni, vi[d]));
@@ -251,7 +256,7 @@ public:
             return false;
         }
 
-        for (std::size_t d = 0u; d < 2; ++d) {
+        for (std::size_t d = 0; d < 2; ++d) {
             difference[d] = maths::CBasicStatistics::mean(
                 maths::CBasicStatistics::momentsAccumulator(n[d], v[d]) -
                 maths::CBasicStatistics::momentsAccumulator(ni[d], vi[d]));
@@ -285,7 +290,7 @@ public:
         }
 
         std::size_t dimension = v.size() / 2;
-        for (std::size_t d = 0u; d < dimension; ++d) {
+        for (std::size_t d = 0; d < dimension; ++d) {
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
                 maths::CBasicStatistics::momentsAccumulator(n, v[dimension + d], v[d]) -
                 maths::CBasicStatistics::momentsAccumulator(ni, vi[dimension + d], vi[d]));
@@ -307,7 +312,7 @@ public:
             return false;
         }
 
-        for (std::size_t d = 0u; d < 2; ++d) {
+        for (std::size_t d = 0; d < 2; ++d) {
             difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
                 maths::CBasicStatistics::momentsAccumulator(n[d], v[2 + d], v[d]) -
                 maths::CBasicStatistics::momentsAccumulator(ni[d], vi[2 + d], vi[d]));
@@ -758,7 +763,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
 
     const std::string* influencerValue = nullptr;
     if (influencerValues.empty()) {
-        for (std::size_t i = 0u; i < params.s_PartitioningFields.size(); ++i) {
+        for (std::size_t i = 0; i < params.s_PartitioningFields.size(); ++i) {
             if (params.s_PartitioningFields[i].first.get() == influencerName) {
                 influencerValue = &(params.s_PartitioningFields[i].second.get());
                 break;
@@ -797,7 +802,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
 
     const std::string* influencerValue = nullptr;
     if (influencerValues.empty()) {
-        for (std::size_t i = 0u; i < params.s_PartitioningFields.size(); ++i) {
+        for (std::size_t i = 0; i < params.s_PartitioningFields.size(); ++i) {
             if (params.s_PartitioningFields[i].first.get() == influencerName) {
                 influencerValue = &(params.s_PartitioningFields[i].second.get());
                 break;
@@ -994,7 +999,7 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TParams& pa
     params.s_Influences.clear();
 
     maths::CModelProbabilityParams computeProbabilityParams;
-    for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
+    for (std::size_t i = 0; i < params.s_Tail.size(); ++i) {
         if (params.s_Tail[i] == maths_t::E_RightTail) {
             computeProbabilityParams.addCalculation(maths_t::E_OneSidedAbove).addCoordinate(i);
         }
@@ -1072,7 +1077,7 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TParams& params) cons
     params.s_Influences.clear();
 
     maths::CModelProbabilityParams computeProbabilityParams;
-    for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
+    for (std::size_t i = 0; i < params.s_Tail.size(); ++i) {
         addCoordinate(params.s_Tail[i], i, computeProbabilityParams);
     }
 
@@ -1129,7 +1134,7 @@ void CMeanInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
     maths::CModelProbabilityParams computeProbabilityParams;
-    for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
+    for (std::size_t i = 0; i < params.s_Tail.size(); ++i) {
         addCoordinate(params.s_Tail[i], i, computeProbabilityParams);
     }
 
@@ -1185,7 +1190,7 @@ void CVarianceInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
     maths::CModelProbabilityParams computeProbabilityParams;
-    for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
+    for (std::size_t i = 0; i < params.s_Tail.size(); ++i) {
         addCoordinate(params.s_Tail[i], i, computeProbabilityParams);
     }
 

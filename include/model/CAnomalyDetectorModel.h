@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CAnomalyDetectorModel_h
@@ -15,11 +20,12 @@
 #include <maths/CTimeSeriesModel.h>
 #include <maths/MathsTypes.h>
 
+#include <model/CAnnotation.h>
 #include <model/CMemoryUsageEstimator.h>
-#include <model/CModelParams.h>
 #include <model/CPartitioningFields.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
@@ -50,6 +56,7 @@ class CAttributeFrequencyGreaterThan;
 class CInterimBucketCorrector;
 class CDataGatherer;
 class CHierarchicalResults;
+class CAnnotation;
 class CModelDetailsView;
 class CPersonFrequencyGreaterThan;
 class CResourceMonitor;
@@ -164,6 +171,7 @@ public:
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TModelDetailsViewUPtr = std::unique_ptr<CModelDetailsView>;
     using TModelPtr = std::unique_ptr<CAnomalyDetectorModel>;
+    using TAnnotationVec = std::vector<CAnnotation>;
 
 public:
     //! A value used to indicate a time variable is unset
@@ -198,6 +206,9 @@ public:
     //@{
     //! Persist the state of the models.
     virtual void persistModelsState(core::CStatePersistInserter& inserter) const = 0;
+
+    //! Should the model be persisted?
+    virtual bool shouldPersist() const = 0;
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
@@ -368,10 +379,12 @@ public:
     //! sufficiently long period, based on the prior decay rates.
     void prune();
 
-    //! Calculate the maximum permitted prune window for this model
+    //! Calculate the maximum permitted prune window (measured in buckets)
+    //! for this model
     std::size_t defaultPruneWindow() const;
 
-    //! Calculate the minimum permitted prune window for this model
+    //! Calculate the minimum permitted prune window (measured in buckets)
+    //! for this model
     std::size_t minimumPruneWindow() const;
     //@}
 
@@ -400,15 +413,12 @@ public:
 
     //! Update the results with this model's probability.
     //!
-    //! \param[in] detector An identifier of the detector generating this
-    //! result.
     //! \param[in] startTime The start of the time interval of interest.
     //! \param[in] endTime The end of the time interval of interest.
     //! \param[in] numberAttributeProbabilities The maximum number of
     //! attribute probabilities to retrieve.
     //! \param[in,out] results The model results are added.
-    bool addResults(int detector,
-                    core_t::TTime startTime,
+    bool addResults(core_t::TTime startTime,
                     core_t::TTime endTime,
                     std::size_t numberAttributeProbabilities,
                     CHierarchicalResults& results) const;
@@ -440,7 +450,7 @@ public:
     virtual uint64_t checksum(bool includeCurrentBucketStats = true) const = 0;
 
     //! Get the memory used by this model
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Get the memory used by this model
     virtual std::size_t memoryUsage() const = 0;
@@ -484,6 +494,9 @@ public:
     //! Get the descriptions of any occurring scheduled event descriptions for the bucket time
     virtual const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const;
 
+    //! Get the annotations produced by this model.
+    virtual const TAnnotationVec& annotations() const = 0;
+
 protected:
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TSizeSize1VecUMap = boost::unordered_map<std::size_t, TSize1Vec>;
@@ -508,9 +521,12 @@ protected:
         void persistModelsState(core::CStatePersistInserter& inserter) const;
 
         //! Debug the memory used by this model.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
         //! Get the memory used by this model.
         std::size_t memoryUsage() const;
+
+        //! Determine whether the model should be persisted or not.
+        bool shouldPersist() const;
 
         //! The feature.
         model_t::EFeature s_Feature;
@@ -538,7 +554,7 @@ protected:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Debug the memory used by this model.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
         //! Get the memory used by this model.
         std::size_t memoryUsage() const;
 
@@ -665,11 +681,12 @@ protected:
     //! Get the object which calculates corrections for interim buckets.
     virtual const CInterimBucketCorrector& interimValueCorrector() const = 0;
 
-    //! Check if any of the sample-filtering detection rules apply to this series.
-    bool shouldIgnoreSample(model_t::EFeature feature,
-                            std::size_t pid,
-                            std::size_t cid,
-                            core_t::TTime time) const;
+    //! Get the value of the initial count weight to apply to the model's
+    //! samples, as determined by the detection rules.
+    double initialCountWeight(model_t::EFeature feature,
+                              std::size_t pid,
+                              std::size_t cid,
+                              core_t::TTime time) const;
 
     //! Check if any of the result-filtering detection rules apply to this series.
     bool shouldIgnoreResult(model_t::EFeature feature,

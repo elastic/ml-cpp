@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CBucketGatherer_h
@@ -16,10 +21,10 @@
 
 #include <model/CBucketQueue.h>
 #include <model/CEventData.h>
-#include <model/CModelParams.h>
 #include <model/FunctionTypes.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <boost/any.hpp>
 #include <boost/functional/hash.hpp>
@@ -316,7 +321,7 @@ public:
     virtual uint64_t checksum() const = 0;
 
     //! Debug the memory used by this component.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Get the memory used by this component.
     virtual std::size_t memoryUsage() const = 0;
@@ -363,7 +368,7 @@ public:
                        const F& extractId,
                        CBucketQueue<std::vector<T>>& queue) {
         for (auto bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
-            for (std::size_t i = 0u; i < bucketItr->size(); ++i) {
+            for (std::size_t i = 0; i < bucketItr->size(); ++i) {
                 T& bucket = (*bucketItr)[i];
                 for (auto j = bucket.begin(); j != bucket.end(); /**/) {
                     if (std::binary_search(toRemove.begin(), toRemove.end(),

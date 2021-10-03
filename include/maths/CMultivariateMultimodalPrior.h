@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CMultivariateMultimodalPrior_h
@@ -165,7 +170,7 @@ public:
     CMultivariateMultimodalPrior(maths_t::EDataType dataType, TPriorPtrVec& priors)
         : CMultivariatePrior(dataType, 0.0) {
         m_Modes.reserve(priors.size());
-        for (std::size_t i = 0u; i < priors.size(); ++i) {
+        for (std::size_t i = 0; i < priors.size(); ++i) {
             m_Modes.emplace_back(i, std::move(priors[i]));
         }
     }
@@ -314,7 +319,7 @@ public:
 
             TPoint mean = hasSeasonalScale ? this->mean() : TPoint(0.0);
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 TPoint x(samples[i]);
                 if (!CMathsFuncs::isFinite(x)) {
                     LOG_ERROR(<< "Discarding " << x);
@@ -370,7 +375,7 @@ public:
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) {
-        if (!CMathsFuncs::isFinite(time) || time < 0.0) {
+        if (CMathsFuncs::isFinite(time) == false || time < 0.0) {
             LOG_ERROR(<< "Bad propagation time " << time);
             return;
         }
@@ -386,12 +391,21 @@ public:
         // where w(i) is its weight we can achieve this by multiplying
         // all weights by some factor f in the range [0, 1].
 
-        if (!this->isForForecasting()) {
-            m_Clusterer->propagateForwardsByTime(time);
-        }
-
+        m_Clusterer->propagateForwardsByTime(time);
         for (const auto& mode : m_Modes) {
             mode.s_Prior->propagateForwardsByTime(time);
+        }
+
+        // Remove any mode which is non-informative.
+        while (m_Modes.size() > 1) {
+            // Calling remove with the mode's index triggers a callback
+            // which also removes it from s_Modes, see CModeMergeCallback.
+            auto i = std::find_if(m_Modes.begin(), m_Modes.end(), [](const auto& mode) {
+                return mode.s_Prior->isNonInformative();
+            });
+            if (i == m_Modes.end() || m_Clusterer->remove(i->s_Index) == false) {
+                break;
+            }
         }
 
         this->numberSamples(this->numberSamples() *
@@ -438,7 +452,7 @@ public:
             weight = std::exp(weight - maxWeight[0]);
             Z += weight;
         }
-        for (std::size_t i = 0u; i < weights.size(); ++i) {
+        for (std::size_t i = 0; i < weights.size(); ++i) {
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
@@ -490,7 +504,7 @@ public:
             weight = std::exp(weight - maxWeight[0]);
             Z += weight;
         }
-        for (std::size_t i = 0u; i < weights.size(); ++i) {
+        for (std::size_t i = 0; i < weights.size(); ++i) {
             modes[i]->numberSamples(weights[i] / Z * modes[i]->numberSamples());
         }
 
@@ -547,7 +561,7 @@ public:
 
         TPoint result(m_Modes[0].s_Prior->marginalLikelihoodMean());
         double distance = (value - result).euclidean();
-        for (std::size_t i = 1u; i < m_Modes.size(); ++i) {
+        for (std::size_t i = 1; i < m_Modes.size(); ++i) {
             TPoint mean(m_Modes[i].s_Prior->marginalLikelihoodMean());
             double di = (value - mean).euclidean();
             if (di < distance) {
@@ -688,12 +702,12 @@ public:
 
         TDouble10VecWeightsAry1Vec weight{TWeights::unit<TDouble10Vec>(N)};
         try {
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = this->smallest(maths_t::countForUpdate(weights[i]));
                 TPoint seasonalScale =
                     sqrt(TPoint(maths_t::seasonalVarianceScale(weights[i])));
                 double logSeasonalScale = 0.0;
-                for (std::size_t j = 0u; j < seasonalScale.dimension(); ++j) {
+                for (std::size_t j = 0; j < seasonalScale.dimension(); ++j) {
                     logSeasonalScale += std::log(seasonalScale(j));
                 }
 
@@ -794,7 +808,7 @@ public:
     }
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CMultivariateMultimodalPrior");
         core::CMemoryDebug::dynamicSize("m_Clusterer", m_Clusterer, mem);
         core::CMemoryDebug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
@@ -825,7 +839,7 @@ public:
         inserter.insertLevel(SEED_PRIOR_TAG,
                              std::bind<void>(CPriorStateSerialiser(), std::cref(*m_SeedPrior),
                                              std::placeholders::_1));
-        for (std::size_t i = 0u; i < m_Modes.size(); ++i) {
+        for (std::size_t i = 0; i < m_Modes.size(); ++i) {
             inserter.insertLevel(MODE_TAG, std::bind(&TMode::acceptPersistInserter,
                                                      &m_Modes[i], std::placeholders::_1));
         }
@@ -1004,9 +1018,11 @@ private:
                                 core::CStateRestoreTraverser& traverser) {
         do {
             const std::string& name = traverser.name();
-            RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
-                                   core::CStringUtils::stringToType(traverser.value(), decayRate),
-                                   this->decayRate(decayRate))
+            RESTORE_SETUP_TEARDOWN(
+                DECAY_RATE_TAG, double decayRate{this->decayRate()},
+                m_Clusterer != nullptr && m_SeedPrior != nullptr &&
+                    core::CStringUtils::stringToType(traverser.value(), decayRate),
+                this->decayRate(decayRate))
             RESTORE(CLUSTERER_TAG, traverser.traverseSubLevel(std::bind<bool>(
                                        CClustererStateSerialiser(), std::cref(params),
                                        std::ref(m_Clusterer), std::placeholders::_1)))

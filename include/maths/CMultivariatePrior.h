@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CMultivariatePrior_h
@@ -82,17 +87,8 @@ public:
     virtual ~CMultivariatePrior() = default;
 
     //! Swap the contents of this prior and \p other.
-    void swap(CMultivariatePrior& other);
+    void swap(CMultivariatePrior& other) noexcept;
     //@}
-
-    //! Mark the prior as being used for forecasting.
-    void forForecasting();
-
-    //! Check if this prior is being used for forecasting.
-    //!
-    //! \warning This is an irreversible action so if the prior
-    //! is still need it should be copied first.
-    bool isForForecasting() const;
 
     //! Check if the prior is being used to model discrete data.
     bool isDiscrete() const;
@@ -320,7 +316,7 @@ public:
     virtual uint64_t checksum(uint64_t seed = 0) const = 0;
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const = 0;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
 
     //! Get the memory used by this component
     virtual std::size_t memoryUsage() const = 0;
@@ -385,11 +381,6 @@ protected:
     double smallest(const TDouble10Vec& x) const;
 
 private:
-    //! Set to true if this model is being used for forecasting. Note
-    //! we don't have any need to persist forecast models so this is
-    //! is not persisted.
-    bool m_Forecasting;
-
     //! If this is true then the prior is being used to model discrete
     //! data. Note that this is not persisted and deduced from context.
     maths_t::EDataType m_DataType;

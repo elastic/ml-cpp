@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_model_CStringStore_h
 #define INCLUDED_ml_model_CStringStore_h
@@ -19,8 +24,17 @@
 #include <functional>
 #include <string>
 
-class CResourceMonitorTest;
-class CStringStoreTest;
+namespace CResourceMonitorTest {
+class CTestFixture;
+}
+namespace CStringStoreTest {
+class CTestFixture;
+struct testStringStore;
+struct testMemUsage;
+struct testPersonStringPruning;
+struct testAttributeStringPruning;
+struct testInfluencerStringPruning;
+}
 
 namespace ml {
 
@@ -90,7 +104,7 @@ public:
     void pruneNotThreadSafe();
 
     //! Get the memory used by this string store
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this string store
     std::size_t memoryUsage() const;
@@ -132,8 +146,13 @@ private:
     //! Locking primitive
     mutable core::CFastMutex m_Mutex;
 
-    friend class ::CResourceMonitorTest;
-    friend class ::CStringStoreTest;
+    friend class CResourceMonitorTest::CTestFixture;
+    friend class CStringStoreTest::CTestFixture;
+    friend struct CStringStoreTest::testStringStore;
+    friend struct CStringStoreTest::testMemUsage;
+    friend struct CStringStoreTest::testPersonStringPruning;
+    friend struct CStringStoreTest::testAttributeStringPruning;
+    friend struct CStringStoreTest::testInfluencerStringPruning;
 };
 
 } // model

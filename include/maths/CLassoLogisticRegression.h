@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CLassoLogisticRegression_h
@@ -40,7 +45,7 @@ public:
     CLrDenseMatrix(TDoubleVecVec& elements);
 
     //! Efficiently swap the contents of two matrices.
-    void swap(CLrDenseMatrix& other);
+    void swap(CLrDenseMatrix& other) noexcept;
 
     //! Get the number of rows.
     std::size_t rows() const {
@@ -77,7 +82,7 @@ public:
     CLrSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec& elements);
 
     //! Efficiently swap the contents of two matrices.
-    void swap(CLrSparseMatrix& other);
+    void swap(CLrSparseMatrix& other) noexcept;
 
     //! Get the number of rows.
     std::size_t rows() const { return m_Rows; }
@@ -250,7 +255,7 @@ public:
     CLogisticRegressionModel(double beta0, TSizeDoublePrVec& beta);
 
     //! Efficiently swap the contents of two models.
-    void swap(CLogisticRegressionModel& other);
+    void swap(CLogisticRegressionModel& other) noexcept;
 
     //! Get the probability of the dense feature vector \p x.
     bool operator()(const TDoubleVec& x, double& probability) const;

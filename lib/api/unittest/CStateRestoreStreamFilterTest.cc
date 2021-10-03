@@ -1,32 +1,26 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CStateRestoreStreamFilterTest.h"
 
 #include <api/CStateRestoreStreamFilter.h>
 
 #include <boost/iostreams/filtering_stream.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <sstream>
 #include <string>
 
-CppUnit::Test* CStateRestoreStreamFilterTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CRestoreStreamFilterTest");
+BOOST_AUTO_TEST_SUITE(CStateRestoreStreamFilterTest)
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-        "CRestoreStreamFilterTest::testBulkIndexHeaderRemoval",
-        &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateRestoreStreamFilterTest>(
-        "CRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte",
-        &CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte));
-
-    return suiteOfTests;
-}
-
-void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval() {
+BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemoval) {
     std::istringstream input("{\"index\":{\"_id\":\"some_id\"}}\n"
                              "{\"compressed\" : [ \"a\",\"b\"]}");
 
@@ -41,14 +35,14 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemoval() {
     expected += '\0';
     expected += '\n';
 
-    // replace zerobytes to avoid printing problems of cppunit
+    // replace zerobytes to avoid printing problems
     std::replace(output.begin(), output.end(), '\0', ',');
     std::replace(expected.begin(), expected.end(), '\0', ',');
 
-    CPPUNIT_ASSERT_EQUAL(expected, output);
+    BOOST_REQUIRE_EQUAL(expected, output);
 }
 
-void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte() {
+BOOST_AUTO_TEST_CASE(testBulkIndexHeaderRemovalZerobyte) {
     std::stringstream input;
 
     input << "{\"index\":{\"_id\":\"some_id\"}}\n";
@@ -72,9 +66,11 @@ void CStateRestoreStreamFilterTest::testBulkIndexHeaderRemovalZerobyte() {
     expected += '\0';
     expected += '\n';
 
-    // replace zerobytes to avoid printing problems of cppunit
+    // replace zerobytes to avoid printing problems
     std::replace(output.begin(), output.end(), '\0', ',');
     std::replace(expected.begin(), expected.end(), '\0', ',');
 
-    CPPUNIT_ASSERT_EQUAL(expected, output);
+    BOOST_REQUIRE_EQUAL(expected, output);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

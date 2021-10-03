@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisSpecificationJsonWriter_h
@@ -34,6 +39,7 @@ public:
                       std::size_t numberThreads,
                       const std::string& temporaryDirectory,
                       const std::string& resultsField,
+                      const std::string& missingString,
                       const TStrVec& categoricalFields,
                       bool diskUsageAllowed,
                       const std::string& analysisName,
@@ -48,6 +54,7 @@ public:
                       std::size_t numberThreads,
                       const std::string& temporaryDirectory,
                       const std::string& resultsField,
+                      const std::string& missingString,
                       const TStrVec& categoricalFields,
                       bool diskUsageAllowed,
                       const std::string& analysisName,
@@ -56,10 +63,11 @@ public:
 
     //! Returns a string with the data frame analysis specification in JSON format.
     static std::string jsonString(const std::string& jobId,
-                                  size_t rows,
-                                  size_t cols,
-                                  size_t memoryLimit,
-                                  size_t numberThreads,
+                                  std::size_t rows,
+                                  std::size_t cols,
+                                  std::size_t memoryLimit,
+                                  std::size_t numberThreads,
+                                  const std::string& missingString,
                                   const TStrVec& categoricalFields,
                                   bool diskUsageAllowed,
                                   const std::string& tempDir,

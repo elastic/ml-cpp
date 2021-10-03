@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CDetectionRulesJsonParser.h>
 
@@ -36,8 +41,55 @@ const std::string TYPICAL("typical");
 const std::string VALUE("value");
 }
 
-CDetectionRulesJsonParser::CDetectionRulesJsonParser(TStrPatternSetUMap& filtersByIdMap)
+CDetectionRulesJsonParser::CDetectionRulesJsonParser(const TStrPatternSetUMap& filtersByIdMap)
     : m_FiltersByIdMap(filtersByIdMap) {
+}
+
+bool CDetectionRulesJsonParser::parseRules(const rapidjson::Value& value,
+                                           TDetectionRuleVec& rules,
+                                           std::string& errorString) {
+
+    if (value.IsArray() == false) {
+        errorString = "Could not parse detection rules from non-array JSON object: ";
+        return false;
+    }
+
+    if (value.Empty()) {
+        return true;
+    }
+
+    rules.resize(value.Size());
+
+    for (unsigned int i = 0; i < value.Size(); ++i) {
+        if (!value[i].IsObject()) {
+            errorString = "Could not parse detection rules: "
+                          "expected detection rules array to contain objects. JSON: ";
+            rules.clear();
+            return false;
+        }
+
+        model::CDetectionRule& rule = rules[i];
+
+        const rapidjson::Value& ruleObject = value[i];
+
+        if (ruleObject.HasMember(SCOPE.c_str()) == false &&
+            ruleObject.HasMember(CONDITIONS.c_str()) == false) {
+            errorString = "At least one of 'scope' or 'conditions' must be specified in JSON: ";
+            rules.clear();
+            return false;
+        }
+
+        bool isValid = parseRuleActions(ruleObject, rule) &&
+                       parseRuleScope(ruleObject, rule) &&
+                       parseRuleConditions(ruleObject, rule);
+        if (isValid == false) {
+            errorString = "Failed to parse detection rules from JSON: ";
+            rules.clear();
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRuleVec& rules) {
@@ -51,44 +103,10 @@ bool CDetectionRulesJsonParser::parseRules(const std::string& json, TDetectionRu
         return false;
     }
 
-    if (!doc.IsArray()) {
-        LOG_ERROR(<< "Could not parse detection rules from non-array JSON object: " << json);
+    std::string errorString;
+    if (this->parseRules(doc, rules, errorString) == false) {
+        LOG_ERROR(<< errorString << json);
         return false;
-    }
-
-    if (doc.Empty()) {
-        return true;
-    }
-
-    rules.resize(doc.Size());
-
-    for (unsigned int i = 0; i < doc.Size(); ++i) {
-        if (!doc[i].IsObject()) {
-            LOG_ERROR(<< "Could not parse detection rules: "
-                      << "expected detection rules array to contain objects. JSON: " << json);
-            rules.clear();
-            return false;
-        }
-
-        model::CDetectionRule& rule = rules[i];
-
-        rapidjson::Value& ruleObject = doc[i];
-
-        if (ruleObject.HasMember(SCOPE.c_str()) == false &&
-            ruleObject.HasMember(CONDITIONS.c_str()) == false) {
-            LOG_ERROR(<< "At least one of 'scope' or 'conditions' must be specified");
-            rules.clear();
-            return false;
-        }
-
-        bool isValid = parseRuleActions(ruleObject, rule) &&
-                       parseRuleScope(ruleObject, rule) &&
-                       parseRuleConditions(ruleObject, rule);
-        if (isValid == false) {
-            LOG_ERROR(<< "Failed to parse detection rules from JSON: " << json);
-            rules.clear();
-            return false;
-        }
     }
 
     return true;

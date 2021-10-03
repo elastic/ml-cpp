@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CQuantileSketchTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -15,11 +18,15 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CQuantileSketch.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+
+BOOST_AUTO_TEST_SUITE(CQuantileSketchTest)
 
 using namespace ml;
 
@@ -36,8 +43,10 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
                 TMeanAccumulator& meanBias,
                 TMeanAccumulator& meanError) {
     maths::CQuantileSketch sketch(interpolation, n);
+    maths::CFastQuantileSketch fastSketch(interpolation, n,
+                                          maths::CPRNG::CXorOShiro128Plus{}, 0.9);
     sketch = std::for_each(samples.begin(), samples.end(), sketch);
-
+    fastSketch = std::for_each(samples.begin(), samples.end(), fastSketch);
     LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
 
     std::size_t N = samples.size();
@@ -45,11 +54,13 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
 
     TMeanAccumulator bias;
     TMeanAccumulator error;
-    for (std::size_t i = 1u; i < 20; ++i) {
+    for (std::size_t i = 1; i < 20; ++i) {
         double q = static_cast<double>(i) / 20.0;
         double xq = samples[static_cast<std::size_t>(static_cast<double>(N) * q)];
         double sq;
-        CPPUNIT_ASSERT(sketch.quantile(100.0 * q, sq));
+        BOOST_REQUIRE_EQUAL(sketch.quantile(100.0 * q, sq),
+                            fastSketch.quantile(100.0 * q, sq));
+        BOOST_TEST_REQUIRE(sketch.quantile(100.0 * q, sq));
         bias.add(xq - sq);
         error.add(std::fabs(xq - sq));
     }
@@ -61,8 +72,8 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
 
     LOG_DEBUG(<< "bias = " << maths::CBasicStatistics::mean(bias) << ", error "
               << maths::CBasicStatistics::mean(error));
-    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(bias)) < maxBias);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < maxError);
+    BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(bias)) < maxBias);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < maxError);
 
     meanBias += maths::CBasicStatistics::momentsAccumulator(
         maths::CBasicStatistics::count(bias), maths::CBasicStatistics::mean(bias) / scale);
@@ -71,29 +82,29 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
 }
 }
 
-void CQuantileSketchTest::testAdd() {
+BOOST_AUTO_TEST_CASE(testAdd) {
     maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 5);
 
     // Test adding a point.
     sketch.add(1.2);
-    CPPUNIT_ASSERT(sketch.checkInvariants());
+    BOOST_TEST_REQUIRE(sketch.checkInvariants());
 
     // Test adding a weighted point.
     sketch.add(0.9, 3.0);
-    CPPUNIT_ASSERT(sketch.checkInvariants());
+    BOOST_TEST_REQUIRE(sketch.checkInvariants());
 
     // Test add via operator().
     double x[] = {1.8, 2.1};
     sketch = std::for_each(x, x + 2, sketch);
-    CPPUNIT_ASSERT(sketch.checkInvariants());
+    BOOST_TEST_REQUIRE(sketch.checkInvariants());
 
     LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-    CPPUNIT_ASSERT_EQUAL(6.0, sketch.count());
-    CPPUNIT_ASSERT_EQUAL(std::string("[(1.2, 1), (0.9, 3), (1.8, 1), (2.1, 1)]"),
-                         core::CContainerPrinter::print(sketch.knots()));
+    BOOST_REQUIRE_EQUAL(6.0, sketch.count());
+    BOOST_REQUIRE_EQUAL(std::string("[(1.2, 1), (0.9, 3), (1.8, 1), (2.1, 1)]"),
+                        core::CContainerPrinter::print(sketch.knots()));
 }
 
-void CQuantileSketchTest::testReduce() {
+BOOST_AUTO_TEST_CASE(testReduce) {
     LOG_DEBUG(<< "*** Linear ***");
     {
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 6);
@@ -102,14 +113,14 @@ void CQuantileSketchTest::testReduce() {
 
         double points[][2] = {{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0},
                               {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
-        for (std::size_t i = 0u; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < boost::size(points); ++i) {
             sketch.add(points[i][0], points[i][1]);
-            CPPUNIT_ASSERT(sketch.checkInvariants());
+            BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
 
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+        BOOST_REQUIRE_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
+                            core::CContainerPrinter::print(sketch.knots()));
 
         // Regular compress (merging two point).
 
@@ -117,26 +128,26 @@ void CQuantileSketchTest::testReduce() {
         sketch.add(0.2);
         sketch.add(0.0);
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (0.15, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+        BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (0.15, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
+                            core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Multiple points compressed at once.
 
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 30);
 
-        for (std::size_t i = 0u; i <= 30; ++i) {
+        for (std::size_t i = 0; i <= 30; ++i) {
             sketch.add(static_cast<double>(i));
-            CPPUNIT_ASSERT(sketch.checkInvariants());
+            BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
-                                         " (5.5, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
-                                         " (11, 1), (12, 1), (13.5, 2), (15, 1), (16, 1),"
-                                         " (17, 1), (18, 1), (19, 1), (20, 1), (21, 1),"
-                                         " (22.5, 2), (24, 1), (25, 1), (26, 1), (27, 1),"
-                                         " (28, 1), (29, 1), (30, 1)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+        BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
+                                        " (5.5, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
+                                        " (11, 1), (12, 1), (13.5, 2), (15, 1), (16, 1),"
+                                        " (17, 1), (18, 1), (19, 1), (20, 1), (21, 1),"
+                                        " (22.5, 2), (24, 1), (25, 1), (26, 1), (27, 1),"
+                                        " (28, 1), (29, 1), (30, 1)]"),
+                            core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Test the quantiles are reasonable at a compression ratio of 2:1.
@@ -149,9 +160,9 @@ void CQuantileSketchTest::testReduce() {
                         75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
 
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 10);
-        for (std::size_t i = 0u; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < boost::size(points); ++i) {
             sketch.add(points[i]);
-            CPPUNIT_ASSERT(sketch.checkInvariants());
+            BOOST_TEST_REQUIRE(sketch.checkInvariants());
             if ((i + 1) % 5 == 0) {
                 LOG_DEBUG(<< "sketch = "
                           << core::CContainerPrinter::print(sketch.knots()));
@@ -160,15 +171,15 @@ void CQuantileSketchTest::testReduce() {
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
-        for (std::size_t i = 0u; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
             double x;
-            CPPUNIT_ASSERT(sketch.quantile(cdf[i], x));
+            BOOST_TEST_REQUIRE(sketch.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(points[i], x, 10.0);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(points[i], x, 10.0);
             error.add(std::fabs(points[i] - x));
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.5);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 1.5);
     }
 
     LOG_DEBUG(<< "*** Piecewise Constant ***");
@@ -179,14 +190,14 @@ void CQuantileSketchTest::testReduce() {
 
         double points[][2] = {{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0},
                               {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
-        for (std::size_t i = 0u; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < boost::size(points); ++i) {
             sketch.add(points[i][0], points[i][1]);
-            CPPUNIT_ASSERT(sketch.checkInvariants());
+            BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
 
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+        BOOST_REQUIRE_EQUAL(std::string("[(0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
+                            core::CContainerPrinter::print(sketch.knots()));
 
         // Regular compress (merging two point).
 
@@ -194,26 +205,26 @@ void CQuantileSketchTest::testReduce() {
         sketch.add(0.2);
         sketch.add(0.0);
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (0.2, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+        BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (0.2, 2), (0.4, 3), (1, 1), (1.2, 3.5), (5, 2)]"),
+                            core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Multiple points compressed at once.
 
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 30);
 
-        for (std::size_t i = 0u; i <= 30; ++i) {
+        for (std::size_t i = 0; i <= 30; ++i) {
             sketch.add(static_cast<double>(i));
-            CPPUNIT_ASSERT(sketch.checkInvariants());
+            BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
         LOG_DEBUG(<< "sketch = " << core::CContainerPrinter::print(sketch.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
-                                         " (6, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
-                                         " (11, 1), (12, 1), (13, 1), (14, 1), (15, 1),"
-                                         " (16, 1), (17, 1), (18, 1), (19, 1), (20, 1),"
-                                         " (21, 1), (23, 3), (25, 1), (26, 1), (27, 1),"
-                                         " (28, 1), (29, 1), (30, 1)]"),
-                             core::CContainerPrinter::print(sketch.knots()));
+        BOOST_REQUIRE_EQUAL(std::string("[(0, 1), (1, 1), (2, 1), (3, 1), (4, 1),"
+                                        " (6, 2), (7, 1), (8, 1), (9, 1), (10, 1),"
+                                        " (11, 1), (12, 1), (13, 1), (14, 1), (15, 1),"
+                                        " (16, 1), (17, 1), (18, 1), (19, 1), (20, 1),"
+                                        " (21, 1), (23, 3), (25, 1), (26, 1), (27, 1),"
+                                        " (28, 1), (29, 1), (30, 1)]"),
+                            core::CContainerPrinter::print(sketch.knots()));
     }
     {
         // Test the quantiles are reasonable at a compression ratio of 2:1.
@@ -226,9 +237,9 @@ void CQuantileSketchTest::testReduce() {
                         75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
 
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 10);
-        for (std::size_t i = 0u; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < boost::size(points); ++i) {
             sketch.add(points[i]);
-            CPPUNIT_ASSERT(sketch.checkInvariants());
+            BOOST_TEST_REQUIRE(sketch.checkInvariants());
             if ((i + 1) % 5 == 0) {
                 LOG_DEBUG(<< "sketch = "
                           << core::CContainerPrinter::print(sketch.knots()));
@@ -237,19 +248,19 @@ void CQuantileSketchTest::testReduce() {
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
-        for (std::size_t i = 0u; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
             double x;
-            CPPUNIT_ASSERT(sketch.quantile(cdf[i], x));
+            BOOST_TEST_REQUIRE(sketch.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(points[i], x, 10.0);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(points[i], x, 10.0);
             error.add(std::fabs(points[i] - x));
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.8);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 1.8);
     }
 }
 
-void CQuantileSketchTest::testMerge() {
+BOOST_AUTO_TEST_CASE(testMerge) {
     {
         // Simple merge no reduction.
 
@@ -269,8 +280,8 @@ void CQuantileSketchTest::testMerge() {
         sketch1 += sketch2;
         LOG_DEBUG(<< "merged sketch = "
                   << core::CContainerPrinter::print(sketch1.knots()));
-        CPPUNIT_ASSERT_EQUAL(std::string("[(1, 3.6), (1.1, 1), (2, 1), (3, 1), (3.1, 2), (5.1, 2)]"),
-                             core::CContainerPrinter::print(sketch1.knots()));
+        BOOST_REQUIRE_EQUAL(std::string("[(1, 3.6), (1.1, 1), (2, 1), (3, 1), (3.1, 2), (5.1, 2)]"),
+                            core::CContainerPrinter::print(sketch1.knots()));
     }
 
     {
@@ -285,7 +296,7 @@ void CQuantileSketchTest::testMerge() {
 
         maths::CQuantileSketch sketch1(maths::CQuantileSketch::E_Linear, 10);
         maths::CQuantileSketch sketch2(maths::CQuantileSketch::E_Linear, 10);
-        for (std::size_t i = 0u; i < boost::size(points); i += 2) {
+        for (std::size_t i = 0; i < boost::size(points); i += 2) {
             sketch1.add(points[i]);
             sketch2.add(points[i + 1]);
         }
@@ -298,39 +309,39 @@ void CQuantileSketchTest::testMerge() {
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
-        for (std::size_t i = 0u; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
             double x;
-            CPPUNIT_ASSERT(sketch3.quantile(cdf[i], x));
+            BOOST_TEST_REQUIRE(sketch3.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(points[i], x, 10.0);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(points[i], x, 10.0);
             error.add(std::fabs(points[i] - x));
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.8);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 1.8);
     }
 }
 
-void CQuantileSketchTest::testMedian() {
+BOOST_AUTO_TEST_CASE(testMedian) {
     LOG_DEBUG(<< "*** Exact ***");
     {
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 10);
 
         double median;
-        CPPUNIT_ASSERT(!sketch.quantile(50.0, median));
+        BOOST_TEST_REQUIRE(!sketch.quantile(50.0, median));
 
         sketch.add(1.0);
-        CPPUNIT_ASSERT(sketch.quantile(50.0, median));
-        CPPUNIT_ASSERT_EQUAL(1.0, median);
+        BOOST_TEST_REQUIRE(sketch.quantile(50.0, median));
+        BOOST_REQUIRE_EQUAL(1.0, median);
 
         // [1.0, 2.0]
         sketch.add(2.0);
-        CPPUNIT_ASSERT(sketch.quantile(50.0, median));
-        CPPUNIT_ASSERT_EQUAL(1.5, median);
+        BOOST_TEST_REQUIRE(sketch.quantile(50.0, median));
+        BOOST_REQUIRE_EQUAL(1.5, median);
 
         // [1.0, 2.0, 3.0]
         sketch.add(3.0);
-        CPPUNIT_ASSERT(sketch.quantile(50.0, median));
-        CPPUNIT_ASSERT_EQUAL(2.0, median);
+        BOOST_TEST_REQUIRE(sketch.quantile(50.0, median));
+        BOOST_REQUIRE_EQUAL(2.0, median);
 
         // [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
         sketch.add(8.0);
@@ -339,8 +350,8 @@ void CQuantileSketchTest::testMedian() {
         sketch.add(6.0);
         sketch.add(9.0);
         sketch.add(5.0);
-        CPPUNIT_ASSERT(sketch.quantile(50.0, median));
-        CPPUNIT_ASSERT_EQUAL(5.0, median);
+        BOOST_TEST_REQUIRE(sketch.quantile(50.0, median));
+        BOOST_REQUIRE_EQUAL(5.0, median);
     }
 
     LOG_DEBUG(<< "*** Approximate ***");
@@ -349,7 +360,7 @@ void CQuantileSketchTest::testMedian() {
 
     TMeanAccumulator bias;
     TMeanAccumulator error;
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 100.0, 501, samples);
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 20);
@@ -358,18 +369,18 @@ void CQuantileSketchTest::testMedian() {
         double expectedMedian = samples[250];
         double actualMedian;
         sketch.quantile(50.0, actualMedian);
-        CPPUNIT_ASSERT(std::fabs(actualMedian - expectedMedian) < 6.7);
+        BOOST_TEST_REQUIRE(std::fabs(actualMedian - expectedMedian) < 6.7);
         bias.add(actualMedian - expectedMedian);
         error.add(std::fabs(actualMedian - expectedMedian));
     }
 
     LOG_DEBUG(<< "bias  = " << maths::CBasicStatistics::mean(bias));
     LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-    CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(bias)) < 0.2);
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 1.6);
+    BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(bias)) < 0.2);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 1.6);
 }
 
-void CQuantileSketchTest::testMad() {
+BOOST_AUTO_TEST_CASE(testMad) {
     // Check some edge cases and also accuracy verses exact values
     // some random data.
 
@@ -381,17 +392,17 @@ void CQuantileSketchTest::testMad() {
                                maths::CQuantileSketch::E_Linear}) {
         maths::CQuantileSketch sketch(interpolation, 10);
 
-        CPPUNIT_ASSERT(!sketch.mad(mad));
+        BOOST_TEST_REQUIRE(!sketch.mad(mad));
 
         sketch.add(1.0);
-        CPPUNIT_ASSERT(sketch.mad(mad));
+        BOOST_TEST_REQUIRE(sketch.mad(mad));
         LOG_DEBUG(<< "MAD = " << mad);
-        CPPUNIT_ASSERT_EQUAL(0.0, mad);
+        BOOST_REQUIRE_EQUAL(0.0, mad);
 
         sketch.add(2.0);
-        CPPUNIT_ASSERT(sketch.mad(mad));
+        BOOST_TEST_REQUIRE(sketch.mad(mad));
         LOG_DEBUG(<< "MAD = " << mad);
-        CPPUNIT_ASSERT_EQUAL(0.5, mad);
+        BOOST_REQUIRE_EQUAL(0.5, mad);
     }
 
     TDoubleVec samples;
@@ -399,7 +410,7 @@ void CQuantileSketchTest::testMad() {
                                maths::CQuantileSketch::E_Linear}) {
         TMeanAccumulator error;
 
-        for (std::size_t t = 0u; t < 100; ++t) {
+        for (std::size_t t = 0; t < 100; ++t) {
             rng.generateNormalSamples(10.0, 10.0, 101, samples);
 
             maths::CQuantileSketch sketch(interpolation, 20);
@@ -407,7 +418,7 @@ void CQuantileSketchTest::testMad() {
             for (auto sample : samples) {
                 sketch.add(sample);
             }
-            CPPUNIT_ASSERT(sketch.mad(mad));
+            BOOST_TEST_REQUIRE(sketch.mad(mad));
 
             std::nth_element(samples.begin(), samples.begin() + 50, samples.end());
             double median = samples[50];
@@ -422,15 +433,15 @@ void CQuantileSketchTest::testMad() {
             }
 
             error.add(std::fabs(mad - expectedMad));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedMad, mad, 0.15 * expectedMad);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMad, mad, 0.15 * expectedMad);
         }
 
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(error) < 0.07);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.07);
     }
 }
 
-void CQuantileSketchTest::testPropagateForwardByTime() {
+BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
     // Check that the count is reduced and the invariants still hold.
 
     test::CRandomNumbers rng;
@@ -442,11 +453,11 @@ void CQuantileSketchTest::testPropagateForwardByTime() {
     sketch = std::for_each(samples.begin(), samples.end(), sketch);
 
     sketch.age(0.9);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(90.0, sketch.count(), 1e-6);
-    CPPUNIT_ASSERT(sketch.checkInvariants());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(90.0, sketch.count(), 1e-6);
+    BOOST_TEST_REQUIRE(sketch.checkInvariants());
 }
 
-void CQuantileSketchTest::testQuantileAccuracy() {
+BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
     // Test on a variety of random data sets versus the corresponding
     // quantile in the raw data.
 
@@ -456,7 +467,7 @@ void CQuantileSketchTest::testQuantileAccuracy() {
     {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             TDoubleVec samples;
             rng.generateUniformSamples(0.0, 20.0 * static_cast<double>(t + 1), 1000, samples);
             testSketch(maths::CQuantileSketch::E_Linear, 20, samples, 0.15, 0.3,
@@ -464,15 +475,15 @@ void CQuantileSketchTest::testQuantileAccuracy() {
         }
         LOG_DEBUG(<< "mean bias = " << std::fabs(maths::CBasicStatistics::mean(meanBias))
                   << ", mean error " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.0007);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.003);
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.0007);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.003);
     }
 
     LOG_DEBUG(<< "*** Normal ***");
     {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             TDoubleVec samples;
             rng.generateNormalSamples(20.0 * static_cast<double>(t),
                                       20.0 * static_cast<double>(t + 1), 1000, samples);
@@ -481,15 +492,15 @@ void CQuantileSketchTest::testQuantileAccuracy() {
         }
         LOG_DEBUG(<< "mean bias = " << maths::CBasicStatistics::mean(meanBias)
                   << ", mean error " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.002);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.003);
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.002);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.003);
     }
 
     LOG_DEBUG(<< "*** Log-Normal ***");
     {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             TDoubleVec samples;
             rng.generateLogNormalSamples(0.1 * static_cast<double>(t),
                                          0.4 * static_cast<double>(t + 1), 1000, samples);
@@ -498,8 +509,8 @@ void CQuantileSketchTest::testQuantileAccuracy() {
         }
         LOG_DEBUG(<< "mean bias = " << maths::CBasicStatistics::mean(meanBias)
                   << ", mean error " << maths::CBasicStatistics::mean(meanError));
-        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.0006);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanError) < 0.0009);
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.0006);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.0009);
     }
     LOG_DEBUG(<< "*** Mixture ***");
     {
@@ -507,7 +518,7 @@ void CQuantileSketchTest::testQuantileAccuracy() {
         TMeanAccumulator meanErrorLinear;
         TMeanAccumulator meanBiasPiecewise;
         TMeanAccumulator meanErrorPiecewise;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             TDoubleVec samples_[4] = {};
             rng.generateNormalSamples(10.0 * static_cast<double>(t),
                                       20.0 * static_cast<double>(t + 1), 400,
@@ -522,7 +533,7 @@ void CQuantileSketchTest::testQuantileAccuracy() {
                                        550.0 * static_cast<double>(t + 1), 600,
                                        samples_[3]);
             TDoubleVec samples;
-            for (std::size_t i = 0u; i < 4; ++i) {
+            for (std::size_t i = 0; i < 4; ++i) {
                 samples.insert(samples.end(), samples_[i].begin(), samples_[i].end());
             }
             rng.random_shuffle(samples.begin(), samples.end());
@@ -533,16 +544,16 @@ void CQuantileSketchTest::testQuantileAccuracy() {
         }
         LOG_DEBUG(<< "linear mean bias = " << maths::CBasicStatistics::mean(meanBiasLinear)
                   << ", mean error " << maths::CBasicStatistics::mean(meanErrorLinear));
-        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBiasLinear)) < 0.012);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanErrorLinear) < 0.013);
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(meanBiasLinear)) < 0.012);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanErrorLinear) < 0.013);
         LOG_DEBUG(<< "piecewise mean bias = " << maths::CBasicStatistics::mean(meanBiasPiecewise)
                   << ", mean error " << maths::CBasicStatistics::mean(meanErrorPiecewise));
-        CPPUNIT_ASSERT(std::fabs(maths::CBasicStatistics::mean(meanBiasPiecewise)) < 0.015);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(meanErrorPiecewise) < 0.015);
+        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(meanBiasPiecewise)) < 0.015);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanErrorPiecewise) < 0.015);
     }
 }
 
-void CQuantileSketchTest::testCdf() {
+BOOST_AUTO_TEST_CASE(testCdf) {
     // Test that quantile and c.d.f. are idempotent.
 
     test::CRandomNumbers rng;
@@ -554,7 +565,7 @@ void CQuantileSketchTest::testCdf() {
         {
             maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 10);
             sketch = std::for_each(std::begin(values), std::end(values), sketch);
-            for (std::size_t i = 0u; i < 10; ++i) {
+            for (std::size_t i = 0; i < 10; ++i) {
                 double x;
                 sketch.quantile(10.0 * static_cast<double>(i) + 5.0, x);
                 double f;
@@ -562,13 +573,13 @@ void CQuantileSketchTest::testCdf() {
                 LOG_DEBUG(<< "x = " << x
                           << ", f(exact) = " << static_cast<double>(i) / 10.0 + 0.05
                           << ", f(actual) = " << f);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(i) / 10.0 + 0.05, f, 1e-6);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(i) / 10.0 + 0.05, f, 1e-6);
             }
         }
         {
             maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 10);
             sketch = std::for_each(std::begin(values), std::end(values), sketch);
-            for (std::size_t i = 0u; i < 10; ++i) {
+            for (std::size_t i = 0; i < 10; ++i) {
                 double x;
                 sketch.quantile(10.0 * static_cast<double>(i) + 5.0, x);
                 double f;
@@ -576,7 +587,7 @@ void CQuantileSketchTest::testCdf() {
                 LOG_DEBUG(<< "x = " << x
                           << ", f(exact) = " << static_cast<double>(i) / 10.0 + 0.05
                           << ", f(actual) = " << f);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(i) / 10.0 + 0.05, f, 1e-6);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(i) / 10.0 + 0.05, f, 1e-6);
             }
 
             double x;
@@ -584,7 +595,7 @@ void CQuantileSketchTest::testCdf() {
             double f;
             sketch.cdf(x, f);
             LOG_DEBUG(<< "x = " << x << ", f(exact) = 0.99, f(actual) = " << f);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(0.99, f, 1e-6);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.99, f, 1e-6);
         }
     }
 
@@ -592,14 +603,14 @@ void CQuantileSketchTest::testCdf() {
     {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             LOG_DEBUG(<< "test " << t + 1);
             TDoubleVec samples;
             rng.generateUniformSamples(0.0, 20.0 * static_cast<double>(t + 1), 1000, samples);
             {
                 maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 20);
                 sketch = std::for_each(samples.begin(), samples.end(), sketch);
-                for (std::size_t i = 0u; i <= 100; ++i) {
+                for (std::size_t i = 0; i <= 100; ++i) {
                     double x;
                     sketch.quantile(static_cast<double>(i), x);
                     double f;
@@ -609,20 +620,20 @@ void CQuantileSketchTest::testCdf() {
                                   << ", f(exact) = " << static_cast<double>(i) / 100.0
                                   << ", f(actual) = " << f);
                     }
-                    CPPUNIT_ASSERT_DOUBLES_EQUAL(static_cast<double>(i) / 100.0, f, 1e-6);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(static_cast<double>(i) / 100.0, f, 1e-6);
                 }
             }
         }
     }
 }
 
-void CQuantileSketchTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers generator;
     TDoubleVec samples;
     generator.generateUniformSamples(0.0, 5000.0, 500u, samples);
 
     maths::CQuantileSketch origSketch(maths::CQuantileSketch::E_Linear, 100u);
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         origSketch.add(samples[i]);
     }
 
@@ -638,15 +649,15 @@ void CQuantileSketchTest::testPersist() {
     maths::CQuantileSketch restoredSketch(maths::CQuantileSketch::E_Linear, 100u);
     {
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
-        CPPUNIT_ASSERT(traverser.traverseSubLevel(
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&maths::CQuantileSketch::acceptRestoreTraverser,
                       &restoredSketch, std::placeholders::_1)));
     }
 
     // Checksums should agree.
-    CPPUNIT_ASSERT_EQUAL(origSketch.checksum(), restoredSketch.checksum());
+    BOOST_REQUIRE_EQUAL(origSketch.checksum(), restoredSketch.checksum());
 
     // The persist and restore should be idempotent.
     std::string newXml;
@@ -655,31 +666,7 @@ void CQuantileSketchTest::testPersist() {
         restoredSketch.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-CppUnit::Test* CQuantileSketchTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CQuantileSketchTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testAdd", &CQuantileSketchTest::testAdd));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testReduce", &CQuantileSketchTest::testReduce));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testMerge", &CQuantileSketchTest::testMerge));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testMedian", &CQuantileSketchTest::testMedian));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testMad", &CQuantileSketchTest::testMad));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testPropagateForwardByTime",
-        &CQuantileSketchTest::testPropagateForwardByTime));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testQuantileAccuracy", &CQuantileSketchTest::testQuantileAccuracy));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testCdf", &CQuantileSketchTest::testCdf));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CQuantileSketchTest>(
-        "CQuantileSketchTest::testPersist", &CQuantileSketchTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

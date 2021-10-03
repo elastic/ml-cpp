@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CAdaptiveBucketing_h
@@ -136,6 +141,18 @@ public:
     //! Check that the state is valid.
     virtual bool isBad() const = 0;
 
+    //! \brief Ensure \p points are at least \p separation apart.
+    //!
+    //! This solves the problem of finding new positions for \p points
+    //! such that no pair of points is closer than \p separation and
+    //! the total square distance they move is minimized.
+    //!
+    //! \param[in] a The left end of the interval that must contain \p points.
+    //! \param[in] b The right end of the interval that must contain \p points.
+    //! \param[in] separation The minimum permitted distance between \p points.
+    //! \param[in,out] points The points to spread.
+    static void spread(double a, double b, double separation, TFloatVec& points);
+
 protected:
     using TRestoreFunc = std::function<bool(core::CStateRestoreTraverser&)>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
@@ -155,6 +172,10 @@ protected:
     //! Get the accept persist function bound to this object.
     TPersistFunc getAcceptPersistInserter() const;
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! Restore by traversing a state document
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
@@ -162,7 +183,7 @@ protected:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Efficiently swap the contents of two bucketing objects.
-    void swap(CAdaptiveBucketing& other);
+    void swap(CAdaptiveBucketing& other) noexcept;
 
     //! Create a new uniform bucketing with \p n buckets on the
     //! interval [\p a, \p b].
@@ -215,7 +236,7 @@ protected:
     bool bucket(core_t::TTime time, std::size_t& result) const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const;
@@ -234,8 +255,9 @@ private:
     //! Check if \p time is in the this component's window.
     virtual bool inWindow(core_t::TTime time) const = 0;
 
-    //! Add the function value at \p time.
-    virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight) = 0;
+    //! Add the function initial value at \p time.
+    virtual void
+    addInitialValue(std::size_t bucket, core_t::TTime time, double value, double weight) = 0;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
     virtual double offset(core_t::TTime time) const = 0;
@@ -251,6 +273,9 @@ private:
 
     //! Implements split of \p bucket for derived state.
     virtual void split(std::size_t bucket) = 0;
+
+    //! Compute the p-value of the large error count for \p bucket.
+    double bucketLargeErrorCountPValue(double totalLargeErrorCount, std::size_t bucket) const;
 
     //! Check if there is evidence of systematically large errors in a
     //! bucket and split it if there is.
@@ -280,7 +305,7 @@ private:
     core_t::TTime m_LastLargeErrorPeriod = 0;
 
     //! The p-values of the most significant large error counts.
-    TFloatUInt32PrMinAccumulator m_LargeErrorCountSignificances;
+    TFloatUInt32PrMinAccumulator m_LargeErrorCountPValues;
 
     //! The mean weight of values added.
     TFloatMeanAccumulator m_MeanWeight;

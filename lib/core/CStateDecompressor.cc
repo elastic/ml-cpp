@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CStateDecompressor.h>
 
@@ -19,32 +24,24 @@
 namespace ml {
 namespace core {
 
-const std::string CStateDecompressor::EMPTY_DATA("H4sIAAAAAAAA/4uOBQApu0wNAgAAAA==");
+const std::string CStateDecompressor::EMPTY_DATA{"H4sIAAAAAAAA/4uOBQApu0wNAgAAAA=="};
 
 CStateDecompressor::CStateDecompressor(CDataSearcher& compressedSearcher)
-    : m_Searcher(compressedSearcher), m_FilterSource(compressedSearcher) {
-    m_InFilter.reset(new TFilteredInput);
+    : m_FilterSource{compressedSearcher} {
+    m_InFilter.reset(new TFilteredInput{});
     m_InFilter->push(boost::iostreams::gzip_decompressor());
-    m_InFilter->push(CBase64Decoder());
+    m_InFilter->push(CBase64Decoder{});
     m_InFilter->push(boost::ref(m_FilterSource));
 }
 
-CDataSearcher::TIStreamP CStateDecompressor::search(size_t /*currentDocNum*/, size_t /*limit*/) {
+CDataSearcher::TIStreamP CStateDecompressor::search(std::size_t /*currentDocNum*/,
+                                                    std::size_t /*limit*/) {
     return m_InFilter;
 }
 
-void CStateDecompressor::setStateRestoreSearch(const std::string& index) {
-    m_Searcher.setStateRestoreSearch(index);
-}
-
-void CStateDecompressor::setStateRestoreSearch(const std::string& index,
-                                               const std::string& id) {
-    m_Searcher.setStateRestoreSearch(index, id);
-}
-
 CStateDecompressor::CDechunkFilter::CDechunkFilter(CDataSearcher& searcher)
-    : m_Initialised(false), m_SentData(false), m_Searcher(searcher),
-      m_CurrentDocNum(1), m_EndOfStream(false), m_BufferOffset(0), m_NestedLevel(1) {
+    : m_Initialised{false}, m_SentData{false}, m_Searcher{searcher},
+      m_CurrentDocNum{1}, m_EndOfStream{false}, m_BufferOffset{0}, m_NestedLevel{1} {
 }
 
 std::streamsize CStateDecompressor::CDechunkFilter::read(char* s, std::streamsize n) {

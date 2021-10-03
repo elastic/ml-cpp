@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CTools.h>
@@ -452,7 +457,7 @@ operator()(const negative_binomial& negativeBinomial, double x, maths_t::ETail& 
         return 1.0;
     }
 
-    const unsigned int MAX_ITERATIONS = 20u;
+    const unsigned int MAX_ITERATIONS = 20;
     std::size_t maxIterations = MAX_ITERATIONS;
 
     double b1, b2, f1, f2;
@@ -638,7 +643,7 @@ operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const 
         return truncate(2.0 * cdfComplement(logt, x), 0.0, 1.0);
     }
 
-    const unsigned int MAX_ITERATIONS = 20u;
+    const unsigned int MAX_ITERATIONS = 20;
 
     double fx = pdf(logt, x);
     double m = mode(logt);
@@ -860,7 +865,7 @@ operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
 
     const double CONVERGENCE_TOLERANCE = 1e-4;
     const double PDF_TOLERANCE = 5e-2;
-    const unsigned int MAX_ITERATIONS = 20u;
+    const unsigned int MAX_ITERATIONS = 20;
 
     double m = boost::math::mode(gamma_);
     LOG_TRACE(<< "x = " << x << ", mode = " << m);
@@ -868,7 +873,7 @@ operator()(const gamma& gamma_, double x, maths_t::ETail& tail) const {
     this->tail(x, m, tail);
 
     double y[] = {2.0 * m - x, 0.0};
-    unsigned int i = 0u;
+    unsigned int i = 0;
 
     if (x == m) {
         return 1.0;
@@ -1085,11 +1090,11 @@ operator()(const beta& beta_, double x, maths_t::ETail& tail) const {
 
     const double CONVERGENCE_TOLERANCE = 1e-4;
     const double PDF_TOLERANCE = 5e-2;
-    const unsigned int MAX_ITERATIONS = 6u;
+    const unsigned int MAX_ITERATIONS = 6;
 
     TDoubleBoolPr sp = stationaryPoint(beta_);
     double y[] = {2.0 * sp.first - x, 0.0};
-    unsigned int i = 0u;
+    unsigned int i = 0;
 
     this->tail(x, sp.first, tail);
 
@@ -1346,7 +1351,7 @@ void CTools::CMixtureProbabilityOfLessLikelySample::intervals(TDoubleDoublePrVec
     m_Endpoints.erase(std::unique(m_Endpoints.begin(), m_Endpoints.end()),
                       m_Endpoints.end());
     intervals.reserve(m_Endpoints.size() - 1);
-    for (std::size_t i = 1u; i < m_Endpoints.size(); ++i) {
+    for (std::size_t i = 1; i < m_Endpoints.size(); ++i) {
         intervals.emplace_back(m_Endpoints[i - 1], m_Endpoints[i]);
     }
     LOG_TRACE(<< "intervals = " << core::CContainerPrinter::print(intervals));
@@ -1848,43 +1853,6 @@ double CTools::differentialEntropy(const gamma& gamma_) {
            (1 - shape) * boost::math::digamma(shape);
 }
 
-//////// CGroup Implementation ////////
-
-void CTools::CGroup::merge(const CGroup& other, double separation, double min, double max) {
-    m_A = std::min(m_A, other.m_A);
-    m_B = std::max(m_B, other.m_B);
-
-    // Update the centre and truncate so that the group
-    // centres are in range.
-    m_Centre += other.m_Centre;
-    double l{this->leftEndpoint(separation)};
-    double r{this->rightEndpoint(separation)};
-    m_Centre.s_Moments[0] += std::max(min - l, 0.0);
-    m_Centre.s_Moments[0] += std::min(max - r, 0.0);
-}
-
-bool CTools::CGroup::overlap(const CGroup& other, double separation) const {
-    const double TOL{1.0 + EPSILON};
-    double ll{this->leftEndpoint(separation)};
-    double lr{this->rightEndpoint(separation)};
-    double rl{other.leftEndpoint(separation)};
-    double rr{other.rightEndpoint(separation)};
-    return !(TOL * (lr + separation) <= rl || ll >= TOL * (rr + separation) ||
-             TOL * (rr + separation) <= ll || rl >= TOL * (lr + separation));
-}
-
-double CTools::CGroup::leftEndpoint(double separation) const {
-    return CBasicStatistics::mean(m_Centre) -
-           static_cast<double>(m_B - m_A) * separation / 2.0;
-}
-
-double CTools::CGroup::rightEndpoint(double separation) const {
-    return CBasicStatistics::mean(m_Centre) +
-           static_cast<double>(m_B - m_A) * separation / 2.0;
-}
-
-const CTools::CLookupTableForFastLog<CTools::FAST_LOG_PRECISION> CTools::FAST_LOG_TABLE;
-
 //////// Miscellaneous Implementations ////////
 
 namespace {
@@ -1915,6 +1883,25 @@ double CTools::linearlyInterpolate(double a, double b, double fa, double fb, dou
     if (x >= b) {
         return fb;
     }
+    if (b == a) {
+        return 0.5 * (fa + fb);
+    }
+    return ((b - x) * fa + (x - a) * fb) / (b - a);
+}
+
+double CTools::logLinearlyInterpolate(double a, double b, double fa, double fb, double x) {
+    if (x <= a) {
+        return fa;
+    }
+    if (x >= b) {
+        return fb;
+    }
+    if (b == a) {
+        return 0.5 * (fa + fb);
+    }
+    a = std::log(a);
+    b = std::log(b);
+    x = std::log(x);
     return ((b - x) * fa + (x - a) * fb) / (b - a);
 }
 
@@ -1940,7 +1927,7 @@ double CTools::powOneMinusX(double x, double p) {
     if (std::fabs(y) < EPS) {
         double remainder = 0.0;
         double ti = 1.0;
-        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0) {
+        for (std::size_t i = 0; i < N && p != 0.0; ++i, p -= 1.0) {
             ti *= p * x;
             remainder += COEFFS[i] * ti;
         }
@@ -1983,7 +1970,7 @@ double CTools::oneMinusPowOneMinusX(double x, double p) {
     if (std::fabs(y) < EPS) {
         double result = 0.0;
         double ti = 1.0;
-        for (std::size_t i = 0u; i < N && p != 0.0; ++i, p -= 1.0) {
+        for (std::size_t i = 0; i < N && p != 0.0; ++i, p -= 1.0) {
             ti *= p * x;
             result -= COEFFS[i] * ti;
         }
@@ -2005,7 +1992,7 @@ double CTools::logOneMinusX(double x) {
 
     if (std::fabs(x) < EPS) {
         double xi = -x;
-        for (std::size_t i = 0u; i < 6; ++i, xi *= -x) {
+        for (std::size_t i = 0; i < 6; ++i, xi *= -x) {
             result += xi / static_cast<double>(i + 1);
         }
     } else {
@@ -2019,5 +2006,7 @@ bool CTools::lgamma(double value, double& result, bool checkForFinite) {
     result = std::lgamma(value);
     return checkForFinite ? std::isfinite(result) : true;
 }
+
+const CTools::CLookupTableForFastLog<CTools::FAST_LOG_PRECISION> CTools::FAST_LOG_TABLE;
 }
 }

@@ -1,21 +1,26 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CProcessPriorityTest.h"
 
 #include <core/CProcessPriority.h>
 
-CppUnit::Test* CProcessPriorityTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProcessPriorityTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProcessPriorityTest>(
-        "CProcessPriorityTest::testReducePriority", &CProcessPriorityTest::testReducePriority));
+BOOST_AUTO_TEST_SUITE(CProcessPriorityTest)
 
-    return suiteOfTests;
+BOOST_AUTO_TEST_CASE(testReduceMemoryPriority) {
+    BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reduceMemoryPriority());
 }
 
-void CProcessPriorityTest::testReducePriority() {
-    ml::core::CProcessPriority::reducePriority();
+BOOST_AUTO_TEST_CASE(testReduceCpuPriority) {
+    BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reduceCpuPriority());
 }
+
+BOOST_AUTO_TEST_SUITE_END()

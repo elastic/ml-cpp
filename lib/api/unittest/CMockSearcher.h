@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_CMockSearcher_h
 #define INCLUDED_CMockSearcher_h
@@ -30,7 +35,7 @@ public:
     //! A return value of NULL indicates a technical problem with the
     //! creation of the stream.  Other errors may be indicated by the
     //! returned stream going into the "bad" state.
-    virtual TIStreamP search(size_t currentDocNum, size_t limit);
+    TIStreamP search(std::size_t currentDocNum, std::size_t limit) override;
 
 private:
     const CMockDataAdder& m_MockDataAdder;

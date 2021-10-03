@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CSampleCounts.h>
@@ -129,7 +134,7 @@ void CSampleCounts::refresh(const CDataGatherer& gatherer) {
             std::max(sampleCountThreshold, model_t::minimumSampleCount(feature));
     }
 
-    for (std::size_t id = 0u; id < m_MeanNonZeroBucketCounts.size(); ++id) {
+    for (std::size_t id = 0; id < m_MeanNonZeroBucketCounts.size(); ++id) {
         const TMeanAccumulator& count_ = m_MeanNonZeroBucketCounts[id];
         if (m_SampleCounts[id] > 0) {
             if (maths::CBasicStatistics::count(count_) >= NUMBER_BUCKETS_TO_REFRESH_SAMPLE_COUNT) {
@@ -171,7 +176,7 @@ void CSampleCounts::updateMeanNonZeroBucketCount(std::size_t id, double count, d
 }
 
 void CSampleCounts::recycle(const TSizeVec& idsToRemove) {
-    for (std::size_t i = 0u; i < idsToRemove.size(); ++i) {
+    for (std::size_t i = 0; i < idsToRemove.size(); ++i) {
         std::size_t id = idsToRemove[i];
         if (id >= m_SampleCounts.size()) {
             continue;
@@ -213,7 +218,7 @@ void CSampleCounts::resize(std::size_t id) {
 
 uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
     TStrCRefUInt64Map hashes;
-    for (std::size_t id = 0u; id < m_SampleCounts.size(); ++id) {
+    for (std::size_t id = 0; id < m_SampleCounts.size(); ++id) {
         if (gatherer.isPopulation() ? gatherer.isAttributeActive(id)
                                     : gatherer.isPersonActive(id)) {
             uint64_t& hash = hashes[TStrCRef(this->name(gatherer, id))];
@@ -226,7 +231,7 @@ uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
     return maths::CChecksum::calculate(0, hashes);
 }
 
-void CSampleCounts::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CSampleCounts::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSampleCounts");
     core::CMemoryDebug::dynamicSize("m_SampleCounts", m_SampleCounts, mem);
     core::CMemoryDebug::dynamicSize("m_MeanNonZeroBucketCounts",

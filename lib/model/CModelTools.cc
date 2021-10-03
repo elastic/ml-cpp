@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CModelTools.h>
@@ -128,8 +133,8 @@ void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength,
         m_ValueEps.assign(m_RandomSample[0].size(), 0.0);
         if (m_RandomSample.size() > 1) {
             TDoubleVec values(m_RandomSample.size());
-            for (std::size_t i = 0u; i < m_ValueEps.size(); ++i) {
-                for (std::size_t j = 0u; j < m_RandomSample.size(); ++j) {
+            for (std::size_t i = 0; i < m_ValueEps.size(); ++i) {
+                for (std::size_t j = 0; j < m_RandomSample.size(); ++j) {
                     values[j] = m_RandomSample[j][i];
                 }
                 std::size_t p10{values.size() / 10};
@@ -153,7 +158,7 @@ std::size_t CModelTools::CFuzzyDeduplicate::duplicate(core_t::TTime time, TDoubl
 }
 
 CModelTools::TDouble2Vec CModelTools::CFuzzyDeduplicate::quantize(TDouble2Vec value) const {
-    for (std::size_t i = 0u; i < m_ValueEps.size(); ++i) {
+    for (std::size_t i = 0; i < m_ValueEps.size(); ++i) {
         value[i] = m_ValueEps[i] > 0.0
                        ? m_ValueEps[i] * std::floor(value[i] / m_ValueEps[i])
                        : value[i];
@@ -282,7 +287,7 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
         LOG_TRACE(<< "P({c}) <= " << core::CContainerPrinter::print(ub));
         m_Cache.swap(lb);
         m_SmallestProbability = 1.0;
-        for (std::size_t i = 0u; i < ub.size(); ++i) {
+        for (std::size_t i = 0; i < ub.size(); ++i) {
             m_Cache[i] = (m_Cache[i] + ub[i]) / 2.0;
             m_SmallestProbability = std::min(m_SmallestProbability, m_Cache[i]);
         }
@@ -296,7 +301,8 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
     return true;
 }
 
-void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CModelTools::CCategoryProbabilityCache::debugMemoryUsage(
+    const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTools::CLessLikelyProbability");
     core::CMemoryDebug::dynamicSize("m_Cache", m_Cache, mem->addChild());
     if (m_Prior) {

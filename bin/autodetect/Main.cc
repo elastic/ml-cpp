@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 //! \brief
 //! Analyse event rates and metric time series for anomalies
@@ -13,12 +18,14 @@
 //! IMPLEMENTATION DECISIONS:\n
 //! Standalone program.
 //!
+#include <core/CBlockingCallCancellingTimer.h>
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CProgramCounters.h>
+#include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -28,15 +35,14 @@
 #include <model/ModelTypes.h>
 
 #include <api/CAnomalyJob.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CLengthEncodedInputParser.h>
 #include <api/CModelSnapshotJsonWriter.h>
-#include <api/COutputChainer.h>
 #include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -46,12 +52,11 @@
 
 #include "CCmdLineParser.h"
 
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
 #include <functional>
 #include <memory>
-#include <string>
-
-#include <stdio.h>
-#include <stdlib.h>
 
 int main(int argc, char** argv) {
 
@@ -62,6 +67,7 @@ int main(int argc, char** argv) {
         ml::counter_t::E_TSADNumberNewPeopleRecycled,
         ml::counter_t::E_TSADNumberApiRecordsHandled,
         ml::counter_t::E_TSADMemoryUsage,
+        ml::counter_t::E_TSADPeakMemoryUsage,
         ml::counter_t::E_TSADNumberMemoryUsageChecks,
         ml::counter_t::E_TSADNumberMemoryUsageEstimates,
         ml::counter_t::E_TSADNumberRecordsNoTimeField,
@@ -75,75 +81,87 @@ int main(int argc, char** argv) {
         ml::counter_t::E_TSADNumberExcludedFrequentInvocations,
         ml::counter_t::E_TSADNumberSamplesOutsideLatencyWindow,
         ml::counter_t::E_TSADNumberMemoryLimitModelCreationFailures,
-        ml::counter_t::E_TSADNumberPrunedItems};
+        ml::counter_t::E_TSADNumberPrunedItems,
+        ml::counter_t::E_TSADAssignmentMemoryBasis};
 
     ml::core::CProgramCounters::registerProgramCounterTypes(counters);
 
     using TStrVec = ml::autodetect::CCmdLineParser::TStrVec;
 
     // Read command line options
-    std::string limitConfigFile;
+    std::string configFile;
+    std::string filtersConfigFile;
+    std::string eventsConfigFile;
     std::string modelConfigFile;
-    std::string fieldConfigFile;
-    std::string modelPlotConfigFile;
-    std::string jobId;
     std::string logProperties;
     std::string logPipe;
-    ml::core_t::TTime bucketSpan(0);
-    ml::core_t::TTime latency(0);
-    std::string summaryCountFieldName;
-    char delimiter('\t');
-    bool lengthEncodedInput(false);
-    std::string timeField(ml::api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME);
+    char delimiter{'\t'};
+    bool lengthEncodedInput{false};
     std::string timeFormat;
     std::string quantilesStateFile;
-    bool deleteStateFiles(false);
-    ml::core_t::TTime persistInterval(-1);
-    std::size_t bucketPersistInterval(0);
-    ml::core_t::TTime maxQuantileInterval(-1);
+    bool deleteStateFiles{false};
+    std::size_t bucketPersistInterval{0};
+    ml::core_t::TTime namedPipeConnectTimeout{
+        ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
-    bool isInputFileNamedPipe(false);
+    bool isInputFileNamedPipe{false};
     std::string outputFileName;
-    bool isOutputFileNamedPipe(false);
+    bool isOutputFileNamedPipe{false};
     std::string restoreFileName;
-    bool isRestoreFileNamedPipe(false);
+    bool isRestoreFileNamedPipe{false};
     std::string persistFileName;
-    bool isPersistFileNamedPipe(false);
-    bool isPersistInForeground(false);
-    size_t maxAnomalyRecords(100u);
-    bool memoryUsage(false);
-    bool multivariateByFields(false);
-    TStrVec clauseTokens;
+    bool isPersistFileNamedPipe{false};
+    bool isPersistInForeground{false};
+    std::size_t maxAnomalyRecords{100};
+    bool memoryUsage{false};
+    bool validElasticLicenseKeyConfirmed{false};
     if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, limitConfigFile, modelConfigFile, fieldConfigFile,
-            modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
-            summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
-            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
-            bucketPersistInterval, maxQuantileInterval, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, persistFileName,
-            isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
-            memoryUsage, multivariateByFields, clauseTokens) == false) {
+            argc, argv, configFile, filtersConfigFile, eventsConfigFile,
+            modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
+            timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
+            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
+            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            persistFileName, isPersistFileNamedPipe, isPersistInForeground,
+            maxAnomalyRecords, memoryUsage, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
+
+    ml::core::CBlockingCallCancellingTimer cancellerThread{
+        ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName,
-                              isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-                              persistFileName, isPersistFileNamedPipe);
+    ml::api::CIoManager ioMgr{
+        cancellerThread,        inputFileName,         isInputFileNamedPipe,
+        outputFileName,         isOutputFileNamedPipe, restoreFileName,
+        isRestoreFileNamedPipe, persistFileName,       isPersistFileNamedPipe};
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL(<< "Could not reconfigure logging");
+    if (cancellerThread.start() == false) {
+        // This log message will probably never been seen as it will go to the
+        // real stderr of this process rather than the log pipe...
+        LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, logProperties, cancellerThread.hasCancelledBlockingCall()) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
+        cancellerThread.stop();
+        return EXIT_FAILURE;
+    }
+    cancellerThread.stop();
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
-    ml::core::CProcessPriority::reducePriority();
+    if (validElasticLicenseKeyConfirmed == false) {
+        LOG_FATAL(<< "Failed to confirm valid license key.");
+        return EXIT_FAILURE;
+    }
+
+    // Reduce memory priority before installing system call filters.
+    ml::core::CProcessPriority::reduceMemoryPriority();
 
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
@@ -152,40 +170,44 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (jobId.empty()) {
-        LOG_FATAL(<< "No job ID specified");
+    // Reduce CPU priority after connecting named pipes so the JVM gets more
+    // time when CPU is constrained.  Named pipe connection is time-sensitive,
+    // hence is done before reducing CPU priority.
+    ml::core::CProcessPriority::reduceCpuPriority();
+
+    ml::api::CAnomalyJobConfig jobConfig;
+    if (jobConfig.initFromFiles(configFile, filtersConfigFile, eventsConfigFile) == false) {
+        LOG_FATAL(<< "JSON config could not be interpreted");
         return EXIT_FAILURE;
     }
 
-    ml::model::CLimits limits(isPersistInForeground);
-    if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
-        LOG_FATAL(<< "Ml limit config file '" << limitConfigFile << "' could not be loaded");
-        return EXIT_FAILURE;
+    const ml::api::CAnomalyJobConfig::CAnalysisLimits& analysisLimits =
+        jobConfig.analysisLimits();
+    ml::model::CLimits limits{isPersistInForeground};
+    limits.init(analysisLimits.categorizationExamplesLimit(),
+                analysisLimits.modelMemoryLimitMb());
+
+    const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
+        jobConfig.analysisConfig();
+
+    bool doingCategorization{analysisConfig.categorizationFieldName().empty() == false};
+    TStrVec mutableFields;
+    if (doingCategorization) {
+        mutableFields.push_back(ml::api::CFieldDataCategorizer::MLCATEGORY_NAME);
     }
 
-    ml::api::CFieldConfig fieldConfig;
-
-    ml::model_t::ESummaryMode summaryMode(
-        summaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual);
-    ml::model::CAnomalyDetectorModelConfig modelConfig =
-        ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-            bucketSpan, summaryMode, summaryCountFieldName, latency, multivariateByFields);
-    modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(
-        fieldConfig.detectionRules()));
-    modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(
-        fieldConfig.scheduledEvents()));
+    ml::model::CAnomalyDetectorModelConfig modelConfig = analysisConfig.makeModelConfig();
 
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
-        LOG_FATAL(<< "Ml model config file '" << modelConfigFile << "' could not be loaded");
+        LOG_FATAL(<< "ML model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
-    if (!modelPlotConfigFile.empty() &&
-        modelConfig.configureModelPlot(modelPlotConfigFile) == false) {
-        LOG_FATAL(<< "Ml model plot config file '" << modelPlotConfigFile
-                  << "' could not be loaded");
-        return EXIT_FAILURE;
-    }
+    const ml::api::CAnomalyJobConfig::CModelPlotConfig& modelPlotConfig =
+        jobConfig.modelPlotConfig();
+    modelConfig.configureModelPlot(modelPlotConfig.enabled(),
+                                   modelPlotConfig.annotationsEnabled(),
+                                   modelPlotConfig.terms());
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
     const TDataSearcherUPtr restoreSearcher{[isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
@@ -212,6 +234,7 @@ int main(int argc, char** argv) {
         return nullptr;
     }()};
 
+    ml::core_t::TTime persistInterval{jobConfig.persistInterval()};
     if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
         LOG_FATAL(<< "Periodic persistence cannot be enabled using the '"
                   << ((persistInterval >= 0) ? "persistInterval" : "bucketPersistInterval")
@@ -221,7 +244,7 @@ int main(int argc, char** argv) {
     }
 
     using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
-    const TPersistenceManagerUPtr periodicPersister{
+    const TPersistenceManagerUPtr persistenceManager{
         [persistInterval, isPersistInForeground, &persister,
          &bucketPersistInterval]() -> TPersistenceManagerUPtr {
             if (persistInterval >= 0 || bucketPersistInterval > 0) {
@@ -232,27 +255,33 @@ int main(int argc, char** argv) {
         }()};
 
     using InputParserCUPtr = std::unique_ptr<ml::api::CInputParser>;
-    const InputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> InputParserCUPtr {
+    const InputParserCUPtr inputParser{[lengthEncodedInput, &mutableFields,
+                                        &ioMgr, delimiter]() -> InputParserCUPtr {
         if (lengthEncodedInput) {
-            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(
+                mutableFields, ioMgr.inputStream());
         }
-        return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream(), delimiter);
+        return std::make_unique<ml::api::CCsvInputParser>(
+            mutableFields, ioMgr.inputStream(), delimiter);
     }()};
 
-    ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
-
-    ml::api::CModelSnapshotJsonWriter modelSnapshotWriter(jobId, wrappedOutputStream);
-    if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
-        LOG_FATAL(<< "Field config could not be interpreted");
-        return EXIT_FAILURE;
-    }
+    const std::string jobId{jobConfig.jobId()};
+    ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
+    ml::api::CModelSnapshotJsonWriter modelSnapshotWriter{jobId, wrappedOutputStream};
 
     // The anomaly job knows how to detect anomalies
-    ml::api::CAnomalyJob job(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
+    ml::api::CAnomalyJob job{jobId,
+                             limits,
+                             jobConfig,
+                             modelConfig,
+                             wrappedOutputStream,
                              std::bind(&ml::api::CModelSnapshotJsonWriter::write,
                                        &modelSnapshotWriter, std::placeholders::_1),
-                             periodicPersister.get(), maxQuantileInterval,
-                             timeField, timeFormat, maxAnomalyRecords);
+                             persistenceManager.get(),
+                             jobConfig.quantilePersistInterval(),
+                             jobConfig.dataDescription().timeField(),
+                             timeFormat,
+                             maxAnomalyRecords};
 
     if (!quantilesStateFile.empty()) {
         if (job.initNormalizer(quantilesStateFile) == false) {
@@ -260,47 +289,43 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
         if (deleteStateFiles) {
-            ::remove(quantilesStateFile.c_str());
+            std::remove(quantilesStateFile.c_str());
         }
     }
 
-    ml::api::CDataProcessor* firstProcessor(&job);
+    // The categorizer knows how to assign categories to records
+    ml::api::CFieldDataCategorizer categorizer{
+        jobId,
+        analysisConfig,
+        limits,
+        jobConfig.dataDescription().timeField(),
+        timeFormat,
+        &job,
+        wrappedOutputStream,
+        persistenceManager.get(),
+        analysisConfig.perPartitionCategorizationStopOnWarn()};
 
-    // Chain the categorizer's output to the anomaly detector's input
-    ml::api::COutputChainer outputChainer(job);
-
-    ml::api::CJsonOutputWriter fieldDataTyperOutputWriter(jobId, wrappedOutputStream);
-
-    // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, outputChainer,
-                                   fieldDataTyperOutputWriter);
-
-    if (fieldConfig.fieldNameSuperset().count(ml::api::CFieldDataTyper::MLCATEGORY_NAME) > 0) {
-        LOG_DEBUG(<< "Applying the categorization typer for anomaly detection");
-        firstProcessor = &typer;
+    ml::api::CDataProcessor* firstProcessor{nullptr};
+    if (doingCategorization) {
+        LOG_DEBUG(<< "Applying the categorizer for anomaly detection");
+        firstProcessor = &categorizer;
+    } else {
+        firstProcessor = &job;
     }
 
-    if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
+    if (persistenceManager != nullptr) {
+        persistenceManager->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
             &ml::api::CDataProcessor::periodicPersistStateInBackground, firstProcessor));
 
-        periodicPersister->firstProcessorForegroundPeriodicPersistFunc(std::bind(
+        persistenceManager->firstProcessorForegroundPeriodicPersistFunc(std::bind(
             &ml::api::CDataProcessor::periodicPersistStateInForeground, firstProcessor));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(),
-                                   *inputParser, *firstProcessor);
-    bool ioLoopSucceeded(skeleton.ioLoop());
-
-    // Unfortunately we cannot rely on destruction to finalise the output writer
-    // as it must be finalised before the skeleton is destroyed, and C++
-    // destruction order means the skeleton will be destroyed before the output
-    // writer as it was constructed last.
-    fieldDataTyperOutputWriter.finalise();
-
-    if (!ioLoopSucceeded) {
-        LOG_FATAL(<< "Ml anomaly detector job failed");
+    ml::api::CCmdSkeleton skeleton{restoreSearcher.get(), persister.get(),
+                                   *inputParser, *firstProcessor};
+    if (skeleton.ioLoop() == false) {
+        LOG_FATAL(<< "ML anomaly detector job failed");
         return EXIT_FAILURE;
     }
 
@@ -314,7 +339,7 @@ int main(int argc, char** argv) {
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG(<< "Ml anomaly detector job exiting");
+    LOG_DEBUG(<< "ML anomaly detector job exiting");
 
     return EXIT_SUCCESS;
 }

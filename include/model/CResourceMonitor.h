@@ -1,30 +1,47 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_model_CResourceMonitor_h
 #define INCLUDED_ml_model_CResourceMonitor_h
 
 #include <core/CoreTypes.h>
 
+#include <maths/CBasicStatistics.h>
+
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SCategorizerStats.h>
 
 #include <boost/unordered_map.hpp>
 
 #include <functional>
 
-class CResourceMonitorTest;
-class CResourceLimitTest;
-class CAnomalyJobLimitTest;
+namespace CResourceMonitorTest {
+class CTestFixture;
+struct testMonitor;
+struct testPeakUsage;
+struct testPruning;
+struct testUpdateMoments;
+}
+namespace CResourceLimitTest {
+class CTestFixture;
+}
+namespace CAnomalyJobLimitTest {
+struct testAccuracy;
+struct testLimit;
+}
 
 namespace ml {
 namespace model {
 
-class CAnomalyDetector;
-class CAnomalyDetectorModel;
-class CResourcePruner;
+class CMonitoredResource;
 
 //! \brief Assess memory used by models and decide on further memory allocations.
 //!
@@ -32,24 +49,30 @@ class CResourcePruner;
 //! Assess memory used by models and decide on further memory allocations.
 class MODEL_EXPORT CResourceMonitor {
 public:
-    struct MODEL_EXPORT SResults {
-        std::size_t s_Usage;
-        std::size_t s_AdjustedUsage;
-        std::size_t s_ByFields;
-        std::size_t s_PartitionFields;
-        std::size_t s_OverFields;
-        std::size_t s_AllocationFailures;
-        model_t::EMemoryStatus s_MemoryStatus;
-        core_t::TTime s_BucketStartTime;
-        std::size_t s_BytesExceeded;
-        std::size_t s_BytesMemoryLimit;
+    struct MODEL_EXPORT SModelSizeStats {
+        std::size_t s_Usage = 0;
+        std::size_t s_AdjustedUsage = 0;
+        std::size_t s_PeakUsage = 0;
+        std::size_t s_AdjustedPeakUsage = 0;
+        std::size_t s_ByFields = 0;
+        std::size_t s_PartitionFields = 0;
+        std::size_t s_OverFields = 0;
+        std::size_t s_AllocationFailures = 0;
+        model_t::EMemoryStatus s_MemoryStatus = model_t::E_MemoryStatusOk;
+        model_t::EAssignmentMemoryBasis s_AssignmentMemoryBasis = model_t::E_AssignmentBasisUnknown;
+        core_t::TTime s_BucketStartTime = 0;
+        std::size_t s_BytesExceeded = 0;
+        std::size_t s_BytesMemoryLimit = 0;
+        SCategorizerStats s_OverallCategorizerStats;
     };
 
 public:
-    using TDetectorPtrSizePr = std::pair<CAnomalyDetector*, std::size_t>;
-    using TDetectorPtrSizeUMap = boost::unordered_map<CAnomalyDetector*, std::size_t>;
-    using TMemoryUsageReporterFunc = std::function<void(const CResourceMonitor::SResults&)>;
+    using TMonitoredResourcePtrSizeUMap =
+        boost::unordered_map<CMonitoredResource*, std::size_t>;
+    using TMemoryUsageReporterFunc =
+        std::function<void(const CResourceMonitor::SModelSizeStats&)>;
     using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
+    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     //! The minimum time between prunes
     static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;
@@ -72,38 +95,50 @@ public:
     //! Return the amount of remaining space for allocations
     std::size_t allocationLimit() const;
 
-    //! Tell this resource monitor about a CAnomalyDetector class -
-    //! these classes contain all the model memory and are used
-    //! to query the current overall usage
-    void registerComponent(CAnomalyDetector& detector);
+    //! Register a resource with the monitor - these classes
+    //! contain all the model memory and are used to query
+    //! the current overall usage
+    void registerComponent(CMonitoredResource& resource);
 
-    //! Tell this resource monitor that a CAnomalyDetector class is
+    //! Inform this resource monitor instance that a monitored resource is
     //! going to be deleted.
-    void unRegisterComponent(CAnomalyDetector& detector);
+    void unRegisterComponent(CMonitoredResource& resource);
 
-    //! Set a callback used when the memory usage grows
+    //! Register a callback to be used when the memory usage grows
     void memoryUsageReporter(const TMemoryUsageReporterFunc& reporter);
 
     //! Recalculate the memory usage if there is a memory limit
-    void refresh(CAnomalyDetector& detector);
+    void refresh(CMonitoredResource& resource);
 
     //! Recalculate the memory usage regardless of whether there is a memory limit
-    void forceRefresh(CAnomalyDetector& detector);
+    void forceRefresh(CMonitoredResource& resource);
+
+    //! Recalculate the memory usage for all monitored resources
+    void forceRefreshAll();
 
     //! Set the internal memory limit, as specified in a limits config file
     void memoryLimit(std::size_t limitMBs);
 
+    std::size_t getBytesMemoryLimit() const;
+
     //! Get the memory status
-    model_t::EMemoryStatus getMemoryStatus();
+    model_t::EMemoryStatus memoryStatus() const;
+
+    //! Get categorizer allocation failures
+    std::size_t categorizerAllocationFailures() const;
+
+    //! Set categorizer allocation failures
+    void categorizerAllocationFailures(std::size_t categorizerAllocationFailures);
 
     //! Send a memory usage report if it's changed by more than a certain percentage
-    void sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime);
+    void sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime,
+                                                     core_t::TTime bucketLength);
 
     //! Send a memory usage report
-    void sendMemoryUsageReport(core_t::TTime bucketStartTime);
+    void sendMemoryUsageReport(core_t::TTime bucketStartTime, core_t::TTime bucketLength);
 
     //! Create a memory usage report
-    SResults createMemoryUsageReport(core_t::TTime bucketStartTime);
+    SModelSizeStats createMemoryUsageReport(core_t::TTime bucketStartTime);
 
     //! We are being told that a class has failed to allocate memory
     //! based on the resource limits, and we will report this to the
@@ -113,12 +148,18 @@ public:
     //! We are being told that aggressive pruning has taken place
     //! to avoid hitting the resource limit, and we should report this
     //! to the user when we can
-    void acceptPruningResult();
+    void startPruning();
+
+    //! We are being told that aggressive pruning to avoid hitting the
+    //! resource limit is no longer necessary, and we should report this
+    //! to the user when we can
+    void endPruning();
 
     //! Accessor for no limit flag
     bool haveNoLimit() const;
 
     //! Prune models where necessary
+    //! \return Was pruning required?
     bool pruneIfRequired(core_t::TTime endTime);
 
     //! Accounts for any extra memory to the one
@@ -145,11 +186,24 @@ private:
     void updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs);
 
     //! Update the given model and recalculate the total usage
-    void memUsage(CAnomalyDetector* detector);
+    void memUsage(CMonitoredResource* resource);
+
+    //! Update the moments that are used to determine whether memory is stable
+    void updateMoments(std::size_t totalMemory,
+                       core_t::TTime bucketStartTime,
+                       core_t::TTime bucketLength);
 
     //! Determine if we need to send a usage report, based on
     //! increased usage, or increased errors
-    bool needToSendReport();
+    bool needToSendReport(model_t::EAssignmentMemoryBasis currentAssignmentMemoryBasis,
+                          core_t::TTime bucketStartTime,
+                          core_t::TTime bucketLength);
+
+    //! Report whether memory usage has been sufficiently stable in
+    //! recent reports to justify switching from using the model
+    //! memory limit to actual memory usage when deciding which node
+    //! to assign the job to.
+    bool isMemoryStable(core_t::TTime bucketLength) const;
 
     //! After a change in memory usage, check whether allocations
     //! shoule be allowed or not
@@ -174,53 +228,51 @@ private:
 
 private:
     //! The registered collection of components
-    TDetectorPtrSizeUMap m_Detectors;
+    TMonitoredResourcePtrSizeUMap m_Resources;
 
     //! Is there enough free memory to allow creating new components
-    bool m_AllowAllocations;
+    bool m_AllowAllocations{true};
 
     //! The relative margin to apply to the byte limits.
     double m_ByteLimitMargin;
 
     //! The upper limit for memory usage, checked on increasing values
-    std::size_t m_ByteLimitHigh;
+    std::size_t m_ByteLimitHigh{0};
 
     //! The lower limit for memory usage, checked on decreasing values
-    std::size_t m_ByteLimitLow;
+    std::size_t m_ByteLimitLow{0};
 
-    //! Memory usage by anomaly detectors on the most recent calculation
-    std::size_t m_CurrentAnomalyDetectorMemory;
+    //! The memory usage of the monitored resources based on the most recent
+    //! calculation
+    std::size_t m_MonitoredResourceCurrentMemory{0};
 
     //! Extra memory to enable accounting of soon to be allocated memory
-    std::size_t m_ExtraMemory;
+    std::size_t m_ExtraMemory{0};
 
     //! The total memory usage on the previous usage report
     std::size_t m_PreviousTotal;
 
-    //! The highest known value for total memory usage
-    std::size_t m_Peak;
-
     //! Callback function to fire when memory usage increases by 1%
     TMemoryUsageReporterFunc m_MemoryUsageReporter;
 
-    //! Keep track of classes telling us about allocation failures
+    //! Keep track of times of anomaly detector allocation failures
     TTimeSizeMap m_AllocationFailures;
 
     //! The time at which the last allocation failure was reported
-    core_t::TTime m_LastAllocationFailureReport;
+    core_t::TTime m_LastAllocationFailureReport{0};
 
     //! Keep track of the model memory status
-    model_t::EMemoryStatus m_MemoryStatus;
+    model_t::EMemoryStatus m_MemoryStatus{model_t::E_MemoryStatusOk};
 
     //! Keep track of whether pruning has started, for efficiency in most cases
-    bool m_HasPruningStarted;
+    bool m_HasPruningStarted{false};
 
     //! The threshold at which pruning should kick in and head
     //! towards for the sweet spot
-    std::size_t m_PruneThreshold;
+    std::size_t m_PruneThreshold{0};
 
     //! The last time we did a full prune of all the models
-    core_t::TTime m_LastPruneTime;
+    core_t::TTime m_LastPruneTime{0};
 
     //! Number of buckets to go back when pruning
     std::size_t m_PruneWindow;
@@ -228,26 +280,42 @@ private:
     //! The largest that the prune window can grow to - determined from the models
     std::size_t m_PruneWindowMaximum;
 
-    //! The smallest that the prune window can shrink to - 4 weeks
+    //! The smallest that the prune window can shrink to - determined from the models
     std::size_t m_PruneWindowMinimum;
 
     //! Don't do any sort of memory checking if this is set
-    bool m_NoLimit;
+    bool m_NoLimit{false};
 
     //! The number of bytes over the high limit for memory usage at the last allocation failure
-    std::size_t m_CurrentBytesExceeded;
+    std::size_t m_CurrentBytesExceeded{0};
 
     //! Is persistence occurring in the foreground?
     bool m_PersistenceInForeground;
 
+    //! Number of categorizer allocation failures to date
+    std::size_t m_CategorizerAllocationFailures{0};
+
+    //! Estimates of mean and variance for recent reports of model bytes
+    TMeanVarAccumulator m_ModelBytesMoments;
+
+    //! Time the m_ModelBytesMoments was first updated
+    core_t::TTime m_FirstMomentsUpdateTime{0};
+
+    //! Time the m_ModelBytesMoments was last updated
+    core_t::TTime m_LastMomentsUpdateTime{0};
+
     //! Test friends
-    friend class ::CResourceMonitorTest;
-    friend class ::CResourceLimitTest;
-    friend class ::CAnomalyJobLimitTest;
+    friend class CResourceMonitorTest::CTestFixture;
+    friend struct CResourceMonitorTest::testMonitor;
+    friend struct CResourceMonitorTest::testPeakUsage;
+    friend struct CResourceMonitorTest::testPruning;
+    friend struct CResourceMonitorTest::testUpdateMoments;
+    friend class CResourceLimitTest::CTestFixture;
+    friend struct CAnomalyJobLimitTest::testAccuracy;
+    friend struct CAnomalyJobLimitTest::testLimit;
 };
 
 } // model
-
 } // ml
 
 #endif // INCLUDED_ml_model_CResourceMonitor_h

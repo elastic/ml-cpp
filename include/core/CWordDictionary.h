@@ -1,18 +1,21 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CWordDictionary_h
 #define INCLUDED_ml_core_CWordDictionary_h
 
-#include <core/CFastMutex.h>
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
 #include <boost/unordered_map.hpp>
 
-#include <functional>
 #include <string>
 
 namespace ml {
@@ -74,8 +77,12 @@ public:
     template<size_t DEFAULT_EXTRA_WEIGHT>
     class CWeightAll {
     public:
-        size_t operator()(EPartOfSpeech partOfSpeech) {
+        std::size_t operator()(EPartOfSpeech partOfSpeech) {
             return (partOfSpeech == E_NotInDictionary) ? 0 : DEFAULT_EXTRA_WEIGHT;
+        }
+
+        void reset() {
+            // NO-OP
         }
     };
 
@@ -83,25 +90,59 @@ public:
 
     //! Functor for weighting one type of dictionary word by a certain
     //! amount and all dictionary words by a different amount
-    template<EPartOfSpeech SPECIAL_PART1, size_t EXTRA_WEIGHT1, size_t DEFAULT_EXTRA_WEIGHT>
+    template<EPartOfSpeech SPECIAL_PART1, std::size_t EXTRA_WEIGHT1, std::size_t DEFAULT_EXTRA_WEIGHT>
     class CWeightOnePart {
     public:
-        size_t operator()(EPartOfSpeech partOfSpeech) {
+        std::size_t operator()(EPartOfSpeech partOfSpeech) {
             if (partOfSpeech == E_NotInDictionary) {
                 return 0;
             }
             return (partOfSpeech == SPECIAL_PART1) ? EXTRA_WEIGHT1 : DEFAULT_EXTRA_WEIGHT;
         }
+
+        void reset() {
+            // NO-OP
+        }
     };
 
     using TWeightVerbs5Other2 = CWeightOnePart<E_Verb, 5, 2>;
 
+    //! Functor for weighting one type of dictionary word by a certain
+    //! amount and all dictionary words by a different amount, giving a boost to
+    //! the weight when 3 or more dictionary words are adjacent one another.
+    template<EPartOfSpeech SPECIAL_PART1, std::size_t EXTRA_WEIGHT1, std::size_t DEFAULT_EXTRA_WEIGHT, std::size_t ADJACENT_PARTS_BOOST>
+    class CWeightOnePartAdjacentBoost {
+    public:
+        std::size_t operator()(EPartOfSpeech partOfSpeech) {
+            if (partOfSpeech == E_NotInDictionary) {
+                m_NumOfAdjacentDictionaryWords = 0;
+                return 0;
+            }
+
+            std::size_t weight = (partOfSpeech == SPECIAL_PART1) ? EXTRA_WEIGHT1 : DEFAULT_EXTRA_WEIGHT;
+            std::size_t boost =
+                (m_NumOfAdjacentDictionaryWords > 1 ? ADJACENT_PARTS_BOOST : 1);
+            weight *= boost;
+
+            ++m_NumOfAdjacentDictionaryWords;
+
+            return weight;
+        }
+
+        void reset() { m_NumOfAdjacentDictionaryWords = 0; }
+
+    private:
+        std::size_t m_NumOfAdjacentDictionaryWords = 0;
+    };
+
+    using TWeightVerbs5Other2AdjacentBoost6 = CWeightOnePartAdjacentBoost<E_Verb, 5, 2, 6>;
+
     //! Functor for weighting two types of dictionary word by certain
     //! amounts and all dictionary words by a different amount
-    template<EPartOfSpeech SPECIAL_PART1, size_t EXTRA_WEIGHT1, EPartOfSpeech SPECIAL_PART2, size_t EXTRA_WEIGHT2, size_t DEFAULT_EXTRA_WEIGHT>
+    template<EPartOfSpeech SPECIAL_PART1, std::size_t EXTRA_WEIGHT1, EPartOfSpeech SPECIAL_PART2, std::size_t EXTRA_WEIGHT2, std::size_t DEFAULT_EXTRA_WEIGHT>
     class CWeightTwoParts {
     public:
-        size_t operator()(EPartOfSpeech partOfSpeech) {
+        std::size_t operator()(EPartOfSpeech partOfSpeech) {
             if (partOfSpeech == E_NotInDictionary) {
                 return 0;
             }
@@ -109,6 +150,10 @@ public:
                 return EXTRA_WEIGHT1;
             }
             return (partOfSpeech == SPECIAL_PART2) ? EXTRA_WEIGHT2 : DEFAULT_EXTRA_WEIGHT;
+        }
+
+        void reset() {
+            // NO-OP
         }
     };
 
@@ -137,12 +182,12 @@ private:
     ~CWordDictionary();
 
 private:
-    class CStrHashIgnoreCase : std::unary_function<std::string, bool> {
+    class CStrHashIgnoreCase {
     public:
-        size_t operator()(const std::string& str) const;
+        std::size_t operator()(const std::string& str) const;
     };
 
-    class CStrEqualIgnoreCase : std::binary_function<std::string, std::string, bool> {
+    class CStrEqualIgnoreCase {
     public:
         bool operator()(const std::string& lhs, const std::string& rhs) const;
     };
@@ -151,16 +196,11 @@ private:
     //! Name of the file to load that contains the dictionary words.
     static const char* const DICTIONARY_FILE;
 
-    //! The constructor loads a file, and hence may take a while.  This
-    //! mutex prevents the singleton object being constructed simultaneously
-    //! in different threads.
-    static CFastMutex ms_LoadMutex;
-
     //! This pointer is set after the singleton object has been constructed,
-    //! and avoids the need to lock the mutex on subsequent calls of the
-    //! instance() method (once the updated value of this variable has made
-    //! its way into every thread).
-    static volatile CWordDictionary* ms_Instance;
+    //! and avoids the need to lock the magic static initialisation mutex on
+    //! subsequent calls of the instance() method (once the updated value of
+    //! this variable is visible in every thread).
+    static CWordDictionary* ms_Instance;
 
     //! Stores the dictionary words - using a multi-index even though
     //! there's only one index, because of its flexible key extractors.

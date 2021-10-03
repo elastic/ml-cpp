@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CLoopProgress_h
@@ -10,6 +15,7 @@
 #include <core/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 
 namespace ml {
@@ -48,19 +54,30 @@ public:
     using TProgressCallback = std::function<void(double)>;
 
 public:
+    static const std::size_t STEPS{32};
+
+public:
     CLoopProgress();
     template<typename ITR>
-    CLoopProgress(ITR begin, ITR end, const TProgressCallback& recordProgress = noop, double scale = 1.0)
-        : CLoopProgress(std::distance(begin, end), recordProgress, scale) {}
+    CLoopProgress(ITR begin,
+                  ITR end,
+                  const TProgressCallback& recordProgress = noop,
+                  double scale = 1.0,
+                  std::size_t steps = STEPS)
+        : CLoopProgress(std::distance(begin, end), recordProgress, scale, steps) {}
     CLoopProgress(std::size_t size,
                   const TProgressCallback& recordProgress = noop,
-                  double scale = 1.0);
+                  double scale = 1.0,
+                  std::size_t steps = STEPS);
 
     //! Attach a new progress monitor callback.
     void progressCallback(const TProgressCallback& recordProgress);
 
     //! Increment the progress by \p i.
     void increment(std::size_t i = 1);
+
+    //! Update the loop range by adding \p range.
+    void incrementRange(int range);
 
     //! Resume progress monitoring which was restored.
     void resumeRestored();
@@ -78,7 +95,7 @@ private:
     static void noop(double);
 
 private:
-    std::size_t m_Size;
+    std::size_t m_Range;
     std::size_t m_Steps;
     double m_StepProgress;
     std::size_t m_Pos = 0;

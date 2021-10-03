@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CBasicStatistics_h
@@ -12,6 +17,7 @@
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
 
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/CTypeTraits.h>
 #include <maths/ImportExport.h>
 
@@ -49,7 +55,7 @@ public:
         std::size_t n = std::min(samples.first.size(), samples.second.size());
         VECTOR result;
         result.reserve(n);
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             result.push_back(0.5 * (samples.first[i] + samples.second[i]));
         }
         return result;
@@ -77,6 +83,14 @@ public:
         return first <= second ? (third <= first ? third : first)
                                : (third <= second ? third : second);
     }
+
+    //! Compute the \p percentage percentile variance assuming it's calculated
+    //! from \p degreesFreedom normal random variables.
+    //!
+    //! \param[in] percentage The required percentile in the range (0, 100).
+    //! \param[in] variance The variance statistic value.
+    //! \param[in] degreesFreedom The number of values used to compute \p variance.
+    static double varianceAtPercentile(double percentage, double variance, double degreesFreedom);
 
     /////////////////////////// ACCUMULATORS ///////////////////////////
 
@@ -138,7 +152,7 @@ public:
     //! \tparam T The "floating point" type.
     //! \tparam ORDER The highest order moment to gather.
     template<typename T, unsigned int ORDER>
-    struct SSampleCentralMoments : public std::unary_function<T, void> {
+    struct SSampleCentralMoments {
         using TCoordinate = typename SCoordinate<T>::Type;
         using TValue = T;
 
@@ -244,16 +258,17 @@ public:
 
             if (ORDER > 1) {
                 T r{x - s_Moments[0]};
-                T r2{r * r};
+                T r2{las::componentwise(r) * las::componentwise(r)};
                 T dMean{mean - s_Moments[0]};
-                T dMean2{dMean * dMean};
+                T dMean2{las::componentwise(dMean) * las::componentwise(dMean)};
                 T variance{s_Moments[1]};
 
                 s_Moments[1] = beta * (variance + dMean2) + alpha * r2;
 
                 if (ORDER > 2) {
                     T skew{s_Moments[2]};
-                    T dSkew{(TCoordinate(3) * variance + dMean2) * dMean};
+                    T dSkew{TCoordinate(3) * variance + dMean2};
+                    dSkew = las::componentwise(dSkew) * las::componentwise(dMean);
 
                     s_Moments[2] = beta * (skew + dSkew) + alpha * r2 * r;
                 }
@@ -283,10 +298,10 @@ public:
 
             if (ORDER > 1) {
                 T dMeanLhs{meanLhs - s_Moments[0]};
-                T dMean2Lhs{dMeanLhs * dMeanLhs};
+                T dMean2Lhs{las::componentwise(dMeanLhs) * las::componentwise(dMeanLhs)};
                 T varianceLhs{s_Moments[1]};
                 T dMeanRhs{meanRhs - s_Moments[0]};
-                T dMean2Rhs{dMeanRhs * dMeanRhs};
+                T dMean2Rhs{las::componentwise(dMeanRhs) * las::componentwise(dMeanRhs)};
                 T varianceRhs{rhs.s_Moments[1]};
 
                 s_Moments[1] = beta * (varianceLhs + dMean2Lhs) +
@@ -294,10 +309,12 @@ public:
 
                 if (ORDER > 2) {
                     T skewLhs{s_Moments[2]};
-                    T dSkewLhs{(TCoordinate{3} * varianceLhs + dMean2Lhs) * dMeanLhs};
+                    T dSkewLhs{TCoordinate{3} * varianceLhs + dMean2Lhs};
+                    dSkewLhs = las::componentwise(dSkewLhs) * las::componentwise(dMeanLhs);
 
                     T skewRhs{rhs.s_Moments[2]};
-                    T dSkewRhs{(TCoordinate{3} * varianceRhs + dMean2Rhs) * dMeanRhs};
+                    T dSkewRhs{TCoordinate{3} * varianceRhs + dMean2Rhs};
+                    dSkewRhs = las::componentwise(dSkewRhs) * las::componentwise(dMeanRhs);
 
                     s_Moments[2] = beta * (skewLhs + dSkewLhs) + alpha * (skewRhs + dSkewRhs);
                 }
@@ -348,9 +365,9 @@ public:
 
             if (ORDER > 1) {
                 T dMeanLhs{s_Moments[0] - meanLhs};
-                T dMean2Lhs{dMeanLhs * dMeanLhs};
+                T dMean2Lhs{las::componentwise(dMeanLhs) * las::componentwise(dMeanLhs)};
                 T dMeanRhs{meanRhs - meanLhs};
-                T dMean2Rhs{dMeanRhs * dMeanRhs};
+                T dMean2Rhs{las::componentwise(dMeanRhs) * las::componentwise(dMeanRhs)};
                 T varianceRhs{rhs.s_Moments[1]};
 
                 s_Moments[1] = max(beta * (s_Moments[1] - dMean2Lhs) -
@@ -359,9 +376,11 @@ public:
 
                 if (ORDER > 2) {
                     T skewLhs{s_Moments[2]};
-                    T dSkewLhs{(TCoordinate{3} * s_Moments[1] + dMean2Lhs) * dMeanLhs};
+                    T dSkewLhs{TCoordinate{3} * s_Moments[1] + dMean2Lhs};
+                    dSkewLhs = las::componentwise(dSkewLhs) * las::componentwise(dMeanLhs);
                     T skewRhs{rhs.s_Moments[2]};
-                    T dSkewRhs{(TCoordinate{3} * varianceRhs + dMean2Rhs) * dMeanRhs};
+                    T dSkewRhs{TCoordinate{3} * varianceRhs + dMean2Rhs};
+                    dSkewRhs = las::componentwise(dSkewRhs) * las::componentwise(dMeanRhs);
 
                     s_Moments[2] = beta * (skewLhs - dSkewLhs) -
                                    alpha * (skewRhs + dSkewRhs - dSkewLhs);
@@ -718,7 +737,7 @@ public:
     //!
     //! \tparam POINT The "floating point" vector type.
     template<typename POINT>
-    struct SSampleCovariances : public std::unary_function<POINT, void> {
+    struct SSampleCovariances {
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero() {
             return core::memory_detail::SDynamicSizeAlwaysZero<POINT>::value();
@@ -916,7 +935,7 @@ private:
     //! function is supplied so that T can be any type which supports a
     //! partial ordering. (T must also have a default constructor.)
     template<typename T, typename CONTAINER, typename LESS>
-    class COrderStatisticsImpl : public std::unary_function<T, void> {
+    class COrderStatisticsImpl {
     public:
         using iterator = typename CONTAINER::iterator;
         using const_iterator = typename CONTAINER::const_iterator;
@@ -973,7 +992,7 @@ private:
         //! Update the statistic with \p n copies of \p x.
         bool add(const T& x, std::size_t n) {
             bool result = false;
-            for (std::size_t i = 0u; i < std::min(n, m_Statistics.size()); ++i) {
+            for (std::size_t i = 0; i < std::min(n, m_Statistics.size()); ++i) {
                 result |= this->add(x);
             }
             return result;
@@ -1040,6 +1059,9 @@ private:
                        ? *std::max_element(this->begin(), this->end(), m_Less)
                        : *this->begin();
         }
+
+        //! Get the maximum number of statistics.
+        inline std::size_t capacity() const { return m_Statistics.size(); }
 
         //! Get the number of statistics.
         inline std::size_t count() const {
@@ -1145,7 +1167,7 @@ public:
     //! \tparam LESS The comparison function object type used to test
     //! if one object of type T is less than another.
     template<typename T, std::size_t N, typename LESS = std::less<T>>
-    class COrderStatisticsStack
+    class EMPTY_BASE_OPT COrderStatisticsStack
         : public COrderStatisticsImpl<T, std::array<T, N>, LESS>,
           private boost::addable<COrderStatisticsStack<T, N, LESS>> {
 
@@ -1205,6 +1227,12 @@ public:
         }
     };
 
+    //! Make a stack based order statistics accumulator from \p less.
+    template<typename T, std::size_t N, typename LESS>
+    static COrderStatisticsStack<T, N, LESS> orderStatisticsAccumulator(LESS less) {
+        return COrderStatisticsStack<T, N, LESS>{less};
+    }
+
     //! \brief A heap based accumulator class for order statistics.
     //!
     //! DESCRIPTION:\n
@@ -1238,7 +1266,7 @@ public:
     //! \tparam LESS The comparison function object type used to test
     //! if one object of type T is less than another.
     template<typename T, typename LESS = std::less<T>>
-    class COrderStatisticsHeap
+    class EMPTY_BASE_OPT COrderStatisticsHeap
         : public COrderStatisticsImpl<T, std::vector<T>, LESS>,
           private boost::addable<COrderStatisticsHeap<T, LESS>> {
     private:
@@ -1255,14 +1283,14 @@ public:
                                       const LESS& less = LESS{})
             : TImpl{std::vector<T>(std::max(n, std::size_t(1)), initial), less} {
             if (n == 0) {
-                LOG_ERROR(<< "Invalid size of 0 for order statistics accumulator");
+                LOG_DEBUG(<< "Invalid size of 0 for order statistics accumulator");
             }
         }
 
         //! Reset the number of statistics to gather to \p n.
         void resize(std::size_t n) {
             if (n == 0) {
-                LOG_ERROR(<< "Invalid resize to 0 for order statistics accumulator");
+                LOG_DEBUG(<< "Invalid resize to 0 for order statistics accumulator");
                 n = 1;
             }
             this->clear();
@@ -1297,6 +1325,12 @@ public:
             return this->TImpl::toDelimited(std::forward<Args>(args)...);
         }
     };
+
+    //! Make a heap based order statistics accumulator from \p less.
+    template<typename T, typename LESS>
+    static COrderStatisticsHeap<T, LESS> orderStatisticsAccumulator(std::size_t n, LESS less) {
+        return COrderStatisticsHeap<T, LESS>{n, T{}, less};
+    }
 
     //! \name Accumulator Typedefs
     //@{

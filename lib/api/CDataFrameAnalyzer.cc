@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CDataFrameAnalyzer.h>
 
@@ -10,18 +15,23 @@
 #include <core/CFloatStorage.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
+#include <core/CStopWatch.h>
 
+#include <maths/CBasicStatistics.h>
+
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
-#include <chrono>
 #include <cmath>
 #include <limits>
-#include <thread>
+#include <string>
+#include <vector>
 
 namespace ml {
 namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 
@@ -30,8 +40,6 @@ const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 
 // Result types
 const std::string ROW_RESULTS{"row_results"};
-const std::string PROGRESS_PERCENT{"progress_percent"};
-const std::string ANALYZER_STATE{"analyzer_state"};
 
 // Row result fields
 const std::string CHECKSUM{"checksum"};
@@ -108,40 +116,41 @@ void CDataFrameAnalyzer::run() {
         return;
     }
 
-    // The main condition to care about is if the analysis is going to use more
-    // memory than was budgeted for. There are circumstances in which rows are
-    // excluded after the search filter is applied so this can't trap the case
-    // that the row counts are not equal.
-    if (m_DataFrame->numberRows() > m_AnalysisSpecification->numberRows()) {
-        HANDLE_FATAL(<< "Input error: expected no more than '"
-                     << m_AnalysisSpecification->numberRows() << "' rows "
-                     << "but got '" << m_DataFrame->numberRows() << "' rows"
-                     << ". Please report this problem.");
-        return;
-    }
-    if (m_DataFrame->numberRows() == 0) {
-        HANDLE_FATAL(<< "Input error: no data sent.");
+    if (m_AnalysisSpecification->validate(*m_DataFrame) == false) {
         return;
     }
 
     LOG_TRACE(<< "Running analysis...");
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->run(*m_DataFrame)};
-
-    if (analysis == nullptr) {
-        return;
-    }
-
     // We create the writer in run so that when it is finished destructors
     // get called and the wrapped stream does its job to close the array.
 
-    // TODO Revisit this can probably be core::CRapidJsonLineWriter.
-    auto outStream = m_ResultsStreamSupplier();
-    core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+    auto analysisRunner = m_AnalysisSpecification->runner();
+    if (analysisRunner != nullptr) {
+        // We currently use a stream factory because the results are wrapped in
+        // an array. This is managed by the CJsonOutputStreamWrapper constructor
+        // and destructor. We should probably migrate to NDJSON format at which
+        // point this would no longer be necessary.
+        auto outStream = m_ResultsStreamSupplier();
 
-    this->monitorProgress(*analysis, outputWriter);
-    analysis->waitToFinish();
-    this->writeResultsOf(*analysis, outputWriter);
+        auto& instrumentation = analysisRunner->instrumentation();
+        CDataFrameAnalysisInstrumentation::CScopeSetOutputStream setStream{
+            instrumentation, *outStream};
+        instrumentation.updateMemoryUsage(
+            static_cast<std::int64_t>(m_DataFrame->memoryUsage()));
+        instrumentation.flush();
+
+        analysisRunner->run(*m_DataFrame);
+
+        core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+
+        CDataFrameAnalysisInstrumentation::monitor(instrumentation, outputWriter);
+
+        analysisRunner->waitToFinish();
+        this->writeInferenceModel(*analysisRunner, outputWriter);
+        this->writeResultsOf(*analysisRunner, outputWriter);
+        this->writeInferenceModelMetadata(*analysisRunner, outputWriter);
+    }
 }
 
 const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
@@ -249,8 +258,6 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
         TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
                             fieldNames.begin() + m_EndDataFieldValues};
         m_DataFrame->columnNames(columnNames);
-        m_DataFrame->emptyIsMissing(
-            m_AnalysisSpecification->columnsForWhichEmptyIsMissing(columnNames));
         m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
         m_CapturedFieldNames = true;
     }
@@ -267,39 +274,49 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
                                                     : nullptr);
 }
 
-void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
-                                         core::CRapidJsonConcurrentLineWriter& writer) const {
-    // Progress as percentage
-    int progress{0};
-    while (analysis.finished() == false) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        int latestProgress{static_cast<int>(std::floor(100.0 * analysis.progress()))};
-        if (latestProgress > progress) {
-            progress = latestProgress;
-            this->writeProgress(progress, writer);
-        }
+void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& analysis,
+                                             core::CRapidJsonConcurrentLineWriter& writer) const {
+    // Write the resulting model for inference.
+    auto modelDefinition = analysis.inferenceModelDefinition(
+        m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
+    if (modelDefinition != nullptr) {
+        auto modelDefinitionSizeInfo = modelDefinition->sizeInfo();
+        rapidjson::Value sizeInfoObject{writer.makeObject()};
+        modelDefinitionSizeInfo->addToJsonDocument(sizeInfoObject, writer);
+        writer.StartObject();
+        writer.Key(modelDefinitionSizeInfo->typeString());
+        writer.write(sizeInfoObject);
+        writer.EndObject();
+        modelDefinition->addToDocumentCompressed(writer);
     }
-    this->writeProgress(100, writer);
+    writer.flush();
 }
 
-void CDataFrameAnalyzer::writeProgress(int progress,
-                                       core::CRapidJsonConcurrentLineWriter& writer) const {
-    writer.StartObject();
-    writer.Key(PROGRESS_PERCENT);
-    writer.Int(progress);
-    writer.EndObject();
+void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRunner& analysis,
+                                                     core::CRapidJsonConcurrentLineWriter& writer) const {
+    // Write model meta information
+    auto modelMetadata = analysis.inferenceModelMetadata();
+    if (modelMetadata) {
+        writer.StartObject();
+        writer.Key(modelMetadata->typeString());
+        writer.StartObject();
+        modelMetadata->write(writer);
+        writer.EndObject();
+        writer.EndObject();
+    }
     writer.flush();
 }
 
 void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                                         core::CRapidJsonConcurrentLineWriter& writer) const {
+
     // We write results single threaded because we need to write the rows to
     // Java in the order they were written to the data_frame_analyzer so it
     // can join the extra columns with the original data frame.
     std::size_t numberThreads{1};
 
     using TRowItr = core::CDataFrame::TRowItr;
-    m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
+    m_DataFrame->readRows(numberThreads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             writer.StartObject();
             writer.Key(ROW_RESULTS);
@@ -307,28 +324,14 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             writer.Key(CHECKSUM);
             writer.Int(row->docHash());
             writer.Key(RESULTS);
-
             writer.StartObject();
             writer.Key(m_AnalysisSpecification->resultsField());
             analysis.writeOneRow(*m_DataFrame, *row, writer);
             writer.EndObject();
-
             writer.EndObject();
             writer.EndObject();
         }
     });
-
-    // Write the resulting model for inference
-    const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(
-        m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
-    if (modelDefinition) {
-        rapidjson::Value inferenceModelObject{writer.makeObject()};
-        modelDefinition->addToDocument(inferenceModelObject, writer);
-        writer.StartObject();
-        writer.Key(modelDefinition->typeString());
-        writer.write(inferenceModelObject);
-        writer.EndObject();
-    }
 
     writer.flush();
 }

@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CClustererTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -12,12 +15,16 @@
 
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <set>
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CClustererTest)
+
 using namespace ml;
 
-void CClustererTest::testIndexGenerator() {
+BOOST_AUTO_TEST_CASE(testIndexGenerator) {
     // We test the invariants that:
     //   1) It never produces duplicate index.
     //   2) The highest index in the set is less than the
@@ -30,33 +37,33 @@ void CClustererTest::testIndexGenerator() {
 
     test::CRandomNumbers rng;
 
-    std::size_t numberOperations = 100000u;
+    std::size_t numberOperations = 100000;
 
     TDoubleVec tmp;
     rng.generateUniformSamples(0.0, 1.0, numberOperations, tmp);
     TSizeVec nexts;
     nexts.reserve(tmp.size());
-    for (std::size_t i = 0u; i < tmp.size(); ++i) {
+    for (std::size_t i = 0; i < tmp.size(); ++i) {
         nexts.push_back(static_cast<std::size_t>(tmp[i] + 0.5));
     }
 
     maths::CClusterer1d::CIndexGenerator generator;
 
     TSizeSet indices;
-    std::size_t maxSetSize = 0u;
+    std::size_t maxSetSize = 0;
 
-    for (std::size_t i = 0u; i < numberOperations; ++i) {
+    for (std::size_t i = 0; i < numberOperations; ++i) {
         if (i % 1000 == 0) {
             LOG_DEBUG(<< "maxSetSize = " << maxSetSize);
             LOG_DEBUG(<< "indices = " << core::CContainerPrinter::print(indices));
         }
         if (nexts[i] == 1) {
-            CPPUNIT_ASSERT(indices.insert(generator.next()).second);
+            BOOST_TEST_REQUIRE(indices.insert(generator.next()).second);
             maxSetSize = std::max(maxSetSize, indices.size());
             if (*indices.begin() >= maxSetSize) {
                 LOG_DEBUG(<< "index = " << *indices.begin() << ", maxSetSize = " << maxSetSize);
             }
-            CPPUNIT_ASSERT(*indices.begin() < maxSetSize);
+            BOOST_TEST_REQUIRE(*indices.begin() < maxSetSize);
         } else if (!indices.empty()) {
             TDoubleVec indexToErase;
             double max = static_cast<double>(indices.size()) - 1e-3;
@@ -70,11 +77,4 @@ void CClustererTest::testIndexGenerator() {
     }
 }
 
-CppUnit::Test* CClustererTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CClustererTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CClustererTest>(
-        "CClustererTest::testIndexGenerator", &CClustererTest::testIndexGenerator));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

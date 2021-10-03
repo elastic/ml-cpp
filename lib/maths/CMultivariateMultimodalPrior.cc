@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CMultivariateMultimodalPrior.h>
@@ -27,7 +32,7 @@ std::string printIndices(const TModeVec& modes) {
     result << "{";
     if (!modes.empty()) {
         result << modes[0].s_Index;
-        for (std::size_t i = 1u; i < modes.size(); ++i) {
+        for (std::size_t i = 1; i < modes.size(); ++i) {
             result << ", " << modes[i].s_Index;
         }
     }
@@ -48,7 +53,7 @@ jointLogMarginalLikelihood(const TModeVec& modes,
         modeLogLikelihoods.clear();
         double maxLogLikelihood = boost::numeric::bounds<double>::lowest();
 
-        for (std::size_t i = 0u; i < modes.size(); ++i) {
+        for (std::size_t i = 0; i < modes.size(); ++i) {
             double modeLogLikelihood;
             maths_t::EFloatingPointErrorStatus status =
                 modes[i].s_Prior->jointLogMarginalLikelihood(sample, weights, modeLogLikelihood);
@@ -140,7 +145,7 @@ void sampleMarginalLikelihood(const TModeVec& modes,
 
     samples.reserve(numberSamples);
     TDouble10Vec1Vec modeSamples;
-    for (std::size_t i = 0u; i < modes.size(); ++i) {
+    for (std::size_t i = 0; i < modes.size(); ++i) {
         modes[i].s_Prior->sampleMarginalLikelihood(sampling[i], modeSamples);
         LOG_TRACE(<< "# modeSamples = " << modeSamples.size());
         LOG_TRACE(<< "modeSamples = " << core::CContainerPrinter::print(modeSamples));

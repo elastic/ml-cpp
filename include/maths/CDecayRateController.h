@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CDecayRateController_h
@@ -14,7 +19,8 @@
 #include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
 
-#include <stdint.h>
+#include <array>
+#include <cstdint>
 
 namespace ml {
 namespace core {
@@ -60,6 +66,12 @@ public:
     CDecayRateController();
     CDecayRateController(int checks, std::size_t dimension);
 
+    //! Get the checks which this controller is performing.
+    int checks() const;
+
+    //! Set the checks which this controller is performing.
+    void checks(int checks);
+
     //! Reset the errors.
     void reset();
 
@@ -84,27 +96,38 @@ public:
     std::size_t dimension() const;
 
     //! Debug the memory used by this controller.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this controller.
     std::size_t memoryUsage() const;
 
     //! Get a checksum of this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
 private:
-    //! Get the count of residuals added so far.
-    double count() const;
+    using TDouble3Ary = std::array<double, 3>;
 
-    //! Get the change to apply to the decay rate multiplier.
-    double change(const double (&stats)[3], core_t::TTime bucketLength) const;
+private:
+    double count() const;
+    double change(const TDouble3Ary& stats, core_t::TTime bucketLength) const;
+    bool notControlling() const;
+    bool increaseDecayRateErrorIncreasing(const TDouble3Ary& stats) const;
+    bool increaseDecayRateErrorDecreasing(const TDouble3Ary& stats) const;
+    bool increaseDecayRateBiased(const TDouble3Ary& stats) const;
+    bool decreaseDecayRateErrorNotIncreasing(const TDouble3Ary& stats) const;
+    bool decreaseDecayRateErrorNotDecreasing(const TDouble3Ary& stats) const;
+    bool decreaseDecayRateNotBiased(const TDouble3Ary& stats) const;
+
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
 
 private:
     //! The checks we perform to detect error conditions.
-    int m_Checks;
+    int m_Checks = 0;
 
     //! The current target multiplier.
-    double m_Target;
+    double m_Target = 1.0;
 
     //! The cumulative multiplier applied to the decay rate.
     TMeanAccumulator m_Multiplier;

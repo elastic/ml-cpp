@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CExpandingWindowTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -15,11 +18,16 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CExpandingWindow.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/test/unit_test.hpp>
 
+#include <map>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CExpandingWindowTest)
 
 using namespace ml;
 
@@ -34,7 +42,7 @@ using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 TTimeVec BUCKET_LENGTHS{300, 600, 1800, 3600};
 }
 
-void CExpandingWindowTest::testBasicUsage() {
+BOOST_AUTO_TEST_CASE(testBasicUsage) {
     // 1) Check compressed and uncompressed storage formats produce the
     //    same results.
     // 2) Check multiple rounds of bucket compression work as expected.
@@ -70,23 +78,23 @@ void CExpandingWindowTest::testBasicUsage() {
             expected300[(time - startTime) / 300].add(value);
             expected1800[(time - startTime) / 1800].add(value);
             if (((time - startTime) / bucketLength) % 3 == 0) {
-                CPPUNIT_ASSERT_EQUAL(uncompressed.checksum(), compressed.checksum());
+                BOOST_REQUIRE_EQUAL(uncompressed.checksum(), compressed.checksum());
             }
         }
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected300),
-                             core::CContainerPrinter::print(uncompressed.values()));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected300),
-                             core::CContainerPrinter::print(compressed.values()));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected300),
+                            core::CContainerPrinter::print(uncompressed.values()));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected300),
+                            core::CContainerPrinter::print(compressed.values()));
 
         core_t::TTime time{startTime + static_cast<core_t::TTime>(600 * size + 1)};
-        compressed.add(time, 5.0, 0.9);
-        uncompressed.add(time, 5.0, 0.9);
+        compressed.add(time, 5.0, 0.0, 0.9);
+        uncompressed.add(time, 5.0, 0.0, 0.9);
         expected1800[(time - startTime) / 1800].add(5.0, 0.9);
 
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected1800),
-                             core::CContainerPrinter::print(uncompressed.values()));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected1800),
-                             core::CContainerPrinter::print(compressed.values()));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected1800),
+                            core::CContainerPrinter::print(uncompressed.values()));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected1800),
+                            core::CContainerPrinter::print(compressed.values()));
     }
 
     LOG_DEBUG(<< "Testing multiple rounds of compression");
@@ -137,28 +145,32 @@ void CExpandingWindowTest::testBasicUsage() {
         TFloatMeanAccumulatorVec actual{window.values()};
 
         for (std::size_t j = 0; j < size; ++j) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::count(expected[j]),
-                                         maths::CBasicStatistics::count(actual[j]), 1e-5);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(expected[j]),
-                                         maths::CBasicStatistics::mean(actual[j]), 1e-5);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::count(expected[j]),
+                                         maths::CBasicStatistics::count(actual[j]),
+                                         maths::CFloatStorage(1e-5f));
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[j]),
+                                         maths::CBasicStatistics::mean(actual[j]),
+                                         maths::CFloatStorage(1e-5f));
         }
     }
 
     LOG_DEBUG(<< "Testing overflow");
 
     window.add(static_cast<core_t::TTime>(size * 3600 + 1), 0.1);
-    CPPUNIT_ASSERT_EQUAL(static_cast<core_t::TTime>(size * 3600), window.startTime());
-    CPPUNIT_ASSERT_EQUAL(static_cast<core_t::TTime>(size * 3900), window.endTime());
+    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3600) + window.sampleAverageOffset(),
+                        window.beginValuesTime());
+    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3900) + window.sampleAverageOffset(),
+                        window.endValuesTime());
 
     TFloatMeanAccumulatorVec expected(size);
     expected[0].add(0.1);
     TFloatMeanAccumulatorVec actual{window.values()};
 
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(expected),
-                         core::CContainerPrinter::print(actual));
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
+                        core::CContainerPrinter::print(actual));
 }
 
-void CExpandingWindowTest::testValuesMinusPrediction() {
+BOOST_AUTO_TEST_CASE(testValuesMinusPrediction) {
     // Test we get back the values we expect.
 
     maths::CExpandingWindow::TPredictor trend = [](core_t::TTime time) {
@@ -187,14 +199,52 @@ void CExpandingWindowTest::testValuesMinusPrediction() {
     TFloatMeanAccumulatorVec actual{window.valuesMinusPrediction(trend)};
 
     for (std::size_t i = 0; i < size; ++i) {
-        CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(expected[i]),
-                             maths::CBasicStatistics::count(actual[i]));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(expected[i]),
-                                     maths::CBasicStatistics::mean(actual[i]), 1e-5);
+        BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(expected[i]),
+                            maths::CBasicStatistics::count(actual[i]));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[i]),
+                                     maths::CBasicStatistics::mean(actual[i]),
+                                     maths::CFloatStorage(1e-5f));
     }
 }
 
-void CExpandingWindowTest::testPersistence() {
+BOOST_AUTO_TEST_CASE(testValuesStartAndEndTimes) {
+    // Test that we get the correct value start and end times for multiple
+    // offsets and window bucket length.
+
+    using TTimeTimeVecMap = std::map<core_t::TTime, std::vector<core_t::TTime>>;
+
+    std::size_t size{24};
+
+    TTimeTimeVecMap expectedStartTimes{{120, {120, 240, 840, 1740}},
+                                       {300, {0, 150, 750, 1650}}};
+
+    for (core_t::TTime dataBucketLength : {120, 300}) {
+
+        const auto& bucketLengthExpectedStartTimes = expectedStartTimes[dataBucketLength];
+
+        for (auto offset : {0, 60}) {
+
+            maths::CExpandingWindow window{dataBucketLength,
+                                           TTimeCRng{BUCKET_LENGTHS, 0, 4}, size};
+
+            core_t::TTime time{offset};
+            for (std::size_t i = 0; i < 4; ++i) {
+                core_t::TTime windowLength{
+                    static_cast<core_t::TTime>(size * window.bucketLength())};
+                for (/**/; time < windowLength; time += dataBucketLength) {
+                    window.add(time, 10.0);
+                    BOOST_REQUIRE_EQUAL(bucketLengthExpectedStartTimes[i] + offset,
+                                        window.beginValuesTime());
+                    BOOST_REQUIRE_EQUAL(bucketLengthExpectedStartTimes[i] + offset + windowLength,
+                                        window.endValuesTime());
+                }
+                window.add(time, 10.0);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testPersistence) {
     // Test persist and restore is idempotent.
 
     core_t::TTime bucketLength{300};
@@ -227,31 +277,19 @@ void CExpandingWindowTest::testPersistence() {
         // Restore the XML into a new window.
         {
             core::CRapidXmlParser parser;
-            CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+            BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
             core::CRapidXmlStateRestoreTraverser traverser(parser);
             maths::CExpandingWindow restoredWindow{
                 bucketLength, TTimeCRng{BUCKET_LENGTHS, 0, 4}, size, decayRate, compressed};
-            CPPUNIT_ASSERT_EQUAL(true, traverser.traverseSubLevel(std::bind(
-                                           &maths::CExpandingWindow::acceptRestoreTraverser,
-                                           &restoredWindow, std::placeholders::_1)));
+            BOOST_REQUIRE_EQUAL(true, traverser.traverseSubLevel(std::bind(
+                                          &maths::CExpandingWindow::acceptRestoreTraverser,
+                                          &restoredWindow, std::placeholders::_1)));
 
             LOG_DEBUG(<< "orig checksum = " << origWindow.checksum()
                       << ", new checksum = " << restoredWindow.checksum());
-            CPPUNIT_ASSERT_EQUAL(origWindow.checksum(), restoredWindow.checksum());
+            BOOST_REQUIRE_EQUAL(origWindow.checksum(), restoredWindow.checksum());
         }
     }
 }
 
-CppUnit::Test* CExpandingWindowTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CExpandingWindowTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CExpandingWindowTest>(
-        "CExpandingWindowTest::testBasicUsage", &CExpandingWindowTest::testBasicUsage));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CExpandingWindowTest>(
-        "CExpandingWindowTest::testValuesMinusPrediction",
-        &CExpandingWindowTest::testValuesMinusPrediction));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CExpandingWindowTest>(
-        "CExpandingWindowTest::testPersistence", &CExpandingWindowTest::testPersistence));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

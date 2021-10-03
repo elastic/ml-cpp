@@ -1,11 +1,18 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <maths/CBasicStatistics.h>
 
 #include <core/CLogger.h>
+
+#include <boost/math/distributions/chi_squared.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -47,8 +54,9 @@ double CBasicStatistics::mean(const TDoubleDoublePr& data) {
 }
 
 double CBasicStatistics::mean(const TDoubleVec& data) {
-    return std::accumulate(data.begin(), data.end(), 0.0) /
-           static_cast<double>(data.size());
+    return data.empty() ? 0.0
+                        : std::accumulate(data.begin(), data.end(), 0.0) /
+                              static_cast<double>(data.size());
 }
 
 double CBasicStatistics::median(const TDoubleVec& data_) {
@@ -72,6 +80,17 @@ double CBasicStatistics::mad(const TDoubleVec& data_) {
         datum = std::fabs(datum - median);
     }
     return medianInPlace(data);
+}
+
+double CBasicStatistics::varianceAtPercentile(double percentage, double variance, double degreesFreedom) {
+    try {
+        boost::math::chi_squared chi{degreesFreedom};
+        return boost::math::quantile(chi, percentage / 100.0) / degreesFreedom * variance;
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Bad input: " << e.what() << ", degrees of freedom = " << degreesFreedom
+                  << ", percentage = " << percentage);
+    }
+    return variance;
 }
 
 const char CBasicStatistics::INTERNAL_DELIMITER(':');

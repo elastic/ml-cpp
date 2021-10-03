@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CNormalMeanPrecConjugate.h>
@@ -116,7 +121,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // The non-informative prior is improper and effectively 0 everywhere.
             // (It is acceptable to approximate all finite samples as at the median
             // of this distribution.)
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double x = samples[i];
                 double n = maths_t::count(weights[i]);
                 if (!CMathsFuncs::isFinite(n)) {
@@ -132,7 +137,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // is the shape and "b" is the rate of the prior gamma distribution,
             // and the error function is significantly cheaper to compute.
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weights[i]);
                 double seasonalScale =
                     std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
@@ -161,7 +166,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
 
             boost::math::students_t students(2.0 * shape);
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weights[i]);
                 double seasonalScale =
                     std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
@@ -357,7 +362,7 @@ private:
         TMeanVarAccumulator sampleMoments;
         double logVarianceScaleSum = 0.0;
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             double n = maths_t::countForUpdate(weights[i]);
             double seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
             double countVarianceScale = maths_t::countVarianceScale(weights[i]);
@@ -456,8 +461,10 @@ CNormalMeanPrecConjugate::CNormalMeanPrecConjugate(const SDistributionRestorePar
                                                    core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate), m_GaussianMean(0.0),
       m_GaussianPrecision(0.0), m_GammaShape(0.0), m_GammaRate(0.0) {
-    traverser.traverseSubLevel(std::bind(&CNormalMeanPrecConjugate::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CNormalMeanPrecConjugate::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -612,10 +619,17 @@ void CNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
 
     double numberSamples = 0.0;
     TMeanVarAccumulator sampleMoments;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
+        double x = samples[i];
         double n = maths_t::countForUpdate(weights[i]);
         double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                maths_t::countVarianceScale(weights[i]);
+        if (!CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
+            !CMathsFuncs::isFinite(varianceScale)) {
+            LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
+                      << ", variance scale = " << varianceScale);
+            continue;
+        }
         numberSamples += n;
         sampleMoments.add(samples[i], n / varianceScale);
     }
@@ -929,7 +943,7 @@ void CNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSample
         try {
             boost::math::normal normal(m_GaussianMean, std::sqrt(variance));
 
-            for (std::size_t i = 1u; i < numberSamples; ++i) {
+            for (std::size_t i = 1; i < numberSamples; ++i) {
                 double q = static_cast<double>(i) / static_cast<double>(numberSamples);
                 double xq = boost::math::quantile(normal, q);
 
@@ -971,7 +985,7 @@ void CNormalMeanPrecConjugate::sampleMarginalLikelihood(std::size_t numberSample
             double constant = CTools::safePdf(students, 0.0) * scale *
                               degreesFreedom / (degreesFreedom - 1.0);
 
-            for (std::size_t i = 1u; i < numberSamples; ++i) {
+            for (std::size_t i = 1; i < numberSamples; ++i) {
                 double q = static_cast<double>(i) / static_cast<double>(numberSamples);
                 double xq = boost::math::quantile(students, q);
 
@@ -1204,7 +1218,7 @@ std::string CNormalMeanPrecConjugate::printJointDensityFunction() const {
     std::ostringstream yCoordinates;
     xCoordinates << "x = [";
     yCoordinates << "y = [";
-    for (unsigned int i = 0u; i < POINTS; ++i, x += xIncrement, y += yIncrement) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += xIncrement, y += yIncrement) {
         xCoordinates << x << " ";
         yCoordinates << y << " ";
     }
@@ -1214,9 +1228,9 @@ std::string CNormalMeanPrecConjugate::printJointDensityFunction() const {
     std::ostringstream pdf;
     pdf << "pdf = [";
     x = xStart;
-    for (unsigned int i = 0u; i < POINTS; ++i, x += xIncrement) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += xIncrement) {
         y = yStart;
-        for (unsigned int j = 0u; j < POINTS; ++j, y += yIncrement) {
+        for (unsigned int j = 0; j < POINTS; ++j, y += yIncrement) {
             double conditionalPrecision = m_GaussianPrecision * x;
             boost::math::normal conditionalGaussian(
                 m_GaussianMean, 1.0 / std::sqrt(conditionalPrecision));
@@ -1239,7 +1253,7 @@ uint64_t CNormalMeanPrecConjugate::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_GammaRate);
 }
 
-void CNormalMeanPrecConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CNormalMeanPrecConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CNormalMeanPrecConjugate");
 }
 

@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CAssignmentTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -14,8 +17,12 @@
 #include <test/CRandomNumbers.h>
 #include <test/CRandomNumbersDetail.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <algorithm>
 #include <vector>
+
+BOOST_AUTO_TEST_SUITE(CAssignmentTest)
 
 using namespace ml;
 
@@ -29,9 +36,9 @@ using TSizeSizePrVec = std::vector<TSizeSizePr>;
 
 template<std::size_t N, std::size_t M>
 void fill(const double (&costs)[N][M], TDoubleVecVec& result) {
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         result.push_back(TDoubleVec());
-        for (std::size_t j = 0u; j < M; ++j) {
+        for (std::size_t j = 0; j < M; ++j) {
             result.back().push_back(costs[i][j]);
         }
     }
@@ -41,10 +48,10 @@ void fill(const TDoubleVec& costs, TDoubleVecVec& result) {
     std::size_t n =
         static_cast<std::size_t>(std::sqrt(static_cast<double>(costs.size())));
     result.reserve(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         result.push_back(TDoubleVec());
         result.back().reserve(n);
-        for (std::size_t j = 0u; j < n; ++j) {
+        for (std::size_t j = 0; j < n; ++j) {
             result.back().push_back(costs[i * n + j]);
         }
     }
@@ -52,7 +59,7 @@ void fill(const TDoubleVec& costs, TDoubleVecVec& result) {
 
 double cost(const TDoubleVecVec& costs, const TSizeSizePrVec& matching) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < matching.size(); ++i) {
+    for (std::size_t i = 0; i < matching.size(); ++i) {
         result += costs[matching[i].first][matching[i].second];
     }
     return result;
@@ -61,20 +68,20 @@ double cost(const TDoubleVecVec& costs, const TSizeSizePrVec& matching) {
 double match(const TDoubleVecVec& costs, TSizeSizePrVec& matching) {
     std::size_t n = costs.size();
     TSizeVec permutation;
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         permutation.push_back(i);
     }
 
     double minCost = std::numeric_limits<double>::max();
     do {
         double cost = 0.0;
-        for (std::size_t i = 0u; i < costs.size(); ++i) {
+        for (std::size_t i = 0; i < costs.size(); ++i) {
             cost += costs[i][permutation[i]];
         }
         if (cost < minCost) {
             minCost = cost;
             matching.clear();
-            for (std::size_t i = 0u; i < permutation.size(); ++i) {
+            for (std::size_t i = 0; i < permutation.size(); ++i) {
                 matching.push_back(TSizeSizePr(i, permutation[i]));
             }
         }
@@ -84,7 +91,7 @@ double match(const TDoubleVecVec& costs, TSizeSizePrVec& matching) {
 }
 }
 
-void CAssignmentTest::testKuhnMunkres() {
+BOOST_AUTO_TEST_CASE(testKuhnMunkres) {
     {
         LOG_DEBUG(<< "test 1: bad input");
         const double test11[][5] = {
@@ -97,7 +104,7 @@ void CAssignmentTest::testKuhnMunkres() {
         fill(test12, costs);
 
         TSizeSizePrVec matching;
-        CPPUNIT_ASSERT(!maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(!maths::CAssignment::kuhnMunkres(costs, matching));
     }
     {
         LOG_DEBUG(<< "test 2: 5x5");
@@ -110,10 +117,10 @@ void CAssignmentTest::testKuhnMunkres() {
         fill(test2, costs);
 
         TSizeSizePrVec matching;
-        CPPUNIT_ASSERT(maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
 
         LOG_DEBUG(<< "matching = " << core::CContainerPrinter::print(matching));
-        CPPUNIT_ASSERT_EQUAL(5.0, cost(costs, matching));
+        BOOST_REQUIRE_EQUAL(5.0, cost(costs, matching));
     }
     {
         LOG_DEBUG(<< "test 3: 5x4");
@@ -126,10 +133,10 @@ void CAssignmentTest::testKuhnMunkres() {
         fill(test3, costs);
 
         TSizeSizePrVec matching;
-        CPPUNIT_ASSERT(maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
 
         LOG_DEBUG(<< "matching = " << core::CContainerPrinter::print(matching));
-        CPPUNIT_ASSERT_EQUAL(4.0, cost(costs, matching));
+        BOOST_REQUIRE_EQUAL(4.0, cost(costs, matching));
     }
     {
         LOG_DEBUG(<< "test 4: 4x5");
@@ -143,19 +150,19 @@ void CAssignmentTest::testKuhnMunkres() {
         fill(test4, costs);
 
         TSizeSizePrVec matching;
-        CPPUNIT_ASSERT(maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
 
         LOG_DEBUG(<< "matching = " << core::CContainerPrinter::print(matching));
-        CPPUNIT_ASSERT_EQUAL(4.0, cost(costs, matching));
+        BOOST_REQUIRE_EQUAL(4.0, cost(costs, matching));
     }
 
     test::CRandomNumbers rng;
 
     {
         LOG_DEBUG(<< "test 5: small random");
-        for (std::size_t i = 2u; i < 9; ++i) {
+        for (std::size_t i = 2; i < 9; ++i) {
             LOG_DEBUG(<< "***" << i << "x" << i);
-            for (std::size_t test = 0u; test < 100; ++test) {
+            for (std::size_t test = 0; test < 100; ++test) {
                 TDoubleVec samples;
                 rng.generateUniformSamples(0.1, 1000.0, i * i, samples);
 
@@ -178,7 +185,7 @@ void CAssignmentTest::testKuhnMunkres() {
                     LOG_DEBUG(<< "cost = " << cost(costs, matching));
                 }
 
-                CPPUNIT_ASSERT_EQUAL(expectedCost, cost(costs, matching));
+                BOOST_REQUIRE_EQUAL(expectedCost, cost(costs, matching));
             }
         }
     }
@@ -197,7 +204,7 @@ void CAssignmentTest::testKuhnMunkres() {
         fill(samples, costs);
 
         TSizeSizePrVec matching;
-        CPPUNIT_ASSERT(maths::CAssignment::kuhnMunkres(costs, matching));
+        BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
 
         double optimalCost = cost(costs, matching);
         LOG_DEBUG(<< "cost = " << optimalCost);
@@ -205,15 +212,15 @@ void CAssignmentTest::testKuhnMunkres() {
         // Try some random permutations random permutations and check
         // we don't find a lower cost solution.
         TSizeVec randomMatching;
-        for (std::size_t i = 0u; i < costs.size(); ++i) {
+        for (std::size_t i = 0; i < costs.size(); ++i) {
             randomMatching.push_back(i);
         }
 
         double lowestRandomCost = std::numeric_limits<double>::max();
-        for (std::size_t i = 0u; i < 1000; ++i) {
+        for (std::size_t i = 0; i < 1000; ++i) {
             rng.random_shuffle(randomMatching.begin(), randomMatching.end());
             double cost = 0.0;
-            for (std::size_t j = 0u; j < costs.size(); ++j) {
+            for (std::size_t j = 0; j < costs.size(); ++j) {
                 cost += costs[j][randomMatching[j]];
             }
             lowestRandomCost = std::min(lowestRandomCost, cost);
@@ -221,13 +228,13 @@ void CAssignmentTest::testKuhnMunkres() {
 
         LOG_DEBUG(<< "optimal cost = " << optimalCost
                   << ", lowest random cost = " << lowestRandomCost);
-        CPPUNIT_ASSERT(lowestRandomCost >= optimalCost);
+        BOOST_TEST_REQUIRE(lowestRandomCost >= optimalCost);
 
         // Check adding higher cost row has no effect.
         {
             costs.push_back(TDoubleVec(100, 2.1));
-            CPPUNIT_ASSERT(maths::CAssignment::kuhnMunkres(costs, matching));
-            CPPUNIT_ASSERT_EQUAL(optimalCost, cost(costs, matching));
+            BOOST_TEST_REQUIRE(maths::CAssignment::kuhnMunkres(costs, matching));
+            BOOST_REQUIRE_EQUAL(optimalCost, cost(costs, matching));
         }
     }
 
@@ -251,8 +258,8 @@ void CAssignmentTest::testKuhnMunkres() {
             {813, 883, 451, 509, 615, 77, 281, 613, 459, 205, 380, 274, 302, 35, 805}};
         TDoubleVecVec costs;
         fill(euler345, costs);
-        for (std::size_t i = 0u; i < costs.size(); ++i) {
-            for (std::size_t j = 0u; j < costs[i].size(); ++j) {
+        for (std::size_t i = 0; i < costs.size(); ++i) {
+            for (std::size_t j = 0; j < costs[i].size(); ++j) {
                 costs[i][j] = 1000 - costs[i][j];
             }
         }
@@ -260,15 +267,8 @@ void CAssignmentTest::testKuhnMunkres() {
         TSizeSizePrVec matching;
         maths::CAssignment::kuhnMunkres(costs, matching);
         LOG_DEBUG(<< "cost = " << 15000.0 - cost(costs, matching));
-        CPPUNIT_ASSERT_EQUAL(13938.0, 15000.0 - cost(costs, matching));
+        BOOST_REQUIRE_EQUAL(13938.0, 15000.0 - cost(costs, matching));
     }
 }
 
-CppUnit::Test* CAssignmentTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CAssignmentTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CAssignmentTest>(
-        "CAssignmentTest::testKuhnMunkres", &CAssignmentTest::testKuhnMunkres));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

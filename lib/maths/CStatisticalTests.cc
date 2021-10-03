@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CStatisticalTests.h>
@@ -150,8 +155,10 @@ CStatisticalTests::CCramerVonMises::CCramerVonMises(std::size_t size)
 }
 
 CStatisticalTests::CCramerVonMises::CCramerVonMises(core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(std::bind(&CStatisticalTests::CCramerVonMises::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CStatisticalTests::CCramerVonMises::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -173,7 +180,7 @@ bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(core::CStateRest
 void CStatisticalTests::CCramerVonMises::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(SIZE_TAG, m_Size);
     inserter.insertValue(T_TAG, m_T.toDelimited());
-    for (std::size_t i = 0u; i < m_F.size(); ++i) {
+    for (std::size_t i = 0; i < m_F.size(); ++i) {
         inserter.insertValue(F_TAG, static_cast<int>(m_F[i]));
     }
 }
@@ -182,7 +189,7 @@ void CStatisticalTests::CCramerVonMises::addF(double f) {
     if (m_F.size() == m_Size) {
         TDoubleVec ff;
         ff.reserve(m_F.size() + 1);
-        for (std::size_t i = 0u; i < m_F.size(); ++i) {
+        for (std::size_t i = 0; i < m_F.size(); ++i) {
             ff.push_back(static_cast<double>(m_F[i]) / SCALE);
         }
         ff.push_back(f);
@@ -192,7 +199,7 @@ void CStatisticalTests::CCramerVonMises::addF(double f) {
         // Compute the test statistic.
         double n = static_cast<double>(ff.size());
         double t = 1.0 / (12.0 * n);
-        for (std::size_t i = 0u; i < ff.size(); ++i) {
+        for (std::size_t i = 0; i < ff.size(); ++i) {
             double r = (2.0 * static_cast<double>(i) + 1.0) / (2.0 * n) - ff[i];
             t += r * r;
         }
@@ -216,7 +223,7 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
     double alpha = static_cast<double>(m_Size + 1 - N[row - 1]) /
                    static_cast<double>(N[row] - N[row - 1]);
     double beta = 1.0 - alpha;
-    for (std::size_t i = 0u; i < 16; ++i) {
+    for (std::size_t i = 0; i < 16; ++i) {
         tt[i] = alpha * T_VALUES[row][i] + beta * T_VALUES[row - 1][i];
     }
     LOG_TRACE(<< "n = " << m_Size + 1 << ", tt = " << core::CContainerPrinter::print(tt));

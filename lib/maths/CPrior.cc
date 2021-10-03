@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CPrior.h>
@@ -21,7 +26,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <functional>
 #include <sstream>
 #include <stdexcept>
 #include <utility>
@@ -56,7 +60,7 @@ CPrior::CPrior(maths_t::EDataType dataType, double decayRate)
     detail::setDecayRate(decayRate, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
-void CPrior::swap(CPrior& other) {
+void CPrior::swap(CPrior& other) noexcept {
     std::swap(m_DataType, other.m_DataType);
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_NumberSamples, other.m_NumberSamples);
@@ -93,11 +97,15 @@ double CPrior::offsetMargin() const {
     return 0.0;
 }
 
-void CPrior::addSamples(const TDouble1Vec& /*samples*/, const TDoubleWeightsAry1Vec& weights) {
+void CPrior::addSamples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights) {
     double n = 0.0;
     try {
-        for (const auto& weight : weights) {
-            n += maths_t::countForUpdate(weight);
+        for (std::size_t i = 0; i < weights.size(); ++i) {
+            double xi = samples[i];
+            double ni = maths_t::countForUpdate(weights[i]);
+            if (CMathsFuncs::isFinite(xi) && CMathsFuncs::isFinite(ni)) {
+                n += ni;
+            }
         }
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to extract sample counts: " << e.what());
@@ -132,7 +140,7 @@ std::string CPrior::printMarginalLikelihoodFunction(double weight) const {
 
     abscissa << "x = [";
     likelihood << "likelihood = [";
-    for (std::size_t i = 0u; i < plot.s_Abscissa.size(); ++i) {
+    for (std::size_t i = 0; i < plot.s_Abscissa.size(); ++i) {
         abscissa << plot.s_Abscissa[i] << " ";
         likelihood << plot.s_Ordinates[i] << " ";
     }
@@ -203,13 +211,15 @@ void CPrior::adjustOffsetResamples(double minimumSample,
     this->sampleMarginalLikelihood(ADJUST_OFFSET_SAMPLE_SIZE, resamples);
     std::size_t n = resamples.size();
     resamples.erase(std::remove_if(resamples.begin(), resamples.end(),
-                                   std::not1(CMathsFuncs::SIsFinite())),
+                                   [](double d) {
+                                       return CMathsFuncs::SIsFinite()(d) == false;
+                                   }),
                     resamples.end());
     if (resamples.size() != n) {
         LOG_ERROR(<< "Bad samples (" << this->debug() << ")");
         n = resamples.size();
     }
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         resamples[i] = std::max(resamples[i], minimumSample);
     }
 
@@ -279,7 +289,7 @@ double CPrior::adjustOffsetWithCost(const TDouble1Vec& samples,
     if (increment > 0.0) {
         TDouble1Vec trialOffsets;
         trialOffsets.reserve(ADJUST_OFFSET_TRIALS);
-        for (std::size_t i = 0u; i < ADJUST_OFFSET_TRIALS; ++i) {
+        for (std::size_t i = 0; i < ADJUST_OFFSET_TRIALS; ++i) {
             offset += increment;
             trialOffsets.push_back(offset);
         }
@@ -312,7 +322,7 @@ CPrior::TStrStrPr CPrior::printMarginalLikelihoodStatistics() const {
     return this->doPrintMarginalLikelihoodStatistics();
 }
 const double CPrior::FALLBACK_DECAY_RATE = 0.001;
-const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50u;
+const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50;
 const std::string CPrior::UNKNOWN_VALUE_STRING = "<unknown>";
 
 ////////// CPrior::CModelFilter Implementation //////////

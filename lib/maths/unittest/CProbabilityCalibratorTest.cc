@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CProbabilityCalibratorTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -18,12 +21,15 @@
 #include "TestUtils.h"
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CProbabilityCalibratorTest)
+
 using namespace ml;
 
-void CProbabilityCalibratorTest::testCalibration() {
+BOOST_AUTO_TEST_CASE(testCalibration) {
     using TDoubleVec = std::vector<double>;
     using CLogNormalMeanPrecConjugate =
         CPriorTestInterfaceMixin<maths::CLogNormalMeanPrecConjugate>;
@@ -47,7 +53,7 @@ void CProbabilityCalibratorTest::testCalibration() {
         double improvements[] = {0.03, 0.07};
         double maxImprovements[] = {0.01, 0.9};
 
-        for (std::size_t i = 0u; i < boost::size(styles); ++i) {
+        for (std::size_t i = 0; i < boost::size(styles); ++i) {
             maths::CProbabilityCalibrator calibrator(styles[i], 0.99);
 
             CNormalMeanPrecConjugate normal =
@@ -60,7 +66,7 @@ void CProbabilityCalibratorTest::testCalibration() {
             double maxRawError = 0.0;
             double maxCalibratedError = 0.0;
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 TDoubleVec sample(1u, samples[j]);
                 normal.addSamples(sample);
                 lognormal.addSamples(sample);
@@ -97,9 +103,9 @@ void CProbabilityCalibratorTest::testCalibration() {
                       << ", maxRawError =        " << maxRawError);
             LOG_DEBUG(<< "totalCalibratedError = " << calibratedError
                       << ", maxCalibratedError = " << maxCalibratedError);
-            CPPUNIT_ASSERT((rawError - calibratedError) / rawError > improvements[i]);
-            CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError >
-                           maxImprovements[i]);
+            BOOST_TEST_REQUIRE((rawError - calibratedError) / rawError > improvements[i]);
+            BOOST_TEST_REQUIRE((maxRawError - maxCalibratedError) / maxRawError >
+                               maxImprovements[i]);
         }
     }
 
@@ -118,7 +124,7 @@ void CProbabilityCalibratorTest::testCalibration() {
         double improvements[] = {0.18, 0.19};
         double maxImprovements[] = {0.0, -0.04};
 
-        for (std::size_t i = 0u; i < boost::size(styles); ++i) {
+        for (std::size_t i = 0; i < boost::size(styles); ++i) {
             maths::CProbabilityCalibrator calibrator(styles[i], 0.99);
 
             CNormalMeanPrecConjugate normal =
@@ -133,7 +139,7 @@ void CProbabilityCalibratorTest::testCalibration() {
             double maxRawError = 0.0;
             double maxCalibratedError = 0.0;
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 TDoubleVec sample(1u, samples[j]);
                 normal.addSamples(sample);
                 CNormalMeanPrecConjugate& mode = samples[j] < 10.0 ? normal1 : normal2;
@@ -171,19 +177,11 @@ void CProbabilityCalibratorTest::testCalibration() {
                       << ", maxRawError =        " << maxRawError);
             LOG_DEBUG(<< "totalCalibratedError = " << calibratedError
                       << ", maxCalibratedError = " << maxCalibratedError);
-            CPPUNIT_ASSERT((rawError - calibratedError) / rawError >= improvements[i]);
-            CPPUNIT_ASSERT((maxRawError - maxCalibratedError) / maxRawError >=
-                           maxImprovements[i]);
+            BOOST_TEST_REQUIRE((rawError - calibratedError) / rawError >= improvements[i]);
+            BOOST_TEST_REQUIRE((maxRawError - maxCalibratedError) / maxRawError >=
+                               maxImprovements[i]);
         }
     }
 }
 
-CppUnit::Test* CProbabilityCalibratorTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CProbabilityCalibratorTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CProbabilityCalibratorTest>(
-        "CProbabilityCalibratorTest::testCalibration",
-        &CProbabilityCalibratorTest::testCalibration));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

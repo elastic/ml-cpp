@@ -1,10 +1,17 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
+
+#include <core/CDataFrame.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 
@@ -20,6 +27,7 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                                                       std::size_t numberThreads,
                                                       const std::string& temporaryDirectory,
                                                       const std::string& resultsField,
+                                                      const std::string& missingFieldValue,
                                                       const TStrVec& categoricalFields,
                                                       bool diskUsageAllowed,
                                                       const std::string& analysisName,
@@ -30,12 +38,12 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
         analysisParametersDoc.Parse(analysisParameters);
         if (analysisParametersDoc.GetParseError()) {
             HANDLE_FATAL(<< "Input error: analysis parameters " << analysisParameters
-                         << " cannot be parsed as json. Please report this problem.")
+                         << " cannot be parsed as json. Please report this problem.");
         }
     }
     write(jobId, rows, cols, memoryLimit, numberThreads, temporaryDirectory,
-          resultsField, categoricalFields, diskUsageAllowed, analysisName,
-          analysisParametersDoc, writer);
+          resultsField, missingFieldValue, categoricalFields, diskUsageAllowed,
+          analysisName, analysisParametersDoc, writer);
 }
 
 void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
@@ -45,6 +53,7 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                                                       std::size_t numberThreads,
                                                       const std::string& temporaryDirectory,
                                                       const std::string& resultsField,
+                                                      const std::string& missingFieldValue,
                                                       const TStrVec& categoricalFields,
                                                       bool diskUsageAllowed,
                                                       const std::string& analysisName,
@@ -73,6 +82,11 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
     writer.Key(CDataFrameAnalysisSpecification::RESULTS_FIELD);
     writer.String(resultsField);
 
+    if (missingFieldValue != core::CDataFrame::DEFAULT_MISSING_STRING) {
+        writer.Key(CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE);
+        writer.String(missingFieldValue);
+    }
+
     rapidjson::Value array(rapidjson::kArrayType);
     for (const auto& field : categoricalFields) {
         array.PushBack(rapidjson::Value(rapidjson::StringRef(field)),
@@ -96,7 +110,7 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
             writer.write(analysisParametersDocument);
         } else {
             HANDLE_FATAL(<< "Input error: analysis parameters suppose to "
-                         << "contain an object as root node.")
+                         << "contain an object as root node.");
         }
     }
 
@@ -105,24 +119,26 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
     writer.Flush();
 }
 
-std::string
-CDataFrameAnalysisSpecificationJsonWriter::jsonString(const std::string& jobId,
-                                                      size_t rows,
-                                                      size_t cols,
-                                                      size_t memoryLimit,
-                                                      size_t numberThreads,
-                                                      const TStrVec& categoricalFields,
-                                                      bool diskUsageAllowed,
-                                                      const std::string& tempDir,
-                                                      const std::string& resultField,
-                                                      const std::string& analysisName,
-                                                      const std::string& analysisParameters) {
+std::string CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+    const std::string& jobId,
+    std::size_t rows,
+    std::size_t cols,
+    std::size_t memoryLimit,
+    std::size_t numberThreads,
+    const std::string& missingFieldValue,
+    const TStrVec& categoricalFields,
+    bool diskUsageAllowed,
+    const std::string& tempDir,
+    const std::string& resultField,
+    const std::string& analysisName,
+    const std::string& analysisParameters) {
     rapidjson::StringBuffer stringBuffer;
-    api::CDataFrameAnalysisSpecificationJsonWriter::TRapidJsonLineWriter writer;
+    TRapidJsonLineWriter writer;
     writer.Reset(stringBuffer);
 
     write(jobId, rows, cols, memoryLimit, numberThreads, tempDir, resultField,
-          categoricalFields, diskUsageAllowed, analysisName, analysisParameters, writer);
+          missingFieldValue, categoricalFields, diskUsageAllowed, analysisName,
+          analysisParameters, writer);
 
     return stringBuffer.GetString();
 }

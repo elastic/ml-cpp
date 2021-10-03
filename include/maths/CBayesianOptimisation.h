@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CBayesianOptimisation_h
@@ -15,6 +20,8 @@
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
+
+#include <boost/optional.hpp>
 
 #include <functional>
 #include <utility>
@@ -52,6 +59,7 @@ class MATHS_EXPORT CBayesianOptimisation {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+    using TOptionalDouble = boost::optional<double>;
     using TVector = CDenseVector<double>;
     using TLikelihoodFunc = std::function<double(const TVector&)>;
     using TLikelihoodGradientFunc = std::function<TVector(const TVector&)>;
@@ -69,12 +77,16 @@ public:
     //! variance in the error in \p fx w.r.t. the true value is \p vx.
     void add(TVector x, double fx, double vx);
 
+    //! Any portion of the variance of the function error which is explained and
+    //! shouldn't be included in the kernel.
+    void explainedErrorVariance(double vx);
+
     //! Get the bounding box (in the function domain) in which we're minimizing.
     std::pair<TVector, TVector> boundingBox() const;
 
     //! Compute the location which maximizes the expected improvement given the
     //! function evaluations added so far.
-    TVector maximumExpectedImprovement();
+    std::pair<TVector, TOptionalDouble> maximumExpectedImprovement();
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -89,6 +101,31 @@ public:
     //! \p numberParameters using \p numberRounds rounds.
     static std::size_t estimateMemoryUsage(std::size_t numberParameters,
                                            std::size_t numberRounds);
+
+    //! Evaluate the Guassian process at the point \p input.
+    double evaluate(const TVector& input) const;
+
+    //! Compute the marginalized value of the Gaussian process in the dimension
+    //! \p dimension for the values \p input.
+    double evaluate1D(double input, int dimension) const;
+
+    //! Get the constant factor of the ANOVA decomposition of the Gaussian process.
+    double anovaConstantFactor() const;
+
+    //! Get the total variance of the hyperparameters in the Gaussian process
+    //! using ANOVA decomposition.
+    double anovaTotalVariance() const;
+
+    //! Get the main effect of the parameter \p dimension in the Gaussian process
+    //! using ANOVA decomposition.
+    double anovaMainEffect(int dimension) const;
+
+    //! Get the vector of main effects as an absolute value and as a fraction
+    //! of the total variance.
+    TDoubleDoublePrVec anovaMainEffects() const;
+
+    //! Set kernel \p parameters explicitly.
+    void kernelParameters(const TVector& parameters);
 
     //! \name Test Interface
     //@{
@@ -129,12 +166,22 @@ private:
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
+    double evaluate(const TVector& Kinvf, const TVector& input) const;
+    double evaluate1D(const TVector& Kinvf, double input, int dimension) const;
+    double anovaConstantFactor(const TVector& Kinvf) const;
+    double anovaTotalVariance(const TVector& Kinvf) const;
+    double anovaMainEffect(const TVector& Kinvf, int dimension) const;
+    TVector kinvf() const;
+    TVector transformTo01(const TVector& x) const;
+    TVector scaledKernelParameters() const;
+    void checkRestoredInvariants() const;
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_Restarts;
-    double m_RangeShift = 0.0;
-    double m_RangeScale = 1.0;
+    double m_RangeShift{0.0};
+    double m_RangeScale{1.0};
+    double m_ExplainedErrorVariance{0.0};
     TVector m_MinBoundary;
     TVector m_MaxBoundary;
     TVectorDoublePrVec m_FunctionMeanValues;

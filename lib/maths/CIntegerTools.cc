@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CIntegerTools.h>
@@ -16,19 +21,19 @@ namespace maths {
 
 bool CIntegerTools::isInteger(double value, double tolerance) {
     double integerPart;
-    double remainder = std::modf(value, &integerPart);
+    double remainder{std::modf(value, &integerPart)};
     return remainder <= tolerance * integerPart;
 }
 
-std::size_t CIntegerTools::nextPow2(uint64_t x) {
+std::size_t CIntegerTools::nextPow2(std::uint64_t x) {
     // This is just a binary search for the highest non-zero bit.
 
-    static const std::size_t SHIFTS[] = {32u, 16u, 8u, 4u, 2u, 1u};
-    static const uint64_t MASKS[] = {0xffffffff, 0xffff, 0xff, 0xf, 0x3, 0x1};
+    static const std::size_t SHIFTS[]{32u, 16u, 8u, 4u, 2u, 1u};
+    static const std::uint64_t MASKS[]{0xffffffff, 0xffff, 0xff, 0xf, 0x3, 0x1};
 
-    std::size_t result = 0u;
+    std::size_t result{0};
     for (std::size_t i = 0; i < 6; ++i) {
-        uint64_t y = (x >> SHIFTS[i]);
+        std::uint64_t y = (x >> SHIFTS[i]);
         if (y & MASKS[i]) {
             result += SHIFTS[i];
             x = y;
@@ -37,7 +42,7 @@ std::size_t CIntegerTools::nextPow2(uint64_t x) {
     return result + static_cast<std::size_t>(x);
 }
 
-uint64_t CIntegerTools::reverseBits(uint64_t x) {
+std::uint64_t CIntegerTools::reverseBits(std::uint64_t x) {
     // Uses the standard "parallel" approach of swapping adjacent bits, then
     // adjacent pairs, quadruples, etc.
     x = ((x >> 1) & 0x5555555555555555) | ((x << 1) & 0xaaaaaaaaaaaaaaaa);
@@ -55,7 +60,7 @@ double CIntegerTools::binomial(unsigned int n, unsigned int k) {
         return 0.0;
     }
 
-    double result = 1.0;
+    double result{1.0};
     k = std::min(k, n - k);
     for (unsigned int k_ = k; k_ > 0; --k_, --n) {
         result *= static_cast<double>(n) / static_cast<double>(k_);

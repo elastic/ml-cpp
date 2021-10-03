@@ -7,7 +7,7 @@
 
 = Elasticsearch Release Notes
 
-////
+//
 // To add a release, copy and paste the following text,  uncomment the relevant
 // sections, and add a link to the new section in the list of releases at the
 // top of the page. Note that release subheads must be floated and sections
@@ -28,12 +28,400 @@
 
 //=== Regressions
 
+== {es} version 8.0.0
+
+=== Enhancements
+
+* The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 10.3. (See
+  {ml-pull}2028[#2028].)
+
+== {es} version 8.0.0-alpha1
+
+=== Enhancements
+
+* The Windows build platform for the {ml} C++ code now uses Visual Studio 2019. (See
+  {ml-pull}1352[#1352].)
+* The macOS build platform for the {ml} C++ code is now Mojave running Xcode 11.3.1,
+  or Ubuntu 20.04 running clang 8 for cross compilation. (See {ml-pull}1429[#1429].)
+* The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
+  {ml-pull}1170[#1170].)
+* Added a new application for evaluating PyTorch models. The app depends on LibTorch
+  - the C++ front end to PyTorch - and performs inference on models stored in the
+  TorchScript format. (See {ml-pull}1902[#1902].)
+
+== {es} version 7.16.0
+
+=== Enhancements
+
+* Speed up training of regression and classification models (See {ml-pull}2024[#2024].)
+* Improve aspects of implementation of skip_model_update rule (See {ml-pull}2053[#2053].)
+
+== {es} version 7.15.0
+
+=== Enhancements
+
+* Speed up training of regression and classification models on very large data sets.
+  (See {ml-pull}1941[#1941].)
+* Improve regression and classification training accuracy for small data sets.
+  (See {ml-pull}1960[#1960].)
+* Prune models for split fields (by, partition) that haven't seen data updates for
+  a given period of time. (See {ml-pull}1962[#1962].)
+
+=== Bug Fixes
+
+* Fix potential "process stopped unexpectedly: Fatal error" for training regression
+  and classification models. (See {ml-pull}1997[#1997], issue {ml-pull}1956[#1956].)
+
+== {es} version 7.14.0
+
+=== Enhancements
+
+* Give higher weight to multiple adjacent dictionary words when performing categorization. (See
+  {ml-pull}1903[#1903].)
+
+=== Bug Fixes
+
+* Make atomic operations safer for aarch64. (See {ml-pull}1893[#1893].)
+* Ensure bucket `event_count` is calculated for jobs with 1 second bucket spans.
+(See {ml-pull}1908[#1908].)
+
+== {es} version 7.13.0
+
+=== Enhancements
+
+* Speed up training of regression and classification model training for data sets
+  with many features. (See {ml-pull}1746[#1746].)
+* Avoid overfitting in final training by scaling regularizers to account for the
+  difference in the number of training examples. This results in a better match
+  between train and test error for classification and regression and often slightly
+  improved test errors. (See {ml-pull}1755[#1755].)
+* Adjust the syscall filter to allow mremap and avoid spurious audit logging.
+  (See {ml-pull}1819[#1819].)
+
+=== Bug Fixes
+
+* Ensure the same hyperparameters are chosen if classification or regression training
+  is stopped and restarted, for example, if the node fails. (See {ml-pull}1848[#1848].)
+* Fail gracefully if insufficient data are supplied for classification or regression
+  training. (See {ml-pull}1855[#1855].)
+* Fail gracefully on encountering unexpected state in restore from snapshot for anomaly
+  detection. (See {ml-pull}1872[#1872].)
+* Use appropriate memory ordering flags for aarch64 with string store to avoid excessive
+  string duplication. (See {ml-pull}1888[#1888].)
+
+== {es} version 7.12.2
+
+=== Bug Fixes
+
+* Add missing hyperparamter to the model metadata. (See {ml-pull}1867[#1867].)
+
+== {es} version 7.12.1
+
+=== Enhancements
+
+* Make ML native processes work with glibc 2.33 on x86_64. (See {ml-pull}1828[#1828].)
+
+== {es} version 7.12.0
+
+=== Enhancements
+
+* Fix edge case which could cause spurious anomalies early in the learning process
+  if the time series has non-diurnal seasonality. (See {ml-pull}1634[#1634].)
+* Compute importance of hyperparameters optimized in the fine parameter tuning step.
+  (See {ml-pull}1627[#1627].)
+* Early stopping for the fine parameter tuning step  of classification and regression
+  model training. (See {ml-pull}1676[#1676].)
+* Correct upgrade for pre-6.3 state for lat_long anomaly anomaly detectors. (See
+  {ml-pull}1681[#1681].)
+* Per tree feature bag to speed up training of regression and classification models
+  and improve scalability for large numbers of features. (See {ml-pull}1733[#1733].)
+
+=== Bug Fixes
+
+* Fix a source of instability in time series modeling for anomaly detection. This has
+  been observed to cause spurious anomalies for a partition which no longer receives
+  any data. (See {ml-pull}1675[#1675].)
+* Ensure that we stop modeling seasonality for data which flatlines. This is important
+  for count and sum detectors which treat empty buckets as zero. We could see spurious
+  anomalies in realtime detection after a partition no longer received data any data
+  as a result. (See {ml-pull}1654[#1654].)
+
+== {es} version 7.11.0
+
+=== Enhancements
+
+* During regression and classification training prefer smaller models if performance is
+  similar (See {ml-pull}1516[#1516].)
+* Add a response mechanism for commands sent to the native controller. (See
+  {ml-pull}1520[#1520], {es-pull}63542[#63542], issue: {es-issue}62823[#62823].)
+* Speed up anomaly detection for seasonal data. This is particularly effective for jobs
+  using longer bucket lengths. (See {ml-pull}1549[#1549].)
+* Fix an edge case which could cause typical and model plot bounds to blow up to around
+  max double. (See {ml-pull}1551[#1551].)
+* Estimate upper bound of potential gains before splitting a decision tree node to avoid
+  unnecessary computation. (See {ml-pull}1537[#1537].)
+* Improvements to time series modeling particularly in relation to adaption to change.
+  (See {ml-pull})1614[#1614].)
+* Warn and error log throttling. (See {ml-pull}1615[#1615].)
+* Soften the effect of fluctuations in anomaly detection job memory usage on node
+  assignment and add `assignment_memory_basis` to `model_size_stats`.
+  (See {ml-pull}1623[#1623], {es-pull}65561[#65561], issue: {es-issue}63163[#63163].)
+
+=== Bug Fixes
+
+* Fix potential cause for log errors from CXMeansOnline1d. (See {ml-pull}1586[#1586].)
+* Fix scaling of some hyperparameter for Bayesian optimization. (See {ml-pull}1612[#1612].)
+* Fix missing state in persist and restore for anomaly detection. This caused suboptimal
+  modelling after a job was closed and reopened or failed over to a different node.
+  (See {ml-pull}1668[#1668].)
+
+== {es} version 7.10.1
+
+=== Bug Fixes
+
+* Fix a bug where the peak_model_bytes value of the model_size_stats object was not
+  restored from the anomaly detector job snapshots. (See {ml-pull}1572[#1572].)
+
+== {es} version 7.10.0
+
+=== Enhancements
+
+* Calculate total feature importance to store with model metadata. (See {ml-pull}1387[#1387].)
+* Change outlier detection feature_influence format to array with nested objects. (See {ml-pull}1475[#1475], {es-pull}62068[#62068].)
+* Add timeouts to named pipe connections. (See {ml-pull}1514[#1514], {es-pull}62993[#62993], issue: {ml-issue}1504[#1504].)
+
+=== Bug Fixes
+
+* Fix progress on resume after final training has completed for classification and regression.
+  We previously showed progress stuck at zero for final training. (See {ml-pull}1443[#1443].)
+* Avoid potential "Failed to compute quantile" and "No values added to quantile sketch" log errors
+  training regression and classification models if there are features with mostly missing values.
+  (See {ml-pull}1500[#1500].)
+* Correct the anomaly detection job model state `min_version`. (See {ml-pull}1546[#1546].)
+
+== {es} version 7.9.2
+
+=== Bug Fixes
+
+* Fix reporting of peak memory usage in memory stats for data frame analytics. (See {ml-pull}1468[#1468].)
+* Fix reporting of peak memory usage in model size stats for anomaly detection. (See {ml-pull}1484[#1484].)
+
+== {es} version 7.9.0
+
+=== New Features
+
+* Report significant changes to anomaly detection models in annotations of the results.
+  (See {ml-pull}1247[#1247], {pull}56342[#56342], {pull}56417[#56417], {pull}57144[#57144], {pull}57278[#57278], {pull}57539[#57539].)
+
+=== Enhancements
+
+* Add support for larger forecasts in memory via max_model_memory setting.
+  (See {ml-pull}1238[#1238] and {pull}57254[#57254].)
+* Don't lose precision when saving model state. (See {ml-pull}1274[#1274].)
+* Parallelize the feature importance calculation for classification and regression
+  over trees. (See {ml-pull}1277[#1277].)
+* Add an option to do categorization independently for each partition.
+  (See {ml-pull}1293[#1293], {ml-pull}1318[#1318], {ml-pull}1356[#1356] and {pull}57683[#57683].)
+* Memory usage is reported during job initialization. (See {ml-pull}1294[#1294].)
+* More realistic memory estimation for classification and regression means that these
+  analyses will require lower memory limits than before (See {ml-pull}1298[#1298].)
+* Checkpoint state to allow efficient failover during coarse parameter search
+  for classification and regression. (See {ml-pull}1300[#1300].)
+* Improve data access patterns to speed up classification and regression.
+  (See {ml-pull}1312[#1312].)
+* Performance improvements for classification and regression, particularly running
+  multithreaded. (See {ml-pull}1317[#1317].)
+* Improve runtime and memory usage training deep trees for classification and
+  regression. (See {ml-pull}1340[#1340].)
+* Improvement in handling large inference model definitions. (See {ml-pull}1349[#1349].)
+* Add a peak_model_bytes field to model_size_stats. (See {ml-pull}1389[#1389].)
+
+=== Bug Fixes
+
+* Fix numerical issues leading to blow up of the model plot bounds. (See {ml-pull}1268[#1268].)
+* Fix causes for inverted forecast confidence interval bounds. (See {ml-pull}1369[#1369],
+  issue: {ml-issue}1357[#1357].)
+* Restrict growth of max matching string length for categories. (See {ml-pull}1406[#1406].)
+
+== {es} version 7.8.1
+
+=== Bug Fixes
+
+* Better interrupt handling during named pipe connection. (See {ml-pull}1311[#1311].)
+* Trap potential cause of SIGFPE. (See {ml-pull}1351[#1351], issue: {ml-issue}1348[#1348].)
+* Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
+* Fix cause of SIGSEGV of classification and regression. (See {ml-pull}1379[#1379].)
+* Fix restoration of change detectors after seasonality change. (See {ml-pull}1391[#1391].)
+* Fix potential SIGSEGV when forecasting. (See {ml-pull}1402[#1402], issue: {ml-issue}1401[#1401].)
+
+== {es} version 7.8.0
+
+=== Enhancements
+
+* Speed up anomaly detection for the lat_long function. (See {ml-pull}1102[#1102].)
+* Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
+  when CPU is constrained. This change is only implemented for Linux and macOS, not
+  for Windows. (See {ml-pull}1109[#1109].)
+* Take `training_percent` into account when estimating memory usage for classification and regression.
+  (See {ml-pull}1111[#1111].)
+* Support maximize minimum recall when assigning class labels for multiclass classification.
+  (See {ml-pull}1113[#1113].)
+* Improve robustness of anomaly detection to bad input data. (See {ml-pull}1114[#1114].)
+* Adds new `num_matches` and `preferred_to_categories` fields to category output.
+  (See {ml-pull}1062[#1062])
+* Adds mean squared logarithmic error (MSLE) for regression. (See {ml-pull}1101[#1101].)
+* Adds pseudo-Huber loss for regression. (See {ml-pull}1168[#1168].)
+* Reduce peak memory usage and memory estimates for classification and regression.
+  (See {ml-pull}1125[#1125].)
+* Reduce variability of classification and regression results across our target operating systems.
+  (See {ml-pull}1127[#1127].)
+* Switched data frame analytics model memory estimates from kilobytes to megabytes.
+  (See {ml-pull}1126[#1126], issue: {issue}54506[#54506].)
+* Added a {ml} native code build for Linux on AArch64. (See {ml-pull}1132[#1132] and
+  {ml-pull}1135[#1135].)
+* Improve data frame analysis runtime by optimising memory alignment for intrinsic
+  operations. (See {ml-pull}1142[#1142].)
+* Fix spurious anomalies for count and sum functions after no data are received for long
+  periods of time. (See {ml-pull}1158[#1158].)
+* Improve false positive rates from periodicity test for time series anomaly detection.
+  (See {ml-pull}1177[#1177].)
+* Break progress reporting of data frame analyses into multiple phases. (See {ml-pull}1179[#1179].)
+* Really centre the data before training for classification and regression begins. This
+  means we can choose more optimal smoothing bias and should reduce the number of trees.
+  (See {ml-pull}1192[#1192].)
+
+=== Bug Fixes
+
+* Trap and fail if insufficient features are supplied to data frame analyses. This
+  caused classification and regression getting stuck at zero progress analyzing.
+  (See {ml-pull}1160[#1160], issue: {issue}55593[#55593].)
+* Make categorization respect the `model_memory_limit`. (See {ml-pull}1167[#1167],
+  issue: {ml-issue}1130[#1130].)
+* Respect user overrides for `max_trees` for classification and regression. (See
+  {ml-pull}1185[#1185].)
+* Reset memory status from `soft_limit` to `ok` when pruning is no longer required.
+  (See {ml-pull}1193[#1193], issue: {ml-issue}1131[#1131].)
+* Fix restore from training state for classification and regression. (See
+  {ml-pull}1197[#1197].)
+* Improve the initialization of seasonal components for anomaly detection. (See
+  {ml-pull}1201[#1201], issue: {ml-issue}#1178[#1178].)
+
+== {es} version 7.7.1
+
+=== Bug Fixes
+
+* Fixed background persistence of categorizer state (See {ml-pull}1137[#1137],
+  issue: {ml-issue}1136[#1136].)
+* Fix classification job failures when number of classes in configuration differs
+  from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
+* Fix underlying cause for "Failed to calculate splitting significance" log errors.
+  (See {ml-pull}1157[#1157].)
+* Fix possible root cause for "Bad variance scale nan" log errors. (See {ml-pull}1225[#1225].)
+* Change data frame analytics instrumentation timestamp resolution to milliseconds. (See
+  {ml-pull}1237[#1237].)
+* Fix "autodetect process stopped unexpectedly: Fatal error: 'terminate called after
+  throwing an instance of 'std::bad_function_call'". (See {ml-pull}1246[#1246],
+  issue: {ml-issue}1245[#1245].)
+
+== {es} version 7.7.0
+
+=== New Features
+
+* Add instrumentation to report statistics related to data frame analytics jobs, i.e.
+progress, memory usage, etc. (See {ml-pull}906[#906].)
+* Multiclass classification. (See {ml-pull}1037[#1037].)
+
+=== Enhancements
+
+* Improve computational performance of the feature importance computation. (See {ml-pull}1005[1005].)
+* Improve initialization of learn rate for better and more stable results in regression
+and classification. (See {ml-pull}948[#948].)
+* Add number of processed training samples to the definition of decision tree nodes.
+(See {ml-pull}991[#991].)
+* Add new model_size_stats fields to instrument categorization.  (See {ml-pull}948[#948]
+and {pull}51879[#51879], issue: {issue}50794[#50749].)
+* Improve upfront memory estimation for all data frame analyses, which were higher than
+necessary. This will improve the allocation of data frame analyses to cluster nodes.
+(See {ml-pull}1003[#1003].)
+* Upgrade the compiler used on Linux from gcc 7.3 to gcc 7.5, and the binutils used in
+the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
+* Add instrumentation of the peak memory consumption for data frame analytics jobs.
+(See {ml-pull}1022[#1022].)
+* Remove all memory overheads for computing tree SHAP values. (See {ml-pull}1023[#1023].)
+* Distinguish between empty and missing categorical fields in classification and regression
+model training. (See {ml-pull}1034[#1034].)
+* Add instrumentation information for supervised learning data frame analytics jobs.
+(See {ml-pull}1031[#1031].)
+* Add instrumentation information for outlier detection data frame analytics jobs.
+* Write out feature importance for multi-class models. (See {ml-pull}1071[#1071])
+* Enable system call filtering to the native process used with data frame analytics.
+(See {ml-pull}1098[#1098])
+
+=== Bug Fixes
+
+* Use largest ordered subset of categorization tokens for category reverse search regex.
+(See {ml-pull}970[#970], issue: {ml-issue}949[#949].)
+* Account for the data frame's memory when estimating the peak memory used by classification
+and regression model training. (See {ml-pull}996[#996].)
+* Rename classification and regression parameter maximum_number_trees to max_trees.
+(See {ml-pull}1047[#1047].)
+
+== {es} version 7.6.2
+
+=== Bug Fixes
+
+* Fix a bug in the calculation of the minimum loss leaf values for classification.
+(See {ml-pull}1032[#1032].)
+
 == {es} version 7.6.0
+
+=== New Features
+
+* Add feature importance values to classification and regression results (using tree
+SHapley Additive exPlanation, or SHAP). (See {ml-pull}857[#857].)
 
 === Enhancements
 
 * Improve performance of boosted tree training for both classification and regression.
 (See {ml-pull}775[#775].)
+* Reduce the peak memory used by boosted tree training and fix an overcounting bug
+estimating maximum memory usage. (See {ml-pull}781[#781].)
+* Stratified fractional cross validation for regression. (See {ml-pull}784[#784].)
+* Added `geo_point` supported output for `lat_long` function records. (See {ml-pull}809[#809]
+and {pull}47050[#47050].)
+* Use a random bag of the data to compute the loss function derivatives for each new
+tree which is trained for both regression and classification. (See {ml-pull}811[#811].)
+* Emit `prediction_probability` field alongside prediction field in ml results.
+(See {ml-pull}818[#818].)
+* Reduce memory usage of {ml} native processes on Windows. (See {ml-pull}844[#844].)
+* Reduce runtime of classification and regression. (See {ml-pull}863[#863].)
+* Stop early training a classification and regression forest when the validation error
+is no longer decreasing. (See {ml-pull}875[#875].)
+* Emit `prediction_field_name` in ml results using the type provided as
+`prediction_field_type` parameter. (See {ml-pull}877[#877].)
+* Improve performance updating quantile estimates. (See {ml-pull}881[#881].)
+* Migrate to use Bayesian Optimisation for initial hyperparameter value line searches and
+stop early if the expected improvement is too small. (See {ml-pull}903[#903].)
+* Stop cross-validation early if the predicted test loss has a small chance of being
+smaller than for the best parameter values found so far. (See {ml-pull}915[#915].)
+* Optimize decision threshold for classification to maximize minimum class recall.
+(See {ml-pull}926[#926].)
+* Include categorization memory usage in the `model_bytes` field in `model_size_stats`,
+so that it is taken into account in node assignment decisions. (See {ml-pull}927[#927],
+issue: {ml-issue}724[#724].)
+
+=== Bug Fixes
+* Fixes potential memory corruption when determining seasonality. (See {ml-pull}852[#852].)
+* Prevent prediction_field_name clashing with other fields in ml results.
+(See {ml-pull}861[#861].)
+* Include out-of-order as well as in-order terms in categorization reverse searches.
+(See {ml-pull}950[#950], issue: {ml-issue}949[#949].)
+
+== {es} version 7.5.2
+
+=== Bug Fixes
+* Fixes potential memory corruption or inconsistent state when background persisting
+categorizer state. (See {ml-pull}921[#921].)
 
 == {es} version 7.5.0
 
@@ -50,12 +438,17 @@ boosted tree training. Hard depth based regularization is often the strategy of
 choice to prevent over fitting for XGBoost. By smoothing we can make better tradeoffs.
 Also, the parameters of the penalty function are mode suited to optimising with our
 Bayesian optimisation based hyperparameter search. (See {ml-pull}698[#698].)
-* Binomial logistic regression targeting cross entropy. (See {ml-pull}713[#713].) 
+* Binomial logistic regression targeting cross entropy. (See {ml-pull}713[#713].)
 * Improvements to count and sum anomaly detection for sparse data. This primarily
 aims to improve handling of data which are predictably present: detecting when they
 are unexpectedly missing. (See {ml-pull}721[#721].)
 * Trap numeric errors causing bad hyperparameter search initialisation and repeated
 errors to be logged during boosted tree training. (See {ml-pull}732[#732].)
+
+=== Bug Fixes
+
+* Restore from checkpoint could damage seasonality modeling. For example, it could
+cause seasonal components to be overwritten in error. (See {ml-pull}821[#821].)
 
 == {es} version 7.4.1
 
@@ -175,4 +568,3 @@ The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See 
 === Bug Fixes
 
 * Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
-

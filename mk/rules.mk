@@ -1,7 +1,12 @@
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 ifndef RULES_DEFINED
@@ -158,12 +163,19 @@ LDFLAGS+=$(BOOSTDATETIMELDFLAGS)
 LOCALLIBS+=$(BOOSTDATETIMELIBS)
 endif
 
+# if this uses BOOST add the paths
+ifdef USE_BOOST_TEST_LIBS
+LDFLAGS+=$(BOOSTTESTLDFLAGS)
+LOCALLIBS+=$(BOOSTTESTLIBS)
+endif
+
 ifdef USE_RAPIDJSON
 INCLUDE_PATH+=$(RAPIDJSONINCLUDES)
 CPPFLAGS+=$(RAPIDJSONCPPFLAGS)
 endif
 
 ifdef USE_EIGEN
+INCLUDE_PATH+=$(EIGENINCLUDES)
 CPPFLAGS+=$(EIGENCPPFLAGS)
 endif
 
@@ -172,11 +184,6 @@ ifdef USE_JNI
 INCLUDE_PATH+=$(JAVANATIVEINCLUDES)
 LDFLAGS+=$(JAVANATIVELDFLAGS)
 LOCALLIBS+=$(JAVANATIVELIBS)
-endif
-
-# if this uses CPPUNIT add the paths
-ifdef USE_CPPUNIT
-LOCALLIBS+=$(CPPUNITLIBS)
 endif
 
 # if this uses ZLIB add the paths
@@ -195,6 +202,12 @@ ifdef USE_NET
 LOCALLIBS+=$(NETLIBS)
 endif
 
+ifdef USE_TORCH
+INCLUDE_PATH+=$(TORCHINCLUDES)
+LDFLAGS+=$(TORCHLDFLAGS)
+LOCALLIBS+=$(TORCHCPULIB)
+LOCALLIBS+=$(C10LIB)
+endif
 
 endif
 

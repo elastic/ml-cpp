@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CDataFrameAnalysisSpecificationTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
@@ -17,9 +20,12 @@
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CTestTmpDir.h>
 
 #include "CDataFrameMockAnalysisRunner.h"
+
+#include <boost/test/unit_test.hpp>
 
 #include <chrono>
 #include <memory>
@@ -27,15 +33,24 @@
 #include <thread>
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CDataFrameAnalysisSpecificationTest)
+
 using namespace ml;
 
 namespace {
 using TStrVec = std::vector<std::string>;
 using TRunnerFactoryUPtr = std::unique_ptr<api::CDataFrameAnalysisRunnerFactory>;
 using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
+
+std::string createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet, bool diskUsageAllowed) {
+    std::string tempDir = tempDirPathSet ? test::CTestTmpDir::tmpDir() : "";
+    return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+        "testJob", 100, 3, 500000, 1, "", {}, diskUsageAllowed, tempDir, "",
+        "outlier_detection", "");
+}
 }
 
-void CDataFrameAnalysisSpecificationTest::testCreate() {
+BOOST_AUTO_TEST_CASE(testCreate) {
 
     // This test focuses on checking the validation code we apply to the object
     // rather than the JSON parsing so we don't bother with random fuzzing of the
@@ -113,13 +128,13 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "2",
                                         "custom_ml", {}, "outlier_detection")};
-        CPPUNIT_ASSERT_EQUAL(std::string{"foo"}, spec.jobId());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{1000}, spec.numberRows());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{20}, spec.numberColumns());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{100000}, spec.memoryLimit());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{2}, spec.numberThreads());
-        CPPUNIT_ASSERT_EQUAL(std::string("custom_ml"), spec.resultsField());
-        CPPUNIT_ASSERT(spec.categoricalFieldNames().empty());
+        BOOST_REQUIRE_EQUAL(std::string{"foo"}, spec.jobId());
+        BOOST_REQUIRE_EQUAL(std::size_t{1000}, spec.numberRows());
+        BOOST_REQUIRE_EQUAL(std::size_t{20}, spec.numberColumns());
+        BOOST_REQUIRE_EQUAL(std::size_t{100000}, spec.memoryLimit());
+        BOOST_REQUIRE_EQUAL(std::size_t{2}, spec.numberThreads());
+        BOOST_REQUIRE_EQUAL(std::string("custom_ml"), spec.resultsField());
+        BOOST_TEST_REQUIRE(spec.categoricalFieldNames().empty());
     }
     {
         LOG_TRACE(<< jsonSpec("bar", "1000", "20", "100000", "2", "custom_ml",
@@ -127,14 +142,14 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("bar", "1000", "20", "100000", "2", "custom_ml",
                                         {"x", "y"}, "outlier_detection")};
-        CPPUNIT_ASSERT_EQUAL(std::string{"bar"}, spec.jobId());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{1000}, spec.numberRows());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{20}, spec.numberColumns());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{100000}, spec.memoryLimit());
-        CPPUNIT_ASSERT_EQUAL(std::size_t{2}, spec.numberThreads());
-        CPPUNIT_ASSERT_EQUAL(std::string("custom_ml"), spec.resultsField());
-        CPPUNIT_ASSERT_EQUAL(std::string("[x, y]"),
-                             core::CContainerPrinter::print(spec.categoricalFieldNames()));
+        BOOST_REQUIRE_EQUAL(std::string{"bar"}, spec.jobId());
+        BOOST_REQUIRE_EQUAL(std::size_t{1000}, spec.numberRows());
+        BOOST_REQUIRE_EQUAL(std::size_t{20}, spec.numberColumns());
+        BOOST_REQUIRE_EQUAL(std::size_t{100000}, spec.memoryLimit());
+        BOOST_REQUIRE_EQUAL(std::size_t{2}, spec.numberThreads());
+        BOOST_REQUIRE_EQUAL(std::string("custom_ml"), spec.resultsField());
+        BOOST_REQUIRE_EQUAL(std::string("[x, y]"),
+                            core::CContainerPrinter::print(spec.categoricalFieldNames()));
     }
 
     LOG_DEBUG(<< "Bad input");
@@ -145,7 +160,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(),
             jsonSpec("foo", "", "20", "100000", "2", "ml", {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         LOG_TRACE(<< jsonSpec("foo", "1000", "", "100000", "2", "ml", {}, "outlier_detection"));
@@ -154,7 +169,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "1000", "", "100000", "2", "ml",
                                         {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         LOG_TRACE(<< jsonSpec("foo", "1000", "20", "", "2", "ml", {}, "outlier_detection"));
@@ -163,7 +178,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(),
             jsonSpec("foo", "1000", "20", "", "2", "ml", {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         LOG_TRACE(<< jsonSpec("foo", "1000", "20", "100000", "", "ml", {}, "outlier_detection"));
@@ -172,7 +187,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "", "ml",
                                         {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         LOG_TRACE(<< jsonSpec("foo", "1000", "20", "100000", "2", "ml", {}, ""));
@@ -180,7 +195,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         api::CDataFrameAnalysisSpecification spec{
             runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "2", "ml", {}, "")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         LOG_TRACE(<< jsonSpec("foo", "-3", "20", "100000", "2", "ml", {}, "outlier_detection"));
@@ -189,7 +204,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "-3", "20", "100000", "2", "ml",
                                         {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         LOG_TRACE(<< jsonSpec("foo", "1000", "0", "100000", "2", "ml", {}, "outlier_detection"));
@@ -198,7 +213,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "1000", "0", "100000", "2", "ml",
                                         {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         LOG_TRACE(<< jsonSpec("foo", "1000", "20", "ZZ", "2", "ml", {}, "outlier_detection"));
@@ -207,7 +222,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "1000", "20", "\"ZZ\"", "2",
                                         "ml", {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         LOG_TRACE(<< jsonSpec("foo", "1000", "20", "100000", "-1", "ml", {}, "outlier_detection"));
@@ -216,7 +231,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "1000", "20", "100000", "-1",
                                         "ml", {}, "outlier_detection")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         LOG_TRACE(<< jsonSpec("foo", "100", "20", "100000", "2", "ml", {}, "outl1ers"));
@@ -225,7 +240,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(),
             jsonSpec("foo", "100", "20", "100000", "2", "ml", {}, "outl1ers")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         std::string jsonSpecStr{"{\n"
@@ -243,7 +258,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{runnerFactories(), jsonSpecStr};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
     {
         std::string jsonSpecStr{"{\n"
@@ -261,7 +276,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         errors.clear();
         api::CDataFrameAnalysisSpecification spec{runnerFactories(), jsonSpecStr};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     LOG_DEBUG(<< "Invalid number neighbours");
@@ -273,7 +288,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "100", "20", "100000", "2", "ml", {},
                                         "outlier_detection", "{\"n_neighbors\": -1}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     LOG_DEBUG(<< "Invalid method");
@@ -285,7 +300,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "100", "20", "100000", "2", "ml", {},
                                         "outlier_detection", "{\"method\": \"lofe\"}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     LOG_DEBUG(<< "Invalid feature influence");
@@ -298,7 +313,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             jsonSpec("foo", "100", "20", "100000", "2", "ml", {},
                      "outlier_detection", "{\"compute_feature_influence\": 1}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     LOG_DEBUG(<< "Invalid feature influence");
@@ -310,7 +325,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "100", "20", "100000", "2", "ml", {}, "outlier_detection",
                                         "{\"compute_feature_influences\": true}")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     LOG_DEBUG(<< "Extra junk");
@@ -322,7 +337,7 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
             runnerFactories(), jsonSpec("foo", "1000", "2", "100000", "2", "ml",
                                         {}, "outlier_detection", "", "threeds")};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     LOG_DEBUG(<< "Classification with numeric target");
@@ -331,10 +346,10 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         std::string parameters{"{\"dependent_variable\": \"class\"}"};
         api::CDataFrameAnalysisSpecification spec{
             api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-                "testJob", 10000, 5, 100000000, 1, {}, true,
+                "testJob", 10000, 5, 100000000, 1, "", {}, true,
                 test::CTestTmpDir::tmpDir(), "", "classification", parameters)};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 
     LOG_DEBUG(<< "Regression with categorical target");
@@ -343,14 +358,40 @@ void CDataFrameAnalysisSpecificationTest::testCreate() {
         std::string parameters{"{\"dependent_variable\": \"value\"}"};
         api::CDataFrameAnalysisSpecification spec{
             api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-                "testJob", 10000, 5, 100000000, 1, {"value"}, true,
+                "testJob", 10000, 5, 100000000, 1, "", {"value"}, true,
                 test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        CPPUNIT_ASSERT(errors.size() > 0);
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+    }
+
+    LOG_DEBUG(<< "Missing field value is numeric");
+    {
+        errors.clear();
+        std::string parameters{"{\"dependent_variable\": \"value\"}"};
+        api::CDataFrameAnalysisSpecification spec{
+            api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+                "testJob", 10000, 5, 100000000, 1, "42", {}, true,
+                test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+    }
+
+    LOG_DEBUG(<< "Invalid number of class weights");
+    {
+        errors.clear();
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        auto spec = specFactory.rows(5)
+                        .predictionCategoricalFieldNames({"f1", "target"})
+                        .numberClasses(2)
+                        .classificationWeights({{"a", 0.1}, {"b", 0.4}, {"c", 0.5}})
+                        .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
+                                        "target");
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        BOOST_TEST_REQUIRE(errors.size() > 0);
     }
 }
 
-void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
+BOOST_AUTO_TEST_CASE(testRunAnalysis) {
 
     // Check progress is monotonic and that it remains less than one until the end
     // of the analysis.
@@ -363,7 +404,8 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
     };
 
     std::string jsonSpec = api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 100, 10, 1000, 1, {}, true, test::CTestTmpDir::tmpDir(), "", "test", "");
+        "testJob", 100, 10, 1000, 1, "", {}, true, test::CTestTmpDir::tmpDir(),
+        "", "test", "");
 
     for (std::size_t i = 0; i < 10; ++i) {
         api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
@@ -371,33 +413,26 @@ void CDataFrameAnalysisSpecificationTest::testRunAnalysis() {
         auto frameAndDirectory = core::makeMainStorageDataFrame(10);
         auto frame = std::move(frameAndDirectory.first);
 
-        api::CDataFrameAnalysisRunner* runner{spec.run(*frame)};
-        CPPUNIT_ASSERT(runner != nullptr);
+        api::CDataFrameAnalysisRunner* runner{spec.runner()};
+        BOOST_TEST_REQUIRE(runner != nullptr);
 
-        double lastProgress{runner->progress()};
-        while (runner->finished() == false) {
+        runner->run(*frame);
+
+        double lastProgress{runner->instrumentation().progress()};
+        while (runner->instrumentation().finished() == false) {
             std::this_thread::sleep_for(std::chrono::milliseconds(20));
             LOG_TRACE(<< "progress = " << lastProgress);
-            CPPUNIT_ASSERT(runner->progress() >= lastProgress);
-            lastProgress = runner->progress();
-            CPPUNIT_ASSERT(runner->progress() <= 1.0);
+            BOOST_TEST_REQUIRE(runner->instrumentation().progress() >= lastProgress);
+            lastProgress = runner->instrumentation().progress();
+            BOOST_TEST_REQUIRE(runner->instrumentation().progress() <= 1.0);
         }
 
-        LOG_DEBUG(<< "progress = " << lastProgress);
-        CPPUNIT_ASSERT_EQUAL(1.0, runner->progress());
+        LOG_TRACE(<< "final progress = " << lastProgress);
+        BOOST_REQUIRE_EQUAL(1.0, runner->instrumentation().progress());
     }
 }
 
-std::string
-CDataFrameAnalysisSpecificationTest::createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet,
-                                                                           bool diskUsageAllowed) {
-    std::string tempDir = tempDirPathSet ? test::CTestTmpDir::tmpDir() : "";
-    return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 100, 3, 500000, 1, {}, diskUsageAllowed, tempDir, "",
-        "outlier_detection", "");
-}
-
-void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
+BOOST_AUTO_TEST_CASE(testTempDirDiskUsage) {
 
     std::vector<std::string> errors;
     std::mutex errorsMutex;
@@ -415,10 +450,10 @@ void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // single error is registered that temp dir is empty
-        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(1), errors.size());
-        CPPUNIT_ASSERT(errors[0].find("Input error: temporary directory path should"
-                                      " be explicitly set if disk usage is allowed!") !=
-                       std::string::npos);
+        BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(1), errors.size());
+        BOOST_TEST_REQUIRE(errors[0].find("Input error: temporary directory path should"
+                                          " be explicitly set if disk usage is allowed!") !=
+                           std::string::npos);
     }
 
     // No temp dir given, no disk usage allowed
@@ -428,7 +463,7 @@ void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // no error should be registered
-        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(0), errors.size());
+        BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(0), errors.size());
     }
 
     // Temp dir given and disk usage allowed
@@ -438,23 +473,8 @@ void CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage() {
         api::CDataFrameAnalysisSpecification spec{jsonSpec};
 
         // no error should be registered
-        CPPUNIT_ASSERT_EQUAL(static_cast<std::size_t>(0), errors.size());
+        BOOST_REQUIRE_EQUAL(static_cast<std::size_t>(0), errors.size());
     }
 }
 
-CppUnit::Test* CDataFrameAnalysisSpecificationTest::suite() {
-    CppUnit::TestSuite* suiteOfTests =
-        new CppUnit::TestSuite("CDataFrameAnalysisSpecificationTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
-        "CDataFrameAnalysisSpecificationTest::testCreate",
-        &CDataFrameAnalysisSpecificationTest::testCreate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
-        "CDataFrameAnalysisSpecificationTest::testRunAnalysis",
-        &CDataFrameAnalysisSpecificationTest::testRunAnalysis));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CDataFrameAnalysisSpecificationTest>(
-        "CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage",
-        &CDataFrameAnalysisSpecificationTest::testTempDirDiskUsage));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

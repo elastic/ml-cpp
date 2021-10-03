@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CStateMachineTest.h"
 
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -19,6 +22,9 @@
 #include <vector>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
+
+BOOST_AUTO_TEST_SUITE(CStateMachineTest)
 
 using namespace ml;
 
@@ -55,9 +61,6 @@ using TMachineVec = std::vector<SMachine>;
 
 class CTestThread : public core::CThread {
 public:
-    using TCppUnitExceptionP = std::shared_ptr<CppUnit::Exception>;
-
-public:
     CTestThread(const TMachineVec& machines)
         : m_Machines(machines), m_Failures(0) {}
 
@@ -70,7 +73,7 @@ private:
         std::size_t n = 10000;
         m_States.reserve(n);
         TSizeVec machine;
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             m_Rng.generateUniformSamples(0, m_Machines.size(), 1, machine);
             core::CStateMachine sm = core::CStateMachine::create(
                 m_Machines[machine[0]].s_Alphabet, m_Machines[machine[0]].s_States,
@@ -105,11 +108,11 @@ void randomMachines(std::size_t n, TMachineVec& result) {
     rng.generateUniformSamples(1, boost::size(alphabet), n, na);
 
     result.resize(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         result[i].s_States.assign(states, states + ns[i]);
         result[i].s_Alphabet.assign(alphabet, alphabet + na[i]);
         result[i].s_TransitionFunction.resize(na[i]);
-        for (std::size_t j = 0u; j < na[i]; ++j) {
+        for (std::size_t j = 0; j < na[i]; ++j) {
             rng.generateUniformSamples(0, ns[i], ns[i], result[i].s_TransitionFunction[j]);
         }
 
@@ -119,7 +122,7 @@ void randomMachines(std::size_t n, TMachineVec& result) {
 }
 }
 
-void CStateMachineTest::testBasics() {
+BOOST_AUTO_TEST_CASE(testBasics) {
     // Test errors on create.
 
     // Test transitions.
@@ -127,10 +130,10 @@ void CStateMachineTest::testBasics() {
     TMachineVec machines;
     randomMachines(5, machines);
 
-    for (std::size_t m = 0u; m < machines.size(); ++m) {
+    for (std::size_t m = 0; m < machines.size(); ++m) {
         LOG_DEBUG(<< "machine " << m);
-        for (std::size_t i = 0u; i < machines[m].s_Alphabet.size(); ++i) {
-            for (std::size_t j = 0u; j < machines[m].s_States.size(); ++j) {
+        for (std::size_t i = 0; i < machines[m].s_Alphabet.size(); ++i) {
+            for (std::size_t j = 0; j < machines[m].s_States.size(); ++j) {
                 core::CStateMachine sm = core::CStateMachine::create(
                     machines[m].s_Alphabet, machines[m].s_States, machines[m].s_TransitionFunction,
                     j); // initial state
@@ -142,7 +145,7 @@ void CStateMachineTest::testBasics() {
                 const std::string& newState = machines[m].s_States[sm.state()];
 
                 LOG_DEBUG(<< "  " << oldState << " -> " << newState);
-                CPPUNIT_ASSERT_EQUAL(
+                BOOST_REQUIRE_EQUAL(
                     machines[m].s_States[machines[m].s_TransitionFunction[i][j]],
                     sm.printState(sm.state()));
             }
@@ -150,7 +153,7 @@ void CStateMachineTest::testBasics() {
     }
 }
 
-void CStateMachineTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check persist maintains the checksum and is idempotent.
 
     TMachineVec machine;
@@ -169,7 +172,7 @@ void CStateMachineTest::testPersist() {
     LOG_DEBUG(<< "State machine XML representation:\n" << origXml);
 
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     core::CStateMachine restored = core::CStateMachine::create(
@@ -179,17 +182,17 @@ void CStateMachineTest::testPersist() {
         return restored.acceptRestoreTraverser(traverser_);
     });
 
-    CPPUNIT_ASSERT_EQUAL(original.checksum(), restored.checksum());
+    BOOST_REQUIRE_EQUAL(original.checksum(), restored.checksum());
     std::string newXml;
     {
         ml::core::CRapidXmlStatePersistInserter inserter("root");
         restored.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-void CStateMachineTest::testMultithreaded() {
+BOOST_AUTO_TEST_CASE(testMultithreaded) {
     // Check that we create each machine once and we don't get any
     // errors updating due to stale reads.
 
@@ -206,36 +209,25 @@ void CStateMachineTest::testMultithreaded() {
     using TThreadPtr = std::shared_ptr<CTestThread>;
     using TThreadVec = std::vector<TThreadPtr>;
     TThreadVec threads;
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         threads.push_back(TThreadPtr(new CTestThread(machines)));
     }
-    for (std::size_t i = 0u; i < threads.size(); ++i) {
-        CPPUNIT_ASSERT(threads[i]->start());
+    for (std::size_t i = 0; i < threads.size(); ++i) {
+        BOOST_TEST_REQUIRE(threads[i]->start());
     }
-    for (std::size_t i = 0u; i < threads.size(); ++i) {
-        CPPUNIT_ASSERT(threads[i]->waitForFinish());
+    for (std::size_t i = 0; i < threads.size(); ++i) {
+        BOOST_TEST_REQUIRE(threads[i]->waitForFinish());
     }
-    for (std::size_t i = 0u; i < threads.size(); ++i) {
+    for (std::size_t i = 0; i < threads.size(); ++i) {
         // No failed reads.
-        CPPUNIT_ASSERT_EQUAL(std::size_t(0), threads[i]->failures());
+        BOOST_REQUIRE_EQUAL(std::size_t(0), threads[i]->failures());
     }
-    for (std::size_t i = 1u; i < threads.size(); ++i) {
+    for (std::size_t i = 1; i < threads.size(); ++i) {
         // No wrong reads.
-        CPPUNIT_ASSERT(threads[i]->states() == threads[i - 1]->states());
+        BOOST_TEST_REQUIRE(threads[i]->states() == threads[i - 1]->states());
     }
     // No duplicates.
-    CPPUNIT_ASSERT_EQUAL(machines.size(), core::CStateMachine::numberMachines());
+    BOOST_REQUIRE_EQUAL(machines.size(), core::CStateMachine::numberMachines());
 }
 
-CppUnit::Test* CStateMachineTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStateMachineTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>(
-        "CStateMachineTest::testBasics", &CStateMachineTest::testBasics));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>(
-        "CStateMachineTest::testPersist", &CStateMachineTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStateMachineTest>(
-        "CStateMachineTest::testMultithreaded", &CStateMachineTest::testMultithreaded));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

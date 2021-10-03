@@ -1,56 +1,71 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-#include "CLimitsTest.h"
 
 #include <model/CLimits.h>
 
-CppUnit::Test* CLimitsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLimitsTest");
+#include <boost/test/unit_test.hpp>
 
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLimitsTest>(
-        "CLimitsTest::testTrivial", &CLimitsTest::testTrivial));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLimitsTest>(
-        "CLimitsTest::testValid", &CLimitsTest::testValid));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLimitsTest>(
-        "CLimitsTest::testInvalid", &CLimitsTest::testInvalid));
+BOOST_AUTO_TEST_SUITE(CLimitsTest)
 
-    return suiteOfTests;
-}
-
-void CLimitsTest::testTrivial() {
+BOOST_AUTO_TEST_CASE(testTrivial) {
     ml::model::CLimits config;
 
-    CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_AUTOCONFIG_EVENTS,
-                         config.autoConfigEvents());
-    CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
-                         config.anomalyMaxTimeBuckets());
-    CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES,
-                         config.maxExamples());
-    CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD / 100.0,
-                         config.unusualProbabilityThreshold());
-    CPPUNIT_ASSERT_EQUAL(ml::model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
-                         config.memoryLimitMB());
+    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+                        config.anomalyMaxTimeBuckets());
+    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES,
+                        config.maxExamples());
+    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD / 100.0,
+                        config.unusualProbabilityThreshold());
+    BOOST_REQUIRE_EQUAL(ml::model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB,
+                        config.memoryLimitMB());
 }
 
-void CLimitsTest::testValid() {
+BOOST_AUTO_TEST_CASE(testValid) {
+    {
+        ml::model::CLimits config;
+        BOOST_TEST_REQUIRE(config.init("testfiles/mllimits.conf"));
+
+        // This one isn't present in the config file so should be defaulted
+        BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+                            config.anomalyMaxTimeBuckets());
+
+        BOOST_REQUIRE_EQUAL(8, config.maxExamples());
+
+        BOOST_REQUIRE_EQUAL(0.005, config.unusualProbabilityThreshold());
+
+        BOOST_REQUIRE_EQUAL(4567, config.memoryLimitMB());
+    }
+    {
+        ml::model::CLimits config;
+
+        // initialise from given values
+        config.init(2, 4096);
+
+        // This one should always be defaulted when there is no config file
+        BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+                            config.anomalyMaxTimeBuckets());
+
+        // This also should be defaulted (as a percentage)
+        BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD / 100,
+                            config.unusualProbabilityThreshold());
+
+        // These two should be as specified in the constructor.
+        BOOST_REQUIRE_EQUAL(2, config.maxExamples());
+        BOOST_REQUIRE_EQUAL(4096, config.memoryLimitMB());
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testInvalid) {
     ml::model::CLimits config;
-    CPPUNIT_ASSERT(config.init("testfiles/mllimits.conf"));
-
-    // This one isn't present in the config file so should be defaulted
-    CPPUNIT_ASSERT_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
-                         config.anomalyMaxTimeBuckets());
-
-    CPPUNIT_ASSERT_EQUAL(size_t(8), config.maxExamples());
-
-    CPPUNIT_ASSERT_EQUAL(0.005, config.unusualProbabilityThreshold());
-
-    CPPUNIT_ASSERT_EQUAL(size_t(4567), config.memoryLimitMB());
+    BOOST_TEST_REQUIRE(!config.init("testfiles/invalidmllimits.conf"));
 }
 
-void CLimitsTest::testInvalid() {
-    ml::model::CLimits config;
-    CPPUNIT_ASSERT(!config.init("testfiles/invalidmllimits.conf"));
-}
+BOOST_AUTO_TEST_SUITE_END()

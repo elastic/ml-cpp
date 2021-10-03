@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CPersistenceManager.h>
 
@@ -73,6 +78,30 @@ void CPersistenceManager::useBackgroundPersistence() {
 
 void CPersistenceManager::useForegroundPersistence() {
     m_PersistInForeground = true;
+}
+
+bool CPersistenceManager::doForegroundPersist(core::CDataAdder::TPersistFunc persistFunc) {
+    if (!persistFunc) {
+        return false;
+    }
+
+    core::CScopedFastLock lock(m_Mutex);
+
+    if (this->isBusy()) {
+        return false;
+    }
+
+    if (m_BackgroundThread.isStarted()) {
+        // This join should be fast as the busy flag is false so the thread
+        // should either have already exited or be on the verge of exiting
+        if (m_BackgroundThread.waitForFinish() == false) {
+            return false;
+        }
+    }
+
+    persistFunc(m_FgDataAdder);
+
+    return true;
 }
 
 bool CPersistenceManager::addPersistFunc(core::CDataAdder::TPersistFunc persistFunc) {

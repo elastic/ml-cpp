@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CAnomalyDetector.h>
@@ -17,8 +22,8 @@
 #include <maths/COrderings.h>
 #include <maths/CSampling.h>
 
+#include <model/CAnnotation.h>
 #include <model/CAnomalyDetectorModel.h>
-#include <model/CAnomalyScore.h>
 #include <model/CDataGatherer.h>
 #include <model/CForecastModelPersist.h>
 #include <model/CModelDetailsView.h>
@@ -26,7 +31,6 @@
 #include <model/CSampleCounts.h>
 #include <model/CSearchKey.h>
 
-#include <limits>
 #include <sstream>
 #include <vector>
 
@@ -91,13 +95,12 @@ const std::string CAnomalyDetector::SUM_NAME("sum");
 const std::string CAnomalyDetector::LAT_LONG_NAME("lat_long");
 const std::string CAnomalyDetector::EMPTY_STRING;
 
-CAnomalyDetector::CAnomalyDetector(int detectorIndex,
-                                   CLimits& limits,
+CAnomalyDetector::CAnomalyDetector(CLimits& limits,
                                    const CAnomalyDetectorModelConfig& modelConfig,
                                    const std::string& partitionFieldValue,
                                    core_t::TTime firstTime,
                                    const TModelFactoryCPtr& modelFactory)
-    : m_DetectorIndex(detectorIndex), m_Limits(limits), m_ModelConfig(modelConfig),
+    : m_Limits(limits), m_ModelConfig(modelConfig),
       m_LastBucketEndTime(maths::CIntegerTools::ceil(firstTime, modelConfig.bucketLength())),
       m_DataGatherer(makeDataGatherer(modelFactory, m_LastBucketEndTime, partitionFieldValue)),
       m_ModelFactory(modelFactory),
@@ -118,8 +121,7 @@ CAnomalyDetector::CAnomalyDetector(int detectorIndex,
 }
 
 CAnomalyDetector::CAnomalyDetector(bool isForPersistence, const CAnomalyDetector& other)
-    : m_DetectorIndex(other.m_DetectorIndex), m_Limits(other.m_Limits),
-      m_ModelConfig(other.m_ModelConfig),
+    : m_Limits(other.m_Limits), m_ModelConfig(other.m_ModelConfig),
       // Empty result function is fine in this case
       // Empty result count function is fine in this case
       m_LastBucketEndTime(other.m_LastBucketEndTime),
@@ -173,11 +175,6 @@ void CAnomalyDetector::zeroModelsToTime(core_t::TTime time) {
 
 bool CAnomalyDetector::acceptRestoreTraverser(const std::string& partitionFieldValue,
                                               core::CStateRestoreTraverser& traverser) {
-    // As the model pointer will change during restore, we unregister
-    // the detector from the resource monitor. We can register it
-    // again at the end of restore.
-    m_Limits.resourceMonitor().unRegisterComponent(*this);
-
     m_DataGatherer->clear();
     m_Model.reset();
 
@@ -202,8 +199,6 @@ bool CAnomalyDetector::acceptRestoreTraverser(const std::string& partitionFieldV
         }
     } while (traverser.next());
 
-    m_Limits.resourceMonitor().registerComponent(*this);
-
     return true;
 }
 
@@ -214,7 +209,7 @@ bool CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser(const std::stri
         if (name == DATA_GATHERER_TAG) {
             m_DataGatherer.reset(
                 m_ModelFactory->makeDataGatherer(partitionFieldValue, traverser));
-            if (!m_DataGatherer) {
+            if (m_DataGatherer == nullptr || m_DataGatherer->checkInvariants() == false) {
                 LOG_ERROR(<< "Failed to restore the data gatherer from "
                           << traverser.value());
                 return false;
@@ -307,6 +302,19 @@ void CAnomalyDetector::keyAcceptPersistInserter(core::CStatePersistInserter& ins
 
 void CAnomalyDetector::partitionFieldAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(PARTITION_FIELD_VALUE_TAG, m_DataGatherer->partitionFieldValue());
+}
+
+bool CAnomalyDetector::shouldPersistDetector() const {
+    // Query the model to determine if it should be persisted.
+    // This may return false if every constituent feature model is effectively
+    // empty, i.e. all the models are stubs due to them being pruned.
+    // If the model should not be persisted neither should the detector.
+    if (m_Model->shouldPersist() == false) {
+        LOG_TRACE(<< "NOT persisting detector \"" << this->description()
+                  << "\" due to all feature models being pruned");
+        return false;
+    }
+    return true;
 }
 
 void CAnomalyDetector::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -447,9 +455,22 @@ void CAnomalyDetector::generateModelPlot(core_t::TTime bucketStartTime,
                 modelPlots.emplace_back(time, key.partitionFieldName(),
                                         m_DataGatherer->partitionFieldValue(),
                                         key.overFieldName(), key.byFieldName(),
-                                        bucketLength, m_DetectorIndex);
+                                        bucketLength, key.detectorIndex());
                 view->modelPlot(time, boundsPercentile, terms, modelPlots.back());
             }
+        }
+    }
+}
+
+void CAnomalyDetector::generateAnnotations(core_t::TTime bucketStartTime,
+                                           core_t::TTime bucketEndTime,
+                                           TAnnotationVec& annotations) const {
+    if (bucketEndTime <= bucketStartTime) {
+        return;
+    }
+    for (const auto& annotation : m_Model->annotations()) {
+        if (annotation.time() >= bucketStartTime && annotation.time() < bucketEndTime) {
+            annotations.push_back(annotation);
         }
     }
 }
@@ -508,16 +529,16 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
         return series;
     }
 
-    TModelDetailsViewUPtr view = m_Model.get()->details();
+    TModelDetailsViewUPtr view{m_Model.get()->details()};
 
     // The view can be empty, e.g. for the counting model.
     if (view.get() == nullptr) {
         return series;
     }
 
-    const CSearchKey& key = m_DataGatherer->searchKey();
+    const CSearchKey& key{m_DataGatherer->searchKey()};
     series.s_ByFieldName = key.byFieldName();
-    series.s_DetectorIndex = m_DetectorIndex;
+    series.s_DetectorIndex = key.detectorIndex();
     series.s_PartitionFieldName = key.partitionFieldName();
     series.s_PartitionFieldValue = m_DataGatherer->partitionFieldValue();
     series.s_MinimumSeasonalVarianceScale = m_ModelFactory->minimumSeasonalVarianceScale();
@@ -525,16 +546,15 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
     if (persistOnDisk) {
         CForecastModelPersist::CPersist persister(persistenceFolder);
 
-        for (std::size_t pid = 0u, maxPid = m_DataGatherer->numberPeople();
-             pid < maxPid; ++pid) {
+        for (std::size_t pid = 0; pid < m_DataGatherer->numberPeople(); ++pid) {
             // todo: Add terms filtering here
             if (m_DataGatherer->isPersonActive(pid)) {
                 for (auto feature : view->features()) {
-                    const maths::CModel* model = view->model(feature, pid);
-                    core_t::TTime firstDataTime;
-                    core_t::TTime lastDataTime;
-                    std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
+                    const maths::CModel* model{view->model(feature, pid)};
                     if (model != nullptr && model->isForecastPossible()) {
+                        core_t::TTime firstDataTime;
+                        core_t::TTime lastDataTime;
+                        std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
                         persister.addModel(model, firstDataTime, lastDataTime, feature,
                                            m_DataGatherer->personName(pid));
                     }
@@ -544,16 +564,16 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
 
         series.s_ToForecastPersisted = persister.finalizePersistAndGetFile();
     } else {
-        for (std::size_t pid = 0u, maxPid = m_DataGatherer->numberPeople();
-             pid < maxPid; ++pid) {
+
+        for (std::size_t pid = 0; pid < m_DataGatherer->numberPeople(); ++pid) {
             // todo: Add terms filtering here
             if (m_DataGatherer->isPersonActive(pid)) {
                 for (auto feature : view->features()) {
-                    const maths::CModel* model = view->model(feature, pid);
-                    core_t::TTime firstDataTime;
-                    core_t::TTime lastDataTime;
-                    std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
+                    const maths::CModel* model{view->model(feature, pid)};
                     if (model != nullptr && model->isForecastPossible()) {
+                        core_t::TTime firstDataTime;
+                        core_t::TTime lastDataTime;
+                        std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
                         series.s_ToForecast.emplace_back(
                             feature, m_DataGatherer->personName(pid),
                             CForecastDataSink::TMathsModelPtr(model->cloneForForecast()),
@@ -583,6 +603,15 @@ void CAnomalyDetector::pruneModels() {
     m_Model->prune(m_Model->defaultPruneWindow());
 }
 
+void CAnomalyDetector::pruneModels(std::size_t buckets) {
+    // Purge out any models that haven't seen activity in the given number of buckets.
+
+    function_t::EFunction function{m_DataGatherer->function()};
+    if (function_t::isAggressivePruningSupported(function)) {
+        m_Model->prune(buckets);
+    }
+}
+
 void CAnomalyDetector::resetBucket(core_t::TTime bucketStart) {
     m_DataGatherer->resetBucket(bucketStart);
 }
@@ -602,7 +631,7 @@ void CAnomalyDetector::showMemoryUsage(std::ostream& stream) const {
     }
 }
 
-void CAnomalyDetector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CAnomalyDetector::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("Anomaly Detector Memory Usage");
     core::CMemoryDebug::dynamicSize("m_DataGatherer", m_DataGatherer, mem);
     core::CMemoryDebug::dynamicSize("m_Model", m_Model, mem);
@@ -610,6 +639,37 @@ void CAnomalyDetector::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem)
 
 std::size_t CAnomalyDetector::memoryUsage() const {
     return core::CMemory::dynamicSize(m_DataGatherer) + core::CMemory::dynamicSize(m_Model);
+}
+
+std::size_t CAnomalyDetector::staticSize() const {
+    return sizeof(*this);
+}
+
+bool CAnomalyDetector::supportsPruning() const {
+    return true;
+}
+
+bool CAnomalyDetector::initPruneWindow(std::size_t& defaultPruneWindow,
+                                       std::size_t& minimumPruneWindow) const {
+    // The longest we'll consider keeping priors for is 1M buckets.
+    defaultPruneWindow = m_Model->defaultPruneWindow();
+    minimumPruneWindow = m_Model->minimumPruneWindow();
+    return true;
+}
+
+core_t::TTime CAnomalyDetector::bucketLength() const {
+    return m_Model->bucketLength();
+}
+
+void CAnomalyDetector::prune(std::size_t maximumAge) {
+    m_Model->prune(maximumAge);
+}
+
+void CAnomalyDetector::updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const {
+    ++modelSizeStats.s_PartitionFields;
+    const auto& dataGatherer = m_Model->dataGatherer();
+    modelSizeStats.s_OverFields += dataGatherer.numberOverFieldValues();
+    modelSizeStats.s_ByFields += dataGatherer.numberByFieldValues();
 }
 
 const core_t::TTime& CAnomalyDetector::lastBucketEndTime() const {
@@ -663,7 +723,7 @@ void CAnomalyDetector::buildResultsHelper(core_t::TTime bucketStartTime,
     CSearchKey key = m_DataGatherer->searchKey();
     LOG_TRACE(<< "OutputResults, for " << key.toCue());
 
-    if (m_Model->addResults(m_DetectorIndex, bucketStartTime, bucketEndTime,
+    if (m_Model->addResults(bucketStartTime, bucketEndTime,
                             10, // TODO max number of attributes
                             results)) {
         if (bucketEndTime % bucketLength == 0) {

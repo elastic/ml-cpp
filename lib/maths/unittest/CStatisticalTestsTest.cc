@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CStatisticalTestsTest.h"
 
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -20,16 +23,19 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <boost/range.hpp>
 
 #include <vector>
 
+BOOST_AUTO_TEST_SUITE(CStatisticalTestsTest)
+
 using namespace ml;
 
 using TDoubleVec = std::vector<double>;
 
-void CStatisticalTestsTest::testCramerVonMises() {
+BOOST_AUTO_TEST_CASE(testCramerVonMises) {
     // These test that the test statistic p value percentiles
     // are correct if the random variable and the distribution
     // function are perfectly matched.
@@ -41,7 +47,7 @@ void CStatisticalTestsTest::testCramerVonMises() {
 
     double averageMeanError = 0.0;
 
-    for (std::size_t i = 0u; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < boost::size(n); ++i) {
         LOG_DEBUG(<< "*** n = " << n[i] << " ***");
         {
             LOG_DEBUG(<< "N(" << 5.0 << "," << std::sqrt(2.0) << ")");
@@ -50,7 +56,7 @@ void CStatisticalTestsTest::testCramerVonMises() {
             boost::math::normal_distribution<> normal(5.0, std::sqrt(2.0));
 
             TDoubleVec p;
-            for (std::size_t j = 0u; j < samples.size() / n[i]; ++j) {
+            for (std::size_t j = 0; j < samples.size() / n[i]; ++j) {
                 maths::CStatisticalTests::CCramerVonMises cvm(n[i] - 1);
                 for (std::size_t k = n[i] * j; k < n[i] * (j + 1); ++k) {
                     cvm.addF(boost::math::cdf(normal, samples[k]));
@@ -68,11 +74,11 @@ void CStatisticalTestsTest::testCramerVonMises() {
                 LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
                           << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
-                CPPUNIT_ASSERT(std::fabs(pp - percentile) < 0.055);
+                BOOST_TEST_REQUIRE(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
             LOG_DEBUG(<< "meanError = " << meanError);
-            CPPUNIT_ASSERT(meanError < 0.026);
+            BOOST_TEST_REQUIRE(meanError < 0.026);
             averageMeanError += meanError;
         }
         {
@@ -82,7 +88,7 @@ void CStatisticalTestsTest::testCramerVonMises() {
             boost::math::lognormal_distribution<> lognormal(2.0, 1.0);
 
             TDoubleVec p;
-            for (std::size_t j = 0u; j < samples.size() / n[i]; ++j) {
+            for (std::size_t j = 0; j < samples.size() / n[i]; ++j) {
                 maths::CStatisticalTests::CCramerVonMises cvm(n[i] - 1);
                 for (std::size_t k = n[i] * j; k < n[i] * (j + 1); ++k) {
                     cvm.addF(boost::math::cdf(lognormal, samples[k]));
@@ -100,21 +106,21 @@ void CStatisticalTestsTest::testCramerVonMises() {
                 LOG_DEBUG(<< "percentile = " << percentile << ", p value percentile = " << pp
                           << ", error = " << std::fabs(pp - percentile));
                 meanError += std::fabs(pp - percentile);
-                CPPUNIT_ASSERT(std::fabs(pp - percentile) < 0.055);
+                BOOST_TEST_REQUIRE(std::fabs(pp - percentile) < 0.055);
             }
             meanError /= 21.0;
             LOG_DEBUG(<< "meanError = " << meanError);
-            CPPUNIT_ASSERT(meanError < 0.025);
+            BOOST_TEST_REQUIRE(meanError < 0.025);
             averageMeanError += meanError;
         }
     }
 
     averageMeanError /= 2.0 * static_cast<double>(boost::size(n));
     LOG_DEBUG(<< "averageMeanError = " << averageMeanError);
-    CPPUNIT_ASSERT(averageMeanError < 0.011);
+    BOOST_TEST_REQUIRE(averageMeanError < 0.011);
 }
 
-void CStatisticalTestsTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that serialization is idempotent.
 
     {
@@ -126,7 +132,7 @@ void CStatisticalTestsTest::testPersist() {
 
         maths::CStatisticalTests::CCramerVonMises origCvm(9);
         TDoubleVec p;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             origCvm.addF(boost::math::cdf(normal, samples[i]));
         }
 
@@ -141,11 +147,11 @@ void CStatisticalTestsTest::testPersist() {
 
         // Restore the XML into a new filter
         core::CRapidXmlParser parser;
-        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
         core::CRapidXmlStateRestoreTraverser traverser(parser);
 
         maths::CStatisticalTests::CCramerVonMises restoredCvm(traverser);
-        CPPUNIT_ASSERT_EQUAL(origCvm.checksum(), restoredCvm.checksum());
+        BOOST_REQUIRE_EQUAL(origCvm.checksum(), restoredCvm.checksum());
 
         std::string newXml;
         {
@@ -153,17 +159,8 @@ void CStatisticalTestsTest::testPersist() {
             restoredCvm.acceptPersistInserter(inserter);
             inserter.toXml(newXml);
         }
-        CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+        BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 }
 
-CppUnit::Test* CStatisticalTestsTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CStatisticalTestsTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
-        "CStatisticalTestsTest::testCramerVonMises", &CStatisticalTestsTest::testCramerVonMises));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CStatisticalTestsTest>(
-        "CStatisticalTestsTest::testPersist", &CStatisticalTestsTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

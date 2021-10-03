@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CNamedPipeFactory_h
 #define INCLUDED_ml_core_CNamedPipeFactory_h
@@ -10,11 +15,12 @@
 #include <core/ImportExport.h>
 #include <core/WindowsSafe.h>
 
+#include <atomic>
 #include <iosfwd>
 #include <memory>
 #include <string>
 
-#include <stdio.h>
+#include <stdio.h> // fdopen() is not C++ so need the C header
 
 namespace ml {
 namespace core {
@@ -69,26 +75,35 @@ public:
     //! Initialise and open a named pipe for reading, returning a C++ stream
     //! that can be used to read from it.  Returns a NULL pointer on
     //! failure.
-    static TIStreamP openPipeStreamRead(const std::string& fileName);
+    static TIStreamP openPipeStreamRead(const std::string& fileName,
+                                        const std::atomic_bool& isCancelled);
 
     //! Initialise and open a named pipe for writing, returning a C++ stream
     //! that can be used to write to it.  Returns a NULL pointer on failure.
-    static TOStreamP openPipeStreamWrite(const std::string& fileName);
+    static TOStreamP openPipeStreamWrite(const std::string& fileName,
+                                         const std::atomic_bool& isCancelled);
 
     //! Initialise and open a named pipe for writing, returning a C FILE
     //! that can be used to read from it.  Returns a NULL pointer on
     //! failure.
-    static TFileP openPipeFileRead(const std::string& fileName);
+    static TFileP openPipeFileRead(const std::string& fileName,
+                                   const std::atomic_bool& isCancelled);
 
     //! Initialise and open a named pipe for writing, returning a C FILE
     //! that can be used to write to it.  Returns a NULL pointer on failure.
-    static TFileP openPipeFileWrite(const std::string& fileName);
+    static TFileP openPipeFileWrite(const std::string& fileName,
+                                    const std::atomic_bool& isCancelled);
 
     //! Does the supplied file name refer to a named pipe?
     static bool isNamedPipe(const std::string& fileName);
 
     //! Default path for named pipes.
     static std::string defaultPath();
+
+    //! Log warnings that have been stored because they were detected very
+    //! early in the program lifecycle.  Programs using named pipes should
+    //! call this method once, after setting up logging.
+    static void logDeferredWarnings();
 
 private:
 #ifdef Windows
@@ -102,7 +117,9 @@ private:
     //! file descriptor that can be used to access it.  This is the core
     //! implementation of the higher level encapsulations that the public
     //! interface provides.
-    static TPipeHandle initPipeHandle(const std::string& fileName, bool forWrite);
+    static TPipeHandle initPipeHandle(const std::string& fileName,
+                                      bool forWrite,
+                                      const std::atomic_bool& isCancelled);
 };
 }
 }

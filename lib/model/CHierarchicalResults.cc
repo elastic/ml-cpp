@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CHierarchicalResults.h>
@@ -240,7 +245,7 @@ void SNode::propagateFields() {
     s_Spec.s_PersonFieldName = s_Children[0]->s_Spec.s_PersonFieldName;
     s_Spec.s_PersonFieldValue = s_Children[0]->s_Spec.s_PersonFieldValue;
     s_BucketStartTime = s_Children[0]->s_BucketStartTime;
-    for (std::size_t i = 1u; i < s_Children.size(); ++i) {
+    for (std::size_t i = 1; i < s_Children.size(); ++i) {
         if (!unset(s_Spec.s_PartitionFieldName) &&
             !equal(s_Spec.s_PartitionFieldName, s_Children[i]->s_Spec.s_PartitionFieldName)) {
             s_Spec.s_PartitionFieldName = UNSET_STRING;
@@ -274,7 +279,7 @@ std::string SNode::print() const {
                 : ", " + core::CContainerPrinter::print(s_AnnotatedProbability.s_Influences));
 }
 
-void SNode::swap(SNode& other) {
+void SNode::swap(SNode& other) noexcept {
     std::swap(s_Parent, other.s_Parent);
     s_Children.swap(other.s_Children);
     std::swap(s_Spec, other.s_Spec);
@@ -290,7 +295,7 @@ void SNode::swap(SNode& other) {
     std::swap(s_BucketLength, other.s_BucketLength);
 }
 
-void swap(SNode& node1, SNode& node2) {
+void swap(SNode& node1, SNode& node2) noexcept {
     node1.swap(node2);
 }
 
@@ -425,7 +430,7 @@ void CHierarchicalResults::buildHierarchy() {
     if (layer.size() > 1) {
         TNode& root = this->newNode();
         bool population = false;
-        for (std::size_t i = 0u; i < layer.size(); ++i) {
+        for (std::size_t i = 0; i < layer.size(); ++i) {
             root.s_Children.push_back(layer[i]);
             layer[i]->s_Parent = &root;
             population |= layer[i]->s_Spec.s_IsPopulation;
@@ -524,7 +529,7 @@ bool CHierarchicalResults::empty() const {
 }
 
 std::size_t CHierarchicalResults::resultCount() const {
-    std::size_t result = 0u;
+    std::size_t result = 0;
     for (const auto& node : m_Nodes) {
         if (isLeaf(node) && !node.s_Spec.s_IsSimpleCount) {
             ++result;

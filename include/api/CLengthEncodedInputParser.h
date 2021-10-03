@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_api_CLengthEncodedInputParser_h
 #define INCLUDED_ml_api_CLengthEncodedInputParser_h
@@ -11,10 +16,9 @@
 
 #include <boost/scoped_array.hpp>
 
+#include <cstdint>
 #include <iosfwd>
 #include <string>
-
-#include <stdint.h>
 
 namespace ml {
 namespace api {
@@ -89,19 +93,28 @@ public:
     //! before main() runs).
     CLengthEncodedInputParser(std::istream& strmIn);
 
-    //! Read records from the stream.  The supplied reader function is called
-    //! once per record.  If the supplied reader function returns false, reading
-    //! will stop.  This method keeps reading until it reaches the end of the
-    //! stream or an error occurs.  If it successfully reaches the end of
-    //! the stream it returns true, otherwise it returns false.
-    bool readStreamIntoMaps(const TMapReaderFunc& readerFunc) override;
+    //! As above but also provide some mutable field names
+    CLengthEncodedInputParser(TStrVec mutableFieldNames, std::istream& strmIn);
 
     //! Read records from the stream.  The supplied reader function is called
     //! once per record.  If the supplied reader function returns false, reading
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) override;
+    bool readStreamIntoMaps(const TMapReaderFunc& readerFunc,
+                            const TRegisterMutableFieldFunc& registerFunc) override;
+
+    //! Read records from the stream.  The supplied reader function is called
+    //! once per record.  If the supplied reader function returns false, reading
+    //! will stop.  This method keeps reading until it reaches the end of the
+    //! stream or an error occurs.  If it successfully reaches the end of
+    //! the stream it returns true, otherwise it returns false.
+    bool readStreamIntoVecs(const TVecReaderFunc& readerFunc,
+                            const TRegisterMutableFieldFunc& registerFunc) override;
+
+    // Bring the other overloads into scope
+    using CInputParser::readStreamIntoMaps;
+    using CInputParser::readStreamIntoVecs;
 
 private:
     //! Attempt to parse a single length encoded record that contains the field
@@ -111,8 +124,8 @@ private:
     //! Read records from the stream.  Relies on the field names having been
     //! previously read successfully.  The same working vector is populated
     //! for every record.
-    template<typename READER_FUNC, typename STR_VEC>
-    bool parseRecordLoop(const READER_FUNC& readerFunc, STR_VEC& workSpace);
+    template<typename READER_FUNC>
+    bool parseRecordLoop(const READER_FUNC& readerFunc, TStrRefVec& workSpace);
 
     //! Attempt to parse a single length encoded record from the stream into
     //! the strings in the vector provided.  The vector is a template
@@ -125,17 +138,17 @@ private:
     bool parseRecordFromStream(STR_VEC& values);
 
     //! Parse a 32 bit unsigned integer from the input stream.
-    bool parseUInt32FromStream(uint32_t& num);
+    bool parseUInt32FromStream(std::uint32_t& num);
 
     //! Parse a string of given length from the input stream.
-    bool parseStringFromStream(size_t length, std::string& str);
+    bool parseStringFromStream(std::size_t length, std::string& str);
 
     //! Refill the working buffer from the stream
-    size_t refillBuffer();
+    std::ptrdiff_t refillBuffer();
 
 private:
     //! Allocate this much memory for the working buffer
-    static const size_t WORK_BUFFER_SIZE;
+    static const std::size_t WORK_BUFFER_SIZE;
 
     //! Reference to the stream we're going to read from
     std::istream& m_StrmIn;
@@ -151,9 +164,9 @@ private:
     //! characters is NOT zero terminated, which is something to be aware of
     //! when accessing it.
     TScopedCharArray m_WorkBuffer;
-    const char* m_WorkBufferPtr;
-    const char* m_WorkBufferEnd;
-    bool m_NoMoreRecords;
+    const char* m_WorkBufferPtr = nullptr;
+    const char* m_WorkBufferEnd = nullptr;
+    bool m_NoMoreRecords = false;
 };
 }
 }

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CProgramCounters_h
 #define INCLUDED_ml_core_CProgramCounters_h
@@ -17,9 +22,19 @@
 #include <string>
 #include <vector>
 
-class CProgramCountersTest;
+namespace CProgramCountersTest {
+class CProgramCountersTestRunner;
+struct testCounters;
+struct testUnknownCounter;
+struct testMissingCounter;
+struct testCacheCounters;
+struct testPersist;
+}
 
 namespace ml {
+namespace test {
+class CProgramCounterClearingFixture;
+}
 namespace counter_t {
 
 //! The enum values must be explicitly assigned & names should have a meaningful prefix to effectively namespace counters
@@ -44,6 +59,9 @@ enum ECounterTypes {
 
     //! The latest value of the model memory check
     E_TSADMemoryUsage = 4,
+
+    //! The maximum value of the model memory check
+    E_TSADPeakMemoryUsage = 28,
 
     //! The number of times memory checks have been carried out
     E_TSADNumberMemoryUsageChecks = 5,
@@ -88,6 +106,9 @@ enum ECounterTypes {
     //! The number of times partial memory estimates have been carried out
     E_TSADNumberMemoryUsageEstimates = 18,
 
+    //! Which option is being used to get model memory for node assignment?
+    E_TSADAssignmentMemoryBasis = 29,
+
     // Data Frame Outlier Detection
 
     //! The estimated peak memory usage for outlier detection in bytes
@@ -110,7 +131,7 @@ enum ECounterTypes {
     //! The estimated peak memory usage for training a predictive model
     E_DFTPMEstimatedPeakMemoryUsage = 24,
 
-    //! The peak memory usage of outlier detection in bytes
+    //! The peak memory usage for training a predictive model in bytes
     E_DFTPMPeakMemoryUsage = 25,
 
     //! The time in ms to train the model
@@ -122,10 +143,10 @@ enum ECounterTypes {
     // Add any new values here
 
     //! This MUST be last, increment the value for every new enum added
-    E_LastEnumCounter = 28
+    E_LastEnumCounter = 30
 };
 
-static constexpr size_t NUM_COUNTERS = static_cast<size_t>(E_LastEnumCounter);
+static constexpr std::size_t NUM_COUNTERS = static_cast<std::size_t>(E_LastEnumCounter);
 
 using TCounterTypeSet = std::set<ECounterTypes>;
 }
@@ -163,6 +184,14 @@ struct SCounterDefinition {
 //! A singleton class: there should only be one collection of global counters
 //!
 class CORE_EXPORT CProgramCounters {
+public:
+    //! \brief
+    //! The cache of program counters is cleared upon destruction of an instance of this class.
+    class CORE_EXPORT CCacheManager {
+    public:
+        ~CCacheManager();
+    };
+
 private:
     //! \brief
     //! An atomic counter object
@@ -220,7 +249,8 @@ private:
         std::atomic_uint_fast64_t m_Counter;
 
         //! Befriend the test suite
-        friend class ::CProgramCountersTest;
+        friend class CProgramCountersTest::CProgramCountersTestRunner;
+        friend struct CProgramCountersTest::testCounters;
     };
 
 private:
@@ -236,10 +266,13 @@ public:
 
     //! Provide access to the relevant counter from the collection
     static TCounter& counter(counter_t::ECounterTypes counterType);
-    static TCounter& counter(size_t index);
+    static TCounter& counter(std::size_t index);
 
     //! Copy the collection of live counters to a cache
     static void cacheCounters();
+
+    //! Clear the collection of cached counters
+    static void clearCachedCounters();
 
     //! \name Persistence
     //@{
@@ -287,6 +320,8 @@ private:
           "Number of records successfully ingested into the engine API"},
          {counter_t::E_TSADMemoryUsage, "E_TSADMemoryUsage",
           "The estimated memory currently used by the engine and models"},
+         {counter_t::E_TSADPeakMemoryUsage, "E_TSADPeakMemoryUsage",
+          "The maximum memory used by the engine and models"},
          {counter_t::E_TSADNumberMemoryUsageChecks, "E_TSADNumberMemoryUsageChecks",
           "Number of times a model memory usage check has been carried out"},
          {counter_t::E_TSADNumberMemoryUsageEstimates, "E_TSADNumberMemoryUsageEstimates",
@@ -313,6 +348,8 @@ private:
           "The number of model creation failures from being over memory limit"},
          {counter_t::E_TSADNumberPrunedItems, "E_TSADNumberPrunedItems",
           "The number of old people or attributes pruned from the models"},
+         {counter_t::E_TSADAssignmentMemoryBasis, "E_TSADAssignmentMemoryBasis",
+          "Which option is being used to get model memory for node assignment?"},
          {counter_t::E_DFOEstimatedPeakMemoryUsage, "E_DFOEstimatedPeakMemoryUsage",
           "The upfront estimate of the peak memory outlier detection would use"},
          {counter_t::E_DFOPeakMemoryUsage, "E_DFOPeakMemoryUsage", "The peak memory outlier detection used"},
@@ -335,7 +372,13 @@ private:
                                                 const CProgramCounters& counters);
 
     //! Befriend the test suite
-    friend class ::CProgramCountersTest;
+    friend class test::CProgramCounterClearingFixture;
+    friend class CProgramCountersTest::CProgramCountersTestRunner;
+    friend struct CProgramCountersTest::testCounters;
+    friend struct CProgramCountersTest::testUnknownCounter;
+    friend struct CProgramCountersTest::testMissingCounter;
+    friend struct CProgramCountersTest::testCacheCounters;
+    friend struct CProgramCountersTest::testPersist;
 };
 
 } // core

@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CHierarchicalResultsLevelSetTest.h"
 
 #include <core/CLogger.h>
 #include <core/CStoredStringPtr.h>
@@ -14,7 +17,11 @@
 #include <model/CHierarchicalResultsLevelSet.h>
 #include <model/CStringStore.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <memory>
+
+BOOST_AUTO_TEST_SUITE(CHierarchicalResultsLevelSetTest)
 
 namespace {
 struct STestNode {
@@ -83,17 +90,7 @@ auto makeNode(CConcreteHierarchicalResultsLevelSet::TNode& parent,
 }
 }
 
-CppUnit::Test* CHierarchicalResultsLevelSetTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CHierarchicalResultsLevelSetTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CHierarchicalResultsLevelSetTest>(
-        "CHierarchicalResultsLevelSetTest::testElements",
-        &CHierarchicalResultsLevelSetTest::testElements));
-
-    return suiteOfTests;
-}
-
-void CHierarchicalResultsLevelSetTest::testElements() {
+BOOST_AUTO_TEST_CASE(testElements) {
 
     using TNodePtr = std::unique_ptr<CConcreteHierarchicalResultsLevelSet::TNode>;
 
@@ -122,8 +119,8 @@ void CHierarchicalResultsLevelSetTest::testElements() {
         levelSet.elements(*partition, false,
                           CConcreteHierarchicalResultsLevelSet::CFactory(), result);
         LOG_DEBUG(<< "partition level = " << ml::core::CContainerPrinter::print(result));
-        CPPUNIT_ASSERT_EQUAL(std::string{"[\"PA pa1  \"]"},
-                             ml::core::CContainerPrinter::print(result));
+        BOOST_REQUIRE_EQUAL(std::string{"[\"PA pa1  \"]"},
+                            ml::core::CContainerPrinter::print(result));
     }
 
     // We should get the same level set corresponding to ("pa1", "pb1")
@@ -133,7 +130,9 @@ void CHierarchicalResultsLevelSetTest::testElements() {
         levelSet.elements(*leaf, false,
                           CConcreteHierarchicalResultsLevelSet::CFactory(), result);
         LOG_DEBUG(<< "leaf level = " << ml::core::CContainerPrinter::print(result));
-        CPPUNIT_ASSERT_EQUAL(std::string{"[\"PA pa1 PB pb1\"]"},
-                             ml::core::CContainerPrinter::print(result));
+        BOOST_REQUIRE_EQUAL(std::string{"[\"PA pa1 PB pb1\"]"},
+                            ml::core::CContainerPrinter::print(result));
     }
 }
+
+BOOST_AUTO_TEST_SUITE_END()

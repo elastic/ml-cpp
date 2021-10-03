@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CPoissonMeanConjugate.h>
@@ -111,7 +116,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // The non-informative prior is improper and effectively 0 everywhere.
             // (It is acceptable to approximate all finite samples as at the median
             // of this distribution.)
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double x = samples[i] + offset;
                 double n = maths_t::count(weights[i]);
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
@@ -130,7 +135,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // "a" is the shape and "b" is the rate of the gamma distribution,
             // and the error function is significantly cheaper to compute.
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weights[i]);
                 double x = samples[i] + offset;
 
@@ -182,8 +187,10 @@ CPoissonMeanConjugate::CPoissonMeanConjugate(const SDistributionRestoreParams& p
                                              core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_IntegerData, params.s_DecayRate), m_Offset(0.0),
       m_Shape(0.0), m_Rate(0.0) {
-    traverser.traverseSubLevel(std::bind(&CPoissonMeanConjugate::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CPoissonMeanConjugate::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CPoissonMeanConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -331,11 +338,11 @@ void CPoissonMeanConjugate::addSamples(const TDouble1Vec& samples,
 
     double numberSamples = 0.0;
     double sampleSum = 0.0;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
-        double n = maths_t::countForUpdate(weights[i]);
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i] + m_Offset;
-        if (!CMathsFuncs::isFinite(x) || x < 0.0) {
-            LOG_ERROR(<< "Discarding " << x << " it's not Poisson");
+        double n = maths_t::countForUpdate(weights[i]);
+        if (x < 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n)) {
+            LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n);
             continue;
         }
         numberSamples += n;
@@ -526,7 +533,7 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     double sampleSum = 0.0;
     double sampleLogFactorialSum = 0.0;
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double n = maths_t::countForUpdate(weights[i]);
         double x = samples[i] + m_Offset;
         if (x < 0.0) {
@@ -630,7 +637,7 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
         try {
             boost::math::normal normal(mean, std::sqrt(variance));
 
-            for (std::size_t i = 1u; i < numberSamples; ++i) {
+            for (std::size_t i = 1; i < numberSamples; ++i) {
                 double q = static_cast<double>(i) / static_cast<double>(numberSamples);
                 double xq = boost::math::quantile(normal, q);
 
@@ -679,7 +686,7 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
             TNegativeBinomialRealQuantile negativeBinomial1(r, p);
             TNegativeBinomialRealQuantile negativeBinomial2(r + 1.0, p);
 
-            for (std::size_t i = 1u; i < numberSamples; ++i) {
+            for (std::size_t i = 1; i < numberSamples; ++i) {
                 double q = static_cast<double>(i) / static_cast<double>(numberSamples);
                 double xq = boost::math::quantile(negativeBinomial1, q);
 
@@ -847,7 +854,7 @@ std::string CPoissonMeanConjugate::printJointDensityFunction() const {
     std::ostringstream pdf;
     coordinates << "x = [";
     pdf << "pdf = [";
-    for (unsigned int i = 0u; i < POINTS; ++i, x += increment) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += increment) {
         coordinates << x << " ";
         pdf << CTools::safePdf(gamma, x) << " ";
     }
@@ -864,7 +871,7 @@ uint64_t CPoissonMeanConjugate::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_Rate);
 }
 
-void CPoissonMeanConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CPoissonMeanConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CPoissonMeanConjugate");
 }
 

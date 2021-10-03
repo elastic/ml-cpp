@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CLeastSquaresOnlineRegressionTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -19,9 +22,14 @@
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/unit_test.hpp>
+
 #include <array>
+
+BOOST_AUTO_TEST_SUITE(CLeastSquaresOnlineRegressionTest)
 
 using namespace ml;
 
@@ -33,7 +41,7 @@ namespace {
 template<typename T>
 T sum(const T& params, const T& delta) {
     T result;
-    for (std::size_t i = 0u; i < params.size(); ++i) {
+    for (std::size_t i = 0; i < params.size(); ++i) {
         result[i] = params[i] + delta[i];
     }
     return result;
@@ -42,10 +50,10 @@ T sum(const T& params, const T& delta) {
 template<typename T>
 double squareResidual(const T& params, const TDoubleVec& x, const TDoubleVec& y) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         double yi = 0.0;
         double xi = 1.0;
-        for (std::size_t j = 0u; j < params.size(); ++j, xi *= x[i]) {
+        for (std::size_t j = 0; j < params.size(); ++j, xi *= x[i]) {
             yi += params[j] * xi;
         }
         result += (y[i] - yi) * (y[i] - yi);
@@ -58,7 +66,7 @@ using TDoubleArray2 = std::array<double, 2>;
 using TDoubleArray3 = std::array<double, 3>;
 using TDoubleArray4 = std::array<double, 4>;
 
-void CLeastSquaresOnlineRegressionTest::testInvariants() {
+BOOST_AUTO_TEST_CASE(testInvariants) {
     // Test at (local) minimum of quadratic residuals.
 
     test::CRandomNumbers rng;
@@ -69,7 +77,7 @@ void CLeastSquaresOnlineRegressionTest::testInvariants() {
     double slope = 2.0;
     double curvature = 0.2;
 
-    for (std::size_t t = 0u; t < 100; ++t) {
+    for (std::size_t t = 0; t < 100; ++t) {
         maths::CLeastSquaresOnlineRegression<2, double> ls;
 
         TDoubleVec increments;
@@ -80,7 +88,7 @@ void CLeastSquaresOnlineRegressionTest::testInvariants() {
         TDoubleVec xs;
         TDoubleVec ys;
         double x = 0.0;
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             x += increments[i];
             double y = curvature * x * x + slope * x + intercept + errors[i];
             ls.add(x, y);
@@ -89,7 +97,7 @@ void CLeastSquaresOnlineRegressionTest::testInvariants() {
         }
 
         TDoubleArray3 params;
-        CPPUNIT_ASSERT(ls.parameters(params));
+        BOOST_TEST_REQUIRE(ls.parameters(params));
 
         double residual = squareResidual(params, xs, ys);
 
@@ -100,7 +108,7 @@ void CLeastSquaresOnlineRegressionTest::testInvariants() {
 
         TDoubleVec delta;
         rng.generateUniformSamples(-1e-4, 1e-4, 15, delta);
-        for (std::size_t j = 0u; j < delta.size(); j += 3) {
+        for (std::size_t j = 0; j < delta.size(); j += 3) {
             TDoubleArray3 deltaj;
             deltaj[0] = delta[j];
             deltaj[1] = delta[j + 1];
@@ -112,12 +120,12 @@ void CLeastSquaresOnlineRegressionTest::testInvariants() {
                 LOG_DEBUG(<< "  delta residual " << residualj);
             }
 
-            CPPUNIT_ASSERT(residualj > residual);
+            BOOST_TEST_REQUIRE(residualj > residual);
         }
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testFit() {
+BOOST_AUTO_TEST_CASE(testFit) {
     test::CRandomNumbers rng;
 
     std::size_t n = 50;
@@ -129,7 +137,7 @@ void CLeastSquaresOnlineRegressionTest::testFit() {
         TMeanAccumulator interceptError;
         TMeanAccumulator slopeError;
 
-        for (std::size_t t = 0u; t < 100; ++t) {
+        for (std::size_t t = 0; t < 100; ++t) {
             maths::CLeastSquaresOnlineRegression<1> ls;
 
             TDoubleVec increments;
@@ -138,35 +146,35 @@ void CLeastSquaresOnlineRegressionTest::testFit() {
             rng.generateNormalSamples(0.0, 2.0, n, errors);
 
             double x = 0.0;
-            for (std::size_t i = 0u; i < n; ++i) {
+            for (std::size_t i = 0; i < n; ++i) {
                 double y = slope * x + intercept + errors[i];
                 ls.add(x, y);
                 x += increments[i];
             }
 
             TDoubleArray2 params;
-            CPPUNIT_ASSERT(ls.parameters(params));
+            BOOST_TEST_REQUIRE(ls.parameters(params));
 
             if (t % 10 == 0) {
                 LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
             }
 
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(intercept, params[0], 1.3);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(slope, params[1], 0.015);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(intercept, params[0], 1.3);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(slope, params[1], 0.015);
             interceptError.add(std::fabs(params[0] - intercept));
             slopeError.add(std::fabs(params[1] - slope));
         }
 
         LOG_DEBUG(<< "intercept error = " << interceptError);
         LOG_DEBUG(<< "slope error = " << slopeError);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(interceptError) < 0.35);
-        CPPUNIT_ASSERT(maths::CBasicStatistics::mean(slopeError) < 0.04);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(interceptError) < 0.35);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(slopeError) < 0.04);
     }
 
     // Test a variety of the randomly generated polynomial fits.
 
     {
-        for (std::size_t t = 0u; t < 10; ++t) {
+        for (std::size_t t = 0; t < 10; ++t) {
             maths::CLeastSquaresOnlineRegression<2, double> ls;
 
             TDoubleVec curve;
@@ -176,7 +184,7 @@ void CLeastSquaresOnlineRegressionTest::testFit() {
             rng.generateUniformSamples(1.0, 2.0, n, increments);
 
             double x = 0.0;
-            for (std::size_t i = 0u; i < n; ++i) {
+            for (std::size_t i = 0; i < n; ++i) {
                 double y = curve[2] * x * x + curve[1] * x + curve[0];
                 ls.add(x, y);
                 x += increments[i];
@@ -187,14 +195,14 @@ void CLeastSquaresOnlineRegressionTest::testFit() {
 
             LOG_DEBUG(<< "curve  = " << core::CContainerPrinter::print(curve));
             LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-            for (std::size_t i = 0u; i < curve.size(); ++i) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(curve[i], params[i], 0.03 * curve[i]);
+            for (std::size_t i = 0; i < curve.size(); ++i) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(curve[i], params[i], 0.03 * curve[i]);
             }
         }
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testShiftAbscissa() {
+BOOST_AUTO_TEST_CASE(testShiftAbscissa) {
     // Test shifting the abscissa is equivalent to updating
     // with shifted X-values.
 
@@ -205,7 +213,7 @@ void CLeastSquaresOnlineRegressionTest::testShiftAbscissa() {
         maths::CLeastSquaresOnlineRegression<1> ls;
         maths::CLeastSquaresOnlineRegression<1> lss;
 
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, slope * x + intercept);
             lss.add((x - 50.0), slope * x + intercept);
@@ -222,13 +230,13 @@ void CLeastSquaresOnlineRegressionTest::testShiftAbscissa() {
         lss.parameters(paramss);
 
         LOG_DEBUG(<< "params 1 = " << core::CContainerPrinter::print(params1));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(intercept, params1[0], 1e-3 * intercept);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(slope, params1[1], 1e-3 * slope);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(intercept, params1[0], 1e-3 * intercept);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(slope, params1[1], 1e-3 * slope);
 
         LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
         LOG_DEBUG(<< "params s = " << core::CContainerPrinter::print(paramss));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[0], params2[0], 1e-3 * paramss[0]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[1], params2[1], 1e-3 * paramss[1]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[0], params2[0], 1e-3 * paramss[0]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[1], params2[1], 1e-3 * paramss[1]);
     }
 
     {
@@ -239,7 +247,7 @@ void CLeastSquaresOnlineRegressionTest::testShiftAbscissa() {
         maths::CLeastSquaresOnlineRegression<2, double> ls;
         maths::CLeastSquaresOnlineRegression<2, double> lss;
 
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, curvature * x * x + slope * x + intercept);
             lss.add(x - 50.0, curvature * x * x + slope * x + intercept);
@@ -256,21 +264,21 @@ void CLeastSquaresOnlineRegressionTest::testShiftAbscissa() {
         lss.parameters(paramss);
 
         LOG_DEBUG(<< core::CContainerPrinter::print(params1));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(intercept, params1[0], 2e-3 * intercept);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(slope, params1[1], 2e-3 * slope);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(curvature, params1[2], 2e-3 * curvature);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(intercept, params1[0], 2e-3 * intercept);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(slope, params1[1], 2e-3 * slope);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(curvature, params1[2], 2e-3 * curvature);
 
         LOG_DEBUG(<< core::CContainerPrinter::print(params2));
         LOG_DEBUG(<< core::CContainerPrinter::print(paramss));
         LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
         LOG_DEBUG(<< "params s = " << core::CContainerPrinter::print(paramss));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[0], params2[0], 1e-3 * paramss[0]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[1], params2[1], 1e-3 * paramss[1]);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(paramss[2], params2[2], 1e-3 * paramss[2]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[0], params2[0], 1e-3 * paramss[0]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[1], params2[1], 1e-3 * paramss[1]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(paramss[2], params2[2], 1e-3 * paramss[2]);
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testShiftOrdinate() {
+BOOST_AUTO_TEST_CASE(testShiftOrdinate) {
     // Test that translating the regression by a some delta
     // produces the desired translation and no change to any
     // of the derivatives.
@@ -291,14 +299,14 @@ void CLeastSquaresOnlineRegressionTest::testShiftOrdinate() {
     LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(1000.0 + params1[0], params2[0],
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(1000.0 + params1[0], params2[0],
                                  1e-6 * std::fabs(params1[0]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[1], params2[1], 1e-6 * std::fabs(params1[1]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[1], params2[1], 1e-6 * std::fabs(params1[1]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
-void CLeastSquaresOnlineRegressionTest::testShiftGradient() {
+BOOST_AUTO_TEST_CASE(testShiftGradient) {
     // Test that translating the regression by a some delta
     // produces the desired translation and no change to any
     // of the derivatives.
@@ -319,14 +327,14 @@ void CLeastSquaresOnlineRegressionTest::testShiftGradient() {
     LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[0], params2[0], 1e-6 * std::fabs(params1[0]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0 + params1[1], params2[1],
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[0], params2[0], 1e-6 * std::fabs(params1[0]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 + params1[1], params2[1],
                                  1e-6 * std::fabs(params1[1]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[2], params2[2], 1e-6 * std::fabs(params1[2]));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(params1[3], params2[3], 1e-6 * std::fabs(params1[3]));
 }
 
-void CLeastSquaresOnlineRegressionTest::testLinearScale() {
+BOOST_AUTO_TEST_CASE(testLinearScale) {
     // Test that linearly scaling a regression linearly
     // scales all the parameters.
 
@@ -346,8 +354,8 @@ void CLeastSquaresOnlineRegressionTest::testLinearScale() {
     LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    for (std::size_t i = 0u; i < 4; ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1 * params1[i], params2[i], 1e-6);
+    for (std::size_t i = 0; i < 4; ++i) {
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.1 * params1[i], params2[i], 1e-6);
     }
 
     regression.linearScale(100.0);
@@ -357,12 +365,12 @@ void CLeastSquaresOnlineRegressionTest::testLinearScale() {
     LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    for (std::size_t i = 0u; i < 4; ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0 * params1[i], params2[i], 1e-6);
+    for (std::size_t i = 0; i < 4; ++i) {
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 * params1[i], params2[i], 1e-6);
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testAge() {
+BOOST_AUTO_TEST_CASE(testAge) {
     // Test that the regression is mean reverting.
 
     double intercept = 5.0;
@@ -372,7 +380,7 @@ void CLeastSquaresOnlineRegressionTest::testAge() {
     {
         maths::CLeastSquaresOnlineRegression<1> ls;
 
-        for (std::size_t i = 0u; i <= 100; ++i) {
+        for (std::size_t i = 0; i <= 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, slope * x + intercept, 5.0);
         }
@@ -387,43 +395,43 @@ void CLeastSquaresOnlineRegressionTest::testAge() {
         ls.age(exp(-0.01), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.01) = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT(params[0] > lastParams[0]);
-        CPPUNIT_ASSERT(params[0] < 105.0);
-        CPPUNIT_ASSERT(params[1] < lastParams[0]);
-        CPPUNIT_ASSERT(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 105.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
 
         lastParams = params;
         ls.age(exp(-0.49), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.5) = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT(params[0] > lastParams[0]);
-        CPPUNIT_ASSERT(params[0] < 105.0);
-        CPPUNIT_ASSERT(params[1] < lastParams[0]);
-        CPPUNIT_ASSERT(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 105.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
 
         lastParams = params;
         ls.age(exp(-0.5), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(1.0) = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT(params[0] > lastParams[0]);
-        CPPUNIT_ASSERT(params[0] < 105.0);
-        CPPUNIT_ASSERT(params[1] < lastParams[0]);
-        CPPUNIT_ASSERT(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 105.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
 
         lastParams = params;
         ls.age(exp(-4.0), true);
         ls.parameters(params, ls.MAX_CONDITION);
         LOG_DEBUG(<< "params(5.0) = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT(params[0] > lastParams[0]);
-        CPPUNIT_ASSERT(params[0] < 105.0);
-        CPPUNIT_ASSERT(params[1] < lastParams[0]);
-        CPPUNIT_ASSERT(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 105.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
     }
 
     {
         maths::CLeastSquaresOnlineRegression<2, double> ls;
 
-        for (std::size_t i = 0u; i <= 100; ++i) {
+        for (std::size_t i = 0; i <= 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, curvature * x * x + slope * x + intercept, 5.0);
         }
@@ -438,49 +446,49 @@ void CLeastSquaresOnlineRegressionTest::testAge() {
         ls.age(exp(-0.01), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.01) = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT(params[0] > lastParams[0]);
-        CPPUNIT_ASSERT(params[0] < 775.0);
-        CPPUNIT_ASSERT(params[1] < lastParams[0]);
-        CPPUNIT_ASSERT(params[1] > 0.0);
-        CPPUNIT_ASSERT(params[2] < lastParams[0]);
-        CPPUNIT_ASSERT(params[2] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 775.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[2] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[2] > 0.0);
 
         lastParams = params;
         ls.age(exp(-0.49), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.5) = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT(params[0] > lastParams[0]);
-        CPPUNIT_ASSERT(params[0] < 775.0);
-        CPPUNIT_ASSERT(params[1] < lastParams[0]);
-        CPPUNIT_ASSERT(params[1] > 0.0);
-        CPPUNIT_ASSERT(params[2] < lastParams[0]);
-        CPPUNIT_ASSERT(params[2] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 775.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[2] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[2] > 0.0);
 
         lastParams = params;
         ls.age(exp(-0.5), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(1.0) = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT(params[0] > lastParams[0]);
-        CPPUNIT_ASSERT(params[0] < 775.0);
-        CPPUNIT_ASSERT(params[1] < lastParams[0]);
-        CPPUNIT_ASSERT(params[1] > 0.0);
-        CPPUNIT_ASSERT(params[2] < lastParams[0]);
-        CPPUNIT_ASSERT(params[2] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 775.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[2] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[2] > 0.0);
 
         lastParams = params;
         ls.age(exp(-4.0), true);
         ls.parameters(params);
         LOG_DEBUG(<< "params(5.0) = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT(params[0] > lastParams[0]);
-        CPPUNIT_ASSERT(params[0] < 775.0);
-        CPPUNIT_ASSERT(params[1] < lastParams[0]);
-        CPPUNIT_ASSERT(params[1] > 0.0);
-        CPPUNIT_ASSERT(params[2] < lastParams[0]);
-        CPPUNIT_ASSERT(params[2] > 0.0);
+        BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
+        BOOST_TEST_REQUIRE(params[0] < 775.0);
+        BOOST_TEST_REQUIRE(params[1] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[1] > 0.0);
+        BOOST_TEST_REQUIRE(params[2] < lastParams[0]);
+        BOOST_TEST_REQUIRE(params[2] > 0.0);
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testPrediction() {
+BOOST_AUTO_TEST_CASE(testPrediction) {
     // Check we get successive better predictions of a power
     // series function, i.e. x -> sin(x), using higher order
     // approximations.
@@ -498,7 +506,7 @@ void CLeastSquaresOnlineRegressionTest::testPrediction() {
     TMeanAccumulator e4;
 
     double x0 = 0.0;
-    for (std::size_t i = 0u; i <= 400; ++i) {
+    for (std::size_t i = 0; i <= 400; ++i) {
         double x = 0.005 * pi * static_cast<double>(i);
         double y = std::sin(x);
 
@@ -551,15 +559,15 @@ void CLeastSquaresOnlineRegressionTest::testPrediction() {
               << ", e2 = " << maths::CBasicStatistics::mean(e2)
               << ", e3 = " << maths::CBasicStatistics::mean(e3)
               << ", e4 = " << maths::CBasicStatistics::mean(e4));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e2) <
-                   0.27 * maths::CBasicStatistics::mean(em));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e3) <
-                   0.08 * maths::CBasicStatistics::mean(em));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(e4) <
-                   0.025 * maths::CBasicStatistics::mean(em));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e2) <
+                       0.27 * maths::CBasicStatistics::mean(em));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e3) <
+                       0.08 * maths::CBasicStatistics::mean(em));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(e4) <
+                       0.025 * maths::CBasicStatistics::mean(em));
 }
 
-void CLeastSquaresOnlineRegressionTest::testCombination() {
+BOOST_AUTO_TEST_CASE(testCombination) {
     // Test that we can combine regressions on two subsets of
     // the points to get the same result as the regression on
     // the full collection of points.
@@ -579,7 +587,7 @@ void CLeastSquaresOnlineRegressionTest::testCombination() {
     maths::CLeastSquaresOnlineRegression<2> lsB;
     maths::CLeastSquaresOnlineRegression<2> ls;
 
-    for (std::size_t i = 0u; i < (2 * n) / 3; ++i) {
+    for (std::size_t i = 0; i < (2 * n) / 3; ++i) {
         double x = static_cast<double>(i);
         double y = curvature * x * x + slope * x + intercept + errors[i];
         lsA.add(x, y);
@@ -608,13 +616,13 @@ void CLeastSquaresOnlineRegressionTest::testCombination() {
     LOG_DEBUG(<< "params       = " << core::CContainerPrinter::print(params));
     LOG_DEBUG(<< "params A + B = " << core::CContainerPrinter::print(paramsAPlusB));
 
-    for (std::size_t i = 0u; i < params.size(); ++i) {
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[i], paramsAPlusB[i],
+    for (std::size_t i = 0; i < params.size(); ++i) {
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[i], paramsAPlusB[i],
                                      5e-3 * std::fabs(params[i]));
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testSingular() {
+BOOST_AUTO_TEST_CASE(testSingular) {
     // Test that we get the highest order polynomial regression
     // available for the points added at any time. In particular,
     // one needs at least n + 1 points to be able to determine
@@ -627,26 +635,26 @@ void CLeastSquaresOnlineRegressionTest::testSingular() {
         TDoubleArray3 params;
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 1e-6);
-        CPPUNIT_ASSERT_EQUAL(params[1], 0.0);
-        CPPUNIT_ASSERT_EQUAL(params[2], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
+        BOOST_REQUIRE_EQUAL(params[1], 0.0);
+        BOOST_REQUIRE_EQUAL(params[2], 0.0);
 
         regression.add(1.0, 2.0);
 
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 1e-6);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[1], 1.0, 1e-6);
-        CPPUNIT_ASSERT_EQUAL(params[2], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[1], 1.0, 1e-6);
+        BOOST_REQUIRE_EQUAL(params[2], 0.0);
 
         regression.add(2.0, 3.0);
 
         LOG_DEBUG(<< regression.print());
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 5e-6);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[1], 1.0, 5e-6);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[2], 0.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[1], 1.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[2], 0.0, 5e-6);
     }
     {
         maths::CLeastSquaresOnlineRegression<2> regression;
@@ -655,26 +663,26 @@ void CLeastSquaresOnlineRegressionTest::testSingular() {
         TDoubleArray3 params;
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 1e-6);
-        CPPUNIT_ASSERT_EQUAL(params[1], 0.0);
-        CPPUNIT_ASSERT_EQUAL(params[2], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
+        BOOST_REQUIRE_EQUAL(params[1], 0.0);
+        BOOST_REQUIRE_EQUAL(params[2], 0.0);
 
         regression.add(1.0, 2.0);
 
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 1e-6);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[1], 1.0, 1e-6);
-        CPPUNIT_ASSERT_EQUAL(params[2], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[1], 1.0, 1e-6);
+        BOOST_REQUIRE_EQUAL(params[2], 0.0);
 
         regression.add(2.0, 5.0);
 
         LOG_DEBUG(<< regression.print());
         regression.parameters(params);
         LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[0], 1.0, 5e-6);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[1], 0.0, 5e-6);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params[2], 1.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[0], 1.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[1], 0.0, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params[2], 1.0, 5e-6);
     }
     {
         maths::CLeastSquaresOnlineRegression<1, double> regression1;
@@ -688,10 +696,10 @@ void CLeastSquaresOnlineRegressionTest::testSingular() {
         TDoubleArray4 params3;
         regression3.parameters(params3);
         LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[0], 1.5, 5e-6);
-        CPPUNIT_ASSERT_EQUAL(params3[1], 0.0);
-        CPPUNIT_ASSERT_EQUAL(params3[2], 0.0);
-        CPPUNIT_ASSERT_EQUAL(params3[3], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-6);
+        BOOST_REQUIRE_EQUAL(params3[1], 0.0);
+        BOOST_REQUIRE_EQUAL(params3[2], 0.0);
+        BOOST_REQUIRE_EQUAL(params3[3], 0.0);
 
         regression1.add(0.5, 1.5 + 2.0 * 0.5 + 1.1 * 0.5 * 0.5 + 3.3 * 0.5 * 0.5 * 0.5);
         regression2.add(0.5, 1.5 + 2.0 * 0.5 + 1.1 * 0.5 * 0.5 + 3.3 * 0.5 * 0.5 * 0.5);
@@ -702,10 +710,10 @@ void CLeastSquaresOnlineRegressionTest::testSingular() {
         LOG_DEBUG(<< "params1 = " << core::CContainerPrinter::print(params3));
         regression3.parameters(params3);
         LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[0], 1.5, 5e-6);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[1], params1[1], 1e-6);
-        CPPUNIT_ASSERT_EQUAL(params3[2], 0.0);
-        CPPUNIT_ASSERT_EQUAL(params3[3], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[1], params1[1], 1e-6);
+        BOOST_REQUIRE_EQUAL(params3[2], 0.0);
+        BOOST_REQUIRE_EQUAL(params3[3], 0.0);
 
         regression2.add(1.0, 1.5 + 2.0 * 1.0 + 1.1 * 1.0 * 1.0 + 3.3 * 1.0 * 1.0 * 1.0);
         regression3.add(1.0, 1.5 + 2.0 * 1.0 + 1.1 * 1.0 * 1.0 + 3.3 * 1.0 * 1.0 * 1.0);
@@ -715,29 +723,29 @@ void CLeastSquaresOnlineRegressionTest::testSingular() {
         LOG_DEBUG(<< "params2 = " << core::CContainerPrinter::print(params2));
         regression3.parameters(params3);
         LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[0], 1.5, 5e-6);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[1], params2[1], 1e-6);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[2], params2[2], 1e-6);
-        CPPUNIT_ASSERT_EQUAL(params3[3], 0.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[1], params2[1], 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[2], params2[2], 1e-6);
+        BOOST_REQUIRE_EQUAL(params3[3], 0.0);
 
         regression3.add(1.5, 1.5 + 2.0 * 1.5 + 1.1 * 1.5 * 1.5 + 3.3 * 1.5 * 1.5 * 1.5);
 
         LOG_DEBUG(<< regression3.print());
         regression3.parameters(params3);
         LOG_DEBUG(<< "params3 = " << core::CContainerPrinter::print(params3));
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[0], 1.5, 5e-5);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[1], 2.0, 5e-5);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[2], 1.1, 5e-5);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(params3[3], 3.3, 5e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[0], 1.5, 5e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[1], 2.0, 5e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[2], 1.1, 5e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(params3[3], 3.3, 5e-5);
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testScale() {
+BOOST_AUTO_TEST_CASE(testScale) {
     // Test that scale reduces the count in the regression statistic
 
     maths::CLeastSquaresOnlineRegression<1, double> regression;
 
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         double x = static_cast<double>(i);
         regression.add(x, 5.0 + 0.3 * x);
     }
@@ -745,23 +753,23 @@ void CLeastSquaresOnlineRegressionTest::testScale() {
     LOG_DEBUG(<< "statistic = " << regression.statistic());
     TDoubleArray2 params1;
     regression.parameters(params1);
-    CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(regression.statistic()), 20.0);
+    BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(regression.statistic()), 20.0);
 
     maths::CLeastSquaresOnlineRegression<1, double> regression2 = regression.scaled(0.5);
     LOG_DEBUG(<< "statistic = " << regression2.statistic());
     TDoubleArray2 params2;
     regression2.parameters(params2);
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(params1),
-                         core::CContainerPrinter::print(params2));
-    CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(regression2.statistic()), 10.0);
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(params1),
+                        core::CContainerPrinter::print(params2));
+    BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(regression2.statistic()), 10.0);
 
     maths::CLeastSquaresOnlineRegression<1, double> regression3 = regression2.scaled(0.5);
     LOG_DEBUG(<< "statistic = " << regression3.statistic());
     TDoubleArray2 params3;
     regression3.parameters(params3);
-    CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(params1),
-                         core::CContainerPrinter::print(params3));
-    CPPUNIT_ASSERT_EQUAL(maths::CBasicStatistics::count(regression3.statistic()), 5.0);
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(params1),
+                        core::CContainerPrinter::print(params3));
+    BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(regression3.statistic()), 5.0);
 }
 
 template<std::size_t N>
@@ -782,7 +790,7 @@ private:
     maths::CLeastSquaresOnlineRegression<N, double> m_Regression;
 };
 
-void CLeastSquaresOnlineRegressionTest::testMean() {
+BOOST_AUTO_TEST_CASE(testMean) {
     // Test that the mean agrees with the numeric integration
     // of the regression.
 
@@ -803,7 +811,7 @@ void CLeastSquaresOnlineRegressionTest::testMean() {
         double actual = regression.mean(10.0, 15.0);
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-6);
 
         // Test interval spanning 0.0.
         maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(
@@ -812,7 +820,7 @@ void CLeastSquaresOnlineRegressionTest::testMean() {
         actual = regression.mean(-3.0, 0.0);
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-6);
 
         // Test zero length interval.
         maths::CIntegration::gaussLegendre<maths::CIntegration::OrderThree>(
@@ -821,11 +829,11 @@ void CLeastSquaresOnlineRegressionTest::testMean() {
         actual = regression.mean(-3.0, -3.0);
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(expected, actual, 1e-6);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-6);
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testCovariances() {
+BOOST_AUTO_TEST_CASE(testCovariances) {
     // Test the covariance matrix of the regression parameters
     // agree with the observed sample covariances of independent
     // fits to a matched model.
@@ -843,7 +851,7 @@ void CLeastSquaresOnlineRegressionTest::testCovariances() {
         double variance = 16.0;
 
         maths::CBasicStatistics::SSampleCovariances<TVector2> covariances(2);
-        for (std::size_t i = 0u; i < 500; ++i) {
+        for (std::size_t i = 0; i < 500; ++i) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, variance, static_cast<std::size_t>(n), noise);
             maths::CLeastSquaresOnlineRegression<1, double> regression;
@@ -865,7 +873,7 @@ void CLeastSquaresOnlineRegressionTest::testCovariances() {
 
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        CPPUNIT_ASSERT((actual - expected).frobenius() / expected.frobenius() < 0.05);
+        BOOST_TEST_REQUIRE((actual - expected).frobenius() / expected.frobenius() < 0.05);
     }
 
     LOG_DEBUG(<< "quadratic");
@@ -874,7 +882,7 @@ void CLeastSquaresOnlineRegressionTest::testCovariances() {
         double variance = 16.0;
 
         maths::CBasicStatistics::SSampleCovariances<TVector3> covariances(3);
-        for (std::size_t i = 0u; i < 500; ++i) {
+        for (std::size_t i = 0; i < 500; ++i) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, variance, static_cast<std::size_t>(n), noise);
             maths::CLeastSquaresOnlineRegression<2, double> regression;
@@ -897,19 +905,19 @@ void CLeastSquaresOnlineRegressionTest::testCovariances() {
 
         LOG_DEBUG(<< "expected = " << expected);
         LOG_DEBUG(<< "actual   = " << actual);
-        CPPUNIT_ASSERT((actual - expected).frobenius() / expected.frobenius() < 0.095);
+        BOOST_TEST_REQUIRE((actual - expected).frobenius() / expected.frobenius() < 0.095);
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testParameters() {
+BOOST_AUTO_TEST_CASE(testParameters) {
     maths::CLeastSquaresOnlineRegression<3, double> regression;
 
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         double x = static_cast<double>(i);
         regression.add(x, 5.0 + 0.3 * x + 0.5 * x * x - 0.03 * x * x * x);
     }
 
-    for (std::size_t i = 20u; i < 25; ++i) {
+    for (std::size_t i = 20; i < 25; ++i) {
         TDoubleArray4 params1 = regression.parameters(static_cast<double>(i - 19));
 
         maths::CLeastSquaresOnlineRegression<3, double> regression2(regression);
@@ -919,17 +927,17 @@ void CLeastSquaresOnlineRegressionTest::testParameters() {
 
         LOG_DEBUG(<< "params 1 = " << core::CContainerPrinter::print(params1));
         LOG_DEBUG(<< "params 2 = " << core::CContainerPrinter::print(params2));
-        CPPUNIT_ASSERT_EQUAL(core::CContainerPrinter::print(params2),
-                             core::CContainerPrinter::print(params1));
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(params2),
+                            core::CContainerPrinter::print(params1));
     }
 }
 
-void CLeastSquaresOnlineRegressionTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testPersist) {
     // Test that persistence is idempotent.
 
     maths::CLeastSquaresOnlineRegression<2, double> origRegression;
 
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         double x = static_cast<double>(i);
         origRegression.add(x, 5.0 + 0.3 * x + 0.5 * x * x);
     }
@@ -945,15 +953,15 @@ void CLeastSquaresOnlineRegressionTest::testPersist() {
 
     // Restore the XML into a new regression.
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::CLeastSquaresOnlineRegression<2, double> restoredRegression;
-    CPPUNIT_ASSERT(traverser.traverseSubLevel(std::bind(
+    BOOST_TEST_REQUIRE(traverser.traverseSubLevel(std::bind(
         &maths::CLeastSquaresOnlineRegression<2, double>::acceptRestoreTraverser,
         &restoredRegression, std::placeholders::_1)));
 
-    CPPUNIT_ASSERT_EQUAL(origRegression.checksum(), restoredRegression.checksum());
+    BOOST_REQUIRE_EQUAL(origRegression.checksum(), restoredRegression.checksum());
 
     std::string restoredXml;
     {
@@ -961,57 +969,7 @@ void CLeastSquaresOnlineRegressionTest::testPersist() {
         restoredRegression.acceptPersistInserter(inserter);
         inserter.toXml(restoredXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, restoredXml);
+    BOOST_REQUIRE_EQUAL(origXml, restoredXml);
 }
 
-CppUnit::Test* CLeastSquaresOnlineRegressionTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CLeastSquaresOnlineRegressionTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testInvariants",
-        &CLeastSquaresOnlineRegressionTest::testInvariants));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testFit",
-        &CLeastSquaresOnlineRegressionTest::testFit));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testShiftAbscissa",
-        &CLeastSquaresOnlineRegressionTest::testShiftAbscissa));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testShiftOrdinate",
-        &CLeastSquaresOnlineRegressionTest::testShiftOrdinate));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testShiftGradient",
-        &CLeastSquaresOnlineRegressionTest::testShiftGradient));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testLinearScale",
-        &CLeastSquaresOnlineRegressionTest::testLinearScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testAge",
-        &CLeastSquaresOnlineRegressionTest::testAge));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testPrediction",
-        &CLeastSquaresOnlineRegressionTest::testPrediction));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testCombination",
-        &CLeastSquaresOnlineRegressionTest::testCombination));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testSingular",
-        &CLeastSquaresOnlineRegressionTest::testSingular));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testScale",
-        &CLeastSquaresOnlineRegressionTest::testScale));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testMean",
-        &CLeastSquaresOnlineRegressionTest::testMean));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testCovariances",
-        &CLeastSquaresOnlineRegressionTest::testCovariances));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testParameters",
-        &CLeastSquaresOnlineRegressionTest::testParameters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CLeastSquaresOnlineRegressionTest>(
-        "CLeastSquaresOnlineRegressionTest::testPersist",
-        &CLeastSquaresOnlineRegressionTest::testPersist));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

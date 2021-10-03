@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CDataAdder_h
 #define INCLUDED_ml_core_CDataAdder_h
@@ -30,8 +35,7 @@ namespace core {
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! There's an assumption that persisted state will be saved to a
-//! data store that can retrieve based on 2 values: index and ID.
-//! Elasticsearch supports this.
+//! data store that can retrieve based on a single ID.
 //!
 class CORE_EXPORT CDataAdder : private CNonCopyable {
 public:
@@ -48,7 +52,7 @@ public:
     //! returns it is not possible to detect all error conditions
     //! immediately.  If the stream goes bad whilst being written to then
     //! this also indicates failure.
-    virtual TOStreamP addStreamed(const std::string& index, const std::string& id) = 0;
+    virtual TOStreamP addStreamed(const std::string& id) = 0;
 
     //! Clients that get a stream using addStreamed() must call this
     //! method one they've finished sending data to the stream.
@@ -69,7 +73,7 @@ public:
     //! document number.  The ID is of the form baseId#currentDocNum if
     //! baseId is not empty, and simply currentDocNum converted to a string
     //! if baseId is empty.
-    static std::string makeCurrentDocId(const std::string& baseId, size_t currentDocNum);
+    static std::string makeCurrentDocId(const std::string& baseId, std::size_t currentDocNum);
 };
 }
 }

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CCountMinSketch.h>
@@ -43,11 +48,13 @@ CCountMinSketch::CCountMinSketch(std::size_t rows, std::size_t columns)
 
 CCountMinSketch::CCountMinSketch(core::CStateRestoreTraverser& traverser)
     : m_Rows(0), m_Columns(0), m_TotalCount(0.0), m_Sketch() {
-    traverser.traverseSubLevel(std::bind(&CCountMinSketch::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CCountMinSketch::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
-void CCountMinSketch::swap(CCountMinSketch& other) {
+void CCountMinSketch::swap(CCountMinSketch& other) noexcept {
     if (this == &other) {
         return;
     }
@@ -205,7 +212,7 @@ void CCountMinSketch::add(uint32_t category, double count) {
     } else {
         try {
             SSketch& sketch = boost::get<SSketch>(m_Sketch);
-            for (std::size_t i = 0u; i < sketch.s_Hashes.size(); ++i) {
+            for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
                 uint32_t hash = (sketch.s_Hashes[i])(category);
                 std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
                 sketch.s_Counts[i][j] += count;
@@ -232,14 +239,14 @@ void CCountMinSketch::removeFromMap(uint32_t category) {
 void CCountMinSketch::age(double alpha) {
     TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
-        for (std::size_t i = 0u; i < counts->size(); ++i) {
+        for (std::size_t i = 0; i < counts->size(); ++i) {
             (*counts)[i].second *= alpha;
         }
     } else {
         try {
             SSketch& sketch = boost::get<SSketch>(m_Sketch);
-            for (std::size_t i = 0u; i < sketch.s_Counts.size(); ++i) {
-                for (std::size_t j = 0u; j < sketch.s_Counts[i].size(); ++j) {
+            for (std::size_t i = 0; i < sketch.s_Counts.size(); ++i) {
+                for (std::size_t j = 0; j < sketch.s_Counts[i].size(); ++j) {
                     sketch.s_Counts[i][j] *= alpha;
                 }
             }
@@ -269,7 +276,7 @@ double CCountMinSketch::count(uint32_t category) const {
     TMinAccumulator result;
     try {
         const SSketch& sketch = boost::get<SSketch>(m_Sketch);
-        for (std::size_t i = 0u; i < sketch.s_Hashes.size(); ++i) {
+        for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
             uint32_t hash = (sketch.s_Hashes[i])(category);
             std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
             LOG_TRACE(<< "count (i,j) = (" << i << "," << j << ")"
@@ -308,7 +315,7 @@ uint64_t CCountMinSketch::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, *counts);
 }
 
-void CCountMinSketch::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CCountMinSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCountMinSketch");
     const TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
@@ -373,7 +380,7 @@ void CCountMinSketch::sketch() {
             counts_.swap(*counts);
             m_TotalCount = 0.0;
             m_Sketch = SSketch(m_Rows, m_Columns);
-            for (std::size_t i = 0u; i < counts_.size(); ++i) {
+            for (std::size_t i = 0; i < counts_.size(); ++i) {
                 this->add(counts_[i].first, counts_[i].second);
             }
         }

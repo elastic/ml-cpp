@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CStringUtils_h
 #define INCLUDED_ml_core_CStringUtils_h
@@ -33,6 +38,8 @@ public:
     static const std::string WHITESPACE_CHARS;
 
 public:
+    using TSizeBoolPr = std::pair<std::size_t, bool>;
+    using TStrBoolPr = std::pair<std::string, bool>;
     using TStrVec = std::vector<std::string>;
     using TStrVecItr = TStrVec::iterator;
     using TStrVecCItr = TStrVec::const_iterator;
@@ -42,6 +49,10 @@ public:
     //! bytes in the whole character.  Otherwise (i.e. it's a continuation
     //! character) return -1.
     static int utf8ByteType(char c);
+
+    //! Compute the length of a UTF-16 encoded string for a given UTF-8 encoded
+    //! \p str.
+    static std::size_t utf16LengthOfUtf8String(const std::string& str);
 
     //! Convert a type to a string
     template<typename T>
@@ -79,6 +90,12 @@ public:
     static bool stringToTypeSilent(const std::string& str, T& ret) {
         return CStringUtils::_stringToType(true, str, ret);
     }
+
+    //! Convert a string representation of a memory size (in ES format e.g. "4gb") to a whole number
+    //! of bytes. Returns a default value if any error occurs, however the assumption is that the input string
+    //! has already been validated by ES.
+    static TSizeBoolPr memorySizeStringToBytes(const std::string& memorySizeStr,
+                                               std::size_t defaultValue);
 
     //! Joins the strings in the container with the \p delimiter.
     //! CONTAINER must be a container of std::string.
@@ -173,6 +190,10 @@ public:
     //! TODO - remove when we switch to a character conversion library
     //! (e.g. ICU)
     static const std::locale& locale();
+
+    //! Read the contents of a file into a string.
+    //! Returns a pair containing the file contents and a boolean indicating success or failure.
+    static TStrBoolPr readFileToString(const std::string& fileName);
 
 private:
     //! Internal calls for public templated methods

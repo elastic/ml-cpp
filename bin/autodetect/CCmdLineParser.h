@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_autodetect_CCmdLineParser_h
 #define INCLUDED_ml_autodetect_CCmdLineParser_h
@@ -29,30 +34,24 @@ public:
     using TStrVec = std::vector<std::string>;
 
 public:
-    //! Parse the arguments and return options if appropriate.  Unamed
+    //! Parse the arguments and return options if appropriate.  Unnamed
     //! options are placed in a vector for further processing/validation
     //! later on by the api::CFieldConfig class.
     static bool parse(int argc,
                       const char* const* argv,
-                      std::string& limitConfigFile,
+                      std::string& config,
+                      std::string& filtersConfig,
+                      std::string& eventsConfig,
                       std::string& modelConfigFile,
-                      std::string& fieldConfigFile,
-                      std::string& modelPlotConfigFile,
-                      std::string& jobId,
                       std::string& logProperties,
                       std::string& logPipe,
-                      core_t::TTime& bucketSpan,
-                      core_t::TTime& latency,
-                      std::string& summaryCountFieldName,
                       char& delimiter,
                       bool& lengthEncodedInput,
-                      std::string& timeField,
                       std::string& timeFormat,
                       std::string& quantilesState,
                       bool& deleteStateFiles,
-                      core_t::TTime& persistInterval,
                       std::size_t& bucketPersistInterval,
-                      core_t::TTime& maxQuantileInterval,
+                      core_t::TTime& namedPipeConnectTimeout,
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,
                       std::string& outputFileName,
@@ -62,10 +61,9 @@ public:
                       std::string& persistFileName,
                       bool& isPersistFileNamedPipe,
                       bool& isPersistInForeground,
-                      size_t& maxAnomalyRecords,
+                      std::size_t& maxAnomalyRecords,
                       bool& memoryUsage,
-                      bool& multivariateByFields,
-                      TStrVec& clauseTokens);
+                      bool& validElasticLicenseKeyConfirmed);
 
 private:
     static const std::string DESCRIPTION;

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_COrderings_h
@@ -580,7 +585,7 @@ public:
     //!
     //!   maths::COrderings::simultaneousSort(ids, names);
     //!
-    //!   for (std::size_t i = 0u; i < 4; ++i)
+    //!   for (std::size_t i = 0; i < 4; ++i)
     //!   {
     //!       std::cout << ids[i] << ' ' << names[i] << std::endl;
     //!   }
@@ -642,12 +647,12 @@ public:
     using TSizeVec = std::vector<std::size_t>;                                 \
     TSizeVec ordering;                                                         \
     ordering.reserve(keys.size());                                             \
-    for (std::size_t i = 0u; i < keys.size(); ++i) {                           \
+    for (std::size_t i = 0; i < keys.size(); ++i) {                            \
         ordering.push_back(i);                                                 \
     }                                                                          \
     std::stable_sort(ordering.begin(), ordering.end(),                         \
                      CIndexLess<KEY_VECTOR, COMP>(keys, comp));                \
-    for (std::size_t i = 0u; i < ordering.size(); ++i) {                       \
+    for (std::size_t i = 0; i < ordering.size(); ++i) {                        \
         std::size_t j_ = i;                                                    \
         std::size_t j = ordering[j_];                                          \
         while (i != j) {                                                       \

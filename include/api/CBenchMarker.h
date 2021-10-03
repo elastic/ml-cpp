@@ -1,12 +1,19 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_api_CBenchMarker_h
 #define INCLUDED_ml_api_CBenchMarker_h
 
 #include <core/CRegex.h>
+
+#include <model/CLocalCategoryId.h>
 
 #include <api/ImportExport.h>
 
@@ -35,20 +42,24 @@ namespace api {
 class API_EXPORT CBenchMarker {
 public:
     //! A count and and example string
-    using TSizeStrPr = std::pair<size_t, std::string>;
+    using TSizeStrPr = std::pair<std::size_t, std::string>;
 
-    //! Used for mapping Ml type to count and example
-    using TIntSizeStrPrMap = std::map<int, TSizeStrPr>;
-    using TIntSizeStrPrMapItr = TIntSizeStrPrMap::iterator;
-    using TIntSizeStrPrMapCItr = TIntSizeStrPrMap::const_iterator;
+    //! Used for mapping ML category to count and example
+    using TLocalCategoryIdSizeStrPrMap = std::map<model::CLocalCategoryId, TSizeStrPr>;
+    using TLocalCategoryIdSizeStrPrMapItr = TLocalCategoryIdSizeStrPrMap::iterator;
+    using TLocalCategoryIdSizeStrPrMapCItr = TLocalCategoryIdSizeStrPrMap::const_iterator;
 
-    //! A regex and its corresponding type count map
-    using TRegexIntSizeStrPrMapPr = std::pair<core::CRegex, TIntSizeStrPrMap>;
+    //! A regex and its corresponding category count map
+    using TRegexLocalCategoryIdSizeStrPrMapPr =
+        std::pair<core::CRegex, TLocalCategoryIdSizeStrPrMap>;
 
-    //! Vector of regexes with corresponding type count maps
-    using TRegexIntSizeStrPrMapPrVec = std::vector<TRegexIntSizeStrPrMapPr>;
-    using TRegexIntSizeStrPrMapPrVecItr = TRegexIntSizeStrPrMapPrVec::iterator;
-    using TRegexIntSizeStrPrMapPrVecCItr = TRegexIntSizeStrPrMapPrVec::const_iterator;
+    //! Vector of regexes with corresponding category count maps
+    using TRegexLocalCategoryIdSizeStrPrMapPrVec =
+        std::vector<TRegexLocalCategoryIdSizeStrPrMapPr>;
+    using TRegexLocalCategoryIdSizeStrPrMapPrVecItr =
+        TRegexLocalCategoryIdSizeStrPrMapPrVec::iterator;
+    using TRegexLocalCategoryIdSizeStrPrMapPrVecCItr =
+        TRegexLocalCategoryIdSizeStrPrMapPrVec::const_iterator;
 
 public:
     CBenchMarker();
@@ -56,21 +67,21 @@ public:
     //! Initialise from a file
     bool init(const std::string& regexFilename);
 
-    //! Add a message together with the type Ml assigned to it
-    void addResult(const std::string& message, int type);
+    //! Add a message together with the category ML assigned to it
+    void addResult(const std::string& message, model::CLocalCategoryId categoryId);
 
     void dumpResults() const;
 
 private:
     //! Number of messages passed to the benchmarker
-    size_t m_TotalMessages;
+    std::size_t m_TotalMessages;
 
     //! Number of messages that matched one of the regexes, and hence
     //! contribute to the scoring
-    size_t m_ScoredMessages;
+    std::size_t m_ScoredMessages;
 
-    //! The string and tokens we base this type on
-    TRegexIntSizeStrPrMapPrVec m_Measures;
+    //! The string and tokens we base this category on
+    TRegexLocalCategoryIdSizeStrPrMapPrVec m_Measures;
 };
 }
 }

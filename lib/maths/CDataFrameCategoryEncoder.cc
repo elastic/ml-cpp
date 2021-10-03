@@ -1,12 +1,18 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CDataFrameCategoryEncoder.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
@@ -215,8 +221,9 @@ private:
 };
 }
 
-CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder)
-    : m_Row{std::move(row)}, m_Encoder{&encoder} {
+CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(const TRowRef& row,
+                                                 const CDataFrameCategoryEncoder& encoder)
+    : m_Row{row}, m_Encoder{&encoder} {
 }
 
 CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t encodedColumnIndex) const {
@@ -231,8 +238,12 @@ std::size_t CEncodedDataFrameRowRef::numberColumns() const {
     return m_Encoder->numberEncodedColumns();
 }
 
-CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder builder) {
+CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder& builder) {
     m_Encodings = builder.makeEncodings();
+}
+
+CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder&& builder)
+    : CDataFrameCategoryEncoder(builder) {
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser) {
@@ -242,8 +253,8 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverse
     }
 }
 
-CEncodedDataFrameRowRef CDataFrameCategoryEncoder::encode(TRowRef row) const {
-    return {std::move(row), *this};
+CEncodedDataFrameRowRef CDataFrameCategoryEncoder::encode(const TRowRef& row) const {
+    return {row, *this};
 }
 
 CDataFrameCategoryEncoder::TDoubleVec CDataFrameCategoryEncoder::encodedColumnMics() const {
@@ -253,6 +264,18 @@ CDataFrameCategoryEncoder::TDoubleVec CDataFrameCategoryEncoder::encodedColumnMi
         mics.push_back(encoding->mic());
     }
     return mics;
+}
+
+std::size_t CDataFrameCategoryEncoder::numberInputColumns() const {
+    // This returns the highest "column index" + 1 of any feature selected as part
+    // of encoding and feature selection. For example, this is used to presize arrays
+    // containing values associated the features (such as feature importance) which
+    // allows direct addressing by the feature column index.
+    std::size_t result{0};
+    for (const auto& encoding : m_Encodings) {
+        result = std::max(result, encoding->inputColumnIndex());
+    }
+    return result + 1;
 }
 
 std::size_t CDataFrameCategoryEncoder::numberEncodedColumns() const {
@@ -407,12 +430,12 @@ bool CDataFrameCategoryEncoder::CIdentityEncoding::isBinary() const {
     return false;
 }
 
-std::uint64_t CDataFrameCategoryEncoder::CIdentityEncoding::checksum() const {
-    return CChecksum::calculate(this->inputColumnIndex(), this->mic());
-}
-
 const std::string& CDataFrameCategoryEncoder::CIdentityEncoding::typeString() const {
     return IDENTITY_ENCODING_TAG;
+}
+
+std::uint64_t CDataFrameCategoryEncoder::CIdentityEncoding::checksum() const {
+    return CChecksum::calculate(this->inputColumnIndex(), this->mic());
 }
 
 void CDataFrameCategoryEncoder::CIdentityEncoding::acceptPersistInserterForDerivedTypeState(
@@ -436,16 +459,26 @@ EEncoding CDataFrameCategoryEncoder::COneHotEncoding::type() const {
 }
 
 double CDataFrameCategoryEncoder::COneHotEncoding::encode(double value) const {
-    return static_cast<std::size_t>(value) == m_HotCategory;
+    return CDataFrameUtils::isMissing(value)
+               ? value
+               : static_cast<std::size_t>(value) == m_HotCategory;
 }
 
 bool CDataFrameCategoryEncoder::COneHotEncoding::isBinary() const {
     return true;
 }
 
+const std::string& CDataFrameCategoryEncoder::COneHotEncoding::typeString() const {
+    return ONE_HOT_ENCODING_TAG;
+}
+
 std::uint64_t CDataFrameCategoryEncoder::COneHotEncoding::checksum() const {
     std::size_t seed{CChecksum::calculate(this->inputColumnIndex(), this->mic())};
     return CChecksum::calculate(seed, m_HotCategory);
+}
+
+std::size_t CDataFrameCategoryEncoder::COneHotEncoding::hotCategory() const {
+    return m_HotCategory;
 }
 
 void CDataFrameCategoryEncoder::COneHotEncoding::acceptPersistInserterForDerivedTypeState(
@@ -461,14 +494,6 @@ bool CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverserForDerive
                     core::CPersistUtils::restore(ONE_HOT_ENCODING_CATEGORY_TAG,
                                                  m_HotCategory, traverser))
     return true;
-}
-
-const std::string& CDataFrameCategoryEncoder::COneHotEncoding::typeString() const {
-    return ONE_HOT_ENCODING_TAG;
-}
-
-size_t CDataFrameCategoryEncoder::COneHotEncoding::hotCategory() const {
-    return m_HotCategory;
 }
 
 CDataFrameCategoryEncoder::CMappedEncoding::CMappedEncoding(std::size_t inputColumnIndex,
@@ -487,12 +512,28 @@ EEncoding CDataFrameCategoryEncoder::CMappedEncoding::type() const {
 }
 
 double CDataFrameCategoryEncoder::CMappedEncoding::encode(double value) const {
+    if (CDataFrameUtils::isMissing(value)) {
+        return value;
+    }
     std::size_t category{static_cast<std::size_t>(value)};
     return category < m_Map.size() ? m_Map[category] : m_Fallback;
 }
 
 bool CDataFrameCategoryEncoder::CMappedEncoding::isBinary() const {
     return m_Binary;
+}
+
+const std::string& CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
+    return (m_Encoding == EEncoding::E_Frequency) ? FREQUENCY_ENCODING_TAG
+                                                  : TARGET_MEAN_ENCODING_TAG;
+}
+
+const TDoubleVec& CDataFrameCategoryEncoder::CMappedEncoding::map() const {
+    return m_Map;
+}
+
+double CDataFrameCategoryEncoder::CMappedEncoding::fallback() const {
+    return m_Fallback;
 }
 
 std::uint64_t CDataFrameCategoryEncoder::CMappedEncoding::checksum() const {
@@ -524,24 +565,11 @@ bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserForDerive
     return true;
 }
 
-const std::string& CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
-    return (m_Encoding == EEncoding::E_Frequency) ? FREQUENCY_ENCODING_TAG
-                                                  : TARGET_MEAN_ENCODING_TAG;
-}
-
-const TDoubleVec& CDataFrameCategoryEncoder::CMappedEncoding::map() const {
-    return m_Map;
-}
-
-double CDataFrameCategoryEncoder::CMappedEncoding::fallback() const {
-    return m_Fallback;
-}
-
 CMakeDataFrameCategoryEncoder::CMakeDataFrameCategoryEncoder(std::size_t numberThreads,
                                                              const core::CDataFrame& frame,
                                                              std::size_t targetColumn)
     : m_NumberThreads{numberThreads}, m_Frame{&frame}, m_RowMask{frame.numberRows(), true},
-      m_TargetColumn{targetColumn} {
+      m_TargetColumn{targetColumn}, m_RecordProgress{[](double) {}} {
 
     m_ColumnMask.resize(frame.numberColumns());
     std::iota(m_ColumnMask.begin(), m_ColumnMask.end(), 0);
@@ -586,6 +614,12 @@ CMakeDataFrameCategoryEncoder::rowMask(core::CPackedBitVector rowMask) {
 
 CMakeDataFrameCategoryEncoder& CMakeDataFrameCategoryEncoder::columnMask(TSizeVec columnMask) {
     m_ColumnMask = std::move(columnMask);
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::progressCallback(TProgressCallback recordProgress) {
+    m_RecordProgress = recordProgress;
     return *this;
 }
 
@@ -866,6 +900,9 @@ CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
 
     TSizeSizePrDoubleMap selectedFeatureMics;
 
+    // Preamble.
+    m_RecordProgress(0.01);
+
     if (maximumNumberFeatures >= numberAvailableFeatures) {
 
         selectedFeatureMics = this->selectAllFeatures(mics);
@@ -900,6 +937,9 @@ CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
                 m_CategoryTargetMeanValues[feature]);
             mics = this->mics(*columnValue, metricColumnMask, categoricalColumnMask);
             search.update(mics);
+
+            m_RecordProgress(0.99 * static_cast<double>(i) /
+                             static_cast<double>(maximumNumberFeatures));
         }
     }
 

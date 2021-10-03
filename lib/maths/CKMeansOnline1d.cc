@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CKMeansOnline1d.h>
@@ -103,7 +108,7 @@ const core::TPersistenceTag& CKMeansOnline1d::persistenceTag() const {
 }
 
 void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         inserter.insertLevel(CLUSTER_TAG,
                              std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
                                        &m_Clusters[i], std::placeholders::_1));
@@ -118,18 +123,22 @@ void CKMeansOnline1d::clear() {
     m_Clusters.clear();
 }
 
+bool CKMeansOnline1d::remove(std::size_t) {
+    return false;
+}
+
 std::size_t CKMeansOnline1d::numberClusters() const {
     return m_Clusters.size();
 }
 
 void CKMeansOnline1d::dataType(maths_t::EDataType dataType) {
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         m_Clusters[i].dataType(dataType);
     }
 }
 
 void CKMeansOnline1d::decayRate(double decayRate) {
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         m_Clusters[i].decayRate(decayRate);
     }
 }
@@ -139,7 +148,7 @@ bool CKMeansOnline1d::hasCluster(std::size_t index) const {
 }
 
 bool CKMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
-    if (!this->hasCluster(index)) {
+    if (this->hasCluster(index) == false) {
         LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
@@ -148,7 +157,7 @@ bool CKMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
 }
 
 bool CKMeansOnline1d::clusterSpread(std::size_t index, double& result) const {
-    if (!this->hasCluster(index)) {
+    if (this->hasCluster(index) == false) {
         LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
@@ -219,19 +228,19 @@ void CKMeansOnline1d::add(const double& point, TSizeDoublePr2Vec& clusters, doub
 
 void CKMeansOnline1d::add(const TDoubleDoublePrVec& points) {
     TSizeDoublePr2Vec dummy;
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    for (std::size_t i = 0; i < points.size(); ++i) {
         this->add(points[i].first, dummy, points[i].second);
     }
 }
 
 void CKMeansOnline1d::propagateForwardsByTime(double time) {
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         m_Clusters[i].propagateForwardsByTime(time);
     }
 }
 
 bool CKMeansOnline1d::sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const {
-    if (!this->hasCluster(index)) {
+    if (this->hasCluster(index) == false) {
         LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
@@ -242,18 +251,18 @@ bool CKMeansOnline1d::sample(std::size_t index, std::size_t numberSamples, TDoub
 }
 
 double CKMeansOnline1d::probability(std::size_t index) const {
-    if (!this->hasCluster(index)) {
+    if (this->hasCluster(index) == false) {
         return 0.0;
     }
     double weight = m_Clusters[index].numberSamples();
     double weightSum = 0.0;
-    for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
         weightSum += m_Clusters[i].numberSamples();
     }
     return weightSum == 0.0 ? 0.0 : weight / weightSum;
 }
 
-void CKMeansOnline1d::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CKMeansOnline1d::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CKMeansOnline1d");
     core::CMemoryDebug::dynamicSize("m_Clusters", m_Clusters, mem);
 }
@@ -266,7 +275,7 @@ std::size_t CKMeansOnline1d::staticSize() const {
     return sizeof(*this);
 }
 
-uint64_t CKMeansOnline1d::checksum(uint64_t seed) const {
+std::uint64_t CKMeansOnline1d::checksum(std::uint64_t seed) const {
     return CChecksum::calculate(seed, m_Clusters);
 }
 }

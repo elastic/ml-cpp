@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CStateDecompressor_h
 #define INCLUDED_ml_core_CStateDecompressor_h
@@ -145,7 +150,7 @@ public:
         std::streamsize m_BufferOffset;
 
         //! Level of nested objects, used to unwind later on.
-        size_t m_NestedLevel;
+        std::size_t m_NestedLevel;
     };
 
 public:
@@ -154,17 +159,9 @@ public:
 
     //! CDataSearcher interface method - transparently read compressed
     //! data and return it in an uncompressed stream
-    virtual TIStreamP search(size_t currentDocNum, size_t limit);
-
-    virtual void setStateRestoreSearch(const std::string& index);
-
-    //! CDataSearcher interface method - specify the search strings to use
-    virtual void setStateRestoreSearch(const std::string& index, const std::string& id);
+    TIStreamP search(std::size_t currentDocNum, std::size_t limit) override;
 
 private:
-    //! Reference to the downstream data store
-    CDataSearcher& m_Searcher;
-
     //! The dechunker object
     CDechunkFilter m_FilterSource;
 

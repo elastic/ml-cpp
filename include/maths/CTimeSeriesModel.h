@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDE_ml_maths_CTimeSeriesModel_h
@@ -25,31 +30,10 @@ class CDecayRateController;
 class CPrior;
 class CTimeSeriesDecompositionInterface;
 class CTimeSeriesAnomalyModel;
-class CUnivariateTimeSeriesChangeDetector;
 template<typename>
 class CTimeSeriesMultibucketFeature;
-struct SChangeDescription;
 struct SDistributionRestoreParams;
 struct SModelRestoreParams;
-
-namespace winsorisation {
-//! The minimum Winsorisation weight.
-const double MINIMUM_WEIGHT{1e-2};
-
-//! Computes a Winsorisation weight for \p value based on its
-//! one tail p-value.
-MATHS_EXPORT
-double weight(const CPrior& prior, double derate, double scale, double value);
-
-//! Computes a Winsorisation weight for \p value based on its
-//! marginal for \p dimension one tail p-value.
-MATHS_EXPORT
-double weight(const CMultivariatePrior& prior,
-              std::size_t dimension,
-              double derate,
-              double scale,
-              const core::CSmallVector<double, 10>& value);
-}
 
 //! \brief A CModel implementation for modeling a univariate time series.
 class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel {
@@ -162,19 +146,33 @@ public:
                      const TDouble2Vec1Vec& value,
                      SModelProbabilityResult& result) const override;
 
-    //! Get the Winsorisation weight to apply to \p value.
-    TDouble2Vec winsorisationWeight(double derate,
-                                    core_t::TTime time,
-                                    const TDouble2Vec& value) const override;
+    //! Fill in \p trendWeights and \p residualWeights with the count related
+    //! weights for \p value.
+    void countWeights(core_t::TTime time,
+                      const TDouble2Vec& value,
+                      double trendCountWeight,
+                      double residualCountWeight,
+                      double winsorisationDerate,
+                      double countVarianceScale,
+                      TDouble2VecWeightsAry& trendWeights,
+                      TDouble2VecWeightsAry& residualWeights) const override;
 
-    //! Get the seasonal variance scale at \p time.
-    TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const override;
+    //! Add to \p trendWeights and \p residualWeights.
+    void addCountWeights(core_t::TTime time,
+                         double trendCountWeight,
+                         double residualCountWeight,
+                         double countVarianceScale,
+                         TDouble2VecWeightsAry& trendWeights,
+                         TDouble2VecWeightsAry& residualWeights) const override;
+
+    //! Fill in the seasonal variance scale at \p time.
+    void seasonalWeight(double confidence, core_t::TTime time, TDouble2Vec& weight) const override;
 
     //! Compute a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const override;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const override;
@@ -202,6 +200,9 @@ public:
 
     //! Get the residual model.
     const CPrior& residualModel() const;
+
+    //! Get the decay rate controllers.
+    const TDecayRateController2Ary* decayRateControllers() const;
     //@}
 
 private:
@@ -218,24 +219,15 @@ private:
     using TMultivariatePriorCPtrSizePr1Vec =
         core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
     using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
-    using TChangeDetectorPtr = std::unique_ptr<CUnivariateTimeSeriesChangeDetector>;
 
 private:
     CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,
                                std::size_t id,
                                bool isForForecast = false);
 
-    //! Test for and apply any change we find.
-    EUpdateResult testAndApplyChange(const CModelAddSamplesParams& params,
-                                     const TSizeVec& order,
-                                     const TTimeDouble2VecSizeTrVec& samples);
-
-    //! Apply \p change to this model.
-    EUpdateResult applyChange(const SChangeDescription& change);
-
     //! Update the trend with \p samples.
-    EUpdateResult updateTrend(const TTimeDouble2VecSizeTrVec& samples,
-                              const TDouble2VecWeightsAryVec& trendWeights);
+    EUpdateResult updateTrend(const CModelAddSamplesParams& params,
+                              const TTimeDouble2VecSizeTrVec& samples);
 
     //! Update the various model decay rates based on the prediction errors
     //! for \p samples.
@@ -268,6 +260,10 @@ private:
                            TSize2Vec1Vec& variables,
                            TMultivariatePriorCPtrSizePr1Vec& correlationDistributionModels,
                            TModelCPtr1Vec& correlatedTimeSeriesModels) const;
+
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
 
 private:
     //! A unique identifier for this model.
@@ -302,16 +298,6 @@ private:
     //! A model for time periods when the basic model can't predict the
     //! value of the time series.
     TAnomalyModelPtr m_AnomalyModel;
-
-    //! The last "normal" time and median value.
-    TTimeDoublePr m_CandidateChangePoint;
-
-    //! If the time series appears to be undergoing change, the contiguous
-    //! interval of unpredictable values.
-    core_t::TTime m_CurrentChangeInterval;
-
-    //! Used to test for changes in the time series.
-    TChangeDetectorPtr m_ChangeDetector;
 
     //! Models the correlations between time series.
     CTimeSeriesCorrelations* m_Correlations;
@@ -423,7 +409,7 @@ public:
     const TSizeSizePrMultivariatePriorPtrDoublePrUMap& correlationModels() const;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
@@ -634,19 +620,33 @@ public:
                      const TDouble2Vec1Vec& value,
                      SModelProbabilityResult& result) const override;
 
-    //! Get the Winsorisation weight to apply to \p value.
-    TDouble2Vec winsorisationWeight(double derate,
-                                    core_t::TTime time,
-                                    const TDouble2Vec& value) const override;
+    //! Fill in \p trendWeights and \p residualWeights with the count related
+    //! weights for \p value.
+    void countWeights(core_t::TTime time,
+                      const TDouble2Vec& value,
+                      double trendCountWeight,
+                      double residualCountWeight,
+                      double winsorisationDerate,
+                      double countVarianceScale,
+                      TDouble2VecWeightsAry& trendWeights,
+                      TDouble2VecWeightsAry& residualWeights) const override;
 
-    //! Get the seasonal variance scale at \p time.
-    TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const override;
+    //! Add to \p trendWeights and \p residualWeights.
+    void addCountWeights(core_t::TTime time,
+                         double trendCountWeight,
+                         double residualCountWeight,
+                         double countVarianceScale,
+                         TDouble2VecWeightsAry& trendWeights,
+                         TDouble2VecWeightsAry& residualWeights) const override;
+
+    //! Fill in the seasonal variance scale at \p time.
+    void seasonalWeight(double confidence, core_t::TTime time, TDouble2Vec& weight) const override;
 
     //! Compute a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const override;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const override;
@@ -674,6 +674,9 @@ public:
 
     //! Get the residual model.
     const CMultivariatePrior& residualModel() const;
+
+    //! Get the decay rate controllers.
+    const TDecayRateController2Ary* decayRateControllers() const;
     //@}
 
 private:
@@ -689,8 +692,8 @@ private:
 
 private:
     //! Update the trend with \p samples.
-    EUpdateResult updateTrend(const TTimeDouble2VecSizeTrVec& samples,
-                              const TDouble2VecWeightsAryVec& trendWeights);
+    EUpdateResult updateTrend(const CModelAddSamplesParams& params,
+                              const TTimeDouble2VecSizeTrVec& samples);
 
     //! Update the various model decay rates based on the prediction errors
     //! for \p samples.
@@ -709,6 +712,10 @@ private:
 
     //! Get the model dimension.
     std::size_t dimension() const;
+
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
 
 private:
     //! True if the data are non-negative.

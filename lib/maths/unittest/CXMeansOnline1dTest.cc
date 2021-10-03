@@ -1,10 +1,13 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CXMeansOnline1dTest.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -17,12 +20,16 @@
 #include <maths/CRestoreParams.h>
 #include <maths/CXMeansOnline1d.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
 
 #include <boost/range.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+
+BOOST_AUTO_TEST_SUITE(CXMeansOnline1dTest)
 
 using namespace ml;
 
@@ -43,7 +50,7 @@ bool restore(const maths::SDistributionRestoreParams& params,
 void debug(const TClusterVec& clusters) {
     std::ostringstream c;
     c << "[";
-    for (std::size_t j = 0u; j < clusters.size(); ++j) {
+    for (std::size_t j = 0; j < clusters.size(); ++j) {
         c << " (" << clusters[j].weight(maths_t::E_ClustersFractionWeight)
           << ", " << clusters[j].centre() << ", " << clusters[j].spread() << ")";
     }
@@ -52,7 +59,7 @@ void debug(const TClusterVec& clusters) {
 }
 }
 
-void CXMeansOnline1dTest::testCluster() {
+BOOST_AUTO_TEST_CASE(testCluster) {
     maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight, 0.1);
@@ -63,10 +70,10 @@ void CXMeansOnline1dTest::testCluster() {
     TDoubleVec values;
 
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator moments;
-    for (std::size_t i = 0u; i < boost::size(x1); ++i) {
+    for (std::size_t i = 0; i < boost::size(x1); ++i) {
         cluster.add(x1[i], c1[i]);
         moments.add(x1[i], c1[i]);
-        for (std::size_t j = 0u; j < static_cast<std::size_t>(c1[i]); ++j) {
+        for (std::size_t j = 0; j < static_cast<std::size_t>(c1[i]); ++j) {
             values.push_back(x1[i]);
         }
     }
@@ -81,54 +88,54 @@ void CXMeansOnline1dTest::testCluster() {
     LOG_DEBUG(<< "expected count  = " << expectedCount);
     LOG_DEBUG(<< "expected centre = " << expectedCentre);
     LOG_DEBUG(<< "expected spread = " << expectedSpread);
-    CPPUNIT_ASSERT_EQUAL(expectedCount, cluster.count());
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCentre, cluster.centre(), 5e-7);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedSpread, cluster.spread(), 0.05 * expectedSpread);
-    CPPUNIT_ASSERT_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
-    CPPUNIT_ASSERT_EQUAL(expectedCount, cluster.weight(maths_t::E_ClustersFractionWeight));
+    BOOST_REQUIRE_EQUAL(expectedCount, cluster.count());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedCentre, cluster.centre(), 5e-7);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedSpread, cluster.spread(), 0.05 * expectedSpread);
+    BOOST_REQUIRE_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
+    BOOST_REQUIRE_EQUAL(expectedCount, cluster.weight(maths_t::E_ClustersFractionWeight));
 
     cluster.propagateForwardsByTime(5.0);
     LOG_DEBUG(<< "centre = " << cluster.centre());
     LOG_DEBUG(<< "spread = " << cluster.spread());
     LOG_DEBUG(<< "count  = " << cluster.count());
     LOG_DEBUG(<< "weight = " << cluster.weight(maths_t::E_ClustersFractionWeight));
-    CPPUNIT_ASSERT(cluster.count() < expectedCount);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(expectedCentre, cluster.centre(), 5e-7);
-    CPPUNIT_ASSERT(cluster.spread() > expectedSpread);
-    CPPUNIT_ASSERT_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
-    CPPUNIT_ASSERT(cluster.weight(maths_t::E_ClustersFractionWeight) < expectedCount);
+    BOOST_TEST_REQUIRE(cluster.count() < expectedCount);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedCentre, cluster.centre(), 5e-7);
+    BOOST_TEST_REQUIRE(cluster.spread() > expectedSpread);
+    BOOST_REQUIRE_EQUAL(1.0, cluster.weight(maths_t::E_ClustersEqualWeight));
+    BOOST_TEST_REQUIRE(cluster.weight(maths_t::E_ClustersFractionWeight) < expectedCount);
 
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator percentileError;
     std::sort(values.begin(), values.end());
-    for (std::size_t i = 0u; i < 10; ++i) {
+    for (std::size_t i = 0; i < 10; ++i) {
         double p = static_cast<double>(10 * i) + 5.0;
         double expectedPercentile = values[static_cast<std::size_t>(
             p / 100.0 * static_cast<double>(values.size()) + 0.5)];
         LOG_DEBUG(<< p << " percentile = " << cluster.percentile(p));
         LOG_DEBUG(<< p << " expected percentile = " << expectedPercentile);
         double error = std::fabs(cluster.percentile(p) - expectedPercentile);
-        CPPUNIT_ASSERT(error < 0.5);
+        BOOST_TEST_REQUIRE(error < 0.5);
         percentileError.add(error / expectedPercentile);
     }
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(percentileError));
-    CPPUNIT_ASSERT(maths::CBasicStatistics::mean(percentileError) < 0.1);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.1);
 
     TDoubleVec samples;
     cluster.sample(10, 0.0, 5.0, samples);
     LOG_DEBUG(<< "samples = " << core::CContainerPrinter::print(samples));
 
     maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator sampleMoments;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         sampleMoments.add(samples[i]);
     }
     double sampleCentre = maths::CBasicStatistics::mean(sampleMoments);
     double sampleSpread = std::sqrt(maths::CBasicStatistics::variance(sampleMoments));
     LOG_DEBUG(<< "sample centre = " << sampleCentre);
     LOG_DEBUG(<< "sample spread = " << sampleSpread);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(cluster.centre(), sampleCentre, 0.02);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(cluster.spread(), sampleSpread, 0.2);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(cluster.centre(), sampleCentre, 0.02);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(cluster.spread(), sampleSpread, 0.2);
 
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
         std::log(cluster.count()),
         -cluster.logLikelihoodFromCluster(maths_t::E_ClustersEqualWeight, 1.5) +
             cluster.logLikelihoodFromCluster(maths_t::E_ClustersFractionWeight, 1.5),
@@ -146,7 +153,7 @@ void CXMeansOnline1dTest::testCluster() {
 
     // Restore the XML into a new filter
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
     maths::CXMeansOnline1d::CCluster restoredCluster(clusterer);
@@ -155,28 +162,28 @@ void CXMeansOnline1dTest::testCluster() {
         maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
     restore(params, traverser, restoredCluster);
     uint64_t restoredChecksum = restoredCluster.checksum(0);
-    CPPUNIT_ASSERT_EQUAL(origChecksum, restoredChecksum);
+    BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
 
     double x2[] = {10.3, 10.6, 10.7, 9.8, 11.2, 11.0};
     double c2[] = {2.0, 1.0, 1.0, 2.0, 2.0, 1.0};
-    for (std::size_t i = 0u; i < boost::size(x2); ++i) {
+    for (std::size_t i = 0; i < boost::size(x2); ++i) {
         cluster.add(x2[i], c2[i]);
     }
     maths::CXMeansOnline1d::TOptionalClusterClusterPr split =
         cluster.split(maths::CAvailableModeDistributions::ALL, 5.0, 0.0,
                       std::make_pair(0.0, 15.0), clusterer.indexGenerator());
-    CPPUNIT_ASSERT(split);
+    BOOST_TEST_REQUIRE(split.has_value());
     LOG_DEBUG(<< "left centre  = " << split->first.centre());
     LOG_DEBUG(<< "left spread  = " << split->first.spread());
     LOG_DEBUG(<< "right centre = " << split->second.centre());
     LOG_DEBUG(<< "right spread = " << split->second.spread());
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(2.4, split->first.centre(), 0.05);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(1.1, split->first.spread(), 0.1);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(10.5, split->second.centre(), 0.05);
-    CPPUNIT_ASSERT_DOUBLES_EQUAL(0.6, split->second.spread(), 0.1);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(2.4, split->first.centre(), 0.05);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(1.1, split->first.spread(), 0.1);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(10.5, split->second.centre(), 0.05);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.6, split->second.spread(), 0.1);
 }
 
-void CXMeansOnline1dTest::testMixtureOfGaussians() {
+BOOST_AUTO_TEST_CASE(testMixtureOfGaussians) {
     test::CRandomNumbers rng;
 
     // Test 1:
@@ -209,7 +216,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
         double meanError = 0.0;
         double spreadError = 0.0;
 
-        for (unsigned int i = 0u; i < 50u; ++i) {
+        for (unsigned int i = 0; i < 50; ++i) {
             // Randomize the input order.
             rng.random_shuffle(samples.begin(), samples.end());
 
@@ -222,7 +229,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
             //std::ofstream file;
             //file.open(name.str().c_str());
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 if (j % 50 == 0) {
                     LOG_DEBUG(<< "time = " << j);
                 }
@@ -233,7 +240,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
                 //if (j > 0 && j % 10 == 0)
                 //{
                 //    file << "x = [ ";
-                //    for (std::size_t k = 0u; k < j; ++k)
+                //    for (std::size_t k = 0; k < j; ++k)
                 //    {
                 //        file << samples[k] << " ";
                 //    }
@@ -252,13 +259,13 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
             LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
 
             LOG_DEBUG(<< "# clusters = " << clusters.size());
-            CPPUNIT_ASSERT_EQUAL(std::size_t(3), clusters.size());
+            BOOST_REQUIRE_EQUAL(std::size_t(3), clusters.size());
 
-            for (std::size_t j = 0u; j < clusters.size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            for (std::size_t j = 0; j < clusters.size(); ++j) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::mean(expectedClusters[j]),
                     clusters[j].centre(), 0.1);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                     clusters[j].spread(), 0.4);
                 meanError += std::fabs(clusters[j].centre() -
@@ -273,8 +280,8 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
         spreadError /= 150.0;
 
         LOG_DEBUG(<< "meanError = " << meanError << ", spreadError = " << spreadError);
-        CPPUNIT_ASSERT(meanError < 0.012);
-        CPPUNIT_ASSERT(meanError < 0.013);
+        BOOST_TEST_REQUIRE(meanError < 0.012);
+        BOOST_TEST_REQUIRE(meanError < 0.013);
     }
 
     // Test 2:
@@ -300,7 +307,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
                                          maths::CAvailableModeDistributions::ALL,
                                          maths_t::E_ClustersFractionWeight, 0.001);
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             if (j % 50 == 0) {
                 LOG_DEBUG(<< "time = " << j);
             }
@@ -317,10 +324,10 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
         debug(clusters);
         LOG_DEBUG(<< "expected = " << expectedClusters);
 
-        CPPUNIT_ASSERT_EQUAL(std::size_t(1), clusters.size());
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(expectedClusters),
+        BOOST_REQUIRE_EQUAL(std::size_t(1), clusters.size());
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters),
                                      clusters[0].centre(), 0.05);
-        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
             std::sqrt(maths::CBasicStatistics::variance(expectedClusters)),
             clusters[0].spread(), 0.3);
     }
@@ -349,7 +356,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
         double meanError = 0.0;
         double spreadError = 0.0;
 
-        for (unsigned int i = 0u; i < 50u; ++i) {
+        for (unsigned int i = 0; i < 50; ++i) {
             // Randomize the input order.
             rng.random_shuffle(samples.begin(), samples.end());
 
@@ -357,7 +364,7 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
                                              maths::CAvailableModeDistributions::ALL,
                                              maths_t::E_ClustersFractionWeight, 0.001);
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 if (j % 50 == 0) {
                     LOG_DEBUG(<< "time = " << j);
                 }
@@ -372,12 +379,12 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
 
             debug(clusters);
 
-            CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusters.size());
-            for (std::size_t j = 0u; j < clusters.size(); ++j) {
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
+            for (std::size_t j = 0; j < clusters.size(); ++j) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     maths::CBasicStatistics::mean(expectedClusters[j]),
                     clusters[j].centre(), 0.4);
-                CPPUNIT_ASSERT_DOUBLES_EQUAL(
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                     clusters[j].spread(), 0.3);
                 meanError += std::fabs(clusters[j].centre() -
@@ -392,12 +399,12 @@ void CXMeansOnline1dTest::testMixtureOfGaussians() {
         spreadError /= 100.0;
 
         LOG_DEBUG(<< "meanError = " << meanError << ", spreadError = " << spreadError);
-        CPPUNIT_ASSERT(meanError < 0.14);
-        CPPUNIT_ASSERT(spreadError < 0.11);
+        BOOST_TEST_REQUIRE(meanError < 0.14);
+        BOOST_TEST_REQUIRE(spreadError < 0.11);
     }
 }
 
-void CXMeansOnline1dTest::testMixtureOfUniforms() {
+BOOST_AUTO_TEST_CASE(testMixtureOfUniforms) {
     test::CRandomNumbers rng;
 
     // * Cluster 1 = U([12, 15]), 100 points
@@ -420,7 +427,7 @@ void CXMeansOnline1dTest::testMixtureOfUniforms() {
     double spreadError = 0.0;
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (unsigned int i = 0u; i < 50u; ++i) {
+    for (unsigned int i = 0; i < 50; ++i) {
         // Randomize the input order.
         rng.random_shuffle(samples.begin(), samples.end());
 
@@ -428,7 +435,7 @@ void CXMeansOnline1dTest::testMixtureOfUniforms() {
                                          maths::CAvailableModeDistributions::ALL,
                                          maths_t::E_ClustersFractionWeight, 0.001);
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             if (j % 50 == 0) {
                 LOG_DEBUG(<< "time = " << j);
             }
@@ -443,12 +450,12 @@ void CXMeansOnline1dTest::testMixtureOfUniforms() {
         debug(clusters);
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
         LOG_DEBUG(<< "# clusters = " << clusters.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusters.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
-        for (std::size_t j = 0u; j < clusters.size(); ++j) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(maths::CBasicStatistics::mean(expectedClusters[j]),
+        for (std::size_t j = 0; j < clusters.size(); ++j) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expectedClusters[j]),
                                          clusters[j].centre(), 0.01);
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                 clusters[j].spread(), 0.02);
             meanError += std::fabs(clusters[j].centre() -
@@ -463,11 +470,11 @@ void CXMeansOnline1dTest::testMixtureOfUniforms() {
     spreadError /= 100.0;
 
     LOG_DEBUG(<< "meanError = " << meanError << ", spreadError = " << spreadError);
-    CPPUNIT_ASSERT(meanError < 1e-5);
-    CPPUNIT_ASSERT(spreadError < 0.01);
+    BOOST_TEST_REQUIRE(meanError < 1e-5);
+    BOOST_TEST_REQUIRE(spreadError < 0.01);
 }
 
-void CXMeansOnline1dTest::testMixtureOfLogNormals() {
+BOOST_AUTO_TEST_CASE(testMixtureOfLogNormals) {
     test::CRandomNumbers rng;
 
     // * Cluster 1 = LogNormal(3, 0.01), 100 points
@@ -490,7 +497,7 @@ void CXMeansOnline1dTest::testMixtureOfLogNormals() {
     double spreadError = 0.0;
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (unsigned int i = 0u; i < 50u; ++i) {
+    for (unsigned int i = 0; i < 50; ++i) {
         // Randomize the input order.
         rng.random_shuffle(samples.begin(), samples.end());
 
@@ -503,7 +510,7 @@ void CXMeansOnline1dTest::testMixtureOfLogNormals() {
         //std::ofstream file;
         //file.open(name.str().c_str());
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             if (j % 50 == 0) {
                 LOG_DEBUG(<< "time = " << j);
             }
@@ -513,7 +520,7 @@ void CXMeansOnline1dTest::testMixtureOfLogNormals() {
             //if (j > 0 && j % 10 == 0)
             //{
             //    file << "x = [ ";
-            //    for (std::size_t k = 0u; k < j; ++k)
+            //    for (std::size_t k = 0; k < j; ++k)
             //    {
             //        file << samples[k] << " ";
             //    }
@@ -531,14 +538,14 @@ void CXMeansOnline1dTest::testMixtureOfLogNormals() {
         debug(clusters);
         LOG_DEBUG(<< "expected = " << core::CContainerPrinter::print(expectedClusters));
         LOG_DEBUG(<< "# clusters = " << clusters.size());
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusters.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
-        for (std::size_t j = 0u; j < clusters.size(); ++j) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        for (std::size_t j = 0; j < clusters.size(); ++j) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
                 0.03 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
                                 clusters[j].centre()));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                 clusters[j].spread(),
                 0.5 * std::max(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
@@ -555,11 +562,11 @@ void CXMeansOnline1dTest::testMixtureOfLogNormals() {
     spreadError /= 100.0;
 
     LOG_DEBUG(<< "meanError = " << meanError << ", spreadError = " << spreadError);
-    CPPUNIT_ASSERT(meanError < 0.1);
-    CPPUNIT_ASSERT(spreadError < 0.14);
+    BOOST_TEST_REQUIRE(meanError < 0.1);
+    BOOST_TEST_REQUIRE(spreadError < 0.14);
 }
 
-void CXMeansOnline1dTest::testOutliers() {
+BOOST_AUTO_TEST_CASE(testOutliers) {
     test::CRandomNumbers rng;
 
     TDoubleVec mode1;
@@ -583,7 +590,7 @@ void CXMeansOnline1dTest::testOutliers() {
     double n = 0.0;
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (unsigned int i = 0u; i < 50u; ++i) {
+    for (unsigned int i = 0; i < 50; ++i) {
         // Randomize the input order.
         rng.random_shuffle(samples.begin(), samples.end());
 
@@ -593,11 +600,11 @@ void CXMeansOnline1dTest::testOutliers() {
                                          0.001, // decay rate
                                          0.01); // mode fraction
 
-        for (std::size_t j = 0u; j < outliers.size(); ++j) {
+        for (std::size_t j = 0; j < outliers.size(); ++j) {
             clusterer.add(outliers[j], dummy);
         }
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             clusterer.add(samples[j], dummy);
         }
 
@@ -613,14 +620,14 @@ void CXMeansOnline1dTest::testOutliers() {
             continue;
 
         n += 1.0;
-        CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusters.size());
+        BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 
-        for (std::size_t j = 0u; j < clusters.size(); ++j) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        for (std::size_t j = 0; j < clusters.size(); ++j) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
                 0.01 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
                                 clusters[j].centre()));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                 clusters[j].spread(),
                 0.03 * std::max(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
@@ -639,21 +646,21 @@ void CXMeansOnline1dTest::testOutliers() {
     LOG_DEBUG(<< "meanError = " << meanError
               << ", spreadError = " << spreadError << ", n = " << n);
 
-    CPPUNIT_ASSERT(meanError < 0.15);
-    CPPUNIT_ASSERT(spreadError < 1.0);
+    BOOST_TEST_REQUIRE(meanError < 0.15);
+    BOOST_TEST_REQUIRE(spreadError < 1.0);
 }
 
-void CXMeansOnline1dTest::testManyClusters() {
+BOOST_AUTO_TEST_CASE(testManyClusters) {
     using TTimeDoublePr = std::pair<core_t::TTime, double>;
     using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    CPPUNIT_ASSERT(test::CTimeSeriesTestData::parse(
+    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/times.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_UNIX_REGEX));
-    CPPUNIT_ASSERT(!timeseries.empty());
+    BOOST_TEST_REQUIRE(!timeseries.empty());
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -667,7 +674,7 @@ void CXMeansOnline1dTest::testManyClusters() {
                                      2);    // mode count
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
+    for (std::size_t i = 0; i < timeseries.size(); ++i) {
         core_t::TTime tow = timeseries[i].first % core::constants::WEEK;
         clusterer.add(static_cast<double>(tow), dummy);
     }
@@ -676,25 +683,25 @@ void CXMeansOnline1dTest::testManyClusters() {
 
     const TClusterVec& clusters = clusterer.clusters();
     debug(clusters);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(10), clusters.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(10), clusters.size());
 }
 
-void CXMeansOnline1dTest::testLowVariation() {
+BOOST_AUTO_TEST_CASE(testLowVariation) {
     maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight);
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (std::size_t i = 0u; i < 200; ++i) {
+    for (std::size_t i = 0; i < 200; ++i) {
         clusterer.add(static_cast<double>(i % 2), dummy);
     }
 
     const TClusterVec& clusters = clusterer.clusters();
     debug(clusters);
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusters.size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), clusters.size());
 }
 
-void CXMeansOnline1dTest::testAdaption() {
+BOOST_AUTO_TEST_CASE(testAdaption) {
     // Test a case where the cluster pattern changes over time.
     // Specifically, the data set starts with one cluster then
     // a new cluster appears and subsequently disappears.
@@ -746,14 +753,14 @@ void CXMeansOnline1dTest::testAdaption() {
 
         const TClusterVec& clusters = clusterer.clusters();
         debug(clusters);
-        CPPUNIT_ASSERT_EQUAL(expectedClusters.size(), clusters.size());
+        BOOST_REQUIRE_EQUAL(expectedClusters.size(), clusters.size());
 
-        for (std::size_t j = 0u; j < clusters.size(); ++j) {
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+        for (std::size_t j = 0; j < clusters.size(); ++j) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 maths::CBasicStatistics::mean(expectedClusters[j]), clusters[j].centre(),
                 0.01 * std::max(maths::CBasicStatistics::mean(expectedClusters[j]),
                                 clusters[j].centre()));
-            CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
                 clusters[j].spread(),
                 0.04 * std::max(std::sqrt(maths::CBasicStatistics::variance(expectedClusters[j])),
@@ -766,7 +773,7 @@ void CXMeansOnline1dTest::testAdaption() {
     addSamplesToClusterer(samples.size(), {mode3});
 }
 
-void CXMeansOnline1dTest::testLargeHistory() {
+BOOST_AUTO_TEST_CASE(testLargeHistory) {
     // If we get a lot of history, because we detect that the system
     // is stable and reduce the decay rate then we should also reduce
     // the fraction of points required to create a cluster.
@@ -782,6 +789,7 @@ void CXMeansOnline1dTest::testLargeHistory() {
                                      0.001, // decay rate
                                      0.05); // minimum cluster fraction
 
+    // Set the decay rate to simulate decay rate control.
     clusterer.decayRate(0.0001);
 
     test::CRandomNumbers rng;
@@ -803,11 +811,53 @@ void CXMeansOnline1dTest::testLargeHistory() {
         clusterer.propagateForwardsByTime(1.0);
     }
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(1), reference.clusters().size());
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(1, reference.clusters().size());
+    BOOST_REQUIRE_EQUAL(2, clusterer.clusters().size());
 }
 
-void CXMeansOnline1dTest::testPersist() {
+BOOST_AUTO_TEST_CASE(testRemove) {
+    // Test some edge cases: removing fails when the clusterer has no data or when
+    // the incorrect index is specified. Also that remove removes the correct cluster
+    // and merges its state with the nearest remaining cluster.
+
+    maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
+                                     maths::CAvailableModeDistributions::ALL,
+                                     maths_t::E_ClustersFractionWeight,
+                                     0.001, // decay rate
+                                     0.05); // minimum cluster fraction
+
+    test::CRandomNumbers rng;
+    TDoubleVec samples1;
+    rng.generateNormalSamples(5.0, 1.0, 1000, samples1);
+    TDoubleVec samples2;
+    rng.generateNormalSamples(15.0, 1.0, 100, samples2);
+
+    TDoubleVec samples(samples1);
+    samples.insert(samples.end(), samples2.begin(), samples2.end());
+    rng.random_shuffle(samples.begin() + 5000, samples.end());
+
+    BOOST_REQUIRE_EQUAL(false, clusterer.remove(0));
+
+    for (const auto& sample : samples) {
+        clusterer.add(sample);
+        clusterer.propagateForwardsByTime(1.0);
+    }
+
+    BOOST_REQUIRE_EQUAL(2, clusterer.clusters().size());
+    double count{clusterer.clusters()[0].count() + clusterer.clusters()[1].count()};
+
+    BOOST_REQUIRE_EQUAL(false, clusterer.remove(3));
+
+    BOOST_REQUIRE_EQUAL(true, clusterer.remove(1));
+
+    BOOST_REQUIRE_EQUAL(1, clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(0, clusterer.clusters()[0].index());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(count, clusterer.clusters()[0].count(), 1e-3);
+
+    BOOST_REQUIRE_EQUAL(false, clusterer.remove(0));
+}
+
+BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
     TDoubleVec mode1;
@@ -830,7 +880,7 @@ void CXMeansOnline1dTest::testPersist() {
                                      maths_t::E_ClustersEqualWeight, 0.05);
 
     maths::CXMeansOnline1d::TSizeDoublePr2Vec dummy;
-    for (std::size_t j = 0u; j < samples.size(); ++j) {
+    for (std::size_t j = 0; j < samples.size(); ++j) {
         clusterer.add(samples[j], dummy);
         clusterer.propagateForwardsByTime(1.0);
     }
@@ -849,7 +899,7 @@ void CXMeansOnline1dTest::testPersist() {
         maths_t::E_ContinuousData, 0.15, maths::MINIMUM_CLUSTER_SPLIT_FRACTION,
         maths::MINIMUM_CLUSTER_SPLIT_COUNT, maths::MINIMUM_CATEGORY_COUNT);
     core::CRapidXmlParser parser;
-    CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+    BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
     maths::CXMeansOnline1d restoredClusterer(params, traverser);
 
@@ -861,10 +911,10 @@ void CXMeansOnline1dTest::testPersist() {
         restoredClusterer.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
-    CPPUNIT_ASSERT_EQUAL(origXml, newXml);
+    BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 
-void CXMeansOnline1dTest::testPruneEmptyCluster() {
+BOOST_AUTO_TEST_CASE(testPruneEmptyCluster) {
     maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight);
@@ -892,38 +942,9 @@ void CXMeansOnline1dTest::testPruneEmptyCluster() {
     maths::CXMeansOnline1d::CCluster cluster_empty(clusterer);
     clusterer.m_Clusters.push_back(cluster_empty);
 
-    CPPUNIT_ASSERT_EQUAL(std::size_t(4), clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(4), clusterer.clusters().size());
     clusterer.prune();
-    CPPUNIT_ASSERT_EQUAL(std::size_t(2), clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(std::size_t(2), clusterer.clusters().size());
 }
 
-CppUnit::Test* CXMeansOnline1dTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CXMeansOnline1dTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testCluster", &CXMeansOnline1dTest::testCluster));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testMixtureOfGaussians",
-        &CXMeansOnline1dTest::testMixtureOfGaussians));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testMixtureOfUniforms", &CXMeansOnline1dTest::testMixtureOfUniforms));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testMixtureOfLogNormals",
-        &CXMeansOnline1dTest::testMixtureOfLogNormals));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testOutliers", &CXMeansOnline1dTest::testOutliers));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testManyClusters", &CXMeansOnline1dTest::testManyClusters));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testLowVariation", &CXMeansOnline1dTest::testLowVariation));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testAdaption", &CXMeansOnline1dTest::testAdaption));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testLargeHistory", &CXMeansOnline1dTest::testLargeHistory));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testPersist", &CXMeansOnline1dTest::testPersist));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CXMeansOnline1dTest>(
-        "CXMeansOnline1dTest::testPruneEmptyCluster", &CXMeansOnline1dTest::testPruneEmptyCluster));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

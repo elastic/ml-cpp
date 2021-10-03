@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CToolsDetail_h
@@ -11,6 +16,7 @@
 
 #include <maths/CCompositeFunctions.h>
 #include <maths/CIntegration.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CMixtureDistribution.h>
 #include <maths/COrderings.h>
 #include <maths/CTools.h>
@@ -167,7 +173,7 @@ double CTools::CMixtureProbabilityOfLessLikelySample::calculate(const LOGF& logf
     double p = 0.0;
     TDoubleVec pIntervals(intervals.size(), 0.0);
     CSmoothedKernel<const LOGF&> kernel(logf, m_LogFx, 3.0);
-    for (std::size_t i = 0u; i < intervals.size(); ++i) {
+    for (std::size_t i = 0; i < intervals.size(); ++i) {
         if (!CIntegration::gaussLegendre<CIntegration::OrderFour>(
                 kernel, intervals[i].first, intervals[i].second, pIntervals[i])) {
             LOG_ERROR(<< "Couldn't integrate kernel over "
@@ -190,7 +196,7 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     using TModeVec = typename CMixtureDistribution<T>::TModeVec;
 
     static const double EPS = 1e-5;
-    static const std::size_t INTERVALS = 8u;
+    static const std::size_t INTERVALS = 8;
 
     const TDoubleVec& weights = mixture.weights();
     const TModeVec& modes = mixture.modes();
@@ -200,14 +206,14 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     }
 
     TDoubleDoublePrVec range;
-    for (std::size_t i = 0u; i < modes.size(); ++i) {
+    for (std::size_t i = 0; i < modes.size(); ++i) {
         range.push_back(TDoubleDoublePr(quantile(modes[i], EPS),
                                         quantile(modes[i], 1.0 - EPS)));
     }
     std::sort(range.begin(), range.end(), COrderings::SFirstLess());
     LOG_TRACE(<< "range = " << core::CContainerPrinter::print(range));
-    std::size_t left = 0u;
-    for (std::size_t i = 1u; i < range.size(); ++i) {
+    std::size_t left = 0;
+    for (std::size_t i = 1; i < range.size(); ++i) {
         if (range[left].second < range[i].first) {
             ++left;
             std::swap(range[left], range[i]);
@@ -221,11 +227,11 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
     double result = 0.0;
 
     CDifferentialEntropyKernel<T> kernel(mixture);
-    for (std::size_t i = 0u; i < range.size(); ++i) {
+    for (std::size_t i = 0; i < range.size(); ++i) {
         double a = range[i].first;
         double d = (range[i].second - range[i].first) / static_cast<double>(INTERVALS);
 
-        for (std::size_t j = 0u; j < INTERVALS; ++j, a += d) {
+        for (std::size_t j = 0; j < INTERVALS; ++j, a += d) {
             double integral;
             if (CIntegration::gaussLegendre<CIntegration::OrderFive>(kernel, a, a + d, integral)) {
                 result += integral;
@@ -238,67 +244,20 @@ double CTools::differentialEntropy(const CMixtureDistribution<T>& mixture) {
 }
 
 template<typename T>
-void CTools::spread(double a, double b, double separation, T& points) {
-    if (points.empty()) {
-        return;
-    }
-    if (b <= a) {
-        LOG_ERROR(<< "Bad interval [" << a << "," << b << "]");
-        return;
-    }
+void CTools::inplaceSoftmax(CDenseVector<T>& z) {
+    double zmax{z.maxCoeff()};
+    z.array() -= zmax;
+    z.array() = z.array().exp();
+    z /= z.sum();
+}
 
-    std::size_t n = points.size() - 1;
-    if (b - a <= separation * static_cast<double>(n + 1)) {
-        for (std::size_t i = 0u; i <= n; ++i) {
-            setLocation(points[i], a + (b - a) * static_cast<double>(i) /
-                                           static_cast<double>(n));
-        }
-        return;
-    }
-
-    // We can do this in n * log(n) complexity with at most log(n)
-    // passes through the points. Provided the minimum separation
-    // is at least "interval" / "# centres" the problem is feasible.
-    //
-    // We want to find the solution which minimizes the sum of the
-    // distances the points move. This is possible by repeatedly
-    // merging points in to clusters which are within the minimum
-    // separation and then placing clusters at the mean of the
-    // points in the cluster. We repeat this process until no
-    // clusters merge and ensure that the cluster end points are
-    // in [0, interval]. Note that by alternating the direction
-    // of traversal through the points we avoid the worst case n
-    // traversals of the points.
-
-    for (std::size_t i = 0u; a > 0.0 && i <= n; ++i) {
-        points[i] -= a;
-    }
-    std::sort(points.begin(), points.end(), CPointLess());
-
-    bool moved = false;
-    std::size_t iteration = 0u;
-    do {
-        moved = false;
-        bool forward = (iteration++ % 2 == 0);
-        LOG_TRACE(<< (forward ? "forward" : "backward"));
-        CGroup last(forward ? 0 : n, points);
-        for (std::size_t i = 1u; i <= n; ++i) {
-            CGroup test(forward ? i : n - i, points);
-            if (last.overlap(test, separation)) {
-                last.merge(test, separation, 0.0, b - a);
-            } else {
-                moved |= last.spread(separation, points);
-                last = test;
-            }
-        }
-        moved |= last.spread(separation, points);
-    } while (moved && iteration <= n);
-
-    for (std::size_t i = 0u; a > 0.0 && i <= n; ++i) {
-        points[i] += a;
-    }
-
-    LOG_TRACE(<< "# iterations = " << iteration << " # points = " << n + 1);
+template<typename SCALAR>
+void CTools::inplaceLogSoftmax(CDenseVector<SCALAR>& z) {
+    // Handle under/overflow when taking exponentials by subtracting zmax.
+    double zmax{z.maxCoeff()};
+    z.array() -= zmax;
+    double Z{z.array().exp().sum()};
+    z.array() -= stableLog(Z);
 }
 }
 }

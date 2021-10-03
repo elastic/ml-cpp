@@ -1,15 +1,20 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
-
-#include "CConcurrentWrapperTest.h"
 
 #include <core/CConcurrentWrapper.h>
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
 #include <core/CStaticThreadPool.h>
+
+#include <boost/test/unit_test.hpp>
 
 #include <algorithm>
 #include <chrono>
@@ -17,6 +22,8 @@
 #include <sstream>
 #include <string>
 #include <thread>
+
+BOOST_AUTO_TEST_SUITE(CConcurrentWrapperTest)
 
 using namespace ml;
 using namespace core;
@@ -26,7 +33,7 @@ using TOStringStreamConcurrentWrapper = CConcurrentWrapper<std::ostringstream>;
 // A low capacity wrapper with only 5 buckets for the queue
 using TOStringStreamLowCapacityConcurrentWrapper = CConcurrentWrapper<std::ostringstream, 5>;
 
-void CConcurrentWrapperTest::testBasic() {
+BOOST_AUTO_TEST_CASE(testBasic) {
 
     std::ostringstream stringStream;
     {
@@ -41,8 +48,8 @@ void CConcurrentWrapperTest::testBasic() {
             o << " world 2\n";
         });
     }
-    CPPUNIT_ASSERT_EQUAL(std::string("Hello 1 world 1\nHello 2 world 2\n"),
-                         stringStream.str());
+    BOOST_REQUIRE_EQUAL(std::string("Hello 1 world 1\nHello 2 world 2\n"),
+                        stringStream.str());
 }
 
 namespace {
@@ -72,7 +79,7 @@ void taskLowCapacityQueue(TOStringStreamLowCapacityConcurrentWrapper& sink,
 }
 }
 
-void CConcurrentWrapperTest::testThreads() {
+BOOST_AUTO_TEST_CASE(testThreads) {
     std::ostringstream stringStream;
     static const size_t MESSAGES(1500);
 
@@ -91,15 +98,15 @@ void CConcurrentWrapperTest::testThreads() {
     std::string output = stringStream.str();
     size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
-    CPPUNIT_ASSERT_EQUAL(MESSAGES, numberOfLines);
-    CPPUNIT_ASSERT_EQUAL(11 * MESSAGES, output.size());
+    BOOST_REQUIRE_EQUAL(MESSAGES, numberOfLines);
+    BOOST_REQUIRE_EQUAL(11 * MESSAGES, output.size());
 
     for (size_t i = 0; i < MESSAGES; ++i) {
-        CPPUNIT_ASSERT_EQUAL(std::string("task"), output.substr(11 * i, 4));
+        BOOST_REQUIRE_EQUAL(std::string("task"), output.substr(11 * i, 4));
     }
 }
 
-void CConcurrentWrapperTest::testThreadsSlow() {
+BOOST_AUTO_TEST_CASE(testThreadsSlow) {
     std::ostringstream stringStream;
     static const size_t MESSAGES(50);
 
@@ -118,15 +125,15 @@ void CConcurrentWrapperTest::testThreadsSlow() {
     std::string output = stringStream.str();
     size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
-    CPPUNIT_ASSERT_EQUAL(MESSAGES, numberOfLines);
-    CPPUNIT_ASSERT_EQUAL(11 * MESSAGES, output.size());
+    BOOST_REQUIRE_EQUAL(MESSAGES, numberOfLines);
+    BOOST_REQUIRE_EQUAL(11 * MESSAGES, output.size());
 
     for (size_t i = 0; i < MESSAGES; ++i) {
-        CPPUNIT_ASSERT_EQUAL(std::string("task"), output.substr(11 * i, 4));
+        BOOST_REQUIRE_EQUAL(std::string("task"), output.substr(11 * i, 4));
     }
 }
 
-void CConcurrentWrapperTest::testThreadsSlowLowCapacity() {
+BOOST_AUTO_TEST_CASE(testThreadsSlowLowCapacity) {
     std::ostringstream stringStream;
     static const size_t MESSAGES(50);
 
@@ -146,15 +153,15 @@ void CConcurrentWrapperTest::testThreadsSlowLowCapacity() {
     std::string output = stringStream.str();
     size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
-    CPPUNIT_ASSERT_EQUAL(MESSAGES, numberOfLines);
-    CPPUNIT_ASSERT_EQUAL(11 * MESSAGES, output.size());
+    BOOST_REQUIRE_EQUAL(MESSAGES, numberOfLines);
+    BOOST_REQUIRE_EQUAL(11 * MESSAGES, output.size());
 
     for (size_t i = 0; i < MESSAGES; ++i) {
-        CPPUNIT_ASSERT_EQUAL(std::string("task"), output.substr(11 * i, 4));
+        BOOST_REQUIRE_EQUAL(std::string("task"), output.substr(11 * i, 4));
     }
 }
 
-void CConcurrentWrapperTest::testThreadsLowCapacity() {
+BOOST_AUTO_TEST_CASE(testThreadsLowCapacity) {
     std::ostringstream stringStream;
     static const size_t MESSAGES(2500);
 
@@ -174,41 +181,22 @@ void CConcurrentWrapperTest::testThreadsLowCapacity() {
     std::string output = stringStream.str();
     size_t numberOfLines = std::count(output.begin(), output.end(), '\n');
 
-    CPPUNIT_ASSERT_EQUAL(MESSAGES, numberOfLines);
-    CPPUNIT_ASSERT_EQUAL(11 * MESSAGES, output.size());
+    BOOST_REQUIRE_EQUAL(MESSAGES, numberOfLines);
+    BOOST_REQUIRE_EQUAL(11 * MESSAGES, output.size());
 
     for (size_t i = 0; i < MESSAGES; ++i) {
-        CPPUNIT_ASSERT_EQUAL(std::string("task"), output.substr(11 * i, 4));
+        BOOST_REQUIRE_EQUAL(std::string("task"), output.substr(11 * i, 4));
     }
 }
 
-void CConcurrentWrapperTest::testMemoryDebug() {
+BOOST_AUTO_TEST_CASE(testMemoryDebug) {
     CMemoryUsage mem;
 
     std::ostringstream stringStream;
     TOStringStreamConcurrentWrapper wrappedStringStream(stringStream);
 
     wrappedStringStream.debugMemoryUsage(mem.addChild());
-    CPPUNIT_ASSERT_EQUAL(wrappedStringStream.memoryUsage(), mem.usage());
+    BOOST_REQUIRE_EQUAL(wrappedStringStream.memoryUsage(), mem.usage());
 }
 
-CppUnit::Test* CConcurrentWrapperTest::suite() {
-    CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CConcurrentWrapperTest");
-
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
-        "CConcurrentWrapperTest::testBasic", &CConcurrentWrapperTest::testBasic));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
-        "CConcurrentWrapperTest::testThreads", &CConcurrentWrapperTest::testThreads));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
-        "CConcurrentWrapperTest::testThreadsSlow", &CConcurrentWrapperTest::testThreadsSlow));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
-        "CConcurrentWrapperTest::testThreadsSlowLowCapacity",
-        &CConcurrentWrapperTest::testThreadsSlowLowCapacity));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
-        "CConcurrentWrapperTest::testThreadsLowCapacity",
-        &CConcurrentWrapperTest::testThreadsLowCapacity));
-    suiteOfTests->addTest(new CppUnit::TestCaller<CConcurrentWrapperTest>(
-        "CConcurrentWrapperTest::testMemoryDebug", &CConcurrentWrapperTest::testMemoryDebug));
-
-    return suiteOfTests;
-}
+BOOST_AUTO_TEST_SUITE_END()

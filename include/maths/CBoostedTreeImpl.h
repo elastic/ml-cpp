@@ -1,15 +1,18 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CBoostedTreeImpl_h
 #define INCLUDED_ml_maths_CBoostedTreeImpl_h
 
-#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
-#include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CStatePersistInserter.h>
@@ -17,14 +20,17 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeLeafNodeStatistics.h>
+#include <maths/CBoostedTreeLoss.h>
+#include <maths/CBoostedTreeUtils.h>
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CPRNG.h>
-#include <maths/CTools.h>
 #include <maths/ImportExport.h>
 
-#include <boost/operators.hpp>
 #include <boost/optional.hpp>
 
 #include <limits>
@@ -37,26 +43,43 @@
 namespace ml {
 namespace maths {
 class CBayesianOptimisation;
+class CBoostedTreeImplForTest;
+class CTreeShapFeatureImportance;
 
 //! \brief Implementation of CBoostedTree.
 class MATHS_EXPORT CBoostedTreeImpl final {
 public:
     using TDoubleVec = std::vector<double>;
+    using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
+    using TOptionalDouble = boost::optional<double>;
+    using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
+    using TOptionalStrDoublePrVec = boost::optional<TStrDoublePrVec>;
+    using TVector = CDenseVector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanVarAccumulatorSizeDoubleTuple =
+        std::tuple<TMeanVarAccumulator, std::size_t, double>;
+    using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
     using TNodeVecVec = CBoostedTree::TNodeVecVec;
-    using TProgressCallback = CBoostedTree::TProgressCallback;
-    using TMemoryUsageCallback = CBoostedTree::TMemoryUsageCallback;
+    using TLossFunction = boosted_tree::CLoss;
+    using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
+    using TRegularization = CBoostedTreeRegularization<double>;
+    using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
+    using THyperparameterImportanceVec =
+        std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
 
 public:
-    CBoostedTreeImpl(std::size_t numberThreads, CBoostedTree::TLossFunctionUPtr loss);
+    CBoostedTreeImpl(std::size_t numberThreads,
+                     TLossFunctionUPtr loss,
+                     TAnalysisInstrumentationPtr instrumentation = nullptr);
+    CBoostedTreeImpl(CBoostedTreeImpl&&);
 
     ~CBoostedTreeImpl();
 
@@ -64,38 +87,36 @@ public:
     CBoostedTreeImpl& operator=(CBoostedTreeImpl&&);
 
     //! Train the model on the values in \p frame.
-    void train(core::CDataFrame& frame,
-               const TProgressCallback& recordProgress,
-               const TMemoryUsageCallback& recordMemoryUsage,
-               const TTrainingStateCallback& recordTrainStateCallback);
+    void train(core::CDataFrame& frame, const TTrainingStateCallback& recordTrainStateCallback);
 
     //! Write the predictions of the best trained model to \p frame.
     //!
-    //! \note Must be called only if a trained model is available.
-    void predict(core::CDataFrame& frame, const TProgressCallback& /*recordProgress*/) const;
+    //! \warning Must be called only if a trained model is available.
+    void predict(core::CDataFrame& frame) const;
 
-    //! Write this model to \p writer.
-    void write(core::CRapidJsonConcurrentLineWriter& /*writer*/) const;
+    //! Get the SHAP value calculator.
+    //!
+    //! \warning Will return a nullptr if a trained model isn't available.
+    CTreeShapFeatureImportance* shap();
 
-    //! Get the feature sample probabilities.
-    const TDoubleVec& featureWeights() const;
+    //! Get the vector of hyperparameter importances.
+    THyperparameterImportanceVec hyperparameterImportance() const;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
 
+    //! Get the training loss function.
+    TLossFunction& loss() const;
+
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const;
 
-    //! Get the number of columns training the model will add to the data frame.
-    constexpr static std::size_t numberExtraColumnsForTrain() {
-        // We store as follows:
-        //   1. The predicted value for the dependent variable
-        //   2. The gradient of the loss function
-        //   3. The curvature of the loss function
-        //   4. The example's weight
-        // In the last four rows of the data frame.
-        return 4;
-    }
+    //! Get start indices of the extra columns.
+    const TSizeVec& extraColumns() const;
+
+    //! Get the weights to apply to each class's predicted probability when
+    //! assigning classes.
+    const TVector& classificationWeights() const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
@@ -104,6 +125,30 @@ public:
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
+    //! Correct from worst case memory usage to a more realistic estimate.
+    static std::size_t correctedMemoryUsage(double memoryUsageBytes);
+
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    //! Visit this tree trainer implementation.
+    void accept(CBoostedTree::CVisitor& visitor);
+
+    //! \return The best hyperparameters for validation error found so far.
+    const CBoostedTreeHyperparameters& bestHyperparameters() const;
+
+    //! \return The fraction of data we use for train per fold when tuning hyperparameters.
+    double trainFractionPerFold() const;
+
+    //! \return The full training set data mask, i.e. all rows which aren't missing
+    //! the dependent variable.
+    core::CPackedBitVector allTrainingRowsMask() const;
+
+    //!\ name Test Only
+    //@{
     //! The name of the object holding the best hyperaparameters in the state document.
     static const std::string& bestHyperparametersName();
 
@@ -114,404 +159,41 @@ public:
     //! A list of the names of the best individual hyperparameters in the state document.
     static TStrVec bestHyperparameterNames();
 
-    //! Persist by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
-    //! Populate the object from serialized data.
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    void accept(CBoostedTree::CVisitor& visitor);
+    //! Get the threshold on the predicted probability of class one at which to
+    //!
+    //! Get the feature sample probabilities.
+    const TDoubleVec& featureSampleProbabilities() const;
+    //@}
 
 private:
-    using TSizeDoublePr = std::pair<std::size_t, double>;
     using TDoubleDoublePr = std::pair<double, double>;
-    using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-    using TOptionalDouble = boost::optional<double>;
+    using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+    using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
     using TOptionalSize = boost::optional<std::size_t>;
-    using TDoubleVecVec = std::vector<TDoubleVec>;
-    using TSizeVec = std::vector<std::size_t>;
-    using TVector = CDenseVector<double>;
-    using TRowItr = core::CDataFrame::TRowItr;
+    using TFloatVec = std::vector<CFloatStorage>;
+    using TFloatVecVec = std::vector<TFloatVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+    using TNodeVecVecDoubleDoubleVecTuple = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
+    using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
+    using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
+    using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
+    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameters>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
 
-    //! \brief Holds the parameters associated with the different types of regularizer
-    //! terms available.
-    template<typename T>
-    class CRegularization final {
-    public:
-        //! Set the multiplier of the tree depth penalty.
-        CRegularization& depthPenaltyMultiplier(double depthPenaltyMultiplier) {
-            m_DepthPenaltyMultiplier = depthPenaltyMultiplier;
-            return *this;
-        }
-
-        //! Set the multiplier of the tree size penalty.
-        CRegularization& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier) {
-            m_TreeSizePenaltyMultiplier = treeSizePenaltyMultiplier;
-            return *this;
-        }
-
-        //! Set the multiplier of the square leaf weight penalty.
-        CRegularization& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier) {
-            m_LeafWeightPenaltyMultiplier = leafWeightPenaltyMultiplier;
-            return *this;
-        }
-
-        //! Set the soft depth tree depth limit.
-        CRegularization& softTreeDepthLimit(double softTreeDepthLimit) {
-            m_SoftTreeDepthLimit = softTreeDepthLimit;
-            return *this;
-        }
-
-        //! Set the tolerance in the depth tree depth limit.
-        CRegularization& softTreeDepthTolerance(double softTreeDepthTolerance) {
-            m_SoftTreeDepthTolerance = softTreeDepthTolerance;
-            return *this;
-        }
-
-        //! Count the number of parameters which have their default values.
-        std::size_t countNotSet() const {
-            return (m_DepthPenaltyMultiplier == T{} ? 1 : 0) +
-                   (m_TreeSizePenaltyMultiplier == T{} ? 1 : 0) +
-                   (m_LeafWeightPenaltyMultiplier == T{} ? 1 : 0) +
-                   (m_SoftTreeDepthLimit == T{} ? 1 : 0) +
-                   (m_SoftTreeDepthTolerance == T{} ? 1 : 0);
-        }
-
-        //! Multiplier of the tree depth penalty.
-        T depthPenaltyMultiplier() const { return m_DepthPenaltyMultiplier; }
-
-        //! Multiplier of the tree size penalty.
-        T treeSizePenaltyMultiplier() const {
-            return m_TreeSizePenaltyMultiplier;
-        }
-
-        //! Multiplier of the square leaf weight penalty.
-        T leafWeightPenaltyMultiplier() const {
-            return m_LeafWeightPenaltyMultiplier;
-        }
-
-        //! Soft depth tree depth limit.
-        T softTreeDepthLimit() const { return m_SoftTreeDepthLimit; }
-
-        //! Soft depth tree depth limit tolerance.
-        T softTreeDepthTolerance() const { return m_SoftTreeDepthTolerance; }
-
-        //! Get the penalty which applies to a leaf at depth \p depth.
-        T penaltyForDepth(std::size_t depth) const {
-            return std::exp((static_cast<double>(depth) / m_SoftTreeDepthLimit - 1.0) /
-                            m_SoftTreeDepthTolerance);
-        }
-
-        //! Get description of the regularization parameters.
-        std::string print() const {
-            return "(depth penalty multiplier = " + toString(m_DepthPenaltyMultiplier) +
-                   ", soft depth limit = " + toString(m_SoftTreeDepthLimit) +
-                   ", soft depth tolerance = " + toString(m_SoftTreeDepthTolerance) +
-                   ", tree size penalty multiplier = " + toString(m_TreeSizePenaltyMultiplier) +
-                   ", leaf weight penalty multiplier = " +
-                   toString(m_LeafWeightPenaltyMultiplier) + ")";
-        }
-
-        //! Persist by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
-        //! Populate the object from serialized data.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    private:
-        static std::string toString(double x) { return std::to_string(x); }
-        static std::string toString(TOptionalDouble x) {
-            return x != boost::none ? toString(*x) : "null";
-        }
-
-    private:
-        T m_DepthPenaltyMultiplier = T{};
-        T m_TreeSizePenaltyMultiplier = T{};
-        T m_LeafWeightPenaltyMultiplier = T{};
-        T m_SoftTreeDepthLimit = T{};
-        T m_SoftTreeDepthTolerance = T{};
+    //! Tag progress through initialization.
+    enum EInitializationStage {
+        E_NotInitialized = 0,
+        E_SoftTreeDepthLimitInitialized = 1,
+        E_DepthPenaltyMultiplierInitialized = 2,
+        E_TreeSizePenaltyMultiplierInitialized = 3,
+        E_LeafWeightPenaltyMultiplierInitialized = 4,
+        E_DownsampleFactorInitialized = 5,
+        E_FeatureBagFractionInitialized = 6,
+        E_EtaInitialized = 7,
+        E_FullyInitialized = 8
     };
-
-    using TRegularization = CRegularization<double>;
-    using TRegularizationOverride = CRegularization<TOptionalDouble>;
-
-    //! \brief The algorithm parameters we'll directly optimise to improve test error.
-    struct SHyperparameters {
-        //! The regularisation parameters.
-        TRegularization s_Regularization;
-
-        //! Shrinkage.
-        double s_Eta;
-
-        //! Rate of growth of shrinkage in the training loop.
-        double s_EtaGrowthRatePerTree;
-
-        //! The fraction of features we use per bag.
-        double s_FeatureBagFraction;
-
-        //! Persist by passing information to \p inserter.
-        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
-        //! Populate the object from serialized data.
-        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-    };
-
-    //! \brief Maintains a collection of statistics about a leaf of the regression
-    //! tree as it is built.
-    //!
-    //! DESCRIPTION:\N
-    //! The regression tree is grown top down by greedily selecting the split with
-    //! the maximum gain (in the loss). This finds and scores the maximum gain split
-    //! of a single leaf of the tree.
-    class CLeafNodeStatistics final {
-    public:
-        CLeafNodeStatistics(std::size_t id,
-                            std::size_t numberThreads,
-                            const core::CDataFrame& frame,
-                            const CDataFrameCategoryEncoder& encoder,
-                            const TRegularization& regularization,
-                            const TDoubleVecVec& candidateSplits,
-                            std::size_t depth,
-                            TSizeVec featureBag,
-                            const core::CPackedBitVector& rowMask);
-
-        //! Only called by split but is public so it's accessible to std::make_shared.
-        CLeafNodeStatistics(std::size_t id,
-                            std::size_t numberThreads,
-                            const core::CDataFrame& frame,
-                            const CDataFrameCategoryEncoder& encoder,
-                            const TRegularization& regularization,
-                            const TDoubleVecVec& candidateSplits,
-                            std::size_t depth,
-                            TSizeVec featureBag,
-                            bool isLeftChild,
-                            const CBoostedTreeNode& split,
-                            const core::CPackedBitVector& parentRowMask);
-        //! Only called by split but is public so it's accessible to std::make_shared.
-        CLeafNodeStatistics(std::size_t id,
-                            const CLeafNodeStatistics& parent,
-                            const CLeafNodeStatistics& sibling,
-                            core::CPackedBitVector rowMask);
-
-        CLeafNodeStatistics(const CLeafNodeStatistics&) = delete;
-
-        CLeafNodeStatistics(CLeafNodeStatistics&&) = default;
-
-        CLeafNodeStatistics& operator=(const CLeafNodeStatistics&) = delete;
-
-        CLeafNodeStatistics& operator=(CLeafNodeStatistics&&) = default;
-
-        //! Apply the split defined by \p split.
-        //!
-        //! \return Shared pointers to the left and right child node statistics.
-        auto split(std::size_t leftChildId,
-                   std::size_t rightChildId,
-                   std::size_t numberThreads,
-                   const core::CDataFrame& frame,
-                   const CDataFrameCategoryEncoder& encoder,
-                   const TRegularization& regularization,
-                   const TDoubleVecVec& candidateSplits,
-                   TSizeVec featureBag,
-                   const CBoostedTreeNode& split,
-                   bool leftChildHasFewerRows);
-
-        //! Order two leaves by decreasing gain in splitting them.
-        bool operator<(const CLeafNodeStatistics& rhs) const {
-            return this->bestSplitStatistics() < rhs.bestSplitStatistics();
-        }
-
-        //! Get the gain in loss of the best split of this leaf.
-        double gain() const { return this->bestSplitStatistics().s_Gain; }
-
-        double curvature() const {
-            return this->bestSplitStatistics().s_Curvature;
-        }
-
-        //! Get the best (feature, feature value) split.
-        TSizeDoublePr bestSplit() const {
-            const auto& split = this->bestSplitStatistics();
-            return {split.s_Feature, split.s_SplitAt};
-        }
-
-        //! Check if the left child has fewer rows than the right child.
-        bool leftChildHasFewerRows() const {
-            return this->bestSplitStatistics().s_LeftChildHasFewerRows;
-        }
-
-        //! Check if we should assign the missing feature rows to the left child
-        //! of the split.
-        bool assignMissingToLeft() const {
-            return this->bestSplitStatistics().s_AssignMissingToLeft;
-        }
-
-        //! Get the node's identifier.
-        std::size_t id() const { return m_Id; }
-
-        //! Get the row mask for this leaf node.
-        core::CPackedBitVector& rowMask() { return m_RowMask; }
-
-        //! Get the memory used by this object.
-        std::size_t memoryUsage() const {
-            std::size_t mem{core::CMemory::dynamicSize(m_FeatureBag)};
-            mem += core::CMemory::dynamicSize(m_RowMask);
-            mem += core::CMemory::dynamicSize(m_Derivatives);
-            mem += core::CMemory::dynamicSize(m_MissingDerivatives);
-            return mem;
-        }
-
-        //! Estimate the maximum leaf statistics' memory usage training on a data frame
-        //! with \p numberRows rows and \p numberCols columns using \p featureBagFraction
-        //! and \p numberSplitsPerFeature.
-        static std::size_t estimateMemoryUsage(std::size_t numberRows,
-                                               std::size_t numberCols,
-                                               double featureBagFraction,
-                                               std::size_t numberSplitsPerFeature) {
-            std::size_t featureBagSize{
-                static_cast<std::size_t>(std::ceil(
-                    featureBagFraction * static_cast<double>(numberCols - 1))) *
-                sizeof(std::size_t)};
-            // We will typically get the close to the best compression for most of the
-            // leaves when the set of splits becomes large, corresponding to the worst
-            // case for memory usage. This is because the rows will be spread over many
-            // rows so the masks will mainly contain 0 bits in this case.
-            std::size_t rowMaskSize{numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
-            std::size_t derivativesSize{(numberCols - 1) * numberSplitsPerFeature *
-                                        sizeof(SAggregateDerivatives)};
-            std::size_t missingDerivativesSize{(numberCols - 1) * sizeof(SAggregateDerivatives)};
-            return sizeof(CLeafNodeStatistics) + featureBagSize + rowMaskSize +
-                   derivativesSize + missingDerivativesSize;
-        }
-
-    private:
-        //! \brief Statistics relating to a split of the node.
-        struct SSplitStatistics : private boost::less_than_comparable<SSplitStatistics> {
-            SSplitStatistics(double gain,
-                             double curvature,
-                             std::size_t feature,
-                             double splitAt,
-                             bool leftChildHasFewerRows,
-                             bool assignMissingToLeft)
-                : s_Gain{gain}, s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
-                  s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
-            }
-
-            bool operator<(const SSplitStatistics& rhs) const {
-                return COrderings::lexicographical_compare(
-                    s_Gain, s_Curvature, s_Feature, rhs.s_Gain, rhs.s_Curvature, rhs.s_Feature);
-            }
-
-            std::string print() const {
-                std::ostringstream result;
-                result << "split feature '" << s_Feature << "' @ " << s_SplitAt
-                       << ", gain = " << s_Gain;
-                return result.str();
-            }
-
-            double s_Gain;
-            double s_Curvature;
-            std::size_t s_Feature;
-            double s_SplitAt;
-            bool s_LeftChildHasFewerRows;
-            bool s_AssignMissingToLeft;
-        };
-
-        //! \brief Aggregate derivatives.
-        struct SAggregateDerivatives {
-            void add(std::size_t count, double gradient, double curvature) {
-                s_Count += count;
-                s_Gradient += gradient;
-                s_Curvature += curvature;
-            }
-
-            void merge(const SAggregateDerivatives& other) {
-                this->add(other.s_Count, other.s_Gradient, other.s_Curvature);
-            }
-
-            std::string print() const {
-                std::ostringstream result;
-                result << "count = " << s_Count << ", gradient = " << s_Gradient
-                       << ", curvature = " << s_Curvature;
-                return result.str();
-            }
-
-            std::size_t s_Count = 0;
-            double s_Gradient = 0.0;
-            double s_Curvature = 0.0;
-        };
-
-        using TAggregateDerivativesVec = std::vector<SAggregateDerivatives>;
-        using TAggregateDerivativesVecVec = std::vector<TAggregateDerivativesVec>;
-
-        //! \brief A collection of aggregate derivatives for candidate feature splits.
-        struct SSplitAggregateDerivatives {
-            SSplitAggregateDerivatives(const TDoubleVecVec& candidateSplits)
-                : s_Derivatives(candidateSplits.size()),
-                  s_MissingDerivatives(candidateSplits.size()) {
-                for (std::size_t i = 0; i < candidateSplits.size(); ++i) {
-                    s_Derivatives[i].resize(candidateSplits[i].size() + 1);
-                }
-            }
-
-            void merge(const SSplitAggregateDerivatives& other) {
-                for (std::size_t i = 0; i < s_Derivatives.size(); ++i) {
-                    for (std::size_t j = 0; j < s_Derivatives[i].size(); ++j) {
-                        s_Derivatives[i][j].merge(other.s_Derivatives[i][j]);
-                    }
-                    s_MissingDerivatives[i].merge(other.s_MissingDerivatives[i]);
-                }
-            }
-
-            auto move() {
-                return std::make_pair(std::move(s_Derivatives),
-                                      std::move(s_MissingDerivatives));
-            }
-
-            TAggregateDerivativesVecVec s_Derivatives;
-            TAggregateDerivativesVec s_MissingDerivatives;
-        };
-
-    private:
-        void computeAggregateLossDerivatives(std::size_t numberThreads,
-                                             const core::CDataFrame& frame,
-                                             const CDataFrameCategoryEncoder& encoder);
-        void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
-                                                       const core::CDataFrame& frame,
-                                                       const CDataFrameCategoryEncoder& encoder,
-                                                       bool isLeftChild,
-                                                       const CBoostedTreeNode& split,
-                                                       const core::CPackedBitVector& parentRowMask);
-
-        void addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                               SSplitAggregateDerivatives& splitAggregateDerivatives) const;
-
-        const SSplitStatistics& bestSplitStatistics() const {
-            if (m_BestSplit == boost::none) {
-                m_BestSplit = this->computeBestSplitStatistics();
-            }
-            return *m_BestSplit;
-        }
-
-        SSplitStatistics computeBestSplitStatistics() const;
-
-    private:
-        std::size_t m_Id;
-        const TRegularization& m_Regularization;
-        const TDoubleVecVec& m_CandidateSplits;
-        std::size_t m_Depth;
-        TSizeVec m_FeatureBag;
-        core::CPackedBitVector m_RowMask;
-        TAggregateDerivativesVecVec m_Derivatives;
-        TAggregateDerivativesVec m_MissingDerivatives;
-        mutable boost::optional<SSplitStatistics> m_BestSplit;
-    };
-
-private:
-    // The maximum number of rows encoded by a single byte in the packed bit
-    // vector assuming best compression.
-    static const std::size_t PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE;
 
 private:
     CBoostedTreeImpl();
@@ -519,79 +201,132 @@ private:
     //! Check if we can train a model.
     bool canTrain() const;
 
-    //! Get the full training set data mask, i.e. all rows which aren't missing
-    //! the dependent variable.
-    core::CPackedBitVector allTrainingRowsMask() const;
+    //! Get the mean number of training examples which are used in each fold.
+    double meanNumberTrainingRowsPerFold() const;
 
     //! Compute the \p percentile percentile gain per split and the sum of row
     //! curvatures per internal node of \p forest.
     TDoubleDoublePr gainAndCurvatureAtPercentile(double percentile,
                                                  const TNodeVecVec& forest) const;
 
+    //! Presize the collection to hold the per fold test errors.
+    void initializePerFoldTestLosses();
+
+    //! Compute the probability threshold at which to classify a row as class one.
+    void computeClassificationWeights(const core::CDataFrame& frame);
+
+    //! Prepare to calculate SHAP feature importances.
+    void initializeTreeShap(const core::CDataFrame& frame);
+
     //! Train the forest and compute loss moments on each fold.
-    TMeanVarAccumulator crossValidateForest(core::CDataFrame& frame,
-                                            const TMemoryUsageCallback& recordMemoryUsage) const;
+    TMeanVarAccumulatorSizeDoubleTuple crossValidateForest(core::CDataFrame& frame);
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
     TNodeVec initializePredictionsAndLossDerivatives(core::CDataFrame& frame,
-                                                     const core::CPackedBitVector& trainingRowMask) const;
+                                                     const core::CPackedBitVector& trainingRowMask,
+                                                     const core::CPackedBitVector& testingRowMask) const;
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
-    TNodeVecVec trainForest(core::CDataFrame& frame,
-                            const core::CPackedBitVector& trainingRowMask,
-                            const TMemoryUsageCallback& recordMemoryUsage) const;
+    TNodeVecVecDoubleDoubleVecTuple
+    trainForest(core::CDataFrame& frame,
+                const core::CPackedBitVector& trainingRowMask,
+                const core::CPackedBitVector& testingRowMask,
+                core::CLoopProgress& trainingProgress) const;
+
+    //! Randomly downsamples the training row mask by the downsample factor.
+    core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
 
     //! Get the candidate splits values for each feature.
-    TDoubleVecVec candidateSplits(const core::CDataFrame& frame,
-                                  const core::CPackedBitVector& trainingRowMask) const;
+    TFloatVecVec candidateSplits(const core::CDataFrame& frame,
+                                 const core::CPackedBitVector& trainingRowMask) const;
+
+    //! Updates the row's cached splits if the candidate splits have changed.
+    void refreshSplitsCache(core::CDataFrame& frame,
+                            const TFloatVecVec& candidateSplits,
+                            const core::CPackedBitVector& trainingRowMask) const;
 
     //! Train one tree on the rows of \p frame in the mask \p trainingRowMask.
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
-                       const TDoubleVecVec& candidateSplits,
+                       const TFloatVecVec& candidateSplits,
                        const std::size_t maximumTreeSize,
-                       const TMemoryUsageCallback& recordMemoryUsage) const;
+                       TWorkspace& workspace) const;
+
+    //! Compute the minimum mean test loss per fold for any round.
+    double minimumTestLoss() const;
+
+    //! Estimate the loss we'll get including the missing folds.
+    TMeanVarAccumulator correctTestLossMoments(const TSizeVec& missing,
+                                               TMeanVarAccumulator lossMoments) const;
+
+    //! Estimate test losses for the \p missing folds.
+    TMeanVarAccumulatorVec estimateMissingTestLosses(const TSizeVec& missing) const;
+
+    //! Get the minimum number of rows we require per feature.
+    std::size_t rowsPerFeature(std::size_t numberRows) const;
 
     //! Get the number of features including category encoding.
     std::size_t numberFeatures() const;
 
     //! Get the number of features to consider splitting on.
-    std::size_t featureBagSize() const;
+    std::size_t featureBagSize(double fractionMultiplier) const;
 
     //! Sample the features according to their categorical distribution.
-    TSizeVec featureBag() const;
+    void treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeFeatureBag) const;
+
+    //! Sample the features according to their categorical distribution.
+    void nodeFeatureBag(const TSizeVec& treeFeatureBag,
+                        TDoubleVec& probabilities,
+                        TSizeVec& nodeFeatureBag) const;
+
+    //! Get a column mask of the suitable regressor features.
+    void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features) const;
 
     //! Refresh the predictions and loss function derivatives for the masked
     //! rows in \p frame with predictions of \p tree.
     void refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
                                               const core::CPackedBitVector& trainingRowMask,
+                                              const core::CPackedBitVector& testingRowMask,
                                               double eta,
+                                              double lambda,
                                               TNodeVec& tree) const;
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
-    double meanLoss(const core::CDataFrame& frame,
-                    const core::CPackedBitVector& rowMask,
-                    const TNodeVecVec& forest) const;
+    double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
 
-    //! Get a column mask of the suitable regressor features.
-    TSizeVec candidateRegressorFeatures() const;
+    //! Compute the overall variance of the error we see between folds.
+    double betweenFoldTestLossVariance() const;
 
     //! Get the root node of \p tree.
     static const CBoostedTreeNode& root(const TNodeVec& tree);
 
+    //! Get the root node of \p tree.
+    static CBoostedTreeNode& root(TNodeVec& tree);
+
     //! Get the forest's prediction for \p row.
-    static double predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest);
+    TVector predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest) const;
 
     //! Select the next hyperparameters for which to train a model.
     bool selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
                                    CBayesianOptimisation& bopt);
 
     //! Capture the current hyperparameter values.
-    void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments);
+    void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
+                                    std::size_t maximumNumberTrees,
+                                    double numberNodes);
 
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
+
+    //! Scale the regulariser multipliers by \p scale.
+    void scaleRegularizers(double scale);
+
+    //! Check invariants which are assumed to hold after restoring.
+    void checkRestoredInvariants() const;
+
+    //! Check invariants which are assumed to hold in order to train on \p frame.
+    void checkTrainInvariants(const core::CDataFrame& frame) const;
 
     //! Get the number of hyperparameters to tune.
     std::size_t numberHyperparametersToTune() const;
@@ -608,70 +343,87 @@ private:
     //! a good idea.
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
-    //! Restore \p loss function pointer from the \p traverser.
-    static bool restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
-                            core::CStateRestoreTraverser& traverser);
+    //! Start monitoring fine tuning hyperparameters.
+    void startProgressMonitoringFineTuneHyperparameters();
+
+    //! Start monitoring the final model training.
+    void startProgressMonitoringFinalTrain();
+
+    //! Skip monitoring the final model training.
+    void skipProgressMonitoringFinalTrain();
 
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
 
-private:
-    static const double INF;
+    //! Record hyperparameters for instrumentation.
+    void recordHyperparameters();
+
+    //! Populate the list of tunable hyperparameters.
+    void initializeTunableHyperparameters();
+
+    //! Use Sobol sampler for for random hyperparamers.
+    void initializeHyperparameterSamples();
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
+    EInitializationStage m_InitializationStage = E_NotInitialized;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
-    CBoostedTree::TLossFunctionUPtr m_Loss;
+    std::size_t m_PaddedExtraColumns = 0;
+    TSizeVec m_ExtraColumns;
+    TLossFunctionUPtr m_Loss;
+    CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
+        CBoostedTree::E_MinimumRecall;
+    bool m_StopCrossValidationEarly = true;
     TRegularizationOverride m_RegularizationOverride;
+    TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
+    TOptionalDouble m_EtaGrowthRatePerTreeOverride;
+    TOptionalSize m_NumberFoldsOverride;
+    TOptionalDouble m_TrainFractionPerFoldOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
+    TOptionalStrDoublePrVec m_ClassificationWeightsOverride;
     TRegularization m_Regularization;
+    TVector m_ClassificationWeights;
+    double m_DownsampleFactor = 0.5;
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;
     std::size_t m_NumberFolds = 4;
+    double m_TrainFractionPerFold = 0.75;
     std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;
     std::size_t m_NumberSplitsPerFeature = 75;
-    std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 3;
+    std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 2;
     std::size_t m_RowsPerFeature = 50;
     double m_FeatureBagFraction = 0.5;
-    double m_MaximumTreeSizeMultiplier = 1.0;
-    TDataTypeVec m_FeatureDataTypes;
     TDataFrameCategoryEncoderUPtr m_Encoder;
+    TDataTypeVec m_FeatureDataTypes;
     TDoubleVec m_FeatureSampleProbabilities;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
-    double m_BestForestTestLoss = INF;
-    SHyperparameters m_BestHyperparameters;
+    double m_BestForestTestLoss = boosted_tree_detail::INF;
+    TOptionalDoubleVecVec m_FoldRoundTestLosses;
+    CBoostedTreeHyperparameters m_BestHyperparameters;
     TNodeVecVec m_BestForest;
     TBayesinOptimizationUPtr m_BayesianOptimization;
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
-    mutable core::CLoopProgress m_TrainingProgress;
+    core::CLoopProgress m_TrainingProgress;
+    std::size_t m_NumberTopShapValues = 0;
+    TTreeShapFeatureImportanceUPtr m_TreeShap;
+    TAnalysisInstrumentationPtr m_Instrumentation;
+    TMeanAccumulator m_MeanForestSizeAccumulator;
+    TMeanAccumulator m_MeanLossAccumulator;
+    THyperparametersVec m_TunableHyperparameters;
+    TDoubleVecVec m_HyperparameterSamples;
+    bool m_StopHyperparameterOptimizationEarly = true;
 
+private:
     friend class CBoostedTreeFactory;
+    friend class CBoostedTreeImplForTest;
 };
-
-namespace boosted_tree_detail {
-constexpr inline std::size_t predictionColumn(std::size_t numberColumns) {
-    return numberColumns - CBoostedTreeImpl::numberExtraColumnsForTrain();
-}
-
-constexpr inline std::size_t lossGradientColumn(std::size_t numberColumns) {
-    return predictionColumn(numberColumns) + 1;
-}
-
-constexpr inline std::size_t lossCurvatureColumn(std::size_t numberColumns) {
-    return predictionColumn(numberColumns) + 2;
-}
-
-constexpr inline std::size_t exampleWeightColumn(std::size_t numberColumns) {
-    return predictionColumn(numberColumns) + 3;
-}
-}
 }
 }
 

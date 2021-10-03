@@ -1,14 +1,19 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_api_CNdJsonOutputWriter_h
 #define INCLUDED_ml_api_CNdJsonOutputWriter_h
 
 #include <core/CRapidJsonLineWriter.h>
 
-#include <api/COutputHandler.h>
+#include <api/CSimpleOutputWriter.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
@@ -34,7 +39,7 @@ namespace api {
 //! IMPLEMENTATION:\n
 //! Using RapidJson to do the heavy lifting.
 //!
-class API_EXPORT CNdJsonOutputWriter : public COutputHandler {
+class API_EXPORT CNdJsonOutputWriter : public CSimpleOutputWriter {
 public:
     using TStrSet = std::set<std::string>;
 
@@ -45,30 +50,30 @@ public:
 
     //! Constructor that causes output to be written to the internal string
     //! stream, with some numeric fields
-    CNdJsonOutputWriter(const TStrSet& numericFields);
+    CNdJsonOutputWriter(TStrSet numericFields);
 
     //! Constructor that causes output to be written to the specified stream
     CNdJsonOutputWriter(std::ostream& strmOut);
 
     //! Constructor that causes output to be written to the specified stream
-    CNdJsonOutputWriter(const TStrSet& numericFields, std::ostream& strmOut);
+    CNdJsonOutputWriter(TStrSet numericFields, std::ostream& strmOut);
 
     //! Destructor flushes the stream
-    virtual ~CNdJsonOutputWriter();
+    ~CNdJsonOutputWriter() override;
 
     // Bring the other overload of fieldNames() into scope
-    using COutputHandler::fieldNames;
+    using CSimpleOutputWriter::fieldNames;
 
     //! Set field names - this function has no affect it always
     //! returns true
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
+    bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
-    // Bring the other overload of writeRow() into scope
-    using COutputHandler::writeRow;
+    // Bring the other overloads of writeRow() into scope
+    using CSimpleOutputWriter::writeRow;
 
     //! Write the data row fields as a JSON object
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+    bool writeRow(const TStrStrUMap& dataRowFields,
+                  const TStrStrUMap& overrideDataRowFields) override;
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor

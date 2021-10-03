@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CXMeansOnline1d_h
@@ -21,7 +26,9 @@
 #include <utility>
 #include <vector>
 
-class CXMeansOnline1dTest;
+namespace CXMeansOnline1dTest {
+struct testPruneEmptyCluster;
+}
 
 namespace ml {
 namespace core {
@@ -197,10 +204,10 @@ public:
         const CNormalMeanPrecConjugate& prior() const;
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed) const;
+        std::uint64_t checksum(std::uint64_t seed) const;
 
         //! Debug the memory used by this object.
-        void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
         //! Get the memory used by this cluster.
         std::size_t memoryUsage() const;
@@ -282,47 +289,50 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual const core::TPersistenceTag& persistenceTag() const;
+    const core::TPersistenceTag& persistenceTag() const override;
 
     //! Persist state by passing information to the supplied inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
     //! Creates a copy of the clusterer.
     //!
     //! \warning Caller owns returned object.
-    virtual CXMeansOnline1d* clone() const;
+    CXMeansOnline1d* clone() const override;
 
     //! Clear the current clusterer state.
-    virtual void clear();
+    void clear() override;
+
+    //! Remove the cluster with \p index.
+    bool remove(std::size_t index) override;
 
     //! Get the number of clusters.
-    virtual std::size_t numberClusters() const;
+    std::size_t numberClusters() const override;
 
     //! Set the type of data being clustered.
-    virtual void dataType(maths_t::EDataType dataType);
+    void dataType(maths_t::EDataType dataType) override;
 
     //! Set the rate at which information is aged out.
-    virtual void decayRate(double decayRate);
+    void decayRate(double decayRate) override;
 
     //! Check if the cluster identified by \p index exists.
-    virtual bool hasCluster(std::size_t index) const;
+    bool hasCluster(std::size_t index) const override;
 
     //! Get the centre of the cluster identified by \p index.
-    virtual bool clusterCentre(std::size_t index, double& result) const;
+    bool clusterCentre(std::size_t index, double& result) const override;
 
     //! Get the spread of the cluster identified by \p index.
-    virtual bool clusterSpread(std::size_t index, double& result) const;
+    bool clusterSpread(std::size_t index, double& result) const override;
 
     //! Gets the index of the cluster(s) to which \p point belongs
     //! together with their weighting factor.
-    virtual void cluster(const double& point, TSizeDoublePr2Vec& result, double count = 1.0) const;
+    void cluster(const double& point, TSizeDoublePr2Vec& result, double count = 1.0) const override;
 
     //! Update the clustering with \p point and return its cluster(s)
     //! together with their weighting factor.
-    virtual void add(const double& point, TSizeDoublePr2Vec& clusters, double count = 1.0);
+    void add(const double& point, TSizeDoublePr2Vec& clusters, double count = 1.0) override;
 
     //! Update the clustering with \p points.
-    virtual void add(const TDoubleDoublePrVec& points);
+    void add(const TDoubleDoublePrVec& points) override;
 
     //! Propagate the clustering forwards by \p time.
     //!
@@ -332,7 +342,7 @@ public:
     //!
     //! \param[in] time The time increment to apply.
     //! \note \p time must be non negative.
-    virtual void propagateForwardsByTime(double time);
+    void propagateForwardsByTime(double time) override;
 
     //! Sample the cluster with index \p index.
     //!
@@ -340,25 +350,25 @@ public:
     //! \param[in] numberSamples The desired number of samples.
     //! \param[out] samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
-    virtual bool sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const;
+    bool sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const override;
 
     //! Get the probability of the cluster with index \p index.
     //!
     //! \param[in] index The index of the cluster of interest.
     //! \return The probability of the cluster identified by \p index.
-    virtual double probability(std::size_t index) const;
+    double probability(std::size_t index) const override;
 
     //! Debug the memory used by the object.
-    virtual void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const;
+    std::size_t staticSize() const override;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
     //@}
 
     //! The total count of points.
@@ -463,7 +473,7 @@ private:
     //! The clusters.
     TClusterVec m_Clusters;
 
-    friend ::CXMeansOnline1dTest;
+    friend struct CXMeansOnline1dTest::testPruneEmptyCluster;
 };
 }
 }

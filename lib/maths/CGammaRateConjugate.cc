@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <maths/CGammaRateConjugate.h>
@@ -114,7 +119,7 @@ void truncateVariance(bool isInteger, TMeanAccumulator& logMean, TMeanVarAccumul
 
 //! Computes the derivative w.r.t. the shape of the marginal likelihood
 //! function for gamma distributed data with known prior for the rate.
-class CLikelihoodDerivativeFunction : public std::unary_function<double, double> {
+class CLikelihoodDerivativeFunction {
 public:
     CLikelihoodDerivativeFunction(double numberSamples, double target)
         : m_NumberSamples(numberSamples), m_Target(target) {}
@@ -159,7 +164,7 @@ double maximumLikelihoodShape(double oldShape,
     static const double MIN_DOWN_FACTOR = 0.25;
     static const double MAX_UP_FACTOR = 8.0;
 
-    std::size_t maxIterations = 20u;
+    std::size_t maxIterations = 20;
 
     double oldNumber = CBasicStatistics::count(oldMoments);
     double oldMean = CBasicStatistics::mean(oldMoments);
@@ -363,7 +368,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // The non-informative prior is improper and effectively zero
             // everywhere. (It is acceptable to approximate all finite samples
             // as at the median of this distribution.)
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weights[i]);
                 double x = samples[i] + offset;
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
@@ -393,7 +398,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             double rate = (priorShape - 2.0) / priorRate;
             LOG_TRACE(<< "shape = " << shape << ", rate = " << rate);
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 // We assume the data are described by X = Y - u where, Y is
                 // gamma distributed and u is a constant offset. This means
                 // that {x(i) + u} are gamma distributed.
@@ -420,7 +425,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             //
             // and then using the beta distribution.
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 // We assume the data are described by X = Y - u where, Y is
                 // gamma distributed and u is a constant offset. This means
                 // that {x(i) + u} are gamma distributed.
@@ -586,7 +591,7 @@ public:
         double logSeasonalScaleSum = 0.0;
 
         try {
-            for (std::size_t i = 0u; i < m_Samples.size(); ++i) {
+            for (std::size_t i = 0; i < m_Samples.size(); ++i) {
                 double n = maths_t::countForUpdate(m_Weights[i]);
                 double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
                                        maths_t::countVarianceScale(m_Weights[i]);
@@ -637,7 +642,7 @@ private:
         double logGammaScaledLikelihoodShape = 0.0;
         double scaledImpliedShape = 0.0;
 
-        for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
+        for (std::size_t i = 0; i < m_Weights.size(); ++i) {
             double n = maths_t::countForUpdate(m_Weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
                                    maths_t::countVarianceScale(m_Weights[i]);
@@ -722,8 +727,10 @@ CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams& param
                                          double offsetMargin)
     : CPrior(params.s_DataType, 0.0), m_Offset(0.0), m_OffsetMargin(offsetMargin),
       m_LikelihoodShape(1.0), m_PriorShape(0.0), m_PriorRate(0.0) {
-    traverser.traverseSubLevel(std::bind(&CGammaRateConjugate::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CGammaRateConjugate::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CGammaRateConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -873,14 +880,16 @@ void CGammaRateConjugate::addSamples(const TDouble1Vec& samples,
 
     try {
         double shift = boost::math::digamma(m_LikelihoodShape);
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
+            double x = samples[i] + m_Offset;
             double n = maths_t::countForUpdate(weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                    maths_t::countVarianceScale(weights[i]);
 
-            double x = samples[i] + m_Offset;
-            if (!CMathsFuncs::isFinite(x) || x <= 0.0) {
-                LOG_ERROR(<< "Discarding " << x << " it's not gamma");
+            if (x <= 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
+                !CMathsFuncs::isFinite(varianceScale)) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
+                          << ", variance scale = " << varianceScale);
                 continue;
             }
 
@@ -1258,7 +1267,7 @@ void CGammaRateConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
 
         double lastPartialExpectation = 0.0;
 
-        for (std::size_t i = 1u; i < numberSamples; ++i) {
+        for (std::size_t i = 1; i < numberSamples; ++i) {
             double q = static_cast<double>(i) / static_cast<double>(numberSamples);
             double xq = boost::math::quantile(beta1, q);
 
@@ -1498,7 +1507,7 @@ std::string CGammaRateConjugate::printJointDensityFunction() const {
     std::ostringstream xCoordinates;
     std::ostringstream yCoordinates;
     xCoordinates << "x = [";
-    for (unsigned int i = 0u; i < POINTS; ++i, x += xIncrement) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += xIncrement) {
         xCoordinates << x << " ";
     }
     xCoordinates << "];" << core_t::LINE_ENDING;
@@ -1506,7 +1515,7 @@ std::string CGammaRateConjugate::printJointDensityFunction() const {
     std::ostringstream pdf;
     pdf << "pdf = [";
     x = xStart;
-    for (unsigned int i = 0u; i < POINTS; ++i, x += xIncrement) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += xIncrement) {
         pdf << CTools::safePdf(gamma, x) << " ";
     }
     pdf << "];" << core_t::LINE_ENDING << "plot(x, pdf);";
@@ -1524,7 +1533,7 @@ uint64_t CGammaRateConjugate::checksum(uint64_t seed) const {
     return CChecksum::calculate(seed, m_PriorRate);
 }
 
-void CGammaRateConjugate::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CGammaRateConjugate::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CGammaRateConjugate");
 }
 

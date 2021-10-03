@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CSetTools_h
@@ -56,9 +61,9 @@ public:
     };
 
     //! Compute the difference between \p S and [\p begin, \p end).
-    template<typename T, typename ITR>
-    static void inplace_set_difference(std::vector<T>& S, ITR begin, ITR end) {
-        typename std::vector<T>::iterator i = S.begin(), last = i;
+    template<typename CONTAINER, typename ITR>
+    static void inplace_set_difference(CONTAINER& S, ITR begin, ITR end) {
+        auto i = S.begin(), last = i;
         for (ITR j = begin; i != S.end() && j != end; /**/) {
             if (*i < *j) {
                 if (last != i) {
@@ -82,7 +87,7 @@ public:
     using std::swap;                                                           \
     std::size_t last{0u};                                                      \
     std::size_t n{values1.size()};                                             \
-    for (std::size_t i = 0u; i < n; ++i) {                                     \
+    for (std::size_t i = 0; i < n; ++i) {                                      \
         if (last != i) {                                                       \
             CUSTOM_SWAP_VALUES                                                 \
         }                                                                      \
@@ -150,7 +155,7 @@ public:
     template<typename ITR1, typename ITR2>
     static std::size_t
     setIntersectSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
-        std::size_t result = 0u;
+        std::size_t result = 0;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {
                 ++beginLhs;
@@ -169,7 +174,7 @@ public:
     //! [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
     template<typename ITR1, typename ITR2>
     static std::size_t setUnionSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
-        std::size_t result = 0u;
+        std::size_t result = 0;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {
                 ++beginLhs;
@@ -190,8 +195,8 @@ public:
     //! This is defined as \f$\frac{|A\cap B|}{|A\cup B|}\f$.
     template<typename ITR1, typename ITR2>
     static double jaccard(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
-        std::size_t numer = 0u;
-        std::size_t denom = 0u;
+        std::size_t numer = 0;
+        std::size_t denom = 0;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {
                 ++beginLhs;
@@ -215,9 +220,9 @@ public:
     //! This is defined as \f$\frac{|A\cap B|}{\min(|A|,|B|)}\f$.
     template<typename ITR1, typename ITR2>
     static double overlap(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
-        std::size_t numer = 0u;
-        std::size_t nl = 0u;
-        std::size_t nr = 0u;
+        std::size_t numer = 0;
+        std::size_t nl = 0;
+        std::size_t nr = 0;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {
                 ++beginLhs;

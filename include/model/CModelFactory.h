@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CModelFactory_h
@@ -13,10 +18,10 @@
 #include <maths/COrderings.h>
 #include <maths/MathsTypes.h>
 
-#include <model/CModelParams.h>
 #include <model/CSearchKey.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
@@ -267,7 +272,7 @@ public:
     //! \name Customization by a specific search
     //@{
     //! Set the identifier of the search for which this generates models.
-    virtual void identifier(int identifier) = 0;
+    virtual void detectorIndex(int detectorIndex) = 0;
 
     //! Set the record field names which will be modeled.
     virtual void fieldNames(const std::string& partitionFieldName,
@@ -346,8 +351,11 @@ public:
     void componentSize(std::size_t componentSize);
     //@}
 
-    //! Update the bucket length, for ModelAutoConfig's benefit
+    //! Update the bucket length
     void updateBucketLength(core_t::TTime length);
+
+    //! Set whether model annotations should be reported.
+    void annotationsEnabled(bool enabled);
 
     //! Get global model configuration parameters.
     const SModelParams& modelParams() const;

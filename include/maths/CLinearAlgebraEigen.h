@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CLinearAlgebraEigen_h
@@ -9,10 +14,12 @@
 
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
+#include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CAnnotatedVector.h>
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraFwd.h>
@@ -24,7 +31,9 @@
 #include <Eigen/SVD>
 #include <Eigen/SparseCore>
 
+#include <algorithm>
 #include <iterator>
+#include <type_traits>
 
 namespace Eigen {
 #define LESS_OR_GREATER(l, r)                                                  \
@@ -42,7 +51,7 @@ bool operator<(const SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
     for (STORAGE_INDEX i = 0; i < lhs.rows(); ++i) {
         for (STORAGE_INDEX j = 0; j < lhs.cols(); ++j) {
-            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
+            LESS_OR_GREATER(lhs(i, j), rhs(i, j))
         }
     }
     return false;
@@ -54,7 +63,7 @@ bool operator<(const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
                const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
     LESS_OR_GREATER(lhs.size(), rhs.size())
     for (STORAGE_INDEX i = 0; i < lhs.size(); ++i) {
-        LESS_OR_GREATER(lhs.coeff(i), rhs(i))
+        LESS_OR_GREATER(lhs(i), rhs(i))
     }
     return false;
 }
@@ -65,12 +74,8 @@ bool operator<(const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lh
                const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& rhs) {
     LESS_OR_GREATER(lhs.rows(), rhs.rows())
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
-    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
-        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
-            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
-        }
-    }
-    return false;
+    return std::lexicographical_compare(lhs.data(), lhs.data() + lhs.size(),
+                                        rhs.data(), rhs.data() + rhs.size());
 }
 
 //! Less than on an Eigen memory mapped matrix.
@@ -79,12 +84,8 @@ bool operator<(const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& lhs,
                const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& rhs) {
     LESS_OR_GREATER(lhs.rows(), rhs.rows())
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
-    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
-        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
-            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
-        }
-    }
-    return false;
+    return std::lexicographical_compare(lhs.data(), lhs.data() + lhs.size(),
+                                        rhs.data(), rhs.data() + rhs.size());
 }
 
 #undef LESS_OR_GREATER
@@ -138,8 +139,15 @@ inline CSparseVectorCoordinate<SCALAR> vectorCoordinate(std::ptrdiff_t row, SCAL
 
 //! \brief Adapts Eigen::SparseVector::InnerIterator for use with STL.
 template<typename SCALAR, int FLAGS = Eigen::RowMajorBit>
-class CSparseVectorIndexIterator
-    : public std::iterator<std::input_iterator_tag, std::ptrdiff_t> {
+class CSparseVectorIndexIterator {
+public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = std::ptrdiff_t;
+    using difference_type = std::ptrdiff_t;
+    using pointer = void;
+    using reference = void;
+
+public:
     CSparseVectorIndexIterator(const CSparseVector<SCALAR, FLAGS>& vector, std::size_t index)
         : m_Vector(&vector), m_Base(vector, index) {}
 
@@ -148,7 +156,7 @@ class CSparseVectorIndexIterator
                m_Base.col() == rhs.m_Base.col();
     }
     bool operator!=(const CSparseVectorIndexIterator& rhs) const {
-        return !(*this == rhs);
+        return (*this == rhs) == false;
     }
 
     std::ptrdiff_t operator*() const {
@@ -200,17 +208,19 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CDenseMatrix(CDenseMatrix& other)
-        : CDenseMatrix{static_cast<const CDenseMatrix&>(other)} {}
-    CDenseMatrix(const CDenseMatrix& other)
-        : TBase{static_cast<const TBase&>(other)} {}
+    CDenseMatrix(const CDenseMatrix& other) = default;
     CDenseMatrix(CDenseMatrix&& other) = default;
     CDenseMatrix& operator=(const CDenseMatrix& other) = default;
     CDenseMatrix& operator=(CDenseMatrix&& other) = default;
+    template<typename EXPR>
+    CDenseMatrix& operator=(const EXPR& expr) {
+        static_cast<TBase&>(*this) = expr;
+        return *this;
+    }
     // @}
 
     //! Debug the memory usage of this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CDenseMatrix");
         mem->addItem("components", this->memoryUsage());
     }
@@ -225,6 +235,12 @@ public:
         return seed;
     }
 };
+
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR>
+void swap(CDenseMatrix<SCALAR>& lhs, CDenseMatrix<SCALAR>& rhs) {
+    lhs.swap(rhs);
+}
 
 //! \brief Gets a constant dense square matrix with specified dimension or with
 //! specified numbers of rows and columns.
@@ -254,17 +270,19 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CDenseVector(CDenseVector& other)
-        : CDenseVector{static_cast<const CDenseVector&>(other)} {}
-    CDenseVector(const CDenseVector& other)
-        : TBase{static_cast<const TBase&>(other)} {}
+    CDenseVector(const CDenseVector& other) = default;
     CDenseVector(CDenseVector&& other) = default;
     CDenseVector& operator=(const CDenseVector& other) = default;
     CDenseVector& operator=(CDenseVector&& other) = default;
+    template<typename EXPR>
+    CDenseVector& operator=(const EXPR& expr) {
+        static_cast<TBase&>(*this) = expr;
+        return *this;
+    }
     // @}
 
     //! Debug the memory usage of this object.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
         mem->setName("CDenseVector");
         mem->addItem("components", this->memoryUsage());
     }
@@ -281,8 +299,8 @@ public:
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        inserter.insertValue(DENSE_VECTOR_TAG,
-                             core::CPersistUtils::toString(this->toStdVector()));
+        inserter.insertValue(DENSE_VECTOR_TAG, core::CPersistUtils::toString(
+                                                   this->to<std::vector<SCALAR>>()));
     }
 
     //! Populate the object from serialized data.
@@ -297,16 +315,31 @@ public:
         return true;
     }
 
-private:
-    std::vector<SCALAR> toStdVector() const {
-        std::vector<SCALAR> result;
+    //! Convert to a std::vector.
+    //!
+    //! It is assumed that COLLECTION supports reserve and push_back.
+    template<typename COLLECTION>
+    COLLECTION to() const {
+        COLLECTION result;
         result.reserve(this->size());
         for (int i = 0; i < this->size(); ++i) {
             result.push_back(this->coeff(i));
         }
         return result;
     }
+
+    //! Convert from a std::vector.
     static CDenseVector<SCALAR> fromStdVector(const std::vector<SCALAR>& vector) {
+        CDenseVector<SCALAR> result(vector.size());
+        for (std::size_t i = 0; i < vector.size(); ++i) {
+            result(i) = vector[i];
+        }
+        return result;
+    }
+
+    //! Convert from a core::CSmallVector.
+    template<std::size_t N>
+    static CDenseVector<SCALAR> fromSmallVector(const core::CSmallVector<SCALAR, N>& vector) {
         CDenseVector<SCALAR> result(vector.size());
         for (std::size_t i = 0; i < vector.size(); ++i) {
             result(i) = vector[i];
@@ -317,6 +350,12 @@ private:
 
 template<typename SCALAR>
 const std::string CDenseVector<SCALAR>::DENSE_VECTOR_TAG{"dense_vector"};
+
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR>
+void swap(CDenseVector<SCALAR>& lhs, CDenseVector<SCALAR>& rhs) {
+    lhs.swap(rhs);
+}
 
 //! \brief Gets a constant dense vector with specified dimension.
 template<typename SCALAR>
@@ -336,11 +375,11 @@ struct SConstant<CDenseVector<SCALAR>> {
 //! of CMemoryMappedDenseVector.
 //!
 //! \sa CMemoryMappedDenseVector for more information.
-template<typename SCALAR>
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT = Eigen::Unaligned>
 class CMemoryMappedDenseMatrix
-    : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase> {
+    : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase, ALIGNMENT> {
 public:
-    using TBase = Eigen::Map<typename CDenseMatrix<SCALAR>::TBase>;
+    using TBase = Eigen::Map<typename CDenseMatrix<SCALAR>::TBase, ALIGNMENT>;
 
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
@@ -353,13 +392,12 @@ public:
 
     //! \name Copy and Move Semantics
     //@{
-    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix& other)
-        : CMemoryMappedDenseMatrix{static_cast<const CMemoryMappedDenseMatrix&>(other)} {}
     CMemoryMappedDenseMatrix(const CMemoryMappedDenseMatrix& other)
         : TBase{nullptr, 1, 1} {
         this->reseat(other);
     }
-    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other)
+    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value)
         : TBase{nullptr, 1, 1} {
         this->reseat(other);
     }
@@ -369,13 +407,31 @@ public:
         }
         return *this;
     }
-    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) {
+    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value) {
         if (this != &other) {
             this->reseat(other);
         }
         return *this;
     }
     //@}
+
+    //! Assignment from a dense matrix.
+    template<typename OTHER_SCALAR>
+    CMemoryMappedDenseMatrix& operator=(const CDenseMatrix<OTHER_SCALAR>& rhs) {
+        static_cast<TBase&>(*this) = rhs.template cast<SCALAR>();
+        return *this;
+    }
+
+    //! Get a checksum of this object.
+    std::uint64_t checksum(std::uint64_t seed = 0) const {
+        for (std::ptrdiff_t i = 0; i < this->rows(); ++i) {
+            for (std::ptrdiff_t j = 0; j < this->rows(); ++j) {
+                seed = CChecksum::calculate(seed, (*this)(i, j));
+            }
+        }
+        return seed;
+    }
 
 private:
     void reseat(const CMemoryMappedDenseMatrix& other) {
@@ -384,10 +440,17 @@ private:
     }
 };
 
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+void swap(CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& lhs,
+          CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& rhs) {
+    lhs.swap(rhs);
+}
+
 //! \brief Gets a constant square dense matrix with specified dimension or with
 //! specified numbers of rows and columns.
-template<typename SCALAR>
-struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SConstant<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>> {
     static auto get(std::ptrdiff_t dimension, SCALAR constant)
         -> decltype(SConstant<CDenseMatrix<SCALAR>>::get(dimension, 1)) {
         return SConstant<CDenseMatrix<SCALAR>>::get(dimension, constant);
@@ -429,11 +492,12 @@ struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
 //! This better fits our needs with data frames where we want to reference the
 //! memory stored in the data frame rows, but never modify it directly through
 //! this vector type.
-template<typename SCALAR>
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT = Eigen::Unaligned>
 class CMemoryMappedDenseVector
-    : public Eigen::Map<typename CDenseVector<SCALAR>::TBase> {
+    : public Eigen::Map<typename CDenseVector<SCALAR>::TBase, ALIGNMENT> {
 public:
-    using TBase = Eigen::Map<typename CDenseVector<SCALAR>::TBase>;
+    using TDenseVector = CDenseVector<SCALAR>;
+    using TBase = Eigen::Map<typename TDenseVector::TBase, ALIGNMENT>;
 
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
@@ -444,15 +508,20 @@ public:
     CMemoryMappedDenseVector(ARGS&&... args)
         : TBase{std::forward<ARGS>(args)...} {}
 
+    //! Added because the forwarding constructor above doesn't work with
+    //! annotated vector arguments with Visual Studio 2019 in C++17 mode.
+    template<typename ANNOTATION>
+    CMemoryMappedDenseVector(CAnnotatedVector<TDenseVector, ANNOTATION>&& annotatedDense)
+        : TBase{annotatedDense.data(), annotatedDense.size()} {}
+
     //! \name Copy and Move Semantics
     //@{
-    CMemoryMappedDenseVector(CMemoryMappedDenseVector& other)
-        : CMemoryMappedDenseVector{static_cast<const CMemoryMappedDenseVector&>(other)} {}
     CMemoryMappedDenseVector(const CMemoryMappedDenseVector& other)
         : TBase{nullptr, 1} {
         this->reseat(other);
     }
-    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other)
+    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value)
         : TBase{nullptr, 1} {
         this->reseat(other);
     }
@@ -462,13 +531,21 @@ public:
         }
         return *this;
     }
-    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) {
+    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value) {
         if (this != &other) {
             this->reseat(other);
         }
         return *this;
     }
     //@}
+
+    //! Assignment from a dense vector.
+    template<typename OTHER_SCALAR>
+    CMemoryMappedDenseVector& operator=(const CDenseVector<OTHER_SCALAR>& rhs) {
+        static_cast<TBase&>(*this) = rhs.template cast<SCALAR>();
+        return *this;
+    }
 
     //! Get a checksum of this object.
     std::uint64_t checksum(std::uint64_t seed = 0) const {
@@ -485,9 +562,16 @@ private:
     }
 };
 
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+void swap(CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& lhs,
+          CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& rhs) {
+    lhs.swap(rhs);
+}
+
 //! \brief Gets a constant dense vector with specified dimension.
-template<typename SCALAR>
-struct SConstant<CMemoryMappedDenseVector<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SConstant<CMemoryMappedDenseVector<SCALAR, ALIGNMENT>> {
     static auto get(std::ptrdiff_t dimension, SCALAR constant)
         -> decltype(SConstant<CDenseVector<SCALAR>>::get(dimension, constant)) {
         return SConstant<CDenseVector<SCALAR>>::get(dimension, constant);
@@ -632,8 +716,8 @@ CDenseVectorInitializer<VECTOR> fromDenseVector(const VECTOR& type) {
 template<typename T, std::size_t N>
 template<typename MATRIX>
 CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(const CDenseMatrixInitializer<MATRIX>& m) {
-    for (std::size_t i = 0u, i_ = 0u; i < N; ++i) {
-        for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+    for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t j = 0; j <= i; ++j, ++i_) {
             TBase::m_LowerTriangle[i_] = m.get(i, j);
         }
     }
@@ -644,8 +728,8 @@ template<typename MATRIX>
 CSymmetricMatrix<T>::CSymmetricMatrix(const CDenseMatrixInitializer<MATRIX>& m) {
     m_D = m.rows();
     TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
-    for (std::size_t i = 0u, i_ = 0u; i < m_D; ++i) {
-        for (std::size_t j = 0u; j <= i; ++j, ++i_) {
+    for (std::size_t i = 0u, i_ = 0; i < m_D; ++i) {
+        for (std::size_t j = 0; j <= i; ++j, ++i_) {
             TBase::m_LowerTriangle[i_] = m.get(i, j);
         }
     }
@@ -654,7 +738,7 @@ CSymmetricMatrix<T>::CSymmetricMatrix(const CDenseMatrixInitializer<MATRIX>& m) 
 template<typename T, std::size_t N>
 template<typename VECTOR>
 CVectorNx1<T, N>::CVectorNx1(const CDenseVectorInitializer<VECTOR>& v) {
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         TBase::m_X[i] = v.get(i);
     }
 }
@@ -663,11 +747,23 @@ template<typename T>
 template<typename VECTOR>
 CVector<T>::CVector(const CDenseVectorInitializer<VECTOR>& v) {
     TBase::m_X.resize(v.dimension());
-    for (std::size_t i = 0u; i < TBase::m_X.size(); ++i) {
+    for (std::size_t i = 0; i < TBase::m_X.size(); ++i) {
         TBase::m_X[i] = v.get(i);
     }
 }
 }
+}
+
+namespace Eigen {
+template<typename BIN_OP>
+struct ScalarBinaryOpTraits<ml::core::CFloatStorage, double, BIN_OP> {
+    using ReturnType = double;
+};
+
+template<typename BIN_OP>
+struct ScalarBinaryOpTraits<double, ml::core::CFloatStorage, BIN_OP> {
+    using ReturnType = double;
+};
 }
 
 #endif // INCLUDED_ml_maths_CLinearAlgebraEigen_h

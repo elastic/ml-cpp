@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -16,10 +21,6 @@
 
 namespace ml {
 namespace api {
-
-namespace {
-const std::string INFERENCE_MODEL{"inference_model"};
-}
 
 void CBoostedTreeInferenceModelBuilder::addTree() {
     auto ensemble = static_cast<CEnsemble*>(m_Definition.trainedModel().get());
@@ -65,12 +66,20 @@ void CBoostedTreeInferenceModelBuilder::addFrequencyEncoding(std::size_t inputCo
     m_FeatureNames.push_back(featureName);
 }
 
+void CBoostedTreeInferenceModelBuilder::addCustomProcessor(TApiCustomEncodingUPtr value) {
+    m_CustomProcessors.emplace_back(std::move(value));
+}
+
 CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 
     // Finalize OneHotEncoding Mappings
     for (auto& oneHotEncodingMapping : m_OneHotEncodingMaps) {
         m_Definition.preprocessors().emplace_back(
             std::move(oneHotEncodingMapping.second));
+    }
+
+    for (auto& customProcessor : m_CustomProcessors) {
+        m_Definition.customPreprocessors().emplace_back(std::move(customProcessor));
     }
 
     // Add aggregated output after the number of trees is known
@@ -84,27 +93,30 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
     return std::move(m_Definition);
 }
 
-void CBoostedTreeInferenceModelBuilder::addNode(
-    std::size_t splitFeature,
-    double splitValue,
-    bool assignMissingToLeft,
-    double nodeValue,
-    double gain,
-    ml::maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
-    ml::maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
+void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
+                                                double splitValue,
+                                                bool assignMissingToLeft,
+                                                const TVector& nodeValue,
+                                                double gain,
+                                                std::size_t numberSamples,
+                                                maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
+                                                maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     // use dynamic cast to prevent using wrong type of trained models
     auto tree = dynamic_cast<CTree*>(ensemble->trainedModels().back().get());
     if (tree == nullptr) {
-        HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.")
+        HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.");
     }
-    tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft, nodeValue,
-                                       splitFeature, leftChild, rightChild, gain);
+    tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft,
+                                       nodeValue.to<TDoubleVec>(), splitFeature,
+                                       numberSamples, leftChild, rightChild, gain);
 }
 
 CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
                                                                      std::size_t dependentVariableColumnIndex,
-                                                                     TStrVecVec categoryNames) {
+                                                                     const TStrVecVec& categoryNames)
+    : m_CategoryNames{categoryNames} {
+
     // filter filed names containing empty string
     fieldNames.erase(std::remove(fieldNames.begin(), fieldNames.end(), ""),
                      fieldNames.end());
@@ -112,11 +124,9 @@ CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fie
                      fieldNames.end());
     m_FieldNames = fieldNames;
 
-    this->categoryNames(categoryNames);
     m_Definition.dependentVariableColumnIndex(dependentVariableColumnIndex);
-    m_Definition.fieldNames(std::move(fieldNames), dependentVariableColumnIndex);
+    m_Definition.fieldNames(std::move(fieldNames));
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
-    m_Definition.typeString(INFERENCE_MODEL);
 }
 
 CBoostedTreeInferenceModelBuilder::TStringDoubleUMap
@@ -130,37 +140,62 @@ CBoostedTreeInferenceModelBuilder::encodingMap(std::size_t inputColumnIndex,
     return map;
 }
 
-void CBoostedTreeInferenceModelBuilder::categoryNames(const TStrVecVec& categoryNames) {
-    m_CategoryNames = categoryNames;
-}
-
 CInferenceModelDefinition& CBoostedTreeInferenceModelBuilder::definition() {
     return m_Definition;
+}
+
+CRegressionInferenceModelBuilder::CRegressionInferenceModelBuilder(const TStrVec& fieldNames,
+                                                                   std::size_t dependentVariableColumnIndex,
+                                                                   const TStrVecVec& categoryNames)
+    : CBoostedTreeInferenceModelBuilder{fieldNames, dependentVariableColumnIndex, categoryNames} {
+}
+
+void CRegressionInferenceModelBuilder::addClassificationWeights(TDoubleVec /*weights*/) {
+}
+
+void CRegressionInferenceModelBuilder::addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) {
+    m_LossType = lossFunction.type();
 }
 
 void CRegressionInferenceModelBuilder::setTargetType() {
     this->definition().trainedModel()->targetType(CTrainedModel::ETargetType::E_Regression);
 }
 
-CRegressionInferenceModelBuilder::CRegressionInferenceModelBuilder(TStrVec fieldNames,
-                                                                   std::size_t dependentVariableColumnIndex,
-                                                                   const TStrVecVec& categoryNames)
-    : CBoostedTreeInferenceModelBuilder(fieldNames, dependentVariableColumnIndex, categoryNames) {
+void CRegressionInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
+    switch (m_LossType) {
+    case TLossType::E_MsleRegression:
+        ensemble->aggregateOutput(std::make_unique<CExponent>(ensemble->size(), 1.0));
+        break;
+    case TLossType::E_MseRegression:
+    case TLossType::E_HuberRegression:
+        ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
+        break;
+    case TLossType::E_BinaryClassification:
+    case TLossType::E_MulticlassClassification:
+        LOG_ERROR(<< "Input error: classification objective function received where regression objective expected.");
+        break;
+    }
 }
 
-void CRegressionInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
-    ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
+CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
+    const TStrVec& fieldNames,
+    std::size_t dependentVariableColumnIndex,
+    const TStrVecVec& categoryNames)
+    : CBoostedTreeInferenceModelBuilder{fieldNames, dependentVariableColumnIndex, categoryNames} {
+    this->definition().trainedModel()->classificationLabels(
+        categoryNames[dependentVariableColumnIndex]);
+}
+
+void CClassificationInferenceModelBuilder::addClassificationWeights(TDoubleVec weights) {
+    this->definition().trainedModel()->classificationWeights(std::move(weights));
+}
+
+void CClassificationInferenceModelBuilder::addLossFunction(
+    const maths::CBoostedTree::TLossFunction& /*lossFunction*/) {
 }
 
 void CClassificationInferenceModelBuilder::setTargetType() {
     this->definition().trainedModel()->targetType(CTrainedModel::ETargetType::E_Classification);
-}
-
-CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
-    TStrVec fieldNames,
-    std::size_t dependentVariableColumnIndex,
-    const TStrVecVec& categoryNames)
-    : CBoostedTreeInferenceModelBuilder(fieldNames, dependentVariableColumnIndex, categoryNames) {
 }
 
 void CClassificationInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {

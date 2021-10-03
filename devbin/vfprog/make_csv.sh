@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 CYCLE=1
 # Do half the test cycles in one order

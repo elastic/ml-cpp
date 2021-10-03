@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CIEEE754_h
@@ -9,8 +14,8 @@
 
 #include <core/ImportExport.h>
 
-#include <stdint.h>
-#include <string.h>
+#include <cstdint>
+#include <cstring>
 
 namespace ml {
 namespace core {
@@ -40,14 +45,14 @@ public:
     //! as an integer.
     //! \note The actual "exponent" is "exponent - 1022" in two's complement.
     struct SDoubleRep {
-#ifdef __sparc                    // Add any other big endian architectures
-        uint64_t s_Sign : 1;      // sign bit
-        uint64_t s_Exponent : 11; // exponent
-        uint64_t s_Mantissa : 52; // mantissa
+#ifdef __sparc                         // Add any other big endian architectures
+        std::uint64_t s_Sign : 1;      // sign bit
+        std::uint64_t s_Exponent : 11; // exponent
+        std::uint64_t s_Mantissa : 52; // mantissa
 #else
-        uint64_t s_Mantissa : 52; // mantissa
-        uint64_t s_Exponent : 11; // exponent
-        uint64_t s_Sign : 1;      // sign bit
+        std::uint64_t s_Mantissa : 52; // mantissa
+        std::uint64_t s_Exponent : 11; // exponent
+        std::uint64_t s_Sign : 1;      // sign bit
 #endif
     };
 
@@ -57,15 +62,19 @@ public:
     //!
     //! \note This is closely related to std::frexp for double but returns
     //! the mantissa interpreted as an integer.
-    static void decompose(double value, uint64_t& mantissa, int& exponent) {
+    static void decompose(double value, std::uint64_t& mantissa, int& exponent) {
         SDoubleRep parsed;
         static_assert(sizeof(double) == sizeof(SDoubleRep),
                       "SDoubleRep definition unsuitable for memcpy to double");
         // Use memcpy() rather than union to adhere to strict aliasing rules
-        ::memcpy(&parsed, &value, sizeof(double));
+        std::memcpy(&parsed, &value, sizeof(double));
         exponent = static_cast<int>(parsed.s_Exponent) - 1022;
         mantissa = parsed.s_Mantissa;
     }
+
+    //! Drop \p bits trailing bits from the mantissa of \p value in a stable way
+    //! for different operating systems.
+    static double dropbits(double value, int bits);
 };
 }
 }

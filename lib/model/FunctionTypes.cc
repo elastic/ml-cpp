@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/FunctionTypes.h>
@@ -501,6 +506,125 @@ bool isForecastSupported(EFunction function) {
     case E_PopulationMetricLowSum:
     case E_PopulationMetricHighSum:
     case E_PopulationLatLong:
+    case E_PopulationMaxVelocity:
+    case E_PopulationMinVelocity:
+    case E_PopulationMeanVelocity:
+    case E_PopulationSumVelocity:
+        return false;
+
+    case E_PeersCount:
+    case E_PeersLowCounts:
+    case E_PeersHighCounts:
+    case E_PeersDistinctCount:
+    case E_PeersLowDistinctCount:
+    case E_PeersHighDistinctCount:
+    case E_PeersInfoContent:
+    case E_PeersLowInfoContent:
+    case E_PeersHighInfoContent:
+    case E_PeersTimeOfDay:
+    case E_PeersTimeOfWeek:
+        return false;
+    }
+
+    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
+    return false;
+}
+
+bool isAggressivePruningSupported(EFunction function) {
+    switch (function) {
+    case E_IndividualCount:
+    case E_IndividualNonZeroCount:
+    case E_IndividualRareCount:
+    case E_IndividualRareNonZeroCount:
+        return true;
+    case E_IndividualRare:
+        return false;
+    case E_IndividualLowCounts:
+    case E_IndividualHighCounts:
+    case E_IndividualLowNonZeroCount:
+    case E_IndividualHighNonZeroCount:
+    case E_IndividualDistinctCount:
+    case E_IndividualLowDistinctCount:
+    case E_IndividualHighDistinctCount:
+    case E_IndividualInfoContent:
+    case E_IndividualHighInfoContent:
+    case E_IndividualLowInfoContent:
+        return true;
+
+    case E_IndividualTimeOfDay:
+    case E_IndividualTimeOfWeek:
+        return false;
+
+    case E_IndividualMetric:
+    case E_IndividualMetricMean:
+    case E_IndividualMetricLowMean:
+    case E_IndividualMetricHighMean:
+    case E_IndividualMetricMedian:
+    case E_IndividualMetricLowMedian:
+    case E_IndividualMetricHighMedian:
+    case E_IndividualMetricMin:
+    case E_IndividualMetricMax:
+    case E_IndividualMetricVariance:
+    case E_IndividualMetricLowVariance:
+    case E_IndividualMetricHighVariance:
+    case E_IndividualMetricSum:
+    case E_IndividualMetricLowSum:
+    case E_IndividualMetricHighSum:
+    case E_IndividualMetricNonNullSum:
+    case E_IndividualMetricLowNonNullSum:
+    case E_IndividualMetricHighNonNullSum:
+        return true;
+    case E_IndividualLatLong:
+        return false;
+    case E_IndividualMaxVelocity:
+    case E_IndividualMinVelocity:
+    case E_IndividualMeanVelocity:
+    case E_IndividualSumVelocity:
+        return true;
+
+    case E_PopulationCount:
+    case E_PopulationDistinctCount:
+    case E_PopulationLowDistinctCount:
+    case E_PopulationHighDistinctCount:
+        return true;
+
+    case E_PopulationRare:
+        return false;
+
+    case E_PopulationRareCount:
+    case E_PopulationFreqRare:
+    case E_PopulationFreqRareCount:
+    case E_PopulationLowCounts:
+    case E_PopulationHighCounts:
+    case E_PopulationInfoContent:
+    case E_PopulationLowInfoContent:
+    case E_PopulationHighInfoContent:
+        return true;
+
+    case E_PopulationTimeOfDay:
+    case E_PopulationTimeOfWeek:
+        return false;
+
+    case E_PopulationMetric:
+    case E_PopulationMetricMean:
+    case E_PopulationMetricLowMean:
+    case E_PopulationMetricHighMean:
+    case E_PopulationMetricMedian:
+    case E_PopulationMetricLowMedian:
+    case E_PopulationMetricHighMedian:
+    case E_PopulationMetricMin:
+    case E_PopulationMetricMax:
+    case E_PopulationMetricVariance:
+    case E_PopulationMetricLowVariance:
+    case E_PopulationMetricHighVariance:
+    case E_PopulationMetricSum:
+    case E_PopulationMetricLowSum:
+    case E_PopulationMetricHighSum:
+        return true;
+
+    case E_PopulationLatLong:
+        return false;
+
     case E_PopulationMaxVelocity:
     case E_PopulationMinVelocity:
     case E_PopulationMeanVelocity:
@@ -1176,7 +1300,7 @@ const TFunctionVec EMPTY_FUNCTIONS;
 //! Add the features corresponding to \p function to \p map.
 void addFeatures(EFunction function, TFeatureFunctionVecMap& map) {
     const TFeatureVec& features = function_t::features(function);
-    for (std::size_t i = 0u; i < features.size(); ++i) {
+    for (std::size_t i = 0; i < features.size(); ++i) {
         map[features[i]].push_back(function);
     }
 }
@@ -1469,7 +1593,7 @@ EFunction mostSpecific(const TFunctionVec& functions) {
 
     EFunction result = functions[0];
     std::size_t numberFeatures = features(functions[0]).size();
-    for (std::size_t i = 1u; i < functions.size(); ++i) {
+    for (std::size_t i = 1; i < functions.size(); ++i) {
         std::size_t n = features(functions[i]).size();
         if (n < numberFeatures) {
             result = functions[i];
@@ -1667,7 +1791,7 @@ EFunction function(const TFeatureVec& features) {
     }
 
     TFunctionVec candidates;
-    std::size_t i = 0u;
+    std::size_t i = 0;
 
     for (/**/; candidates.empty() && i < features.size(); ++i) {
         TFeatureFunctionVecMapCItr functionsItr = FUNCTIONS_BY_FEATURE.find(features[i]);

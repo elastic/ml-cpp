@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 //! \brief
 //! Group machine generated messages into categories by similarity.
@@ -13,11 +18,13 @@
 //! IMPLEMENTATION DECISIONS:\n
 //! Standalone program.
 //!
+#include <core/CBlockingCallCancellingTimer.h>
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
+#include <core/CProgramCounters.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -26,13 +33,10 @@
 
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
-#include <api/CFieldDataTyper.h>
+#include <api/CFieldDataCategorizer.h>
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CLengthEncodedInputParser.h>
-#include <api/CNullOutput.h>
-#include <api/COutputChainer.h>
 #include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -42,57 +46,96 @@
 
 #include "CCmdLineParser.h"
 
+#include <chrono>
+#include <cstdlib>
 #include <functional>
 #include <memory>
 #include <string>
 
-#include <stdlib.h>
-
 int main(int argc, char** argv) {
+
+    // Register the set of counters in which this program is interested
+    const ml::counter_t::TCounterTypeSet counters{
+        ml::counter_t::E_TSADMemoryUsage, ml::counter_t::E_TSADPeakMemoryUsage,
+        ml::counter_t::E_TSADNumberRecordsNoTimeField,
+        ml::counter_t::E_TSADNumberTimeFieldConversionErrors,
+        ml::counter_t::E_TSADAssignmentMemoryBasis};
+
+    ml::core::CProgramCounters::registerProgramCounterTypes(counters);
+
     // Read command line options
     std::string limitConfigFile;
     std::string jobId;
     std::string logProperties;
     std::string logPipe;
-    char delimiter('\t');
-    bool lengthEncodedInput(false);
-    ml::core_t::TTime persistInterval(-1);
+    char delimiter{'\t'};
+    bool lengthEncodedInput{false};
+    // Currently there aren't command line options for the time field/format
+    // and whether stop-on-warn is enabled.
+    // TODO: add options to set these if this program is used in the future
+    std::string timeField;
+    std::string timeFormat;
+    bool stopCategorizationOnWarnStatus{false};
+    ml::core_t::TTime persistInterval{-1};
+    ml::core_t::TTime namedPipeConnectTimeout{
+        ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
-    bool isInputFileNamedPipe(false);
+    bool isInputFileNamedPipe{false};
     std::string outputFileName;
-    bool isOutputFileNamedPipe(false);
+    bool isOutputFileNamedPipe{false};
     std::string restoreFileName;
-    bool isRestoreFileNamedPipe(false);
+    bool isRestoreFileNamedPipe{false};
     std::string persistFileName;
-    bool isPersistFileNamedPipe(false);
-    bool isPersistInForeground(false);
+    bool isPersistFileNamedPipe{false};
+    bool isPersistInForeground{false};
     std::string categorizationFieldName;
+    bool validElasticLicenseKeyConfirmed{false};
     if (ml::categorize::CCmdLineParser::parse(
             argc, argv, limitConfigFile, jobId, logProperties, logPipe, delimiter,
-            lengthEncodedInput, persistInterval, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
-            isPersistInForeground, categorizationFieldName) == false) {
+            lengthEncodedInput, persistInterval, namedPipeConnectTimeout,
+            inputFileName, isInputFileNamedPipe, outputFileName,
+            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            persistFileName, isPersistFileNamedPipe, isPersistInForeground,
+            categorizationFieldName, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
+
+    ml::core::CBlockingCallCancellingTimer cancellerThread{
+        ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName,
-                              isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-                              persistFileName, isPersistFileNamedPipe);
+    ml::api::CIoManager ioMgr{
+        cancellerThread,        inputFileName,         isInputFileNamedPipe,
+        outputFileName,         isOutputFileNamedPipe, restoreFileName,
+        isRestoreFileNamedPipe, persistFileName,       isPersistFileNamedPipe};
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL(<< "Could not reconfigure logging");
+    if (cancellerThread.start() == false) {
+        // This log message will probably never been seen as it will go to the
+        // real stderr of this process rather than the log pipe...
+        LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, logProperties, cancellerThread.hasCancelledBlockingCall()) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
+        cancellerThread.stop();
+        return EXIT_FAILURE;
+    }
+    cancellerThread.stop();
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
-    ml::core::CProcessPriority::reducePriority();
+    if (validElasticLicenseKeyConfirmed == false) {
+        LOG_FATAL(<< "Failed to confirm valid license key.");
+        return EXIT_FAILURE;
+    }
+
+    // Reduce memory priority before installing system call filters.
+    ml::core::CProcessPriority::reduceMemoryPriority();
 
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
@@ -101,14 +144,19 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    // Reduce CPU priority after connecting named pipes so the JVM gets more
+    // time when CPU is constrained.  Named pipe connection is time-sensitive,
+    // hence is done before reducing CPU priority.
+    ml::core::CProcessPriority::reduceCpuPriority();
+
     if (jobId.empty()) {
         LOG_FATAL(<< "No job ID specified");
         return EXIT_FAILURE;
     }
 
-    ml::model::CLimits limits(isPersistInForeground);
+    ml::model::CLimits limits{isPersistInForeground};
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
-        LOG_FATAL(<< "Ml limit config file '" << limitConfigFile << "' could not be loaded");
+        LOG_FATAL(<< "ML limit config file '" << limitConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
@@ -116,7 +164,7 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "No categorization field name specified");
         return EXIT_FAILURE;
     }
-    ml::api::CFieldConfig fieldConfig(categorizationFieldName);
+    ml::api::CAnomalyJobConfig::CAnalysisConfig analysisConfig{categorizationFieldName};
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
     const TDataSearcherUPtr restoreSearcher{[isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
@@ -149,7 +197,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
-    const TPersistenceManagerUPtr periodicPersister{
+    const TPersistenceManagerUPtr persistenceManager{
         [persistInterval, isPersistInForeground, &persister]() -> TPersistenceManagerUPtr {
             if (persistInterval >= 0) {
                 return std::make_unique<ml::api::CPersistenceManager>(
@@ -166,47 +214,39 @@ int main(int argc, char** argv) {
         return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream(), delimiter);
     }()};
 
-    ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
+    ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
 
-    // All output we're interested in goes via the JSON output writer, so output
-    // of the categorised input data can be dropped
-    ml::api::CNullOutput nullOutput;
+    // The categorizer knows how to assign categories to records
+    ml::api::CFieldDataCategorizer categorizer{jobId,
+                                               analysisConfig,
+                                               limits,
+                                               timeField,
+                                               timeFormat,
+                                               nullptr,
+                                               wrappedOutputStream,
+                                               persistenceManager.get(),
+                                               stopCategorizationOnWarnStatus};
 
-    // output writer for CFieldDataTyper and persistence callback
-    ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
+    if (persistenceManager != nullptr) {
+        persistenceManager->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
+            &ml::api::CFieldDataCategorizer::periodicPersistStateInBackground, &categorizer));
 
-    // The typer knows how to assign categories to records
-    ml::api::CFieldDataTyper typer(jobId, fieldConfig, limits, nullOutput,
-                                   outputWriter, periodicPersister.get());
-
-    if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
-            &ml::api::CFieldDataTyper::periodicPersistStateInBackground, &typer));
-
-        periodicPersister->firstProcessorForegroundPeriodicPersistFunc(std::bind(
-            &ml::api::CFieldDataTyper::periodicPersistStateInForeground, &typer));
+        persistenceManager->firstProcessorForegroundPeriodicPersistFunc(std::bind(
+            &ml::api::CFieldDataCategorizer::periodicPersistStateInForeground, &categorizer));
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(),
-                                   *inputParser, typer);
-    bool ioLoopSucceeded(skeleton.ioLoop());
-
-    // Unfortunately we cannot rely on destruction to finalise the output writer
-    // as it must be finalised before the skeleton is destroyed, and C++
-    // destruction order means the skeleton will be destroyed before the output
-    // writer as it was constructed last.
-    outputWriter.finalise();
-
-    if (!ioLoopSucceeded) {
-        LOG_FATAL(<< "Ml categorization job failed");
+    ml::api::CCmdSkeleton skeleton{restoreSearcher.get(), persister.get(),
+                                   *inputParser, categorizer};
+    if (skeleton.ioLoop() == false) {
+        LOG_FATAL(<< "ML categorization job failed");
         return EXIT_FAILURE;
     }
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG(<< "Ml categorization job exiting");
+    LOG_DEBUG(<< "ML categorization job exiting");
 
     return EXIT_SUCCESS;
 }

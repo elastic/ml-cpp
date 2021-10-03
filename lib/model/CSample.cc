@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CSample.h>
@@ -27,7 +32,7 @@ std::string CSample::SToString::operator()(const CSample& sample) const {
                          core::CPersistUtils::PAIR_DELIMITER +
                          core::CStringUtils::typeToStringPrecise(
                              sample.m_Count, core::CIEEE754::E_SinglePrecision);
-    for (std::size_t i = 0u; i < sample.m_Value.size(); ++i) {
+    for (std::size_t i = 0; i < sample.m_Value.size(); ++i) {
         result += core::CPersistUtils::PAIR_DELIMITER +
                   core::CStringUtils::typeToStringPrecise(
                       sample.m_Value[i], core::CIEEE754::E_SinglePrecision);
@@ -50,7 +55,7 @@ bool CSample::SFromString::operator()(const std::string& token, CSample& value) 
         LOG_ERROR(<< "Cannot parse as sample: " << token);
         return false;
     }
-    for (std::size_t i = 3u; i < tokens.size(); ++i) {
+    for (std::size_t i = 3; i < tokens.size(); ++i) {
         double vi;
         if (!core::CStringUtils::stringToType(tokens[i], vi)) {
             LOG_ERROR(<< "Cannot parse as sample: " << token);
@@ -74,7 +79,7 @@ CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
     TDouble1Vec result;
     const TSizeVec& indices = CFeatureDataIndexing::valueIndices(dimension);
     result.reserve(indices.size());
-    for (std::size_t i = 0u; i < indices.size(); ++i) {
+    for (std::size_t i = 0; i < indices.size(); ++i) {
         result.push_back(m_Value[indices[i]]);
     }
     return result;
@@ -94,7 +99,7 @@ std::string CSample::print() const {
     return result.str();
 }
 
-void CSample::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CSample::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CSample");
     core::CMemoryDebug::dynamicSize("m_Value", m_Value, mem);
 }

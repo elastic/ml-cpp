@@ -1,12 +1,19 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CStringUtils.h>
 
 #include <core/CLogger.h>
+#include <core/CRegex.h>
 #include <core/CStrCaseCmp.h>
+#include <core/Constants.h>
 
 #include <boost/multi_array.hpp>
 
@@ -16,6 +23,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <fstream>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +44,15 @@ double clampToReadable(double x) {
 // program.  Of course, the locale may already be constructed before this if
 // another static object has used it.
 const std::locale& DO_NOT_USE_THIS_VARIABLE = ml::core::CStringUtils::locale();
+
+// Constants for parsing & converting memory size strings in standard ES format
+const std::string MEMORY_SIZE_FORMAT{"([\\d]+)(b|k|kb|m|mb|g|gb|t|tb|p|pb)"};
+const char BYTES{'b'};
+const char KILOBYTES{'k'};
+const char MEGABYTES{'m'};
+const char GIGABYTES{'g'};
+const char TERABYTES{'t'};
+const char PETABYTES{'p'};
 }
 
 namespace ml {
@@ -73,6 +90,23 @@ int CStringUtils::utf8ByteType(char c) {
     }
 
     return 6;
+}
+
+std::size_t CStringUtils::utf16LengthOfUtf8String(const std::string& str) {
+    std::size_t result{0};
+    for (const auto& c : str) {
+        int byteType{utf8ByteType(c)};
+        if (byteType >= 1 && byteType <= 3) {
+            result += 1;
+        } else if (byteType >= 4 && byteType <= 6) {
+            result += 2;
+        } else if (byteType == -1) {
+            result += 0; // I guess this will optimized out
+        } else {
+            LOG_ERROR(<< "Input error: unexpected utf8ByteType " << byteType);
+        }
+    }
+    return result;
 }
 
 std::string CStringUtils::toLower(std::string str) {
@@ -349,38 +383,26 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     char buf[4 * sizeof(double)];
     ::memset(buf, 0, sizeof(buf));
 
-    // To retain the correct number of significant figures this uses
-    // scientific notation format when d < 1. Note that the number
-    // specifier in e format is number of points after the decimal
-    // place so number of significant figures + 1. Note also that
-    // when printing to limited precision we must correctly round
-    // the value before printing because printing just truncates;
-    // for example,
-    //   sprintf(buf, "%.6e", 0.49999998)
+    // Floats need higher precision to precisely round trip to decimal than
+    // considering their effective precision base 10. There's a good discussion
+    // at https://randomascii.wordpress.com/2012/03/08/float-precisionfrom-zero-to-100-digits-2/.
+    // We use g format since it is the most efficient. Note also that when
+    // printing to limited precision we must round the value before printing
+    // because printing just truncates, i.e. sprintf(buf, "%.6e", 0.49999998)
     // gives 4.999999e-1 rather than the correctly rounded value 0.5.
 
     int ret = 0;
     switch (precision) {
     case CIEEE754::E_HalfPrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf, "%.2e",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
-                  : ::sprintf(buf, "%.3g",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
+        ret = ::sprintf(buf, "%.5g",
+                        clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
-
     case CIEEE754::E_SinglePrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf, "%.6e",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
-                  : ::sprintf(buf, "%.7g",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
+        ret = ::sprintf(buf, "%.9g",
+                        clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
-
     case CIEEE754::E_DoublePrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf, "%.14e", clampToReadable(d))
-                  : ::sprintf(buf, "%.15g", clampToReadable(d));
+        ret = ::sprintf(buf, "%.17g", clampToReadable(d));
         break;
     }
 
@@ -437,6 +459,67 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     return buf;
 }
 
+CStringUtils::TSizeBoolPr
+CStringUtils::memorySizeStringToBytes(const std::string& memorySizeStr, std::size_t defaultValue) {
+    if (memorySizeStr.empty()) {
+        LOG_ERROR(<< "Unable to parse empty memory size string");
+        return {defaultValue, false};
+    }
+
+    CRegex regex;
+
+    if (regex.init(MEMORY_SIZE_FORMAT) == false) {
+        LOG_ERROR(<< "Unable to init regex " << MEMORY_SIZE_FORMAT);
+        return {defaultValue, false};
+    }
+
+    CRegex::TStrVec tokens;
+
+    const std::string lowerSizeStr{toLower(memorySizeStr)};
+
+    // permit '0' to be unit-less
+    if (lowerSizeStr == "0") {
+        return {std::size_t{0}, true};
+    }
+
+    if (regex.tokenise(lowerSizeStr, tokens) == false) {
+        LOG_ERROR(<< "Unable to parse a memory limit from " << memorySizeStr);
+        return {defaultValue, false};
+    }
+
+    if (tokens.size() != 2) {
+        LOG_INFO(<< "Got wrong number of tokens:: " << tokens.size());
+        return {defaultValue, false};
+    }
+
+    const std::string& sizeStr = tokens[0];
+    const std::string& multiplierStr = tokens[1];
+
+    std::size_t size{0};
+    if (stringToType(sizeStr, size) == false) {
+        LOG_ERROR(<< "Could not convert " << sizeStr << " to an integral size.");
+        return {defaultValue, false};
+    }
+
+    // The assumption here is that the model memory limit string has already been validated
+    // i.e. the limit is already rounded down to the closest byte with a minimum value of 1 byte.
+    if (multiplierStr[0] == BYTES) {
+        // no-op
+    } else if (multiplierStr[0] == KILOBYTES) {
+        size *= constants::BYTES_IN_KILOBYTES;
+    } else if (multiplierStr[0] == MEGABYTES) {
+        size *= constants::BYTES_IN_MEGABYTES;
+    } else if (multiplierStr[0] == GIGABYTES) {
+        size *= constants::BYTES_IN_GIGABYTES;
+    } else if (multiplierStr[0] == TERABYTES) {
+        size *= constants::BYTES_IN_TERABYTES;
+    } else if (multiplierStr[0] == PETABYTES) {
+        size *= constants::BYTES_IN_PETABYTES;
+    }
+
+    return {size, true};
+}
+
 bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned long long& i) {
     if (str.empty()) {
         if (!silent) {
@@ -452,9 +535,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to unsigned long long: "
-                      << ::strerror(errno));
+                      << "' to unsigned long long: " << ::strerror(errno));
         }
         return false;
     }
@@ -463,9 +544,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
     {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to unsigned long long: "
-                      << ::strerror(errno));
+                      << "' to unsigned long long: " << ::strerror(errno));
         }
         return false;
     }
@@ -473,9 +552,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
     if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to unsigned long long: first invalid character "
-                      << endPtr);
+                      << "' to unsigned long long: first invalid character " << endPtr);
         }
         return false;
     }
@@ -500,9 +577,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to unsigned long: "
-                      << ::strerror(errno));
+                      << "' to unsigned long: " << ::strerror(errno));
         }
         return false;
     }
@@ -511,9 +586,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
     {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to unsigned long: "
-                      << ::strerror(errno));
+                      << "' to unsigned long: " << ::strerror(errno));
         }
         return false;
     }
@@ -521,9 +594,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned l
     if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to unsigned long: first invalid character "
-                      << endPtr);
+                      << "' to unsigned long: first invalid character " << endPtr);
         }
         return false;
     }
@@ -544,9 +615,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned i
     // Now check if the result is in range for unsigned int
     if (ret > std::numeric_limits<unsigned int>::max()) {
         if (!silent) {
-            LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to unsigned int - out of range");
+            LOG_ERROR(<< "Unable to convert string '" << str << "' to unsigned int - out of range");
         }
         return false;
     }
@@ -568,8 +637,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned s
     if (ret > std::numeric_limits<unsigned short>::max()) {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to unsigned short - out of range");
+                      << "' to unsigned short - out of range");
         }
         return false;
     }
@@ -594,9 +662,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long long&
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to long long: "
-                      << ::strerror(errno));
+                      << "' to long long: " << ::strerror(errno));
         }
         return false;
     }
@@ -605,9 +671,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long long&
     {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to long long: "
-                      << ::strerror(errno));
+                      << "' to long long: " << ::strerror(errno));
         }
         return false;
     }
@@ -615,9 +679,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long long&
     if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to long long: first invalid character "
-                      << endPtr);
+                      << "' to long long: first invalid character " << endPtr);
         }
         return false;
     }
@@ -642,9 +704,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long& i) {
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to long: "
-                      << ::strerror(errno));
+                      << "' to long: " << ::strerror(errno));
         }
         return false;
     }
@@ -653,9 +713,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long& i) {
     {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to long: "
-                      << ::strerror(errno));
+                      << "' to long: " << ::strerror(errno));
         }
         return false;
     }
@@ -663,9 +721,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, long& i) {
     if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to long: first invalid character "
-                      << endPtr);
+                      << "' to long: first invalid character " << endPtr);
         }
         return false;
     }
@@ -708,9 +764,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, short& i) 
     if (ret < std::numeric_limits<short>::min() ||
         ret > std::numeric_limits<short>::max()) {
         if (!silent) {
-            LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to short - out of range");
+            LOG_ERROR(<< "Unable to convert string '" << str << "' to short - out of range");
         }
         return false;
     }
@@ -805,9 +859,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d)
     if (ret == 0 && errno == EINVAL) {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to double: "
-                      << ::strerror(errno));
+                      << "' to double: " << ::strerror(errno));
         }
         return false;
     }
@@ -815,9 +867,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d)
     if ((ret == HUGE_VAL || ret == -HUGE_VAL) && errno == ERANGE) {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to double: "
-                      << ::strerror(errno));
+                      << "' to double: " << ::strerror(errno));
         }
         return false;
     }
@@ -825,9 +875,7 @@ bool CStringUtils::_stringToType(bool silent, const std::string& str, double& d)
     if (endPtr != nullptr && *endPtr != '\0') {
         if (!silent) {
             LOG_ERROR(<< "Unable to convert string '" << str
-                      << "'"
-                         " to double: first invalid character "
-                      << endPtr);
+                      << "' to double: first invalid character " << endPtr);
         }
         return false;
     }
@@ -1027,6 +1075,17 @@ std::wstring CStringUtils::narrowToWide(const std::string& narrowStr) {
 const std::locale& CStringUtils::locale() {
     static std::locale loc;
     return loc;
+}
+
+std::pair<std::string, bool> CStringUtils::readFileToString(const std::string& fileName) {
+    std::ifstream fileStream{fileName};
+    if (fileStream.is_open() == false) {
+        LOG_ERROR(<< "Environment error: failed to open file '" << fileName << "'.");
+        return {std::string{}, false};
+    }
+    return {std::string{std::istreambuf_iterator<char>{fileStream},
+                        std::istreambuf_iterator<char>{}},
+            true};
 }
 }
 }

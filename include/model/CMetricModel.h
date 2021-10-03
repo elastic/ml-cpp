@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CMetricModel_h
@@ -22,7 +27,7 @@
 
 #include <stdint.h>
 
-namespace {
+namespace CResourceLimitTest {
 class CMockMetricModel;
 }
 namespace ml {
@@ -73,6 +78,8 @@ public:
         //! The key is <feature, pid, pid> for non-correlated corrections
         //! or <feature, pid, correlated_pid> for correlated corrections
         mutable TFeatureSizeSizeTripleDouble1VecUMap s_InterimCorrections;
+        //! Annotations produced by this model.
+        TAnnotationVec s_Annotations;
     };
 
 public:
@@ -246,7 +253,7 @@ public:
     uint64_t checksum(bool includeCurrentBucketStats = true) const override;
 
     //! Debug the memory used by this model.
-    void debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this model.
     std::size_t memoryUsage() const override;
@@ -264,6 +271,9 @@ public:
     //! by \p pid for the bucketing interval containing \p time.
     const TFeatureData*
     featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const;
+
+    //! Get the annotations produced by this model.
+    const TAnnotationVec& annotations() const override;
 
 private:
     using TOptionalSample = boost::optional<CSample>;
@@ -322,7 +332,7 @@ private:
     TInterimBucketCorrectorCPtr m_InterimBucketCorrector;
 
     friend class CMetricModelDetailsView;
-    friend class ::CMockMetricModel;
+    friend class CResourceLimitTest::CMockMetricModel;
 };
 }
 }

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CStateCompressor.h>
 
@@ -20,11 +25,8 @@ CStateCompressor::CStateCompressor(CDataAdder& compressedAdder)
     LOG_TRACE(<< "New compressor");
 }
 
-CDataAdder::TOStreamP CStateCompressor::addStreamed(const std::string& index,
-                                                    const std::string& baseId) {
-    LOG_TRACE(<< "StateCompressor asking for index " << index);
-
-    m_FilterSink.index(index, baseId);
+CDataAdder::TOStreamP CStateCompressor::addStreamed(const std::string& baseId) {
+    m_FilterSink.baseId(baseId);
     return m_OutStream;
 }
 
@@ -34,7 +36,7 @@ bool CStateCompressor::streamComplete(CDataAdder::TOStreamP& /*strm*/, bool /*fo
     return m_FilterSink.allWritesSuccessful();
 }
 
-size_t CStateCompressor::numCompressedDocs() const {
+std::size_t CStateCompressor::numCompressedDocs() const {
     return m_FilterSink.numCompressedDocs();
 }
 
@@ -51,9 +53,9 @@ std::streamsize CStateCompressor::CChunkFilter::write(const char* s, std::stream
     while (n > 0) {
         if (!m_OStream) {
             const std::string& currentDocId = m_Adder.makeCurrentDocId(m_BaseId, m_CurrentDocNum);
-            LOG_TRACE(<< "Add streamed: " << m_Index << ", " << currentDocId);
+            LOG_TRACE(<< "Add streamed: " << currentDocId);
 
-            m_OStream = m_Adder.addStreamed(m_Index, currentDocId);
+            m_OStream = m_Adder.addStreamed(currentDocId);
             if (!m_OStream) {
                 LOG_ERROR(<< "Failed to connect to store");
                 return 0;
@@ -111,9 +113,7 @@ void CStateCompressor::CChunkFilter::closeStream(bool isFinal) {
     }
 }
 
-void CStateCompressor::CChunkFilter::index(const std::string& index,
-                                           const std::string& baseId) {
-    m_Index = index;
+void CStateCompressor::CChunkFilter::baseId(const std::string& baseId) {
     m_BaseId = baseId;
 }
 
@@ -134,7 +134,7 @@ bool CStateCompressor::CChunkFilter::allWritesSuccessful() {
     return m_WritesSuccessful;
 }
 
-size_t CStateCompressor::CChunkFilter::numCompressedDocs() const {
+std::size_t CStateCompressor::CChunkFilter::numCompressedDocs() const {
     return m_CurrentDocNum - 1;
 }
 

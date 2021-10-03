@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CMetricPopulationModel.h>
@@ -22,12 +27,14 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotation.h>
 #include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <boost/iterator/counting_iterator.hpp>
@@ -58,7 +65,7 @@ struct SValuesAndWeights {
     maths::CModel::TTimeDouble2VecSizeTrVec s_BucketValues;
     maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
     maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_PriorWeights;
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
 };
 using TSizeValuesAndWeightsUMap = boost::unordered_map<std::size_t, SValuesAndWeights>;
 
@@ -100,8 +107,10 @@ CMetricPopulationModel::CMetricPopulationModel(
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
     this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
                      std::move(featureCorrelatesModels));
-    traverser.traverseSubLevel(std::bind(&CMetricPopulationModel::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CMetricPopulationModel::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CMetricPopulationModel::initialize(const TFeatureMathsModelSPtrPrVec& newFeatureModels,
@@ -118,7 +127,7 @@ void CMetricPopulationModel::initialize(const TFeatureMathsModelSPtrPrVec& newFe
 
     if (this->params().s_MultivariateByFields) {
         m_FeatureCorrelatesModels.reserve(featureCorrelatesModels.size());
-        for (std::size_t i = 0u; i < featureCorrelatesModels.size(); ++i) {
+        for (std::size_t i = 0; i < featureCorrelatesModels.size(); ++i) {
             m_FeatureCorrelatesModels.emplace_back(
                 featureCorrelatesModels[i].first,
                 newFeatureCorrelateModelPriors[i].second,
@@ -158,6 +167,11 @@ CMetricPopulationModel::CMetricPopulationModel(bool isForPersistence,
     }
 }
 
+bool CMetricPopulationModel::shouldPersist() const {
+    return std::any_of(m_FeatureModels.begin(), m_FeatureModels.end(),
+                       [](const auto& model) { return model.shouldPersist(); });
+}
+
 void CMetricPopulationModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(POPULATION_STATE_TAG,
                          std::bind(&CMetricPopulationModel::doAcceptPersistInserter,
@@ -176,7 +190,7 @@ void CMetricPopulationModel::acceptPersistInserter(core::CStatePersistInserter& 
 }
 
 bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t i = 0u, j = 0u;
+    std::size_t i = 0u, j = 0;
     do {
         const std::string& name = traverser.name();
         RESTORE(POPULATION_STATE_TAG,
@@ -303,6 +317,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
 
     this->createUpdateNewModels(startTime, resourceMonitor);
     this->currentBucketInterimCorrections().clear();
+    m_CurrentBucketStats.s_Annotations.clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
@@ -370,8 +385,21 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
+                // initialCountWeight returns a weight value as double:
+                // 0.0 if checkScheduledEvents is true
+                // 1.0 if both checkScheduledEvents and checkRules are false
+                // A small weight - 0.005 - if checkRules is true.
+                // This weight is applied to countWeight (and therefore scaledCountWeight) as multiplier.
+                // This reduces the impact of the values affected by the skip_model_update rule
+                // on the model while not completely ignoring them. This still allows the model to
+                // learn from the affected values - addressing point 1. and 2. in
+                // https://github.com/elastic/ml-cpp/issues/1272, Namely
+                // 1. If you apply it from the start of the modelling it can stop the model learning anything at all.
+                // 2. It can stop the model ever adapting to some change in data characteristics
                 core_t::TTime sampleTime = model_t::sampleTime(feature, time, bucketLength);
-                if (this->shouldIgnoreSample(feature, pid, cid, sampleTime)) {
+                double initialCountWeight{
+                    this->initialCountWeight(feature, pid, cid, sampleTime)};
+                if (initialCountWeight == 0.0) {
                     core_t::TTime skipTime = sampleTime - attributeLastBucketTimesMap[cid];
                     if (skipTime > 0) {
                         model->skipTime(skipTime);
@@ -408,7 +436,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                                                   return sample.time() >= cutoff;
                                               });
                 double updatesPerBucket = this->params().s_MaximumUpdatesPerBucket;
-                double countWeight = this->sampleRateWeight(pid, cid) *
+                double countWeight = initialCountWeight *
+                                     this->sampleRateWeight(pid, cid) *
                                      this->learnRate(feature) *
                                      (updatesPerBucket > 0.0 && n > 0
                                           ? updatesPerBucket / static_cast<double>(n)
@@ -420,31 +449,26 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                         continue;
                     }
 
-                    double vs = sample.varianceScale();
+                    double countVarianceScale = sample.varianceScale();
                     TDouble2Vec value(sample.value(dimension));
                     std::size_t duplicate = duplicates[cid].duplicate(sample.time(), value);
 
                     if (duplicate < attribute.s_Values.size()) {
-                        maths_t::addCount(TDouble2Vec(dimension, countWeight / vs),
-                                          attribute.s_TrendWeights[duplicate]);
-                        maths_t::addCount(TDouble2Vec(dimension, countWeight),
-                                          attribute.s_PriorWeights[duplicate]);
+                        model->addCountWeights(sample.time(), countWeight,
+                                               countWeight, countVarianceScale,
+                                               attribute.s_TrendWeights[duplicate],
+                                               attribute.s_ResidualWeights[duplicate]);
                     } else {
                         attribute.s_Values.emplace_back(sample.time(), value, pid);
                         attribute.s_TrendWeights.push_back(
                             maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-                        attribute.s_PriorWeights.push_back(
+                        attribute.s_ResidualWeights.push_back(
                             maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
                         auto& trendWeight = attribute.s_TrendWeights.back();
-                        auto& priorWeight = attribute.s_PriorWeights.back();
-                        maths_t::setCount(TDouble2Vec(dimension, countWeight / vs), trendWeight);
-                        maths_t::setWinsorisationWeight(
-                            model->winsorisationWeight(1.0, sample.time(), value), trendWeight);
-                        maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs), trendWeight);
-                        maths_t::setCount(TDouble2Vec(dimension, countWeight), priorWeight);
-                        maths_t::setWinsorisationWeight(
-                            maths_t::winsorisationWeight(trendWeight), priorWeight);
-                        maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs), priorWeight);
+                        auto& residualWeight = attribute.s_ResidualWeights.back();
+                        model->countWeights(sample.time(), value, countWeight,
+                                            countWeight, 1.0, // winsorisation derate
+                                            countVarianceScale, trendWeight, residualWeight);
                     }
                 }
             }
@@ -456,12 +480,28 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     latest = std::max(latest, value.first);
                 }
 
+                auto annotationCallback = [&](const std::string& annotation) {
+                    if (this->params().s_AnnotationsEnabled) {
+                        m_CurrentBucketStats.s_Annotations.emplace_back(
+                            time, CAnnotation::E_ModelChange, annotation,
+                            gatherer.searchKey().detectorIndex(),
+                            gatherer.searchKey().partitionFieldName(),
+                            gatherer.partitionFieldValue(),
+                            gatherer.searchKey().overFieldName(),
+                            gatherer.attributeName(cid),
+                            gatherer.searchKey().byFieldName(), EMPTY_STRING);
+                    }
+                };
+
                 maths::CModelAddSamplesParams params;
                 params.integer(attribute.second.s_IsInteger)
                     .nonNegative(attribute.second.s_IsNonNegative)
                     .propagationInterval(this->propagationTime(cid, latest))
                     .trendWeights(attribute.second.s_TrendWeights)
-                    .priorWeights(attribute.second.s_PriorWeights);
+                    .priorWeights(attribute.second.s_ResidualWeights)
+                    .annotationCallback([&](const std::string& annotation) {
+                        annotationCallback(annotation);
+                    });
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {
@@ -557,7 +597,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
         pJoint.addCache(m_Probabilities);
     }
 
-    for (std::size_t i = 0u; i < gatherer.numberFeatures(); ++i) {
+    for (std::size_t i = 0; i < gatherer.numberFeatures(); ++i) {
         model_t::EFeature feature = gatherer.feature(i);
         if (model_t::isCategorical(feature)) {
             continue;
@@ -607,7 +647,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                               << ") = " << params.s_Probability);
                     const auto& influenceValues =
                         CDataGatherer::extractData(featureData[j]).s_InfluenceValues;
-                    for (std::size_t k = 0u; k < influenceValues.size(); ++k) {
+                    for (std::size_t k = 0; k < influenceValues.size(); ++k) {
                         if (const CInfluenceCalculator* influenceCalculator =
                                 this->influenceCalculator(feature, k)) {
                             pJoint.plugin(*influenceCalculator);
@@ -669,7 +709,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
     TStrCRefStrCRefPrUInt64Map hashes;
 
     for (const auto& feature : m_FeatureModels) {
-        for (std::size_t cid = 0u; cid < feature.s_Models.size(); ++cid) {
+        for (std::size_t cid = 0; cid < feature.s_Models.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
                 uint64_t& hash =
                     hashes[{std::cref(EMPTY_STRING), std::cref(gatherer.attributeName(cid))}];
@@ -716,7 +756,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
     return maths::CChecksum::calculate(seed, hashes);
 }
 
-void CMetricPopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePtr mem) const {
+void CMetricPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CMetricPopulationModel");
     this->CPopulationModel::debugMemoryUsage(mem->addChild());
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_PersonCounts",
@@ -725,6 +765,8 @@ void CMetricPopulationModel::debugMemoryUsage(core::CMemoryUsage::TMemoryUsagePt
                                     m_CurrentBucketStats.s_FeatureData, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+                                    m_CurrentBucketStats.s_Annotations, mem);
     core::CMemoryDebug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
     core::CMemoryDebug::dynamicSize("m_FeatureCorrelatesModels",
                                     m_FeatureCorrelatesModels, mem);
@@ -746,11 +788,16 @@ std::size_t CMetricPopulationModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
     mem += core::CMemory::dynamicSize(m_FeatureModels);
     mem += core::CMemory::dynamicSize(m_FeatureCorrelatesModels);
     mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
     mem += core::CMemory::dynamicSize(m_MemoryEstimator);
     return mem;
+}
+
+const CMetricPopulationModel::TAnnotationVec& CMetricPopulationModel::annotations() const {
+    return m_CurrentBucketStats.s_Annotations;
 }
 
 CMemoryUsageEstimator* CMetricPopulationModel::memoryUsageEstimator() const {
@@ -938,10 +985,11 @@ bool CMetricPopulationModel::fill(model_t::EFeature feature,
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,
                                            this->bucketLength(), bucket->time())};
     maths_t::TDouble2VecWeightsAry weights(maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-    maths_t::setSeasonalVarianceScale(
-        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
+    TDouble2Vec seasonalWeight;
+    model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, seasonalWeight);
+    maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
-    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, cid, time);
+    double initialCountWeight{this->initialCountWeight(feature, pid, cid, time)};
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -960,7 +1008,7 @@ bool CMetricPopulationModel::fill(model_t::EFeature feature,
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature))
         .addWeights(weights)
-        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+        .initialCountWeight(initialCountWeight);
 
     return true;
 }

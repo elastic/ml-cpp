@@ -1,11 +1,17 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include "TestUtils.h"
 
+#include <maths/CCompositeFunctions.h>
 #include <maths/CEqualWithTolerance.h>
 #include <maths/CIntegration.h>
 #include <maths/CPrior.h>
@@ -25,7 +31,7 @@ const core_t::TTime WEEK{core::constants::WEEK};
 
 //! \brief Computes the c.d.f. of the prior minus the target supplied
 //! to its constructor at specific locations.
-class CCdf : public std::unary_function<double, double> {
+class CCdf {
 public:
     enum EStyle { E_Lower, E_Upper, E_GeometricMean };
 
@@ -161,7 +167,7 @@ bool CPriorTestInterface::marginalLikelihoodQuantileForTest(double percentage,
         CCdf cdf(percentage < 0.5 ? CCdf::E_Lower : CCdf::E_Upper, *m_Prior, percentage);
         TDoubleDoublePr fBracket(cdf(bracket.first), cdf(bracket.second));
 
-        std::size_t maxIterations = 100u;
+        std::size_t maxIterations = 100;
         for (/**/; fBracket.first * fBracket.second > 0.0 && maxIterations > 0; --maxIterations) {
             step *= 2.0;
             if (fBracket.first > 0.0) {
@@ -194,7 +200,7 @@ bool CPriorTestInterface::marginalLikelihoodMeanForTest(double& result) const {
         CCompositeFunctions::CProduct<bool (*)(double, double&), TMarginalLikelihood>;
 
     const double eps = 1e-3;
-    unsigned int steps = 100u;
+    unsigned int steps = 100;
 
     result = 0.0;
 
@@ -238,7 +244,7 @@ bool CPriorTestInterface::marginalLikelihoodVarianceForTest(double& result) cons
         CCompositeFunctions::CProduct<CResidual, TMarginalLikelihood>;
 
     const double eps = 1e-3;
-    unsigned int steps = 100u;
+    unsigned int steps = 100;
 
     result = 0.0;
 
@@ -283,9 +289,10 @@ double ramp(core_t::TTime time) {
 
 double markov(core_t::TTime time) {
     static double state{0.2};
-    if (time % WEEK == 0) {
-        core::CHashing::CMurmurHash2BT<core_t::TTime> hasher;
-        state = 2.0 * static_cast<double>(hasher(time)) /
+    core::CHashing::CMurmurHash2BT<core_t::TTime> hasher(time);
+    if (static_cast<double>(hasher(time)) <
+        0.005 * static_cast<double>(std::numeric_limits<std::size_t>::max())) {
+        state = 2.0 * static_cast<double>(hasher(time + 1000000)) /
                 static_cast<double>(std::numeric_limits<std::size_t>::max());
     }
     return state;
@@ -310,7 +317,7 @@ double spikeyDaily(core_t::TTime time) {
     return pattern[(time % DAY) / HALF_HOUR];
 }
 
-double spikeyWeekly(core_t::TTime time) {
+double spikeyDailyWeekly(core_t::TTime time) {
     double pattern[]{
         1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
         0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1,

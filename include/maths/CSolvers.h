@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_maths_CSolvers_h
@@ -11,7 +16,6 @@
 #include <core/CLogger.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CCompositeFunctions.h>
 #include <maths/CEqualWithTolerance.h>
 #include <maths/CMathsFuncs.h>
 #include <maths/COrderings.h>
@@ -365,10 +369,10 @@ public:
     solve(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
         } else if (maxIterations < 3) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
         } else {
             maxIterations -= 2;
             solve(a, b, f(a), f(b), f, maxIterations, equal, bestGuess);
@@ -463,12 +467,12 @@ public:
     brent(double& a, double& b, const F& f, std::size_t& maxIterations, const EQUAL& equal, double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
             return true;
         }
         if (maxIterations < 3) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
             return true;
         }
         maxIterations -= 2;
@@ -622,12 +626,12 @@ public:
                           double& bestGuess) {
         if (equal(a, b)) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
             return true;
         }
         if (maxIterations < 3) {
             bestGuess = bisect(a, b);
-            maxIterations = 0u;
+            maxIterations = 0;
             return true;
         }
         maxIterations -= 2;
@@ -789,8 +793,8 @@ public:
                                 std::size_t& maxIterations,
                                 double& x,
                                 double& fx) {
-        CCompositeFunctions::CMinus<F> f_(f);
-        minimize(a, b, -fa, -fb, f_, tolerance, maxIterations, x, fx);
+        minimize(a, b, -fa, -fb, [f](double y) { return -f(y); }, tolerance,
+                 maxIterations, x, fx);
         fx = -fx;
     }
 
@@ -819,7 +823,7 @@ public:
 
         TMinAccumulator min;
         T fp(p.size());
-        for (std::size_t i = 0u; i < p.size(); ++i) {
+        for (std::size_t i = 0; i < p.size(); ++i) {
             double fi = f(p[i]);
             fp[i] = fi;
             min.add(TDoubleSizePr(fi, i));
@@ -860,8 +864,8 @@ public:
     //! \param[out] fx Set to the value of f at \p x.
     template<typename T, typename F>
     static bool globalMaximize(const T& p, const F& f, double& x, double& fx) {
-        CCompositeFunctions::CMinus<F> f_(f);
-        bool result = globalMinimize(p, f_, x, fx);
+        auto minusF = [&f](double x_) { return -f(x_); };
+        bool result{globalMinimize(p, minusF, x, fx)};
         fx = -fx;
         return result;
     }
@@ -910,7 +914,8 @@ public:
             std::swap(fa, fb);
         }
 
-        double x, fx;
+        double x;
+        double fx;
         {
             std::size_t n = maxIterations;
             minimize(a, b, fa, fb, f, 0.0, n, fc, x, fx);
@@ -923,7 +928,7 @@ public:
 
         // [a, x] and [b, r] bracket the sublevel set end points.
 
-        CCompositeFunctions::CMinusConstant<F> f_(f, fc);
+        auto fMinusFc = [&f, fc](double x_) { return f(x_) - fc; };
 
         LOG_TRACE(<< "a = " << a << ", x = " << x << ", b = " << b);
         LOG_TRACE(<< "f_(a) = " << fa - fc << ", f_(x) = " << fx - fc
@@ -935,7 +940,7 @@ public:
 
         try {
             std::size_t n = maxIterations;
-            solve(a, x, fa - fc, fx - fc, f_, n, equal, result.first);
+            solve(a, x, fa - fc, fx - fc, fMinusFc, n, equal, result.first);
             LOG_TRACE(<< "iterations = " << n);
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to find left end point: " << e.what());
@@ -944,7 +949,7 @@ public:
 
         try {
             std::size_t n = maxIterations;
-            solve(x, b, fx - fc, fb - fc, f_, n, equal, result.second);
+            solve(x, b, fx - fc, fb - fc, fMinusFc, n, equal, result.second);
             LOG_TRACE(<< "iterations = " << n);
         } catch (std::exception& e) {
             LOG_ERROR(<< "Failed to find right end point: " << e.what());

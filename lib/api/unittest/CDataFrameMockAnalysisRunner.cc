@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include "CDataFrameMockAnalysisRunner.h"
@@ -10,11 +15,15 @@
 #include <core/CLoopProgress.h>
 
 CDataFrameMockAnalysisRunner::CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec)
-    : ml::api::CDataFrameAnalysisRunner{spec} {
+    : ml::api::CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId()} {
 }
 
 std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {
     return 2;
+}
+
+std::size_t CDataFrameMockAnalysisRunner::dataFrameSliceCapacity() const {
+    return 10000;
 }
 
 void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,
@@ -22,8 +31,12 @@ void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,
                                                ml::core::CRapidJsonConcurrentLineWriter&) const {
 }
 
+bool CDataFrameMockAnalysisRunner::validate(const ml::core::CDataFrame&) const {
+    return true;
+}
+
 void CDataFrameMockAnalysisRunner::runImpl(ml::core::CDataFrame&) {
-    ml::core::CLoopProgress progress{31, this->progressRecorder()};
+    ml::core::CLoopProgress progress{31, this->instrumentation().progressCallback()};
     for (std::size_t i = 0; i < 31; ++i, progress.increment()) {
         std::vector<std::size_t> wait;
         ms_Rng.generateUniformSamples(1, 20, 1, wait);
@@ -36,6 +49,15 @@ std::size_t CDataFrameMockAnalysisRunner::estimateBookkeepingMemoryUsage(std::si
                                                                          std::size_t,
                                                                          std::size_t) const {
     return 0;
+}
+
+const ml::api::CDataFrameAnalysisInstrumentation&
+CDataFrameMockAnalysisRunner::instrumentation() const {
+    return m_Instrumentation;
+}
+
+ml::api::CDataFrameAnalysisInstrumentation& CDataFrameMockAnalysisRunner::instrumentation() {
+    return m_Instrumentation;
 }
 
 ml::test::CRandomNumbers CDataFrameMockAnalysisRunner::ms_Rng;
@@ -56,3 +78,7 @@ CDataFrameMockAnalysisRunnerFactory::makeImpl(const ml::api::CDataFrameAnalysisS
 }
 
 const std::string CDataFrameMockAnalysisRunnerFactory::NAME{"test"};
+
+ml::counter_t::ECounterTypes CDataFrameMockAnalysisState::memoryCounterType() {
+    return ml::counter_t::E_DFOPeakMemoryUsage;
+}
