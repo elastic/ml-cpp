@@ -26,6 +26,6 @@ grep '^#define EIGEN_MAJOR_VERSION 3' "$VERSION_FILE" > /dev/null 2>&1 && \
 grep '^#define EIGEN_MINOR_VERSION 7' "$VERSION_FILE" > /dev/null 2>&1
 if [ $? -ne 0 ] ; then
     rm -rf eigen
-    git -c advice.detachedHead=false clone --depth=1 --branch=3.3.7 https://gitlab.com/libeigen/eigen.git
+    git -c advice.detachedHead=false clone --depth=1 --branch=3.3.7 https://gitlab.com/libeigen/eigen-backup.git eigen
 fi
 
