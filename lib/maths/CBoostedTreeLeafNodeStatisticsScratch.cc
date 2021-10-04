@@ -215,7 +215,7 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
 
     TMinimumLoss minimumLoss;
 
-    double lambda{regularization.leafWeightPenaltyMultiplier()};
+    double lambda{regularization.leafWeightPenaltyMultiplier().value()};
     Eigen::MatrixXd hessian{d, d};
     Eigen::MatrixXd hessian_{d, d};
     Eigen::VectorXd hessianInvg{d};
@@ -362,8 +362,8 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
         // The gain is the difference between the quadratic minimum for loss with
         // no split and the loss with the minimum loss split we found.
         double totalGain{0.5 * (maximumGain - minimumLoss(g, h)) -
-                         regularization.treeSizePenaltyMultiplier() -
-                         regularization.depthPenaltyMultiplier() *
+                         regularization.treeSizePenaltyMultiplier().value() -
+                         regularization.depthPenaltyMultiplier().value() *
                              (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
         SSplitStatistics candidate{
             totalGain,
@@ -385,8 +385,8 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
         double childPenaltyForDepth{regularization.penaltyForDepth(this->depth() + 1)};
         double childPenaltyForDepthPlusOne{
             regularization.penaltyForDepth(this->depth() + 2)};
-        double childPenalty{regularization.treeSizePenaltyMultiplier() +
-                            regularization.depthPenaltyMultiplier() *
+        double childPenalty{regularization.treeSizePenaltyMultiplier().value() +
+                            regularization.depthPenaltyMultiplier().value() *
                                 (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
         result.s_LeftChildMaxGain =
             0.5 * this->childMaxGain(bestSplitChildrenGainStats.s_GainLeft,

@@ -17,226 +17,382 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CBasicStatistics.h>
+#include <maths/CBayesianOptimisation.h>
+#include <maths/CBoostedTreeUtils.h>
+#include <maths/CChecksum.h>
+
 #include <boost/optional.hpp>
 
-#include <cmath>
+#include <cstddef>
+#include <locale>
+#include <memory>
+#include <string>
 
 namespace ml {
 namespace maths {
+class CDataFrameTrainBoostedTreeInstrumentationInterface;
 
-//! \brief Holds the parameters associated with the different types of regularizer
-//! terms available for boosted tree training.
+//! \brief Encapsulates a boosted tree parameter.
+//!
+//! DESCRIPTION:\n
+//! This provides the ability to save and load, persist and restore and fix a parameter.
+//! Fixed parameters are not optimised. This is typically as a result of a user override
+//! but we can also choose to fix a parameter if we can't determine a good search range.
 template<typename T>
-class CBoostedTreeRegularization final {
+class CBoostedTreeParameter final {
 public:
-    //! Set the multiplier of the tree depth penalty.
-    CBoostedTreeRegularization& depthPenaltyMultiplier(double depthPenaltyMultiplier) {
-        m_DepthPenaltyMultiplier = depthPenaltyMultiplier;
-        return *this;
+    explicit CBoostedTreeParameter(T value) : m_Value{value} {}
+
+    //! Set to \p value.
+    //!
+    //! \note Has no effect if the parameter is fixed.
+    void set(T value) {
+        if (m_Fixed == false) {
+            m_Value = value;
+        }
     }
 
-    //! Set the multiplier of the tree size penalty.
-    CBoostedTreeRegularization& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier) {
-        m_TreeSizePenaltyMultiplier = treeSizePenaltyMultiplier;
-        return *this;
+    //! Force set to \p value.
+    //!
+    //! \note Handle with care: this ignores whether the value is fixed.
+    void forceSet(T value) { m_Value = value; }
+
+    //! Fix to \p value.
+    void fix(T value) {
+        m_Value = value;
+        m_Fixed = true;
     }
 
-    //! Set the multiplier of the square leaf weight penalty.
-    CBoostedTreeRegularization& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier) {
-        m_LeafWeightPenaltyMultiplier = leafWeightPenaltyMultiplier;
-        return *this;
+    //! Fix the current value.
+    void fix() { m_Fixed = true; }
+
+    //! Check if the
+    bool fixed() const { return m_Fixed; }
+
+    //! Multiply the value by \p scale.
+    void scale(double scale, bool force) {
+        if (m_Fixed == false || force) {
+            m_Value *= scale;
+        }
     }
 
-    //! Set the soft depth tree depth limit.
-    CBoostedTreeRegularization& softTreeDepthLimit(double softTreeDepthLimit) {
-        m_SoftTreeDepthLimit = softTreeDepthLimit;
-        return *this;
-    }
+    //! Save the current value.
+    void save() { m_SavedValue = m_Value; }
+    //! Load the saved value.
+    void load() { m_Value = m_SavedValue; }
 
-    //! Set the tolerance in the depth tree depth limit.
-    CBoostedTreeRegularization& softTreeDepthTolerance(double softTreeDepthTolerance) {
-        m_SoftTreeDepthTolerance = softTreeDepthTolerance;
-        return *this;
-    }
+    //! Get the value.
+    T value() const { return m_Value; }
 
-    //! Set the tolerance in the depth tree depth limit.
-    CBoostedTreeRegularization& treeTopologyChangePenalty(double treeTopologyChangePenalty) {
-        m_TreeTopologyChangePenalty = treeTopologyChangePenalty;
-        return *this;
-    }
-
-    //! Count the number of parameters which have their default values.
-    std::size_t countNotSet() const {
-        return this->countNotSetForTrain() + (m_TreeTopologyChangePenalty == T{} ? 1 : 0);
-    }
-
-    //! Count the number of train parameters which have their default values.
-    std::size_t countNotSetForTrain() const {
-        // We do not count m_TreeTopologyChangePenalty here because it is not tuned as
-        // part of train from scratch.
-        return (m_DepthPenaltyMultiplier == T{} ? 1 : 0) +
-               (m_TreeSizePenaltyMultiplier == T{} ? 1 : 0) +
-               (m_LeafWeightPenaltyMultiplier == T{} ? 1 : 0) +
-               (m_SoftTreeDepthLimit == T{} ? 1 : 0) +
-               (m_SoftTreeDepthTolerance == T{} ? 1 : 0);
-    }
-
-    //! Multiplier of the tree depth penalty.
-    T depthPenaltyMultiplier() const { return m_DepthPenaltyMultiplier; }
-
-    //! Multiplier of the tree size penalty.
-    T treeSizePenaltyMultiplier() const { return m_TreeSizePenaltyMultiplier; }
-
-    //! Multiplier of the square leaf weight penalty.
-    T leafWeightPenaltyMultiplier() const {
-        return m_LeafWeightPenaltyMultiplier;
-    }
-
-    //! Soft depth tree depth limit.
-    T softTreeDepthLimit() const { return m_SoftTreeDepthLimit; }
-
-    //! Soft depth tree depth limit tolerance.
-    T softTreeDepthTolerance() const { return m_SoftTreeDepthTolerance; }
-
-    //! Get the penalty which applies to a leaf at depth \p depth.
-    T penaltyForDepth(std::size_t depth) const {
-        return std::exp((static_cast<double>(depth) / m_SoftTreeDepthLimit - 1.0) /
-                        m_SoftTreeDepthTolerance);
-    }
-
-    //! Get the penalty for changing a split feature when training incrementally.
-    T treeTopologyChangePenalty() const { return m_TreeTopologyChangePenalty; }
-
-    //! Get description of the regularization parameters.
-    std::string print() const {
-        return "(depth penalty multiplier = " + toString(m_DepthPenaltyMultiplier) +
-               ", soft depth limit = " + toString(m_SoftTreeDepthLimit) +
-               ", soft depth tolerance = " + toString(m_SoftTreeDepthTolerance) +
-               ", tree size penalty multiplier = " + toString(m_TreeSizePenaltyMultiplier) +
-               ", leaf weight penalty multiplier = " + toString(m_LeafWeightPenaltyMultiplier) +
-               ", tree topology change penalty = " + toString(m_TreeTopologyChangePenalty) +
-               ")";
-    }
-
-    //! Persist by passing information to \p inserter.
+    //! Persist writing to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        core::CPersistUtils::persist(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
-                                     m_DepthPenaltyMultiplier, inserter);
-        core::CPersistUtils::persist(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
-                                     m_TreeSizePenaltyMultiplier, inserter);
-        core::CPersistUtils::persist(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
-                                     m_LeafWeightPenaltyMultiplier, inserter);
-        core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
-                                     m_SoftTreeDepthLimit, inserter);
-        core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
-                                     m_SoftTreeDepthTolerance, inserter);
-        core::CPersistUtils::persist(REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
-                                     m_TreeTopologyChangePenalty, inserter);
+        core::CPersistUtils::persist(VALUE_TAG, m_Value, inserter);
+        core::CPersistUtils::persist(SAVED_VALUE_TAG, m_SavedValue, inserter);
+        core::CPersistUtils::persist(FIXED_TAG, m_Fixed, inserter);
     }
 
-    //! Populate the object from serialized data.
+    //! Restore reading from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         do {
             const std::string& name = traverser.name();
-            RESTORE(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
-                    core::CPersistUtils::restore(REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
-                                                 m_DepthPenaltyMultiplier, traverser))
-            RESTORE(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
-                    core::CPersistUtils::restore(REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
-                                                 m_TreeSizePenaltyMultiplier, traverser))
-            RESTORE(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
-                    core::CPersistUtils::restore(REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
-                                                 m_LeafWeightPenaltyMultiplier, traverser))
-            RESTORE(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
-                    core::CPersistUtils::restore(REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
-                                                 m_SoftTreeDepthLimit, traverser))
-            RESTORE(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
-                    core::CPersistUtils::restore(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
-                                                 m_SoftTreeDepthTolerance, traverser))
-            RESTORE(REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
-                    core::CPersistUtils::restore(REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
-                                                 m_TreeTopologyChangePenalty, traverser))
+            RESTORE(VALUE_TAG, core::CPersistUtils::restore(VALUE_TAG, m_Value, traverser))
+            RESTORE(SAVED_VALUE_TAG,
+                    core::CPersistUtils::restore(SAVED_VALUE_TAG, m_SavedValue, traverser))
+            RESTORE(FIXED_TAG, core::CPersistUtils::restore(FIXED_TAG, m_Fixed, traverser))
         } while (traverser.next());
         return true;
     }
 
-public:
-    static const std::string REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG;
-    static const std::string REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG;
-    static const std::string REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG;
-    static const std::string REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG;
-    static const std::string REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG;
-    static const std::string REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG;
+    //! Get a checksum of this object.
+    std::uint64_t checksum(std::uint64_t seed = 0) const {
+        seed = CChecksum::calculate(seed, m_Value);
+        seed = CChecksum::calculate(seed, m_Fixed);
+        return CChecksum::calculate(seed, m_SavedValue);
+    }
 
-private:
-    using TOptionalDouble = boost::optional<double>;
-
-private:
-    static std::string toString(double x) { return std::to_string(x); }
-    static std::string toString(TOptionalDouble x) {
-        return x != boost::none ? toString(*x) : "null";
+    //! Print for debug.
+    std::string print() const {
+        return (m_Fixed ? "fixed:" : "") + std::to_string(m_Value);
     }
 
 private:
-    T m_DepthPenaltyMultiplier{};
-    T m_TreeSizePenaltyMultiplier{};
-    T m_LeafWeightPenaltyMultiplier{};
-    T m_SoftTreeDepthLimit{};
-    T m_SoftTreeDepthTolerance{};
-    T m_TreeTopologyChangePenalty{};
+    static const std::string VALUE_TAG;
+    static const std::string FIXED_TAG;
+    static const std::string SAVED_VALUE_TAG;
+
+private:
+    T m_Value{};
+    T m_SavedValue{};
+    bool m_Fixed{false};
 };
 
 template<typename T>
-const std::string CBoostedTreeRegularization<T>::REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG{
-    "regularization_depth_penalty_multiplier"};
+const std::string CBoostedTreeParameter<T>::VALUE_TAG{"value"};
 template<typename T>
-const std::string CBoostedTreeRegularization<T>::REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG{
-    "regularization_tree_size_penalty_multiplier"};
+const std::string CBoostedTreeParameter<T>::FIXED_TAG{"fixed"};
 template<typename T>
-const std::string CBoostedTreeRegularization<T>::REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{
-    "regularization_leaf_weight_penalty_multiplier"};
-template<typename T>
-const std::string CBoostedTreeRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG{
-    "regularization_soft_tree_depth_limit"};
-template<typename T>
-const std::string CBoostedTreeRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG{
-    "regularization_soft_tree_depth_tolerance"};
-template<typename T>
-const std::string CBoostedTreeRegularization<T>::REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG{
-    "regularization_tree_topology_change_penalty"};
+const std::string CBoostedTreeParameter<T>::SAVED_VALUE_TAG{"saved_value"};
 
-//! \brief The algorithm parameters we'll directly optimise to improve test error.
-class MATHS_EXPORT CBoostedTreeHyperparameters {
+//! \name The hyperparameters for boosted tree training.
+//!
+//! DESCRIPTION:\n
+//! This stores and manages persistence of all the boosted tree training and
+//! incremental training hyperparameters. It also provides functionality for
+//! optimizing these using a combination of random (Sobolov sequence) search
+//! and Bayesian Optimisation.
+class CBoostedTreeHyperparameters {
 public:
-    using TRegularization = CBoostedTreeRegularization<double>;
+    using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
+    using TStrVec = std::vector<std::string>;
+    using TDoubleParameter = CBoostedTreeParameter<double>;
+    using TSizeParameter = CBoostedTreeParameter<std::size_t>;
+    using TInitialRangeFunc =
+        std::function<void(boosted_tree_detail::EHyperparameter, TDoubleDoublePrVec&)>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using THyperparameterImportanceVec =
+        std::vector<boosted_tree_detail::SHyperparameterImportance>;
+
+    //! \brief Forces maximum number of trees to one for its lifetime.
+    class CScopeForceSetMaximumNumberTrees {
+    public:
+        explicit CScopeForceSetMaximumNumberTrees(std::size_t maximumNumberTree,
+                                                  CBoostedTreeHyperparameters& hyperparameters);
+        ~CScopeForceSetMaximumNumberTrees();
+        CScopeForceSetMaximumNumberTrees(const CScopeForceSetMaximumNumberTrees&) = delete;
+        CScopeForceSetMaximumNumberTrees&
+        operator=(const CScopeForceSetMaximumNumberTrees&) = delete;
+
+    private:
+        CBoostedTreeParameter<std::size_t>& m_MaximumNumberTrees;
+        std::size_t m_MaximumNumberTreesToRestore;
+    };
 
 public:
-    CBoostedTreeHyperparameters() = default;
-    CBoostedTreeHyperparameters(const TRegularization& regularization,
-                                double downsampleFactor,
-                                double eta,
-                                double etaGrowthRatePerTree,
-                                double retrainedTreeEta,
-                                std::size_t maximumNumberTrees,
-                                double featureBagFraction,
-                                double predictionChangeCost);
+    static const std::string BAYESIAN_OPTIMIZATION_TAG;
+    static const std::string BEST_FOREST_LOSS_GAP_TAG;
+    static const std::string BEST_FOREST_TEST_LOSS_TAG;
+    static const std::string CURRENT_ROUND_TAG;
+    static const std::string DEPTH_PENALTY_MULTIPLIER_TAG;
+    static const std::string DOWNSAMPLE_FACTOR_TAG;
+    static const std::string ETA_GROWTH_RATE_PER_TREE_TAG;
+    static const std::string ETA_TAG;
+    static const std::string FEATURE_BAG_FRACTION_TAG;
+    static const std::string LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG;
+    static const std::string MAXIMUM_NUMBER_TREES_TAG;
+    static const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG;
+    static const std::string MEAN_FOREST_SIZE_ACCUMULATOR_TAG;
+    static const std::string MEAN_TEST_LOSS_ACCUMULATOR_TAG;
+    static const std::string NUMBER_FOLDS_TAG;
+    static const std::string NUMBER_ROUNDS_TAG;
+    static const std::string PREDICTION_CHANGE_COST_TAG;
+    static const std::string RETRAINED_TREE_ETA_TAG;
+    static const std::string SOFT_TREE_DEPTH_LIMIT_TAG;
+    static const std::string SOFT_TREE_DEPTH_TOLERANCE_TAG;
+    static const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG;
+    static const std::string TRAIN_FRACTION_PER_FOLD_TAG;
+    static const std::string TREE_SIZE_PENALTY_MULTIPLIER_TAG;
+    static const std::string TREE_TOPOLOGY_CHANGE_PENALTY_TAG;
 
-    //! The regularisation parameters.
-    const TRegularization& regularization() const;
-    //! The maximum number of trees to use.
-    std::size_t maximumNumberTrees() const;
-    //! The downsample factor.
-    double downsampleFactor() const;
-    //! Shrinkage.
-    double eta() const;
-    //! Rate of growth of shrinkage in the training loop.
-    double etaGrowthRatePerTree() const;
-    //! Shrinkage for retrained trees.
-    double retrainedTreeEta() const;
-    //! The fraction of features we use per bag.
-    double featureBagFraction() const;
-    //! The cost of changing the model predictions on old training data.
-    double predictionChangeCost() const;
+    //! We prefer smaller models if it costs little in test accuracy.
+    static constexpr double RELATIVE_SIZE_PENALTY{0.01};
+
+public:
+    CBoostedTreeHyperparameters() { this->saveCurrent(); }
+
+    //! Set if we're incremental training.
+    void incrementalTraining(bool value) { m_IncrementalTraining = value; }
+    //! \return True if we are incremental training.
+    bool incrementalTraining() const { return m_IncrementalTraining; }
+
+    //! Get the writeable multiplier of the tree depth penalty.
+    TDoubleParameter& depthPenaltyMultiplier() {
+        return m_DepthPenaltyMultiplier;
+    }
+    //! Get the multiplier of the tree depth penalty.
+    const TDoubleParameter& depthPenaltyMultiplier() const {
+        return m_DepthPenaltyMultiplier;
+    }
+
+    //! Get the writeable multiplier of the tree size penalty.
+    TDoubleParameter& treeSizePenaltyMultiplier() {
+        return m_TreeSizePenaltyMultiplier;
+    }
+    //! Get the multiplier of the tree size penalty.
+    const TDoubleParameter& treeSizePenaltyMultiplier() const {
+        return m_TreeSizePenaltyMultiplier;
+    }
+
+    //! Get the writeable multiplier of the square leaf weight penalty.
+    TDoubleParameter& leafWeightPenaltyMultiplier() {
+        return m_LeafWeightPenaltyMultiplier;
+    }
+    //! Get the multiplier of the square leaf weight penalty.
+    const TDoubleParameter& leafWeightPenaltyMultiplier() const {
+        return m_LeafWeightPenaltyMultiplier;
+    }
+
+    //! Get the writable soft depth tree depth limit.
+    TDoubleParameter& softTreeDepthLimit() { return m_SoftTreeDepthLimit; }
+    //! Get the soft depth tree depth limit.
+    const TDoubleParameter& softTreeDepthLimit() const {
+        return m_SoftTreeDepthLimit;
+    }
+
+    //! Get the writable tolerance in the depth tree depth limit.
+    TDoubleParameter& softTreeDepthTolerance() {
+        return m_SoftTreeDepthTolerance;
+    }
+    //! Get the soft depth tree depth limit tolerance.
+    const TDoubleParameter& softTreeDepthTolerance() const {
+        return m_SoftTreeDepthTolerance;
+    }
+    //! Get the penalty which applies to a leaf at depth \p depth.
+    double penaltyForDepth(std::size_t depth) const;
+
+    //! Get the writeable tolerance in the depth tree depth limit.
+    TDoubleParameter& treeTopologyChangePenalty() {
+        return m_TreeTopologyChangePenalty;
+    }
+    //! Get the tolerance in the depth tree depth limit.
+    const TDoubleParameter& treeTopologyChangePenalty() const {
+        return m_TreeTopologyChangePenalty;
+    }
+
+    //! Get the writeable data downsample factor when computing loss derivatives.
+    TDoubleParameter& downsampleFactor() { return m_TreeTopologyChangePenalty; }
+    //! Get the data downsample factor when computing loss derivatives.
+    const TDoubleParameter& downsampleFactor() const {
+        return m_TreeTopologyChangePenalty;
+    }
+
+    //! Get the writeable fraction of features which are selected for training a tree.
+    TDoubleParameter& featureBagFraction() { return m_FeatureBagFraction; }
+    //! Get the fraction of features which are selected for training a tree.
+    const TDoubleParameter& featureBagFraction() const {
+        return m_FeatureBagFraction;
+    }
+
+    //! Get the writeable weight shinkage.
+    TDoubleParameter& eta() { return m_Eta; }
+    //! Get the weight shinkage.
+    const TDoubleParameter& eta() const { return m_Eta; }
+
+    //! Get the writeable growth in weight shrinkage per tree which is added.
+    TDoubleParameter& etaGrowthRatePerTree() { return m_EtaGrowthRatePerTree; }
+    //! Get the growth in weight shrinkage per tree which is added.
+    const TDoubleParameter& etaGrowthRatePerTree() const {
+        return m_EtaGrowthRatePerTree;
+    }
+
+    //! Get the writeable weight shrinkage to use when retraining a tree.
+    TDoubleParameter& retrainedTreeEta() { return m_RetrainedTreeEta; }
+    //! Get the weight shrinkage to use when retraining a tree.
+    const TDoubleParameter& retrainedTreeEta() const {
+        return m_RetrainedTreeEta;
+    }
+
+    //! Get the writeable multiplier of prediction change penalty.
+    TDoubleParameter& predictionChangeCost() { return m_PredictionChangeCost; }
+    //! Get the multiplier of prediction change penalty.
+    const TDoubleParameter& predictionChangeCost() const {
+        return m_PredictionChangeCost;
+    }
+
+    //! Set the maximum number of trees to use.
+    TSizeParameter& maximumNumberTrees() { return m_MaximumNumberTrees; }
+    //! Get the maximum number of trees to use.
+    const TSizeParameter& maximumNumberTrees() const {
+        return m_MaximumNumberTrees;
+    }
+
+    //! Scale regularizer multipliers.
+    void scaleRegularizerMultipliers(double scale, bool force = false);
+
+    //! \name Optimisation
+    //@{
+    //! Set the number of search rounds to use per hyperparameter which is being tuned.
+    CBoostedTreeHyperparameters& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+
+    //! Set whether to stop hyperparameter optimization early.
+    CBoostedTreeHyperparameters& stopHyperparameterOptimizationEarly(bool enable);
+
+    //! Set the maximum number of restarts to use internally in Bayesian Optimisation.
+    CBoostedTreeHyperparameters& bayesianOptimisationRestarts(std::size_t restarts);
+
+    //! Get the number of hyperparameters to tune.
+    std::size_t numberToTune() const;
+
+    //! Reset search state.
+    void resetSearch();
+
+    //! Initialize the search for best values of tunable hyperparameters.
+    void initializeSearch(const TInitialRangeFunc& initialRange);
+
+    //! Initialize a search for the best hyperparameters.
+    void startSearch();
+
+    //! Check if the search for the best hyperparameter values has finished.
+    bool searchNotFinished() const { return m_CurrentRound < m_NumberRounds; }
+
+    //! Start a new round of hyperparameter search.
+    void startNextSearchRound() { ++m_CurrentRound; }
+
+    //! Get the current round of the search for the best hyperparameters.
+    std::size_t currentRound() const { return m_CurrentRound; }
+
+    //! Get the maximum number of rounds used to search for the best hyperparameters.
+    std::size_t numberRounds() const { return m_NumberRounds; }
+
+    //! Get the best forest test loss.
+    double bestForestTestLoss() const { return m_BestForestTestLoss; }
+
+    //! Get the gap between the train and test loss for the best forest.
+    double bestForestLossGap() const { return m_BestForestLossGap; }
+
+    //! Update with the statistics for the current round.
+    void addRoundStats(const TMeanAccumulator& meanForestSizeAccumulator, double meanTestLoss);
+
+    //! Choose the next set of hyperparameters to test.
+    bool selectNext(const TMeanVarAccumulator& testLossMoments,
+                    double explainedVariance = 0.0);
+
+    //! Capture the current hyperparameters if they're the best we've seen so far.
+    void captureBest(const TMeanVarAccumulator& testLossMoments,
+                     double meanLossGap,
+                     double numberKeptNodes,
+                     double numberNewNodes,
+                     std::size_t numberTrees);
+
+    //! The penalty to apply based on the model size.
+    double modelSizePenalty(double numberKeptNodes, double numberNewNodes) const;
+
+    //! Restore the best saved hyperparameters.
+    void restoreSaved();
+
+    //! Compute the loss at \p n standard deviations of \p lossMoments above
+    //! the mean.
+    static double lossAtNSigma(double n, const TMeanVarAccumulator& lossMoments) {
+        return CBasicStatistics::mean(lossMoments) +
+               n * std::sqrt(CBasicStatistics::variance(lossMoments));
+    }
+
+    //! Get the vector of hyperparameter importances.
+    THyperparameterImportanceVec importances() const;
+    //@}
+
+    //! Write the current hyperparameters to \p instrumentation.
+    void output(CDataFrameTrainBoostedTreeInstrumentationInterface& instrumentation) const;
+
+    //! Check invariants which are assumed to hold in order to optimize hyperparameters.
+    void checkSearchInvariants() const;
+
+    //! Check the invariants which should hold after restoring.
+    void checkRestoredInvariants(bool expectOptimizerInitialized) const;
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -244,40 +400,64 @@ public:
     //! Populate the object from serialized data.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
-public:
-    static const std::string HYPERPARAM_DOWNSAMPLE_FACTOR_TAG;
-    static const std::string HYPERPARAM_ETA_TAG;
-    static const std::string HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG;
-    static const std::string HYPERPARAM_RETRAINED_TREE_ETA_TAG;
-    static const std::string HYPERPARAM_FEATURE_BAG_FRACTION_TAG;
-    static const std::string HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG;
-    static const std::string HYPERPARAM_PREDICTION_CHANGE_COST_TAG;
-    static const std::string HYPERPARAM_REGULARIZATION_TAG;
+    //! Compute a checksum for this object.
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
+
+    //! Get description of the parameters.
+    std::string print() const;
+
+    //! \name Test Only
+    //@{
+    //! A list of the names of the best individual hyperparameters in the state document.
+    static TStrVec names();
+    //@}
 
 private:
-    //! The regularisation parameters.
-    TRegularization m_Regularization;
+    using TBayesinOptimizationUPtr = std::unique_ptr<CBayesianOptimisation>;
+    using TDoubleVec = std::vector<double>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
+    using TOptionalSize = boost::optional<std::size_t>;
 
-    //! The downsample factor.
-    double m_DownsampleFactor{0.0};
+private:
+    void initializeTunableHyperparameters();
+    void saveCurrent();
 
-    //! Shrinkage.
-    double m_Eta{0.0};
+private:
+    bool m_IncrementalTraining{false};
 
-    //! Rate of growth of shrinkage in the training loop.
-    double m_EtaGrowthRatePerTree{0.0};
+    //! \name Hyperparameters
+    //@{
+    TDoubleParameter m_DepthPenaltyMultiplier{0.0};
+    TDoubleParameter m_TreeSizePenaltyMultiplier{0.0};
+    TDoubleParameter m_LeafWeightPenaltyMultiplier{0.0};
+    TDoubleParameter m_SoftTreeDepthLimit{0.0};
+    TDoubleParameter m_SoftTreeDepthTolerance{1.0};
+    TDoubleParameter m_TreeTopologyChangePenalty{0.0};
+    TDoubleParameter m_DownsampleFactor{0.5};
+    TDoubleParameter m_FeatureBagFraction{0.5};
+    TDoubleParameter m_Eta{0.1};
+    TDoubleParameter m_EtaGrowthRatePerTree{1.05};
+    TDoubleParameter m_RetrainedTreeEta{1.0};
+    TDoubleParameter m_PredictionChangeCost{0.5};
+    TSizeParameter m_MaximumNumberTrees{20};
+    //@}
 
-    //! Shrinkage for retrained trees.
-    double m_RetrainedTreeEta{0.0};
-
-    //! The maximum number of trees we'll use.
-    std::size_t m_MaximumNumberTrees{0};
-
-    //! The fraction of features we use per bag.
-    double m_FeatureBagFraction{0.0};
-
-    //! The cost of changing the old model predictions when training incrementally.
-    double m_PredictionChangeCost{0.0};
+    //@ \name Hyperparameter Optimisation
+    //@{
+    bool m_StopHyperparameterOptimizationEarly{true};
+    std::size_t m_MaximumOptimisationRoundsPerHyperparameter{2};
+    TOptionalSize m_BayesianOptimisationRestarts;
+    THyperparametersVec m_TunableHyperparameters;
+    TDoubleVecVec m_HyperparameterSamples;
+    TBayesinOptimizationUPtr m_BayesianOptimization;
+    std::size_t m_NumberRounds{1};
+    std::size_t m_CurrentRound{0};
+    double m_BestForestTestLoss{boosted_tree_detail::INF};
+    double m_BestForestLossGap{0.0};
+    TMeanAccumulator m_MeanForestSizeAccumulator;
+    TMeanAccumulator m_MeanTestLossAccumulator;
+    //@}
 };
 }
 }

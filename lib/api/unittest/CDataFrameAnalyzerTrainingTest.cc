@@ -215,18 +215,14 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
     // Compare hyperparameters.
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
-    const auto& expectedHyperparameters =
-        expectedResults[maths::CBoostedTree::bestHyperparametersName()];
-    const auto& expectedRegularizationHyperparameters =
-        expectedHyperparameters[maths::CBoostedTree::bestRegularizationHyperparametersName()];
+    const auto& expectedHyperparameters = expectedResults["hyperparameters"];
+    const auto& expectedRegularizationHyperparameters = expectedHyperparameters["hyperparameters"];
 
     rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
-    const auto& actualHyperparameters =
-        actualResults[maths::CBoostedTree::bestHyperparametersName()];
-    const auto& actualRegularizationHyperparameters =
-        actualHyperparameters[maths::CBoostedTree::bestRegularizationHyperparametersName()];
+    const auto& actualHyperparameters = actualResults["hyperparameters"];
+    const auto& actualRegularizationHyperparameters = actualHyperparameters["hyperparameters"];
 
-    for (const auto& key : maths::CBoostedTree::bestHyperparameterNames()) {
+    for (const auto& key : maths::CBoostedTreeHyperparameters::names()) {
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key].GetString())};
             double actual{std::stod(actualHyperparameters[key].GetString())};
@@ -251,7 +247,9 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
     double gamma{10.0};
     double softTreeDepthLimit{3.0};
     double softTreeDepthTolerance{0.1};
+    double downsampleFactor{0.3};
     double eta{0.9};
+    double etaGrowthRatePerTree{1.2};
     std::size_t maximumNumberTrees{1};
     double featureBagFraction{0.3};
 
@@ -267,7 +265,9 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
                     .predictionGamma(gamma)
                     .predictionSoftTreeDepthLimit(softTreeDepthLimit)
                     .predictionSoftTreeDepthTolerance(softTreeDepthTolerance)
+                    .predictionDownsampleFactor(downsampleFactor)
                     .predictionEta(eta)
+                    .predictionEtaGrowthRatePerTree(etaGrowthRatePerTree)
                     .predictionMaximumNumberTrees(maximumNumberTrees)
                     .predictionFeatureBagFraction(featureBagFraction)
                     .regressionLossFunction(lossFunction)
@@ -286,24 +286,20 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
         eta, maximumNumberTrees, featureBagFraction);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    // Check best hyperparameters
+    // Check the hyperparameter values match the overrides.
     const auto* runner{dynamic_cast<const api::CDataFrameTrainBoostedTreeRegressionRunner*>(
         analyzer.runner())};
     const auto& boostedTree{runner->boostedTree()};
-    const auto& bestHyperparameters{boostedTree.bestHyperparameters()};
-    BOOST_TEST_REQUIRE(bestHyperparameters.eta() == eta);
-    BOOST_TEST_REQUIRE(bestHyperparameters.featureBagFraction() == featureBagFraction);
-    // TODO extend to support setting downsampleFactor and etaGrowthRatePerTree
-    //    BOOST_TEST_REQUIRE(bestHyperparameters.downsampleFactor() == downsampleFactor);
-    //    BOOST_TEST_REQUIRE(bestHyperparameters.etaGrowthRatePerTree() == etaGrowthRatePerTree);
-    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().depthPenaltyMultiplier() == alpha);
-    BOOST_TEST_REQUIRE(
-        bestHyperparameters.regularization().leafWeightPenaltyMultiplier() == lambda);
-    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().treeSizePenaltyMultiplier() == gamma);
-    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().softTreeDepthLimit() ==
-                       softTreeDepthLimit);
-    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().softTreeDepthTolerance() ==
-                       softTreeDepthTolerance);
+    const auto& hyperparameters{boostedTree.hyperparameters()};
+    BOOST_TEST_REQUIRE(hyperparameters.eta().value() == eta);
+    BOOST_TEST_REQUIRE(hyperparameters.featureBagFraction().value() == featureBagFraction);
+    BOOST_TEST_REQUIRE(hyperparameters.downsampleFactor().value() == downsampleFactor);
+    BOOST_TEST_REQUIRE(hyperparameters.etaGrowthRatePerTree().value() == etaGrowthRatePerTree);
+    BOOST_TEST_REQUIRE(hyperparameters.depthPenaltyMultiplier().value() == alpha);
+    BOOST_TEST_REQUIRE(hyperparameters.leafWeightPenaltyMultiplier().value() == lambda);
+    BOOST_TEST_REQUIRE(hyperparameters.treeSizePenaltyMultiplier().value() == gamma);
+    BOOST_TEST_REQUIRE(hyperparameters.softTreeDepthLimit().value() == softTreeDepthLimit);
+    BOOST_TEST_REQUIRE(hyperparameters.softTreeDepthTolerance().value() == softTreeDepthTolerance);
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));

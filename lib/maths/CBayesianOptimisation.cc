@@ -19,6 +19,7 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CChecksum.h>
 #include <maths/CLbfgs.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
@@ -762,6 +763,20 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
     LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported version: "
               << VERSION_7_5_TAG);
     return false;
+}
+
+std::uint64_t CBayesianOptimisation::checksum(std::uint64_t seed) const {
+    seed = CChecksum::calculate(seed, m_Rng);
+    seed = CChecksum::calculate(seed, m_Restarts);
+    seed = CChecksum::calculate(seed, m_RangeShift);
+    seed = CChecksum::calculate(seed, m_RangeScale);
+    seed = CChecksum::calculate(seed, m_ExplainedErrorVariance);
+    seed = CChecksum::calculate(seed, m_MinBoundary);
+    seed = CChecksum::calculate(seed, m_MaxBoundary);
+    seed = CChecksum::calculate(seed, m_FunctionMeanValues);
+    seed = CChecksum::calculate(seed, m_ErrorVariances);
+    seed = CChecksum::calculate(seed, m_KernelParameters);
+    return CChecksum::calculate(seed, m_MinimumKernelCoordinateDistanceScale);
 }
 
 void CBayesianOptimisation::checkRestoredInvariants() const {

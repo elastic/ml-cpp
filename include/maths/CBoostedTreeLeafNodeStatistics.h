@@ -82,7 +82,7 @@ public:
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TFloatVec = std::vector<CFloatStorage>;
     using TFloatVecVec = std::vector<TFloatVec>;
-    using TRegularization = CBoostedTreeRegularization<double>;
+    using TRegularization = CBoostedTreeHyperparameters;
     using TPtr = std::shared_ptr<CBoostedTreeLeafNodeStatistics>;
     using TPtrPtrPr = std::pair<TPtr, TPtr>;
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
