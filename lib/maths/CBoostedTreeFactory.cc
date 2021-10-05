@@ -181,7 +181,7 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
                                               std::size_t dependentVariable) {
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
-    m_TreeImpl->m_IncrementalTraining = true;
+    m_TreeImpl->m_Hyperparameters.incrementalTraining(true);
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeNumberFolds(frame); });
@@ -288,7 +288,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
         return this->buildForTrain(frame, dependentVariable);
     }
 
-    if (m_TreeImpl->m_IncrementalTraining == false) {
+    if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
         this->prepareDataFrameForTrain(frame);
     } else {
         this->prepareDataFrameForIncrementalTrain(frame);
@@ -299,7 +299,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
 
-    if (m_TreeImpl->m_IncrementalTraining == false) {
+    if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
         this->skipProgressMonitoringFeatureSelection();
         this->skipProgressMonitoringInitializeHyperparameters();
     }
@@ -542,7 +542,7 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
     double trainFractionPerFold{m_TreeImpl->m_TrainFractionPerFold.value()};
     auto& rng = m_TreeImpl->m_Rng;
 
-    if (m_TreeImpl->m_IncrementalTraining == false) {
+    if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
         std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, std::ignore) =
             CDataFrameUtils::stratifiedCrossValidationRowMasks(
                 numberThreads, frame, dependentVariable, rng, numberFolds,
@@ -648,7 +648,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeHyperparametersSetup(frame); });
 
-    if (m_TreeImpl->m_IncrementalTraining == false) {
+    if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
         this->initializeUnsetRegularizationHyperparameters(frame);
         this->initializeUnsetDownsampleFactor(frame);
         this->initializeUnsetFeatureBagFraction(frame);

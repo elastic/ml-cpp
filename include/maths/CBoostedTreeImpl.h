@@ -489,7 +489,6 @@ private:
 
     //! \name Incremental Train
     //@{
-    bool m_IncrementalTraining{false};
     bool m_ForceAcceptIncrementalTraining{false};
     double m_DataSummarizationFraction{0.1};
     double m_RetrainFraction{0.1};

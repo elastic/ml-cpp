@@ -636,17 +636,17 @@ void CBoostedTreeHyperparameters::initializeTunableHyperparameters() {
             break;
         // Incremental train hyperparameters.
         case E_PredictionChangeCost:
-            if (m_IncrementalTraining || m_PredictionChangeCost.fixed() == false) {
+            if (m_IncrementalTraining && (m_PredictionChangeCost.fixed() == false)) {
                 m_TunableHyperparameters.push_back(E_PredictionChangeCost);
             }
             break;
         case E_RetrainedTreeEta:
-            if (m_IncrementalTraining && m_RetrainedTreeEta.fixed() == false) {
+            if (m_IncrementalTraining && (m_RetrainedTreeEta.fixed() == false)) {
                 m_TunableHyperparameters.push_back(E_RetrainedTreeEta);
             }
             break;
         case E_TreeTopologyChangePenalty:
-            if (m_IncrementalTraining && m_TreeTopologyChangePenalty.fixed() == false) {
+            if (m_IncrementalTraining && (m_TreeTopologyChangePenalty.fixed() == false)) {
                 m_TunableHyperparameters.push_back(E_TreeTopologyChangePenalty);
             }
             break;

@@ -261,10 +261,10 @@ public:
     }
 
     //! Get the writeable data downsample factor when computing loss derivatives.
-    TDoubleParameter& downsampleFactor() { return m_TreeTopologyChangePenalty; }
+    TDoubleParameter& downsampleFactor() { return m_DownsampleFactor; }
     //! Get the data downsample factor when computing loss derivatives.
     const TDoubleParameter& downsampleFactor() const {
-        return m_TreeTopologyChangePenalty;
+        return m_DownsampleFactor;
     }
 
     //! Get the writeable fraction of features which are selected for training a tree.

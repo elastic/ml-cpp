@@ -845,7 +845,7 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
-                if (m_IncrementalTraining) {
+                if (m_Hyperparameters.incrementalTraining()) {
                     writePrediction(row, m_ExtraColumns, numberLossParameters,
                                     readPreviousPrediction(row, m_ExtraColumns,
                                                            numberLossParameters));
@@ -859,7 +859,7 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
         &updateRowMask);
 
     TNodeVec tree;
-    if (m_IncrementalTraining == false) {
+    if (m_Hyperparameters.incrementalTraining() == false) {
         // At the start we will centre the data w.r.t. the given loss function.
         tree.assign({CBoostedTreeNode{m_Loss->numberParameters()}});
         this->computeLeafValues(frame, trainingRowMask, *m_Loss, 1.0 /*eta*/,
@@ -1927,7 +1927,6 @@ const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
 const std::string FORCE_ACCEPT_INCREMENTAL_TRAINING_TAG{"force_accept_incremental_training"};
 const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
 const std::string INITIALIZATION_STAGE_TAG{"initialization_progress"};
-const std::string INCREMENTAL_TRAINING_TAG{"incremental_training"};
 const std::string LOSS_TAG{"loss"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
@@ -1966,7 +1965,6 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(FORCE_ACCEPT_INCREMENTAL_TRAINING_TAG,
                                  m_ForceAcceptIncrementalTraining, inserter);
     core::CPersistUtils::persist(HYPERPARAMETERS_TAG, m_Hyperparameters, inserter);
-    core::CPersistUtils::persist(INCREMENTAL_TRAINING_TAG, m_IncrementalTraining, inserter);
     core::CPersistUtils::persist(INITIALIZATION_STAGE_TAG,
                                  static_cast<int>(m_InitializationStage), inserter);
     if (m_Loss != nullptr) {
@@ -2048,9 +2046,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                                              m_ForceAcceptIncrementalTraining, traverser))
         RESTORE(HYPERPARAMETERS_TAG,
                 core::CPersistUtils::restore(HYPERPARAMETERS_TAG, m_Hyperparameters, traverser))
-        RESTORE(INCREMENTAL_TRAINING_TAG,
-                core::CPersistUtils::restore(INCREMENTAL_TRAINING_TAG,
-                                             m_IncrementalTraining, traverser))
         RESTORE(INITIALIZATION_STAGE_TAG,
                 core::CPersistUtils::restore(INITIALIZATION_STAGE_TAG,
                                              initializationStage, traverser))
