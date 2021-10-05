@@ -267,6 +267,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
+        this->recordHyperparameters();
         this->scaleRegularizers(allTrainingRowsMask.manhattan() /
                                 this->meanNumberTrainingRowsPerFold());
         this->startProgressMonitoringFinalTrain();
