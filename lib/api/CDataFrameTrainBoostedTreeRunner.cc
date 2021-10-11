@@ -19,10 +19,10 @@
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
-#include <maths/CDataFrameUtils.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CDataFrameUtils.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -160,8 +160,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                      << "' should be in the range (0, 1]");
     }
 
-    m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
-        maths::CBoostedTreeFactory::constructFromParameters(
+    m_BoostedTreeFactory = std::make_unique<maths::analytics::CBoostedTreeFactory>(
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
             this->spec().numberThreads(), std::move(loss)));
 
     (*m_BoostedTreeFactory)
@@ -224,7 +224,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
-    return maths::CBoostedTreeFactory::estimatedExtraColumns(
+    return maths::analytics::CBoostedTreeFactory::estimatedExtraColumns(
         this->spec().numberColumns(), m_NumberLossParameters);
 }
 
@@ -260,9 +260,9 @@ bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) c
         HANDLE_FATAL(<< "Input error: analysis need at least one regressor.");
         return false;
     }
-    if (frame.numberRows() > maths::CBoostedTreeFactory::maximumNumberRows()) {
+    if (frame.numberRows() > maths::analytics::CBoostedTreeFactory::maximumNumberRows()) {
         HANDLE_FATAL(<< "Input error: no more than "
-                     << maths::CBoostedTreeFactory::maximumNumberRows()
+                     << maths::analytics::CBoostedTreeFactory::maximumNumberRows()
                      << " are supported. You need to downsample your data.");
         return false;
     }
@@ -276,21 +276,22 @@ void CDataFrameTrainBoostedTreeRunner::accept(CBoostedTreeInferenceModelBuilder&
     this->boostedTree().accept(builder);
 }
 
-const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
+const maths::analytics::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
     if (m_BoostedTree == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
     }
     return *m_BoostedTree;
 }
 
-maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
+maths::analytics::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
     if (m_BoostedTreeFactory == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
     }
     return *m_BoostedTreeFactory;
 }
 
-const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
+const maths::analytics::CBoostedTreeFactory&
+CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
     if (m_BoostedTreeFactory == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
     }
@@ -361,7 +362,7 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
             LOG_ERROR(<< "State restoration search returned failed stream");
             return false;
         }
-        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
+        m_BoostedTree = maths::analytics::CBoostedTreeFactory::constructFromString(*inputStream)
                             .analysisInstrumentation(m_Instrumentation)
                             .trainingStateCallback(this->statePersister())
                             .restoreFor(frame, dependentVariableColumn);

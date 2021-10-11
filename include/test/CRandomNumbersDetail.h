@@ -14,9 +14,9 @@
 
 #include <core/CLogger.h>
 
-#include <maths/CLinearAlgebra.h>
-#include <maths/CLinearAlgebraEigen.h>
-#include <maths/CLinearAlgebraTools.h>
+#include <maths/common/CLinearAlgebra.h>
+#include <maths/common/CLinearAlgebraEigen.h>
+#include <maths/common/CLinearAlgebraTools.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -46,9 +46,9 @@ void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
 template<typename T, std::size_t N>
 void CRandomNumbers::generateRandomMultivariateNormals(
     const TSizeVec& sizes,
-    std::vector<maths::CVectorNx1<T, N>>& means,
-    std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
-    std::vector<std::vector<maths::CVectorNx1<T, N>>>& points) {
+    std::vector<maths::common::CVectorNx1<T, N>>& means,
+    std::vector<maths::common::CSymmetricMatrixNxN<T, N>>& covariances,
+    std::vector<std::vector<maths::common::CVectorNx1<T, N>>>& points) {
     means.clear();
     covariances.clear();
     points.clear();
@@ -58,7 +58,7 @@ void CRandomNumbers::generateRandomMultivariateNormals(
     TDoubleVec means_;
     this->generateUniformSamples(-100.0, 100.0, N * k, means_);
     for (std::size_t i = 0; i < N * k; i += N) {
-        maths::CVectorNx1<T, N> mean(&means_[i], &means_[i + N]);
+        maths::common::CVectorNx1<T, N> mean(&means_[i], &means_[i + N]);
         means.push_back(mean);
     }
 
@@ -96,7 +96,7 @@ void CRandomNumbers::generateRandomMultivariateNormals(
         }
         covariance = rotation.transpose() * covariance * rotation;
 
-        covariances.emplace_back(maths::fromDenseMatrix(covariance));
+        covariances.emplace_back(maths::common::fromDenseMatrix(covariance));
     }
 
     points.resize(k);

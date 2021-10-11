@@ -35,7 +35,7 @@ using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
-using TLossFunctionType = maths::boosted_tree::ELossType;
+using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
 
 void addOutlierTestData(TStrVec fieldNames,
                         TStrVec fieldValues,
@@ -44,7 +44,7 @@ void addOutlierTestData(TStrVec fieldNames,
                         TDoubleVecVec& expectedFeatureInfluences,
                         std::size_t numberInliers = 100,
                         std::size_t numberOutliers = 10,
-                        maths::COutliers::EMethod method = maths::COutliers::E_Ensemble,
+                        maths::analytics::COutliers::EMethod method = maths::analytics::COutliers::E_Ensemble,
                         std::size_t numberNeighbours = 0,
                         bool computeFeatureInfluence = false) {
 
@@ -83,8 +83,8 @@ void addOutlierTestData(TStrVec fieldNames,
     }
 
     frame->finishWritingRows();
-    maths::CDataFrameOutliersInstrumentationStub instrumentation;
-    maths::COutliers::compute(
+    maths::analytics::CDataFrameOutliersInstrumentationStub instrumentation;
+    maths::analytics::COutliers::compute(
         {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05},
         *frame, instrumentation);
 

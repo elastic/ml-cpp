@@ -14,7 +14,7 @@
 #include <core/COsFileFuncs.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CModelWeight.h>
+#include <maths/common/CModelWeight.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>

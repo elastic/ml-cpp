@@ -107,7 +107,7 @@ public:
 
     double attributeFrequency(std::size_t cid) const override;
 
-    const maths::CModel* model(std::size_t id) const;
+    const maths::common::CModel* model(std::size_t id) const;
 
     // Setter methods to allow mocking
 
@@ -159,7 +159,8 @@ public:
     explicit CMockModelDetailsView(const CMockModel& model);
 
 private:
-    const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const override;
+    const maths::common::CModel* model(model_t::EFeature feature,
+                                       std::size_t byFieldId) const override;
     TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
     const CAnomalyDetectorModel& base() const override;
     double countVarianceScale(model_t::EFeature feature,

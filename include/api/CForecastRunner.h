@@ -18,7 +18,7 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CModel.h>
+#include <maths/common/CModel.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CForecastDataSink.h>
@@ -134,7 +134,7 @@ public:
     using TForecastModelWrapper = model::CForecastDataSink::CForecastModelWrapper;
     using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
     using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
-    using TMathsModelPtr = std::unique_ptr<maths::CModel>;
+    using TMathsModelPtr = std::unique_ptr<maths::common::CModel>;
 
     using TStrUSet = boost::unordered_set<std::string>;
 
@@ -211,7 +211,7 @@ private:
         core_t::TTime s_ExpiryTime{0};
 
         //! Forecast bounds
-        double s_BoundsPercentile{maths::CModel::DEFAULT_BOUNDS_PERCENTILE};
+        double s_BoundsPercentile{maths::common::CModel::DEFAULT_BOUNDS_PERCENTILE};
 
         //! total number of models
         std::size_t s_NumberOfModels{0};

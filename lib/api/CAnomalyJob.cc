@@ -27,9 +27,9 @@
 #include <core/Constants.h>
 #include <core/UnwrapRef.h>
 
-#include <maths/CIntegerTools.h>
-#include <maths/COrderings.h>
-#include <maths/CTools.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CTools.h>
 
 #include <model/CAnomalyScore.h>
 #include <model/CForecastDataSink.h>
@@ -508,9 +508,9 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
     core_t::TTime latency = m_ModelConfig.latency();
 
     if (m_LastFinalisedBucketEndTime == 0) {
-        m_LastFinalisedBucketEndTime =
-            std::max(m_LastFinalisedBucketEndTime,
-                     maths::CIntegerTools::floor(time, bucketLength) - latency);
+        m_LastFinalisedBucketEndTime = std::max(
+            m_LastFinalisedBucketEndTime,
+            maths::common::CIntegerTools::floor(time, bucketLength) - latency);
     }
 
     m_Normalizer.resetBigChange();
@@ -551,7 +551,8 @@ void CAnomalyJob::skipTime(const std::string& time_) {
         return;
     }
 
-    this->skipSampling(maths::CIntegerTools::ceil(time, m_ModelConfig.bucketLength()));
+    this->skipSampling(
+        maths::common::CIntegerTools::ceil(time, m_ModelConfig.bucketLength()));
 }
 
 void CAnomalyJob::skipSampling(core_t::TTime endTime) {
@@ -794,8 +795,8 @@ void CAnomalyJob::resetBuckets(const std::string& controlMessage) {
     core_t::TTime end = 0;
     if (this->parseTimeRangeInControlMessage(controlMessage, start, end)) {
         core_t::TTime bucketLength = m_ModelConfig.bucketLength();
-        core_t::TTime time = maths::CIntegerTools::floor(start, bucketLength);
-        core_t::TTime bucketEnd = maths::CIntegerTools::ceil(end, bucketLength);
+        core_t::TTime time = maths::common::CIntegerTools::floor(start, bucketLength);
+        core_t::TTime bucketEnd = maths::common::CIntegerTools::ceil(end, bucketLength);
         while (time < bucketEnd) {
             for (const auto& detector_ : m_Detectors) {
                 model::CAnomalyDetector* detector = detector_.second.get();
@@ -854,7 +855,7 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
         }
 
         if (completeToTime > 0) {
-            core_t::TTime lastBucketEndTime(maths::CIntegerTools::ceil(
+            core_t::TTime lastBucketEndTime(maths::common::CIntegerTools::ceil(
                 completeToTime, m_ModelConfig.bucketLength()));
 
             for (const auto& detector_ : m_Detectors) {
@@ -1175,7 +1176,7 @@ bool CAnomalyJob::backgroundPersistState() {
         }
     }
     std::sort(copiedDetectors.begin(), copiedDetectors.end(),
-              maths::COrderings::SFirstLess());
+              maths::common::COrderings::SFirstLess());
 
     if (m_PersistenceManager->addPersistFunc(std::bind(
             &CAnomalyJob::runBackgroundPersist, this, args, std::placeholders::_1)) == false) {
@@ -1449,8 +1450,8 @@ void CAnomalyJob::outputResultsWithinRange(bool isInterim, core_t::TTime start, 
         return;
     }
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
-    core_t::TTime time = maths::CIntegerTools::floor(start, bucketLength);
-    core_t::TTime bucketEnd = maths::CIntegerTools::ceil(end, bucketLength);
+    core_t::TTime time = maths::common::CIntegerTools::floor(start, bucketLength);
+    core_t::TTime bucketEnd = maths::common::CIntegerTools::ceil(end, bucketLength);
     while (time < bucketEnd) {
         if (isInterim) {
             this->outputInterimResults(time);
@@ -1539,7 +1540,7 @@ void CAnomalyJob::sortedDetectors(TKeyCRefAnomalyDetectorPtrPrVec& detectors) co
                                                  std::cref(detector.first.second)),
             detector.second));
     }
-    std::sort(detectors.begin(), detectors.end(), maths::COrderings::SFirstLess());
+    std::sort(detectors.begin(), detectors.end(), maths::common::COrderings::SFirstLess());
 }
 
 const CAnomalyJob::TKeyAnomalyDetectorPtrUMap& CAnomalyJob::detectorPartitionMap() const {

@@ -16,8 +16,8 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CIntegerTools.h>
-#include <maths/CModelWeight.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CModelWeight.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CHierarchicalResults.h>
@@ -133,7 +133,8 @@ void importData(ml::core_t::TTime firstTime,
         ifss.push_back(ifs);
     }
 
-    ml::core_t::TTime lastBucketTime = ml::maths::CIntegerTools::ceil(firstTime, bucketLength);
+    ml::core_t::TTime lastBucketTime =
+        ml::maths::common::CIntegerTools::ceil(firstTime, bucketLength);
 
     TTimeVec times(ifss.size());
     for (std::size_t i = 0; i < ifss.size(); ++i) {

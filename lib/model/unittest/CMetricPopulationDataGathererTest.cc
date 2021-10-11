@@ -150,7 +150,7 @@ protected:
 BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
     // Test that we correctly sample the bucket means.
 
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TStrStrPrMeanAccumulatorMap = std::map<TStrStrPr, TMeanAccumulator>;
     using TStrStrPrMeanAccumulatorMapCItr = TStrStrPrMeanAccumulatorMap::const_iterator;
 
@@ -197,7 +197,8 @@ BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
             TStrStrPrDoubleMap expectedMeans;
             for (TStrStrPrMeanAccumulatorMapCItr itr = accumulators.begin();
                  itr != accumulators.end(); ++itr) {
-                expectedMeans[itr->first] = maths::CBasicStatistics::mean(itr->second);
+                expectedMeans[itr->first] =
+                    maths::common::CBasicStatistics::mean(itr->second);
             }
 
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMeans),
@@ -216,7 +217,8 @@ BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testMin, CTestFixture) {
     // Test that we correctly sample the bucket minimums.
 
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+    using TMinAccumulator =
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
     using TStrStrPrMinAccumulatorMap = std::map<TStrStrPr, TMinAccumulator>;
     using TStrStrPrMinAccumulatorMapCItr = TStrStrPrMinAccumulatorMap::const_iterator;
 
@@ -282,7 +284,7 @@ BOOST_FIXTURE_TEST_CASE(testMax, CTestFixture) {
     // Test that we correctly sample the bucket maximums.
 
     using TMaxAccumulator =
-        maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
     using TStrStrPrMaxAccumulatorMap = std::map<TStrStrPr, TMaxAccumulator>;
     using TStrStrPrMaxAccumulatorMapCItr = TStrStrPrMaxAccumulatorMap::const_iterator;
 
@@ -464,14 +466,15 @@ BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
     // Test we correctly sample the mean, minimum and maximum statistics.
 
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TStrStrPrMeanAccumulatorMap = std::map<TStrStrPr, TMeanAccumulator>;
     using TStrStrPrMeanAccumulatorMapCItr = TStrStrPrMeanAccumulatorMap::const_iterator;
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+    using TMinAccumulator =
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
     using TStrStrPrMinAccumulatorMap = std::map<TStrStrPr, TMinAccumulator>;
     using TStrStrPrMinAccumulatorMapCItr = TStrStrPrMinAccumulatorMap::const_iterator;
     using TMaxAccumulator =
-        maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
     using TStrStrPrMaxAccumulatorMap = std::map<TStrStrPr, TMaxAccumulator>;
     using TStrStrPrMaxAccumulatorMapCItr = TStrStrPrMaxAccumulatorMap::const_iterator;
     using TStrStrPrDoubleVecMap = std::map<TStrStrPr, TDoubleVec>;
@@ -576,7 +579,8 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
             TStrStrPrDoubleMap expectedMeans;
             for (TStrStrPrMeanAccumulatorMapCItr itr = bucketMeanAccumulators.begin();
                  itr != bucketMeanAccumulators.end(); ++itr) {
-                expectedMeans[itr->first] = maths::CBasicStatistics::mean(itr->second);
+                expectedMeans[itr->first] =
+                    maths::common::CBasicStatistics::mean(itr->second);
             }
 
             TStrStrPrDoubleMap expectedMins;
@@ -632,10 +636,10 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
             sampleMeanAccumulators[key].add(messages[i].s_Value);
             sampleMinAccumulators[key].add(messages[i].s_Value);
             sampleMaxAccumulators[key].add(messages[i].s_Value);
-            if (maths::CBasicStatistics::count(sampleMeanAccumulators[key]) ==
+            if (maths::common::CBasicStatistics::count(sampleMeanAccumulators[key]) ==
                 std::floor(sampleCount + 0.5)) {
                 expectedMeanSamples[key].push_back(
-                    maths::CBasicStatistics::mean(sampleMeanAccumulators[key]));
+                    maths::common::CBasicStatistics::mean(sampleMeanAccumulators[key]));
                 expectedMinSamples[key].push_back(sampleMinAccumulators[key][0]);
                 expectedMaxSamples[key].push_back(sampleMaxAccumulators[key][0]);
                 sampleMeanAccumulators[key] = TMeanAccumulator();
@@ -1004,7 +1008,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                         }
                     }
                     std::sort(statistics.begin(), statistics.end(),
-                              maths::COrderings::SFirstLess());
+                              maths::common::COrderings::SFirstLess());
 
                     LOG_DEBUG(<< "statistics = "
                               << core::CContainerPrinter::print(statistics));

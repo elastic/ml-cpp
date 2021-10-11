@@ -12,11 +12,12 @@
 #include <core/CLogger.h>
 #include <core/Constants.h>
 
-#include <maths/CMultivariateNormalConjugate.h>
-#include <maths/CMultivariateNormalConjugateFactory.h>
-#include <maths/CNormalMeanPrecConjugate.h>
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesModel.h>
+#include <maths/common/CMultivariateNormalConjugate.h>
+#include <maths/common/CMultivariateNormalConjugateFactory.h>
+#include <maths/common/CNormalMeanPrecConjugate.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CPartitioningFields.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
@@ -53,8 +54,8 @@ using TSize1Vec = core::CSmallVector<std::size_t, 1>;
 using TSize10Vec = core::CSmallVector<std::size_t, 10>;
 using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
 using TTail10Vec = core::CSmallVector<maths_t::ETail, 10>;
-using TTimeDouble2VecSizeTr = maths::CModel::TTimeDouble2VecSizeTr;
-using TTimeDouble2VecSizeTrVec = maths::CModel::TTimeDouble2VecSizeTrVec;
+using TTimeDouble2VecSizeTr = maths::common::CModel::TTimeDouble2VecSizeTr;
+using TTimeDouble2VecSizeTrVec = maths::common::CModel::TTimeDouble2VecSizeTrVec;
 using TStrCRef = model::CProbabilityAndInfluenceCalculator::TStrCRef;
 using TTime2Vec = model::CProbabilityAndInfluenceCalculator::TTime2Vec;
 using TTime2Vec1Vec = model::CProbabilityAndInfluenceCalculator::TTime2Vec1Vec;
@@ -85,15 +86,15 @@ TDouble1VecDouble1VecPr make_pair(double first1, double first2, double second1, 
     return TDouble1VecDouble1VecPr{{first1, first2}, {second1, second2}};
 }
 
-maths::CModelParams params(core_t::TTime bucketLength) {
+maths::common::CModelParams params(core_t::TTime bucketLength) {
     double learnRate{static_cast<double>(bucketLength) / 1800.0};
     double minimumSeasonalVarianceScale{0.4};
-    return maths::CModelParams{bucketLength,
-                               learnRate,
-                               0.0,
-                               minimumSeasonalVarianceScale,
-                               6 * core::constants::HOUR,
-                               24 * core::constants::HOUR};
+    return maths::common::CModelParams{bucketLength,
+                                       learnRate,
+                                       0.0,
+                                       minimumSeasonalVarianceScale,
+                                       6 * core::constants::HOUR,
+                                       24 * core::constants::HOUR};
 }
 
 std::size_t dimension(double) {
@@ -112,10 +113,10 @@ TTimeDouble2VecSizeTr sample(core_t::TTime time, const TDoubleVec& sample) {
 
 template<typename SAMPLES>
 core_t::TTime
-addSamples(core_t::TTime bucketLength, const SAMPLES& samples, maths::CModel& model) {
+addSamples(core_t::TTime bucketLength, const SAMPLES& samples, maths::common::CModel& model) {
     TDouble2VecWeightsAryVec weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(dimension(samples[0]))};
-    maths::CModelAddSamplesParams params;
+    maths::common::CModelAddSamplesParams params;
     params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
     core_t::TTime time{0};
     for (const auto& sample_ : samples) {
@@ -128,7 +129,7 @@ addSamples(core_t::TTime bucketLength, const SAMPLES& samples, maths::CModel& mo
 void computeProbability(core_t::TTime time,
                         maths_t::EProbabilityCalculation calculation,
                         const TDouble2Vec& sample,
-                        const maths::CModel& model,
+                        const maths::common::CModel& model,
                         double& probability,
                         TTail2Vec& tail) {
     TDouble2Vec varianceScale;
@@ -136,9 +137,9 @@ void computeProbability(core_t::TTime time,
     maths_t::TDouble2VecWeightsAry weight(
         maths_t::CUnitWeights::unit<TDouble2Vec>(sample.size()));
     maths_t::setSeasonalVarianceScale(varianceScale, weight);
-    maths::CModelProbabilityParams params;
+    maths::common::CModelProbabilityParams params;
     params.addCalculation(calculation).addWeights(weight);
-    maths::SModelProbabilityResult result;
+    maths::common::SModelProbabilityResult result;
     model.probability(params, {{time}}, {sample}, result);
     probability = result.s_Probability;
     tail = std::move(result.s_Tail);
@@ -153,7 +154,7 @@ const std::string EMPTY_STRING;
 template<typename CALCULATOR>
 void computeInfluences(CALCULATOR& calculator,
                        model_t::EFeature feature,
-                       const maths::CModel& model,
+                       const maths::common::CModel& model,
                        core_t::TTime time,
                        double value,
                        double count,
@@ -186,7 +187,7 @@ void computeInfluences(CALCULATOR& calculator,
 template<typename CALCULATOR>
 void computeInfluences(CALCULATOR& calculator,
                        model_t::EFeature feature,
-                       const maths::CModel& model,
+                       const maths::common::CModel& model,
                        const core_t::TTime (&times)[2],
                        const double (&values)[2],
                        const double (&counts)[2],
@@ -219,7 +220,7 @@ void computeInfluences(CALCULATOR& calculator,
 }
 
 void testProbabilityAndGetInfluences(model_t::EFeature feature,
-                                     const maths::CModel& model,
+                                     const maths::common::CModel& model,
                                      core_t::TTime time_,
                                      const TDoubleVecVec& values,
                                      const TStrCRefDouble1VecDoublePrPrVecVec& influencerValues,
@@ -227,13 +228,13 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
     model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
 
     model::CProbabilityAndInfluenceCalculator calculator(0.3);
-    calculator.addAggregator(maths::CJointProbabilityOfLessLikelySamples());
-    calculator.addAggregator(maths::CProbabilityOfExtremeSample());
+    calculator.addAggregator(maths::common::CJointProbabilityOfLessLikelySamples());
+    calculator.addAggregator(maths::common::CProbabilityOfExtremeSample());
     TInfluenceCalculatorCPtr influenceCalculator(model_t::influenceCalculator(feature));
     calculator.plugin(*influenceCalculator);
 
-    maths::CJointProbabilityOfLessLikelySamples pJoint;
-    maths::CProbabilityOfExtremeSample pExtreme;
+    maths::common::CJointProbabilityOfLessLikelySamples pJoint;
+    maths::common::CProbabilityOfExtremeSample pExtreme;
 
     for (std::size_t i = 0; i < values.size(); ++i) {
         std::size_t dimension{values[i].size() - 1};
@@ -248,7 +249,7 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
             count += influence.second.second;
         }
 
-        maths::CModelProbabilityParams params_;
+        maths::common::CModelProbabilityParams params_;
         params_.addCalculation(model_t::probabilityCalculation(feature))
             .seasonalConfidenceInterval(0.0)
             .addWeights(weight);
@@ -298,10 +299,11 @@ BOOST_AUTO_TEST_CASE(testInfluenceUnavailableCalculator) {
         LOG_DEBUG(<< "Test univariate");
 
         model::CInfluenceUnavailableCalculator calculator;
-        maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-        maths::CNormalMeanPrecConjugate prior =
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-        maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
+        maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+        maths::common::CNormalMeanPrecConjugate prior =
+            maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+        maths::time_series::CUnivariateTimeSeriesModel model(params(bucketLength),
+                                                             0, trend, prior);
 
         TDoubleVec samples;
         rng.generateNormalSamples(10.0, 1.0, 50, samples);
@@ -326,11 +328,11 @@ BOOST_AUTO_TEST_CASE(testInfluenceUnavailableCalculator) {
 
         model::CInfluenceUnavailableCalculator calculator;
 
-        maths::CTimeSeriesDecomposition trend{0.0, 600};
-        maths::CMultivariateNormalConjugate<2> prior{
-            maths::CMultivariateNormalConjugate<2>::nonInformativePrior(
+        maths::time_series::CTimeSeriesDecomposition trend{0.0, 600};
+        maths::common::CMultivariateNormalConjugate<2> prior{
+            maths::common::CMultivariateNormalConjugate<2>::nonInformativePrior(
                 maths_t::E_ContinuousData, 0.0)};
-        maths::CMultivariateTimeSeriesModel model{params(600), trend, prior};
+        maths::time_series::CMultivariateTimeSeriesModel model{params(600), trend, prior};
 
         TDoubleVec samples_;
         rng.generateNormalSamples(10.0, 1.0, 50, samples_);
@@ -370,10 +372,12 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
         {
             LOG_DEBUG(<< "One influencer value");
 
-            maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-            maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+            maths::common::CNormalMeanPrecConjugate prior =
+                maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+                    maths_t::E_ContinuousData);
+            maths::time_series::CUnivariateTimeSeriesModel model(
+                params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
@@ -398,10 +402,12 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
         {
             LOG_DEBUG(<< "No trend");
 
-            maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-            maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+            maths::common::CNormalMeanPrecConjugate prior =
+                maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+                    maths_t::E_ContinuousData);
+            maths::time_series::CUnivariateTimeSeriesModel model(
+                params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
@@ -428,10 +434,12 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
         {
             LOG_DEBUG(<< "Trend");
 
-            maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-            maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+            maths::common::CNormalMeanPrecConjugate prior =
+                maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+                    maths_t::E_ContinuousData);
+            maths::time_series::CUnivariateTimeSeriesModel model(
+                params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             {
@@ -486,11 +494,11 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
         {
             LOG_DEBUG(<< "One influencer value");
 
-            maths::CTimeSeriesDecomposition trend{0.0, 600};
-            maths::CMultivariateNormalConjugate<2> prior{
-                maths::CMultivariateNormalConjugate<2>::nonInformativePrior(
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, 600};
+            maths::common::CMultivariateNormalConjugate<2> prior{
+                maths::common::CMultivariateNormalConjugate<2>::nonInformativePrior(
                     maths_t::E_ContinuousData, 0.0)};
-            maths::CMultivariateTimeSeriesModel model{params(600), trend, prior};
+            maths::time_series::CMultivariateTimeSeriesModel model{params(600), trend, prior};
 
             TDoubleVec mean(2, 10.0);
             TDoubleVecVec covariances(2, TDoubleVec(2));
@@ -525,11 +533,11 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
         /*{
             LOG_DEBUG(<< "No trend");
 
-            maths::CTimeSeriesDecomposition trend{0.0, 600};
-            maths::CMultivariateNormalConjugate<2> prior{
-                maths::CMultivariateNormalConjugate<2>::nonInformativePrior(
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, 600};
+            maths::common::CMultivariateNormalConjugate<2> prior{
+                maths::common::CMultivariateNormalConjugate<2>::nonInformativePrior(
                     maths_t::E_ContinuousData, 0.0)};
-            maths::CMultivariateTimeSeriesModel model{params(600), trend, prior};
+            maths::time_series::CMultivariateTimeSeriesModel model{params(600), trend, prior};
 
             TDoubleVec mean(2, 10.0);
             TDoubleVecVec covariances(2, TDoubleVec(2));
@@ -567,10 +575,10 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
             LOG_DEBUG(<< "Trend");
 
             TDecompositionPtrVec trend;
-            trend.push_back(TDecompositionPtr(new maths::CTimeSeriesDecomposition));
-            trend.push_back(TDecompositionPtr(new maths::CTimeSeriesDecomposition));
-            maths::CMultivariateNormalConjugateFactory::TPriorPtr prior =
-                    maths::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
+            trend.push_back(TDecompositionPtr(new maths::time_series::CTimeSeriesDecomposition));
+            trend.push_back(TDecompositionPtr(new maths::time_series::CTimeSeriesDecomposition));
+            maths::common::CMultivariateNormalConjugateFactory::TPriorPtr prior =
+                    maths::common::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
             {
                 TDoubleVec mean(2, 0.0);
                 TDoubleVecVec covariances(2, TDoubleVec(2));
@@ -675,10 +683,12 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
         {
             LOG_DEBUG(<< "One influencer value");
 
-            maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-            maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+            maths::common::CNormalMeanPrecConjugate prior =
+                maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+                    maths_t::E_ContinuousData);
+            maths::time_series::CUnivariateTimeSeriesModel model(
+                params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
@@ -703,10 +713,12 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
         {
             LOG_DEBUG(<< "No trend");
 
-            maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-            maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+            maths::common::CNormalMeanPrecConjugate prior =
+                maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+                    maths_t::E_ContinuousData);
+            maths::time_series::CUnivariateTimeSeriesModel model(
+                params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.2, 1.0, 50, samples);
@@ -809,11 +821,11 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
         {
             LOG_DEBUG(<< "One influencer value");
 
-            maths::CTimeSeriesDecomposition trend{0.0, 600};
-            maths::CMultivariateNormalConjugate<2> prior{
-                maths::CMultivariateNormalConjugate<2>::nonInformativePrior(
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, 600};
+            maths::common::CMultivariateNormalConjugate<2> prior{
+                maths::common::CMultivariateNormalConjugate<2>::nonInformativePrior(
                     maths_t::E_ContinuousData, 0.0)};
-            maths::CMultivariateTimeSeriesModel model{params(600), trend, prior};
+            maths::time_series::CMultivariateTimeSeriesModel model{params(600), trend, prior};
 
             {
                 TDoubleVec mean(2, 10.0);
@@ -851,8 +863,8 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
         /*{
             LOG_DEBUG(<< "No trend");
 
-            maths::CMultivariateNormalConjugateFactory::TPriorPtr prior =
-                    maths::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
+            maths::common::CMultivariateNormalConjugateFactory::TPriorPtr prior =
+                    maths::common::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
             {
                 TDoubleVec mean(2, 10.0);
                 TDoubleVecVec covariances(2, TDoubleVec(2));
@@ -1019,10 +1031,12 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
         {
             LOG_DEBUG(<< "One influencer value");
 
-            maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-            maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+            maths::common::CNormalMeanPrecConjugate prior =
+                maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+                    maths_t::E_ContinuousData);
+            maths::time_series::CUnivariateTimeSeriesModel model(
+                params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
@@ -1047,10 +1061,12 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
         {
             LOG_DEBUG(<< "No trend");
 
-            maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-            maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+            maths::common::CNormalMeanPrecConjugate prior =
+                maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+                    maths_t::E_ContinuousData);
+            maths::time_series::CUnivariateTimeSeriesModel model(
+                params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             rng.generateNormalSamples(10.0, 1.0, 50, samples);
@@ -1077,10 +1093,12 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
         {
             LOG_DEBUG(<< "Trend");
 
-            maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-            maths::CNormalMeanPrecConjugate prior =
-                maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-            maths::CUnivariateTimeSeriesModel model(params(bucketLength), 0, trend, prior);
+            maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+            maths::common::CNormalMeanPrecConjugate prior =
+                maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+                    maths_t::E_ContinuousData);
+            maths::time_series::CUnivariateTimeSeriesModel model(
+                params(bucketLength), 0, trend, prior);
 
             TDoubleVec samples;
             {
@@ -1119,7 +1137,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
                 std::sort(influences.begin(), influences.end(),
-                          maths::COrderings::SFirstLess());
+                          maths::common::COrderings::SFirstLess());
                 for (std::size_t j = 0; j < influences.size(); ++j) {
                     BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
                                         *influences[j].first.second);
@@ -1137,8 +1155,8 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //        {
     //            LOG_DEBUG(<< "One influencer value");
     //
-    //            maths::CMultivariateNormalConjugateFactory::TPriorPtr prior =
-    //                    maths::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
+    //            maths::common::CMultivariateNormalConjugateFactory::TPriorPtr prior =
+    //                    maths::common::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
     //            {
     //                TDoubleVec mean(2, 10.0);
     //                TDoubleVecVec covariances(2, TDoubleVec(2));
@@ -1183,8 +1201,8 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //        {
     //            LOG_DEBUG(<< "No trend");
     //
-    //            maths::CMultivariateNormalConjugateFactory::TPriorPtr prior =
-    //                    maths::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
+    //            maths::common::CMultivariateNormalConjugateFactory::TPriorPtr prior =
+    //                    maths::common::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
     //
     //            {
     //                TDoubleVec mean(2, 10.0);
@@ -1237,10 +1255,10 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //            LOG_DEBUG(<< "Trend");
     //
     //            TDecompositionPtrVec trend;
-    //            trend.push_back(TDecompositionPtr(new maths::CTimeSeriesDecomposition));
-    //            trend.push_back(TDecompositionPtr(new maths::CTimeSeriesDecomposition));
-    //            maths::CMultivariateNormalConjugateFactory::TPriorPtr prior =
-    //                    maths::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
+    //            trend.push_back(TDecompositionPtr(new maths::time_series::CTimeSeriesDecomposition));
+    //            trend.push_back(TDecompositionPtr(new maths::time_series::CTimeSeriesDecomposition));
+    //            maths::common::CMultivariateNormalConjugateFactory::TPriorPtr prior =
+    //                    maths::common::CMultivariateNormalConjugateFactory::nonInformative(2, maths_t::E_ContinuousData, 0.0);
     //            {
     //                TDoubleVec mean(2, 0.0);
     //                TDoubleVecVec covariances(2, TDoubleVec(2));
@@ -1344,10 +1362,10 @@ BOOST_AUTO_TEST_CASE(testIndicatorInfluenceCalculator) {
 
         model::CIndicatorInfluenceCalculator calculator;
 
-        maths::CTimeSeriesDecomposition trend{0.0, 600};
-        maths::CNormalMeanPrecConjugate prior =
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-        maths::CUnivariateTimeSeriesModel model(params(600), 0, trend, prior);
+        maths::time_series::CTimeSeriesDecomposition trend{0.0, 600};
+        maths::common::CNormalMeanPrecConjugate prior =
+            maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+        maths::time_series::CUnivariateTimeSeriesModel model(params(600), 0, trend, prior);
 
         TStrCRefDouble1VecDoublePrPrVec influencerValues{
             {TStrCRef(i1), make_pair(1.0, 1.0)},
@@ -1368,11 +1386,11 @@ BOOST_AUTO_TEST_CASE(testIndicatorInfluenceCalculator) {
 
         model::CIndicatorInfluenceCalculator calculator;
 
-        maths::CTimeSeriesDecomposition trend{0.0, 600};
-        maths::CMultivariateNormalConjugate<2> prior{
-            maths::CMultivariateNormalConjugate<2>::nonInformativePrior(
+        maths::time_series::CTimeSeriesDecomposition trend{0.0, 600};
+        maths::common::CMultivariateNormalConjugate<2> prior{
+            maths::common::CMultivariateNormalConjugate<2>::nonInformativePrior(
                 maths_t::E_ContinuousData, 0.0)};
-        maths::CMultivariateTimeSeriesModel model{params(600), trend, prior};
+        maths::time_series::CMultivariateTimeSeriesModel model{params(600), trend, prior};
 
         core_t::TTime times[]{0, 0};
         double values[]{1.0, 1.0};
@@ -1402,14 +1420,14 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
 
     core_t::TTime bucketLength{600};
 
-    maths::CTimeSeriesDecomposition trend{0.0, bucketLength};
-    maths::CNormalMeanPrecConjugate prior =
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
-    maths::CMultivariateNormalConjugate<2> multivariatePrior =
-        maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData);
-    maths::CUnivariateTimeSeriesModel univariateModel(
+    maths::time_series::CTimeSeriesDecomposition trend{0.0, bucketLength};
+    maths::common::CNormalMeanPrecConjugate prior =
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+    maths::common::CMultivariateNormalConjugate<2> multivariatePrior =
+        maths::common::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData);
+    maths::time_series::CUnivariateTimeSeriesModel univariateModel(
         params(bucketLength), 0, trend, prior, nullptr, nullptr, false);
-    maths::CMultivariateTimeSeriesModel multivariateModel(
+    maths::time_series::CMultivariateTimeSeriesModel multivariateModel(
         params(bucketLength), trend, multivariatePrior, nullptr, nullptr, false);
 
     TDoubleVec samples;
@@ -1424,7 +1442,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
 
     model_t::TFeatureVec features{model_t::E_IndividualSumByBucketAndPerson,
                                   model_t::E_IndividualMeanLatLongByPerson};
-    const maths::CModel* models[]{&univariateModel, &multivariateModel};
+    const maths::common::CModel* models[]{&univariateModel, &multivariateModel};
 
     model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
 
@@ -1432,8 +1450,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
         LOG_DEBUG(<< "error case");
 
         model::CProbabilityAndInfluenceCalculator calculator(0.5);
-        calculator.addAggregator(maths::CJointProbabilityOfLessLikelySamples());
-        calculator.addAggregator(maths::CProbabilityOfExtremeSample());
+        calculator.addAggregator(maths::common::CJointProbabilityOfLessLikelySamples());
+        calculator.addAggregator(maths::common::CProbabilityOfExtremeSample());
 
         TDoubleVecVec values{{12.0, 1.0},       {15.0, 1.0},
                              {7.0, 1.5},        {9.0, 1.0},
@@ -1452,8 +1470,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
             {TStrCRef(i2), make_pair(9.0, 14.0, 1.0)},
             {TStrCRef(i1), make_pair(17.0, 22.0, 1.0)}};
 
-        maths::CJointProbabilityOfLessLikelySamples pJoint;
-        maths::CProbabilityOfExtremeSample pExtreme;
+        maths::common::CJointProbabilityOfLessLikelySamples pJoint;
+        maths::common::CProbabilityOfExtremeSample pExtreme;
 
         for (std::size_t i = 0; i < 5; ++i) {
             for (std::size_t j = 0; j < features.size(); ++j) {
@@ -1463,7 +1481,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
                     maths_t::CUnitWeights::unit<TDouble2Vec>(1 + j));
                 maths_t::setSeasonalVarianceScale(
                     TDouble2Vec(1 + j, values[i + 5 * j][1 + j]), weights);
-                maths::CModelProbabilityParams params_;
+                maths::common::CModelProbabilityParams params_;
                 params_.addCalculation(maths_t::E_TwoSided)
                     .seasonalConfidenceInterval(0.0)
                     .addWeights(weights);

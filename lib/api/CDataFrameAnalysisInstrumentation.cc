@@ -13,7 +13,7 @@
 #include <core/CTimeUtils.h>
 #include <core/Constants.h>
 
-#include <maths/CBoostedTree.h>
+#include <maths/analytics/CBoostedTree.h>
 
 #include <api/CDataFrameOutliersRunner.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
@@ -320,7 +320,8 @@ void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestam
     }
 }
 
-void CDataFrameOutliersInstrumentation::parameters(const maths::COutliers::SComputeParameters& parameters) {
+void CDataFrameOutliersInstrumentation::parameters(
+    const maths::analytics::COutliers::SComputeParameters& parameters) {
     if (m_AnalysisStatsInitialized == false) {
         m_AnalysisStatsInitialized = true;
     }
@@ -367,7 +368,8 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
             CDataFrameOutliersRunner::STANDARDIZATION_ENABLED,
             rapidjson::Value(this->m_Parameters.s_StandardizeColumns).Move(), parentObject);
         writer->addMember(CDataFrameOutliersRunner::METHOD,
-                          maths::COutliers::print(this->m_Parameters.s_Method), parentObject);
+                          maths::analytics::COutliers::print(this->m_Parameters.s_Method),
+                          parentObject);
     }
 }
 

@@ -177,7 +177,7 @@ const CInterimBucketCorrector& CMockModel::interimValueCorrector() const {
 void CMockModel::doSkipSampling(core_t::TTime /*startTime*/, core_t::TTime /*endTime*/) {
 }
 
-const maths::CModel* CMockModel::model(std::size_t id) const {
+const maths::common::CModel* CMockModel::model(std::size_t id) const {
     return m_Models[id].get();
 }
 
@@ -213,8 +213,8 @@ CMockModelDetailsView::CMockModelDetailsView(const CMockModel& model)
     : m_Model{&model} {
 }
 
-const maths::CModel* CMockModelDetailsView::model(model_t::EFeature /*feature*/,
-                                                  std::size_t byFieldId) const {
+const maths::common::CModel* CMockModelDetailsView::model(model_t::EFeature /*feature*/,
+                                                          std::size_t byFieldId) const {
     return m_Model->model(byFieldId);
 }
 

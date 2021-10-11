@@ -17,12 +17,13 @@
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
-#include <maths/CDataFrameUtils.h>
-#include <maths/CTools.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CDataFrameUtils.h>
+
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CTools.h>
 
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
@@ -60,7 +61,7 @@ using TDataAdderUPtr = std::unique_ptr<core::CDataAdder>;
 using TPersisterSupplier = std::function<TDataAdderUPtr()>;
 using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
 using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
-using TLossFunctionType = maths::boosted_tree::ELossType;
+using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
 
 class CTestDataSearcher : public core::CDataSearcher {
 public:
@@ -90,7 +91,7 @@ TStrVec splitOnNull(std::stringstream&& tokenStream) {
     return results;
 }
 
-rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
+rapidjson::Document treeToJsonDocument(const maths::analytics::CBoostedTree& tree) {
     std::stringstream persistStream;
     {
         core::CJsonStatePersistInserter inserter(persistStream);
@@ -107,7 +108,7 @@ auto restoreTree(std::string persistedState, TDataFrameUPtr& frame, std::size_t 
     CTestDataSearcher dataSearcher(persistedState);
     auto decompressor = std::make_unique<core::CStateDecompressor>(dataSearcher);
     auto stream = decompressor->search(1, 1);
-    return maths::CBoostedTreeFactory::constructFromString(*stream).restoreFor(
+    return maths::analytics::CBoostedTreeFactory::constructFromString(*stream).restoreFor(
         *frame, dependentVariable);
 }
 
@@ -181,17 +182,17 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters =
-        expectedResults[maths::CBoostedTree::bestHyperparametersName()];
+        expectedResults[maths::analytics::CBoostedTree::bestHyperparametersName()];
     const auto& expectedRegularizationHyperparameters =
-        expectedHyperparameters[maths::CBoostedTree::bestRegularizationHyperparametersName()];
+        expectedHyperparameters[maths::analytics::CBoostedTree::bestRegularizationHyperparametersName()];
 
     rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
     const auto& actualHyperparameters =
-        actualResults[maths::CBoostedTree::bestHyperparametersName()];
+        actualResults[maths::analytics::CBoostedTree::bestHyperparametersName()];
     const auto& actualRegularizationHyperparameters =
-        actualHyperparameters[maths::CBoostedTree::bestRegularizationHyperparametersName()];
+        actualHyperparameters[maths::analytics::CBoostedTree::bestRegularizationHyperparametersName()];
 
-    for (const auto& key : maths::CBoostedTree::bestHyperparameterNames()) {
+    for (const auto& key : maths::analytics::CBoostedTree::bestHyperparameterNames()) {
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key].GetString())};
             double actual{std::stod(actualHyperparameters[key].GetString())};
@@ -330,8 +331,9 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
         analyzer.dataFrame().readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t i{0};
             for (auto row = beginRows; row != endRows; ++row, ++i) {
-                BOOST_REQUIRE_EQUAL(isMissing[row->index()],
-                                    maths::CDataFrameUtils::isMissing((*row)[0]));
+                BOOST_REQUIRE_EQUAL(
+                    isMissing[row->index()],
+                    maths::analytics::CDataFrameUtils::isMissing((*row)[0]));
             }
         });
     }
@@ -361,8 +363,9 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
         analyzer.dataFrame().readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t i{0};
             for (auto row = beginRows; row != endRows; ++row, ++i) {
-                BOOST_REQUIRE_EQUAL(isMissing[row->index()],
-                                    maths::CDataFrameUtils::isMissing((*row)[0]));
+                BOOST_REQUIRE_EQUAL(
+                    isMissing[row->index()],
+                    maths::analytics::CDataFrameUtils::isMissing((*row)[0]));
             }
         });
     }
@@ -787,11 +790,12 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierWithUserClassWeights) {
         fieldNames, fieldValues, analyzer, weights, regressors, actuals);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "$"});
 
-    auto classifier = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
-                          .classAssignmentObjective(maths::CBoostedTree::E_Custom)
-                          .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
-                          .buildFor(*frame, 3);
+    auto classifier =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .classAssignmentObjective(maths::analytics::CBoostedTree::E_Custom)
+            .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
+            .buildFor(*frame, 3);
 
     classifier->train();
     classifier->predict();
@@ -918,7 +922,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     };
 
     auto missing = [](double actual) {
-        return maths::CDataFrameUtils::isMissing(actual);
+        return maths::analytics::CDataFrameUtils::isMissing(actual);
     };
 
     auto assertRow = [&](const std::size_t row_i,
@@ -1050,15 +1054,15 @@ BOOST_AUTO_TEST_CASE(testProgress) {
 
             std::string phase{result["phase_progress"]["phase"].GetString()};
             int progress{result["phase_progress"]["progress_percent"].GetInt()};
-            if (phase == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
+            if (phase == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
                 coarseParameterSearchLastProgress =
                     std::max(coarseParameterSearchLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
                 fineTuneParametersLastProgress =
                     std::max(fineTuneParametersLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::FINAL_TRAINING) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::FINAL_TRAINING) {
                 finalTrainLastProgress = std::max(finalTrainLastProgress, progress);
             }
         }
@@ -1143,19 +1147,19 @@ BOOST_AUTO_TEST_CASE(testProgressFromRestart) {
 
             std::string phase{result["phase_progress"]["phase"].GetString()};
             int progress{result["phase_progress"]["progress_percent"].GetInt()};
-            if (phase == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
+            if (phase == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
                 coarseParameterSearchLastProgress =
                     std::max(coarseParameterSearchLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
                 if (progress > 0) {
                     fineTuneParametersFirstProgress =
                         std::min(fineTuneParametersFirstProgress, progress);
                 }
                 fineTuneParametersLastProgress =
                     std::max(fineTuneParametersLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::FINAL_TRAINING) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::FINAL_TRAINING) {
                 finalTrainLastProgress = std::max(finalTrainLastProgress, progress);
             }
         }

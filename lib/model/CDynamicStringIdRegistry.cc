@@ -14,8 +14,8 @@
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 
-#include <maths/CChecksum.h>
-#include <maths/COrderings.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CResourceMonitor.h>
 #include <model/CStringStore.h>
@@ -218,8 +218,8 @@ uint64_t CDynamicStringIdRegistry::checksum() const {
             people.emplace_back(*m_Names[pid]);
         }
     }
-    std::sort(people.begin(), people.end(), maths::COrderings::SReferenceLess());
-    return maths::CChecksum::calculate(0, people);
+    std::sort(people.begin(), people.end(), maths::common::COrderings::SReferenceLess());
+    return maths::common::CChecksum::calculate(0, people);
 }
 
 void CDynamicStringIdRegistry::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {

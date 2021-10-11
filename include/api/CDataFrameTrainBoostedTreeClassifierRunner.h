@@ -74,7 +74,7 @@ public:
                      const TReadClassScoresFunc& readClassScores,
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer,
-                     maths::CTreeShapFeatureImportance* featureImportance = nullptr) const;
+                     maths::analytics::CTreeShapFeatureImportance* featureImportance = nullptr) const;
 
     //! \return A serialisable definition of the trained classification model.
     TInferenceModelDefinitionUPtr
