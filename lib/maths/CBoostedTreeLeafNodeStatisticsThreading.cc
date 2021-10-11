@@ -164,9 +164,9 @@ CBoostedTreeLeafNodeStatisticsThreading::makeThreadLocalMinimumLossFunction(doub
         };
     }
     return [
-        hessian = Eigen::Matrix<double, d, d>{},
+        lambda, hessian = Eigen::Matrix<double, d, d>{},
         hessianInvg = Eigen::Matrix<double, d, 1>{},
-        llt = Eigen::LLT<Eigen::Matrix<double, d, d>>{}, lambda
+        llt = Eigen::LLT<Eigen::Matrix<double, d, d>>{}
     ](const Eigen::VectorXd& g, const Eigen::MatrixXd& h) mutable->double {
         hessian = (h + lambda * Eigen::Matrix<double, d, d>::Identity(d, d))
                       .template selfadjointView<Eigen::Lower>();
