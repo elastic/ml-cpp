@@ -9,8 +9,6 @@
  * limitation.
  */
 
-#include "core/CContainerPrinter.h"
-#include <boost/test/tools/old/interface.hpp>
 #include <core/CLogger.h>
 #include <core/Concurrency.h>
 

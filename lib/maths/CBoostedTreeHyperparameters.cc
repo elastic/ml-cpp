@@ -11,6 +11,10 @@
 
 #include <maths/CBoostedTreeHyperparameters.h>
 
+#include <core/CContainerPrinter.h>
+#include <core/CPersistUtils.h>
+#include <core/RestoreMacros.h>
+
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
@@ -21,6 +25,11 @@
 namespace ml {
 namespace maths {
 using namespace boosted_tree_detail;
+
+CBoostedTreeHyperparameters::CBoostedTreeHyperparameters() {
+    this->saveCurrent();
+    this->initializeTunableHyperparameters();
+}
 
 double CBoostedTreeHyperparameters::penaltyForDepth(std::size_t depth) const {
     return std::exp((static_cast<double>(depth) / m_SoftTreeDepthLimit.value() - 1.0) /
@@ -33,38 +42,16 @@ void CBoostedTreeHyperparameters::scaleRegularizerMultipliers(double scale, bool
     m_LeafWeightPenaltyMultiplier.scale(scale, force);
 }
 
-CBoostedTreeHyperparameters&
-CBoostedTreeHyperparameters::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
+void CBoostedTreeHyperparameters::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
     m_MaximumOptimisationRoundsPerHyperparameter = rounds;
-    return *this;
 }
 
-CBoostedTreeHyperparameters&
-CBoostedTreeHyperparameters::stopHyperparameterOptimizationEarly(bool enable) {
+void CBoostedTreeHyperparameters::stopHyperparameterOptimizationEarly(bool enable) {
     m_StopHyperparameterOptimizationEarly = enable;
-    return *this;
 }
 
-CBoostedTreeHyperparameters&
-CBoostedTreeHyperparameters::bayesianOptimisationRestarts(std::size_t restarts) {
+void CBoostedTreeHyperparameters::bayesianOptimisationRestarts(std::size_t restarts) {
     m_BayesianOptimisationRestarts = restarts;
-    return *this;
-}
-
-void CBoostedTreeHyperparameters::checkSearchInvariants() const {
-    if (m_BayesianOptimization == nullptr) {
-        HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
-    }
-}
-
-void CBoostedTreeHyperparameters::checkRestoredInvariants(bool expectOptimizerInitialized) const {
-    if (expectOptimizerInitialized) {
-        VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
-    }
-    VIOLATES_INVARIANT(m_CurrentRound, >, m_NumberRounds);
-    for (const auto& samples : m_HyperparameterSamples) {
-        VIOLATES_INVARIANT(m_TunableHyperparameters.size(), !=, samples.size());
-    }
 }
 
 std::size_t CBoostedTreeHyperparameters::numberToTune() const {
@@ -89,16 +76,17 @@ void CBoostedTreeHyperparameters::resetSearch() {
     m_BestForestTestLoss = boosted_tree_detail::INF;
     m_MeanForestSizeAccumulator = TMeanAccumulator{};
     m_MeanTestLossAccumulator = TMeanAccumulator{};
+    this->initializeTunableHyperparameters();
 }
 
-void CBoostedTreeHyperparameters::initializeSearch(const TInitialRangeFunc& initialRange) {
+void CBoostedTreeHyperparameters::initializeSearch(const TAddInitialRangeFunc& addInitialRange) {
 
     this->initializeTunableHyperparameters();
 
     TDoubleDoublePrVec boundingBox;
     boundingBox.reserve(m_TunableHyperparameters.size());
     for (const auto& parameter : m_TunableHyperparameters) {
-        initialRange(parameter, boundingBox);
+        addInitialRange(parameter, boundingBox);
     }
     LOG_TRACE(<< "hyperparameter search bounding box = "
               << core::CContainerPrinter::print(boundingBox));
@@ -408,6 +396,22 @@ void CBoostedTreeHyperparameters::output(CDataFrameTrainBoostedTreeInstrumentati
     hyperparameters.s_MaxOptimizationRoundsPerHyperparameter = m_MaximumOptimisationRoundsPerHyperparameter;
 }
 
+void CBoostedTreeHyperparameters::checkSearchInvariants() const {
+    if (m_BayesianOptimization == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
+    }
+}
+
+void CBoostedTreeHyperparameters::checkRestoredInvariants(bool expectOptimizerInitialized) const {
+    if (expectOptimizerInitialized) {
+        VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
+    }
+    VIOLATES_INVARIANT(m_CurrentRound, >, m_NumberRounds);
+    for (const auto& samples : m_HyperparameterSamples) {
+        VIOLATES_INVARIANT(m_TunableHyperparameters.size(), !=, samples.size());
+    }
+}
+
 std::size_t CBoostedTreeHyperparameters::memoryUsage() const {
     std::size_t mem{core::CMemory::dynamicSize(m_TunableHyperparameters)};
     mem += core::CMemory::dynamicSize(m_HyperparameterSamples);
@@ -585,6 +589,7 @@ CBoostedTreeHyperparameters::TStrVec CBoostedTreeHyperparameters::names() {
 
 void CBoostedTreeHyperparameters::initializeTunableHyperparameters() {
     m_TunableHyperparameters.clear();
+    m_TunableHyperparameters.reserve(NUMBER_HYPERPARAMETERS);
     for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
         switch (static_cast<EHyperparameter>(i)) {
         // Train hyperparameters.
@@ -691,18 +696,6 @@ void CBoostedTreeHyperparameters::restoreSaved() {
     LOG_TRACE(<< "parameters*= " << this->print());
 }
 
-CBoostedTreeHyperparameters::CScopeForceSetMaximumNumberTrees::CScopeForceSetMaximumNumberTrees(
-    std::size_t maximumNumberTrees,
-    CBoostedTreeHyperparameters& hyperparameters)
-    : m_MaximumNumberTrees{hyperparameters.m_MaximumNumberTrees},
-      m_MaximumNumberTreesToRestore{hyperparameters.m_MaximumNumberTrees.value()} {
-    m_MaximumNumberTrees.forceSet(maximumNumberTrees);
-}
-
-CBoostedTreeHyperparameters::CScopeForceSetMaximumNumberTrees::~CScopeForceSetMaximumNumberTrees() {
-    m_MaximumNumberTrees.forceSet(m_MaximumNumberTreesToRestore);
-}
-
 // clang-format off
 const std::string CBoostedTreeHyperparameters::BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string CBoostedTreeHyperparameters::BEST_FOREST_LOSS_GAP_TAG{"best_forest_loss_gap"};
@@ -727,5 +720,16 @@ const std::string CBoostedTreeHyperparameters::STOP_HYPERPARAMETER_OPTIMIZATION_
 const std::string CBoostedTreeHyperparameters::TREE_SIZE_PENALTY_MULTIPLIER_TAG{"tree_size_penalty_multiplier"};
 const std::string CBoostedTreeHyperparameters::TREE_TOPOLOGY_CHANGE_PENALTY_TAG{"tree_topology_change_penalty"};
 // clang-format on
+
+CScopeForceSetMaximumNumberTrees::CScopeForceSetMaximumNumberTrees(std::size_t maximumNumberTrees,
+                                                                   CBoostedTreeHyperparameters& hyperparameters)
+    : m_MaximumNumberTrees{hyperparameters.maximumNumberTrees()},
+      m_MaximumNumberTreesToRestore{hyperparameters.maximumNumberTrees().value()} {
+    m_MaximumNumberTrees.forceSet(maximumNumberTrees);
+}
+
+CScopeForceSetMaximumNumberTrees::~CScopeForceSetMaximumNumberTrees() {
+    m_MaximumNumberTrees.forceSet(m_MaximumNumberTreesToRestore);
+}
 }
 }

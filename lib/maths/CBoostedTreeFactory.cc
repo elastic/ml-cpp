@@ -1214,8 +1214,7 @@ CBoostedTreeFactory::TDoubleDoublePrVec
 CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
                                                   const TDoubleVec& percentiles) const {
 
-    CBoostedTreeHyperparameters::CScopeForceSetMaximumNumberTrees to{
-        1, m_TreeImpl->m_Hyperparameters};
+    CScopeForceSetMaximumNumberTrees to{1, m_TreeImpl->m_Hyperparameters};
     CBoostedTreeImpl::TNodeVecVec forest{
         m_TreeImpl
             ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
@@ -1737,8 +1736,7 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsageTrain(std::size_t numberRows
         m_TreeImpl->m_Hyperparameters.eta().fixed()
             ? m_TreeImpl->m_Hyperparameters.eta().value()
             : computeEta(numberColumns))};
-    CBoostedTreeHyperparameters::CScopeForceSetMaximumNumberTrees to{
-        maximumNumberTrees, m_TreeImpl->m_Hyperparameters};
+    CScopeForceSetMaximumNumberTrees to{maximumNumberTrees, m_TreeImpl->m_Hyperparameters};
     std::size_t result{m_TreeImpl->estimateMemoryUsageTrain(numberRows, numberColumns)};
     return result;
 }

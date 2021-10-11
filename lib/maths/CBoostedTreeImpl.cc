@@ -303,7 +303,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
         m_Hyperparameters.restoreSaved();
-        this->outputHyperparameters();
+        m_Hyperparameters.output(*m_Instrumentation);
         m_Hyperparameters.scaleRegularizerMultipliers(
             allTrainingRowsMask.manhattan() / this->meanNumberTrainingRowsPerFold());
         this->startProgressMonitoringFinalTrain();
@@ -475,7 +475,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     if (m_ForceAcceptIncrementalTraining || m_Hyperparameters.bestForestTestLoss() < initialLoss) {
         m_Hyperparameters.restoreSaved();
-        this->outputHyperparameters();
+        m_Hyperparameters.output(*m_Instrumentation);
 
         if (m_PreviousTrainNumberRows > 0) {
             m_Hyperparameters.scaleRegularizerMultipliers(

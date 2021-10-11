@@ -31,6 +31,7 @@ SRCS=\
 	CBasicStatisticsTest.cc \
 	CBayesianOptimisationTest.cc \
 	CBjkstUniqueValuesTest.cc \
+	CBoostedTreeHyperparametersTest.cc \
 	CBoostedTreeLeafNodeStatisticsTest.cc \
 	CBoostedTreeLossTest.cc \
 	CBoostedTreeTest.cc \

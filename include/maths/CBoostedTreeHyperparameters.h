@@ -32,6 +32,7 @@
 namespace ml {
 namespace maths {
 class CDataFrameTrainBoostedTreeInstrumentationInterface;
+class CScopeForceSetMaximumNumberTrees;
 
 //! \brief Encapsulates a boosted tree parameter.
 //!
@@ -52,11 +53,6 @@ public:
             m_Value = value;
         }
     }
-
-    //! Force set to \p value.
-    //!
-    //! \note Handle with care: this ignores whether the value is fixed.
-    void forceSet(T value) { m_Value = value; }
 
     //! Fix to \p value.
     void fix(T value) {
@@ -122,9 +118,14 @@ private:
     static const std::string SAVED_VALUE_TAG;
 
 private:
+    void forceSet(T value) { m_Value = value; }
+
+private:
     T m_Value{};
     T m_SavedValue{};
     bool m_Fixed{false};
+
+    friend CScopeForceSetMaximumNumberTrees;
 };
 
 template<typename T>
@@ -147,27 +148,12 @@ public:
     using TStrVec = std::vector<std::string>;
     using TDoubleParameter = CBoostedTreeParameter<double>;
     using TSizeParameter = CBoostedTreeParameter<std::size_t>;
-    using TInitialRangeFunc =
+    using TAddInitialRangeFunc =
         std::function<void(boosted_tree_detail::EHyperparameter, TDoubleDoublePrVec&)>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
-
-    //! \brief Forces maximum number of trees to one for its lifetime.
-    class CScopeForceSetMaximumNumberTrees {
-    public:
-        explicit CScopeForceSetMaximumNumberTrees(std::size_t maximumNumberTree,
-                                                  CBoostedTreeHyperparameters& hyperparameters);
-        ~CScopeForceSetMaximumNumberTrees();
-        CScopeForceSetMaximumNumberTrees(const CScopeForceSetMaximumNumberTrees&) = delete;
-        CScopeForceSetMaximumNumberTrees&
-        operator=(const CScopeForceSetMaximumNumberTrees&) = delete;
-
-    private:
-        CBoostedTreeParameter<std::size_t>& m_MaximumNumberTrees;
-        std::size_t m_MaximumNumberTreesToRestore;
-    };
 
 public:
     static const std::string BAYESIAN_OPTIMIZATION_TAG;
@@ -199,7 +185,7 @@ public:
     static constexpr double RELATIVE_SIZE_PENALTY{0.01};
 
 public:
-    CBoostedTreeHyperparameters() { this->saveCurrent(); }
+    CBoostedTreeHyperparameters();
 
     //! Set if we're incremental training.
     void incrementalTraining(bool value) { m_IncrementalTraining = value; }
@@ -313,13 +299,13 @@ public:
     //! \name Optimisation
     //@{
     //! Set the number of search rounds to use per hyperparameter which is being tuned.
-    CBoostedTreeHyperparameters& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
+    void maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
 
     //! Set whether to stop hyperparameter optimization early.
-    CBoostedTreeHyperparameters& stopHyperparameterOptimizationEarly(bool enable);
+    void stopHyperparameterOptimizationEarly(bool enable);
 
     //! Set the maximum number of restarts to use internally in Bayesian Optimisation.
-    CBoostedTreeHyperparameters& bayesianOptimisationRestarts(std::size_t restarts);
+    void bayesianOptimisationRestarts(std::size_t restarts);
 
     //! Get the number of hyperparameters to tune.
     std::size_t numberToTune() const;
@@ -328,7 +314,7 @@ public:
     void resetSearch();
 
     //! Initialize the search for best values of tunable hyperparameters.
-    void initializeSearch(const TInitialRangeFunc& initialRange);
+    void initializeSearch(const TAddInitialRangeFunc& addInitialRange);
 
     //! Initialize a search for the best hyperparameters.
     void startSearch();
@@ -458,6 +444,21 @@ private:
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;
     //@}
+};
+
+//! \brief Forces maximum number of trees to one for its lifetime.
+class CScopeForceSetMaximumNumberTrees {
+public:
+    explicit CScopeForceSetMaximumNumberTrees(std::size_t maximumNumberTree,
+                                              CBoostedTreeHyperparameters& hyperparameters);
+    ~CScopeForceSetMaximumNumberTrees();
+    CScopeForceSetMaximumNumberTrees(const CScopeForceSetMaximumNumberTrees&) = delete;
+    CScopeForceSetMaximumNumberTrees&
+    operator=(const CScopeForceSetMaximumNumberTrees&) = delete;
+
+private:
+    CBoostedTreeParameter<std::size_t>& m_MaximumNumberTrees;
+    std::size_t m_MaximumNumberTreesToRestore;
 };
 }
 }
