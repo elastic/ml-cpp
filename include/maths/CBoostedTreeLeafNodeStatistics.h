@@ -38,6 +38,9 @@
 #include <numeric>
 #include <vector>
 
+namespace CBoostedTreeLeafNodeStatisticsTest {
+struct testComputeBestSplitStatisticsThreading;
+}
 namespace ml {
 namespace core {
 class CDataFrame;
@@ -739,6 +742,7 @@ public:
 
 protected:
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
+    using TFeatureBestSplitSearch = std::function<void(std::size_t)>;
 
     //! \brief Statistics relating to a split of the node.
     struct MATHS_EXPORT SSplitStatistics
@@ -880,6 +884,8 @@ private:
     CSplitsDerivatives m_Derivatives;
     core::CPackedBitVector m_RowMask;
     SSplitStatistics m_BestSplit;
+
+    friend struct CBoostedTreeLeafNodeStatisticsTest::testComputeBestSplitStatisticsThreading;
 };
 }
 }

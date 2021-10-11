@@ -308,6 +308,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
+        this->recordHyperparameters();
         this->scaleRegularizers(allTrainingRowsMask.manhattan() /
                                 this->meanNumberTrainingRowsPerFold());
         this->startProgressMonitoringFinalTrain();
@@ -472,6 +473,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     if (m_ForceAcceptIncrementalTraining || m_BestForestTestLoss < initialLoss) {
         this->restoreBestHyperparameters();
+        this->recordHyperparameters();
         if (m_PreviousTrainNumberRows > 0) {
             this->scaleRegularizers(allTrainingRowsMask.manhattan() /
                                         this->meanNumberTrainingRowsPerFold(),
@@ -1344,7 +1346,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
-        // add the left and right children to the tree
+        // Add the left and right children to the tree.
         std::size_t leftChildId;
         std::size_t rightChildId;
         std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
