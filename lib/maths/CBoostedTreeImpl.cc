@@ -890,8 +890,8 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             const TSizeVec& nodeFeatureBag,
             const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
             return std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-                rootIndex(), m_ExtraColumns, m_Loss->numberParameters(),
-                frame, m_Hyperparameters, candidateSplits, treeFeatureBag,
+                rootIndex(), m_ExtraColumns, m_Loss->numberParameters(), frame,
+                m_Hyperparameters, candidateSplits, treeFeatureBag,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
         };
 
@@ -1018,8 +1018,8 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
             const TSizeVec& nodeFeatureBag,
             const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
             return std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
-                rootIndex(), m_ExtraColumns, m_Loss->numberParameters(),
-                frame, m_Hyperparameters, candidateSplits, treeFeatureBag,
+                rootIndex(), m_ExtraColumns, m_Loss->numberParameters(), frame,
+                m_Hyperparameters, candidateSplits, treeFeatureBag,
                 nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
         };
 
@@ -1386,9 +1386,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = leaf->split(
-            leftChildId, rightChildId, smallestCandidateGain,
-            frame, m_Hyperparameters, treeFeatureBag,
-            nodeFeatureBag, tree[leaf->id()], workspace);
+            leftChildId, rightChildId, smallestCandidateGain, frame, m_Hyperparameters,
+            treeFeatureBag, nodeFeatureBag, tree[leaf->id()], workspace);
 
         // Need gain to be computed to compare here.
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {
