@@ -435,7 +435,20 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
-                if (this->shouldIgnoreSample(feature, pid, cid, sampleTime)) {
+                // initialCountWeight returns a weight value as double:
+                // 0.0 if checkScheduledEvents is true
+                // 1.0 if both checkScheduledEvents and checkRules are false
+                // A small weight - 0.005 - if checkRules is true.
+                // This weight is applied to countWeight (and therefore scaledCountWeight) as multiplier.
+                // This reduces the impact of the values affected by the skip_model_update rule
+                // on the model while not completely ignoring them. This still allows the model to
+                // learn from the affected values - addressing point 1. and 2. in
+                // https://github.com/elastic/ml-cpp/issues/1272, Namely
+                // 1. If you apply it from the start of the modelling it can stop the model learning anything at all.
+                // 2. It can stop the model ever adapting to some change in data characteristics
+                double initialCountWeight{
+                    this->initialCountWeight(feature, pid, cid, sampleTime)};
+                if (initialCountWeight == 0.0) {
                     core_t::TTime skipTime = sampleTime - attributeLastBucketTimesMap[cid];
                     if (skipTime > 0) {
                         model->skipTime(skipTime);
@@ -449,7 +462,8 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 double count =
                     static_cast<double>(CDataGatherer::extractData(data_).s_Count);
                 double value = model_t::offsetCountToZero(feature, count);
-                double countWeight = this->sampleRateWeight(pid, cid) *
+                double countWeight = initialCountWeight *
+                                     this->sampleRateWeight(pid, cid) *
                                      this->learnRate(feature);
                 LOG_TRACE(<< "Adding " << value
                           << " for person = " << gatherer.personName(pid)
@@ -1069,7 +1083,7 @@ bool CEventRatePopulationModel::fill(model_t::EFeature feature,
     }()};
     double value{model_t::offsetCountToZero(
         feature, static_cast<double>(CDataGatherer::extractData(*data).s_Count))};
-    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, cid, time);
+    double initialCountWeight{this->initialCountWeight(feature, pid, cid, time)};
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -1087,7 +1101,7 @@ bool CEventRatePopulationModel::fill(model_t::EFeature feature,
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature))
         .addWeights(weight)
-        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+        .initialCountWeight(initialCountWeight);
 
     return true;
 }

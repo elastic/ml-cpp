@@ -34,9 +34,8 @@ bool CCmdLineParser::parse(int argc,
                            bool& isRestoreFileNamedPipe,
                            std::string& loggingFileName,
                            std::string& logProperties,
-                           std::int32_t& numLibTorchThreads,
-                           std::int32_t& numLibTorchInterOpThreads,
-                           std::int32_t& numParallelForwardingThreads,
+                           std::int32_t& inferenceThreads,
+                           std::int32_t& modelThreads,
                            bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -60,12 +59,10 @@ bool CCmdLineParser::parse(int argc,
             ("logPipe", boost::program_options::value<std::string>(),
                         "Named pipe to write log messages to")
             ("logProperties", "Optional logger properties file")
-            ("numLibTorchThreads", boost::program_options::value<std::int32_t>(),
-                        "Optionaly set number of threads LibTorch can use for inference - not present means use the LibTorch defaults")
-            ("numLibTorchInterOpThreads", boost::program_options::value<std::int32_t>(),
-                        "Optionaly set number of threads LibTorch can use for inter operation parallelism - not present means use the LibTorch defaults")
-            ("numParallelForwardingThreads", boost::program_options::value<std::int32_t>(),
-                        "Optionaly set number of threads to parallelize model forwarding - not present means 1")
+            ("inferenceThreads", boost::program_options::value<std::int32_t>(),
+                        "Optionaly set number of threads used per inference request - default is 1")
+            ("modelThreads", boost::program_options::value<std::int32_t>(),
+                        "Optionaly set number of threads to parallelize model forwarding - default is 1")
             ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
              "Confirmation that a valid Elastic license key is in use.")
             ;
@@ -116,15 +113,11 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();
         }
-        if (vm.count("numLibTorchThreads") > 0) {
-            numLibTorchThreads = vm["numLibTorchThreads"].as<std::int32_t>();
+        if (vm.count("inferenceThreads") > 0) {
+            inferenceThreads = vm["inferenceThreads"].as<std::int32_t>();
         }
-        if (vm.count("numLibTorchInterOpThreads") > 0) {
-            numLibTorchInterOpThreads = vm["numLibTorchInterOpThreads"].as<std::int32_t>();
-        }
-        if (vm.count("numParallelForwardingThreads") > 0) {
-            numParallelForwardingThreads =
-                vm["numParallelForwardingThreads"].as<std::int32_t>();
+        if (vm.count("modelThreads") > 0) {
+            modelThreads = vm["modelThreads"].as<std::int32_t>();
         }
         if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
             validElasticLicenseKeyConfirmed =

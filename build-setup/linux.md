@@ -8,16 +8,16 @@ You will need the following environment variables to be defined:
 
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
 - `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
-- `PATH` - Must have `/usr/local/gcc93/bin` before `/usr/bin` and `/bin`.
-- `LD_LIBRARY_PATH` - Must have `/usr/local/gcc93/lib64` and `/usr/local/gcc93/lib` before `/usr/lib` and `/lib`.
+- `PATH` - Must have `/usr/local/gcc103/bin` before `/usr/bin` and `/bin`.
+- `LD_LIBRARY_PATH` - Must have `/usr/local/gcc103/lib64` and `/usr/local/gcc103/lib` before `/usr/lib` and `/lib`.
 
 For example, you might create a `.bashrc` file in your home directory containing something like this:
 
 ```
 umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
-export LD_LIBRARY_PATH=/usr/local/gcc93/lib64:/usr/local/gcc93/lib:/usr/lib:/lib
-export PATH=$JAVA_HOME/bin:/usr/local/gcc93/bin:/usr/local/cmake/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
+export LD_LIBRARY_PATH=/usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
+export PATH=$JAVA_HOME/bin:/usr/local/gcc103/bin:/usr/local/cmake/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
 # Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
@@ -53,22 +53,22 @@ These environment variables only need to be set when building tools on Linux. Th
 
 We have to build on old Linux versions to enable our software to run on the older versions of Linux that users have.  However, this means the default compiler on our Linux build servers is also very old.  To enable use of more modern C++ features, we use the default compiler to build a newer version of gcc and then use that to build all our other dependencies.
 
-Download `gcc-9.3.0.tar.gz` from <http://ftpmirror.gnu.org/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz>.
+Download `gcc-10.3.0.tar.gz` from <http://ftpmirror.gnu.org/gcc/gcc-10.3.0/gcc-10.3.0.tar.gz>.
 
 Unlike most automake-based tools, gcc must be built in a directory adjacent to the directory containing its source code, so build and install it like this:
 
 ```
-tar zxvf gcc-9.3.0.tar.gz
-cd gcc-9.3.0
+tar zxvf gcc-10.3.0.tar.gz
+cd gcc-10.3.0
 contrib/download_prerequisites
 sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
 cd ..
-mkdir gcc-9.3.0-build
-cd gcc-9.3.0-build
+mkdir gcc-10.3.0-build
+cd gcc-10.3.0-build
 unset CXX
 unset LD_LIBRARY_PATH
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
-../gcc-9.3.0/configure --prefix=/usr/local/gcc93 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib
+../gcc-10.3.0/configure --prefix=/usr/local/gcc103 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib
 make -j 6
 sudo make install
 ```
@@ -90,21 +90,21 @@ g++ --version
 It should print:
 
 ```
-g++ (GCC) 9.3.0
+g++ (GCC) 10.3.0
 ```
 
-in the first line of the output. If it doesn't then double check that `/usr/local/gcc93/bin` is near the beginning of your `PATH`.
+in the first line of the output. If it doesn't then double check that `/usr/local/gcc103/bin` is near the beginning of your `PATH`.
 
 ### binutils
 
 Also due to building on old Linux versions yet wanting to use modern libraries we have to install an up-to-date version of binutils.
 
-Download `binutils-2.34.tar.bz2` from <http://ftpmirror.gnu.org/binutils/binutils-2.34.tar.bz2>.
+Download `binutils-2.37.tar.bz2` from <http://ftpmirror.gnu.org/binutils/binutils-2.37.tar.bz2>.
 
 Uncompress and untar the resulting file. Then run:
 
 ```
-./configure --prefix=/usr/local/gcc93 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only
+./configure --prefix=/usr/local/gcc103 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only
 ```
 
 This should build an appropriate Makefile. Assuming it does, type:
@@ -159,7 +159,7 @@ Anonymous FTP to ftp.xmlsoft.org, change directory to libxml2, switch to binary 
 Uncompress and untar the resulting file. Then run:
 
 ```
-./configure --prefix=/usr/local/gcc93 --without-python --without-readline
+./configure --prefix=/usr/local/gcc103 --without-python --without-readline
 ```
 
 This should build an appropriate Makefile. Assuming it does, type:
@@ -205,7 +205,7 @@ Finally, run:
 
 ```
 ./b2 -j6 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -msse4.2 -mfpmath=sse' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now'
-sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" ./b2 install --prefix=/usr/local/gcc93 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -msse4.2 -mfpmath=sse' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now'
+sudo env PATH="$PATH" LD_LIBRARY_PATH="$LD_LIBRARY_PATH" ./b2 install --prefix=/usr/local/gcc103 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -msse4.2 -mfpmath=sse' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now'
 ```
 
 to install the Boost headers and libraries.  (Note the `env PATH="$PATH"` bit in the install command - this is because `sudo` usually resets `PATH` and that will cause Boost to rebuild everything again with the default compiler as part of the install!)
@@ -214,18 +214,18 @@ For aarch64 replace `-msse4.2 -mfpmath=sse` with `-march=armv8-a+crc+crypto`.
 
 ### patchelf
 
-Obtain patchelf from <http://nixos.org/releases/patchelf/patchelf-0.10/> - the download file will be `patchelf-0.10.tar.bz2`.
+Obtain patchelf from <https://github.com/NixOS/patchelf/releases/download/0.13/patchelf-0.13.tar.bz2>.
 
 Extract it to a temporary directory using:
 
 ```
-bzip2 -cd patchelf-0.10.tar.bz2 | tar xvf -
+bzip2 -cd patchelf-0.13.tar.bz2 | tar xvf -
 ```
 
-In the resulting `patchelf-0.10` directory, run the:
+In the resulting `patchelf-0.13.20210805.a949ff2` directory, run the:
 
 ```
-./configure --prefix=/usr/local/gcc93
+./configure --prefix=/usr/local/gcc103
 ```
 
 script. This should build an appropriate Makefile. Assuming it does, run:
@@ -256,46 +256,47 @@ PyTorch currently requires Python 3.6, 3.7 or 3.8, and version 3.7 appears to ca
 ```
 tar -xzf Python-3.7.9.tgz
 cd Python-3.7.9
-./configure --prefix=/usr/local/gcc93 --enable-optimizations
+./configure --prefix=/usr/local/gcc103 --enable-optimizations
 make
 sudo make altinstall
 ```
 
 ### Intel MKL
 
-Intel Maths Kernal Library is an optimized BLAS library which
+Skip this step if you are building on aarch64.
+
+Intel Maths Kernel Library is an optimized BLAS library which
 greatly improves the performance of PyTorch CPU inference 
 when PyTorch is built with it. 
 
 ```
-yum-config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.repo
-yum -y install intel-mkl-2020.4-912
+sudo yum-config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.repo
+sudo yum -y install intel-mkl-2020.4-912
 ```
 
 Then copy the required libraries to the system directory:
-```
-cp /opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so /usr/local/gcc93/lib
-cp /opt/intel/mkl/lib/intel64/libmkl_core.so /usr/local/gcc93/lib
-cp /opt/intel/mkl/lib/intel64/libmkl_def.so /usr/local/gcc93/lib
-cp /opt/intel/mkl/lib/intel64/libmkl_gnu_thread.so /usr/local/gcc93/lib
-cp /opt/intel/mkl/lib/intel64/libmkl_avx*.so /usr/local/gcc93/lib
-cp /opt/intel/mkl/lib/intel64/libmkl_vml*.so /usr/local/gcc93/lib
-```
 
-If you are building on aarch64 skip this step.
+```
+sudo cp /opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so /usr/local/gcc103/lib
+sudo cp /opt/intel/mkl/lib/intel64/libmkl_core.so /usr/local/gcc103/lib
+sudo cp /opt/intel/mkl/lib/intel64/libmkl_def.so /usr/local/gcc103/lib
+sudo cp /opt/intel/mkl/lib/intel64/libmkl_gnu_thread.so /usr/local/gcc103/lib
+sudo cp /opt/intel/mkl/lib/intel64/libmkl_avx*.so /usr/local/gcc103/lib
+sudo cp /opt/intel/mkl/lib/intel64/libmkl_vml*.so /usr/local/gcc103/lib
+```
 
 ### PyTorch 1.9.0
 
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:
 
 ```
-sudo /usr/local/gcc93/bin/python3.7 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo /usr/local/gcc103/bin/python3.7 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 For aarch64 the `ninja` module is not available, so use:
 
 ```
-sudo /usr/local/gcc93/bin/python3.7 -m pip install install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo /usr/local/gcc103/bin/python3.7 -m pip install install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
@@ -315,34 +316,10 @@ a heuristic virus scanner looking for potentially dangerous function
 calls in our shipped product will not encounter these functions that run
 external processes.
 
-If you are building on aarch64, also edit `aten/src/ATen/cpu/vml.h` and
-change lines 88-93 from:
-
-```
-    parallel_for(0, size, 2048, [out, in](int64_t begin, int64_t end) {           \
-      map([](const Vec256<scalar_t>& x) { return x.op(); },                       \
-          out + begin,                                                            \
-          in + begin,                                                             \
-          end - begin);                                                           \
-    });                                                                           \
-```
-
-to:
-
-```
-    map([](const Vec256<scalar_t>& x) { return x.op(); },                         \
-        out,                                                                      \
-        in,                                                                       \
-        size);                                                                    \
-```
-
-(That edit is a workaround for a compiler bug that affects gcc 9.3 and 10.2
-and will hopefully become unnecessary if we upgrade to gcc 9.4 or 10.3.)
-
 Build as follows:
 
 ```
-[ $(uname -m) = x86_64 ] && export BLAS=MKL
+[ $(uname -m) = x86_64 ] && export BLAS=MKL || export BLAS=Eigen
 export BUILD_TEST=OFF
 [ $(uname -m) = x86_64 ] && export BUILD_CAFFE2=OFF
 [ $(uname -m) != x86_64 ] && export USE_FBGEMM=OFF
@@ -355,16 +332,16 @@ export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
 export PYTORCH_BUILD_VERSION=1.9.0
 export PYTORCH_BUILD_NUMBER=1
-/usr/local/gcc93/bin/python3.7 setup.py install
+/usr/local/gcc103/bin/python3.7 setup.py install
 ```
 
 Once built copy headers and libraries to system directories:
 
 ```
-sudo mkdir -p /usr/local/gcc93/include/pytorch
-sudo cp -r torch/include/* /usr/local/gcc93/include/pytorch/
-sudo cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib
-sudo cp torch/lib/libc10.so /usr/local/gcc93/lib
+sudo mkdir -p /usr/local/gcc103/include/pytorch
+sudo cp -r torch/include/* /usr/local/gcc103/include/pytorch/
+sudo cp torch/lib/libtorch_cpu.so /usr/local/gcc103/lib
+sudo cp torch/lib/libc10.so /usr/local/gcc103/lib
 ```
 
 ### valgrind
@@ -374,20 +351,20 @@ to debug with `valgrind` then you'll get better results if you build a version t
 with our `gcc` instead of using the version you can get via your package manager.
 
 If you find yourself needing to do this, download `valgrind` from <http://valgrind.org/downloads/> - the
-download file will be `valgrind-3.15.0.tar.bz2`.
+download file will be `valgrind-3.17.0.tar.bz2`.
 
 Extract it to a temporary directory using:
 
 ```
-tar jxvf valgrind-3.15.0.tar.bz2
+tar jxvf valgrind-3.17.0.tar.bz2
 ```
 
-In the resulting `valgrind-3.15.0` directory, run:
+In the resulting `valgrind-3.17.0` directory, run:
 
 ```
 unset CFLAGS
 unset CXXFLAGS
-./configure --prefix=/usr/local/gcc93 --disable-dependency-tracking --enable-only64bit
+./configure --prefix=/usr/local/gcc103 --disable-dependency-tracking --enable-only64bit
 ```
 
 The reason for unsetting the compiler flags is that `valgrind` does not build correctly

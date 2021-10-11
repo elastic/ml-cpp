@@ -2230,10 +2230,10 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Create 2 models, one of which has a skip sampling rule.
-    // Feed the same data into both models then add extra data
-    // into the first model we know will be filtered out.
-    // At the end the checksums for the underlying models should
-    // be the same.
+    // The skip sampling rule doesn't cause the samples to be completely ignored,
+    // instead it applies a small multiplicative weighting when the rule applies.
+    // Feed the same data into both models including the case when the rule will apply
+    // for one model but not the other.
 
     // Create a rule to filter buckets where the actual value > 100
     CRuleCondition condition;
@@ -2245,13 +2245,14 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     rule.addCondition(condition);
 
     std::size_t bucketLength(300);
-    std::size_t startTime(300);
+    std::size_t startTime(0);
 
     // Model without the skip sampling rule
     SModelParams paramsNoRules(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CMetricModelFactory factory(paramsNoRules, interimBucketCorrector);
     model_t::TFeatureVec features{model_t::E_IndividualMeanByPerson};
+    factory.features(features);
     CModelFactory::TDataGathererPtr gathererNoSkip(factory.makeDataGatherer(startTime));
     CModelFactory::TModelPtr modelPtrNoSkip(factory.makeModel(gathererNoSkip));
     CMetricModel* modelNoSkip = dynamic_cast<CMetricModel*>(modelPtrNoSkip.get());
@@ -2261,6 +2262,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     SModelParams::TDetectionRuleVec rules{rule};
     paramsWithRules.s_DetectionRules = SModelParams::TDetectionRuleVecCRef(rules);
     CMetricModelFactory factoryWithSkip(paramsWithRules, interimBucketCorrector);
+    factoryWithSkip.features(features);
     CModelFactory::TDataGathererPtr gathererWithSkip(
         factoryWithSkip.makeDataGatherer(startTime));
     CModelFactory::TModelPtr modelPtrWithSkip(factoryWithSkip.makeModel(gathererWithSkip));
@@ -2268,8 +2270,19 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     std::size_t endTime = startTime + bucketLength;
 
+    // Add a few buckets to both models (this seems to be necessary to ensure subsequent calls to 'sample'
+    // actually result in samples being added to the model)
+    for (std::size_t j = 0; j < 3; ++j) {
+        for (std::size_t i = 0; i < bucketLength; i++) {
+            this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
+            this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
+        }
+        startTime = endTime;
+        endTime += bucketLength;
+    }
+
     // Add a bucket to both models
-    for (std::size_t i = 0; i < 60; i++) {
+    for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
     }
@@ -2279,61 +2292,72 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     endTime += bucketLength;
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
-    // Add a bucket to both models
-    for (std::size_t i = 0; i < 60; i++) {
-        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
-        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
-    }
-    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
-    modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
-    startTime = endTime;
-    endTime += bucketLength;
-    BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
-
-    // this sample will be skipped by the detection rule
-    for (std::size_t i = 0; i < 60; i++) {
+    // Add data to both models
+    // the model with the detection rule will apply a small weighting to the sample
+    for (std::size_t i = 0; i < bucketLength; i++) {
+        this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererWithSkip);
     }
+    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
+
+    // Checksums will be different due to the small weighting applied to the sample
+    // added to the model with the detector rule.
+    BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     startTime = endTime;
     endTime += bucketLength;
 
-    // Wind the other model forward
-    modelNoSkip->skipSampling(startTime);
-
-    for (std::size_t i = 0; i < 60; i++) {
+    // Add more data to both models, for which the detection rule will not apply
+    for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererWithSkip);
     }
     modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
 
-    // Checksums will be different due to the data gatherers
+    // Checksums will be different due to the small weighting applied to the sample
+    // added to the model with the detector rule.
     BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
-    // but the underlying models should be the same
+    // The underlying models should also differ due to the different weighting applied to the samples.
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
         modelWithSkip->details();
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
 
-    // TODO this test fails due a different checksums for the decay rate and prior
-    // uint64_t withSkipChecksum = modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();
-    // uint64_t noSkipChecksum = modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();
-    // BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+    const maths::CModel* mathsModelWithSkip =
+        modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0);
+    BOOST_TEST_REQUIRE(mathsModelWithSkip != nullptr);
+    uint64_t withSkipChecksum = mathsModelWithSkip->checksum();
+    const maths::CModel* mathsModelNoSkip =
+        modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0);
+    BOOST_TEST_REQUIRE(mathsModelNoSkip != nullptr);
+    uint64_t noSkipChecksum = mathsModelNoSkip->checksum();
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
-    // TODO These checks fail see elastic/machine-learning-cpp/issues/485
     // Check the last value times of the underlying models are the same
-    // const maths::CUnivariateTimeSeriesModel *timeSeriesModel =
-    //     dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
-    // BOOST_TEST_REQUIRE(timeSeriesModel != 0);
+    const maths::CUnivariateTimeSeriesModel* timeSeriesModel =
+        dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+            modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0));
+    BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
+    const auto* trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+        &timeSeriesModel->trendModel());
+    BOOST_TEST_REQUIRE(trendModel != nullptr);
+    core_t::TTime modelNoSkipTime = trendModel->lastValueTime();
 
-    // core_t::TTime time = timeSeriesModel->trend().lastValueTime();
-    // BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_IndividualMeanByPerson, startTime, bucketLength), time);
+    // The last times of model with a skip should be the same
+    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
+    BOOST_TEST_REQUIRE(timeSeriesModel);
+    trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+        &timeSeriesModel->trendModel());
+    BOOST_TEST_REQUIRE(trendModel != nullptr);
+    core_t::TTime modelWithSkipTime = trendModel->lastValueTime();
 
-    // // The last times of model with a skip should be the same
-    // timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
-    // BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    BOOST_REQUIRE_EQUAL(modelNoSkipTime, modelWithSkipTime);
+    BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_IndividualMeanByPerson,
+                                            startTime, bucketLength),
+                        modelNoSkipTime);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
