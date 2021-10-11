@@ -35,6 +35,9 @@
 #include <numeric>
 #include <vector>
 
+namespace CBoostedTreeLeafNodeStatisticsTest {
+struct testComputeBestSplitStatisticsThreading;
+}
 namespace ml {
 namespace core {
 class CDataFrame;
@@ -59,7 +62,6 @@ public:
     CBoostedTreeLeafNodeStatisticsScratch(std::size_t id,
                                           const TSizeVec& extraColumns,
                                           std::size_t numberLossParameters,
-                                          std::size_t numberThreads,
                                           const core::CDataFrame& frame,
                                           const TRegularization& regularization,
                                           const TFloatVecVec& candidateSplits,
@@ -72,9 +74,7 @@ public:
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatisticsScratch(std::size_t id,
                                           const CBoostedTreeLeafNodeStatisticsScratch& parent,
-                                          std::size_t numberThreads,
                                           const core::CDataFrame& frame,
-                                          const CDataFrameCategoryEncoder& encoder,
                                           const TRegularization& regularization,
                                           const TSizeVec& treeFeatureBag,
                                           const TSizeVec& nodeFeatureBag,
@@ -86,6 +86,7 @@ public:
     CBoostedTreeLeafNodeStatisticsScratch(std::size_t id,
                                           CBoostedTreeLeafNodeStatisticsScratch&& parent,
                                           const TRegularization& regularization,
+                                          const TSizeVec& treeFeatureBag,
                                           const TSizeVec& nodeFeatureBag,
                                           CWorkspace& workspace);
 
@@ -100,10 +101,8 @@ public:
     //! \return Shared pointers to the left and right child node statistics.
     TPtrPtrPr split(std::size_t leftChildId,
                     std::size_t rightChildId,
-                    std::size_t numberThreads,
                     double gainThreshold,
                     const core::CDataFrame& frame,
-                    const CDataFrameCategoryEncoder& encoder,
                     const TRegularization& regularization,
                     const TSizeVec& treeFeatureBag,
                     const TSizeVec& nodeFeatureBag,
@@ -114,10 +113,31 @@ public:
     std::size_t staticSize() const override;
 
 private:
-    SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
-                                                const TSizeVec& featureBag) const;
+    using TFeatureBestSplitSearch = std::function<void(std::size_t)>;
 
+    //! \brief Statistics used to compute the gain bound.
+    struct MATHS_EXPORT SChildrenGainStatistics {
+        double s_MinLossLeft{-boosted_tree_detail::INF};
+        double s_MinLossRight{-boosted_tree_detail::INF};
+        double s_GainLeft{-boosted_tree_detail::INF};
+        double s_GainRight{-boosted_tree_detail::INF};
+    };
+
+private:
+    CBoostedTreeLeafNodeStatisticsScratch(const TSizeVec& extraColumns,
+                                          std::size_t numberLossParameters,
+                                          const TFloatVecVec& candidateSplits,
+                                          CSplitsDerivatives derivatives);
+    SSplitStatistics computeBestSplitStatistics(std::size_t numberThreads,
+                                                const TRegularization& regularization,
+                                                const TSizeVec& featureBag) const;
+    TFeatureBestSplitSearch
+    featureBestSplitSearch(const TRegularization& regularization,
+                           SSplitStatistics& bestSplitStats,
+                           SChildrenGainStatistics& childrenGainStatsGlobal) const;
     double childMaxGain(double childGain, double minLossChild, double lambda) const;
+
+    friend struct CBoostedTreeLeafNodeStatisticsTest::testComputeBestSplitStatisticsThreading;
 };
 }
 }

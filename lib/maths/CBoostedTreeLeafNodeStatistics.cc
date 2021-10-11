@@ -19,6 +19,10 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/COrderings.h>
+#include <maths/CTools.h>
+
+#include <algorithm>
+#include <array>
 #include <memory>
 
 namespace ml {
@@ -107,22 +111,6 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(std::size_t id,
       m_CandidateSplits{candidateSplits}, m_Derivatives{std::move(derivatives)} {
 }
 
-std::size_t CBoostedTreeLeafNodeStatistics::maximumNumberThreadsToAggregateDerivatives(
-    const CBoostedTreeLeafNodeStatistics& parent,
-    const TSizeVec& treeFeatureBag) {
-    // The number of threads we'll use breaks down as follows:
-    //   - We need a minimum number of rows per thread to ensure reasonable
-    //     load balancing.
-    //   - We need a minimum amount of work per thread to make the overheads
-    //     of distributing worthwhile.
-    std::size_t features{treeFeatureBag.size()};
-    std::size_t rows{parent.minimumChildRowCount()};
-    std::size_t rowsPerThreadConstraint{rows / 64};
-    std::size_t workPerThreadConstraint{(features * rows) / (8 * 128)};
-    return std::max(std::min(rowsPerThreadConstraint, workPerThreadConstraint),
-                    std::size_t{1});
-}
-
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     CLookAheadBound bound,
     std::size_t numberThreads,
@@ -149,30 +137,26 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     CLookAheadBound bound,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     bool isLeftChild,
     const CBoostedTreeNode& split,
     const TSizeVec& featureBag,
     const core::CPackedBitVector& parentRowMask,
     CWorkspace& workspace) const {
     this->computeRowMaskAndAggregateLossDerivativesWith(
-        bound, numberThreads, frame, encoder, isLeftChild, split, featureBag,
-        parentRowMask, workspace);
+        bound, numberThreads, frame, isLeftChild, split, featureBag, parentRowMask, workspace);
 }
 
 void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     CNoLookAheadBound bound,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     bool isLeftChild,
     const CBoostedTreeNode& split,
     const TSizeVec& featureBag,
     const core::CPackedBitVector& parentRowMask,
     CWorkspace& workspace) const {
     this->computeRowMaskAndAggregateLossDerivativesWith(
-        bound, numberThreads, frame, encoder, isLeftChild, split, featureBag,
-        parentRowMask, workspace);
+        bound, numberThreads, frame, isLeftChild, split, featureBag, parentRowMask, workspace);
 }
 
 template<typename BOUND>
@@ -207,7 +191,6 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivativesWi
     BOUND bound,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     bool isLeftChild,
     const CBoostedTreeNode& split,
     const TSizeVec& featureBag,
@@ -227,8 +210,7 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivativesWi
         aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
-                auto encodedRow = encoder.encode(row);
-                if (split.assignToLeft(encodedRow) == isLeftChild) {
+                if (split.assignToLeft(row, m_ExtraColumns) == isLeftChild) {
                     std::size_t index{row.index()};
                     mask.extend(false, index - mask.size());
                     mask.extend(true);
