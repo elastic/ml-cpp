@@ -2014,6 +2014,6 @@ const std::string CBoostedTreeFactory::FEATURE_SELECTION{"feature_selection"};
 const std::string CBoostedTreeFactory::COARSE_PARAMETER_SEARCH{"coarse_parameter_search"};
 const std::string CBoostedTreeFactory::FINE_TUNING_PARAMETERS{"fine_tuning_parameters"};
 const std::string CBoostedTreeFactory::FINAL_TRAINING{"final_training"};
-const std::string CBoostedTreeFactory::INCREMENTAL_TRAIN{"inncremental_train"};
+const std::string CBoostedTreeFactory::INCREMENTAL_TRAIN{"incremental_train"};
 }
 }

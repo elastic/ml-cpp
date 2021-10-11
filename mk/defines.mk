@@ -28,7 +28,7 @@ SNAPSHOT?=yes
 ifeq ($(CPP_SRC_HOME),/ml-cpp)
 JOB_NAME?=container-build
 else
-ifeq ($(CPP_SRC_HOME),C:/Users/vagrant/projects/elasticsearch-extra/ml-cpp)
+ifeq ($(CPP_SRC_HOME),C:/Users/vagrant/projects/ml-cpp)
 JOB_NAME?=container-build
 endif
 endif

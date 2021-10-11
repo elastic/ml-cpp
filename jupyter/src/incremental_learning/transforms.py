@@ -263,13 +263,12 @@ def shift_metric_features(seed : int,
         logger.error('no pure numeric features')
         return None
 
-    sd = dataset[features].std()
+    sd = dataset[features].std().to_dict()
     shift = random_shift(seed, magnitude, len(features))
 
     result = dataset.sample(frac=fraction, random_state=seed) if fraction < 1 else dataset.copy(deep=True)
-    for i, _ in result.iterrows():
-        for j, feature in enumerate(features):
-            result.loc[i, feature] += 3.0 * shift[j] * sd[feature]
+    for j, feature in enumerate(features):
+        result.loc[:, feature] += 3.0 * shift[j] * sd[feature]
 
     return result
 
@@ -342,7 +341,7 @@ def rotate_metric_features(seed : int,
         logger.error('no pure numeric features')
         return None
 
-    centroid = dataset[features].mean()
+    centroid = dataset[features].mean().to_dict()
     rotations = random_givens_rotations(seed, magnitude, len(features))
     # We need to rescale features so they are of comparible magnitude before mixing.
     sd = dataset[features].std()

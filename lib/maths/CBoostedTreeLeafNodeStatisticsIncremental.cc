@@ -35,7 +35,6 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     std::size_t id,
     const TSizeVec& extraColumns,
     std::size_t numberLossParameters,
-    std::size_t numberThreads,
     const core::CDataFrame& frame,
     const TRegularization& regularization,
     const TFloatVecVec& candidateSplits,
@@ -47,17 +46,18 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     : CBoostedTreeLeafNodeStatistics{id, depth, extraColumns,
                                      numberLossParameters, candidateSplits} {
 
-    this->computeAggregateLossDerivatives(CNoLookAheadBound{}, numberThreads, frame,
+    this->computeAggregateLossDerivatives(CNoLookAheadBound{},
+                                          workspace.numberThreads(), frame,
                                           treeFeatureBag, rowMask, workspace);
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
     m_PreviousSplit = this->rootPreviousSplit(workspace);
 
-    this->derivatives().swap(workspace.reducedDerivatives());
-    this->bestSplitStatistics() =
-        this->computeBestSplitStatistics(regularization, nodeFeatureBag);
-    workspace.reducedDerivatives().swap(this->derivatives());
+    this->derivatives().swap(workspace.reducedDerivatives(treeFeatureBag));
+    this->bestSplitStatistics() = this->computeBestSplitStatistics(
+        workspace.numberThreads(), regularization, nodeFeatureBag);
+    workspace.reducedDerivatives(treeFeatureBag).swap(this->derivatives());
 
     if (this->gain() >= workspace.minimumGain()) {
         this->rowMask() = rowMask;
@@ -69,9 +69,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
 CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncremental(
     std::size_t id,
     const CBoostedTreeLeafNodeStatisticsIncremental& parent,
-    std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
     const TSizeVec& treeFeatureBag,
     const TSizeVec& nodeFeatureBag,
@@ -82,15 +80,12 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
                                      parent.numberLossParameters(),
                                      parent.candidateSplits()} {
 
-    numberThreads = std::min(numberThreads, maximumNumberThreadsToAggregateDerivatives(
-                                                parent, treeFeatureBag));
-
     this->computeRowMaskAndAggregateLossDerivatives(
-        CNoLookAheadBound{}, numberThreads, frame, encoder, isLeftChild, split,
-        treeFeatureBag, parent.rowMask(), workspace);
-    this->derivatives().swap(workspace.reducedDerivatives());
-
-    // Lazily copy the mask and derivatives to avoid unnecessary allocations.
+        CNoLookAheadBound{},
+        TThreading::numberThreadsForAggregateLossDerivatives(
+            workspace.numberThreads(), treeFeatureBag.size(), parent.minimumChildRowCount()),
+        frame, isLeftChild, split, treeFeatureBag, parent.rowMask(), workspace);
+    this->derivatives().swap(workspace.reducedDerivatives(treeFeatureBag));
 
     // Set the split feature and value for this node in the tree being retrained.
     std::size_t parentSplitFeature{parent.bestSplit().first};
@@ -98,12 +93,13 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
         (isLeftChild ? parent.leftChildPreviousSplit(parentSplitFeature, workspace)
                      : parent.rightChildPreviousSplit(parentSplitFeature, workspace));
 
-    this->bestSplitStatistics() =
-        this->computeBestSplitStatistics(regularization, nodeFeatureBag);
-    workspace.reducedDerivatives().swap(this->derivatives());
+    this->bestSplitStatistics() = this->computeBestSplitStatistics(
+        workspace.numberThreads(), regularization, nodeFeatureBag);
+    workspace.reducedDerivatives(treeFeatureBag).swap(this->derivatives());
 
+    // Lazily copy the mask and derivatives to avoid unnecessary allocations.
     if (this->gain() >= workspace.minimumGain()) {
-        CSplitsDerivatives tmp{workspace.reducedDerivatives()};
+        CSplitsDerivatives tmp{workspace.reducedDerivatives(treeFeatureBag)};
         this->rowMask() = workspace.reducedMask(parent.rowMask().size());
         this->derivatives() = std::move(tmp);
     }
@@ -113,6 +109,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     std::size_t id,
     CBoostedTreeLeafNodeStatisticsIncremental&& parent,
     const TRegularization& regularization,
+    const TSizeVec& treeFeatureBag,
     const TSizeVec& nodeFeatureBag,
     bool isLeftChild,
     CWorkspace& workspace)
@@ -123,9 +120,10 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
                                      parent.candidateSplits(),
                                      std::move(parent.derivatives())} {
 
-    // Lazily compute the row mask to avoid unnecessary work.
-
-    this->derivatives().subtract(workspace.reducedDerivatives());
+    // TODO if sum(splits) > |feature| * |rows| aggregate.
+    this->derivatives().subtract(workspace.numberThreads(),
+                                 workspace.reducedDerivatives(treeFeatureBag),
+                                 treeFeatureBag);
 
     // Set the split feature and value for this node in the tree being retrained.
     std::size_t parentSplitFeature{parent.bestSplit().first};
@@ -133,22 +131,34 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
         (isLeftChild ? parent.leftChildPreviousSplit(parentSplitFeature, workspace)
                      : parent.rightChildPreviousSplit(parentSplitFeature, workspace));
 
-    this->bestSplitStatistics() =
-        this->computeBestSplitStatistics(regularization, nodeFeatureBag);
+    this->bestSplitStatistics() = this->computeBestSplitStatistics(
+        workspace.numberThreads(), regularization, nodeFeatureBag);
 
+    // Lazily compute the row mask to avoid unnecessary work.
     if (this->gain() >= workspace.minimumGain()) {
         this->rowMask() = std::move(parent.rowMask());
         this->rowMask() ^= workspace.reducedMask(this->rowMask().size());
     }
 }
 
+CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncremental(
+    const TSizeVec& extraColumns,
+    std::size_t numberLossParameters,
+    const TFloatVecVec& candidateSplits,
+    CSplitsDerivatives derivatives)
+    : CBoostedTreeLeafNodeStatistics{0, // Id
+                                     0, // Depth
+                                     extraColumns,
+                                     numberLossParameters,
+                                     candidateSplits,
+                                     std::move(derivatives)} {
+}
+
 CBoostedTreeLeafNodeStatisticsIncremental::TPtrPtrPr
 CBoostedTreeLeafNodeStatisticsIncremental::split(std::size_t leftChildId,
                                                  std::size_t rightChildId,
-                                                 std::size_t numberThreads,
                                                  double /*gainThreshold*/,
                                                  const core::CDataFrame& frame,
-                                                 const CDataFrameCategoryEncoder& encoder,
                                                  const TRegularization& regularization,
                                                  const TSizeVec& treeFeatureBag,
                                                  const TSizeVec& nodeFeatureBag,
@@ -158,20 +168,20 @@ CBoostedTreeLeafNodeStatisticsIncremental::split(std::size_t leftChildId,
     TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
         leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
-            leftChildId, *this, numberThreads, frame, encoder, regularization,
-            treeFeatureBag, nodeFeatureBag, true /*is left child*/, split, workspace);
+            leftChildId, *this, frame, regularization, treeFeatureBag,
+            nodeFeatureBag, true /*is left child*/, split, workspace);
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
-            rightChildId, std::move(*this), regularization, nodeFeatureBag,
-            false /*is left child*/, workspace);
+            rightChildId, std::move(*this), regularization, treeFeatureBag,
+            nodeFeatureBag, false /*is left child*/, workspace);
         return {std::move(leftChild), std::move(rightChild)};
     }
 
     rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
-        rightChildId, *this, numberThreads, frame, encoder, regularization,
-        treeFeatureBag, nodeFeatureBag, false /*is left child*/, split, workspace);
+        rightChildId, *this, frame, regularization, treeFeatureBag,
+        nodeFeatureBag, false /*is left child*/, split, workspace);
     leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
-        leftChildId, std::move(*this), regularization, nodeFeatureBag,
-        true /*is left child*/, workspace);
+        leftChildId, std::move(*this), regularization, treeFeatureBag,
+        nodeFeatureBag, true /*is left child*/, workspace);
     return {std::move(leftChild), std::move(rightChild)};
 }
 
@@ -181,6 +191,7 @@ std::size_t CBoostedTreeLeafNodeStatisticsIncremental::staticSize() const {
 
 CBoostedTreeLeafNodeStatisticsIncremental::SSplitStatistics
 CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
+    std::size_t numberThreads,
     const TRegularization& regularization,
     const TSizeVec& featureBag) const {
 
@@ -191,8 +202,6 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
     //   4. Tree topology change: we get a fixed penalty for choosing a different split
     //      feature and a smaller penalty for choosing a different split value for the
     //      same feature which is proportional to the difference.
-
-    SSplitStatistics result;
 
     // We seek to find the value at the minimum of the quadratic expansion of the
     // regularized loss function. For a given leaf this expansion is
@@ -208,59 +217,72 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
     //
     //   L(w^*) = -1/2 g^t H(\lambda)^{-1} g
 
-    using TDoubleVector = CDenseVector<double>;
-    using TDoubleMatrix = CDenseMatrix<double>;
-    using TMinimumLoss = std::function<double(const TDoubleVector&, const TDoubleMatrix&)>;
+    using TFeatureBestSplitSearchVec = std::vector<TFeatureBestSplitSearch>;
+    using TSplitStatisticsVec = std::vector<SSplitStatistics>;
 
-    int d{static_cast<int>(this->numberLossParameters())};
+    numberThreads = TThreading::numberThreadsForComputeBestSplitStatistics(
+        numberThreads, featureBag.size(), this->numberLossParameters(),
+        this->derivatives().numberDerivatives(featureBag));
+    LOG_TRACE(<< "number threads = " << numberThreads);
 
-    TMinimumLoss minimumLoss;
+    TFeatureBestSplitSearchVec featureBestSplitSearches;
+    TSplitStatisticsVec splitStats(numberThreads);
+    featureBestSplitSearches.reserve(numberThreads);
 
-    double lambda{regularization.leafWeightPenaltyMultiplier().value()};
-    Eigen::MatrixXd hessian{d, d};
-    Eigen::MatrixXd hessian_{d, d};
-    Eigen::VectorXd hessianInvg{d};
-    if (this->numberLossParameters() == 1) {
-        // There is a significant overhead for using a matrix decomposition when g and h
-        // are scalar so we have special case handling.
-        minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
-            return CTools::pow2(g(0)) / (h(0, 0) + lambda);
-        };
-    } else {
-        minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
-            hessian_ = hessian =
-                (h + lambda * TDoubleMatrix::Identity(d, d)).selfadjointView<Eigen::Lower>();
-            // Since the Hessian is positive semidefinite, the trace is larger than the
-            // largest eigenvalue. Therefore, H_eps = H + eps * trace(H) * I will have
-            // condition number at least eps. As long as eps >> double epsilon we should
-            // be able to invert it accurately.
-            double eps{std::max(1e-5 * hessian.trace(), 1e-10)};
-            for (std::size_t i = 0; i < 2; ++i) {
-                Eigen::LLT<Eigen::Ref<Eigen::MatrixXd>> llt{hessian};
-                hessianInvg = llt.solve(g);
-                if ((hessian_ * hessianInvg - g).norm() < 1e-2 * g.norm()) {
-                    return g.transpose() * hessianInvg;
-                } else {
-                    hessian_.diagonal().array() += eps;
-                    hessian = hessian_;
-                }
-            }
-            return -INF / 2.0; // We couldn't invert the Hessian: discard this split.
-        };
+    for (std::size_t i = 0; i < numberThreads; ++i) {
+        featureBestSplitSearches.push_back(
+            this->featureBestSplitSearch(regularization, splitStats[i]));
     }
 
-    TDoubleVector g{d};
-    TDoubleMatrix h{d, d};
-    TDoubleVector gl[]{TDoubleVector{d}, TDoubleVector{d}};
-    TDoubleVector gr[]{TDoubleVector{d}, TDoubleVector{d}};
-    TDoubleMatrix hl[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
-    TDoubleMatrix hr[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
+    core::parallel_for_each(featureBag.begin(), featureBag.end(), featureBestSplitSearches);
 
-    double gain[2];
+    SSplitStatistics result;
+    for (std::size_t i = 0; i < numberThreads; ++i) {
+        if (splitStats[i] > result) {
+            result = splitStats[i];
+        }
+    }
+    LOG_TRACE(<< "best split: " << result.print());
 
-    const auto& derivatives = this->derivatives();
+    return result;
+}
 
-    for (auto feature : featureBag) {
+CBoostedTreeLeafNodeStatisticsIncremental::TFeatureBestSplitSearch
+CBoostedTreeLeafNodeStatisticsIncremental::featureBestSplitSearch(
+    const TRegularization& regularization,
+    SSplitStatistics& bestSplitStatistics) const {
+
+    using TDoubleAry = std::array<double, 2>;
+    using TDoubleVector = CDenseVector<double>;
+    using TDoubleVectorAry = std::array<TDoubleVector, 2>;
+    using TDoubleMatrix = CDenseMatrix<double>;
+    using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
+
+    int d{static_cast<int>(this->numberLossParameters())};
+    double lambda{regularization.leafWeightPenaltyMultiplier().value()};
+
+    auto minimumLoss = TThreading::makeThreadLocalMinimumLossFunction(d, lambda);
+
+    TDoubleVector g_{d};
+    TDoubleMatrix h_{d, d};
+    TDoubleVectorAry gl_{TDoubleVector{d}, TDoubleVector{d}};
+    TDoubleVectorAry gr_{TDoubleVector{d}, TDoubleVector{d}};
+    TDoubleMatrixAry hl_{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
+    TDoubleMatrixAry hr_{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
+
+    return [
+        // Inputs
+        minimumLoss, &regularization,
+        // State
+        g = std::move(g_), h = std::move(h_), gl = std::move(gl_),
+        gr = std::move(gr_), hl = std::move(hl_), hr = std::move(hr_),
+        // Results
+        &bestSplitStatistics, this
+    ](std::size_t feature) mutable {
+
+        const auto& derivatives = this->derivatives();
+        const auto& candidateSplits = this->candidateSplits();
+
         std::size_t c{derivatives.missingCount(feature)};
         g = derivatives.missingGradient(feature);
         h = derivatives.missingCurvature(feature);
@@ -285,6 +307,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
         std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
         std::size_t size{derivatives.numberDerivatives(feature)};
+        TDoubleAry gain;
         auto gainMoments = CBasicStatistics::momentsAccumulator(0.0, 0.0, 0.0);
 
         for (std::size_t split = 0; split + 1 < size; ++split) {
@@ -294,8 +317,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
                 continue;
             }
 
-            const TMemoryMappedDoubleVector& gradient{derivatives.gradient(feature, split)};
-            const TMemoryMappedDoubleMatrix& curvature{derivatives.curvature(feature, split)};
+            const auto& gradient = derivatives.gradient(feature, split);
+            const auto& curvature = derivatives.curvature(feature, split);
 
             cl[ASSIGN_MISSING_TO_LEFT] += count;
             cl[ASSIGN_MISSING_TO_RIGHT] += count;
@@ -339,13 +362,13 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
-                splitAt = this->candidateSplits()[feature][split];
+                splitAt = candidateSplits[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
                 assignMissingToLeft = true;
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
-                splitAt = this->candidateSplits()[feature][split];
+                splitAt = candidateSplits[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
                 assignMissingToLeft = false;
             }
@@ -372,14 +395,10 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
             assignMissingToLeft};
         LOG_TRACE(<< "candidate split: " << candidate.print());
 
-        if (candidate > result) {
-            result = candidate;
+        if (candidate > bestSplitStatistics) {
+            bestSplitStatistics = candidate;
         }
-    }
-
-    LOG_TRACE(<< "best split: " << result.print());
-
-    return result;
+    };
 }
 
 double

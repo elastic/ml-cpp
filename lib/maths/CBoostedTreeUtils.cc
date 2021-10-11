@@ -88,9 +88,9 @@ void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::siz
 }
 
 void writeLossGradient(const TRowRef& row,
+                       const CEncodedDataFrameRowRef& encodedRow,
                        bool newExample,
                        const TSizeVec& extraColumns,
-                       const CDataFrameCategoryEncoder& encoder,
                        const CLoss& loss,
                        const TMemoryMappedFloatVector& prediction,
                        double actual,
@@ -100,7 +100,7 @@ void writeLossGradient(const TRowRef& row,
     };
     // We wrap the writer in another lambda which we know takes advantage
     // of std::function small size optimization to avoid heap allocations.
-    loss.gradient(encoder.encode(row), newExample, prediction, actual,
+    loss.gradient(encodedRow, newExample, prediction, actual,
                   [&writer](std::size_t i, double value) { writer(i, value); }, weight);
 }
 
@@ -112,9 +112,9 @@ void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::si
 }
 
 void writeLossCurvature(const TRowRef& row,
+                        const CEncodedDataFrameRowRef& encodedRow,
                         bool newExample,
                         const TSizeVec& extraColumns,
-                        const CDataFrameCategoryEncoder& encoder,
                         const CLoss& loss,
                         const TMemoryMappedFloatVector& prediction,
                         double actual,
@@ -124,7 +124,7 @@ void writeLossCurvature(const TRowRef& row,
     };
     // We wrap the writer in another lambda which we know takes advantage
     // of std::function small size optimization to avoid heap allocations.
-    loss.curvature(encoder.encode(row), newExample, prediction, actual,
+    loss.curvature(encodedRow, newExample, prediction, actual,
                    [&writer](std::size_t i, double value) { writer(i, value); }, weight);
 }
 
