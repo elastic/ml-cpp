@@ -17,6 +17,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
+#include <core/Concurrency.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
@@ -860,11 +861,10 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                         double feature{encodedRow[i]};
                         packedSplits[j] =
                             CDataFrameUtils::isMissing(feature)
-                                ? static_cast<std::uint8_t>(candidateSplits[i].size() + 1)
+                                ? static_cast<std::uint8_t>(missingSplit(candidateSplits[i]))
                                 : packedSplits[j] = static_cast<std::uint8_t>(
                                       std::upper_bound(candidateSplits[i].begin(),
-                                                       candidateSplits[i].end(),
-                                                       encodedRow[i]) -
+                                                       candidateSplits[i].end(), feature) -
                                       candidateSplits[i].begin());
                     }
                     *splits = CPackedUInt8Decorator{packedSplits};
@@ -905,9 +905,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
     splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
-        frame, m_Regularization, candidateSplits, treeFeatureBag,
-        nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace));
+        0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), frame,
+        m_Regularization, candidateSplits, treeFeatureBag, nodeFeatureBag,
+        0 /*depth*/, trainingRowMask, workspace));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
@@ -958,11 +958,12 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
-        // add the left and right children to the tree
-        std::size_t leftChildId, rightChildId;
-        std::tie(leftChildId, rightChildId) =
-            tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft,
-                                   leaf->gain(), leaf->curvature(), tree);
+        // Add the left and right children to the tree.
+        std::size_t leftChildId;
+        std::size_t rightChildId;
+        std::tie(leftChildId, rightChildId) = tree[leaf->id()].split(
+            candidateSplits, splitFeature, splitValue, assignMissingToLeft,
+            leaf->gain(), leaf->curvature(), tree);
 
         featureSampleProbabilities = m_FeatureSampleProbabilities;
         this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
@@ -981,9 +982,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = leaf->split(
-            leftChildId, rightChildId, m_NumberThreads, smallestCandidateGain,
-            frame, *m_Encoder, m_Regularization, treeFeatureBag, nodeFeatureBag,
-            tree[leaf->id()], workspace);
+            leftChildId, rightChildId, smallestCandidateGain, frame, m_Regularization,
+            treeFeatureBag, nodeFeatureBag, tree[leaf->id()], workspace);
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {
@@ -1250,7 +1250,15 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
 
     using TArgMinLossVec = std::vector<CArgMinLoss>;
 
-    TArgMinLossVec leafValues(tree.size(), m_Loss->minimizer(lambda, m_Rng));
+    TSizeVec leafMap(tree.size());
+    std::size_t numberLeaves{0};
+    for (std::size_t i = 0; i < tree.size(); ++i) {
+        if (tree[i].isLeaf()) {
+            leafMap[i] = numberLeaves++;
+        }
+    }
+
+    TArgMinLossVec leafValues(numberLeaves, m_Loss->minimizer(lambda, m_Rng));
     auto nextPass = [&] {
         bool done{true};
         for (const auto& value : leafValues) {
@@ -1272,8 +1280,9 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                                                          numberLossParameters);
                         double actual{readActual(row, m_DependentVariable)};
                         double weight{readExampleWeight(row, m_ExtraColumns)};
-                        leafValues_[rootNode.leafIndex(m_Encoder->encode(row), tree)]
-                            .add(prediction, actual, weight);
+                        std::size_t index{
+                            leafMap[rootNode.leafIndex(row, m_ExtraColumns, tree)]};
+                        leafValues_[index].add(prediction, actual, weight);
                     }
                 },
                 std::move(leafValues)),
@@ -1287,11 +1296,11 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
         }
     } while (nextPass());
 
-    for (std::size_t i = 0; i < tree.size(); ++i) {
+    core::parallel_for_each(0, tree.size(), [&](std::size_t i) {
         if (tree[i].isLeaf()) {
-            tree[i].value(eta * leafValues[i].value());
+            tree[i].value(eta * leafValues[leafMap[i]].value());
         }
-    }
+    });
 
     LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
 
