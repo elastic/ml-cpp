@@ -298,7 +298,7 @@ public:
     //! Get the number of columns in the data frame.
     std::size_t numberColumns() const;
 
-    //! Reserve space for up to \p numberColumns.
+    //! Reserve space for up to \p rowCapacity.
     //!
     //! This enables in-place updates of the data frame for analytics operations
     //! that append columns.

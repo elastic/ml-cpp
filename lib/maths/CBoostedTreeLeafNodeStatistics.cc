@@ -12,7 +12,6 @@
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
 #include <core/CDataFrame.h>
-#include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
 
 #include <maths/CBoostedTree.h>
@@ -44,9 +43,8 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t numberLossParameters,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
-    const TImmutableRadixSetVec& candidateSplits,
+    const TFloatVecVec& candidateSplits,
     const TSizeVec& treeFeatureBag,
     const TSizeVec& nodeFeatureBag,
     std::size_t depth,
@@ -55,8 +53,8 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns},
       m_NumberLossParameters{numberLossParameters}, m_CandidateSplits{candidateSplits} {
 
-    this->computeAggregateLossDerivatives(numberThreads, frame, encoder,
-                                          treeFeatureBag, rowMask, workspace);
+    this->computeAggregateLossDerivatives(numberThreads, frame, treeFeatureBag,
+                                          rowMask, workspace);
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
@@ -247,7 +245,6 @@ CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberFeatures,
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder,
     const TSizeVec& featureBag,
     const core::CPackedBitVector& rowMask,
     CWorkspace& workspace) const {
@@ -262,7 +259,7 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
         splitsDerivatives.zero();
         aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                this->addRowDerivatives(featureBag, encoder.encode(*row), splitsDerivatives);
+                this->addRowDerivatives(featureBag, *row, splitsDerivatives);
             }
         });
     }
@@ -291,13 +288,14 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
         mask.clear();
         splitsDerivatives.zero();
         aggregators.push_back([&](const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                auto encodedRow = encoder.encode(*row);
+            for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                auto row = *row_;
+                auto encodedRow = encoder.encode(row);
                 if (split.assignToLeft(encodedRow) == isLeftChild) {
-                    std::size_t index{row->index()};
+                    std::size_t index{row.index()};
                     mask.extend(false, index - mask.size());
                     mask.extend(true);
-                    this->addRowDerivatives(featureBag, encodedRow, splitsDerivatives);
+                    this->addRowDerivatives(featureBag, row, splitsDerivatives);
                 }
             }
         });
@@ -307,11 +305,10 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
 }
 
 void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const TSizeVec& featureBag,
-                                                       const CEncodedDataFrameRowRef& row,
+                                                       const TRowRef& row,
                                                        CSplitsDerivatives& splitsDerivatives) const {
 
-    auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
-                                           m_NumberLossParameters);
+    auto derivatives = readLossDerivatives(row, m_ExtraColumns, m_NumberLossParameters);
 
     if (derivatives.size() == 2) {
         if (derivatives(0) >= 0.0) {
@@ -321,14 +318,11 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const TSizeVec& featureBa
         }
     }
 
+    const auto* splits = beginSplits(row, m_ExtraColumns);
     for (auto feature : featureBag) {
-        double featureValue{row[feature]};
-        if (CDataFrameUtils::isMissing(featureValue)) {
-            splitsDerivatives.addMissingDerivatives(feature, derivatives);
-        } else {
-            std::ptrdiff_t split{m_CandidateSplits[feature].upperBound(featureValue)};
-            splitsDerivatives.addDerivatives(feature, split, derivatives);
-        }
+        std::size_t split{static_cast<std::size_t>(
+            CPackedUInt8Decorator{splits[feature >> 2]}.readBytes()[feature & 0x3])};
+        splitsDerivatives.addDerivatives(feature, split, derivatives);
     }
 }
 
@@ -415,10 +409,11 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         std::size_t c{m_Derivatives.missingCount(feature)};
         g = m_Derivatives.missingGradient(feature);
         h = m_Derivatives.missingCurvature(feature);
-        for (const auto& derivatives : m_Derivatives.derivatives(feature)) {
-            c += derivatives.count();
-            g += derivatives.gradient();
-            h += derivatives.curvature();
+        for (auto derivatives = m_Derivatives.beginDerivatives(feature);
+             derivatives != m_Derivatives.endDerivatives(feature); ++derivatives) {
+            c += derivatives->count();
+            g += derivatives->gradient();
+            h += derivatives->curvature();
         }
         std::size_t cl[]{m_Derivatives.missingCount(feature), 0};
         gl[ASSIGN_MISSING_TO_LEFT] = m_Derivatives.missingGradient(feature);
@@ -434,7 +429,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         double splitAt{-INF};
         std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
-        std::size_t size{m_Derivatives.derivatives(feature).size()};
+        std::size_t size{m_Derivatives.numberDerivatives(feature)};
 
         for (std::size_t split = 0; split + 1 < size; ++split) {
 
@@ -526,11 +521,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             childrenGainStatsGlobal = childrenGainStatsPerFeature;
         }
     }
-    if (m_Derivatives.numberLossParameters() > 2) {
-        // short-circuit the bound computation for the multi-class case
-        result.s_LeftChildMaxGain = INF;
-        result.s_RightChildMaxGain = INF;
-    } else if (result.s_Gain > 0) {
+
+    if (m_Derivatives.numberLossParameters() <= 2 && result.s_Gain > 0) {
         double childPenaltyForDepth{regularization.penaltyForDepth(m_Depth + 1)};
         double childPenaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 2)};
         double childPenalty{regularization.treeSizePenaltyMultiplier() +

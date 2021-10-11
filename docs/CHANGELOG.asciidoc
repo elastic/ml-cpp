@@ -37,6 +37,12 @@
 * Make sure instrumentation captures the best hyperparameters we found for training
   classification and regression models. (See {ml-pull}2057{#2057}.)
 
+== {es} version 7.16.0
+
+=== Enhancements
+
+* Speed up training of regression and classification models (See {ml-pull}2024[#2024].)
+
 == {es} version 7.15.0
 
 === Enhancements
