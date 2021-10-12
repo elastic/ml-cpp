@@ -14,10 +14,10 @@
 
 #include <core/CSmallVector.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CBasicStatisticsPersist.h>
-#include <maths/CDoublePrecisionStorage.h>
-#include <maths/CQuantileSketch.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CDoublePrecisionStorage.h>
+#include <maths/common/CQuantileSketch.h>
 
 #include <model/ImportExport.h>
 
@@ -59,10 +59,11 @@ struct SMake<CMetricMultivariateStatistic<STATISTIC>> {
 //! of which delegate to the appropriate statistic functions.
 struct MODEL_EXPORT CMetricStatisticWrappers {
     using TDouble1Vec = core::CSmallVector<double, 1>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TVarianceAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TVarianceAccumulator =
+        maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMedianAccumulator =
-        maths::CFixedQuantileSketch<maths::CQuantileSketch::E_PiecewiseConstant, 30>;
+        maths::common::CFixedQuantileSketch<maths::common::CQuantileSketch::E_PiecewiseConstant, 30>;
 
     //! Make a statistic.
     template<typename STATISTIC>
@@ -72,9 +73,10 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
 
     //! Add \p value to an order statistic.
     template<typename LESS>
-    static void add(const TDouble1Vec& value,
-                    unsigned int count,
-                    maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
+    static void
+    add(const TDouble1Vec& value,
+        unsigned int count,
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
         stat.add(value[0], count);
     }
     //! Add \p value to a mean statistic.
@@ -100,19 +102,19 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     //! Get the median value of an order statistic.
     template<typename LESS>
     static TDouble1Vec
-    value(const maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
+    value(const maths::common::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
         return TDouble1Vec{stat[0]};
     }
     //! Get the value of a mean statistic.
     static TDouble1Vec value(const TMeanAccumulator& stat) {
-        return TDouble1Vec{maths::CBasicStatistics::mean(stat)};
+        return TDouble1Vec{maths::common::CBasicStatistics::mean(stat)};
     }
     //! Get the value of a variance statistic.
     static TDouble1Vec value(const TVarianceAccumulator& stat) {
         TDouble1Vec result;
-        if (maths::CBasicStatistics::count(stat) >= 2.0) {
-            result.assign({maths::CBasicStatistics::maximumLikelihoodVariance(stat),
-                           maths::CBasicStatistics::mean(stat)});
+        if (maths::common::CBasicStatistics::count(stat) >= 2.0) {
+            result.assign({maths::common::CBasicStatistics::maximumLikelihoodVariance(stat),
+                           maths::common::CBasicStatistics::mean(stat)});
         }
         return result;
     }
@@ -141,8 +143,8 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
         // because this is not used to directly compute a variance only
         // to adjust the bucket variance.
         TDouble1Vec result(2);
-        result[0] = maths::CBasicStatistics::maximumLikelihoodVariance(stat);
-        result[1] = maths::CBasicStatistics::mean(stat);
+        result[0] = maths::common::CBasicStatistics::maximumLikelihoodVariance(stat);
+        result[1] = maths::common::CBasicStatistics::mean(stat);
         return result;
     }
     //! Get the value suitable for computing influence of a multivariate
@@ -155,16 +157,16 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     //! Returns 1.0 since this is not available.
     template<typename LESS>
     static double
-    count(const maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& /*stat*/) {
+    count(const maths::common::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& /*stat*/) {
         return 1.0;
     }
     //! Get the count of the statistic.
     static double count(const TMeanAccumulator& stat) {
-        return static_cast<double>(maths::CBasicStatistics::count(stat));
+        return static_cast<double>(maths::common::CBasicStatistics::count(stat));
     }
     //! Get the count of the statistic.
     static double count(const TVarianceAccumulator& stat) {
-        return static_cast<double>(maths::CBasicStatistics::count(stat));
+        return static_cast<double>(maths::common::CBasicStatistics::count(stat));
     }
     //! Get the count of the statistic.
     static double count(const TMedianAccumulator& stat) { return stat.count(); }
@@ -177,7 +179,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     //! Persist an order statistic.
     template<typename LESS>
     static void
-    persist(const maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat,
+    persist(const maths::common::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat,
             const std::string& tag,
             core::CStatePersistInserter& inserter) {
         inserter.insertValue(tag, stat.toDelimited());
@@ -214,7 +216,7 @@ struct MODEL_EXPORT CMetricStatisticWrappers {
     template<typename LESS>
     static inline bool
     restore(core::CStateRestoreTraverser& traverser,
-            maths::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
+            maths::common::CBasicStatistics::COrderStatisticsStack<double, 1, LESS>& stat) {
         if (stat.fromDelimited(traverser.value()) == false) {
             LOG_ERROR(<< "Invalid statistic in " << traverser.value());
             return false;

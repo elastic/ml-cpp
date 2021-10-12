@@ -15,10 +15,10 @@
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CBasicStatisticsPersist.h>
-#include <maths/CChecksum.h>
-#include <maths/COrderings.h>
-#include <maths/Constants.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/Constants.h>
 
 #include <model/CDataGatherer.h>
 
@@ -36,7 +36,7 @@ const double NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT(3.0);
 const double NUMBER_BUCKETS_TO_REFRESH_SAMPLE_COUNT(30.0);
 
 using TStrCRef = std::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SReferenceLess>;
+using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SReferenceLess>;
 }
 
 CSampleCounts::CSampleCounts(unsigned int sampleCountOverride)
@@ -89,8 +89,9 @@ unsigned int CSampleCounts::count(std::size_t id) const {
 double CSampleCounts::effectiveSampleCount(std::size_t id) const {
     if (id < m_EffectiveSampleVariances.size()) {
         // This uses the fact that variance ~ 1 / count.
-        double count = maths::CBasicStatistics::count(m_EffectiveSampleVariances[id]);
-        double mean = maths::CBasicStatistics::mean(m_EffectiveSampleVariances[id]);
+        double count =
+            maths::common::CBasicStatistics::count(m_EffectiveSampleVariances[id]);
+        double mean = maths::common::CBasicStatistics::mean(m_EffectiveSampleVariances[id]);
         return count > 0.0 ? 1.0 / mean : this->count(id);
     }
     return 0.0;
@@ -107,14 +108,14 @@ void CSampleCounts::resetSampleCount(const CDataGatherer& gatherer, std::size_t 
     }
 
     const TMeanAccumulator& count_ = m_MeanNonZeroBucketCounts[id];
-    if (maths::CBasicStatistics::count(count_) >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
+    if (maths::common::CBasicStatistics::count(count_) >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
         unsigned sampleCountThreshold = 0;
         const CDataGatherer::TFeatureVec& features = gatherer.features();
         for (const auto& feature : features) {
             sampleCountThreshold = std::max(sampleCountThreshold,
                                             model_t::minimumSampleCount(feature));
         }
-        double count = maths::CBasicStatistics::mean(count_);
+        double count = maths::common::CBasicStatistics::mean(count_);
         m_SampleCounts[id] = std::max(sampleCountThreshold,
                                       static_cast<unsigned int>(count + 0.5));
         LOG_DEBUG(<< "Setting sample count to " << m_SampleCounts[id] << " for "
@@ -137,11 +138,12 @@ void CSampleCounts::refresh(const CDataGatherer& gatherer) {
     for (std::size_t id = 0; id < m_MeanNonZeroBucketCounts.size(); ++id) {
         const TMeanAccumulator& count_ = m_MeanNonZeroBucketCounts[id];
         if (m_SampleCounts[id] > 0) {
-            if (maths::CBasicStatistics::count(count_) >= NUMBER_BUCKETS_TO_REFRESH_SAMPLE_COUNT) {
-                double count = maths::CBasicStatistics::mean(count_);
+            if (maths::common::CBasicStatistics::count(count_) >=
+                NUMBER_BUCKETS_TO_REFRESH_SAMPLE_COUNT) {
+                double count = maths::common::CBasicStatistics::mean(count_);
                 double scale = count / static_cast<double>(m_SampleCounts[id]);
-                if (scale < maths::MINIMUM_ACCURATE_VARIANCE_SCALE ||
-                    scale > maths::MAXIMUM_ACCURATE_VARIANCE_SCALE) {
+                if (scale < maths::common::MINIMUM_ACCURATE_VARIANCE_SCALE ||
+                    scale > maths::common::MAXIMUM_ACCURATE_VARIANCE_SCALE) {
                     unsigned int oldCount = m_SampleCounts[id];
                     unsigned int newCount = std::max(
                         sampleCountThreshold, static_cast<unsigned int>(count + 0.5));
@@ -154,8 +156,9 @@ void CSampleCounts::refresh(const CDataGatherer& gatherer) {
                     static_cast<void>(oldCount);
                 }
             }
-        } else if (maths::CBasicStatistics::count(count_) >= NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
-            double count = maths::CBasicStatistics::mean(count_);
+        } else if (maths::common::CBasicStatistics::count(count_) >=
+                   NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT) {
+            double count = maths::common::CBasicStatistics::mean(count_);
             m_SampleCounts[id] = std::max(sampleCountThreshold,
                                           static_cast<unsigned int>(count + 0.5));
             LOG_TRACE(<< "Setting sample count to " << m_SampleCounts[id]
@@ -222,13 +225,13 @@ uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
         if (gatherer.isPopulation() ? gatherer.isAttributeActive(id)
                                     : gatherer.isPersonActive(id)) {
             uint64_t& hash = hashes[TStrCRef(this->name(gatherer, id))];
-            hash = maths::CChecksum::calculate(hash, m_SampleCounts[id]);
-            hash = maths::CChecksum::calculate(hash, m_MeanNonZeroBucketCounts[id]);
-            hash = maths::CChecksum::calculate(hash, m_EffectiveSampleVariances[id]);
+            hash = maths::common::CChecksum::calculate(hash, m_SampleCounts[id]);
+            hash = maths::common::CChecksum::calculate(hash, m_MeanNonZeroBucketCounts[id]);
+            hash = maths::common::CChecksum::calculate(hash, m_EffectiveSampleVariances[id]);
         }
     }
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
-    return maths::CChecksum::calculate(0, hashes);
+    return maths::common::CChecksum::calculate(0, hashes);
 }
 
 void CSampleCounts::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {

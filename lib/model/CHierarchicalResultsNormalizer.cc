@@ -14,8 +14,8 @@
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/COrderings.h>
-#include <maths/CTools.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/FunctionTypes.h>
@@ -55,8 +55,8 @@ void SNormalizer::propagateForwardByTime(double time) {
 }
 
 uint64_t SNormalizer::checksum() const {
-    uint64_t seed = maths::CChecksum::calculate(0, s_Description);
-    return maths::CChecksum::calculate(seed, s_Normalizer);
+    uint64_t seed = maths::common::CChecksum::calculate(0, s_Description);
+    return maths::common::CChecksum::calculate(seed, s_Normalizer);
 }
 }
 
@@ -97,7 +97,7 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
     // scaled so that it sums to the bucket anomaly score.
     double score = node.probability() > m_ModelConfig.maximumAnomalousProbability()
                        ? 0.0
-                       : maths::CTools::anomalyScore(node.probability());
+                       : maths::common::CTools::anomalyScore(node.probability());
 
     CAnomalyScore::CNormalizer::CMaximumScoreScope scope{
         dereferenceOrEmpty(node.s_Spec.s_PartitionFieldName),

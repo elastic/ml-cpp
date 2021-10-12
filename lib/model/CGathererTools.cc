@@ -18,13 +18,13 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CChecksum.h>
-#include <maths/CIntegerTools.h>
-#include <maths/CMultinomialConjugate.h>
-#include <maths/CMultivariatePrior.h>
-#include <maths/CTools.h>
-#include <maths/Constants.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CMultinomialConjugate.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/CTools.h>
+#include <maths/common/Constants.h>
 
 #include <model/CStringStore.h>
 
@@ -77,7 +77,7 @@ struct SInfluencerSumSerializer {
         for (TStoredStringPtrDoubleUMapCItr i = map.begin(); i != map.end(); ++i) {
             ordered.emplace_back(TStrCRef(*i->first), i->second);
         }
-        std::sort(ordered.begin(), ordered.end(), maths::COrderings::SFirstLess());
+        std::sort(ordered.begin(), ordered.end(), maths::common::COrderings::SFirstLess());
         for (std::size_t i = 0; i < ordered.size(); ++i) {
             inserter.insertValue(SUM_MAP_KEY_TAG, ordered[i].first);
             inserter.insertValue(SUM_MAP_VALUE_TAG, ordered[i].second,
@@ -111,8 +111,8 @@ CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer()
 }
 
 CGathererTools::TOptionalDouble CGathererTools::CArrivalTimeGatherer::featureData() const {
-    return maths::CBasicStatistics::count(m_Value) > 0.0
-               ? TOptionalDouble(maths::CBasicStatistics::mean(m_Value))
+    return maths::common::CBasicStatistics::count(m_Value) > 0.0
+               ? TOptionalDouble(maths::common::CBasicStatistics::mean(m_Value))
                : TOptionalDouble();
 }
 
@@ -142,13 +142,13 @@ bool CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser(core::CStateRe
 }
 
 uint64_t CGathererTools::CArrivalTimeGatherer::checksum() const {
-    return maths::CChecksum::calculate(static_cast<uint64_t>(m_LastTime), m_Value);
+    return maths::common::CChecksum::calculate(static_cast<uint64_t>(m_LastTime), m_Value);
 }
 
 std::string CGathererTools::CArrivalTimeGatherer::print() const {
     std::ostringstream o;
-    if (maths::CBasicStatistics::count(m_Value) > 0.0) {
-        o << maths::CBasicStatistics::mean(m_Value);
+    if (maths::common::CBasicStatistics::count(m_Value) > 0.0) {
+        o << maths::common::CBasicStatistics::mean(m_Value);
     } else {
         o << "-";
     }
@@ -210,7 +210,7 @@ CGathererTools::CSumGatherer::featureData(core_t::TTime time,
                 (*sum)[0].count(),
                 influenceValues,
                 m_Classifier.isInteger() &&
-                    maths::CIntegerTools::isInteger(((*sum)[0].value())[0]),
+                    maths::common::CIntegerTools::isInteger(((*sum)[0].value())[0]),
                 m_Classifier.isNonNegative(),
                 *sum};
     }
@@ -293,9 +293,9 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
 
 uint64_t CGathererTools::CSumGatherer::checksum() const {
     uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
-    seed = maths::CChecksum::calculate(seed, m_Classifier.isNonNegative());
-    seed = maths::CChecksum::calculate(seed, m_BucketSums);
-    return maths::CChecksum::calculate(seed, m_InfluencerBucketSums);
+    seed = maths::common::CChecksum::calculate(seed, m_Classifier.isNonNegative());
+    seed = maths::common::CChecksum::calculate(seed, m_BucketSums);
+    return maths::common::CChecksum::calculate(seed, m_InfluencerBucketSums);
 }
 
 void CGathererTools::CSumGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {

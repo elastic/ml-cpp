@@ -18,12 +18,14 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
-#include <maths/CMathsFuncs.h>
-#include <maths/CModelStateSerialiser.h>
-#include <maths/CMultivariatePrior.h>
-#include <maths/COrderings.h>
-#include <maths/CRestoreParams.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CRestoreParams.h>
+
+#include <maths/time_series/CModelStateSerialiser.h>
+#include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
@@ -89,7 +91,8 @@ CAnomalyDetectorModel::CAnomalyDetectorModel(const SModelParams& params,
         LOG_ABORT(<< "Must provide a data gatherer");
     }
     for (auto& calculators : m_InfluenceCalculators) {
-        std::sort(calculators.begin(), calculators.end(), maths::COrderings::SFirstLess());
+        std::sort(calculators.begin(), calculators.end(),
+                  maths::common::COrderings::SFirstLess());
     }
 }
 
@@ -289,20 +292,20 @@ void CAnomalyDetectorModel::prune() {
 }
 
 uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) const {
-    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
+    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
     uint64_t seed{m_DataGatherer->checksum()};
-    seed = maths::CChecksum::calculate(seed, m_Params);
-    seed = maths::CChecksum::calculate(seed, m_BucketCount);
+    seed = maths::common::CChecksum::calculate(seed, m_Params);
+    seed = maths::common::CChecksum::calculate(seed, m_BucketCount);
     TStrCRefUInt64Map hashes;
     for (std::size_t pid = 0; pid < m_PersonBucketCounts.size(); ++pid) {
         if (m_DataGatherer->isPersonActive(pid)) {
             uint64_t& hash{hashes[std::cref(m_DataGatherer->personName(pid))]};
-            hash = maths::CChecksum::calculate(hash, m_PersonBucketCounts[pid]);
+            hash = maths::common::CChecksum::calculate(hash, m_PersonBucketCounts[pid]);
         }
     }
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "checksums = " << core::CContainerPrinter::print(hashes));
-    return maths::CChecksum::calculate(seed, hashes);
+    return maths::common::CChecksum::calculate(seed, hashes);
 }
 
 void CAnomalyDetectorModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
@@ -394,8 +397,8 @@ CAnomalyDetectorModel::influenceCalculator(model_t::EFeature feature, std::size_
         return nullptr;
     }
     const TFeatureInfluenceCalculatorCPtrPrVec& calculators{m_InfluenceCalculators[iid]};
-    auto result = std::lower_bound(calculators.begin(), calculators.end(),
-                                   feature, maths::COrderings::SFirstLess());
+    auto result = std::lower_bound(calculators.begin(), calculators.end(), feature,
+                                   maths::common::COrderings::SFirstLess());
     return result != calculators.end() && result->first == feature
                ? result->second.get()
                : nullptr;
@@ -474,8 +477,8 @@ CAnomalyDetectorModel::scheduledEventDescriptions(core_t::TTime /*time*/) const 
     return EMPTY_STRING_LIST;
 }
 
-maths::CModel* CAnomalyDetectorModel::tinyModel() {
-    return new maths::CModelStub;
+maths::common::CModel* CAnomalyDetectorModel::tinyModel() {
+    return new maths::common::CModelStub;
 }
 
 const std::size_t CAnomalyDetectorModel::MAXIMUM_PERMITTED_AGE(1000000);
@@ -490,15 +493,15 @@ CAnomalyDetectorModel::SFeatureModels::SFeatureModels(model_t::EFeature feature,
 bool CAnomalyDetectorModel::SFeatureModels::acceptRestoreTraverser(const SModelParams& params_,
                                                                    core::CStateRestoreTraverser& traverser) {
     maths_t::EDataType dataType{s_NewModel->dataType()};
-    maths::SModelRestoreParams params{s_NewModel->params(),
-                                      params_.decompositionRestoreParams(dataType),
-                                      params_.distributionRestoreParams(dataType)};
+    maths::common::SModelRestoreParams params{
+        s_NewModel->params(), params_.decompositionRestoreParams(dataType),
+        params_.distributionRestoreParams(dataType)};
     do {
         if (traverser.name() == MODEL_TAG) {
             TMathsModelUPtr model;
-            if (!traverser.traverseSubLevel(
-                    std::bind<bool>(maths::CModelStateSerialiser(), std::cref(params),
-                                    std::ref(model), std::placeholders::_1))) {
+            if (!traverser.traverseSubLevel(std::bind<bool>(
+                    maths::time_series::CModelStateSerialiser(),
+                    std::cref(params), std::ref(model), std::placeholders::_1))) {
                 return false;
             }
             s_Models.push_back(std::move(model));
@@ -516,7 +519,7 @@ void CAnomalyDetectorModel::SFeatureModels::persistModelsState(core::CStatePersi
 void CAnomalyDetectorModel::SFeatureModels::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     for (const auto& model : s_Models) {
         inserter.insertLevel(
-            MODEL_TAG, std::bind<void>(maths::CModelStateSerialiser(),
+            MODEL_TAG, std::bind<void>(maths::time_series::CModelStateSerialiser(),
                                        std::cref(*model), std::placeholders::_1));
     }
 }
@@ -548,12 +551,13 @@ bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
     const SModelParams& params_,
     core::CStateRestoreTraverser& traverser) {
     maths_t::EDataType dataType{s_ModelPrior->dataType()};
-    maths::SDistributionRestoreParams params{params_.distributionRestoreParams(dataType)};
+    maths::common::SDistributionRestoreParams params{
+        params_.distributionRestoreParams(dataType)};
     std::size_t count{0u};
     do {
         if (traverser.name() == MODEL_TAG) {
             if (!traverser.traverseSubLevel(std::bind(
-                    &maths::CTimeSeriesCorrelations::acceptRestoreTraverser,
+                    &maths::time_series::CTimeSeriesCorrelations::acceptRestoreTraverser,
                     s_Models.get(), std::cref(params), std::placeholders::_1)) ||
                 count++ > 0) {
                 return false;
@@ -565,8 +569,9 @@ bool CAnomalyDetectorModel::SFeatureCorrelateModels::acceptRestoreTraverser(
 
 void CAnomalyDetectorModel::SFeatureCorrelateModels::acceptPersistInserter(
     core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(MODEL_TAG, std::bind(&maths::CTimeSeriesCorrelations::acceptPersistInserter,
-                                              s_Models.get(), std::placeholders::_1));
+    inserter.insertLevel(MODEL_TAG,
+                         std::bind(&maths::time_series::CTimeSeriesCorrelations::acceptPersistInserter,
+                                   s_Models.get(), std::placeholders::_1));
 }
 
 void CAnomalyDetectorModel::SFeatureCorrelateModels::debugMemoryUsage(

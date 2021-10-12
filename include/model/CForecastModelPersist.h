@@ -15,7 +15,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 
-#include <maths/CModel.h>
+#include <maths/common/CModel.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
@@ -44,7 +44,7 @@ namespace model {
 //! locally never leaving process/io boundaries.
 class MODEL_EXPORT CForecastModelPersist final {
 public:
-    using TMathsModelPtr = std::unique_ptr<maths::CModel>;
+    using TMathsModelPtr = std::unique_ptr<maths::common::CModel>;
 
 public:
     class MODEL_EXPORT CPersist final {
@@ -52,7 +52,7 @@ public:
         explicit CPersist(const std::string& temporaryPath);
 
         //! add a model to persist
-        void addModel(const maths::CModel* model,
+        void addModel(const maths::common::CModel* model,
                       core_t::TTime firstDataTime,
                       core_t::TTime lastDataTime,
                       const model_t::EFeature feature,
