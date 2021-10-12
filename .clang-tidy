@@ -3,6 +3,8 @@ Checks: >
   -*,
   bugprone-*,
   -bugprone-incorrect-roundings,
+  -bugprone-narrowing-conversions,
+  -bugprone-easily-swappable-parameters,
 
   clang-diagnostic-*,
   -clang-diagnostic-sign-conversion,
@@ -27,6 +29,7 @@ Checks: >
   -readability-magic-numbers,
   -readability-named-parameter,
   -readability-redundant-access-specifiers,
+  -readability-simplify-boolean-expr,
   
 WarningsAsErrors: false
 AnalyzeTemporaryDtors: false
@@ -55,4 +58,6 @@ CheckOptions:
   - key:             readability-braces-around-statements.ShortStatementLines
     value:           '2'
   - key:             bugprone-suspicious-string-compare.WarnOnLogicalNotComparison
+    value:           'true'
+  - key:             readability-function-cognitive-complexity.IgnoreMacros
     value:           'true'
