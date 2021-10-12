@@ -70,8 +70,8 @@ public:
     virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const = 0;
 
     //! Get the time series model for \p feature and \p byFieldId.
-    virtual const maths::CModel* model(model_t::EFeature feature,
-                                       std::size_t byFieldId) const = 0;
+    virtual const maths::common::CModel* model(model_t::EFeature feature,
+                                               std::size_t byFieldId) const = 0;
 
 private:
     //! Add the model plot data for all by field values which match \p terms.
@@ -123,7 +123,8 @@ public:
     virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
 
     //! Get the time series model for \p feature and \p byFieldId.
-    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const maths::common::CModel* model(model_t::EFeature feature,
+                                               std::size_t byFieldId) const;
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
@@ -147,7 +148,8 @@ public:
     virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
 
     //! Get the time series model for \p feature and \p byFieldId.
-    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const maths::common::CModel* model(model_t::EFeature feature,
+                                               std::size_t byFieldId) const;
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
@@ -171,7 +173,8 @@ public:
     virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
 
     //! Get the time series model for \p feature and \p byFieldId.
-    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const maths::common::CModel* model(model_t::EFeature feature,
+                                               std::size_t byFieldId) const;
 
 private:
     virtual const CAnomalyDetectorModel& base() const;
@@ -195,7 +198,8 @@ public:
     virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
 
     //! Get the time series model for \p feature and \p byFieldId.
-    virtual const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const;
+    virtual const maths::common::CModel* model(model_t::EFeature feature,
+                                               std::size_t byFieldId) const;
 
 private:
     virtual const CAnomalyDetectorModel& base() const;

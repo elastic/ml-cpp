@@ -14,8 +14,9 @@
 
 #include <core/CMemory.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CTimeSeriesDecomposition.h>
+#include <maths/common/CBasicStatistics.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
@@ -47,7 +48,7 @@ namespace model {
 //! accumulator is used.
 class MODEL_EXPORT CInterimBucketCorrector {
 private:
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble10Vec = core::CSmallVector<double, 10>;
 
@@ -110,7 +111,7 @@ private:
     double m_Completeness;
 
     //! A model of the final bucket count trend.
-    maths::CTimeSeriesDecomposition m_FinalCountTrend;
+    maths::time_series::CTimeSeriesDecomposition m_FinalCountTrend;
 
     //! The mean final bucket count.
     TMeanAccumulator m_FinalCountMean;

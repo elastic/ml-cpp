@@ -14,7 +14,7 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
-#include <maths/CStatisticalTests.h>
+#include <maths/common/CStatisticalTests.h>
 
 #include <model/CDetectorEqualizer.h>
 
@@ -31,7 +31,7 @@ using TDoubleVec = std::vector<double>;
 
 namespace {
 
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 const double THRESHOLD = std::log(0.05);
 }
 
@@ -75,16 +75,17 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
     for (std::size_t i = 1u, k = 0; i < 3; ++i) {
         for (std::size_t j = 0; j < i; ++j, ++k) {
             double increase =
-                maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) /
-                maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
+                maths::common::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) /
+                maths::common::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
             similarityIncrease.add(std::log(increase));
             LOG_DEBUG(<< "similarity increase = " << increase);
             BOOST_TEST_REQUIRE(increase > 3.0);
         }
     }
     LOG_DEBUG(<< "mean similarity increase = "
-              << std::exp(maths::CBasicStatistics::mean(similarityIncrease)));
-    BOOST_TEST_REQUIRE(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
+              << std::exp(maths::common::CBasicStatistics::mean(similarityIncrease)));
+    BOOST_TEST_REQUIRE(
+        std::exp(maths::common::CBasicStatistics::mean(similarityIncrease)) > 40.0);
 }
 
 BOOST_AUTO_TEST_CASE(testAge) {
@@ -124,10 +125,10 @@ BOOST_AUTO_TEST_CASE(testAge) {
             meanBias.add((std::log(pca) - std::log(pc)) / std::log(pc));
             BOOST_TEST_REQUIRE(error < 0.18);
         }
-        LOG_DEBUG(<< "mean bias  = " << maths::CBasicStatistics::mean(meanBias));
-        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.053);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.053);
+        LOG_DEBUG(<< "mean bias  = " << maths::common::CBasicStatistics::mean(meanBias));
+        LOG_DEBUG(<< "mean error = " << maths::common::CBasicStatistics::mean(meanError));
+        BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.053);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.053);
     }
 }
 

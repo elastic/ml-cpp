@@ -377,7 +377,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         if (m_ClassificationWeights.empty() == false) {
             writer.Key(TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE);
             writer.String(
-                TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::CDataFramePredictiveModel::E_Custom]);
+                TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::analytics::CDataFramePredictiveModel::E_Custom]);
             writer.Key(TClassificationRunner::CLASSIFICATION_WEIGHTS);
             writer.StartArray();
             for (const auto& weight : m_ClassificationWeights) {

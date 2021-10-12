@@ -13,8 +13,8 @@
 
 #include <test/ImportExport.h>
 
-#include <maths/CLinearAlgebraFwd.h>
-#include <maths/CPRNG.h>
+#include <maths/common/CLinearAlgebraFwd.h>
+#include <maths/common/CPRNG.h>
 
 #include <algorithm>
 #include <memory>
@@ -31,7 +31,7 @@ public:
     using TUIntVec = std::vector<unsigned int>;
     using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
-    using TGenerator = maths::CPRNG::CXorShift1024Mult;
+    using TGenerator = maths::common::CPRNG::CXorShift1024Mult;
     using TGeneratorPtr = std::shared_ptr<TGenerator>;
 
 public:
@@ -149,9 +149,9 @@ public:
     template<typename T, std::size_t N>
     void generateRandomMultivariateNormals(
         const TSizeVec& sizes,
-        std::vector<maths::CVectorNx1<T, N>>& means,
-        std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
-        std::vector<std::vector<maths::CVectorNx1<T, N>>>& points);
+        std::vector<maths::common::CVectorNx1<T, N>>& means,
+        std::vector<maths::common::CSymmetricMatrixNxN<T, N>>& covariances,
+        std::vector<std::vector<maths::common::CVectorNx1<T, N>>>& points);
 
     //! Get a uniform generator in the range [0, n). This can be used
     //! in conjunction with std::random_shuffle if you want a seeded

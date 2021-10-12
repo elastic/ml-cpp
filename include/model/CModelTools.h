@@ -16,12 +16,12 @@
 #include <core/CLogger.h>
 #include <core/CSmallVector.h>
 
-#include <maths/CModel.h>
-#include <maths/CMultivariatePrior.h>
-#include <maths/COrderings.h>
-#include <maths/CPRNG.h>
-#include <maths/CPrior.h>
-#include <maths/ProbabilityAggregators.h>
+#include <maths/common/CModel.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CPRNG.h>
+#include <maths/common/CPrior.h>
+#include <maths/common/ProbabilityAggregators.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
@@ -37,8 +37,10 @@
 
 namespace ml {
 namespace maths {
+namespace common {
 class CModel;
 class CMultinomialConjugate;
+}
 }
 namespace model {
 class CSample;
@@ -100,7 +102,7 @@ public:
         //! The value quantization interval.
         TDouble2Vec m_ValueEps;
         //! A random number generator used to sample added values.
-        maths::CPRNG::CXorOShiro128Plus m_Rng;
+        maths::common::CPRNG::CXorOShiro128Plus m_Rng;
         //! A random sample of the added values.
         TDouble2VecVec m_RandomSample;
         //! A collection of quantized values and their unique ids.
@@ -136,7 +138,7 @@ public:
     class MODEL_EXPORT CProbabilityAggregator {
     public:
         using TAggregator =
-            boost::variant<maths::CJointProbabilityOfLessLikelySamples, maths::CProbabilityOfExtremeSample>;
+            boost::variant<maths::common::CJointProbabilityOfLessLikelySamples, maths::common::CProbabilityOfExtremeSample>;
         using TAggregatorDoublePr = std::pair<TAggregator, double>;
         using TAggregatorDoublePrVec = std::vector<TAggregatorDoublePr>;
 
@@ -182,7 +184,7 @@ public:
     class MODEL_EXPORT CCategoryProbabilityCache {
     public:
         CCategoryProbabilityCache();
-        CCategoryProbabilityCache(const maths::CMultinomialConjugate& prior);
+        CCategoryProbabilityCache(const maths::common::CMultinomialConjugate& prior);
 
         //! Calculate the probability of less likely categories than
         //! \p attribute.
@@ -196,7 +198,7 @@ public:
 
     private:
         //! The prior.
-        const maths::CMultinomialConjugate* m_Prior;
+        const maths::common::CMultinomialConjugate* m_Prior;
         //! The cached probabilities.
         mutable TDoubleVec m_Cache;
         //! The smallest possible category probability.
@@ -226,7 +228,7 @@ public:
         void clear();
 
         //! Maybe add the modes of \p model.
-        void addModes(model_t::EFeature feature, std::size_t id, const maths::CModel& model);
+        void addModes(model_t::EFeature feature, std::size_t id, const maths::common::CModel& model);
 
         //! Add a new ("value", "probability") result.
         //!
@@ -236,7 +238,7 @@ public:
         void addProbability(model_t::EFeature feature,
                             std::size_t id,
                             const TDouble2Vec1Vec& value,
-                            const maths::SModelProbabilityResult& result);
+                            const maths::common::SModelProbabilityResult& result);
 
         //! Try to lookup the probability of \p value in cache.
         //!
@@ -249,12 +251,12 @@ public:
         bool lookup(model_t::EFeature feature,
                     std::size_t id,
                     const TDouble2Vec1Vec& value,
-                    maths::SModelProbabilityResult& result) const;
+                    maths::common::SModelProbabilityResult& result) const;
 
     private:
         using TDouble1Vec = core::CSmallVector<double, 1>;
         using TDoubleProbabilityFMap =
-            boost::container::flat_map<double, maths::SModelProbabilityResult>;
+            boost::container::flat_map<double, maths::common::SModelProbabilityResult>;
         using TDoubleProbabilityFMapCItr = TDoubleProbabilityFMap::const_iterator;
 
         //! \brief A cache of all the results of a probability calculation
