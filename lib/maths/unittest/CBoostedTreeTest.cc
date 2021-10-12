@@ -2428,9 +2428,8 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
 
         regression->train();
 
-        // We use a single leaf to centre the data so end up with limit + 1 trees.
         BOOST_REQUIRE_EQUAL(
-            11, regression->hyperparameters().maximumNumberTrees().value());
+            10, regression->hyperparameters().maximumNumberTrees().value());
         BOOST_REQUIRE_EQUAL(
             0.1, regression->hyperparameters().treeSizePenaltyMultiplier().value());
         BOOST_REQUIRE_EQUAL(
