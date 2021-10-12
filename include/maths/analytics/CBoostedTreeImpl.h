@@ -26,11 +26,11 @@
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
 #include <maths/analytics/CDataFrameUtils.h>
+#include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CPRNG.h>
-#include <maths/common/ImportExport.h>
 
 #include <boost/optional.hpp>
 
@@ -51,7 +51,7 @@ class CBoostedTreeImplForTest;
 class CTreeShapFeatureImportance;
 
 //! \brief Implementation of CBoostedTree.
-class MATHS_EXPORT CBoostedTreeImpl final {
+class MATHS_ANALYTICS_EXPORT CBoostedTreeImpl final {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;

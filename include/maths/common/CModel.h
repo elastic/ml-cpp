@@ -38,7 +38,7 @@ class CMultivariatePrior;
 class CPrior;
 
 //! \brief Data describing a prediction error bar.
-struct MATHS_EXPORT SErrorBar {
+struct MATHS_COMMON_EXPORT SErrorBar {
     core_t::TTime s_Time;
     core_t::TTime s_BucketLength;
     double s_LowerBound;
@@ -49,7 +49,7 @@ struct MATHS_EXPORT SErrorBar {
 using TForecastPushDatapointFunc = std::function<void(SErrorBar)>;
 
 //! \brief Model parameters.
-class MATHS_EXPORT CModelParams {
+class MATHS_COMMON_EXPORT CModelParams {
 public:
     CModelParams(core_t::TTime bucketLength,
                  double learnRate,
@@ -98,7 +98,7 @@ private:
 };
 
 //! \brief The extra parameters needed by CModel::addSamples.
-class MATHS_EXPORT CModelAddSamplesParams {
+class MATHS_COMMON_EXPORT CModelAddSamplesParams {
 public:
     using TDouble2Vec = core::CSmallVector<double, 2>;
     using TDouble2VecWeightsAryVec = std::vector<maths_t::TDouble2VecWeightsAry>;
@@ -151,7 +151,7 @@ private:
 };
 
 //! \brief The extra parameters needed by CModel::probability.
-class MATHS_EXPORT CModelProbabilityParams {
+class MATHS_COMMON_EXPORT CModelProbabilityParams {
 public:
     using TOptionalSize = boost::optional<std::size_t>;
     using TBool2Vec = core::CSmallVector<bool, 2>;
@@ -231,7 +231,7 @@ private:
 };
 
 //! \brief Describes the result of the model probability calculation.
-struct MATHS_EXPORT SModelProbabilityResult {
+struct MATHS_COMMON_EXPORT SModelProbabilityResult {
     using TDouble4Vec = core::CSmallVector<double, 4>;
     using TSize1Vec = core::CSmallVector<std::size_t, 1>;
     using TTail2Vec = core::CSmallVector<maths_t::ETail, 2>;
@@ -245,7 +245,7 @@ struct MATHS_EXPORT SModelProbabilityResult {
     };
 
     //! \brief Wraps up a feature label and probability.
-    struct MATHS_EXPORT SFeatureProbability {
+    struct MATHS_COMMON_EXPORT SFeatureProbability {
         SFeatureProbability();
         SFeatureProbability(EFeatureProbabilityLabel label, double probability);
         EFeatureProbabilityLabel s_Label;
@@ -282,7 +282,7 @@ struct MATHS_EXPORT SModelProbabilityResult {
 //!
 //! Specific implementations exist for different types of object. For example,
 //! for univariate and multivariate time series.
-class MATHS_EXPORT CModel {
+class MATHS_COMMON_EXPORT CModel {
 public:
     using TBool2Vec = core::CSmallVector<bool, 2>;
     using TDouble2Vec = core::CSmallVector<double, 2>;
@@ -491,7 +491,7 @@ private:
 };
 
 //! A stateless lightweight model which stubs the interface.
-class MATHS_EXPORT CModelStub : public CModel {
+class MATHS_COMMON_EXPORT CModelStub : public CModel {
 public:
     CModelStub();
 

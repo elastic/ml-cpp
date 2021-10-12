@@ -53,7 +53,7 @@ const double CMaxCondition<T>::VALUE = 1e15;
 //! Used for getting the default maximum condition number to use
 //! when computing parameters.
 template<>
-struct MATHS_EXPORT CMaxCondition<CFloatStorage> {
+struct MATHS_COMMON_EXPORT CMaxCondition<CFloatStorage> {
     static const double VALUE;
 };
 }

@@ -45,10 +45,10 @@ using TFloatVec = std::vector<CFloatStorage>;
 //! \param[in,out] x Initially contains the input vector \f$y\f$,
 //! and returns the solution \f$x\f$, indexed from [0, ..., n - 1].
 //! \note The contents of input vector c will be modified.
-bool MATHS_EXPORT solveTridiagonal(const TDoubleVec& a,
-                                   const TDoubleVec& b,
-                                   TDoubleVec& c,
-                                   TDoubleVec& x);
+bool MATHS_COMMON_EXPORT solveTridiagonal(const TDoubleVec& a,
+                                          const TDoubleVec& b,
+                                          TDoubleVec& c,
+                                          TDoubleVec& x);
 
 //! Solves:
 //! <pre class="fragment">
@@ -64,16 +64,16 @@ bool MATHS_EXPORT solveTridiagonal(const TDoubleVec& a,
 //! \param[in,out] x Initially contains the input vector \f$y\f$,
 //! and returns the solution \f$x\f$, indexed from [0, ..., n - 1].
 //! \note The contents of input vector c will be modified.
-bool MATHS_EXPORT solvePeturbedTridiagonal(const TDoubleVec& a,
-                                           const TDoubleVec& b,
-                                           TDoubleVec& c,
-                                           TDoubleVec& u,
-                                           const TDoubleVec& v,
-                                           TDoubleVec& x);
+bool MATHS_COMMON_EXPORT solvePeturbedTridiagonal(const TDoubleVec& a,
+                                                  const TDoubleVec& b,
+                                                  TDoubleVec& c,
+                                                  TDoubleVec& u,
+                                                  const TDoubleVec& v,
+                                                  TDoubleVec& x);
 }
 
 //! \brief Defines types used by the spline implementation.
-class MATHS_EXPORT CSplineTypes {
+class MATHS_COMMON_EXPORT CSplineTypes {
 public:
     using TDoubleVec = std::vector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;

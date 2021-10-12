@@ -132,7 +132,7 @@ struct SWeightArithmetic<double> {
 }
 
 //! \brief A collection of weight styles and weights.
-class MATHS_EXPORT CUnitWeights {
+class MATHS_COMMON_EXPORT CUnitWeights {
 public:
     //! A unit weight.
     static const TDoubleWeightsAry UNIT;
@@ -171,11 +171,11 @@ TWeightsAry<VECTOR> countWeight(const VECTOR& weight) {
 }
 
 //! Get a weights array with count weight \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 TDoubleWeightsAry countWeight(double weight);
 
 //! Get a weights array with count weight \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 TDouble10VecWeightsAry countWeight(double weight, std::size_t dimension);
 
 //! Set the count weight in \p weights to \p weight.
@@ -185,7 +185,7 @@ void setCount(const VECTOR& weight, TWeightsAry<VECTOR>& weights) {
 }
 
 //! Set the count weight in \p weights to \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 void setCount(double weight, std::size_t dimension, TDouble10VecWeightsAry& weights);
 
 //! Add \p weight to the count weight of \p weights.
@@ -202,12 +202,12 @@ const VECTOR& count(const TWeightsAry<VECTOR>& weights) {
 
 //! Extract the effective sample count with which to update a model
 //! from a collection of weights.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double countForUpdate(const TDoubleWeightsAry& weights);
 
 //! Extract the effective sample count with which to update a model
 //! from a collection of weights.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 TDouble10Vec countForUpdate(const TDouble10VecWeightsAry& weights);
 
 //! Get a weights array with Winsorisation weight \p weight.
@@ -219,11 +219,11 @@ TWeightsAry<VECTOR> winsorisationWeight(const VECTOR& weight) {
 }
 
 //! Get a weights array with Winsorisation weight \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 TDoubleWeightsAry winsorisationWeight(double weight);
 
 //! Get a weights array with Winsorisation weight \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 TDouble10VecWeightsAry winsorisationWeight(double weight, std::size_t dimension);
 
 //! Set the Winsorisation weight in \p weights to \p weight.
@@ -233,7 +233,7 @@ void setWinsorisationWeight(const VECTOR& weight, TWeightsAry<VECTOR>& weights) 
 }
 
 //! Set the Winsorisation weight in \p weights to \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 void setWinsorisationWeight(double weight, std::size_t dimension, TDouble10VecWeightsAry& weights);
 
 //! Extract the Winsorisation weight from a collection of weights.
@@ -243,11 +243,11 @@ const VECTOR& winsorisationWeight(const TWeightsAry<VECTOR>& weights) {
 }
 
 //! Check if a non-unit Winsorisation weight applies.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 bool isWinsorised(const TDoubleWeightsAry& weights);
 
 //! Check if a non-unit Winsorisation weight applies.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 bool isWinsorised(const TDoubleWeightsAry1Vec& weights);
 
 //! Check if a non-unit Winsorisation weight applies.
@@ -275,11 +275,11 @@ TWeightsAry<VECTOR> seasonalVarianceScaleWeight(const VECTOR& weight) {
 }
 
 //! Get a weights vector with seasonal variance scale \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 TDoubleWeightsAry seasonalVarianceScaleWeight(double weight);
 
 //! Get a weights vector with seasonal variance scale \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 TDouble10VecWeightsAry seasonalVarianceScaleWeight(double weight, std::size_t dimension);
 
 //! Set the seasonal variance scale weight in \p weights to \p weight.
@@ -289,7 +289,7 @@ void setSeasonalVarianceScale(const VECTOR& weight, TWeightsAry<VECTOR>& weights
 }
 
 //! Set the seasonal variance scale weight in \p weights to \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 void setSeasonalVarianceScale(double weight, std::size_t dimension, TDouble10VecWeightsAry& weights);
 
 //! Extract the variance scale from a collection of weights.
@@ -299,11 +299,11 @@ const VECTOR& seasonalVarianceScale(const TWeightsAry<VECTOR>& weights) {
 }
 
 //! Check if a non-unit seasonal variance scale applies.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 bool hasSeasonalVarianceScale(const TDoubleWeightsAry& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 bool hasSeasonalVarianceScale(const TDoubleWeightsAry1Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
@@ -331,11 +331,11 @@ TWeightsAry<VECTOR> countVarianceScaleWeight(const VECTOR& weight) {
 }
 
 //! Get a weights vector with count variance scale \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 TDoubleWeightsAry countVarianceScaleWeight(double weight);
 
 //! Get a weights vector with count variance scale \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 TDouble10VecWeightsAry countVarianceScaleWeight(double weight, std::size_t dimension);
 
 //! Set the count variance scale weight in \p weights to \p weight.
@@ -345,7 +345,7 @@ void setCountVarianceScale(const VECTOR& weight, TWeightsAry<VECTOR>& weights) {
 }
 
 //! Set the count variance scale weight in \p weights to \p weight.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 void setCountVarianceScale(double weight, std::size_t dimension, TDouble10VecWeightsAry& weights);
 
 //! Multiply the count variance scale of \p weights by \p weight.
@@ -362,11 +362,11 @@ const VECTOR& countVarianceScale(const TWeightsAry<VECTOR>& weights) {
 }
 
 //! Check if a non-unit count variance scale applies.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 bool hasCountVarianceScale(const TDoubleWeightsAry& weights);
 
 //! Check if a non-unit seasonal variance scale applies.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 bool hasCountVarianceScale(const TDoubleWeightsAry1Vec& weights);
 
 //! Check if a non-unit seasonal variance scale applies.

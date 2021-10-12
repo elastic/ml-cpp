@@ -55,7 +55,7 @@ class CMixtureDistribution;
 //! all member functions should be static and it should be state-less.
 //! If your functionality doesn't fit this pattern just make it a nested
 //! class.
-class MATHS_EXPORT CTools : private core::CNonInstantiatable {
+class MATHS_COMMON_EXPORT CTools : private core::CNonInstantiatable {
 public:
     BOOST_MATH_DECLARE_DISTRIBUTIONS(double, boost::math::policies::policy<>)
     using TDoubleDoublePr = std::pair<double, double>;
@@ -70,7 +70,7 @@ public:
 
     //! \brief Computes minus the log of the c.d.f. of a specified sample
     //! of an R.V. for various distributions.
-    struct MATHS_EXPORT SMinusLogCdf {
+    struct MATHS_COMMON_EXPORT SMinusLogCdf {
         double operator()(const SImproperDistribution&, double x) const;
         double operator()(const normal& normal_, double x) const;
         double operator()(const students_t& students, double x) const;
@@ -86,7 +86,7 @@ public:
     //! precision, i.e. these do not lose precision when the result is
     //! close to 1 and the smallest value is the minimum double rather
     //! than epsilon.
-    struct MATHS_EXPORT SMinusLogCdfComplement {
+    struct MATHS_COMMON_EXPORT SMinusLogCdfComplement {
         double operator()(const SImproperDistribution&, double) const;
         double operator()(const normal& normal_, double x) const;
         double operator()(const students_t& students, double x) const;
@@ -123,7 +123,7 @@ public:
     //!
     //! and normalizes the result so that it equals one at the distribution
     //! median.
-    class MATHS_EXPORT CProbabilityOfLessLikelySample {
+    class MATHS_COMMON_EXPORT CProbabilityOfLessLikelySample {
     public:
         CProbabilityOfLessLikelySample(maths_t::EProbabilityCalculation calculation);
 
@@ -153,7 +153,7 @@ public:
     //! from a mixture model.
     //!
     //! \sa CProbabilityOfLessLikelySample
-    class MATHS_EXPORT CMixtureProbabilityOfLessLikelySample {
+    class MATHS_COMMON_EXPORT CMixtureProbabilityOfLessLikelySample {
     public:
         //! Computes the value of the smooth kernel of an integral
         //! which approximates the probability of less likely samples.
@@ -297,7 +297,7 @@ public:
     //! <pre class="fragment">
     //!   \f$E[ X 1{[a,b]} ] / E[ 1{a,b]} ]\f$
     //! </pre>
-    struct MATHS_EXPORT SIntervalExpectation {
+    struct MATHS_COMMON_EXPORT SIntervalExpectation {
         double operator()(const normal& normal_, double a, double b) const;
         double operator()(const lognormal& logNormal, double a, double b) const;
         double operator()(const gamma& gamma_, double a, double b) const;

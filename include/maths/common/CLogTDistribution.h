@@ -35,7 +35,7 @@ namespace common {
 //! which defines lightweight objects to represent distributions
 //! and free functions for computing various properties of the
 //! distribution.
-class MATHS_EXPORT CLogTDistribution {
+class MATHS_COMMON_EXPORT CLogTDistribution {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TOptionalDouble = boost::optional<double>;
@@ -54,31 +54,31 @@ private:
 };
 
 //! Get the support for a log-t distribution.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 CLogTDistribution::TDoubleDoublePr support(const CLogTDistribution& distribution);
 
 //! Compute the mode for \p distribution.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double mode(const CLogTDistribution& distribution);
 
 //! Get the finite local minimum if the distribution has one.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 CLogTDistribution::TOptionalDouble localMinimum(const CLogTDistribution& distribution);
 
 //! Compute the p.d.f. at \p x for \p distribution.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double pdf(const CLogTDistribution& distribution, double x);
 
 //! Compute the c.d.f. at \p x for \p distribution.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double cdf(const CLogTDistribution& distribution, double x);
 
 //! Compute one minus the c.d.f. at \p x for \p distribution.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double cdfComplement(const CLogTDistribution& distribution, double x);
 
 //! Compute the \p q'th quantile for \p distribution.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double quantile(const CLogTDistribution& distribution, double q);
 }
 }

@@ -23,7 +23,7 @@
 namespace ml {
 namespace maths {
 namespace common {
-class MATHS_EXPORT CCategoricalTools : core::CNonInstantiatable, core::CNonCopyable {
+class MATHS_COMMON_EXPORT CCategoricalTools : core::CNonInstantiatable, core::CNonCopyable {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;

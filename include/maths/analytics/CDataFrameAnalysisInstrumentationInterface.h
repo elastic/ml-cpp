@@ -14,8 +14,7 @@
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/COutliers.h>
-
-#include <maths/common/ImportExport.h>
+#include <maths/analytics/ImportExport.h>
 
 #include <cstdint>
 #include <functional>
@@ -27,7 +26,7 @@ namespace maths {
 namespace analytics {
 //! \brief Interface class for collecting data frame analysis job statistics owned
 //! by the maths module.
-class MATHS_EXPORT CDataFrameAnalysisInstrumentationInterface {
+class MATHS_ANALYTICS_EXPORT CDataFrameAnalysisInstrumentationInterface {
 public:
     using TProgressCallback = std::function<void(double)>;
     using TMemoryUsageCallback = std::function<void(std::int64_t)>;
@@ -81,7 +80,7 @@ public:
 //! DESCRIPTION:\n
 //! This interface extends CDataFrameAnalysisInstrumentationInterface with a setters
 //! for analysis parameters and elapsed time.
-class MATHS_EXPORT CDataFrameOutliersInstrumentationInterface
+class MATHS_ANALYTICS_EXPORT CDataFrameOutliersInstrumentationInterface
     : virtual public CDataFrameAnalysisInstrumentationInterface {
 public:
     virtual void parameters(const COutliers::SComputeParameters& parameters) = 0;
@@ -94,7 +93,7 @@ public:
 //! DESCRIPTION:\n
 //! This interface extends CDataFrameAnalysisInstrumentationInterface with a setters
 //! for hyperparameters, validation loss results, and job timing.
-class MATHS_EXPORT CDataFrameTrainBoostedTreeInstrumentationInterface
+class MATHS_ANALYTICS_EXPORT CDataFrameTrainBoostedTreeInstrumentationInterface
     : virtual public CDataFrameAnalysisInstrumentationInterface {
 public:
     enum EStatsType { E_Regression, E_Classification };
@@ -149,7 +148,7 @@ public:
 };
 
 //! \brief Dummies out all instrumentation for outlier detection.
-class MATHS_EXPORT CDataFrameOutliersInstrumentationStub
+class MATHS_ANALYTICS_EXPORT CDataFrameOutliersInstrumentationStub
     : public CDataFrameOutliersInstrumentationInterface {
 public:
     void updateMemoryUsage(std::int64_t) override {}
@@ -162,7 +161,7 @@ public:
 };
 
 //! \brief Dummies out all instrumentation for supervised learning.
-class MATHS_EXPORT CDataFrameTrainBoostedTreeInstrumentationStub
+class MATHS_ANALYTICS_EXPORT CDataFrameTrainBoostedTreeInstrumentationStub
     : public CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
     void updateMemoryUsage(std::int64_t) override {}

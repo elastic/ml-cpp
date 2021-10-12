@@ -20,8 +20,9 @@
 #include <maths/common/CNaiveBayes.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CPRNG.h>
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <vector>
 
@@ -49,7 +50,7 @@ namespace time_series {
 //! we see w.r.t. the predictions from the next longer time scale component).
 //! This produces plausible looking forecasts and this sort of mean reversion
 //! is common in many real world time series.
-class MATHS_EXPORT CTrendComponent {
+class MATHS_TIME_SERIES_EXPORT CTrendComponent {
 public:
     using TDoubleDoublePr = maths_t::TDoubleDoublePr;
     using TDoubleVec = std::vector<double>;

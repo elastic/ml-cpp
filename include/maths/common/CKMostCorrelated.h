@@ -55,7 +55,7 @@ namespace common {
 //! components are the projected normalised residuals, finding the
 //! most correlated variables amounts to a collection neighbourhood
 //! searches around each point.
-class MATHS_EXPORT CKMostCorrelated {
+class MATHS_COMMON_EXPORT CKMostCorrelated {
 public:
     //! The number of projections of the data to maintain
     //! simultaneously.
@@ -140,7 +140,7 @@ protected:
     //! This manages the estimation of the sample correlation,
     //! i.e. \f$\frac{1}{n}\sum_{i=1}{n}{\frac{(x-m_x)(y-m_y)}{\sigma_x\sigma_y}}\f$,
     //! from the projected data.
-    struct MATHS_EXPORT SCorrelation {
+    struct MATHS_COMMON_EXPORT SCorrelation {
         //! See core::CMemory.
         static bool dynamicSizeAlwaysZero() { return true; }
 
@@ -194,7 +194,7 @@ protected:
     };
 
     //! \brief Checks if a correlation includes a specified variable.
-    class MATHS_EXPORT CMatches {
+    class MATHS_COMMON_EXPORT CMatches {
     public:
         CMatches(std::size_t x);
 

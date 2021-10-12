@@ -52,7 +52,7 @@ struct SDistributionRestoreParams;
 //! the data when using one-of-n composition (see COneOfNPrior) or model data with
 //! multiple modes when using multi-modal composition (see CMultimodalPrior).
 //! From a design point of view this is the composite pattern.
-class MATHS_EXPORT CLogNormalMeanPrecConjugate : public CPrior {
+class MATHS_COMMON_EXPORT CLogNormalMeanPrecConjugate : public CPrior {
 public:
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }

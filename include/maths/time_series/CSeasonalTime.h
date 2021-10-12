@@ -14,7 +14,7 @@
 
 #include <core/CoreTypes.h>
 
-#include <maths/common/ImportExport.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <memory>
 #include <string>
@@ -29,7 +29,7 @@ namespace time_series {
 
 //! \brief Provides times for seasonal components of a time series
 //! decomposition.
-class MATHS_EXPORT CSeasonalTime {
+class MATHS_TIME_SERIES_EXPORT CSeasonalTime {
 public:
     using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 
@@ -150,7 +150,7 @@ private:
 
 //! \brief Provides times for daily and weekly period seasonal
 //! components of a time series decomposition.
-class MATHS_EXPORT CDiurnalTime : public CSeasonalTime {
+class MATHS_TIME_SERIES_EXPORT CDiurnalTime : public CSeasonalTime {
 public:
     CDiurnalTime() = default;
     CDiurnalTime(core_t::TTime startOfWeek,
@@ -197,7 +197,7 @@ private:
 
 //! \brief Provides times for arbitrary period seasonal components
 //! of a time series decomposition.
-class MATHS_EXPORT CGeneralPeriodTime : public CSeasonalTime {
+class MATHS_TIME_SERIES_EXPORT CGeneralPeriodTime : public CSeasonalTime {
 public:
     CGeneralPeriodTime() = default;
     CGeneralPeriodTime(core_t::TTime period);
@@ -237,7 +237,7 @@ private:
 //! Encapsulate the conversion of arbitrary CSeasonalTime sub-classes to/from
 //! textual state. In particular, the field name associated with each type of
 //! CSeasonalTime is then in one file.
-class MATHS_EXPORT CSeasonalTimeStateSerializer {
+class MATHS_TIME_SERIES_EXPORT CSeasonalTimeStateSerializer {
 public:
     //! Shared pointer to the CTimeSeriesDecompositionInterface abstract
     //! base class.

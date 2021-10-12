@@ -41,7 +41,7 @@ namespace common {
 //! </pre>
 //!
 //! For other styles see https://en.wikipedia.org/wiki/Hierarchical_clustering#Agglomerative_clustering_example.
-class MATHS_EXPORT CAgglomerativeClusterer {
+class MATHS_COMMON_EXPORT CAgglomerativeClusterer {
 public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -51,7 +51,7 @@ public:
     using TDoubleSizeVecPrVec = std::vector<TDoubleSizeVecPr>;
 
     //! \brief A representation of a node in the tree of clusters.
-    class MATHS_EXPORT CNode {
+    class MATHS_COMMON_EXPORT CNode {
     public:
         //! Set the rightmost point below this node.
         CNode(std::size_t index, double height);

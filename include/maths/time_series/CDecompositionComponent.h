@@ -17,7 +17,8 @@
 
 #include <maths/common/CPRNG.h>
 #include <maths/common/CSpline.h>
-#include <maths/common/ImportExport.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <boost/optional.hpp>
 
@@ -35,7 +36,7 @@ namespace maths {
 namespace time_series {
 
 //! \brief Common functionality used by our decomposition component classes.
-class MATHS_EXPORT CDecompositionComponent {
+class MATHS_TIME_SERIES_EXPORT CDecompositionComponent {
 public:
     using TDoubleDoublePr = maths_t::TDoubleDoublePr;
     using TDoubleVec = std::vector<double>;
@@ -55,7 +56,7 @@ public:
 
 protected:
     //! \brief A low memory representation of the value and variance splines.
-    class MATHS_EXPORT CPackedSplines {
+    class MATHS_TIME_SERIES_EXPORT CPackedSplines {
     public:
         enum ESpline { E_Value = 0, E_Variance = 1 };
 

@@ -27,7 +27,7 @@ namespace common {
 //! This implements common integer operations: checking alignment, rounding
 //! and so on. Also any integer operations we sometimes need that can be done
 //! cheaply with some "bit twiddling hack".
-class MATHS_EXPORT CIntegerTools {
+class MATHS_COMMON_EXPORT CIntegerTools {
 public:
     //! Checks whether a double holds an an integer.
     static bool isInteger(double value, double tolerance = 0.0);

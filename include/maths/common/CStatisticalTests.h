@@ -30,7 +30,7 @@ class CStateRestoreTraverser;
 namespace maths {
 namespace common {
 //! \brief A collection of statistical tests and test statistics.
-class MATHS_EXPORT CStatisticalTests {
+class MATHS_COMMON_EXPORT CStatisticalTests {
 public:
     using TUInt16Vec = std::vector<uint16_t>;
     using TDoubleVec = std::vector<double>;
@@ -81,7 +81,7 @@ public:
     //!
     //! \see http://en.wikipedia.org/wiki/Cram%C3%A9r%E2%80%93von_Mises_criterion
     //! for more information on this test statistic.
-    class MATHS_EXPORT CCramerVonMises {
+    class MATHS_COMMON_EXPORT CCramerVonMises {
     public:
         //! Enumeration of the p values for which the test
         //! statistic value is tabulated.

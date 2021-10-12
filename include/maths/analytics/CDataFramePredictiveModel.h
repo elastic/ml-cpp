@@ -16,7 +16,7 @@
 #include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 
-#include <maths/common/ImportExport.h>
+#include <maths/analytics/ImportExport.h>
 
 #include <boost/optional.hpp>
 
@@ -35,7 +35,7 @@ class CTreeShapFeatureImportance;
 
 //! \brief Defines the interface for fitting and inferring a predictive model
 //! with a data frame.
-class MATHS_EXPORT CDataFramePredictiveModel {
+class MATHS_ANALYTICS_EXPORT CDataFramePredictiveModel {
 public:
     using TDoubleVec = std::vector<double>;
     using TDouble2Vec = core::CSmallVector<double, 2>;

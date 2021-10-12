@@ -17,9 +17,9 @@
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
+#include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CLinearAlgebra.h>
-#include <maths/common/ImportExport.h>
 
 #include <boost/optional.hpp>
 
@@ -40,7 +40,7 @@ class CBoostedTree;
 class CBoostedTreeImpl;
 
 //! Factory for CBoostedTree objects.
-class MATHS_EXPORT CBoostedTreeFactory final {
+class MATHS_ANALYTICS_EXPORT CBoostedTreeFactory final {
 public:
     using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
     using TVector = common::CVectorNx1<double, 3>;

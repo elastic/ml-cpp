@@ -35,7 +35,7 @@ namespace common {
 //! only ever takes a single value. This is useful for modeling data
 //! features such as the value of an indicator function in a consistent
 //! manner to all other types of data.
-class MATHS_EXPORT CMultivariateConstantPrior : public CMultivariatePrior {
+class MATHS_COMMON_EXPORT CMultivariateConstantPrior : public CMultivariatePrior {
 public:
     using TOptionalDouble10Vec = boost::optional<TDouble10Vec>;
 

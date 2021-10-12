@@ -17,8 +17,9 @@
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <boost/array.hpp>
 
@@ -40,7 +41,7 @@ struct SChangeDescription;
 
 //! \brief Type definitions shared by the CTimeSeriesDecompositionInterface
 //! hierarchy and CTimeSeriesDecompositionDetails.
-class MATHS_EXPORT CTimeSeriesDecompositionTypes {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionTypes {
 public:
     using TBoolVec = std::vector<bool>;
     using TPredictor = std::function<double(core_t::TTime)>;
@@ -53,7 +54,8 @@ public:
 
 //! \brief The interface for decomposing times series into seasonal, calendar
 //! cyclical and trend components.
-class MATHS_EXPORT CTimeSeriesDecompositionInterface : public CTimeSeriesDecompositionTypes {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionInterface
+    : public CTimeSeriesDecompositionTypes {
 public:
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;

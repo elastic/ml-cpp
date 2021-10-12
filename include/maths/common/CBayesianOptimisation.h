@@ -55,7 +55,7 @@ namespace common {
 //!
 //! Here, the expectation is w.r.t. the distribution of the marginal of the Gaussian
 //! Process at the point x.
-class MATHS_EXPORT CBayesianOptimisation {
+class MATHS_COMMON_EXPORT CBayesianOptimisation {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;

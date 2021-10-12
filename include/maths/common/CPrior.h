@@ -40,7 +40,7 @@ namespace common {
 //! This exists to support a one-of-n prior distribution which comprises
 //! a weighted selection of basic likelihood functions and is implemented
 //! using the composite pattern.
-class MATHS_EXPORT CPrior {
+class MATHS_COMMON_EXPORT CPrior {
 public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -53,7 +53,7 @@ public:
     using TStrStrPr = std::pair<std::string, std::string>;
 
     //! \brief Data for plotting a series
-    struct MATHS_EXPORT SPlot {
+    struct MATHS_COMMON_EXPORT SPlot {
         TDouble1Vec s_Abscissa;
         TDouble1Vec s_Ordinates;
     };
@@ -71,7 +71,7 @@ public:
     };
 
     //! \brief Defines a filter for removing models from selection.
-    class MATHS_EXPORT CModelFilter {
+    class MATHS_COMMON_EXPORT CModelFilter {
     public:
         CModelFilter();
 
@@ -91,7 +91,7 @@ public:
     //! DESCRIPTION:\n
     //! This adapts the jointLogMarginalLikelihood function for use with
     //! CIntegration.
-    class MATHS_EXPORT CLogMarginalLikelihood {
+    class MATHS_COMMON_EXPORT CLogMarginalLikelihood {
     public:
         using result_type = double;
 
@@ -447,7 +447,7 @@ public:
 protected:
     //! \brief Defines a set of operations to adjust the offset parameter
     //! of those priors with non-negative support.
-    class MATHS_EXPORT COffsetParameters {
+    class MATHS_COMMON_EXPORT COffsetParameters {
     public:
         COffsetParameters(CPrior& prior);
         virtual ~COffsetParameters() = default;
@@ -478,7 +478,7 @@ protected:
     //!
     //! This is used to maximize the data likelihood w.r.t. the choice
     //! of offset.
-    class MATHS_EXPORT COffsetCost : public COffsetParameters {
+    class MATHS_COMMON_EXPORT COffsetCost : public COffsetParameters {
     public:
         using result_type = double;
 
@@ -494,7 +494,7 @@ protected:
     };
 
     //! \brief Apply a specified offset to a prior.
-    class MATHS_EXPORT CApplyOffset : public COffsetParameters {
+    class MATHS_COMMON_EXPORT CApplyOffset : public COffsetParameters {
     public:
         CApplyOffset(CPrior& prior);
 

@@ -50,7 +50,7 @@ struct SDistributionRestoreParams;
 //! in. All component models are owned by the object (it wouldn't make sense
 //! to share them) so this also defines the necessary functions to support
 //! value semantics and manage the heap.
-class MATHS_EXPORT COneOfNPrior : public CPrior {
+class MATHS_COMMON_EXPORT COneOfNPrior : public CPrior {
 public:
     using TPriorPtr = std::unique_ptr<CPrior>;
     using TPriorPtrVec = std::vector<TPriorPtr>;

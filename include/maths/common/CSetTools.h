@@ -31,7 +31,7 @@ namespace common {
 //! computing set difference in-place, and functions for counting
 //! elements in set differences and unions. Common measures of set
 //! similarity such as the Jaccard index are also implemented.
-class MATHS_EXPORT CSetTools {
+class MATHS_COMMON_EXPORT CSetTools {
 public:
     //! \brief Checks if an indexed object is in a specified collection
     //! of indices.

@@ -80,7 +80,7 @@ namespace common {
 //! This uses the fact the maximum length of the q-digest is \f$3k\f$
 //! to ensure constant complexity of all operations at various points
 //! and to reserve sufficient memory up front for our node allocator.
-class MATHS_EXPORT CQDigest : private core::CNonCopyable {
+class MATHS_COMMON_EXPORT CQDigest : private core::CNonCopyable {
 public:
     using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
     using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
@@ -220,12 +220,12 @@ private:
     using TNodePtrVecCRItr = TNodePtrVec::const_reverse_iterator;
 
     //! Orders node pointers by level order.
-    struct MATHS_EXPORT SLevelLess {
+    struct MATHS_COMMON_EXPORT SLevelLess {
         bool operator()(const CNode* lhs, const CNode* rhs) const;
     };
 
     //! Order node pointers by post order in completed tree.
-    struct MATHS_EXPORT SPostLess {
+    struct MATHS_COMMON_EXPORT SPostLess {
         bool operator()(const CNode* lhs, const CNode* rhs) const;
     };
 
@@ -235,7 +235,7 @@ private:
 
     //! Represents a node of the q-digest with convenience
     //! operations for compression.
-    class MATHS_EXPORT CNode {
+    class MATHS_COMMON_EXPORT CNode {
     public:
         //! \name XML Tag Names
         //!
@@ -376,7 +376,7 @@ private:
     };
 
     //! Manages the creation and recycling of nodes.
-    class MATHS_EXPORT CNodeAllocator {
+    class MATHS_COMMON_EXPORT CNodeAllocator {
     public:
         CNodeAllocator(std::size_t size);
 

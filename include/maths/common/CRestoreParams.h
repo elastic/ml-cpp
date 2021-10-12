@@ -27,7 +27,7 @@ class CModelParams;
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! distribution models.
-struct MATHS_EXPORT SDistributionRestoreParams {
+struct MATHS_COMMON_EXPORT SDistributionRestoreParams {
     SDistributionRestoreParams(maths_t::EDataType dataType,
                                double decayRate,
                                double minimumClusterFraction = MINIMUM_CLUSTER_SPLIT_FRACTION,
@@ -52,7 +52,7 @@ struct MATHS_EXPORT SDistributionRestoreParams {
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! time series decompositions.
-struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams {
+struct MATHS_COMMON_EXPORT STimeSeriesDecompositionRestoreParams {
     STimeSeriesDecompositionRestoreParams(double decayRate,
                                           core_t::TTime minimumBucketLength,
                                           std::size_t componentSize,
@@ -76,7 +76,7 @@ struct MATHS_EXPORT STimeSeriesDecompositionRestoreParams {
 
 //! \brief Gatherers up extra parameters supplied when restoring
 //! time series models.
-struct MATHS_EXPORT SModelRestoreParams {
+struct MATHS_COMMON_EXPORT SModelRestoreParams {
     using TModelParamsCRef = std::reference_wrapper<const CModelParams>;
 
     SModelRestoreParams(const CModelParams& params,

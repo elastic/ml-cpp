@@ -35,7 +35,7 @@ namespace common {
 //! form any weight which is small w.r.t. the largest weight (i.e. less
 //! than double_eps * largest weight) is effectively zero and the corresponding
 //! model is (temporarily) removed from the collection.
-class MATHS_EXPORT CModelWeight {
+class MATHS_COMMON_EXPORT CModelWeight {
 public:
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }

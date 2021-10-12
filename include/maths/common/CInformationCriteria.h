@@ -34,11 +34,11 @@ namespace information_criteria_detail {
 //! of the covariance matrix. This is high to stop x-means creating
 //! clusters with small numbers of points where there is chance that
 //! the evidence from the covariance matrix is a fluke.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double confidence(double df);
 
 #define LOG_DETERMINANT(N)                                                     \
-    MATHS_EXPORT                                                               \
+    MATHS_COMMON_EXPORT                                                        \
     double logDeterminant(const CSymmetricMatrixNxN<double, N>& c, double upper)
 LOG_DETERMINANT(2);
 LOG_DETERMINANT(3);
@@ -47,11 +47,11 @@ LOG_DETERMINANT(5);
 #undef LOG_DETERMINANT
 
 //! The log determinant of our internal heap symmetric matrix.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double logDeterminant(const CSymmetricMatrix<double>& c, double upper);
 
 //! The log determinant of an Eigen matrix.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double logDeterminant(const CDenseMatrix<double>& c, double upper);
 
 } // information_criteria_detail::

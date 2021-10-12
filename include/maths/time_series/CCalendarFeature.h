@@ -9,12 +9,12 @@
  * limitation.
  */
 
-#ifndef INCLUDE_ml_maths_CCalendarFeature_h
-#define INCLUDE_ml_maths_CCalendarFeature_h
+#ifndef INCLUDE_ml_maths_time_series_CCalendarFeature_h
+#define INCLUDE_ml_maths_time_series_CCalendarFeature_h
 
 #include <core/CoreTypes.h>
 
-#include <maths/common/ImportExport.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <boost/operators.hpp>
 
@@ -32,7 +32,7 @@ namespace time_series {
 //! IMPLEMENTATION:\n
 //! Note that this purposely doesn't use an enum for encoding the feature
 //! so that the member size is only 16 bits rather than sizeof(int).
-class MATHS_EXPORT CCalendarFeature
+class MATHS_TIME_SERIES_EXPORT CCalendarFeature
     : boost::less_than_comparable<CCalendarFeature, boost::equality_comparable<CCalendarFeature>> {
 public:
     //! See core::CMemory.
@@ -99,10 +99,10 @@ private:
     std::uint16_t m_Value = INVALID;
 };
 
-MATHS_EXPORT
+MATHS_TIME_SERIES_EXPORT
 std::ostream& operator<<(std::ostream& strm, const CCalendarFeature& feature);
 }
 }
 }
 
-#endif // INCLUDE_ml_maths_CCalendarFeature_h
+#endif // INCLUDE_ml_maths_time_series_CCalendarFeature_h

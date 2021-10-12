@@ -29,7 +29,7 @@ class CMultivariatePrior;
 struct SDistributionRestoreParams;
 
 //! \brief Factory for multivariate multimodal priors.
-class MATHS_EXPORT CMultivariateMultimodalPriorFactory {
+class MATHS_COMMON_EXPORT CMultivariateMultimodalPriorFactory {
 public:
     using TPriorPtr = std::unique_ptr<CMultivariatePrior>;
 

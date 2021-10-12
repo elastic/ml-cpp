@@ -40,7 +40,7 @@ namespace mixture_detail {
 using TDoubleDoublePr = std::pair<double, double>;
 
 //! \brief Implements the "polymorphic" mixture mode.
-class MATHS_EXPORT CMixtureModeImpl {
+class MATHS_COMMON_EXPORT CMixtureModeImpl {
 public:
     CMixtureModeImpl(const boost::math::normal_distribution<>& normal);
     CMixtureModeImpl(const boost::math::gamma_distribution<>& gamma);
@@ -83,7 +83,7 @@ class CMixtureMode;
 //! a mode up front and it avoids heap allocation. The complement concept is
 //! encoded in a type parameter to avoid condition checking.
 template<>
-class MATHS_EXPORT CMixtureMode<false> : public mixture_detail::CMixtureModeImpl {
+class MATHS_COMMON_EXPORT CMixtureMode<false> : public mixture_detail::CMixtureModeImpl {
 public:
     CMixtureMode(const boost::math::normal_distribution<>& normal);
     CMixtureMode(const boost::math::gamma_distribution<>& gamma);
@@ -93,43 +93,43 @@ public:
 //! \brief A wrapper around the complement of one of the standard mode
 //! distributions.
 template<>
-class MATHS_EXPORT CMixtureMode<true> : public mixture_detail::CMixtureModeImpl {
+class MATHS_COMMON_EXPORT CMixtureMode<true> : public mixture_detail::CMixtureModeImpl {
 public:
     CMixtureMode(const CMixtureMode<false>& other);
 };
 
 //! Compute the distribution support.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 mixture_detail::TDoubleDoublePr support(const CMixtureMode<false>& mode);
 
 //! Compute the distribution mode.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double mode(const CMixtureMode<false>& mode);
 
 //! Compute the distribution mean.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double mean(const CMixtureMode<false>& mode);
 
 //! Compute the distribution probability density at \p x.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double pdf(const CMixtureMode<false>& mode, double x);
 
 //! Compute the distribution cumulative density at \p x.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double cdf(const CMixtureMode<false>& mode, double x);
 
 //! Compute one minus the distribution cumulative density at \p x.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double cdf(const CMixtureMode<true>& mode, double x);
 
 //! Compute the distribution quantile at \p x.
 //!
 //! \note x must be in the range (0, 1).
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 double quantile(const CMixtureMode<false>& mode, double x);
 
 //! Get the complement distribution of \p mode.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 CMixtureMode<true> complement(const CMixtureMode<false>& mode);
 
 //! \brief A mixture distribution.

@@ -115,7 +115,7 @@ struct result_type
 //! specifically solving and integration. These overload operator() to deal
 //! with this. Since a member function of a template is only instantiated
 //! when needed, the functions supplied don't need to support both.
-class MATHS_EXPORT CCompositeFunctions {
+class MATHS_COMMON_EXPORT CCompositeFunctions {
 public:
     //! Function composition with minus a constant.
     template<typename F_, typename T = typename composition_detail::result_type<F_>::type>

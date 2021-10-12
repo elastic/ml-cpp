@@ -73,7 +73,7 @@ namespace common {
 //! Note that the hash map lookup constants are good but the complexity
 //! is bad \f$O(m)\f$ so the \p maxSize parameter supplied to the
 //! constructor should be less than a few hundred.
-class MATHS_EXPORT CBjkstUniqueValues {
+class MATHS_COMMON_EXPORT CBjkstUniqueValues {
 public:
     using TUInt32HashVec = core::CHashing::CUniversalHash::TUInt32UnrestrictedHashVec;
 
@@ -130,7 +130,7 @@ private:
     using TUInt32VecCItr = TUInt32Vec::const_iterator;
 
     //! Wraps up the sketch data.
-    struct MATHS_EXPORT SSketch {
+    struct MATHS_COMMON_EXPORT SSketch {
         SSketch();
         SSketch(std::size_t numberHashes);
 

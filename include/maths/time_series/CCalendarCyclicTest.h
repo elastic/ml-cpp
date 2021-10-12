@@ -16,10 +16,10 @@
 #include <core/CoreTypes.h>
 
 #include <maths/common/CQuantileSketch.h>
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
 #include <maths/time_series/CCalendarFeature.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <boost/optional.hpp>
 
@@ -47,7 +47,7 @@ namespace time_series {
 //! than one would expect given that this is expected to be binomial.
 //! Amongst features with statistically significant frequencies of large
 //! errors it returns the feature with the highest mean prediction error.
-class MATHS_EXPORT CCalendarCyclicTest {
+class MATHS_TIME_SERIES_EXPORT CCalendarCyclicTest {
 public:
     using TOptionalFeature = boost::optional<CCalendarFeature>;
 
@@ -84,7 +84,7 @@ private:
     using TByteVec = std::vector<TByte>;
 
     //! \brief Records the daily error statistics.
-    struct MATHS_EXPORT SErrorStats {
+    struct MATHS_TIME_SERIES_EXPORT SErrorStats {
         //! Get a checksum for this object.
         std::uint64_t checksum() const;
         //! Convert to a delimited string.

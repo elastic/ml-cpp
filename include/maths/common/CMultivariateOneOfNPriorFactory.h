@@ -29,7 +29,7 @@ class CMultivariatePrior;
 struct SDistributionRestoreParams;
 
 //! \brief Factory for multivariate 1-of-n priors.
-class MATHS_EXPORT CMultivariateOneOfNPriorFactory {
+class MATHS_COMMON_EXPORT CMultivariateOneOfNPriorFactory {
 public:
     using TPriorPtr = std::unique_ptr<CMultivariatePrior>;
     using TPriorPtrVec = std::vector<TPriorPtr>;

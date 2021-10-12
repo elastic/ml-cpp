@@ -15,9 +15,10 @@
 #include <core/CDataFrame.h>
 #include <core/CNonInstantiatable.h>
 
+#include <maths/analytics/ImportExport.h>
+
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CPRNG.h>
-#include <maths/common/ImportExport.h>
 
 #include <boost/unordered_set.hpp>
 
@@ -66,7 +67,7 @@ struct SRowTo<common::CDenseVector<T>> {
 }
 
 //! \brief A collection of basic utilities for analyses on a data frame.
-class MATHS_EXPORT CDataFrameUtils : private core::CNonInstantiatable {
+class MATHS_ANALYTICS_EXPORT CDataFrameUtils : private core::CNonInstantiatable {
 public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -85,7 +86,7 @@ public:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
     //! \brief Defines the data type of a collection of numbers.
-    struct MATHS_EXPORT SDataType {
+    struct MATHS_ANALYTICS_EXPORT SDataType {
         static const char EXTERNAL_DELIMITER;
         static const char INTERNAL_DELIMITER;
 
@@ -100,7 +101,7 @@ public:
     using TDataTypeVec = std::vector<SDataType>;
 
     //! \brief Used to extract the value from a specific column of the data frame.
-    class MATHS_EXPORT CColumnValue {
+    class MATHS_ANALYTICS_EXPORT CColumnValue {
     public:
         CColumnValue(std::size_t column) : m_Column{column} {}
         virtual ~CColumnValue() = default;
@@ -116,7 +117,7 @@ public:
     };
 
     //! \brief Used to extract the value from a metric column of the data frame.
-    class MATHS_EXPORT CMetricColumnValue final : public CColumnValue {
+    class MATHS_ANALYTICS_EXPORT CMetricColumnValue final : public CColumnValue {
     public:
         CMetricColumnValue(std::size_t column) : CColumnValue{column} {}
         double operator()(const TRowRef& row) const override {
@@ -130,7 +131,7 @@ public:
 
     //! \brief Used to extract the value from a one-hot encoded categorical column
     //! of the data frame.
-    class MATHS_EXPORT COneHotCategoricalColumnValue final : public CColumnValue {
+    class MATHS_ANALYTICS_EXPORT COneHotCategoricalColumnValue final : public CColumnValue {
     public:
         COneHotCategoricalColumnValue(std::size_t column, std::size_t category)
             : CColumnValue{column}, m_Category{category} {}
@@ -154,7 +155,7 @@ public:
 
     //! \brief Used to extract the value from a "is rare" encoded categorical column
     //! of the data frame.
-    class MATHS_EXPORT CFrequencyCategoricalColumnValue final : public CColumnValue {
+    class MATHS_ANALYTICS_EXPORT CFrequencyCategoricalColumnValue final : public CColumnValue {
     public:
         CFrequencyCategoricalColumnValue(std::size_t column, const TDoubleVec& frequencies)
             : CColumnValue{column}, m_Frequencies{&frequencies} {}
@@ -180,7 +181,7 @@ public:
 
     //! \brief Used to extract the value from a mean target encoded categorical
     //! column of the data frame.
-    class MATHS_EXPORT CTargetMeanCategoricalColumnValue final : public CColumnValue {
+    class MATHS_ANALYTICS_EXPORT CTargetMeanCategoricalColumnValue final : public CColumnValue {
     public:
         using TSizeUSet = boost::unordered_set<std::size_t>;
 

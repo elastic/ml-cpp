@@ -25,7 +25,7 @@ namespace common {
 //!
 //! DESCRIPTION:\n
 //! For more information see https://en.wikipedia.org/wiki/Fuzzy_logic#Fuzzy_logic_operators.
-class MATHS_EXPORT CFuzzyTruthValue {
+class MATHS_COMMON_EXPORT CFuzzyTruthValue {
 public:
     //! A value which satisfies (value || expression).boolean() == true.
     static const CFuzzyTruthValue TRUE_VALUE;

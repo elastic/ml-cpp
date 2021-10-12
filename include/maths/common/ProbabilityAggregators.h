@@ -49,7 +49,7 @@ namespace common {
 //! probability of a collection of samples which are sampled where
 //! each sample only appears with some specified frequency. The weights
 //! must be non-negative.
-class MATHS_EXPORT CJointProbabilityOfLessLikelySamples
+class MATHS_COMMON_EXPORT CJointProbabilityOfLessLikelySamples
     : private boost::addable<CJointProbabilityOfLessLikelySamples> {
 public:
     using TOptionalDouble = boost::optional<double>;
@@ -100,7 +100,7 @@ private:
     double m_NumberSamples = 0.0;
 };
 
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 std::ostream& operator<<(std::ostream& o,
                          const CJointProbabilityOfLessLikelySamples& probability);
 
@@ -130,7 +130,7 @@ std::ostream& operator<<(std::ostream& o,
 //! joint probabilities, which should respect the error in the bounds.
 //! For example, two probabilities should be treated as equal if the
 //! intervals defined by their upper and lower bounds intersect.
-class MATHS_EXPORT EMPTY_BASE_OPT CLogJointProbabilityOfLessLikelySamples
+class MATHS_COMMON_EXPORT EMPTY_BASE_OPT CLogJointProbabilityOfLessLikelySamples
     : protected CJointProbabilityOfLessLikelySamples,
       private boost::addable<CLogJointProbabilityOfLessLikelySamples> {
 public:
@@ -189,7 +189,7 @@ public:
 //! </pre>
 //!
 //! where we have used the fact that \f$(1 - F(x)) = p / 2\f$.
-class MATHS_EXPORT CProbabilityOfExtremeSample
+class MATHS_COMMON_EXPORT CProbabilityOfExtremeSample
     : private boost::addable<CProbabilityOfExtremeSample> {
 public:
     CProbabilityOfExtremeSample();
@@ -224,7 +224,7 @@ private:
     double m_NumberSamples;
 };
 
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 std::ostream& operator<<(std::ostream& o, const CProbabilityOfExtremeSample& probability);
 
 //! \brief Computes the probability of seeing the M most extreme
@@ -273,7 +273,7 @@ std::ostream& operator<<(std::ostream& o, const CProbabilityOfExtremeSample& pro
 //! The integral representing \f$P(R)\f$ can be evaluated in order \f$M^2\f$
 //! as a polynomial in the individual probabilities \f$\{p_1, ..., p_M\}\f$
 //! with recurrence relations used to compute the coefficients.
-class MATHS_EXPORT CLogProbabilityOfMFromNExtremeSamples
+class MATHS_COMMON_EXPORT CLogProbabilityOfMFromNExtremeSamples
     : private boost::addable<CLogProbabilityOfMFromNExtremeSamples> {
 public:
     CLogProbabilityOfMFromNExtremeSamples(std::size_t m);

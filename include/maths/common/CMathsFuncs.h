@@ -40,7 +40,7 @@ namespace common {
 //! Where maths functions have different names on different platforms,
 //! they should be added to this file.
 //!
-class MATHS_EXPORT CMathsFuncs : private core::CNonInstantiatable {
+class MATHS_COMMON_EXPORT CMathsFuncs : private core::CNonInstantiatable {
 public:
     //! Check if value is NaN.
     static bool isNan(double val);

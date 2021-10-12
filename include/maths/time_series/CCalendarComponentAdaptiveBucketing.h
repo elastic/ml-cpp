@@ -15,10 +15,10 @@
 #include <core/CMemory.h>
 
 #include <maths/common/CBasicStatistics.h>
-#include <maths/common/ImportExport.h>
 
 #include <maths/time_series/CAdaptiveBucketing.h>
 #include <maths/time_series/CCalendarFeature.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <cstddef>
 #include <vector>
@@ -38,7 +38,8 @@ class CSeasonalTime;
 //!
 //! DESCRIPTION:\n
 //! See CAdaptiveBucketing for details.
-class MATHS_EXPORT CCalendarComponentAdaptiveBucketing final : public CAdaptiveBucketing {
+class MATHS_TIME_SERIES_EXPORT CCalendarComponentAdaptiveBucketing final
+    : public CAdaptiveBucketing {
 public:
     using TFloatMeanVarAccumulator =
         common::CBasicStatistics::SSampleMeanVar<common::CFloatStorage>::TAccumulator;

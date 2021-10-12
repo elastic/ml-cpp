@@ -8,8 +8,8 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-#ifndef INCLUDED_ml_maths_common_ImportExport_h
-#define INCLUDED_ml_maths_common_ImportExport_h
+#ifndef INCLUDED_ml_maths_time_series_ImportExport_h
+#define INCLUDED_ml_maths_time_series_ImportExport_h
 
 //! On Windows, it's necessary to explicitly export functions from
 //! DLLs.  The simplest way to do this for C++ classes is to add
@@ -25,12 +25,12 @@
 
 #ifdef Windows
 
-#ifdef BUILDING_libMlMathsCommon
-// We're building the maths common library
-#define MATHS_COMMON_EXPORT __declspec(dllexport)
+#ifdef BUILDING_libMlMathsTimeSeries
+// We're building the maths time_series library
+#define MATHS_TIME_SERIES_EXPORT __declspec(dllexport)
 #else
-// We're building some code other than the maths common library
-#define MATHS_COMMON_EXPORT __declspec(dllimport)
+// We're building some code other than the maths time_series library
+#define MATHS_TIME_SERIES_EXPORT __declspec(dllimport)
 #endif
 
 //! See https://devblogs.microsoft.com/cppblog/optimizing-the-layout-of-empty-base-classes-in-vs2015-update-2-3/
@@ -39,9 +39,9 @@
 #else
 
 // Empty string on Unix
-#define MATHS_COMMON_EXPORT
+#define MATHS_TIME_SERIES_EXPORT
 #define EMPTY_BASE_OPT
 
 #endif
 
-#endif // INCLUDED_ml_maths_common_ImportExport_h
+#endif // INCLUDED_ml_maths_time_series_ImportExport_h

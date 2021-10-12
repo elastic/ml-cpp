@@ -17,7 +17,8 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/common/ImportExport.h>
+#include <maths/time_series/ImportExport.h>
+
 #include <maths/common/MathsTypes.h>
 
 #include <boost/variant.hpp>
@@ -52,7 +53,7 @@ namespace time_series {
 //! interface to this class is double precision. If floats are used
 //! they should be used for storage only and transparent to the rest
 //! of the code base.
-class MATHS_EXPORT CCountMinSketch {
+class MATHS_TIME_SERIES_EXPORT CCountMinSketch {
 public:
     CCountMinSketch(std::size_t rows, std::size_t columns);
 
@@ -125,7 +126,7 @@ private:
     using TFloatVecVec = std::vector<TFloatVec>;
 
     //! Wraps up the sketch data.
-    struct MATHS_EXPORT SSketch {
+    struct MATHS_TIME_SERIES_EXPORT SSketch {
         SSketch() = default;
         SSketch(std::size_t rows, std::size_t columns);
 

@@ -43,7 +43,7 @@ namespace common {
 //!
 //! DEFINITION:\n
 //! This is a place holder for random sampling utilities and algorithms.
-class MATHS_EXPORT CSampling : private core::CNonInstantiatable {
+class MATHS_COMMON_EXPORT CSampling : private core::CNonInstantiatable {
 public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -300,7 +300,7 @@ public:
     };
 
     //! \brief A mockable random number generator which uses boost::random::mt11213b.
-    class MATHS_EXPORT CRandomNumberGenerator {
+    class MATHS_COMMON_EXPORT CRandomNumberGenerator {
     public:
         using result_type = boost::random::mt11213b::result_type;
 
@@ -363,7 +363,7 @@ public:
 
     //! \brief Setup and tears down mock random numbers in the scope in which
     //! it is constructed.
-    class MATHS_EXPORT CScopeMockRandomNumberGenerator {
+    class MATHS_COMMON_EXPORT CScopeMockRandomNumberGenerator {
     public:
         CScopeMockRandomNumberGenerator();
         ~CScopeMockRandomNumberGenerator();

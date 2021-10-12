@@ -29,7 +29,7 @@ class CMultivariatePrior;
 struct SDistributionRestoreParams;
 
 //! \brief Factory for multivariate normal conjugate priors.
-class MATHS_EXPORT CMultivariateNormalConjugateFactory {
+class MATHS_COMMON_EXPORT CMultivariateNormalConjugateFactory {
 public:
     using TPriorPtr = std::unique_ptr<CMultivariatePrior>;
 

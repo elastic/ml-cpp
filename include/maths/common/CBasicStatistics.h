@@ -40,7 +40,7 @@ namespace common {
 //! DESCRIPTION:\n
 //! Some utilities for computing basic sample statistics such
 //! as central moments, covariance matrices and so on.
-class MATHS_EXPORT CBasicStatistics {
+class MATHS_COMMON_EXPORT CBasicStatistics {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleVec = std::vector<double>;

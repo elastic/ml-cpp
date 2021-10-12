@@ -18,6 +18,8 @@
 #include <core/CNonInstantiatable.h>
 #include <core/Concurrency.h>
 
+#include <maths/analytics/ImportExport.h>
+
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CKdTree.h>
 #include <maths/common/CLinearAlgebraShims.h>
@@ -25,7 +27,6 @@
 #include <maths/common/CPRNG.h>
 #include <maths/common/CSampling.h>
 #include <maths/common/CTools.h>
-#include <maths/common/ImportExport.h>
 
 #include <algorithm>
 #include <cmath>
@@ -659,7 +660,7 @@ private:
 }
 
 //! \brief Utilities for computing outlier scores for collections of points.
-class MATHS_EXPORT COutliers : private core::CNonInstantiatable {
+class MATHS_ANALYTICS_EXPORT COutliers : private core::CNonInstantiatable {
 public:
     using TDoubleVec = outliers_detail::TDoubleVec;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;

@@ -17,7 +17,8 @@
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
-#include <maths/common/ImportExport.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <cstddef>
 #include <functional>
@@ -55,7 +56,7 @@ namespace time_series {
 //! The CPU cost of in/deflating to update the current bucket is amortised by
 //! maintaining a small buffer which is updated with new data points and only
 //! flushed when full.
-class MATHS_EXPORT CExpandingWindow {
+class MATHS_TIME_SERIES_EXPORT CExpandingWindow {
 public:
     using TDoubleVec = std::vector<double>;
     using TTimeVec = std::vector<core_t::TTime>;
@@ -148,7 +149,7 @@ private:
     using TSizeFloatMeanAccumulatorPrVec = std::vector<TSizeFloatMeanAccumulatorPr>;
 
     //! \brief Inflates the bucket values for the lifetime of the object.
-    class MATHS_EXPORT CScopeInflate : private core::CNonCopyable {
+    class MATHS_TIME_SERIES_EXPORT CScopeInflate : private core::CNonCopyable {
     public:
         CScopeInflate(const CExpandingWindow& window, bool commit);
         ~CScopeInflate();

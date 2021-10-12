@@ -42,7 +42,7 @@ struct SDistributionRestoreParams;
 //! name/value pairs where the value may be a nested set of name/value
 //! pairs. Text format makes it easier to provide backwards/forwards
 //! compatibility in the future as the classes evolve.
-class MATHS_EXPORT CPriorStateSerialiser {
+class MATHS_COMMON_EXPORT CPriorStateSerialiser {
 public:
     using TPriorUPtr = std::unique_ptr<CPrior>;
     using TPriorSPtr = std::shared_ptr<CPrior>;

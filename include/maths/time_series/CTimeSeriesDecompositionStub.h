@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionStub_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecompositionStub_h
 
-#include <maths/common/ImportExport.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
 
@@ -27,7 +27,8 @@ namespace time_series {
 //! This is a lightweight (empty) class which implements the interface
 //! for the case that the time series being modeled is known a-priori
 //! not to have seasonality.
-class MATHS_EXPORT CTimeSeriesDecompositionStub : public CTimeSeriesDecompositionInterface {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionStub
+    : public CTimeSeriesDecompositionInterface {
 public:
     //! Clone this decomposition.
     CTimeSeriesDecompositionStub* clone(bool isForForecast = false) const override;

@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesMultibucketFeatureSerialiser_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesMultibucketFeatureSerialiser_h
 
-#include <maths/common/ImportExport.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <memory>
 
@@ -43,7 +43,7 @@ class CTimeSeriesMultibucketFeature;
 //! name/value pairs where the value may be a nested set of name/value
 //! pairs. Text format is used to make it easier to provide backwards
 //! compatibility in the future as the classes evolve.
-class MATHS_EXPORT CTimeSeriesMultibucketFeatureSerialiser {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesMultibucketFeatureSerialiser {
 public:
     using TDouble10Vec = core::CSmallVector<double, 10>;
     using TUnivariateFeature = CTimeSeriesMultibucketFeature<double>;

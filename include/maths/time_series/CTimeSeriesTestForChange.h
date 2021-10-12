@@ -16,8 +16,9 @@
 #include <core/CoreTypes.h>
 
 #include <maths/common/CBasicStatistics.h>
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <functional>
 #include <memory>
@@ -37,7 +38,7 @@ class CTimeSeriesDecomposition;
 class CTrendComponent;
 
 //! \brief Represents a sudden change to a time series model.
-class MATHS_EXPORT CChangePoint {
+class MATHS_TIME_SERIES_EXPORT CChangePoint {
 public:
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
@@ -86,7 +87,7 @@ private:
 };
 
 //! \brief Represents a level shift of a time series.
-class MATHS_EXPORT CLevelShift : public CChangePoint {
+class MATHS_TIME_SERIES_EXPORT CLevelShift : public CChangePoint {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
@@ -124,7 +125,7 @@ private:
 };
 
 //! \brief Represents a linear scale of a time series.
-class MATHS_EXPORT CScale : public CChangePoint {
+class MATHS_TIME_SERIES_EXPORT CScale : public CChangePoint {
 public:
     static const std::string TYPE;
 
@@ -154,7 +155,7 @@ private:
 };
 
 //! \brief Represents a time shift of a time series.
-class MATHS_EXPORT CTimeShift : public CChangePoint {
+class MATHS_TIME_SERIES_EXPORT CTimeShift : public CChangePoint {
 public:
     static const std::string TYPE;
 
@@ -183,7 +184,7 @@ private:
 };
 
 //! \brief Manages persist and restore of an undoable change point.
-class MATHS_EXPORT CUndoableChangePointStateSerializer {
+class MATHS_TIME_SERIES_EXPORT CUndoableChangePointStateSerializer {
 public:
     using TChangePointUPtr = std::unique_ptr<CChangePoint>;
 
@@ -217,7 +218,7 @@ public:
 //!      null is unable to fit them.
 //!   -# If sample variance is supplied any explained variance has to be significant
 //!      on the order of the sample variance.
-class MATHS_EXPORT CTimeSeriesTestForChange {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesTestForChange {
 public:
     using TBoolVec = std::vector<bool>;
     using TPredictor = std::function<double(core_t::TTime)>;

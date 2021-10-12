@@ -44,7 +44,7 @@ namespace common {
 enum ESymmetricMatrixType { E_OuterProduct, E_Diagonal };
 
 //! \brief Common types used by the vector and matrix classes.
-class MATHS_EXPORT CLinearAlgebra {
+class MATHS_COMMON_EXPORT CLinearAlgebra {
 public:
     static const char DELIMITER = ',';
 };

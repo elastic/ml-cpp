@@ -18,7 +18,8 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/ImportExport.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <boost/optional.hpp>
 
@@ -35,7 +36,7 @@ namespace maths {
 namespace time_series {
 
 //! \brief Useful functions from signal processing.
-class MATHS_EXPORT CSignal {
+class MATHS_TIME_SERIES_EXPORT CSignal {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TSizeSizeSizeTr = std::tuple<std::size_t, std::size_t, std::size_t>;

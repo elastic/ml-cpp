@@ -35,7 +35,7 @@ struct SDistributionRestoreParams;
 
 //! \brief The interface expected by CNaiveBayes for implementations
 //! of the class conditional density functions.
-class MATHS_EXPORT CNaiveBayesFeatureDensity {
+class MATHS_COMMON_EXPORT CNaiveBayesFeatureDensity {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
 
@@ -90,7 +90,8 @@ public:
 
 //! \brief An implementation of the class conditional density function
 //! based on the CPrior hierarchy.
-class MATHS_EXPORT CNaiveBayesFeatureDensityFromPrior final : public CNaiveBayesFeatureDensity {
+class MATHS_COMMON_EXPORT CNaiveBayesFeatureDensityFromPrior final
+    : public CNaiveBayesFeatureDensity {
 public:
     CNaiveBayesFeatureDensityFromPrior() = default;
     CNaiveBayesFeatureDensityFromPrior(const CPrior& prior);
@@ -154,7 +155,7 @@ private:
 };
 
 //! \brief Implements a Naive Bayes classifier.
-class MATHS_EXPORT CNaiveBayes {
+class MATHS_COMMON_EXPORT CNaiveBayes {
 public:
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TDoubleSizePrVec = std::vector<TDoubleSizePr>;

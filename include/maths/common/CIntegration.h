@@ -50,7 +50,7 @@ namespace common {
 //! where the second argument is filled in with the value of the function at the
 //! first argument and a return value of false means that the function could not
 //! be evaluated.
-class MATHS_EXPORT CIntegration {
+class MATHS_COMMON_EXPORT CIntegration {
 public:
     using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
@@ -602,7 +602,7 @@ public:
 private:
     //! \brief Definitions of the weights and abscissas for different orders
     //! of Gauss-Legendre quadrature.
-    class MATHS_EXPORT CGaussLegendreQuadrature {
+    class MATHS_COMMON_EXPORT CGaussLegendreQuadrature {
     public:
         static const double* weights(EOrder order);
         static const double* abscissas(EOrder order);

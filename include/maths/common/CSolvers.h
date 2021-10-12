@@ -39,7 +39,7 @@ namespace common {
 //! This implements a collection of root solving functions as static
 //! member functions. In particular, it implements Brent's method and
 //! interval bisection.
-class MATHS_EXPORT CSolvers {
+class MATHS_COMMON_EXPORT CSolvers {
 private:
     using TDoubleDoublePr = std::pair<double, double>;
 

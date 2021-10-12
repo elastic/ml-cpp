@@ -21,9 +21,9 @@
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
 #include <maths/analytics/CDataFramePredictiveModel.h>
+#include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CLinearAlgebraEigen.h>
-#include <maths/common/ImportExport.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -57,7 +57,7 @@ class CBoostedTreeImpl;
 //! During training row masks are maintained for each node (so the data can be
 //! efficiently traversed). This supports extracting the left and right child
 //! node bit masks from the node's bit mask.
-class MATHS_EXPORT CBoostedTreeNode final {
+class MATHS_ANALYTICS_EXPORT CBoostedTreeNode final {
 public:
     using TFloatVec = std::vector<common::CFloatStorage>;
     using TFloatVecVec = std::vector<TFloatVec>;
@@ -71,7 +71,7 @@ public:
     using TVector = common::CDenseVector<double>;
     using TRowRef = core::CDataFrame::TRowRef;
 
-    class MATHS_EXPORT CVisitor {
+    class MATHS_ANALYTICS_EXPORT CVisitor {
     public:
         virtual ~CVisitor() = default;
         //! Adds to last added tree.
@@ -239,7 +239,7 @@ private:
 //! encoding. We choose the "best" strategy based on simultaneously maximising measures
 //! of relevancy and redundancy in the feature set as a whole. We use the MICe statistic
 //! proposed by Reshef for this purpose. See CDataFrameCategoryEncoder for more details.
-class MATHS_EXPORT CBoostedTree final : public CDataFramePredictiveModel {
+class MATHS_ANALYTICS_EXPORT CBoostedTree final : public CDataFramePredictiveModel {
 public:
     using TStrVec = std::vector<std::string>;
     using TLossFunction = boosted_tree::CLoss;
@@ -250,8 +250,8 @@ public:
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
-    class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
-                                  public CBoostedTreeNode::CVisitor {
+    class MATHS_ANALYTICS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
+                                            public CBoostedTreeNode::CVisitor {
     public:
         ~CVisitor() override = default;
         virtual void addTree() = 0;

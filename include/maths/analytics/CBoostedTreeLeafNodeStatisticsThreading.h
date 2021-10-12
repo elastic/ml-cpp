@@ -11,9 +11,9 @@
 
 #ifndef INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsThreading_h
 #define INCLUDED_ml_maths_analytics_CBoostedTreeLeafNodeStatisticsThreading_h
+#include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CLinearAlgebraFwd.h>
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
 #include <functional>
@@ -37,7 +37,7 @@ namespace analytics {
 //! This provides a route to calibrate at runtime if we choose. The danger
 //! of doing this is that timing statistics could be skewed by temporary
 //! environmental factors. We can revisit this if we decide it is important.
-class MATHS_EXPORT CBoostedTreeLeafNodeStatisticsThreading {
+class MATHS_ANALYTICS_EXPORT CBoostedTreeLeafNodeStatisticsThreading {
 public:
     using TMinimumLoss =
         std::function<double(const Eigen::VectorXd&, const Eigen::MatrixXd&)>;

@@ -37,7 +37,7 @@ class CFactory {};
 
 #define XMEANS_FACTORY(T, N)                                                              \
     template<>                                                                            \
-    class MATHS_EXPORT CFactory<T, N> {                                                   \
+    class MATHS_COMMON_EXPORT CFactory<T, N> {                                            \
     public:                                                                               \
         static CClusterer<CVectorNx1<T, N>>* make(maths_t::EDataType dataType,            \
                                                   maths_t::EClusterWeightCalc weightCalc, \
@@ -59,7 +59,7 @@ XMEANS_FACTORY(CFloatStorage, 5);
 }
 
 //! \brief Factory for multivariate x-means online clusterers.
-class MATHS_EXPORT CXMeansOnlineFactory {
+class MATHS_COMMON_EXPORT CXMeansOnlineFactory {
 public:
     //! Create a new x-means clusterer.
     //!

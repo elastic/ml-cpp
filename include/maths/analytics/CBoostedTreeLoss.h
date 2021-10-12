@@ -14,12 +14,13 @@
 
 #include <core/CStateRestoreTraverser.h>
 
+#include <maths/analytics/ImportExport.h>
+
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/CSampling.h>
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
 #include <algorithm>
@@ -33,7 +34,7 @@ namespace ml {
 namespace maths {
 namespace analytics {
 namespace boosted_tree_detail {
-class MATHS_EXPORT CArgMinLossImpl {
+class MATHS_ANALYTICS_EXPORT CArgMinLossImpl {
 public:
     using TDoubleVector = common::CDenseVector<double>;
     using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloatStorage>;
@@ -59,7 +60,7 @@ private:
 
 //! \brief Finds the value to add to a set of predictions which minimises the
 //! regularized MSE w.r.t. the actual values.
-class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
+class MATHS_ANALYTICS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
 public:
     CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
@@ -77,7 +78,7 @@ private:
 
 //! \brief Finds the value to add to a set of predictions which approximately
 //! minimises the regularised mean squared logarithmic error (MSLE).
-class MATHS_EXPORT CArgMinMsleImpl final : public CArgMinLossImpl {
+class MATHS_ANALYTICS_EXPORT CArgMinMsleImpl final : public CArgMinLossImpl {
 public:
     using TObjective = std::function<double(double)>;
 
@@ -138,7 +139,7 @@ private:
 
 //! \brief Finds the value to add to a set of predictions which approximately
 //! minimises the pseudo-Huber loss function.
-class MATHS_EXPORT CArgMinPseudoHuberImpl final : public CArgMinLossImpl {
+class MATHS_ANALYTICS_EXPORT CArgMinPseudoHuberImpl final : public CArgMinLossImpl {
 public:
     using TObjective = std::function<double(double)>;
 
@@ -199,7 +200,7 @@ private:
 //! Here, \f$B\f$ ranges over the buckets, \f$\bar{p}_B\f$ denotes the B'th bucket
 //! centre and \f$c_{0,B}\f$ and \f$c_{1,B}\f$ denote the counts of actual classes
 //! 0 and 1, respectively, in the bucket \f$B\f$.
-class MATHS_EXPORT CArgMinBinomialLogisticLossImpl final : public CArgMinLossImpl {
+class MATHS_ANALYTICS_EXPORT CArgMinBinomialLogisticLossImpl final : public CArgMinLossImpl {
 public:
     CArgMinBinomialLogisticLossImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
@@ -264,7 +265,7 @@ private:
 //! counts of each classes \f$\{a_i\}\f$ in the P'th subset. We compute this
 //! partition via a weighted random sample where the weights are proportional to
 //! the mean distance between each point and the rest of the sample set.
-class MATHS_EXPORT CArgMinMultinomialLogisticLossImpl final : public CArgMinLossImpl {
+class MATHS_ANALYTICS_EXPORT CArgMinMultinomialLogisticLossImpl final : public CArgMinLossImpl {
 public:
     using TObjective = std::function<double(const TDoubleVector&)>;
     using TObjectiveGradient = std::function<TDoubleVector(const TDoubleVector&)>;
@@ -313,7 +314,7 @@ enum ELossType {
 };
 
 //! \brief Computes the leaf value which minimizes the loss function.
-class MATHS_EXPORT CArgMinLoss {
+class MATHS_ANALYTICS_EXPORT CArgMinLoss {
 public:
     using TDoubleVector = common::CDenseVector<double>;
     using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloatStorage>;
@@ -357,7 +358,7 @@ private:
 };
 
 //! \brief Defines the loss function for the regression problem.
-class MATHS_EXPORT CLoss {
+class MATHS_ANALYTICS_EXPORT CLoss {
 public:
     using TDoubleVector = common::CDenseVector<double>;
     using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloatStorage>;
@@ -419,7 +420,7 @@ private:
 };
 
 //! \brief The MSE loss function.
-class MATHS_EXPORT CMse final : public CLoss {
+class MATHS_ANALYTICS_EXPORT CMse final : public CLoss {
 public:
     static const std::string NAME;
 
@@ -461,7 +462,7 @@ private:
 //! </pre>
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
 //! prediction and \f$S(\cdot)\f$ denotes the logistic function.
-class MATHS_EXPORT CBinomialLogisticLoss final : public CLoss {
+class MATHS_ANALYTICS_EXPORT CBinomialLogisticLoss final : public CLoss {
 public:
     static const std::string NAME;
 
@@ -505,7 +506,7 @@ private:
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ denotes
 //! the vector valued prediction and \f$\sigma(p)\f$ is the softmax function, i.e.
 //! \f$[\sigma(p)]_j = \frac{e^{p_i}}{\sum_k e^{p_k}}\f$.
-class MATHS_EXPORT CMultinomialLogisticLoss final : public CLoss {
+class MATHS_ANALYTICS_EXPORT CMultinomialLogisticLoss final : public CLoss {
 public:
     static const std::string NAME;
 
@@ -554,7 +555,7 @@ private:
 //! </pre>
 //! where \f$w_i = \frac{\log(1+p_i) - \log(1+a_i)}{(1+p_i)(p_i-a_i)}\f$ and \f$c_i\f$
 //! is chosen so \f$l_i(p_i) = (\log(1+p_i) - \log(1+a_i))^2\f$.
-class MATHS_EXPORT CMsle final : public CLoss {
+class MATHS_ANALYTICS_EXPORT CMsle final : public CLoss {
 public:
     static const std::string NAME;
 
@@ -612,7 +613,7 @@ private:
 //!   \f[\frac{-a_i + p_i}{\sqrt{\frac{\delta^2 + (a_i - p_i)^2}{\delta^2}}}\f]
 //! and for the curvature:
 //!   \f[\frac{1}{\sqrt{1 + \frac{(a_i - p_i)^2}{\delta^2}}}\f]
-class MATHS_EXPORT CPseudoHuber final : public CLoss {
+class MATHS_ANALYTICS_EXPORT CPseudoHuber final : public CLoss {
 public:
     static const std::string NAME;
 

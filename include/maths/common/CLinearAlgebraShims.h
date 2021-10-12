@@ -413,4 +413,4 @@ std::size_t estimateMemoryUsage(std::size_t rows, std::size_t columns) {
 }
 }
 
-#endif // ml_maths_CLinearAlgebraShims_h
+#endif // ml_maths_common_CLinearAlgebraShims_h

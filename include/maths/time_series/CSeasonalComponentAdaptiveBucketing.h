@@ -16,7 +16,8 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>
-#include <maths/common/ImportExport.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <maths/time_series/CAdaptiveBucketing.h>
 #include <maths/time_series/CSeasonalTime.h>
@@ -42,7 +43,8 @@ namespace time_series {
 //!
 //! DESCRIPTION:\n
 //! See CAdaptiveBucketing for details.
-class MATHS_EXPORT CSeasonalComponentAdaptiveBucketing final : public CAdaptiveBucketing {
+class MATHS_TIME_SERIES_EXPORT CSeasonalComponentAdaptiveBucketing final
+    : public CAdaptiveBucketing {
 public:
     using CAdaptiveBucketing::TFloatMeanAccumulatorVec;
     using TDoubleRegression = common::CLeastSquaresOnlineRegression<1, double>;

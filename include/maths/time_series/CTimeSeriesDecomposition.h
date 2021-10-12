@@ -13,10 +13,10 @@
 #define INCLUDED_ml_maths_time_series_CTimeSeriesDecomposition_h
 
 #include <maths/common/Constants.h>
-#include <maths/common/ImportExport.h>
 
 #include <maths/time_series/CTimeSeriesDecompositionDetail.h>
 #include <maths/time_series/CTimeSeriesDecompositionInterface.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <memory>
 
@@ -55,7 +55,7 @@ namespace time_series {
 //! The main functionality it provides are to predict the value and variance at
 //! a specified time, value and scale, to remove its prediction from a sample of
 //! the time series, see detrend, and forecasting, see forecast.
-class MATHS_EXPORT EMPTY_BASE_OPT CTimeSeriesDecomposition
+class MATHS_TIME_SERIES_EXPORT EMPTY_BASE_OPT CTimeSeriesDecomposition
     : public CTimeSeriesDecompositionInterface,
       private CTimeSeriesDecompositionDetail {
 public:

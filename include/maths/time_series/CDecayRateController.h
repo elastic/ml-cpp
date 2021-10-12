@@ -17,7 +17,8 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CPRNG.h>
-#include <maths/common/ImportExport.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <array>
 #include <cstdint>
@@ -47,7 +48,7 @@ namespace time_series {
 //! and prediction error is large compared to the long term prediction
 //! error then the system has recently undergone some state change and
 //! we should re-learn the model parameters as fast as possible.
-class MATHS_EXPORT CDecayRateController {
+class MATHS_TIME_SERIES_EXPORT CDecayRateController {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;

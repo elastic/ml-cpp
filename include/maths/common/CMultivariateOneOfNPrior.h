@@ -56,7 +56,7 @@ struct SDistributionRestoreParams;
 //! hierarchy can be mixed in. All component models are owned by the object
 //! (it wouldn't make sense to share them) so this also defines the necessary
 //! functions to support value semantics and manage the heap.
-class MATHS_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior {
+class MATHS_COMMON_EXPORT CMultivariateOneOfNPrior : public CMultivariatePrior {
 public:
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TPriorPtrVec = std::vector<TPriorPtr>;

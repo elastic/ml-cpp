@@ -26,7 +26,7 @@ namespace ml {
 namespace maths {
 namespace common {
 //! \brief A cluster's count and variance.
-struct MATHS_EXPORT SCountAndVariance {
+struct MATHS_COMMON_EXPORT SCountAndVariance {
     SCountAndVariance(double count = 0.0, double variance = 0.0)
         : s_Count(count), s_Variance(variance) {}
 

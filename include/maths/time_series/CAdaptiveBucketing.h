@@ -17,7 +17,8 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CSpline.h>
-#include <maths/common/ImportExport.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <cstddef>
 #include <vector>
@@ -70,7 +71,7 @@ namespace time_series {
 //! "function range" is equal in all buckets.
 //!
 //! The bucketing is aged by relaxing it back towards uniform.
-class MATHS_EXPORT CAdaptiveBucketing {
+class MATHS_TIME_SERIES_EXPORT CAdaptiveBucketing {
 public:
     using TDoubleVec = std::vector<double>;
     using TFloatVec = std::vector<common::CFloatStorage>;

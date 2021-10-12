@@ -39,7 +39,7 @@ class CPrior;
 //! This exists to support a one-of-n prior distribution which comprises
 //! a weighted selection of basic likelihood functions and is implemented
 //! using the composite pattern.
-class MATHS_EXPORT CMultivariatePrior {
+class MATHS_COMMON_EXPORT CMultivariatePrior {
 public:
     using TDouble10Vec = core::CSmallVector<double, 10>;
     using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;

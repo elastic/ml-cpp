@@ -20,6 +20,7 @@
 #include <maths/analytics/CBoostedTreeHyperparameters.h>
 #include <maths/analytics/CBoostedTreeLeafNodeStatisticsThreading.h>
 #include <maths/analytics/CBoostedTreeUtils.h>
+#include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CChecksum.h>
@@ -27,7 +28,6 @@
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/COrderings.h>
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
 #include <boost/operators.hpp>
@@ -60,7 +60,7 @@ class CEncodedDataFrameRowRef;
 //! data frame. This means we only need to lookup aggregate derivative bucket to
 //! update in CBoostedTreeLeafNodeStatistics::addRowDerivatives. This manages
 //! reading and writing bits to an array of four std::uint8_t types.
-class MATHS_EXPORT CPackedUInt8Decorator : public core::CFloatStorage {
+class MATHS_ANALYTICS_EXPORT CPackedUInt8Decorator : public core::CFloatStorage {
 public:
     using TUInt8Ary = std::array<std::uint8_t, sizeof(common::CFloatStorage)>;
 
@@ -84,7 +84,7 @@ public:
 //! The regression tree is grown top down by greedily selecting the split with
 //! the maximum gain (in the loss). This finds and scores the maximum gain split
 //! of a single leaf of the tree.
-class MATHS_EXPORT CBoostedTreeLeafNodeStatistics final {
+class MATHS_ANALYTICS_EXPORT CBoostedTreeLeafNodeStatistics final {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
@@ -103,7 +103,7 @@ public:
     using TThreading = CBoostedTreeLeafNodeStatisticsThreading;
 
     //! \brief Accumulates aggregate derivatives.
-    class MATHS_EXPORT CDerivatives {
+    class MATHS_ANALYTICS_EXPORT CDerivatives {
     public:
         //! Bounds the minimum diagonal of the Hessian.
         static constexpr double SMALLEST_RELATIVE_CURVATURE{1e-20};
@@ -211,7 +211,7 @@ public:
     };
 
     //! \brief A collection of aggregate derivatives for candidate feature splits.
-    class MATHS_EXPORT CSplitsDerivatives {
+    class MATHS_ANALYTICS_EXPORT CSplitsDerivatives {
     public:
         using TDerivativesVec = std::vector<CDerivatives>;
         using TLoopBodyVec = std::vector<std::function<void(std::size_t)>>;
@@ -573,7 +573,7 @@ public:
     //! times they need to be allocated. This has the added advantage of keeping
     //! the cache warm since the critical path is always working on the derivatives
     //! objects stored in this class.
-    class MATHS_EXPORT CWorkspace {
+    class MATHS_ANALYTICS_EXPORT CWorkspace {
     public:
         using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
         using TSplitsDerivativesVec = std::vector<CSplitsDerivatives>;
@@ -772,7 +772,7 @@ private:
     using TFeatureBestSplitSearch = std::function<void(std::size_t)>;
 
     //! \brief Statistics relating to a split of the node.
-    struct MATHS_EXPORT SSplitStatistics
+    struct MATHS_ANALYTICS_EXPORT SSplitStatistics
         : private boost::less_than_comparable<SSplitStatistics> {
         SSplitStatistics() = default;
         SSplitStatistics(double gain,
@@ -814,7 +814,7 @@ private:
     };
 
     //! \brief Statistics used to compute the gain bound.
-    struct MATHS_EXPORT SChildrenGainStatistics {
+    struct MATHS_ANALYTICS_EXPORT SChildrenGainStatistics {
         double s_MinLossLeft = -boosted_tree_detail::INF;
         double s_MinLossRight = -boosted_tree_detail::INF;
         double s_GLeft = -boosted_tree_detail::INF;

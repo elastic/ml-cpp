@@ -9,8 +9,8 @@
  * limitation.
  */
 
-#ifndef INCLUDE_ml_maths_CTimeSeriesSegmentation_h
-#define INCLUDE_ml_maths_CTimeSeriesSegmentation_h
+#ifndef INCLUDE_ml_maths_time_series_CTimeSeriesSegmentation_h
+#define INCLUDE_ml_maths_time_series_CTimeSeriesSegmentation_h
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>
@@ -18,6 +18,7 @@
 #include <maths/common/MathsTypes.h>
 
 #include <maths/time_series/CSignal.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <limits>
 #include <vector>
@@ -27,7 +28,7 @@ namespace maths {
 namespace time_series {
 
 //! \brief Utility functionality to perform segmentation of a time series.
-class MATHS_EXPORT CTimeSeriesSegmentation {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesSegmentation {
 public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
@@ -360,4 +361,4 @@ private:
 }
 }
 
-#endif // INCLUDE_ml_maths_CTimeSeriesSegmentation_h
+#endif // INCLUDE_ml_maths_time_series_CTimeSeriesSegmentation_h

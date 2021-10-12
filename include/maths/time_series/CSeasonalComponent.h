@@ -16,10 +16,10 @@
 #include <core/CoreTypes.h>
 
 #include <maths/common/CPRNG.h>
-#include <maths/common/ImportExport.h>
 
 #include <maths/time_series/CDecompositionComponent.h>
 #include <maths/time_series/CSeasonalComponentAdaptiveBucketing.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <cstddef>
 #include <string>
@@ -49,7 +49,7 @@ namespace time_series {
 //!
 //! The bucketing is aged by relaxing it back towards uniform and aging the counts of the
 //! mean value for each bucket as usual.
-class MATHS_EXPORT CSeasonalComponent : private CDecompositionComponent {
+class MATHS_TIME_SERIES_EXPORT CSeasonalComponent : private CDecompositionComponent {
 public:
     using TMatrix = common::CSymmetricMatrixNxN<double, 2>;
     using TFloatMeanAccumulator =

@@ -52,7 +52,7 @@ namespace common {
 //! by composite priors. This allows us to select the most appropriate model for
 //! the data when using one-of-n composition (see COneOfNPrior). From a design
 //! point of view this is the composite pattern.
-class MATHS_EXPORT CMultimodalPrior : public CPrior {
+class MATHS_COMMON_EXPORT CMultimodalPrior : public CPrior {
 public:
     using TClustererPtr = std::unique_ptr<CClusterer1d>;
     using TPriorPtr = std::unique_ptr<CPrior>;
@@ -303,7 +303,7 @@ public:
 
 private:
     //! The callback invoked when a mode is split.
-    class MATHS_EXPORT CModeSplitCallback {
+    class MATHS_COMMON_EXPORT CModeSplitCallback {
     public:
         CModeSplitCallback(CMultimodalPrior& prior);
         void operator()(std::size_t sourceIndex,
@@ -315,7 +315,7 @@ private:
     };
 
     //! The callback invoked when two modes are merged.
-    class MATHS_EXPORT CModeMergeCallback {
+    class MATHS_COMMON_EXPORT CModeMergeCallback {
     public:
         CModeMergeCallback(CMultimodalPrior& prior);
         void operator()(std::size_t leftMergeIndex,

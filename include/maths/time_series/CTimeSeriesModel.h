@@ -9,13 +9,14 @@
  * limitation.
  */
 
-#ifndef INCLUDE_ml_maths_CTimeSeriesModel_h
-#define INCLUDE_ml_maths_CTimeSeriesModel_h
+#ifndef INCLUDE_ml_maths_time_series_CTimeSeriesModel_h
+#define INCLUDE_ml_maths_time_series_CTimeSeriesModel_h
 
 #include <maths/common/CKMostCorrelated.h>
 #include <maths/common/CModel.h>
 #include <maths/common/CMultivariatePrior.h>
-#include <maths/common/ImportExport.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <boost/array.hpp>
 #include <boost/circular_buffer.hpp>
@@ -39,7 +40,7 @@ template<typename>
 class CTimeSeriesMultibucketFeature;
 
 //! \brief A CModel implementation for modeling a univariate time series.
-class MATHS_EXPORT CUnivariateTimeSeriesModel : public common::CModel {
+class MATHS_TIME_SERIES_EXPORT CUnivariateTimeSeriesModel : public common::CModel {
 public:
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
@@ -309,7 +310,7 @@ private:
 };
 
 //! \brief Manages the creation correlate models.
-class MATHS_EXPORT CTimeSeriesCorrelateModelAllocator {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesCorrelateModelAllocator {
 public:
     using TMultivariatePriorPtr = std::unique_ptr<common::CMultivariatePrior>;
 
@@ -347,7 +348,7 @@ public:
 //! The user of this class simply needs to pass it to CUnivariateTimeSeriesModel on
 //! construction and manage the calls to update it after a batch of samples has been
 //! added and to refresh it before a batch of samples is added to the individual models.
-class MATHS_EXPORT CTimeSeriesCorrelations {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesCorrelations {
 public:
     using TTime1Vec = core::CSmallVector<core_t::TTime, 1>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -368,7 +369,7 @@ public:
         core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
 
     //! \brief Wraps up the sampled data for a feature.
-    struct MATHS_EXPORT SSampleData {
+    struct MATHS_TIME_SERIES_EXPORT SSampleData {
         //! The data type.
         maths_t::EDataType s_Type;
         //! The times of the samples.
@@ -515,7 +516,7 @@ private:
 };
 
 //! \brief A CModel implementation for modeling a multivariate time series.
-class MATHS_EXPORT CMultivariateTimeSeriesModel : public common::CModel {
+class MATHS_TIME_SERIES_EXPORT CMultivariateTimeSeriesModel : public common::CModel {
 public:
     using TDouble10Vec = core::CSmallVector<double, 10>;
     using TDouble10Vec1Vec = core::CSmallVector<TDouble10Vec, 1>;
@@ -752,4 +753,4 @@ private:
 }
 }
 
-#endif // INCLUDE_ml_maths_CTimeSeriesModel_h
+#endif // INCLUDE_ml_maths_time_series_CTimeSeriesModel_h

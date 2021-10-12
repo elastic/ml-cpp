@@ -13,9 +13,9 @@
 #define INCLUDED_ml_maths_analytics_CTreeShapFeatureImportance_h
 
 #include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CLinearAlgebraEigen.h>
-#include <maths/common/ImportExport.h>
 
 #include <vector>
 
@@ -34,7 +34,7 @@ namespace analytics {
 //! algorithm "Consistent Individualized Feature Attribution for Tree Ensembles" by  Lundberg, Erion, and Lee.
 //! The algorithm has the complexity O(TLD^2) where T is the number of trees, L is the maximum number of leaves in the
 //! tree, and D is the maximum depth of a tree in the ensemble.
-class MATHS_EXPORT CTreeShapFeatureImportance {
+class MATHS_ANALYTICS_EXPORT CTreeShapFeatureImportance {
 public:
     using TIntVec = std::vector<int>;
     using TDoubleVec = std::vector<double>;

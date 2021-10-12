@@ -45,7 +45,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TFloatUInt32Pr = std::pair<common::CFloatStorage, std::uint32_t>;
 
 //! \brief Used to keep track of continguous points after spreading.
-class MATHS_EXPORT CContinugousPoints {
+class MATHS_TIME_SERIES_EXPORT CContinugousPoints {
 public:
     using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 

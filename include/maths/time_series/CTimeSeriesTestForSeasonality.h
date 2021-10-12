@@ -20,7 +20,8 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CFuzzyLogic.h>
 #include <maths/common/CLinearAlgebra.h>
-#include <maths/common/ImportExport.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <maths/time_series/CSignal.h>
 #include <maths/time_series/CTimeSeriesSegmentation.h>
@@ -44,7 +45,7 @@ namespace time_series {
 class CSeasonalTime;
 
 //! \brief A summary of the trend on the test window.
-class MATHS_EXPORT CNewTrendSummary final {
+class MATHS_TIME_SERIES_EXPORT CNewTrendSummary final {
 public:
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
@@ -74,7 +75,7 @@ private:
 };
 
 //! \brief A summary of a new seasonal component.
-class MATHS_EXPORT CNewSeasonalComponentSummary {
+class MATHS_TIME_SERIES_EXPORT CNewSeasonalComponentSummary {
 public:
     using TOptionalTime = boost::optional<core_t::TTime>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
@@ -139,7 +140,7 @@ private:
 
 //! \brief Represents the decomposition of a collection of values into zero or more
 //! seasonal components.
-class MATHS_EXPORT CSeasonalDecomposition {
+class MATHS_TIME_SERIES_EXPORT CSeasonalDecomposition {
 public:
     using TBoolVec = std::vector<bool>;
     using TOptionalTime = boost::optional<core_t::TTime>;
@@ -201,7 +202,7 @@ private:
 
 //! \brief Discovers the seasonal components present in the values in a time window
 //! of a discrete time series.
-class MATHS_EXPORT CTimeSeriesTestForSeasonality {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesTestForSeasonality {
 public:
     using TBoolVec = std::vector<bool>;
     using TPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;

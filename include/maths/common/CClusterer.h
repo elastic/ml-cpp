@@ -37,7 +37,7 @@ namespace maths {
 namespace common {
 //! \brief Factors out the non-template part of CClusterer for improved
 //! compile times.
-class MATHS_EXPORT CClustererTypes {
+class MATHS_COMMON_EXPORT CClustererTypes {
 public:
     //! A no-op to provide a default for the split and merge callbacks.
     class CDoNothing {
@@ -52,7 +52,7 @@ public:
     using TMergeFunc = std::function<void(std::size_t, std::size_t, std::size_t)>;
 
     //! Generates unique cluster indices.
-    class MATHS_EXPORT CIndexGenerator {
+    class MATHS_COMMON_EXPORT CIndexGenerator {
     public:
         //! Create a new  generator.
         CIndexGenerator();

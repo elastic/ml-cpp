@@ -14,8 +14,9 @@
 
 #include <core/CDataFrame.h>
 
+#include <maths/analytics/ImportExport.h>
+
 #include <maths/common/CLinearAlgebraEigen.h>
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
 #include <cmath>
@@ -95,7 +96,7 @@ inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
 }
 
 //! Zero the prediction of \p row.
-MATHS_EXPORT
+MATHS_ANALYTICS_EXPORT
 void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
 
 //! Read all the loss derivatives from \p row into an aligned vector.
@@ -107,11 +108,11 @@ readLossDerivatives(const TRowRef& row, const TSizeVec& extraColumns, std::size_
 }
 
 //! Zero the loss gradient of \p row.
-MATHS_EXPORT
+MATHS_ANALYTICS_EXPORT
 void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
 
 //! Write the loss gradient to \p row.
-MATHS_EXPORT
+MATHS_ANALYTICS_EXPORT
 void writeLossGradient(const TRowRef& row,
                        const TSizeVec& extraColumns,
                        const boosted_tree::CLoss& loss,
@@ -128,11 +129,11 @@ inline TMemoryMappedFloatVector readLossCurvature(const TRowRef& row,
 }
 
 //! Zero the loss Hessian of \p row.
-MATHS_EXPORT
+MATHS_ANALYTICS_EXPORT
 void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
 
 //! Write the loss Hessian to \p row.
-MATHS_EXPORT
+MATHS_ANALYTICS_EXPORT
 void writeLossCurvature(const TRowRef& row,
                         const TSizeVec& extraColumns,
                         const boosted_tree::CLoss& curvature,

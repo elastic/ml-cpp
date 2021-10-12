@@ -48,7 +48,7 @@ struct SDistributionRestoreParams;
 //! The field names given to each prior distribution class are deliberately
 //! terse and uninformative to avoid giving away details of our analytics
 //! to potential competitors.
-class MATHS_EXPORT CClustererStateSerialiser {
+class MATHS_COMMON_EXPORT CClustererStateSerialiser {
 public:
     using TClusterer1dPtr = std::unique_ptr<CClusterer1d>;
 

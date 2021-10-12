@@ -15,8 +15,9 @@
 #include <core/CNonInstantiatable.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
+
+#include <maths/time_series/ImportExport.h>
 
 #include <memory>
 
@@ -45,7 +46,7 @@ class CTimeSeriesDecompositionInterface;
 //! name/value pairs where the value may be a nested set of name/value
 //! pairs. Text format makes it easier to provide backwards/forwards
 //! compatibility in the future as the classes evolve.
-class MATHS_EXPORT CTimeSeriesDecompositionStateSerialiser {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionStateSerialiser {
 public:
     using TDecompositionUPtr = std::unique_ptr<CTimeSeriesDecompositionInterface>;
     using TDecompositionSPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;

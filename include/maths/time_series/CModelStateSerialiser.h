@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_maths_time_series_CModelStateSerialiser_h
 #define INCLUDED_ml_maths_time_series_CModelStateSerialiser_h
 
-#include <maths/common/ImportExport.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <memory>
 
@@ -40,7 +40,7 @@ namespace time_series {
 //! name/value pairs where the value may be a nested set of name/value
 //! pairs. Text format is used to make it easier to provide backwards
 //! compatibility in the future as the classes evolve.
-class MATHS_EXPORT CModelStateSerialiser {
+class MATHS_TIME_SERIES_EXPORT CModelStateSerialiser {
 public:
     using TModelPtr = std::unique_ptr<common::CModel>;
 

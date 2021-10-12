@@ -12,6 +12,8 @@
 #ifndef INCLUDED_ml_maths_analytics_CBoostedTreeHyperparameters_h
 #define INCLUDED_ml_maths_analytics_CBoostedTreeHyperparameters_h
 
+#include <maths/analytics/ImportExport.h>
+
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -179,7 +181,7 @@ const std::string CBoostedTreeRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_
     "regularization_soft_tree_depth_tolerance"};
 
 //! \brief The algorithm parameters we'll directly optimise to improve test error.
-class MATHS_EXPORT CBoostedTreeHyperparameters {
+class MATHS_ANALYTICS_EXPORT CBoostedTreeHyperparameters {
 public:
     using TRegularization = CBoostedTreeRegularization<double>;
 

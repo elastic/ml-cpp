@@ -16,8 +16,8 @@
 #include <core/CPackedBitVector.h>
 
 #include <maths/analytics/CDataFrameUtils.h>
+#include <maths/analytics/ImportExport.h>
 
-#include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
 
 #include <boost/optional.hpp>
@@ -44,7 +44,7 @@ class CDataFrameCategoryEncoder;
 //! target variable value for other categories and so on. The intention is it provides
 //! a drop in replacement for core::CDataFrame::TRowRef when a data frame contains
 //! categorical columns.
-class MATHS_EXPORT CEncodedDataFrameRowRef final {
+class MATHS_ANALYTICS_EXPORT CEncodedDataFrameRowRef final {
 public:
     using TRowRef = core::CDataFrame::TRowRef;
 
@@ -102,14 +102,14 @@ enum EEncoding {
 //! metric features to use by minimising a MICe based measure of their relevency for
 //! prediction and redundancy. The total number of features we select is based on the
 //! quantity of training data.
-class MATHS_EXPORT CDataFrameCategoryEncoder final {
+class MATHS_ANALYTICS_EXPORT CDataFrameCategoryEncoder final {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TRowRef = core::CDataFrame::TRowRef;
 
     //! \brief Base type of category encodings.
-    class MATHS_EXPORT CEncoding {
+    class MATHS_ANALYTICS_EXPORT CEncoding {
     public:
         CEncoding(std::size_t inputColumnIndex, double mic);
         virtual ~CEncoding() = default;
@@ -151,7 +151,7 @@ public:
     using TEncodingUPtrVec = std::vector<TEncodingUPtr>;
 
     //! \brief Returns the supplied value.
-    class MATHS_EXPORT CIdentityEncoding final : public CEncoding {
+    class MATHS_ANALYTICS_EXPORT CIdentityEncoding final : public CEncoding {
     public:
         CIdentityEncoding(std::size_t inputColumnIndex, double mic);
         EEncoding type() const override;
@@ -166,7 +166,7 @@ public:
     };
 
     //! \brief One-hot encoding.
-    class MATHS_EXPORT COneHotEncoding final : public CEncoding {
+    class MATHS_ANALYTICS_EXPORT COneHotEncoding final : public CEncoding {
     public:
         COneHotEncoding(std::size_t inputColumnIndex, double mic, std::size_t hotCategory);
         EEncoding type() const override;
@@ -185,7 +185,7 @@ public:
     };
 
     //! \brief Looks up the encoding in a map.
-    class MATHS_EXPORT CMappedEncoding final : public CEncoding {
+    class MATHS_ANALYTICS_EXPORT CMappedEncoding final : public CEncoding {
     public:
         CMappedEncoding(std::size_t inputColumnIndex,
                         double mic,
@@ -212,7 +212,7 @@ public:
     };
 
     //! \brief Visits each encoding type.
-    class MATHS_EXPORT CVisitor {
+    class MATHS_ANALYTICS_EXPORT CVisitor {
     public:
         virtual ~CVisitor() = default;
         virtual void addIdentityEncoding(std::size_t inputColumnIndex) = 0;
@@ -280,7 +280,7 @@ private:
 };
 
 //! \brief Implements the named parameter idiom for CDataFrameCategoryEncoder.
-class MATHS_EXPORT CMakeDataFrameCategoryEncoder {
+class MATHS_ANALYTICS_EXPORT CMakeDataFrameCategoryEncoder {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;

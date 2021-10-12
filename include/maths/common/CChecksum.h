@@ -363,7 +363,7 @@ std::uint64_t checksum(std::uint64_t seed, const T& target) {
 //! \brief Implementation of utility functionality for creating
 //! object checksums which are stable over model state persistence
 //! and restoration.
-class MATHS_EXPORT CChecksum {
+class MATHS_COMMON_EXPORT CChecksum {
 public:
     //! The basic checksum implementation.
     template<typename T>

@@ -61,7 +61,7 @@ using TMode = SMultimodalPriorMode<TPriorPtr>;
 using TModeVec = std::vector<TMode>;
 
 //! Implementation of a sample joint log marginal likelihood calculation.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 maths_t::EFloatingPointErrorStatus
 jointLogMarginalLikelihood(const TModeVec& modes,
                            const TDouble10Vec1Vec& sample,
@@ -70,17 +70,17 @@ jointLogMarginalLikelihood(const TModeVec& modes,
                            double& result);
 
 //! Implementation of marginal likelihood sample.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 void sampleMarginalLikelihood(const TModeVec& modes,
                               std::size_t numberSamples,
                               TDouble10Vec1Vec& samples);
 
 //! Implementation of mode printing.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 void print(const TModeVec& modes, const std::string& separator, std::string& result);
 
 //! Implementation of mode merge callback.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 void modeMergeCallback(std::size_t dimension,
                        TModeVec& modes,
                        const TPriorPtr& seedPrior,
@@ -90,7 +90,7 @@ void modeMergeCallback(std::size_t dimension,
                        std::size_t targetIndex);
 
 //! Implementation of a full debug dump of the mode weights.
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 std::string debugWeights(const TModeVec& modes);
 
 } // multivariate_multimodal_prior_detail::

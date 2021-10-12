@@ -29,20 +29,20 @@ namespace common {
 //!
 //! DESCRIPTION\n
 //! \see https://en.wikipedia.org/wiki/Gradient_descent.
-class MATHS_EXPORT CGradientDescent {
+class MATHS_COMMON_EXPORT CGradientDescent {
 public:
     using TDoubleVec = std::vector<double>;
     using TVector = CVector<double>;
 
     //! \brief The interface for the function calculation.
-    class MATHS_EXPORT CFunction {
+    class MATHS_COMMON_EXPORT CFunction {
     public:
         virtual ~CFunction() = default;
         virtual bool operator()(const TVector& x, double& result) const = 0;
     };
 
     //! \brief The interface for the gradient calculation.
-    class MATHS_EXPORT CGradient {
+    class MATHS_COMMON_EXPORT CGradient {
     public:
         virtual ~CGradient() = default;
         virtual bool operator()(const TVector& x, TVector& result) const = 0;
@@ -53,7 +53,8 @@ public:
     //!
     //! DESCRIPTION:\n
     //! \see https://en.wikipedia.org/wiki/Finite_difference.
-    class MATHS_EXPORT CEmpiricalCentralGradient : public CGradient, private core::CNonCopyable {
+    class MATHS_COMMON_EXPORT CEmpiricalCentralGradient : public CGradient,
+                                                          private core::CNonCopyable {
     public:
         CEmpiricalCentralGradient(const CFunction& f, double eps);
 

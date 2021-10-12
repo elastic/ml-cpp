@@ -16,8 +16,6 @@
 #include <core/CStateMachine.h>
 #include <core/CoreTypes.h>
 
-#include <maths/common/ImportExport.h>
-
 #include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CCalendarCyclicTest.h>
 #include <maths/time_series/CExpandingWindow.h>
@@ -27,6 +25,7 @@
 #include <maths/time_series/CTimeSeriesTestForChange.h>
 #include <maths/time_series/CTimeSeriesTestForSeasonality.h>
 #include <maths/time_series/CTrendComponent.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <boost/circular_buffer.hpp>
 
@@ -48,7 +47,8 @@ class CExpandingWindow;
 class CTimeSeriesDecomposition;
 
 //! \brief Utilities for computing the decomposition.
-class MATHS_EXPORT CTimeSeriesDecompositionDetail : private CTimeSeriesDecompositionTypes {
+class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionDetail
+    : private CTimeSeriesDecompositionTypes {
 public:
     using TDoubleVec = std::vector<double>;
     using TMakePredictor = std::function<TPredictor()>;
@@ -65,7 +65,7 @@ public:
     class CMediator;
 
     //! \brief The base message passed.
-    struct MATHS_EXPORT SMessage {
+    struct MATHS_TIME_SERIES_EXPORT SMessage {
         SMessage(core_t::TTime time, core_t::TTime lastTime);
 
         //! The message time.
@@ -75,7 +75,7 @@ public:
     };
 
     //! \brief The message passed to add a point.
-    struct MATHS_EXPORT SAddValue : public SMessage {
+    struct MATHS_TIME_SERIES_EXPORT SAddValue : public SMessage {
         SAddValue(core_t::TTime time,
                   core_t::TTime lastTime,
                   core_t::TTime timeShift,
@@ -116,7 +116,7 @@ public:
 
     //! \brief The message passed to indicate periodic components have been
     //! detected.
-    struct MATHS_EXPORT SDetectedSeasonal : public SMessage {
+    struct MATHS_TIME_SERIES_EXPORT SDetectedSeasonal : public SMessage {
         SDetectedSeasonal(core_t::TTime time, core_t::TTime lastTime, CSeasonalDecomposition components);
 
         //! The components found.
@@ -125,7 +125,7 @@ public:
 
     //! \brief The message passed to indicate calendar components have been
     //! detected.
-    struct MATHS_EXPORT SDetectedCalendar : public SMessage {
+    struct MATHS_TIME_SERIES_EXPORT SDetectedCalendar : public SMessage {
         SDetectedCalendar(core_t::TTime time, core_t::TTime lastTime, CCalendarFeature feature);
 
         //! The calendar feature found.
@@ -133,7 +133,7 @@ public:
     };
 
     //! \brief The message passed to indicate the trend is being used for prediction.
-    struct MATHS_EXPORT SDetectedTrend : public SMessage {
+    struct MATHS_TIME_SERIES_EXPORT SDetectedTrend : public SMessage {
         SDetectedTrend(const TPredictor& predictor,
                        const TComponentChangeCallback& componentChangeCallback);
 
@@ -142,7 +142,7 @@ public:
     };
 
     //! \brief The message passed to indicate a sudden change has occurred.
-    struct MATHS_EXPORT SDetectedChangePoint : public SMessage {
+    struct MATHS_TIME_SERIES_EXPORT SDetectedChangePoint : public SMessage {
         SDetectedChangePoint(core_t::TTime time, core_t::TTime lastTime, TChangePointUPtr change);
 
         //! The change description.
@@ -151,7 +151,7 @@ public:
 
     //! \brief The basic interface for one aspect of the modeling of a time
     //! series decomposition.
-    class MATHS_EXPORT CHandler {
+    class MATHS_TIME_SERIES_EXPORT CHandler {
     public:
         CHandler() = default;
         virtual ~CHandler() = default;
@@ -185,7 +185,7 @@ public:
     };
 
     //! \brief Manages communication between handlers.
-    class MATHS_EXPORT CMediator {
+    class MATHS_TIME_SERIES_EXPORT CMediator {
     public:
         CMediator() = default;
         CMediator(const CMediator&) = delete;
@@ -214,7 +214,7 @@ public:
     };
 
     //! \brief Checks for sudden change or change events.
-    class MATHS_EXPORT CChangePointTest : public CHandler {
+    class MATHS_TIME_SERIES_EXPORT CChangePointTest : public CHandler {
     public:
         static constexpr double CHANGE_COUNT_WEIGHT = 0.1;
         static constexpr core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH = core::constants::HOUR;
@@ -354,7 +354,7 @@ public:
 
     //! \brief Scans through increasingly low frequencies looking for significant
     //! seasonal components.
-    class MATHS_EXPORT CSeasonalityTest : public CHandler {
+    class MATHS_TIME_SERIES_EXPORT CSeasonalityTest : public CHandler {
     public:
         //! Test types (categorised as short and long period tests).
         enum ETest { E_Short, E_Long };
@@ -434,7 +434,7 @@ public:
 
     //! \brief Tests for cyclic calendar components explaining large prediction
     //! errors.
-    class MATHS_EXPORT CCalendarTest : public CHandler {
+    class MATHS_TIME_SERIES_EXPORT CCalendarTest : public CHandler {
     public:
         CCalendarTest(double decayRate, core_t::TTime bucketLength);
         CCalendarTest(const CCalendarTest& other, bool isForForecast = false);
@@ -503,7 +503,7 @@ public:
     };
 
     //! \brief Holds and updates the components of the decomposition.
-    class MATHS_EXPORT CComponents : public CHandler {
+    class MATHS_TIME_SERIES_EXPORT CComponents : public CHandler {
     public:
         class CScopeAttachComponentChangeCallback {
         public:
@@ -621,7 +621,7 @@ public:
         //! This object therefore monitors the sum of the absolute component
         //! amplitudes and decreases the gain when it detects that this is
         //! significantly increasing.
-        class MATHS_EXPORT CGainController {
+        class MATHS_TIME_SERIES_EXPORT CGainController {
         public:
             //! Initialize by reading state from \p traverser.
             bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -669,7 +669,7 @@ public:
         //! This tracks the prediction errors with and without seasonal and
         //! calendar periodic components and tests to see if including the
         //! component is worthwhile.
-        class MATHS_EXPORT CComponentErrors {
+        class MATHS_TIME_SERIES_EXPORT CComponentErrors {
         public:
             //! Initialize from a delimited string.
             bool fromDelimited(const std::string& str);
@@ -730,7 +730,7 @@ public:
         using TComponentErrorsPtrVec = std::vector<CComponentErrors*>;
 
         //! \brief The seasonal components of the decomposition.
-        class MATHS_EXPORT CSeasonal {
+        class MATHS_TIME_SERIES_EXPORT CSeasonal {
         public:
             //! Initialize by reading state from \p traverser.
             bool acceptRestoreTraverser(double decayRate,
@@ -827,7 +827,7 @@ public:
         using TSeasonalPtr = std::unique_ptr<CSeasonal>;
 
         //! \brief Calendar periodic components of the decomposition.
-        class MATHS_EXPORT CCalendar {
+        class MATHS_TIME_SERIES_EXPORT CCalendar {
         public:
             //! Initialize by reading state from \p traverser.
             bool acceptRestoreTraverser(double decayRate,

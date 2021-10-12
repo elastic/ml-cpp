@@ -100,7 +100,7 @@ struct SDistributionRestoreParams;
 //! interface to this class is double precision. If floats are used
 //! they should be used for storage only and transparent to the rest
 //! of the code base.
-class MATHS_EXPORT CNaturalBreaksClassifier {
+class MATHS_COMMON_EXPORT CNaturalBreaksClassifier {
 public:
     using TSizeVec = std::vector<std::size_t>;
     using TDoubleVec = std::vector<double>;

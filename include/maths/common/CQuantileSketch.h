@@ -49,7 +49,7 @@ namespace common {
 //! which are available for the q-digest, so if you know the range of the
 //! variable up front, that is a safer choice for approximate quantile
 //! estimation.
-class MATHS_EXPORT CQuantileSketch : private boost::addable<CQuantileSketch> {
+class MATHS_COMMON_EXPORT CQuantileSketch : private boost::addable<CQuantileSketch> {
 public:
     using TFloatFloatPr = std::pair<CFloatStorage, CFloatStorage>;
     using TFloatFloatPrVec = std::vector<TFloatFloatPr>;
@@ -199,7 +199,7 @@ public:
 //! DESCRIPTION:\n
 //! This uses around 2.5x the memory than `CQuantileSketch` but updating is around 2.0x
 //! faster when using its default reduction factor.
-class MATHS_EXPORT CFastQuantileSketch final : public CQuantileSketch {
+class MATHS_COMMON_EXPORT CFastQuantileSketch final : public CQuantileSketch {
 public:
     CFastQuantileSketch(EInterpolation interpolation,
                         std::size_t size,

@@ -229,7 +229,7 @@ struct SFabs<MatrixTag> {
 };
 
 #define INVERSE_QUADRATIC_PRODUCT(T, N)                                        \
-    MATHS_EXPORT                                                               \
+    MATHS_COMMON_EXPORT                                                        \
     maths_t::EFloatingPointErrorStatus inverseQuadraticProduct(                \
         std::size_t d, const CSymmetricMatrixNxN<T, N>& covariance,            \
         const CVectorNx1<T, N>& residual, double& result, bool ignoreSingularSubspace)
@@ -242,14 +242,14 @@ INVERSE_QUADRATIC_PRODUCT(double, 3);
 INVERSE_QUADRATIC_PRODUCT(double, 4);
 INVERSE_QUADRATIC_PRODUCT(double, 5);
 #undef INVERSE_QUADRATIC_PRODUCT
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 maths_t::EFloatingPointErrorStatus
 inverseQuadraticProduct(std::size_t d,
                         const CSymmetricMatrix<CFloatStorage>& covariance,
                         const CVector<CFloatStorage>& residual,
                         double& result,
                         bool ignoreSingularSubspace);
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 maths_t::EFloatingPointErrorStatus
 inverseQuadraticProduct(std::size_t d,
                         const CSymmetricMatrix<double>& covariance,
@@ -258,7 +258,7 @@ inverseQuadraticProduct(std::size_t d,
                         bool ignoreSingularSubspace);
 
 #define GAUSSIAN_LOG_LIKELIHOOD(T, N)                                          \
-    MATHS_EXPORT                                                               \
+    MATHS_COMMON_EXPORT                                                        \
     maths_t::EFloatingPointErrorStatus gaussianLogLikelihood(                  \
         std::size_t d, const CSymmetricMatrixNxN<T, N>& covariance,            \
         const CVectorNx1<T, N>& residual, double& result, bool ignoreSingularSubspace)
@@ -271,14 +271,14 @@ GAUSSIAN_LOG_LIKELIHOOD(double, 3);
 GAUSSIAN_LOG_LIKELIHOOD(double, 4);
 GAUSSIAN_LOG_LIKELIHOOD(double, 5);
 #undef GAUSSIAN_LOG_LIKELIHOOD
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 maths_t::EFloatingPointErrorStatus
 gaussianLogLikelihood(std::size_t d,
                       const CSymmetricMatrix<CFloatStorage>& covariance,
                       const CVector<CFloatStorage>& residual,
                       double& result,
                       bool ignoreSingularSubspace);
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 maths_t::EFloatingPointErrorStatus
 gaussianLogLikelihood(std::size_t d,
                       const CSymmetricMatrix<double>& covariance,
@@ -288,7 +288,7 @@ gaussianLogLikelihood(std::size_t d,
 
 //! Shared implementation of Gaussian sampling.
 #define SAMPLE_GAUSSIAN(T, N)                                                  \
-    MATHS_EXPORT                                                               \
+    MATHS_COMMON_EXPORT                                                        \
     void sampleGaussian(std::size_t n, const CVectorNx1<T, N>& mean,           \
                         const CSymmetricMatrixNxN<T, N>& covariance,           \
                         std::vector<CVectorNx1<double, N>>& result)
@@ -301,12 +301,12 @@ SAMPLE_GAUSSIAN(double, 3);
 SAMPLE_GAUSSIAN(double, 4);
 SAMPLE_GAUSSIAN(double, 5);
 #undef SAMPLE_GAUSSIAN
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 void sampleGaussian(std::size_t n,
                     const CVector<CFloatStorage>& mean,
                     const CSymmetricMatrix<CFloatStorage>& covariance,
                     std::vector<CVector<double>>& result);
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 void sampleGaussian(std::size_t n,
                     const CVector<double>& mean,
                     const CSymmetricMatrix<double>& covariance,
@@ -314,7 +314,7 @@ void sampleGaussian(std::size_t n,
 
 //! Shared implementation of the log-determinant function.
 #define LOG_DETERMINANT(T, N)                                                  \
-    MATHS_EXPORT                                                               \
+    MATHS_COMMON_EXPORT                                                        \
     maths_t::EFloatingPointErrorStatus logDeterminant(                         \
         std::size_t d, const CSymmetricMatrixNxN<T, N>& matrix,                \
         double& result, bool ignoreSingularSubspace)
@@ -327,12 +327,12 @@ LOG_DETERMINANT(double, 3);
 LOG_DETERMINANT(double, 4);
 LOG_DETERMINANT(double, 5);
 #undef LOG_DETERMINANT
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
                                                   const CSymmetricMatrix<CFloatStorage>& matrix,
                                                   double& result,
                                                   bool ignoreSingularSubspace);
-MATHS_EXPORT
+MATHS_COMMON_EXPORT
 maths_t::EFloatingPointErrorStatus logDeterminant(std::size_t d,
                                                   const CSymmetricMatrix<double>& matrix,
                                                   double& result,

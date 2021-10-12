@@ -38,7 +38,7 @@ class CStateRestoreTraverser;
 namespace maths {
 namespace common {
 //! \brief Encodes the distributions available to model the modes.
-class MATHS_EXPORT CAvailableModeDistributions {
+class MATHS_COMMON_EXPORT CAvailableModeDistributions {
 public:
     static const int NORMAL = 1;
     static const int GAMMA = 2;
@@ -110,7 +110,7 @@ private:
 //! is expected to give largely order (of points processed) invariant
 //! unsupervised clustering of the data which identifies reasonably
 //! well separated clusters.
-class MATHS_EXPORT CXMeansOnline1d final : public CClusterer1d {
+class MATHS_COMMON_EXPORT CXMeansOnline1d final : public CClusterer1d {
 public:
     class CCluster;
     using TDoubleVec = CClusterer1d::TPointPreciseVec;
@@ -121,7 +121,7 @@ public:
     using CClusterer1d::add;
 
     //! \brief Represents a cluster.
-    class MATHS_EXPORT CCluster {
+    class MATHS_COMMON_EXPORT CCluster {
     public:
         explicit CCluster(const CXMeansOnline1d& clusterer);
 
