@@ -15,6 +15,7 @@
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
+#include <core/WindowsSafe.h>
 
 #include <maths/common/CChecksum.h>
 

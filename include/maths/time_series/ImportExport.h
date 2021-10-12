@@ -33,14 +33,10 @@
 #define MATHS_TIME_SERIES_EXPORT __declspec(dllimport)
 #endif
 
-//! See https://devblogs.microsoft.com/cppblog/optimizing-the-layout-of-empty-base-classes-in-vs2015-update-2-3/
-#define EMPTY_BASE_OPT __declspec(empty_bases)
-
 #else
 
 // Empty string on Unix
 #define MATHS_TIME_SERIES_EXPORT
-#define EMPTY_BASE_OPT
 
 #endif
 

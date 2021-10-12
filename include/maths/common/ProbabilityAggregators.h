@@ -13,6 +13,7 @@
 #define INCLUDED_ml_maths_common_ProbabilityAggregators_h
 
 #include <core/CoreTypes.h>
+#include <core/WindowsSafe.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/ImportExport.h>

@@ -16,6 +16,7 @@
 #include <core/CHashing.h>
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
+#include <core/WindowsSafe.h>
 
 #include <maths/common/CLinearAlgebraShims.h>
 #include <maths/common/CTypeTraits.h>
