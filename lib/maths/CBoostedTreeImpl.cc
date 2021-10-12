@@ -1058,8 +1058,8 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
     retrainedTrees.emplace_back();
     for (const auto& index : m_TreesToRetrain) {
 
-        LOG_TRACE(<< "Retraining ="
-                  << root(m_BestForest[index]).print(m_BestForest[index]));
+        LOG_TRACE(<< "Retraining(" << index
+                  << ") =" << root(m_BestForest[index]).print(m_BestForest[index]));
 
         const auto& treeToRetrain = m_BestForest[index];
         const auto& treeWhichWasRetrained = retrainedTrees.back();
@@ -1067,6 +1067,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         double eta{index < m_BestForest.size()
                        ? m_Hyperparameters.retrainedTreeEta().value()
                        : this->etaForTreeAtPosition(m_BestForest.size())};
+        LOG_TRACE(<< "eta = " << eta);
 
         workspace.retraining(treeToRetrain);
 
@@ -1098,6 +1099,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         this->computeLeafValues(frame, trainingRowMask, *loss, eta,
                                 m_Hyperparameters.leafWeightPenaltyMultiplier().value(),
                                 tree);
+        LOG_TRACE(<< "retrained = " << root(tree).print(tree));
 
         scopeMemoryUsage.add(tree);
         retrainedTrees.push_back(std::move(tree));

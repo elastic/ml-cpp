@@ -55,7 +55,7 @@ public:
     }
 
     //! Fix to \p value.
-    void fix(T value) {
+    void fixTo(T value) {
         m_Value = value;
         m_Fixed = true;
     }

@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeParameter) {
 
     BOOST_REQUIRE_EQUAL(10.0, parameter.value());
 
-    parameter.fix(12.0);
+    parameter.fixTo(12.0);
 
     BOOST_REQUIRE_EQUAL(12.0, parameter.value());
 
@@ -114,9 +114,33 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersAccessors) {
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisation) {
+
+    // Check that hyperparameter optimisation generates expected point sequences.
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
+
+    // Check that fixed parameters are not adjusted.
+
+    maths::CBoostedTreeHyperparameters hyperaparameters;
+
+    hyperaparameters.maximumOptimisationRoundsPerHyperparameter(2);
+
+    std::size_t numberToTune{hyperaparameters.numberToTune()};
+
+    hyperaparameters.treeSizePenaltyMultiplier().fixTo(10.0);
+
+    BOOST_REQUIRE_EQUAL(numberToTune - 1, hyperaparameters.numberToTune());
+
+    auto addInitialRange = [](maths::boosted_tree_detail::EHyperparameter,
+                              maths::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
+        bb.emplace_back(0.1, 1.0);
+    };
+
+    hyperaparameters.initializeSearch(addInitialRange);
+
+    BOOST_REQUIRE_EQUAL(2 * hyperaparameters.numberToTune(),
+                        hyperaparameters.numberRounds());
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOverrides) {
@@ -165,11 +189,10 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOptimisation) {
 
     maths::CBoostedTreeHyperparameters origHyperaparameters;
 
-    TAddInitialRangeFunc addInitialRange =
-        [](maths::boosted_tree_detail::EHyperparameter,
-           maths::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-            bb.emplace_back(0.1, 1.0);
-        };
+    auto addInitialRange = [](maths::boosted_tree_detail::EHyperparameter,
+                              maths::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
+        bb.emplace_back(0.1, 1.0);
+    };
     origHyperaparameters.initializeSearch(addInitialRange);
 
     origHyperaparameters.startSearch();

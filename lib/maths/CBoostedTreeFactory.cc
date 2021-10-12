@@ -655,8 +655,8 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
         this->initializeUnsetEta(frame);
     } else {
         skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
-            this->initializeUnsetTreeTopologyPenalty(frame);
             this->initializeUnsetRetrainedTreeEta();
+            this->initializeUnsetTreeTopologyPenalty(frame);
         });
     }
 }
@@ -922,8 +922,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     if (hyperparameters.depthPenaltyMultiplier().fixed() &&
         hyperparameters.depthPenaltyMultiplier().value() == 0.0) {
-        hyperparameters.softTreeDepthLimit().fix(MIN_SOFT_DEPTH_LIMIT);
-        hyperparameters.softTreeDepthTolerance().fix(MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
+        hyperparameters.softTreeDepthLimit().fixTo(MIN_SOFT_DEPTH_LIMIT);
+        hyperparameters.softTreeDepthTolerance().fixTo(MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
     }
 }
 
@@ -1147,10 +1147,15 @@ void CBoostedTreeFactory::initializeUnsetRetrainedTreeEta() {
         // The incremental loss function keeps the leaf weights around the
         // magnitude of the old tree leaf weights so we search larger values
         // of eta for trees we retrain.
+        m_TreeImpl->m_Hyperparameters.retrainedTreeEta().set(1.0);
         m_LogRetrainedTreeEtaSearchInterval(MIN_PARAMETER_INDEX) =
             CTools::stableLog(m_TreeImpl->m_Hyperparameters.eta().value());
         m_LogRetrainedTreeEtaSearchInterval(BEST_PARAMETER_INDEX) = 0.0;
         m_LogRetrainedTreeEtaSearchInterval(MAX_PARAMETER_INDEX) = 0.0;
+    }
+
+    if (intervalIsEmpty(m_LogRetrainedTreeEtaSearchInterval)) {
+        m_TreeImpl->m_Hyperparameters.retrainedTreeEta().fix();
     }
 }
 
@@ -1205,7 +1210,7 @@ void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty(core::CDataFrame& f
         }
 
         if (intervalIsEmpty(m_LogTreeTopologyChangePenaltySearchInterval)) {
-            m_TreeImpl->m_Hyperparameters.treeTopologyChangePenalty().fix(0.0);
+            m_TreeImpl->m_Hyperparameters.treeTopologyChangePenalty().fix();
         }
     }
 }
@@ -1411,9 +1416,9 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromDefinition(
 
 CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr model) {
     CBoostedTreeFactory result{1, nullptr};
-    auto& hyperparameters = result.m_TreeImpl->m_Hyperparameters;
     result.m_TreeImpl = std::move(model->m_Impl);
     result.m_TreeImpl->m_Rng.seed(result.m_TreeImpl->m_Seed);
+    auto& hyperparameters = result.m_TreeImpl->m_Hyperparameters;
     hyperparameters.depthPenaltyMultiplier().fix();
     hyperparameters.treeSizePenaltyMultiplier().fix();
     hyperparameters.leafWeightPenaltyMultiplier().fix();
@@ -1478,7 +1483,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t numberFolds) {
         LOG_WARN(<< "Must use at least two-folds for cross validation");
         numberFolds = 2;
     }
-    m_TreeImpl->m_NumberFolds.fix(numberFolds);
+    m_TreeImpl->m_NumberFolds.fixTo(numberFolds);
     return *this;
 }
 
@@ -1486,7 +1491,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainFractionPerFold(double fraction) 
     if (fraction <= 0.0 || fraction >= 1.0) {
         LOG_WARN(<< "Training data fraction " << fraction << " per fold out of range");
     } else {
-        m_TreeImpl->m_TrainFractionPerFold.fix(fraction);
+        m_TreeImpl->m_TrainFractionPerFold.fixTo(fraction);
     }
     return *this;
 }
@@ -1519,7 +1524,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::downsampleFactor(double factor) {
         LOG_WARN(<< "Downsample factor must be no larger than one");
         factor = 1.0;
     }
-    m_TreeImpl->m_Hyperparameters.downsampleFactor().fix(factor);
+    m_TreeImpl->m_Hyperparameters.downsampleFactor().fixTo(factor);
     return *this;
 }
 
@@ -1528,7 +1533,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::depthPenaltyMultiplier(double depthPen
         LOG_WARN(<< "Depth penalty multiplier must be non-negative");
         depthPenaltyMultiplier = 0.0;
     }
-    m_TreeImpl->m_Hyperparameters.depthPenaltyMultiplier().fix(depthPenaltyMultiplier);
+    m_TreeImpl->m_Hyperparameters.depthPenaltyMultiplier().fixTo(depthPenaltyMultiplier);
     return *this;
 }
 
@@ -1537,7 +1542,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::treeSizePenaltyMultiplier(double treeS
         LOG_WARN(<< "Tree size penalty multiplier must be non-negative");
         treeSizePenaltyMultiplier = 0.0;
     }
-    m_TreeImpl->m_Hyperparameters.treeSizePenaltyMultiplier().fix(treeSizePenaltyMultiplier);
+    m_TreeImpl->m_Hyperparameters.treeSizePenaltyMultiplier().fixTo(treeSizePenaltyMultiplier);
     return *this;
 }
 
@@ -1546,7 +1551,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::leafWeightPenaltyMultiplier(double lea
         LOG_WARN(<< "Leaf weight penalty multiplier must be non-negative");
         leafWeightPenaltyMultiplier = 0.0;
     }
-    m_TreeImpl->m_Hyperparameters.leafWeightPenaltyMultiplier().fix(leafWeightPenaltyMultiplier);
+    m_TreeImpl->m_Hyperparameters.leafWeightPenaltyMultiplier().fixTo(leafWeightPenaltyMultiplier);
     return *this;
 }
 
@@ -1555,7 +1560,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::treeTopologyChangePenalty(double treeT
         LOG_WARN(<< "tree topology change penalty must be non-negative");
         treeTopologyChangePenalty = 0.0;
     }
-    m_TreeImpl->m_Hyperparameters.treeTopologyChangePenalty().fix(treeTopologyChangePenalty);
+    m_TreeImpl->m_Hyperparameters.treeTopologyChangePenalty().fixTo(treeTopologyChangePenalty);
     return *this;
 }
 
@@ -1564,7 +1569,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::softTreeDepthLimit(double softTreeDept
         LOG_WARN(<< "Minimum tree depth must be at least two");
         softTreeDepthLimit = MIN_SOFT_DEPTH_LIMIT;
     }
-    m_TreeImpl->m_Hyperparameters.softTreeDepthLimit().fix(softTreeDepthLimit);
+    m_TreeImpl->m_Hyperparameters.softTreeDepthLimit().fixTo(softTreeDepthLimit);
     return *this;
 }
 
@@ -1573,7 +1578,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::softTreeDepthTolerance(double softTree
         LOG_WARN(<< "Minimum tree depth tolerance must be at least 0.01");
         softTreeDepthTolerance = 0.01;
     }
-    m_TreeImpl->m_Hyperparameters.softTreeDepthTolerance().fix(softTreeDepthTolerance);
+    m_TreeImpl->m_Hyperparameters.softTreeDepthTolerance().fixTo(softTreeDepthTolerance);
     return *this;
 }
 
@@ -1587,7 +1592,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::eta(double eta) {
         LOG_WARN(<< "Using a learning rate greater than one doesn't make sense");
         eta = 1.0;
     }
-    m_TreeImpl->m_Hyperparameters.eta().fix(eta);
+    m_TreeImpl->m_Hyperparameters.eta().fixTo(eta);
     return *this;
 }
 
@@ -1601,7 +1606,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::retrainedTreeEta(double eta) {
         LOG_WARN(<< "Using a learning rate greater than one doesn't make sense");
         eta = 1.0;
     }
-    m_TreeImpl->m_Hyperparameters.retrainedTreeEta().fix(eta);
+    m_TreeImpl->m_Hyperparameters.retrainedTreeEta().fixTo(eta);
     return *this;
 }
 
@@ -1611,7 +1616,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::etaGrowthRatePerTree(double etaGrowthR
                  << " which must be no smaller than " << MIN_ETA);
         etaGrowthRatePerTree = std::max(etaGrowthRatePerTree, MIN_ETA);
     }
-    m_TreeImpl->m_Hyperparameters.etaGrowthRatePerTree().fix(etaGrowthRatePerTree);
+    m_TreeImpl->m_Hyperparameters.etaGrowthRatePerTree().fixTo(etaGrowthRatePerTree);
     return *this;
 }
 
@@ -1625,7 +1630,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberTrees(std::size_t maximum
                  << " which must be no larger than " << MAX_NUMBER_TREES);
         maximumNumberTrees = std::min(maximumNumberTrees, MAX_NUMBER_TREES);
     }
-    m_TreeImpl->m_Hyperparameters.maximumNumberTrees().fix(maximumNumberTrees);
+    m_TreeImpl->m_Hyperparameters.maximumNumberTrees().fixTo(maximumNumberTrees);
     return *this;
 }
 
@@ -1635,7 +1640,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFr
                  << " which must be positive and not more than one");
         featureBagFraction = CTools::truncate(featureBagFraction, 0.0, 1.0);
     }
-    m_TreeImpl->m_Hyperparameters.featureBagFraction().fix(featureBagFraction);
+    m_TreeImpl->m_Hyperparameters.featureBagFraction().fixTo(featureBagFraction);
     return *this;
 }
 
@@ -1644,7 +1649,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::predictionChangeCost(double prediction
         LOG_WARN(<< "tree topology change penalty must be non-negative");
         predictionChangeCost = 0.0;
     }
-    m_TreeImpl->m_Hyperparameters.predictionChangeCost().fix(predictionChangeCost);
+    m_TreeImpl->m_Hyperparameters.predictionChangeCost().fixTo(predictionChangeCost);
     return *this;
 }
 
