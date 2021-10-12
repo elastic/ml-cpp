@@ -12,7 +12,7 @@
 
 #include <core/CStringUtils.h>
 
-#include <maths/CTools.h>
+#include <maths/common/CTools.h>
 
 #include <fstream>
 
@@ -100,7 +100,7 @@ bool CResultNormalizer::handleRecord(const TStrStrUMap& dataRowFields) {
         const model::CAnomalyScore::CNormalizer* levelNormalizer = nullptr;
         double score = probability > m_ModelConfig.maximumAnomalousProbability()
                            ? 0.0
-                           : maths::CTools::anomalyScore(probability);
+                           : maths::common::CTools::anomalyScore(probability);
         if (level == ROOT_LEVEL) {
             levelNormalizer = &m_Normalizer.bucketNormalizer();
         } else if (level == LEAF_LEVEL) {

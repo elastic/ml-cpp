@@ -17,7 +17,7 @@
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CIntegerTools.h>
+#include <maths/common/CIntegerTools.h>
 
 #include <numeric>
 
@@ -36,7 +36,7 @@ void CDataClassifier::add(model_t::EFeature feature, double value, unsigned int 
         if (model_t::isMeanFeature(feature)) {
             value *= count;
         }
-        m_IsInteger = maths::CIntegerTools::isInteger(value, EPS * value);
+        m_IsInteger = maths::common::CIntegerTools::isInteger(value, EPS * value);
     }
 }
 

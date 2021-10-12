@@ -15,7 +15,7 @@
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
 
-#include <maths/MathsTypes.h>
+#include <maths/common/MathsTypes.h>
 
 #include <model/CDetectionRule.h>
 #include <model/ImportExport.h>
@@ -27,8 +27,10 @@
 
 namespace ml {
 namespace maths {
+namespace common {
 struct SDistributionRestoreParams;
 struct STimeSeriesDecompositionRestoreParams;
+}
 }
 namespace model {
 //! \brief Wraps up model global parameters.
@@ -58,11 +60,12 @@ struct MODEL_EXPORT SModelParams {
     double minimumCategoryCount() const;
 
     //! Get the parameters supplied when restoring time series decompositions.
-    maths::STimeSeriesDecompositionRestoreParams
+    maths::common::STimeSeriesDecompositionRestoreParams
     decompositionRestoreParams(maths_t::EDataType dataType) const;
 
     //! Get the parameters supplied when restoring distribution models.
-    maths::SDistributionRestoreParams distributionRestoreParams(maths_t::EDataType dataType) const;
+    maths::common::SDistributionRestoreParams
+    distributionRestoreParams(maths_t::EDataType dataType) const;
 
     //! Get a checksum for an object of this class.
     uint64_t checksum(uint64_t seed) const;

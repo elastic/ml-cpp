@@ -11,8 +11,8 @@
 #ifndef INCLUDED_ml_api_CBoostedTreeInferenceModelBuilder_h
 #define INCLUDED_ml_api_CBoostedTreeInferenceModelBuilder_h
 
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeLoss.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
 
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
@@ -26,15 +26,16 @@
 namespace ml {
 namespace api {
 
-//! \brief Builds a serialisable trained model object by visiting a maths::CBoostedTree object.
-class API_EXPORT CBoostedTreeInferenceModelBuilder : public maths::CBoostedTree::CVisitor {
+//! \brief Builds a serialisable trained model object by visiting a maths::analytics::CBoostedTree object.
+class API_EXPORT CBoostedTreeInferenceModelBuilder
+    : public maths::analytics::CBoostedTree::CVisitor {
 public:
     using TDoubleVec = std::vector<double>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TSizeStringUMap = boost::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
-    using TVector = maths::CBoostedTreeNode::TVector;
+    using TVector = maths::analytics::CBoostedTreeNode::TVector;
     using TApiCustomEncodingUPtr = std::unique_ptr<api::CCustomEncoding>;
     using TApiCustomEncodingUPtrVec = std::vector<TApiCustomEncodingUPtr>;
 
@@ -50,8 +51,8 @@ public:
                  const TVector& nodeValue,
                  double gain,
                  std::size_t numberSamples,
-                 maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
-                 maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) override;
+                 maths::analytics::CBoostedTreeNode::TOptionalNodeIndex leftChild,
+                 maths::analytics::CBoostedTreeNode::TOptionalNodeIndex rightChild) override;
     void addIdentityEncoding(std::size_t inputColumnIndex) override;
     void addOneHotEncoding(std::size_t inputColumnIndex, std::size_t hotCategory) override;
     void addTargetMeanEncoding(std::size_t inputColumnIndex,
@@ -89,10 +90,10 @@ public:
                                      std::size_t dependentVariableColumnIndex,
                                      const TStrVecVec& categoryNames);
     void addClassificationWeights(TDoubleVec weights) override;
-    void addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) override;
+    void addLossFunction(const maths::analytics::CBoostedTree::TLossFunction& lossFunction) override;
 
 private:
-    using TLossType = maths::boosted_tree::ELossType;
+    using TLossType = maths::analytics::boosted_tree::ELossType;
 
 private:
     void setTargetType() override;
@@ -110,7 +111,7 @@ public:
                                          const TStrVecVec& categoryNames);
     ~CClassificationInferenceModelBuilder() override = default;
     void addClassificationWeights(TDoubleVec weights) override;
-    void addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) override;
+    void addLossFunction(const maths::analytics::CBoostedTree::TLossFunction& lossFunction) override;
 
 private:
     void setTargetType() override;

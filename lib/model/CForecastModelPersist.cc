@@ -15,9 +15,10 @@
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CModelStateSerialiser.h>
-#include <maths/CRestoreParams.h>
-#include <maths/MathsTypes.h>
+#include <maths/common/CRestoreParams.h>
+#include <maths/common/MathsTypes.h>
+
+#include <maths/time_series/CModelStateSerialiser.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
@@ -41,7 +42,7 @@ CForecastModelPersist::CPersist::CPersist(const std::string& temporaryPath)
     m_OutStream << "[";
 }
 
-void CForecastModelPersist::CPersist::addModel(const maths::CModel* model,
+void CForecastModelPersist::CPersist::addModel(const maths::common::CModel* model,
                                                core_t::TTime firstDataTime,
                                                core_t::TTime lastDataTime,
                                                const model_t::EFeature feature,
@@ -57,7 +58,7 @@ void CForecastModelPersist::CPersist::addModel(const maths::CModel* model,
         inserter.insertValue(FIRST_DATA_TIME_TAG, firstDataTime);
         inserter.insertValue(LAST_DATA_TIME_TAG, lastDataTime);
         inserter.insertLevel(
-            MODEL_TAG, std::bind<void>(maths::CModelStateSerialiser(),
+            MODEL_TAG, std::bind<void>(maths::time_series::CModelStateSerialiser(),
                                        std::cref(*model), std::placeholders::_1));
     };
 
@@ -121,17 +122,17 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
                     return false;
                 }
 
-                auto modelParams =
-                    maths::CModelParams{m_ModelParams.s_BucketLength,
-                                        m_ModelParams.s_LearnRate,
-                                        m_ModelParams.s_DecayRate,
-                                        m_MinimumSeasonalVarianceScale,
-                                        m_ModelParams.s_MinimumTimeToDetectChange,
-                                        m_ModelParams.s_MaximumTimeToTestForChange};
+                auto modelParams = maths::common::CModelParams{
+                    m_ModelParams.s_BucketLength,
+                    m_ModelParams.s_LearnRate,
+                    m_ModelParams.s_DecayRate,
+                    m_MinimumSeasonalVarianceScale,
+                    m_ModelParams.s_MinimumTimeToDetectChange,
+                    m_ModelParams.s_MaximumTimeToTestForChange};
 
-                maths::SModelRestoreParams params{
+                maths::common::SModelRestoreParams params{
                     modelParams,
-                    maths::STimeSeriesDecompositionRestoreParams{
+                    maths::common::STimeSeriesDecompositionRestoreParams{
                         m_ModelParams.s_DecayRate, m_ModelParams.s_BucketLength,
                         m_ModelParams.s_ComponentSize,
                         m_ModelParams.distributionRestoreParams(dataType)},
@@ -139,7 +140,8 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
 
                 auto serialiserOperator =
                     [&params, &model_](core::CStateRestoreTraverser& traverser_) {
-                        return maths::CModelStateSerialiser()(params, model_, traverser_);
+                        return maths::time_series::CModelStateSerialiser()(
+                            params, model_, traverser_);
                     };
                 if (traverser.traverseSubLevel(serialiserOperator) == false) {
                     LOG_ERROR(<< "Failed to restore forecast model, model missing");

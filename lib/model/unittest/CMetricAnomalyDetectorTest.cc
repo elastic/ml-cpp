@@ -15,8 +15,8 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CRegex.h>
 
-#include <maths/CIntegerTools.h>
-#include <maths/CModelWeight.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CModelWeight.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CHierarchicalResults.h>
@@ -153,7 +153,7 @@ void importData(core_t::TTime firstTime,
     test::CTimeSeriesTestData::TTimeDoublePrVec timeData;
     BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(fileName, timeData));
 
-    core_t::TTime lastBucketTime = maths::CIntegerTools::ceil(firstTime, bucketLength);
+    core_t::TTime lastBucketTime = maths::common::CIntegerTools::ceil(firstTime, bucketLength);
 
     for (std::size_t i = 0; i < timeData.size(); ++i) {
         core_t::TTime time = timeData[i].first;

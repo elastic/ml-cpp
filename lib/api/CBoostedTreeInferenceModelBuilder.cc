@@ -93,14 +93,15 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
     return std::move(m_Definition);
 }
 
-void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
-                                                double splitValue,
-                                                bool assignMissingToLeft,
-                                                const TVector& nodeValue,
-                                                double gain,
-                                                std::size_t numberSamples,
-                                                maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
-                                                maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
+void CBoostedTreeInferenceModelBuilder::addNode(
+    std::size_t splitFeature,
+    double splitValue,
+    bool assignMissingToLeft,
+    const TVector& nodeValue,
+    double gain,
+    std::size_t numberSamples,
+    maths::analytics::CBoostedTreeNode::TOptionalNodeIndex leftChild,
+    maths::analytics::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     // use dynamic cast to prevent using wrong type of trained models
     auto tree = dynamic_cast<CTree*>(ensemble->trainedModels().back().get());
@@ -153,7 +154,8 @@ CRegressionInferenceModelBuilder::CRegressionInferenceModelBuilder(const TStrVec
 void CRegressionInferenceModelBuilder::addClassificationWeights(TDoubleVec /*weights*/) {
 }
 
-void CRegressionInferenceModelBuilder::addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) {
+void CRegressionInferenceModelBuilder::addLossFunction(
+    const maths::analytics::CBoostedTree::TLossFunction& lossFunction) {
     m_LossType = lossFunction.type();
 }
 
@@ -191,7 +193,7 @@ void CClassificationInferenceModelBuilder::addClassificationWeights(TDoubleVec w
 }
 
 void CClassificationInferenceModelBuilder::addLossFunction(
-    const maths::CBoostedTree::TLossFunction& /*lossFunction*/) {
+    const maths::analytics::CBoostedTree::TLossFunction& /*lossFunction*/) {
 }
 
 void CClassificationInferenceModelBuilder::setTargetType() {

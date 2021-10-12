@@ -18,9 +18,9 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/COrderings.h>
-#include <maths/CSampling.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CSampling.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -56,13 +56,13 @@ using namespace model;
 
 namespace {
 
-using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+using TMinAccumulator = maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
 using TMaxAccumulator =
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+    maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
 struct SValuesAndWeights {
-    maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
+    maths::common::CModel::TTimeDouble2VecSizeTrVec s_Values;
+    maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
+    maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
 };
 
 const std::size_t numberAttributes{5};
@@ -281,11 +281,13 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
                         model_t::E_PopulationMaxByPersonAndAttribute, pid, cid, startTime);
 
                     if (mean.empty()) {
-                        BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(expectedMean) == 0.0);
+                        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::count(
+                                               expectedMean) == 0.0);
                     } else {
-                        BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(expectedMean) > 0.0);
-                        BOOST_REQUIRE_EQUAL(
-                            maths::CBasicStatistics::mean(expectedMean), mean[0]);
+                        BOOST_TEST_REQUIRE(
+                            maths::common::CBasicStatistics::count(expectedMean) > 0.0);
+                        BOOST_REQUIRE_EQUAL(maths::common::CBasicStatistics::mean(expectedMean),
+                                            mean[0]);
                     }
                     if (min.empty()) {
                         BOOST_TEST_REQUIRE(expectedMin.count() == 0u);
@@ -328,7 +330,7 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
     using TSizeSizePrMeanAccumulatorUMap = std::map<TSizeSizePr, TMeanAccumulator>;
     using TSizeSizePrMinAccumulatorMap = std::map<TSizeSizePr, TMinAccumulator>;
     using TSizeSizePrMaxAccumulatorMap = std::map<TSizeSizePr, TMaxAccumulator>;
-    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::common::CModel>;
     using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
 
     core_t::TTime startTime{1367280000};
@@ -402,10 +404,10 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
 
             for (auto& feature : populationWeightedSamples) {
                 for (auto& attribute : feature.second) {
-                    maths::COrderings::simultaneousSort(
+                    maths::common::COrderings::simultaneousSort(
                         attribute.second.s_Values, attribute.second.s_TrendWeights,
                         attribute.second.s_ResidualWeights);
-                    maths::CModelAddSamplesParams params_;
+                    maths::common::CModelAddSamplesParams params_;
                     params_.integer(false)
                         .nonNegative(nonNegative)
                         .propagationInterval(1.0)
@@ -449,11 +451,11 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
             sampleMeans[key].add(message.s_Dbl1Vec.get()[0]);
             sampleMins[key].add(message.s_Dbl1Vec.get()[0]);
             sampleMaxs[key].add(message.s_Dbl1Vec.get()[0]);
-            if (maths::CBasicStatistics::count(sampleTimes[key]) == sampleCount) {
+            if (maths::common::CBasicStatistics::count(sampleTimes[key]) == sampleCount) {
                 expectedSampleTimes[key].push_back(
-                    maths::CBasicStatistics::mean(sampleTimes[key]));
+                    maths::common::CBasicStatistics::mean(sampleTimes[key]));
                 expectedSamples[0][key].push_back(
-                    maths::CBasicStatistics::mean(sampleMeans[key]));
+                    maths::common::CBasicStatistics::mean(sampleMeans[key]));
                 expectedSamples[1][key].push_back(sampleMins[key][0]);
                 expectedSamples[2][key].push_back(sampleMaxs[key][0]);
                 sampleTimes[key] = TMeanAccumulator();
@@ -547,7 +549,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
-    maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
+    maths::common::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
     // Test that we correctly pick out synthetic the anomalies,
     // their people and attributes.
@@ -848,8 +850,8 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
             meanError.add(std::fabs(m_Model->personFrequency(pid) -
                                     1.0 / static_cast<double>(datum.s_Period)));
         }
-        LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.002);
+        LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(meanError));
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.002);
     }
     {
         std::size_t i{0};
@@ -1226,8 +1228,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
         modelWithSkip->details();
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
-    const maths::CModel* mathsModelWithSkipView = nullptr;
-    const maths::CModel* mathsModelNoSkipView = nullptr;
+    const maths::common::CModel* mathsModelWithSkipView = nullptr;
+    const maths::common::CModel* mathsModelNoSkipView = nullptr;
 
     // expect models for attributes c0 - c3...
     for (std::size_t i = 0; i < 4; ++i) {
@@ -1315,19 +1317,20 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Check the last value times are the same for each of the underlying models with the skip rule
     // and the corresponding model with no skip rule
     for (std::size_t i = 0; i < 5; ++i) {
-        const maths::CUnivariateTimeSeriesModel* timeSeriesModel =
-            dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        const maths::time_series::CUnivariateTimeSeriesModel* timeSeriesModel =
+            dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
                 modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i));
         BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
-        const auto* trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
-            &timeSeriesModel->trendModel());
+        const auto* trendModel =
+            dynamic_cast<const maths::time_series::CTimeSeriesDecomposition*>(
+                &timeSeriesModel->trendModel());
         BOOST_TEST_REQUIRE(trendModel != nullptr);
         core_t::TTime modelWithSkipTime = trendModel->lastValueTime();
 
-        timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+        timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i));
         BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
-        trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+        trendModel = dynamic_cast<const maths::time_series::CTimeSeriesDecomposition*>(
             &timeSeriesModel->trendModel());
         BOOST_TEST_REQUIRE(trendModel != nullptr);
         core_t::TTime modelNoSkipTime = trendModel->lastValueTime();

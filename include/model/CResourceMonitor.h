@@ -13,7 +13,7 @@
 
 #include <core/CoreTypes.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
@@ -72,7 +72,8 @@ public:
     using TMemoryUsageReporterFunc =
         std::function<void(const CResourceMonitor::SModelSizeStats&)>;
     using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
-    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanVarAccumulator =
+        maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     //! The minimum time between prunes
     static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;

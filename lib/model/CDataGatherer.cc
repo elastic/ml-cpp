@@ -18,9 +18,9 @@
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
-#include <maths/CIntegerTools.h>
-#include <maths/CMathsFuncs.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CMathsFuncs.h>
 
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CMetricBucketGatherer.h>
@@ -584,13 +584,13 @@ CDataGatherer::influencerCounts(core_t::TTime time) const {
 
 uint64_t CDataGatherer::checksum() const {
     uint64_t result = m_PeopleRegistry.checksum();
-    result = maths::CChecksum::calculate(result, m_AttributesRegistry);
-    result = maths::CChecksum::calculate(result, m_SummaryMode);
-    result = maths::CChecksum::calculate(result, m_Features);
+    result = maths::common::CChecksum::calculate(result, m_AttributesRegistry);
+    result = maths::common::CChecksum::calculate(result, m_SummaryMode);
+    result = maths::common::CChecksum::calculate(result, m_Features);
     if (m_SampleCounts) {
-        result = maths::CChecksum::calculate(result, m_SampleCounts->checksum(*this));
+        result = maths::common::CChecksum::calculate(result, m_SampleCounts->checksum(*this));
     }
-    result = maths::CChecksum::calculate(result, m_BucketGatherer);
+    result = maths::common::CChecksum::calculate(result, m_BucketGatherer);
 
     LOG_TRACE(<< "checksum = " << result);
 
@@ -744,7 +744,7 @@ bool CDataGatherer::extractMetricFromField(const std::string& fieldName,
             result.clear();
             return false;
         }
-        if (maths::CMathsFuncs::isFinite(value) == false) {
+        if (maths::common::CMathsFuncs::isFinite(value) == false) {
             LOG_ERROR(<< "Bad value for " << fieldName << " from " << fieldValue);
             result.clear();
             return false;

@@ -18,12 +18,12 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CChecksum.h>
-#include <maths/CMultivariatePrior.h>
-#include <maths/COrderings.h>
-#include <maths/CPrior.h>
-#include <maths/CTools.h>
-#include <maths/ProbabilityAggregators.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CPrior.h>
+#include <maths/common/CTools.h>
+#include <maths/common/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
@@ -168,7 +168,7 @@ CMetricModel::TDouble1Vec CMetricModel::baselineBucketMean(model_t::EFeature fea
                                                            model_t::CResultType type,
                                                            const TSizeDoublePr1Vec& correlated,
                                                            core_t::TTime time) const {
-    const maths::CModel* model{this->model(feature, pid)};
+    const maths::common::CModel* model{this->model(feature, pid)};
     if (!model) {
         return TDouble1Vec();
     }
@@ -177,7 +177,7 @@ CMetricModel::TDouble1Vec CMetricModel::baselineBucketMean(model_t::EFeature fea
     this->correctBaselineForInterim(feature, pid, type, correlated,
                                     this->currentBucketInterimCorrections(), result);
     TDouble1VecDouble1VecPr support = model_t::support(feature);
-    return maths::CTools::truncate(result, support.first, support.second);
+    return maths::common::CTools::truncate(result, support.first, support.second);
 }
 
 void CMetricModel::sampleBucketStatistics(core_t::TTime startTime,
@@ -222,9 +222,9 @@ void CMetricModel::sample(core_t::TTime startTime,
         this->CIndividualModel::sample(time, time + bucketLength, resourceMonitor);
 
         // Declared outside the loop to minimize the number of times they are created.
-        maths::CModel::TTimeDouble2VecSizeTrVec values;
-        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec trendWeights;
-        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec priorWeights;
+        maths::common::CModel::TTimeDouble2VecSizeTrVec values;
+        maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec trendWeights;
+        maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec priorWeights;
 
         for (auto& featureData : m_CurrentBucketStats.s_FeatureData) {
             model_t::EFeature feature = featureData.first;
@@ -238,7 +238,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                 std::size_t pid = data_.first;
                 const CGathererTools::TSampleVec& samples = data_.second.s_Samples;
 
-                maths::CModel* model = this->model(feature, pid);
+                maths::common::CModel* model = this->model(feature, pid);
                 if (model == nullptr) {
                     LOG_ERROR(<< "Missing model for " << this->personName(pid));
                     continue;
@@ -330,7 +330,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                     }
                 };
 
-                maths::CModelAddSamplesParams params;
+                maths::common::CModelAddSamplesParams params;
                 params.integer(data_.second.s_IsInteger)
                     .nonNegative(data_.second.s_IsNonNegative)
                     .propagationInterval(scaledInterval)
@@ -340,7 +340,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                         annotationCallback(annotation);
                     });
 
-                if (model->addSamples(params, values) == maths::CModel::E_Reset) {
+                if (model->addSamples(params, values) == maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
                 }
             }
@@ -372,8 +372,8 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     }
 
     CProbabilityAndInfluenceCalculator pJoint(this->params().s_InfluenceCutoff);
-    pJoint.addAggregator(maths::CJointProbabilityOfLessLikelySamples());
-    pJoint.addAggregator(maths::CProbabilityOfExtremeSample());
+    pJoint.addAggregator(maths::common::CJointProbabilityOfLessLikelySamples());
+    pJoint.addAggregator(maths::common::CProbabilityOfExtremeSample());
 
     bool skippedResults{false};
     for (std::size_t i = 0u, n = gatherer.numberFeatures(); i < n; ++i) {
@@ -437,7 +437,7 @@ bool CMetricModel::computeProbability(const std::size_t pid,
 }
 
 uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
-    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
+    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
 
     uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
 
@@ -451,10 +451,10 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
             for (std::size_t j = 0; j < featureData[i].second.size(); ++j) {
                 uint64_t& hash = hashes[KEY(featureData[i].second[j].first)];
                 const TFeatureData& data = featureData[i].second[j].second;
-                hash = maths::CChecksum::calculate(hash, data.s_BucketValue);
+                hash = maths::common::CChecksum::calculate(hash, data.s_BucketValue);
                 hash = core::CHashing::hashCombine(
                     hash, static_cast<uint64_t>(data.s_IsInteger));
-                hash = maths::CChecksum::calculate(hash, data.s_Samples);
+                hash = maths::common::CChecksum::calculate(hash, data.s_Samples);
             }
         }
     }
@@ -464,7 +464,7 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
 
-    return maths::CChecksum::calculate(seed, hashes);
+    return maths::common::CChecksum::calculate(seed, hashes);
 }
 
 void CMetricModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
@@ -557,7 +557,7 @@ bool CMetricModel::correlates(model_t::EFeature feature, std::size_t pid, core_t
         return false;
     }
 
-    const maths::CModel* model{this->model(feature, pid)};
+    const maths::common::CModel* model{this->model(feature, pid)};
     for (const auto& correlate : model->correlates()) {
         if (this->featureData(
                 feature, pid == correlate[0] ? correlate[1] : correlate[0], time)) {
@@ -580,7 +580,7 @@ bool CMetricModel::fill(model_t::EFeature feature,
         return false;
     }
     const TOptionalSample& bucket{data->s_BucketValue};
-    const maths::CModel* model{this->model(feature, pid)};
+    const maths::common::CModel* model{this->model(feature, pid)};
     if (model == nullptr) {
         LOG_TRACE(<< "model unexpectedly null");
         return false;
@@ -589,7 +589,8 @@ bool CMetricModel::fill(model_t::EFeature feature,
                                            this->bucketLength(), bucket->time())};
     maths_t::TDouble2VecWeightsAry weights{maths_t::CUnitWeights::unit<TDouble2Vec>(dimension)};
     TDouble2Vec seasonalWeight;
-    model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, seasonalWeight);
+    model->seasonalWeight(maths::common::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL,
+                          time, seasonalWeight);
     maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
     double initialCountWeight{this->initialCountWeight(
@@ -627,7 +628,7 @@ void CMetricModel::fill(model_t::EFeature feature,
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
 
     const CDataGatherer& gatherer{this->dataGatherer()};
-    const maths::CModel* model{this->model(feature, pid)};
+    const maths::common::CModel* model{this->model(feature, pid)};
     const TSize2Vec1Vec& correlates{model->correlates()};
     const TTimeVec& firstBucketTimes{this->firstBucketTimes()};
     core_t::TTime bucketLength{gatherer.bucketLength()};
@@ -667,12 +668,12 @@ void CMetricModel::fill(model_t::EFeature feature,
             gatherer.personNamePtr(correlates[i][variables[1]]);
         params.s_Correlated[i] = correlates[i][variables[1]];
         params.s_Variables[i] = variables;
-        const maths::CModel* models[]{
+        const maths::common::CModel* models[]{
             model, this->model(feature, correlates[i][variables[1]])};
         maths_t::TDouble2VecWeightsAry weights(maths_t::CUnitWeights::unit<TDouble2Vec>(2));
-        models[0]->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL,
+        models[0]->seasonalWeight(maths::common::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL,
                                   bucketTime, seasonalWeights[0]);
-        models[1]->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL,
+        models[1]->seasonalWeight(maths::common::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL,
                                   bucketTime, seasonalWeights[1]);
         weight[variables[0]] = seasonalWeights[0][0];
         weight[variables[1]] = seasonalWeights[1][0];

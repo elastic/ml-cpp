@@ -15,8 +15,8 @@
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
+#include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <api/ImportExport.h>
 
@@ -44,7 +44,7 @@ namespace api {
 //! writing to a shared output stream. For example, it is expected that writes for
 //! progress happen concurrently with writes of other instrumentation.
 class API_EXPORT CDataFrameAnalysisInstrumentation
-    : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
+    : virtual public maths::analytics::CDataFrameAnalysisInstrumentationInterface {
 public:
     //!\brief Memory status
     enum EMemoryStatus { E_Ok, E_HardLimit };
@@ -154,11 +154,11 @@ private:
 //! \brief Instrumentation class for Outlier Detection jobs.
 class API_EXPORT CDataFrameOutliersInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
-      public maths::CDataFrameOutliersInstrumentationInterface {
+      public maths::analytics::CDataFrameOutliersInstrumentationInterface {
 public:
     CDataFrameOutliersInstrumentation(const std::string& jobId, std::size_t memoryLimit)
         : CDataFrameAnalysisInstrumentation(jobId, memoryLimit) {}
-    void parameters(const maths::COutliers::SComputeParameters& parameters) override;
+    void parameters(const maths::analytics::COutliers::SComputeParameters& parameters) override;
     void elapsedTime(std::uint64_t time) override;
     void featureInfluenceThreshold(double featureInfluenceThreshold) override;
 
@@ -171,7 +171,7 @@ private:
     void writeParameters(rapidjson::Value& parentObject);
 
 private:
-    maths::COutliers::SComputeParameters m_Parameters;
+    maths::analytics::COutliers::SComputeParameters m_Parameters;
     std::uint64_t m_ElapsedTime;
     double m_FeatureInfluenceThreshold = -1.0;
     bool m_AnalysisStatsInitialized = false;
@@ -184,7 +184,7 @@ private:
 //! for hyperparameters, validation loss results, and job timing.
 class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
-      public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
+      public maths::analytics::CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
     CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId, std::size_t memoryLimit)
         : CDataFrameAnalysisInstrumentation(jobId, memoryLimit) {}
@@ -209,7 +209,8 @@ protected:
 
 private:
     using TLossVec = std::vector<std::pair<std::size_t, TDoubleVec>>;
-    using TRowsAccumulator = maths::CBasicStatistics::SSampleMean<std::uint32_t>::TAccumulator;
+    using TRowsAccumulator =
+        maths::common::CBasicStatistics::SSampleMean<std::uint32_t>::TAccumulator;
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;

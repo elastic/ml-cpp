@@ -13,7 +13,7 @@
 
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/CDataFrameCategoryEncoder.h>
+#include <maths/analytics/CDataFrameCategoryEncoder.h>
 
 #include <api/ImportExport.h>
 
