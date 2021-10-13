@@ -202,7 +202,8 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
                 if (node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].IsArray()) {
                     auto leafValueArray =
                         getAsArrayFrom(node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG]);
-                    maths::analytics::CBoostedTreeNode::TVector nodeValue(leafValueArray.Size());
+                    maths::analytics::CBoostedTreeNode::TVector nodeValue(
+                        leafValueArray.Size());
                     for (rapidjson::SizeType i = 0; i < leafValueArray.Size(); ++i) {
                         nodeValue[static_cast<long>(i)] =
                             getAsDoubleFrom(leafValueArray[i]);

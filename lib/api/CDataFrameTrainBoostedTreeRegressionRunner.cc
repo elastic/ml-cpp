@@ -112,7 +112,8 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Key(this->predictionFieldName());
     writer.Double(tree.readPrediction(row)[0]);
     writer.Key(IS_TRAINING_FIELD_NAME);
-    writer.Bool(maths::analytics::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
+    writer.Bool(maths::analytics::CDataFrameUtils::isMissing(
+                    row[columnHoldingDependentVariable]) == false);
     auto* featureImportance = tree.shap();
     if (featureImportance != nullptr) {
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());

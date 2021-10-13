@@ -35,7 +35,8 @@ using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 using TRowItr = core::CDataFrame::TRowItr;
 
-class CEncoderNameIndexMapBuilder final : public maths::analytics::CDataFrameCategoryEncoder::CVisitor {
+class CEncoderNameIndexMapBuilder final
+    : public maths::analytics::CDataFrameCategoryEncoder::CVisitor {
 public:
     using TStrSizePrVec = std::vector<std::pair<std::string, std::size_t>>;
     using TStrSizePrVecCItr = TStrSizePrVec::const_iterator;
@@ -70,10 +71,11 @@ private:
 };
 }
 
-CDataSummarizationJsonWriter::CDataSummarizationJsonWriter(const core::CDataFrame& frame,
-                                                           core::CPackedBitVector rowMask,
-                                                           std::size_t numberColumns,
-                                                           const maths::analytics::CDataFrameCategoryEncoder& encodings)
+CDataSummarizationJsonWriter::CDataSummarizationJsonWriter(
+    const core::CDataFrame& frame,
+    core::CPackedBitVector rowMask,
+    std::size_t numberColumns,
+    const maths::analytics::CDataFrameCategoryEncoder& encodings)
     : m_RowMask{std::move(rowMask)}, m_NumberColumns{numberColumns}, m_Frame{frame}, m_Encodings{encodings} {
 }
 

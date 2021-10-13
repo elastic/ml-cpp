@@ -468,8 +468,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     }
 
     LOG_TRACE(<< "Incremental training finished after " << m_CurrentRound << " iterations. "
-              << "Time per iteration in ms mean: " << common::CBasicStatistics::mean(timeAccumulator)
-              << " std. dev:  " << std::sqrt(common::CBasicStatistics::variance(timeAccumulator)));
+              << "Time per iteration in ms mean: "
+              << common::CBasicStatistics::mean(timeAccumulator) << " std. dev:  "
+              << std::sqrt(common::CBasicStatistics::variance(timeAccumulator)));
     LOG_TRACE(<< "best forest loss = " << m_BestForestTestLoss
               << ", initial loss = " << initialLoss);
 
@@ -1112,8 +1113,8 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 }
 
 double CBoostedTreeImpl::etaForTreeAtPosition(std::size_t index) const {
-    return std::min(m_Eta * common::CTools::stable(std::pow(m_EtaGrowthRatePerTree,
-                                                    static_cast<double>(index))),
+    return std::min(m_Eta * common::CTools::stable(std::pow(
+                                m_EtaGrowthRatePerTree, static_cast<double>(index))),
                     1.0);
 }
 
@@ -1815,8 +1816,8 @@ double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
         loss += result.s_FunctionState;
     }
 
-    return this->meanLoss(frame, rowMask) +
-           oldRowMask.manhattan() / rowMask.manhattan() * common::CBasicStatistics::mean(loss);
+    return this->meanLoss(frame, rowMask) + oldRowMask.manhattan() / rowMask.manhattan() *
+                                                common::CBasicStatistics::mean(loss);
 }
 
 double CBoostedTreeImpl::betweenFoldTestLossVariance() const {
@@ -1909,7 +1910,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& test
             parameters(i) = common::CTools::stableLog(m_RetrainedTreeEta);
             break;
         case E_TreeTopologyChangePenalty:
-            parameters(i) = common::CTools::stableLog(m_Regularization.treeTopologyChangePenalty());
+            parameters(i) = common::CTools::stableLog(
+                m_Regularization.treeTopologyChangePenalty());
             break;
         }
     }
@@ -2001,7 +2003,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& test
             m_RetrainedTreeEta = common::CTools::stableExp(parameters(i));
             break;
         case E_TreeTopologyChangePenalty:
-            m_Regularization.treeTopologyChangePenalty(common::CTools::stableExp(parameters(i)));
+            m_Regularization.treeTopologyChangePenalty(
+                common::CTools::stableExp(parameters(i)));
             break;
         }
     }

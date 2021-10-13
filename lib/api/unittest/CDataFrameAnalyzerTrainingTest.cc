@@ -1330,11 +1330,12 @@ BOOST_AUTO_TEST_CASE(testClassificationWithUserClassWeights) {
         fieldNames, fieldValues, analyzer, weights, regressors, actuals);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "$"});
 
-    auto classifier = maths::analytics::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
-                          .classAssignmentObjective(maths::analytics::CBoostedTree::E_Custom)
-                          .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
-                          .buildForTrain(*frame, 3);
+    auto classifier =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .classAssignmentObjective(maths::analytics::CBoostedTree::E_Custom)
+            .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
+            .buildForTrain(*frame, 3);
 
     classifier->train();
     classifier->predict();
@@ -1536,7 +1537,8 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
         static_cast<std::size_t>(summarisation.manhattan()), false);
     newTrainingRowMask.extend(true, numberExamples);
 
-    classification = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(classification))
+    classification = maths::analytics::CBoostedTreeFactory::constructFromModel(
+                         std::move(classification))
                          .newTrainingRowMask(newTrainingRowMask)
                          .buildForTrainIncremental(*frame, weights.size());
 
@@ -1822,7 +1824,8 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
         static_cast<std::size_t>(summarisation.manhattan()), false);
     newTrainingRowMask.extend(true, numberExamples);
 
-    classification = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(classification))
+    classification = maths::analytics::CBoostedTreeFactory::constructFromModel(
+                         std::move(classification))
                          .newTrainingRowMask(newTrainingRowMask)
                          .buildForTrainIncremental(*frame, weights.size());
 

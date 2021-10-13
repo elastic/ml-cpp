@@ -353,7 +353,8 @@ maths::analytics::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boosted
     return *m_BoostedTreeFactory;
 }
 
-const maths::analytics::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
+const maths::analytics::CBoostedTreeFactory&
+CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
     if (m_BoostedTreeFactory == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
     }
@@ -476,8 +477,9 @@ CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
         break;
     }
 
-    return std::make_unique<maths::analytics::CBoostedTreeFactory>(maths::analytics::CBoostedTreeFactory::constructFromParameters(
-        this->spec().numberThreads(), std::move(loss)));
+    return std::make_unique<maths::analytics::CBoostedTreeFactory>(
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            this->spec().numberThreads(), std::move(loss)));
 }
 
 CDataFrameTrainBoostedTreeRunner::TBoostedTreeUPtr

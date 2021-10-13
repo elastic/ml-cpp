@@ -1211,8 +1211,10 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalArgmin) {
     TDoubleVecVec leafLosses(leafMinimizers.size(), TDoubleVec(3));
     for (std::size_t i = 0; i < leafMinimizers.size(); ++i) {
         leafLosses[i][min] = lambda * maths::common::CTools::pow2(leafMinimizers[i]);
-        leafLosses[i][minMinusEps] = lambda * maths::common::CTools::pow2(leafMinimizers[i] - eps);
-        leafLosses[i][minPlusEps] = lambda * maths::common::CTools::pow2(leafMinimizers[i] + eps);
+        leafLosses[i][minMinusEps] =
+            lambda * maths::common::CTools::pow2(leafMinimizers[i] - eps);
+        leafLosses[i][minPlusEps] =
+            lambda * maths::common::CTools::pow2(leafMinimizers[i] + eps);
     }
     {
         auto result = frame->readRows(
@@ -1355,9 +1357,10 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalArgmin) {
     std::size_t cols{5};
 
     auto frame = setupLinearBinaryClassificationProblem(rows, cols);
-    auto classifier = maths::analytics::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
-                          .buildForTrain(*frame, cols - 1);
+    auto classifier =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .buildForTrain(*frame, cols - 1);
     classifier->train();
     classifier->predict();
 
@@ -1426,8 +1429,10 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalArgmin) {
     TDoubleVecVec leafLosses(leafMinimizers.size(), TDoubleVec(3));
     for (std::size_t i = 0; i < leafMinimizers.size(); ++i) {
         leafLosses[i][min] = lambda * maths::common::CTools::pow2(leafMinimizers[i]);
-        leafLosses[i][minMinusEps] = lambda * maths::common::CTools::pow2(leafMinimizers[i] - eps);
-        leafLosses[i][minPlusEps] = lambda * maths::common::CTools::pow2(leafMinimizers[i] + eps);
+        leafLosses[i][minMinusEps] =
+            lambda * maths::common::CTools::pow2(leafMinimizers[i] - eps);
+        leafLosses[i][minPlusEps] =
+            lambda * maths::common::CTools::pow2(leafMinimizers[i] + eps);
     }
     {
         auto result = frame->readRows(
@@ -1474,9 +1479,10 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossIncrementalGradientAndCurvature) {
     std::size_t cols{5};
 
     auto frame = setupLinearBinaryClassificationProblem(rows, cols);
-    auto classifier = maths::analytics::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
-                          .buildForTrain(*frame, cols - 1);
+    auto classifier =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .buildForTrain(*frame, cols - 1);
     classifier->train();
     classifier->predict();
 
@@ -1493,7 +1499,8 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossIncrementalGradientAndCurvature) {
 
     // Test mu == 0
     {
-        maths::analytics::boosted_tree::CBinomialLogisticLossIncremental bllIncremental{eta, 0.0, tree};
+        maths::analytics::boosted_tree::CBinomialLogisticLossIncremental bllIncremental{
+            eta, 0.0, tree};
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{bll.numberParameters()};
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
@@ -1526,7 +1533,8 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossIncrementalGradientAndCurvature) {
 
     // Test mu == 0.1
     {
-        maths::analytics::boosted_tree::CBinomialLogisticLossIncremental bllIncremental{eta, mu, tree};
+        maths::analytics::boosted_tree::CBinomialLogisticLossIncremental bllIncremental{
+            eta, mu, tree};
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t numberLossParameters{bll.numberParameters()};
             const auto& rootNode = root(tree);

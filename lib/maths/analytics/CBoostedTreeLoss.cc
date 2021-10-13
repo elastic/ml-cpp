@@ -413,7 +413,8 @@ CArgMinBinomialLogisticLossIncrementalImpl::objective() const {
             double loss{this->lambda() * common::CTools::pow2(weight) -
                         c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds)};
             for (std::size_t i = 0; i < NUMBER_BUCKETS; ++i) {
-                double pOld{common::CTools::logisticFunction(bucketCentre(m_TreePredictionMinMax, i))};
+                double pOld{common::CTools::logisticFunction(
+                    bucketCentre(m_TreePredictionMinMax, i))};
                 double mu{m_Mu * m_BucketsCount[i]};
                 loss -= mu * ((1.0 - pOld) * logOneMinusPNew + pOld * logPNew);
             }
@@ -453,7 +454,8 @@ CArgMinBinomialLogisticLossIncrementalImpl::objective() const {
             double c0{bucketsClassCounts[i](0)};
             double c1{bucketsClassCounts[i](1)};
             double mu{m_Mu * m_BucketsCount[i]};
-            double pOld{common::CTools::logisticFunction(bucketCentre(m_TreePredictionMinMax, i))};
+            double pOld{common::CTools::logisticFunction(
+                bucketCentre(m_TreePredictionMinMax, i))};
             loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds) +
                     mu * ((1.0 - pOld) * logOneMinusPNew + pOld * logPNew);
         }
@@ -461,9 +463,10 @@ CArgMinBinomialLogisticLossIncrementalImpl::objective() const {
     };
 }
 
-CArgMinMultinomialLogisticLossImpl::CArgMinMultinomialLogisticLossImpl(std::size_t numberClasses,
-                                                                       double lambda,
-                                                                       const common::CPRNG::CXorOShiro128Plus& rng)
+CArgMinMultinomialLogisticLossImpl::CArgMinMultinomialLogisticLossImpl(
+    std::size_t numberClasses,
+    double lambda,
+    const common::CPRNG::CXorOShiro128Plus& rng)
     : CArgMinLossImpl{lambda}, m_NumberClasses{numberClasses}, m_Rng{rng},
       m_ClassCounts{TDoubleVector::Zero(numberClasses)}, m_Sampler{NUMBER_CENTRES} {
 }
@@ -742,7 +745,8 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
                     const auto& bucketMean{common::CBasicStatistics::mean(bucketActual)};
                     double expPrediction{bucketMean(MSLE_PREDICTION_INDEX)};
                     double logActual{bucketMean(MSLE_ACTUAL_INDEX)};
-                    double logPrediction{common::CTools::fastLog(m_Offset + expPrediction * weight)};
+                    double logPrediction{
+                        common::CTools::fastLog(m_Offset + expPrediction * weight)};
                     loss += count * common::CTools::pow2(logActual - logPrediction);
                     totalCount += count;
                 }
@@ -1080,7 +1084,8 @@ CMse::TDoubleVector CMseIncremental::transform(const TMemoryMappedFloatVector& p
     return TDoubleVector{prediction};
 }
 
-CArgMinLoss CMseIncremental::minimizer(double lambda, const common::CPRNG::CXorOShiro128Plus&) const {
+CArgMinLoss CMseIncremental::minimizer(double lambda,
+                                       const common::CPRNG::CXorOShiro128Plus&) const {
     return this->makeMinimizer(CArgMinMseIncrementalImpl{lambda, m_Eta, m_Mu, *m_Tree});
 }
 
@@ -1253,7 +1258,8 @@ void CPseudoHuber::curvature(const TMemoryMappedFloatVector& prediction,
                              double actual,
                              const TWriter& writer,
                              double weight) const {
-    double result{1.0 / (std::sqrt(1.0 + common::CTools::pow2((actual - prediction(0)) / m_Delta)))};
+    double result{
+        1.0 / (std::sqrt(1.0 + common::CTools::pow2((actual - prediction(0)) / m_Delta)))};
     writer(0, weight * result);
 }
 
@@ -1266,7 +1272,8 @@ double CPseudoHuber::difference(const TMemoryMappedFloatVector& prediction,
                                 double weight) const {
     double delta2{common::CTools::pow2(m_Delta)};
     return weight * delta2 *
-           (std::sqrt(1.0 + common::CTools::pow2(prediction(0) - previousPrediction(0)) / delta2) - 1.0);
+           (std::sqrt(1.0 + common::CTools::pow2(prediction(0) - previousPrediction(0)) / delta2) -
+            1.0);
 }
 
 CPseudoHuber::TDoubleVector
@@ -1450,8 +1457,8 @@ void CBinomialLogisticLossIncremental::gradient(const CEncodedDataFrameRowRef& r
     if (newExample) {
         this->CBinomialLogisticLoss::gradient(prediction, actual, writer, weight);
     } else {
-        double treePrediction{
-            common::CTools::logisticFunction(root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
+        double treePrediction{common::CTools::logisticFunction(
+            root(*m_Tree).value(row, *m_Tree)(0) / m_Eta)};
         if (prediction(0) > -LOG_EPSILON && actual == 1.0) {
             writer(0, -weight * ((1.0 + m_Mu) * common::CTools::stableExp(-prediction(0)) +
                                  m_Mu * (treePrediction - 1.0)));

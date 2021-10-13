@@ -92,14 +92,15 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
     return std::move(m_Definition);
 }
 
-void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
-                                                double splitValue,
-                                                bool assignMissingToLeft,
-                                                const TVector& nodeValue,
-                                                double gain,
-                                                std::size_t numberSamples,
-                                                maths::analytics::CBoostedTreeNode::TOptionalNodeIndex leftChild,
-                                                maths::analytics::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
+void CBoostedTreeInferenceModelBuilder::addNode(
+    std::size_t splitFeature,
+    double splitValue,
+    bool assignMissingToLeft,
+    const TVector& nodeValue,
+    double gain,
+    std::size_t numberSamples,
+    maths::analytics::CBoostedTreeNode::TOptionalNodeIndex leftChild,
+    maths::analytics::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
     auto* ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     // use dynamic cast to prevent using wrong type of trained models
     auto* tree = dynamic_cast<CTree*>(ensemble->trainedModels().back().get());

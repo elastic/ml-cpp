@@ -142,7 +142,8 @@ setupLinearBinaryClassificationProblem(std::size_t rows, std::size_t cols) {
         [&](const TRowRef& row) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, 0.25, 1, noise);
-            return maths::common::CTools::logisticFunction(0.025 * target(row) + noise[0]) < 0.5
+            return maths::common::CTools::logisticFunction(0.025 * target(row) +
+                                                           noise[0]) < 0.5
                        ? 0.0
                        : 1.0;
         },

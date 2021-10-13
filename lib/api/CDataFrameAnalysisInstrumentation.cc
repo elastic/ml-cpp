@@ -362,7 +362,8 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
                           rapidjson::Value(m_Parameters.s_StandardizeColumns).Move(),
                           parentObject);
         writer->addMember(CDataFrameOutliersRunner::METHOD,
-                          maths::analytics::COutliers::print(m_Parameters.s_Method), parentObject);
+                          maths::analytics::COutliers::print(m_Parameters.s_Method),
+                          parentObject);
     }
 }
 

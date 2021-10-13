@@ -778,7 +778,8 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
                             samplingRowMask.manhattan(), 1.0);
 
         // Ensure that the target's distribution is similar.
-        maths::common::CQuantileSketch expectedQuantiles(maths::common::CQuantileSketch::E_Linear, numberRows);
+        maths::common::CQuantileSketch expectedQuantiles(
+            maths::common::CQuantileSketch::E_Linear, numberRows);
         maths::common::CQuantileSketch actualQuantiles(
             maths::common::CQuantileSketch::E_Linear,
             static_cast<std::size_t>(samplingRowMask.manhattan()));

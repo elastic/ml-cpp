@@ -328,7 +328,7 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
 
     m_TreeImpl->initializeTunableHyperparameters();
 
-common::CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
+    common::CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
     for (const auto& parameter : m_TreeImpl->m_TunableHyperparameters) {
         switch (parameter) {
         case E_DownsampleFactor:
@@ -375,7 +375,8 @@ common::CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
                 common::CTools::stableExp(m_LogFeatureBagFractionInterval(MAX_PARAMETER_INDEX)));
             break;
         case E_PredictionChangeCost:
-            boundingBox.emplace_back(common::CTools::stableLog(0.01), common::CTools::stableLog(2.0));
+            boundingBox.emplace_back(common::CTools::stableLog(0.01),
+                                     common::CTools::stableLog(2.0));
             break;
         case E_RetrainedTreeEta:
             boundingBox.emplace_back(
@@ -1241,12 +1242,15 @@ void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty(core::CDataFrame& f
                 double minimumGain{0.1 * *postiveGain};
                 gainVariancePercentiles[0] =
                     common::CTools::stableLog(0.5) +
-                    0.5 * common::CTools::stableLog(std::max(gainVariancePercentiles[0], minimumGain));
+                    0.5 * common::CTools::stableLog(
+                              std::max(gainVariancePercentiles[0], minimumGain));
                 gainVariancePercentiles[1] =
-                    0.5 * common::CTools::stableLog(std::max(gainVariancePercentiles[1], minimumGain));
+                    0.5 * common::CTools::stableLog(
+                              std::max(gainVariancePercentiles[1], minimumGain));
                 gainVariancePercentiles[2] =
                     common::CTools::stableLog(3.0) +
-                    0.5 * common::CTools::stableLog(std::max(gainVariancePercentiles[2], minimumGain));
+                    0.5 * common::CTools::stableLog(
+                              std::max(gainVariancePercentiles[2], minimumGain));
                 m_TreeImpl->m_Regularization.treeTopologyChangePenalty(
                     common::CTools::stableExp(gainVariancePercentiles[1]));
                 m_LogTreeTopologyChangePenaltySearchInterval = TVector{gainVariancePercentiles};
