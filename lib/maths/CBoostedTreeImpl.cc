@@ -304,8 +304,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         m_Hyperparameters.restoreSaved();
         m_Hyperparameters.output(*m_Instrumentation);
-        m_Hyperparameters.scaleRegularizerMultipliers(
-            allTrainingRowsMask.manhattan() / this->meanNumberTrainingRowsPerFold());
+        double scale{allTrainingRowsMask.manhattan() / this->meanNumberTrainingRowsPerFold()};
+        CScopeBoostedTreeParameterOverrides<double> overrides;
+        m_Hyperparameters.scaleRegularizationMultipliers(scale, overrides);
         this->startProgressMonitoringFinalTrain();
 
         // Reinitialize random number generator for reproducible results.
@@ -408,10 +409,15 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "Number trees to retrain = " << numberTreesToRetrain << "/"
               << m_BestForest.size());
 
+    CScopeBoostedTreeParameterOverrides<double> overrides;
     if (m_PreviousTrainNumberRows > 0) {
-        m_Hyperparameters.scaleRegularizerMultipliers(
-            this->meanNumberTrainingRowsPerFold() / static_cast<double>(m_PreviousTrainNumberRows),
-            true /*force*/);
+        // We do not undo these changes because we store the mean number of rows
+        // per fold with the model at the end of update. Therefore, if call update
+        // repeatedly we are always scaling w.r.t. m_PreviousTrainNumberRows is
+        // updated each time.
+        double scale{this->meanNumberTrainingRowsPerFold() /
+                     static_cast<double>(m_PreviousTrainNumberRows)};
+        m_Hyperparameters.scaleRegularizationMultipliers(scale, overrides, false /*undo*/);
     }
 
     for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished();
@@ -478,9 +484,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         m_Hyperparameters.output(*m_Instrumentation);
 
         if (m_PreviousTrainNumberRows > 0) {
-            m_Hyperparameters.scaleRegularizerMultipliers(
-                allTrainingRowsMask.manhattan() / this->meanNumberTrainingRowsPerFold(),
-                true /*force*/);
+            double scale{allTrainingRowsMask.manhattan() /
+                         this->meanNumberTrainingRowsPerFold()};
+            m_Hyperparameters.scaleRegularizationMultipliers(scale, overrides);
         }
 
         TNodeVecVec retrainedTrees{this->updateForest(frame, allTrainingRowsMask,
@@ -624,14 +630,6 @@ std::size_t CBoostedTreeImpl::correctedMemoryUsage(double memoryUsageBytes) {
 bool CBoostedTreeImpl::canTrain() const {
     return std::accumulate(m_FeatureSampleProbabilities.begin(),
                            m_FeatureSampleProbabilities.end(), 0.0) > 0.0;
-}
-
-double CBoostedTreeImpl::meanNumberTrainingRowsPerFold() const {
-    TMeanAccumulator result;
-    for (const auto& mask : m_TrainingRowMasks) {
-        result.add(mask.manhattan());
-    }
-    return CBasicStatistics::mean(result);
 }
 
 CBoostedTreeImpl::TDoubleDoublePr
@@ -2313,6 +2311,14 @@ const CBoostedTreeImpl::TVector& CBoostedTreeImpl::classificationWeights() const
 
 core::CPackedBitVector CBoostedTreeImpl::allTrainingRowsMask() const {
     return ~m_MissingFeatureRowMasks[m_DependentVariable];
+}
+
+double CBoostedTreeImpl::meanNumberTrainingRowsPerFold() const {
+    TMeanAccumulator result;
+    for (const auto& mask : m_TrainingRowMasks) {
+        result.add(mask.manhattan());
+    }
+    return CBasicStatistics::mean(result);
 }
 
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};

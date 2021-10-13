@@ -1414,8 +1414,8 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
     };
 
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.007);
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.011);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.012);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -2637,7 +2637,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
 
     auto stream = boost::make_shared<std::ostringstream>();
 
-    // log at level ERROR only
+    // Redirect logging to a string stream so we can check errors generated.
     BOOST_TEST_REQUIRE(core::CLogger::instance().reconfigure(stream));
 
     std::size_t cols{3};
@@ -2655,7 +2655,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBayesianOptimisationState)
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
-        LOG_DEBUG(<< "got = " << e.what());
+        std::cout << "got = " << e.what() << std::endl;
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
@@ -2675,7 +2675,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
-        LOG_DEBUG(<< "got = " << e.what());
+        std::cout << "got = " << e.what() << std::endl;
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
@@ -2695,7 +2695,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
-        LOG_DEBUG(<< "got = " << e.what());
+        std::cout << "got = " << e.what() << std::endl;
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");

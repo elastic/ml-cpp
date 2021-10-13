@@ -167,6 +167,9 @@ public:
     //! the dependent variable.
     core::CPackedBitVector allTrainingRowsMask() const;
 
+    //! Get the mean number of training examples which are used in each fold.
+    double meanNumberTrainingRowsPerFold() const;
+
     //!\ name Test Only
     //@{
     //! Get the threshold on the predicted probability of class one at which to
@@ -240,9 +243,6 @@ private:
 
     //! Check if we can train a model.
     bool canTrain() const;
-
-    //! Get the mean number of training examples which are used in each fold.
-    double meanNumberTrainingRowsPerFold() const;
 
     //! Compute the \p percentile percentile gain per split and the sum of row
     //! curvatures per internal node of \p forest.

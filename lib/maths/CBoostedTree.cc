@@ -245,7 +245,7 @@ CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportanc
 }
 
 std::size_t CBoostedTree::numberTrainRows() const {
-    return static_cast<std::size_t>(m_Impl->allTrainingRowsMask().manhattan());
+    return static_cast<std::size_t>(m_Impl->meanNumberTrainingRowsPerFold() + 0.5);
 }
 
 double CBoostedTree::lossGap() const {

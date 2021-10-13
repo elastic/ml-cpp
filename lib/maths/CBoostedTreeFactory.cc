@@ -959,12 +959,12 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                 // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
                     double scale{initialDownsampleFactor / downsampleFactor};
-                    tree.m_Hyperparameters.depthPenaltyMultiplier().set(initialDepthPenaltyMultiplier);
+                    tree.m_Hyperparameters.depthPenaltyMultiplier().set(
+                        scale * initialDepthPenaltyMultiplier);
                     tree.m_Hyperparameters.treeSizePenaltyMultiplier().set(
-                        initialTreeSizePenaltyMultiplier);
+                        scale * initialTreeSizePenaltyMultiplier);
                     tree.m_Hyperparameters.leafWeightPenaltyMultiplier().set(
-                        initialLeafWeightPenaltyMultiplier);
-                    tree.m_Hyperparameters.scaleRegularizerMultipliers(scale);
+                        scale * initialLeafWeightPenaltyMultiplier);
                     return scale;
                 };
 
@@ -1161,7 +1161,16 @@ void CBoostedTreeFactory::initializeUnsetRetrainedTreeEta() {
 
 void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty(core::CDataFrame& frame) {
 
-    if (m_TreeImpl->m_Hyperparameters.treeTopologyChangePenalty().fixed() == false) {
+    auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
+
+    if (hyperparameters.treeTopologyChangePenalty().fixed() == false) {
+
+        CScopeBoostedTreeParameterOverrides<double> overrides;
+        if (m_TreeImpl->m_PreviousTrainNumberRows > 0) {
+            double scale{m_TreeImpl->meanNumberTrainingRowsPerFold() /
+                         static_cast<double>(m_TreeImpl->m_PreviousTrainNumberRows)};
+            hyperparameters.scaleRegularizationMultipliers(scale, overrides);
+        }
 
         auto forest = m_TreeImpl
                           ->updateForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
@@ -1219,7 +1228,9 @@ CBoostedTreeFactory::TDoubleDoublePrVec
 CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
                                                   const TDoubleVec& percentiles) const {
 
-    CScopeForceSetMaximumNumberTrees to{1, m_TreeImpl->m_Hyperparameters};
+    CScopeBoostedTreeParameterOverrides<std::size_t> overrides;
+    overrides.apply(m_TreeImpl->m_Hyperparameters.maximumNumberTrees(), 1);
+
     CBoostedTreeImpl::TNodeVecVec forest{
         m_TreeImpl
             ->trainForest(frame, m_TreeImpl->m_TrainingRowMasks[0],
@@ -1430,7 +1441,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr mod
     hyperparameters.featureBagFraction().fix();
     hyperparameters.resetSearch();
     result.m_TreeImpl->m_PreviousTrainNumberRows = static_cast<std::size_t>(
-        result.m_TreeImpl->allTrainingRowsMask().manhattan());
+        result.m_TreeImpl->meanNumberTrainingRowsPerFold() + 0.5);
     result.m_TreeImpl->m_PreviousTrainLossGap = hyperparameters.bestForestLossGap();
     result.m_TreeImpl->m_FoldRoundTestLosses.clear();
     result.m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_NotInitialized;
@@ -1741,7 +1752,8 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsageTrain(std::size_t numberRows
         m_TreeImpl->m_Hyperparameters.eta().fixed()
             ? m_TreeImpl->m_Hyperparameters.eta().value()
             : computeEta(numberColumns))};
-    CScopeForceSetMaximumNumberTrees to{maximumNumberTrees, m_TreeImpl->m_Hyperparameters};
+    CScopeBoostedTreeParameterOverrides<std::size_t> overrides;
+    overrides.apply(m_TreeImpl->m_Hyperparameters.maximumNumberTrees(), maximumNumberTrees);
     std::size_t result{m_TreeImpl->estimateMemoryUsageTrain(numberRows, numberColumns)};
     return result;
 }

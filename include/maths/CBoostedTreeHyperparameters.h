@@ -25,21 +25,25 @@
 #include <boost/optional.hpp>
 
 #include <cstddef>
+#include <functional>
 #include <locale>
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace ml {
 namespace maths {
 class CDataFrameTrainBoostedTreeInstrumentationInterface;
-class CScopeForceSetMaximumNumberTrees;
+template<typename T>
+class CScopeBoostedTreeParameterOverrides;
 
 //! \brief Encapsulates a boosted tree parameter.
 //!
 //! DESCRIPTION:\n
-//! This provides the ability to save and load, persist and restore and fix a parameter.
-//! Fixed parameters are not optimised. This is typically as a result of a user override
-//! but we can also choose to fix a parameter if we can't determine a good search range.
+//! This provides the ability to save and load, persist and restore and fix a
+//! parameter. Fixed parameters are not optimised. This is typically as a result
+//! of a user override but we can also choose to fix a parameter if we can't
+//! determine a good search range.
 template<typename T>
 class CBoostedTreeParameter final {
 public:
@@ -65,13 +69,6 @@ public:
 
     //! Check if the
     bool fixed() const { return m_Fixed; }
-
-    //! Multiply the value by \p scale.
-    void scale(double scale, bool force) {
-        if (m_Fixed == false || force) {
-            m_Value *= scale;
-        }
-    }
 
     //! Save the current value.
     void save() { m_SavedValue = m_Value; }
@@ -118,14 +115,12 @@ private:
     static const std::string SAVED_VALUE_TAG;
 
 private:
-    void forceSet(T value) { m_Value = value; }
-
-private:
     T m_Value{};
     T m_SavedValue{};
     bool m_Fixed{false};
 
-    friend CScopeForceSetMaximumNumberTrees;
+    template<typename>
+    friend class CScopeBoostedTreeParameterOverrides;
 };
 
 template<typename T>
@@ -134,6 +129,40 @@ template<typename T>
 const std::string CBoostedTreeParameter<T>::FIXED_TAG{"fixed"};
 template<typename T>
 const std::string CBoostedTreeParameter<T>::SAVED_VALUE_TAG{"saved_value"};
+
+//! \brief Simple RAII type to force override a collection of parameter values
+//! for the object lifetime.
+template<typename T>
+class CScopeBoostedTreeParameterOverrides {
+public:
+    CScopeBoostedTreeParameterOverrides() = default;
+    ~CScopeBoostedTreeParameterOverrides() {
+        // Undo changes in reverse order to which they were applied.
+        for (std::size_t i = m_Parameters.size(); i > 0; --i) {
+            m_Parameters[i - 1]->m_Value = m_ValuesToRestore[i - 1];
+        }
+    }
+
+    CScopeBoostedTreeParameterOverrides(const CScopeBoostedTreeParameterOverrides&) = delete;
+    CScopeBoostedTreeParameterOverrides&
+    operator=(const CScopeBoostedTreeParameterOverrides&) = delete;
+
+    void apply(CBoostedTreeParameter<T>& parameter, T value, bool undo = true) {
+        if (undo) {
+            m_ValuesToRestore.push_back(parameter.value());
+            m_Parameters.push_back(&parameter);
+        }
+        parameter.m_Value = value;
+    }
+
+private:
+    using TVec = std::vector<T>;
+    using TParameterPtrVec = std::vector<CBoostedTreeParameter<T>*>;
+
+private:
+    TParameterPtrVec m_Parameters;
+    TVec m_ValuesToRestore;
+};
 
 //! \name The hyperparameters for boosted tree training.
 //!
@@ -293,8 +322,10 @@ public:
         return m_MaximumNumberTrees;
     }
 
-    //! Scale regularizer multipliers.
-    void scaleRegularizerMultipliers(double scale, bool force = false);
+    //! Scale the multipliers of the regularisation terms in the loss function by \p scale.
+    void scaleRegularizationMultipliers(double scale,
+                                        CScopeBoostedTreeParameterOverrides<double>& overrides,
+                                        bool undo = true);
 
     //! \name Optimisation
     //@{
@@ -444,21 +475,6 @@ private:
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;
     //@}
-};
-
-//! \brief Forces maximum number of trees to one for its lifetime.
-class CScopeForceSetMaximumNumberTrees {
-public:
-    explicit CScopeForceSetMaximumNumberTrees(std::size_t maximumNumberTree,
-                                              CBoostedTreeHyperparameters& hyperparameters);
-    ~CScopeForceSetMaximumNumberTrees();
-    CScopeForceSetMaximumNumberTrees(const CScopeForceSetMaximumNumberTrees&) = delete;
-    CScopeForceSetMaximumNumberTrees&
-    operator=(const CScopeForceSetMaximumNumberTrees&) = delete;
-
-private:
-    CBoostedTreeParameter<std::size_t>& m_MaximumNumberTrees;
-    std::size_t m_MaximumNumberTreesToRestore;
 };
 }
 }

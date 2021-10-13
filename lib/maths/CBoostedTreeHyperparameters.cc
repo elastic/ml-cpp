@@ -36,10 +36,16 @@ double CBoostedTreeHyperparameters::penaltyForDepth(std::size_t depth) const {
                     m_SoftTreeDepthTolerance.value());
 }
 
-void CBoostedTreeHyperparameters::scaleRegularizerMultipliers(double scale, bool force) {
-    m_DepthPenaltyMultiplier.scale(scale, force);
-    m_TreeSizePenaltyMultiplier.scale(scale, force);
-    m_LeafWeightPenaltyMultiplier.scale(scale, force);
+void CBoostedTreeHyperparameters::scaleRegularizationMultipliers(
+    double scale,
+    CScopeBoostedTreeParameterOverrides<double>& overrides,
+    bool undo) {
+    overrides.apply(m_DepthPenaltyMultiplier,
+                    scale * m_DepthPenaltyMultiplier.value(), undo);
+    overrides.apply(m_TreeSizePenaltyMultiplier,
+                    scale * m_TreeSizePenaltyMultiplier.value(), undo);
+    overrides.apply(m_LeafWeightPenaltyMultiplier,
+                    scale * m_LeafWeightPenaltyMultiplier.value(), undo);
 }
 
 void CBoostedTreeHyperparameters::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
@@ -720,16 +726,5 @@ const std::string CBoostedTreeHyperparameters::STOP_HYPERPARAMETER_OPTIMIZATION_
 const std::string CBoostedTreeHyperparameters::TREE_SIZE_PENALTY_MULTIPLIER_TAG{"tree_size_penalty_multiplier"};
 const std::string CBoostedTreeHyperparameters::TREE_TOPOLOGY_CHANGE_PENALTY_TAG{"tree_topology_change_penalty"};
 // clang-format on
-
-CScopeForceSetMaximumNumberTrees::CScopeForceSetMaximumNumberTrees(std::size_t maximumNumberTrees,
-                                                                   CBoostedTreeHyperparameters& hyperparameters)
-    : m_MaximumNumberTrees{hyperparameters.maximumNumberTrees()},
-      m_MaximumNumberTreesToRestore{hyperparameters.maximumNumberTrees().value()} {
-    m_MaximumNumberTrees.forceSet(maximumNumberTrees);
-}
-
-CScopeForceSetMaximumNumberTrees::~CScopeForceSetMaximumNumberTrees() {
-    m_MaximumNumberTrees.forceSet(m_MaximumNumberTreesToRestore);
-}
 }
 }
