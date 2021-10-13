@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <boost/test/tools/old/interface.hpp>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 
@@ -22,6 +23,7 @@ BOOST_AUTO_TEST_SUITE(CBoostedTreeHyperparametersTest)
 
 using namespace ml;
 
+using TDoubleVec = std::vector<double>;
 using TDoubleParameter = maths::CBoostedTreeParameter<double>;
 using TMeanAccumulator = maths::CBoostedTreeHyperparameters::TMeanAccumulator;
 using TMeanVarAccumulator = maths::CBoostedTreeHyperparameters::TMeanVarAccumulator;
@@ -128,19 +130,46 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
     std::size_t numberToTune{hyperaparameters.numberToTune()};
 
-    hyperaparameters.treeSizePenaltyMultiplier().fixTo(10.0);
+    auto testOverriding = [&](TDoubleParameter& parameter) {
 
-    BOOST_REQUIRE_EQUAL(numberToTune - 1, hyperaparameters.numberToTune());
+        parameter.fixTo(0.5);
 
-    auto addInitialRange = [](maths::boosted_tree_detail::EHyperparameter,
-                              maths::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-        bb.emplace_back(0.1, 1.0);
+        BOOST_REQUIRE_EQUAL(--numberToTune, hyperaparameters.numberToTune());
+
+        auto addInitialRange = [](maths::boosted_tree_detail::EHyperparameter,
+                                  maths::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
+            bb.emplace_back(0.1, 1.0);
+        };
+
+        hyperaparameters.initializeSearch(addInitialRange);
+
+        BOOST_REQUIRE_EQUAL(2 * hyperaparameters.numberToTune(),
+                            hyperaparameters.numberRounds());
+
+        test::CRandomNumbers rng;
+        TDoubleVec losses;
+
+        while (hyperaparameters.currentRound() < hyperaparameters.numberRounds()) {
+
+            TMeanVarAccumulator testLossMoments;
+            rng.generateUniformSamples(0.1, 1.0, 3, losses);
+            testLossMoments.add(losses);
+            hyperaparameters.selectNext(testLossMoments);
+            hyperaparameters.startNextSearchRound();
+
+            BOOST_REQUIRE_EQUAL(0.5, parameter.value());
+        }
     };
 
-    hyperaparameters.initializeSearch(addInitialRange);
-
-    BOOST_REQUIRE_EQUAL(2 * hyperaparameters.numberToTune(),
-                        hyperaparameters.numberRounds());
+    testOverriding(hyperaparameters.depthPenaltyMultiplier());
+    testOverriding(hyperaparameters.treeSizePenaltyMultiplier());
+    testOverriding(hyperaparameters.leafWeightPenaltyMultiplier());
+    testOverriding(hyperaparameters.softTreeDepthLimit());
+    testOverriding(hyperaparameters.softTreeDepthTolerance());
+    testOverriding(hyperaparameters.downsampleFactor());
+    testOverriding(hyperaparameters.featureBagFraction());
+    testOverriding(hyperaparameters.etaGrowthRatePerTree());
+    testOverriding(hyperaparameters.eta());
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOverrides) {
