@@ -97,6 +97,7 @@ public:
                                       double softTreeDepthTolerance = -1.0,
                                       double eta = 0.0,
                                       std::size_t maximumNumberTrees = 0,
+                                      double downsampleFactor = 0.0,
                                       double featureBagFraction = 0.0,
                                       double lossFunctionParameter = 1.0,
                                       TSizeOptional seed = {}) {
@@ -174,6 +175,9 @@ public:
         }
         if (maximumNumberTrees > 0) {
             treeFactory.maximumNumberTrees(maximumNumberTrees);
+        }
+        if (downsampleFactor > 0.0) {
+            treeFactory.downsampleFactor(downsampleFactor);
         }
         if (featureBagFraction > 0.0) {
             treeFactory.featureBagFraction(featureBagFraction);

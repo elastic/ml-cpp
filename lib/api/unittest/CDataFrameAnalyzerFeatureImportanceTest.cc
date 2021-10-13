@@ -406,7 +406,7 @@ struct SFixture {
     double s_SoftTreeDepthLimit{5.0};
     double s_SoftTreeDepthTolerance{0.1};
     double s_Eta{0.9};
-    std::size_t s_MaximumNumberTrees{1};
+    std::size_t s_MaximumNumberTrees{2};
     double s_FeatureBagFraction{1.0};
 
     int s_Rows{2000};
@@ -876,7 +876,10 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
     auto results = runRegressionWithMissingFeatures(topShapValues);
 
     TMeanVarAccumulator bias;
-    double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
+    double c1Sum{0.0};
+    double c2Sum{0.0};
+    double c3Sum{0.0};
+    double c4Sum{0.0};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             double c1{readShapValue(result, "c1")};
@@ -885,7 +888,8 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
             double c4{readShapValue(result, "c4")};
             double prediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
-            // the difference between the prediction and the sum of all SHAP values constitutes bias
+            // The difference between the prediction and the sum of all SHAP values
+            // constitutes bias.
             bias.add(prediction - (c1 + c2 + c3 + c4));
             c1Sum += std::fabs(c1);
             c2Sum += std::fabs(c2);
@@ -894,10 +898,14 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
         }
     }
 
-    BOOST_REQUIRE_CLOSE(c1Sum, c2Sum, 15.0); // c1 and c2 within 15% of each other
-    BOOST_REQUIRE_CLOSE(c1Sum, c3Sum, 15.0); // c1 and c3 within 15% of each other
-    BOOST_REQUIRE_CLOSE(c1Sum, c4Sum, 15.0); // c1 and c4 within 15% of each other
-    // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
+    LOG_DEBUG(<< "c1Sum = " << c1Sum << ", c2Sum = " << c2Sum
+              << ", c3Sum = " << c3Sum << ", c4Sum = " << c4Sum);
+
+    BOOST_REQUIRE_CLOSE(c1Sum, c2Sum, 20.0); // c1 and c2 within 16% of each other
+    BOOST_REQUIRE_CLOSE(c1Sum, c3Sum, 20.0); // c1 and c3 within 16% of each other
+    BOOST_REQUIRE_CLOSE(c1Sum, c4Sum, 20.0); // c1 and c4 within 16% of each other
+    // Make sure the local approximation differs from the prediction always by the same bias
+    // (up to a numeric error).
     BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
 }
 

@@ -68,6 +68,26 @@ const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
 const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
 
+//! \brief Executes a register function at the end of its life.
+class CScopeRunAtExit {
+public:
+    using TFunc = std::function<void()>;
+
+public:
+    explicit CScopeRunAtExit(TFunc func) : m_Func{std::move(func)} {}
+    ~CScopeRunAtExit() {
+        if (m_Func != nullptr) {
+            m_Func();
+        }
+    }
+
+    CScopeRunAtExit(const CScopeRunAtExit&) = delete;
+    CScopeRunAtExit& operator=(const CScopeRunAtExit&) = delete;
+
+private:
+    TFunc m_Func;
+};
+
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
 public:
@@ -248,8 +268,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         this->initializePerFoldTestLosses();
 
-        for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished();
-             m_Hyperparameters.startNextSearchRound()) {
+        for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
 
             LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
             m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
@@ -283,11 +302,15 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             m_Instrumentation->updateMemoryUsage(memoryUsage - lastMemoryUsage);
             lastMemoryUsage = memoryUsage;
 
+            // We need to update the current round before we persist so we don't
+            // perform an extra round when we fail over.
+            m_Hyperparameters.startNextSearchRound();
+
             // Store the training state after each hyperparameter search step.
-            LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() + 1
+            LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
                       << " state recording started");
             this->outputState(recordTrainStateCallback);
-            LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() + 1
+            LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
                       << " state recording finished");
 
             std::uint64_t currentLap{stopWatch.lap()};
@@ -297,7 +320,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             timeAccumulator.add(static_cast<double>(delta));
             lastLap = currentLap;
             m_Instrumentation->flush(HYPERPARAMETER_OPTIMIZATION_ROUND +
-                                     std::to_string(m_Hyperparameters.currentRound() + 1));
+                                     std::to_string(m_Hyperparameters.currentRound()));
         }
 
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
@@ -409,6 +432,15 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "Number trees to retrain = " << numberTreesToRetrain << "/"
               << m_BestForest.size());
 
+    // In the event we fail over and start from a checkpoint we'll apply the scale
+    // to regularisation multipliers again. In order for this to have no effect we
+    // set the previous number of train rows to this->meanNumberTrainingRowsPerFold()
+    // which means that the scale is 1 on re-entry.
+    CScopeRunAtExit _(
+        [ savedPreviousTrainNumberRows = m_PreviousTrainNumberRows, this ] {
+            m_PreviousTrainNumberRows = savedPreviousTrainNumberRows;
+        });
+
     CScopeBoostedTreeParameterOverrides<double> overrides;
     if (m_PreviousTrainNumberRows > 0) {
         // We do not undo these changes because we store the mean number of rows
@@ -418,10 +450,10 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         double scale{this->meanNumberTrainingRowsPerFold() /
                      static_cast<double>(m_PreviousTrainNumberRows)};
         m_Hyperparameters.scaleRegularizationMultipliers(scale, overrides, false /*undo*/);
+        m_PreviousTrainNumberRows = this->meanNumberTrainingRowsPerFold();
     }
 
-    for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished();
-         m_Hyperparameters.startNextSearchRound()) {
+    for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
 
         LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
         m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
@@ -454,11 +486,13 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         m_Instrumentation->updateMemoryUsage(memoryUsage - lastMemoryUsage);
         lastMemoryUsage = memoryUsage;
 
-        LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() + 1
-                  << " state recording started");
+        // We need to update the current round before we persist so we don't
+        // perform an extra round when we fail over.
+        m_Hyperparameters.startNextSearchRound();
+
+        LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() << " state recording started");
         this->outputState(recordTrainStateCallback);
-        LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() + 1
-                  << " state recording finished");
+        LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() << " state recording finished");
 
         std::uint64_t currentLap{stopWatch.lap()};
         std::uint64_t delta{currentLap - lastLap};
@@ -467,7 +501,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         timeAccumulator.add(static_cast<double>(delta));
         lastLap = currentLap;
         m_Instrumentation->flush(HYPERPARAMETER_OPTIMIZATION_ROUND +
-                                 std::to_string(m_Hyperparameters.currentRound() + 1));
+                                 std::to_string(m_Hyperparameters.currentRound()));
     }
 
     initialLoss += m_Hyperparameters.modelSizePenalty(numberKeptNodes, retrainedNumberNodes);

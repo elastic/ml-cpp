@@ -224,12 +224,14 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
 
     for (const auto& key : maths::CBoostedTreeHyperparameters::names()) {
         if (expectedHyperparameters.HasMember(key)) {
-            double expected{std::stod(expectedHyperparameters[key].GetString())};
-            double actual{std::stod(actualHyperparameters[key].GetString())};
+            double expected{std::stod(expectedHyperparameters[key]["value"].GetString())};
+            double actual{std::stod(actualHyperparameters[key]["value"].GetString())};
             BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
         } else if (expectedRegularizationHyperparameters.HasMember(key)) {
-            double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
-            double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
+            double expected{std::stod(
+                expectedRegularizationHyperparameters[key]["value"].GetString())};
+            double actual{std::stod(
+                actualRegularizationHyperparameters[key]["value"].GetString())};
             BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
         } else {
             BOOST_FAIL("Missing " + key);
@@ -242,6 +244,7 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
     // Test the regression hyperparameter settings are correctly propagated to the
     // analysis runner.
 
+    std::size_t numberSamples{100};
     double alpha{2.0};
     double lambda{1.0};
     double gamma{10.0};
@@ -250,7 +253,7 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
     double downsampleFactor{0.3};
     double eta{0.9};
     double etaGrowthRatePerTree{1.2};
-    std::size_t maximumNumberTrees{1};
+    std::size_t maximumNumberTrees{2};
     double featureBagFraction{0.3};
 
     std::stringstream output;
@@ -282,8 +285,8 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
         lossFunction, fieldNames, fieldValues, analyzer, expectedPredictions,
-        100, alpha, lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance,
-        eta, maximumNumberTrees, featureBagFraction);
+        numberSamples, alpha, lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance,
+        eta, maximumNumberTrees, downsampleFactor, featureBagFraction);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     // Check the hyperparameter values match the overrides.
@@ -649,7 +652,7 @@ BOOST_AUTO_TEST_CASE(testRegressionTraining) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
                            counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 7000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1930000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 2000000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
@@ -1218,7 +1221,7 @@ BOOST_AUTO_TEST_CASE(testClassificationTraining) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
                            counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 7000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1930000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 2000000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
@@ -1613,7 +1616,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
             .predictionDownsampleFactor(downsampleFactor)
             .predictionFeatureBagFraction(featureBagFraction)
             .previousTrainLossGap(lossGap)
-            .previousTrainNumberRows(numberExamples)
+            .previousTrainNumberRows(4 * numberExamples / 5)
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
