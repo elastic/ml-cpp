@@ -15,7 +15,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CPackedBitVector.h>
 
-#include <maths/CBoostedTreeLoss.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataSummarizationJsonWriter.h>
@@ -47,7 +47,7 @@ using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
-using TLossFunctionType = maths::boosted_tree::ELossType;
+using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
 using TDataFrameUPtrTemporaryDirectoryPtrPr =
     test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
@@ -75,7 +75,7 @@ void testSchema(TLossFunctionType lossType) {
     test::CDataFrameAnalysisSpecificationFactory specFactory;
     specFactory.rows(numberExamples).columns(cols).memoryLimit(30000000);
     std::string analysisType;
-    if (lossType == ml::maths::boosted_tree::E_BinaryClassification) {
+    if (lossType == ml::maths::analytics::boosted_tree::E_BinaryClassification) {
         specFactory.predictionCategoricalFieldNames({"categorical_col", "target_col"});
         analysisType = test::CDataFrameAnalysisSpecificationFactory::classification();
     } else {
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE(testDeserialization) {
     expectedFrame->finishWritingRows();
 
     // create encoder and serialize it
-    maths::CDataFrameCategoryEncoder expectedEncoder({1, *expectedFrame, 5});
+    maths::analytics::CDataFrameCategoryEncoder expectedEncoder({1, *expectedFrame, 5});
 
     api::CDataSummarizationJsonWriter writer{
         *expectedFrame, core::CPackedBitVector(expectedFrame->numberRows(), true),

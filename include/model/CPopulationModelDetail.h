@@ -24,9 +24,9 @@ CPopulationModel::TSizeSizePr CPopulationModel::personRange(const T& data, std::
     const std::size_t minCid = 0;
     const std::size_t maxCid = std::numeric_limits<std::size_t>::max();
     auto begin = std::lower_bound(data.begin(), data.end(), std::make_pair(pid, minCid),
-                                  maths::COrderings::SFirstLess());
+                                  maths::common::COrderings::SFirstLess());
     auto end = std::upper_bound(begin, data.end(), std::make_pair(pid, maxCid),
-                                maths::COrderings::SFirstLess());
+                                maths::common::COrderings::SFirstLess());
     return {static_cast<std::size_t>(begin - data.begin()),
             static_cast<std::size_t>(end - data.begin())};
 }
@@ -35,7 +35,7 @@ template<typename T>
 typename T::const_iterator
 CPopulationModel::find(const T& data, std::size_t pid, std::size_t cid) {
     auto i = std::lower_bound(data.begin(), data.end(), std::make_pair(pid, cid),
-                              maths::COrderings::SFirstLess());
+                              maths::common::COrderings::SFirstLess());
     if (i != data.end() && (CDataGatherer::extractPersonId(*i) != pid ||
                             CDataGatherer::extractAttributeId(*i) != cid)) {
         i = data.end();

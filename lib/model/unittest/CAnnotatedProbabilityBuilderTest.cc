@@ -9,7 +9,7 @@
  * limitation.
  */
 
-#include <maths/CMultinomialConjugate.h>
+#include <maths/common/CMultinomialConjugate.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CStringStore.h>
@@ -140,16 +140,16 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualRare) {
 }
 
 BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
-    maths::CMultinomialConjugate attributePrior(
-        maths::CMultinomialConjugate::nonInformativePrior(4u));
+    maths::common::CMultinomialConjugate attributePrior(
+        maths::common::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1; i <= 4; ++i) {
         TDouble1Vec samples(i, static_cast<double>(i));
         maths_t::TDoubleWeightsAry1Vec weights(i, maths_t::CUnitWeights::UNIT);
         attributePrior.addSamples(samples, weights);
     }
 
-    maths::CMultinomialConjugate personAttributePrior(
-        maths::CMultinomialConjugate::nonInformativePrior(4u));
+    maths::common::CMultinomialConjugate personAttributePrior(
+        maths::common::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1; i <= 4; ++i) {
         TDouble1Vec samples(2 * i, static_cast<double>(i));
         maths_t::TDoubleWeightsAry1Vec weights(2 * i, maths_t::CUnitWeights::UNIT);
@@ -220,16 +220,16 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
 }
 
 BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationFreqRare) {
-    maths::CMultinomialConjugate attributePrior(
-        maths::CMultinomialConjugate::nonInformativePrior(4u));
+    maths::common::CMultinomialConjugate attributePrior(
+        maths::common::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1; i <= 4; ++i) {
         TDouble1Vec samples(i, static_cast<double>(i));
         maths_t::TDoubleWeightsAry1Vec weights(i, maths_t::CUnitWeights::UNIT);
         attributePrior.addSamples(samples, weights);
     }
 
-    maths::CMultinomialConjugate personAttributePrior(
-        maths::CMultinomialConjugate::nonInformativePrior(4u));
+    maths::common::CMultinomialConjugate personAttributePrior(
+        maths::common::CMultinomialConjugate::nonInformativePrior(4u));
     for (std::size_t i = 1; i <= 4; ++i) {
         TDouble1Vec samples(2 * i, static_cast<double>(i));
         maths_t::TDoubleWeightsAry1Vec weights(2 * i, maths_t::CUnitWeights::UNIT);

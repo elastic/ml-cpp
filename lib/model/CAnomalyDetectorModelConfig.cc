@@ -16,10 +16,11 @@
 #include <core/CStreamUtils.h>
 #include <core/Constants.h>
 
-#include <maths/CMultivariatePrior.h>
-#include <maths/CTimeSeriesModel.h>
-#include <maths/CTools.h>
-#include <maths/Constants.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/CTools.h>
+#include <maths/common/Constants.h>
+
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <core/CRegex.h>
 #include <model/CCountingModelFactory.h>
@@ -250,12 +251,13 @@ bool CAnomalyDetectorModelConfig::aggregationStyleParams(model_t::EAggregationSt
 }
 
 void CAnomalyDetectorModelConfig::maximumAnomalousProbability(double probability) {
-    double minimum = 100 * maths::MINUSCULE_PROBABILITY;
+    double minimum = 100 * maths::common::MINUSCULE_PROBABILITY;
     if (probability < minimum || probability > 1.0) {
         LOG_INFO(<< "Maximum anomalous probability " << probability
                  << " out of range [" << minimum << "," << 1.0 << "] truncating");
     }
-    m_MaximumAnomalousProbability = maths::CTools::truncate(probability, minimum, 1.0);
+    m_MaximumAnomalousProbability =
+        maths::common::CTools::truncate(probability, minimum, 1.0);
 }
 
 bool CAnomalyDetectorModelConfig::noisePercentile(double percentile) {
@@ -299,12 +301,14 @@ bool CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(const TDoubleDoubleP
             return false;
         }
     }
-    if (!std::is_sorted(points.begin(), points.end(), maths::COrderings::SFirstLess())) {
+    if (!std::is_sorted(points.begin(), points.end(),
+                        maths::common::COrderings::SFirstLess())) {
         LOG_ERROR(<< "Percentiles must be monotonic increasing "
                   << core::CContainerPrinter::print(points));
         return false;
     }
-    if (!std::is_sorted(points.begin(), points.end(), maths::COrderings::SSecondLess())) {
+    if (!std::is_sorted(points.begin(), points.end(),
+                        maths::common::COrderings::SSecondLess())) {
         LOG_ERROR(<< "Scores must be monotonic increasing "
                   << core::CContainerPrinter::print(points));
         return false;
@@ -383,7 +387,7 @@ void CAnomalyDetectorModelConfig::configureModelPlot(bool modelPlotEnabled,
     m_ModelPlotEnabled = modelPlotEnabled;
 
     if (m_ModelPlotEnabled) {
-        m_ModelPlotBoundsPercentile = maths::CModel::DEFAULT_BOUNDS_PERCENTILE;
+        m_ModelPlotBoundsPercentile = maths::common::CModel::DEFAULT_BOUNDS_PERCENTILE;
     }
 
     m_ModelPlotAnnotationsEnabled = annotationsEnabled;

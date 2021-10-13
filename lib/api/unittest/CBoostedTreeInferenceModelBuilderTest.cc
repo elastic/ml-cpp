@@ -17,7 +17,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CLinearAlgebraEigen.h>
+#include <maths/common/CLinearAlgebraEigen.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationMsleRegression) {
                     .rows(numberExamples)
                     .columns(cols)
                     .memoryLimit(30000000)
-                    .regressionLossFunction(maths::boosted_tree::E_MsleRegression)
+                    .regressionLossFunction(maths::analytics::boosted_tree::E_MsleRegression)
                     .predictionMaximumNumberTrees(1)
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                                     "target_col", &frameAndDirectory);

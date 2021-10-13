@@ -15,7 +15,7 @@
 #include <core/CMemory.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CMultinomialConjugate.h>
+#include <maths/common/CMultinomialConjugate.h>
 
 #include <model/CFeatureData.h>
 #include <model/CIndividualModel.h>
@@ -107,7 +107,7 @@ public:
                     const TFeatureMathsModelSPtrPrVec& newFeatureModels,
                     const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
                     TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
-                    const maths::CMultinomialConjugate& probabilityPrior,
+                    const maths::common::CMultinomialConjugate& probabilityPrior,
                     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                     const TInterimBucketCorrectorCPtr& interimBucketCorrector);
 
@@ -330,7 +330,7 @@ private:
     //! The prior for the joint probabilities of seeing the people
     //! we are modeling (this captures information about the person
     //! rarity).
-    maths::CMultinomialConjugate m_ProbabilityPrior;
+    maths::common::CMultinomialConjugate m_ProbabilityPrior;
 
     //! Calculates corrections for interim buckets.
     TInterimBucketCorrectorCPtr m_InterimBucketCorrector;

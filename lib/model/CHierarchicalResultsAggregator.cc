@@ -17,10 +17,10 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CMathsFuncs.h>
-#include <maths/CTools.h>
-#include <maths/Constants.h>
-#include <maths/ProbabilityAggregators.h>
+#include <maths/common/CMathsFuncs.h>
+#include <maths/common/CTools.h>
+#include <maths/common/Constants.h>
+#include <maths/common/ProbabilityAggregators.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CAnomalyScore.h>
@@ -71,13 +71,13 @@ bool influenceProbability(const TStoredStringPtrStoredStringPtrPrDoublePrVec& in
 
     std::size_t k{static_cast<std::size_t>(
         std::lower_bound(influences.begin(), influences.end(), influence,
-                         maths::COrderings::SFirstLess()) -
+                         maths::common::COrderings::SFirstLess()) -
         influences.begin())};
 
     if (k < influences.size() && equal(influences[k].first, influence)) {
         result = influences[k].second == 1.0
                      ? p
-                     : std::exp(influences[k].second * maths::CTools::fastLog(p));
+                     : std::exp(influences[k].second * maths::common::CTools::fastLog(p));
         return true;
     }
 
@@ -174,8 +174,8 @@ bool CHierarchicalResultsAggregator::acceptRestoreTraverser(core::CStateRestoreT
 
 uint64_t CHierarchicalResultsAggregator::checksum() const {
     uint64_t seed = static_cast<uint64_t>(m_DecayRate);
-    seed = maths::CChecksum::calculate(seed, m_Parameters);
-    seed = maths::CChecksum::calculate(seed, m_MaximumAnomalousProbability);
+    seed = maths::common::CChecksum::calculate(seed, m_Parameters);
+    seed = maths::common::CChecksum::calculate(seed, m_MaximumAnomalousProbability);
     return this->TBase::checksum(seed);
 }
 
@@ -186,11 +186,11 @@ void CHierarchicalResultsAggregator::aggregateLeaf(const TNode& node) {
 
     int detector{node.s_Detector};
     double probability{node.probability()};
-    if (!maths::CMathsFuncs::isFinite(probability)) {
+    if (!maths::common::CMathsFuncs::isFinite(probability)) {
         probability = 1.0;
     }
-    probability = maths::CTools::truncate(probability,
-                                          maths::CTools::smallestProbability(), 1.0);
+    probability = maths::common::CTools::truncate(
+        probability, maths::common::CTools::smallestProbability(), 1.0);
     this->correctProbability(node, false, detector, probability);
     model_t::EAggregationStyle style{isAttribute(node) ? model_t::E_AggregateAttributes
                                                        : model_t::E_AggregatePeople};
@@ -199,7 +199,7 @@ void CHierarchicalResultsAggregator::aggregateLeaf(const TNode& node) {
     node.s_AggregationStyle = style;
     node.s_SmallestChildProbability = probability;
     node.s_SmallestDescendantProbability = probability;
-    node.s_RawAnomalyScore = maths::CTools::anomalyScore(probability);
+    node.s_RawAnomalyScore = maths::common::CTools::anomalyScore(probability);
 }
 
 void CHierarchicalResultsAggregator::aggregateNode(const TNode& node, bool pivot) {
@@ -239,7 +239,7 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(
     std::size_t& numberDetectors,
     TIntSizePrDouble1VecUMap (&partition)[N]) {
     using TSizeFSet = boost::container::flat_set<std::size_t>;
-    using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
+    using TMinAccumulator = maths::common::CBasicStatistics::SMin<double>::TAccumulator;
 
     for (std::size_t i = 0; i < N; ++i) {
         partition[i].reserve(node.s_Children.size());
@@ -289,10 +289,10 @@ bool CHierarchicalResultsAggregator::partitionChildProbabilities(
     }
 
     if (haveResult) {
-        node.s_SmallestChildProbability = maths::CTools::truncate(
-            pMinChild[0], maths::CTools::smallestProbability(), 1.0);
-        node.s_SmallestDescendantProbability = maths::CTools::truncate(
-            pMinDescendent[0], maths::CTools::smallestProbability(), 1.0);
+        node.s_SmallestChildProbability = maths::common::CTools::truncate(
+            pMinChild[0], maths::common::CTools::smallestProbability(), 1.0);
+        node.s_SmallestDescendantProbability = maths::common::CTools::truncate(
+            pMinDescendent[0], maths::common::CTools::smallestProbability(), 1.0);
     }
     numberDetectors = detectors.size();
     LOG_TRACE(<< "detector = " << core::CContainerPrinter::print(detectors));
@@ -335,7 +335,7 @@ void CHierarchicalResultsAggregator::detectorProbabilities(
                     m_MaximumAnomalousProbability, subset.second,
                     rawAnomalyScore, probability);
             }
-            if (!maths::CMathsFuncs::isFinite(probability)) {
+            if (!maths::common::CMathsFuncs::isFinite(probability)) {
                 probability = 1.0;
             }
 
@@ -391,7 +391,7 @@ double CHierarchicalResultsAggregator::correctProbability(const TNode& node,
                                                           bool pivot,
                                                           int detector,
                                                           double probability) {
-    using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
+    using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
 
     if (probability < CDetectorEqualizer::largestProbabilityToCorrect()) {
         TDetectorEqualizerPtrVec equalizers;

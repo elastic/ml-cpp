@@ -19,12 +19,13 @@
 #include <core/CoreTypes.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
-#include <maths/COrderings.h>
-#include <maths/CPrior.h>
-#include <maths/CPriorStateSerialiser.h>
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesDecompositionStateSerialiser.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CPrior.h>
+#include <maths/common/CPriorStateSerialiser.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CModelTools.h>
@@ -38,7 +39,7 @@ namespace model {
 namespace {
 
 using TStrCRef = std::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
+using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
 
 enum EEntity { E_Person, E_Attribute };
 
@@ -75,7 +76,7 @@ void hashActive(EEntity entity,
     for (std::size_t id = 0; id < values.size(); ++id) {
         if (isActive(entity, gatherer, id)) {
             uint64_t& hash = hashes[std::cref(name(entity, gatherer, id))];
-            hash = maths::CChecksum::calculate(hash, values[id]);
+            hash = maths::common::CChecksum::calculate(hash, values[id]);
         }
     }
 }
@@ -108,7 +109,7 @@ CPopulationModel::CPopulationModel(const SModelParams& params,
     const model_t::TFeatureVec& features = dataGatherer->features();
     for (std::size_t i = 0; i < features.size(); ++i) {
         if (!model_t::isCategorical(features[i]) && !model_t::isConstant(features[i])) {
-            m_NewPersonBucketCounts.reset(maths::CCountMinSketch(
+            m_NewPersonBucketCounts.reset(maths::time_series::CCountMinSketch(
                 COUNT_MIN_SKETCH_ROWS, COUNT_MIN_SKETCH_COLUMNS));
             break;
         }
@@ -141,7 +142,7 @@ CPopulationModel::currentBucketCount(std::size_t pid, core_t::TTime time) const 
 
     const TSizeUInt64PrVec& personCounts = this->personCounts();
     auto i = std::lower_bound(personCounts.begin(), personCounts.end(), pid,
-                              maths::COrderings::SFirstLess());
+                              maths::common::COrderings::SFirstLess());
     return (i != personCounts.end() && i->first == pid) ? TOptionalUInt64(i->second)
                                                         : TOptionalUInt64();
 }
@@ -203,7 +204,7 @@ uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
 
-    return maths::CChecksum::calculate(seed, hashes);
+    return maths::common::CChecksum::calculate(seed, hashes);
 }
 
 void CPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
@@ -255,8 +256,8 @@ double CPopulationModel::sampleRateWeight(std::size_t pid, std::size_t cid) cons
         return 1.0;
     }
 
-    const maths::CCountMinSketch& counts = m_PersonAttributeBucketCounts[cid];
-    const maths::CBjkstUniqueValues& distinctPeople = m_DistinctPersonCounts[cid];
+    const maths::time_series::CCountMinSketch& counts = m_PersonAttributeBucketCounts[cid];
+    const maths::common::CBjkstUniqueValues& distinctPeople = m_DistinctPersonCounts[cid];
 
     double personCount = counts.count(static_cast<uint32_t>(pid)) -
                          counts.oneMinusDeltaError();
@@ -287,15 +288,15 @@ void CPopulationModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
     core::CPersistUtils::persist(ATTRIBUTE_LAST_BUCKET_TIME_TAG,
                                  m_AttributeLastBucketTimes, inserter);
     for (std::size_t cid = 0; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
-        inserter.insertLevel(PERSON_ATTRIBUTE_BUCKET_COUNT_TAG,
-                             std::bind(&maths::CCountMinSketch::acceptPersistInserter,
-                                       &m_PersonAttributeBucketCounts[cid],
-                                       std::placeholders::_1));
+        inserter.insertLevel(
+            PERSON_ATTRIBUTE_BUCKET_COUNT_TAG,
+            std::bind(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                      &m_PersonAttributeBucketCounts[cid], std::placeholders::_1));
     }
     for (std::size_t cid = 0; cid < m_DistinctPersonCounts.size(); ++cid) {
         inserter.insertLevel(
             DISTINCT_PERSON_COUNT_TAG,
-            std::bind(&maths::CBjkstUniqueValues::acceptPersistInserter,
+            std::bind(&maths::common::CBjkstUniqueValues::acceptPersistInserter,
                       &m_DistinctPersonCounts[cid], std::placeholders::_1));
     }
 }
@@ -315,14 +316,15 @@ bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE(ATTRIBUTE_LAST_BUCKET_TIME_TAG,
                 core::CPersistUtils::restore(name, m_AttributeLastBucketTimes, traverser))
         if (name == PERSON_ATTRIBUTE_BUCKET_COUNT_TAG) {
-            maths::CCountMinSketch sketch(traverser);
-            m_PersonAttributeBucketCounts.push_back(maths::CCountMinSketch(0, 0));
+            maths::time_series::CCountMinSketch sketch(traverser);
+            m_PersonAttributeBucketCounts.push_back(
+                maths::time_series::CCountMinSketch(0, 0));
             m_PersonAttributeBucketCounts.back().swap(sketch);
             continue;
         }
         if (name == DISTINCT_PERSON_COUNT_TAG) {
-            maths::CBjkstUniqueValues sketch(traverser);
-            m_DistinctPersonCounts.push_back(maths::CBjkstUniqueValues(0, 0));
+            maths::common::CBjkstUniqueValues sketch(traverser);
+            m_DistinctPersonCounts.push_back(maths::common::CBjkstUniqueValues(0, 0));
             m_DistinctPersonCounts.back().swap(sketch);
             continue;
         }
@@ -492,7 +494,7 @@ void CPopulationModel::correctBaselineForInterim(model_t::EFeature feature,
 
 double CPopulationModel::propagationTime(std::size_t cid, core_t::TTime time) const {
     return 1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) *
-                     maths::CTools::truncate(
+                     maths::common::CTools::truncate(
                          1.0 - static_cast<double>(time - m_AttributeFirstBucketTimes[cid]) /
                                    static_cast<double>(3 * core::constants::WEEK),
                          0.0, 1.0);

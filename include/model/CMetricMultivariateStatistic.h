@@ -17,7 +17,7 @@
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
 
-#include <maths/CChecksum.h>
+#include <maths/common/CChecksum.h>
 
 #include <model/CMetricStatisticWrappers.h>
 
@@ -40,7 +40,7 @@ namespace model {
 //!   -# Member function void add(double value, unsigned int count)
 //!   -# Implementations for every function in CMetricStatisticsWrapper
 //!   -# Member operator +=
-//!   -# Supported by maths::CChecksum::calculate
+//!   -# Supported by maths::common::CChecksum::calculate
 //!   -# Supported by core::CMemoryDebug::dynamicSize
 //!   -# Supported by core::CMemory::dynamicSize
 //!   -# Have overload of operator<<
@@ -141,7 +141,7 @@ public:
 
     //! Get the checksum of the partial statistic
     uint64_t checksum(uint64_t seed) const {
-        return maths::CChecksum::calculate(seed, m_Values);
+        return maths::common::CChecksum::calculate(seed, m_Values);
     }
 
     //! Debug the memory used by the statistic.

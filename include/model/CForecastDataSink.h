@@ -17,7 +17,7 @@
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CModel.h>
+#include <maths/common/CModel.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
@@ -44,7 +44,7 @@ namespace model {
 //! to change (e.g. the json writing should not happen in this class).
 class MODEL_EXPORT CForecastDataSink final : private core::CNonCopyable {
 public:
-    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::common::CModel>;
     using TStrUMap = boost::unordered_set<std::string>;
     struct SForecastResultSeries;
 
@@ -148,7 +148,7 @@ public:
 
     //! Push a forecast datapoint
     //! Note: No forecasting for models with over field, therefore no over field
-    void push(const maths::SErrorBar errorBar,
+    void push(const maths::common::SErrorBar errorBar,
               const std::string& feature,
               const std::string& partitionFieldName,
               const std::string& partitionFieldValue,

@@ -34,14 +34,14 @@ BOOST_AUTO_TEST_CASE(testProbabilityAggregator) {
         LOG_DEBUG(<< "joint");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Min);
         BOOST_TEST_REQUIRE(actual.empty());
-        actual.add(maths::CJointProbabilityOfLessLikelySamples());
+        actual.add(maths::common::CJointProbabilityOfLessLikelySamples());
         BOOST_TEST_REQUIRE(actual.empty());
 
         double p0;
         BOOST_TEST_REQUIRE(actual.calculate(p0));
         BOOST_REQUIRE_EQUAL(1.0, p0);
 
-        maths::CJointProbabilityOfLessLikelySamples expected;
+        maths::common::CJointProbabilityOfLessLikelySamples expected;
 
         for (double p : {0.01, 0.2, 0.001, 0.3, 0.456, 0.1}) {
             actual.add(p);
@@ -60,14 +60,14 @@ BOOST_AUTO_TEST_CASE(testProbabilityAggregator) {
         LOG_DEBUG(<< "extreme");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Min);
         BOOST_TEST_REQUIRE(actual.empty());
-        actual.add(maths::CProbabilityOfExtremeSample());
+        actual.add(maths::common::CProbabilityOfExtremeSample());
         BOOST_TEST_REQUIRE(actual.empty());
 
         double p0;
         BOOST_TEST_REQUIRE(actual.calculate(p0));
         BOOST_REQUIRE_EQUAL(1.0, p0);
 
-        maths::CProbabilityOfExtremeSample expected;
+        maths::common::CProbabilityOfExtremeSample expected;
 
         for (double p : {0.01, 0.2, 0.001, 0.3, 0.456, 0.1}) {
             actual.add(p);
@@ -86,16 +86,16 @@ BOOST_AUTO_TEST_CASE(testProbabilityAggregator) {
         LOG_DEBUG(<< "minimum");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Min);
         BOOST_TEST_REQUIRE(actual.empty());
-        actual.add(maths::CJointProbabilityOfLessLikelySamples());
-        actual.add(maths::CProbabilityOfExtremeSample());
+        actual.add(maths::common::CJointProbabilityOfLessLikelySamples());
+        actual.add(maths::common::CProbabilityOfExtremeSample());
         BOOST_TEST_REQUIRE(actual.empty());
 
         double p0;
         BOOST_TEST_REQUIRE(actual.calculate(p0));
         BOOST_REQUIRE_EQUAL(1.0, p0);
 
-        maths::CJointProbabilityOfLessLikelySamples joint;
-        maths::CProbabilityOfExtremeSample extreme;
+        maths::common::CJointProbabilityOfLessLikelySamples joint;
+        maths::common::CProbabilityOfExtremeSample extreme;
 
         for (double p : {0.01, 0.2, 0.001, 0.3, 0.456, 0.1}) {
             actual.add(p);
@@ -116,16 +116,16 @@ BOOST_AUTO_TEST_CASE(testProbabilityAggregator) {
         LOG_DEBUG(<< "sum");
         CModelTools::CProbabilityAggregator actual(CModelTools::CProbabilityAggregator::E_Sum);
         BOOST_TEST_REQUIRE(actual.empty());
-        actual.add(maths::CJointProbabilityOfLessLikelySamples(), 0.5);
-        actual.add(maths::CProbabilityOfExtremeSample(), 0.5);
+        actual.add(maths::common::CJointProbabilityOfLessLikelySamples(), 0.5);
+        actual.add(maths::common::CProbabilityOfExtremeSample(), 0.5);
         BOOST_TEST_REQUIRE(actual.empty());
 
         double p0;
         BOOST_TEST_REQUIRE(actual.calculate(p0));
         BOOST_REQUIRE_EQUAL(1.0, p0);
 
-        maths::CJointProbabilityOfLessLikelySamples joint;
-        maths::CProbabilityOfExtremeSample extreme;
+        maths::common::CJointProbabilityOfLessLikelySamples joint;
+        maths::common::CProbabilityOfExtremeSample extreme;
 
         for (double p : {0.01, 0.2, 0.001, 0.3, 0.456, 0.1}) {
             actual.add(p);

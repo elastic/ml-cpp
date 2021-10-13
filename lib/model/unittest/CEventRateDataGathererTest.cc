@@ -17,7 +17,7 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CRegex.h>
 
-#include <maths/COrderings.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
@@ -1610,7 +1610,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
 
             std::sort(featureData.s_InfluenceValues[0].begin(),
                       featureData.s_InfluenceValues[0].end(),
-                      maths::COrderings::SFirstLess());
+                      maths::common::COrderings::SFirstLess());
 
             BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1)), (inf3, ([1], 1))]]"),
                                 featureData.print());
@@ -1656,7 +1656,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             for (std::size_t i = 0; i < 2; i++) {
                 std::sort(featureData.s_InfluenceValues[i].begin(),
                           featureData.s_InfluenceValues[i].end(),
-                          maths::COrderings::SFirstLess());
+                          maths::common::COrderings::SFirstLess());
             }
             BOOST_REQUIRE_EQUAL(std::string("3, [[(inf1, ([2], 1)), (inf2, ([2], 1))], [(inf_v2, ([1], 1)), (inf_v3, ([2], 1))]]"),
                                 featureData.print());
@@ -1739,7 +1739,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
 
             std::sort(featureData.s_InfluenceValues[0].begin(),
                       featureData.s_InfluenceValues[0].end(),
-                      maths::COrderings::SFirstLess());
+                      maths::common::COrderings::SFirstLess());
 
             BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1)), (inf3, ([12], 1))]]"),
                                 featureData.print());
@@ -1784,7 +1784,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             for (std::size_t i = 0; i < 2; i++) {
                 std::sort(featureData.s_InfluenceValues[i].begin(),
                           featureData.s_InfluenceValues[i].end(),
-                          maths::COrderings::SFirstLess());
+                          maths::common::COrderings::SFirstLess());
             }
             BOOST_REQUIRE_EQUAL(std::string("18, [[(inf1, ([16], 1)), (inf2, ([16], 1))], [(inf_v2, ([12], 1)), (inf_v3, ([16], 1))]]"),
                                 featureData.print());

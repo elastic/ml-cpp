@@ -14,11 +14,11 @@
 #include <core/CLogger.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
-#include <maths/CDataFrameUtils.h>
-#include <maths/CTreeShapFeatureImportance.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CDataFrameUtils.h>
+#include <maths/analytics/CTreeShapFeatureImportance.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -63,17 +63,17 @@ CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysi
         parameters[LOSS_FUNCTION].fallback(TLossFunctionType::E_MseRegression)};
     switch (lossFunctionType) {
     case TLossFunctionType::E_MsleRegression:
-        return std::make_unique<maths::boosted_tree::CMsle>(
+        return std::make_unique<maths::analytics::boosted_tree::CMsle>(
             parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0));
     case TLossFunctionType::E_MseRegression:
-        return std::make_unique<maths::boosted_tree::CMse>();
+        return std::make_unique<maths::analytics::boosted_tree::CMse>();
     case TLossFunctionType::E_HuberRegression:
-        return std::make_unique<maths::boosted_tree::CPseudoHuber>(
+        return std::make_unique<maths::analytics::boosted_tree::CPseudoHuber>(
             parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0));
     case TLossFunctionType::E_BinaryClassification:
     case TLossFunctionType::E_MulticlassClassification:
         LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided. Defaulting to MSE instead.");
-        return std::make_unique<maths::boosted_tree::CMse>();
+        return std::make_unique<maths::analytics::boosted_tree::CMse>();
     }
     return nullptr;
 }
@@ -112,14 +112,15 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Key(this->predictionFieldName());
     writer.Double(tree.readPrediction(row)[0]);
     writer.Key(IS_TRAINING_FIELD_NAME);
-    writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
+    writer.Bool(maths::analytics::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto* featureImportance = tree.shap();
     if (featureImportance != nullptr) {
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         featureImportance->shap(
-            row, [&writer, this](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                                 const TStrVec& featureNames,
-                                 const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+            row, [&writer, this](
+                     const maths::analytics::CTreeShapFeatureImportance::TSizeVec& indices,
+                     const TStrVec& featureNames,
+                     const maths::analytics::CTreeShapFeatureImportance::TVectorVec& shap) {
                 writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {

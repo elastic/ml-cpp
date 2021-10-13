@@ -16,7 +16,7 @@
 #include <core/CStoredStringPtr.h>
 #include <core/UnwrapRef.h>
 
-#include <maths/COrderings.h>
+#include <maths/common/COrderings.h>
 
 #include <model/FunctionTypes.h>
 #include <model/ImportExport.h>

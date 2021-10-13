@@ -245,10 +245,10 @@ protected:
     double emptyBucketWeight(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const;
 
     //! Get a read only model corresponding to \p feature of the person \p pid.
-    const maths::CModel* model(model_t::EFeature feature, std::size_t pid) const;
+    const maths::common::CModel* model(model_t::EFeature feature, std::size_t pid) const;
 
     //! Get a writable model corresponding to \p feature of the person \p pid.
-    maths::CModel* model(model_t::EFeature feature, std::size_t pid);
+    maths::common::CModel* model(model_t::EFeature feature, std::size_t pid);
 
     //! Sample the correlate models.
     void sampleCorrelateModels();

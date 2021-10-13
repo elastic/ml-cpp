@@ -14,8 +14,8 @@
 #include <core/CDataFrame.h>
 #include <core/CJsonStateRestoreTraverser.h>
 
-#include <maths/CBoostedTree.h>
-#include <maths/CDataFrameCategoryEncoder.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CDataFrameCategoryEncoder.h>
 
 #include <api/CDataSummarizationJsonWriter.h>
 #include <api/CInferenceModelDefinition.h>
@@ -119,7 +119,7 @@ CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& ist
     writer.write(doc[JSON_ENCODINGS_TAG]);
     writer.EndObject();
     core::CJsonStateRestoreTraverser traverser{jsonStrm};
-    encodings = std::make_unique<maths::CDataFrameCategoryEncoder>(traverser);
+    encodings = std::make_unique<maths::analytics::CDataFrameCategoryEncoder>(traverser);
 
     frame.columnNames(columnNames);
     frame.categoricalColumns(columnIsCategorical);
@@ -164,8 +164,8 @@ CRetrainableModelJsonReader::bestForestFromJsonStream(TIStreamSPtr istream,
 CRetrainableModelJsonReader::TNodeVecVecUPtr
 CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
                                                         const TStrSizeUMap& encodingIndices) {
-    using TNodeVec = maths::CBoostedTreeFactory::TNodeVec;
-    using TNodeVecVec = maths::CBoostedTreeFactory::TNodeVecVec;
+    using TNodeVec = maths::analytics::CBoostedTreeFactory::TNodeVec;
+    using TNodeVecVec = maths::analytics::CBoostedTreeFactory::TNodeVecVec;
 
     rapidjson::IStreamWrapper isw{istream};
     rapidjson::Document doc;
@@ -202,14 +202,14 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
                 if (node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG].IsArray()) {
                     auto leafValueArray =
                         getAsArrayFrom(node[CTree::CTreeNode::JSON_LEAF_VALUE_TAG]);
-                    maths::CBoostedTreeNode::TVector nodeValue(leafValueArray.Size());
+                    maths::analytics::CBoostedTreeNode::TVector nodeValue(leafValueArray.Size());
                     for (rapidjson::SizeType i = 0; i < leafValueArray.Size(); ++i) {
                         nodeValue[static_cast<long>(i)] =
                             getAsDoubleFrom(leafValueArray[i]);
                     }
                     nodes[nodeIndex].value(nodeValue);
                 } else {
-                    maths::CBoostedTreeNode::TVector nodeValue(1);
+                    maths::analytics::CBoostedTreeNode::TVector nodeValue(1);
                     nodeValue[0] = ifExists(CTree::CTreeNode::JSON_LEAF_VALUE_TAG,
                                             getAsDoubleFrom, node);
                     nodes[nodeIndex].value(nodeValue);
@@ -233,9 +233,9 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
                                        assignMissingToLeft, gain, 0.0, 0.0, nodes);
                 nodes[nodeIndex].numberSamples(numberSamples);
                 nodes[nodeIndex].leftChildIndex(
-                    static_cast<maths::CBoostedTreeNode::TNodeIndex>(leftChildIndex));
+                    static_cast<maths::analytics::CBoostedTreeNode::TNodeIndex>(leftChildIndex));
                 nodes[nodeIndex].rightChildIndex(
-                    static_cast<maths::CBoostedTreeNode::TNodeIndex>(rightChildIndex));
+                    static_cast<maths::analytics::CBoostedTreeNode::TNodeIndex>(rightChildIndex));
             }
         }
         forest->push_back(nodes);
