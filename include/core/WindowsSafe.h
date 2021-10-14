@@ -36,11 +36,21 @@
 #define STDCALL __stdcall
 #endif
 
+#ifndef EMPTY_BASE_OPT
+//! See https://devblogs.microsoft.com/cppblog/optimizing-the-layout-of-empty-base-classes-in-vs2015-update-2-3/
+#define EMPTY_BASE_OPT __declspec(empty_bases)
+#endif
+
 #else
 
 // Define STDCALL to nothing on Unix
 #ifndef STDCALL
 #define STDCALL
+#endif
+
+// Define EMPTY_BASE_OPT to nothing on Unix
+#ifndef EMPTY_BASE_OPT
+#define EMPTY_BASE_OPT
 #endif
 
 #endif

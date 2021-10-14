@@ -14,7 +14,7 @@
 
 #include <core/CStoredStringPtr.h>
 
-#include <maths/CModel.h>
+#include <maths/common/CModel.h>
 
 #include <model/CModelTools.h>
 #include <model/CPartitioningFields.h>
@@ -75,9 +75,9 @@ public:
     using TStrCRefDouble1VecDouble1VecPrPrVecVec =
         std::vector<TStrCRefDouble1VecDouble1VecPrPrVec>;
     using TFeatureProbabilityLabelDoubleUMap =
-        boost::unordered_map<maths::SModelProbabilityResult::EFeatureProbabilityLabel, double>;
+        boost::unordered_map<maths::common::SModelProbabilityResult::EFeatureProbabilityLabel, double>;
     using TFeatureProbabilityLabelProbabilityAggregatorUMap =
-        boost::unordered_map<maths::SModelProbabilityResult::EFeatureProbabilityLabel, CModelTools::CProbabilityAggregator>;
+        boost::unordered_map<maths::common::SModelProbabilityResult::EFeatureProbabilityLabel, CModelTools::CProbabilityAggregator>;
     using TStoredStringPtrStoredStringPtrPr =
         std::pair<core::CStoredStringPtr, core::CStoredStringPtr>;
     using TStoredStringPtrStoredStringPtrPrVec = std::vector<TStoredStringPtrStoredStringPtrPr>;
@@ -97,7 +97,7 @@ public:
         //! The feature of s_Value.
         model_t::EFeature s_Feature;
         //! The model of s_Value.
-        const maths::CModel* s_Model;
+        const maths::common::CModel* s_Model;
         //! The time after the creation of the prior.
         core_t::TTime s_ElapsedTime;
         //! The time of s_Value.
@@ -107,7 +107,7 @@ public:
         //! The count of measurements in s_Value.
         double s_Count;
         //! The parameters needed to compute probabilities.
-        maths::CModelProbabilityParams s_ComputeProbabilityParams;
+        maths::common::CModelProbabilityParams s_ComputeProbabilityParams;
         //! The probability of the s_Value.
         double s_Probability;
         //! The tail that the s_Value is in.
@@ -139,7 +139,7 @@ public:
         //! The feature of s_Values.
         model_t::EFeature s_Feature;
         //! The model of s_Values.
-        const maths::CModel* s_Model;
+        const maths::common::CModel* s_Model;
         //! The time after the creation of the s_Priors.
         core_t::TTime s_ElapsedTime;
         //! The times of s_Values.
@@ -156,7 +156,7 @@ public:
         //! The correlated time series identifiers.
         TSize1Vec s_Correlated;
         //! The parameters needed to compute probabilities.
-        maths::CModelProbabilityParams s_ComputeProbabilityParams;
+        maths::common::CModelProbabilityParams s_ComputeProbabilityParams;
         //! The probability of the s_Value.
         double s_Probability;
         //! The tail that the s_Value is in.
@@ -193,10 +193,10 @@ public:
     void plugin(const CInfluenceCalculator& influence);
 
     //! Add the joint probability aggregation style.
-    void addAggregator(const maths::CJointProbabilityOfLessLikelySamples& aggregator);
+    void addAggregator(const maths::common::CJointProbabilityOfLessLikelySamples& aggregator);
 
     //! Add the extreme probability aggregation style.
-    void addAggregator(const maths::CProbabilityOfExtremeSample& aggregator);
+    void addAggregator(const maths::common::CProbabilityOfExtremeSample& aggregator);
 
     //! Add a cache for the two probability calculations.
     void addCache(CModelTools::CProbabilityCache& cache);
@@ -258,9 +258,9 @@ public:
     //! probabilities.
     bool addProbability(model_t::EFeature feature,
                         std::size_t id,
-                        const maths::CModel& model,
+                        const maths::common::CModel& model,
                         core_t::TTime elapsedTime,
-                        const maths::CModelProbabilityParams& params,
+                        const maths::common::CModelProbabilityParams& params,
                         const TTime2Vec1Vec& time,
                         const TDouble2Vec1Vec& value,
                         double& probability,

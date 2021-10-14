@@ -19,8 +19,8 @@
 #include <core/CLogger.h>
 #include <core/CStopWatch.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/COrderings.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/COrderings.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -38,7 +38,7 @@ namespace ml {
 namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
-using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 // Control message types:
 const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
@@ -278,7 +278,7 @@ void CDataFrameAnalyzer::initializeDataFrameColumnMap(TStrVec columnNames) {
 
     TPtrdiffVec positions(columnNames.size());
     std::iota(positions.begin(), positions.end(), 0);
-    maths::COrderings::simultaneousSort(columnNames, positions);
+    maths::common::COrderings::simultaneousSort(columnNames, positions);
 
     TStrVec originalColumnNames{m_DataFrame->columnNames()};
     std::sort(originalColumnNames.begin(), originalColumnNames.end());

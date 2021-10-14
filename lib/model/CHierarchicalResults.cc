@@ -16,7 +16,7 @@
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
-#include <maths/COrderings.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
@@ -73,7 +73,7 @@ bool equal(const TStoredStringPtrStoredStringPtrPr& lhs,
 //! Orders nodes by the value of their person field.
 struct SPersonValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::COrderings::lexicographical_compare(
+        return maths::common::COrderings::lexicographical_compare(
             *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
             *lhs->s_Spec.s_PersonFieldName, *lhs->s_Spec.s_PersonFieldValue,
             lhs->s_Spec.s_IsPopulation, *rhs->s_Spec.s_PartitionFieldName,
@@ -85,7 +85,7 @@ struct SPersonValueLess {
 //! Orders nodes by the name of their person field.
 struct SPersonNameLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::COrderings::lexicographical_compare(
+        return maths::common::COrderings::lexicographical_compare(
             *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
             *lhs->s_Spec.s_PersonFieldName, *rhs->s_Spec.s_PartitionFieldName,
             *rhs->s_Spec.s_PartitionFieldValue, *rhs->s_Spec.s_PersonFieldName);
@@ -95,7 +95,7 @@ struct SPersonNameLess {
 //! Orders nodes by the value of their partition field.
 struct SPartitionValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::COrderings::lexicographical_compare(
+        return maths::common::COrderings::lexicographical_compare(
             *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
             *rhs->s_Spec.s_PartitionFieldName, *rhs->s_Spec.s_PartitionFieldValue);
     }
@@ -171,7 +171,7 @@ public:
         if (this->isLeaf(node)) {
             std::sort(node.s_AnnotatedProbability.s_Influences.begin(),
                       node.s_AnnotatedProbability.s_Influences.end(),
-                      maths::COrderings::SFirstLess());
+                      maths::common::COrderings::SFirstLess());
         } else {
             for (const auto& child : node.s_Children) {
                 for (const auto& influence : child->s_AnnotatedProbability.s_Influences) {
@@ -182,7 +182,7 @@ public:
                         auto i = std::lower_bound(
                             node.s_AnnotatedProbability.s_Influences.begin(),
                             node.s_AnnotatedProbability.s_Influences.end(),
-                            influence.first, maths::COrderings::SFirstLess());
+                            influence.first, maths::common::COrderings::SFirstLess());
                         if (i == node.s_AnnotatedProbability.s_Influences.end()) {
                             node.s_AnnotatedProbability.s_Influences.push_back(influence);
                         } else if (!equal(i->first, influence.first)) {
@@ -452,8 +452,8 @@ void CHierarchicalResults::createPivots() {
         const auto& parentInfluences = node.s_Parent->s_AnnotatedProbability.s_Influences;
         for (const auto& influence : node.s_AnnotatedProbability.s_Influences) {
             if (node.s_Parent &&
-                std::binary_search(parentInfluences.begin(), parentInfluences.end(),
-                                   influence, maths::COrderings::SFirstLess())) {
+                std::binary_search(parentInfluences.begin(), parentInfluences.end(), influence,
+                                   maths::common::COrderings::SFirstLess())) {
                 continue;
             }
             this->newPivot(influence.first).s_Children.push_back(&node);

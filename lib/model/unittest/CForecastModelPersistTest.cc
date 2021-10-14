@@ -13,9 +13,10 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CNormalMeanPrecConjugate.h>
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesModel.h>
+#include <maths/common/CNormalMeanPrecConjugate.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CForecastModelPersist.h>
 
@@ -39,37 +40,40 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
     params.s_LearnRate = 1.0;
     params.s_MinimumTimeToDetectChange = 6 * core::constants::HOUR;
     params.s_MaximumTimeToTestForChange = core::constants::DAY;
-    maths::CTimeSeriesDecomposition trend(params.s_DecayRate, bucketLength);
+    maths::time_series::CTimeSeriesDecomposition trend(params.s_DecayRate, bucketLength);
 
-    maths::CNormalMeanPrecConjugate prior{maths::CNormalMeanPrecConjugate::nonInformativePrior(
-        maths_t::E_ContinuousData, params.s_DecayRate)};
-    maths::CModelParams timeSeriesModelParams{bucketLength,
-                                              params.s_LearnRate,
-                                              params.s_DecayRate,
-                                              minimumSeasonalVarianceScale,
-                                              params.s_MinimumTimeToDetectChange,
-                                              params.s_MaximumTimeToTestForChange};
-    maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams, 1, trend, prior};
+    maths::common::CNormalMeanPrecConjugate prior{
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+            maths_t::E_ContinuousData, params.s_DecayRate)};
+    maths::common::CModelParams timeSeriesModelParams{bucketLength,
+                                                      params.s_LearnRate,
+                                                      params.s_DecayRate,
+                                                      minimumSeasonalVarianceScale,
+                                                      params.s_MinimumTimeToDetectChange,
+                                                      params.s_MaximumTimeToTestForChange};
+    maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
+        timeSeriesModelParams, 1, trend, prior};
 
     CForecastModelPersist::CPersist persister(ml::test::CTestTmpDir::tmpDir());
     persister.addModel(&timeSeriesModel, 10, 50,
                        model_t::EFeature::E_IndividualCountByBucketAndPerson,
                        "some_by_field");
     trend.dataType(maths_t::E_MixedData);
-    maths::CNormalMeanPrecConjugate otherPrior{maths::CNormalMeanPrecConjugate::nonInformativePrior(
-        maths_t::E_MixedData, params.s_DecayRate)};
+    maths::common::CNormalMeanPrecConjugate otherPrior{
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+            maths_t::E_MixedData, params.s_DecayRate)};
 
-    maths::CUnivariateTimeSeriesModel otherTimeSeriesModel{timeSeriesModelParams,
-                                                           2, trend, otherPrior};
+    maths::time_series::CUnivariateTimeSeriesModel otherTimeSeriesModel{
+        timeSeriesModelParams, 2, trend, otherPrior};
 
     persister.addModel(&otherTimeSeriesModel, 5, 45,
                        model_t::EFeature::E_IndividualLowMeanByPerson, "some_other_by_field");
 
     trend.dataType(maths_t::E_DiscreteData);
-    maths::CNormalMeanPrecConjugate otherPriorEmptyByField{
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_DiscreteData,
-                                                             params.s_DecayRate)};
-    maths::CUnivariateTimeSeriesModel otherTimeSeriesModelEmptyByField{
+    maths::common::CNormalMeanPrecConjugate otherPriorEmptyByField{
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+            maths_t::E_DiscreteData, params.s_DecayRate)};
+    maths::time_series::CUnivariateTimeSeriesModel otherTimeSeriesModelEmptyByField{
         timeSeriesModelParams, 3, trend, otherPriorEmptyByField};
 
     persister.addModel(&otherTimeSeriesModelEmptyByField, 25, 65,

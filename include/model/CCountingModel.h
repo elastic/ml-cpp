@@ -14,7 +14,7 @@
 
 #include <model/CAnomalyDetectorModel.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <boost/unordered_map.hpp>
 
@@ -284,7 +284,7 @@ private:
 private:
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TTimeStr1VecUMap = boost::unordered_map<core_t::TTime, TStr1Vec>;
 

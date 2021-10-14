@@ -14,8 +14,8 @@
 #include <core/CProgramCounters.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CDataFrameUtils.h>
-#include <maths/COutliers.h>
+#include <maths/analytics/CDataFrameUtils.h>
+#include <maths/analytics/COutliers.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalyzer.h>
@@ -54,7 +54,7 @@ void addOutlierTestData(TStrVec fieldNames,
                         TDoubleVecVec& expectedFeatureInfluences,
                         std::size_t numberInliers = 100,
                         std::size_t numberOutliers = 10,
-                        maths::COutliers::EMethod method = maths::COutliers::E_Ensemble,
+                        maths::analytics::COutliers::EMethod method = maths::analytics::COutliers::E_Ensemble,
                         std::size_t numberNeighbours = 0,
                         bool computeFeatureInfluence = false) {
 
@@ -93,8 +93,8 @@ void addOutlierTestData(TStrVec fieldNames,
     }
 
     frame->finishWritingRows();
-    maths::CDataFrameOutliersInstrumentationStub instrumentation;
-    maths::COutliers::compute(
+    maths::analytics::CDataFrameOutliersInstrumentationStub instrumentation;
+    maths::analytics::COutliers::compute(
         {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05},
         *frame, instrumentation);
 
@@ -305,8 +305,9 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores, expectedFeatureInfluences,
-                       100, 10, maths::COutliers::E_Ensemble, 0, true);
+    addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                       expectedFeatureInfluences, 100, 10,
+                       maths::analytics::COutliers::E_Ensemble, 0, true);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
@@ -345,8 +346,9 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
     TStrVec methods{"lof", "ldof", "distance_kth_nn", "distance_knn"};
 
     for (const auto& method :
-         {maths::COutliers::E_Lof, maths::COutliers::E_Ldof,
-          maths::COutliers::E_DistancekNN, maths::COutliers::E_TotalDistancekNN}) {
+         {maths::analytics::COutliers::E_Lof, maths::analytics::COutliers::E_Ldof,
+          maths::analytics::COutliers::E_DistancekNN,
+          maths::analytics::COutliers::E_TotalDistancekNN}) {
         for (const auto k : {5, 10}) {
 
             LOG_DEBUG(<< "Testing '" << methods[method] << "' and '" << k << "'");
@@ -679,7 +681,8 @@ BOOST_AUTO_TEST_CASE(testProgress) {
             rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
             result["phase_progress"].Accept(writer);
             LOG_DEBUG(<< sb.GetString());
-            if (result["phase_progress"]["phase"] == maths::COutliers::COMPUTING_OUTLIERS) {
+            if (result["phase_progress"]["phase"] ==
+                maths::analytics::COutliers::COMPUTING_OUTLIERS) {
                 computingOutliersProgress =
                     std::max(computingOutliersProgress,
                              result["phase_progress"]["progress_percent"].GetInt());

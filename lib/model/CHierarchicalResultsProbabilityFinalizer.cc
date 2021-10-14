@@ -11,7 +11,7 @@
 
 #include <model/CHierarchicalResultsProbabilityFinalizer.h>
 
-#include <maths/CTools.h>
+#include <maths/common/CTools.h>
 
 namespace ml {
 namespace model {
@@ -21,7 +21,7 @@ void CHierarchicalResultsProbabilityFinalizer::visit(const CHierarchicalResults&
                                                      bool /*pivot*/) {
     if (node.s_RawAnomalyScore > 0.0) {
         node.s_AnnotatedProbability.s_Probability =
-            maths::CTools::inverseAnomalyScore(node.s_RawAnomalyScore);
+            maths::common::CTools::inverseAnomalyScore(node.s_RawAnomalyScore);
     }
 }
 }

@@ -11,7 +11,7 @@
 
 #include <core/CMemory.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>

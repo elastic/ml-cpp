@@ -15,7 +15,7 @@
 #include <core/CMemory.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <model/CDataGatherer.h>
 #include <model/ImportExport.h>

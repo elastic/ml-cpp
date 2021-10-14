@@ -21,9 +21,9 @@
 #include <core/CoreTypes.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CChecksum.h>
-#include <maths/COrderings.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CBucketQueue.h>
 #include <model/CDataClassifier.h>
@@ -65,7 +65,7 @@ public:
     using TStrCRefDouble1VecDoublePrPr = std::pair<TStrCRef, TDouble1VecDoublePr>;
     using TStrCRefDouble1VecDoublePrPrVec = std::vector<TStrCRefDouble1VecDoublePrPr>;
     using TStrCRefDouble1VecDoublePrPrVecVec = std::vector<TStrCRefDouble1VecDoublePrPrVec>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TSampleQueue = CSampleQueue<STATISTIC>;
     using TSampleVec = typename TSampleQueue::TSampleVec;
     using TMetricPartialStatistic = CMetricPartialStatistic<STATISTIC>;
@@ -305,10 +305,10 @@ public:
     //! Get the checksum of this gatherer.
     uint64_t checksum() const {
         uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
-        seed = maths::CChecksum::calculate(seed, m_Classifier.isNonNegative());
-        seed = maths::CChecksum::calculate(seed, m_SampleStats);
-        seed = maths::CChecksum::calculate(seed, m_BucketStats);
-        return maths::CChecksum::calculate(seed, m_InfluencerBucketStats);
+        seed = maths::common::CChecksum::calculate(seed, m_Classifier.isNonNegative());
+        seed = maths::common::CChecksum::calculate(seed, m_SampleStats);
+        seed = maths::common::CChecksum::calculate(seed, m_BucketStats);
+        return maths::common::CChecksum::calculate(seed, m_InfluencerBucketStats);
     }
 
     //! Debug the memory used by this gatherer.
@@ -375,7 +375,8 @@ private:
             for (const auto& stat : map) {
                 ordered.emplace_back(TStrCRef(*stat.first), TStatCRef(stat.second));
             }
-            std::sort(ordered.begin(), ordered.end(), maths::COrderings::SFirstLess());
+            std::sort(ordered.begin(), ordered.end(),
+                      maths::common::COrderings::SFirstLess());
             for (const auto& stat : ordered) {
                 inserter.insertValue(MAP_KEY_TAG, stat.first);
                 CMetricStatisticWrappers::persist(stat.second.get(), MAP_VALUE_TAG, inserter);

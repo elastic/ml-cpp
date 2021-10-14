@@ -13,7 +13,7 @@
 #include <core/CRegex.h>
 #include <core/CSmallVector.h>
 
-#include <maths/CTools.h>
+#include <maths/common/CTools.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
@@ -113,7 +113,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                 columnNames.begin();
             auto readProbability = [&](const TRowRef& row) {
                 TDouble2Vec result(2);
-                double p{maths::CTools::logisticFunction(row[columnHoldingPrediction])};
+                double p{maths::common::CTools::logisticFunction(row[columnHoldingPrediction])};
                 result[0] = 1 - p;
                 result[1] = p;
                 return result;

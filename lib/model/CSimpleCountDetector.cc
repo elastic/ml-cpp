@@ -10,7 +10,7 @@
  */
 #include <model/CSimpleCountDetector.h>
 
-#include <maths/CIntegerTools.h>
+#include <maths/common/CIntegerTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 

@@ -11,7 +11,7 @@
 
 #include <core/CContainerPrinter.h>
 
-#include <maths/CModel.h>
+#include <maths/common/CModel.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CCountingModelFactory.h>
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE(testConfigureModelPlot) {
     {
         CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
         config.configureModelPlot(true, true, EMPTY_STRING);
-        BOOST_REQUIRE_EQUAL(ml::maths::CModel::DEFAULT_BOUNDS_PERCENTILE,
+        BOOST_REQUIRE_EQUAL(ml::maths::common::CModel::DEFAULT_BOUNDS_PERCENTILE,
                             config.modelPlotBoundsPercentile());
         BOOST_REQUIRE_EQUAL(true, config.modelPlotAnnotationsEnabled());
         BOOST_REQUIRE_EQUAL(0, config.modelPlotTerms().size());
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testConfigureModelPlot) {
         const TStrSet termSet{"foo", "bar", "baz"};
         CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
         config.configureModelPlot(true, false, terms);
-        BOOST_REQUIRE_EQUAL(ml::maths::CModel::DEFAULT_BOUNDS_PERCENTILE,
+        BOOST_REQUIRE_EQUAL(ml::maths::common::CModel::DEFAULT_BOUNDS_PERCENTILE,
                             config.modelPlotBoundsPercentile());
         BOOST_REQUIRE_EQUAL(false, config.modelPlotAnnotationsEnabled());
         BOOST_TEST_REQUIRE(termSet == config.modelPlotTerms());

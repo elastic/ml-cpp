@@ -16,7 +16,7 @@
 #include <core/CSmallVector.h>
 #include <core/CTimeUtils.h>
 
-#include <maths/CTools.h>
+#include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>

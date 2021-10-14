@@ -13,16 +13,16 @@
 
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/CConstantPrior.h>
-#include <maths/CGammaRateConjugate.h>
-#include <maths/CLogNormalMeanPrecConjugate.h>
-#include <maths/CMultimodalPrior.h>
-#include <maths/CMultivariateOneOfNPrior.h>
-#include <maths/CNormalMeanPrecConjugate.h>
-#include <maths/COneOfNPrior.h>
-#include <maths/CPoissonMeanConjugate.h>
-#include <maths/CPrior.h>
-#include <maths/CXMeansOnline1d.h>
+#include <maths/common/CConstantPrior.h>
+#include <maths/common/CGammaRateConjugate.h>
+#include <maths/common/CLogNormalMeanPrecConjugate.h>
+#include <maths/common/CMultimodalPrior.h>
+#include <maths/common/CMultivariateOneOfNPrior.h>
+#include <maths/common/CNormalMeanPrecConjugate.h>
+#include <maths/common/COneOfNPrior.h>
+#include <maths/common/CPoissonMeanConjugate.h>
+#include <maths/common/CPrior.h>
+#include <maths/common/CXMeansOnline1d.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventRateModel.h>
@@ -125,7 +125,7 @@ CEventRateModelFactory::defaultPrior(model_t::EFeature feature,
     // If the feature data only ever takes a single value we use a
     // special lightweight prior.
     if (model_t::isConstant(feature)) {
-        return std::make_unique<maths::CConstantPrior>();
+        return std::make_unique<maths::common::CConstantPrior>();
     }
 
     // Gaussian mixture for modeling time-of-day and time-of-week.
@@ -142,21 +142,23 @@ CEventRateModelFactory::defaultPrior(model_t::EFeature feature,
 
     maths_t::EDataType dataType = this->dataType();
 
-    maths::CGammaRateConjugate gammaPrior =
-        maths::CGammaRateConjugate::nonInformativePrior(dataType, 0.0, params.s_DecayRate);
-
-    maths::CLogNormalMeanPrecConjugate logNormalPrior =
-        maths::CLogNormalMeanPrecConjugate::nonInformativePrior(dataType, 0.0,
+    maths::common::CGammaRateConjugate gammaPrior =
+        maths::common::CGammaRateConjugate::nonInformativePrior(dataType, 0.0,
                                                                 params.s_DecayRate);
 
-    maths::CNormalMeanPrecConjugate normalPrior =
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
+    maths::common::CLogNormalMeanPrecConjugate logNormalPrior =
+        maths::common::CLogNormalMeanPrecConjugate::nonInformativePrior(
+            dataType, 0.0, params.s_DecayRate);
 
-    maths::CPoissonMeanConjugate poissonPrior =
-        maths::CPoissonMeanConjugate::nonInformativePrior(0.0, params.s_DecayRate);
+    maths::common::CNormalMeanPrecConjugate normalPrior =
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+            dataType, params.s_DecayRate);
+
+    maths::common::CPoissonMeanConjugate poissonPrior =
+        maths::common::CPoissonMeanConjugate::nonInformativePrior(0.0, params.s_DecayRate);
 
     // Create the component priors.
-    maths::COneOfNPrior::TPriorPtrVec priors;
+    maths::common::COneOfNPrior::TPriorPtrVec priors;
     priors.reserve(params.s_MinimumModeFraction <= 0.5 ? 5u : 4u);
     priors.emplace_back(gammaPrior.clone());
     priors.emplace_back(logNormalPrior.clone());
@@ -164,22 +166,23 @@ CEventRateModelFactory::defaultPrior(model_t::EFeature feature,
     priors.emplace_back(poissonPrior.clone());
     if (params.s_MinimumModeFraction <= 0.5) {
         // Create the multimode prior.
-        maths::COneOfNPrior::TPriorPtrVec modePriors;
+        maths::common::COneOfNPrior::TPriorPtrVec modePriors;
         modePriors.reserve(3u);
         modePriors.emplace_back(gammaPrior.clone());
         modePriors.emplace_back(logNormalPrior.clone());
         modePriors.emplace_back(normalPrior.clone());
-        maths::COneOfNPrior modePrior(modePriors, dataType, params.s_DecayRate);
-        maths::CXMeansOnline1d clusterer(
-            dataType, maths::CAvailableModeDistributions::ALL,
+        maths::common::COneOfNPrior modePrior(modePriors, dataType, params.s_DecayRate);
+        maths::common::CXMeansOnline1d clusterer(
+            dataType, maths::common::CAvailableModeDistributions::ALL,
             maths_t::E_ClustersFractionWeight, params.s_DecayRate, params.s_MinimumModeFraction,
             params.s_MinimumModeCount, params.minimumCategoryCount());
-        maths::CMultimodalPrior multimodalPrior(dataType, clusterer, modePrior,
-                                                params.s_DecayRate);
+        maths::common::CMultimodalPrior multimodalPrior(dataType, clusterer, modePrior,
+                                                        params.s_DecayRate);
         priors.emplace_back(multimodalPrior.clone());
     }
 
-    return std::make_unique<maths::COneOfNPrior>(priors, dataType, params.s_DecayRate);
+    return std::make_unique<maths::common::COneOfNPrior>(priors, dataType,
+                                                         params.s_DecayRate);
 }
 
 CEventRateModelFactory::TMultivariatePriorUPtr

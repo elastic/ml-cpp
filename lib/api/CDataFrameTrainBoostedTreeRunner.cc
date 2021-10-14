@@ -20,10 +20,10 @@
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
-#include <maths/CDataFrameUtils.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CDataFrameUtils.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -297,7 +297,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
-    return maths::CBoostedTreeFactory::estimatedExtraColumnsForTrain(
+    return maths::analytics::CBoostedTreeFactory::estimatedExtraColumnsForTrain(
         this->spec().numberColumns(), m_NumberLossParameters);
 }
 
@@ -339,21 +339,22 @@ const std::string& CDataFrameTrainBoostedTreeRunner::predictionFieldName() const
     return m_PredictionFieldName;
 }
 
-const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
+const maths::analytics::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
     if (m_BoostedTree == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
     }
     return *m_BoostedTree;
 }
 
-maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
+maths::analytics::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
     if (m_BoostedTreeFactory == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
     }
     return *m_BoostedTreeFactory;
 }
 
-const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
+const maths::analytics::CBoostedTreeFactory&
+CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
     if (m_BoostedTreeFactory == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
     }
@@ -365,9 +366,9 @@ bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) c
         HANDLE_FATAL(<< "Input error: analysis need at least one regressor.");
         return false;
     }
-    if (frame.numberRows() > maths::CBoostedTreeFactory::maximumNumberRows()) {
+    if (frame.numberRows() > maths::analytics::CBoostedTreeFactory::maximumNumberRows()) {
         HANDLE_FATAL(<< "Input error: no more than "
-                     << maths::CBoostedTreeFactory::maximumNumberRows()
+                     << maths::analytics::CBoostedTreeFactory::maximumNumberRows()
                      << " are supported. You need to downsample your data.");
         return false;
     }
@@ -466,8 +467,8 @@ CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
                         std::move(inputStream), encodingsIndices);
                 };
             auto& frame = frameAndDirectory->first;
-            auto result = std::make_unique<maths::CBoostedTreeFactory>(
-                maths::CBoostedTreeFactory::constructFromDefinition(
+            auto result = std::make_unique<maths::analytics::CBoostedTreeFactory>(
+                maths::analytics::CBoostedTreeFactory::constructFromDefinition(
                     this->spec().numberThreads(), std::move(loss), *restoreSearcher,
                     *frame, dataSummarizationRestorer, bestForestRestorer));
             result->newTrainingRowMask(core::CPackedBitVector{frame->numberRows(), false});
@@ -476,8 +477,9 @@ CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
         break;
     }
 
-    return std::make_unique<maths::CBoostedTreeFactory>(maths::CBoostedTreeFactory::constructFromParameters(
-        this->spec().numberThreads(), std::move(loss)));
+    return std::make_unique<maths::analytics::CBoostedTreeFactory>(
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            this->spec().numberThreads(), std::move(loss)));
 }
 
 CDataFrameTrainBoostedTreeRunner::TBoostedTreeUPtr
@@ -507,7 +509,7 @@ CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& frame,
             LOG_ERROR(<< "State restoration search returned failed stream");
             return nullptr;
         }
-        return maths::CBoostedTreeFactory::constructFromString(*inputStream)
+        return maths::analytics::CBoostedTreeFactory::constructFromString(*inputStream)
             .analysisInstrumentation(m_Instrumentation)
             .trainingStateCallback(this->statePersister())
             .restoreFor(frame, dependentVariableColumn);

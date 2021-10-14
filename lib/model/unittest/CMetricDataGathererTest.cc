@@ -55,7 +55,7 @@ using TOptionalStr = boost::optional<std::string>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 using TTimeDoublePrVecVec = std::vector<TTimeDoublePrVec>;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 std::size_t addPerson(const std::string& p,
                       CDataGatherer& gatherer,
@@ -1503,7 +1503,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                         }
                     }
                     std::sort(statistics.begin(), statistics.end(),
-                              maths::COrderings::SFirstLess());
+                              maths::common::COrderings::SFirstLess());
 
                     LOG_DEBUG(<< "statistics = "
                               << core::CContainerPrinter::print(statistics));

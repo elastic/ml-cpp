@@ -15,8 +15,8 @@
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CTools.h>
-#include <maths/ProbabilityAggregators.h>
+#include <maths/common/CTools.h>
+#include <maths/common/ProbabilityAggregators.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CAnomalyScore.h>
@@ -47,8 +47,8 @@ using TSizeVec = std::vector<std::size_t>;
 
 BOOST_AUTO_TEST_CASE(testComputeScores) {
     using TScores = model::CAnomalyScore;
-    using TJointProbabilityCalculator = maths::CJointProbabilityOfLessLikelySamples;
-    using TLogExtremeProbabilityCalculator = maths::CLogProbabilityOfMFromNExtremeSamples;
+    using TJointProbabilityCalculator = maths::common::CJointProbabilityOfLessLikelySamples;
+    using TLogExtremeProbabilityCalculator = maths::common::CLogProbabilityOfMFromNExtremeSamples;
 
     const double jointProbabilityWeight = 0.5;
     const double extremeProbabilityWeight = 0.5;
@@ -594,7 +594,7 @@ BOOST_AUTO_TEST_CASE(testNormalizeScoresOrdering) {
                                                     normalizedScores[j]));
         }
 
-        maths::COrderings::simultaneousSort(scores, normalizedScores);
+        maths::common::COrderings::simultaneousSort(scores, normalizedScores);
         for (std::size_t j = 1; j < normalizedScores.size(); ++j) {
             if (normalizedScores[j] - normalizedScores[j - 1] < -0.01) {
                 LOG_DEBUG(<< normalizedScores[j] << " " << normalizedScores[j - 1]);
