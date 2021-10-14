@@ -9,10 +9,19 @@
 from pathlib import Path
 from typing import Union
 
+import pandas as pd
 from google.cloud import storage
 
 from .config import bucket_name, configs_dir, datasets_dir, jobs_dir, logger
 
+def read_dataset(dataset_name):
+    download_successful = download_dataset(dataset_name)
+    if download_successful == False:
+        logger.error("Data is not available")
+        exit(1)
+    dataset = pd.read_csv(datasets_dir / '{}.csv'.format(dataset_name))
+    dataset.drop_duplicates(inplace=True)
+    return dataset
 
 def download_dataset(dataset_name):
     if dataset_exists(dataset_name):
@@ -72,7 +81,8 @@ def download_job(job_name) -> Union[None, Path]:
         and None otherwise.
     """
     if job_exists(job_name):
-        return True
+        local_job_path = jobs_dir / "{}".format(job_name)
+        return local_job_path
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
 
@@ -107,7 +117,7 @@ def upload_job(local_job_path: Path) -> bool:
         bool: True if upload was successful, False otherwise.
     """
     job_name = local_job_path.name
-    if job_exists(job_name):
+    if job_exists(job_name, remote=True):
         logger.warning(
             "Job {} already exists in the Google storage bucket. Skip uploading.".format(job_name))
         return False
