@@ -47,7 +47,7 @@ def my_config():
     training_fraction = 0.1
     update_fraction = 0.1
     threads = 8
-    update_steps = 3
+    update_steps = 10
 
     analysis_parameters = {'parameters':
                            {'tree_topology_change_penalty': 0.0,
@@ -98,21 +98,24 @@ def get_residuals(job, dataset, dataset_name, _run):
 
 
 @ex.main
-def my_main(_run, dataset_name, force_update, verbose, test_fraction, training_fraction, update_fraction,
+def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, training_fraction, update_fraction,
             update_steps, n_largest_multiplier, analysis_parameters, sampling_mode):
     results = {}
 
     _run.config['analysis'] = analysis_parameters
+    _run.config['analysis']['parameters']['seed'] = _seed
 
-    baseline_model_name = "{}_{}_{}".format(
-        experiment_name, dataset_name, training_fraction)
+    random_state = np.random.RandomState(seed=_seed)
+
+    baseline_model_name = "e{}_s{}_d{}_t{}".format(
+        experiment_name, _seed, dataset_name, training_fraction)
 
     original_dataset = read_dataset()
     train_dataset, test_dataset = train_test_split(
-        original_dataset, test_size=test_fraction)
+        original_dataset, test_size=test_fraction, random_state=random_state)
     train_dataset = train_dataset.copy()
     test_dataset = test_dataset.copy()
-    baseline_dataset = train_dataset.sample(frac=training_fraction)
+    baseline_dataset = train_dataset.sample(frac=training_fraction, random_state=random_state)
     update_num_samples = int(train_dataset.shape[0]*update_fraction)
 
     _run.run_logger.info("Baseline training started")
@@ -127,10 +130,7 @@ def my_main(_run, dataset_name, force_update, verbose, test_fraction, training_f
         baseline_model.store(path)
         upload_job(path)
     results['baseline'] = {}
-    # results['baseline']['config'] = baseline_model.get_config()
     results['baseline']['hyperparameters'] = baseline_model.get_hyperparameters()
-    # results['baseline']['elapsed_time'] = elapsed_time
-    # baseline_model.clean()
     _run.run_logger.info("Baseline training completed")
 
     previous_model = baseline_model
@@ -152,7 +152,7 @@ def my_main(_run, dataset_name, force_update, verbose, test_fraction, training_f
             D_update = pd.DataFrame(
                 data=du, columns=largest.columns)
         else:
-            D_update = train_dataset.sample(n=update_num_samples)
+            D_update = train_dataset.sample(n=update_num_samples, random_state=random_state)
         _run.run_logger.info("Sampling completed")
 
         _run.run_logger.info("Update started")
