@@ -424,10 +424,10 @@ private:
     void startProgressMonitoringTrainIncremental();
 
     //! Record the training state using the \p recordTrainState callback function
-    void outputState(const TTrainingStateCallback& recordTrainState) const;
+    void recordState(const TTrainingStateCallback& recordTrainState) const;
 
     //! Record hyperparameters for instrumentation.
-    void outputHyperparameters();
+    void recordHyperparameters();
 
 private:
     //! \name Parameters

@@ -383,7 +383,8 @@ CBoostedTreeHyperparameters::importances() const {
     return importances;
 }
 
-void CBoostedTreeHyperparameters::output(CDataFrameTrainBoostedTreeInstrumentationInterface& instrumentation) const {
+void CBoostedTreeHyperparameters::recordHyperparameters(
+    CDataFrameTrainBoostedTreeInstrumentationInterface& instrumentation) const {
     auto& hyperparameters = instrumentation.hyperparameters();
     hyperparameters.s_Eta = m_Eta.value();
     hyperparameters.s_RetrainedTreeEta = m_RetrainedTreeEta.value();

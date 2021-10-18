@@ -273,7 +273,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
             m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
 
-            this->outputHyperparameters();
+            this->recordHyperparameters();
 
             auto crossValidationResult = this->crossValidateForest(
                 frame, m_Hyperparameters.maximumNumberTrees().value(),
@@ -309,7 +309,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             // Store the training state after each hyperparameter search step.
             LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
                       << " state recording started");
-            this->outputState(recordTrainStateCallback);
+            this->recordState(recordTrainStateCallback);
             LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
                       << " state recording finished");
 
@@ -326,7 +326,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
         m_Hyperparameters.restoreSaved();
-        m_Hyperparameters.output(*m_Instrumentation);
+        m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
         double scale{allTrainingRowsMask.manhattan() / this->meanNumberTrainingRowsPerFold()};
         CScopeBoostedTreeParameterOverrides<double> overrides;
         m_Hyperparameters.scaleRegularizationMultipliers(scale, overrides);
@@ -340,7 +340,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                                              allTrainingRowsMask, m_TrainingProgress)
                                .s_Forest;
 
-            this->outputState(recordTrainStateCallback);
+            this->recordState(recordTrainStateCallback);
         }
         m_Instrumentation->iteration(m_Hyperparameters.currentRound());
         m_Instrumentation->flush(TRAIN_FINAL_FOREST);
@@ -450,7 +450,8 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         double scale{this->meanNumberTrainingRowsPerFold() /
                      static_cast<double>(m_PreviousTrainNumberRows)};
         m_Hyperparameters.scaleRegularizationMultipliers(scale, overrides, false /*undo*/);
-        m_PreviousTrainNumberRows = this->meanNumberTrainingRowsPerFold();
+        m_PreviousTrainNumberRows =
+            static_cast<std::size_t>(this->meanNumberTrainingRowsPerFold() + 0.5);
     }
 
     for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
@@ -458,7 +459,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
         m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
 
-        this->outputHyperparameters();
+        this->recordHyperparameters();
 
         auto crossValidationResult = this->crossValidateForest(
             frame, numberTreesToRetrain,
@@ -491,7 +492,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         m_Hyperparameters.startNextSearchRound();
 
         LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() << " state recording started");
-        this->outputState(recordTrainStateCallback);
+        this->recordState(recordTrainStateCallback);
         LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() << " state recording finished");
 
         std::uint64_t currentLap{stopWatch.lap()};
@@ -515,7 +516,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     if (m_ForceAcceptIncrementalTraining || m_Hyperparameters.bestForestTestLoss() < initialLoss) {
         m_Hyperparameters.restoreSaved();
-        m_Hyperparameters.output(*m_Instrumentation);
+        m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
 
         if (m_PreviousTrainNumberRows > 0) {
             double scale{allTrainingRowsMask.manhattan() /
@@ -540,7 +541,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
 }
 
-void CBoostedTreeImpl::outputState(const TTrainingStateCallback& recordTrainState) const {
+void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
     recordTrainState([this](core::CStatePersistInserter& inserter) {
         this->acceptPersistInserter(inserter);
     });
@@ -1897,12 +1898,12 @@ std::size_t CBoostedTreeImpl::numberTreesToRetrain() const {
     return m_TreesToRetrain.size();
 }
 
-void CBoostedTreeImpl::outputHyperparameters() {
+void CBoostedTreeImpl::recordHyperparameters() {
     m_Instrumentation->hyperparameters().s_ClassAssignmentObjective = m_ClassAssignmentObjective;
     m_Instrumentation->hyperparameters().s_MaxAttemptsToAddTree = m_MaximumAttemptsToAddTree;
     m_Instrumentation->hyperparameters().s_NumFolds = m_NumberFolds.value();
     m_Instrumentation->hyperparameters().s_NumSplitsPerFeature = m_NumberSplitsPerFeature;
-    m_Hyperparameters.output(*m_Instrumentation);
+    m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
 }
 
 void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {

@@ -400,7 +400,7 @@ public:
     //@}
 
     //! Write the current hyperparameters to \p instrumentation.
-    void output(CDataFrameTrainBoostedTreeInstrumentationInterface& instrumentation) const;
+    void recordHyperparameters(CDataFrameTrainBoostedTreeInstrumentationInterface& instrumentation) const;
 
     //! Check invariants which are assumed to hold in order to optimize hyperparameters.
     void checkSearchInvariants() const;
