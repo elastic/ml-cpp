@@ -41,6 +41,7 @@ namespace ml {
 namespace maths {
 using namespace boosted_tree_detail;
 using TRowItr = core::CDataFrame::TRowItr;
+using TVector = CBoostedTreeFactory::TVector;
 
 namespace {
 const std::size_t MIN_PARAMETER_INDEX{0};
@@ -93,8 +94,12 @@ std::size_t computeMaximumNumberTrees(double eta) {
     return static_cast<std::size_t>(3.0 / eta / MIN_DOWNSAMPLE_FACTOR_SCALE + 0.5);
 }
 
-bool intervalIsEmpty(const CBoostedTreeFactory::TVector& interval) {
+bool intervalIsEmpty(const TVector& interval) {
     return interval(MAX_PARAMETER_INDEX) - interval(MIN_PARAMETER_INDEX) == 0.0;
+}
+
+TVector truncate(TVector interval, double a, double b) {
+    return min(max(interval, TVector{a}), TVector{b});
 }
 
 auto validInputStream(core::CDataSearcher& restoreSearcher) {
@@ -753,9 +758,10 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         this->testLossLineSearch(frame, applySoftDepthLimit,
                                                  minSoftDepthLimit, maxSoftDepthLimit)
                             .value_or(fallback);
-                    m_SoftDepthLimitSearchInterval = max(
-                        m_SoftDepthLimitSearchInterval, TVector{MIN_SOFT_DEPTH_LIMIT});
-                    LOG_TRACE(<< "soft depth limit search interval = ["
+
+                    m_SoftDepthLimitSearchInterval = truncate(
+                        m_SoftDepthLimitSearchInterval, minSoftDepthLimit, maxSoftDepthLimit);
+                    LOG_DEBUG(<< "soft depth limit search interval = ["
                               << m_SoftDepthLimitSearchInterval.toDelimited() << "]");
                     hyperparameters.softTreeDepthLimit().set(
                         m_SoftDepthLimitSearchInterval(BEST_PARAMETER_INDEX));
@@ -1006,9 +1012,8 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                 // Truncate the log(factor) to be less than or equal to log(1.0) and the
                 // downsampled set contains at least ten examples on average.
                 m_LogDownsampleFactorSearchInterval =
-                    min(max(m_LogDownsampleFactorSearchInterval,
-                            TVector{CTools::stableLog(10.0 / numberTrainingRows)}),
-                        TVector{0.0});
+                    truncate(m_LogDownsampleFactorSearchInterval,
+                             CTools::stableLog(10.0 / numberTrainingRows), 0.0);
                 LOG_TRACE(<< "log downsample factor search interval = ["
                           << m_LogDownsampleFactorSearchInterval.toDelimited() << "]");
 
@@ -1075,10 +1080,13 @@ void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& fr
                                              logMaxFeatureBagFraction, adjustTestLoss)
                         .value_or(fallback);
 
-                // Truncate the log(fraction) to be less than or equal to log(MAX_FEATURE_BAG_FRACTION).
-                m_LogFeatureBagFractionInterval =
-                    min(m_LogFeatureBagFractionInterval,
-                        TVector{CTools::stableLog(MAX_FEATURE_BAG_FRACTION)});
+                // Truncate log(factor) to be less than or equal to log(MAX_FEATURE_BAG_FRACTION)
+                // and large enough that the bag contains at least 2 features.
+                double numberFeatures{static_cast<double>(m_TreeImpl->numberFeatures())};
+                m_LogFeatureBagFractionInterval = truncate(
+                    m_LogFeatureBagFractionInterval,
+                    CTools::stableLog(std::min(2.0, numberFeatures) / numberFeatures),
+                    CTools::stableLog(MAX_FEATURE_BAG_FRACTION));
                 LOG_TRACE(<< "log feature bag fraction search interval = ["
                           << m_LogFeatureBagFractionInterval.toDelimited() << "]");
 
@@ -1125,7 +1133,8 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
                 m_LogEtaSearchInterval =
                     this->testLossLineSearch(frame, applyEta, logMinEta, logMaxEta)
                         .value_or(fallback);
-                m_LogEtaSearchInterval = min(m_LogEtaSearchInterval, TVector{0.0});
+                m_LogEtaSearchInterval = truncate(m_LogEtaSearchInterval,
+                                                  CTools::stableLog(MIN_ETA), 0.0);
                 LOG_TRACE(<< "log eta search interval = ["
                           << m_LogEtaSearchInterval.toDelimited() << "]");
                 applyEta(*m_TreeImpl, m_LogEtaSearchInterval(BEST_PARAMETER_INDEX));
