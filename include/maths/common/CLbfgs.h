@@ -292,10 +292,11 @@ private:
             for (std::size_t i = 0; i < k; ++i) {
                 double beta{m_Rho[i] * (las::inner(m_Dg[i], m_P) + eps)};
                 double gk{m_Alpha[i] - beta};
-                if (las::norm(m_Dx[i]) == 0.0) {
+                auto normDxi = las::norm(m_Dx[i]);
+                if (normDxi == 0.0) {
                     m_P += std::copysign(std::fabs(gk), gk) * m_Dx[i];
                 } else {
-                    double gmax{hmax / las::norm(m_Dx[i])};
+                    double gmax{hmax / normDxi};
                     m_P += std::copysign(std::min(std::fabs(gk), gmax), gk) * m_Dx[i];
                 }
             }
@@ -309,10 +310,11 @@ private:
     }
 
     double minimumDecrease(double s) const {
-        if (las::norm(m_P) == 0.0) {
+        auto normP = las::norm(m_P);
+        if (normP == 0.0) {
             return std::numeric_limits<double>::max();
         }
-        return m_BacktrackingMinDecrease * s * las::inner(m_Gx, m_P) / las::norm(m_P);
+        return m_BacktrackingMinDecrease * s * las::inner(m_Gx, m_P) / normP;
     }
 
     double minimumStepSize() const {
