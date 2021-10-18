@@ -399,24 +399,31 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
 BOOST_AUTO_TEST_CASE(testEvaluate) {
     TDoubleVec coordinates{0.25, 0.5, 0.75};
-    maths::common::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
-    for (std::size_t i = 0; i < 3; ++i) {
-        for (std::size_t j = 0; j < 3; ++j) {
-            TVector x{vector({coordinates[i], coordinates[j]})};
-            bopt.add(x, x.squaredNorm(), 0.0);
+    for (auto scale : {1.0, 0.5, 2.0}) {
+        maths::common::CBayesianOptimisation bopt{{{0.0, scale}, {0.0, scale}}};
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                TVector x{vector({scale * coordinates[i], scale * coordinates[j]})};
+                bopt.add(x, x.squaredNorm() / maths::common::CTools::pow2(scale), 0.0);
+            }
         }
-    }
 
-    TVector kernelParameters(vector({1.0, 0.5, 0.5}));
-    bopt.kernelParameters(kernelParameters);
+        // Because we scale the values in add if we fix the kernel parameters
+        // then the GP value is the same at the same relative positions within
+        // the bounding box.
+        TVector kernelParameters(vector({1.0, 0.5, 0.5}));
+        bopt.kernelParameters(kernelParameters);
 
-    TDoubleVecVec testPoints{{0.3, 0.3}, {0.3, 0.6}, {0.6, 0.3}};
-    TDoubleVec testTargets{0.17823499, 0.45056931, 0.45056931};
+        TDoubleVecVec testPoints{{0.3 * scale, 0.3 * scale},
+                                 {0.3 * scale, 0.6 * scale},
+                                 {0.6 * scale, 0.3 * scale}};
+        TDoubleVec testTargets{0.17823499, 0.45056931, 0.45056931};
 
-    for (std::size_t i = 0; i < testPoints.size(); ++i) {
-        TVector x{vector(testPoints[i])};
-        double actualTarget{bopt.evaluate(x)};
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget, testTargets[i], 1e-5);
+        for (std::size_t i = 0; i < testPoints.size(); ++i) {
+            TVector x{vector(testPoints[i])};
+            double actualTarget{bopt.evaluate(x)};
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget, testTargets[i], 1e-5);
+        }
     }
 }
 
