@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
@@ -28,8 +28,10 @@ namespace maths {
 namespace boosted_tree {
 class CLoss;
 }
+namespace analytics {
 class CBoostedTree;
 class CBoostedTreeFactory;
+}
 }
 namespace api {
 class CDataFrameAnalysisConfigReader;
@@ -96,7 +98,7 @@ public:
     core::CPackedBitVector rowsToWriteMask(const core::CDataFrame& frame) const override;
 
     //! \return The boosted tree.
-    const maths::CBoostedTree& boostedTree() const;
+    const maths::analytics::CBoostedTree& boostedTree() const;
 
     //! \return Reference to the analysis state.
     const CDataFrameAnalysisInstrumentation& instrumentation() const override;
@@ -107,7 +109,7 @@ public:
     TDataSummarizationJsonWriterUPtr dataSummarization() const override;
 
 protected:
-    using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
+    using TLossFunctionUPtr = std::unique_ptr<maths::analytics::boosted_tree::CLoss>;
 
 protected:
     CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
@@ -122,9 +124,9 @@ protected:
     //! \return The name of prediction field.
     const std::string& predictionFieldName() const;
     //! \return The boosted tree factory.
-    const maths::CBoostedTreeFactory& boostedTreeFactory() const;
+    const maths::analytics::CBoostedTreeFactory& boostedTreeFactory() const;
     //! \return The boosted tree factory.
-    maths::CBoostedTreeFactory& boostedTreeFactory();
+    maths::analytics::CBoostedTreeFactory& boostedTreeFactory();
 
     //! Validate if \p frame is suitable for running the analysis on.
     bool validate(const core::CDataFrame& frame) const override;
@@ -136,8 +138,8 @@ protected:
     ETask task() const { return m_Task; }
 
 private:
-    using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
-    using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
+    using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::analytics::CBoostedTreeFactory>;
+    using TBoostedTreeUPtr = std::unique_ptr<maths::analytics::CBoostedTree>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
 
 private:

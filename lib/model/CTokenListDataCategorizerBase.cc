@@ -16,7 +16,7 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/COrderings.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CTokenListReverseSearchCreator.h>
 
@@ -372,7 +372,7 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
     // Categories are persisted in order of creation, but this list needs to be
     // sorted by descending count instead
     std::stable_sort(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
-                     maths::COrderings::SFirstGreater{});
+                     maths::common::COrderings::SFirstGreater{});
 
     this->updateCategorizerStats(m_LastCategorizerStats);
 

@@ -25,7 +25,9 @@ namespace core {
 class CDataFrame;
 }
 namespace maths {
+namespace analytics {
 class CDataFrameCategoryEncoder;
+}
 }
 namespace api {
 
@@ -42,7 +44,7 @@ public:
     CDataSummarizationJsonWriter(const core::CDataFrame& frame,
                                  core::CPackedBitVector rowMask,
                                  std::size_t numberColumns,
-                                 const maths::CDataFrameCategoryEncoder& encodings);
+                                 const maths::analytics::CDataFrameCategoryEncoder& encodings);
 
     CDataSummarizationJsonWriter(const CDataSummarizationJsonWriter&) = delete;
     CDataSummarizationJsonWriter& operator=(const CDataSummarizationJsonWriter&) = delete;
@@ -57,7 +59,7 @@ private:
     core::CPackedBitVector m_RowMask;
     std::size_t m_NumberColumns;
     const core::CDataFrame& m_Frame;
-    const maths::CDataFrameCategoryEncoder& m_Encodings;
+    const maths::analytics::CDataFrameCategoryEncoder& m_Encodings;
 };
 }
 }

@@ -11,9 +11,10 @@
 #ifndef INCLUDED_ml_api_CInferenceModelMetadata_h
 #define INCLUDED_ml_api_CInferenceModelMetadata_h
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CBoostedTree.h>
-#include <maths/CLinearAlgebraEigen.h>
+#include <maths/analytics/CBoostedTree.h>
+
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CLinearAlgebraEigen.h>
 
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
@@ -54,10 +55,10 @@ public:
     static const std::string JSON_TRAIN_PROPERTIES_TAG;
 
 public:
-    using TVector = maths::CDenseVector<double>;
+    using TVector = maths::common::CDenseVector<double>;
     using TStrVec = std::vector<std::string>;
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
-    using THyperparameterImportanceVec = maths::CBoostedTree::THyperparameterImportanceVec;
+    using THyperparameterImportanceVec = maths::analytics::CBoostedTree::THyperparameterImportanceVec;
     using TPredictionFieldTypeResolverWriter =
         std::function<void(const std::string&, TRapidJsonWriter&)>;
 
@@ -75,7 +76,7 @@ public:
     //! to the baseline value).
     void featureImportanceBaseline(TVector&& baseline);
     //! Set the hyperparameter importances.
-    void hyperparameterImportance(const THyperparameterImportanceVec& hyperparameterImportance);
+    void hyperparameterImportance(const maths::analytics::CBoostedTree::THyperparameterImportanceVec& hyperparameterImportance);
     //! Set the number of rows used to train the model.
     void numTrainRows(std::size_t numRows);
     //! Set the mean train test loss gap.
@@ -95,8 +96,8 @@ private:
     };
 
     using TMeanAccumulator =
-        std::vector<maths::CBasicStatistics::SSampleMean<double>::TAccumulator>;
-    using TMinMaxAccumulator = std::vector<maths::CBasicStatistics::CMinMax<double>>;
+        std::vector<maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator>;
+    using TMinMaxAccumulator = std::vector<maths::common::CBasicStatistics::CMinMax<double>>;
     using TSizeMeanAccumulatorUMap = boost::unordered_map<std::size_t, TMeanAccumulator>;
     using TSizeMinMaxAccumulatorUMap = boost::unordered_map<std::size_t, TMinMaxAccumulator>;
     using TOptionalVector = boost::optional<TVector>;

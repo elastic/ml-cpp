@@ -11,7 +11,7 @@
 
 #include <core/CDataFrame.h>
 
-#include <maths/CBoostedTreeImpl.h>
+#include <maths/analytics/CBoostedTreeImpl.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalyzer.h>
@@ -38,7 +38,7 @@ using TStrVec = std::vector<std::string>;
 using TDoubleVec = std::vector<double>;
 using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
 using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
-using TLossFunctionType = maths::boosted_tree::ELossType;
+using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
 using TDataFrameUPtrTemporaryDirectoryPtrPr =
     api::CDataFrameAnalyzer::TDataFrameUPtrTemporaryDirectoryPtrPr;
 }

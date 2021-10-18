@@ -14,7 +14,7 @@
 #include <core/CLogger.h>
 #include <core/CScopedRapidJsonPoolAllocator.h>
 
-#include <maths/CIntegerTools.h>
+#include <maths/common/CIntegerTools.h>
 
 #include <vector>
 
@@ -85,7 +85,7 @@ bool CForecastDataSink::CForecastModelWrapper::forecast(const SForecastResultSer
         m_FirstDataTime, m_LastDataTime, startTime, endTime, boundsPercentile,
         support.first, support.second,
         std::bind(static_cast<void (CForecastDataSink::*)(
-                      const maths::SErrorBar, const std::string&, const std::string&,
+                      const maths::common::SErrorBar, const std::string&, const std::string&,
                       const std::string&, const std::string&, const std::string&, int)>(
                       &model::CForecastDataSink::push),
                   &sink, std::placeholders::_1, model_t::print(m_Feature),
@@ -207,7 +207,7 @@ uint64_t CForecastDataSink::numRecordsWritten() const {
     return m_NumRecordsWritten;
 }
 
-void CForecastDataSink::push(const maths::SErrorBar errorBar,
+void CForecastDataSink::push(const maths::common::SErrorBar errorBar,
                              const std::string& feature,
                              const std::string& partitionFieldName,
                              const std::string& partitionFieldValue,
@@ -229,7 +229,8 @@ void CForecastDataSink::push(const maths::SErrorBar errorBar,
     // Time is in Java format - milliseconds since the epoch. Note this
     // matches the Java notion of "bucket time" which is defined as the
     // start of the bucket containing the forecast time.
-    core_t::TTime time{maths::CIntegerTools::floor(errorBar.s_Time, errorBar.s_BucketLength)};
+    core_t::TTime time{maths::common::CIntegerTools::floor(errorBar.s_Time,
+                                                           errorBar.s_BucketLength)};
     m_Writer.addTimeFieldToObj(TIMESTAMP, time, doc);
     m_Writer.addIntFieldToObj(BUCKET_SPAN, errorBar.s_BucketLength, doc);
     if (!partitionFieldName.empty()) {

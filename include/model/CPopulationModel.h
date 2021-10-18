@@ -17,10 +17,11 @@
 #include <core/CTriple.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CBjkstUniqueValues.h>
-#include <maths/CCountMinSketch.h>
-#include <maths/CMultivariatePrior.h>
-#include <maths/COrderings.h>
+#include <maths/common/CBjkstUniqueValues.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COrderings.h>
+
+#include <maths/time_series/CCountMinSketch.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CFeatureData.h>
@@ -38,7 +39,9 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace maths {
+namespace common {
 class CPrior;
+}
 }
 namespace model {
 
@@ -65,8 +68,8 @@ public:
     using TTimeVec = std::vector<core_t::TTime>;
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
-    using TCountMinSketchVec = std::vector<maths::CCountMinSketch>;
-    using TBjkstUniqueValuesVec = std::vector<maths::CBjkstUniqueValues>;
+    using TCountMinSketchVec = std::vector<maths::time_series::CCountMinSketch>;
+    using TBjkstUniqueValuesVec = std::vector<maths::common::CBjkstUniqueValues>;
     using TSizeTimeUMap = boost::unordered_map<std::size_t, core_t::TTime>;
 
     //! Lift the overloads of baselineBucketMean into the class scope.
@@ -273,7 +276,7 @@ protected:
     virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) = 0;
 
 private:
-    using TOptionalCountMinSketch = boost::optional<maths::CCountMinSketch>;
+    using TOptionalCountMinSketch = boost::optional<maths::time_series::CCountMinSketch>;
 
 private:
     //! The last time each person was seen.
@@ -286,7 +289,7 @@ private:
     TTimeVec m_AttributeLastBucketTimes;
 
     //! The initial sketch to use for estimating the number of distinct people.
-    maths::CBjkstUniqueValues m_NewDistinctPersonCounts;
+    maths::common::CBjkstUniqueValues m_NewDistinctPersonCounts;
 
     //! The number of distinct people generating each attribute.
     TBjkstUniqueValuesVec m_DistinctPersonCounts;

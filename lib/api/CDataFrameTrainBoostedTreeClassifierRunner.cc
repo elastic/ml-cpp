@@ -16,15 +16,16 @@
 #include <core/CLogger.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
-#include <maths/CDataFramePredictiveModel.h>
-#include <maths/CDataFrameUtils.h>
-#include <maths/CLinearAlgebraEigen.h>
-#include <maths/COrderings.h>
-#include <maths/CTools.h>
-#include <maths/CTreeShapFeatureImportance.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CDataFramePredictiveModel.h>
+#include <maths/analytics/CDataFrameUtils.h>
+#include <maths/analytics/CTreeShapFeatureImportance.h>
+
+#include <maths/common/CLinearAlgebraEigen.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CTools.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -70,9 +71,9 @@ CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
                                {{typeString, int{E_PredictionFieldTypeString}},
                                 {typeInt, int{E_PredictionFieldTypeInt}},
                                 {typeBool, int{E_PredictionFieldTypeBool}}});
-        int accuracy{maths::CDataFramePredictiveModel::E_Accuracy};
-        int recall{maths::CDataFramePredictiveModel::E_MinimumRecall};
-        int custom{maths::CDataFramePredictiveModel::E_Custom};
+        int accuracy{maths::analytics::CDataFramePredictiveModel::E_Accuracy};
+        int recall{maths::analytics::CDataFramePredictiveModel::E_MinimumRecall};
+        int custom{maths::analytics::CDataFramePredictiveModel::E_Custom};
         theReader.addParameter(
             CLASS_ASSIGNMENT_OBJECTIVE, CDataFrameAnalysisConfigReader::E_OptionalParameter,
             {{CLASS_ASSIGNMENT_OBJECTIVE_VALUES[accuracy], accuracy},
@@ -94,7 +95,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
 
     m_NumClasses = parameters[NUM_CLASSES].as<std::size_t>();
     auto classAssignmentObjective = parameters[CLASS_ASSIGNMENT_OBJECTIVE].fallback(
-        maths::CBoostedTree::E_MinimumRecall);
+        maths::analytics::CBoostedTree::E_MinimumRecall);
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::ptrdiff_t{0});
     m_PredictionFieldType =
         parameters[PREDICTION_FIELD_TYPE].fallback(E_PredictionFieldTypeString);
@@ -117,9 +118,9 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
                      << ".");
     }
     if (classificationWeights.size() > 0 &&
-        classAssignmentObjective != maths::CBoostedTree::E_Custom) {
+        classAssignmentObjective != maths::analytics::CBoostedTree::E_Custom) {
         HANDLE_FATAL(<< "Input error: expected "
-                     << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::CDataFramePredictiveModel::E_Custom]
+                     << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::analytics::CDataFramePredictiveModel::E_Custom]
                      << " for " << CLASS_ASSIGNMENT_OBJECTIVE << " if supplying "
                      << CLASSIFICATION_WEIGHTS << " but got '"
                      << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[classAssignmentObjective] << "'.");
@@ -150,7 +151,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const TReadClassScoresFunc& readClassScores,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer,
-    maths::CTreeShapFeatureImportance* featureImportance) const {
+    maths::analytics::CTreeShapFeatureImportance* featureImportance) const {
 
     auto probabilities = readClassProbabilities(row);
     auto scores = readClassScores(row);
@@ -168,7 +169,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     writer.Key(PREDICTION_SCORE_FIELD_NAME);
     writer.Double(scores[predictedClassId]);
     writer.Key(IS_TRAINING_FIELD_NAME);
-    writer.Bool(maths::CDataFrameUtils::isMissing(actualClassId) == false);
+    writer.Bool(maths::analytics::CDataFrameUtils::isMissing(actualClassId) == false);
 
     if (m_NumTopClasses != 0) {
         TSizeVec classIds(scores.size());
@@ -207,9 +208,9 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                 this->writePredictedCategoryValue(categoryValue, writer_);
             });
         featureImportance->shap(
-            row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+            row, [&](const maths::analytics::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,
-                     const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+                     const maths::analytics::CTreeShapFeatureImportance::TVectorVec& shap) {
                 writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {
@@ -292,7 +293,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
 
 CDataFrameTrainBoostedTreeClassifierRunner::TLossFunctionUPtr
 CDataFrameTrainBoostedTreeClassifierRunner::loss(std::size_t numberClasses) {
-    using namespace maths::boosted_tree;
+    using namespace maths::analytics::boosted_tree;
     return numberClasses == 2
                ? TLossFunctionUPtr{std::make_unique<CBinomialLogisticLoss>()}
                : TLossFunctionUPtr{std::make_unique<CMultinomialLogisticLoss>(numberClasses)};

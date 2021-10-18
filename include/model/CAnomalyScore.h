@@ -15,8 +15,8 @@
 #include <core/CCompressedDictionary.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CQDigest.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CQDigest.h>
 
 #include <model/ImportExport.h>
 
@@ -40,7 +40,9 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace maths {
+namespace common {
 class CPrior;
+}
 }
 namespace model {
 class CAnomalyDetectorModelConfig;
@@ -105,7 +107,7 @@ public:
     class MODEL_EXPORT CNormalizer : private core::CNonCopyable {
     public:
         using TOptionalBool = boost::optional<bool>;
-        using TMaxValueAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
+        using TMaxValueAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
         using TDictionary = core::CCompressedDictionary<1>;
         using TWord = TDictionary::CWord;
 
@@ -289,10 +291,10 @@ public:
         double m_BucketNormalizationFactor;
 
         //! A quantile summary of the raw scores.
-        maths::CQDigest m_RawScoreQuantileSummary;
+        maths::common::CQDigest m_RawScoreQuantileSummary;
         //! A quantile summary of the raw score greater than the
         //! approximate HIGH_PERCENTILE percentile raw score.
-        maths::CQDigest m_RawScoreHighQuantileSummary;
+        maths::common::CQDigest m_RawScoreHighQuantileSummary;
 
         //! The rate at which information is lost.
         double m_DecayRate;

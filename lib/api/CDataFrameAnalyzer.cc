@@ -8,8 +8,10 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
+
 #include <api/CDataFrameAnalyzer.h>
 
+#include <boost/unordered/unordered_map_fwd.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CFloatStorage.h>
@@ -17,14 +19,18 @@
 #include <core/CLogger.h>
 #include <core/CStopWatch.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/COrderings.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataSummarizationJsonWriter.h>
 
+#include <algorithm>
 #include <cmath>
+#include <iterator>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -32,7 +38,7 @@ namespace ml {
 namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
-using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 // Control message types:
 const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
@@ -123,7 +129,7 @@ void CDataFrameAnalyzer::run() {
     // We create the writer in run so that when it is finished destructors
     // get called and the wrapped stream does its job to close the array.
 
-    auto analysisRunner = m_AnalysisSpecification->runner();
+    auto* analysisRunner = m_AnalysisSpecification->runner();
     if (analysisRunner != nullptr) {
         // We currently use a stream factory because the results are wrapped in
         // an array. This is managed by the CJsonOutputStreamWrapper constructor
@@ -246,15 +252,76 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
 }
 
 void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
-    if (m_DataFrame == nullptr) {
+    if (m_DataFrame == nullptr || m_CapturedFieldNames) {
         return;
     }
-    if (m_DataFrame != nullptr && m_CapturedFieldNames == false) {
-        TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
-                            fieldNames.begin() + m_EndDataFieldValues};
-        m_DataFrame->columnNames(columnNames);
+
+    TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
+                        fieldNames.begin() + m_EndDataFieldValues};
+
+    if (m_DataFrame->hasColumnNames()) {
+        this->initializeDataFrameColumnMap(std::move(columnNames));
+        this->validateCategoricalColumnsMatch();
+    } else {
+        m_DataFrame->columnNames(std::move(columnNames));
         m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
-        m_CapturedFieldNames = true;
+    }
+
+    m_CapturedFieldNames = true;
+}
+
+void CDataFrameAnalyzer::initializeDataFrameColumnMap(TStrVec columnNames) {
+
+    // We take the view that missing fields are not fatal, since they may
+    // not be available for the new set, but extra fields are likely to
+    // indicate user error.
+
+    TPtrdiffVec positions(columnNames.size());
+    std::iota(positions.begin(), positions.end(), 0);
+    maths::common::COrderings::simultaneousSort(columnNames, positions);
+
+    TStrVec originalColumnNames{m_DataFrame->columnNames()};
+    std::sort(originalColumnNames.begin(), originalColumnNames.end());
+
+    TStrVec extraColumnNames;
+    std::set_difference(columnNames.begin(), columnNames.end(),
+                        originalColumnNames.begin(), originalColumnNames.end(),
+                        std::back_inserter(extraColumnNames));
+    if (extraColumnNames.empty() == false) {
+        HANDLE_FATAL(<< "Input error: supplying additional columns "
+                     << core::CContainerPrinter::print(extraColumnNames) << ".");
+    }
+
+    m_DataFrameColumnMap = std::make_unique<TPtrdiffVec>();
+    m_DataFrameColumnMap->reserve(columnNames.size());
+
+    for (const auto& name : m_DataFrame->columnNames()) {
+        auto i = std::lower_bound(columnNames.begin(), columnNames.end(), name);
+        if (i == columnNames.end() || *i != name) {
+            LOG_WARN(<< "Missing column '" << name << "'.");
+            m_DataFrameColumnMap->push_back(FIELD_MISSING);
+        } else {
+            m_DataFrameColumnMap->push_back(positions[i - columnNames.begin()]);
+        }
+    }
+    LOG_TRACE(<< "mapping = " << core::CContainerPrinter::print(*m_DataFrameColumnMap));
+}
+
+void CDataFrameAnalyzer::validateCategoricalColumnsMatch() const {
+    TStrVec originalCategoricalColumns;
+    originalCategoricalColumns.reserve(m_DataFrame->columnNames().size());
+    for (std::size_t i = 0; i < m_DataFrame->columnNames().size(); ++i) {
+        if (m_DataFrame->columnIsCategorical()[i]) {
+            originalCategoricalColumns.push_back(m_DataFrame->columnNames()[i]);
+        }
+    }
+    TStrVec categoricalColumns{m_AnalysisSpecification->categoricalFieldNames()};
+    std::sort(originalCategoricalColumns.begin(), originalCategoricalColumns.end());
+    std::sort(categoricalColumns.begin(), categoricalColumns.end());
+    if (categoricalColumns != originalCategoricalColumns) {
+        HANDLE_FATAL(<< "Input error: mismatch in categorical columns "
+                     << core::CContainerPrinter::print(categoricalColumns) << " doesn't match "
+                     << core::CContainerPrinter::print(originalCategoricalColumns));
     }
 }
 
@@ -264,9 +331,10 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
     }
     auto columnValues = core::make_range(fieldValues, m_BeginDataFieldValues,
                                          m_EndDataFieldValues);
-    m_DataFrame->parseAndWriteRow(columnValues, m_DocHashFieldIndex != FIELD_MISSING
-                                                    ? &fieldValues[m_DocHashFieldIndex]
-                                                    : nullptr);
+    m_DataFrame->parseAndWriteRow(columnValues, m_DataFrameColumnMap.get(),
+                                  m_DocHashFieldIndex != FIELD_MISSING
+                                      ? &fieldValues[m_DocHashFieldIndex]
+                                      : nullptr);
 }
 
 void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& analysis,
@@ -350,5 +418,7 @@ const CDataFrameAnalysisRunner* CDataFrameAnalyzer::runner() const {
 }
 
 const std::string CDataFrameAnalyzer::CONTROL_MESSAGE_FIELD_NAME{"."};
+const std::ptrdiff_t CDataFrameAnalyzer::FIELD_UNSET{-2};
+const std::ptrdiff_t CDataFrameAnalyzer::FIELD_MISSING{-1};
 }
 }

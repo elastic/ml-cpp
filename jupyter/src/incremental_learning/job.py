@@ -300,19 +300,21 @@ class Job:
         """
         Get compressed model definition json.
         """
+        result = []
         for item in self.results:
             if 'compressed_inference_model' in item:
-                return json.dumps(item)
-        return ""
+                result.append(json.dumps(item))
+        return "".join(result)
 
     def get_compressed_data_summarization(self) -> str:
         """
         Get compressed model definition json.
         """
+        result = []
         for item in self.results:
             if 'compressed_data_summarization' in item:
-                return json.dumps(item)
-        return ""
+                result.append(json.dumps(item))
+        return "".join(result)
 
     def get_model_update_data(self) -> str:
         data_summarization = self.get_compressed_data_summarization()
@@ -356,7 +358,7 @@ class Job:
             job.name = state['name']
             job.model = state['model']
             if 'results' in state:
-                job.results =  state['results']
+                job.results = state['results']
             job.initialized = True
         return job
 

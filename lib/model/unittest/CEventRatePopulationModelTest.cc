@@ -17,9 +17,10 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CSmallVector.h>
 
-#include <maths/CModelWeight.h>
-#include <maths/COrderings.h>
-#include <maths/CTimeSeriesDecomposition.h>
+#include <maths/common/CModelWeight.h>
+#include <maths/common/COrderings.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -256,7 +257,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
     using TDouble2Vec = core::CSmallVector<double, 2>;
     using TDouble2VecVec = std::vector<TDouble2Vec>;
     using TDouble2VecWeightsAryVec = std::vector<maths_t::TDouble2VecWeightsAry>;
-    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::common::CModel>;
     using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
 
     // Manages de-duplication of values.
@@ -364,12 +365,12 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
                     attributeExpectedValues.second.trendWeights();
                 TDouble2VecWeightsAryVec& residualWeights =
                     attributeExpectedValues.second.residualWeights();
-                maths::COrderings::simultaneousSort(values, trendWeights, residualWeights);
-                maths::CModel::TTimeDouble2VecSizeTrVec samples;
+                maths::common::COrderings::simultaneousSort(values, trendWeights, residualWeights);
+                maths::common::CModel::TTimeDouble2VecSizeTrVec samples;
                 for (const auto& sample : values) {
                     samples.emplace_back(startTime + bucketLength / 2, sample, 0);
                 }
-                maths::CModelAddSamplesParams params_;
+                maths::common::CModelAddSamplesParams params_;
                 params_.integer(true)
                     .nonNegative(true)
                     .propagationInterval(1.0)
@@ -402,7 +403,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
                                 core::CContainerPrinter::print(nonZeroCounts));
 
             for (std::size_t cid = 0; cid < numberAttributes; ++cid) {
-                const maths::CModel* populationModel = model->details()->model(
+                const maths::common::CModel* populationModel = model->details()->model(
                     model_t::E_PopulationCountByBucketPersonAndAttribute, cid);
                 BOOST_TEST_REQUIRE(populationModel);
                 BOOST_REQUIRE_EQUAL(expectedPopulationModels[cid]->checksum(),
@@ -707,8 +708,8 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
             meanError.add(std::fabs(populationModel->personFrequency(pid) -
                                     1.0 / static_cast<double>(datum.s_Period)));
         }
-        LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.002);
+        LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(meanError));
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.002);
     }
     {
         std::size_t i{0};
@@ -1001,20 +1002,20 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 
     // Check priors are the same
     BOOST_REQUIRE_EQUAL(
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))
             ->residualModel()
             .checksum(),
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))
             ->residualModel()
             .checksum());
     BOOST_REQUIRE_EQUAL(
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelWithGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))
             ->residualModel()
             .checksum(),
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelNoGap->details()->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1))
             ->residualModel()
             .checksum());
@@ -1179,10 +1180,10 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Create 2 models, one of which has a skip sampling rule.
-    // Feed the same data into both models then add extra data
-    // into the first model we know will be filtered out.
-    // At the end the checksums for the underlying models should
-    // be the same.
+    // The skip sampling rule doesn't cause the samples to be completely ignored,
+    // instead it applies a small multiplicative weighting when the rule applies.
+    // Feed the same data into both models including the case when the rule will apply
+    // for one model but not the other.
 
     core_t::TTime startTime{100};
     std::size_t bucketLength{100};
@@ -1194,13 +1195,14 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     CDetectionRule rule;
     rule.action(CDetectionRule::E_SkipModelUpdate);
-    rule.includeScope("", valueFilter);
+    rule.includeScope("byFieldName", valueFilter);
 
     SModelParams paramsNoRules(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CEventRatePopulationModelFactory factory(paramsNoRules, interimBucketCorrector);
     model_t::TFeatureVec features{model_t::E_PopulationCountByBucketPersonAndAttribute};
     factory.features(features);
+    factory.fieldNames("partitionFieldName", "", "byFieldName", "", {});
 
     CModelFactory::SGathererInitializationData gathererNoSkipInitData(startTime);
     CModelFactory::TDataGathererPtr gathererNoSkip(
@@ -1217,6 +1219,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     CEventRatePopulationModelFactory factoryWithSkipRule(
         paramsWithRules, interimBucketCorrectorWithRules);
     factoryWithSkipRule.features(features);
+    factoryWithSkipRule.fieldNames("partitionFieldName", "", "byFieldName", "", {});
 
     CModelFactory::SGathererInitializationData gathererWithSkipInitData(startTime);
     CModelFactory::TDataGathererPtr gathererWithSkip(
@@ -1243,9 +1246,11 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     this->addArrival(SMessage(200, "p2", TOptionalStr("a1")), gathererNoSkip);
     this->addArrival(SMessage(200, "p2", TOptionalStr("a1")), gathererWithSkip);
 
-    // This should be filtered out
+    // These should be added to the "with skip" model but with a small multiplicative weighting
     this->addArrival(SMessage(200, "p1", TOptionalStr("a3")), gathererWithSkip);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a3")), gathererNoSkip);
     this->addArrival(SMessage(200, "p2", TOptionalStr("a3")), gathererWithSkip);
+    this->addArrival(SMessage(200, "p2", TOptionalStr("a3")), gathererNoSkip);
 
     // Add another attribute that must not be skipped
     this->addArrival(SMessage(200, "p1", TOptionalStr("a4")), gathererNoSkip);
@@ -1256,7 +1261,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     modelNoSkip->sample(200, 300, m_ResourceMonitor);
     modelWithSkip->sample(200, 300, m_ResourceMonitor);
 
-    // Checksums will be different because a model is created for attribute a3
+    // Checksums will be different because of the different weightings applied to the samples for attribute a3
     BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     auto modelWithSkipView = modelWithSkip->details();
@@ -1281,22 +1286,31 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
                          ->checksum();
     BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
-    // The no skip model didn't see the a3 attribute only a1, a2 and a4.
+    // The skip model did see the a3 attribute but, due to the lower weighting given to the samples,
+    // the model checksums will differ.
+    withSkipChecksum = modelWithSkipView
+                           ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2)
+                           ->checksum();
+    noSkipChecksum = modelNoSkipView
+                         ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2)
+                         ->checksum();
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
+
     // The a4 models should be the same.
     withSkipChecksum = modelWithSkipView
                            ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3)
                            ->checksum();
     noSkipChecksum = modelNoSkipView
-                         ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2)
+                         ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3)
                          ->checksum();
     BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
     // Check the last value times of all the underlying models are the same
-    const maths::CUnivariateTimeSeriesModel* timeSeriesModel{
-        dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(
-            model_t::E_PopulationCountByBucketPersonAndAttribute, 0))};
+    const maths::time_series::CUnivariateTimeSeriesModel* timeSeriesModel{
+        dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0))};
     BOOST_TEST_REQUIRE(timeSeriesModel);
-    const auto* trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+    const auto* trendModel = dynamic_cast<const maths::time_series::CTimeSeriesDecomposition*>(
         &timeSeriesModel->trendModel());
     BOOST_TEST_REQUIRE(trendModel);
 
@@ -1306,23 +1320,26 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
                         time);
 
     // The last times of the underlying time series models should all be the same
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+    timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
         modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
     BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+    timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
         modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
     BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
+    timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+        modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3));
+    BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
 
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+    timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
     BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+    timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
     BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+    timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
     BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+    timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3));
     BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
 }

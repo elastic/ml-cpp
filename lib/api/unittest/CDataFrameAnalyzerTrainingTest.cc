@@ -17,12 +17,13 @@
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
-#include <maths/CDataFrameUtils.h>
-#include <maths/CTools.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CDataFrameUtils.h>
+
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CTools.h>
 
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
@@ -40,8 +41,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <algorithm>
 #include <memory>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 namespace utf = boost::unit_test;
@@ -68,7 +71,7 @@ using TDataAdderUPtr = std::unique_ptr<core::CDataAdder>;
 using TPersisterSupplier = std::function<TDataAdderUPtr()>;
 using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
 using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
-using TLossFunctionType = maths::boosted_tree::ELossType;
+using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
 using TDataFrameUPtrTemporaryDirectoryPtrPr =
     test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 
@@ -100,7 +103,7 @@ TStrVec splitOnNull(std::stringstream&& tokenStream) {
     return results;
 }
 
-rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
+rapidjson::Document treeToJsonDocument(const maths::analytics::CBoostedTree& tree) {
     std::stringstream persistStream;
     {
         core::CJsonStatePersistInserter inserter(persistStream);
@@ -117,7 +120,7 @@ auto restoreTree(std::string persistedState, TDataFrameUPtr& frame, std::size_t 
     CTestDataSearcher dataSearcher(persistedState);
     auto decompressor = std::make_unique<core::CStateDecompressor>(dataSearcher);
     auto stream = decompressor->search(1, 1);
-    return maths::CBoostedTreeFactory::constructFromString(*stream).restoreFor(
+    return maths::analytics::CBoostedTreeFactory::constructFromString(*stream).restoreFor(
         *frame, dependentVariable);
 }
 
@@ -214,17 +217,17 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters =
-        expectedResults[maths::CBoostedTree::bestHyperparametersName()];
+        expectedResults[maths::analytics::CBoostedTree::bestHyperparametersName()];
     const auto& expectedRegularizationHyperparameters =
-        expectedHyperparameters[maths::CBoostedTree::bestRegularizationHyperparametersName()];
+        expectedHyperparameters[maths::analytics::CBoostedTree::bestRegularizationHyperparametersName()];
 
     rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
     const auto& actualHyperparameters =
-        actualResults[maths::CBoostedTree::bestHyperparametersName()];
+        actualResults[maths::analytics::CBoostedTree::bestHyperparametersName()];
     const auto& actualRegularizationHyperparameters =
-        actualHyperparameters[maths::CBoostedTree::bestRegularizationHyperparametersName()];
+        actualHyperparameters[maths::analytics::CBoostedTree::bestRegularizationHyperparametersName()];
 
-    for (const auto& key : maths::CBoostedTree::bestHyperparameterNames()) {
+    for (const auto& key : maths::analytics::CBoostedTree::bestHyperparameterNames()) {
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key].GetString())};
             double actual{std::stod(actualHyperparameters[key].GetString())};
@@ -482,8 +485,9 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
         analyzer.dataFrame().readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t i{0};
             for (auto row = beginRows; row != endRows; ++row, ++i) {
-                BOOST_REQUIRE_EQUAL(isMissing[row->index()],
-                                    maths::CDataFrameUtils::isMissing((*row)[0]));
+                BOOST_REQUIRE_EQUAL(
+                    isMissing[row->index()],
+                    maths::analytics::CDataFrameUtils::isMissing((*row)[0]));
             }
         });
     }
@@ -515,8 +519,9 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
         analyzer.dataFrame().readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             std::size_t i{0};
             for (auto row = beginRows; row != endRows; ++row, ++i) {
-                BOOST_REQUIRE_EQUAL(isMissing[row->index()],
-                                    maths::CDataFrameUtils::isMissing((*row)[0]));
+                BOOST_REQUIRE_EQUAL(
+                    isMissing[row->index()],
+                    maths::analytics::CDataFrameUtils::isMissing((*row)[0]));
             }
         });
     }
@@ -1041,8 +1046,8 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     // Train a model for comparison.
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CMse>())
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                           .maximumNumberTrees(maximumNumberTrees)
                           .buildForTrain(*frame, weights.size());
     regression->train();
@@ -1051,10 +1056,6 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
     // Retrieve documents from the result stream that will be used to restore the model.
 
     std::stringstream incrementalTrainingState;
-    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-        incrementalTrainingStateWrapper};
-
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
@@ -1130,7 +1131,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
         static_cast<std::size_t>(summarisation.manhattan()), false);
     newTrainingRowMask.extend(true, numberExamples);
 
-    regression = maths::CBoostedTreeFactory::constructFromModel(std::move(regression))
+    regression = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(regression))
                      .newTrainingRowMask(newTrainingRowMask)
                      .buildForTrainIncremental(*frame, weights.size());
 
@@ -1329,11 +1330,12 @@ BOOST_AUTO_TEST_CASE(testClassificationWithUserClassWeights) {
         fieldNames, fieldValues, analyzer, weights, regressors, actuals);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "$"});
 
-    auto classifier = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
-                          .classAssignmentObjective(maths::CBoostedTree::E_Custom)
-                          .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
-                          .buildForTrain(*frame, 3);
+    auto classifier =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .classAssignmentObjective(maths::analytics::CBoostedTree::E_Custom)
+            .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
+            .buildForTrain(*frame, 3);
 
     classifier->train();
     classifier->predict();
@@ -1449,8 +1451,8 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
 
     // Train a model for comparison.
     auto classification =
-        maths::CBoostedTreeFactory::constructFromParameters(
-            1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
             .maximumNumberTrees(maximumNumberTrees)
             .buildForTrain(*frame, weights.size());
     classification->train();
@@ -1459,10 +1461,6 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
     // Retrieve documents from the result stream that will be used to restore the model.
 
     std::stringstream incrementalTrainingState;
-    rapidjson::OStreamWrapper incrementalTrainingStateWrapper(incrementalTrainingState);
-    core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> dataSummarizationWriter{
-        incrementalTrainingStateWrapper};
-
     readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
                                  softTreeDepthLimit, softTreeDepthTolerance,
                                  eta, etaGrowthRatePerTree, downsampleFactor,
@@ -1523,6 +1521,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
             row->copyTo(newTrainingData.back().begin());
         }
     });
+
     frame->resizeRows(0);
     for (std::size_t i = 0; i < newTrainingData.size(); ++i) {
         frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t& id) {
@@ -1538,7 +1537,8 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
         static_cast<std::size_t>(summarisation.manhattan()), false);
     newTrainingRowMask.extend(true, numberExamples);
 
-    classification = maths::CBoostedTreeFactory::constructFromModel(std::move(classification))
+    classification = maths::analytics::CBoostedTreeFactory::constructFromModel(
+                         std::move(classification))
                          .newTrainingRowMask(newTrainingRowMask)
                          .buildForTrainIncremental(*frame, weights.size());
 
@@ -1559,6 +1559,286 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
                 // the prediction_probability matches the probability of one of the
                 // classes, since it is very unlikely to match the wrong class by
                 // chance.
+                BOOST_REQUIRE((std::fabs(*prediction - expectedPrediction) < 1e-6) ||
+                              (std::fabs(*prediction + expectedPrediction - 1.0) < 1e-6));
+                ++prediction;
+            }
+        },
+        &newTrainingRowMask);
+}
+
+BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
+
+    // Test running incremental with reordered fields and extra fields.
+
+    std::size_t maximumNumberTrees{30};
+    std::size_t numberExamples{100};
+
+    auto makeTrainSpec = [&](const std::string& dependentVariable,
+                             TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
+                             TPersisterSupplier* persisterSupplier,
+                             TRestoreSearcherSupplier* restorerSupplier) {
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        return specFactory.rows(numberExamples)
+            .memoryLimit(15000000)
+            .predictionCategoricalFieldNames({dependentVariable})
+            .predictionMaximumNumberTrees(maximumNumberTrees)
+            .predictionPersisterSupplier(persisterSupplier)
+            .predictionRestoreSearcherSupplier(restorerSupplier)
+            .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
+            .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
+                            dependentVariable, &frameAndDirectory);
+    };
+
+    double alpha;
+    double lambda;
+    double gamma;
+    double softTreeDepthLimit;
+    double softTreeDepthTolerance;
+    double eta;
+    double etaGrowthRatePerTree;
+    double downsampleFactor;
+    double featureBagFraction;
+    double lossGap;
+
+    auto makeUpdateSpec = [&](const std::string& dependentVariable, TStrVec categoricalFields,
+                              TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
+                              TPersisterSupplier* persisterSupplier,
+                              TRestoreSearcherSupplier* restorerSupplier) {
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        categoricalFields.push_back(dependentVariable);
+        return specFactory.rows(2 * numberExamples)
+            .memoryLimit(15000000)
+            .predictionCategoricalFieldNames(categoricalFields)
+            .predictionAlpha(alpha)
+            .predictionLambda(lambda)
+            .predictionGamma(gamma)
+            .predictionSoftTreeDepthLimit(softTreeDepthLimit)
+            .predictionSoftTreeDepthTolerance(softTreeDepthTolerance)
+            .predictionEta(eta)
+            .predictionEtaGrowthRatePerTree(etaGrowthRatePerTree)
+            .predictionMaximumNumberTrees(maximumNumberTrees)
+            .predictionDownsampleFactor(downsampleFactor)
+            .predictionFeatureBagFraction(featureBagFraction)
+            .previousTrainLossGap(lossGap)
+            .previousTrainNumberRows(numberExamples)
+            .predictionPersisterSupplier(persisterSupplier)
+            .predictionRestoreSearcherSupplier(restorerSupplier)
+            .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
+            .task(test::CDataFrameAnalysisSpecificationFactory::TTask::E_Update)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
+                            dependentVariable, &frameAndDirectory);
+    };
+
+    std::stringstream outputStream;
+    auto outputWriterFactory = [&outputStream]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
+    };
+
+    // Run once.
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
+    TDoubleVec regressors;
+    test::CRandomNumbers rng;
+    rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+    auto spec = makeTrainSpec("target", frameAndDirectory, nullptr, nullptr);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     outputWriterFactory};
+    TStrVec targets;
+    auto frame = test::CDataFrameAnalyzerTrainingFactory::setupBinaryClassificationData(
+        fieldNames, fieldValues, analyzer, weights, regressors, targets);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    // Train a model for comparison.
+    auto classification =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .maximumNumberTrees(maximumNumberTrees)
+            .buildForTrain(*frame, weights.size());
+    classification->train();
+    classification->predict();
+
+    // Retrieve documents from the result stream that will be used to restore the model.
+    std::stringstream incrementalTrainingState;
+    readIncrementalTrainingState(outputStream.str(), alpha, lambda, gamma,
+                                 softTreeDepthLimit, softTreeDepthTolerance,
+                                 eta, etaGrowthRatePerTree, downsampleFactor,
+                                 featureBagFraction, lossGap, incrementalTrainingState);
+
+    outputStream.clear();
+    outputStream.str("");
+
+    LOG_DEBUG(<< "Test extra field");
+
+    {
+        std::stringstream incrementalTrainingStateCopy;
+        incrementalTrainingStateCopy << incrementalTrainingState.str();
+
+        // Pass model definition and data summarization into the restore stream.
+        auto restoreStreamPtr = std::make_shared<std::stringstream>(
+            std::move(incrementalTrainingStateCopy));
+        TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
+            return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
+        }};
+
+        // Create a new spec for incremental training.
+        spec = makeUpdateSpec("target", {}, frameAndDirectory, nullptr, &restorerSupplier);
+
+        api::CDataFrameAnalyzer analyzerIncremental{
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
+
+        auto errorHandler = [](std::string error) {
+            throw std::runtime_error(error);
+        };
+        core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+        fieldNames.assign({"f1", "f2", "f3", "f5", "target", ".", "."});
+
+        // Adding an unseen field should be a fatal error.
+        bool throws{false};
+        try {
+            test::CDataFrameAnalyzerTrainingFactory::setupBinaryClassificationData(
+                fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
+        } catch (const std::exception& e) {
+            LOG_DEBUG(<< "Caught '" << e.what() << "'");
+            throws = true;
+        }
+        BOOST_TEST_REQUIRE(throws);
+    }
+
+    LOG_DEBUG(<< "Test mismatching categorical fields");
+
+    {
+        std::stringstream incrementalTrainingStateCopy;
+        incrementalTrainingStateCopy << incrementalTrainingState.str();
+
+        // Pass model definition and data summarization into the restore stream.
+        auto restoreStreamPtr = std::make_shared<std::stringstream>(
+            std::move(incrementalTrainingStateCopy));
+        TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
+            return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
+        }};
+
+        // Create a new spec for incremental training.
+        spec = makeUpdateSpec("target", {"f4"}, frameAndDirectory, nullptr, &restorerSupplier);
+
+        api::CDataFrameAnalyzer analyzerIncremental{
+            std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
+
+        auto errorHandler = [](std::string error) {
+            throw std::runtime_error(error);
+        };
+        core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+        fieldNames.assign({"f1", "f2", "f3", "f4", "target", ".", "."});
+
+        // Adding an unseen field should be a fatal error.
+        bool throws{false};
+        try {
+            test::CDataFrameAnalyzerTrainingFactory::setupBinaryClassificationData(
+                fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
+        } catch (const std::exception& e) {
+            LOG_DEBUG(<< "Caught '" << e.what() << "'");
+            throws = true;
+        }
+        BOOST_TEST_REQUIRE(throws);
+    }
+
+    LOG_DEBUG(<< "Test permute fields");
+
+    auto restoreStreamPtr =
+        std::make_shared<std::stringstream>(std::move(incrementalTrainingState));
+    TRestoreSearcherSupplier restorerSupplier{[&restoreStreamPtr]() {
+        return std::make_unique<api::CSingleStreamSearcher>(restoreStreamPtr);
+    }};
+
+    // Create a new spec for incremental training.
+    spec = makeUpdateSpec("target", {}, frameAndDirectory, nullptr, &restorerSupplier);
+
+    api::CDataFrameAnalyzer analyzerIncremental{
+        std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
+
+    // Permuting the field order should have no effect.
+    fieldNames.assign({"f2", "f3", "f4", "f1", "target", ".", "."});
+
+    // Create new analyzer and run incremental training.
+    auto newTrainingDataFrame = test::CDataFrameAnalyzerTrainingFactory::setupBinaryClassificationData(
+        fieldNames, fieldValues, analyzerIncremental, weights, regressors, targets);
+    analyzerIncremental.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(outputStream.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    // Read the predictions.
+    TDoubleVec predictions;
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            predictions.emplace_back(
+                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble());
+        }
+    }
+    BOOST_REQUIRE_EQUAL(numberExamples, predictions.size());
+
+    frame->resizeColumns(1, weights.size() + 1);
+
+    auto summarisation = classification->dataSummarization();
+
+    TDoubleVecVec newTrainingData;
+    newTrainingData.reserve(numberExamples +
+                            static_cast<std::size_t>(summarisation.manhattan()));
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            newTrainingData.push_back(TDoubleVec(row->numberColumns()));
+                            row->copyTo(newTrainingData.back().begin());
+                        }
+                    },
+                    &summarisation);
+    TSizeVec permutation{3, 0, 1, 2, 4};
+    newTrainingDataFrame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            newTrainingData.emplace_back();
+            newTrainingData.back().reserve(permutation.size());
+            for (auto i : permutation) {
+                newTrainingData.back().push_back((*row)[i]);
+            }
+        }
+    });
+
+    frame->resizeRows(0);
+    for (std::size_t i = 0; i < newTrainingData.size(); ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t& id) {
+            for (std::size_t j = 0; j < newTrainingData[i].size(); ++j, ++column) {
+                *column = newTrainingData[i][j];
+                id = static_cast<std::int32_t>(i);
+            }
+        });
+    }
+    frame->finishWritingRows();
+
+    core::CPackedBitVector newTrainingRowMask(
+        static_cast<std::size_t>(summarisation.manhattan()), false);
+    newTrainingRowMask.extend(true, numberExamples);
+
+    classification = maths::analytics::CBoostedTreeFactory::constructFromModel(
+                         std::move(classification))
+                         .newTrainingRowMask(newTrainingRowMask)
+                         .buildForTrainIncremental(*frame, weights.size());
+
+    classification->trainIncremental();
+    classification->predict();
+
+    auto prediction = predictions.begin();
+    frame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                double expectedPrediction{classification->readPrediction(*row)[0]};
+                // See testClassificationIncrementalTraining for an explanation.
                 BOOST_REQUIRE((std::fabs(*prediction - expectedPrediction) < 1e-6) ||
                               (std::fabs(*prediction + expectedPrediction - 1.0) < 1e-6));
                 ++prediction;
@@ -1674,7 +1954,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     };
 
     auto missing = [](double actual) {
-        return maths::CDataFrameUtils::isMissing(actual);
+        return maths::analytics::CDataFrameUtils::isMissing(actual);
     };
 
     auto assertRow = [&](const std::size_t row_i,
@@ -1814,15 +2094,15 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
             std::string phase{result["phase_progress"]["phase"].GetString()};
             int progress{result["phase_progress"]["progress_percent"].GetInt()};
-            if (phase == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
+            if (phase == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
                 coarseParameterSearchLastProgress =
                     std::max(coarseParameterSearchLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
                 fineTuneParametersLastProgress =
                     std::max(fineTuneParametersLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::FINAL_TRAINING) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::FINAL_TRAINING) {
                 finalTrainLastProgress = std::max(finalTrainLastProgress, progress);
             }
         }
@@ -1913,19 +2193,19 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoringFromRestart) {
 
             std::string phase{result["phase_progress"]["phase"].GetString()};
             int progress{result["phase_progress"]["progress_percent"].GetInt()};
-            if (phase == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
+            if (phase == maths::analytics::CBoostedTreeFactory::FEATURE_SELECTION) {
                 featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
                 coarseParameterSearchLastProgress =
                     std::max(coarseParameterSearchLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
                 if (progress > 0) {
                     fineTuneParametersFirstProgress =
                         std::min(fineTuneParametersFirstProgress, progress);
                 }
                 fineTuneParametersLastProgress =
                     std::max(fineTuneParametersLastProgress, progress);
-            } else if (phase == maths::CBoostedTreeFactory::FINAL_TRAINING) {
+            } else if (phase == maths::analytics::CBoostedTreeFactory::FINAL_TRAINING) {
                 finalTrainLastProgress = std::max(finalTrainLastProgress, progress);
             }
         }

@@ -14,8 +14,8 @@
 #include <core/CAllocationStrategy.h>
 #include <core/CPersistUtils.h>
 
-#include <maths/CBasicStatisticsPersist.h>
-#include <maths/CChecksum.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CChecksum.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CDataGatherer.h>
@@ -129,7 +129,7 @@ CCountingModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     }
 
     auto result = std::lower_bound(m_Counts.begin(), m_Counts.end(), pid,
-                                   maths::COrderings::SFirstLess());
+                                   maths::common::COrderings::SFirstLess());
 
     return result != m_Counts.end() && result->first == pid
                ? result->second
@@ -137,7 +137,9 @@ CCountingModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
 }
 
 CCountingModel::TOptionalDouble CCountingModel::baselineBucketCount(std::size_t pid) const {
-    return pid < m_MeanCounts.size() ? maths::CBasicStatistics::mean(m_MeanCounts[pid]) : 0.0;
+    return pid < m_MeanCounts.size()
+               ? maths::common::CBasicStatistics::mean(m_MeanCounts[pid])
+               : 0.0;
 }
 
 CCountingModel::TDouble1Vec CCountingModel::currentBucketValue(model_t::EFeature /*feature*/,
@@ -303,10 +305,10 @@ bool CCountingModel::computeTotalProbability(const std::string& /*person*/,
 
 uint64_t CCountingModel::checksum(bool includeCurrentBucketStats) const {
     uint64_t result = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
-    result = maths::CChecksum::calculate(result, m_MeanCounts);
+    result = maths::common::CChecksum::calculate(result, m_MeanCounts);
     if (includeCurrentBucketStats) {
-        result = maths::CChecksum::calculate(result, m_StartTime);
-        result = maths::CChecksum::calculate(result, m_Counts);
+        result = maths::common::CChecksum::calculate(result, m_StartTime);
+        result = maths::common::CChecksum::calculate(result, m_Counts);
     }
     return result;
 }

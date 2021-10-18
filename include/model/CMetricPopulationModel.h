@@ -338,11 +338,11 @@ private:
 
     //! Get a read only model for \p feature and the attribute identified
     //! by \p cid.
-    const maths::CModel* model(model_t::EFeature feature, std::size_t cid) const;
+    const maths::common::CModel* model(model_t::EFeature feature, std::size_t cid) const;
 
     //! Get a writable model for \p feature and the attribute identified
     //! by \p cid.
-    maths::CModel* model(model_t::EFeature feature, std::size_t pid);
+    maths::common::CModel* model(model_t::EFeature feature, std::size_t pid);
 
     //! Check if there are correlates for \p feature and the person and
     //! attribute identified by \p pid and \p cid, respectively.

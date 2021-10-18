@@ -14,8 +14,8 @@
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 
-#include <maths/CMathsFuncs.h>
-#include <maths/CTools.h>
+#include <maths/common/CMathsFuncs.h>
+#include <maths/common/CTools.h>
 
 #include <model/CMonitoredResource.h>
 #include <model/CStringStore.h>
@@ -328,7 +328,7 @@ bool CResourceMonitor::needToSendReport(model_t::EAssignmentMemoryBasis currentA
 bool CResourceMonitor::isMemoryStable(core_t::TTime bucketLength) const {
 
     // Sanity check
-    if (maths::CBasicStatistics::count(m_ModelBytesMoments) == 0.0) {
+    if (maths::common::CBasicStatistics::count(m_ModelBytesMoments) == 0.0) {
         LOG_ERROR(<< "Programmatic error: checking memory stability before adding any measurements");
         return false;
     }
@@ -342,17 +342,17 @@ bool CResourceMonitor::isMemoryStable(core_t::TTime bucketLength) const {
     }
 
     // Coefficient of variation must be less than 0.1
-    double mean{maths::CBasicStatistics::mean(m_ModelBytesMoments)};
-    double variance{maths::CBasicStatistics::variance(m_ModelBytesMoments)};
+    double mean{maths::common::CBasicStatistics::mean(m_ModelBytesMoments)};
+    double variance{maths::common::CBasicStatistics::variance(m_ModelBytesMoments)};
     LOG_TRACE(<< "Model memory stability at " << m_LastMomentsUpdateTime
-              << ": bucket count = " << bucketCount
-              << ", sample count = " << maths::CBasicStatistics::count(m_ModelBytesMoments)
+              << ": bucket count = " << bucketCount << ", sample count = "
+              << maths::common::CBasicStatistics::count(m_ModelBytesMoments)
               << ", mean = " << mean << ", variance = " << variance
               << ", coefficient of variation = " << (std::sqrt(variance) / mean));
     // Instead of literally testing the coefficient of variation it's more
     // robust against zeroes and NaNs to rearrange it as follows
-    return maths::CMathsFuncs::isNan(variance) == false &&
-           variance <= maths::CTools::pow2(ESTABLISHED_MEMORY_CV_THRESHOLD * mean);
+    return maths::common::CMathsFuncs::isNan(variance) == false &&
+           variance <= maths::common::CTools::pow2(ESTABLISHED_MEMORY_CV_THRESHOLD * mean);
 }
 
 void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime,
