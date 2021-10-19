@@ -314,7 +314,7 @@ double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
     }
 
     // We rewrite theta_0^4 sum - f_0^2 as (theta^2 + f_0) * (theta^2 - f_0)
-    // where theta^2 = theta_0^2 sum^(1/2) because it has beetter numerics.
+    // where theta^2 = theta_0^2 sum^(1/2) because it has better numerics.
     double theta2{CTools::pow2(m_KernelParameters(0)) * std::sqrt(sum)};
     double f0{this->anovaConstantFactor(Kinvf)};
     double variance{(theta2 + f0) * (theta2 - f0)};
