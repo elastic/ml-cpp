@@ -251,7 +251,7 @@ private:
             fs = f(xs);
         }
 
-        // This can happen if |s m_P| < epsilon |m_X|.
+        // This can happen if s |m_P| < epsilon |m_X|.
         if (las::distance(xs, m_X) == 0.0) {
             this->fullLineSearch(f, xs, fs);
         }
