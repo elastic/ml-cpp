@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(testMinimizeWithVerySmallGradient) {
     };
     auto g = [&](const TVector& x) { return 2.0 * eps * (x - xmin); };
 
-    maths::CLbfgs<TVector> lbfgs{10};
+    maths::common::CLbfgs<TVector> lbfgs{10};
 
     TVector x;
     double fx;
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(testMinimizeWithInitialZeroGradient) {
     };
     auto g = [&](const TVector& x) { return x == x0 ? zero : 2.0 * (x - xmin); };
 
-    maths::CLbfgs<TVector> lbfgs{10};
+    maths::common::CLbfgs<TVector> lbfgs{10};
 
     TVector x;
     double fx;
