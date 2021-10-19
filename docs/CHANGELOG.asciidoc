@@ -60,6 +60,11 @@
 * Make sure instrumentation captures the best hyperparameters we found for training
   classification and regression models. (See {ml-pull}2057{#2057}.)
 
+=== Bug Fixes
+
+* Fix numerical instability in hyperparameter optimisation for training regression and
+  classification models. (See {ml-pull}2078[#2078].)
+
 == {es} version 7.15.0
 
 === Enhancements
