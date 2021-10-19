@@ -311,7 +311,7 @@ private:
                 return -step;
             }
         }
-        // We could find a direction in which the fuction decreases. Returning
+        // We couldn't find a direction in which the fuction decreases. Returning
         // zero means we'll exit on the convergence condition.
         return las::zero(m_X);
     }
