@@ -227,7 +227,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else if (m_StopHyperparameterOptimizationEarly &&
-               m_BayesianOptimization->anovaTotalVariance() < 1e-9) {
+               m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3) {
         return false;
     } else {
         std::tie(parameters, std::ignore) =

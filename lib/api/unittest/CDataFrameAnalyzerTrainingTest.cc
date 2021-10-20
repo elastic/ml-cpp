@@ -734,7 +734,7 @@ BOOST_AUTO_TEST_CASE(testRegressionTrainingWithRowsMissingTargetValue) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expected,
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
-                0.15 * expected);
+                0.2 * expected);
             BOOST_REQUIRE_EQUAL(
                 index < 40,
                 result["row_results"]["results"]["ml"]["is_training"].GetBool());

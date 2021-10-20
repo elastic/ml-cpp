@@ -25,6 +25,9 @@
 #include <tuple>
 
 namespace ml {
+namespace core {
+class CRapidJsonConcurrentLineWriter;
+}
 namespace api {
 
 //! \brief Class controls the serialization of the model meta information
@@ -76,7 +79,7 @@ public:
     //! to the baseline value).
     void featureImportanceBaseline(TVector&& baseline);
     //! Set the hyperparameter importances.
-    void hyperparameterImportance(const maths::analytics::CBoostedTree::THyperparameterImportanceVec& hyperparameterImportance);
+    void hyperparameterImportance(const THyperparameterImportanceVec& hyperparameterImportance);
     //! Set the number of rows used to train the model.
     void numTrainRows(std::size_t numRows);
     //! Set the mean train test loss gap.

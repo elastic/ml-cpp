@@ -150,7 +150,7 @@ public:
     void updateProgress(double fractionalProgress) override {
         int progress{m_TotalFractionalProgress.fetch_add(
             static_cast<int>(65536.0 * fractionalProgress + 0.5))};
-        m_Monotonic.store(m_Monotonic.load() && fractionalProgress > 0.0);
+        m_Monotonic.store(m_Monotonic.load() && fractionalProgress >= 0.0);
         // This needn't be protected because progress is only written from one thread and
         // the tests arrange that it is never read at the same time it is being written.
         if (m_TenPercentProgressPoints.empty() ||
@@ -640,7 +640,7 @@ BOOST_AUTO_TEST_CASE(testMseNonLinear) {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -702,7 +702,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
             0.0, modelBias[i],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.96);
+        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.95);
 
         meanModelRSquared.add(modelRSquared[i]);
     }
@@ -773,7 +773,7 @@ BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
 
     // Unbiased...
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
-        0.0, bias, 4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+        0.0, bias, 7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
     // Good R^2...
     BOOST_TEST_REQUIRE(rSquared > 0.98);
 }

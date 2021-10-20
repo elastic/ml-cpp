@@ -24,6 +24,9 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+class CRapidJsonConcurrentLineWriter;
+}
 namespace api {
 
 //! Abstract class for output aggregation.
