@@ -112,9 +112,13 @@ public:
     //! Get the constant factor of the ANOVA decomposition of the Gaussian process.
     double anovaConstantFactor() const;
 
-    //! Get the total variance of the hyperparameters in the Gaussian process
+    //! Get the total variance of the Gaussian process in the search bounding box
     //! using ANOVA decomposition.
     double anovaTotalVariance() const;
+
+    //! Get the coefficiet of variation of the Gaussian process in the search
+    //! bounding box using ANOVA decomposition.
+    double anovaTotalCoefficientOfVariation();
 
     //! Get the main effect of the parameter \p dimension in the Gaussian process
     //! using ANOVA decomposition.
@@ -173,7 +177,6 @@ private:
     double anovaMainEffect(const TVector& Kinvf, int dimension) const;
     TVector kinvf() const;
     TVector transformTo01(const TVector& x) const;
-    TVector scaledKernelParameters() const;
     void checkRestoredInvariants() const;
 
 private:

@@ -149,7 +149,7 @@ public:
     void updateProgress(double fractionalProgress) override {
         int progress{m_TotalFractionalProgress.fetch_add(
             static_cast<int>(65536.0 * fractionalProgress + 0.5))};
-        m_Monotonic.store(m_Monotonic.load() && fractionalProgress > 0.0);
+        m_Monotonic.store(m_Monotonic.load() && fractionalProgress >= 0.0);
         // This needn't be protected because progress is only written from one thread and
         // the tests arrange that it is never read at the same time it is being written.
         if (m_TenPercentProgressPoints.empty() ||
