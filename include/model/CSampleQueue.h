@@ -22,8 +22,8 @@
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CIntegerTools.h>
-#include <maths/COrderings.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CFeatureData.h>
 #include <model/CMetricPartialStatistic.h>
@@ -98,8 +98,9 @@ private:
 
         // This assumes that buckets are aligned to n * bucketLength
         bool isInSameBucket(core_t::TTime time, core_t::TTime bucketLength) const {
-            core_t::TTime timeBucket = maths::CIntegerTools::floor(time, bucketLength);
-            core_t::TTime subSampleBucket = maths::CIntegerTools::floor(s_Start, bucketLength);
+            core_t::TTime timeBucket = maths::common::CIntegerTools::floor(time, bucketLength);
+            core_t::TTime subSampleBucket =
+                maths::common::CIntegerTools::floor(s_Start, bucketLength);
             return timeBucket == subSampleBucket;
         }
 
@@ -150,9 +151,9 @@ private:
 
         //! Get a checksum of this sub-sample.
         uint64_t checksum() const {
-            uint64_t seed = maths::CChecksum::calculate(0, s_Statistic);
-            seed = maths::CChecksum::calculate(seed, s_Start);
-            return maths::CChecksum::calculate(seed, s_End);
+            uint64_t seed = maths::common::CChecksum::calculate(0, s_Statistic);
+            seed = maths::common::CChecksum::calculate(seed, s_Start);
+            return maths::common::CChecksum::calculate(seed, s_End);
         }
 
         //! Debug the memory used by the sub-sample.
@@ -340,7 +341,7 @@ public:
 
     //! Returns the checksum of the queue.
     uint64_t checksum() const {
-        return maths::CChecksum::calculate(0, m_Queue);
+        return maths::common::CChecksum::calculate(0, m_Queue);
     }
 
     //! Debug the memory used by the queue.
@@ -468,7 +469,7 @@ private:
         bool rightHasSpace = static_cast<std::size_t>(right.s_Statistic.count()) < spaceLimit;
         core_t::TTime leftDistance = time - left.s_End;
         core_t::TTime rightDistance = right.s_Start - time;
-        SSubSample& candidate = maths::COrderings::lexicographical_compare(
+        SSubSample& candidate = maths::common::COrderings::lexicographical_compare(
                                     -static_cast<int>(sameBucketWithLeft),
                                     -static_cast<int>(leftHasSpace), leftDistance,
                                     -static_cast<int>(sameBucketWithRight),

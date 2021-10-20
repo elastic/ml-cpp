@@ -16,7 +16,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CChecksum.h>
+#include <maths/common/CChecksum.h>
 
 #include <model/CFeatureData.h>
 #include <model/ModelTypes.h>
@@ -87,9 +87,9 @@ CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
 
 uint64_t CSample::checksum() const {
     uint64_t seed = static_cast<uint64_t>(m_Time);
-    seed = maths::CChecksum::calculate(seed, m_Value);
-    seed = maths::CChecksum::calculate(seed, m_VarianceScale);
-    return maths::CChecksum::calculate(seed, m_Count);
+    seed = maths::common::CChecksum::calculate(seed, m_Value);
+    seed = maths::common::CChecksum::calculate(seed, m_VarianceScale);
+    return maths::common::CChecksum::calculate(seed, m_Count);
 }
 
 std::string CSample::print() const {

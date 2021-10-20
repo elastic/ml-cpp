@@ -20,7 +20,7 @@
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
+#include <maths/common/CChecksum.h>
 
 #include <model/CStringStore.h>
 
@@ -359,11 +359,11 @@ uint64_t CSearchKey::hash() const {
     m_Hash = 4 * m_Hash + static_cast<uint64_t>(m_ExcludeFrequent);
     m_Hash = core::CHashing::hashCombine(m_Hash, static_cast<uint64_t>(m_DetectorIndex));
     m_Hash = core::CHashing::hashCombine(m_Hash, static_cast<uint64_t>(m_Function));
-    m_Hash = maths::CChecksum::calculate(m_Hash, *m_FieldName);
-    m_Hash = maths::CChecksum::calculate(m_Hash, *m_ByFieldName);
-    m_Hash = maths::CChecksum::calculate(m_Hash, *m_OverFieldName);
-    m_Hash = maths::CChecksum::calculate(m_Hash, *m_PartitionFieldName);
-    m_Hash = maths::CChecksum::calculate(m_Hash, m_InfluenceFieldNames);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, *m_FieldName);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, *m_ByFieldName);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, *m_OverFieldName);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, *m_PartitionFieldName);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, m_InfluenceFieldNames);
     m_Hash = std::max(m_Hash, uint64_t(1));
     return m_Hash;
 }

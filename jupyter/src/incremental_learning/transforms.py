@@ -9,43 +9,48 @@
 
 import bisect
 import math
-import numpy as np
-from pandas import DataFrame
-from pandas import Series
-from typing import List
-from typing import Set
 import random
+from typing import List, Set
+
+import numpy as np
+from pandas import DataFrame, Series
+from sklearn.model_selection import train_test_split
 
 from .config import logger
 
-def metric_features(categorical_features : List[str],
-                    dataset : DataFrame) -> List[str]:
+
+def metric_features(categorical_features: List[str],
+                    dataset: DataFrame) -> List[str]:
 
     return [x for x in dataset.columns if x not in categorical_features]
 
-def matches_columns(features : List[str],
-                    dataset : DataFrame) -> bool:
+
+def matches_columns(features: List[str],
+                    dataset: DataFrame) -> bool:
     return [x in features for x in dataset.columns].count(True) != len(features)
 
-def features_in_bounding_box(bb : List[float],
-                             metric_features : List[str],
-                             row : Series) -> bool:
+
+def features_in_bounding_box(bb: List[float],
+                             metric_features: List[str],
+                             row: Series) -> bool:
     for i, feature in enumerate(metric_features):
         if row[feature] < bb[i][0] or row[feature] > bb[i][1]:
             return False
     return True
 
-def generate_partition_on_metric_ranges(bb : List[float],
-                                        metric_features : List[str],
-                                        dataset : DataFrame,
-                                        subset : bool) -> int:
+
+def generate_partition_on_metric_ranges(bb: List[float],
+                                        metric_features: List[str],
+                                        dataset: DataFrame,
+                                        subset: bool) -> int:
     for i in range(len(dataset.index)):
         if features_in_bounding_box(bb, metric_features, dataset.iloc[i]) == subset:
             yield dataset.iloc[i]
 
-def partition_on_metric_ranges(seed : int,
-                               metric_features : List[str],
-                               dataset : DataFrame) -> tuple:
+
+def partition_on_metric_ranges(seed: int,
+                               metric_features: List[str],
+                               dataset: DataFrame) -> tuple:
     '''
     Partition the data frame into values rows not contained and contained in
     random intervals of metric features.
@@ -65,11 +70,13 @@ def partition_on_metric_ranges(seed : int,
     '''
 
     if matches_columns(metric_features, dataset):
-        logger.error('{} does not contain {}'.format(dataset.columns, metric_features))
+        logger.error('{} does not contain {}'.format(
+            dataset.columns, metric_features))
         return None, None
 
     numeric_types = dataset.select_dtypes(include='number').columns
-    metric_features = [feature for feature in metric_features if feature in numeric_types]
+    metric_features = [
+        feature for feature in metric_features if feature in numeric_types]
     if len(metric_features) == 0:
         logger.error('no pure numeric features')
         return None, None
@@ -87,7 +94,8 @@ def partition_on_metric_ranges(seed : int,
         for feature in metric_features:
             q_a = max(0.5 - 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.01)
             q_b = min(0.5 + 0.5 * q_interval + random.uniform(-0.025, 0.025), 0.99)
-            bb.append([dataset[feature].quantile(q_a), dataset[feature].quantile(q_b)])
+            bb.append([dataset[feature].quantile(q_a),
+                  dataset[feature].quantile(q_b)])
 
         n = sum(1 for _ in generate_partition_on_metric_ranges(bb, metric_features, dataset, True))
         m = sum(1 for _ in generate_partition_on_metric_ranges(bb, metric_features, dataset, False))
@@ -97,22 +105,26 @@ def partition_on_metric_ranges(seed : int,
     return (DataFrame(generate_partition_on_metric_ranges(bb, metric_features, dataset, True)),
             DataFrame(generate_partition_on_metric_ranges(bb, metric_features, dataset, False)))
 
+
 class Counters(dict):
     def __missing__(self, key):
         return 0
 
-def generate_partition_on_categories(categorical_features : List[str],
-                                     matching : Set[str],
-                                     dataset : DataFrame,
-                                     subset : bool) -> int:
+
+def generate_partition_on_categories(categorical_features: List[str],
+                                     matching: Set[str],
+                                     dataset: DataFrame,
+                                     subset: bool) -> int:
     for i in range(len(dataset.index)):
-        key = tuple([dataset.iloc[i][feature] for feature in categorical_features])
+        key = tuple([dataset.iloc[i][feature]
+                    for feature in categorical_features])
         if (key in matching) == subset:
             yield dataset.iloc[i]
 
-def partition_on_categories(seed : int,
-                            categorical_features : List[str],
-                            dataset : DataFrame) -> tuple:
+
+def partition_on_categories(seed: int,
+                            categorical_features: List[str],
+                            dataset: DataFrame) -> tuple:
     '''
     Partition the data frame into values rows matching and not matching a random
     subset of categories.
@@ -127,7 +139,8 @@ def partition_on_categories(seed : int,
     '''
 
     if matches_columns(categorical_features, dataset):
-        logger.error('{} does not contain {}'.format(list(dataset.columns), categorical_features))
+        logger.error('{} does not contain {}'.format(
+            list(dataset.columns), categorical_features))
         return None, None
 
     random.seed(seed)
@@ -139,24 +152,24 @@ def partition_on_categories(seed : int,
         tuple_frequencies[key] += 1
 
     tuples = [item for item in tuple_frequencies.items()]
-    tuples.sort(key=lambda x : -x[1])
+    tuples.sort(key=lambda x: -x[1])
 
     matching = set()
     total_count = 0
     for value in tuples:
         if random.uniform(0, 1) < 0.5 and total_count + value[1] < len(dataset.index) / 2:
             matching.add(value[0])
-            total_count += value[1]    
+            total_count += value[1]
 
     return (DataFrame(generate_partition_on_categories(categorical_features, matching, dataset, True)),
             DataFrame(generate_partition_on_categories(categorical_features, matching, dataset, False)))
 
 
-def resample_metric_features(seed : int,
-                             fraction : float,
-                             magnitude : float,
-                             metric_features : List[str],
-                             dataset : DataFrame) -> DataFrame:
+def resample_metric_features(seed: int,
+                             fraction: float,
+                             magnitude: float,
+                             metric_features: List[str],
+                             dataset: DataFrame) -> DataFrame:
     '''
     Resample by randomly weighting equally spaced quantile buckets of features.
 
@@ -172,14 +185,16 @@ def resample_metric_features(seed : int,
     '''
 
     if matches_columns(metric_features, dataset):
-        logger.error('{} does not contain {}'.format(dataset.columns, metric_features))
+        logger.error('{} does not contain {}'.format(
+            dataset.columns, metric_features))
         return None
     if fraction > 1 or fraction <= 0:
         logger.error('fraction {} out of range (0, 1]'.format(fraction))
         return None
 
     numeric_types = dataset.select_dtypes(include='number').columns
-    metric_features = [feature for feature in metric_features if feature in numeric_types]
+    metric_features = [
+        feature for feature in metric_features if feature in numeric_types]
     if len(metric_features) == 0:
         logger.error('no pure numeric features')
         return None
@@ -192,8 +207,10 @@ def resample_metric_features(seed : int,
     for feature in metric_features:
         if feature in quantiles.columns:
             ranges.append(quantiles[feature].tolist())
-            weights.append([0.5 + magnitude * random.uniform(-0.5, 0.5) for _ in range(11)])
-    weights_normalization = [np.sum(feature_weights) for feature_weights in weights]
+            weights.append([0.5 + magnitude * random.uniform(-0.5, 0.5)
+                           for _ in range(11)])
+    weights_normalization = [np.sum(feature_weights)
+                             for feature_weights in weights]
 
     probabilities = []
     normalization = 0
@@ -221,17 +238,18 @@ def resample_metric_features(seed : int,
     return result.astype(dataset.dtypes.to_dict())
 
 
-def random_shift(seed : int,
-                 magnitude : float,
-                 number : int) -> list:
+def random_shift(seed: int,
+                 magnitude: float,
+                 number: int) -> list:
     random.seed(seed)
     return [magnitude * random.uniform(-1.0, 1.0) for _ in range(number)]
 
-def shift_metric_features(seed : int,
-                          fraction : float,
-                          magnitude : float,
-                          categorical_features : List[str],
-                          dataset : DataFrame) -> DataFrame:
+
+def shift_metric_features(seed: int,
+                          fraction: float,
+                          magnitude: float,
+                          categorical_features: List[str],
+                          dataset: DataFrame) -> DataFrame:
     '''
     Apply a random shift to the metric features in dataset.
 
@@ -249,7 +267,8 @@ def shift_metric_features(seed : int,
     '''
 
     if matches_columns(categorical_features, dataset):
-        logger.error('{} does not contain {}'.format(list(dataset.columns), categorical_features))
+        logger.error('{} does not contain {}'.format(
+            list(dataset.columns), categorical_features))
         return None
     if fraction > 1 or fraction <= 0:
         logger.error('fraction {} out of range (0, 1]'.format(fraction))
@@ -263,20 +282,20 @@ def shift_metric_features(seed : int,
         logger.error('no pure numeric features')
         return None
 
-    sd = dataset[features].std()
+    sd = dataset[features].std().to_dict()
     shift = random_shift(seed, magnitude, len(features))
 
-    result = dataset.sample(frac=fraction, random_state=seed) if fraction < 1 else dataset.copy(deep=True)
-    for i, _ in result.iterrows():
-        for j, feature in enumerate(features):
-            result.loc[i, feature] += 3.0 * shift[j] * sd[feature]
+    result = dataset.sample(
+        frac=fraction, random_state=seed) if fraction < 1 else dataset.copy(deep=True)
+    for j, feature in enumerate(features):
+        result.loc[:, feature] += 3.0 * shift[j] * sd[feature]
 
     return result
 
 
-def random_givens_rotations(seed : int,
-                            magnitude : float,
-                            dimension : int) -> list:
+def random_givens_rotations(seed: int,
+                            magnitude: float,
+                            dimension: int) -> list:
     random.seed(seed)
 
     result = []
@@ -293,9 +312,10 @@ def random_givens_rotations(seed : int,
 
     return result
 
-def apply_givens_rotations(rotations : list,
-                           scales : List[float],
-                           x : List[float]) -> None:
+
+def apply_givens_rotations(rotations: list,
+                           scales: List[float],
+                           x: List[float]) -> None:
     for rotation in rotations:
         i, j = rotation['i'], rotation['j']
         xi, xj = x[i], x[j]
@@ -303,11 +323,12 @@ def apply_givens_rotations(rotations : list,
         x[i] = scales[i] * (ct * xi / scales[i] - st * xj / scales[j])
         x[j] = scales[j] * (st * xi / scales[i] + ct * xj / scales[j])
 
-def rotate_metric_features(seed : int,
-                           fraction : float,
-                           magnitude : float,
-                           categorical_features : List[str],
-                           dataset : DataFrame) -> DataFrame:
+
+def rotate_metric_features(seed: int,
+                           fraction: float,
+                           magnitude: float,
+                           categorical_features: List[str],
+                           dataset: DataFrame) -> DataFrame:
     '''
     Downsample and apply a random rotation to the metric feature values in dataset.
 
@@ -327,7 +348,8 @@ def rotate_metric_features(seed : int,
     '''
 
     if matches_columns(categorical_features, dataset):
-        logger.error('{} does not contain {}'.format(list(dataset.columns), categorical_features))
+        logger.error('{} does not contain {}'.format(
+            list(dataset.columns), categorical_features))
         return None
     if fraction > 1 or fraction <= 0:
         logger.error('fraction {} out of range (0, 1]'.format(fraction))
@@ -342,13 +364,14 @@ def rotate_metric_features(seed : int,
         logger.error('no pure numeric features')
         return None
 
-    centroid = dataset[features].mean()
+    centroid = dataset[features].mean().to_dict()
     rotations = random_givens_rotations(seed, magnitude, len(features))
     # We need to rescale features so they are of comparible magnitude before mixing.
     sd = dataset[features].std()
     scales = [sd[feature] for feature in features]
 
-    result = dataset.sample(frac=fraction, random_state=seed) if fraction < 1 else dataset.copy(deep=True)
+    result = dataset.sample(
+        frac=fraction, random_state=seed) if fraction < 1 else dataset.copy(deep=True)
     for i, row in result.iterrows():
         x = [row[feature] - centroid[feature] for feature in features]
         apply_givens_rotations(rotations, scales, x)
@@ -358,12 +381,12 @@ def rotate_metric_features(seed : int,
     return result
 
 
-def regression_category_drift(seed : int,
-                              fraction : float,
-                              magnitude : float,
-                              categorical_features : List[str],
-                              target : str,
-                              dataset : DataFrame) -> DataFrame:
+def regression_category_drift(seed: int,
+                              fraction: float,
+                              magnitude: float,
+                              categorical_features: List[str],
+                              target: str,
+                              dataset: DataFrame) -> DataFrame:
     '''
     Downsample and apply a random shift to the target variable for each distinct
     category of the categorical_features feature values in dataset.
@@ -382,10 +405,12 @@ def regression_category_drift(seed : int,
     '''
 
     if matches_columns(categorical_features, dataset):
-        logger.error('{} does not contain {}'.format(list(dataset.columns), categorical_features))
+        logger.error('{} does not contain {}'.format(
+            list(dataset.columns), categorical_features))
         return None
     if matches_columns([target], dataset):
-        logger.error('{} does not contain "{}"'.format(list(dataset.columns), target))
+        logger.error('{} does not contain "{}"'.format(
+            list(dataset.columns), target))
         return None
     if fraction > 1 or fraction <= 0:
         logger.error('fraction {} out of range (0, 1]'.format(fraction))
@@ -393,12 +418,14 @@ def regression_category_drift(seed : int,
 
     sd = dataset[target].std()
 
-    shifts = {feature : {} for feature in categorical_features}
+    shifts = {feature: {} for feature in categorical_features}
     for feature in categorical_features:
         for unique in dataset[feature].unique():
-            shifts[feature][unique] = 3.0 * sd * magnitude * random.uniform(-1.0, 1.0)
+            shifts[feature][unique] = 3.0 * sd * \
+                magnitude * random.uniform(-1.0, 1.0)
 
-    result = dataset.sample(frac=fraction, random_state=seed) if fraction < 1 else dataset.copy(deep=True)
+    result = dataset.sample(
+        frac=fraction, random_state=seed) if fraction < 1 else dataset.copy(deep=True)
     for i, row in result.iterrows():
         shift = 0.0
         for feature in categorical_features:
@@ -406,3 +433,64 @@ def regression_category_drift(seed : int,
         result.loc[i, target] += shift
 
     return result
+
+
+def transform_dataset(dataset: DataFrame,
+                      test_fraction: float,
+                      transform_name: str,
+                      transform_parameters,
+                      seed: int) -> DataFrame:
+    if transform_name == 'partition_on_metric_ranges':
+        train_dataset, update_dataset = partition_on_metric_ranges(
+            dataset=dataset,
+            seed=seed,
+            metric_features=transform_parameters['metric_features'])
+        train_dataset, test1_dataset = train_test_split(
+            train_dataset, test_size=test_fraction)
+        update_dataset, test2_dataset = train_test_split(
+            update_dataset, test_size=test_fraction)
+        return train_dataset, update_dataset, test1_dataset, test2_dataset
+
+    transform = None
+
+    if transform_name == 'resample_metric_features':
+        transform = lambda dataset, fraction: resample_metric_features(
+            dataset=dataset,
+            seed=seed,
+            fraction=fraction,
+            magnitude=transform_parameters['magnitude'],
+            metric_features=transform_parameters['metric_features'])
+
+    if transform_name == 'shift_metric_features':
+        transform = lambda dataset, fraction: shift_metric_features(
+            dataset=dataset,
+            seed=seed,
+            fraction=fraction,
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'])
+
+    if transform_name == 'rotate_metric_features':
+        transform = lambda dataset, fraction: rotate_metric_features(
+            dataset=dataset,
+            seed=seed,
+            fraction=fraction,
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'])
+
+    if transform_name == 'regression_category_drift':
+        transform = lambda dataset, fraction: regression_category_drift(
+            dataset=dataset,
+            seed=seed,
+            fraction=fraction,
+            magnitude=transform_parameters['magnitude'],
+            categorical_features=transform_parameters['categorical_features'],
+            target=transform_parameters['target'])
+
+    if transform == None:
+        raise NotImplementedError(transform_name + ' is not implemented.')
+
+    train_dataset, test1_dataset = train_test_split(
+        dataset, test_size=test_fraction)
+    update_dataset = transform(train_dataset, transform_parameters['fraction'])
+    test2_dataset = transform(test1_dataset, 1.0)
+    return train_dataset, update_dataset, test1_dataset, test2_dataset

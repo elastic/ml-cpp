@@ -17,8 +17,9 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CTimeSeriesModel.h>
-#include <maths/MathsTypes.h>
+#include <maths/common/MathsTypes.h>
+
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CAnnotation.h>
 #include <model/CMemoryUsageEstimator.h>
@@ -47,7 +48,9 @@ class CStateRestoreTraverser;
 }
 
 namespace maths {
+namespace common {
 class CMultivariatePrior;
+}
 }
 
 namespace model {
@@ -157,15 +160,15 @@ public:
     using TFeatureInfluenceCalculatorCPtrPrVec = std::vector<TFeatureInfluenceCalculatorCPtrPr>;
     using TFeatureInfluenceCalculatorCPtrPrVecVec =
         std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
-    using TMathsModelSPtr = std::shared_ptr<maths::CModel>;
+    using TMathsModelSPtr = std::shared_ptr<maths::common::CModel>;
     using TFeatureMathsModelSPtrPr = std::pair<model_t::EFeature, TMathsModelSPtr>;
     using TFeatureMathsModelSPtrPrVec = std::vector<TFeatureMathsModelSPtrPr>;
-    using TMathsModelUPtr = std::unique_ptr<maths::CModel>;
+    using TMathsModelUPtr = std::unique_ptr<maths::common::CModel>;
     using TMathsModelUPtrVec = std::vector<TMathsModelUPtr>;
-    using TMultivariatePriorSPtr = std::shared_ptr<maths::CMultivariatePrior>;
+    using TMultivariatePriorSPtr = std::shared_ptr<maths::common::CMultivariatePrior>;
     using TFeatureMultivariatePriorSPtrPr = std::pair<model_t::EFeature, TMultivariatePriorSPtr>;
     using TFeatureMultivariatePriorSPtrPrVec = std::vector<TFeatureMultivariatePriorSPtrPr>;
-    using TCorrelationsPtr = std::unique_ptr<maths::CTimeSeriesCorrelations>;
+    using TCorrelationsPtr = std::unique_ptr<maths::time_series::CTimeSeriesCorrelations>;
     using TFeatureCorrelationsPtrPr = std::pair<model_t::EFeature, TCorrelationsPtr>;
     using TFeatureCorrelationsPtrPrVec = std::vector<TFeatureCorrelationsPtrPr>;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
@@ -568,7 +571,8 @@ protected:
     using TFeatureCorrelateModelsVec = std::vector<SFeatureCorrelateModels>;
 
     //! \brief Implements the allocator for new correlate priors.
-    class CTimeSeriesCorrelateModelAllocator : public maths::CTimeSeriesCorrelateModelAllocator {
+    class CTimeSeriesCorrelateModelAllocator
+        : public maths::time_series::CTimeSeriesCorrelateModelAllocator {
     public:
         using TMemoryUsage = std::function<std::size_t(std::size_t)>;
         using TMultivariatePriorUPtr = TMultivariatePriorPtr;
@@ -681,11 +685,12 @@ protected:
     //! Get the object which calculates corrections for interim buckets.
     virtual const CInterimBucketCorrector& interimValueCorrector() const = 0;
 
-    //! Check if any of the sample-filtering detection rules apply to this series.
-    bool shouldIgnoreSample(model_t::EFeature feature,
-                            std::size_t pid,
-                            std::size_t cid,
-                            core_t::TTime time) const;
+    //! Get the value of the initial count weight to apply to the model's
+    //! samples, as determined by the detection rules.
+    double initialCountWeight(model_t::EFeature feature,
+                              std::size_t pid,
+                              std::size_t cid,
+                              core_t::TTime time) const;
 
     //! Check if any of the result-filtering detection rules apply to this series.
     bool shouldIgnoreResult(model_t::EFeature feature,
@@ -697,9 +702,9 @@ protected:
     //! Get the non-estimated value of the the memory used by this model.
     virtual std::size_t computeMemoryUsage() const = 0;
 
-    //! Create a stub version of maths::CModel for use when pruning people
+    //! Create a stub version of maths::common::CModel for use when pruning people
     //! or attributes to free memory resource.
-    static maths::CModel* tinyModel();
+    static maths::common::CModel* tinyModel();
 
 private:
     using TModelParamsCRef = std::reference_wrapper<const SModelParams>;

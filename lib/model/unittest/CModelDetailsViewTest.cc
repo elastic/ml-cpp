@@ -12,9 +12,10 @@
 #include <core/CLogger.h>
 #include <core/Constants.h>
 
-#include <maths/CNormalMeanPrecConjugate.h>
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesModel.h>
+#include <maths/common/CNormalMeanPrecConjugate.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CModelPlotData.h>
@@ -75,13 +76,13 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
 
         model.reset(new model::CMockModel{params, gatherer, {/*we don't care about influence*/}});
 
-        maths::CTimeSeriesDecomposition trend;
-        maths::CNormalMeanPrecConjugate prior{
-            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
-        maths::CModelParams timeSeriesModelParams{
+        maths::time_series::CTimeSeriesDecomposition trend;
+        maths::common::CNormalMeanPrecConjugate prior{
+            maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
+        maths::common::CModelParams timeSeriesModelParams{
             bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
-        maths::CUnivariateTimeSeriesModel timeSeriesModel{timeSeriesModelParams,
-                                                          0, trend, prior};
+        maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
+            timeSeriesModelParams, 0, trend, prior};
         model::CMockModel::TMathsModelUPtrVec models;
         models.emplace_back(timeSeriesModel.clone(0));
         models.emplace_back(timeSeriesModel.clone(1));

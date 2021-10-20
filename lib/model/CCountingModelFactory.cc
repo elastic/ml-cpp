@@ -13,9 +13,10 @@
 
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/CConstantPrior.h>
-#include <maths/CMultivariateConstantPrior.h>
-#include <maths/CTimeSeriesModel.h>
+#include <maths/common/CConstantPrior.h>
+#include <maths/common/CMultivariateConstantPrior.h>
+
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CCountingModel.h>
 #include <model/CDataGatherer.h>
@@ -82,19 +83,20 @@ CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
 CCountingModelFactory::TPriorPtr
 CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
                                     const SModelParams& /*params*/) const {
-    return std::make_unique<maths::CConstantPrior>();
+    return std::make_unique<maths::common::CConstantPrior>();
 }
 
 CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
                                                 const SModelParams& /*params*/) const {
-    return std::make_unique<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
+    return std::make_unique<maths::common::CMultivariateConstantPrior>(
+        model_t::dimension(feature));
 }
 
 CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                              const SModelParams& /*params*/) const {
-    return std::make_unique<maths::CMultivariateConstantPrior>(2);
+    return std::make_unique<maths::common::CMultivariateConstantPrior>(2);
 }
 
 const CSearchKey& CCountingModelFactory::searchKey() const {

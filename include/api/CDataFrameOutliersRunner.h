@@ -79,7 +79,7 @@ private:
     //! Selects the method to use to compute outlier factors; the default is an ensemble
     //! of all supported types.
     //!
-    //! \see maths::COutliers for more details.
+    //! \see maths::analytics::COutliers for more details.
     std::size_t m_Method;
 
     //! If true then standardise the feature values.

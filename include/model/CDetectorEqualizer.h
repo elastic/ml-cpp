@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CDetectorEqualizer_h
 #define INCLUDED_ml_model_CDetectorEqualizer_h
 
-#include <maths/CQuantileSketch.h>
+#include <maths/common/CQuantileSketch.h>
 
 #include <model/ImportExport.h>
 
@@ -39,7 +39,7 @@ class CModelConfig;
 //! for that rank over all detectors.
 class MODEL_EXPORT CDetectorEqualizer {
 public:
-    using TIntQuantileSketchPr = std::pair<int, maths::CQuantileSketch>;
+    using TIntQuantileSketchPr = std::pair<int, maths::common::CQuantileSketch>;
     using TIntQuantileSketchPrVec = std::vector<TIntQuantileSketchPr>;
 
 public:
@@ -69,11 +69,11 @@ public:
 
 private:
     //! Get the sketch for \p detector.
-    maths::CQuantileSketch& sketch(int detector);
+    maths::common::CQuantileSketch& sketch(int detector);
 
 private:
     //! The style of interpolation to use for the sketch.
-    static const maths::CQuantileSketch::EInterpolation SKETCH_INTERPOLATION;
+    static const maths::common::CQuantileSketch::EInterpolation SKETCH_INTERPOLATION;
     //! The maximum size of the quantile sketch.
     static const std::size_t SKETCH_SIZE;
     //! The minimum count in a detector's sketch for which we'll
