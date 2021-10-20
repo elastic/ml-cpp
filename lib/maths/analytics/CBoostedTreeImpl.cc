@@ -583,22 +583,17 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
                                                        std::size_t numberColumns) const {
     // The maximum tree size is defined is the maximum number of leaves minus one.
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
-    std::size_t maximumNumberLeaves{this->maximumTreeSize(numberRows) + 1};
+    std::size_t maximumNumberLeaves{maximumTreeSize(numberRows) + 1};
     std::size_t maximumNumberNodes{2 * maximumNumberLeaves - 1};
     std::size_t maximumNumberFeatures{
         std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
+    std::size_t hyperparametersMemoryUsage{m_Hyperparameters.estimateMemoryUsage()};
     std::size_t forestMemoryUsage{
         m_Hyperparameters.maximumNumberTrees().value() *
         (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
                                                      m_Loss->numberParameters()))};
     std::size_t foldRoundLossMemoryUsage{
         m_NumberFolds.value() * m_Hyperparameters.numberRounds() * sizeof(TOptionalDouble)};
-    std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
-    std::size_t tunableHyperparametersMemoryUsage{
-        m_Hyperparameters.numberToTune() * sizeof(int)};
-    std::size_t hyperparameterSamplesMemoryUsage{
-        (m_Hyperparameters.numberRounds() / 3 + 1) *
-        m_Hyperparameters.numberToTune() * sizeof(double)};
     // The leaves' row masks memory is accounted for here because it's proportional
     // to the log2(number of nodes). The compressed bit vector representation uses
     // roughly log2(E[run length]) / E[run length] bytes per bit. As we grow the
@@ -629,14 +624,12 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
         static_cast<std::size_t>(std::ceil(std::min(m_TrainFractionPerFold.value(),
                                                     1.0 - m_TrainFractionPerFold.value()) *
                                            numberRows))};
-    std::size_t bayesianOptimisationMemoryUsage{common::CBayesianOptimisation::estimateMemoryUsage(
-        m_Hyperparameters.numberToTune(), m_Hyperparameters.numberRounds())};
+
     std::size_t worstCaseMemoryUsage{
         sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
-        hyperparametersMemoryUsage + tunableHyperparametersMemoryUsage +
-        hyperparameterSamplesMemoryUsage + leafNodeStatisticsMemoryUsage +
+        hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
         dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
-        trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
+        trainTestMaskMemoryUsage};
 
     return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
 }
@@ -1103,7 +1096,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
         double eta{index < m_BestForest.size()
                        ? m_Hyperparameters.retrainedTreeEta().value()
-                       : this->etaForTreeAtPosition(m_BestForest.size())};
+                       : m_Hyperparameters.etaForTreeAtPosition(m_BestForest.size())};
         LOG_TRACE(<< "eta = " << eta);
 
         workspace.retraining(treeToRetrain);
@@ -1157,14 +1150,6 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
     LOG_TRACE(<< "# retrained trees = " << retrainedTrees.size());
 
     return {std::move(retrainedTrees), testLosses[bestLoss], 0.0, std::move(testLosses)};
-}
-
-double CBoostedTreeImpl::etaForTreeAtPosition(std::size_t index) const {
-    return std::min(m_Hyperparameters.eta().value() *
-                        common::CTools::stable(std::pow(
-                            m_Hyperparameters.etaGrowthRatePerTree().value(),
-                            static_cast<double>(index))),
-                    1.0);
 }
 
 core::CPackedBitVector

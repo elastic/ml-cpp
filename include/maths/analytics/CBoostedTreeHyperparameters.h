@@ -312,6 +312,9 @@ public:
         return m_RetrainedTreeEta;
     }
 
+    //! Compute the learn rate for the tree at \p index.
+    double etaForTreeAtPosition(std::size_t index) const;
+
     //! Get the writeable multiplier of prediction change penalty.
     TDoubleParameter& predictionChangeCost() { return m_PredictionChangeCost; }
     //! Get the multiplier of prediction change penalty.
@@ -411,6 +414,9 @@ public:
 
     //! Check the invariants which should hold after restoring.
     void checkRestoredInvariants(bool expectOptimizerInitialized) const;
+
+    //! Estimate the memory that this object will use.
+    std::size_t estimateMemoryUsage() const;
 
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;

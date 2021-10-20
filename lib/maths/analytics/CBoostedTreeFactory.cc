@@ -1138,8 +1138,8 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
                 m_LogEtaSearchInterval =
                     this->testLossLineSearch(frame, applyEta, logMinEta, logMaxEta)
                         .value_or(fallback);
-                m_LogEtaSearchInterval = truncate(m_LogEtaSearchInterval,
-                                                  CTools::stableLog(MIN_ETA), 0.0);
+                m_LogEtaSearchInterval = truncate(
+                    m_LogEtaSearchInterval, common::CTools::stableLog(MIN_ETA), 0.0);
                 LOG_TRACE(<< "log eta search interval = ["
                           << m_LogEtaSearchInterval.toDelimited() << "]");
                 applyEta(*m_TreeImpl, m_LogEtaSearchInterval(BEST_PARAMETER_INDEX));

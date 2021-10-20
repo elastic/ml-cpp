@@ -39,12 +39,7 @@ using TRowRef = core::CDataFrame::TRowRef;
 using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloatStorage>;
 using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, core::CAlignment::EType>>;
 using TAlignedMemoryMappedFloatVector =
-<<<<<<< HEAD:include/maths/CBoostedTreeUtils.h
-    CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
-=======
     common::CMemoryMappedDenseVector<common::CFloatStorage, Eigen::Aligned16>;
-using TRegularization = CBoostedTreeRegularization<double>;
->>>>>>> feature/incremental-learning:include/maths/analytics/CBoostedTreeUtils.h
 
 enum EExtraColumnTag {
     E_Prediction = 0,

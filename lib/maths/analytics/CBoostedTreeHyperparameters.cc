@@ -38,6 +38,13 @@ double CBoostedTreeHyperparameters::penaltyForDepth(std::size_t depth) const {
                     m_SoftTreeDepthTolerance.value());
 }
 
+double CBoostedTreeHyperparameters::etaForTreeAtPosition(std::size_t index) const {
+    return std::min(m_Eta.value() * common::CTools::stable(
+                                        std::pow(m_EtaGrowthRatePerTree.value(),
+                                                 static_cast<double>(index))),
+                    1.0);
+}
+
 void CBoostedTreeHyperparameters::scaleRegularizationMultipliers(
     double scale,
     CScopeBoostedTreeParameterOverrides<double>& overrides,
@@ -99,9 +106,9 @@ void CBoostedTreeHyperparameters::initializeSearch(const TAddInitialRangeFunc& a
     LOG_TRACE(<< "hyperparameter search bounding box = "
               << core::CContainerPrinter::print(boundingBox));
 
-    m_BayesianOptimization = std::make_unique<CBayesianOptimisation>(
+    m_BayesianOptimization = std::make_unique<common::CBayesianOptimisation>(
         std::move(boundingBox),
-        m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));
+        m_BayesianOptimisationRestarts.value_or(common::CBayesianOptimisation::RESTARTS));
 
     m_CurrentRound = 0;
     m_NumberRounds = m_MaximumOptimisationRoundsPerHyperparameter *
@@ -425,6 +432,13 @@ void CBoostedTreeHyperparameters::checkRestoredInvariants(bool expectOptimizerIn
     for (const auto& samples : m_HyperparameterSamples) {
         VIOLATES_INVARIANT(m_TunableHyperparameters.size(), !=, samples.size());
     }
+}
+
+std::size_t CBoostedTreeHyperparameters::estimateMemoryUsage() const {
+    std::size_t numberToTune{this->numberToTune()};
+    return sizeof(*this) + numberToTune * sizeof(int) +
+           (m_NumberRounds / 3 + 1) * numberToTune * sizeof(double) +
+           common::CBayesianOptimisation::estimateMemoryUsage(numberToTune, m_NumberRounds);
 }
 
 std::size_t CBoostedTreeHyperparameters::memoryUsage() const {
