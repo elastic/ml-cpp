@@ -189,8 +189,8 @@ template<std::size_t N>
 typename CLowess<N>::TDoubleDoublePr CLowess<N>::extrapolationInterval() const {
     double xa{m_Data.front().first};
     double xb{m_Data.back().first};
-    xa -= std::min(0.1 * (xb - xa), 0.5 / m_K);
-    xb += std::min(0.1 * (xb - xa), 0.5 / m_K);
+    xa -= (m_K <= 0.0) ? 0.1 * (xb - xa) : std::min(0.1 * (xb - xa), 0.5 / m_K);
+    xb += (m_K <= 0.0) ? 0.1 * (xb - xa) : std::min(0.1 * (xb - xa), 0.5 / m_K);
     return {xa, xb};
 }
 
