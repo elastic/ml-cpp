@@ -152,7 +152,8 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            parameters(i) = common::CTools::stableLog(m_DepthPenaltyMultiplier.value() / scale);
+            parameters(i) =
+                common::CTools::stableLog(m_DepthPenaltyMultiplier.value() / scale);
             break;
         case E_DownsampleFactor:
             parameters(i) = common::CTools::stableLog(m_DownsampleFactor.value());
@@ -170,10 +171,12 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             parameters(i) = static_cast<double>(m_MaximumNumberTrees.value());
             break;
         case E_Gamma:
-            parameters(i) = common::CTools::stableLog(m_TreeSizePenaltyMultiplier.value() / scale);
+            parameters(i) =
+                common::CTools::stableLog(m_TreeSizePenaltyMultiplier.value() / scale);
             break;
         case E_Lambda:
-            parameters(i) = common::CTools::stableLog(m_LeafWeightPenaltyMultiplier.value() / scale);
+            parameters(i) = common::CTools::stableLog(
+                m_LeafWeightPenaltyMultiplier.value() / scale);
             break;
         case E_SoftTreeDepthLimit:
             parameters(i) = m_SoftTreeDepthLimit.value();
@@ -188,7 +191,8 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             parameters(i) = common::CTools::stableLog(m_RetrainedTreeEta.value());
             break;
         case E_TreeTopologyChangePenalty:
-            parameters(i) = common::CTools::stableLog(m_TreeTopologyChangePenalty.value());
+            parameters(i) =
+                common::CTools::stableLog(m_TreeTopologyChangePenalty.value());
             break;
         }
     }
@@ -255,10 +259,12 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             m_MaximumNumberTrees.set(static_cast<std::size_t>(std::ceil(parameters(i))));
             break;
         case E_Gamma:
-            m_TreeSizePenaltyMultiplier.set(scale * common::CTools::stableExp(parameters(i)));
+            m_TreeSizePenaltyMultiplier.set(
+                scale * common::CTools::stableExp(parameters(i)));
             break;
         case E_Lambda:
-            m_LeafWeightPenaltyMultiplier.set(scale * common::CTools::stableExp(parameters(i)));
+            m_LeafWeightPenaltyMultiplier.set(
+                scale * common::CTools::stableExp(parameters(i)));
             break;
         case E_SoftTreeDepthLimit:
             m_SoftTreeDepthLimit.set(std::max(parameters(i), 2.0));

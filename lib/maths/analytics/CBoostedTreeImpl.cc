@@ -511,8 +511,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
     LOG_TRACE(<< "Incremental training finished after "
               << m_Hyperparameters.currentRound() << " iterations. "
-              << "Time per iteration in ms mean: " << common::CBasicStatistics::mean(timeAccumulator)
-              << " std. dev:  " << std::sqrt(common::CBasicStatistics::variance(timeAccumulator)));
+              << "Time per iteration in ms mean: "
+              << common::CBasicStatistics::mean(timeAccumulator) << " std. dev:  "
+              << std::sqrt(common::CBasicStatistics::variance(timeAccumulator)));
     LOG_TRACE(<< "best forest loss = " << m_Hyperparameters.bestForestTestLoss()
               << ", initial loss = " << initialLoss);
 
@@ -1159,11 +1160,11 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 }
 
 double CBoostedTreeImpl::etaForTreeAtPosition(std::size_t index) const {
-    return std::min(
-        m_Hyperparameters.eta().value() *
-            common::CTools::stable(std::pow(m_Hyperparameters.etaGrowthRatePerTree().value(),
-                                    static_cast<double>(index))),
-        1.0);
+    return std::min(m_Hyperparameters.eta().value() *
+                        common::CTools::stable(std::pow(
+                            m_Hyperparameters.etaGrowthRatePerTree().value(),
+                            static_cast<double>(index))),
+                    1.0);
 }
 
 core::CPackedBitVector

@@ -1016,9 +1016,9 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
 
                 // Truncate the log(factor) to be less than or equal to log(1.0) and the
                 // downsampled set contains at least ten examples on average.
-                m_LogDownsampleFactorSearchInterval =
-                    truncate(m_LogDownsampleFactorSearchInterval,
-                             common::CTools::stableLog(10.0 / numberTrainingRows), 0.0);
+                m_LogDownsampleFactorSearchInterval = truncate(
+                    m_LogDownsampleFactorSearchInterval,
+                    common::CTools::stableLog(10.0 / numberTrainingRows), 0.0);
                 LOG_TRACE(<< "log downsample factor search interval = ["
                           << m_LogDownsampleFactorSearchInterval.toDelimited() << "]");
 
@@ -1115,8 +1115,8 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
     if (hyperparameters.eta().fixed() == false) {
         if (skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EtaInitialized, [&] {
                 double searchIntervalSize{5.0 * MAX_ETA_SCALE / MIN_ETA_SCALE};
-                double logMaxEta{common::CTools::stableLog(std::sqrt(searchIntervalSize) *
-                                                   hyperparameters.eta().value())};
+                double logMaxEta{common::CTools::stableLog(
+                    std::sqrt(searchIntervalSize) * hyperparameters.eta().value())};
                 double logMinEta{logMaxEta - common::CTools::stableLog(searchIntervalSize)};
                 double meanLogEta{(logMaxEta + logMinEta) / 2.0};
                 LOG_TRACE(<< "mean log eta = " << meanLogEta);
@@ -1227,7 +1227,8 @@ void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty(core::CDataFrame& f
                               std::max(gainVariancePercentiles[1], minimumGain));
                 gainVariancePercentiles[2] =
                     common::CTools::stableLog(3.0) +
-                    0.5 * common::CTools::stableLog(std::max(gainVariancePercentiles[2], minimumGain));
+                    0.5 * common::CTools::stableLog(
+                              std::max(gainVariancePercentiles[2], minimumGain));
                 m_TreeImpl->m_Hyperparameters.treeTopologyChangePenalty().set(
                     common::CTools::stableExp(gainVariancePercentiles[1]));
                 m_LogTreeTopologyChangePenaltySearchInterval = TVector{gainVariancePercentiles};
