@@ -18,13 +18,13 @@
 #include <core/CPersistUtils.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CBasicStatisticsPersist.h>
-#include <maths/CChecksum.h>
-#include <maths/CMathsFuncs.h>
-#include <maths/CTools.h>
-#include <maths/Constants.h>
-#include <maths/ProbabilityAggregators.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CMathsFuncs.h>
+#include <maths/common/CTools.h>
+#include <maths/common/Constants.h>
+#include <maths/common/ProbabilityAggregators.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
@@ -60,12 +60,12 @@ std::size_t addProbabilities(const TDoubleVec& probabilities, AGGREGATOR& aggreg
 
 //! The function to convert probabilities to *raw* scores.
 double probabilityToScore(double probability) {
-    return maths::CTools::anomalyScore(probability);
+    return maths::common::CTools::anomalyScore(probability);
 }
 
 //! The function to convert *raw* scores to probabilities.
 double scoreToProbability(double score) {
-    return maths::CTools::inverseAnomalyScore(score);
+    return maths::common::CTools::inverseAnomalyScore(score);
 }
 
 // We use short field names to reduce the state size
@@ -122,7 +122,7 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
         return true;
     }
 
-    maths::CLogJointProbabilityOfLessLikelySamples logPJointCalculator;
+    maths::common::CLogJointProbabilityOfLessLikelySamples logPJointCalculator;
     std::size_t n = std::min(addProbabilities(probabilities, logPJointCalculator),
                              maxExtremeSamples);
 
@@ -143,9 +143,9 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
     }
 
     double logPExtreme = 0.0;
-    for (std::size_t m = 1u, i = maths::CTools::truncate(minExtremeSamples, m, n);
+    for (std::size_t m = 1u, i = maths::common::CTools::truncate(minExtremeSamples, m, n);
          i <= n; ++i) {
-        maths::CLogProbabilityOfMFromNExtremeSamples logPExtremeCalculator(i);
+        maths::common::CLogProbabilityOfMFromNExtremeSamples logPExtremeCalculator(i);
         addProbabilities(probabilities, logPExtremeCalculator);
         double logPi;
         if (!logPExtremeCalculator.calibrated(logPi)) {
@@ -177,9 +177,9 @@ bool CAnomalyScore::compute(double jointProbabilityWeight,
 
     static const double NORMAL_RANGE_SCORE_FRACTION = 0.8;
     static const double LOG_SMALLEST_PROBABILITY =
-        std::log(maths::CTools::smallestProbability());
+        std::log(maths::common::CTools::smallestProbability());
     static const double SMALLEST_PROBABILITY_DEVIATION =
-        probabilityToScore(maths::CTools::smallestProbability());
+        probabilityToScore(maths::common::CTools::smallestProbability());
     static const double SMALLEST_LOG_JOINT_PROBABILTY = -100000.0;
     static const double SMALLEST_LOG_EXTREME_PROBABILTY = -1500.0;
 
@@ -359,19 +359,19 @@ bool CAnomalyScore::CNormalizer::normalize(const CMaximumScoreScope& scope,
     if (lowerPercentile > upperPercentile) {
         std::swap(lowerPercentile, upperPercentile);
     }
-    lowerPercentile = maths::CTools::truncate(lowerPercentile, 0.0, 100.0);
-    upperPercentile = maths::CTools::truncate(upperPercentile, 0.0, 100.0);
+    lowerPercentile = maths::common::CTools::truncate(lowerPercentile, 0.0, 100.0);
+    upperPercentile = maths::common::CTools::truncate(upperPercentile, 0.0, 100.0);
 
     std::size_t lowerKnotPoint =
         std::max(std::lower_bound(m_NormalizedScoreKnotPoints.begin(),
                                   m_NormalizedScoreKnotPoints.end(), lowerPercentile,
-                                  maths::COrderings::SFirstLess()) -
+                                  maths::common::COrderings::SFirstLess()) -
                      m_NormalizedScoreKnotPoints.begin(),
                  ptrdiff_t(1));
     std::size_t upperKnotPoint =
         std::max(std::lower_bound(m_NormalizedScoreKnotPoints.begin(),
                                   m_NormalizedScoreKnotPoints.end(), upperPercentile,
-                                  maths::COrderings::SFirstLess()) -
+                                  maths::common::COrderings::SFirstLess()) -
                      m_NormalizedScoreKnotPoints.begin(),
                  ptrdiff_t(1));
     if (lowerKnotPoint < m_NormalizedScoreKnotPoints.size()) {
@@ -419,11 +419,12 @@ bool CAnomalyScore::CNormalizer::normalize(const CMaximumScoreScope& scope,
 
     // Logarithmically interpolate the maximum score between the
     // largest significant and small probability.
-    static const double M = (probabilityToScore(maths::SMALL_PROBABILITY) -
-                             probabilityToScore(maths::LARGEST_SIGNIFICANT_PROBABILITY)) /
-                            (std::log(maths::SMALL_PROBABILITY) -
-                             std::log(maths::LARGEST_SIGNIFICANT_PROBABILITY));
-    static const double C = std::log(maths::LARGEST_SIGNIFICANT_PROBABILITY);
+    static const double M =
+        (probabilityToScore(maths::common::SMALL_PROBABILITY) -
+         probabilityToScore(maths::common::LARGEST_SIGNIFICANT_PROBABILITY)) /
+        (std::log(maths::common::SMALL_PROBABILITY) -
+         std::log(maths::common::LARGEST_SIGNIFICANT_PROBABILITY));
+    static const double C = std::log(maths::common::LARGEST_SIGNIFICANT_PROBABILITY);
     normalizedScores[3] = m_MaximumNormalizedScore *
                           (0.95 * M * (std::log(scoreToProbability(score)) - C) + 0.05);
     LOG_TRACE(<< "normalizedScores[3] = " << normalizedScores[3] << ", score = " << score
@@ -450,8 +451,8 @@ void CAnomalyScore::CNormalizer::quantile(double score,
     if (!(f >= 0.0 && f <= 1.0)) {
         LOG_ERROR(<< "h = " << h << ", n = " << n);
     }
-    double fl = maths::CQDigest::cdfQuantile(n, f, lowerQuantile);
-    double fu = maths::CQDigest::cdfQuantile(n, f, upperQuantile);
+    double fl = maths::common::CQDigest::cdfQuantile(n, f, lowerQuantile);
+    double fu = maths::common::CQDigest::cdfQuantile(n, f, upperQuantile);
 
     if (discreteScore <= m_HighPercentileScore || m_RawScoreHighQuantileSummary.n() == 0) {
         m_RawScoreQuantileSummary.cdf(discreteScore, 0.0, lowerBound, upperBound);
@@ -459,16 +460,16 @@ void CAnomalyScore::CNormalizer::quantile(double score,
         double pdfLowerBound;
         double pdfUpperBound;
         m_RawScoreQuantileSummary.pdf(discreteScore, 0.0, pdfLowerBound, pdfUpperBound);
-        lowerBound = maths::CTools::truncate(lowerBound - pdfUpperBound, 0.0, fl);
-        upperBound = maths::CTools::truncate(upperBound - pdfLowerBound, 0.0, fu);
+        lowerBound = maths::common::CTools::truncate(lowerBound - pdfUpperBound, 0.0, fl);
+        upperBound = maths::common::CTools::truncate(upperBound - pdfLowerBound, 0.0, fu);
         if (!(lowerBound >= 0.0 && lowerBound <= 1.0) ||
             !(upperBound >= 0.0 && upperBound <= 1.0)) {
             LOG_ERROR(<< "score = " << score << ", cdf = [" << lowerBound << ","
                       << upperBound << "]"
                       << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]");
         }
-        lowerBound = maths::CQDigest::cdfQuantile(n, lowerBound, lowerQuantile);
-        upperBound = maths::CQDigest::cdfQuantile(n, upperBound, upperQuantile);
+        lowerBound = maths::common::CQDigest::cdfQuantile(n, lowerBound, lowerQuantile);
+        upperBound = maths::common::CQDigest::cdfQuantile(n, upperBound, upperQuantile);
 
         LOG_TRACE(<< "score = " << score << ", cdf = [" << lowerBound << "," << upperBound << "]"
                   << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]");
@@ -507,8 +508,8 @@ void CAnomalyScore::CNormalizer::quantile(double score,
                   << ", pdf = [" << pdfLowerBound << "," << pdfUpperBound << "]"
                   << ", f = " << f);
     }
-    lowerBound = maths::CQDigest::cdfQuantile(n, lowerBound, lowerQuantile);
-    upperBound = maths::CQDigest::cdfQuantile(n, upperBound, upperQuantile);
+    lowerBound = maths::common::CQDigest::cdfQuantile(n, lowerBound, lowerQuantile);
+    upperBound = maths::common::CQDigest::cdfQuantile(n, upperBound, upperQuantile);
 
     LOG_TRACE(<< "score = " << score << ", cdf = [" << lowerBound << "," << upperBound << "]"
               << ", cutoff = [" << cutoffCdfLowerBound << "," << cutoffCdfUpperBound << "]"
@@ -620,14 +621,16 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
             m_RawScoreHighQuantileSummary.summary(H);
 
             std::size_t i0 = std::min(
-                static_cast<std::size_t>(std::lower_bound(L.begin(), L.end(), highPercentileCount,
-                                                          maths::COrderings::SSecondLess()) -
-                                         L.begin()),
+                static_cast<std::size_t>(
+                    std::lower_bound(L.begin(), L.end(), highPercentileCount,
+                                     maths::common::COrderings::SSecondLess()) -
+                    L.begin()),
                 L.size() - 1);
             std::size_t j = std::min(
-                static_cast<std::size_t>(std::upper_bound(H.begin(), H.end(), L[i0],
-                                                          maths::COrderings::SFirstLess()) -
-                                         H.begin()),
+                static_cast<std::size_t>(
+                    std::upper_bound(H.begin(), H.end(), L[i0],
+                                     maths::common::COrderings::SFirstLess()) -
+                    H.begin()),
                 H.size() - 1);
 
             uint64_t r = L[i0].second;
@@ -792,10 +795,10 @@ void CAnomalyScore::CNormalizer::acceptPersistInserter(core::CStatePersistInsert
     inserter.insertValue(HIGH_PERCENTILE_SCORE_TAG, m_HighPercentileScore);
     inserter.insertValue(HIGH_PERCENTILE_COUNT_TAG, m_HighPercentileCount);
     inserter.insertLevel(RAW_SCORE_QUANTILE_SUMMARY,
-                         std::bind(&maths::CQDigest::acceptPersistInserter,
+                         std::bind(&maths::common::CQDigest::acceptPersistInserter,
                                    &m_RawScoreQuantileSummary, std::placeholders::_1));
     inserter.insertLevel(RAW_SCORE_HIGH_QUANTILE_SUMMARY,
-                         std::bind(&maths::CQDigest::acceptPersistInserter,
+                         std::bind(&maths::common::CQDigest::acceptPersistInserter,
                                    &m_RawScoreHighQuantileSummary, std::placeholders::_1));
     inserter.insertValue(TIME_TO_QUANTILE_DECAY_TAG, m_TimeToQuantileDecay);
     if (m_IsForMembersOfPopulation != boost::none) {
@@ -822,11 +825,11 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
 
         RESTORE(RAW_SCORE_QUANTILE_SUMMARY,
                 traverser.traverseSubLevel(
-                    std::bind(&maths::CQDigest::acceptRestoreTraverser,
+                    std::bind(&maths::common::CQDigest::acceptRestoreTraverser,
                               &m_RawScoreQuantileSummary, std::placeholders::_1)));
         RESTORE(RAW_SCORE_HIGH_QUANTILE_SUMMARY,
                 traverser.traverseSubLevel(std::bind(
-                    &maths::CQDigest::acceptRestoreTraverser,
+                    &maths::common::CQDigest::acceptRestoreTraverser,
                     &m_RawScoreHighQuantileSummary, std::placeholders::_1)));
         RESTORE_SETUP_TEARDOWN(IS_FOR_MEMBERS_OF_POPULATION_TAG, int value,
                                core::CStringUtils::stringToType(traverser.value(), value),
@@ -840,18 +843,18 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
 
 uint64_t CAnomalyScore::CNormalizer::checksum() const {
     uint64_t seed = static_cast<uint64_t>(m_NoisePercentile);
-    seed = maths::CChecksum::calculate(seed, m_NoiseMultiplier);
-    seed = maths::CChecksum::calculate(seed, m_NormalizedScoreKnotPoints);
-    seed = maths::CChecksum::calculate(seed, m_MaximumNormalizedScore);
-    seed = maths::CChecksum::calculate(seed, m_HighPercentileScore);
-    seed = maths::CChecksum::calculate(seed, m_HighPercentileCount);
-    seed = maths::CChecksum::calculate(seed, m_IsForMembersOfPopulation);
-    seed = maths::CChecksum::calculate(seed, m_MaxScores);
-    seed = maths::CChecksum::calculate(seed, m_BucketNormalizationFactor);
-    seed = maths::CChecksum::calculate(seed, m_RawScoreQuantileSummary);
-    seed = maths::CChecksum::calculate(seed, m_RawScoreHighQuantileSummary);
-    seed = maths::CChecksum::calculate(seed, m_DecayRate);
-    return maths::CChecksum::calculate(seed, m_TimeToQuantileDecay);
+    seed = maths::common::CChecksum::calculate(seed, m_NoiseMultiplier);
+    seed = maths::common::CChecksum::calculate(seed, m_NormalizedScoreKnotPoints);
+    seed = maths::common::CChecksum::calculate(seed, m_MaximumNormalizedScore);
+    seed = maths::common::CChecksum::calculate(seed, m_HighPercentileScore);
+    seed = maths::common::CChecksum::calculate(seed, m_HighPercentileCount);
+    seed = maths::common::CChecksum::calculate(seed, m_IsForMembersOfPopulation);
+    seed = maths::common::CChecksum::calculate(seed, m_MaxScores);
+    seed = maths::common::CChecksum::calculate(seed, m_BucketNormalizationFactor);
+    seed = maths::common::CChecksum::calculate(seed, m_RawScoreQuantileSummary);
+    seed = maths::common::CChecksum::calculate(seed, m_RawScoreHighQuantileSummary);
+    seed = maths::common::CChecksum::calculate(seed, m_DecayRate);
+    return maths::common::CChecksum::calculate(seed, m_TimeToQuantileDecay);
 }
 
 uint32_t CAnomalyScore::CNormalizer::discreteScore(double rawScore) const {
@@ -941,8 +944,8 @@ bool CAnomalyScore::CNormalizer::CMaxScore::acceptRestoreTraverser(core::CStateR
 }
 
 uint64_t CAnomalyScore::CNormalizer::CMaxScore::checksum() const {
-    uint64_t seed = maths::CChecksum::calculate(0, m_Score);
-    return maths::CChecksum::calculate(seed, m_TimeSinceLastScore);
+    uint64_t seed = maths::common::CChecksum::calculate(0, m_Score);
+    return maths::common::CChecksum::calculate(seed, m_TimeSinceLastScore);
 }
 
 // We use short field names to reduce the state size

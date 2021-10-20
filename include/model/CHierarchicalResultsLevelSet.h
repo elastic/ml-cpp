@@ -14,8 +14,8 @@
 
 #include <core/CCompressedDictionary.h>
 
-#include <maths/CChecksum.h>
-#include <maths/COrderings.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CHierarchicalResults.h>
 
@@ -227,12 +227,12 @@ protected:
 
     //! Get a checksum of the set data.
     uint64_t checksum(uint64_t seed) const {
-        seed = maths::CChecksum::calculate(seed, m_BucketElement);
-        seed = maths::CChecksum::calculate(seed, m_InfluencerBucketSet);
-        seed = maths::CChecksum::calculate(seed, m_InfluencerSet);
-        seed = maths::CChecksum::calculate(seed, m_PartitionSet);
-        seed = maths::CChecksum::calculate(seed, m_PersonSet);
-        return maths::CChecksum::calculate(seed, m_LeafSet);
+        seed = maths::common::CChecksum::calculate(seed, m_BucketElement);
+        seed = maths::common::CChecksum::calculate(seed, m_InfluencerBucketSet);
+        seed = maths::common::CChecksum::calculate(seed, m_InfluencerSet);
+        seed = maths::common::CChecksum::calculate(seed, m_PartitionSet);
+        seed = maths::common::CChecksum::calculate(seed, m_PersonSet);
+        return maths::common::CChecksum::calculate(seed, m_LeafSet);
     }
 
 private:
@@ -253,12 +253,12 @@ private:
     //! and return the end iterator otherwise.
     static TWordTypePrVecItr element(TWordTypePrVec& set, const TWord& word) {
         return std::lower_bound(set.begin(), set.end(), word,
-                                maths::COrderings::SFirstLess());
+                                maths::common::COrderings::SFirstLess());
     }
 
     //! Sort \p set on its key.
     static void sort(TWordTypePrVec& set) {
-        std::sort(set.begin(), set.end(), maths::COrderings::SFirstLess());
+        std::sort(set.begin(), set.end(), maths::common::COrderings::SFirstLess());
     }
 
     //! Propagate the set elements forwards by \p time.

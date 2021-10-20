@@ -17,9 +17,9 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CBasicStatisticsPersist.h>
-#include <maths/CIntegerTools.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CIntegerTools.h>
 
 #include <model/CSampleQueue.h>
 #include <model/ModelTypes.h>
@@ -37,7 +37,7 @@ using namespace model;
 
 using TDoubleVec = std::vector<double>;
 using TSampleVec = std::vector<CSample>;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TTestSampleQueue = CSampleQueue<TMeanAccumulator>;
 
 BOOST_AUTO_TEST_CASE(testSampleToString) {
@@ -945,8 +945,10 @@ BOOST_AUTO_TEST_CASE(testSubSamplesNeverSpanOverDifferentBuckets) {
     }
 
     for (std::size_t i = 0; i < queue.size(); ++i) {
-        core_t::TTime startBucket = maths::CIntegerTools::floor(queue[i].s_Start, bucketLength);
-        core_t::TTime endBucket = maths::CIntegerTools::floor(queue[i].s_End, bucketLength);
+        core_t::TTime startBucket =
+            maths::common::CIntegerTools::floor(queue[i].s_Start, bucketLength);
+        core_t::TTime endBucket =
+            maths::common::CIntegerTools::floor(queue[i].s_End, bucketLength);
         BOOST_REQUIRE_EQUAL(startBucket, endBucket);
     }
 }
@@ -1007,9 +1009,9 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenConstantRate) {
 
     test::CRandomNumbers rng;
 
-    maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanQueueSize;
-    maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMinVariance;
-    maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMaxVariance;
+    maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanQueueSize;
+    maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanMinVariance;
+    maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanMaxVariance;
 
     for (std::size_t runId = 0; runId < numberOfRuns; ++runId) {
         TSampleVec samples;
@@ -1027,9 +1029,9 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenConstantRate) {
         meanQueueSize.add(static_cast<double>(queue.size()));
         queue.sample(latestTime, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-        maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
-        maths::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
-        maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double>> varianceMax;
+        maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double>> varianceMax;
         for (std::size_t i = 0; i < samples.size(); ++i) {
             varianceStat.add(samples[i].varianceScale());
             varianceMin.add(samples[i].varianceScale());
@@ -1041,22 +1043,25 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenConstantRate) {
         meanMaxVariance.add(varianceMax[0]);
 
         LOG_TRACE(<< "Results for run: " << runId);
-        LOG_TRACE(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
+        LOG_TRACE(<< "Mean variance scale = "
+                  << maths::common::CBasicStatistics::mean(varianceStat));
         LOG_TRACE(<< "Variance of variance scale = "
-                  << maths::CBasicStatistics::variance(varianceStat));
+                  << maths::common::CBasicStatistics::variance(varianceStat));
         LOG_TRACE(<< "Top min variance scale = " << varianceMin.print());
         LOG_TRACE(<< "Top max variance scale = " << varianceMax.print());
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) > 0.98);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) < 1.01);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(varianceStat) < 0.0025);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(varianceStat) > 0.98);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(varianceStat) < 1.01);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::variance(varianceStat) < 0.0025);
         BOOST_TEST_REQUIRE(varianceMin[0] > 0.85);
         BOOST_TEST_REQUIRE(varianceMax[0] < 1.12);
     }
-    LOG_DEBUG(<< "Mean queue size = " << maths::CBasicStatistics::mean(meanQueueSize));
-    LOG_DEBUG(<< "Mean min variance = " << maths::CBasicStatistics::mean(meanMinVariance));
-    LOG_DEBUG(<< "Mean max variance = " << maths::CBasicStatistics::mean(meanMaxVariance));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanMinVariance) > 0.90);
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanMaxVariance) < 1.1);
+    LOG_DEBUG(<< "Mean queue size = " << maths::common::CBasicStatistics::mean(meanQueueSize));
+    LOG_DEBUG(<< "Mean min variance = "
+              << maths::common::CBasicStatistics::mean(meanMinVariance));
+    LOG_DEBUG(<< "Mean max variance = "
+              << maths::common::CBasicStatistics::mean(meanMaxVariance));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanMinVariance) > 0.90);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanMaxVariance) < 1.1);
 }
 
 BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenVariableRate) {
@@ -1072,9 +1077,9 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenVariableRate) {
 
     test::CRandomNumbers rng;
 
-    maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanQueueSize;
-    maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMinVariance;
-    maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanMaxVariance;
+    maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanQueueSize;
+    maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanMinVariance;
+    maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanMaxVariance;
 
     for (std::size_t runId = 0; runId < numberOfRuns; ++runId) {
         TSampleVec samples;
@@ -1095,9 +1100,9 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenVariableRate) {
         meanQueueSize.add(queue.size());
         queue.sample(latestTime, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-        maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
-        maths::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
-        maths::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double>> varianceMax;
+        maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 5u> varianceMin;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 5u, std::greater<double>> varianceMax;
         for (std::size_t i = 0; i < samples.size(); ++i) {
             varianceStat.add(samples[i].varianceScale());
             varianceMin.add(samples[i].varianceScale());
@@ -1109,22 +1114,25 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenVariableRate) {
         meanMaxVariance.add(varianceMax[0]);
 
         LOG_TRACE(<< "Results for run: " << runId);
-        LOG_TRACE(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
+        LOG_TRACE(<< "Mean variance scale = "
+                  << maths::common::CBasicStatistics::mean(varianceStat));
         LOG_TRACE(<< "Variance of variance scale = "
-                  << maths::CBasicStatistics::variance(varianceStat));
+                  << maths::common::CBasicStatistics::variance(varianceStat));
         LOG_TRACE(<< "Top min variance scale = " << varianceMin.print());
         LOG_TRACE(<< "Top max variance scale = " << varianceMax.print());
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) > 0.97);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) < 1.01);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(varianceStat) < 0.0065);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(varianceStat) > 0.97);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(varianceStat) < 1.01);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::variance(varianceStat) < 0.0065);
         BOOST_TEST_REQUIRE(varianceMin[0] > 0.74);
         BOOST_TEST_REQUIRE(varianceMax[0] < 1.26);
     }
-    LOG_DEBUG(<< "Mean queue size = " << maths::CBasicStatistics::mean(meanQueueSize));
-    LOG_DEBUG(<< "Mean min variance = " << maths::CBasicStatistics::mean(meanMinVariance));
-    LOG_DEBUG(<< "Mean max variance = " << maths::CBasicStatistics::mean(meanMaxVariance));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanMinVariance) > 0.82);
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanMaxVariance) < 1.16);
+    LOG_DEBUG(<< "Mean queue size = " << maths::common::CBasicStatistics::mean(meanQueueSize));
+    LOG_DEBUG(<< "Mean min variance = "
+              << maths::common::CBasicStatistics::mean(meanMinVariance));
+    LOG_DEBUG(<< "Mean max variance = "
+              << maths::common::CBasicStatistics::mean(meanMaxVariance));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanMinVariance) > 0.82);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanMaxVariance) < 1.16);
 }
 
 BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder) {
@@ -1149,23 +1157,24 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenHighLatencyAndDataInReverseOrder) 
     queue.add(360000, {1.0}, 1u, sampleCount);
     queue.sample(latestTime, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
-    maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1u> varianceMin;
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>> varianceMax;
+    maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;
+    maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u> varianceMin;
+    maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>> varianceMax;
     for (std::size_t i = 0; i < samples.size(); ++i) {
         varianceStat.add(samples[i].varianceScale());
         varianceMin.add(samples[i].varianceScale());
         varianceMax.add(samples[i].varianceScale());
     }
 
-    LOG_DEBUG(<< "Mean variance scale = " << maths::CBasicStatistics::mean(varianceStat));
+    LOG_DEBUG(<< "Mean variance scale = "
+              << maths::common::CBasicStatistics::mean(varianceStat));
     LOG_DEBUG(<< "Variance of variance scale = "
-              << maths::CBasicStatistics::variance(varianceStat));
+              << maths::common::CBasicStatistics::variance(varianceStat));
     LOG_DEBUG(<< "Min variance scale = " << varianceMin[0]);
     LOG_DEBUG(<< "Max variance scale = " << varianceMax[0]);
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) >= 0.999);
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(varianceStat) <= 1.0);
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(varianceStat) <= 0.0001);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(varianceStat) >= 0.999);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(varianceStat) <= 1.0);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::variance(varianceStat) <= 0.0001);
     BOOST_TEST_REQUIRE(varianceMin[0] > 0.96);
     BOOST_TEST_REQUIRE(varianceMax[0] <= 1.0);
 }

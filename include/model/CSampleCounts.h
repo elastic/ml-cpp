@@ -15,7 +15,7 @@
 #include <core/CMemory.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <model/ImportExport.h>
 
@@ -42,7 +42,7 @@ class CDataGatherer;
 //! the sample count.
 class MODEL_EXPORT CSampleCounts {
 public:
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TSizeVec = std::vector<std::size_t>;
 

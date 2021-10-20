@@ -16,9 +16,10 @@
 #include <core/CSmallVector.h>
 #include <core/Constants.h>
 
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
-#include <maths/CTools.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
+
+#include <maths/common/CTools.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalyzer.h>
@@ -39,9 +40,9 @@ public:
     using TStrVec = std::vector<std::string>;
     using TDoubleVec = std::vector<double>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
-    using TLossUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
+    using TLossUPtr = std::unique_ptr<maths::analytics::boosted_tree::CLoss>;
     using TTargetTransformer = std::function<double(double)>;
-    using TLossFunctionType = maths::boosted_tree::ELossType;
+    using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
     using TSizeOptional = boost::optional<std::size_t>;
 
 public:
@@ -136,16 +137,16 @@ public:
         TLossUPtr loss;
         switch (type) {
         case TLossFunctionType::E_MseRegression:
-            loss = std::make_unique<maths::boosted_tree::CMse>();
+            loss = std::make_unique<maths::analytics::boosted_tree::CMse>();
             break;
         case TLossFunctionType::E_MsleRegression:
-            loss = std::make_unique<maths::boosted_tree::CMsle>(lossFunctionParameter);
+            loss = std::make_unique<maths::analytics::boosted_tree::CMsle>(lossFunctionParameter);
             break;
         case TLossFunctionType::E_HuberRegression:
-            loss = std::make_unique<maths::boosted_tree::CPseudoHuber>(lossFunctionParameter);
+            loss = std::make_unique<maths::analytics::boosted_tree::CPseudoHuber>(lossFunctionParameter);
             break;
         case TLossFunctionType::E_BinaryClassification:
-            loss = std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>();
+            loss = std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>();
             break;
         case TLossFunctionType::E_MulticlassClassification:
             // TODO
@@ -153,8 +154,8 @@ public:
             break;
         }
 
-        maths::CBoostedTreeFactory treeFactory{
-            maths::CBoostedTreeFactory::constructFromParameters(1, std::move(loss))};
+        maths::analytics::CBoostedTreeFactory treeFactory{
+            maths::analytics::CBoostedTreeFactory::constructFromParameters(1, std::move(loss))};
         if (alpha >= 0.0) {
             treeFactory.depthPenaltyMultiplier(alpha);
         }

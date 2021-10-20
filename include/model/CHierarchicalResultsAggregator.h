@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_model_CHierarchicalResultsAggregator_h
 #define INCLUDED_ml_model_CHierarchicalResultsAggregator_h
 
-#include <maths/CQuantileSketch.h>
+#include <maths/common/CQuantileSketch.h>
 
 #include <model/CDetectorEqualizer.h>
 #include <model/CHierarchicalResultsLevelSet.h>

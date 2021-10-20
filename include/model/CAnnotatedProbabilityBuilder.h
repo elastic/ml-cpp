@@ -14,7 +14,7 @@
 
 #include <core/CStoredStringPtr.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/FunctionTypes.h>
@@ -28,7 +28,9 @@
 
 namespace ml {
 namespace maths {
+namespace common {
 class CMultinomialConjugate;
+}
 }
 namespace model {
 class CModel;
@@ -51,8 +53,8 @@ public:
                                  function_t::EFunction function,
                                  std::size_t numberOfPeople);
 
-    void attributeProbabilityPrior(const maths::CMultinomialConjugate* prior);
-    void personAttributeProbabilityPrior(const maths::CMultinomialConjugate* prior);
+    void attributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
+    void personAttributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
     void personFrequency(double frequency, bool everSeenBefore);
     void probability(double p);
     void multiBucketImpact(double multiBucketImpact);
@@ -74,14 +76,15 @@ private:
     void addDescriptiveData();
 
 private:
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability>;
+    using TMinAccumulator =
+        maths::common::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability>;
 
 private:
     SAnnotatedProbability& m_Result;
     std::size_t m_NumberAttributeProbabilities;
     std::size_t m_NumberOfPeople;
-    const maths::CMultinomialConjugate* m_AttributeProbabilityPrior;
-    const maths::CMultinomialConjugate* m_PersonAttributeProbabilityPrior;
+    const maths::common::CMultinomialConjugate* m_AttributeProbabilityPrior;
+    const maths::common::CMultinomialConjugate* m_PersonAttributeProbabilityPrior;
     TMinAccumulator m_MinAttributeProbabilities;
     std::size_t m_DistinctTotalAttributes;
     std::size_t m_DistinctRareAttributes;

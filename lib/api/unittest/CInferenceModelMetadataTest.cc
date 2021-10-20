@@ -10,7 +10,7 @@
  */
 #include <core/CJsonOutputStreamWrapper.h>
 
-#include <maths/CBoostedTreeLoss.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
@@ -38,7 +38,7 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TStrVec = std::vector<std::string>;
 using TSizeVec = std::vector<std::size_t>;
-using TLossFunctionType = maths::boosted_tree::ELossType;
+using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
 using TDataFrameUPtrTemporaryDirectoryPtrPr =
     test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
 }

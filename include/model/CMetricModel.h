@@ -278,7 +278,7 @@ public:
 private:
     using TOptionalSample = boost::optional<CSample>;
     using TTime2Vec = core::CSmallVector<core_t::TTime, 2>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulator1Vec = core::CSmallVector<TMeanAccumulator, 1>;
 
 private:

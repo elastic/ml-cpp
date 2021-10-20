@@ -11,12 +11,13 @@
 
 #include <core/CDataFrame.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CDataFramePredictiveModel.h>
-#include <maths/CSampling.h>
-#include <maths/CTools.h>
-#include <maths/CToolsDetail.h>
-#include <maths/CTreeShapFeatureImportance.h>
+#include <maths/analytics/CDataFramePredictiveModel.h>
+#include <maths/analytics/CTreeShapFeatureImportance.h>
+
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CSampling.h>
+#include <maths/common/CTools.h>
+#include <maths/common/CToolsDetail.h>
 
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
@@ -38,14 +39,14 @@ using namespace ml;
 
 namespace {
 using TDoubleVec = std::vector<double>;
-using TVector = maths::CDenseVector<double>;
+using TVector = maths::common::CDenseVector<double>;
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
-using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-using TMemoryMappedMatrix = maths::CMemoryMappedDenseMatrix<double>;
+using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMemoryMappedMatrix = maths::common::CMemoryMappedDenseMatrix<double>;
 using TDocumentStrPr = std::pair<rapidjson::Document, std::string>;
 using TDataFrameUPtrTemporaryDirectoryPtrPr =
     test::CDataFrameAnalysisSpecificationFactory::TDataFrameUPtrTemporaryDirectoryPtrPr;
@@ -118,14 +119,14 @@ void setupBinaryClassificationData(const TStrVec& fieldNames,
                                    const TDoubleVec& weights,
                                    const TDoubleVec& values) {
     TStrVec classes{"foo", "bar"};
-    maths::CPRNG::CXorOShiro128Plus rng;
+    maths::common::CPRNG::CXorOShiro128Plus rng;
     std::uniform_real_distribution<double> u01;
     auto target = [&](const TDoubleVec& regressors) {
         double logOddsBar{0.0};
         for (std::size_t i = 0; i < weights.size(); ++i) {
             logOddsBar += weights[i] * regressors[i];
         }
-        return classes[u01(rng) < maths::CTools::logisticFunction(logOddsBar)];
+        return classes[u01(rng) < maths::common::CTools::logisticFunction(logOddsBar)];
     };
 
     for (std::size_t i = 0; i < values.size(); i += weights.size()) {
@@ -150,7 +151,7 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
                                        const TDoubleVec& weights,
                                        const TDoubleVec& values) {
     TStrVec classes{"foo", "bar", "baz"};
-    maths::CPRNG::CXorOShiro128Plus rng;
+    maths::common::CPRNG::CXorOShiro128Plus rng;
     std::uniform_real_distribution<double> u01;
     int numberFeatures{static_cast<int>(weights.size())};
     int numberClasses{static_cast<int>(classes.size())};
@@ -167,12 +168,12 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
             x(i) = row[i];
         }
         TVector result{W * x};
-        maths::CTools::inplaceSoftmax(result);
+        maths::common::CTools::inplaceSoftmax(result);
         return result;
     };
     auto target = [&](const TDoubleVec& row) {
         TDoubleVec probabilities{probability(row).to<TDoubleVec>()};
-        return classes[maths::CSampling::categoricalSample(rng, probabilities)];
+        return classes[maths::common::CSampling::categoricalSample(rng, probabilities)];
     };
 
     for (std::size_t i = 0; i < values.size(); i += weights.size()) {
@@ -622,13 +623,13 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
                  << resultsPair.second);
     }
     BOOST_REQUIRE_CLOSE(c1TotalShapActual,
-                        maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+                        maths::common::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
     BOOST_REQUIRE_CLOSE(c2TotalShapActual,
-                        maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+                        maths::common::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
     BOOST_REQUIRE_CLOSE(c3TotalShapActual,
-                        maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+                        maths::common::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
     BOOST_REQUIRE_CLOSE(c4TotalShapActual,
-                        maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
+                        maths::common::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
@@ -655,7 +656,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
         }
     }
 
-    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::mean(cNoImportanceMean), 0.1);
+    BOOST_REQUIRE_SMALL(maths::common::CBasicStatistics::mean(cNoImportanceMean), 0.1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
@@ -748,13 +749,13 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
                      << resultsPair.second);
         }
         BOOST_REQUIRE_CLOSE(c1TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+                            maths::common::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
         BOOST_REQUIRE_CLOSE(c2TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+                            maths::common::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
         BOOST_REQUIRE_CLOSE(c3TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+                            maths::common::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
         BOOST_REQUIRE_CLOSE(c4TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
+                            maths::common::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
     }
 }
 
@@ -841,14 +842,18 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             LOG_INFO(<< "Incorrect results, missing total shap values: "
                      << resultsPair.second);
         }
-        BOOST_REQUIRE_CLOSE(c1TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c1TotalShapExpected[i]), 1.0);
-        BOOST_REQUIRE_CLOSE(c2TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c2TotalShapExpected[i]), 1.0);
-        BOOST_REQUIRE_CLOSE(c3TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c3TotalShapExpected[i]), 1.0);
-        BOOST_REQUIRE_CLOSE(c4TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c4TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(
+            c1TotalShapActual[i],
+            maths::common::CBasicStatistics::mean(c1TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(
+            c2TotalShapActual[i],
+            maths::common::CBasicStatistics::mean(c2TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(
+            c3TotalShapActual[i],
+            maths::common::CBasicStatistics::mean(c3TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(
+            c4TotalShapActual[i],
+            maths::common::CBasicStatistics::mean(c4TotalShapExpected[i]), 1.0);
     }
 }
 
@@ -898,15 +903,12 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
         }
     }
 
-    LOG_DEBUG(<< "c1Sum = " << c1Sum << ", c2Sum = " << c2Sum
-              << ", c3Sum = " << c3Sum << ", c4Sum = " << c4Sum);
-
     BOOST_REQUIRE_CLOSE(c1Sum, c2Sum, 20.0); // c1 and c2 within 16% of each other
     BOOST_REQUIRE_CLOSE(c1Sum, c3Sum, 20.0); // c1 and c3 within 16% of each other
     BOOST_REQUIRE_CLOSE(c1Sum, c4Sum, 20.0); // c1 and c4 within 16% of each other
     // Make sure the local approximation differs from the prediction always by the same bias
     // (up to a numeric error).
-    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
+    BOOST_REQUIRE_SMALL(maths::common::CBasicStatistics::variance(bias), 1e-6);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

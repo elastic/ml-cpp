@@ -15,7 +15,7 @@
 #include <core/CSmallVector.h>
 #include <core/CStoredStringPtr.h>
 
-#include <maths/COrderings.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/FunctionTypes.h>
@@ -248,9 +248,9 @@ public:
     using TSizeNodePtrUMap = hierarchical_results_detail::SNode::TSizeNodePtrUMap;
     using TNodeDeque = std::deque<TNode>;
     using TStoredStringPtrStoredStringPtrPrNodeMap =
-        std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare>;
+        std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::common::COrderings::SLexicographicalCompare>;
     using TStoredStringPtrNodeMap =
-        std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>;
+        std::map<TStoredStringPtr, TNode, maths::common::COrderings::SLess>;
 
 public:
     CHierarchicalResults();

@@ -12,7 +12,7 @@
 #ifndef INCLUDED_ml_api_CRetrainableModelJsonReader_h
 #define INCLUDED_ml_api_CRetrainableModelJsonReader_h
 
-#include <maths/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
 
 #include <api/CDataSummarizationJsonTags.h>
 #include <api/CSerializableToJson.h>
@@ -39,10 +39,10 @@ class API_EXPORT CRetrainableModelJsonReader
     : private CSerializableFromCompressedChunkedJson,
       public CDataSummarizationJsonTags {
 public:
-    using TEncoderUPtr = maths::CBoostedTreeFactory::TEncoderUPtr;
+    using TEncoderUPtr = maths::analytics::CBoostedTreeFactory::TEncoderUPtr;
     using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
     using TEncoderUPtrStrSizeUMapPr = std::pair<TEncoderUPtr, TStrSizeUMap>;
-    using TNodeVecVecUPtr = maths::CBoostedTreeFactory::TNodeVecVecUPtr;
+    using TNodeVecVecUPtr = maths::analytics::CBoostedTreeFactory::TNodeVecVecUPtr;
     using TIStreamSPtr = core::CDataSearcher::TIStreamP;
 
 public:

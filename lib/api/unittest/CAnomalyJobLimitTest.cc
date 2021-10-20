@@ -11,7 +11,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CIntegerTools.h>
+#include <maths/common/CIntegerTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                 }
             }
             core_t::TTime startOfBucket{
-                maths::CIntegerTools::floor(time, testParam.s_BucketLength)};
+                maths::common::CIntegerTools::floor(time, testParam.s_BucketLength)};
             auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
             LOG_DEBUG(<< "# by = " << used.s_ByFields);
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                 }
             }
             core_t::TTime startOfBucket{
-                maths::CIntegerTools::floor(time, testParam.s_BucketLength)};
+                maths::common::CIntegerTools::floor(time, testParam.s_BucketLength)};
             auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
             LOG_DEBUG(<< "# by = " << used.s_ByFields);
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
@@ -479,7 +479,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                 }
             }
             core_t::TTime startOfBucket{
-                maths::CIntegerTools::floor(time, testParam.s_BucketLength)};
+                maths::common::CIntegerTools::floor(time, testParam.s_BucketLength)};
             auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
             LOG_DEBUG(<< "# over = " << used.s_OverFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);

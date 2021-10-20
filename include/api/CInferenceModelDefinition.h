@@ -11,7 +11,7 @@
 #ifndef INCLUDED_ml_api_CInferenceModelDefinition_h
 #define INCLUDED_ml_api_CInferenceModelDefinition_h
 
-#include <maths/CDataFrameCategoryEncoder.h>
+#include <maths/analytics/CDataFrameCategoryEncoder.h>
 
 #include <api/CSerializableToJson.h>
 #include <api/ImportExport.h>
