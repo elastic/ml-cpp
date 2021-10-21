@@ -26,7 +26,6 @@
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CPrior.h>
 #include <maths/common/CRestoreParams.h>
-#include <maths/common/CSolvers.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
 #include <maths/common/MathsTypes.h>
