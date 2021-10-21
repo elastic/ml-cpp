@@ -351,13 +351,13 @@ CArgMinMultinomialLogisticLossImpl::objective() const {
     TDoubleVector logProbabilities{m_NumberClasses};
     double lambda{std::max(this->lambda(), 1e-6)};
     if (m_Centres.size() == 1) {
-        return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
+        return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable -> double {
             logProbabilities = m_Centres[0] + weight;
             common::CTools::inplaceLogSoftmax(logProbabilities);
             return lambda * weight.squaredNorm() - m_ClassCounts.transpose() * logProbabilities;
         };
     }
-    return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
+    return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable -> double {
         double loss{0.0};
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
             if (m_CentresClassCounts[i].sum() > 0.0) {
@@ -376,14 +376,16 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
     TDoubleVector lossGradient{m_NumberClasses};
     double lambda{std::max(this->lambda(), 1e-6)};
     if (m_Centres.size() == 1) {
-        return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
+        return [probabilities, lossGradient, lambda,
+                this](const TDoubleVector& weight) mutable -> TDoubleVector {
             probabilities = m_Centres[0] + weight;
             common::CTools::inplaceSoftmax(probabilities);
             lossGradient = m_ClassCounts.array().sum() * probabilities - m_ClassCounts;
-            return TDoubleVector{2.0 * lambda * weight + lossGradient};
+            return 2.0 * lambda * weight + lossGradient;
         };
     }
-    return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
+    return [probabilities, lossGradient, lambda,
+            this](const TDoubleVector& weight) mutable -> TDoubleVector {
         lossGradient.array() = 0.0;
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
             double n{m_CentresClassCounts[i].array().sum()};
@@ -393,7 +395,7 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
                 lossGradient -= m_CentresClassCounts[i] - n * probabilities;
             }
         }
-        return TDoubleVector{2.0 * lambda * weight + lossGradient};
+        return 2.0 * lambda * weight + lossGradient;
     };
 }
 
@@ -610,7 +612,6 @@ CArgMinPseudoHuberImpl::TDoubleVector CArgMinPseudoHuberImpl::value() const {
 CArgMinPseudoHuberImpl::TObjective CArgMinPseudoHuberImpl::objective() const {
     return [this](double weight) {
         if (m_DeltaSquared > 0) {
-
             double loss{0.0};
             double totalCount{0.0};
             for (const auto& bucket : m_Buckets) {
@@ -624,9 +625,8 @@ CArgMinPseudoHuberImpl::TObjective CArgMinPseudoHuberImpl::objective() const {
                 }
             }
             return loss / totalCount + this->lambda() * common::CTools::pow2(weight);
-        } else {
-            return 0.0;
         }
+        return 0.0;
     };
 }
 }

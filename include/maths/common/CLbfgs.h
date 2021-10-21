@@ -75,6 +75,11 @@ public:
     //! a scalar.
     //! \tparam G must be a Callable with single argument type VECTOR and returning
     //! a VECTOR.
+    //!
+    //! \warning If you use lambdas for F and G you must ensure you don't return
+    //! Eigen expressions which can easily reference temporary variables which are
+    //! out of scope. You can avoid this for example by defining the lambda return
+    //! type explicitly.
     template<typename F, typename G>
     std::pair<VECTOR, double>
     minimize(const F& f, const G& g, VECTOR x0, double eps = 1e-8, std::size_t iterations = 50) {
@@ -283,13 +288,7 @@ private:
             probes[i] = probes[i - 1] / m_StepScale;
         }
 
-        // We need to force the value of s_ * step into a temporary or else we
-        // hit an issue with Eigen expressions which causes the function values
-        // at all probes to be equal.
-        auto f_ = [&](double s_) {
-            VECTOR step_{s_ * step};
-            return f(m_X - step_);
-        };
+        auto f_ = [&](double s_) { return f(m_X - s_ * step); };
 
         double smin;
         double fmin;
