@@ -480,7 +480,7 @@ private:
         //! The similarity of the components after applying this hypothesis.
         double componentsSimilarity() const;
         //! Check if we are allowed to evict all components of this model.
-        std::size_t isEvictionPermitted() const;
+        bool isEvictionPermitted() const;
         //! The p-value of this model vs H0.
         double pValue(const SModel& H0,
                       double minimumRelativeTruncatedVariance = 0.0,

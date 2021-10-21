@@ -497,7 +497,9 @@ TDoubleDoublePr CTimeSeriesAnomalyModel::probability(double bucketProbability,
 
         double a{-common::CTools::fastLog(this->largestAnomalyProbability())};
         double b{-common::CTools::fastLog(common::SMALL_PROBABILITY)};
-        double lambda{std::min(this->largestAnomalyProbability() / bucketProbability, 1.0)};
+        double lambda{bucketProbability == 0.0
+                          ? 1.0
+                          : std::min(this->largestAnomalyProbability() / bucketProbability, 1.0)};
         double logOverallProbability{common::CTools::fastLog(overallProbability)};
         double logAnomalyProbability{common::CTools::fastLog(anomalyProbability)};
 
@@ -518,7 +520,8 @@ bool CTimeSeriesAnomalyModel::anomalyProbability(double& result) const {
     if (m_Anomaly == boost::none || model.isNonInformative()) {
         return false;
     }
-    double pl, pu;
+    double pl;
+    double pu;
     TTail10Vec tail;
     if (model.probabilityOfLessLikelySamples(
             maths_t::E_OneSidedAbove, {m_Anomaly->features()}, UNIT, pl, pu, tail) == false) {
