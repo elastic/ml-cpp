@@ -68,6 +68,9 @@ struct SRng<double> {
 //! Implementation of uniform sampling.
 template<typename RNG, typename TYPE>
 TYPE doUniformSample(RNG& rng, TYPE a, TYPE b) {
+    if (a >= b) {
+        return a;
+    }
     typename SRng<TYPE>::Type uniform(SRng<TYPE>::min(a), SRng<TYPE>::max(b));
     return uniform(rng);
 }
@@ -76,6 +79,10 @@ TYPE doUniformSample(RNG& rng, TYPE a, TYPE b) {
 template<typename RNG, typename TYPE>
 void doUniformSample(RNG& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>& result) {
     result.clear();
+    if (a >= b) {
+        result.resize(n, a);
+        return;
+    }
     result.reserve(n);
     typename SRng<TYPE>::Type uniform(SRng<TYPE>::min(a), SRng<TYPE>::max(b));
     for (std::size_t i = 0; i < n; ++i) {
