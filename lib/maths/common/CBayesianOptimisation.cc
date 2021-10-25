@@ -239,7 +239,7 @@ double CBayesianOptimisation::evaluate(const TVector& Kinvf, const TVector& inpu
 }
 
 double CBayesianOptimisation::evaluate1D(const TVector& Kinvf, double input, int dimension) const {
-    auto prodXt = [this](const TVector& x, int t) {
+    auto prodXt = [this](const TVector& x, int t) -> double {
         double prod{1.0};
         for (int d = 0; d < m_MinBoundary.size(); ++d) {
             if (d != t) {
@@ -296,7 +296,7 @@ double CBayesianOptimisation::anovaConstantFactor() const {
 }
 
 double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
-    auto prodIj = [&Kinvf, this](std::size_t i, std::size_t j) {
+    auto prodIj = [&Kinvf, this](std::size_t i, std::size_t j) -> double {
         TVector xi{this->transformTo01(m_FunctionMeanValues[i].first)};
         TVector xj{this->transformTo01(m_FunctionMeanValues[j].first)};
         double prod{1.0};
@@ -332,7 +332,7 @@ double CBayesianOptimisation::anovaTotalVariance() const {
 }
 
 double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimension) const {
-    auto prodXt = [this](const TVector& x, int t) {
+    auto prodXt = [this](const TVector& x, int t) -> double {
         double prod{1.0};
         for (int d = 0; d < m_MinBoundary.size(); ++d) {
             if (d != t) {
@@ -407,7 +407,7 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     TMatrix Kinv;
     TMatrix dKdai;
 
-    auto minusLogLikelihood = [=](const TVector& a) mutable {
+    auto minusLogLikelihood = [=](const TVector& a) mutable -> double {
         K = this->kernel(a, v);
         Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
         Kinvf = Kldl.solve(f);
@@ -421,7 +421,7 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
                       Kldl.vectorD().cwiseMax(eps).array().log().sum());
     };
 
-    auto minusLogLikelihoodGradient = [=](const TVector& a) mutable {
+    auto minusLogLikelihoodGradient = [=](const TVector& a) mutable -> TVector {
         K = this->kernel(a, v);
         Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
 
@@ -473,7 +473,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
                          })
             ->second};
 
-    auto EI = [=](const TVector& x) mutable {
+    auto EI = [=](const TVector& x) mutable -> double {
         double Kxx;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
 
@@ -492,7 +492,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
         return -sigma * (z * cdfz + pdfz);
     };
 
-    auto EIGradient = [=](const TVector& x) mutable {
+    auto EIGradient = [=](const TVector& x) mutable -> TVector {
         double Kxx;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
 
@@ -528,7 +528,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
 
         zGradient = ((mu - fmin) / CTools::pow2(sigma)) * sigmaGradient - muGradient / sigma;
 
-        return TVector{-(z * cdfz + pdfz) * sigmaGradient - sigma * cdfz * zGradient};
+        return -(z * cdfz + pdfz) * sigmaGradient - sigma * cdfz * zGradient;
     };
 
     return {std::move(EI), std::move(EIGradient)};
