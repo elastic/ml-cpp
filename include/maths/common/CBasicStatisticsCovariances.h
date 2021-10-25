@@ -60,6 +60,10 @@ struct SCovariancesLedoitWolf {
         TCoordinate d{static_cast<TCoordinate>(dimension)};
 
         TCoordinate n{CBasicStatistics::count(covariances)};
+        if (n == TCoordinate{0}) {
+            return;
+        }
+
         const OTHER_POINT& m{CBasicStatistics::mean(covariances)};
         const TMatrix& s{CBasicStatistics::maximumLikelihoodCovariances(covariances)};
 
