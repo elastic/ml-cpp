@@ -96,6 +96,11 @@ bool CLeastSquaresOnlineRegression<N, T>::parameters(std::size_t n,
                                                      double maxCondition) const {
     result.fill(0.0);
 
+    // Define all parameters as zero if no data have been added.
+    if (CBasicStatistics::count(m_S) == 0.0) {
+        return true;
+    }
+
     // Search for non-singular solution.
     n += 1;
     while (--n > 0) {
@@ -139,6 +144,11 @@ bool CLeastSquaresOnlineRegression<N, T>::covariances(std::size_t n,
                                                       TMatrix& result,
                                                       double maxCondition) const {
     result = TMatrix(0.0);
+
+    // Define covariance as zero matrix if no data have been added.
+    if (CBasicStatistics::count(m_S) == 0.0) {
+        return true;
+    }
 
     // Search for the covariance matrix of a non-singular subproblem.
     n += 1;
