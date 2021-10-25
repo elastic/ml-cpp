@@ -92,7 +92,7 @@ public:
     //! Restore reading from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         do {
-            const std::string& name = traverser.name();
+            const std::string& name{traverser.name()};
             RESTORE(VALUE_TAG, core::CPersistUtils::restore(VALUE_TAG, m_Value, traverser))
             RESTORE(SAVED_VALUE_TAG,
                     core::CPersistUtils::restore(SAVED_VALUE_TAG, m_SavedValue, traverser))

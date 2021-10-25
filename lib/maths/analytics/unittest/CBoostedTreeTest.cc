@@ -42,6 +42,7 @@
 #include <atomic>
 #include <fstream>
 #include <functional>
+#include <iostream>
 #include <limits>
 #include <memory>
 #include <stdexcept>
@@ -2690,6 +2691,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         std::cout << "got = " << e.what() << std::endl;
+        std::cout << "Logging = " << stream->str() << std::endl;
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
@@ -2710,6 +2712,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         std::cout << "got = " << e.what() << std::endl;
+        std::cout << "Logging = " << stream->str() << std::endl;
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
@@ -2730,6 +2733,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
         std::cout << "got = " << e.what() << std::endl;
+        std::cout << "Logging = " << stream->str() << std::endl;
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");

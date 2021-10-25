@@ -489,7 +489,7 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
 
 bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
-        const std::string& name = traverser.name();
+        const std::string& name{traverser.name()};
         RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
                          m_BayesianOptimization =
                              std::make_unique<common::CBayesianOptimisation>(traverser))
