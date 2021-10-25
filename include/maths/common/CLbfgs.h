@@ -299,10 +299,10 @@ private:
 
     template<typename F>
     VECTOR randomStep(const F& f) {
-        for (std::size_t i = 0; i < MAXIMUM_RANDOM_PROBES; ++i) {
+        double eps{this->minimumStepSize() * las::norm(m_X)};
+        for (std::size_t i = 0; eps > 0.0 && i < MAXIMUM_RANDOM_PROBES; ++i) {
             // Randomly probe looking for a decrease in the function.
             VECTOR step{las::zero(m_X)};
-            double eps{this->minimumStepSize() * las::norm(m_X)};
             for (std::size_t j = 0; j < las::dimension(m_X); ++j) {
                 step(j) = CSampling::uniformSample(m_Rng, -eps, eps);
             }
