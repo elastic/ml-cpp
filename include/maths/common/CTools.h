@@ -581,7 +581,9 @@ public:
     static double stableExp(double x) { return stable(std::exp(x)); }
 
     //! Sigmoid function of \p p.
-    static double sigmoid(double p) { return 1.0 / (1.0 + 1.0 / p); }
+    static double sigmoid(double p) {
+        return p == 0.0 ? 0.0 : 1.0 / (1.0 + 1.0 / p);
+    }
 
     //! The logistic function.
     //!
