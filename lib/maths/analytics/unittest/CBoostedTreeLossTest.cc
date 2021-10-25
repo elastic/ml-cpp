@@ -19,7 +19,6 @@
 #include <maths/analytics/CBoostedTreeUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
-#include <maths/common/CLbfgs.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/CSolvers.h>
 #include <maths/common/CTools.h>

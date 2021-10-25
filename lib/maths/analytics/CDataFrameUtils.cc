@@ -1270,7 +1270,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
     // by f_j(w) = max_j{sum_i{1 - softmax_j(w_i p_i)} / n_j}. Note that this isn't
     // convex so we use multiple restarts.
 
-    auto objective = [&](const TDoubleVector& weights) {
+    auto objective = [&](const TDoubleVector& weights) -> double {
         TDoubleVector probabilities;
         TDoubleVector scores;
         auto computeObjective = core::bindRetrievableState(
@@ -1298,10 +1298,11 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
         doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
                                 computeObjective, &sampleMask),
                  copyObjective, reduceObjective, objective_);
+
         return objective_.maxCoeff();
     };
 
-    auto objectiveGradient = [&](const TDoubleVector& weights) {
+    auto objectiveGradient = [&](const TDoubleVector& weights) -> TDoubleVector {
         TDoubleVector probabilities;
         TDoubleVector scores;
         auto computeObjectiveAndGradient = core::bindRetrievableState(
@@ -1335,7 +1336,8 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
                  copyObjectiveAndGradient, reduceObjectiveAndGradient, objectiveAndGradient);
         std::size_t max;
         objectiveAndGradient.col(0).maxCoeff(&max);
-        return TDoubleVector{objectiveAndGradient.col(max + 1)};
+
+        return objectiveAndGradient.col(max + 1);
     };
 
     // We always try initialising with all weights equal because our minimization
