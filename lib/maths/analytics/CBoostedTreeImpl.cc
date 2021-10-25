@@ -628,8 +628,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
     std::size_t worstCaseMemoryUsage{
         sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
         hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
-        dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
-        trainTestMaskMemoryUsage};
+        dataTypeMemoryUsage + featureSampleProbabilities +
+        missingFeatureMaskMemoryUsage + trainTestMaskMemoryUsage};
 
     return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
 }

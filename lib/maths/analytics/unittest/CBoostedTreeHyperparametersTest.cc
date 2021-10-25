@@ -125,10 +125,11 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationCaptureBest) {
 
     hyperaparameters.stopHyperparameterOptimizationEarly(false);
 
-    auto addInitialRange = [](maths::analytics::boosted_tree_detail::EHyperparameter,
-                              maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-        bb.emplace_back(0.1, 1.0);
-    };
+    auto addInitialRange =
+        [](maths::analytics::boosted_tree_detail::EHyperparameter,
+           maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
+            bb.emplace_back(0.1, 1.0);
+        };
 
     hyperaparameters.initializeSearch(addInitialRange);
 
@@ -138,8 +139,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationCaptureBest) {
     double minimumLoss{std::numeric_limits<double>::max()};
     TDoubleVec expectedBestParameters;
 
-    for (hyperaparameters.startSearch();
-         hyperaparameters.searchNotFinished();
+    for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
          hyperaparameters.startNextSearchRound()) {
 
         TMeanVarAccumulator testLossMoments;
@@ -200,10 +200,11 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
         BOOST_REQUIRE_EQUAL(--numberToTune, hyperaparameters.numberToTune());
 
-        auto addInitialRange = [](maths::analytics::boosted_tree_detail::EHyperparameter,
-                                  maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-            bb.emplace_back(0.1, 1.0);
-        };
+        auto addInitialRange =
+            [](maths::analytics::boosted_tree_detail::EHyperparameter,
+               maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
+                bb.emplace_back(0.1, 1.0);
+            };
 
         hyperaparameters.initializeSearch(addInitialRange);
 
@@ -213,8 +214,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
         test::CRandomNumbers rng;
         TDoubleVec losses;
 
-        for (hyperaparameters.startSearch();
-             hyperaparameters.searchNotFinished();
+        for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
              hyperaparameters.startNextSearchRound()) {
 
             TMeanVarAccumulator testLossMoments;
@@ -246,10 +246,11 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
 
     hyperaparameters.stopHyperparameterOptimizationEarly(false);
 
-    auto addInitialRange = [](maths::analytics::boosted_tree_detail::EHyperparameter,
-                              maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-        bb.emplace_back(0.1, 1.0);
-    };
+    auto addInitialRange =
+        [](maths::analytics::boosted_tree_detail::EHyperparameter,
+           maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
+            bb.emplace_back(0.1, 1.0);
+        };
 
     hyperaparameters.initializeSearch(addInitialRange);
 
@@ -275,8 +276,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
 
     initHyperaparameters();
 
-    for (hyperaparameters.startSearch();
-         hyperaparameters.searchNotFinished();
+    for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
          hyperaparameters.startNextSearchRound()) {
         TMeanVarAccumulator testLossMoments;
         testLossMoments.add(losses[3 * hyperaparameters.currentRound() + 0]);
@@ -303,14 +303,13 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
     TDoubleVec previousBestHyperparameters;
     previousBestHyperparameters.assign(
         {hyperaparameters.depthPenaltyMultiplier().value(),
-            hyperaparameters.treeSizePenaltyMultiplier().value(),
-            hyperaparameters.leafWeightPenaltyMultiplier().value(),
-            hyperaparameters.softTreeDepthLimit().value(),
-            hyperaparameters.softTreeDepthTolerance().value(),
-            hyperaparameters.downsampleFactor().value(),
-            hyperaparameters.featureBagFraction().value(),
-            hyperaparameters.etaGrowthRatePerTree().value(),
-            hyperaparameters.eta().value()});
+         hyperaparameters.treeSizePenaltyMultiplier().value(),
+         hyperaparameters.leafWeightPenaltyMultiplier().value(),
+         hyperaparameters.softTreeDepthLimit().value(),
+         hyperaparameters.softTreeDepthTolerance().value(),
+         hyperaparameters.downsampleFactor().value(),
+         hyperaparameters.featureBagFraction().value(),
+         hyperaparameters.etaGrowthRatePerTree().value(), hyperaparameters.eta().value()});
 
     hyperaparameters.resetSearch();
     hyperaparameters.initializeSearch(addInitialRange);
@@ -319,8 +318,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
     minimumLoss = std::numeric_limits<double>::max();
     TDoubleVec bestParameters;
 
-    for (hyperaparameters.startSearch();
-         hyperaparameters.searchNotFinished();
+    for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
          hyperaparameters.startNextSearchRound()) {
 
         TMeanVarAccumulator testLossMoments;
@@ -369,8 +367,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
                         hyperaparameters.featureBagFraction().value());
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[7],
                         hyperaparameters.etaGrowthRatePerTree().value());
-    BOOST_REQUIRE_EQUAL(previousBestHyperparameters[8],
-                        hyperaparameters.eta().value());
+    BOOST_REQUIRE_EQUAL(previousBestHyperparameters[8], hyperaparameters.eta().value());
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOverrides) {
@@ -419,10 +416,11 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOptimisation) {
 
     maths::analytics::CBoostedTreeHyperparameters origHyperaparameters;
 
-    auto addInitialRange = [](maths::analytics::boosted_tree_detail::EHyperparameter,
-                              maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-        bb.emplace_back(0.1, 1.0);
-    };
+    auto addInitialRange =
+        [](maths::analytics::boosted_tree_detail::EHyperparameter,
+           maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
+            bb.emplace_back(0.1, 1.0);
+        };
     origHyperaparameters.initializeSearch(addInitialRange);
 
     origHyperaparameters.startSearch();
