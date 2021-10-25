@@ -27,17 +27,16 @@ namespace maths {
 namespace time_series {
 
 namespace {
-const int LAST_DAY_IN_MONTH[] = {30, 27, 30, 29, 30, 29,
-                                 30, 30, 29, 30, 29, 30};
-const std::string DAYS[] = {"Sunday",   "Monday", "Tuesday", "Wednesday",
-                            "Thursday", "Friday", "Saturday"};
+const int LAST_DAY_IN_MONTH[]{30, 27, 30, 29, 30, 29, 30, 30, 29, 30, 29, 30};
+const std::string DAYS[]{"Sunday",   "Monday", "Tuesday", "Wednesday",
+                         "Thursday", "Friday", "Saturday"};
 
 const int DAY = core::constants::DAY;
 
 //! Check if \p year (years since 1900) is a leap year.
 bool isLeapYear(int year) {
     year += 1900;
-    return (year % 4 == 0 && year % 100 == 0) || year % 400 == 0;
+    return (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0));
 }
 
 //! Get the number of days in \p month of \p year.
