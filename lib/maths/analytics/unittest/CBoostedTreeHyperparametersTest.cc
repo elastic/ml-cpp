@@ -192,9 +192,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
     hyperaparameters.maximumOptimisationRoundsPerHyperparameter(2);
 
-    std::size_t numberToTune{hyperaparameters.numberToTune()};
-
-    auto testOverriding = [&](TDoubleParameter& parameter) {
+    auto testOverriding = [&](TDoubleParameter& parameter, std::size_t& numberToTune) {
 
         parameter.fixTo(0.5);
 
@@ -226,15 +224,17 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
         }
     };
 
-    testOverriding(hyperaparameters.depthPenaltyMultiplier());
-    testOverriding(hyperaparameters.treeSizePenaltyMultiplier());
-    testOverriding(hyperaparameters.leafWeightPenaltyMultiplier());
-    testOverriding(hyperaparameters.softTreeDepthLimit());
-    testOverriding(hyperaparameters.softTreeDepthTolerance());
-    testOverriding(hyperaparameters.downsampleFactor());
-    testOverriding(hyperaparameters.featureBagFraction());
-    testOverriding(hyperaparameters.etaGrowthRatePerTree());
-    testOverriding(hyperaparameters.eta());
+    std::size_t numberToTune{hyperaparameters.numberToTune()};
+
+    testOverriding(hyperaparameters.depthPenaltyMultiplier(), numberToTune);
+    testOverriding(hyperaparameters.treeSizePenaltyMultiplier(), numberToTune);
+    testOverriding(hyperaparameters.leafWeightPenaltyMultiplier(), numberToTune);
+    testOverriding(hyperaparameters.softTreeDepthLimit(), numberToTune);
+    testOverriding(hyperaparameters.softTreeDepthTolerance(), numberToTune);
+    testOverriding(hyperaparameters.downsampleFactor(), numberToTune);
+    testOverriding(hyperaparameters.featureBagFraction(), numberToTune);
+    testOverriding(hyperaparameters.etaGrowthRatePerTree(), numberToTune);
+    testOverriding(hyperaparameters.eta(), numberToTune);
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
