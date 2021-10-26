@@ -903,9 +903,9 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
         }
     }
 
-    BOOST_REQUIRE_CLOSE(c1Sum, c2Sum, 20.0); // c1 and c2 within 16% of each other
-    BOOST_REQUIRE_CLOSE(c1Sum, c3Sum, 20.0); // c1 and c3 within 16% of each other
-    BOOST_REQUIRE_CLOSE(c1Sum, c4Sum, 20.0); // c1 and c4 within 16% of each other
+    BOOST_REQUIRE_CLOSE(c1Sum, c2Sum, 20.0); // c1 and c2 within 20% of each other
+    BOOST_REQUIRE_CLOSE(c1Sum, c3Sum, 20.0); // c1 and c3 within 20% of each other
+    BOOST_REQUIRE_CLOSE(c1Sum, c4Sum, 20.0); // c1 and c4 within 20% of each other
     // Make sure the local approximation differs from the prediction always by the same bias
     // (up to a numeric error).
     BOOST_REQUIRE_SMALL(maths::common::CBasicStatistics::variance(bias), 1e-6);
