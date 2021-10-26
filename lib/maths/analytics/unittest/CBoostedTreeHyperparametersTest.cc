@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationCaptureBest) {
         }
     }
 
-    hyperaparameters.restoreSaved();
+    hyperaparameters.restoreBest();
 
     BOOST_REQUIRE_EQUAL(expectedBestParameters[0],
                         hyperaparameters.depthPenaltyMultiplier().value());
@@ -298,7 +298,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
                        hyperaparameters.eta().value()});
     }
 
-    hyperaparameters.restoreSaved();
+    hyperaparameters.restoreBest();
 
     TDoubleVec previousBestHyperparameters;
     previousBestHyperparameters.assign(
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
                             hyperaparameters.eta().value());
     }
 
-    hyperaparameters.restoreSaved();
+    hyperaparameters.restoreBest();
 
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[0],
                         hyperaparameters.depthPenaltyMultiplier().value());

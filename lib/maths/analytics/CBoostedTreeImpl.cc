@@ -327,7 +327,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-        m_Hyperparameters.restoreSaved();
+        m_Hyperparameters.restoreBest();
         m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
         double scale{allTrainingRowsMask.manhattan() / this->meanNumberTrainingRowsPerFold()};
         CScopeBoostedTreeParameterOverrides<double> overrides;
@@ -518,7 +518,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
               << ", initial loss = " << initialLoss);
 
     if (m_ForceAcceptIncrementalTraining || m_Hyperparameters.bestForestTestLoss() < initialLoss) {
-        m_Hyperparameters.restoreSaved();
+        m_Hyperparameters.restoreBest();
         m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
 
         if (m_PreviousTrainNumberRows > 0) {

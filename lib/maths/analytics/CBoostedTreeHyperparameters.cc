@@ -707,7 +707,7 @@ void CBoostedTreeHyperparameters::saveCurrent() {
     m_MaximumNumberTrees.save();
 }
 
-void CBoostedTreeHyperparameters::restoreSaved() {
+void CBoostedTreeHyperparameters::restoreBest() {
     m_DepthPenaltyMultiplier.load();
     m_TreeSizePenaltyMultiplier.load();
     m_LeafWeightPenaltyMultiplier.load();

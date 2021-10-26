@@ -389,11 +389,11 @@ public:
                      double numberNewNodes,
                      std::size_t numberTrees);
 
+    //! Restore the hyperparameters saved by captureBest.
+    void restoreBest();
+
     //! The penalty to apply based on the model size.
     double modelSizePenalty(double numberKeptNodes, double numberNewNodes) const;
-
-    //! Restore the best saved hyperparameters.
-    void restoreSaved();
 
     //! Compute the loss at \p n standard deviations of \p lossMoments above
     //! the mean.
