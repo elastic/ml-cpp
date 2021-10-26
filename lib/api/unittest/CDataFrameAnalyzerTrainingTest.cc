@@ -1621,7 +1621,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
             .predictionDownsampleFactor(downsampleFactor)
             .predictionFeatureBagFraction(featureBagFraction)
             .previousTrainLossGap(lossGap)
-            .previousTrainNumberRows(4 * numberExamples / 5)
+            .previousTrainNumberRows(4 * numberExamples / 5) // This needs to count for a train fold.
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_BinaryClassification)
