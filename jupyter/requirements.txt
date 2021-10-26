@@ -16,4 +16,7 @@ sacred              ==0.8.2
 google-crc32c       ==1.1.2
 google-cloud-storage==1.41.1
 elasticsearch       ==7.13.4
+eland               ==7.13.0b1
 deepmerge           ==0.3.0
+dask[complete]      ==2021.3.0
+plotly              ==5.3.1

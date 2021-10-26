@@ -81,7 +81,8 @@ def download_job(job_name) -> Union[None, Path]:
         and None otherwise.
     """
     if job_exists(job_name):
-        return True
+        local_job_path = jobs_dir / "{}".format(job_name)
+        return local_job_path
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
 

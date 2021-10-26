@@ -33,6 +33,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     cd /root && \
     python3 -m venv env && \
     source env/bin/activate && \
+    python -m pip install -U --force-reinstall pip && \
     pip install -r requirements.txt && \
     jupyter notebook --generate-config && \
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" -keyout mykey.key -out mycert.pem

@@ -22,6 +22,7 @@ from typing import Union
 import libtmux
 import numpy as np
 import pandas
+from deepmerge import always_merger
 from IPython import display
 
 from .config import configs_dir, datasets_dir, dfa_path, logger
@@ -420,6 +421,16 @@ class JobJSONEncoder(json.JSONEncoder):
             return state
         return json.JSONEncoder.default(self, obj)
 
+def update_config(config, run=None) -> dict:
+    if run:
+        if 'threads' in run.config.keys():
+            config['threads'] = run.config['threads']
+        if 'seed' in run.config.keys():
+            config['analysis']['parameters']['seed'] = run.config['seed']
+        if 'analysis' in run.config.keys() and 'parameters' in run.config['analysis']:
+            always_merger.merge(config['analysis']['parameters'], run.config['analysis']['parameters'])
+    return config
+
 
 def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -> Job:
     """Run a DFA job.
@@ -487,10 +498,7 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True, ru
     with open(configs_dir / '{}.json'.format(dataset_name)) as fc:
         config = json.load(fc)
     config['rows'] = dataset.shape[0]
-    if run and 'threads' in run.config.keys():
-        config['threads'] = run.config['threads']
-    if run and 'seed' in run.config.keys():
-        config['analysis']['parameters']['seed'] = run.config['seed']
+    config = update_config(config, run=run)
 
     config_file = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, config_file)
@@ -522,11 +530,8 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, original_job: Job, ve
         config = json.load(fc)
     config['rows'] = dataset.shape[0] + \
         original_job.get_data_summarization_num_rows()
+    config = update_config(config, run=run)
     config['analysis']['parameters']['task'] = 'predict'
-    if run and 'threads' in run.config.keys():
-        config['threads'] = run.config['threads']
-    if run and 'seed' in run.config.keys():
-        config['analysis']['parameters']['seed'] = run.config['seed']
 
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)
@@ -565,12 +570,8 @@ def update(dataset_name: str,
         config = json.load(fc)
     config['rows'] = dataset.shape[0] + \
         original_job.get_data_summarization_num_rows()
-    if run and 'threads' in run.config.keys():
-        config['threads'] = run.config['threads']
+    config = update_config(config, run=run)
 
-    if run and 'seed' in run.config.keys():
-        config['analysis']['parameters']['seed'] = run.config['seed']
-        
     if force:
         config['analysis']['parameters']['force_accept_incremental_training'] = True
 
