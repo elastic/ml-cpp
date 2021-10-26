@@ -42,6 +42,7 @@
 #include <atomic>
 #include <fstream>
 #include <functional>
+#include <iostream>
 #include <limits>
 #include <memory>
 #include <stdexcept>
@@ -1426,8 +1427,8 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
     };
 
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.007);
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.011);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.012);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -1883,7 +1884,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 2.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 1.5 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
@@ -2418,7 +2419,7 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
 
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), actualPredictions.size());
     for (std::size_t i = 0; i < expectedPredictions.size(); ++i) {
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPredictions[i], actualPredictions[i], 0.8);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPredictions[i], actualPredictions[i], 0.9);
     }
 }
 
@@ -2456,12 +2457,12 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
 
         regression->train();
 
-        // We use a single leaf to centre the data so end up with limit + 1 trees.
-        BOOST_REQUIRE_EQUAL(11, regression->bestHyperparameters().maximumNumberTrees());
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->bestHyperparameters().regularization().treeSizePenaltyMultiplier());
+            10, regression->hyperparameters().maximumNumberTrees().value());
         BOOST_REQUIRE_EQUAL(
-            0.01, regression->bestHyperparameters().regularization().leafWeightPenaltyMultiplier());
+            0.1, regression->hyperparameters().treeSizePenaltyMultiplier().value());
+        BOOST_REQUIRE_EQUAL(
+            0.01, regression->hyperparameters().leafWeightPenaltyMultiplier().value());
     }
     {
         auto regression =
@@ -2475,11 +2476,11 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
 
         regression->train();
 
-        BOOST_REQUIRE_EQUAL(0.2, regression->bestHyperparameters().eta());
+        BOOST_REQUIRE_EQUAL(0.2, regression->hyperparameters().eta().value());
         BOOST_REQUIRE_EQUAL(
-            2.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+            2.0, regression->hyperparameters().softTreeDepthLimit().value());
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
+            0.1, regression->hyperparameters().softTreeDepthTolerance().value());
     }
     {
         auto regression =
@@ -2494,9 +2495,11 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
         regression->train();
 
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
-        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
-        BOOST_REQUIRE_EQUAL(0.6, regression->bestHyperparameters().downsampleFactor());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
+        BOOST_REQUIRE_EQUAL(
+            0.4, regression->hyperparameters().featureBagFraction().value());
+        BOOST_REQUIRE_EQUAL(
+            0.6, regression->hyperparameters().downsampleFactor().value());
     }
     {
         auto regression =
@@ -2513,13 +2516,15 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
 
         regression->train();
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
         BOOST_REQUIRE_EQUAL(
-            3.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+            3.0, regression->hyperparameters().softTreeDepthLimit().value());
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
-        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
-        BOOST_REQUIRE_EQUAL(1.1, regression->bestHyperparameters().etaGrowthRatePerTree());
+            0.1, regression->hyperparameters().softTreeDepthTolerance().value());
+        BOOST_REQUIRE_EQUAL(
+            0.4, regression->hyperparameters().featureBagFraction().value());
+        BOOST_REQUIRE_EQUAL(
+            1.1, regression->hyperparameters().etaGrowthRatePerTree().value());
     }
 }
 
@@ -2666,7 +2671,7 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
 
     auto stream = boost::make_shared<std::ostringstream>();
 
-    // log at level ERROR only
+    // Redirect logging to a string stream so we can check errors generated.
     BOOST_TEST_REQUIRE(core::CLogger::instance().reconfigure(stream));
 
     std::size_t cols{3};
@@ -2685,7 +2690,8 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
                                errorInBayesianOptimisationState)
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
-        LOG_DEBUG(<< "got = " << e.what());
+        std::cout << "got = " << e.what() << std::endl;
+        std::cout << "Logging = " << stream->str() << std::endl;
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
@@ -2705,7 +2711,8 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         auto boostedTree = maths::analytics::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
-        LOG_DEBUG(<< "got = " << e.what());
+        std::cout << "got = " << e.what() << std::endl;
+        std::cout << "Logging = " << stream->str() << std::endl;
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");
@@ -2725,7 +2732,8 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
         auto boostedTree = maths::analytics::CBoostedTreeFactory::constructFromString(errorInBoostedTreeImplState)
                                .restoreFor(*frame, 2);
     } catch (const std::exception& e) {
-        LOG_DEBUG(<< "got = " << e.what());
+        std::cout << "got = " << e.what() << std::endl;
+        std::cout << "Logging = " << stream->str() << std::endl;
         throwsExceptions = true;
         core::CRegex re;
         re.init("Input error:.*");

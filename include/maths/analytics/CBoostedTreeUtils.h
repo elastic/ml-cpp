@@ -29,8 +29,6 @@ namespace boosted_tree {
 class CLoss;
 }
 class CBoostedTreeNode;
-template<typename>
-class CBoostedTreeRegularization;
 class CDataFrameCategoryEncoder;
 class CEncodedDataFrameRowRef;
 namespace boosted_tree_detail {
@@ -42,7 +40,6 @@ using TMemoryMappedFloatVector = common::CMemoryMappedDenseVector<common::CFloat
 using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, core::CAlignment::EType>>;
 using TAlignedMemoryMappedFloatVector =
     common::CMemoryMappedDenseVector<common::CFloatStorage, Eigen::Aligned16>;
-using TRegularization = CBoostedTreeRegularization<double>;
 
 enum EExtraColumnTag {
     E_Prediction = 0,

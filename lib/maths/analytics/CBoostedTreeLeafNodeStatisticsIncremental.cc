@@ -261,7 +261,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::featureBestSplitSearch(
     using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
 
     int d{static_cast<int>(this->numberLossParameters())};
-    double lambda{regularization.leafWeightPenaltyMultiplier()};
+    double lambda{regularization.leafWeightPenaltyMultiplier().value()};
 
     auto minimumLoss = TThreading::makeThreadLocalMinimumLossFunction(d, lambda);
 
@@ -382,8 +382,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::featureBestSplitSearch(
         // The gain is the difference between the quadratic minimum for loss with
         // no split and the loss with the minimum loss split we found.
         double totalGain{0.5 * (maximumGain - minimumLoss(g, h)) -
-                         regularization.treeSizePenaltyMultiplier() -
-                         regularization.depthPenaltyMultiplier() *
+                         regularization.treeSizePenaltyMultiplier().value() -
+                         regularization.depthPenaltyMultiplier().value() *
                              (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
 
         SSplitStatistics candidate{
@@ -412,7 +412,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange(const TRegulariz
     }
 
     if (feature != m_PreviousSplit->s_Feature) {
-        return regularization.treeTopologyChangePenalty();
+        return regularization.treeTopologyChangePenalty().value();
     }
 
     const auto& candidateSplits = this->candidateSplits()[feature];
@@ -428,7 +428,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange(const TRegulariz
 
     double splitAt{candidateSplits[split]};
     double previousSplitAt{common::CTools::truncate(m_PreviousSplit->s_SplitAt, a, b)};
-    return 0.25 * regularization.treeTopologyChangePenalty() *
+    return 0.25 * regularization.treeTopologyChangePenalty().value() *
            std::fabs(splitAt - previousSplitAt) / (b - a);
 }
 

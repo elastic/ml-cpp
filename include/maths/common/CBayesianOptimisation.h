@@ -88,15 +88,6 @@ public:
     //! function evaluations added so far.
     std::pair<TVector, TOptionalDouble> maximumExpectedImprovement();
 
-    //! Persist by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
-    //! Populate the object from serialized data
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    //! Get the memory used by this object.
-    std::size_t memoryUsage() const;
-
     //! Estimate the maximum booking memory used by this class for optimising
     //! \p numberParameters using \p numberRounds rounds.
     static std::size_t estimateMemoryUsage(std::size_t numberParameters,
@@ -130,6 +121,18 @@ public:
 
     //! Set kernel \p parameters explicitly.
     void kernelParameters(const TVector& parameters);
+
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
+
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    //! Compute a checksum for this object.
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! \name Test Interface
     //@{

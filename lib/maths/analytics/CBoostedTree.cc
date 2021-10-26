@@ -244,15 +244,15 @@ CTreeShapFeatureImportance* CBoostedTree::shap() const {
 }
 
 CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportance() const {
-    return m_Impl->hyperparameterImportance();
+    return m_Impl->hyperparameters().importances();
 }
 
 std::size_t CBoostedTree::numberTrainRows() const {
-    return static_cast<std::size_t>(m_Impl->allTrainingRowsMask().manhattan());
+    return static_cast<std::size_t>(m_Impl->meanNumberTrainingRowsPerFold() + 0.5);
 }
 
 double CBoostedTree::lossGap() const {
-    return m_Impl->lossGap();
+    return m_Impl->hyperparameters().bestForestLossGap();
 }
 
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
@@ -304,26 +304,6 @@ const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
     return m_Impl->trainedModel();
 }
 
-CBoostedTreeImpl& CBoostedTree::impl() const {
-    return *m_Impl;
-}
-
-const CBoostedTree::TDoubleVec& CBoostedTree::featureWeightsForTraining() const {
-    return m_Impl->featureSampleProbabilities();
-}
-
-const std::string& CBoostedTree::bestHyperparametersName() {
-    return CBoostedTreeImpl::bestHyperparametersName();
-}
-
-const std::string& CBoostedTree::bestRegularizationHyperparametersName() {
-    return CBoostedTreeImpl::bestRegularizationHyperparametersName();
-}
-
-CBoostedTree::TStrVec CBoostedTree::bestHyperparameterNames() {
-    return CBoostedTreeImpl::bestHyperparameterNames();
-}
-
 bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     return m_Impl->acceptRestoreTraverser(traverser);
 }
@@ -336,8 +316,16 @@ void CBoostedTree::accept(CBoostedTree::CVisitor& visitor) const {
     m_Impl->accept(visitor);
 }
 
-const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
-    return m_Impl->bestHyperparameters();
+CBoostedTreeImpl& CBoostedTree::impl() const {
+    return *m_Impl;
+}
+
+const CBoostedTree::TDoubleVec& CBoostedTree::featureWeightsForTraining() const {
+    return m_Impl->featureSampleProbabilities();
+}
+
+const CBoostedTreeHyperparameters& CBoostedTree::hyperparameters() const {
+    return m_Impl->hyperparameters();
 }
 
 CBoostedTree::TDoubleVec CBoostedTree::classificationWeights() const {

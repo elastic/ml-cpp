@@ -19,6 +19,7 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/CChecksum.h>
 #include <maths/common/CLbfgs.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CLinearAlgebraShims.h>
@@ -35,7 +36,7 @@ namespace ml {
 namespace maths {
 namespace common {
 namespace {
-using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 const std::string VERSION_7_5_TAG{"7.5"};
 const std::string MIN_BOUNDARY_TAG{"min_boundary"};
@@ -770,6 +771,20 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
     LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported version: "
               << VERSION_7_5_TAG);
     return false;
+}
+
+std::uint64_t CBayesianOptimisation::checksum(std::uint64_t seed) const {
+    seed = common::CChecksum::calculate(seed, m_Rng);
+    seed = common::CChecksum::calculate(seed, m_Restarts);
+    seed = common::CChecksum::calculate(seed, m_RangeShift);
+    seed = common::CChecksum::calculate(seed, m_RangeScale);
+    seed = common::CChecksum::calculate(seed, m_ExplainedErrorVariance);
+    seed = common::CChecksum::calculate(seed, m_MinBoundary);
+    seed = common::CChecksum::calculate(seed, m_MaxBoundary);
+    seed = common::CChecksum::calculate(seed, m_FunctionMeanValues);
+    seed = common::CChecksum::calculate(seed, m_ErrorVariances);
+    seed = common::CChecksum::calculate(seed, m_KernelParameters);
+    return common::CChecksum::calculate(seed, m_MinimumKernelCoordinateDistanceScale);
 }
 
 void CBayesianOptimisation::checkRestoredInvariants() const {

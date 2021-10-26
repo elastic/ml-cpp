@@ -321,7 +321,7 @@ void CDataFrameAnalyzer::validateCategoricalColumnsMatch() const {
     if (categoricalColumns != originalCategoricalColumns) {
         HANDLE_FATAL(<< "Input error: mismatch in categorical columns "
                      << core::CContainerPrinter::print(categoricalColumns) << " doesn't match "
-                     << core::CContainerPrinter::print(originalCategoricalColumns));
+                     << core::CContainerPrinter::print(originalCategoricalColumns) << ".");
     }
 }
 

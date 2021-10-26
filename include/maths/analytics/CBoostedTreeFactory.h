@@ -369,7 +369,6 @@ private:
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
-    TOptionalSize m_BayesianOptimisationRestarts;
     bool m_StratifyRegressionCrossValidation{true};
     double m_InitialDownsampleRowsPerFeature{200.0};
     std::size_t m_MaximumNumberOfTrainRows{500000};
@@ -380,6 +379,7 @@ private:
     double m_TotalCurvaturePerNode90thPercentile{0.0};
     std::size_t m_NumberThreads{1};
     TBoostedTreeImplUPtr m_TreeImpl;
+    mutable std::size_t m_PaddedExtraColumns{0};
     TVector m_LogDownsampleFactorSearchInterval{0.0};
     TVector m_LogFeatureBagFractionInterval{0.0};
     TVector m_LogDepthPenaltyMultiplierSearchInterval{0.0};

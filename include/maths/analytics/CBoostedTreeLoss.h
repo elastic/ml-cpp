@@ -291,7 +291,7 @@ protected:
 
     static double bucketWidth(const TMinMaxAccumulator& minmax) {
         return minmax.initialized() ? minmax.range() / static_cast<double>(NUMBER_BUCKETS)
-                   : 0.0;
+                                    : 0.0;
     }
 
     static double mid(const TMinMaxAccumulator& minmax) {
@@ -760,7 +760,7 @@ public:
     bool isCurvatureConstant() const override;
     double difference(const TMemoryMappedFloatVector& prediction,
                       const TMemoryMappedFloatVector& previousPrediction,
-                   double weight = 1.0) const override;
+                      double weight = 1.0) const override;
     //! \return (P(class 0), P(class 1)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const common::CPRNG::CXorOShiro128Plus& rng) const override;

@@ -1155,8 +1155,9 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalArgmin) {
     regression->train();
     regression->predict();
 
-    double lambda{regression->impl().bestHyperparameters().regularization().leafWeightPenaltyMultiplier()};
-    double eta{regression->impl().bestHyperparameters().eta()};
+    double lambda{
+        regression->impl().hyperparameters().leafWeightPenaltyMultiplier().value()};
+    double eta{regression->impl().hyperparameters().eta().value()};
     double mu{0.1};
     auto forest = regression->impl().trainedModel();
 
@@ -1264,7 +1265,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalGradientAndCurvature) {
     regression->train();
     regression->predict();
 
-    double eta{regression->impl().bestHyperparameters().eta()};
+    double eta{regression->impl().hyperparameters().eta().value()};
     double mu{0.1};
     auto forest = regression->impl().trainedModel();
 
@@ -1363,8 +1364,9 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalArgmin) {
     classifier->train();
     classifier->predict();
 
-    double lambda{classifier->impl().bestHyperparameters().regularization().leafWeightPenaltyMultiplier()};
-    double eta{classifier->impl().bestHyperparameters().eta()};
+    double lambda{
+        classifier->impl().hyperparameters().leafWeightPenaltyMultiplier().value()};
+    double eta{classifier->impl().hyperparameters().eta().value()};
     double mu{0.1};
     auto forest = classifier->impl().trainedModel();
 
@@ -1485,7 +1487,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossIncrementalGradientAndCurvature) {
     classifier->train();
     classifier->predict();
 
-    double eta{classifier->impl().bestHyperparameters().eta()};
+    double eta{classifier->impl().hyperparameters().eta().value()};
     double mu{0.1};
     auto forest = classifier->impl().trainedModel();
 

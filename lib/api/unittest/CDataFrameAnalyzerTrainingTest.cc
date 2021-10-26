@@ -216,25 +216,23 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
     // Compare hyperparameters.
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
-    const auto& expectedHyperparameters =
-        expectedResults[maths::analytics::CBoostedTree::bestHyperparametersName()];
-    const auto& expectedRegularizationHyperparameters =
-        expectedHyperparameters[maths::analytics::CBoostedTree::bestRegularizationHyperparametersName()];
+    const auto& expectedHyperparameters = expectedResults["hyperparameters"];
+    const auto& expectedRegularizationHyperparameters = expectedHyperparameters["hyperparameters"];
 
     rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
-    const auto& actualHyperparameters =
-        actualResults[maths::analytics::CBoostedTree::bestHyperparametersName()];
-    const auto& actualRegularizationHyperparameters =
-        actualHyperparameters[maths::analytics::CBoostedTree::bestRegularizationHyperparametersName()];
+    const auto& actualHyperparameters = actualResults["hyperparameters"];
+    const auto& actualRegularizationHyperparameters = actualHyperparameters["hyperparameters"];
 
-    for (const auto& key : maths::analytics::CBoostedTree::bestHyperparameterNames()) {
+    for (const auto& key : maths::analytics::CBoostedTreeHyperparameters::names()) {
         if (expectedHyperparameters.HasMember(key)) {
-            double expected{std::stod(expectedHyperparameters[key].GetString())};
-            double actual{std::stod(actualHyperparameters[key].GetString())};
+            double expected{std::stod(expectedHyperparameters[key]["value"].GetString())};
+            double actual{std::stod(actualHyperparameters[key]["value"].GetString())};
             BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
         } else if (expectedRegularizationHyperparameters.HasMember(key)) {
-            double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
-            double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
+            double expected{std::stod(
+                expectedRegularizationHyperparameters[key]["value"].GetString())};
+            double actual{std::stod(
+                actualRegularizationHyperparameters[key]["value"].GetString())};
             BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
         } else {
             BOOST_FAIL("Missing " + key);
@@ -247,13 +245,16 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
     // Test the regression hyperparameter settings are correctly propagated to the
     // analysis runner.
 
+    std::size_t numberSamples{100};
     double alpha{2.0};
     double lambda{1.0};
     double gamma{10.0};
     double softTreeDepthLimit{3.0};
     double softTreeDepthTolerance{0.1};
+    double downsampleFactor{0.3};
     double eta{0.9};
-    std::size_t maximumNumberTrees{1};
+    double etaGrowthRatePerTree{1.2};
+    std::size_t maximumNumberTrees{2};
     double featureBagFraction{0.3};
 
     std::stringstream output;
@@ -268,7 +269,9 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
                     .predictionGamma(gamma)
                     .predictionSoftTreeDepthLimit(softTreeDepthLimit)
                     .predictionSoftTreeDepthTolerance(softTreeDepthTolerance)
+                    .predictionDownsampleFactor(downsampleFactor)
                     .predictionEta(eta)
+                    .predictionEtaGrowthRatePerTree(etaGrowthRatePerTree)
                     .predictionMaximumNumberTrees(maximumNumberTrees)
                     .predictionFeatureBagFraction(featureBagFraction)
                     .regressionLossFunction(lossFunction)
@@ -283,28 +286,24 @@ void testRegressionTrainingWithParams(TLossFunctionType lossFunction) {
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
         lossFunction, fieldNames, fieldValues, analyzer, expectedPredictions,
-        100, alpha, lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance,
-        eta, maximumNumberTrees, featureBagFraction);
+        numberSamples, alpha, lambda, gamma, softTreeDepthLimit, softTreeDepthTolerance,
+        eta, maximumNumberTrees, downsampleFactor, featureBagFraction);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    // Check best hyperparameters
+    // Check the hyperparameter values match the overrides.
     const auto* runner{dynamic_cast<const api::CDataFrameTrainBoostedTreeRegressionRunner*>(
         analyzer.runner())};
     const auto& boostedTree{runner->boostedTree()};
-    const auto& bestHyperparameters{boostedTree.bestHyperparameters()};
-    BOOST_TEST_REQUIRE(bestHyperparameters.eta() == eta);
-    BOOST_TEST_REQUIRE(bestHyperparameters.featureBagFraction() == featureBagFraction);
-    // TODO extend to support setting downsampleFactor and etaGrowthRatePerTree
-    //    BOOST_TEST_REQUIRE(bestHyperparameters.downsampleFactor() == downsampleFactor);
-    //    BOOST_TEST_REQUIRE(bestHyperparameters.etaGrowthRatePerTree() == etaGrowthRatePerTree);
-    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().depthPenaltyMultiplier() == alpha);
-    BOOST_TEST_REQUIRE(
-        bestHyperparameters.regularization().leafWeightPenaltyMultiplier() == lambda);
-    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().treeSizePenaltyMultiplier() == gamma);
-    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().softTreeDepthLimit() ==
-                       softTreeDepthLimit);
-    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().softTreeDepthTolerance() ==
-                       softTreeDepthTolerance);
+    const auto& hyperparameters{boostedTree.hyperparameters()};
+    BOOST_TEST_REQUIRE(hyperparameters.eta().value() == eta);
+    BOOST_TEST_REQUIRE(hyperparameters.featureBagFraction().value() == featureBagFraction);
+    BOOST_TEST_REQUIRE(hyperparameters.downsampleFactor().value() == downsampleFactor);
+    BOOST_TEST_REQUIRE(hyperparameters.etaGrowthRatePerTree().value() == etaGrowthRatePerTree);
+    BOOST_TEST_REQUIRE(hyperparameters.depthPenaltyMultiplier().value() == alpha);
+    BOOST_TEST_REQUIRE(hyperparameters.leafWeightPenaltyMultiplier().value() == lambda);
+    BOOST_TEST_REQUIRE(hyperparameters.treeSizePenaltyMultiplier().value() == gamma);
+    BOOST_TEST_REQUIRE(hyperparameters.softTreeDepthLimit().value() == softTreeDepthLimit);
+    BOOST_TEST_REQUIRE(hyperparameters.softTreeDepthTolerance().value() == softTreeDepthTolerance);
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
@@ -656,7 +655,7 @@ BOOST_AUTO_TEST_CASE(testRegressionTraining) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
                            counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 7000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1930000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 2000000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
@@ -1225,7 +1224,7 @@ BOOST_AUTO_TEST_CASE(testClassificationTraining) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
                            counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 7000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1930000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 2000000);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) > 0);
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
@@ -1622,7 +1621,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
             .predictionDownsampleFactor(downsampleFactor)
             .predictionFeatureBagFraction(featureBagFraction)
             .previousTrainLossGap(lossGap)
-            .previousTrainNumberRows(numberExamples)
+            .previousTrainNumberRows(4 * numberExamples / 5) // This needs to count for a train fold.
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
             .regressionLossFunction(TLossFunctionType::E_BinaryClassification)

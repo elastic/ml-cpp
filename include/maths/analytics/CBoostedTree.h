@@ -350,18 +350,8 @@ public:
     //! Get the weight that has been chosen for each feature for training.
     const TDoubleVec& featureWeightsForTraining() const;
 
-    //! The name of the object holding the best hyperaparameters in the state document.
-    static const std::string& bestHyperparametersName();
-
-    //! The name of the object holding the best regularisation hyperparameters in the
-    //! state document.
-    static const std::string& bestRegularizationHyperparametersName();
-
-    //! A list of the names of the best individual hyperparameters in the state document.
-    static TStrVec bestHyperparameterNames();
-
-    //! \return The best hyperparameters.
-    const CBoostedTreeHyperparameters& bestHyperparameters() const;
+    //! \return The hyperparameters.
+    const CBoostedTreeHyperparameters& hyperparameters() const;
 
     //! \return The classification weights vector.
     TDoubleVec classificationWeights() const;
