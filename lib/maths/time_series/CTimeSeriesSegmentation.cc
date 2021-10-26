@@ -1056,9 +1056,9 @@ CTimeSeriesSegmentation::fitSeasonalModel(ITR begin,
     TMeanAccumulatorVec model(period.period());
     for (std::size_t i = 0; begin != end; ++i, ++begin) {
         if (period.contains(i)) {
-            double x{common::CBasicStatistics::mean(*begin) / scale(i)};
             double w{common::CBasicStatistics::count(*begin) * scale(i)};
             if (w > 0.0) {
+                double x{common::CBasicStatistics::mean(*begin) / scale(i)};
                 model[period.offset(i)].add(x - predictor(static_cast<double>(i)), w);
             }
         }

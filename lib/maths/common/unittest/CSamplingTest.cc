@@ -127,6 +127,21 @@ double frobenius(const TDoubleVecVec& m) {
 }
 }
 
+BOOST_AUTO_TEST_CASE(testUniformSamplingWithEmptyRange) {
+    // boost::random::uniform_real_distribution hangs when asked to sample
+    // uniformly from a range containing a single point. Check our wrappers
+    // simply return the single point.
+
+    BOOST_REQUIRE_EQUAL(0.0, maths::common::CSampling::uniformSample(0.0, 0.0));
+    BOOST_REQUIRE_EQUAL(1.0, maths::common::CSampling::uniformSample(1.0, 1.0));
+
+    TDoubleVec samples;
+    maths::common::CSampling::uniformSample(1.0, 1.0, 5, samples);
+
+    BOOST_TEST_REQUIRE(std::all_of(samples.begin(), samples.end(),
+                                   [](auto sample) { return sample == 1.0; }));
+}
+
 BOOST_AUTO_TEST_CASE(testCategoricalSampleWithoutReplacement) {
 
     using TVector = maths::common::CVectorNx1<double, 6>;

@@ -559,6 +559,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                 }
             }
         }
+        pValueMax = std::max(pValueMax, common::CTools::smallestProbability());
         return std::make_tuple(pValueMax, logPValueProxyMax, pValueMaxHypothesis);
     };
 
@@ -580,10 +581,8 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             double logPValueProxy;
             std::size_t H0;
             std::tie(pValueVsH0, logPValueProxy, H0) = computePValue(H1);
-            double logPValue{pValueVsH0 == 0.0
-                                 ? std::log(std::numeric_limits<double>::min())
-                                 : (pValueVsH0 == 1.0 ? -std::numeric_limits<double>::min()
-                                                      : std::log(pValueVsH0))};
+            double logPValue{(pValueVsH0 == 1.0 ? -std::numeric_limits<double>::min()
+                                                : std::log(pValueVsH0))};
             logPValueProxy = std::min(logPValueProxy, -std::numeric_limits<double>::min());
             double pValueToAccept{decompositions[H1].s_AlreadyModelled
                                       ? m_PValueToEvict
@@ -1896,11 +1895,13 @@ void CTimeSeriesTestForSeasonality::SHypothesisStats::testAmplitude(const CTimeS
         }
     }
 
-    s_AmplitudePValue = common::CTools::oneMinusPowOneMinusX(
-        pValue,
-        static_cast<double>(std::count_if(
-            params.m_Amplitudes.begin(), params.m_Amplitudes.end(),
-            [](const auto& amplitude) { return amplitude.amplitude() > 0.0; })));
+    s_AmplitudePValue = std::max(
+        common::CTools::oneMinusPowOneMinusX(
+            pValue,
+            static_cast<double>(std::count_if(
+                params.m_Amplitudes.begin(), params.m_Amplitudes.end(),
+                [](const auto& amplitude) { return amplitude.amplitude() > 0.0; }))),
+        common::CTools::smallestProbability());
     LOG_TRACE(<< "amplitude p-value = " << s_AmplitudePValue);
 }
 
@@ -2064,7 +2065,7 @@ double CTimeSeriesTestForSeasonality::SModel::componentsSimilarity() const {
     return 1.0;
 }
 
-std::size_t CTimeSeriesTestForSeasonality::SModel::isEvictionPermitted() const {
+bool CTimeSeriesTestForSeasonality::SModel::isEvictionPermitted() const {
     if (s_AlreadyModelled == false) {
         return false;
     }
@@ -2098,8 +2099,10 @@ double CTimeSeriesTestForSeasonality::SModel::pValue(const SModel& H0,
     v0[1] += minimumRelativeTruncatedVariance * v0[0];
     v1[1] += minimumRelativeTruncatedVariance * v1[0];
 
-    return std::min(rightTailFTest(v0[0] / df0[0], v1[0] / df1[0], df0[0], df1[0]),
-                    rightTailFTest(v0[1] / df0[1], v1[1] / df1[1], df0[1], df1[1]));
+    return std::max(
+        std::min(rightTailFTest(v0[0] / df0[0], v1[0] / df1[0], df0[0], df1[0]),
+                 rightTailFTest(v0[1] / df0[1], v1[1] / df1[1], df0[1], df1[1])),
+        common::CTools::smallestProbability());
 }
 
 double CTimeSeriesTestForSeasonality::SModel::logPValueProxy(const SModel& H0) const {
