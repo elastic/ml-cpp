@@ -909,13 +909,14 @@ std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
                       << core::CContainerPrinter::print(degreesFreedom));
             LOG_TRACE(<< "variances = " << core::CContainerPrinter::print(variances));
 
-            if (variances[H0] != variances[1 - H0] &&
+            if ((variances[H0] > 0.0 && variances[1 - H0] == 0.0) ||
                 common::CStatisticalTests::rightTailFTest(
-                    variances[H0] / variances[1 - H0], degreesFreedom[H0],
-                    degreesFreedom[1 - H0]) < 0.1) {
+                    variances[H0] == variances[1 - H0] ? 1.0 : variances[H0] / variances[1 - H0],
+                    degreesFreedom[H0], degreesFreedom[1 - H0]) < 0.1) {
                 break;
             }
-            if (common::CStatisticalTests::rightTailFTest(
+            if ((variances[1 - H0] > 0.0 && variances[H0] == 0.0) ||
+                common::CStatisticalTests::rightTailFTest(
                     variances[1 - H0] == variances[H0] ? 1.0 : variances[1 - H0] / variances[H0],
                     degreesFreedom[1 - H0], degreesFreedom[H0]) < 0.1) {
                 H0 = 1 - H0;
