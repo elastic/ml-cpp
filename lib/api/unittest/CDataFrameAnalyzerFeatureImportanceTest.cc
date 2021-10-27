@@ -534,7 +534,9 @@ double readBaselineValue(const RESULTS& results, std::string className) {
 }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
+BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap,
+                        SFixture,
+                        *boost::unit_test::disabled()) {
     // Test that feature importance statistically correctly recognize the impact of regressors
     // in a linear model. In particular, that the ordering is as expected and for IID features
     // the significance is proportional to the multiplier. Also make sure that the SHAP values
