@@ -10,13 +10,15 @@
 # limitation.
 
 import shutil
+import random
+import string
 
 import diversipy
 import numpy as np
 import pandas as pd
 import sklearn.metrics as metrics
 from deepmerge import always_merger
-from incremental_learning.config import datasets_dir, logger, jobs_dir
+from incremental_learning.config import datasets_dir, jobs_dir
 from incremental_learning.elasticsearch import push2es
 from incremental_learning.job import evaluate, train, update, Job
 from incremental_learning.trees import Forest
@@ -32,10 +34,10 @@ from sacred.observers import FileStorageObserver
 from sklearn.model_selection import train_test_split
 
 experiment_name = 'multi-step-sampling'
+uid = ''.join(random.choices(string.ascii_lowercase, k=6))
 experiment_data_path = Path('/tmp/'+experiment_name)
-ex = Experiment(experiment_name)
+ex = Experiment(name = uid)
 ex.observers.append(FileStorageObserver(experiment_data_path))
-ex.logger = logger
 
 
 @ex.config
@@ -114,6 +116,8 @@ def get_forest_statistics(model_definition):
 @ex.main
 def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, training_fraction, update_fraction,
             update_steps, n_largest_multiplier, analysis_parameters, sampling_mode):
+    if 'comment' not in _run.meta_info or not _run.meta_info['comment']:
+        raise RuntimeError("Specify --comment parameter for this experiment.")
     results = {}
 
     _run.config['analysis'] = analysis_parameters
@@ -177,16 +181,13 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
                                force=force_update, verbose=verbose, run=_run)
         elapsed_time = updated_model.wait_to_complete(clean=False)
-        results['updated_model']['elapsed_time'].append(elapsed_time)
-        results['updated_model']['train_error'].append(compute_error(
-            updated_model, train_dataset))
-        results['updated_model']['test_error'].append(compute_error(
-            updated_model, test_dataset))
-        results['updated_model']['hyperparameters'].append(
-            updated_model.get_hyperparameters())
-        results['updated_model']['forest_statistics'].append(
-            get_forest_statistics(updated_model.get_model_definition()))
-        results['updated_model']['config'].append(updated_model.get_config())
+        _run.log_scalar('updated_model.elapsed_time', elapsed_time)
+        _run.log_scalar('updated_model.train_error', compute_error(updated_model, train_dataset))
+        _run.log_scalar('updated_model.test_error', compute_error(updated_model, test_dataset))
+        for k,v in updated_model.get_hyperparameters().items():
+            _run.log_scalar('updated_model.hyperparameters.{}'.format(k), v)
+        for k,v in get_forest_statistics(updated_model.get_model_definition()).items():
+            _run.log_scalar('updated_model.forest_statistics.{}'.format(k), v)
         updated_model.clean()
         _run.run_logger.info("Update completed")
 
