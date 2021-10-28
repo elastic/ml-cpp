@@ -169,7 +169,8 @@ class Job:
                                                         </table>"""
                                                       .format(err, out)))
                 else:
-                    print(err)
+                    if not self.run:
+                        print(err)
             # the line in main.cc where final output is produced
             success = sum(
                 [line == 'Success' for line in self.pane.capture_pane()[-5:]]) == 1

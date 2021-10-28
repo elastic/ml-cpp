@@ -33,13 +33,12 @@ if __name__ == '__main__':
     for seed in range(args.number_random_copies):
         for dataset_name in args.datasets:
             for sampling_mode in ['nlargest']:
-                for training_fraction in [0.1, 0.25, 0.5, 0.75, 1.0]:
+                for training_fraction in [0.1, 0.25, 0.5]:
                     experiments.append({
                         'seed': seed,
                         'dataset_name': dataset_name,
                         'sampling_mode': sampling_mode,
                         'training_fraction': training_fraction,
-                        'update_steps': 0,
                         'threads': 8
                     })
 

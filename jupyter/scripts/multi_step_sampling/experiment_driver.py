@@ -47,10 +47,10 @@ def my_config():
     verbose = False
     dataset_name = 'house'
     test_fraction = 0.1
-    training_fraction = 0.25
+    training_fraction = 0.1
     update_fraction = 0.1
     threads = 8
-    update_steps = 4
+    update_steps = 10
 
     analysis_parameters = {'parameters':
                            {'tree_topology_change_penalty': 0.0,
@@ -112,6 +112,10 @@ def get_forest_statistics(model_definition):
     result['tree_depth_std'] = np.std(forest.tree_depths())
     return result
 
+def remove_subset(dataset, subset):
+    dataset = dataset.merge(subset, how = 'outer' ,indicator=True).loc[lambda x : x['_merge']=='left_only']
+    dataset.drop(columns=['_merge'], inplace=True)
+    return dataset
 
 @ex.main
 def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, training_fraction, update_fraction,
@@ -135,9 +139,7 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     baseline_dataset = train_dataset.sample(
         frac=training_fraction, random_state=random_state)
     update_num_samples = int(train_dataset.shape[0]*update_fraction)
-    remainder_dataset = train_dataset.copy()
-    remainder_dataset = remainder_dataset.merge(baseline_dataset, how = 'outer' ,indicator=True).loc[lambda x : x['_merge']=='left_only']
-    remainder_dataset.drop(columns=['_merge'], inplace=True)
+    remainder_dataset = remove_subset(train_dataset.copy(), baseline_dataset)
 
     _run.run_logger.info("Baseline training started for {}".format(baseline_model_name))
     if job_exists(baseline_model_name, remote=True):
@@ -164,16 +166,18 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
 
         _run.run_logger.info("Sampling started")
         if sampling_mode == 'nlargest':
+            if remainder_dataset.shape[0] == 0:
+                break
             remainder_dataset['indicator'] = get_residuals(
                 previous_model, remainder_dataset)
-            largest = remainder_dataset.nlargest(
+            D_update = remainder_dataset.nlargest(
                 n=update_num_samples, columns=['indicator'])
-            largest.drop(columns=['indicator'], inplace=True)
+            D_update.drop(columns=['indicator'], inplace=True)
             remainder_dataset.drop(columns=['indicator'], inplace=True)
-            D_update = largest
-            remainder_dataset = remainder_dataset.merge(D_update, how = 'outer' ,indicator=True).loc[lambda x : x['_merge']=='left_only']
-            remainder_dataset.drop(columns=['_merge'], inplace=True)
-            _run.run_logger.info("Remainder number rows {}".format(remainder_dataset.shape[0]))
+            remainder_dataset = remove_subset(remainder_dataset, D_update)
+            fraction_of_train = 1.0 - float(remainder_dataset.shape[0])/train_dataset.shape[0]
+            _run.log_scalar("updated_model.fraction_of_train", fraction_of_train)
+            _run.run_logger.debug("Remainder number rows {}".format(remainder_dataset.shape[0]))
         else:
             D_update = train_dataset.sample(
                 n=update_num_samples, random_state=random_state)
@@ -186,6 +190,9 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         _run.log_scalar('updated_model.elapsed_time', elapsed_time)
         _run.log_scalar('updated_model.train_error', compute_error(updated_model, train_dataset))
         _run.log_scalar('updated_model.test_error', compute_error(updated_model, test_dataset))
+        _run.log_scalar('training_fraction', training_fraction)
+        _run.log_scalar('seed', _seed)
+
         for k,v in updated_model.get_hyperparameters().items():
             _run.log_scalar('updated_model.hyperparameters.{}'.format(k), v)
         for k,v in get_forest_statistics(updated_model.get_model_definition()).items():
