@@ -13,6 +13,9 @@
 #define INCLUDED_ml_maths_common_CLbfgs_h
 
 #include <maths/common/CLinearAlgebraShims.h>
+#include <maths/common/CPRNG.h>
+#include <maths/common/CSampling.h>
+#include <maths/common/CSolvers.h>
 #include <maths/common/CTools.h>
 
 #include <boost/circular_buffer.hpp>
@@ -48,6 +51,10 @@ public:
     //! The maximum number of iterations to use backtracking.
     static const std::size_t MAXIMUM_BACK_TRACKING_ITERATIONS;
 
+    //! The maximum number of random probes we'll use to look for a direction in which
+    //! the objective decreases if the gradient function returns zero.
+    static const std::size_t MAXIMUM_RANDOM_PROBES;
+
 public:
     explicit CLbfgs(std::size_t rank,
                     double decrease = BACKTRACKING_MIN_DECREASE,
@@ -68,6 +75,11 @@ public:
     //! a scalar.
     //! \tparam G must be a Callable with single argument type VECTOR and returning
     //! a VECTOR.
+    //!
+    //! \warning If you use lambdas for F and G you must ensure you don't return
+    //! Eigen expressions which can easily reference temporary variables which are
+    //! out of scope. You can avoid this for example by defining the lambda return
+    //! type explicitly.
     template<typename F, typename G>
     std::pair<VECTOR, double>
     minimize(const F& f, const G& g, VECTOR x0, double eps = 1e-8, std::size_t iterations = 50) {
@@ -221,7 +233,8 @@ private:
     }
 
     static bool converged(double fx, double fl, double f0, double eps) {
-        return std::fabs(fx - fl) < eps * std::fabs(fx - f0);
+        // We use less than or equal so that this is true if fx == fl == f0.
+        return std::fabs(fx - fl) <= eps * std::fabs(fx - f0);
     }
 
     template<typename F>
@@ -232,8 +245,8 @@ private:
         // size.
 
         double s{1.0};
-        double fs{f(m_X - s * m_P)};
-        VECTOR xs;
+        VECTOR xs{m_X - m_P};
+        double fs{f(xs)};
 
         for (std::size_t i = 0; i < MAXIMUM_BACK_TRACKING_ITERATIONS &&
                                 fs - m_Fx > this->minimumDecrease(s);
@@ -243,10 +256,63 @@ private:
             fs = f(xs);
         }
 
+        // This can happen if s |m_P| < epsilon |m_X|.
+        if (las::distance(xs, m_X) == 0.0) {
+            this->fullLineSearch(f, xs, fs);
+        }
+
         m_Fl = m_Fx;
         m_Fx = fs;
 
-        return m_X - s * m_P;
+        return xs;
+    }
+
+    template<typename F>
+    void fullLineSearch(const F& f, VECTOR& xs, double& fs) {
+        VECTOR step{las::norm(m_P) == 0.0 ? this->randomStep(f)
+                                          : this->minimumStepSize() * las::norm(m_X) /
+                                                las::norm(m_P) * m_P};
+
+        if (las::norm(step) == 0.0) {
+            xs = m_X;
+            fs = m_Fx;
+            return;
+        }
+
+        // We probe a selection of points along the step direction looking for
+        // a minimum and polish up with a few iterations of Brent's method.
+
+        TDoubleVec probes(MAXIMUM_BACK_TRACKING_ITERATIONS);
+        probes[0] = 1.0;
+        for (std::size_t i = 1; i < MAXIMUM_BACK_TRACKING_ITERATIONS; ++i) {
+            probes[i] = probes[i - 1] / m_StepScale;
+        }
+
+        auto f_ = [&](double s_) { return f(m_X - s_ * step); };
+
+        double smin;
+        double fmin;
+        CSolvers::globalMinimize(probes, f_, smin, fmin);
+        xs = m_X - smin * step;
+        fs = f(xs);
+    }
+
+    template<typename F>
+    VECTOR randomStep(const F& f) {
+        double eps{this->minimumStepSize() * las::norm(m_X)};
+        for (std::size_t i = 0; eps > 0.0 && i < MAXIMUM_RANDOM_PROBES; ++i) {
+            // Randomly probe looking for a decrease in the function.
+            VECTOR step{las::zero(m_X)};
+            for (std::size_t j = 0; j < las::dimension(m_X); ++j) {
+                step(j) = CSampling::uniformSample(m_Rng, -eps, eps);
+            }
+            if (f(m_X + step) < f(m_X)) {
+                return -step;
+            }
+        }
+        // We couldn't find a direction in which the fuction decreases. Returning
+        // zero means we'll exit on the convergence condition.
+        return las::zero(m_X);
     }
 
     template<typename G>
@@ -305,7 +371,9 @@ private:
     }
 
     double minimumDecrease(double s) const {
-        return m_BacktrackingMinDecrease * s * las::inner(m_Gx, m_P) / las::norm(m_P);
+        double normP{las::norm(m_P)};
+        return m_BacktrackingMinDecrease * s *
+               (normP == 0.0 ? las::norm(m_Gx) : las::inner(m_Gx, m_P) / normP);
     }
 
     double minimumStepSize() const {
@@ -317,6 +385,7 @@ private:
     std::size_t m_Rank;
     double m_StepScale;
     double m_BacktrackingMinDecrease;
+    CPRNG::CXorOShiro128Plus m_Rng;
     bool m_Initial = true;
     double m_F0;
     double m_Fl;
@@ -336,6 +405,8 @@ template<typename VECTOR>
 const double CLbfgs<VECTOR>::STEP_SCALE{0.3};
 template<typename VECTOR>
 const std::size_t CLbfgs<VECTOR>::MAXIMUM_BACK_TRACKING_ITERATIONS{20};
+template<typename VECTOR>
+const std::size_t CLbfgs<VECTOR>::MAXIMUM_RANDOM_PROBES{10};
 }
 }
 }

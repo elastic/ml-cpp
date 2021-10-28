@@ -39,10 +39,12 @@ BOOST_AUTO_TEST_CASE(testQuadtratic) {
         diagonal(i) = static_cast<double>(i);
     }
 
-    auto f = [&](const TVector& x) {
+    auto f = [&](const TVector& x) -> double {
         return x.transpose() * diagonal.asDiagonal() * x;
     };
-    auto g = [&](const TVector& x) { return 2.0 * diagonal.asDiagonal() * x; };
+    auto g = [&](const TVector& x) -> TVector {
+        return 2.0 * diagonal.asDiagonal() * x;
+    };
 
     maths::common::CLbfgs<TVector> lbfgs{10};
 
@@ -124,14 +126,14 @@ BOOST_AUTO_TEST_CASE(testSingularHessian) {
         }
         return result;
     };
-    auto g = [&](const TVector& x) {
+    auto g = [&](const TVector& x) -> TVector {
         TVector furthest{x};
         for (const auto& p : points) {
             if ((p - x).norm() > (furthest - x).norm()) {
                 furthest = p;
             }
         }
-        return TVector{(x - furthest) / (x - furthest).norm()};
+        return (x - furthest) / (x - furthest).norm();
     };
 
     maths::common::CLbfgs<TVector> lbfgs{5};
@@ -177,10 +179,12 @@ BOOST_AUTO_TEST_CASE(testConstrainedMinimize) {
         diagonal(i) = static_cast<double>(i);
     }
 
-    auto f = [&](const TVector& x) {
+    auto f = [&](const TVector& x) -> double {
         return x.transpose() * diagonal.asDiagonal() * x;
     };
-    auto g = [&](const TVector& x) { return 2.0 * diagonal.asDiagonal() * x; };
+    auto g = [&](const TVector& x) -> TVector {
+        return 2.0 * diagonal.asDiagonal() * x;
+    };
 
     maths::common::CLbfgs<TVector> lbfgs{10};
 
@@ -230,6 +234,54 @@ BOOST_AUTO_TEST_CASE(testConstrainedMinimize) {
     }
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, ferror, 1e-5);
+}
+
+BOOST_AUTO_TEST_CASE(testMinimizeWithVerySmallGradient) {
+
+    // We test a function such whose gradient is less than epsilon * x0.
+
+    double eps{1e-16};
+
+    TVector xmin{TVector::fromStdVector({1000.0, 1000.0, 1000.0})};
+    TVector x0{TVector::fromStdVector({1200.0, 1200.0, 1200.0})};
+
+    auto f = [&](const TVector& x) -> double {
+        return eps * (x - xmin).transpose() * (x - xmin);
+    };
+    auto g = [&](const TVector& x) -> TVector { return 2.0 * eps * (x - xmin); };
+
+    maths::common::CLbfgs<TVector> lbfgs{10};
+
+    TVector x;
+    double fx;
+    std::tie(x, fx) = lbfgs.minimize(f, g, x0, 1e-20);
+
+    BOOST_TEST_REQUIRE((xmin - x).norm() < 1e-6);
+}
+
+BOOST_AUTO_TEST_CASE(testMinimizeWithInitialZeroGradient) {
+
+    // Test random probing by forcing the gradient to zero at x0.
+
+    TVector zero{TVector::fromStdVector({0.0, 0.0, 0.0})};
+
+    TVector xmin{TVector::fromStdVector({1000.0, 1000.0, 1000.0})};
+    TVector x0{TVector::fromStdVector({1200.0, 1200.0, 1200.0})};
+
+    auto f = [&](const TVector& x) -> double {
+        return (x - xmin).transpose() * (x - xmin);
+    };
+    auto g = [&](const TVector& x) -> TVector {
+        return x == x0 ? zero : 2.0 * (x - xmin);
+    };
+
+    maths::common::CLbfgs<TVector> lbfgs{10};
+
+    TVector x;
+    double fx;
+    std::tie(x, fx) = lbfgs.minimize(f, g, x0, 1e-20);
+
+    BOOST_TEST_REQUIRE((xmin - x).norm() < 1e-6);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

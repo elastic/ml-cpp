@@ -90,7 +90,7 @@ void CLowess<N>::fit(TDoubleDoublePrVec data, std::size_t numberFolds) {
     double kmax;
     double likelihoodMax;
     CSolvers::globalMaximize(K,
-                             [&](double k) {
+                             [&](double k) -> double {
                                  return this->likelihood(trainingMasks, testingMasks, k);
                              },
                              kmax, likelihoodMax);
@@ -137,7 +137,8 @@ typename CLowess<N>::TDoubleDoublePr CLowess<N>::minimum() const {
     X.push_back(xb);
     double xmin;
     double fmin;
-    CSolvers::globalMinimize(X, [&](double x) { return this->predict(x); }, xmin, fmin);
+    CSolvers::globalMinimize(
+        X, [this](double x) -> double { return this->predict(x); }, xmin, fmin);
 
     // Refine.
     double range{(xb - xa) / static_cast<double>(X.size())};
@@ -150,7 +151,8 @@ typename CLowess<N>::TDoubleDoublePr CLowess<N>::minimum() const {
     }
     double xcand;
     double fcand;
-    CSolvers::globalMinimize(X, [&](double x) { return this->predict(x); }, xcand, fcand);
+    CSolvers::globalMinimize(
+        X, [this](double x) -> double { return this->predict(x); }, xcand, fcand);
 
     if (fcand < fmin) {
         xmin = xcand;
