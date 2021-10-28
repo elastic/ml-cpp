@@ -25,18 +25,17 @@ def init_task_spooler():
                                stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
-def generate_job_file(config, cwd, force_update, verbose, tag):
+def generate_job_file(config, cwd, force_update, verbose, comment):
 
     job_name = '_'.join([str(v) for _,v in config.items()])
     job_file = '{}.job'.format(job_name)
     job_parameters = ['force_update={}'.format(force_update),
-                      'verbose={}'.format(verbose),
-                      'tag={}'.format(tag)] + \
+                      'verbose={}'.format(verbose)] + \
                       ['{}={}'.format(k,v) for k,v in config.items()]
 
     job = tm.render(job_name=job_name,
                     job_parameters=" ".join(job_parameters),
-                    job_file=job_file, cwd=cwd)
+                    job_file=job_file, comment=comment, cwd=cwd)
     with open(job_file, 'wt') as fp:
         fp.write(job)
     os.chmod(job_file, 0o755)
@@ -65,9 +64,9 @@ if __name__ == '__main__':
                         default=False,
                         action='store_true',
                         help='Force accept the result of incremental training')
-    parser.add_argument('--tag',
-                        default='',
-                        help='A user defined tag for this set of runs')
+    parser.add_argument('-c', '--comment',
+                        required=True,
+                        help='A user defined comment for this set of runs')
     args = parser.parse_args()
 
     cwd = os.getcwd()
@@ -83,6 +82,6 @@ if __name__ == '__main__':
                                      cwd=cwd,
                                      force_update=args.force_update,
                                      verbose=args.verbose,
-                                     tag=args.tag)
+                                     comment=args.comment)
         job_file_path = Path(cwd)/job_file
         submit_to_task_spooler(config['threads'], job_file_path)

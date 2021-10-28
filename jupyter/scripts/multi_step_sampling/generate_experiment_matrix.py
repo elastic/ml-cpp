@@ -32,17 +32,16 @@ if __name__ == '__main__':
     experiments = []
     for seed in range(args.number_random_copies):
         for dataset_name in args.datasets:
-            for sampling_mode in ['nlargest', 'random']:
-                for training_fraction in [0.1, 0.25, 0.5]:
-                    for update_fraction in [0.05, 0.1, 0.2]:
-                        experiments.append({
-                            'seed': seed,
-                            'dataset_name': dataset_name,
-                            'sampling_mode': sampling_mode,
-                            'training_fraction': training_fraction,
-                            'update_fraction': update_fraction,
-                            'threads': 8
-                        })
+            for sampling_mode in ['nlargest']:
+                for training_fraction in [0.1, 0.25, 0.5, 0.75, 1.0]:
+                    experiments.append({
+                        'seed': seed,
+                        'dataset_name': dataset_name,
+                        'sampling_mode': sampling_mode,
+                        'training_fraction': training_fraction,
+                        'update_steps': 0,
+                        'threads': 8
+                    })
 
     print('There are', len(experiments), 'experiments in total')
 

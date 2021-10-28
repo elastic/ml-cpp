@@ -20,14 +20,15 @@ import sklearn.metrics as metrics
 from deepmerge import always_merger
 from incremental_learning.config import datasets_dir, jobs_dir
 from incremental_learning.elasticsearch import push2es
-from incremental_learning.job import evaluate, train, update, Job
-from incremental_learning.trees import Forest
-from incremental_learning.storage import download_dataset, job_exists, download_job, upload_job
+from incremental_learning.job import Job, evaluate, train, update
+from incremental_learning.storage import (download_dataset, download_job,
+                                          job_exists, upload_job)
 from incremental_learning.transforms import (partition_on_metric_ranges,
                                              regression_category_drift,
                                              resample_metric_features,
                                              rotate_metric_features,
                                              shift_metric_features)
+from incremental_learning.trees import Forest
 from pathlib2 import Path
 from sacred import Experiment
 from sacred.observers import FileStorageObserver
@@ -44,11 +45,10 @@ ex.observers.append(FileStorageObserver(experiment_data_path))
 def my_config():
     force_update = True
     verbose = False
-    tag = 'valeriy, multi-step-sampling'
     dataset_name = 'house'
-    test_fraction = 0.2
+    test_fraction = 0.1
     training_fraction = 0.25
-    update_fraction = 0.2
+    update_fraction = 0.1
     threads = 8
     update_steps = 4
 
@@ -135,8 +135,11 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     baseline_dataset = train_dataset.sample(
         frac=training_fraction, random_state=random_state)
     update_num_samples = int(train_dataset.shape[0]*update_fraction)
+    remainder_dataset = train_dataset.copy()
+    remainder_dataset = remainder_dataset.merge(baseline_dataset, how = 'outer' ,indicator=True).loc[lambda x : x['_merge']=='left_only']
+    remainder_dataset.drop(columns=['_merge'], inplace=True)
 
-    _run.run_logger.info("Baseline training started")
+    _run.run_logger.info("Baseline training started for {}".format(baseline_model_name))
     if job_exists(baseline_model_name, remote=True):
         path = download_job(baseline_model_name)
         baseline_model = Job.from_file(path)
@@ -151,27 +154,26 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     results['baseline']['hyperparameters'] = baseline_model.get_hyperparameters()
     results['baseline']['forest_statistics'] = get_forest_statistics(
         baseline_model.get_model_definition())
+    results['baseline']['train_error'] = compute_error(baseline_model, train_dataset)
+    results['baseline']['test_error'] = compute_error(baseline_model, test_dataset)
     _run.run_logger.info("Baseline training completed")
 
     previous_model = baseline_model
-    results['updated_model'] = {'elapsed_time': [],
-                                'train_error': [], 'test_error': [], 'hyperparameters': [], 
-                                'forest_statistics': [], 'config': []}
     for step in range(update_steps):
         _run.run_logger.info("Update step {} started".format(step))
 
         _run.run_logger.info("Sampling started")
         if sampling_mode == 'nlargest':
-            train_dataset['indicator'] = get_residuals(
-                previous_model, train_dataset)
-            largest = train_dataset.nlargest(
-                n=n_largest_multiplier*update_num_samples, columns=['indicator'])
+            remainder_dataset['indicator'] = get_residuals(
+                previous_model, remainder_dataset)
+            largest = remainder_dataset.nlargest(
+                n=update_num_samples, columns=['indicator'])
             largest.drop(columns=['indicator'], inplace=True)
-            train_dataset.drop(columns=['indicator'], inplace=True)
-            du = diversipy.subset.psa_select(
-                largest.to_numpy(), update_num_samples)
-            D_update = pd.DataFrame(
-                data=du, columns=largest.columns)
+            remainder_dataset.drop(columns=['indicator'], inplace=True)
+            D_update = largest
+            remainder_dataset = remainder_dataset.merge(D_update, how = 'outer' ,indicator=True).loc[lambda x : x['_merge']=='left_only']
+            remainder_dataset.drop(columns=['_merge'], inplace=True)
+            _run.run_logger.info("Remainder number rows {}".format(remainder_dataset.shape[0]))
         else:
             D_update = train_dataset.sample(
                 n=update_num_samples, random_state=random_state)
@@ -179,7 +181,7 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
 
         _run.run_logger.info("Update started")
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
-                               force=force_update, verbose=verbose, run=_run)
+                               force=force_update, verbose=True, run=_run)
         elapsed_time = updated_model.wait_to_complete(clean=False)
         _run.log_scalar('updated_model.elapsed_time', elapsed_time)
         _run.log_scalar('updated_model.train_error', compute_error(updated_model, train_dataset))
