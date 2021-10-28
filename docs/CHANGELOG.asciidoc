@@ -50,6 +50,9 @@
 
 === Bug Fixes
 
+* Correct ANOVA for Gaussian Process we fit to the loss surface. This affects early stopping.
+  Previously, we would always stop early whether it was approproate or not. It also improves
+  the estimates of hyperparameter importances. (See {ml-pull}2073[#2073].)
 * Fix numerical stability issues in time series modelling. (See {ml-pull}2083[#[2083]].)
 
 == {es} version 7.15.0
