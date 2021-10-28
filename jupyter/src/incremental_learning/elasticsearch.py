@@ -56,11 +56,12 @@ def push2es(data_path, name, prefix='experiment-'):
         metrics = json.load(fp)
         # doc['metrics'] = metrics
         keys = list(metrics.keys())
-        steps = metrics[keys[0]]['steps']
-        for step in steps:
-            doc = {'experiment_uid': experiment_uid, 'step': step}
-            for k in keys:
-                doc[k] = metrics[k]['values'][step]
-            res = es.index(index=prefix+name+'-metrics', body=doc)
-            logger.info('Indexing experiment metrics {} {}'.format(data_path, res['result']))
+        if keys:
+            steps = metrics[keys[0]]['steps']
+            for step in steps:
+                doc = {'experiment_uid': experiment_uid, 'step': step}
+                for k in keys:
+                    doc[k] = metrics[k]['values'][step]
+                res = es.index(index=prefix+name+'-metrics', body=doc)
+                logger.info('Indexing experiment metrics {} {}'.format(data_path, res['result']))
     
