@@ -41,7 +41,8 @@ def push2es(data_path, name, prefix='experiment-'):
             if source_path.exists():
                 with open(source_path) as fs:
                     doc['sources'].append({'key': source, "value": fs.read()})
-                logger.debug("Source {} is added to the document.".format(source))
+                logger.debug(
+                    "Source {} is added to the document.".format(source))
 
     with open(data_path/'cout.txt') as fp:
         cout = fp.read()
@@ -50,8 +51,9 @@ def push2es(data_path, name, prefix='experiment-'):
     experiment_uid = doc['run']['experiment']['name']
     doc['experiment_uid'] = experiment_uid
     res = es.index(index=prefix+name, body=doc)
-    logger.info('Indexing experiment info {} {}'.format(data_path, res['result']))
-    
+    logger.info('Indexing experiment info {} {}'.format(
+        data_path, res['result']))
+
     with open(data_path/'metrics.json') as fp:
         metrics = json.load(fp)
         # doc['metrics'] = metrics
@@ -63,5 +65,5 @@ def push2es(data_path, name, prefix='experiment-'):
                 for k in keys:
                     doc[k] = metrics[k]['values'][step]
                 res = es.index(index=prefix+name+'-metrics', body=doc)
-                logger.info('Indexing experiment metrics {} {}'.format(data_path, res['result']))
-    
+                logger.info('Indexing experiment metrics {} {}'.format(
+                    data_path, res['result']))
