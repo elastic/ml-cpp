@@ -54,7 +54,8 @@ For C++17 Xcode 10 is required, and this requires macOS High Sierra or above. Th
 
 - If you are using High Sierra, you must install Xcode 10.1.x
 - If you are using Mojave, you must install Xcode 11.3.x
-- If you are using Catalina or Big Sur, you must install Xcode 12.3.x or above
+- If you are using Catalina, you must install Xcode 12.4.x
+- If you are using Big Sur or Monterey, you must install Xcode 13.1.x or above
 
 Xcode is distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 (Older versions of Xcode can be downloaded from [here](https://developer.apple.com/download/more/), provided you are signed in with your Apple ID.)
@@ -67,17 +68,17 @@ xcode-select --install
 
 at the command prompt.
 
-### Boost 1.71.0
+### Boost 1.77.0
 
-Download version 1.71.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
 ```
-bzip2 -cd boost_1_71_0.tar.bz2 | tar xvf -
+bzip2 -cd boost_1_77_0.tar.bz2 | tar xvf -
 ```
 
-In the resulting `boost_1_71_0` directory, run:
+In the resulting `boost_1_77_0` directory, run:
 
 ```
 ./bootstrap.sh --with-toolset=clang --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu
@@ -95,34 +96,6 @@ to:
 
 ```
     (3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
-```
-
-Then edit `tools/build/src/tools/darwin.jam` and change:
-
-```
-        case arm :
-        {
-            if $(instruction-set) {
-                options = -arch$(_)$(instruction-set) ;
-            } else {
-                options = -arch arm ;
-            }
-        }
-```
-
-to:
-
-```
-        case arm :
-        {
-            if $(instruction-set) {
-                options = -arch$(_)$(instruction-set) ;
-            } else if $(address-model) = 64 {
-                options = -arch arm64 ;
-            } else {
-                options = -arch arm ;
-            }
-        }
 ```
 
 To complete the build, type:

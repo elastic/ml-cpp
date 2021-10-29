@@ -55,13 +55,13 @@ UT_TMP_DIR=/tmp/$(LOGNAME)
 RESOURCES_DIR=$(APP_CONTENTS)/Resources
 LOCALLIBS=
 NETLIBS=
-BOOSTVER=1_71
+BOOSTVER=1_77
 ifeq ($(HARDWARE_ARCH),x86_64)
 BOOSTARCH=x64
 else
 BOOSTARCH=a64
 endif
-BOOSTCLANGVER:=$(shell $(CXX) --version | grep ' version ' | sed 's/.* version //' | awk -F. '{ print $$1$$2; }')
+BOOSTCLANGVER:=$(shell $(CXX) --version | grep ' version ' | sed 's/.* version //' | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS

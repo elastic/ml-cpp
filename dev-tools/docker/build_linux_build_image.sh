@@ -34,7 +34,7 @@ sleep 5
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-build
-VERSION=19
+VERSION=20
 
 set -e
 
