@@ -55,7 +55,9 @@ def my_config():
     analysis_parameters = {'parameters':
                            {'tree_topology_change_penalty': 0.0,
                             'prediction_change_cost': 0.0,
-                            'data_summarization_fraction': 1.0}}
+                            'data_summarization_fraction': 1.0,
+                            'early_stopping_enabled': False,
+                            'max_optimization_rounds_per_hyperparameter': 5}}
     sampling_mode = 'nlargest'
     n_largest_multiplier = 1
 
