@@ -49,6 +49,7 @@ def push2es(data_path, name, prefix='experiment-'):
         doc['cout'] = cout
 
     experiment_uid = doc['run']['experiment']['name']
+    comment = doc['run']['meta']['comment']
     doc['experiment_uid'] = experiment_uid
     res = es.index(index=prefix+name, body=doc)
     logger.info('Indexing experiment info {} {}'.format(
@@ -60,7 +61,7 @@ def push2es(data_path, name, prefix='experiment-'):
         if keys:
             steps = metrics[keys[0]]['steps']
             for step in steps:
-                document = {'experiment_uid': experiment_uid, 'step': step, 'dataset_name': doc['config']['dataset_name']}
+                document = {'experiment_uid': experiment_uid, 'step': step, 'dataset_name': doc['config']['dataset_name'], 'comment': comment}
                 for k in keys:
                     document[k] = metrics[k]['values'][step]
                 res = es.index(index=prefix+name+'-metrics', body=document)
