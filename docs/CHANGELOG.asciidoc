@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.1.0
+
+=== Enhancements
+
+* Improve skip_model_update rule behaviour (See {ml-pull}2096[#2096].)
+
 == {es} version 8.0.0
 
 === Enhancements
