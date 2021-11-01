@@ -196,7 +196,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                     [](double x) { return x <= 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << ETA_GROWTH_RATE_PER_TREE << "' should be positive.");
     }
-    if (std::any_of(retrainedTreeEta.begin(), etaGrowthRatePerTree.end(),
+    if (std::any_of(retrainedTreeEta.begin(), retrainedTreeEta.end(),
                     [](double x) { return x <= 0.0 || x > 1.0; })) {
         HANDLE_FATAL(<< "Input error: '" << RETRAINED_TREE_ETA
                      << "' should be in the range (0, 1].");
