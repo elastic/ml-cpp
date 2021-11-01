@@ -1,0 +1,16 @@
+# This file contains SHAs of changes that should be ignored when e.g.
+# running `git blame` on a file. Do not edit any of the existing commits.
+#
+# Use this file by running:
+#
+#     git blame --ignore-revs-file=.git-blame-ignore-rev <file>
+#
+# or by configuring `blame.ignoreRevsFile`. The latter ought to also work
+# with IDEs such as CLion.
+
+
+# Soft column limit of 80 for clang-format
+78e15c472a71edb5a324957228e3ee929f626feb
+
+# Reformat native code using clang-format
+2945e2b7e2628daf07a9c117ec550ccfd73c7548
