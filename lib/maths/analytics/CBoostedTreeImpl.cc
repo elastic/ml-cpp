@@ -1161,6 +1161,7 @@ CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask) cons
     if (trainingRowMask.manhattan() == 0.0) {
         return trainingRowMask;
     }
+
     core::CPackedBitVector result;
     do {
         result = core::CPackedBitVector{};

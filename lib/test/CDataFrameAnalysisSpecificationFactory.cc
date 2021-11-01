@@ -326,35 +326,51 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     writer.String(dependentVariable);
     if (m_Alpha >= 0.0) {
         writer.Key(TRunner::ALPHA);
+        writer.StartArray();
         writer.Double(m_Alpha);
+        writer.EndArray();
     }
     if (m_Lambda >= 0.0) {
         writer.Key(TRunner::LAMBDA);
+        writer.StartArray();
         writer.Double(m_Lambda);
+        writer.EndArray();
     }
     if (m_Gamma >= 0.0) {
         writer.Key(TRunner::GAMMA);
+        writer.StartArray();
         writer.Double(m_Gamma);
+        writer.EndArray();
     }
     if (m_SoftTreeDepthLimit >= 0.0) {
         writer.Key(TRunner::SOFT_TREE_DEPTH_LIMIT);
+        writer.StartArray();
         writer.Double(m_SoftTreeDepthLimit);
+        writer.EndArray();
     }
     if (m_SoftTreeDepthTolerance >= 0.0) {
         writer.Key(TRunner::SOFT_TREE_DEPTH_TOLERANCE);
+        writer.StartArray();
         writer.Double(m_SoftTreeDepthTolerance);
+        writer.EndArray();
     }
     if (m_Eta > 0.0) {
         writer.Key(TRunner::ETA);
+        writer.StartArray();
         writer.Double(m_Eta);
+        writer.EndArray();
     }
     if (m_EtaGrowthRatePerTree > 0.0) {
         writer.Key(TRunner::ETA_GROWTH_RATE_PER_TREE);
+        writer.StartArray();
         writer.Double(m_EtaGrowthRatePerTree);
+        writer.EndArray();
     }
     if (m_DownsampleFactor > 0.0) {
         writer.Key(TRunner::DOWNSAMPLE_FACTOR);
+        writer.StartArray();
         writer.Double(m_DownsampleFactor);
+        writer.EndArray();
     }
     if (m_MaximumNumberTrees > 0) {
         writer.Key(TRunner::MAX_TREES);
@@ -362,7 +378,9 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     }
     if (m_FeatureBagFraction > 0.0) {
         writer.Key(TRunner::FEATURE_BAG_FRACTION);
+        writer.StartArray();
         writer.Double(m_FeatureBagFraction);
+        writer.EndArray();
     }
     if (m_NumberRoundsPerHyperparameter > 0) {
         writer.Key(TRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER);

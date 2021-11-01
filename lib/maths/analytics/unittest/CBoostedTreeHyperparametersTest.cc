@@ -33,26 +33,58 @@ using TAddInitialRangeFunc = maths::analytics::CBoostedTreeHyperparameters::TAdd
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeParameter) {
 
-    TDoubleParameter parameter{10.0};
+    TDoubleParameter parameter1{10.0};
 
-    BOOST_REQUIRE_EQUAL(10.0, parameter.value());
+    BOOST_REQUIRE_EQUAL(10.0, parameter1.value());
 
-    parameter.save();
-    parameter.set(5.0);
+    parameter1.save();
+    parameter1.set(5.0);
 
-    BOOST_REQUIRE_EQUAL(5.0, parameter.value());
+    BOOST_REQUIRE_EQUAL(5.0, parameter1.value());
 
-    parameter.load();
+    parameter1.load();
 
-    BOOST_REQUIRE_EQUAL(10.0, parameter.value());
+    BOOST_REQUIRE_EQUAL(10.0, parameter1.value());
 
-    parameter.fixTo(12.0);
+    parameter1.fixTo(12.0);
 
-    BOOST_REQUIRE_EQUAL(12.0, parameter.value());
+    BOOST_TEST_REQUIRE(parameter1.fixed());
+    BOOST_REQUIRE_EQUAL(12.0, parameter1.value());
 
-    parameter.set(10.0);
+    parameter1.set(10.0);
 
-    BOOST_REQUIRE_EQUAL(12.0, parameter.value());
+    BOOST_REQUIRE_EQUAL(12.0, parameter1.value());
+
+    TDoubleParameter parameter2{10.0};
+
+    parameter2.fixToRange(8.0, 12.0);
+
+    BOOST_TEST_REQUIRE(parameter2.rangeFixed());
+
+    parameter2.set(11.0);
+
+    BOOST_REQUIRE_EQUAL(11.0, parameter2.value());
+
+    parameter2.set(7.0);
+
+    BOOST_REQUIRE_EQUAL(8.0, parameter2.value());
+
+    parameter2.set(15.0);
+
+    BOOST_REQUIRE_EQUAL(12.0, parameter2.value());
+
+    TDoubleParameter parameter3{10.0};
+
+    parameter3.fixTo(TDoubleVec{11.0});
+
+    BOOST_TEST_REQUIRE(parameter3.fixed());
+    BOOST_REQUIRE_EQUAL(11.0, parameter3.value());
+
+    TDoubleParameter parameter4{10.0};
+
+    parameter4.fixTo(TDoubleVec{12.0, 14.0});
+
+    BOOST_TEST_REQUIRE(parameter4.rangeFixed());
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeParameterPersist) {
@@ -192,9 +224,9 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
     hyperaparameters.maximumOptimisationRoundsPerHyperparameter(2);
 
-    auto testOverriding = [&](TDoubleParameter& parameter, std::size_t& numberToTune) {
+    auto testFix = [&](TDoubleParameter& parameter, std::size_t& numberToTune) {
 
-        parameter.fixTo(0.5);
+        parameter.fixTo(TDoubleVec{0.5});
 
         BOOST_REQUIRE_EQUAL(--numberToTune, hyperaparameters.numberToTune());
 
@@ -226,15 +258,69 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
     std::size_t numberToTune{hyperaparameters.numberToTune()};
 
-    testOverriding(hyperaparameters.depthPenaltyMultiplier(), numberToTune);
-    testOverriding(hyperaparameters.treeSizePenaltyMultiplier(), numberToTune);
-    testOverriding(hyperaparameters.leafWeightPenaltyMultiplier(), numberToTune);
-    testOverriding(hyperaparameters.softTreeDepthLimit(), numberToTune);
-    testOverriding(hyperaparameters.softTreeDepthTolerance(), numberToTune);
-    testOverriding(hyperaparameters.downsampleFactor(), numberToTune);
-    testOverriding(hyperaparameters.featureBagFraction(), numberToTune);
-    testOverriding(hyperaparameters.etaGrowthRatePerTree(), numberToTune);
-    testOverriding(hyperaparameters.eta(), numberToTune);
+    testFix(hyperaparameters.depthPenaltyMultiplier(), numberToTune);
+    testFix(hyperaparameters.treeSizePenaltyMultiplier(), numberToTune);
+    testFix(hyperaparameters.leafWeightPenaltyMultiplier(), numberToTune);
+    testFix(hyperaparameters.softTreeDepthLimit(), numberToTune);
+    testFix(hyperaparameters.softTreeDepthTolerance(), numberToTune);
+    testFix(hyperaparameters.downsampleFactor(), numberToTune);
+    testFix(hyperaparameters.featureBagFraction(), numberToTune);
+    testFix(hyperaparameters.etaGrowthRatePerTree(), numberToTune);
+    testFix(hyperaparameters.eta(), numberToTune);
+}
+
+BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithRangeOverrides) {
+
+    // Check that fixed parameters are not adjusted.
+
+    maths::analytics::CBoostedTreeHyperparameters hyperaparameters;
+
+    hyperaparameters.maximumOptimisationRoundsPerHyperparameter(2);
+
+    auto testFixToRange = [&](TDoubleParameter& parameter, std::size_t& numberToTune) {
+
+        parameter.fixTo(TDoubleVec{0.25, 0.75});
+
+        BOOST_REQUIRE_EQUAL(numberToTune, hyperaparameters.numberToTune());
+
+        auto addInitialRange =
+            [](maths::analytics::boosted_tree_detail::EHyperparameter,
+               maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
+                bb.emplace_back(0.1, 1.0);
+            };
+
+        hyperaparameters.initializeSearch(addInitialRange);
+
+        BOOST_REQUIRE_EQUAL(2 * hyperaparameters.numberToTune(),
+                            hyperaparameters.numberRounds());
+
+        test::CRandomNumbers rng;
+        TDoubleVec losses;
+
+        for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
+             hyperaparameters.startNextSearchRound()) {
+
+            TMeanVarAccumulator testLossMoments;
+            rng.generateUniformSamples(0.1, 1.0, 3, losses);
+            testLossMoments.add(losses);
+            hyperaparameters.selectNext(testLossMoments);
+
+            BOOST_TEST_REQUIRE(parameter.value() >= 0.25);
+            BOOST_TEST_REQUIRE(parameter.value() <= 0.75);
+        }
+    };
+
+    std::size_t numberToTune{hyperaparameters.numberToTune()};
+
+    testFixToRange(hyperaparameters.depthPenaltyMultiplier(), numberToTune);
+    testFixToRange(hyperaparameters.treeSizePenaltyMultiplier(), numberToTune);
+    testFixToRange(hyperaparameters.leafWeightPenaltyMultiplier(), numberToTune);
+    testFixToRange(hyperaparameters.softTreeDepthLimit(), numberToTune);
+    testFixToRange(hyperaparameters.softTreeDepthTolerance(), numberToTune);
+    testFixToRange(hyperaparameters.downsampleFactor(), numberToTune);
+    testFixToRange(hyperaparameters.featureBagFraction(), numberToTune);
+    testFixToRange(hyperaparameters.etaGrowthRatePerTree(), numberToTune);
+    testFixToRange(hyperaparameters.eta(), numberToTune);
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {

@@ -124,6 +124,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         return;
     }
 
+    using TDoubleVec = std::vector<double>;
+
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
     m_PredictionFieldName = parameters[PREDICTION_FIELD_NAME].fallback(
         m_DependentVariableFieldName + "_prediction");
@@ -149,18 +151,20 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     std::size_t numTopFeatureImportanceValues{
         parameters[NUM_TOP_FEATURE_IMPORTANCE_VALUES].fallback(std::size_t{0})};
 
-    double alpha{parameters[ALPHA].fallback(-1.0)};
-    double lambda{parameters[LAMBDA].fallback(-1.0)};
-    double gamma{parameters[GAMMA].fallback(-1.0)};
-    double eta{parameters[ETA].fallback(-1.0)};
-    double etaGrowthRatePerTree{parameters[ETA_GROWTH_RATE_PER_TREE].fallback(-1.0)};
-    double retrainedTreeEta{parameters[RETRAINED_TREE_ETA].fallback(-1.0)};
-    double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
-    double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
-    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
-    double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
-    double predictionChangeCost{parameters[PREDICTION_CHANGE_COST].fallback(-1.0)};
-    double treeTopologyChangePenalty{parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(-1.0)};
+    auto alpha = parameters[ALPHA].fallback(TDoubleVec{});
+    auto lambda = parameters[LAMBDA].fallback(TDoubleVec{});
+    auto gamma = parameters[GAMMA].fallback(TDoubleVec{});
+    auto eta = parameters[ETA].fallback(TDoubleVec{});
+    auto etaGrowthRatePerTree = parameters[ETA_GROWTH_RATE_PER_TREE].fallback(TDoubleVec{});
+    auto retrainedTreeEta = parameters[RETRAINED_TREE_ETA].fallback(TDoubleVec{});
+    auto softTreeDepthLimit = parameters[SOFT_TREE_DEPTH_LIMIT].fallback(TDoubleVec{});
+    auto softTreeDepthTolerance =
+        parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(TDoubleVec{});
+    auto downsampleFactor = parameters[DOWNSAMPLE_FACTOR].fallback(TDoubleVec{});
+    auto featureBagFraction = parameters[FEATURE_BAG_FRACTION].fallback(TDoubleVec{});
+    auto predictionChangeCost = parameters[PREDICTION_CHANGE_COST].fallback(TDoubleVec{});
+    auto treeTopologyChangePenalty =
+        parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(TDoubleVec{});
 
     bool forceAcceptIncrementalTraining{
         parameters[FORCE_ACCEPT_INCREMENTAL_TRAINING].fallback(false)};
@@ -173,43 +177,53 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
                                     m_CustomProcessors.GetAllocator());
     }
-    if (alpha != -1.0 && alpha < 0.0) {
+
+    if (std::any_of(alpha.begin(), alpha.end(), [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.");
     }
-    if (lambda != -1.0 && lambda < 0.0) {
+    if (std::any_of(lambda.begin(), lambda.end(),
+                    [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << LAMBDA << "' should be non-negative.");
     }
-    if (gamma != -1.0 && gamma < 0.0) {
+    if (std::any_of(gamma.begin(), gamma.end(), [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << GAMMA << "' should be non-negative.");
     }
-    if (eta != -1.0 && (eta <= 0.0 || eta > 1.0)) {
+    if (std::any_of(eta.begin(), eta.end(),
+                    [](double x) { return x <= 0.0 || x > 1.0; })) {
         HANDLE_FATAL(<< "Input error: '" << ETA << "' should be in the range (0, 1].");
     }
-    if (etaGrowthRatePerTree != -1.0 && etaGrowthRatePerTree <= 0.0) {
+    if (std::any_of(etaGrowthRatePerTree.begin(), etaGrowthRatePerTree.end(),
+                    [](double x) { return x <= 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << ETA_GROWTH_RATE_PER_TREE << "' should be positive.");
     }
-    if (retrainedTreeEta != -1.0 && (retrainedTreeEta <= 0.0 || retrainedTreeEta > 1.0)) {
+    if (std::any_of(retrainedTreeEta.begin(), etaGrowthRatePerTree.end(),
+                    [](double x) { return x <= 0.0 || x > 1.0; })) {
         HANDLE_FATAL(<< "Input error: '" << RETRAINED_TREE_ETA
                      << "' should be in the range (0, 1].");
     }
-    if (softTreeDepthLimit != -1.0 && softTreeDepthLimit < 0.0) {
+    if (std::any_of(softTreeDepthLimit.begin(), softTreeDepthLimit.end(),
+                    [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_LIMIT << "' should be non-negative.");
     }
-    if (softTreeDepthTolerance != -1.0 && softTreeDepthTolerance <= 0.0) {
+    if (std::any_of(softTreeDepthTolerance.begin(), softTreeDepthTolerance.end(),
+                    [](double x) { return x <= 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_TOLERANCE << "' should be positive.");
     }
-    if (downsampleFactor != -1.0 && (downsampleFactor <= 0.0 || downsampleFactor > 1.0)) {
+    if (std::any_of(downsampleFactor.begin(), downsampleFactor.end(),
+                    [](double x) { return x <= 0.0 || x > 1.0; })) {
         HANDLE_FATAL(<< "Input error: '" << DOWNSAMPLE_FACTOR << "' should be in the range (0, 1]");
     }
-    if (featureBagFraction != -1.0 &&
-        (featureBagFraction <= 0.0 || featureBagFraction > 1.0)) {
+    if (std::any_of(featureBagFraction.begin(), featureBagFraction.end(),
+                    [](double x) { return x <= 0.0 || x > 1.0; })) {
         HANDLE_FATAL(<< "Input error: '" << FEATURE_BAG_FRACTION
                      << "' should be in the range (0, 1]");
     }
-    if (predictionChangeCost != -1.0 && predictionChangeCost < 0.0) {
+    if (std::any_of(predictionChangeCost.begin(), predictionChangeCost.end(),
+                    [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << PREDICTION_CHANGE_COST << "' should be non-negative");
     }
-    if (treeTopologyChangePenalty != -1.0 && treeTopologyChangePenalty < 0.0) {
+    if (std::any_of(treeTopologyChangePenalty.begin(), treeTopologyChangePenalty.end(),
+                    [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << TREE_TOPOLOGY_CHANGE_PENALTY
                      << "' should be non-negative");
     }
@@ -223,50 +237,26 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
         .earlyStoppingEnabled(earlyStoppingEnabled)
-        .forceAcceptIncrementalTraining(forceAcceptIncrementalTraining);
+        .forceAcceptIncrementalTraining(forceAcceptIncrementalTraining)
+        .downsampleFactor(std::move(downsampleFactor))
+        .depthPenaltyMultiplier(std::move(alpha))
+        .treeSizePenaltyMultiplier(std::move(gamma))
+        .leafWeightPenaltyMultiplier(std::move(lambda))
+        .eta(std::move(eta))
+        .etaGrowthRatePerTree(std::move(etaGrowthRatePerTree))
+        .retrainedTreeEta(std::move(retrainedTreeEta))
+        .softTreeDepthLimit(std::move(softTreeDepthLimit))
+        .softTreeDepthTolerance(std::move(softTreeDepthTolerance))
+        .featureBagFraction(std::move(featureBagFraction))
+        .predictionChangeCost(std::move(predictionChangeCost))
+        .treeTopologyChangePenalty(std::move(treeTopologyChangePenalty));
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
             static_cast<double>(downsampleRowsPerFeature));
     }
-    if (downsampleFactor > 0.0 && downsampleFactor <= 1.0) {
-        m_BoostedTreeFactory->downsampleFactor(downsampleFactor);
-    }
-    if (alpha >= 0.0) {
-        m_BoostedTreeFactory->depthPenaltyMultiplier(alpha);
-    }
-    if (gamma >= 0.0) {
-        m_BoostedTreeFactory->treeSizePenaltyMultiplier(gamma);
-    }
-    if (lambda >= 0.0) {
-        m_BoostedTreeFactory->leafWeightPenaltyMultiplier(lambda);
-    }
-    if (eta > 0.0 && eta <= 1.0) {
-        m_BoostedTreeFactory->eta(eta);
-    }
-    if (etaGrowthRatePerTree > 0.0) {
-        m_BoostedTreeFactory->etaGrowthRatePerTree(etaGrowthRatePerTree);
-    }
-    if (retrainedTreeEta > 0.0 && retrainedTreeEta <= 1.0) {
-        m_BoostedTreeFactory->retrainedTreeEta(retrainedTreeEta);
-    }
-    if (softTreeDepthLimit >= 0.0) {
-        m_BoostedTreeFactory->softTreeDepthLimit(softTreeDepthLimit);
-    }
-    if (softTreeDepthTolerance > 0.0) {
-        m_BoostedTreeFactory->softTreeDepthTolerance(softTreeDepthTolerance);
-    }
     if (maxTrees > 0) {
         m_BoostedTreeFactory->maximumNumberTrees(maxTrees);
-    }
-    if (featureBagFraction > 0.0 && featureBagFraction <= 1.0) {
-        m_BoostedTreeFactory->featureBagFraction(featureBagFraction);
-    }
-    if (predictionChangeCost >= 0.0) {
-        m_BoostedTreeFactory->predictionChangeCost(predictionChangeCost);
-    }
-    if (treeTopologyChangePenalty >= 0.0) {
-        m_BoostedTreeFactory->treeTopologyChangePenalty(treeTopologyChangePenalty);
     }
     if (numberFolds > 1) {
         m_BoostedTreeFactory->numberFolds(numberFolds);

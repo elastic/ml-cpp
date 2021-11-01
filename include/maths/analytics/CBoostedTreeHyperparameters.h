@@ -24,6 +24,7 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBayesianOptimisation.h>
 #include <maths/common/CChecksum.h>
+#include <maths/common/CTools.h>
 
 #include <boost/optional.hpp>
 
@@ -41,6 +42,13 @@ class CDataFrameTrainBoostedTreeInstrumentationInterface;
 template<typename T>
 class CScopeBoostedTreeParameterOverrides;
 
+class MATHS_ANALYTICS_EXPORT CBoostedTreeParameterConstants {
+public:
+    static constexpr std::size_t MIN_VALUE_INDEX{0};
+    static constexpr std::size_t MID_VALUE_INDEX{1};
+    static constexpr std::size_t MAX_VALUE_INDEX{2};
+};
+
 //! \brief Encapsulates a boosted tree parameter.
 //!
 //! DESCRIPTION:\n
@@ -49,90 +57,163 @@ class CScopeBoostedTreeParameterOverrides;
 //! of a user override but we can also choose to fix a parameter if we can't
 //! determine a good search range.
 template<typename T>
-class CBoostedTreeParameter final {
+class CBoostedTreeParameter final : private CBoostedTreeParameterConstants {
+public:
+    using TVector = common::CVectorNx1<T, 3>;
+
 public:
     explicit CBoostedTreeParameter(T value) : m_Value{value} {}
+
+    //! Get the value.
+    T value() const { return m_Value; }
+
+    //! Get the parameters of the fine tune search.
+    //!
+    //! These are [lower bound, initial value, upper bound], respectively.
+    TVector fineTuneParameters() const {
+        TVector result;
+        result(MIN_VALUE_INDEX) = m_MinValue;
+        result(MID_VALUE_INDEX) = m_Value;
+        result(MAX_VALUE_INDEX) = m_MaxValue;
+        return result;
+    }
 
     //! Set to \p value.
     //!
     //! \note Has no effect if the parameter is fixed.
     void set(T value) {
-        if (m_Fixed == false) {
-            m_Value = value;
+        if (m_FixedToRange) {
+            value = common::CTools::truncate(value, m_MinValue, m_MaxValue);
         }
+        m_Value = value;
+    }
+
+    //! Set to the midpoint of the range or \p value if the parameters isn't
+    //! fixed to a range.
+    //!
+    //! \note Has no effect if the parameter is fixed.
+    void setToRangeMidpointOr(T value) {
+        m_Value = m_FixedToRange ? (m_MinValue + m_MaxValue) / T{2} : value;
     }
 
     //! Fix to \p value.
     void fixTo(T value) {
         m_Value = value;
-        m_Fixed = true;
+        m_MinValue = value;
+        m_MaxValue = value;
+        m_FixedToRange = true;
+    }
+
+    //! Fix to the range [ \p minValue, \p maxValue ].
+    //!
+    //! \note Has no effect if the parameter is fixed.
+    void fixToRange(T minValue, T maxValue) {
+        m_Value = common::CTools::truncate(m_Value, minValue, maxValue);
+        m_MinValue = minValue;
+        m_MaxValue = maxValue;
+        m_FixedToRange = true;
+    }
+
+    //! Fix to either a single value or range depending on the length of \p value.
+    void fixTo(const std::vector<T>& value) {
+        if (value.empty()) {
+            return;
+        }
+        if (value.size() == 1) {
+            this->fixTo(value[0]);
+            return;
+        }
+        if (value[0] > value[1]) {
+            this->fixToRange(value[1], value[0]);
+        }
+        this->fixToRange(value[0], value[1]);
     }
 
     //! Fix the current value.
-    void fix() { m_Fixed = true; }
+    void fix() { this->fixTo(m_Value); }
 
-    //! Check if the
-    bool fixed() const { return m_Fixed; }
+    //! Check if the value is fixed.
+    bool fixed() const { return m_FixedToRange && m_MinValue == m_MaxValue; }
+
+    //! Check if the range is fixed.
+    bool rangeFixed() const { return m_FixedToRange; }
 
     //! Save the current value.
     void save() { m_SavedValue = m_Value; }
     //! Load the saved value.
     void load() { m_Value = m_SavedValue; }
 
-    //! Get the value.
-    T value() const { return m_Value; }
-
     //! Persist writing to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        core::CPersistUtils::persist(VALUE_TAG, m_Value, inserter);
+        core::CPersistUtils::persist(FIXED_TO_RANGE_TAG, m_FixedToRange, inserter);
+        core::CPersistUtils::persist(MIN_VALUE_TAG, m_MinValue, inserter);
+        core::CPersistUtils::persist(MAX_VALUE_TAG, m_MaxValue, inserter);
         core::CPersistUtils::persist(SAVED_VALUE_TAG, m_SavedValue, inserter);
-        core::CPersistUtils::persist(FIXED_TAG, m_Fixed, inserter);
+        core::CPersistUtils::persist(VALUE_TAG, m_Value, inserter);
     }
 
     //! Restore reading from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         do {
             const std::string& name{traverser.name()};
-            RESTORE(VALUE_TAG, core::CPersistUtils::restore(VALUE_TAG, m_Value, traverser))
+            RESTORE(FIXED_TO_RANGE_TAG,
+                    core::CPersistUtils::restore(FIXED_TO_RANGE_TAG, m_FixedToRange, traverser))
+            RESTORE(MIN_VALUE_TAG,
+                    core::CPersistUtils::restore(MIN_VALUE_TAG, m_MinValue, traverser))
+            RESTORE(MAX_VALUE_TAG,
+                    core::CPersistUtils::restore(MAX_VALUE_TAG, m_MaxValue, traverser))
             RESTORE(SAVED_VALUE_TAG,
                     core::CPersistUtils::restore(SAVED_VALUE_TAG, m_SavedValue, traverser))
-            RESTORE(FIXED_TAG, core::CPersistUtils::restore(FIXED_TAG, m_Fixed, traverser))
+            RESTORE(VALUE_TAG, core::CPersistUtils::restore(VALUE_TAG, m_Value, traverser))
         } while (traverser.next());
         return true;
     }
 
     //! Get a checksum of this object.
     std::uint64_t checksum(std::uint64_t seed = 0) const {
-        seed = common::CChecksum::calculate(seed, m_Value);
-        seed = common::CChecksum::calculate(seed, m_Fixed);
-        return common::CChecksum::calculate(seed, m_SavedValue);
+        seed = common::CChecksum::calculate(seed, m_FixedToRange);
+        seed = common::CChecksum::calculate(seed, m_MinValue);
+        seed = common::CChecksum::calculate(seed, m_MaxValue);
+        seed = common::CChecksum::calculate(seed, m_SavedValue);
+        return common::CChecksum::calculate(seed, m_Value);
     }
 
     //! Print for debug.
     std::string print() const {
-        return (m_Fixed ? "fixed:" : "") + std::to_string(m_Value);
+        return std::to_string(m_Value) +
+               (m_FixedToRange ? " fixed to [" + std::to_string(m_MinValue) +
+                                     "," + std::to_string(m_MaxValue) + "]"
+                               : "");
     }
 
 private:
-    static const std::string VALUE_TAG;
-    static const std::string FIXED_TAG;
+    static const std::string FIXED_TO_RANGE_TAG;
+    static const std::string MIN_VALUE_TAG;
+    static const std::string MAX_VALUE_TAG;
     static const std::string SAVED_VALUE_TAG;
+    static const std::string VALUE_TAG;
 
 private:
     T m_Value{};
     T m_SavedValue{};
-    bool m_Fixed{false};
+    T m_MinValue{};
+    T m_MaxValue{};
+    bool m_FixedToRange{false};
 
     template<typename>
     friend class CScopeBoostedTreeParameterOverrides;
 };
 
 template<typename T>
-const std::string CBoostedTreeParameter<T>::VALUE_TAG{"value"};
+const std::string CBoostedTreeParameter<T>::FIXED_TO_RANGE_TAG{"fixed_to_range"};
 template<typename T>
-const std::string CBoostedTreeParameter<T>::FIXED_TAG{"fixed"};
+const std::string CBoostedTreeParameter<T>::MIN_VALUE_TAG{"max_value"};
+template<typename T>
+const std::string CBoostedTreeParameter<T>::MAX_VALUE_TAG{"min_value"};
 template<typename T>
 const std::string CBoostedTreeParameter<T>::SAVED_VALUE_TAG{"saved_value"};
+template<typename T>
+const std::string CBoostedTreeParameter<T>::VALUE_TAG{"value"};
 
 //! \brief Simple RAII type to force override a collection of parameter values
 //! for the object lifetime.
