@@ -393,6 +393,13 @@ bool CMetricModel::computeProbability(const std::size_t pid,
             continue;
         }
 
+        if (this->initialCountWeight(
+                feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+                model_t::sampleTime(feature, startTime, bucketLength)) != 1.0) {
+            // Indicate that the quantiles should not be updated while results are updated as usual.
+            result.s_ShouldUpdateQuantiles = false;
+        }
+
         LOG_TRACE(<< "Compute probability for " << data->print());
 
         if (this->correlates(feature, pid, startTime)) {

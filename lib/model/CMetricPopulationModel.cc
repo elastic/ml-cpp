@@ -628,6 +628,13 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                 continue;
             }
 
+            if (this->initialCountWeight(
+                    feature, pid, cid,
+                    model_t::sampleTime(feature, startTime, bucketLength)) != 1.0) {
+                // Indicate that the quantiles should not be updated while results are updated as usual.
+                result.s_ShouldUpdateQuantiles = false;
+            }
+
             if (this->correlates(feature, pid, cid, startTime)) {
                 // TODO
             } else {

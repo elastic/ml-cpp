@@ -165,6 +165,9 @@ struct MODEL_EXPORT SAnnotatedProbability {
 
     //! The baseline bucket count for this probability (cached from the model).
     TOptionalDouble s_BaselineBucketCount;
+
+    //! Should the quantiles be updated?
+    bool s_ShouldUpdateQuantiles{true};
 };
 }
 }
