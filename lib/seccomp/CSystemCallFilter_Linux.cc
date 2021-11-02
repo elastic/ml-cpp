@@ -41,7 +41,7 @@ const struct sock_filter FILTER[] = {
 // The statx syscall won't be defined on a RHEL/CentOS 7 build machine, but
 // might exist on the kernel we run on
 #ifndef __NR_statx
-#define __NR_statx 291
+#define __NR_statx 332
 #endif
     // Only applies to x86_64 arch. Jump to disallow for calls using the x32 ABI
     BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 50, 0),
@@ -69,7 +69,7 @@ const struct sock_filter FILTER[] = {
 // The statx syscall won't be defined on a RHEL/CentOS 7 build machine, but
 // might exist on the kernel we run on
 #ifndef __NR_statx
-#define __NR_statx 397
+#define __NR_statx 291
 #endif
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 39, 0),
 #else
