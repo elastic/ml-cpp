@@ -260,24 +260,6 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
-    {
-        std::string jsonSpecStr{"{\n"
-                                "  \"job_id\": \"foo\",\n"
-                                "  \"rows\": 1000,\n"
-                                "  \"cols\": 20,\n"
-                                "  \"memory_limit\": 100000,\n"
-                                "  \"threads\": 2,\n"
-                                "  \"results_field\": \"ml\",\n"
-                                "  \"categorical_fields\": \"x\",\n"
-                                "  \"analysis\": {\n"
-                                "    \"name\": \"outlier_detection\"\n"
-                                "  }\n"
-                                "}"};
-        errors.clear();
-        api::CDataFrameAnalysisSpecification spec{runnerFactories(), jsonSpecStr};
-        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
-        BOOST_TEST_REQUIRE(errors.size() > 0);
-    }
 
     LOG_DEBUG(<< "Invalid number neighbours");
     {
