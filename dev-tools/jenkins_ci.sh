@@ -99,6 +99,15 @@ case `uname` in
         else
             TASKS="clean buildZip check"
         fi
+        # For macOS we usually only use a particular version as our build platform
+        # once Xcode has stopped receiving updates for it. However, with Big Sur
+        # on ARM we couldn't do this, as Big Sur was the first macOS version for
+        # ARM. Therefore, the compiler may get upgraded on a CI server, and we
+        # need to hardcode the version that was used to build Boost for that
+        # version of Elasticsearch.
+        if [ "$HARDWARE_ARCH" = aarch64 ] ; then
+            export BOOSTCLANGVER=13
+        fi
         (cd .. && ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT -Dbuild.ml_debug=$ML_DEBUG $TASKS)
         ;;
 

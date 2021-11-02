@@ -61,7 +61,9 @@ BOOSTARCH=x64
 else
 BOOSTARCH=a64
 endif
-BOOSTCLANGVER:=$(shell $(CXX) --version | grep ' version ' | sed 's/.* version //' | awk -F. '{ print $$1; }')
+# The clang version used to build Boost may be overridden if the
+# compiler on the build machine is upgraded without rebuilding Boost
+BOOSTCLANGVER?=$(shell $(CXX) --version | grep ' version ' | sed 's/.* version //' | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
