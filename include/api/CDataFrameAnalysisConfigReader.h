@@ -140,8 +140,8 @@ public:
                 return fallback;
             }
             if (m_Value->IsArray() == false) {
-                this->handleFatal();
-                return fallback;
+                // Try parsing as a single value.
+                return {this->as<T>()};
             }
             std::vector<T> result;
             result.reserve(m_Value->Size());
