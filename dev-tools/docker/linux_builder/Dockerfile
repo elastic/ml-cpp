@@ -10,7 +10,7 @@
 #
 
 # Increment the version here when a new tools/3rd party components image is built
-FROM docker.elastic.co/ml-dev/ml-linux-build:19
+FROM docker.elastic.co/ml-dev/ml-linux-build:20
 
 MAINTAINER David Roberts <dave.roberts@elastic.co>
 
