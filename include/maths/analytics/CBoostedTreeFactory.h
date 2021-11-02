@@ -43,6 +43,7 @@ class CBoostedTreeImpl;
 //! Factory for CBoostedTree objects.
 class MATHS_ANALYTICS_EXPORT CBoostedTreeFactory final {
 public:
+    using TDoubleVec = std::vector<double>;
     using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
     using TVector = common::CVectorNx1<double, 3>;
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
@@ -129,35 +130,35 @@ public:
     //! The number of rows per feature to sample in the initial downsample.
     CBoostedTreeFactory& initialDownsampleRowsPerFeature(double rowsPerFeature);
     //! The amount by which to downsample the data for stochastic gradient estimates.
-    CBoostedTreeFactory& downsampleFactor(double factor);
+    CBoostedTreeFactory& downsampleFactor(TDoubleVec factor);
     //! Set the sum of leaf depth penalties multiplier.
-    CBoostedTreeFactory& depthPenaltyMultiplier(double depthPenaltyMultiplier);
+    CBoostedTreeFactory& depthPenaltyMultiplier(TDoubleVec multiplier);
     //! Set the tree size penalty multiplier.
-    CBoostedTreeFactory& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier);
+    CBoostedTreeFactory& treeSizePenaltyMultiplier(TDoubleVec multiplier);
     //! Set the sum of weights squared multiplier.
-    CBoostedTreeFactory& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier);
+    CBoostedTreeFactory& leafWeightPenaltyMultiplier(TDoubleVec multiplier);
     //! Set the penalty for changing the tree toppology when incrementally training.
-    CBoostedTreeFactory& treeTopologyChangePenalty(double treeTopologyChangePenalty);
+    CBoostedTreeFactory& treeTopologyChangePenalty(TDoubleVec penalty);
     //! Set the soft tree depth limit.
-    CBoostedTreeFactory& softTreeDepthLimit(double softTreeDepthLimit);
+    CBoostedTreeFactory& softTreeDepthLimit(TDoubleVec limit);
     //! Set the soft tree depth tolerance. This controls how hard we'll try to
     //! respect the soft tree depth limit.
-    CBoostedTreeFactory& softTreeDepthTolerance(double softTreeDepthTolerance);
+    CBoostedTreeFactory& softTreeDepthTolerance(TDoubleVec tolerance);
     //! Set the fractional relative tolerance in the target maximum tree depth.
-    CBoostedTreeFactory& maxTreeDepthTolerance(double maxTreeDepthTolerance);
+    CBoostedTreeFactory& maxTreeDepthTolerance(TDoubleVec tolerance);
     //! Set the amount we'll shrink the tree leaf weights we compute.
-    CBoostedTreeFactory& eta(double eta);
+    CBoostedTreeFactory& eta(TDoubleVec eta);
     //! Set the amount we'll shrink the retrained tree leaf weights we compute.
-    CBoostedTreeFactory& retrainedTreeEta(double eta);
+    CBoostedTreeFactory& retrainedTreeEta(TDoubleVec eta);
     //! Set the amount we'll grow eta on each each iteration.
-    CBoostedTreeFactory& etaGrowthRatePerTree(double etaGrowthRatePerTree);
+    CBoostedTreeFactory& etaGrowthRatePerTree(TDoubleVec growthRate);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTreeFactory& maximumNumberTrees(std::size_t maximumNumberTrees);
     //! Set the fraction of features we'll use in the bag to build a tree.
-    CBoostedTreeFactory& featureBagFraction(double featureBagFraction);
+    CBoostedTreeFactory& featureBagFraction(TDoubleVec fraction);
     //! Set the relative weight to assign changing old predictions in the loss
     //! function for incremental training.
-    CBoostedTreeFactory& predictionChangeCost(double predictionChangeCost);
+    CBoostedTreeFactory& predictionChangeCost(TDoubleVec cost);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
     //! optimisation per parameter for training.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
@@ -220,7 +221,6 @@ public:
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
-    using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;

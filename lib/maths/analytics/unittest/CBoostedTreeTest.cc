@@ -1629,10 +1629,10 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .treeSizePenaltyMultiplier(0.0)
-                .leafWeightPenaltyMultiplier(0.0)
-                .softTreeDepthLimit(targetDepth)
-                .softTreeDepthTolerance(0.01)
+                .treeSizePenaltyMultiplier({0.0})
+                .leafWeightPenaltyMultiplier({0.0})
+                .softTreeDepthLimit({targetDepth})
+                .softTreeDepthTolerance({0.01})
                 .buildForTrain(*frame, cols - 1);
 
         regression->train();
@@ -2451,8 +2451,8 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
                 .maximumNumberTrees(10)
-                .treeSizePenaltyMultiplier(0.1)
-                .leafWeightPenaltyMultiplier(0.01)
+                .treeSizePenaltyMultiplier({0.1})
+                .leafWeightPenaltyMultiplier({0.01})
                 .buildForTrain(*frame, cols - 1);
 
         regression->train();
@@ -2469,9 +2469,9 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
-                .eta(0.2)
-                .softTreeDepthLimit(2.0)
-                .softTreeDepthTolerance(0.1)
+                .eta({0.2})
+                .softTreeDepthLimit({2.0})
+                .softTreeDepthTolerance({0.1})
                 .buildForTrain(*frame, cols - 1);
 
         regression->train();
@@ -2487,9 +2487,9 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
-                .depthPenaltyMultiplier(1.0)
-                .featureBagFraction(0.4)
-                .downsampleFactor(0.6)
+                .depthPenaltyMultiplier({1.0})
+                .featureBagFraction({0.4})
+                .downsampleFactor({0.6})
                 .buildForTrain(*frame, cols - 1);
 
         regression->train();
@@ -2506,12 +2506,12 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
-                .depthPenaltyMultiplier(1.0)
-                .softTreeDepthLimit(3.0)
-                .softTreeDepthTolerance(0.1)
-                .featureBagFraction(0.4)
-                .downsampleFactor(0.6)
-                .etaGrowthRatePerTree(1.1)
+                .depthPenaltyMultiplier({1.0})
+                .softTreeDepthLimit({3.0})
+                .softTreeDepthTolerance({0.1})
+                .featureBagFraction({0.4})
+                .downsampleFactor({0.6})
+                .etaGrowthRatePerTree({1.1})
                 .buildForTrain(*frame, cols - 1);
 
         regression->train();
