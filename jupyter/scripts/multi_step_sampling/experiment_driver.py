@@ -141,7 +141,6 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     baseline_dataset = train_dataset.sample(
         frac=training_fraction, random_state=random_state)
     update_num_samples = int(train_dataset.shape[0]*update_fraction)
-    remainder_dataset = remove_subset(train_dataset.copy(), baseline_dataset)
 
     _run.run_logger.info("Baseline training started for {}".format(baseline_model_name))
     if job_exists(baseline_model_name, remote=True):
@@ -161,6 +160,7 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     results['baseline']['train_error'] = compute_error(baseline_model, train_dataset)
     results['baseline']['test_error'] = compute_error(baseline_model, test_dataset)
     _run.run_logger.info("Baseline training completed")
+    used_dataset = baseline_dataset.copy()
 
     previous_model = baseline_model
     for step in range(update_steps):
@@ -168,18 +168,16 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
 
         _run.run_logger.info("Sampling started")
         if sampling_mode == 'nlargest':
-            if remainder_dataset.shape[0] == 0:
-                break
-            remainder_dataset['indicator'] = get_residuals(
-                previous_model, remainder_dataset)
-            D_update = remainder_dataset.nlargest(
-                n=update_num_samples, columns=['indicator'])
-            D_update.drop(columns=['indicator'], inplace=True)
-            remainder_dataset.drop(columns=['indicator'], inplace=True)
-            remainder_dataset = remove_subset(remainder_dataset, D_update)
-            fraction_of_train = 1.0 - float(remainder_dataset.shape[0])/train_dataset.shape[0]
-            _run.log_scalar("updated_model.fraction_of_train", fraction_of_train)
-            _run.run_logger.debug("Remainder number rows {}".format(remainder_dataset.shape[0]))
+            train_dataset['indicator'] = get_residuals(
+                previous_model, train_dataset)
+            largest = train_dataset.sample(
+                n=update_num_samples*2*int(step/2 + 1), weights='indicator', random_state=random_state)
+            train_dataset.drop(columns=['indicator'], inplace=True)
+            largest.drop(columns=['indicator'], inplace=True)
+            D_update = remove_subset(largest, used_dataset)
+            _run.run_logger.info("Update dataset size {} from {}. Train size {}".format(D_update.shape[0], update_num_samples, train_dataset.shape[0]))
+            if D_update.shape[0] > update_num_samples:
+                D_update = D_update.sample(n=update_num_samples)
         else:
             D_update = train_dataset.sample(
                 n=update_num_samples, random_state=random_state)
@@ -187,13 +185,15 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
 
         _run.run_logger.info("Update started")
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
-                               force=force_update, verbose=True, run=_run)
+                               force=force_update, verbose=verbose, run=_run)
         elapsed_time = updated_model.wait_to_complete(clean=False)
         _run.log_scalar('updated_model.elapsed_time', elapsed_time)
         _run.log_scalar('updated_model.train_error', compute_error(updated_model, train_dataset))
         _run.log_scalar('updated_model.test_error', compute_error(updated_model, test_dataset))
         _run.log_scalar('training_fraction', training_fraction)
         _run.log_scalar('seed', _seed)
+        used_dataset = pd.concat([used_dataset, D_update])
+        _run.run_logger.info("New size of used data is {}".format(used_dataset.shape[0]))
 
         for k,v in updated_model.get_hyperparameters().items():
             _run.log_scalar('updated_model.hyperparameters.{}'.format(k), v)
