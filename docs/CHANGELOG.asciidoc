@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 8.1.0
+
+=== Enhancements
+
+* Upgrade Boost libraries to version 1.77. (See {ml-pull}2095[#2095].)
+
 == {es} version 8.0.0
 
 === Bug Fixes

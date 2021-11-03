@@ -171,17 +171,17 @@ sudo make install
 
 to install.
 
-### Boost 1.71.0
+### Boost 1.77.0
 
-Download version 1.71.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.71.0/source/boost_1_71_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
+Download version 1.77.0 of Boost from <https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2>. You must get this exact version, as the Machine Learning Makefiles expect it.
 
 Assuming you chose the `.bz2` version, extract it to a temporary directory:
 
 ```
-bzip2 -cd boost_1_71_0.tar.bz2 | tar xvf -
+bzip2 -cd boost_1_77_0.tar.bz2 | tar xvf -
 ```
 
-In the resulting `boost_1_71_0` directory, run:
+In the resulting `boost_1_77_0` directory, run:
 
 ```
 ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu

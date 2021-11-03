@@ -106,7 +106,7 @@ case `uname` in
         # need to hardcode the version that was used to build Boost for that
         # version of Elasticsearch.
         if [ "$HARDWARE_ARCH" = aarch64 ] ; then
-            export BOOSTCLANGVER=120
+            export BOOSTCLANGVER=13
         fi
         (cd .. && ./gradlew --info -Dbuild.version_qualifier=$VERSION_QUALIFIER -Dbuild.snapshot=$BUILD_SNAPSHOT -Dbuild.ml_debug=$ML_DEBUG $TASKS)
         ;;
