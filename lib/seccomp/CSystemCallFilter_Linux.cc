@@ -44,7 +44,7 @@ const struct sock_filter FILTER[] = {
 #define __NR_statx 332
 #endif
     // Only applies to x86_64 arch. Jump to disallow for calls using the x32 ABI
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 50, 0),
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 51, 0),
     // If any sys call filters are added or removed then the jump
     // destination for each statement including the one above must
     // be updated accordingly
@@ -53,30 +53,31 @@ const struct sock_filter FILTER[] = {
     // Some of these are not used in latest glibc, and not supported in Linux
     // kernels for recent architectures, but in a few cases different sys calls
     // are used on different architectures
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 50, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 49, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 48, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 47, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 46, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 45, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 44, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 43, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 42, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 41, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 40, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 39, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 51, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 50, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 49, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 48, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 47, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 46, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 45, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 44, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 43, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 42, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 41, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 40, 0),
 #elif defined(__aarch64__)
 // The statx syscall won't be defined on a RHEL/CentOS 7 build machine, but
 // might exist on the kernel we run on
 #ifndef __NR_statx
 #define __NR_statx 291
 #endif
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 39, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 40, 0),
 #else
 #error Unsupported hardware architecture
 #endif
 
     // Allowed sys calls for all architectures, jump to return allow on match
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpid, 39, 0), // for pthread_kill
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statx, 38, 0), // for create_directories
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrandom, 37, 0), // for unique_path
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 36, 0),
