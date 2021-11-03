@@ -195,8 +195,11 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         used_dataset = pd.concat([used_dataset, D_update])
         _run.run_logger.info("New size of used data is {}".format(used_dataset.shape[0]))
 
-        for k,v in updated_model.get_hyperparameters().items():
-            _run.log_scalar('updated_model.hyperparameters.{}'.format(k), v)
+        # for k,v in updated_model.get_hyperparameters().items():
+        #     _run.log_scalar('updated_model.hyperparameters.{}'.format(k), str(v))
+        _run.log_scalar('updated_model.hyperparameters', updated_model.get_hyperparameters())
+        _run.log_scalar('run.comment', _run.meta_info['comment'])
+        _run.log_scalar('run.config', _run.config)
         for k,v in get_forest_statistics(updated_model.get_model_definition()).items():
             _run.log_scalar('updated_model.forest_statistics.{}'.format(k), v)
         updated_model.clean()
