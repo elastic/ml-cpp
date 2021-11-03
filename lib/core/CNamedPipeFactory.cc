@@ -247,10 +247,6 @@ CNamedPipeFactory::initPipeHandle(const std::string& fileName,
         madeFifo = true;
     }
 
-    if (isCancelled.load()) {
-        return -1;
-    }
-
     // The open call here will block if there is no other connection to the
     // named pipe
     int fd{retrySyscallOnInterruptUnlessCancelled([&fileName, forWrite]() {
