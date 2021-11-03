@@ -39,6 +39,13 @@
 * Prune models for split fields (by, partition) that haven't seen data updates for
   a given period of time. (See {ml-pull}1962[#1962].)
 
+== {es} version 7.15.2
+
+=== Bug Fixes
+
+* Fix cancellation of named pipe connection on Linux if the remote end does not connect
+  within the configured timeout period. (See {ml-pull}2102[#2102].)
+
 == {es} version 7.15.0
 
 === Enhancements
