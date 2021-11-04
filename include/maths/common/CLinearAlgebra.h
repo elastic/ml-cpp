@@ -17,6 +17,7 @@
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
 
+#include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/ImportExport.h>
 #include <maths/common/MathsTypes.h>
@@ -188,13 +189,8 @@ struct SSymmetricMatrix {
     }
 
     //! Get a checksum of the elements of this matrix.
-    uint64_t checksum() const {
-        uint64_t result = 0;
-        for (std::size_t i = 0; i < m_LowerTriangle.size(); ++i) {
-            result = core::CHashing::hashCombine(
-                result, static_cast<uint64_t>(m_LowerTriangle[i]));
-        }
-        return result;
+    std::uint64_t checksum() const {
+        return CChecksum::calculate(0, m_LowerTriangle);
     }
 
     STORAGE m_LowerTriangle;
@@ -881,13 +877,7 @@ struct SVector {
     }
 
     //! Get a checksum of the components of this vector.
-    uint64_t checksum() const {
-        uint64_t result = static_cast<uint64_t>(m_X[0]);
-        for (std::size_t i = 1; i < m_X.size(); ++i) {
-            result = core::CHashing::hashCombine(result, static_cast<uint64_t>(m_X[i]));
-        }
-        return result;
-    }
+    std::uint64_t checksum() const { return CChecksum::calculate(0, m_X); }
 
     //! The components
     STORAGE m_X;
