@@ -9,7 +9,9 @@
  * limitation.
  */
 
+#include <core/CBlockingCallCancellingTimer.h>
 #include <core/CLogger.h>
+#include <core/COsFileFuncs.h>
 #ifdef Linux
 #include <core/CRegex.h>
 #include <core/CUname.h>
@@ -112,6 +114,31 @@ void openPipeAndWrite(const std::string& filename) {
     BOOST_REQUIRE_EQUAL(std::string(TEST_SIZE, TEST_CHAR), threadReader.data());
 }
 
+void cancelBlockingCall() {
+    ml::core::CBlockingCallCancellingTimer cancellerThread{
+        ml::core::CThread::currentThreadId(), std::chrono::seconds{1}};
+    BOOST_TEST_REQUIRE(cancellerThread.start());
+
+    // The CBlockingCallCancellingTimer should wake up the blocking open
+    // of the named pipe "test_pipe".  Without this wake up, it would block
+    // indefinitely as nothing will ever connect to the other end.  The wake up
+    // happens after 1 second.
+
+    std::string testPipeName{ml::core::CNamedPipeFactory::defaultPath() + "test_pipe"};
+    ml::core::CNamedPipeFactory::TIStreamP pipeStrm{ml::core::CNamedPipeFactory::openPipeStreamRead(
+        testPipeName, cancellerThread.hasCancelledBlockingCall())};
+    BOOST_TEST_REQUIRE(pipeStrm == nullptr);
+
+    BOOST_TEST_REQUIRE(cancellerThread.stop());
+
+    BOOST_REQUIRE_EQUAL(true, cancellerThread.hasCancelledBlockingCall().load());
+
+    // Confirm that cancellation of the named pipe connection deleted the pipe
+    BOOST_REQUIRE_EQUAL(-1, ml::core::COsFileFuncs::access(
+                                testPipeName.c_str(), ml::core::COsFileFuncs::EXISTS));
+    BOOST_REQUIRE_EQUAL(ENOENT, errno);
+}
+
 void makeAndRemoveDirectory(const std::string& dirname) {
 
     boost::filesystem::path temporaryFolder{dirname};
@@ -168,6 +195,8 @@ BOOST_AUTO_TEST_CASE(testSystemCallFilter) {
     openPipeAndWrite(TEST_WRITE_PIPE_NAME);
 
     makeAndRemoveDirectory(TMP_DIR);
+
+    cancelBlockingCall();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
