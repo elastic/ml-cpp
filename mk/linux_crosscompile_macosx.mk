@@ -22,11 +22,12 @@ CLANGVER=8
 # code, and Apple's clang versions are different to LLVM's clang versions, so
 # the natively built library file names will contain different versions.  Then
 # Boost also truncates the Apple clang version.  Known mappings are:
-# 3.8 -> 70 (Xcode 7.2)
-# 3.9 -> 80 (Xcode 8.2)
-# 6.0 -> 100 (Xcode 10.1)
-# 8 -> 110 (Xcode 11.3)
-BOOSTCLANGVER=110
+# 3.8 -> 7 (Xcode 7.2)
+# 3.9 -> 8 (Xcode 8.2)
+# 6.0 -> 10 (Xcode 10.1)
+# 8 -> 11 (Xcode 11.3)
+# 10 -> 12 (Xcode 12.4)
+BOOSTCLANGVER=11
 CROSS_FLAGS=--sysroot=$(SYSROOT) -B /usr/local/bin -target $(CROSS_TARGET_PLATFORM)
 CC=clang-$(CLANGVER) $(CROSS_FLAGS)
 CXX=clang++-$(CLANGVER) $(CROSS_FLAGS) -std=c++17 -stdlib=libc++
@@ -62,7 +63,7 @@ UT_TMP_DIR=/tmp/$(LOGNAME)
 RESOURCES_DIR=$(APP_CONTENTS)/Resources
 LOCALLIBS=
 NETLIBS=
-BOOSTVER=1_71
+BOOSTVER=1_77
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem $(SYSROOT)/usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
