@@ -386,18 +386,17 @@ bool CMetricModel::computeProbability(const std::size_t pid,
             continue;
         }
         const TOptionalSample& bucket = data->s_BucketValue;
+
+        if (this->shouldSkipUpdate(feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+                                   model_t::sampleTime(feature, startTime, bucketLength))) {
+            result.s_ShouldUpdateQuantiles = false;
+        }
+
         if (this->shouldIgnoreResult(
                 feature, result.s_ResultType, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
                 model_t::sampleTime(feature, startTime, bucketLength, bucket->time()))) {
             skippedResults = true;
             continue;
-        }
-
-        if (this->initialCountWeight(
-                feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
-                model_t::sampleTime(feature, startTime, bucketLength)) != 1.0) {
-            // Indicate that the quantiles should not be updated while results are updated as usual.
-            result.s_ShouldUpdateQuantiles = false;
         }
 
         LOG_TRACE(<< "Compute probability for " << data->print());
