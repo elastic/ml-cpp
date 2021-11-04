@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import sklearn.metrics as metrics
 from deepmerge import always_merger
-from incremental_learning.config import datasets_dir, jobs_dir
+from incremental_learning.config import datasets_dir, jobs_dir, logger
 from incremental_learning.elasticsearch import push2es
 from incremental_learning.job import Job, evaluate, train, update
 from incremental_learning.storage import (download_dataset, download_job,
@@ -37,8 +37,9 @@ from sklearn.model_selection import train_test_split
 experiment_name = 'multi-step-sampling'
 uid = ''.join(random.choices(string.ascii_lowercase, k=6))
 experiment_data_path = Path('/tmp/'+experiment_name)
-ex = Experiment(name = uid)
+ex = Experiment(name=uid)
 ex.observers.append(FileStorageObserver(experiment_data_path))
+ex.logger = logger
 
 
 @ex.config
@@ -114,10 +115,37 @@ def get_forest_statistics(model_definition):
     result['tree_depth_std'] = np.std(forest.tree_depths())
     return result
 
+
 def remove_subset(dataset, subset):
-    dataset = dataset.merge(subset, how = 'outer' ,indicator=True).loc[lambda x : x['_merge']=='left_only']
+    dataset = dataset.merge(
+        subset, how='outer', indicator=True).loc[lambda x: x['_merge'] == 'left_only']
     dataset.drop(columns=['_merge'], inplace=True)
     return dataset
+
+
+@ex.capture
+def sample_points(total_dataset, update_num_samples, used_dataset, random_state, _run):
+    D_update = None
+    success = False
+    k = 2
+    while not success:
+        if update_num_samples*k <= total_dataset.shape[0]:
+            D_update = None
+            break
+        largest = total_dataset.sample(
+            n=update_num_samples*k, weights='indicator', random_state=random_state)
+
+        largest.drop(columns=['indicator'], inplace=True)
+        D_update = remove_subset(largest, used_dataset)
+        if D_update.shape[0] < update_num_samples:
+            k += 1
+            continue
+        if D_update.shape[0] >= update_num_samples:
+            D_update = D_update.sample(n=update_num_samples)
+            success = True
+    _run.run_logger.info("Sampling completed after with k={}.".format(k))
+    return D_update
+
 
 @ex.main
 def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, training_fraction, update_fraction,
@@ -142,7 +170,8 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         frac=training_fraction, random_state=random_state)
     update_num_samples = int(train_dataset.shape[0]*update_fraction)
 
-    _run.run_logger.info("Baseline training started for {}".format(baseline_model_name))
+    _run.run_logger.info(
+        "Baseline training started for {}".format(baseline_model_name))
     if job_exists(baseline_model_name, remote=True):
         path = download_job(baseline_model_name)
         baseline_model = Job.from_file(path)
@@ -157,8 +186,10 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     results['baseline']['hyperparameters'] = baseline_model.get_hyperparameters()
     results['baseline']['forest_statistics'] = get_forest_statistics(
         baseline_model.get_model_definition())
-    results['baseline']['train_error'] = compute_error(baseline_model, train_dataset)
-    results['baseline']['test_error'] = compute_error(baseline_model, test_dataset)
+    results['baseline']['train_error'] = compute_error(
+        baseline_model, train_dataset)
+    results['baseline']['test_error'] = compute_error(
+        baseline_model, test_dataset)
     _run.run_logger.info("Baseline training completed")
     used_dataset = baseline_dataset.copy()
 
@@ -170,37 +201,39 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         if sampling_mode == 'nlargest':
             train_dataset['indicator'] = get_residuals(
                 previous_model, train_dataset)
-            largest = train_dataset.sample(
-                n=update_num_samples*2*int(step/2 + 1), weights='indicator', random_state=random_state)
+
+            D_update = sample_points(
+                train_dataset, update_num_samples, used_dataset, random_state)
             train_dataset.drop(columns=['indicator'], inplace=True)
-            largest.drop(columns=['indicator'], inplace=True)
-            D_update = remove_subset(largest, used_dataset)
-            _run.run_logger.info("Update dataset size {} from {}. Train size {}".format(D_update.shape[0], update_num_samples, train_dataset.shape[0]))
-            if D_update.shape[0] > update_num_samples:
-                D_update = D_update.sample(n=update_num_samples)
         else:
             D_update = train_dataset.sample(
                 n=update_num_samples, random_state=random_state)
         _run.run_logger.info("Sampling completed")
+        if D_update is None:
+            _run.run_logger.warning(
+                "Update loop interrupted. It seems that you used up all the data!")
+            break
 
         _run.run_logger.info("Update started")
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
                                force=force_update, verbose=verbose, run=_run)
         elapsed_time = updated_model.wait_to_complete(clean=False)
         _run.log_scalar('updated_model.elapsed_time', elapsed_time)
-        _run.log_scalar('updated_model.train_error', compute_error(updated_model, train_dataset))
-        _run.log_scalar('updated_model.test_error', compute_error(updated_model, test_dataset))
+        _run.log_scalar('updated_model.train_error',
+                        compute_error(updated_model, train_dataset))
+        _run.log_scalar('updated_model.test_error',
+                        compute_error(updated_model, test_dataset))
         _run.log_scalar('training_fraction', training_fraction)
         _run.log_scalar('seed', _seed)
         used_dataset = pd.concat([used_dataset, D_update])
-        _run.run_logger.info("New size of used data is {}".format(used_dataset.shape[0]))
+        _run.run_logger.info(
+            "New size of used data is {}".format(used_dataset.shape[0]))
 
-        # for k,v in updated_model.get_hyperparameters().items():
-        #     _run.log_scalar('updated_model.hyperparameters.{}'.format(k), str(v))
-        _run.log_scalar('updated_model.hyperparameters', updated_model.get_hyperparameters())
+        _run.log_scalar('updated_model.hyperparameters',
+                        updated_model.get_hyperparameters())
         _run.log_scalar('run.comment', _run.meta_info['comment'])
         _run.log_scalar('run.config', _run.config)
-        for k,v in get_forest_statistics(updated_model.get_model_definition()).items():
+        for k, v in get_forest_statistics(updated_model.get_model_definition()).items():
             _run.log_scalar('updated_model.forest_statistics.{}'.format(k), v)
         updated_model.clean()
         _run.run_logger.info("Update completed")
