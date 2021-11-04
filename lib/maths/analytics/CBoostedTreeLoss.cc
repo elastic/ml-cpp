@@ -411,8 +411,8 @@ std::unique_ptr<CArgMinLossImpl> CArgMinMsleImpl::clone() const {
 }
 
 bool CArgMinMsleImpl::nextPass() {
-    ++m_CurrentPass;
-    return this->bucketWidth().first > 0.0 && m_CurrentPass < 2;
+    m_CurrentPass += this->bucketWidth().first > 0.0 ? 1 : 2;
+    return m_CurrentPass < 2;
 }
 
 void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double actual, double weight) {
@@ -547,8 +547,8 @@ std::unique_ptr<CArgMinLossImpl> CArgMinPseudoHuberImpl::clone() const {
 }
 
 bool CArgMinPseudoHuberImpl::nextPass() {
-    ++m_CurrentPass;
-    return this->bucketWidth() > 0.0 && m_CurrentPass < 2;
+    m_CurrentPass += this->bucketWidth() > 0.0 ? 1 : 2;
+    return m_CurrentPass < 2;
 }
 
 void CArgMinPseudoHuberImpl::add(const TMemoryMappedFloatVector& predictionVector,
