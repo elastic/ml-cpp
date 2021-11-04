@@ -2124,8 +2124,8 @@ bool CTimeSeriesCorrelations::correlationModels(std::size_t id,
             continue;
         }
         correlated[end] = correlate;
-        variables.push_back(std::move(variable));
         correlationModels.push_back({i->second.first.get(), variable[0]});
+        variables.push_back(std::move(variable));
         ++end;
     }
 
