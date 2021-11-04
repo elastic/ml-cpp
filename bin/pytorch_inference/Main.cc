@@ -30,7 +30,6 @@
 #include "CCommandParser.h"
 
 #include <ATen/Parallel.h>
-#include <rapidjson/ostreamwrapper.h>
 #include <torch/csrc/api/include/torch/types.h>
 #include <torch/script.h>
 
