@@ -54,7 +54,7 @@ UT_TMP_DIR=/tmp/$(LOGNAME)
 RESOURCES_DIR=resources
 LOCALLIBS=-lm -lpthread -ldl -lrt
 NETLIBS=
-BOOSTVER=1_71
+BOOSTVER=1_77
 ifeq ($(HARDWARE_ARCH),aarch64)
 BOOSTARCH=a64
 else

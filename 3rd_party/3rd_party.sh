@@ -47,7 +47,7 @@ case `uname` in
         else
             BOOST_ARCH=a64
         fi
-        BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.dylib
+        BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.dylib
         BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
         XML_LOCATION=
         GCC_RT_LOCATION=
@@ -72,7 +72,7 @@ case `uname` in
                 MKL_PREFIX=libmkl_
                 MKL_LIBRARIES=`cd "$MKL_LOCATION" && ls $MKL_PREFIX*$MKL_EXTENSION`
             fi
-            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
+            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.so.1.77.0
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
             XML_LOCATION=/usr/local/gcc103/lib
             XML_EXTENSION=.so.2
@@ -91,7 +91,7 @@ case `uname` in
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
             BOOST_COMPILER=clang
-            BOOST_EXTENSION=mt-x64-1_71.dylib
+            BOOST_EXTENSION=mt-x64-1_77.dylib
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
             XML_LOCATION=
             GCC_RT_LOCATION=
@@ -111,7 +111,7 @@ case `uname` in
                 echo "Cannot cross compile to $CPP_CROSS_COMPILE"
                 exit 3
             fi
-            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
+            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.so.1.77.0
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
             XML_LOCATION=$SYSROOT/usr/local/gcc103/lib
             XML_EXTENSION=.so.2
@@ -137,7 +137,7 @@ case `uname` in
         # server is currently set up
         BOOST_LOCATION=/$LOCAL_DRIVE/usr/local/lib
         BOOST_COMPILER=vc
-        BOOST_EXTENSION=mt-x64-1_71.dll
+        BOOST_EXTENSION=mt-x64-1_77.dll
         BOOST_LIBRARIES='chrono date_time filesystem iostreams log log_setup program_options regex system thread'
         XML_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         XML_EXTENSION=.dll

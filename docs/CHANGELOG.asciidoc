@@ -28,7 +28,19 @@
 
 //=== Regressions
 
+== {es} version 8.1.0
+
+=== Enhancements
+
+* Upgrade Boost libraries to version 1.77. (See {ml-pull}2095[#2095].)
+
 == {es} version 8.0.0
+
+=== Bug Fixes
+
+* ...
+
+== {es} version 8.0.0-beta1
 
 === Enhancements
 
@@ -68,6 +80,13 @@
 * Fix numerical instability in hyperparameter optimisation for training regression and
   classification models. (See {ml-pull}2078[#2078].)
 * Fix numerical stability issues in time series modelling. (See {ml-pull}2083[#[2083]].)
+
+== {es} version 7.15.2
+
+=== Bug Fixes
+
+* Fix cancellation of named pipe connection on Linux if the remote end does not connect
+  within the configured timeout period. (See {ml-pull}2102[#2102].)
 
 == {es} version 7.15.0
 
