@@ -31,6 +31,13 @@
 #ifdef ERROR
 #undef ERROR
 #endif
+# GetObject in the Windows API is a graphics-related function from gdi32.dll.
+# It clashes with GetObject from RapidJSON. Since we're unlikely to be writing
+# Windows GUI code in the ML C++ codebase it should be safe to let the RapidJSON
+# method take precedence always.
+#ifdef GetObject
+#undef GetObject
+#endif
 
 #ifndef STDCALL
 #define STDCALL __stdcall
