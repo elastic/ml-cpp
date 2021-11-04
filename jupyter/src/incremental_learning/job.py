@@ -169,7 +169,8 @@ class Job:
                                                         </table>"""
                                                       .format(err, out)))
                 else:
-                    print(err)
+                    if not self.run:
+                        print(err)
             # the line in main.cc where final output is produced
             success = sum(
                 [line == 'Success' for line in self.pane.capture_pane()[-5:]]) == 1
@@ -180,7 +181,7 @@ class Job:
             time.sleep(5.0)
         self.stop_time = time.time()
 
-        if self.run:
+        if self.run and self.verbose:
             self.run.run_logger.info(err)
 
         if success:
@@ -465,14 +466,14 @@ def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -
     cmd = ' '.join(cmd)
     cmd += '; if [ $? -eq 0 ]; then echo "Success"; else echo "Failure";  fi;'
 
-    if run:
+    if run and verbose:
         run.run_logger.info(cmd)
 
     session = server.new_session(job_name)
     window = session.new_window(attach=False)
     pane = window.split_window(attach=False)
 
-    if verbose:
+    if run is None and verbose:
         print("session: {}\tcommand:\n{}".format(
             session.get('session_name'), cmd))
     pane.send_keys(cmd)

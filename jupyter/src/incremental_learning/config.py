@@ -54,7 +54,7 @@ else:
 logger = logging.getLogger(__package__)
 logger.handlers = []
 ch = logging.StreamHandler()
-formatter = logging.Formatter('[%(levelname).1s] %(name)s >> %(message)s')
+formatter = logging.Formatter('%(asctime)s [%(levelname).1s] %(name)s >> %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
