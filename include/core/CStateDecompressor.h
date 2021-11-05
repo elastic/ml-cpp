@@ -132,6 +132,17 @@ public:
         //! The sequential document number currently being written to
         std::size_t m_CurrentDocNum;
 
+        //! Single character buffer for the input stream wrapper.
+        //! It's clearly inefficient to be using a single character buffer,
+        //! but it's necessary to match the functionality of 2017 RapidJSON
+        //! in 2021 RapidJSON. The older version's istream wrapper read one
+        //! character at a time off the stream which meant that our single
+        //! stream searcher could rely on the \0 characters that delimit
+        //! separate state chunks not being consumed by the parsing of the
+        //! previous state chunk. If RapidJSON consumes characters beyond the
+        //! document it's parsing then this approach breaks down.
+        char m_BufferChar{'\0'};
+
         //! Have we read all the data possible from downstream?
         bool m_EndOfStream;
 

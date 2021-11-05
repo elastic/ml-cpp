@@ -1,6 +1,6 @@
 // Tencent is pleased to support the open source community by making RapidJSON available.
 // 
-// Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
+// Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip.
 //
 // Licensed under the MIT License (the "License"); you may not use this file except
 // in compliance with the License. You may obtain a copy of the License at
@@ -109,8 +109,8 @@ struct ScanCopyUnescapedStringHandler : BaseReaderHandler<UTF8<>, ScanCopyUnesca
 
 template <unsigned parseFlags, typename StreamType>
 void TestScanCopyUnescapedString() {
-    char buffer[1024 + 5 + 32];
-    char backup[1024 + 5 + 32];
+    char buffer[1024u + 5 + 32];
+    char backup[1024u + 5 + 32];
 
     // Test "ABCDABCD...\\"
     for (size_t offset = 0; offset < 32; offset++) {

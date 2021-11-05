@@ -74,7 +74,8 @@ std::streamsize CStateDecompressor::CDechunkFilter::read(char* s, std::streamsiz
                 return this->endOfStream(s, n, bytesDone);
             }
 
-            m_InputStreamWrapper.reset(new rapidjson::IStreamWrapper(*m_IStream));
+            m_InputStreamWrapper.reset(new rapidjson::IStreamWrapper(
+                *m_IStream, &m_BufferChar, sizeof(m_BufferChar)));
             m_Reader.reset(new rapidjson::Reader);
 
             if (!this->readHeader()) {
