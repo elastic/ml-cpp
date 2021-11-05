@@ -25,7 +25,7 @@ import pandas
 from deepmerge import always_merger
 from IPython import display
 
-from .config import configs_dir, datasets_dir, dfa_path, logger
+from .config import configs_dir, dfa_path, logger
 from .misc import isnotebook
 
 server = libtmux.Server()
@@ -579,6 +579,13 @@ def update(dataset_name: str,
     for name, value in original_job.get_hyperparameters().items():
         if name not in ['retrained_tree_eta', 'tree_topology_change_penalty']:
             config['analysis']['parameters'][name] = value
+        if name == 'retrained_tree_eta':
+            logger.debug("retrained_tree_eta value is {}".format(value))
+        if name == 'retrained_tree_eta':
+            min, max = (value/4, value*1.25)
+            config['analysis']['parameters'][name] = list(np.clip([min, max], 0, 1.0))
+            logger.debug("retrained_tree_eta: past value {value}, new range [{min},{max}] clipped to {clipped}".format(
+                value=value,min=min, max=max, clipped=config['analysis']['parameters'][name]))
     config['analysis']['parameters']['task'] = 'update'
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)

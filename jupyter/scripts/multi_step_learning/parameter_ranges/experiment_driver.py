@@ -58,9 +58,10 @@ def my_config():
                             'prediction_change_cost': 0.0,
                             'data_summarization_fraction': 1.0,
                             'early_stopping_enabled': False,
-                            'max_optimization_rounds_per_hyperparameter': 5}}
+                            'max_optimization_rounds_per_hyperparameter': 10}}
     sampling_mode = 'nlargest'
     n_largest_multiplier = 1
+    submit = True
 
 
 @ex.capture
@@ -129,7 +130,7 @@ def sample_points(total_dataset, update_num_samples, used_dataset, random_state,
     success = False
     k = 2
     while not success:
-        if update_num_samples*k <= total_dataset.shape[0]:
+        if update_num_samples*k > total_dataset.shape[0]:
             D_update = None
             break
         largest = total_dataset.sample(
@@ -153,6 +154,9 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     if 'comment' not in _run.meta_info or not _run.meta_info['comment']:
         raise RuntimeError("Specify --comment parameter for this experiment.")
     results = {}
+
+    if verbose:
+        ex.logger.setLevel("DEBUG")
 
     _run.config['analysis'] = analysis_parameters
 
@@ -197,7 +201,6 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     for step in range(update_steps):
         _run.run_logger.info("Update step {} started".format(step))
 
-        _run.run_logger.info("Sampling started")
         if sampling_mode == 'nlargest':
             train_dataset['indicator'] = get_residuals(
                 previous_model, train_dataset)
@@ -208,13 +211,11 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         else:
             D_update = train_dataset.sample(
                 n=update_num_samples, random_state=random_state)
-        _run.run_logger.info("Sampling completed")
         if D_update is None:
             _run.run_logger.warning(
                 "Update loop interrupted. It seems that you used up all the data!")
             break
 
-        _run.run_logger.info("Update started")
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
                                force=force_update, verbose=verbose, run=_run)
         elapsed_time = updated_model.wait_to_complete(clean=False)
@@ -227,16 +228,18 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         _run.log_scalar('seed', _seed)
         used_dataset = pd.concat([used_dataset, D_update])
         _run.run_logger.info(
-            "New size of used data is {}".format(used_dataset.shape[0]))
+            "New size of used data is {}, it is {:.0f}% of training data".format(used_dataset.shape[0],
+                                                                                 used_dataset.shape[0]/train_dataset.shape[0]*100))
 
         _run.log_scalar('updated_model.hyperparameters',
                         updated_model.get_hyperparameters())
+        _run.run_logger.debug("Hyperparameters: {}".format(
+            updated_model.get_hyperparameters()))
         _run.log_scalar('run.comment', _run.meta_info['comment'])
         _run.log_scalar('run.config', _run.config)
         for k, v in get_forest_statistics(updated_model.get_model_definition()).items():
             _run.log_scalar('updated_model.forest_statistics.{}'.format(k), v)
         updated_model.clean()
-        _run.run_logger.info("Update completed")
 
         previous_model = updated_model
         _run.run_logger.info("Update step completed".format(step))
@@ -247,5 +250,9 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
 if __name__ == '__main__':
     run = ex.run_commandline()
     run_data_path = experiment_data_path / str(run._id)
-    push2es(data_path=run_data_path, name=experiment_name)
+    if run.config['submit']:
+        push2es(data_path=run_data_path, name=experiment_name)
+    else:
+        run.run_logger.info(
+            "Experiment results were not submitted to the index.")
     shutil.rmtree(run_data_path)
