@@ -9,12 +9,13 @@
  * limitation.
  */
 
+#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
+
 #include <api/CSerializableToJson.h>
 
-#include <boost/test/tools/interface.hpp>
-#include <rapidjson/istreamwrapper.h>
 #include <test/CRandomNumbers.h>
 
+#include <boost/test/tools/interface.hpp>
 #include <boost/test/unit_test.hpp>
 #include <rapidjson/document.h>
 
@@ -82,7 +83,7 @@ private:
 
     void readFromJsonStream(TIStreamPtr inputStream) {
         if (inputStream != nullptr) {
-            rapidjson::IStreamWrapper isw{*inputStream};
+            core::CRapidJsonUnbufferedIStreamWrapper isw{*inputStream};
             rapidjson::Document doc;
             doc.ParseStream<rapidjson::kParseStopWhenDoneFlag>(isw);
             m_Name = doc["name"].GetString();
