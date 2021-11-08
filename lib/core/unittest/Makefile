@@ -71,6 +71,7 @@ CProgNameTest.cc \
 CProgramCountersTest.cc \
 CRapidJsonLineWriterTest.cc\
 CRapidJsonWriterBaseTest.cc\
+CRapidJsonUnbufferedIStreamWrapperTest.cc \
 CRapidXmlParserTest.cc \
 CRapidXmlStatePersistInserterTest.cc \
 CRapidXmlStateRestoreTraverserTest.cc \

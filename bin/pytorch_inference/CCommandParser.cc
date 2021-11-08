@@ -12,9 +12,9 @@
 #include "CCommandParser.h"
 
 #include <core/CLogger.h>
+#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
 
 #include <rapidjson/error/en.h>
-#include <rapidjson/istreamwrapper.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 
@@ -59,16 +59,7 @@ CCommandParser::CCommandParser(std::istream& strmIn) : m_StrmIn(strmIn) {
 bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
                             const TErrorHandlerFunc& errorHandler) {
 
-    // We tell RapidJSON's istream wrapper to use a one character
-    // buffer. In some ways this is inefficient, but it matches the
-    // behaviour of the 2017 version of RapidJSON. If we use a bigger
-    // buffer here then we'll need to send spaces after each command
-    // to ensure the istream wrapper doesn't block on a buffer read
-    // at the end of a command. It shouldn't be _that_ inefficient
-    // to use a one character buffer in the wrapper, as the
-    // underlying named pipe has buffering at the OS level.
-    char buffer{'\0'};
-    rapidjson::IStreamWrapper isw{m_StrmIn, &buffer, sizeof(buffer)};
+    core::CRapidJsonUnbufferedIStreamWrapper isw{m_StrmIn};
 
     while (true) {
         rapidjson::Document doc;
