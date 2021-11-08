@@ -33,6 +33,7 @@
 === Enhancements
 
 * Upgrade Boost libraries to version 1.77. (See {ml-pull}2095[#2095].)
+* Upgrade RapidJSON to 31st October 2021 version. (See {ml-pull}2106[#2106].)
 
 == {es} version 8.0.0
 
