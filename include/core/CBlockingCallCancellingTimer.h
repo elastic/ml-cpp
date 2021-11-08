@@ -56,11 +56,11 @@ protected:
     //! Derived classes must implement this such that it waits for the
     //! appropriate indication that the blocking call should be cancelled,
     //! or until it is told to stop waiting by stopWaitForCondition().
-    virtual void waitForCondition();
+    virtual void waitForCondition() override;
 
     //! Derived classes must implement this such that when called it causes
     //! the waitForCondition() method to return false immediately.
-    virtual void stopWaitForCondition();
+    virtual void stopWaitForCondition() override;
 
 private:
     using TMutexUniqueLock = std::unique_lock<std::mutex>;

@@ -44,7 +44,7 @@ public:
                            const std::string& summaryCountFieldName = "");
 
     //! Create a copy of the factory owned by the calling code.
-    virtual CEventRateModelFactory* clone() const;
+    virtual CEventRateModelFactory* clone() const override;
 
     //! \name Factory Methods
     //@{
@@ -52,7 +52,8 @@ public:
     //!
     //! \param[in] initData The parameters needed to initialize the model.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData) const;
+    virtual CAnomalyDetectorModel*
+    makeModel(const SModelInitializationData& initData) const override;
 
     //! Make a new event rate model from part of a state document.
     //!
@@ -60,15 +61,17 @@ public:
     //! the model.
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
-    virtual CAnomalyDetectorModel* makeModel(const SModelInitializationData& initData,
-                                             core::CStateRestoreTraverser& traverser) const;
+    virtual CAnomalyDetectorModel*
+    makeModel(const SModelInitializationData& initData,
+              core::CStateRestoreTraverser& traverser) const override;
 
     //! Make a new event rate data gatherer.
     //!
     //! \param[in] initData The parameters needed to initialize the data
     //! gatherer.
     //! \warning It is owned by the calling code.
-    virtual CDataGatherer* makeDataGatherer(const SGathererInitializationData& initData) const;
+    virtual CDataGatherer*
+    makeDataGatherer(const SGathererInitializationData& initData) const override;
 
     //! Make a new event rate data gatherer from part of a state document.
     //!
@@ -76,7 +79,7 @@ public:
     //! \param[in,out] traverser A state document traverser.
     //! \warning It is owned by the calling code.
     virtual CDataGatherer* makeDataGatherer(const std::string& partitionFieldValue,
-                                            core::CStateRestoreTraverser& traverser) const;
+                                            core::CStateRestoreTraverser& traverser) const override;
     //@}
 
     //! \name Defaults
@@ -85,14 +88,15 @@ public:
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
-    virtual TPriorPtr defaultPrior(model_t::EFeature feature, const SModelParams& params) const;
+    virtual TPriorPtr defaultPrior(model_t::EFeature feature,
+                                   const SModelParams& params) const override;
 
     //! Get the default multivariate prior for \p feature.
     //!
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
     virtual TMultivariatePriorUPtr
-    defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const;
+    defaultMultivariatePrior(model_t::EFeature feature, const SModelParams& params) const override;
 
     //! Get the default prior for pairs of correlated time series
     //! of \p feature.
@@ -100,46 +104,46 @@ public:
     //! \param[in] feature The feature for which to get the prior.
     //! \param[in] params The model parameters.
     virtual TMultivariatePriorUPtr
-    defaultCorrelatePrior(model_t::EFeature feature, const SModelParams& params) const;
+    defaultCorrelatePrior(model_t::EFeature feature, const SModelParams& params) const override;
     //@}
 
     //! Get the search key corresponding to this factory.
-    virtual const CSearchKey& searchKey() const;
+    virtual const CSearchKey& searchKey() const override;
 
     //! Check if this makes the model used for a simple counting search.
-    virtual bool isSimpleCount() const;
+    virtual bool isSimpleCount() const override;
 
     //! Check the pre-summarisation mode for this factory.
-    virtual model_t::ESummaryMode summaryMode() const;
+    virtual model_t::ESummaryMode summaryMode() const override;
 
     //! Get the default data type for models from this factory.
-    virtual maths_t::EDataType dataType() const;
+    virtual maths_t::EDataType dataType() const override;
 
     //! \name Customization by a specific search
     //@{
     //! Set the identifier of the search for which this generates models.
-    virtual void detectorIndex(int detectorIndex);
+    virtual void detectorIndex(int detectorIndex) override;
 
     //! Set the name of the field whose values will be counted.
     virtual void fieldNames(const std::string& partitionFieldName,
                             const std::string& overFieldName,
                             const std::string& byFieldName,
                             const std::string& valueFieldName,
-                            const TStrVec& influenceFieldNames);
+                            const TStrVec& influenceFieldNames) override;
 
     //! Set whether the models should process missing person fields.
-    virtual void useNull(bool useNull);
+    virtual void useNull(bool useNull) override;
 
     //! Set the features which will be modeled.
-    virtual void features(const TFeatureVec& features);
+    virtual void features(const TFeatureVec& features) override;
     //@}
 
     //! Get the minimum seasonal variance scale
-    virtual double minimumSeasonalVarianceScale() const;
+    virtual double minimumSeasonalVarianceScale() const override;
 
 private:
     //! Get the field values which partition the data for modeling.
-    virtual TStrCRefVec partitioningFields() const;
+    virtual TStrCRefVec partitioningFields() const override;
 
 private:
     //! The identifier of the search for which this generates models.

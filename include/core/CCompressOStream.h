@@ -39,7 +39,7 @@ public:
     CCompressOStream(CStateCompressor::CChunkFilter& filter);
 
     //! Destructor will close the stream
-    virtual ~CCompressOStream();
+    virtual ~CCompressOStream() override;
 
     //! Close the stream
     void close();
@@ -53,8 +53,8 @@ private:
 
     protected:
         //! Implementation of inherited interface
-        virtual void run();
-        virtual void shutdown();
+        virtual void run() override;
+        virtual void shutdown() override;
 
     public:
         //! Reference to the owning stream

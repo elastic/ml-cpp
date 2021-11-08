@@ -60,85 +60,85 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariateConstantPrior* clone() const;
+    virtual CMultivariateConstantPrior* clone() const override;
 
     //! Get the dimension of the prior.
-    virtual std::size_t dimension() const;
+    virtual std::size_t dimension() const override;
 
     //! Reset the prior to non-informative.
-    virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
+    virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0) override;
 
     //! No-op.
     virtual void adjustOffset(const TDouble10Vec1Vec& samples,
-                              const TDouble10VecWeightsAry1Vec& weights);
+                              const TDouble10VecWeightsAry1Vec& weights) override;
 
     //! Set the constant if it hasn't been set.
     virtual void addSamples(const TDouble10Vec1Vec& samples,
-                            const TDouble10VecWeightsAry1Vec& weights);
+                            const TDouble10VecWeightsAry1Vec& weights) override;
 
     //! No-op.
-    virtual void propagateForwardsByTime(double time);
+    virtual void propagateForwardsByTime(double time) override;
 
     //! Get the corresponding constant univariate prior.
     virtual TUnivariatePriorPtrDoublePr
-    univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
+    univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const override;
 
     //! Compute the bivariate const bivariate prior.
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
-                                        const TSizeDoublePr10Vec& condition) const;
+                                        const TSizeDoublePr10Vec& condition) const override;
 
     //! Get the support for the marginal likelihood function.
-    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const;
+    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const override;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual TDouble10Vec marginalLikelihoodMean() const;
+    virtual TDouble10Vec marginalLikelihoodMean() const override;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& weights) const;
+    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& weights) const override;
 
     //! Get the covariance matrix of the marginal likelihood.
-    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const;
+    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const override;
 
     //! Get the diagonal of the covariance matrix of the marginal likelihood.
-    virtual TDouble10Vec marginalLikelihoodVariances() const;
+    virtual TDouble10Vec marginalLikelihoodVariances() const override;
 
     //! Returns a large value if all samples are equal to the constant
     //! and zero otherwise.
     virtual maths_t::EFloatingPointErrorStatus
     jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
                                const TDouble10VecWeightsAry1Vec& weights,
-                               double& result) const;
+                               double& result) const override;
 
     //! Get \p numberSamples times the constant.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec& samples) const;
+                                          TDouble10Vec1Vec& samples) const override;
 
     //! Check if this is a non-informative prior.
-    bool isNonInformative() const;
+    bool isNonInformative() const override;
 
     //! Get a human readable description of the prior.
     //!
     //! \param[in] separator String used to separate priors.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string& separator, std::string& result) const;
+    virtual void print(const std::string& separator, std::string& result) const override;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual uint64_t checksum(uint64_t seed = 0) const override;
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage() const;
+    virtual std::size_t memoryUsage() const override;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const;
+    virtual std::size_t staticSize() const override;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
     //! Get the tag name for this prior.
-    virtual std::string persistenceTag() const;
+    virtual std::string persistenceTag() const override;
     //@}
 
     //! Get the constant value.

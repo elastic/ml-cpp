@@ -226,14 +226,14 @@ public:
     CRandomProjectionClustererBatch(double compression)
         : m_Compression(compression) {}
 
-    virtual ~CRandomProjectionClustererBatch() = default;
+    virtual ~CRandomProjectionClustererBatch() override = default;
 
     //! Create the \p numberProjections random projections.
     //!
     //! \param[in] numberProjections The number of projections
     //! to create.
     //! \param[in] dimension The dimension of the space to project.
-    virtual bool initialise(std::size_t numberProjections, std::size_t dimension) {
+    virtual bool initialise(std::size_t numberProjections, std::size_t dimension) override {
         m_ProjectedData.resize(numberProjections);
         return this->CRandomProjectionClusterer<N>::initialise(numberProjections, dimension);
     }

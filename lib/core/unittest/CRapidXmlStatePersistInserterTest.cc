@@ -23,7 +23,7 @@ public:
     explicit CReadableXmlStatePersistInserter(const std::string& rootName,
                                               ml::core::CRapidXmlStatePersistInserter::TStrStrMap& rootAttributes)
         : ml::core::CRapidXmlStatePersistInserter(rootName, rootAttributes) {}
-    virtual bool readableTags() const { return true; }
+    virtual bool readableTags() const override { return true; }
 };
 
 const ml::core::TPersistenceTag LEVEL1A_TAG{"a", "level1A"};

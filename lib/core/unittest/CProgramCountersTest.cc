@@ -43,7 +43,7 @@ public:
     }
 
 private:
-    virtual void run() {
+    virtual void run() override {
         if (m_I < N) {
             ++ml::core::CProgramCounters::counter(TEST_COUNTER + m_I);
         } else {
@@ -51,7 +51,7 @@ private:
         }
     }
 
-    virtual void shutdown() {}
+    virtual void shutdown() override {}
 
     int m_I;
     int m_N;

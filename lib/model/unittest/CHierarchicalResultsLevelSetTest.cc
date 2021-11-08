@@ -52,7 +52,7 @@ public:
     //! Visit a node.
     virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
                        const TNode& /*node*/,
-                       bool /*pivot*/) {}
+                       bool /*pivot*/) override {}
 
     // make public
     using ml::model::CHierarchicalResultsLevelSet<STestNode>::elements;

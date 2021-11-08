@@ -240,15 +240,15 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariatePrior* clone() const {
+    virtual CMultivariatePrior* clone() const override {
         return new CMultivariateMultimodalPrior(*this);
     }
 
     //! Get the dimension of the prior.
-    virtual std::size_t dimension() const { return N; }
+    virtual std::size_t dimension() const override { return N; }
 
     //! Set the data type.
-    virtual void dataType(maths_t::EDataType value) {
+    virtual void dataType(maths_t::EDataType value) override {
         this->CMultivariatePrior::dataType(value);
         m_Clusterer->dataType(value);
         for (const auto& mode : m_Modes) {
@@ -257,7 +257,7 @@ public:
     }
 
     //! Set the rate at which the prior returns to non-informative.
-    virtual void decayRate(double value) {
+    virtual void decayRate(double value) override {
         this->CMultivariatePrior::decayRate(value);
         m_Clusterer->decayRate(this->decayRate());
         for (const auto& mode : m_Modes) {
@@ -267,7 +267,7 @@ public:
     }
 
     //! Reset the prior to non-informative.
-    virtual void setToNonInformative(double /*offset*/, double decayRate) {
+    virtual void setToNonInformative(double /*offset*/, double decayRate) override {
         m_Clusterer->clear();
         m_Modes.clear();
         this->decayRate(decayRate);
@@ -280,7 +280,7 @@ public:
     //! \param[in] samples The samples from which to determine the offset.
     //! \param[in] weights The weights of each sample in \p samples.
     virtual void adjustOffset(const TDouble10Vec1Vec& samples,
-                              const TDouble10VecWeightsAry1Vec& weights) {
+                              const TDouble10VecWeightsAry1Vec& weights) override {
         // This has to adjust offsets for its modes because it must be
         // possible to call jointLogMarginalLikelihood before the samples
         // have been added to the prior in order for model selection to
@@ -296,7 +296,7 @@ public:
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     virtual void addSamples(const TDouble10Vec1Vec& samples,
-                            const TDouble10VecWeightsAry1Vec& weights) {
+                            const TDouble10VecWeightsAry1Vec& weights) override {
         if (samples.empty()) {
             return;
         }
@@ -375,7 +375,7 @@ public:
     }
 
     //! Update the prior for the specified elapsed time.
-    virtual void propagateForwardsByTime(double time) {
+    virtual void propagateForwardsByTime(double time) override {
         if (CMathsFuncs::isFinite(time) == false || time < 0.0) {
             LOG_ERROR(<< "Bad propagation time " << time);
             return;
@@ -426,7 +426,7 @@ public:
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
     virtual TUnivariatePriorPtrDoublePr
-    univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const {
+    univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const override {
         std::size_t n = m_Modes.size();
 
         CMultimodalPrior::TPriorPtrVec modes;
@@ -474,7 +474,7 @@ public:
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
-                                        const TSizeDoublePr10Vec& condition) const {
+                                        const TSizeDoublePr10Vec& condition) const override {
         if (N == 2) {
             return {TPriorPtr(this->clone()), 0.0};
         }
@@ -514,7 +514,7 @@ public:
     }
 
     //! Get the support for the marginal likelihood function.
-    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const {
+    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const override {
         if (m_Modes.size() == 0) {
             return {TPoint::smallest().template toVector<TDouble10Vec>(),
                     TPoint::largest().template toVector<TDouble10Vec>()};
@@ -538,7 +538,7 @@ public:
     }
 
     //! Get the mean of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMean() const {
+    virtual TDouble10Vec marginalLikelihoodMean() const override {
         if (m_Modes.size() == 0) {
             return TDouble10Vec(N, 0.0);
         }
@@ -550,7 +550,7 @@ public:
 
     //! Get the nearest mean of the multimodal prior marginal likelihood,
     //! otherwise the marginal likelihood mean.
-    virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value_) const {
+    virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value_) const override {
         if (m_Modes.empty()) {
             return TDouble10Vec(N, 0.0);
         }
@@ -575,7 +575,7 @@ public:
     }
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& weight) const {
+    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& weight) const override {
 
         if (m_Modes.size() == 0) {
             return TDouble10Vec(N, 0.0);
@@ -617,7 +617,7 @@ public:
     }
 
     //! Get the local maxima of the marginal likelihood functions.
-    TDouble10Vec1Vec marginalLikelihoodModes(const TDouble10VecWeightsAry& weights) const {
+    TDouble10Vec1Vec marginalLikelihoodModes(const TDouble10VecWeightsAry& weights) const override {
         TDouble10Vec1Vec result;
         result.reserve(m_Modes.size());
         for (const auto& mode : m_Modes) {
@@ -627,7 +627,7 @@ public:
     }
 
     //! Get the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const {
+    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const override {
         if (m_Modes.size() == 0) {
             return TPoint::largest().asDiagonal().template toVectors<TDouble10Vec10Vec>();
         }
@@ -638,7 +638,7 @@ public:
     }
 
     //! Get the diagonal of the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec marginalLikelihoodVariances() const {
+    virtual TDouble10Vec marginalLikelihoodVariances() const override {
         if (m_Modes.size() == 0) {
             return TPoint::largest().template toVector<TDouble10Vec>();
         }
@@ -657,7 +657,7 @@ public:
     virtual maths_t::EFloatingPointErrorStatus
     jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
                                const TDouble10VecWeightsAry1Vec& weights,
-                               double& result) const {
+                               double& result) const override {
         result = 0.0;
 
         if (samples.empty()) {
@@ -767,7 +767,7 @@ public:
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec& samples) const {
+                                          TDouble10Vec1Vec& samples) const override {
         namespace detail = multivariate_multimodal_prior_detail;
 
         samples.clear();
@@ -780,7 +780,7 @@ public:
     }
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative() const {
+    virtual bool isNonInformative() const override {
         return m_Modes.empty() ||
                (m_Modes.size() == 1 && m_Modes[0].s_Prior->isNonInformative());
     }
@@ -789,7 +789,7 @@ public:
     //!
     //! \param[in] separator String used to separate priors.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string& separator, std::string& result) const {
+    virtual void print(const std::string& separator, std::string& result) const override {
         namespace detail = multivariate_multimodal_prior_detail;
         result += "\n" + separator + " multivariate multimodal";
         if (this->isNonInformative()) {
@@ -801,7 +801,7 @@ public:
     }
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const {
+    virtual uint64_t checksum(uint64_t seed = 0) const override {
         seed = this->CMultivariatePrior::checksum(seed);
         seed = CChecksum::calculate(seed, m_Clusterer);
         seed = CChecksum::calculate(seed, m_SeedPrior);
@@ -809,7 +809,7 @@ public:
     }
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CMultivariateMultimodalPrior");
         core::CMemoryDebug::dynamicSize("m_Clusterer", m_Clusterer, mem);
         core::CMemoryDebug::dynamicSize("m_SeedPrior", m_SeedPrior, mem);
@@ -817,7 +817,7 @@ public:
     }
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage() const {
+    virtual std::size_t memoryUsage() const override {
         std::size_t mem = core::CMemory::dynamicSize(m_Clusterer);
         mem += core::CMemory::dynamicSize(m_SeedPrior);
         mem += core::CMemory::dynamicSize(m_Modes);
@@ -825,15 +825,15 @@ public:
     }
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const { return sizeof(*this); }
+    virtual std::size_t staticSize() const override { return sizeof(*this); }
 
     //! Get the tag name for this prior.
-    virtual std::string persistenceTag() const {
+    virtual std::string persistenceTag() const override {
         return MULTIMODAL_TAG + core::CStringUtils::typeToString(N);
     }
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override {
         inserter.insertLevel(CLUSTERER_TAG, std::bind<void>(CClustererStateSerialiser(),
                                                             std::cref(*m_Clusterer),
                                                             std::placeholders::_1));
@@ -1051,14 +1051,14 @@ private:
     }
 
     //! We should only use this prior when it has multiple modes.
-    virtual bool participatesInModelSelection() const {
+    virtual bool participatesInModelSelection() const override {
         return m_Modes.size() > 1;
     }
 
     //! Get the number of nuisance parameters in the marginal likelihood.
     //!
     //! This is just number modes - 1 due to the normalization constraint.
-    virtual double unmarginalizedParameters() const {
+    virtual double unmarginalizedParameters() const override {
         return std::max(static_cast<double>(m_Modes.size()), 1.0) - 1.0;
     }
 

@@ -88,32 +88,32 @@ protected:
     //! Get an estimate of the number of characters still to read after an
     //! underflow.  In the case of this class we return the amount of data
     //! in the intermediate buffer.
-    virtual std::streamsize showmanyc();
+    virtual std::streamsize showmanyc() override;
 
     //! Switch the buffers immediately.  Effectively this flushes data
     //! through with lower latency but also less efficiently.
-    virtual int sync();
+    virtual int sync() override;
 
     //! Get up to n characters from the read buffer and store them in the
     //! array pointed to by s.
-    virtual std::streamsize xsgetn(char* s, std::streamsize n);
+    virtual std::streamsize xsgetn(char* s, std::streamsize n) override;
 
     //! Try to obtain more data for the write buffer.  This is done by
     //! swapping it with the intermediate buffer.  This may block if no data
     //! is available to read in the intermediate buffer.
-    virtual int underflow();
+    virtual int underflow() override;
 
     //! Put character back in the case of backup underflow.
-    virtual int pbackfail(int c = traits_type::eof());
+    virtual int pbackfail(int c = traits_type::eof()) override;
 
     //! Write up to n characters from the array pointed to by s into the
     //! write buffer.
-    virtual std::streamsize xsputn(const char* s, std::streamsize n);
+    virtual std::streamsize xsputn(const char* s, std::streamsize n) override;
 
     //! Try to obtain more space in the write buffer.  This is done by
     //! swapping it with the intermediate buffer.  This may block if no data
     //! is available to read in the intermediate buffer.
-    virtual int overflow(int c = traits_type::eof());
+    virtual int overflow(int c = traits_type::eof()) override;
 
     //! In a random access stream this would seek to the specified position.
     //! This class does not support such seeking, but implements this method
@@ -122,7 +122,7 @@ protected:
     virtual std::streampos
     seekoff(std::streamoff off,
             std::ios_base::seekdir way,
-            std::ios_base::openmode which = std::ios_base::in | std::ios_base::out);
+            std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) override;
 
 private:
     //! Swap the intermediate buffer with the write buffer.  Will block if

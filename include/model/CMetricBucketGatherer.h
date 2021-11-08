@@ -95,7 +95,7 @@ public:
     //! \name Persistence
     //@{
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
     //! Fill in the state from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -105,10 +105,10 @@ public:
     //! affect the persisted representation, and must not be used for any
     //! other purpose.
     //! \warning The caller owns the object returned.
-    virtual CBucketGatherer* cloneForPersistence() const;
+    virtual CBucketGatherer* cloneForPersistence() const override;
 
     //! The persistence tag name of this derived class.
-    virtual const std::string& persistenceTag() const;
+    virtual const std::string& persistenceTag() const override;
 
 private:
     //! Internal restore function.
@@ -125,20 +125,20 @@ public:
     //! probabilities are aggregated, i.e. the "over" field name for
     //! population searches and the "by" field name for individual
     //! searches.
-    virtual const std::string& personFieldName() const;
+    virtual const std::string& personFieldName() const override;
 
     //! Get the attribute field name if one exists, i.e. the "by" for
     //! population searches, field name and returns empty otherwise.
-    virtual const std::string& attributeFieldName() const;
+    virtual const std::string& attributeFieldName() const override;
 
     //! Returns an empty string.
-    virtual const std::string& valueFieldName() const;
+    virtual const std::string& valueFieldName() const override;
 
     //! Get an iterator at the beginning the influencing field names.
-    virtual TStrVecCItr beginInfluencers() const;
+    virtual TStrVecCItr beginInfluencers() const override;
 
     //! Get an iterator at the end of the influencing field names.
-    virtual TStrVecCItr endInfluencers() const;
+    virtual TStrVecCItr endInfluencers() const override;
 
     //! Get the fields for which to gather data.
     //!
@@ -148,11 +148,11 @@ public:
     //! attributes which are being analyzed. An empty string acts like
     //! a wild card and matches all records. This is used for analysis
     //! which is attribute independent such as total count.
-    virtual const TStrVec& fieldsOfInterest() const;
+    virtual const TStrVec& fieldsOfInterest() const override;
     //@}
 
     //! Get a description of the search.
-    virtual std::string description() const;
+    virtual std::string description() const override;
 
     //! \name Update
     //@{
@@ -169,49 +169,49 @@ public:
     //! to the metric value.
     virtual bool processFields(const TStrCPtrVec& fieldValues,
                                CEventData& result,
-                               CResourceMonitor& resourceMonitor);
+                               CResourceMonitor& resourceMonitor) override;
     //@}
 
     //! \name Person
     //@{
     //! Stop gathering data on the people identified by \p peopleToRemove.
-    virtual void recyclePeople(const TSizeVec& peopleToRemove);
+    virtual void recyclePeople(const TSizeVec& peopleToRemove) override;
 
     //! Remove all traces of people whose identifiers are greater than
     //! or equal to \p lowestPersonToRemove.
-    virtual void removePeople(std::size_t lowestPersonToRemove);
+    virtual void removePeople(std::size_t lowestPersonToRemove) override;
     //@}
 
     //! \name Attribute
     //@{
     //! Stop gathering data on the attributes identified by \p attributesToRemove.
-    virtual void recycleAttributes(const TSizeVec& attributesToRemove);
+    virtual void recycleAttributes(const TSizeVec& attributesToRemove) override;
 
     //! Remove all traces of attributes whose identifiers are greater
     //! than or equal to \p lowestAttributeToRemove.
-    virtual void removeAttributes(std::size_t lowestAttributeToRemove);
+    virtual void removeAttributes(std::size_t lowestAttributeToRemove) override;
     //@}
 
     //! Get the checksum of this gatherer.
-    virtual uint64_t checksum() const;
+    virtual uint64_t checksum() const override;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage() const;
+    virtual std::size_t memoryUsage() const override;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const;
+    virtual std::size_t staticSize() const override;
 
     //! Clear this data gatherer.
-    virtual void clear();
+    virtual void clear() override;
 
     //! Reset bucket and return true if bucket was successfully reset or false otherwise.
-    virtual bool resetBucket(core_t::TTime bucketStart);
+    virtual bool resetBucket(core_t::TTime bucketStart) override;
 
     //! Release memory that is no longer needed
-    virtual void releaseMemory(core_t::TTime samplingCutoffTime);
+    virtual void releaseMemory(core_t::TTime samplingCutoffTime) override;
 
     //! \name Features
     //@{
@@ -222,12 +222,12 @@ public:
     //! \param[out] result Filled in with the feature data at \p time.
     virtual void featureData(core_t::TTime time,
                              core_t::TTime bucketLength,
-                             TFeatureAnyPrVec& result) const;
+                             TFeatureAnyPrVec& result) const override;
     //@}
 
 private:
     //! Create samples if possible for the bucket pointed out by \p time.
-    virtual void sample(core_t::TTime time);
+    virtual void sample(core_t::TTime time) override;
 
     //! Resize the necessary data structures so they can accommodate
     //! the person and attribute identified by \p pid and \p cid,
@@ -235,7 +235,7 @@ private:
     //!
     //! \param[in] pid The identifier of the person to accommodate.
     //! \param[in] cid The identifier of the attribute to accommodate.
-    virtual void resize(std::size_t pid, std::size_t cid);
+    virtual void resize(std::size_t pid, std::size_t cid) override;
 
     //! Record the arrival of \p values for attribute identified by
     //! \p cid and person identified by \p pid.
@@ -256,10 +256,10 @@ private:
                           const CEventData::TDouble1VecArray& values,
                           std::size_t count,
                           const CEventData::TOptionalStr& stringValue,
-                          const TStoredStringPtrVec& influences);
+                          const TStoredStringPtrVec& influences) override;
 
     //! Start a new bucket.
-    virtual void startNewBucket(core_t::TTime time, bool skipUpdates);
+    virtual void startNewBucket(core_t::TTime time, bool skipUpdates) override;
 
     //! Initialize the field names collection.
     //! initializeFieldNamesPart2() must be called after this.

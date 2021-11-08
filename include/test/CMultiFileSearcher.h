@@ -48,7 +48,7 @@ public:
 
     //! Load the file
     //! \return Pointer to the input stream - may be NULL
-    virtual TIStreamP search(size_t currentDocNum, size_t limit);
+    virtual TIStreamP search(size_t currentDocNum, size_t limit) override;
 
 private:
     //! Name of the file to serialise models to

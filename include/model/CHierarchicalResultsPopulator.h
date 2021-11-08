@@ -29,7 +29,7 @@ public:
     CHierarchicalResultsPopulator(const CLimits& limits);
 
     //! Visit \p node.
-    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot);
+    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;
 
 private:
     const CLimits& m_Limits;

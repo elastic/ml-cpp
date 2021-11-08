@@ -45,10 +45,10 @@ public:
     CJsonStatePersistInserter(std::ostream& outputStream);
 
     //! Destructor flushes
-    virtual ~CJsonStatePersistInserter();
+    virtual ~CJsonStatePersistInserter() override;
 
     //! Store a name/value
-    virtual void insertValue(const std::string& name, const std::string& value);
+    virtual void insertValue(const std::string& name, const std::string& value) override;
 
     //! Write as an integer avoiding the string conversion
     //! overloads
@@ -62,10 +62,10 @@ public:
 
 protected:
     //! Start a new level with the given name
-    virtual void newLevel(const std::string& name);
+    virtual void newLevel(const std::string& name) override;
 
     //! End the current level
-    virtual void endLevel();
+    virtual void endLevel() override;
 
 private:
     //! JSON writer ostream wrapper

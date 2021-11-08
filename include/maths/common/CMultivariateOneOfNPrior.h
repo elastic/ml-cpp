@@ -140,23 +140,23 @@ public:
     //!
     //! \return A pointer to a newly allocated clone of this model.
     //! \warning The caller owns the object returned.
-    virtual CMultivariateOneOfNPrior* clone() const;
+    virtual CMultivariateOneOfNPrior* clone() const override;
 
     //! Get the dimension of the prior.
-    std::size_t dimension() const;
+    std::size_t dimension() const override;
 
     //! Set the data type.
-    virtual void dataType(maths_t::EDataType value);
+    virtual void dataType(maths_t::EDataType value) override;
 
     //! Set the rate at which the prior returns to non-informative.
-    virtual void decayRate(double value);
+    virtual void decayRate(double value) override;
 
     //! Reset the prior to non-informative.
-    virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
+    virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0) override;
 
     //! Forward the offset to the model priors.
     virtual void adjustOffset(const TDouble10Vec1Vec& samples,
-                              const TDouble10VecWeightsAry1Vec& weights);
+                              const TDouble10VecWeightsAry1Vec& weights) override;
 
     //! Update the model weights using the marginal likelihoods for
     //! the data. The component prior parameters are then updated.
@@ -164,7 +164,7 @@ public:
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     virtual void addSamples(const TDouble10Vec1Vec& samples,
-                            const TDouble10VecWeightsAry1Vec& weights);
+                            const TDouble10VecWeightsAry1Vec& weights) override;
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -174,7 +174,7 @@ public:
     //!
     //! \param[in] time The time increment to apply.
     //! \note \p time must be non negative.
-    virtual void propagateForwardsByTime(double time);
+    virtual void propagateForwardsByTime(double time) override;
 
     //! Compute the univariate prior marginalizing over the variables
     //! \p marginalize and conditioning on the variables \p condition.
@@ -190,7 +190,7 @@ public:
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
     virtual TUnivariatePriorPtrDoublePr
-    univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const;
+    univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const override;
 
     //! Compute the bivariate prior marginalizing over the variables
     //! \p marginalize and conditioning on the variables \p condition.
@@ -205,25 +205,25 @@ public:
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
     virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
-                                        const TSizeDoublePr10Vec& condition) const;
+                                        const TSizeDoublePr10Vec& condition) const override;
 
     //! Get the support for the marginal likelihood function.
-    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const;
+    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const override;
 
     //! Get the mean of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMean() const;
+    virtual TDouble10Vec marginalLikelihoodMean() const override;
 
     //! Get the weighted mean of the model nearest marginal likelihood means.
-    virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value) const;
+    virtual TDouble10Vec nearestMarginalLikelihoodMean(const TDouble10Vec& value) const override;
 
     //! Get the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const;
+    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const override;
 
     //! Get the diagonal of the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec marginalLikelihoodVariances() const;
+    virtual TDouble10Vec marginalLikelihoodVariances() const override;
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& weights) const;
+    virtual TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& weights) const override;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the distribution parameters.
@@ -236,7 +236,7 @@ public:
     virtual maths_t::EFloatingPointErrorStatus
     jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
                                const TDouble10VecWeightsAry1Vec& weights,
-                               double& result) const;
+                               double& result) const override;
 
     //! Sample the marginal likelihood function.
     //!
@@ -249,34 +249,34 @@ public:
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
     virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec& samples) const;
+                                          TDouble10Vec1Vec& samples) const override;
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative() const;
+    virtual bool isNonInformative() const override;
 
     //! Get a human readable description of the prior.
     //!
     //! \param[in] separator String used to separate priors.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string& separator, std::string& result) const;
+    virtual void print(const std::string& separator, std::string& result) const override;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual uint64_t checksum(uint64_t seed = 0) const override;
 
     //! Debug the memory used by this component.
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this component.
-    virtual std::size_t memoryUsage() const;
+    virtual std::size_t memoryUsage() const override;
 
     //! Get the static size of this object - used for virtual hierarchies.
-    virtual std::size_t staticSize() const;
+    virtual std::size_t staticSize() const override;
 
     //! Get the tag name for this prior.
-    virtual std::string persistenceTag() const;
+    virtual std::string persistenceTag() const override;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
     //@}
 
     //! \name Test Functions

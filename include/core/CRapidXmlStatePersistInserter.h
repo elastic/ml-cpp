@@ -46,7 +46,7 @@ public:
     CRapidXmlStatePersistInserter(const std::string& rootName, const TStrStrMap& rootAttributes);
 
     //! Store a name/value
-    virtual void insertValue(const std::string& name, const std::string& value);
+    virtual void insertValue(const std::string& name, const std::string& value) override;
 
     // Bring extra base class overloads into scope
     using CStatePersistInserter::insertValue;
@@ -59,10 +59,10 @@ public:
 
 protected:
     //! Start a new level with the given name
-    virtual void newLevel(const std::string& name);
+    virtual void newLevel(const std::string& name) override;
 
     //! End the current level
-    virtual void endLevel();
+    virtual void endLevel() override;
 
 private:
     //! Get a const char * version of a string that will last at least as

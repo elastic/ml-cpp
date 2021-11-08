@@ -411,16 +411,16 @@ public:
 //! can't be calculated.
 class MODEL_EXPORT CInfluenceUnavailableCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams& params) const;
-    virtual void computeInfluences(TCorrelateParams& params) const;
+    virtual void computeInfluences(TParams& params) const override;
+    virtual void computeInfluences(TCorrelateParams& params) const override;
 };
 
 //! \brief A stub implementation for the case that every influence
 //! is 1, irrespective of the feature value and influence values.
 class MODEL_EXPORT CIndicatorInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams& params) const;
-    virtual void computeInfluences(TCorrelateParams& params) const;
+    virtual void computeInfluences(TParams& params) const override;
+    virtual void computeInfluences(TCorrelateParams& params) const override;
 };
 
 //! \brief Computes the influences for sum like features.
@@ -446,8 +446,8 @@ public:
 //! know what its typical count is and we don't have this information.
 class MODEL_EXPORT CLogProbabilityComplementInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams& params) const;
-    virtual void computeInfluences(TCorrelateParams& params) const;
+    virtual void computeInfluences(TParams& params) const override;
+    virtual void computeInfluences(TCorrelateParams& params) const override;
 };
 
 //! \brief Computes the influences for minimum like features.
@@ -477,8 +477,8 @@ public:
 //! the left or right tail.
 class MODEL_EXPORT CLogProbabilityInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams& params) const;
-    virtual void computeInfluences(TCorrelateParams& params) const;
+    virtual void computeInfluences(TParams& params) const override;
+    virtual void computeInfluences(TCorrelateParams& params) const override;
 };
 
 //! \brief Computes the influences for the mean feature.
@@ -498,8 +498,8 @@ public:
 //! on the calculation.
 class MODEL_EXPORT CMeanInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams& params) const;
-    virtual void computeInfluences(TCorrelateParams& params) const;
+    virtual void computeInfluences(TParams& params) const override;
+    virtual void computeInfluences(TCorrelateParams& params) const override;
 };
 
 //! \brief Computes the influences for the mean feature.
@@ -519,8 +519,8 @@ public:
 //! on the calculation.
 class MODEL_EXPORT CVarianceInfluenceCalculator : public CInfluenceCalculator {
 public:
-    virtual void computeInfluences(TParams& params) const;
-    virtual void computeInfluences(TCorrelateParams& params) const;
+    virtual void computeInfluences(TParams& params) const override;
+    virtual void computeInfluences(TCorrelateParams& params) const override;
 };
 }
 }

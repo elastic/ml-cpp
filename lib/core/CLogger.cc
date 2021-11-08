@@ -70,7 +70,7 @@ private:
 
 public:
     formatter_type create_formatter(const boost::log::attribute_name& name,
-                                    const args_map& args) {
+                                    const args_map& args) override {
         args_map::const_iterator iter{args.find(FORMAT)};
         if (iter != args.end()) {
             return boost::log::expressions::stream

@@ -49,7 +49,7 @@ namespace {
 class CEmptySearcher : public ml::core::CDataSearcher {
 public:
     //! Do a search that results in an empty input stream.
-    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) override {
         return TIStreamP(new std::istringstream());
     }
 };
@@ -68,11 +68,11 @@ class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
     CSingleResultVisitor() : m_LastResult(0.0) {}
 
-    virtual ~CSingleResultVisitor() {}
+    virtual ~CSingleResultVisitor() override {}
 
     virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
                        const TNode& node,
-                       bool /*pivot*/) {
+                       bool /*pivot*/) override {
         if (!this->isSimpleCount(node) && this->isLeaf(node)) {
             if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
                 return;
@@ -98,11 +98,11 @@ class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
     CMultiResultVisitor() : m_LastResult(0.0) {}
 
-    virtual ~CMultiResultVisitor() {}
+    virtual ~CMultiResultVisitor() override {}
 
     virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
                        const TNode& node,
-                       bool /*pivot*/) {
+                       bool /*pivot*/) override {
         if (!this->isSimpleCount(node) && this->isLeaf(node)) {
             if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
                 return;
@@ -136,11 +136,11 @@ class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
     CResultsScoreVisitor(int score) : m_Score(score) {}
 
-    virtual ~CResultsScoreVisitor() {}
+    virtual ~CResultsScoreVisitor() override {}
 
     virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
                        const TNode& node,
-                       bool /*pivot*/) {
+                       bool /*pivot*/) override {
         if (this->isRoot(node)) {
             node.s_NormalizedAnomalyScore = m_Score;
         }

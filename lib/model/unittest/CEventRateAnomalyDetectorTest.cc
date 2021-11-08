@@ -65,7 +65,7 @@ public:
 
     virtual void visit(const ml::model::CHierarchicalResults& results,
                        const ml::model::CHierarchicalResults::TNode& node,
-                       bool pivot) {
+                       bool pivot) override {
         if (pivot) {
             return;
         }

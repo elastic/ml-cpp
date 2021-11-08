@@ -115,24 +115,24 @@ public:
     //! \name Prior Contract
     //@{
     //! Get the type of this prior.
-    virtual EPrior type() const;
+    virtual EPrior type() const override;
 
     //! Create a copy of the prior.
     //!
     //! \return A pointer to a newly allocated clone of this prior.
     //! \warning The caller owns the object returned.
-    virtual CLogNormalMeanPrecConjugate* clone() const;
+    virtual CLogNormalMeanPrecConjugate* clone() const override;
 
     //! Reset the prior to non-informative.
-    virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
+    virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0) override;
 
     //! Get the margin between the smallest value and the support left
     //! end. Priors with non-negative support, automatically adjust the
     //! offset if a value is seen which is smaller than offset + margin.
-    virtual double offsetMargin() const;
+    virtual double offsetMargin() const override;
 
     //! Returns true.
-    virtual bool needsOffset() const;
+    virtual bool needsOffset() const override;
 
     //! Reset m_Offset so the smallest sample is not within some minimum
     //! offset of the support left end. Note that translating the mean of
@@ -147,17 +147,18 @@ public:
     //! \param[in] weights The weights of each sample in \p samples.
     //! \return The penalty to apply in model selection.
     virtual double adjustOffset(const TDouble1Vec& samples,
-                                const TDoubleWeightsAry1Vec& weights);
+                                const TDoubleWeightsAry1Vec& weights) override;
 
     //! Get the current offset.
-    virtual double offset() const;
+    virtual double offset() const override;
 
     //! Update the prior with a collection of independent samples from
     //! the log-normal variable.
     //!
     //! \param[in] samples A collection of samples of the variable.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights);
+    virtual void addSamples(const TDouble1Vec& samples,
+                            const TDoubleWeightsAry1Vec& weights) override;
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -167,20 +168,21 @@ public:
     //!
     //! \param[in] time The time increment to apply.
     //! \note \p time must be non negative.
-    virtual void propagateForwardsByTime(double time);
+    virtual void propagateForwardsByTime(double time) override;
 
     //! Get the support for the marginal likelihood function.
-    virtual TDoubleDoublePr marginalLikelihoodSupport() const;
+    virtual TDoubleDoublePr marginalLikelihoodSupport() const override;
 
     //! Get the mean of the marginal likelihood function.
-    virtual double marginalLikelihoodMean() const;
+    virtual double marginalLikelihoodMean() const override;
 
     //! Get the mode of the marginal likelihood function.
-    virtual double marginalLikelihoodMode(const TDoubleWeightsAry& weights = TWeights::UNIT) const;
+    virtual double
+    marginalLikelihoodMode(const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
 
     //! Get the variance of the marginal likelihood.
     virtual double
-    marginalLikelihoodVariance(const TDoubleWeightsAry& weights = TWeights::UNIT) const;
+    marginalLikelihoodVariance(const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -194,9 +196,9 @@ public:
     //! \param[in] percentage The percentage of interest.
     //! \param[in] weights Optional variance scale weights.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(double percentage,
-                                         const TDoubleWeightsAry& weights = TWeights::UNIT) const;
+    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
+        double percentage,
+        const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the exponentiated normal mean
@@ -210,7 +212,7 @@ public:
     virtual maths_t::EFloatingPointErrorStatus
     jointLogMarginalLikelihood(const TDouble1Vec& samples,
                                const TDoubleWeightsAry1Vec& weights,
-                               double& result) const;
+                               double& result) const override;
 
     //! Sample the marginal likelihood function.
     //!
@@ -219,7 +221,8 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
+    virtual void sampleMarginalLikelihood(std::size_t numberSamples,
+                                          TDouble1Vec& samples) const override;
 
     //! Compute minus the log of the joint c.d.f. of the marginal likelihood
     //! at \p samples.
@@ -260,7 +263,7 @@ public:
     virtual bool minusLogJointCdf(const TDouble1Vec& samples,
                                   const TDoubleWeightsAry1Vec& weights,
                                   double& lowerBound,
-                                  double& upperBound) const;
+                                  double& upperBound) const override;
 
     //! Compute minus the log of the one minus the joint c.d.f. of the
     //! marginal likelihood at \p samples without losing precision due to
@@ -271,7 +274,7 @@ public:
     virtual bool minusLogJointCdfComplement(const TDouble1Vec& samples,
                                             const TDoubleWeightsAry1Vec& weights,
                                             double& lowerBound,
-                                            double& upperBound) const;
+                                            double& upperBound) const override;
 
     //! Compute the probability of a less likely, i.e. lower likelihood,
     //! collection of independent samples from the variable.
@@ -295,36 +298,36 @@ public:
                                                 const TDoubleWeightsAry1Vec& weights,
                                                 double& lowerBound,
                                                 double& upperBound,
-                                                maths_t::ETail& tail) const;
+                                                maths_t::ETail& tail) const override;
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative() const;
+    virtual bool isNonInformative() const override;
 
     //! Get a human readable description of the prior.
     //!
     //! \param[in] indent The indent to use at the start of new lines.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string& indent, std::string& result) const;
+    virtual void print(const std::string& indent, std::string& result) const override;
 
     //! Print the prior density function in a specified format.
     //!
     //! \see CPrior::printJointDensityFunction for details.
-    virtual std::string printJointDensityFunction() const;
+    virtual std::string printJointDensityFunction() const override;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual uint64_t checksum(uint64_t seed = 0) const override;
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage() const;
+    virtual std::size_t memoryUsage() const override;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const;
+    virtual std::size_t staticSize() const override;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
     //@}
 
     //! Get the current expected mean for the exponentiated normal.
@@ -369,7 +372,7 @@ public:
 private:
     //! Generate statistics - mean and standard deviation - that are useful in providing a description of this prior
     //! \return A pair of strings containing representations of the marginal likelihood mean and standard deviation
-    CPrior::TStrStrPr doPrintMarginalLikelihoodStatistics() const;
+    CPrior::TStrStrPr doPrintMarginalLikelihoodStatistics() const override;
 
     //! Read parameters from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -381,7 +384,7 @@ private:
     bool isBad() const;
 
     //! Full debug dump of the state of this prior.
-    virtual std::string debug() const;
+    virtual std::string debug() const override;
 
 private:
     //! The mean parameter of a non-informative prior.
