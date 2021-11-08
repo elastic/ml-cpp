@@ -622,6 +622,11 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                 continue;
             }
 
+            if (this->shouldSkipUpdate(feature, pid, cid,
+                                       model_t::sampleTime(feature, startTime, bucketLength))) {
+                result.s_ShouldUpdateQuantiles = false;
+            }
+
             if (this->shouldIgnoreResult(feature, result.s_ResultType, pid, cid,
                                          model_t::sampleTime(feature, startTime, bucketLength,
                                                              bucket->time()))) {

@@ -415,6 +415,12 @@ bool CEventRateModel::computeProbability(std::size_t pid,
         if (!data) {
             continue;
         }
+
+        if (this->shouldSkipUpdate(feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
+                                   model_t::sampleTime(feature, startTime, bucketLength))) {
+            result.s_ShouldUpdateQuantiles = false;
+        }
+
         if (this->shouldIgnoreResult(
                 feature, result.s_ResultType, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID,
                 model_t::sampleTime(feature, startTime, bucketLength))) {

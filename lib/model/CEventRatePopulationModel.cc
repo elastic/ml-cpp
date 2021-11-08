@@ -661,6 +661,11 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
         for (std::size_t j = range.first; j < range.second; ++j) {
             std::size_t cid = CDataGatherer::extractAttributeId(featureData[j]);
 
+            if (this->shouldSkipUpdate(feature, pid, cid,
+                                       model_t::sampleTime(feature, startTime, bucketLength))) {
+                result.s_ShouldUpdateQuantiles = false;
+            }
+
             if (this->shouldIgnoreResult(feature, result.s_ResultType, pid, cid,
                                          model_t::sampleTime(feature, startTime, bucketLength))) {
                 continue;
