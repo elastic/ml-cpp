@@ -692,6 +692,12 @@ protected:
                               std::size_t cid,
                               core_t::TTime time) const;
 
+    //! Should the event be omitted from the quantiles and the results?
+    bool shouldSkipUpdate(model_t::EFeature feature,
+                          std::size_t pid,
+                          std::size_t cid,
+                          core_t::TTime time) const;
+
     //! Check if any of the result-filtering detection rules apply to this series.
     bool shouldIgnoreResult(model_t::EFeature feature,
                             const model_t::CResultType& resultType,

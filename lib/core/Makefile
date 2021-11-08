@@ -104,6 +104,7 @@ CPatternSet.cc \
 CPersistUtils.cc \
 CProgramCounters.cc \
 CRapidJsonConcurrentLineWriter.cc \
+CRapidJsonUnbufferedIStreamWrapper.cc \
 CRapidXmlParser.cc \
 CRapidXmlStatePersistInserter.cc \
 CRapidXmlStateRestoreTraverser.cc \

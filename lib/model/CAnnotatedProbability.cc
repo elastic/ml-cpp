@@ -36,6 +36,7 @@ const std::string DESCRIPTIVE_DATA_TAG("l");
 const std::string ANOMALY_TYPE_TAG("m");
 const std::string CORRELATED_ATTRIBUTE_TAG("n");
 const std::string MULTI_BUCKET_IMPACT_TAG("o");
+const std::string SHOULD_UPDATE_QUALITIES_TAG("p");
 }
 
 SAttributeProbability::SAttributeProbability()
@@ -166,6 +167,7 @@ void SAnnotatedProbability::swap(SAnnotatedProbability& other) noexcept {
     s_DescriptiveData.swap(other.s_DescriptiveData);
     std::swap(s_CurrentBucketCount, other.s_CurrentBucketCount);
     std::swap(s_BaselineBucketCount, other.s_BaselineBucketCount);
+    std::swap(s_ShouldUpdateQuantiles, other.s_ShouldUpdateQuantiles);
 }
 
 void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -188,6 +190,8 @@ void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter& i
         core::CPersistUtils::persist(BASELINE_BUCKET_COUNT_TAG,
                                      *s_BaselineBucketCount, inserter);
     }
+    core::CPersistUtils::persist(SHOULD_UPDATE_QUALITIES_TAG,
+                                 s_ShouldUpdateQuantiles, inserter);
 }
 
 bool SAnnotatedProbability::isInterim() const {
@@ -248,6 +252,13 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
                 return false;
             }
             s_BaselineBucketCount.reset(d);
+        } else if (name == SHOULD_UPDATE_QUALITIES_TAG) {
+            if (!core::CPersistUtils::restore(SHOULD_UPDATE_QUALITIES_TAG,
+                                              s_ShouldUpdateQuantiles, traverser)) {
+                LOG_ERROR(<< "Restore error for " << traverser.name() << " / "
+                          << traverser.value());
+                return false;
+            }
         }
     } while (traverser.next());
     return true;
