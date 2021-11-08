@@ -168,7 +168,7 @@ struct SSymmetricMatrix {
     //! The Frobenius norm.
     double frobenius(std::size_t d) const {
         double result = 0.0;
-        for (std::size_t i = 0u, i_ = 0; i < d; ++i, ++i_) {
+        for (std::size_t i = 0, i_ = 0; i < d; ++i, ++i_) {
             for (std::size_t j = 0; j < i; ++j, ++i_) {
                 result += 2.0 * m_LowerTriangle[i_] * m_LowerTriangle[i_];
             }
@@ -180,7 +180,7 @@ struct SSymmetricMatrix {
     //! Convert to the MATRIX representation.
     template<typename MATRIX>
     inline MATRIX& toType(std::size_t d, MATRIX& result) const {
-        for (std::size_t i = 0u, i_ = 0; i < d; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < d; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 result(i, j) = result(j, i) = m_LowerTriangle[i_];
             }
@@ -267,7 +267,7 @@ public:
 
     //! Construct from C-style array of arrays.
     explicit CSymmetricMatrixNxN(const TArray& m) {
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -276,7 +276,7 @@ public:
 
     //! Construct from a vector of vectors.
     explicit CSymmetricMatrixNxN(const TVecVec& m) {
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -286,7 +286,7 @@ public:
     //! Construct from a small vector of small vectors.
     template<std::size_t M>
     explicit CSymmetricMatrixNxN(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m) {
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -454,7 +454,7 @@ public:
     }
 
     //! Get a checksum for the matrix.
-    uint64_t checksum() const { return this->TBase::checksum(); }
+    std::uint64_t checksum() const { return this->TBase::checksum(); }
 };
 
 //! \brief Gets a constant symmetric matrix with specified dimension.
@@ -518,7 +518,7 @@ public:
 
 public:
     //! Set to multiple of ones matrix.
-    explicit CSymmetricMatrix(std::size_t d = 0u, T v = T(0)) : m_D(d) {
+    explicit CSymmetricMatrix(std::size_t d = 0, T v = T(0)) : m_D(d) {
         if (d > 0) {
             TBase::m_LowerTriangle.resize(d * (d + 1) / 2, v);
         }
@@ -527,7 +527,7 @@ public:
     //! Construct from C-style array of arrays.
     explicit CSymmetricMatrix(const TArray& m) : m_D(m.size()) {
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
-        for (std::size_t i = 0u, i_ = 0; i < m_D; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < m_D; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -539,7 +539,7 @@ public:
     explicit CSymmetricMatrix(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m)
         : m_D(m.size()) {
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
-        for (std::size_t i = 0u, i_ = 0; i < m_D; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < m_D; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -728,9 +728,9 @@ public:
     }
 
     //! Get a checksum for the matrix.
-    uint64_t checksum() const {
+    std::uint64_t checksum() const {
         return core::CHashing::hashCombine(this->TBase::checksum(),
-                                           static_cast<uint64_t>(m_D));
+                                           static_cast<std::uint64_t>(m_D));
     }
 
 private:
@@ -930,8 +930,8 @@ private:
 
 public:
     using TArray = T[N];
-    using TBoostArray = std::array<T, N>;
-    using TConstIterator = typename TBoostArray::const_iterator;
+    using TStdArray = std::array<T, N>;
+    using TConstIterator = typename TStdArray::const_iterator;
 
 public:
     //! See core::CMemory.
@@ -1131,7 +1131,7 @@ public:
     }
 
     //! Convert to a boost array.
-    inline TBoostArray toBoostArray() const { return TBase::m_X; }
+    inline TStdArray toArray() const { return TBase::m_X; }
 
     //! Convert to the specified vector representation.
     //!
@@ -1143,7 +1143,7 @@ public:
     }
 
     //! Get a checksum of this vector's components.
-    uint64_t checksum() const { return this->TBase::checksum(); }
+    std::uint64_t checksum() const { return this->TBase::checksum(); }
 
     //! Get the smallest possible vector.
     static const CVectorNx1& smallest() {
@@ -1164,14 +1164,14 @@ CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(ESymmetricMatrixType type,
                                                const CVectorNx1<T, N>& x) {
     switch (type) {
     case E_OuterProduct:
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = x(i) * x(j);
             }
         }
         break;
     case E_Diagonal:
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
             }
@@ -1233,7 +1233,7 @@ public:
 
 public:
     //! Set to multiple of ones vector.
-    explicit CVector(std::size_t d = 0u, T v = T(0)) {
+    explicit CVector(std::size_t d = 0, T v = T(0)) {
         if (d > 0) {
             TBase::m_X.resize(d, v);
         }
@@ -1447,7 +1447,7 @@ public:
     }
 
     //! Get a checksum of this vector's components.
-    uint64_t checksum() const { return this->TBase::checksum(); }
+    std::uint64_t checksum() const { return this->TBase::checksum(); }
 
     //! Get the smallest possible vector.
     static const CVector& smallest(std::size_t d) {
@@ -1468,14 +1468,14 @@ CSymmetricMatrix<T>::CSymmetricMatrix(ESymmetricMatrixType type, const CVector<T
     TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
     switch (type) {
     case E_OuterProduct:
-        for (std::size_t i = 0u, i_ = 0; i < x.dimension(); ++i) {
+        for (std::size_t i = 0, i_ = 0; i < x.dimension(); ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = x(i) * x(j);
             }
         }
         break;
     case E_Diagonal:
-        for (std::size_t i = 0u, i_ = 0; i < x.dimension(); ++i) {
+        for (std::size_t i = 0, i_ = 0; i < x.dimension(); ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
             }

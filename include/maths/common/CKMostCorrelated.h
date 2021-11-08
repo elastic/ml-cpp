@@ -110,7 +110,7 @@ public:
     void capture();
 
     //! Get the checksum of this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -180,7 +180,7 @@ protected:
                                   const core::CPackedBitVector& iy);
 
         //! Get the checksum of this object.
-        uint64_t checksum(uint64_t seed) const;
+        std::uint64_t checksum(std::uint64_t seed) const;
 
         //! Print for debug.
         std::string print() const;
