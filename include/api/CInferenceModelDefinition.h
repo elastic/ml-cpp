@@ -164,7 +164,7 @@ public:
     using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
 
 public:
-    ~CTrainedModel() override = default;
+    virtual ~CTrainedModel() override = default;
     void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Names of the features used by the model.
     virtual const TStringVec& featureNames() const;
