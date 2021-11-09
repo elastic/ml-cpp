@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testThread) {
         }
 
     private:
-        void run() {
+        void run() override {
             LOG_DEBUG(<< "Thread running");
             m_Mutex.lock();
             m_Running = true;
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(testThread) {
             LOG_DEBUG(<< "Thread exiting");
         }
 
-        void shutdown() {
+        void shutdown() override {
             LOG_DEBUG(<< "Thread shutdown");
             m_Mutex.lock();
             m_Running = false;
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(testThreadCondition) {
         }
 
     private:
-        void run() {
+        void run() override {
             LOG_DEBUG(<< "Thread running");
             this->lock();
             this->signal();
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(testThreadCondition) {
             LOG_DEBUG(<< "Thread exiting");
         }
 
-        void shutdown() {
+        void shutdown() override {
             LOG_DEBUG(<< "Thread shutting down");
             this->lock();
             this->signal();

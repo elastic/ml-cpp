@@ -26,7 +26,7 @@ class CReadableJsonStatePersistInserter : public ml::core::CJsonStatePersistInse
 public:
     explicit CReadableJsonStatePersistInserter(std::ostream& outputStream)
         : ml::core::CJsonStatePersistInserter(outputStream) {}
-    virtual bool readableTags() const { return true; }
+    bool readableTags() const override { return true; }
 };
 
 const ml::core::TPersistenceTag LEVEL1A_TAG{"a", "level1A"};
