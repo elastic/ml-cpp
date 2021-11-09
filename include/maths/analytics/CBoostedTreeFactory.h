@@ -292,6 +292,10 @@ private:
     //! to use for retrained trees when training incrementally.
     void initializeUnsetRetrainedTreeEta();
 
+    //! Estimate a good initial value and range to search for the cost of
+    //! changing predictions when training incrementally.
+    void initializePredictionChangeCost();
+
     //! Estimate a good initial value and range to search for the for tree
     //! topology penalty when training incrementally.
     void initializeUnsetTreeTopologyPenalty(core::CDataFrame& frame);
@@ -313,9 +317,6 @@ private:
                                        double intervalLeftEnd,
                                        double intervalRightEnd,
                                        const TAdjustTestLoss& adjustTestLoss = noopAdjustTestLoss) const;
-
-    //! Initialize the state for hyperparameter optimisation.
-    void initializeHyperparameterOptimisation() const;
 
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
@@ -380,15 +381,6 @@ private:
     std::size_t m_NumberThreads{1};
     TBoostedTreeImplUPtr m_TreeImpl;
     mutable std::size_t m_PaddedExtraColumns{0};
-    TVector m_LogDownsampleFactorSearchInterval{0.0};
-    TVector m_LogFeatureBagFractionInterval{0.0};
-    TVector m_LogDepthPenaltyMultiplierSearchInterval{0.0};
-    TVector m_LogTreeSizePenaltyMultiplierSearchInterval{0.0};
-    TVector m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0};
-    TVector m_SoftDepthLimitSearchInterval{0.0};
-    TVector m_LogEtaSearchInterval{0.0};
-    TVector m_LogRetrainedTreeEtaSearchInterval{0.0};
-    TVector m_LogTreeTopologyChangePenaltySearchInterval{0.0};
     TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
 };
 }

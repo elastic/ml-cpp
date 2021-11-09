@@ -191,6 +191,8 @@ private:
     using TFloatVec = std::vector<common::CFloatStorage>;
     using TFloatVecVec = std::vector<TFloatVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+    using TDoubleParameter = CBoostedTreeParameter<double>;
+    using TSizeParameter = CBoostedTreeParameter<std::size_t>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
@@ -446,8 +448,8 @@ private:
 
     //! \name Cross-validation
     //@{
-    CBoostedTreeParameter<std::size_t> m_NumberFolds{4};
-    CBoostedTreeParameter<double> m_TrainFractionPerFold{0.75};
+    TSizeParameter m_NumberFolds{4};
+    TDoubleParameter m_TrainFractionPerFold{0.75};
     bool m_StopCrossValidationEarly{true};
     TOptionalDoubleVecVec m_FoldRoundTestLosses;
     //@}
@@ -501,6 +503,7 @@ private:
 
 private:
     friend class CBoostedTreeFactory;
+    friend class CBoostedTreeHyperparameters;
     friend class CBoostedTreeImplForTest;
 };
 }

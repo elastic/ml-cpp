@@ -12,18 +12,18 @@
 #ifndef INCLUDED_ml_maths_analytics_CBoostedTreeHyperparameters_h
 #define INCLUDED_ml_maths_analytics_CBoostedTreeHyperparameters_h
 
-#include <maths/analytics/ImportExport.h>
-
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/analytics/CBoostedTreeUtils.h>
+#include <maths/analytics/ImportExport.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBayesianOptimisation.h>
 #include <maths/common/CChecksum.h>
+#include <maths/common/CLinearAlgebraFwd.h>
 #include <maths/common/CTools.h>
 
 #include <boost/optional.hpp>
@@ -36,18 +36,15 @@
 #include <utility>
 
 namespace ml {
+namespace core {
+class CDataFrame;
+}
 namespace maths {
 namespace analytics {
+class CBoostedTreeImpl;
 class CDataFrameTrainBoostedTreeInstrumentationInterface;
 template<typename T>
 class CScopeBoostedTreeParameterOverrides;
-
-class MATHS_ANALYTICS_EXPORT CBoostedTreeParameterConstants {
-public:
-    static constexpr std::size_t MIN_VALUE_INDEX{0};
-    static constexpr std::size_t MID_VALUE_INDEX{1};
-    static constexpr std::size_t MAX_VALUE_INDEX{2};
-};
 
 //! \brief Encapsulates a boosted tree parameter.
 //!
@@ -57,26 +54,22 @@ public:
 //! of a user override but we can also choose to fix a parameter if we can't
 //! determine a good search range.
 template<typename T>
-class CBoostedTreeParameter final : private CBoostedTreeParameterConstants {
+class CBoostedTreeParameter final {
 public:
     using TVector = common::CVectorNx1<T, 3>;
 
+    enum ESearchType { E_LinearSearch, E_LogSearch };
+
 public:
-    explicit CBoostedTreeParameter(T value) : m_Value{value} {}
+    explicit CBoostedTreeParameter(T value, ESearchType logSearch = E_LinearSearch)
+        : m_Value{value}, m_MinValue{value}, m_MaxValue{value}, m_LogSearch{logSearch == E_LogSearch} {
+    }
 
     //! Get the value.
     T value() const { return m_Value; }
 
-    //! Get the parameters of the fine tune search.
-    //!
-    //! These are [lower bound, initial value, upper bound], respectively.
-    TVector fineTuneParameters() const {
-        TVector result;
-        result(MIN_VALUE_INDEX) = m_MinValue;
-        result(MID_VALUE_INDEX) = m_Value;
-        result(MAX_VALUE_INDEX) = m_MaxValue;
-        return result;
-    }
+    //! Get the value range.
+    std::pair<T, T> range() const { return {m_MinValue, m_MaxValue}; }
 
     //! Set to \p value.
     //!
@@ -86,6 +79,20 @@ public:
             value = common::CTools::truncate(value, m_MinValue, m_MaxValue);
         }
         m_Value = value;
+    }
+
+    //! Multiply by \p scale.
+    //!
+    //! \note Has no effect if the parameter is fixed.
+    CBoostedTreeParameter& scale(T scale) {
+        if (m_FixedToRange) {
+            m_Value = common::CTools::truncate(scale * m_Value, m_MinValue, m_MaxValue);
+        } else {
+            m_Value *= scale;
+            m_MinValue *= scale;
+            m_MaxValue *= scale;
+        }
+        return *this;
     }
 
     //! Set to the midpoint of the range or \p value if the parameters isn't
@@ -138,6 +145,22 @@ public:
     //! Check if the range is fixed.
     bool rangeFixed() const { return m_FixedToRange; }
 
+    //! Check if \p value is valid for this parameter.
+    bool valid(double value) const {
+        return m_LogSearch == false || value > 0.0;
+    }
+
+    //! Convert \p value to the value used by BO for fine tuning.
+    double toSearchValue(T value) const {
+        return m_LogSearch ? common::CTools::stableLog(static_cast<double>(value))
+                           : static_cast<double>(value);
+    }
+
+    //! Convert \p value from its value used by BO for fine tuning.
+    T fromSearchValue(double value) const {
+        return static_cast<T>(m_LogSearch ? common::CTools::stableExp(value) : value);
+    }
+
     //! Save the current value.
     void save() { m_SavedValue = m_Value; }
     //! Load the saved value.
@@ -146,6 +169,7 @@ public:
     //! Persist writing to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         core::CPersistUtils::persist(FIXED_TO_RANGE_TAG, m_FixedToRange, inserter);
+        core::CPersistUtils::persist(LOG_SEARCH_TAG, m_LogSearch, inserter);
         core::CPersistUtils::persist(MIN_VALUE_TAG, m_MinValue, inserter);
         core::CPersistUtils::persist(MAX_VALUE_TAG, m_MaxValue, inserter);
         core::CPersistUtils::persist(SAVED_VALUE_TAG, m_SavedValue, inserter);
@@ -158,6 +182,8 @@ public:
             const std::string& name{traverser.name()};
             RESTORE(FIXED_TO_RANGE_TAG,
                     core::CPersistUtils::restore(FIXED_TO_RANGE_TAG, m_FixedToRange, traverser))
+            RESTORE(LOG_SEARCH_TAG,
+                    core::CPersistUtils::restore(LOG_SEARCH_TAG, m_LogSearch, traverser))
             RESTORE(MIN_VALUE_TAG,
                     core::CPersistUtils::restore(MIN_VALUE_TAG, m_MinValue, traverser))
             RESTORE(MAX_VALUE_TAG,
@@ -172,6 +198,7 @@ public:
     //! Get a checksum of this object.
     std::uint64_t checksum(std::uint64_t seed = 0) const {
         seed = common::CChecksum::calculate(seed, m_FixedToRange);
+        seed = common::CChecksum::calculate(seed, m_LogSearch);
         seed = common::CChecksum::calculate(seed, m_MinValue);
         seed = common::CChecksum::calculate(seed, m_MaxValue);
         seed = common::CChecksum::calculate(seed, m_SavedValue);
@@ -188,6 +215,7 @@ public:
 
 private:
     static const std::string FIXED_TO_RANGE_TAG;
+    static const std::string LOG_SEARCH_TAG;
     static const std::string MIN_VALUE_TAG;
     static const std::string MAX_VALUE_TAG;
     static const std::string SAVED_VALUE_TAG;
@@ -199,6 +227,7 @@ private:
     T m_MinValue{};
     T m_MaxValue{};
     bool m_FixedToRange{false};
+    bool m_LogSearch{false};
 
     template<typename>
     friend class CScopeBoostedTreeParameterOverrides;
@@ -206,6 +235,8 @@ private:
 
 template<typename T>
 const std::string CBoostedTreeParameter<T>::FIXED_TO_RANGE_TAG{"fixed_to_range"};
+template<typename T>
+const std::string CBoostedTreeParameter<T>::LOG_SEARCH_TAG{"log_search"};
 template<typename T>
 const std::string CBoostedTreeParameter<T>::MIN_VALUE_TAG{"max_value"};
 template<typename T>
@@ -262,12 +293,69 @@ public:
     using TStrVec = std::vector<std::string>;
     using TDoubleParameter = CBoostedTreeParameter<double>;
     using TSizeParameter = CBoostedTreeParameter<std::size_t>;
-    using TAddInitialRangeFunc =
-        std::function<void(boosted_tree_detail::EHyperparameter, TDoubleDoublePrVec&)>;
+    using TVector3x1 = common::CVectorNx1<double, 3>;
+    using TOptionalVector3x1 = boost::optional<TVector3x1>;
     using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
+
+    //! \brief The arguments to initialize the
+    class MATHS_ANALYTICS_EXPORT CInitializeFineTuneArguments {
+    public:
+        using TUpdateParameter = std::function<bool(CBoostedTreeImpl&, double)>;
+        using TTruncateParameter = std::function<void(TVector3x1&)>;
+        using TAdjustTestLoss = std::function<double(double, double, double)>;
+
+    public:
+        CInitializeFineTuneArguments(core::CDataFrame& frame,
+                                     CBoostedTreeImpl& tree,
+                                     double maxValue,
+                                     double searchInterval,
+                                     TUpdateParameter updateParameter)
+            : m_UpdateParameter{std::move(updateParameter)}, m_Frame{frame}, m_Tree{tree},
+              m_MaxValue{maxValue}, m_SearchInterval{searchInterval} {}
+
+        CInitializeFineTuneArguments(const CInitializeFineTuneArguments&) = delete;
+        CInitializeFineTuneArguments& operator=(const CInitializeFineTuneArguments&) = delete;
+
+        CInitializeFineTuneArguments& adjustLoss(TAdjustTestLoss adjustLoss) {
+            m_AdjustLoss = std::move(adjustLoss);
+            return *this;
+        }
+
+        CInitializeFineTuneArguments& truncateParameter(TTruncateParameter truncateParameter) {
+            m_TruncateParameter = std::move(truncateParameter);
+            return *this;
+        }
+
+        core::CDataFrame& frame() const { return m_Frame; }
+        CBoostedTreeImpl& tree() const { return m_Tree; }
+        double maxValue() const { return m_MaxValue; }
+        double searchInterval() const { return m_SearchInterval; }
+        const TUpdateParameter& updateParameter() const {
+            return m_UpdateParameter;
+        }
+        const TAdjustTestLoss& adjustLoss() const { return m_AdjustLoss; }
+        const TTruncateParameter& truncateParameter() const {
+            return m_TruncateParameter;
+        }
+
+    private:
+        static void noopTruncateParameter(TVector3x1&) {}
+        static double noopAdjustTestLoss(double, double, double testLoss) {
+            return testLoss;
+        }
+
+    private:
+        TUpdateParameter m_UpdateParameter;
+        TTruncateParameter m_TruncateParameter{noopTruncateParameter};
+        TAdjustTestLoss m_AdjustLoss{noopAdjustTestLoss};
+        core::CDataFrame& m_Frame;
+        CBoostedTreeImpl& m_Tree;
+        double m_MaxValue;
+        double m_SearchInterval;
+    };
 
 public:
     static const std::string BAYESIAN_OPTIMIZATION_TAG;
@@ -426,14 +514,29 @@ public:
     //! Set the maximum number of restarts to use internally in Bayesian Optimisation.
     void bayesianOptimisationRestarts(std::size_t restarts);
 
+    //! Get the maximum number of iterations used in testLossLineSearch.
+    std::size_t maxLineSearchIterations() const { return 10; }
+
     //! Get the number of hyperparameters to tune.
     std::size_t numberToTune() const;
 
     //! Reset search state.
     void resetSearch();
 
+    //! Compute the fine tune search interval for \p parameter.
+    void initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
+                                          TDoubleParameter& parameter) const;
+
+    //! Perform a line search for the test loss w.r.t. a single hyperparameter.
+    //! At the end we use a smooth curve fit through all test loss values (using
+    //! LOWESS regression) and use this to get a best estimate of where the true
+    //! minimum occurs.
+    TOptionalVector3x1 testLossLineSearch(const CInitializeFineTuneArguments& args,
+                                          double intervalLeftEnd,
+                                          double intervalRightEnd) const;
+
     //! Initialize the search for best values of tunable hyperparameters.
-    void initializeSearch(const TAddInitialRangeFunc& addInitialRange);
+    void initializeSearch();
 
     //! Initialize a search for the best hyperparameters.
     void startSearch();
@@ -536,19 +639,19 @@ private:
 
     //! \name Hyperparameters
     //@{
-    TDoubleParameter m_DepthPenaltyMultiplier{0.0};
-    TDoubleParameter m_TreeSizePenaltyMultiplier{0.0};
-    TDoubleParameter m_LeafWeightPenaltyMultiplier{0.0};
-    TDoubleParameter m_SoftTreeDepthLimit{0.0};
-    TDoubleParameter m_SoftTreeDepthTolerance{1.0};
-    TDoubleParameter m_TreeTopologyChangePenalty{0.0};
-    TDoubleParameter m_DownsampleFactor{0.5};
-    TDoubleParameter m_FeatureBagFraction{0.5};
-    TDoubleParameter m_Eta{0.1};
-    TDoubleParameter m_EtaGrowthRatePerTree{1.05};
-    TDoubleParameter m_RetrainedTreeEta{1.0};
-    TDoubleParameter m_PredictionChangeCost{0.5};
-    TSizeParameter m_MaximumNumberTrees{20};
+    TDoubleParameter m_DepthPenaltyMultiplier{0.0, TDoubleParameter::E_LogSearch};
+    TDoubleParameter m_TreeSizePenaltyMultiplier{0.0, TDoubleParameter::E_LogSearch};
+    TDoubleParameter m_LeafWeightPenaltyMultiplier{0.0, TDoubleParameter::E_LogSearch};
+    TDoubleParameter m_SoftTreeDepthLimit{0.0, TDoubleParameter::E_LinearSearch};
+    TDoubleParameter m_SoftTreeDepthTolerance{1.0, TDoubleParameter::E_LinearSearch};
+    TDoubleParameter m_TreeTopologyChangePenalty{0.0, TDoubleParameter::E_LogSearch};
+    TDoubleParameter m_DownsampleFactor{0.5, TDoubleParameter::E_LogSearch};
+    TDoubleParameter m_FeatureBagFraction{0.5, TDoubleParameter::E_LogSearch};
+    TDoubleParameter m_Eta{0.1, TDoubleParameter::E_LogSearch};
+    TDoubleParameter m_EtaGrowthRatePerTree{1.05, TDoubleParameter::E_LinearSearch};
+    TDoubleParameter m_RetrainedTreeEta{1.0, TDoubleParameter::E_LogSearch};
+    TDoubleParameter m_PredictionChangeCost{0.5, TDoubleParameter::E_LogSearch};
+    TSizeParameter m_MaximumNumberTrees{20, TSizeParameter::E_LinearSearch};
     //@}
 
     //@ \name Hyperparameter Optimisation

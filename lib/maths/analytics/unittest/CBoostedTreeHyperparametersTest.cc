@@ -29,7 +29,6 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TDoubleParameter = maths::analytics::CBoostedTreeParameter<double>;
 using TMeanAccumulator = maths::analytics::CBoostedTreeHyperparameters::TMeanAccumulator;
 using TMeanVarAccumulator = maths::analytics::CBoostedTreeHyperparameters::TMeanVarAccumulator;
-using TAddInitialRangeFunc = maths::analytics::CBoostedTreeHyperparameters::TAddInitialRangeFunc;
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeParameter) {
 
@@ -153,17 +152,21 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationCaptureBest) {
 
     // Check that we do recover best hyperparameters with minimum loss.
 
-    maths::analytics::CBoostedTreeHyperparameters hyperaparameters;
+    maths::analytics::CBoostedTreeHyperparameters hyperparameters;
 
-    hyperaparameters.stopHyperparameterOptimizationEarly(false);
+    hyperparameters.stopHyperparameterOptimizationEarly(false);
 
-    auto addInitialRange =
-        [](maths::analytics::boosted_tree_detail::EHyperparameter,
-           maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-            bb.emplace_back(0.1, 1.0);
-        };
+    hyperparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.treeSizePenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.leafWeightPenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.softTreeDepthLimit().fixToRange(0.1, 1.0);
+    hyperparameters.softTreeDepthTolerance().fixToRange(0.1, 1.0);
+    hyperparameters.downsampleFactor().fixToRange(0.1, 1.0);
+    hyperparameters.featureBagFraction().fixToRange(0.1, 1.0);
+    hyperparameters.eta().fixToRange(0.1, 1.0);
+    hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
-    hyperaparameters.initializeSearch(addInitialRange);
+    hyperparameters.initializeSearch();
 
     test::CRandomNumbers rng;
     TDoubleVec losses;
@@ -171,156 +174,165 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationCaptureBest) {
     double minimumLoss{std::numeric_limits<double>::max()};
     TDoubleVec expectedBestParameters;
 
-    for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
-         hyperaparameters.startNextSearchRound()) {
+    for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
+         hyperparameters.startNextSearchRound()) {
 
         TMeanVarAccumulator testLossMoments;
         rng.generateUniformSamples(0.5, 1.5, 3, losses);
         testLossMoments.add(losses);
 
-        hyperaparameters.captureBest(testLossMoments, 0.0, 100, 0, 50);
+        hyperparameters.captureBest(testLossMoments, 0.0, 100, 0, 50);
 
         double loss{maths::analytics::CBoostedTreeHyperparameters::lossAtNSigma(1, testLossMoments)};
         if (loss < minimumLoss) {
             expectedBestParameters.assign(
-                {hyperaparameters.depthPenaltyMultiplier().value(),
-                 hyperaparameters.treeSizePenaltyMultiplier().value(),
-                 hyperaparameters.leafWeightPenaltyMultiplier().value(),
-                 hyperaparameters.softTreeDepthLimit().value(),
-                 hyperaparameters.softTreeDepthTolerance().value(),
-                 hyperaparameters.downsampleFactor().value(),
-                 hyperaparameters.featureBagFraction().value(),
-                 hyperaparameters.etaGrowthRatePerTree().value(),
-                 hyperaparameters.eta().value()});
+                {hyperparameters.depthPenaltyMultiplier().value(),
+                 hyperparameters.treeSizePenaltyMultiplier().value(),
+                 hyperparameters.leafWeightPenaltyMultiplier().value(),
+                 hyperparameters.softTreeDepthLimit().value(),
+                 hyperparameters.softTreeDepthTolerance().value(),
+                 hyperparameters.downsampleFactor().value(),
+                 hyperparameters.featureBagFraction().value(),
+                 hyperparameters.etaGrowthRatePerTree().value(),
+                 hyperparameters.eta().value()});
         }
     }
 
-    hyperaparameters.restoreBest();
+    hyperparameters.restoreBest();
 
     BOOST_REQUIRE_EQUAL(expectedBestParameters[0],
-                        hyperaparameters.depthPenaltyMultiplier().value());
+                        hyperparameters.depthPenaltyMultiplier().value());
     BOOST_REQUIRE_EQUAL(expectedBestParameters[1],
-                        hyperaparameters.treeSizePenaltyMultiplier().value());
+                        hyperparameters.treeSizePenaltyMultiplier().value());
     BOOST_REQUIRE_EQUAL(expectedBestParameters[2],
-                        hyperaparameters.leafWeightPenaltyMultiplier().value());
+                        hyperparameters.leafWeightPenaltyMultiplier().value());
     BOOST_REQUIRE_EQUAL(expectedBestParameters[3],
-                        hyperaparameters.softTreeDepthLimit().value());
+                        hyperparameters.softTreeDepthLimit().value());
     BOOST_REQUIRE_EQUAL(expectedBestParameters[4],
-                        hyperaparameters.softTreeDepthTolerance().value());
+                        hyperparameters.softTreeDepthTolerance().value());
     BOOST_REQUIRE_EQUAL(expectedBestParameters[5],
-                        hyperaparameters.downsampleFactor().value());
+                        hyperparameters.downsampleFactor().value());
     BOOST_REQUIRE_EQUAL(expectedBestParameters[6],
-                        hyperaparameters.featureBagFraction().value());
+                        hyperparameters.featureBagFraction().value());
     BOOST_REQUIRE_EQUAL(expectedBestParameters[7],
-                        hyperaparameters.etaGrowthRatePerTree().value());
-    BOOST_REQUIRE_EQUAL(expectedBestParameters[8], hyperaparameters.eta().value());
+                        hyperparameters.etaGrowthRatePerTree().value());
+    BOOST_REQUIRE_EQUAL(expectedBestParameters[8], hyperparameters.eta().value());
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
     // Check that fixed parameters are not adjusted.
 
-    maths::analytics::CBoostedTreeHyperparameters hyperaparameters;
+    maths::analytics::CBoostedTreeHyperparameters hyperparameters;
 
-    hyperaparameters.maximumOptimisationRoundsPerHyperparameter(2);
+    hyperparameters.maximumOptimisationRoundsPerHyperparameter(2);
+
+    hyperparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
+
+    hyperparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.treeSizePenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.leafWeightPenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.softTreeDepthLimit().fixToRange(0.1, 1.0);
+    hyperparameters.softTreeDepthTolerance().fixToRange(0.1, 1.0);
+    hyperparameters.downsampleFactor().fixToRange(0.1, 1.0);
+    hyperparameters.featureBagFraction().fixToRange(0.1, 1.0);
+    hyperparameters.eta().fixToRange(0.1, 1.0);
+    hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
     auto testFix = [&](TDoubleParameter& parameter, std::size_t& numberToTune) {
 
         parameter.fixTo(TDoubleVec{0.5});
 
-        BOOST_REQUIRE_EQUAL(--numberToTune, hyperaparameters.numberToTune());
-
-        auto addInitialRange =
-            [](maths::analytics::boosted_tree_detail::EHyperparameter,
-               maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-                bb.emplace_back(0.1, 1.0);
-            };
-
-        hyperaparameters.initializeSearch(addInitialRange);
-
-        BOOST_REQUIRE_EQUAL(2 * hyperaparameters.numberToTune(),
-                            hyperaparameters.numberRounds());
+        BOOST_REQUIRE_EQUAL(--numberToTune, hyperparameters.numberToTune());
+        BOOST_REQUIRE_EQUAL(2 * hyperparameters.numberToTune(),
+                            hyperparameters.numberRounds());
 
         test::CRandomNumbers rng;
         TDoubleVec losses;
 
-        for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
-             hyperaparameters.startNextSearchRound()) {
+        hyperparameters.initializeSearch();
+
+        for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
+             hyperparameters.startNextSearchRound()) {
 
             TMeanVarAccumulator testLossMoments;
             rng.generateUniformSamples(0.1, 1.0, 3, losses);
             testLossMoments.add(losses);
-            hyperaparameters.selectNext(testLossMoments);
+            hyperparameters.selectNext(testLossMoments);
 
             BOOST_REQUIRE_EQUAL(0.5, parameter.value());
         }
     };
 
-    std::size_t numberToTune{hyperaparameters.numberToTune()};
+    std::size_t numberToTune{hyperparameters.numberToTune()};
 
-    testFix(hyperaparameters.depthPenaltyMultiplier(), numberToTune);
-    testFix(hyperaparameters.treeSizePenaltyMultiplier(), numberToTune);
-    testFix(hyperaparameters.leafWeightPenaltyMultiplier(), numberToTune);
-    testFix(hyperaparameters.softTreeDepthLimit(), numberToTune);
-    testFix(hyperaparameters.softTreeDepthTolerance(), numberToTune);
-    testFix(hyperaparameters.downsampleFactor(), numberToTune);
-    testFix(hyperaparameters.featureBagFraction(), numberToTune);
-    testFix(hyperaparameters.etaGrowthRatePerTree(), numberToTune);
-    testFix(hyperaparameters.eta(), numberToTune);
+    testFix(hyperparameters.depthPenaltyMultiplier(), numberToTune);
+    testFix(hyperparameters.treeSizePenaltyMultiplier(), numberToTune);
+    testFix(hyperparameters.leafWeightPenaltyMultiplier(), numberToTune);
+    testFix(hyperparameters.softTreeDepthLimit(), numberToTune);
+    testFix(hyperparameters.softTreeDepthTolerance(), numberToTune);
+    testFix(hyperparameters.downsampleFactor(), numberToTune);
+    testFix(hyperparameters.featureBagFraction(), numberToTune);
+    testFix(hyperparameters.etaGrowthRatePerTree(), numberToTune);
+    testFix(hyperparameters.eta(), numberToTune);
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithRangeOverrides) {
 
     // Check that fixed parameters are not adjusted.
 
-    maths::analytics::CBoostedTreeHyperparameters hyperaparameters;
+    maths::analytics::CBoostedTreeHyperparameters hyperparameters;
 
-    hyperaparameters.maximumOptimisationRoundsPerHyperparameter(2);
+    hyperparameters.maximumOptimisationRoundsPerHyperparameter(2);
+
+    hyperparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.treeSizePenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.leafWeightPenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.softTreeDepthLimit().fixToRange(0.1, 1.0);
+    hyperparameters.softTreeDepthTolerance().fixToRange(0.1, 1.0);
+    hyperparameters.downsampleFactor().fixToRange(0.1, 1.0);
+    hyperparameters.featureBagFraction().fixToRange(0.1, 1.0);
+    hyperparameters.eta().fixToRange(0.1, 1.0);
+    hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
     auto testFixToRange = [&](TDoubleParameter& parameter, std::size_t& numberToTune) {
 
         parameter.fixTo(TDoubleVec{0.25, 0.75});
 
-        BOOST_REQUIRE_EQUAL(numberToTune, hyperaparameters.numberToTune());
+        BOOST_REQUIRE_EQUAL(numberToTune, hyperparameters.numberToTune());
 
-        auto addInitialRange =
-            [](maths::analytics::boosted_tree_detail::EHyperparameter,
-               maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-                bb.emplace_back(0.1, 1.0);
-            };
+        hyperparameters.initializeSearch();
 
-        hyperaparameters.initializeSearch(addInitialRange);
-
-        BOOST_REQUIRE_EQUAL(2 * hyperaparameters.numberToTune(),
-                            hyperaparameters.numberRounds());
+        BOOST_REQUIRE_EQUAL(2 * hyperparameters.numberToTune(),
+                            hyperparameters.numberRounds());
 
         test::CRandomNumbers rng;
         TDoubleVec losses;
 
-        for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
-             hyperaparameters.startNextSearchRound()) {
+        for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
+             hyperparameters.startNextSearchRound()) {
 
             TMeanVarAccumulator testLossMoments;
             rng.generateUniformSamples(0.1, 1.0, 3, losses);
             testLossMoments.add(losses);
-            hyperaparameters.selectNext(testLossMoments);
+            hyperparameters.selectNext(testLossMoments);
 
             BOOST_TEST_REQUIRE(parameter.value() >= 0.25);
             BOOST_TEST_REQUIRE(parameter.value() <= 0.75);
         }
     };
 
-    std::size_t numberToTune{hyperaparameters.numberToTune()};
+    std::size_t numberToTune{hyperparameters.numberToTune()};
 
-    testFixToRange(hyperaparameters.depthPenaltyMultiplier(), numberToTune);
-    testFixToRange(hyperaparameters.treeSizePenaltyMultiplier(), numberToTune);
-    testFixToRange(hyperaparameters.leafWeightPenaltyMultiplier(), numberToTune);
-    testFixToRange(hyperaparameters.softTreeDepthLimit(), numberToTune);
-    testFixToRange(hyperaparameters.softTreeDepthTolerance(), numberToTune);
-    testFixToRange(hyperaparameters.downsampleFactor(), numberToTune);
-    testFixToRange(hyperaparameters.featureBagFraction(), numberToTune);
-    testFixToRange(hyperaparameters.etaGrowthRatePerTree(), numberToTune);
-    testFixToRange(hyperaparameters.eta(), numberToTune);
+    testFixToRange(hyperparameters.depthPenaltyMultiplier(), numberToTune);
+    testFixToRange(hyperparameters.treeSizePenaltyMultiplier(), numberToTune);
+    testFixToRange(hyperparameters.leafWeightPenaltyMultiplier(), numberToTune);
+    testFixToRange(hyperparameters.softTreeDepthLimit(), numberToTune);
+    testFixToRange(hyperparameters.softTreeDepthTolerance(), numberToTune);
+    testFixToRange(hyperparameters.downsampleFactor(), numberToTune);
+    testFixToRange(hyperparameters.featureBagFraction(), numberToTune);
+    testFixToRange(hyperparameters.etaGrowthRatePerTree(), numberToTune);
+    testFixToRange(hyperparameters.eta(), numberToTune);
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
@@ -328,132 +340,136 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
     // Check that we generate exactly the same sequence of hyperparameters after reset
     // and the same best values.
 
-    maths::analytics::CBoostedTreeHyperparameters hyperaparameters;
+    maths::analytics::CBoostedTreeHyperparameters hyperparameters;
 
-    hyperaparameters.stopHyperparameterOptimizationEarly(false);
+    hyperparameters.stopHyperparameterOptimizationEarly(false);
 
-    auto addInitialRange =
-        [](maths::analytics::boosted_tree_detail::EHyperparameter,
-           maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-            bb.emplace_back(0.1, 1.0);
-        };
+    hyperparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.treeSizePenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.leafWeightPenaltyMultiplier().fixToRange(0.1, 1.0);
+    hyperparameters.softTreeDepthLimit().fixToRange(0.1, 1.0);
+    hyperparameters.softTreeDepthTolerance().fixToRange(0.1, 1.0);
+    hyperparameters.downsampleFactor().fixToRange(0.1, 1.0);
+    hyperparameters.featureBagFraction().fixToRange(0.1, 1.0);
+    hyperparameters.eta().fixToRange(0.1, 1.0);
+    hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
-    hyperaparameters.initializeSearch(addInitialRange);
+    hyperparameters.initializeSearch();
 
     auto initHyperaparameters = [&] {
-        hyperaparameters.depthPenaltyMultiplier().set(0.5);
-        hyperaparameters.treeSizePenaltyMultiplier().set(0.5);
-        hyperaparameters.leafWeightPenaltyMultiplier().set(0.5);
-        hyperaparameters.softTreeDepthLimit().set(0.5);
-        hyperaparameters.softTreeDepthTolerance().set(0.5);
-        hyperaparameters.downsampleFactor().set(0.5);
-        hyperaparameters.featureBagFraction().set(0.5);
-        hyperaparameters.etaGrowthRatePerTree().set(0.5);
-        hyperaparameters.eta().set(0.5);
+        hyperparameters.depthPenaltyMultiplier().set(0.5);
+        hyperparameters.treeSizePenaltyMultiplier().set(0.5);
+        hyperparameters.leafWeightPenaltyMultiplier().set(0.5);
+        hyperparameters.softTreeDepthLimit().set(0.5);
+        hyperparameters.softTreeDepthTolerance().set(0.5);
+        hyperparameters.downsampleFactor().set(0.5);
+        hyperparameters.featureBagFraction().set(0.5);
+        hyperparameters.etaGrowthRatePerTree().set(0.5);
+        hyperparameters.eta().set(0.5);
     };
 
     test::CRandomNumbers rng;
 
     TDoubleVec losses;
-    rng.generateUniformSamples(0.1, 1.0, 3 * hyperaparameters.numberRounds(), losses);
+    rng.generateUniformSamples(0.1, 1.0, 3 * hyperparameters.numberRounds(), losses);
 
     TDoubleVecVec previousHyperparameters;
     double minimumLoss{std::numeric_limits<double>::max()};
 
     initHyperaparameters();
 
-    for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
-         hyperaparameters.startNextSearchRound()) {
+    for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
+         hyperparameters.startNextSearchRound()) {
         TMeanVarAccumulator testLossMoments;
-        testLossMoments.add(losses[3 * hyperaparameters.currentRound() + 0]);
-        testLossMoments.add(losses[3 * hyperaparameters.currentRound() + 1]);
-        testLossMoments.add(losses[3 * hyperaparameters.currentRound() + 2]);
+        testLossMoments.add(losses[3 * hyperparameters.currentRound() + 0]);
+        testLossMoments.add(losses[3 * hyperparameters.currentRound() + 1]);
+        testLossMoments.add(losses[3 * hyperparameters.currentRound() + 2]);
 
-        hyperaparameters.selectNext(testLossMoments);
-        hyperaparameters.captureBest(testLossMoments, 0.0, 100, 0, 50);
+        hyperparameters.selectNext(testLossMoments);
+        hyperparameters.captureBest(testLossMoments, 0.0, 100, 0, 50);
 
         previousHyperparameters.push_back(
-            TDoubleVec{hyperaparameters.depthPenaltyMultiplier().value(),
-                       hyperaparameters.treeSizePenaltyMultiplier().value(),
-                       hyperaparameters.leafWeightPenaltyMultiplier().value(),
-                       hyperaparameters.softTreeDepthLimit().value(),
-                       hyperaparameters.softTreeDepthTolerance().value(),
-                       hyperaparameters.downsampleFactor().value(),
-                       hyperaparameters.featureBagFraction().value(),
-                       hyperaparameters.etaGrowthRatePerTree().value(),
-                       hyperaparameters.eta().value()});
+            TDoubleVec{hyperparameters.depthPenaltyMultiplier().value(),
+                       hyperparameters.treeSizePenaltyMultiplier().value(),
+                       hyperparameters.leafWeightPenaltyMultiplier().value(),
+                       hyperparameters.softTreeDepthLimit().value(),
+                       hyperparameters.softTreeDepthTolerance().value(),
+                       hyperparameters.downsampleFactor().value(),
+                       hyperparameters.featureBagFraction().value(),
+                       hyperparameters.etaGrowthRatePerTree().value(),
+                       hyperparameters.eta().value()});
     }
 
-    hyperaparameters.restoreBest();
+    hyperparameters.restoreBest();
 
     TDoubleVec previousBestHyperparameters;
     previousBestHyperparameters.assign(
-        {hyperaparameters.depthPenaltyMultiplier().value(),
-         hyperaparameters.treeSizePenaltyMultiplier().value(),
-         hyperaparameters.leafWeightPenaltyMultiplier().value(),
-         hyperaparameters.softTreeDepthLimit().value(),
-         hyperaparameters.softTreeDepthTolerance().value(),
-         hyperaparameters.downsampleFactor().value(),
-         hyperaparameters.featureBagFraction().value(),
-         hyperaparameters.etaGrowthRatePerTree().value(), hyperaparameters.eta().value()});
+        {hyperparameters.depthPenaltyMultiplier().value(),
+         hyperparameters.treeSizePenaltyMultiplier().value(),
+         hyperparameters.leafWeightPenaltyMultiplier().value(),
+         hyperparameters.softTreeDepthLimit().value(),
+         hyperparameters.softTreeDepthTolerance().value(),
+         hyperparameters.downsampleFactor().value(),
+         hyperparameters.featureBagFraction().value(),
+         hyperparameters.etaGrowthRatePerTree().value(), hyperparameters.eta().value()});
 
-    hyperaparameters.resetSearch();
-    hyperaparameters.initializeSearch(addInitialRange);
+    hyperparameters.resetSearch();
+    hyperparameters.initializeSearch();
 
     initHyperaparameters();
     minimumLoss = std::numeric_limits<double>::max();
     TDoubleVec bestParameters;
 
-    for (hyperaparameters.startSearch(); hyperaparameters.searchNotFinished();
-         hyperaparameters.startNextSearchRound()) {
+    for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
+         hyperparameters.startNextSearchRound()) {
 
         TMeanVarAccumulator testLossMoments;
-        testLossMoments.add(losses[3 * hyperaparameters.currentRound() + 0]);
-        testLossMoments.add(losses[3 * hyperaparameters.currentRound() + 1]);
-        testLossMoments.add(losses[3 * hyperaparameters.currentRound() + 2]);
+        testLossMoments.add(losses[3 * hyperparameters.currentRound() + 0]);
+        testLossMoments.add(losses[3 * hyperparameters.currentRound() + 1]);
+        testLossMoments.add(losses[3 * hyperparameters.currentRound() + 2]);
 
-        hyperaparameters.selectNext(testLossMoments);
-        hyperaparameters.captureBest(testLossMoments, 0.0, 100, 0, 50);
+        hyperparameters.selectNext(testLossMoments);
+        hyperparameters.captureBest(testLossMoments, 0.0, 100, 0, 50);
 
-        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperaparameters.currentRound()][0],
-                            hyperaparameters.depthPenaltyMultiplier().value());
-        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperaparameters.currentRound()][1],
-                            hyperaparameters.treeSizePenaltyMultiplier().value());
-        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperaparameters.currentRound()][2],
-                            hyperaparameters.leafWeightPenaltyMultiplier().value());
-        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperaparameters.currentRound()][3],
-                            hyperaparameters.softTreeDepthLimit().value());
-        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperaparameters.currentRound()][4],
-                            hyperaparameters.softTreeDepthTolerance().value());
-        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperaparameters.currentRound()][5],
-                            hyperaparameters.downsampleFactor().value());
-        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperaparameters.currentRound()][6],
-                            hyperaparameters.featureBagFraction().value());
-        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperaparameters.currentRound()][7],
-                            hyperaparameters.etaGrowthRatePerTree().value());
-        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperaparameters.currentRound()][8],
-                            hyperaparameters.eta().value());
+        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperparameters.currentRound()][0],
+                            hyperparameters.depthPenaltyMultiplier().value());
+        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperparameters.currentRound()][1],
+                            hyperparameters.treeSizePenaltyMultiplier().value());
+        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperparameters.currentRound()][2],
+                            hyperparameters.leafWeightPenaltyMultiplier().value());
+        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperparameters.currentRound()][3],
+                            hyperparameters.softTreeDepthLimit().value());
+        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperparameters.currentRound()][4],
+                            hyperparameters.softTreeDepthTolerance().value());
+        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperparameters.currentRound()][5],
+                            hyperparameters.downsampleFactor().value());
+        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperparameters.currentRound()][6],
+                            hyperparameters.featureBagFraction().value());
+        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperparameters.currentRound()][7],
+                            hyperparameters.etaGrowthRatePerTree().value());
+        BOOST_REQUIRE_EQUAL(previousHyperparameters[hyperparameters.currentRound()][8],
+                            hyperparameters.eta().value());
     }
 
-    hyperaparameters.restoreBest();
+    hyperparameters.restoreBest();
 
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[0],
-                        hyperaparameters.depthPenaltyMultiplier().value());
+                        hyperparameters.depthPenaltyMultiplier().value());
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[1],
-                        hyperaparameters.treeSizePenaltyMultiplier().value());
+                        hyperparameters.treeSizePenaltyMultiplier().value());
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[2],
-                        hyperaparameters.leafWeightPenaltyMultiplier().value());
+                        hyperparameters.leafWeightPenaltyMultiplier().value());
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[3],
-                        hyperaparameters.softTreeDepthLimit().value());
+                        hyperparameters.softTreeDepthLimit().value());
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[4],
-                        hyperaparameters.softTreeDepthTolerance().value());
+                        hyperparameters.softTreeDepthTolerance().value());
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[5],
-                        hyperaparameters.downsampleFactor().value());
+                        hyperparameters.downsampleFactor().value());
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[6],
-                        hyperaparameters.featureBagFraction().value());
+                        hyperparameters.featureBagFraction().value());
     BOOST_REQUIRE_EQUAL(previousBestHyperparameters[7],
-                        hyperaparameters.etaGrowthRatePerTree().value());
-    BOOST_REQUIRE_EQUAL(previousBestHyperparameters[8], hyperaparameters.eta().value());
+                        hyperparameters.etaGrowthRatePerTree().value());
+    BOOST_REQUIRE_EQUAL(previousBestHyperparameters[8], hyperparameters.eta().value());
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOverrides) {
@@ -502,12 +518,17 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOptimisation) {
 
     maths::analytics::CBoostedTreeHyperparameters origHyperaparameters;
 
-    auto addInitialRange =
-        [](maths::analytics::boosted_tree_detail::EHyperparameter,
-           maths::analytics::CBoostedTreeHyperparameters::TDoubleDoublePrVec& bb) {
-            bb.emplace_back(0.1, 1.0);
-        };
-    origHyperaparameters.initializeSearch(addInitialRange);
+    origHyperaparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
+    origHyperaparameters.treeSizePenaltyMultiplier().fixToRange(0.1, 1.0);
+    origHyperaparameters.leafWeightPenaltyMultiplier().fixToRange(0.1, 1.0);
+    origHyperaparameters.softTreeDepthLimit().fixToRange(0.1, 1.0);
+    origHyperaparameters.softTreeDepthTolerance().fixToRange(0.1, 1.0);
+    origHyperaparameters.downsampleFactor().fixToRange(0.1, 1.0);
+    origHyperaparameters.featureBagFraction().fixToRange(0.1, 1.0);
+    origHyperaparameters.eta().fixToRange(0.1, 1.0);
+    origHyperaparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
+
+    origHyperaparameters.initializeSearch();
 
     origHyperaparameters.startSearch();
 
