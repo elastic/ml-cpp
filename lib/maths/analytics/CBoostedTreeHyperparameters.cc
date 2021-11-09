@@ -111,7 +111,7 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(
     const CInitializeFineTuneArguments& args,
     TDoubleParameter& parameter) const {
 
-    if (parameter.valid(args.maxValue()) == false) {
+    if (parameter.valid(args.maxValue())) {
 
         double maxValue{parameter.toSearchValue(args.maxValue())};
         double minValue{maxValue - parameter.toSearchValue(args.searchInterval())};
