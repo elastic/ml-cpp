@@ -653,8 +653,11 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     if (hyperparameters.softTreeDepthLimit().rangeFixed() == false) {
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_SoftTreeDepthLimitInitialized, [&] {
                 if (m_GainPerNode90thPercentile > 0.0) {
-                    double minSoftDepthLimit{MIN_SOFT_DEPTH_LIMIT};
                     double maxSoftDepthLimit{MIN_SOFT_DEPTH_LIMIT + log2MaxTreeSize};
+                    double minSearchValue{hyperparameters.softTreeDepthLimit().toSearchValue(
+                        MIN_SOFT_DEPTH_LIMIT)};
+                    double maxSearchValue{hyperparameters.softTreeDepthLimit().toSearchValue(
+                        maxSoftDepthLimit)};
                     hyperparameters.depthPenaltyMultiplier().set(m_GainPerNode50thPercentile);
                     hyperparameters.initializeFineTuneSearchInterval(
                         CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
@@ -665,7 +668,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                 return true;
                             }}
                             .truncateParameter([&](TVector& range) {
-                                range = truncate(range, minSoftDepthLimit, maxSoftDepthLimit);
+                                range = truncate(range, minSearchValue, maxSearchValue);
                             }),
                         hyperparameters.softTreeDepthLimit());
                 } else {

@@ -123,6 +123,7 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(
         fallback(MID_VALUE_INDEX) = meanValue;
         fallback(MAX_VALUE_INDEX) = maxValue;
         auto interval = this->testLossLineSearch(args, minValue, maxValue).value_or(fallback);
+        args.truncateParameter()(interval);
         LOG_TRACE(<< "search interval = [" << interval.toDelimited() << "]");
 
         parameter.fixToRange(parameter.fromSearchValue(interval(MIN_VALUE_INDEX)),
