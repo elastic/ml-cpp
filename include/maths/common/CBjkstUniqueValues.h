@@ -19,10 +19,10 @@
 
 #include <maths/common/ImportExport.h>
 
-#include <boost/variant.hpp>
 
 #include <cstddef>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include <stdint.h>
@@ -163,7 +163,7 @@ private:
         TUInt8VecVec s_B;
     };
 
-    using TUInt32VecOrSketch = boost::variant<TUInt32Vec, SSketch>;
+    using TUInt32VecOrSketch = std::variant<TUInt32Vec, SSketch>;
 
 private:
     //! Maybe switch to sketching the distinct value set.

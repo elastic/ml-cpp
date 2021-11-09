@@ -33,7 +33,7 @@ using TMinAccumulator = maths::common::CBasicStatistics::COrderStatisticsStack<d
 
 //! \brief Visitor to add a probability to variant of possible
 //! aggregation styles.
-struct SAddProbability : public boost::static_visitor<void> {
+struct SAddProbability {
     void operator()(double probability,
                     double weight,
                     maths::common::CJointProbabilityOfLessLikelySamples& aggregator) const {
@@ -48,7 +48,7 @@ struct SAddProbability : public boost::static_visitor<void> {
 
 //! \brief Visitor to read aggregate probability from a variant
 //! of possible aggregation styles.
-struct SReadProbability : public boost::static_visitor<bool> {
+struct SReadProbability {
     template<typename T>
     bool operator()(double weight, double& result, const T& aggregator) const {
         double probability;
@@ -204,7 +204,7 @@ void CModelTools::CProbabilityAggregator::add(const TAggregator& aggregator, dou
 void CModelTools::CProbabilityAggregator::add(double probability, double weight) {
     m_TotalWeight += weight;
     for (auto& aggregator : m_Aggregators) {
-        boost::apply_visitor(std::bind<void>(SAddProbability(), probability,
+        std::visit(std::bind<void>(SAddProbability(), probability,
                                              weight, std::placeholders::_1),
                              aggregator.first);
     }
@@ -232,7 +232,7 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
             n += aggregator.second;
         }
         for (const auto& aggregator : m_Aggregators) {
-            if (!boost::apply_visitor(
+            if (!std::visit(
                     std::bind<bool>(SReadProbability(), aggregator.second / n,
                                     std::ref(p), std::placeholders::_1),
                     aggregator.first)) {
@@ -244,7 +244,7 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     case E_Min: {
         TMinAccumulator p_;
         for (const auto& aggregator : m_Aggregators) {
-            if (!boost::apply_visitor(std::bind<bool>(SReadProbability(), std::ref(p_),
+            if (!std::visit(std::bind<bool>(SReadProbability(), std::ref(p_),
                                                       std::placeholders::_1),
                                       aggregator.first)) {
                 return false;

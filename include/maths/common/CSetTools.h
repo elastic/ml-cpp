@@ -14,10 +14,10 @@
 
 #include <maths/common/ImportExport.h>
 
-#include <boost/variant.hpp>
 
 #include <cstddef>
 #include <set>
+#include <variant>
 #include <vector>
 
 namespace ml {
@@ -45,16 +45,16 @@ public:
 
         template<typename T>
         bool operator()(const T& indexedObject) const {
-            const std::size_t* index = boost::get<std::size_t>(&m_IndexSet);
+            const std::size_t* index = std::get_if<std::size_t>(&m_IndexSet);
             if (index) {
                 return indexedObject.s_Index == *index;
             }
-            const TSizeSet& indexSet = boost::get<TSizeSet>(m_IndexSet);
+            const TSizeSet& indexSet = std::get<TSizeSet>(m_IndexSet);
             return indexSet.count(indexedObject.s_Index) > 0;
         }
 
     private:
-        using TSizeOrSizeSet = boost::variant<std::size_t, TSizeSet>;
+        using TSizeOrSizeSet = std::variant<std::size_t, TSizeSet>;
 
     private:
         TSizeOrSizeSet m_IndexSet;

@@ -210,16 +210,10 @@ private:
 
 //! A basic allocator that tracks memory usage
 template<typename T>
-class CTrackingAllocator {
+class CTrackingAllocator : public std::allocator<T> {
 public:
-    using value_type = T;
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
-    using reference = value_type&;
-    using const_reference = const value_type&;
-    using size_type = std::size_t;
-    using difference_type = std::ptrdiff_t;
-
+    using allocator_type = CTrackingAllocator<T>;
+    using traits_type = std::allocator_traits<allocator_type>;
 public:
     // convert an allocator<T> to allocator<U>
     template<typename U>
@@ -241,7 +235,7 @@ public:
 
     // memory allocation
     inline pointer allocate(size_type cnt,
-                            typename std::allocator<void>::const_pointer = nullptr) {
+                            typename traits_type::const_pointer = nullptr) {
         ms_Allocated += cnt;
         return reinterpret_cast<pointer>(::operator new(cnt * sizeof(T)));
     }
