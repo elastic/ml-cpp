@@ -50,9 +50,9 @@ public:
         : ml::model::CHierarchicalResultsLevelSet<STestNode>(root) {}
 
     //! Visit a node.
-    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
-                       const TNode& /*node*/,
-                       bool /*pivot*/) override {}
+    void visit(const ml::model::CHierarchicalResults& /*results*/,
+               const TNode& /*node*/,
+               bool /*pivot*/) override {}
 
     // make public
     using ml::model::CHierarchicalResultsLevelSet<STestNode>::elements;

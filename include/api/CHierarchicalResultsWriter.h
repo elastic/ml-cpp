@@ -154,9 +154,7 @@ public:
                                const TPivotWriterFunc& pivotsWriterFunc);
 
     //! Write \p node.
-    virtual void visit(const model::CHierarchicalResults& results,
-                       const TNode& node,
-                       bool pivot) override;
+    void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) override;
 
 private:
     //! Write out a population person result if \p node is a

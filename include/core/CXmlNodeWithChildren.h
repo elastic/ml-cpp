@@ -51,7 +51,7 @@ public:
 
     CXmlNodeWithChildren(const CXmlNodeWithChildren& arg);
 
-    virtual ~CXmlNodeWithChildren() override;
+    ~CXmlNodeWithChildren() override;
 
     CXmlNodeWithChildren& operator=(const CXmlNodeWithChildren& rhs);
 
@@ -68,7 +68,7 @@ public:
     const TChildNodePVec& children() const;
 
     //! Debug dump of hierarchy
-    virtual std::string dump() const override;
+    std::string dump() const override;
     virtual std::string dump(size_t indent) const;
 
 private:

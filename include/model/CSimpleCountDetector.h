@@ -54,15 +54,15 @@ public:
     CSimpleCountDetector(bool isForPersistence, const CAnomalyDetector& other);
 
     //! Returns true.
-    virtual bool isSimpleCount() const override;
+    bool isSimpleCount() const override;
 
     //! Don't prune the simple count detector!
-    virtual void pruneModels() override;
+    void pruneModels() override;
 
 private:
     //! This function is called before adding a record allowing
     //! for varied preprocessing.
-    virtual const TStrCPtrVec& preprocessFieldValues(const TStrCPtrVec& fieldValues) override;
+    const TStrCPtrVec& preprocessFieldValues(const TStrCPtrVec& fieldValues) override;
 
 private:
     //! Field values are strange compared to other anomaly detectors,

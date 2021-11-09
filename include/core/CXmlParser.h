@@ -84,22 +84,22 @@ public:
 
 public:
     CXmlParser();
-    virtual ~CXmlParser() override;
+    ~CXmlParser() override;
 
     bool parseFile(const std::string& fileName);
 
     //! Parse XML stored in a string
-    virtual bool parseString(const std::string& xml) override;
+    bool parseString(const std::string& xml) override;
 
     //! Parse XML stored in a char buffer
-    virtual bool parseBuffer(const char* begin, size_t length) override;
+    bool parseBuffer(const char* begin, size_t length) override;
 
     //! Parse XML stored in a char buffer that may be modified by the
     //! parsing and will outlive this object
-    virtual bool parseBufferInSitu(char* begin, size_t length) override;
+    bool parseBufferInSitu(char* begin, size_t length) override;
 
     //! Return the root element name (empty string if not parsed yet)
-    virtual std::string rootElementName() const override;
+    std::string rootElementName() const override;
 
     //! Return result from an XPath expression, if the number of matches != 1
     //! return false.
@@ -144,7 +144,7 @@ public:
     void dumpToStdout() const;
 
     //! Dump the document to string
-    virtual std::string dumpToString() const override;
+    std::string dumpToString() const override;
 
     //! Convert a node hierarchy to XML.
     //! (This will escape the text correctly.)
@@ -181,30 +181,30 @@ public:
     //! This is much more efficient than making repeated calls to
     //! evalXPathExpression() to retrieve the entire contents of a parsed
     //! document.
-    virtual bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
+    bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
 
     //! As above, but use a pool to avoid XML node memory allocations where possible
-    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
+    bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                         CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
-    virtual bool toNodeHierarchy(CStringCache& cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
+    bool toNodeHierarchy(CStringCache& cache,
+                         CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
 
     //! As above, but use both a node pool and a string cache
-    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                                 CStringCache& cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
+    bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                         CStringCache& cache,
+                         CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
 
     //! Functions for navigating an XML document without converting it to a
     //! node hierarchy
-    virtual bool navigateRoot() override;
-    virtual bool navigateFirstChild() override;
-    virtual bool navigateNext() override;
-    virtual bool navigateParent() override;
-    virtual bool currentNodeName(std::string& name) override;
-    virtual bool currentNodeValue(std::string& value) override;
+    bool navigateRoot() override;
+    bool navigateFirstChild() override;
+    bool navigateNext() override;
+    bool navigateParent() override;
+    bool currentNodeName(std::string& name) override;
+    bool currentNodeValue(std::string& value) override;
 
     //! Set root name
     bool setRootNode(const std::string&);

@@ -77,9 +77,9 @@ public:
     }
 
     //! Visit a node.
-    virtual void visit(const ml::model::CHierarchicalResults& results,
-                       const ml::model::CHierarchicalResults::TNode& node,
-                       bool pivot) override {
+    void visit(const ml::model::CHierarchicalResults& results,
+               const ml::model::CHierarchicalResults::TNode& node,
+               bool pivot) override {
         if (pivot) {
             return;
         }

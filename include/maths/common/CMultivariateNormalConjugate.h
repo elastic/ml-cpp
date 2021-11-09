@@ -149,7 +149,7 @@ public:
                                              this, std::placeholders::_1));
     }
 
-    virtual ~CMultivariateNormalConjugate() override {}
+    ~CMultivariateNormalConjugate() override {}
 
     // Default copy constructor and assignment operator work.
 
@@ -172,7 +172,7 @@ public:
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CMultivariateNormalConjugate* clone() const override {
+    CMultivariateNormalConjugate* clone() const override {
         return new CMultivariateNormalConjugate(*this);
     }
 
@@ -180,21 +180,21 @@ public:
     std::size_t dimension() const override { return N; }
 
     //! Reset the prior to non-informative.
-    virtual void setToNonInformative(double /*offset = 0.0*/, double decayRate = 0.0) override {
+    void setToNonInformative(double /*offset = 0.0*/, double decayRate = 0.0) override {
         *this = nonInformativePrior(this->dataType(), decayRate);
     }
 
     //! No-op.
-    virtual void adjustOffset(const TDouble10Vec1Vec& /*samples*/,
-                              const TDouble10VecWeightsAry1Vec& /*weights*/) override {}
+    void adjustOffset(const TDouble10Vec1Vec& /*samples*/,
+                      const TDouble10VecWeightsAry1Vec& /*weights*/) override {}
 
     //! Update the prior with a collection of independent samples from the
     //! process.
     //!
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TDouble10Vec1Vec& samples,
-                            const TDouble10VecWeightsAry1Vec& weights) override {
+    void addSamples(const TDouble10Vec1Vec& samples,
+                    const TDouble10VecWeightsAry1Vec& weights) override {
         if (samples.empty()) {
             return;
         }
@@ -296,7 +296,7 @@ public:
     }
 
     //! Update the prior for the specified elapsed time.
-    virtual void propagateForwardsByTime(double time) override {
+    void propagateForwardsByTime(double time) override {
         if (!CMathsFuncs::isFinite(time) || time < 0.0) {
             LOG_ERROR(<< "Bad propagation time " << time);
             return;
@@ -351,8 +351,8 @@ public:
     //! \note The caller must specify dimension - 1 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TUnivariatePriorPtrDoublePr
-    univariate(const TSize10Vec& marginalize, const TSizeDoublePr10Vec& condition) const override {
+    TUnivariatePriorPtrDoublePr univariate(const TSize10Vec& marginalize,
+                                           const TSizeDoublePr10Vec& condition) const override {
         if (!this->check(marginalize, condition)) {
             return {};
         }
@@ -436,8 +436,8 @@ public:
     //! \note The caller must specify dimension - 2 variables between
     //! \p marginalize and \p condition so the resulting distribution
     //! is univariate.
-    virtual TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
-                                        const TSizeDoublePr10Vec& condition) const override {
+    TPriorPtrDoublePr bivariate(const TSize10Vec& marginalize,
+                                const TSizeDoublePr10Vec& condition) const override {
         if (N == 2) {
             return {TPriorPtr(this->clone()), 0.0};
         }
@@ -522,29 +522,28 @@ public:
     }
 
     //! Get the support for the marginal likelihood function.
-    virtual TDouble10VecDouble10VecPr marginalLikelihoodSupport() const override {
+    TDouble10VecDouble10VecPr marginalLikelihoodSupport() const override {
         return {TPoint::smallest().template toVector<TDouble10Vec>(),
                 TPoint::largest().template toVector<TDouble10Vec>()};
     }
 
     //! Get the mean of the marginal likelihood function.
-    virtual TDouble10Vec marginalLikelihoodMean() const override {
+    TDouble10Vec marginalLikelihoodMean() const override {
         return this->mean().template toVector<TDouble10Vec>();
     }
 
     //! Get the mode of the marginal likelihood function.
-    virtual TDouble10Vec
-    marginalLikelihoodMode(const TDouble10VecWeightsAry& /*weights*/) const override {
+    TDouble10Vec marginalLikelihoodMode(const TDouble10VecWeightsAry& /*weights*/) const override {
         return this->marginalLikelihoodMean();
     }
 
     //! Get the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec10Vec marginalLikelihoodCovariance() const override {
+    TDouble10Vec10Vec marginalLikelihoodCovariance() const override {
         return this->covarianceMatrix().template toVectors<TDouble10Vec10Vec>();
     }
 
     //! Get the diagonal of the covariance matrix for the marginal likelihood.
-    virtual TDouble10Vec marginalLikelihoodVariances() const override {
+    TDouble10Vec marginalLikelihoodVariances() const override {
         return this->covarianceMatrix().template diagonal<TDouble10Vec>();
     }
 
@@ -554,7 +553,7 @@ public:
     //! \param[in] samples A collection of samples of the process.
     //! \param[in] weights The weights of each sample in \p samples.
     //! \param[out] result Filled in with the joint likelihood of \p samples.
-    virtual maths_t::EFloatingPointErrorStatus
+    maths_t::EFloatingPointErrorStatus
     jointLogMarginalLikelihood(const TDouble10Vec1Vec& samples,
                                const TDouble10VecWeightsAry1Vec& weights,
                                double& result) const override {
@@ -656,8 +655,8 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble10Vec1Vec& samples) const override {
+    void sampleMarginalLikelihood(std::size_t numberSamples,
+                                  TDouble10Vec1Vec& samples) const override {
         samples.clear();
 
         if (numberSamples == 0 || this->numberSamples() == 0.0) {
@@ -703,7 +702,7 @@ public:
     }
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative() const override {
+    bool isNonInformative() const override {
         return m_WishartDegreesFreedom <= static_cast<double>(N + 1);
     }
 
@@ -711,7 +710,7 @@ public:
     //!
     // \param[in] separator String used to separate priors.
     // \param[in,out] result Filled in with the description.
-    virtual void print(const std::string& separator, std::string& result) const override {
+    void print(const std::string& separator, std::string& result) const override {
         result += "\n" + separator + " multivariate normal";
         if (this->isNonInformative()) {
             result += " non-informative";
@@ -726,7 +725,7 @@ public:
     }
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const override {
+    uint64_t checksum(uint64_t seed = 0) const override {
         seed = this->CMultivariatePrior::checksum(seed);
         seed = CChecksum::calculate(seed, m_GaussianMean);
         seed = CChecksum::calculate(seed, m_GaussianPrecision);
@@ -735,18 +734,18 @@ public:
     }
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CMultivariateNormalConjugate");
     }
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage() const override { return 0; }
+    std::size_t memoryUsage() const override { return 0; }
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const override { return sizeof(*this); }
+    std::size_t staticSize() const override { return sizeof(*this); }
 
     //! Get the tag name for this prior.
-    virtual std::string persistenceTag() const override {
+    std::string persistenceTag() const override {
         return NORMAL_TAG + core::CStringUtils::typeToString(N);
     }
 
@@ -774,7 +773,7 @@ public:
     }
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override {
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override {
         inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
         inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
                              core::CIEEE754::E_SinglePrecision);

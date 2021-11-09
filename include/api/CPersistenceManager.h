@@ -150,8 +150,8 @@ private:
 
     protected:
         //! Inherited virtual interface
-        virtual void run() override;
-        virtual void shutdown() override;
+        void run() override;
+        void shutdown() override;
 
     private:
         //! Reference to the owning background persister

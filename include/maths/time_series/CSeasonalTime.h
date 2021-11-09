@@ -162,29 +162,29 @@ public:
     CDiurnalTime* clone() const override;
 
     //! Initialize from a string created by persist.
-    virtual bool fromString(std::string value) override;
+    bool fromString(std::string value) override;
 
     //! Convert to a string.
-    virtual std::string toString() const override;
+    std::string toString() const override;
 
     //! Get the length of a week.
-    virtual core_t::TTime windowRepeat() const override;
+    core_t::TTime windowRepeat() const override;
 
     //! Get the start of the week.
-    virtual core_t::TTime windowRepeatStart() const override;
+    core_t::TTime windowRepeatStart() const override;
 
     //! Get the start of the window.
-    virtual core_t::TTime windowStart() const override;
+    core_t::TTime windowStart() const override;
 
     //! Get the end of the window.
-    virtual core_t::TTime windowEnd() const override;
+    core_t::TTime windowEnd() const override;
 
     //! Get a checksum for this object.
-    virtual std::uint64_t checksum(std::uint64_t seed = 0) const override;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
 private:
     //! Get the scale to apply when computing the regression time.
-    virtual core_t::TTime regressionTimeScale() const override;
+    core_t::TTime regressionTimeScale() const override;
 
 private:
     //! The start of the week.
@@ -206,29 +206,29 @@ public:
     CGeneralPeriodTime* clone() const override;
 
     //! Initialize from a string created by persist.
-    virtual bool fromString(std::string value) override;
+    bool fromString(std::string value) override;
 
     //! Convert to a string.
-    virtual std::string toString() const override;
+    std::string toString() const override;
 
     //! Return the period.
-    virtual core_t::TTime windowRepeat() const override;
+    core_t::TTime windowRepeat() const override;
 
     //! Returns zero.
-    virtual core_t::TTime windowRepeatStart() const override;
+    core_t::TTime windowRepeatStart() const override;
 
     //! Returns zero.
-    virtual core_t::TTime windowStart() const override;
+    core_t::TTime windowStart() const override;
 
     //! Returns the period.
-    virtual core_t::TTime windowEnd() const override;
+    core_t::TTime windowEnd() const override;
 
     //! Get a checksum for this object.
-    virtual std::uint64_t checksum(std::uint64_t seed = 0) const override;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
 private:
     //! Get the scale to apply when computing the regression time.
-    virtual core_t::TTime regressionTimeScale() const override;
+    core_t::TTime regressionTimeScale() const override;
 };
 
 //! \brief Convert CSeasonalTime sub-classes to/from text representations.

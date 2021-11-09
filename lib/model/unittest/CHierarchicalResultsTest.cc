@@ -73,9 +73,7 @@ public:
 public:
     CBreadthFirstCheck() : m_Layer(0), m_Layers(1, TNodeCPtrSet()) {}
 
-    virtual void visit(const model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) override {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         LOG_DEBUG(<< "Visiting " << node.print());
 
         if (node.s_Children.empty()) {
@@ -152,9 +150,7 @@ public:
     using TNodeCPtrVec = std::vector<const TNode*>;
 
 public:
-    virtual void visit(const model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) override {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         LOG_DEBUG(<< "Visiting " << node.print());
         for (std::size_t i = node.s_Children.size(); i > 0; --i) {
             BOOST_TEST_REQUIRE(!m_Children.empty());
@@ -176,9 +172,7 @@ public:
     CPrinter(bool shouldOnlyPrintWrittenNodes)
         : m_ShouldPrintWrittenNodesOnly(shouldOnlyPrintWrittenNodes) {}
 
-    virtual void visit(const model::CHierarchicalResults& results,
-                       const TNode& node,
-                       bool pivot) override {
+    void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) override {
         if (m_ShouldPrintWrittenNodesOnly == false ||
             shouldWriteResult(m_Limits, results, node, pivot)) {
             m_Result = std::string(2 * depth(&node), ' ') + node.print() +
@@ -209,9 +203,7 @@ public:
     using TNodeCPtrVec = std::vector<const TNode*>;
 
 public:
-    virtual void visit(const model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) override {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         if (this->isPartitioned(node)) {
             m_PartitionedNodes.push_back(&node);
         }
@@ -241,9 +233,7 @@ private:
 //! \brief Checks our anomaly scores are correct post scoring.
 class CCheckScores : public model::CHierarchicalResultsVisitor {
 public:
-    virtual void visit(const model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) override {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         LOG_DEBUG(<< node.s_Spec.print() << " score = " << node.s_RawAnomalyScore << ", expected score = "
                   << maths::common::CTools::anomalyScore(node.probability()));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::common::CTools::anomalyScore(node.probability()),
@@ -258,9 +248,7 @@ class CWriteConsistencyChecker : public model::CHierarchicalResultsVisitor {
 public:
     CWriteConsistencyChecker(const model::CLimits& limits) : m_Limits(limits) {}
 
-    virtual void visit(const model::CHierarchicalResults& results,
-                       const TNode& node,
-                       bool pivot) override {
+    void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) override {
         if (!this->shouldWriteResult(m_Limits, results, node, pivot)) {
             return;
         }
@@ -320,9 +308,7 @@ public:
 public:
     CProbabilityGatherer() : TBase(SNodeProbabilities("bucket")) {}
 
-    virtual void visit(const model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool pivot) override {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool pivot) override {
         if (isLeaf(node)) {
             CFactory factory;
             TNodeProbabilitiesPtrVec probabilities;

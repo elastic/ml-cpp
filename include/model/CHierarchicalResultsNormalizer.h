@@ -118,7 +118,7 @@ public:
     void resetBigChange();
 
     //! Update the normalizer with the node's anomaly score.
-    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;
+    void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;
 
     //! Age the maximum scores and quantile summaries.
     void propagateForwardByTime(double time);

@@ -56,84 +56,79 @@ public:
     //! \name Prior Contract
     //@{
     //! Get the type of this prior.
-    virtual EPrior type() const override;
+    EPrior type() const override;
 
     //! Create a copy of the prior.
     //!
     //! \warning Caller owns returned object.
-    virtual CConstantPrior* clone() const override;
+    CConstantPrior* clone() const override;
 
     //! Reset the prior to non-informative.
-    virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0) override;
+    void setToNonInformative(double offset = 0.0, double decayRate = 0.0) override;
 
     //! Returns false.
-    virtual bool needsOffset() const override;
+    bool needsOffset() const override;
 
     //! No-op.
-    virtual double adjustOffset(const TDouble1Vec& samples,
-                                const TDoubleWeightsAry1Vec& weights) override;
+    double adjustOffset(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights) override;
 
     //! Returns zero.
-    virtual double offset() const override;
+    double offset() const override;
 
     //! Set the constant if it hasn't been set.
-    virtual void addSamples(const TDouble1Vec& samples,
-                            const TDoubleWeightsAry1Vec& weights) override;
+    void addSamples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights) override;
 
     //! No-op.
-    virtual void propagateForwardsByTime(double time) override;
+    void propagateForwardsByTime(double time) override;
 
     //! Get the support for the marginal likelihood function.
-    virtual TDoubleDoublePr marginalLikelihoodSupport() const override;
+    TDoubleDoublePr marginalLikelihoodSupport() const override;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual double marginalLikelihoodMean() const override;
+    double marginalLikelihoodMean() const override;
 
     //! Returns constant or zero if unset (by equidistribution).
-    virtual double
-    marginalLikelihoodMode(const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
+    double marginalLikelihoodMode(const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
 
     //! All confidence intervals are the point [constant, constant].
-    virtual TDoubleDoublePr marginalLikelihoodConfidenceInterval(
+    TDoubleDoublePr marginalLikelihoodConfidenceInterval(
         double percentage,
         const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
 
     //! Get the variance of the marginal likelihood.
-    virtual double
-    marginalLikelihoodVariance(const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
+    double marginalLikelihoodVariance(const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
 
     //! Returns a large value if all samples are equal to the constant
     //! and zero otherwise.
-    virtual maths_t::EFloatingPointErrorStatus
+    maths_t::EFloatingPointErrorStatus
     jointLogMarginalLikelihood(const TDouble1Vec& samples,
                                const TDoubleWeightsAry1Vec& weights,
                                double& result) const override;
 
     //! Get \p numberSamples times the constant.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples,
-                                          TDouble1Vec& samples) const override;
+    void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const override;
 
     //! A large number if any sample is less than the constant and
     //! zero otherwise.
-    virtual bool minusLogJointCdf(const TDouble1Vec& samples,
-                                  const TDoubleWeightsAry1Vec& weights,
-                                  double& lowerBound,
-                                  double& upperBound) const override;
+    bool minusLogJointCdf(const TDouble1Vec& samples,
+                          const TDoubleWeightsAry1Vec& weights,
+                          double& lowerBound,
+                          double& upperBound) const override;
 
     //! A large number if any sample is larger than the constant and
     //! zero otherwise.
-    virtual bool minusLogJointCdfComplement(const TDouble1Vec& samples,
-                                            const TDoubleWeightsAry1Vec& weights,
-                                            double& lowerBound,
-                                            double& upperBound) const override;
+    bool minusLogJointCdfComplement(const TDouble1Vec& samples,
+                                    const TDoubleWeightsAry1Vec& weights,
+                                    double& lowerBound,
+                                    double& upperBound) const override;
 
     //! Returns one if all samples equal the constant and one otherwise.
-    virtual bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                const TDouble1Vec& samples,
-                                                const TDoubleWeightsAry1Vec& weights,
-                                                double& lowerBound,
-                                                double& upperBound,
-                                                maths_t::ETail& tail) const override;
+    bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
+                                        const TDouble1Vec& samples,
+                                        const TDoubleWeightsAry1Vec& weights,
+                                        double& lowerBound,
+                                        double& upperBound,
+                                        maths_t::ETail& tail) const override;
 
     //! Check if this is a non-informative prior.
     bool isNonInformative() const override;
@@ -142,28 +137,28 @@ public:
     //!
     //! \param[in] indent The indent to use at the start of new lines.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string& indent, std::string& result) const override;
+    void print(const std::string& indent, std::string& result) const override;
 
     //! Print the marginal likelihood function.
-    virtual std::string printMarginalLikelihoodFunction(double weight = 1.0) const override;
+    std::string printMarginalLikelihoodFunction(double weight = 1.0) const override;
 
     //! Print the prior density function of the parameters.
-    virtual std::string printJointDensityFunction() const override;
+    std::string printJointDensityFunction() const override;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const override;
+    uint64_t checksum(uint64_t seed = 0) const override;
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage() const override;
+    std::size_t memoryUsage() const override;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const override;
+    std::size_t staticSize() const override;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
     //@}
 
     //! Get the constant value.

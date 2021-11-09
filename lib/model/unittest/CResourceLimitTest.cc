@@ -67,9 +67,9 @@ public:
         results.bottomUpBreadthFirst(*this);
     }
 
-    virtual void visit(const ml::model::CHierarchicalResults& results,
-                       const ml::model::CHierarchicalResults::TNode& node,
-                       bool pivot) override {
+    void visit(const ml::model::CHierarchicalResults& results,
+               const ml::model::CHierarchicalResults::TNode& node,
+               bool pivot) override {
         if (pivot) {
             return;
         }
@@ -147,11 +147,11 @@ public:
                           std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),
           m_ResourceMonitor(resourceMonitor), m_NewPeople(0), m_NewAttributes(0) {}
 
-    virtual void updateRecycledModels() override {
+    void updateRecycledModels() override {
         // Do nothing
     }
 
-    virtual void createNewModels(std::size_t n, std::size_t m) override {
+    void createNewModels(std::size_t n, std::size_t m) override {
         m_NewPeople += n;
         m_NewAttributes += m;
         this->CEventRateModel::createNewModels(n, m);
@@ -190,11 +190,11 @@ public:
                        std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),
           m_ResourceMonitor(resourceMonitor), m_NewPeople(0), m_NewAttributes(0) {}
 
-    virtual void updateRecycledModels() override {
+    void updateRecycledModels() override {
         // Do nothing
     }
 
-    virtual void createNewModels(std::size_t n, std::size_t m) override {
+    void createNewModels(std::size_t n, std::size_t m) override {
         m_NewPeople += n;
         m_NewAttributes += m;
         this->CMetricModel::createNewModels(n, m);

@@ -62,7 +62,7 @@ public:
     void clear();
 
     //! Compute the aggregate probability for \p node.
-    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;
+    void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;
 
     //! Age the quantile sketches.
     void propagateForwardByTime(double time);
