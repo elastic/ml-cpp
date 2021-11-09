@@ -66,8 +66,8 @@ public:
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.  The time will be passed
     //! as an empty optional, i.e. unknown.
-    bool writeRow(const TStrStrUMap& dataRowFields,
-                  const TStrStrUMap& overrideDataRowFields) = 0;
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields) = 0;
 
 protected:
     //! Class to cache a hash value so that it doesn't have to be repeatedly
