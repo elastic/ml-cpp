@@ -69,7 +69,7 @@ public:
     const TSizeVec& states() const { return m_States; }
 
 private:
-    virtual void run() {
+    void run() override {
         std::size_t n = 10000;
         m_States.reserve(n);
         TSizeVec machine;
@@ -86,7 +86,7 @@ private:
         }
     }
 
-    virtual void shutdown() {}
+    void shutdown() override {}
 
 private:
     test::CRandomNumbers m_Rng;

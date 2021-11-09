@@ -32,7 +32,7 @@ namespace model {
 class MODEL_EXPORT CHierarchicalResultsProbabilityFinalizer : public CHierarchicalResultsVisitor {
 public:
     //! Finalize the probability of \p node.
-    virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot);
+    void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;
 };
 }
 }
