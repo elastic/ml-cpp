@@ -228,8 +228,6 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
     hyperparameters.maximumOptimisationRoundsPerHyperparameter(2);
 
     hyperparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
-
-    hyperparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
     hyperparameters.treeSizePenaltyMultiplier().fixToRange(0.1, 1.0);
     hyperparameters.leafWeightPenaltyMultiplier().fixToRange(0.1, 1.0);
     hyperparameters.softTreeDepthLimit().fixToRange(0.1, 1.0);
@@ -243,15 +241,14 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
         parameter.fixTo(TDoubleVec{0.5});
 
+        hyperparameters.initializeSearch();
+
         BOOST_REQUIRE_EQUAL(--numberToTune, hyperparameters.numberToTune());
         BOOST_REQUIRE_EQUAL(2 * hyperparameters.numberToTune(),
                             hyperparameters.numberRounds());
 
         test::CRandomNumbers rng;
         TDoubleVec losses;
-
-        hyperparameters.initializeSearch();
-
         for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
              hyperparameters.startNextSearchRound()) {
 
