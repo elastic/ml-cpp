@@ -584,19 +584,19 @@ protected:
                                            std::size_t maxNumberCorrelations);
 
         //! Check if we can still allocate any correlations.
-        virtual bool areAllocationsAllowed() const;
+        bool areAllocationsAllowed() const override;
 
         //! Check if \p correlations exceeds the memory limit.
-        virtual bool exceedsLimit(std::size_t correlations) const;
+        bool exceedsLimit(std::size_t correlations) const override;
 
         //! Get the maximum number of correlations we should model.
-        virtual std::size_t maxNumberCorrelations() const;
+        std::size_t maxNumberCorrelations() const override;
 
         //! Get the chunk size in which to allocate correlations.
-        virtual std::size_t chunkSize() const;
+        std::size_t chunkSize() const override;
 
         //! Create a new prior for a correlation model.
-        virtual TMultivariatePriorUPtr newPrior() const;
+        TMultivariatePriorUPtr newPrior() const override;
 
         //! Set the prototype prior.
         void prototypePrior(const TMultivariatePriorSPtr& prior);

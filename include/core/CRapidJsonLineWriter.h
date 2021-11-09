@@ -64,7 +64,7 @@ public:
     //! are not virtual and we need to avoid "slicing" the writer to ensure that
     //! that the correct StartObject/EndObject functions are called when this is
     //! passed to \p doc Accept.
-    void write(const rapidjson::Value& doc) { doc.Accept(*this); }
+    void write(const rapidjson::Value& doc) override { doc.Accept(*this); }
 
 private:
     size_t m_ObjectCount = 0;
