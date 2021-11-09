@@ -52,7 +52,8 @@ public:
     CMinusLogLikelihood(const maths::common::CMultivariateOneOfNPrior& prior)
         : m_Prior(&prior) {}
 
-    bool operator()(const maths::common::CGradientDescent::TVector& x, double& result) const {
+    bool operator()(const maths::common::CGradientDescent::TVector& x,
+                    double& result) const override {
         if (m_Prior->jointLogMarginalLikelihood(
                 {x.toVector<TDouble10Vec>()},
                 maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2),

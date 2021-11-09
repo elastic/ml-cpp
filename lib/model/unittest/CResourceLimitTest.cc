@@ -67,9 +67,9 @@ public:
         results.bottomUpBreadthFirst(*this);
     }
 
-    virtual void visit(const ml::model::CHierarchicalResults& results,
-                       const ml::model::CHierarchicalResults::TNode& node,
-                       bool pivot) {
+    void visit(const ml::model::CHierarchicalResults& results,
+               const ml::model::CHierarchicalResults::TNode& node,
+               bool pivot) override {
         if (pivot) {
             return;
         }
@@ -147,24 +147,24 @@ public:
                           std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),
           m_ResourceMonitor(resourceMonitor), m_NewPeople(0), m_NewAttributes(0) {}
 
-    virtual void updateRecycledModels() {
+    void updateRecycledModels() override {
         // Do nothing
     }
 
-    virtual void createNewModels(std::size_t n, std::size_t m) {
+    void createNewModels(std::size_t n, std::size_t m) override {
         m_NewPeople += n;
         m_NewAttributes += m;
         this->CEventRateModel::createNewModels(n, m);
     }
 
-    void test(core_t::TTime time) {
+    void test(core_t::TTime time) override {
         m_ResourceMonitor.clearExtraMemory();
         this->createUpdateNewModels(time, m_ResourceMonitor);
     }
 
-    std::size_t getNewPeople() const { return m_NewPeople; }
+    std::size_t getNewPeople() const override { return m_NewPeople; }
 
-    std::size_t getNewAttributes() const { return m_NewAttributes; }
+    std::size_t getNewAttributes() const override { return m_NewAttributes; }
 
 private:
     CResourceMonitor& m_ResourceMonitor;
@@ -190,24 +190,24 @@ public:
                        std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),
           m_ResourceMonitor(resourceMonitor), m_NewPeople(0), m_NewAttributes(0) {}
 
-    virtual void updateRecycledModels() {
+    void updateRecycledModels() override {
         // Do nothing
     }
 
-    virtual void createNewModels(std::size_t n, std::size_t m) {
+    void createNewModels(std::size_t n, std::size_t m) override {
         m_NewPeople += n;
         m_NewAttributes += m;
         this->CMetricModel::createNewModels(n, m);
     }
 
-    void test(core_t::TTime time) {
+    void test(core_t::TTime time) override {
         m_ResourceMonitor.clearExtraMemory();
         this->createUpdateNewModels(time, m_ResourceMonitor);
     }
 
-    std::size_t getNewPeople() const { return m_NewPeople; }
+    std::size_t getNewPeople() const override { return m_NewPeople; }
 
-    std::size_t getNewAttributes() const { return m_NewAttributes; }
+    std::size_t getNewAttributes() const override { return m_NewAttributes; }
 
 private:
     CResourceMonitor& m_ResourceMonitor;
