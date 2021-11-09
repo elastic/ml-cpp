@@ -14,7 +14,6 @@
 
 #include <maths/common/ImportExport.h>
 
-
 #include <cstddef>
 #include <set>
 #include <variant>

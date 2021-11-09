@@ -214,6 +214,7 @@ class CTrackingAllocator : public std::allocator<T> {
 public:
     using allocator_type = CTrackingAllocator<T>;
     using traits_type = std::allocator_traits<allocator_type>;
+
 public:
     // convert an allocator<T> to allocator<U>
     template<typename U>
@@ -234,8 +235,7 @@ public:
     inline const_pointer address(const_reference r) { return &r; }
 
     // memory allocation
-    inline pointer allocate(size_type cnt,
-                            typename traits_type::const_pointer = nullptr) {
+    inline pointer allocate(size_type cnt, typename traits_type::const_pointer = nullptr) {
         ms_Allocated += cnt;
         return reinterpret_cast<pointer>(::operator new(cnt * sizeof(T)));
     }

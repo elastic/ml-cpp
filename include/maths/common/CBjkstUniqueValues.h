@@ -19,7 +19,6 @@
 
 #include <maths/common/ImportExport.h>
 
-
 #include <cstddef>
 #include <utility>
 #include <variant>
