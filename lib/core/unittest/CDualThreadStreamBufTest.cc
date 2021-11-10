@@ -60,7 +60,7 @@ public:
     }
 
 protected:
-    virtual void run() {
+    void run() override {
         std::istream strm(&m_Buffer);
         size_t count(0);
         std::string line;
@@ -80,7 +80,7 @@ protected:
         }
     }
 
-    virtual void shutdown() { m_Buffer.signalFatalError(); }
+    void shutdown() override { m_Buffer.signalFatalError(); }
 
 private:
     ml::core::CDualThreadStreamBuf& m_Buffer;

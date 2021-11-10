@@ -185,21 +185,21 @@ public:
     CDerived(std::size_t i)
         : CBase(i), m_Strings(i, "This is a secret string") {}
 
-    virtual ~CDerived() = default;
+    ~CDerived() override = default;
 
-    virtual std::size_t memoryUsage() const {
+    std::size_t memoryUsage() const override {
         std::size_t mem = core::CMemory::dynamicSize(m_Strings);
         mem += this->CBase::memoryUsage();
         return mem;
     }
 
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CDerived", 0);
         core::CMemoryDebug::dynamicSize("m_Strings", m_Strings, mem);
         this->CBase::debugMemoryUsage(mem->addChild());
     }
 
-    virtual std::size_t staticSize() const { return sizeof(*this); }
+    std::size_t staticSize() const override { return sizeof(*this); }
 
     const std::uint64_t* fixed() const { return m_Fixed; } // suppress warning
 
