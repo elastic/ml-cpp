@@ -577,13 +577,24 @@ def update(dataset_name: str,
         config['analysis']['parameters']['force_accept_incremental_training'] = True
 
     for name, value in original_job.get_hyperparameters().items():
-        if name not in ['retrained_tree_eta', 'tree_topology_change_penalty']:
+        if name not in ['retrained_tree_eta', 'tree_topology_change_penalty', 'soft_tree_depth_limit', 'gamma', 'alpha']:
             config['analysis']['parameters'][name] = value
+        if name in ['gamma', 'alpha']:
+            min, max = (value*0.5, value)
+            config['analysis']['parameters'][name] = [min, max]
+            logger.debug("{name}: past value {value}, new range [{min},{max}]".format(
+                value=value,min=min, max=max, name=name))
+        if name in ['soft_tree_depth_limit']:
+            min, max = (0.75*value, value*1.5)
+            config['analysis']['parameters'][name] = [min, max]
+            logger.debug("{name}: past value {value}, new range [{min},{max}]".format(
+                value=value,min=min, max=max, name=name))
         if name == 'retrained_tree_eta':
             logger.debug("retrained_tree_eta value is {}".format(value))
         if name == 'retrained_tree_eta':
-            min, max = (value/4, value*1.25)
-            config['analysis']['parameters'][name] = list(np.clip([min, max], 0, 1.0))
+            min, max = (value/2, value*2)
+            min, max = tuple(np.clip([min, max], 0.01, 1.0))
+            config['analysis']['parameters'][name] = [min, max]
             logger.debug("retrained_tree_eta: past value {value}, new range [{min},{max}] clipped to {clipped}".format(
                 value=value,min=min, max=max, clipped=config['analysis']['parameters'][name]))
     config['analysis']['parameters']['task'] = 'update'

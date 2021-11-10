@@ -50,9 +50,9 @@ void CBoostedTreeHyperparameters::scaleRegularizationMultipliers(
     CScopeBoostedTreeParameterOverrides<double>& overrides,
     bool undo) {
     overrides.apply(m_DepthPenaltyMultiplier,
-                    scale * m_DepthPenaltyMultiplier.value(), undo);
+                    m_DepthPenaltyMultiplier.value(), undo);
     overrides.apply(m_TreeSizePenaltyMultiplier,
-                    scale * m_TreeSizePenaltyMultiplier.value(), undo);
+                    m_TreeSizePenaltyMultiplier.value(), undo);
     overrides.apply(m_LeafWeightPenaltyMultiplier,
                     scale * m_LeafWeightPenaltyMultiplier.value(), undo);
 }
@@ -160,7 +160,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
             parameters(i) =
-                common::CTools::stableLog(m_DepthPenaltyMultiplier.value() / scale);
+                common::CTools::stableLog(m_DepthPenaltyMultiplier.value());
             break;
         case E_DownsampleFactor:
             parameters(i) = common::CTools::stableLog(m_DownsampleFactor.value());
@@ -179,7 +179,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             break;
         case E_Gamma:
             parameters(i) =
-                common::CTools::stableLog(m_TreeSizePenaltyMultiplier.value() / scale);
+                common::CTools::stableLog(m_TreeSizePenaltyMultiplier.value() );
             break;
         case E_Lambda:
             parameters(i) = common::CTools::stableLog(
@@ -195,7 +195,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             parameters(i) = common::CTools::stableLog(m_PredictionChangeCost.value());
             break;
         case E_RetrainedTreeEta:
-            parameters(i) = common::CTools::stableLog(m_RetrainedTreeEta.value());
+            parameters(i) = m_RetrainedTreeEta.value();
             break;
         case E_TreeTopologyChangePenalty:
             parameters(i) =
@@ -248,7 +248,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            m_DepthPenaltyMultiplier.set(scale * common::CTools::stableExp(parameters(i)));
+            m_DepthPenaltyMultiplier.set(common::CTools::stableExp(parameters(i)));
             break;
         case E_DownsampleFactor:
             m_DownsampleFactor.set(common::CTools::stableExp(parameters(i)));
@@ -267,7 +267,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             break;
         case E_Gamma:
             m_TreeSizePenaltyMultiplier.set(
-                scale * common::CTools::stableExp(parameters(i)));
+                common::CTools::stableExp(parameters(i)));
             break;
         case E_Lambda:
             m_LeafWeightPenaltyMultiplier.set(
@@ -283,7 +283,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             m_PredictionChangeCost.set(common::CTools::stableExp(parameters(i)));
             break;
         case E_RetrainedTreeEta:
-            m_RetrainedTreeEta.set(common::CTools::stableExp(parameters(i)));
+            m_RetrainedTreeEta.set(parameters(i));
             break;
         case E_TreeTopologyChangePenalty:
             m_TreeTopologyChangePenalty.set(common::CTools::stableExp(parameters(i)));

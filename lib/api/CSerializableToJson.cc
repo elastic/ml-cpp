@@ -129,7 +129,8 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                                                       TIStreamPtr inputStream,
                                                       std::iostream& buffer) {
     if (inputStream != nullptr) {
-        rapidjson::IStreamWrapper isw{*inputStream};
+        char bufferChar{'\0'};
+        rapidjson::IStreamWrapper isw{*inputStream, &bufferChar, sizeof(bufferChar)};
         try {
             rapidjson::Document doc;
             bool done{false};
