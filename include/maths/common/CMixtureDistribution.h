@@ -25,11 +25,11 @@
 #include <boost/math/distributions/lognormal.hpp>
 #include <boost/math/distributions/normal.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-#include <boost/variant.hpp>
 
 #include <cmath>
 #include <exception>
 #include <functional>
+#include <variant>
 #include <vector>
 
 namespace ml {
@@ -48,17 +48,17 @@ public:
 
     template<typename F>
     typename F::result_type visit(const F& f, double x) const {
-        return boost::apply_visitor(std::bind(f, std::placeholders::_1, x), m_Distribution);
+        return std::visit(std::bind(f, std::placeholders::_1, x), m_Distribution);
     }
 
     template<typename F>
     typename F::result_type visit(const F& f) const {
-        return boost::apply_visitor(f, m_Distribution);
+        return std::visit(f, m_Distribution);
     }
 
 private:
     using TDistribution =
-        boost::variant<boost::math::normal_distribution<>, boost::math::gamma_distribution<>, boost::math::lognormal_distribution<>>;
+        std::variant<boost::math::normal_distribution<>, boost::math::gamma_distribution<>, boost::math::lognormal_distribution<>>;
 
 private:
     //! The actual distribution.

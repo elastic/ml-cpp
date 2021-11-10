@@ -136,9 +136,9 @@ void invokeAndWriteResultToPromise(F& f, P& promise, const std::true_type&) {
 //! them. Prefer using high level primitives, such as parallel_for_each, which are
 //! safer.
 template<typename FUNCTION, typename... ARGS>
-std::future<std::result_of_t<std::decay_t<FUNCTION>(std::decay_t<ARGS>...)>>
+std::future<std::invoke_result_t<std::decay_t<FUNCTION>, std::decay_t<ARGS>...>>
 async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
-    using R = std::result_of_t<std::decay_t<FUNCTION>(std::decay_t<ARGS>...)>;
+    using R = std::invoke_result_t<std::decay_t<FUNCTION>, std::decay_t<ARGS>...>;
 
     // Note g stores copies of the arguments in the pack, which are moved into place
     // if possible, so this is safe to invoke later in the context of a packaged task.
