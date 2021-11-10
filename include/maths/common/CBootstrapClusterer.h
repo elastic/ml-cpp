@@ -362,14 +362,14 @@ protected:
             TOutEdgeItr j, endj;
             for (boost::tie(j, endj) = boost::out_edges(u, graph); j != endj; ++j) {
                 std::size_t v = boost::target(*j, graph);
-                double weight = std::get(boost::edge_weight, graph, *j);
+                double weight = boost::get(boost::edge_weight, graph, *j);
 
                 TOutEdgeItr k, endk;
                 for (boost::tie(k, endk) = boost::out_edges(v, graph); k != endk; ++k) {
                     std::size_t w = boost::target(*k, graph);
                     if (this->fromVertex(w).first == i->second) {
                         consistent.push_back(std::make_pair(
-                            weight * std::get(boost::edge_weight, graph, *k), w));
+                            weight * boost::get(boost::edge_weight, graph, *k), w));
                     }
                 }
             }
@@ -548,7 +548,7 @@ protected:
         {
             TEdgeItr i, end;
             for (boost::tie(i, end) = boost::edges(graph); i != end; ++i) {
-                double weight = std::get(boost::edge_weight, graph, *i);
+                double weight = boost::get(boost::edge_weight, graph, *i);
                 weights.push_back(weight);
                 totalWeight += weight;
             }
@@ -787,7 +787,7 @@ private:
                 if (u < v && std::binary_search(inverse.begin(), inverse.end(), v)) {
                     boost::put(boost::edge_weight, result,
                                boost::add_edge(mapping[u], mapping[v], result).first,
-                               std::get(boost::edge_weight, graph, *j));
+                               boost::get(boost::edge_weight, graph, *j));
                 }
             }
         }
@@ -830,7 +830,7 @@ private:
         std::size_t n = state.s_ToVisit.size();
         TOutEdgeItr i, end;
         for (boost::tie(i, end) = boost::out_edges(u, graph); i != end; ++i) {
-            double weight = std::get(boost::edge_weight, graph, *i);
+            double weight = boost::get(boost::edge_weight, graph, *i);
             std::size_t v = boost::target(*i, graph);
             if (parities[v]) {
                 state.s_Adjacency[v] += weight;
