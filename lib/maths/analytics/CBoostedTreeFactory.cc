@@ -41,7 +41,7 @@ namespace maths {
 namespace analytics {
 using namespace boosted_tree_detail;
 using TRowItr = core::CDataFrame::TRowItr;
-using TVector = CBoostedTreeFactory::TVector;
+using TVector = common::CVectorNx1<double, 3>;
 
 namespace {
 const double SMALL_RELATIVE_TEST_LOSS_INCREASE{0.01};
@@ -565,7 +565,6 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeHyperparametersSetup(frame); });
-
     this->initializeUnsetRegularizationHyperparameters(frame);
     this->initializePredictionChangeCost();
     this->initializeUnsetTreeTopologyPenalty(frame);
@@ -601,8 +600,33 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
     // This needs to be tied to the learn rate to avoid bias.
     hyperparameters.maximumNumberTrees().setToRangeMidpointOr(
         computeMaximumNumberTrees(hyperparameters.eta().value()));
+    hyperparameters.retrainedTreeEta().setToRangeMidpointOr(1.0);
     hyperparameters.treeTopologyChangePenalty().setToRangeMidpointOr(0.0);
     hyperparameters.predictionChangeCost().setToRangeMidpointOr(0.5);
+
+    // Cache whether the values or their range was user supplied.
+    m_ParameterSupplied.resize(boosted_tree_detail::NUMBER_HYPERPARAMETERS, true);
+    m_ParameterSupplied[E_Alpha] = hyperparameters.depthPenaltyMultiplier().rangeFixed();
+    m_ParameterSupplied[E_Gamma] = hyperparameters.treeSizePenaltyMultiplier().rangeFixed();
+    m_ParameterSupplied[E_Lambda] =
+        hyperparameters.leafWeightPenaltyMultiplier().rangeFixed();
+    m_ParameterSupplied[E_SoftTreeDepthLimit] =
+        hyperparameters.softTreeDepthLimit().rangeFixed();
+    m_ParameterSupplied[E_SoftTreeDepthTolerance] =
+        hyperparameters.softTreeDepthTolerance().rangeFixed();
+    m_ParameterSupplied[E_FeatureBagFraction] =
+        hyperparameters.featureBagFraction().rangeFixed();
+    m_ParameterSupplied[E_DownsampleFactor] = hyperparameters.downsampleFactor().rangeFixed();
+    m_ParameterSupplied[E_Eta] = hyperparameters.eta().rangeFixed();
+    m_ParameterSupplied[E_EtaGrowthRatePerTree] =
+        hyperparameters.etaGrowthRatePerTree().rangeFixed();
+    m_ParameterSupplied[E_MaximumNumberTrees] =
+        hyperparameters.maximumNumberTrees().rangeFixed();
+    m_ParameterSupplied[E_RetrainedTreeEta] = hyperparameters.retrainedTreeEta().rangeFixed();
+    m_ParameterSupplied[E_TreeTopologyChangePenalty] =
+        hyperparameters.treeTopologyChangePenalty().rangeFixed();
+    m_ParameterSupplied[E_PredictionChangeCost] =
+        hyperparameters.predictionChangeCost().rangeFixed();
 }
 
 void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame) {
@@ -644,8 +668,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
             std::min(m_TotalCurvaturePerNode1stPercentile,
                      0.1 * m_TotalCurvaturePerNode90thPercentile);
 
-        LOG_TRACE(<< "max depth = " << hyperparameters.softTreeDepthLimit().print() << ", tolerance = "
-                  << hyperparameters.softTreeDepthTolerance().print() << ", gains and total curvatures per node = "
+        LOG_TRACE(<< "max depth = " << hyperparameters.softTreeDepthLimit().print());
+        LOG_TRACE(<< "tolerance = " << hyperparameters.softTreeDepthTolerance().print());
+        LOG_TRACE(<< "gains and total curvatures per node = "
                   << core::CContainerPrinter::print(gainAndTotalCurvaturePerNode));
     });
 
@@ -682,12 +707,13 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     // Update the soft depth tolerance.
     if (hyperparameters.softTreeDepthLimit().fixed()) {
-        hyperparameters.softTreeDepthTolerance().fixTo(1.0);
-    } else if (hyperparameters.softTreeDepthLimit().rangeFixed() == false) {
+        hyperparameters.softTreeDepthTolerance().fixTo(MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
+    }
+    if (hyperparameters.softTreeDepthTolerance().rangeFixed() == false) {
         hyperparameters.softTreeDepthTolerance().fixToRange(
             MIN_SOFT_DEPTH_LIMIT_TOLERANCE, MAX_SOFT_DEPTH_LIMIT_TOLERANCE);
         hyperparameters.softTreeDepthTolerance().set(
-            (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE) / 2.0);
+            0.5 * (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE));
     }
 
     // Search for the depth penalty multipliers at which the model starts
@@ -698,9 +724,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                     CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
                         frame, *m_TreeImpl, m_GainPerNode90thPercentile,
                         2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile,
-                        [](CBoostedTreeImpl& tree, double logDepthPenalty) {
+                        [](CBoostedTreeImpl& tree, double depthPenalty) {
                             auto& parameter = tree.m_Hyperparameters.depthPenaltyMultiplier();
-                            parameter.set(parameter.fromSearchValue(logDepthPenalty));
+                            parameter.set(parameter.fromSearchValue(depthPenalty));
                             return true;
                         }},
                     hyperparameters.depthPenaltyMultiplier());
@@ -788,26 +814,33 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
 
                 double initialDownsampleFactor{
                     hyperparameters.downsampleFactor().value()};
-                auto initialDepthPenaltyMultiplier = hyperparameters.depthPenaltyMultiplier();
-                auto initialTreeSizePenaltyMultiplier =
-                    hyperparameters.treeSizePenaltyMultiplier();
-                auto initialLeafWeightPenaltyMultiplier =
-                    hyperparameters.leafWeightPenaltyMultiplier();
-                auto initialTreeTopologyChangePenalty =
-                    hyperparameters.treeTopologyChangePenalty();
+                hyperparameters.depthPenaltyMultiplier().save();
+                hyperparameters.treeSizePenaltyMultiplier().save();
+                hyperparameters.leafWeightPenaltyMultiplier().save();
+                hyperparameters.treeTopologyChangePenalty().save();
 
                 // We need to scale the regularisation terms to account for the difference
                 // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
-                    double scale{initialDownsampleFactor / downsampleFactor};
-                    tree.m_Hyperparameters.depthPenaltyMultiplier() =
-                        initialDepthPenaltyMultiplier.scale(scale);
-                    tree.m_Hyperparameters.treeSizePenaltyMultiplier() =
-                        initialTreeSizePenaltyMultiplier.scale(scale);
-                    tree.m_Hyperparameters.leafWeightPenaltyMultiplier() =
-                        initialLeafWeightPenaltyMultiplier.scale(scale);
-                    tree.m_Hyperparameters.treeTopologyChangePenalty() =
-                        initialTreeTopologyChangePenalty.scale(scale);
+                    double scale{downsampleFactor / initialDownsampleFactor};
+                    if (m_ParameterSupplied[E_Alpha] == false) {
+                        tree.m_Hyperparameters.depthPenaltyMultiplier().load().forceScale(scale);
+                    }
+                    if (m_ParameterSupplied[E_Gamma] == false) {
+                        tree.m_Hyperparameters.treeSizePenaltyMultiplier()
+                            .load()
+                            .forceScale(scale);
+                    }
+                    if (m_ParameterSupplied[E_Lambda] == false) {
+                        tree.m_Hyperparameters.leafWeightPenaltyMultiplier()
+                            .load()
+                            .forceScale(scale);
+                    }
+                    if (m_ParameterSupplied[E_TreeTopologyChangePenalty] == false) {
+                        tree.m_Hyperparameters.treeTopologyChangePenalty()
+                            .load()
+                            .forceScale(scale);
+                    }
                 };
 
                 hyperparameters.initializeFineTuneSearchInterval(
@@ -952,11 +985,9 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 }
 
 void CBoostedTreeFactory::initializeUnsetRetrainedTreeEta() {
-
     if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
         return;
     }
-
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
         if (m_TreeImpl->m_Hyperparameters.retrainedTreeEta().rangeFixed() == false) {
             // The incremental loss function keeps the leaf weights around the
@@ -970,11 +1001,9 @@ void CBoostedTreeFactory::initializeUnsetRetrainedTreeEta() {
 }
 
 void CBoostedTreeFactory::initializePredictionChangeCost() {
-
     if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
         return;
     }
-
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
         auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
         if (hyperparameters.predictionChangeCost().rangeFixed() == false) {
@@ -1301,7 +1330,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::treeTopologyChangePenalty(TDoubleVec p
 CBoostedTreeFactory& CBoostedTreeFactory::softTreeDepthLimit(TDoubleVec limit) {
     for (auto& l : limit) {
         if (l < MIN_SOFT_DEPTH_LIMIT) {
-            LOG_WARN(<< "Minimum tree depth must be at least two");
+            LOG_WARN(<< "Minimum tree depth must be at least " << MIN_SOFT_DEPTH_LIMIT);
             l = MIN_SOFT_DEPTH_LIMIT;
         }
     }
@@ -1311,9 +1340,10 @@ CBoostedTreeFactory& CBoostedTreeFactory::softTreeDepthLimit(TDoubleVec limit) {
 
 CBoostedTreeFactory& CBoostedTreeFactory::softTreeDepthTolerance(TDoubleVec tolerance) {
     for (auto& t : tolerance) {
-        if (t < 0.01) {
-            LOG_WARN(<< "Minimum tree depth tolerance must be at least 0.01");
-            t = 0.01;
+        if (t < MIN_SOFT_DEPTH_LIMIT_TOLERANCE) {
+            LOG_WARN(<< "Minimum tree depth tolerance must be at least "
+                     << MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
+            t = MIN_SOFT_DEPTH_LIMIT_TOLERANCE;
         }
     }
     m_TreeImpl->m_Hyperparameters.softTreeDepthTolerance().fixTo(tolerance);
@@ -1628,6 +1658,7 @@ const std::string FACTORY_TAG{"factory"};
 const std::string GAIN_PER_NODE_1ST_PERCENTILE_TAG{"gain_per_node_1st_percentile"};
 const std::string GAIN_PER_NODE_50TH_PERCENTILE_TAG{"gain_per_node_50th_percentile"};
 const std::string GAIN_PER_NODE_90TH_PERCENTILE_TAG{"gain_per_node_90th_percentile"};
+const std::string PARAMETER_SUPPLIED_TAG{"parameter_supplied"};
 const std::string INITIALIZATION_CHECKPOINT_TAG{"initialization_checkpoint"};
 const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
 const std::string TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG{"total_curvature_per_node_90th_percentile"};
@@ -1645,6 +1676,7 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
                                      m_GainPerNode50thPercentile, inserter);
         core::CPersistUtils::persist(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
                                      m_GainPerNode90thPercentile, inserter);
+        core::CPersistUtils::persist(PARAMETER_SUPPLIED_TAG, m_ParameterSupplied, inserter);
         core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
                                      m_TotalCurvaturePerNode1stPercentile, inserter);
         core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
@@ -1678,6 +1710,9 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                                 core::CPersistUtils::restore(
                                     GAIN_PER_NODE_90TH_PERCENTILE_TAG,
                                     m_GainPerNode90thPercentile, traverser))
+                        RESTORE(PARAMETER_SUPPLIED_TAG,
+                                core::CPersistUtils::restore(PARAMETER_SUPPLIED_TAG,
+                                                             m_ParameterSupplied, traverser))
                         RESTORE(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
                                 core::CPersistUtils::restore(
                                     TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,

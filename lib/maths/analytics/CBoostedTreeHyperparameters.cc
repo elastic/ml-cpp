@@ -275,44 +275,45 @@ void CBoostedTreeHyperparameters::initializeSearch() {
     for (const auto& parameter : m_TunableHyperparameters) {
         switch (parameter) {
         case E_Alpha:
-            boundingBox.push_back(m_TreeSizePenaltyMultiplier.range());
+            boundingBox.push_back(m_DepthPenaltyMultiplier.searchRange());
             break;
         case E_DownsampleFactor:
-            boundingBox.push_back(m_DownsampleFactor.range());
+            boundingBox.push_back(m_DownsampleFactor.searchRange());
             break;
         case E_Eta:
-            boundingBox.push_back(m_Eta.range());
+            boundingBox.push_back(m_Eta.searchRange());
             break;
-        case E_EtaGrowthRatePerTree: {
-            boundingBox.push_back(m_EtaGrowthRatePerTree.range());
+        case E_EtaGrowthRatePerTree:
+            boundingBox.push_back(m_EtaGrowthRatePerTree.searchRange());
             break;
-        }
         case E_FeatureBagFraction:
-            boundingBox.push_back(m_FeatureBagFraction.range());
+            boundingBox.push_back(m_FeatureBagFraction.searchRange());
             break;
         case E_Gamma:
-            boundingBox.push_back(m_TreeSizePenaltyMultiplier.range());
+            boundingBox.push_back(m_TreeSizePenaltyMultiplier.searchRange());
             break;
         case E_Lambda:
-            boundingBox.push_back(m_LeafWeightPenaltyMultiplier.range());
+            boundingBox.push_back(m_LeafWeightPenaltyMultiplier.searchRange());
             break;
         case E_MaximumNumberTrees:
-            // Maximum number trees is not tuned directly.
+            // Maximum number trees is not tuned directly and estimated from
+            // loss curves.
             break;
         case E_SoftTreeDepthLimit:
-            boundingBox.push_back(m_SoftTreeDepthLimit.range());
+            boundingBox.push_back(m_SoftTreeDepthLimit.searchRange());
             break;
         case E_SoftTreeDepthTolerance:
-            boundingBox.push_back(m_SoftTreeDepthTolerance.range());
+            boundingBox.push_back(m_SoftTreeDepthTolerance.searchRange());
             break;
+            // Incremental training only parameters.
         case E_PredictionChangeCost:
-            boundingBox.push_back(m_PredictionChangeCost.range());
+            boundingBox.push_back(m_PredictionChangeCost.searchRange());
             break;
         case E_RetrainedTreeEta:
-            boundingBox.push_back(m_RetrainedTreeEta.range());
+            boundingBox.push_back(m_RetrainedTreeEta.searchRange());
             break;
         case E_TreeTopologyChangePenalty:
-            boundingBox.push_back(m_TreeTopologyChangePenalty.range());
+            boundingBox.push_back(m_TreeTopologyChangePenalty.searchRange());
             break;
         }
     }
@@ -362,9 +363,10 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
                                std::find(m_TunableHyperparameters.begin(),
                                          m_TunableHyperparameters.end(), E_DownsampleFactor));
         if (static_cast<std::size_t>(i) < m_TunableHyperparameters.size()) {
-            scale = std::min(1.0, 2.0 * m_DownsampleFactor.value() /
-                                      (common::CTools::stableExp(minBoundary(i)) +
-                                       common::CTools::stableExp(maxBoundary(i))));
+            scale = std::min(
+                1.0, 2.0 * m_DownsampleFactor.value() /
+                         (m_DownsampleFactor.fromSearchValue(minBoundary(i)) +
+                          m_DownsampleFactor.fromSearchValue(maxBoundary(i))));
         }
     }
 
@@ -418,7 +420,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             break;
         case E_TreeTopologyChangePenalty:
             parameters(i) = m_TreeTopologyChangePenalty.toSearchValue(
-                m_TreeTopologyChangePenalty.value());
+                m_TreeTopologyChangePenalty.value() / scale);
             break;
         }
     }
@@ -459,16 +461,18 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
                                std::find(m_TunableHyperparameters.begin(),
                                          m_TunableHyperparameters.end(), E_DownsampleFactor));
         if (static_cast<std::size_t>(i) < m_TunableHyperparameters.size()) {
-            scale = std::min(1.0, 2.0 * common::CTools::stableExp(parameters(i)) /
-                                      (common::CTools::stableExp(minBoundary(i)) +
-                                       common::CTools::stableExp(maxBoundary(i))));
+            scale = std::min(
+                1.0, 2.0 * m_DownsampleFactor.fromSearchValue(parameters(i)) /
+                         (m_DownsampleFactor.fromSearchValue(minBoundary(i)) +
+                          m_DownsampleFactor.fromSearchValue(maxBoundary(i))));
         }
     }
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            m_DepthPenaltyMultiplier.set(
-                scale * m_DepthPenaltyMultiplier.fromSearchValue(parameters(i)));
+            m_DepthPenaltyMultiplier
+                .set(m_DepthPenaltyMultiplier.fromSearchValue(parameters(i)))
+                .forceScale(scale);
             break;
         case E_DownsampleFactor:
             m_DownsampleFactor.set(m_DownsampleFactor.fromSearchValue(parameters(i)));
@@ -488,12 +492,14 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
                 m_MaximumNumberTrees.fromSearchValue(std::ceil(parameters(i))));
             break;
         case E_Gamma:
-            m_TreeSizePenaltyMultiplier.set(
-                scale * m_TreeSizePenaltyMultiplier.fromSearchValue(parameters(i)));
+            m_TreeSizePenaltyMultiplier
+                .set(m_TreeSizePenaltyMultiplier.fromSearchValue(parameters(i)))
+                .forceScale(scale);
             break;
         case E_Lambda:
-            m_LeafWeightPenaltyMultiplier.set(
-                scale * m_LeafWeightPenaltyMultiplier.fromSearchValue(parameters(i)));
+            m_LeafWeightPenaltyMultiplier
+                .set(m_LeafWeightPenaltyMultiplier.fromSearchValue(parameters(i)))
+                .forceScale(scale);
             break;
         case E_SoftTreeDepthLimit:
             m_SoftTreeDepthLimit.set(m_SoftTreeDepthLimit.fromSearchValue(parameters(i)));
@@ -510,8 +516,9 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             m_RetrainedTreeEta.set(m_RetrainedTreeEta.fromSearchValue(parameters(i)));
             break;
         case E_TreeTopologyChangePenalty:
-            m_TreeTopologyChangePenalty.set(
-                m_TreeTopologyChangePenalty.fromSearchValue(parameters(i)));
+            m_TreeTopologyChangePenalty
+                .set(m_TreeTopologyChangePenalty.fromSearchValue(parameters(i)))
+                .forceScale(scale);
             break;
         }
     }

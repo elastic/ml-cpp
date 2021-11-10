@@ -68,30 +68,24 @@ public:
     //! Get the value.
     T value() const { return m_Value; }
 
-    //! Get the value range.
-    std::pair<T, T> range() const { return {m_MinValue, m_MaxValue}; }
-
     //! Set to \p value.
     //!
     //! \note Has no effect if the parameter is fixed.
-    void set(T value) {
+    CBoostedTreeParameter& set(T value) {
         if (m_FixedToRange) {
             value = common::CTools::truncate(value, m_MinValue, m_MaxValue);
         }
         m_Value = value;
+        return *this;
     }
 
     //! Multiply by \p scale.
     //!
     //! \note Has no effect if the parameter is fixed.
-    CBoostedTreeParameter& scale(T scale) {
-        if (m_FixedToRange) {
-            m_Value = common::CTools::truncate(scale * m_Value, m_MinValue, m_MaxValue);
-        } else {
-            m_Value *= scale;
-            m_MinValue *= scale;
-            m_MaxValue *= scale;
-        }
+    CBoostedTreeParameter& forceScale(T scale) {
+        m_Value *= scale;
+        m_MinValue *= scale;
+        m_MaxValue *= scale;
         return *this;
     }
 
@@ -161,10 +155,25 @@ public:
         return static_cast<T>(m_LogSearch ? common::CTools::stableExp(value) : value);
     }
 
+    //! Get the value range.
+    std::pair<T, T> searchRange() const {
+        return {this->toSearchValue(m_MinValue), this->toSearchValue(m_MaxValue)};
+    }
+
     //! Save the current value.
-    void save() { m_SavedValue = m_Value; }
+    void save() {
+        m_SavedValue = m_Value;
+        m_SavedMinValue = m_MinValue;
+        m_SavedMaxValue = m_MaxValue;
+    }
+
     //! Load the saved value.
-    void load() { m_Value = m_SavedValue; }
+    CBoostedTreeParameter& load() {
+        m_Value = m_SavedValue;
+        m_MinValue = m_SavedMinValue;
+        m_MaxValue = m_SavedMaxValue;
+        return *this;
+    }
 
     //! Persist writing to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -172,6 +181,8 @@ public:
         core::CPersistUtils::persist(LOG_SEARCH_TAG, m_LogSearch, inserter);
         core::CPersistUtils::persist(MIN_VALUE_TAG, m_MinValue, inserter);
         core::CPersistUtils::persist(MAX_VALUE_TAG, m_MaxValue, inserter);
+        core::CPersistUtils::persist(SAVED_MAX_VALUE_TAG, m_SavedMinValue, inserter);
+        core::CPersistUtils::persist(SAVED_MIN_VALUE_TAG, m_SavedMaxValue, inserter);
         core::CPersistUtils::persist(SAVED_VALUE_TAG, m_SavedValue, inserter);
         core::CPersistUtils::persist(VALUE_TAG, m_Value, inserter);
     }
@@ -188,6 +199,10 @@ public:
                     core::CPersistUtils::restore(MIN_VALUE_TAG, m_MinValue, traverser))
             RESTORE(MAX_VALUE_TAG,
                     core::CPersistUtils::restore(MAX_VALUE_TAG, m_MaxValue, traverser))
+            RESTORE(SAVED_MAX_VALUE_TAG,
+                    core::CPersistUtils::restore(SAVED_MAX_VALUE_TAG, m_SavedMaxValue, traverser))
+            RESTORE(SAVED_MIN_VALUE_TAG,
+                    core::CPersistUtils::restore(SAVED_MIN_VALUE_TAG, m_SavedMinValue, traverser))
             RESTORE(SAVED_VALUE_TAG,
                     core::CPersistUtils::restore(SAVED_VALUE_TAG, m_SavedValue, traverser))
             RESTORE(VALUE_TAG, core::CPersistUtils::restore(VALUE_TAG, m_Value, traverser))
@@ -201,6 +216,8 @@ public:
         seed = common::CChecksum::calculate(seed, m_LogSearch);
         seed = common::CChecksum::calculate(seed, m_MinValue);
         seed = common::CChecksum::calculate(seed, m_MaxValue);
+        seed = common::CChecksum::calculate(seed, m_SavedMaxValue);
+        seed = common::CChecksum::calculate(seed, m_SavedMinValue);
         seed = common::CChecksum::calculate(seed, m_SavedValue);
         return common::CChecksum::calculate(seed, m_Value);
     }
@@ -218,14 +235,18 @@ private:
     static const std::string LOG_SEARCH_TAG;
     static const std::string MIN_VALUE_TAG;
     static const std::string MAX_VALUE_TAG;
+    static const std::string SAVED_MAX_VALUE_TAG;
+    static const std::string SAVED_MIN_VALUE_TAG;
     static const std::string SAVED_VALUE_TAG;
     static const std::string VALUE_TAG;
 
 private:
     T m_Value{};
-    T m_SavedValue{};
     T m_MinValue{};
     T m_MaxValue{};
+    T m_SavedValue{};
+    T m_SavedMinValue{};
+    T m_SavedMaxValue{};
     bool m_FixedToRange{false};
     bool m_LogSearch{false};
 
@@ -241,6 +262,10 @@ template<typename T>
 const std::string CBoostedTreeParameter<T>::MIN_VALUE_TAG{"max_value"};
 template<typename T>
 const std::string CBoostedTreeParameter<T>::MAX_VALUE_TAG{"min_value"};
+template<typename T>
+const std::string CBoostedTreeParameter<T>::SAVED_MAX_VALUE_TAG{"saved_max_value"};
+template<typename T>
+const std::string CBoostedTreeParameter<T>::SAVED_MIN_VALUE_TAG{"saved_min_value"};
 template<typename T>
 const std::string CBoostedTreeParameter<T>::SAVED_VALUE_TAG{"saved_value"};
 template<typename T>

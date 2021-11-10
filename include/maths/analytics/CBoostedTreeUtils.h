@@ -63,14 +63,15 @@ enum EHyperparameter {
     E_EtaGrowthRatePerTree,
     E_MaximumNumberTrees,
     E_FeatureBagFraction,
-    E_PredictionChangeCost,
     // Incremental train parameters.
+    E_PredictionChangeCost,
     E_RetrainedTreeEta,
     E_TreeTopologyChangePenalty
 };
 
-constexpr std::size_t NUMBER_HYPERPARAMETERS = E_TreeTopologyChangePenalty + 1; // This must be last hyperparameter
+constexpr std::size_t NUMBER_HYPERPARAMETERS(E_TreeTopologyChangePenalty + 1); // This must be last hyperparameter
 
+//! \brief Hyperparameter importance information.
 struct SHyperparameterImportance {
     enum EType { E_Double = 0, E_Uint64 };
     EHyperparameter s_Hyperparameter;
