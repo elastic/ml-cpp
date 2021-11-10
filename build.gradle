@@ -133,7 +133,8 @@ def zipSpec = copySpec {
   from("${buildDir}/distribution") {
     // Don't copy Windows import libraries
     exclude "**/*.lib"
-    // Don't copy the test support library
+    // Don't copy the test support libraries
+    exclude "**/*unit_test_framework*"
     exclude "**/libMlTest.*"
     // Don't copy debug files
     exclude "**/*-debug"
