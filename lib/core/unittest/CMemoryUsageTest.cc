@@ -219,7 +219,7 @@ public:
     using const_reference = const value_type&;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
-    using allocator_type = CTrackingAllocator<T>;
+    using allocator_type = std::allocator<T>;
     using traits_type = std::allocator_traits<allocator_type>;
 
 public:
