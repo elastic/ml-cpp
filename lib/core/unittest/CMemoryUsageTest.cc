@@ -185,21 +185,21 @@ public:
     CDerived(std::size_t i)
         : CBase(i), m_Strings(i, "This is a secret string") {}
 
-    virtual ~CDerived() = default;
+    ~CDerived() override = default;
 
-    virtual std::size_t memoryUsage() const {
+    std::size_t memoryUsage() const override {
         std::size_t mem = core::CMemory::dynamicSize(m_Strings);
         mem += this->CBase::memoryUsage();
         return mem;
     }
 
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CDerived", 0);
         core::CMemoryDebug::dynamicSize("m_Strings", m_Strings, mem);
         this->CBase::debugMemoryUsage(mem->addChild());
     }
 
-    virtual std::size_t staticSize() const { return sizeof(*this); }
+    std::size_t staticSize() const override { return sizeof(*this); }
 
     const std::uint64_t* fixed() const { return m_Fixed; } // suppress warning
 
@@ -210,7 +210,7 @@ private:
 
 //! A basic allocator that tracks memory usage
 template<typename T>
-class CTrackingAllocator {
+class CTrackingAllocator : public std::allocator<T> {
 public:
     using value_type = T;
     using pointer = value_type*;
@@ -219,6 +219,8 @@ public:
     using const_reference = const value_type&;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
+    using allocator_type = std::allocator<T>;
+    using traits_type = std::allocator_traits<allocator_type>;
 
 public:
     // convert an allocator<T> to allocator<U>
@@ -240,8 +242,7 @@ public:
     inline const_pointer address(const_reference r) { return &r; }
 
     // memory allocation
-    inline pointer allocate(size_type cnt,
-                            typename std::allocator<void>::const_pointer = nullptr) {
+    inline pointer allocate(size_type cnt, typename traits_type::const_pointer = nullptr) {
         ms_Allocated += cnt;
         return reinterpret_cast<pointer>(::operator new(cnt * sizeof(T)));
     }

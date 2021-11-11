@@ -29,10 +29,10 @@
 #include <boost/container/flat_map.hpp>
 #include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/variant.hpp>
 
 #include <cstddef>
 #include <utility>
+#include <variant>
 #include <vector>
 
 namespace ml {
@@ -138,7 +138,7 @@ public:
     class MODEL_EXPORT CProbabilityAggregator {
     public:
         using TAggregator =
-            boost::variant<maths::common::CJointProbabilityOfLessLikelySamples, maths::common::CProbabilityOfExtremeSample>;
+            std::variant<maths::common::CJointProbabilityOfLessLikelySamples, maths::common::CProbabilityOfExtremeSample>;
         using TAggregatorDoublePr = std::pair<TAggregator, double>;
         using TAggregatorDoublePrVec = std::vector<TAggregatorDoublePr>;
 

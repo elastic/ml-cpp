@@ -983,7 +983,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                 // We need to scale the regularisation terms to account for the difference
                 // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
-                    double scale{initialDownsampleFactor / downsampleFactor};
+                    double scale{downsampleFactor / initialDownsampleFactor};
                     tree.m_Hyperparameters.depthPenaltyMultiplier().set(
                         scale * initialDepthPenaltyMultiplier);
                     tree.m_Hyperparameters.treeSizePenaltyMultiplier().set(

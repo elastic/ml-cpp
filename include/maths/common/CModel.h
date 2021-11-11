@@ -608,7 +608,7 @@ public:
     maths_t::EDataType dataType() const override;
 
     //! Returns false
-    virtual bool shouldPersist() const override;
+    bool shouldPersist() const override;
 };
 }
 }

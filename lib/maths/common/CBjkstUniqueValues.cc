@@ -276,33 +276,33 @@ void CBjkstUniqueValues::swap(CBjkstUniqueValues& other) noexcept {
     std::swap(m_NumberHashes, other.m_NumberHashes);
 
     try {
-        TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
+        TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
         if (values) {
-            TUInt32Vec* otherValues = boost::get<TUInt32Vec>(&other.m_Sketch);
+            TUInt32Vec* otherValues = std::get_if<TUInt32Vec>(&other.m_Sketch);
             if (otherValues) {
                 values->swap(*otherValues);
             } else {
-                SSketch& otherSketch = boost::get<SSketch>(other.m_Sketch);
+                SSketch& otherSketch = std::get<SSketch>(other.m_Sketch);
                 TUInt32Vec tmp;
                 tmp.swap(*values);
                 m_Sketch = SSketch();
-                boost::get<SSketch>(m_Sketch).swap(otherSketch);
+                std::get<SSketch>(m_Sketch).swap(otherSketch);
                 other.m_Sketch = TUInt32Vec();
-                boost::get<TUInt32Vec>(other.m_Sketch).swap(tmp);
+                std::get<TUInt32Vec>(other.m_Sketch).swap(tmp);
             }
         } else {
-            SSketch& sketch = boost::get<SSketch>(m_Sketch);
-            SSketch* otherSketch = boost::get<SSketch>(&other.m_Sketch);
+            SSketch& sketch = std::get<SSketch>(m_Sketch);
+            SSketch* otherSketch = std::get_if<SSketch>(&other.m_Sketch);
             if (otherSketch) {
                 sketch.swap(*otherSketch);
             } else {
-                TUInt32Vec& otherValues = boost::get<TUInt32Vec>(other.m_Sketch);
+                TUInt32Vec& otherValues = std::get<TUInt32Vec>(other.m_Sketch);
                 TUInt32Vec tmp;
                 tmp.swap(otherValues);
                 other.m_Sketch = SSketch();
-                boost::get<SSketch>(other.m_Sketch).swap(sketch);
+                std::get<SSketch>(other.m_Sketch).swap(sketch);
                 m_Sketch = TUInt32Vec();
-                boost::get<TUInt32Vec>(m_Sketch).swap(tmp);
+                std::get<TUInt32Vec>(m_Sketch).swap(tmp);
             }
         }
     } catch (const std::exception& e) {
@@ -317,7 +317,7 @@ bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE_BUILT_IN(NUMBER_HASHES_TAG, m_NumberHashes)
         if (name == VALUES_TAG) {
             m_Sketch = TUInt32Vec();
-            TUInt32Vec& values = boost::get<TUInt32Vec>(m_Sketch);
+            TUInt32Vec& values = std::get<TUInt32Vec>(m_Sketch);
             if (core::CPersistUtils::fromString(traverser.value(), values, DELIMITER) == false) {
                 return false;
             }
@@ -325,7 +325,7 @@ bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         }
         if (name == SKETCH_TAG) {
             m_Sketch = SSketch();
-            SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            SSketch& sketch = std::get<SSketch>(m_Sketch);
             sketch.s_G.reserve(m_NumberHashes);
             sketch.s_H.reserve(m_NumberHashes);
             sketch.s_Z.reserve(m_NumberHashes);
@@ -345,7 +345,7 @@ bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
 }
 
 void CBjkstUniqueValues::checkRestoredInvariants() const {
-    const SSketch* sketch = boost::get<SSketch>(&m_Sketch);
+    const SSketch* sketch = std::get_if<SSketch>(&m_Sketch);
     if (sketch != nullptr) {
         VIOLATES_INVARIANT(sketch->s_G.size(), !=, sketch->s_H.size());
         VIOLATES_INVARIANT(sketch->s_H.size(), !=, sketch->s_Z.size());
@@ -358,12 +358,12 @@ void CBjkstUniqueValues::acceptPersistInserter(core::CStatePersistInserter& inse
     inserter.insertValue(MAX_SIZE_TAG, m_MaxSize);
     inserter.insertValue(NUMBER_HASHES_TAG, m_NumberHashes);
 
-    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values) {
         inserter.insertValue(VALUES_TAG, core::CPersistUtils::toString(*values, DELIMITER));
     } else {
         try {
-            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = std::get<SSketch>(m_Sketch);
             inserter.insertLevel(SKETCH_TAG, std::bind(&SSketch::acceptPersistInserter,
                                                        &sketch, std::placeholders::_1));
         } catch (const std::exception& e) {
@@ -373,7 +373,7 @@ void CBjkstUniqueValues::acceptPersistInserter(core::CStatePersistInserter& inse
 }
 
 void CBjkstUniqueValues::add(uint32_t value) {
-    TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
+    TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values) {
         TUInt32VecItr i = std::lower_bound(values->begin(), values->end(), value);
         if (i == values->end() || *i != value) {
@@ -382,7 +382,7 @@ void CBjkstUniqueValues::add(uint32_t value) {
         this->sketch();
     } else {
         try {
-            SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            SSketch& sketch = std::get<SSketch>(m_Sketch);
             sketch.add(m_MaxSize, value);
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception: " << e.what());
@@ -391,7 +391,7 @@ void CBjkstUniqueValues::add(uint32_t value) {
 }
 
 void CBjkstUniqueValues::remove(uint32_t value) {
-    TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
+    TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values) {
         TUInt32VecItr i = std::lower_bound(values->begin(), values->end(), value);
         if (i != values->end() && *i == value) {
@@ -399,7 +399,7 @@ void CBjkstUniqueValues::remove(uint32_t value) {
         }
     } else {
         try {
-            SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            SSketch& sketch = std::get<SSketch>(m_Sketch);
             sketch.remove(value);
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception: " << e.what());
@@ -408,10 +408,10 @@ void CBjkstUniqueValues::remove(uint32_t value) {
 }
 
 uint32_t CBjkstUniqueValues::number() const {
-    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values == nullptr) {
         try {
-            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = std::get<SSketch>(m_Sketch);
             return sketch.number();
         } catch (const std::exception& e) {
             LOG_ABORT(<< "Unexpected exception: " << e.what());
@@ -423,10 +423,10 @@ uint32_t CBjkstUniqueValues::number() const {
 uint64_t CBjkstUniqueValues::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MaxSize);
     seed = CChecksum::calculate(seed, m_NumberHashes);
-    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values == nullptr) {
         try {
-            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = std::get<SSketch>(m_Sketch);
             seed = CChecksum::calculate(seed, sketch.s_G);
             seed = CChecksum::calculate(seed, sketch.s_H);
             seed = CChecksum::calculate(seed, sketch.s_Z);
@@ -440,12 +440,12 @@ uint64_t CBjkstUniqueValues::checksum(uint64_t seed) const {
 
 void CBjkstUniqueValues::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CBjkstUniqueValues");
-    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values) {
         core::CMemoryDebug::dynamicSize("values", *values, mem);
     } else {
         try {
-            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = std::get<SSketch>(m_Sketch);
             mem->addItem("SSketch", sizeof(SSketch));
             core::CMemoryDebug::dynamicSize("sketch.s_G", sketch.s_G, mem);
             core::CMemoryDebug::dynamicSize("sketch.s_H", sketch.s_H, mem);
@@ -459,12 +459,12 @@ void CBjkstUniqueValues::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsage
 
 std::size_t CBjkstUniqueValues::memoryUsage() const {
     std::size_t mem = 0;
-    const TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
+    const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values) {
         mem += core::CMemory::dynamicSize(*values);
     } else {
         try {
-            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = std::get<SSketch>(m_Sketch);
             mem += sizeof(SSketch);
             mem += core::CMemory::dynamicSize(sketch.s_G);
             mem += core::CMemory::dynamicSize(sketch.s_H);
@@ -486,7 +486,7 @@ void CBjkstUniqueValues::sketch() {
     static const std::size_t VEC32_SIZE = sizeof(TUInt32Vec);
     static const std::size_t SKETCH_SIZE = sizeof(SSketch);
 
-    TUInt32Vec* values = boost::get<TUInt32Vec>(&m_Sketch);
+    TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values) {
         std::size_t valuesSize = VEC32_SIZE + UINT32_SIZE * values->capacity();
         std::size_t sketchSize =

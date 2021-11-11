@@ -89,33 +89,32 @@ public:
     //! \name Prior Contract
     //@{
     //! Get the type of this prior.
-    virtual EPrior type() const;
+    EPrior type() const override;
 
     //! Create a copy of the prior.
     //!
     //! \return A pointer to a newly allocated clone of this prior.
     //! \warning The caller owns the object returned.
-    virtual CMultinomialConjugate* clone() const;
+    CMultinomialConjugate* clone() const override;
 
     //! Reset the prior to non-informative.
-    virtual void setToNonInformative(double offset = 0.0, double decayRate = 0.0);
+    void setToNonInformative(double offset = 0.0, double decayRate = 0.0) override;
 
     //! Returns false.
-    virtual bool needsOffset() const;
+    bool needsOffset() const override;
 
     //! No-op.
-    virtual double adjustOffset(const TDouble1Vec& samples,
-                                const TDoubleWeightsAry1Vec& weights);
+    double adjustOffset(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights) override;
 
     //! Returns zero.
-    virtual double offset() const;
+    double offset() const override;
 
     //! Update the prior with a collection of independent samples from the
     //! multinomial variable.
     //!
     //! \param[in] samples A collection of samples of the variable.
-    //! \param[in] weights The weights of each sample in \p samples.
-    virtual void addSamples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights);
+    //! \param[in] weights The weights of each sample in \p samples override.
+    void addSamples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights) override;
 
     //! Propagate the prior density function forwards by \p time.
     //!
@@ -125,20 +124,19 @@ public:
     //!
     //! \param[in] time The time increment to apply.
     //! \note \p time must be non negative.
-    virtual void propagateForwardsByTime(double time);
+    void propagateForwardsByTime(double time) override;
 
     //! Get the support for the marginal likelihood function.
-    virtual TDoubleDoublePr marginalLikelihoodSupport() const;
+    TDoubleDoublePr marginalLikelihoodSupport() const override;
 
     //! Get the mean of the marginal likelihood function.
-    virtual double marginalLikelihoodMean() const;
+    double marginalLikelihoodMean() const override;
 
     //! Get the mode of the marginal likelihood function.
-    virtual double marginalLikelihoodMode(const TDoubleWeightsAry& weights = TWeights::UNIT) const;
+    double marginalLikelihoodMode(const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
 
     //! Get the variance of the marginal likelihood.
-    virtual double
-    marginalLikelihoodVariance(const TDoubleWeightsAry& weights = TWeights::UNIT) const;
+    double marginalLikelihoodVariance(const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
 
     //! Get the \p percentage symmetric confidence interval for the marginal
     //! likelihood function, i.e. the values \f$a\f$ and \f$b\f$ such that:
@@ -153,9 +151,9 @@ public:
     //! \param[in] percentage The percentage of interest.
     //! \param[in] weights Ignored.
     //! \note \p percentage should be in the range [0.0, 100.0).
-    virtual TDoubleDoublePr
-    marginalLikelihoodConfidenceInterval(double percentage,
-                                         const TDoubleWeightsAry& weights = TWeights::UNIT) const;
+    TDoubleDoublePr marginalLikelihoodConfidenceInterval(
+        double percentage,
+        const TDoubleWeightsAry& weights = TWeights::UNIT) const override;
 
     //! Compute the log marginal likelihood function at \p samples integrating
     //! over the prior density function for the category probability parameters.
@@ -168,10 +166,10 @@ public:
     //! the model collection, so this is appropriate.
     //! \note The samples are assumed to be independent and identically
     //! distributed.
-    virtual maths_t::EFloatingPointErrorStatus
+    maths_t::EFloatingPointErrorStatus
     jointLogMarginalLikelihood(const TDouble1Vec& samples,
                                const TDoubleWeightsAry1Vec& weights,
-                               double& result) const;
+                               double& result) const override;
 
     //! Sample the marginal likelihood function.
     //!
@@ -182,7 +180,7 @@ public:
     //! \param[in] numberSamples The number of samples required.
     //! \param[out] samples Filled in with samples from the prior.
     //! \note \p numberSamples is truncated to the number of samples received.
-    virtual void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const;
+    void sampleMarginalLikelihood(std::size_t numberSamples, TDouble1Vec& samples) const override;
 
     //! Compute minus the log of the joint cumulative density function
     //! of the marginal likelihood at \p samples.
@@ -198,10 +196,10 @@ public:
     //! the c.d.f. and \f$\{x_i\}\f$ are the samples. Otherwise, it is
     //! filled in with a sharp upper bound.
     //! \note The samples are assumed to be independent.
-    virtual bool minusLogJointCdf(const TDouble1Vec& samples,
-                                  const TDoubleWeightsAry1Vec& weights,
-                                  double& lowerBound,
-                                  double& upperBound) const;
+    bool minusLogJointCdf(const TDouble1Vec& samples,
+                          const TDoubleWeightsAry1Vec& weights,
+                          double& lowerBound,
+                          double& upperBound) const override;
 
     //! Compute minus the log of the one minus the joint cumulative density
     //! function of the marginal likelihood at \p samples without losing
@@ -210,10 +208,10 @@ public:
     //! epsilon.
     //!
     //! \see minusLogJointCdf for more details.
-    virtual bool minusLogJointCdfComplement(const TDouble1Vec& samples,
-                                            const TDoubleWeightsAry1Vec& weights,
-                                            double& lowerBound,
-                                            double& upperBound) const;
+    bool minusLogJointCdfComplement(const TDouble1Vec& samples,
+                                    const TDoubleWeightsAry1Vec& weights,
+                                    double& lowerBound,
+                                    double& upperBound) const override;
 
     //! Compute the probability of a less likely, i.e. lower likelihood,
     //! collection of independent samples from the variable.
@@ -233,46 +231,46 @@ public:
     //! \param[out] tail The tail that (left or right) that all the samples
     //! are in or neither.
     //! \note The samples are assumed to be independent.
-    virtual bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
-                                                const TDouble1Vec& samples,
-                                                const TDoubleWeightsAry1Vec& weights,
-                                                double& lowerBound,
-                                                double& upperBound,
-                                                maths_t::ETail& tail) const;
+    bool probabilityOfLessLikelySamples(maths_t::EProbabilityCalculation calculation,
+                                        const TDouble1Vec& samples,
+                                        const TDoubleWeightsAry1Vec& weights,
+                                        double& lowerBound,
+                                        double& upperBound,
+                                        maths_t::ETail& tail) const override;
 
     //! Check if this is a non-informative prior.
-    virtual bool isNonInformative() const;
+    bool isNonInformative() const override;
 
     //! Get a human readable description of the prior.
     //!
     //! \param[in] indent The indent to use at the start of new lines.
     //! \param[in,out] result Filled in with the description.
-    virtual void print(const std::string& indent, std::string& result) const;
+    void print(const std::string& indent, std::string& result) const override;
 
     //! Print the marginal likelihood function in a specified format.
     //!
     //! \see CPrior::printMarginalLikelihoodFunction for details.
-    virtual std::string printMarginalLikelihoodFunction(double weight = 1.0) const;
+    std::string printMarginalLikelihoodFunction(double weight = 1.0) const override;
 
     //! Print the prior density function in a specified format.
     //!
     //! \see CPrior::printJointDensityFunction for details.
-    virtual std::string printJointDensityFunction() const;
+    std::string printJointDensityFunction() const override;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    uint64_t checksum(uint64_t seed = 0) const override;
 
     //! Get the memory used by this component
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this component
-    virtual std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const;
+    std::size_t staticSize() const override;
 
     //! Persist state by passing information to the supplied inserter
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
     //@}
 
     //! Remove the categories in \p categoriesToRemove.

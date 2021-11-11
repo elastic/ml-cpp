@@ -133,7 +133,7 @@ public:
     }
 
 protected:
-    virtual void run() {
+    void run() override {
         CScopedLock lock(m_Mutex);
 
         while (!m_Shutdown) {
@@ -149,7 +149,7 @@ protected:
         }
     }
 
-    virtual void shutdown() {
+    void shutdown() override {
         LOG_DEBUG(<< "Shutting down spawned process tracker thread");
         CScopedLock lock(m_Mutex);
         m_Shutdown = true;
