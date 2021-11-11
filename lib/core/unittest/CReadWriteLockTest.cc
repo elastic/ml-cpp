@@ -41,14 +41,14 @@ public:
           m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             m_Variable += m_Increment;
             std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -69,14 +69,14 @@ public:
           m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             m_Variable.fetch_add(m_Increment);
             std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -98,7 +98,7 @@ public:
           m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedFastLock lock(m_Mutex);
 
@@ -107,7 +107,7 @@ protected:
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -130,7 +130,7 @@ public:
           m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedLock lock(m_Mutex);
 
@@ -139,7 +139,7 @@ protected:
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -162,7 +162,7 @@ public:
           m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedWriteLock lock(m_ReadWriteLock);
 
@@ -171,7 +171,7 @@ protected:
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -195,7 +195,7 @@ public:
     std::uint32_t lastRead() const { return m_LastRead; }
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedReadLock lock(m_ReadWriteLock);
 
@@ -204,7 +204,7 @@ protected:
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 

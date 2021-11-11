@@ -167,13 +167,13 @@ public:
         : PRIOR(static_cast<const PRIOR&>(other)),
           CPriorTestInterface(static_cast<maths::common::CPrior&>(*this)) {}
 
-    virtual ~CPriorTestInterfaceMixin() {}
+    ~CPriorTestInterfaceMixin() override {}
 
     //! Swap the contents efficiently.
     void swap(CPriorTestInterfaceMixin& other) { this->PRIOR::swap(other); }
 
     //! Clone the object.
-    virtual CPriorTestInterfaceMixin* clone() const {
+    CPriorTestInterfaceMixin* clone() const override {
         return new CPriorTestInterfaceMixin(*this);
     }
 };

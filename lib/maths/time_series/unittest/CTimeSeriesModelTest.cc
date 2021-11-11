@@ -88,21 +88,21 @@ class CTimeSeriesCorrelateModelAllocator
     : public maths::time_series::CTimeSeriesCorrelateModelAllocator {
 public:
     //! Check if we can still allocate any correlations.
-    virtual bool areAllocationsAllowed() const { return true; }
+    bool areAllocationsAllowed() const override { return true; }
 
     //! Check if \p correlations exceeds the memory limit.
-    virtual bool exceedsLimit(std::size_t /*correlations*/) const {
+    bool exceedsLimit(std::size_t /*correlations*/) const override {
         return false;
     }
 
     //! Get the maximum number of correlations we should model.
-    virtual std::size_t maxNumberCorrelations() const { return 5000; }
+    std::size_t maxNumberCorrelations() const override { return 5000; }
 
     //! Get the chunk size in which to allocate correlations.
-    virtual std::size_t chunkSize() const { return 500; }
+    std::size_t chunkSize() const override { return 500; }
 
     //! Create a new prior for a correlation model.
-    virtual TMultivariatePriorPtr newPrior() const {
+    TMultivariatePriorPtr newPrior() const override {
         return TMultivariatePriorPtr(maths::common::CMultivariateNormalConjugate<2>::nonInformativePrior(
                                          maths_t::E_ContinuousData, DECAY_RATE)
                                          .clone());
