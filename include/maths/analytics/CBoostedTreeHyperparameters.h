@@ -325,7 +325,7 @@ public:
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
-    //! \brief The arguments to initialize the
+    //! \brief The arguments to the initial search we perform for each parameter.
     class MATHS_ANALYTICS_EXPORT CInitializeFineTuneArguments {
     public:
         using TUpdateParameter = std::function<bool(CBoostedTreeImpl&, double)>;
@@ -556,6 +556,13 @@ public:
     //! At the end we use a smooth curve fit through all test loss values (using
     //! LOWESS regression) and use this to get a best estimate of where the true
     //! minimum occurs.
+    //!
+    //! \return A vector comprising
+    //! <pre>
+    //!   | minimum value for fine tune |
+    //!   |       initial value         |
+    //!   | maximum value for fine tune |
+    //! </pre>
     TOptionalVector3x1 testLossLineSearch(const CInitializeFineTuneArguments& args,
                                           double intervalLeftEnd,
                                           double intervalRightEnd) const;
