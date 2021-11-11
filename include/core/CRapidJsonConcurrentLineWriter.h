@@ -51,7 +51,7 @@ public:
     //! \p outStream reference to an wrapped output stream
     CRapidJsonConcurrentLineWriter(CJsonOutputStreamWrapper& outStream);
 
-    ~CRapidJsonConcurrentLineWriter();
+    ~CRapidJsonConcurrentLineWriter() override;
 
     //! Flush buffers, including the output stream.
     //! Note: flush still happens asynchronous
@@ -72,7 +72,7 @@ public:
     //! are not virtual and we need to avoid "slicing" the writer to ensure that
     //! that the correct StartObject/EndObject functions are called when this is
     //! passed to \p doc Accept.
-    void write(const rapidjson::Value& doc) { doc.Accept(*this); }
+    void write(const rapidjson::Value& doc) override { doc.Accept(*this); }
 
 private:
     //! The stream object

@@ -120,17 +120,17 @@ public:
     CEventRateModelDetailsView(const CEventRateModel& model);
 
     //! Get the time interval from the first to last data point of \p byFieldId.
-    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
+    TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
 
     //! Get the time series model for \p feature and \p byFieldId.
-    virtual const maths::common::CModel* model(model_t::EFeature feature,
-                                               std::size_t byFieldId) const;
+    const maths::common::CModel* model(model_t::EFeature feature,
+                                       std::size_t byFieldId) const override;
 
 private:
-    virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature,
-                                      std::size_t byFieldId,
-                                      core_t::TTime time) const;
+    const CAnomalyDetectorModel& base() const override;
+    double countVarianceScale(model_t::EFeature feature,
+                              std::size_t byFieldId,
+                              core_t::TTime time) const override;
 
 private:
     //! The model.
@@ -145,17 +145,17 @@ public:
     CEventRatePopulationModelDetailsView(const CEventRatePopulationModel& model);
 
     //! Get the time interval from the first to last data point of \p byFieldId.
-    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
+    TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
 
     //! Get the time series model for \p feature and \p byFieldId.
-    virtual const maths::common::CModel* model(model_t::EFeature feature,
-                                               std::size_t byFieldId) const;
+    const maths::common::CModel* model(model_t::EFeature feature,
+                                       std::size_t byFieldId) const override;
 
 private:
-    virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature,
-                                      std::size_t byFieldId,
-                                      core_t::TTime time) const;
+    const CAnomalyDetectorModel& base() const override;
+    double countVarianceScale(model_t::EFeature feature,
+                              std::size_t byFieldId,
+                              core_t::TTime time) const override;
 
 private:
     //! The model.
@@ -170,17 +170,17 @@ public:
     CMetricModelDetailsView(const CMetricModel& model);
 
     //! Get the time interval from the first to last data point of \p byFieldId.
-    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
+    TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
 
     //! Get the time series model for \p feature and \p byFieldId.
-    virtual const maths::common::CModel* model(model_t::EFeature feature,
-                                               std::size_t byFieldId) const;
+    const maths::common::CModel* model(model_t::EFeature feature,
+                                       std::size_t byFieldId) const override;
 
 private:
-    virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature,
-                                      std::size_t byFieldId,
-                                      core_t::TTime time) const;
+    const CAnomalyDetectorModel& base() const override;
+    double countVarianceScale(model_t::EFeature feature,
+                              std::size_t byFieldId,
+                              core_t::TTime time) const override;
 
 private:
     //! The model.
@@ -195,17 +195,17 @@ public:
     CMetricPopulationModelDetailsView(const CMetricPopulationModel& model);
 
     //! Get the time interval from the first to last data point of \p byFieldId.
-    virtual TTimeTimePr dataTimeInterval(std::size_t byFieldId) const;
+    TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
 
     //! Get the time series model for \p feature and \p byFieldId.
-    virtual const maths::common::CModel* model(model_t::EFeature feature,
-                                               std::size_t byFieldId) const;
+    const maths::common::CModel* model(model_t::EFeature feature,
+                                       std::size_t byFieldId) const override;
 
 private:
-    virtual const CAnomalyDetectorModel& base() const;
-    virtual double countVarianceScale(model_t::EFeature feature,
-                                      std::size_t byFieldId,
-                                      core_t::TTime time) const;
+    const CAnomalyDetectorModel& base() const override;
+    double countVarianceScale(model_t::EFeature feature,
+                              std::size_t byFieldId,
+                              core_t::TTime time) const override;
 
 private:
     //! The model.

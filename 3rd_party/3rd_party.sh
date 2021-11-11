@@ -48,7 +48,7 @@ case `uname` in
             BOOST_ARCH=a64
         fi
         BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.dylib
-        BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+        BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
         XML_LOCATION=
         GCC_RT_LOCATION=
         OMP_LOCATION=
@@ -73,7 +73,7 @@ case `uname` in
                 MKL_LIBRARIES=`cd "$MKL_LOCATION" && ls $MKL_PREFIX*$MKL_EXTENSION`
             fi
             BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.so.1.77.0
-            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
             XML_LOCATION=/usr/local/gcc103/lib
             XML_EXTENSION=.so.2
             GCC_RT_LOCATION=/usr/local/gcc103/lib64
@@ -92,7 +92,7 @@ case `uname` in
             BOOST_LOCATION=$SYSROOT/usr/local/lib
             BOOST_COMPILER=clang
             BOOST_EXTENSION=mt-x64-1_77.dylib
-            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
             XML_LOCATION=
             GCC_RT_LOCATION=
             OMP_LOCATION=
@@ -112,7 +112,7 @@ case `uname` in
                 exit 3
             fi
             BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.so.1.77.0
-            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
             XML_LOCATION=$SYSROOT/usr/local/gcc103/lib
             XML_EXTENSION=.so.2
             GCC_RT_LOCATION=$SYSROOT/usr/local/gcc103/lib64
@@ -138,7 +138,7 @@ case `uname` in
         BOOST_LOCATION=/$LOCAL_DRIVE/usr/local/lib
         BOOST_COMPILER=vc
         BOOST_EXTENSION=mt-x64-1_77.dll
-        BOOST_LIBRARIES='chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+        BOOST_LIBRARIES='chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
         XML_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         XML_EXTENSION=.dll
         GCC_RT_LOCATION=

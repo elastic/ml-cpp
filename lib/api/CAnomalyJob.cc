@@ -102,7 +102,7 @@ class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter
 public:
     explicit CReadableJsonStatePersistInserter(std::ostream& outputStream)
         : core::CJsonStatePersistInserter(outputStream) {}
-    virtual bool readableTags() const { return true; }
+    bool readableTags() const override { return true; }
 };
 
 //! Persist state as XML (wrapped in a JSON object) with meaningful tag names.
@@ -111,12 +111,12 @@ public:
     explicit CReadableRapidXmlStatePersistInserter(std::ostream& strm)
         : core::CRapidXmlStatePersistInserter("root"), m_WriteStream(strm) {}
 
-    ~CReadableRapidXmlStatePersistInserter() {
+    ~CReadableRapidXmlStatePersistInserter() override {
         std::string xml;
         this->toXml(false, xml);
         m_WriteStream << "{\"xml\":\"" << xml << "\"}\n";
     }
-    virtual bool readableTags() const { return true; }
+    bool readableTags() const override { return true; }
 
 private:
     std::ostream& m_WriteStream;

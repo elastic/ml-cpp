@@ -117,20 +117,27 @@ case `uname` in
         # The Docker version is helpful to identify version-specific Docker bugs
         docker --version
 
+        KERNEL_VERSION=`uname -r`
+        GLIBC_VERSION=`ldconfig --version | head -1 | sed 's/ldconfig//'`
+
         # Build and test the native Linux architecture
         if [ "$HARDWARE_ARCH" = x86_64 ] ; then
 
             if [ "$RUN_TESTS" = false ] ; then
                 ./docker_build.sh linux
             else
-                ./docker_test.sh linux
+                ./docker_test.sh --extract-unit-tests linux
+                echo "Re-running seccomp unit tests outside of Docker container - kernel: $KERNEL_VERSION glibc: $GLIBC_VERSION"
+                (cd ../lib/seccomp/unittest && LD_LIBRARY_PATH=`cd ../../../build/distribution/platform/linux-x86_64/lib && pwd` ./ml_test)
             fi
 
         elif [ "$HARDWARE_ARCH" = aarch64 ] ; then
             if [ "$RUN_TESTS" = false ] ; then
                 ./docker_build.sh linux_aarch64_native
             else
-                ./docker_test.sh linux_aarch64_native
+                ./docker_test.sh --extract-unit-tests linux_aarch64_native
+                echo "Re-running seccomp unit tests outside of Docker container - kernel: $KERNEL_VERSION glibc: $GLIBC_VERSION"
+                (cd ../lib/seccomp/unittest && LD_LIBRARY_PATH=`cd ../../../build/distribution/platform/linux-aarch64/lib && pwd` ./ml_test)
             fi
         fi
 
