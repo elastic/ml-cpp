@@ -847,10 +847,9 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
                         frame, *m_TreeImpl, maxDownsampleFactor, searchIntervalSize,
                         [&](CBoostedTreeImpl& tree, double downsampleFactor) {
-                            downsampleFactor =
-                                tree.m_Hyperparameters.downsampleFactor().fromSearchValue(
-                                    downsampleFactor);
-                            tree.m_Hyperparameters.downsampleFactor().set(downsampleFactor);
+                            auto& parameter = tree.m_Hyperparameters.downsampleFactor();
+                            downsampleFactor = parameter.fromSearchValue(downsampleFactor);
+                            parameter.set(downsampleFactor);
                             scaleRegularizers(tree, downsampleFactor);
                             return downsampleFactor * numberTrainingRows > 10.0;
                         }}
@@ -908,10 +907,9 @@ void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& fr
                     CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
                         frame, *m_TreeImpl, maxFeatureBagFraction, searchIntervalSize,
                         [&](CBoostedTreeImpl& tree, double featureBagFraction) {
-                            featureBagFraction =
-                                tree.m_Hyperparameters.featureBagFraction().fromSearchValue(
-                                    featureBagFraction);
-                            tree.m_Hyperparameters.featureBagFraction().set(featureBagFraction);
+                            auto& parameter = tree.m_Hyperparameters.featureBagFraction();
+                            featureBagFraction = parameter.fromSearchValue(featureBagFraction);
+                            parameter.set(featureBagFraction);
                             return tree.featureBagSize(featureBagFraction) > 1;
                         }}
                         .adjustLoss([&](double featureBagFraction, double minTestLoss, double testLoss) {
@@ -951,8 +949,9 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
                 double minSearchValue{hyperparameters.eta().toSearchValue(MIN_ETA)};
 
                 auto applyEta = [](CBoostedTreeImpl& tree, double eta) {
-                    eta = tree.m_Hyperparameters.eta().fromSearchValue(eta);
-                    tree.m_Hyperparameters.eta().set(eta);
+                    auto& parameter = tree.m_Hyperparameters.eta();
+                    eta = parameter.fromSearchValue(eta);
+                    parameter.set(eta);
                     tree.m_Hyperparameters.etaGrowthRatePerTree().set(1.0 + eta / 2.0);
                     tree.m_Hyperparameters.maximumNumberTrees().set(
                         computeMaximumNumberTrees(eta));
