@@ -693,7 +693,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
         // Unbiased...
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i],
-            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         BOOST_TEST_REQUIRE(modelRSquared[i] > 0.95);
 
@@ -1180,8 +1180,8 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.08);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.07);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testSingleSplit) {
@@ -1437,13 +1437,13 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.77);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.81);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.53);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.56);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
