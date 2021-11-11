@@ -664,6 +664,17 @@ private:
 
 private:
     void initializeTunableHyperparameters();
+    void initialTestLossLineSearch(const CInitializeFineTuneArguments& args,
+                                   double intervalLeftEnd,
+                                   double intervalRightEnd,
+                                   TDoubleDoublePrVec& testLosses) const;
+    void fineTineTestLoss(const CInitializeFineTuneArguments& args,
+                          double intervalLeftEnd,
+                          double intervalRightEnd,
+                          TDoubleDoublePrVec& testLosses) const;
+    TVector3x1 minimizeTestLoss(double intervalLeftEnd,
+                                double intervalRightEnd,
+                                const TDoubleDoublePrVec& testLosses) const;
     void saveCurrent();
 
 private:

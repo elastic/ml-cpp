@@ -141,26 +141,28 @@ CBoostedTreeHyperparameters::testLossLineSearch(const CInitializeFineTuneArgumen
                                                 double intervalRightEnd) const {
 
     // This has the following steps:
-    //   1. Coarse search the interval [intervalLeftEnd, intervalRightEnd] using
-    //      fixed steps,
+    //   1. Search the interval [intervalLeftEnd, intervalRightEnd] using fixed
+    //      steps,
     //   2. Fine tune, via Bayesian Optimisation targeting expected improvement,
     //      and stop if the expected improvement small compared to the current
     //      minimum test loss,
-    //   3. Calculate the parameter interval which gives the lowest test losses,
-    //   4. Fit an OLS quadratic approximation to the test losses in the interval
-    //      from step 3 and use it to estimate the best parameter value,
-    //   5. Compare the size of the residual errors w.r.t. to the OLS curve from
-    //      step 4 with its variation over the interval from step 3 and truncate
-    //      the returned interval if we can determine there is a low chance of
-    //      missing the best solution by doing so.
+    //   3. Fit a LOWESS model to the test losses and compute the minimum.
 
-    using TMinAccumulator = common::CBasicStatistics::SMin<double>::TAccumulator;
-
-    TMinAccumulator minTestLoss;
     TDoubleDoublePrVec testLosses;
+    this->initialTestLossLineSearch(args, intervalLeftEnd, intervalRightEnd, testLosses);
+    if (testLosses.empty()) {
+        return {};
+    }
+    this->fineTineTestLoss(args, intervalLeftEnd, intervalRightEnd, testLosses);
+    return this->minimizeTestLoss(intervalLeftEnd, intervalRightEnd, testLosses);
+}
+
+void CBoostedTreeHyperparameters::initialTestLossLineSearch(const CInitializeFineTuneArguments& args,
+                                                            double intervalLeftEnd,
+                                                            double intervalRightEnd,
+                                                            TDoubleDoublePrVec& testLosses) const {
+
     testLosses.reserve(this->maxLineSearchIterations());
-    // Ensure we choose one value based on expected improvement.
-    std::size_t minNumberTestLosses{6};
 
     for (auto parameter :
          {intervalLeftEnd, (2.0 * intervalLeftEnd + intervalRightEnd) / 3.0,
@@ -180,34 +182,40 @@ CBoostedTreeHyperparameters::testLossLineSearch(const CInitializeFineTuneArgumen
                 .trainForest(args.frame(), args.tree().m_TrainingRowMasks[0],
                              args.tree().m_TestingRowMasks[0], args.tree().m_TrainingProgress)
                 .asTuple();
-        minTestLoss.add(testLoss);
         testLosses.emplace_back(parameter, testLoss);
     }
+}
 
-    if (testLosses.empty()) {
-        return {};
+void CBoostedTreeHyperparameters::fineTineTestLoss(const CInitializeFineTuneArguments& args,
+                                                   double intervalLeftEnd,
+                                                   double intervalRightEnd,
+                                                   TDoubleDoublePrVec& testLosses) const {
+
+    using TMinAccumulator = common::CBasicStatistics::SMin<double>::TAccumulator;
+
+    TMinAccumulator minTestLoss;
+    for (auto [_, testLoss] : testLosses) {
+        minTestLoss.add(testLoss);
     }
 
     auto boptVector = [](double parameter) {
         return common::SConstant<common::CBayesianOptimisation::TVector>::get(1, parameter);
     };
-    auto adjustTestLoss = [testLosses, &args](double parameter, double testLoss) {
-        auto min = std::min_element(testLosses.begin(), testLosses.end(),
-                                    common::COrderings::SSecondLess{});
-        return args.adjustLoss()(parameter, min->second, testLoss);
+    auto adjustTestLoss = [minTestLoss, &args](double parameter, double testLoss) {
+        return args.adjustLoss()(parameter, minTestLoss[0], testLoss);
     };
 
     common::CBayesianOptimisation bopt{{{intervalLeftEnd, intervalRightEnd}}};
-    for (auto& parameterAndTestLoss : testLosses) {
-        double parameter;
-        double testLoss;
-        std::tie(parameter, testLoss) = parameterAndTestLoss;
+    for (auto& [parameter, testLoss] : testLosses) {
         double adjustedTestLoss{adjustTestLoss(parameter, testLoss)};
         bopt.add(boptVector(parameter), adjustedTestLoss, 0.0);
-        parameterAndTestLoss.second = adjustedTestLoss;
+        testLoss = adjustedTestLoss;
     }
 
-    while (testLosses.size() > 0 && testLosses.size() < this->maxLineSearchIterations()) {
+    // Ensure we choose one value based on expected improvement.
+    std::size_t minNumberTestLosses{6};
+
+    while (testLosses.size() < this->maxLineSearchIterations()) {
         common::CBayesianOptimisation::TVector parameter;
         common::CBayesianOptimisation::TOptionalDouble EI;
         std::tie(parameter, EI) = bopt.maximumExpectedImprovement();
@@ -238,7 +246,12 @@ CBoostedTreeHyperparameters::testLossLineSearch(const CInitializeFineTuneArgumen
 
     std::sort(testLosses.begin(), testLosses.end());
     LOG_TRACE(<< "test losses = " << core::CContainerPrinter::print(testLosses));
+}
 
+CBoostedTreeHyperparameters::TVector3x1
+CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
+                                              double intervalRightEnd,
+                                              const TDoubleDoublePrVec& testLosses) const {
     common::CLowess<2> lowess;
     lowess.fit(std::move(testLosses), testLosses.size());
 
