@@ -191,7 +191,7 @@ CBoostedTreeHyperparameters::testLossLineSearch(const CInitializeFineTuneArgumen
     auto boptVector = [](double parameter) {
         return common::SConstant<common::CBayesianOptimisation::TVector>::get(1, parameter);
     };
-    auto adjustTestLoss = [&](double parameter, double testLoss) {
+    auto adjustTestLoss = [testLosses, &args](double parameter, double testLoss) {
         auto min = std::min_element(testLosses.begin(), testLosses.end(),
                                     common::COrderings::SSecondLess{});
         return args.adjustLoss()(parameter, min->second, testLoss);
