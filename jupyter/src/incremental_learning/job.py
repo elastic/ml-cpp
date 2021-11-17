@@ -585,7 +585,7 @@ def update(dataset_name: str,
             logger.debug("{name}: past value {value}, new range [{min},{max}]".format(
                 value=value,min=min, max=max, name=name))
         if name in ['soft_tree_depth_limit']:
-            min, max = (0.75*value, value*1.5)
+            min, max = (value, value*1.5)
             config['analysis']['parameters'][name] = [min, max]
             logger.debug("{name}: past value {value}, new range [{min},{max}]".format(
                 value=value,min=min, max=max, name=name))

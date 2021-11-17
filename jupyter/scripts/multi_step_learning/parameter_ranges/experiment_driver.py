@@ -78,7 +78,7 @@ def read_dataset(_run, dataset_name):
 @ex.capture
 def compute_error(job, dataset, dataset_name, _run):
     job_eval = evaluate(dataset_name=dataset_name, dataset=dataset,
-                        original_job=job, run=_run, verbose=False)
+                        original_job=job, run=_run, verbose=True)
     job_eval.wait_to_complete()
     dependent_variable = job.dependent_variable
     if job.is_regression():
@@ -185,7 +185,7 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         elapsed_time = baseline_model.wait_to_complete()
         path = jobs_dir / baseline_model_name
         baseline_model.store(path)
-        upload_job(path)
+        upload_job(path, True)
     results['baseline'] = {}
     results['baseline']['hyperparameters'] = baseline_model.get_hyperparameters()
     results['baseline']['forest_statistics'] = get_forest_statistics(
@@ -219,6 +219,8 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
                                force=force_update, verbose=verbose, run=_run)
         elapsed_time = updated_model.wait_to_complete(clean=False)
+        _run.run_logger.debug("Hyperparameters: {}".format(
+            updated_model.get_hyperparameters()))
         _run.log_scalar('updated_model.elapsed_time', elapsed_time)
         _run.log_scalar('updated_model.train_error',
                         compute_error(updated_model, train_dataset))
@@ -233,8 +235,7 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
 
         _run.log_scalar('updated_model.hyperparameters',
                         updated_model.get_hyperparameters())
-        _run.run_logger.debug("Hyperparameters: {}".format(
-            updated_model.get_hyperparameters()))
+        
         _run.log_scalar('run.comment', _run.meta_info['comment'])
         _run.log_scalar('run.config', _run.config)
         for k, v in get_forest_statistics(updated_model.get_model_definition()).items():
