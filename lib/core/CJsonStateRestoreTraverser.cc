@@ -29,7 +29,7 @@ CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream& inputStream
 }
 
 bool CJsonStateRestoreTraverser::isEof() const {
-    // Rapid JSON istreamwrapper returns \0 when it reaches EOF
+    // CRapidJsonUnbufferedIStreamWrapper returns \0 when it reaches EOF
     return m_ReadStream.Peek() == '\0';
 }
 
