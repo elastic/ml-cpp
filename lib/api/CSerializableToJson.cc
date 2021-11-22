@@ -12,6 +12,7 @@
 #include <api/CSerializableToJson.h>
 
 #include <core/CBase64Filter.h>
+#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/istreamwrapper.h>
@@ -129,7 +130,7 @@ CSerializableFromCompressedChunkedJson::rawJsonStream(const std::string& compres
                                                       TIStreamPtr inputStream,
                                                       std::iostream& buffer) {
     if (inputStream != nullptr) {
-        rapidjson::IStreamWrapper isw{*inputStream};
+        core::CRapidJsonUnbufferedIStreamWrapper isw{*inputStream};
         try {
             rapidjson::Document doc;
             bool done{false};
