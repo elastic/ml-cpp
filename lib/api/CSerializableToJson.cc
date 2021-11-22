@@ -15,7 +15,6 @@
 #include <core/CRapidJsonUnbufferedIStreamWrapper.h>
 
 #include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
 #include <rapidjson/rapidjson.h>
 
 #include <boost/iostreams/copy.hpp>

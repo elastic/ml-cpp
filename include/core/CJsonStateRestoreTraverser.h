@@ -17,7 +17,6 @@
 #include <core/ImportExport.h>
 
 #include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
 #include <rapidjson/reader.h>
 
 #include <iosfwd>

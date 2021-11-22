@@ -22,7 +22,6 @@
 #include <api/CInferenceModelDefinition.h>
 
 #include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
 #include <rapidjson/rapidjson.h>
 
 #include <memory>
