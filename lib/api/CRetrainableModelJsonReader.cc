@@ -13,6 +13,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CJsonStateRestoreTraverser.h>
+#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
@@ -21,7 +22,6 @@
 #include <api/CInferenceModelDefinition.h>
 
 #include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
 #include <rapidjson/rapidjson.h>
 
 #include <memory>
@@ -69,7 +69,7 @@ CRetrainableModelJsonReader::dataSummarizationFromJsonStream(TIStreamSPtr istrea
 CRetrainableModelJsonReader::TEncoderUPtrStrSizeUMapPr
 CRetrainableModelJsonReader::doDataSummarizationFromJsonStream(std::istream& istream,
                                                                core::CDataFrame& frame) {
-    rapidjson::IStreamWrapper isw{istream};
+    core::CRapidJsonUnbufferedIStreamWrapper isw{istream};
     rapidjson::Document doc;
     doc.ParseStream(isw);
     assertNoParseError(doc);
@@ -167,7 +167,7 @@ CRetrainableModelJsonReader::doBestForestFromJsonStream(std::istream& istream,
     using TNodeVec = maths::analytics::CBoostedTreeFactory::TNodeVec;
     using TNodeVecVec = maths::analytics::CBoostedTreeFactory::TNodeVecVec;
 
-    rapidjson::IStreamWrapper isw{istream};
+    core::CRapidJsonUnbufferedIStreamWrapper isw{istream};
     rapidjson::Document doc;
     doc.ParseStream(isw);
     assertNoParseError(doc);
