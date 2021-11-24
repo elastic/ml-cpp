@@ -20,7 +20,6 @@
 
 #include <model/CForecastModelPersist.h>
 
-#include <test/BoostTestPointerOutput.h>
 #include <test/CTestTmpDir.h>
 
 #include <boost/test/unit_test.hpp>
