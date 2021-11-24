@@ -112,6 +112,9 @@ public:
     //! Get the hyperparameters.
     const CBoostedTreeHyperparameters& hyperparameters() const;
 
+    //! Get the writeable hyperparameters.
+    CBoostedTreeHyperparameters& hyperparameters();
+
     //! Get the SHAP value calculator.
     //!
     //! \warning Will return a nullptr if a trained model isn't available.
@@ -311,6 +314,10 @@ private:
                        std::size_t maximumNumberInternalNodes,
                        const TMakeRootLeafNodeStatistics& makeRootLeafNodeStatistics,
                        TWorkspace& workspace) const;
+
+    //! Scale the multipliers of the regularisation terms in the loss function to
+    //! account for the difference in data size for final training.
+    void scaleRegularizationMultipliersForFinalTrain();
 
     //! Compute the minimum mean test loss per fold for any round.
     double minimumTestLoss() const;

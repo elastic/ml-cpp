@@ -9,16 +9,21 @@
  * limitation.
  */
 
+#include "core/CDataFrame.h"
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 
 #include <maths/analytics/CBoostedTreeHyperparameters.h>
+#include <maths/analytics/CBoostedTreeImpl.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
 
 #include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
 #include <limits>
+#include <memory>
+#include <utility>
 
 BOOST_AUTO_TEST_SUITE(CBoostedTreeHyperparametersTest)
 
@@ -84,6 +89,34 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeParameter) {
     parameter4.fixTo(TDoubleVec{12.0, 14.0});
 
     BOOST_TEST_REQUIRE(parameter4.rangeFixed());
+}
+
+BOOST_AUTO_TEST_CASE(testBoostedTreeParameterScaling) {
+
+    TDoubleParameter parameter{10.0};
+
+    parameter.scale(1.5);
+    BOOST_REQUIRE_EQUAL(1.5, parameter.scale());
+    BOOST_REQUIRE_EQUAL(15.0, parameter.value());
+
+    parameter.scale(1.2).captureScale();
+    BOOST_REQUIRE_EQUAL(1.0, parameter.scale());
+    BOOST_REQUIRE_EQUAL(12.0, parameter.value());
+
+    parameter.fixToRange(12.0, 15.0);
+
+    parameter.scale(0.1);
+    BOOST_REQUIRE_CLOSE(1.2, parameter.value(), 1e-6);
+    BOOST_REQUIRE_EQUAL(12.0, parameter.toSearchValue());
+    BOOST_REQUIRE_EQUAL(12.0, parameter.searchRange().first);
+    BOOST_REQUIRE_EQUAL(15.0, parameter.searchRange().second);
+
+    parameter.captureScale();
+    BOOST_REQUIRE_CLOSE(1.2, parameter.value(), 1e-6);
+    BOOST_REQUIRE_EQUAL(1.0, parameter.scale());
+    BOOST_REQUIRE_CLOSE(1.2, parameter.toSearchValue(), 1e-6);
+    BOOST_REQUIRE_CLOSE(1.2, parameter.searchRange().first, 1e-6);
+    BOOST_REQUIRE_CLOSE(1.5, parameter.searchRange().second, 1e-6);
 }
 
 BOOST_AUTO_TEST_CASE(testBoostedTreeParameterPersist) {
@@ -263,12 +296,12 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
     std::size_t numberToTune{hyperparameters.numberToTune()};
 
+    testFix(hyperparameters.downsampleFactor(), numberToTune);
     testFix(hyperparameters.depthPenaltyMultiplier(), numberToTune);
     testFix(hyperparameters.treeSizePenaltyMultiplier(), numberToTune);
     testFix(hyperparameters.leafWeightPenaltyMultiplier(), numberToTune);
     testFix(hyperparameters.softTreeDepthLimit(), numberToTune);
     testFix(hyperparameters.softTreeDepthTolerance(), numberToTune);
-    testFix(hyperparameters.downsampleFactor(), numberToTune);
     testFix(hyperparameters.featureBagFraction(), numberToTune);
     testFix(hyperparameters.etaGrowthRatePerTree(), numberToTune);
     testFix(hyperparameters.eta(), numberToTune);
@@ -282,12 +315,17 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithRangeOverride
 
     hyperparameters.maximumOptimisationRoundsPerHyperparameter(2);
 
+    // Since downsample factor acts exactly like a divisor of the regularisation
+    // multipliers we adjust them as we vary this parameter to keep the amount
+    // of regularisation fixed. As such we override it so we can assess we really
+    // do keep all parameters in range subject without scaling.
+    hyperparameters.downsampleFactor().fixToRange(0.5, 0.5);
+
     hyperparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
     hyperparameters.treeSizePenaltyMultiplier().fixToRange(0.1, 1.0);
     hyperparameters.leafWeightPenaltyMultiplier().fixToRange(0.1, 1.0);
     hyperparameters.softTreeDepthLimit().fixToRange(0.1, 1.0);
     hyperparameters.softTreeDepthTolerance().fixToRange(0.1, 1.0);
-    hyperparameters.downsampleFactor().fixToRange(0.1, 1.0);
     hyperparameters.featureBagFraction().fixToRange(0.1, 1.0);
     hyperparameters.eta().fixToRange(0.1, 1.0);
     hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
@@ -314,6 +352,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithRangeOverride
             testLossMoments.add(losses);
             hyperparameters.selectNext(testLossMoments);
 
+            BOOST_TEST_REQUIRE(hyperparameters.downsampleFactor().value(), 0.5);
             BOOST_TEST_REQUIRE(parameter.value() >= 0.25);
             BOOST_TEST_REQUIRE(parameter.value() <= 0.75);
         }
@@ -326,7 +365,6 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithRangeOverride
     testFixToRange(hyperparameters.leafWeightPenaltyMultiplier(), numberToTune);
     testFixToRange(hyperparameters.softTreeDepthLimit(), numberToTune);
     testFixToRange(hyperparameters.softTreeDepthTolerance(), numberToTune);
-    testFixToRange(hyperparameters.downsampleFactor(), numberToTune);
     testFixToRange(hyperparameters.featureBagFraction(), numberToTune);
     testFixToRange(hyperparameters.etaGrowthRatePerTree(), numberToTune);
     testFixToRange(hyperparameters.eta(), numberToTune);
@@ -339,8 +377,19 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
 
     maths::analytics::CBoostedTreeHyperparameters hyperparameters;
 
-    hyperparameters.stopHyperparameterOptimizationEarly(false);
+    auto initHyperaparameters = [&] {
+        hyperparameters.depthPenaltyMultiplier().set(0.5).scale(1.0);
+        hyperparameters.treeSizePenaltyMultiplier().set(0.5).scale(1.0);
+        hyperparameters.leafWeightPenaltyMultiplier().set(0.5).scale(1.0);
+        hyperparameters.softTreeDepthLimit().set(0.5).scale(1.0);
+        hyperparameters.softTreeDepthTolerance().set(0.5).scale(1.0);
+        hyperparameters.downsampleFactor().set(0.5).scale(1.0);
+        hyperparameters.featureBagFraction().set(0.5).scale(1.0);
+        hyperparameters.etaGrowthRatePerTree().set(0.5).scale(1.0);
+        hyperparameters.eta().set(0.5).scale(1.0);
+    };
 
+    hyperparameters.stopHyperparameterOptimizationEarly(false);
     hyperparameters.depthPenaltyMultiplier().fixToRange(0.1, 1.0);
     hyperparameters.treeSizePenaltyMultiplier().fixToRange(0.1, 1.0);
     hyperparameters.leafWeightPenaltyMultiplier().fixToRange(0.1, 1.0);
@@ -352,18 +401,6 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
     hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
     hyperparameters.initializeSearch();
-
-    auto initHyperaparameters = [&] {
-        hyperparameters.depthPenaltyMultiplier().set(0.5);
-        hyperparameters.treeSizePenaltyMultiplier().set(0.5);
-        hyperparameters.leafWeightPenaltyMultiplier().set(0.5);
-        hyperparameters.softTreeDepthLimit().set(0.5);
-        hyperparameters.softTreeDepthTolerance().set(0.5);
-        hyperparameters.downsampleFactor().set(0.5);
-        hyperparameters.featureBagFraction().set(0.5);
-        hyperparameters.etaGrowthRatePerTree().set(0.5);
-        hyperparameters.eta().set(0.5);
-    };
 
     test::CRandomNumbers rng;
 

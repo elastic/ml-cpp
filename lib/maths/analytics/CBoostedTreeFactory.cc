@@ -208,6 +208,11 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
 
     this->startProgressMonitoringInitializeHyperparameters(frame);
 
+    // If we didn't fail over we should scale the regularisation hyperparameter
+    // multipliers to account for the change in the amount of training data.
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initialHyperparameterScaling(); });
+
     if (this->initializeFeatureSampleDistribution()) {
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
@@ -562,6 +567,26 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
     return false;
 }
 
+void CBoostedTreeFactory::initialHyperparameterScaling() {
+    if (m_TreeImpl->m_PreviousTrainNumberRows > 0) {
+        double scale{m_TreeImpl->meanNumberTrainingRowsPerFold() /
+                     static_cast<double>(m_TreeImpl->m_PreviousTrainNumberRows)};
+        auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
+        if (hyperparameters.depthPenaltyMultiplier().rangeFixed()) {
+            hyperparameters.depthPenaltyMultiplier().scale(scale).captureScale();
+        }
+        if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed()) {
+            hyperparameters.treeSizePenaltyMultiplier().scale(scale).captureScale();
+        }
+        if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed()) {
+            hyperparameters.leafWeightPenaltyMultiplier().scale(scale).captureScale();
+        }
+        if (hyperparameters.treeTopologyChangePenalty().rangeFixed()) {
+            hyperparameters.treeTopologyChangePenalty().scale(scale).captureScale();
+        }
+    }
+}
+
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeHyperparametersSetup(frame); });
@@ -644,12 +669,14 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     // optimisation loop.
 
     auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
+    auto& softTreeDepthLimitParameter = hyperparameters.softTreeDepthLimit();
+    auto& softTreeDepthToleranceParameter = hyperparameters.softTreeDepthTolerance();
     double log2MaxTreeSize{std::log2(static_cast<double>(m_TreeImpl->maximumTreeSize(
                                m_TreeImpl->m_TrainingRowMasks[0]))) +
                            1.0};
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
-        hyperparameters.softTreeDepthLimit().set(log2MaxTreeSize);
-        hyperparameters.softTreeDepthTolerance().set(
+        softTreeDepthLimitParameter.set(log2MaxTreeSize);
+        softTreeDepthToleranceParameter.set(
             0.5 * (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE));
 
         auto gainAndTotalCurvaturePerNode =
@@ -668,21 +695,21 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
             std::min(m_TotalCurvaturePerNode1stPercentile,
                      0.1 * m_TotalCurvaturePerNode90thPercentile);
 
-        LOG_TRACE(<< "max depth = " << hyperparameters.softTreeDepthLimit().print());
-        LOG_TRACE(<< "tolerance = " << hyperparameters.softTreeDepthTolerance().print());
+        LOG_TRACE(<< "max depth = " << softTreeDepthLimitParameter.print());
+        LOG_TRACE(<< "tolerance = " << softTreeDepthToleranceParameter.print());
         LOG_TRACE(<< "gains and total curvatures per node = "
                   << core::CContainerPrinter::print(gainAndTotalCurvaturePerNode));
     });
 
     // Search for depth limit at which the tree starts to overfit.
-    if (hyperparameters.softTreeDepthLimit().rangeFixed() == false) {
+    if (softTreeDepthLimitParameter.rangeFixed() == false) {
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_SoftTreeDepthLimitInitialized, [&] {
                 if (m_GainPerNode90thPercentile > 0.0) {
                     double maxSoftDepthLimit{MIN_SOFT_DEPTH_LIMIT + log2MaxTreeSize};
-                    double minSearchValue{hyperparameters.softTreeDepthLimit().toSearchValue(
+                    double minSearchValue{softTreeDepthLimitParameter.toSearchValue(
                         MIN_SOFT_DEPTH_LIMIT)};
-                    double maxSearchValue{hyperparameters.softTreeDepthLimit().toSearchValue(
-                        maxSoftDepthLimit)};
+                    double maxSearchValue{
+                        softTreeDepthLimitParameter.toSearchValue(maxSoftDepthLimit)};
                     hyperparameters.depthPenaltyMultiplier().set(m_GainPerNode50thPercentile);
                     hyperparameters.initializeFineTuneSearchInterval(
                         CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
@@ -695,9 +722,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                             .truncateParameter([&](TVector& range) {
                                 range = truncate(range, minSearchValue, maxSearchValue);
                             }),
-                        hyperparameters.softTreeDepthLimit());
+                        softTreeDepthLimitParameter);
                 } else {
-                    hyperparameters.softTreeDepthLimit().fix();
+                    softTreeDepthLimitParameter.fix();
                 }
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
@@ -706,13 +733,13 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     }
 
     // Update the soft depth tolerance.
-    if (hyperparameters.softTreeDepthLimit().fixed()) {
-        hyperparameters.softTreeDepthTolerance().fixTo(MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
+    if (softTreeDepthLimitParameter.fixed()) {
+        softTreeDepthToleranceParameter.fixTo(MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
     }
-    if (hyperparameters.softTreeDepthTolerance().rangeFixed() == false) {
-        hyperparameters.softTreeDepthTolerance().fixToRange(
-            MIN_SOFT_DEPTH_LIMIT_TOLERANCE, MAX_SOFT_DEPTH_LIMIT_TOLERANCE);
-        hyperparameters.softTreeDepthTolerance().set(
+    if (softTreeDepthToleranceParameter.rangeFixed() == false) {
+        softTreeDepthToleranceParameter.fixToRange(MIN_SOFT_DEPTH_LIMIT_TOLERANCE,
+                                                   MAX_SOFT_DEPTH_LIMIT_TOLERANCE);
+        softTreeDepthToleranceParameter.set(
             0.5 * (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE));
     }
 
@@ -782,64 +809,52 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     if (hyperparameters.depthPenaltyMultiplier().fixed() &&
         hyperparameters.depthPenaltyMultiplier().value() == 0.0) {
-        hyperparameters.softTreeDepthLimit().fixTo(MIN_SOFT_DEPTH_LIMIT);
-        hyperparameters.softTreeDepthTolerance().fixTo(MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
+        softTreeDepthLimitParameter.fixTo(MIN_SOFT_DEPTH_LIMIT);
+        softTreeDepthToleranceParameter.fixTo(MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
     }
 }
 
 void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& frame) {
 
     auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
+    auto& downsampleFactorParameter = hyperparameters.downsampleFactor();
 
-    if (hyperparameters.downsampleFactor().rangeFixed() == false) {
+    if (downsampleFactorParameter.rangeFixed() == false) {
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_DownsampleFactorInitialized, [&] {
                 double numberTrainingRows{m_TreeImpl->m_TrainingRowMasks[0].manhattan()};
                 double searchIntervalSize{common::CTools::truncate(
                     m_TreeImpl->m_TrainingRowMasks[0].manhattan() / 100.0,
                     MIN_DOWNSAMPLE_LINE_SEARCH_RANGE, MAX_DOWNSAMPLE_LINE_SEARCH_RANGE)};
-                double maxDownsampleFactor{
-                    std::min(std::sqrt(searchIntervalSize) *
-                                 hyperparameters.downsampleFactor().value(),
-                             1.0)};
+                double maxDownsampleFactor{std::min(
+                    std::sqrt(searchIntervalSize) * downsampleFactorParameter.value(), 1.0)};
                 double searchIntervalEnd{
-                    hyperparameters.downsampleFactor().toSearchValue(maxDownsampleFactor)};
+                    downsampleFactorParameter.toSearchValue(maxDownsampleFactor)};
                 double searchIntervalStart{
                     searchIntervalEnd -
-                    hyperparameters.downsampleFactor().toSearchValue(searchIntervalSize)};
+                    downsampleFactorParameter.toSearchValue(searchIntervalSize)};
                 // Truncate factor to be less than or equal to 1.0 and large enough that
                 // the bag contains at least 10 examples.
-                double minSearchValue{hyperparameters.downsampleFactor().toSearchValue(
+                double minSearchValue{downsampleFactorParameter.toSearchValue(
                     10.0 / numberTrainingRows)};
-                double maxSearchValue{hyperparameters.downsampleFactor().toSearchValue(1.0)};
+                double maxSearchValue{downsampleFactorParameter.toSearchValue(1.0)};
 
-                double initialDownsampleFactor{
-                    hyperparameters.downsampleFactor().value()};
-                hyperparameters.depthPenaltyMultiplier().save();
-                hyperparameters.treeSizePenaltyMultiplier().save();
-                hyperparameters.leafWeightPenaltyMultiplier().save();
-                hyperparameters.treeTopologyChangePenalty().save();
+                double initialDownsampleFactor{downsampleFactorParameter.value()};
 
                 // We need to scale the regularisation terms to account for the difference
                 // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
                     double scale{downsampleFactor / initialDownsampleFactor};
                     if (m_ParameterSupplied[E_Alpha] == false) {
-                        tree.m_Hyperparameters.depthPenaltyMultiplier().load().forceScale(scale);
+                        tree.m_Hyperparameters.depthPenaltyMultiplier().scale(scale);
                     }
                     if (m_ParameterSupplied[E_Gamma] == false) {
-                        tree.m_Hyperparameters.treeSizePenaltyMultiplier()
-                            .load()
-                            .forceScale(scale);
+                        tree.m_Hyperparameters.treeSizePenaltyMultiplier().scale(scale);
                     }
                     if (m_ParameterSupplied[E_Lambda] == false) {
-                        tree.m_Hyperparameters.leafWeightPenaltyMultiplier()
-                            .load()
-                            .forceScale(scale);
+                        tree.m_Hyperparameters.leafWeightPenaltyMultiplier().scale(scale);
                     }
                     if (m_ParameterSupplied[E_TreeTopologyChangePenalty] == false) {
-                        tree.m_Hyperparameters.treeTopologyChangePenalty()
-                            .load()
-                            .forceScale(scale);
+                        tree.m_Hyperparameters.treeTopologyChangePenalty().scale(scale);
                     }
                 };
 
@@ -869,10 +884,17 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                         .truncateParameter([&](TVector& range) {
                             range = truncate(range, minSearchValue, maxSearchValue);
                         }),
-                    hyperparameters.downsampleFactor());
+                    downsampleFactorParameter);
 
-                scaleRegularizers(*m_TreeImpl,
-                                  hyperparameters.downsampleFactor().value());
+                scaleRegularizers(*m_TreeImpl, downsampleFactorParameter.value());
+
+                // We need to bake in the scaling we applied since all subsequent scaling
+                // is relative to the fine tune interval midpoint. If we didn't scale then
+                // the multiplier will be one so we don't have to do this conditionally.
+                hyperparameters.depthPenaltyMultiplier().captureScale();
+                hyperparameters.treeSizePenaltyMultiplier().captureScale();
+                hyperparameters.leafWeightPenaltyMultiplier().captureScale();
+                hyperparameters.treeTopologyChangePenalty().captureScale();
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
@@ -966,8 +988,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
                         }),
                     hyperparameters.eta());
 
-                applyEta(*m_TreeImpl, hyperparameters.eta().toSearchValue(
-                                          hyperparameters.eta().value()));
+                applyEta(*m_TreeImpl, hyperparameters.eta().toSearchValue());
                 hyperparameters.maximumNumberTrees().set(computeMaximumNumberTrees(
                     MIN_ETA_SCALE * hyperparameters.eta().value()));
             })) {
@@ -1022,13 +1043,6 @@ void CBoostedTreeFactory::initializeUnsetTreeTopologyPenalty(core::CDataFrame& f
         auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
 
         if (hyperparameters.treeTopologyChangePenalty().rangeFixed() == false) {
-
-            CScopeBoostedTreeParameterOverrides<double> overrides;
-            if (m_TreeImpl->m_PreviousTrainNumberRows > 0) {
-                double scale{m_TreeImpl->meanNumberTrainingRowsPerFold() /
-                             static_cast<double>(m_TreeImpl->m_PreviousTrainNumberRows)};
-                hyperparameters.scaleRegularizationMultipliers(scale, overrides);
-            }
 
             auto forest = m_TreeImpl
                               ->updateForest(frame, m_TreeImpl->m_TrainingRowMasks[0],

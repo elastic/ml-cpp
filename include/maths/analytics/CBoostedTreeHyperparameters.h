@@ -66,7 +66,7 @@ public:
     }
 
     //! Get the value.
-    T value() const { return m_Value; }
+    T value() const { return m_Scale * m_Value; }
 
     //! Set to \p value.
     //!
@@ -79,13 +79,25 @@ public:
         return *this;
     }
 
-    //! Multiply by \p scale.
+    //! Get the multiplier which is applied when the parameter is read.
+    T scale() const { return m_Scale; }
+
+    //! Set the multiplier which is applied when the parameter is read to \p scale.
+    CBoostedTreeParameter& scale(T scale) {
+        m_Scale = scale;
+        return *this;
+    }
+
+    //! Convert the scale to a multiplier of the parameter.
     //!
-    //! \note Has no effect if the parameter is fixed.
-    CBoostedTreeParameter& forceScale(T scale) {
-        m_Value *= scale;
-        m_MinValue *= scale;
-        m_MaxValue *= scale;
+    //! \warning Handle with care since this also applies the scaling to the range
+    //! limits. This is consistent with the behaviour of scaling which can move
+    //! values outside this interval.
+    CBoostedTreeParameter& captureScale() {
+        m_Value *= m_Scale;
+        m_MinValue *= m_Scale;
+        m_MaxValue *= m_Scale;
+        m_Scale = T{1};
         return *this;
     }
 
@@ -102,6 +114,7 @@ public:
         m_Value = value;
         m_MinValue = value;
         m_MaxValue = value;
+        m_Scale = T{1};
         m_FixedToRange = true;
     }
 
@@ -112,6 +125,7 @@ public:
         m_Value = common::CTools::truncate(m_Value, minValue, maxValue);
         m_MinValue = minValue;
         m_MaxValue = maxValue;
+        m_Scale = T{1};
         m_FixedToRange = true;
     }
 
@@ -144,6 +158,9 @@ public:
         return m_LogSearch == false || value > 0.0;
     }
 
+    //! Get the unscaled value converted to a search value.
+    double toSearchValue() const { return this->toSearchValue(m_Value); }
+
     //! Convert \p value to the value used by BO for fine tuning.
     double toSearchValue(T value) const {
         return m_LogSearch ? common::CTools::stableLog(static_cast<double>(value))
@@ -165,6 +182,7 @@ public:
         m_SavedValue = m_Value;
         m_SavedMinValue = m_MinValue;
         m_SavedMaxValue = m_MaxValue;
+        m_SavedScale = m_Scale;
     }
 
     //! Load the saved value.
@@ -172,6 +190,7 @@ public:
         m_Value = m_SavedValue;
         m_MinValue = m_SavedMinValue;
         m_MaxValue = m_SavedMaxValue;
+        m_Scale = m_SavedScale;
         return *this;
     }
 
@@ -179,11 +198,13 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         core::CPersistUtils::persist(FIXED_TO_RANGE_TAG, m_FixedToRange, inserter);
         core::CPersistUtils::persist(LOG_SEARCH_TAG, m_LogSearch, inserter);
-        core::CPersistUtils::persist(MIN_VALUE_TAG, m_MinValue, inserter);
         core::CPersistUtils::persist(MAX_VALUE_TAG, m_MaxValue, inserter);
-        core::CPersistUtils::persist(SAVED_MAX_VALUE_TAG, m_SavedMinValue, inserter);
-        core::CPersistUtils::persist(SAVED_MIN_VALUE_TAG, m_SavedMaxValue, inserter);
+        core::CPersistUtils::persist(MIN_VALUE_TAG, m_MinValue, inserter);
+        core::CPersistUtils::persist(SAVED_MAX_VALUE_TAG, m_SavedMaxValue, inserter);
+        core::CPersistUtils::persist(SAVED_MIN_VALUE_TAG, m_SavedMinValue, inserter);
+        core::CPersistUtils::persist(SAVED_SCALE_TAG, m_SavedScale, inserter);
         core::CPersistUtils::persist(SAVED_VALUE_TAG, m_SavedValue, inserter);
+        core::CPersistUtils::persist(SCALE_TAG, m_Scale, inserter);
         core::CPersistUtils::persist(VALUE_TAG, m_Value, inserter);
     }
 
@@ -195,16 +216,19 @@ public:
                     core::CPersistUtils::restore(FIXED_TO_RANGE_TAG, m_FixedToRange, traverser))
             RESTORE(LOG_SEARCH_TAG,
                     core::CPersistUtils::restore(LOG_SEARCH_TAG, m_LogSearch, traverser))
-            RESTORE(MIN_VALUE_TAG,
-                    core::CPersistUtils::restore(MIN_VALUE_TAG, m_MinValue, traverser))
             RESTORE(MAX_VALUE_TAG,
                     core::CPersistUtils::restore(MAX_VALUE_TAG, m_MaxValue, traverser))
+            RESTORE(MIN_VALUE_TAG,
+                    core::CPersistUtils::restore(MIN_VALUE_TAG, m_MinValue, traverser))
             RESTORE(SAVED_MAX_VALUE_TAG,
                     core::CPersistUtils::restore(SAVED_MAX_VALUE_TAG, m_SavedMaxValue, traverser))
             RESTORE(SAVED_MIN_VALUE_TAG,
                     core::CPersistUtils::restore(SAVED_MIN_VALUE_TAG, m_SavedMinValue, traverser))
+            RESTORE(SAVED_SCALE_TAG,
+                    core::CPersistUtils::restore(SAVED_SCALE_TAG, m_SavedScale, traverser))
             RESTORE(SAVED_VALUE_TAG,
                     core::CPersistUtils::restore(SAVED_VALUE_TAG, m_SavedValue, traverser))
+            RESTORE(SCALE_TAG, core::CPersistUtils::restore(SCALE_TAG, m_Scale, traverser))
             RESTORE(VALUE_TAG, core::CPersistUtils::restore(VALUE_TAG, m_Value, traverser))
         } while (traverser.next());
         return true;
@@ -214,17 +238,20 @@ public:
     std::uint64_t checksum(std::uint64_t seed = 0) const {
         seed = common::CChecksum::calculate(seed, m_FixedToRange);
         seed = common::CChecksum::calculate(seed, m_LogSearch);
-        seed = common::CChecksum::calculate(seed, m_MinValue);
         seed = common::CChecksum::calculate(seed, m_MaxValue);
+        seed = common::CChecksum::calculate(seed, m_MinValue);
         seed = common::CChecksum::calculate(seed, m_SavedMaxValue);
         seed = common::CChecksum::calculate(seed, m_SavedMinValue);
+        seed = common::CChecksum::calculate(seed, m_SavedScale);
         seed = common::CChecksum::calculate(seed, m_SavedValue);
+        seed = common::CChecksum::calculate(seed, m_Scale);
         return common::CChecksum::calculate(seed, m_Value);
     }
 
     //! Print for debug.
     std::string print() const {
         return std::to_string(m_Value) +
+               (m_Scale != T{1} ? " scaled by " + std::to_string(m_Scale) : "") +
                (m_FixedToRange ? " fixed to [" + std::to_string(m_MinValue) +
                                      "," + std::to_string(m_MaxValue) + "]"
                                : "");
@@ -237,16 +264,20 @@ private:
     static const std::string MAX_VALUE_TAG;
     static const std::string SAVED_MAX_VALUE_TAG;
     static const std::string SAVED_MIN_VALUE_TAG;
+    static const std::string SAVED_SCALE_TAG;
     static const std::string SAVED_VALUE_TAG;
+    static const std::string SCALE_TAG;
     static const std::string VALUE_TAG;
 
 private:
     T m_Value{};
     T m_MinValue{};
     T m_MaxValue{};
+    T m_Scale{1};
     T m_SavedValue{};
     T m_SavedMinValue{};
     T m_SavedMaxValue{};
+    T m_SavedScale{1};
     bool m_FixedToRange{false};
     bool m_LogSearch{false};
 
@@ -267,7 +298,11 @@ const std::string CBoostedTreeParameter<T>::SAVED_MAX_VALUE_TAG{"saved_max_value
 template<typename T>
 const std::string CBoostedTreeParameter<T>::SAVED_MIN_VALUE_TAG{"saved_min_value"};
 template<typename T>
+const std::string CBoostedTreeParameter<T>::SAVED_SCALE_TAG{"saved_scale_tag"};
+template<typename T>
 const std::string CBoostedTreeParameter<T>::SAVED_VALUE_TAG{"saved_value"};
+template<typename T>
+const std::string CBoostedTreeParameter<T>::SCALE_TAG{"scale_tag"};
 template<typename T>
 const std::string CBoostedTreeParameter<T>::VALUE_TAG{"value"};
 
@@ -288,11 +323,9 @@ public:
     CScopeBoostedTreeParameterOverrides&
     operator=(const CScopeBoostedTreeParameterOverrides&) = delete;
 
-    void apply(CBoostedTreeParameter<T>& parameter, T value, bool undo = true) {
-        if (undo) {
-            m_ValuesToRestore.push_back(parameter.value());
-            m_Parameters.push_back(&parameter);
-        }
+    void apply(CBoostedTreeParameter<T>& parameter, T value) {
+        m_ValuesToRestore.push_back(parameter.value());
+        m_Parameters.push_back(&parameter);
         parameter.m_Value = value;
     }
 
@@ -522,11 +555,6 @@ public:
     const TSizeParameter& maximumNumberTrees() const {
         return m_MaximumNumberTrees;
     }
-
-    //! Scale the multipliers of the regularisation terms in the loss function by \p scale.
-    void scaleRegularizationMultipliers(double scale,
-                                        CScopeBoostedTreeParameterOverrides<double>& overrides,
-                                        bool undo = true);
 
     //! \name Optimisation
     //@{

@@ -262,6 +262,10 @@ private:
     //! Initialize the regressors sample distribution.
     bool initializeFeatureSampleDistribution() const;
 
+    //! Apply scaling to hyperparameter ranges based on the difference in the update
+    //! data set and original train data set sizes.
+    void initialHyperparameterScaling();
+
     //! Set the initial values for hyperparameters.
     void initializeHyperparameters(core::CDataFrame& frame);
 

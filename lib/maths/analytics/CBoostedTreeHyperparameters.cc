@@ -58,18 +58,6 @@ double CBoostedTreeHyperparameters::etaForTreeAtPosition(std::size_t index) cons
                     1.0);
 }
 
-void CBoostedTreeHyperparameters::scaleRegularizationMultipliers(
-    double scale,
-    CScopeBoostedTreeParameterOverrides<double>& overrides,
-    bool undo) {
-    overrides.apply(m_DepthPenaltyMultiplier,
-                    scale * m_DepthPenaltyMultiplier.value(), undo);
-    overrides.apply(m_TreeSizePenaltyMultiplier,
-                    scale * m_TreeSizePenaltyMultiplier.value(), undo);
-    overrides.apply(m_LeafWeightPenaltyMultiplier,
-                    scale * m_LeafWeightPenaltyMultiplier.value(), undo);
-}
-
 void CBoostedTreeHyperparameters::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
     m_MaximumOptimisationRoundsPerHyperparameter = rounds;
 }
@@ -194,7 +182,7 @@ void CBoostedTreeHyperparameters::fineTineTestLoss(const CInitializeFineTuneArgu
     using TMinAccumulator = common::CBasicStatistics::SMin<double>::TAccumulator;
 
     TMinAccumulator minTestLoss;
-    for (auto [_, testLoss] : testLosses) {
+    for (auto[_, testLoss] : testLosses) {
         minTestLoss.add(testLoss);
     }
 
@@ -206,7 +194,7 @@ void CBoostedTreeHyperparameters::fineTineTestLoss(const CInitializeFineTuneArgu
     };
 
     common::CBayesianOptimisation bopt{{{intervalLeftEnd, intervalRightEnd}}};
-    for (auto& [parameter, testLoss] : testLosses) {
+    for (auto & [ parameter, testLoss ] : testLosses) {
         double adjustedTestLoss{adjustTestLoss(parameter, testLoss)};
         bopt.add(boptVector(parameter), adjustedTestLoss, 0.0);
         testLoss = adjustedTestLoss;
@@ -366,74 +354,47 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     TVector maxBoundary;
     std::tie(minBoundary, maxBoundary) = m_BayesianOptimization->boundingBox();
 
-    // Downsampling directly affects the loss terms: it multiplies the sums over
-    // gradients and Hessians in expectation by the downsample factor. To preserve
-    // the same effect for regularisers we need to scale these terms by the same
-    // multiplier.
-    double scale{1.0};
-    if (m_DownsampleFactor.fixed() == false) {
-        auto i = std::distance(m_TunableHyperparameters.begin(),
-                               std::find(m_TunableHyperparameters.begin(),
-                                         m_TunableHyperparameters.end(), E_DownsampleFactor));
-        if (static_cast<std::size_t>(i) < m_TunableHyperparameters.size()) {
-            scale = std::min(
-                1.0, 2.0 * m_DownsampleFactor.value() /
-                         (m_DownsampleFactor.fromSearchValue(minBoundary(i)) +
-                          m_DownsampleFactor.fromSearchValue(maxBoundary(i))));
-        }
-    }
-
     // Read parameters for last round.
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            parameters(i) = m_DepthPenaltyMultiplier.toSearchValue(
-                m_DepthPenaltyMultiplier.value() / scale);
+            parameters(i) = m_DepthPenaltyMultiplier.toSearchValue();
             break;
         case E_DownsampleFactor:
-            parameters(i) = m_DownsampleFactor.toSearchValue(m_DownsampleFactor.value());
+            parameters(i) = m_DownsampleFactor.toSearchValue();
             break;
         case E_Eta:
-            parameters(i) = m_Eta.toSearchValue(m_Eta.value());
+            parameters(i) = m_Eta.toSearchValue();
             break;
         case E_EtaGrowthRatePerTree:
-            parameters(i) =
-                m_EtaGrowthRatePerTree.toSearchValue(m_EtaGrowthRatePerTree.value());
+            parameters(i) = m_EtaGrowthRatePerTree.toSearchValue();
             break;
         case E_FeatureBagFraction:
-            parameters(i) =
-                m_FeatureBagFraction.toSearchValue(m_FeatureBagFraction.value());
+            parameters(i) = m_FeatureBagFraction.toSearchValue();
             break;
         case E_MaximumNumberTrees:
-            parameters(i) =
-                m_MaximumNumberTrees.toSearchValue(m_MaximumNumberTrees.value());
+            parameters(i) = m_MaximumNumberTrees.toSearchValue();
             break;
         case E_Gamma:
-            parameters(i) = m_TreeSizePenaltyMultiplier.toSearchValue(
-                m_TreeSizePenaltyMultiplier.value() / scale);
+            parameters(i) = m_TreeSizePenaltyMultiplier.toSearchValue();
             break;
         case E_Lambda:
-            parameters(i) = m_LeafWeightPenaltyMultiplier.toSearchValue(
-                m_LeafWeightPenaltyMultiplier.value() / scale);
+            parameters(i) = m_LeafWeightPenaltyMultiplier.toSearchValue();
             break;
         case E_SoftTreeDepthLimit:
-            parameters(i) =
-                m_SoftTreeDepthLimit.toSearchValue(m_SoftTreeDepthLimit.value());
+            parameters(i) = m_SoftTreeDepthLimit.toSearchValue();
             break;
         case E_SoftTreeDepthTolerance:
-            parameters(i) = m_SoftTreeDepthTolerance.toSearchValue(
-                m_SoftTreeDepthTolerance.value());
+            parameters(i) = m_SoftTreeDepthTolerance.toSearchValue();
             break;
         case E_PredictionChangeCost:
-            parameters(i) =
-                m_PredictionChangeCost.toSearchValue(m_PredictionChangeCost.value());
+            parameters(i) = m_PredictionChangeCost.toSearchValue();
             break;
         case E_RetrainedTreeEta:
-            parameters(i) = m_RetrainedTreeEta.toSearchValue(m_RetrainedTreeEta.value());
+            parameters(i) = m_RetrainedTreeEta.toSearchValue();
             break;
         case E_TreeTopologyChangePenalty:
-            parameters(i) = m_TreeTopologyChangePenalty.toSearchValue(
-                m_TreeTopologyChangePenalty.value() / scale);
+            parameters(i) = m_TreeTopologyChangePenalty.toSearchValue();
             break;
         }
     }
@@ -468,7 +429,11 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
             m_BayesianOptimization->maximumExpectedImprovement();
     }
 
-    // Write parameters for next round.
+    // Downsampling directly affects the loss terms: it multiplies the sums over
+    // gradients and Hessians in expectation by the downsample factor. To preserve
+    // the same effect for regularisers we need to scale these terms by the same
+    // multiplier.
+    double scale{1.0};
     if (m_DownsampleFactor.fixed() == false) {
         auto i = std::distance(m_TunableHyperparameters.begin(),
                                std::find(m_TunableHyperparameters.begin(),
@@ -480,12 +445,14 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
                           m_DownsampleFactor.fromSearchValue(maxBoundary(i))));
         }
     }
+
+    // Write parameters for next round.
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
             m_DepthPenaltyMultiplier
                 .set(m_DepthPenaltyMultiplier.fromSearchValue(parameters(i)))
-                .forceScale(scale);
+                .scale(scale);
             break;
         case E_DownsampleFactor:
             m_DownsampleFactor.set(m_DownsampleFactor.fromSearchValue(parameters(i)));
@@ -507,12 +474,12 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
         case E_Gamma:
             m_TreeSizePenaltyMultiplier
                 .set(m_TreeSizePenaltyMultiplier.fromSearchValue(parameters(i)))
-                .forceScale(scale);
+                .scale(scale);
             break;
         case E_Lambda:
             m_LeafWeightPenaltyMultiplier
                 .set(m_LeafWeightPenaltyMultiplier.fromSearchValue(parameters(i)))
-                .forceScale(scale);
+                .scale(scale);
             break;
         case E_SoftTreeDepthLimit:
             m_SoftTreeDepthLimit.set(m_SoftTreeDepthLimit.fromSearchValue(parameters(i)));
@@ -531,7 +498,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
         case E_TreeTopologyChangePenalty:
             m_TreeTopologyChangePenalty
                 .set(m_TreeTopologyChangePenalty.fromSearchValue(parameters(i)))
-                .forceScale(scale);
+                .scale(scale);
             break;
         }
     }
