@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include "core/CDataFrame.h"
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 
@@ -22,7 +21,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <limits>
-#include <memory>
 #include <utility>
 
 BOOST_AUTO_TEST_SUITE(CBoostedTreeHyperparametersTest)
