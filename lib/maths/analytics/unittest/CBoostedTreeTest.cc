@@ -1632,7 +1632,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
                 .treeSizePenaltyMultiplier({0.0})
                 .leafWeightPenaltyMultiplier({0.0})
                 .softTreeDepthLimit({targetDepth})
-                .softTreeDepthTolerance({0.01})
+                .softTreeDepthTolerance({0.05})
                 .buildForTrain(*frame, cols - 1);
 
         regression->train();
@@ -1640,7 +1640,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
             BOOST_TEST_REQUIRE(maxDepth(tree, tree[0], 0) <=
-                               static_cast<std::size_t>(targetDepth));
+                               static_cast<std::size_t>(targetDepth + 1));
             meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::common::CBasicStatistics::mean(meanDepth));
@@ -2460,9 +2460,11 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
         BOOST_REQUIRE_EQUAL(
             10, regression->hyperparameters().maximumNumberTrees().value());
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->hyperparameters().treeSizePenaltyMultiplier().value());
+            0.1, regression->hyperparameters().treeSizePenaltyMultiplier().value() /
+                     regression->hyperparameters().treeSizePenaltyMultiplier().scale());
         BOOST_REQUIRE_EQUAL(
-            0.01, regression->hyperparameters().leafWeightPenaltyMultiplier().value());
+            0.01, regression->hyperparameters().leafWeightPenaltyMultiplier().value() /
+                      regression->hyperparameters().treeSizePenaltyMultiplier().scale());
     }
     {
         auto regression =
@@ -2495,7 +2497,8 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
         regression->train();
 
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value() /
+                     regression->hyperparameters().depthPenaltyMultiplier().scale());
         BOOST_REQUIRE_EQUAL(
             0.4, regression->hyperparameters().featureBagFraction().value());
         BOOST_REQUIRE_EQUAL(
@@ -2516,7 +2519,8 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
 
         regression->train();
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value() /
+                     regression->hyperparameters().depthPenaltyMultiplier().scale());
         BOOST_REQUIRE_EQUAL(
             3.0, regression->hyperparameters().softTreeDepthLimit().value());
         BOOST_REQUIRE_EQUAL(

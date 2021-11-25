@@ -50,6 +50,7 @@ const double MIN_SOFT_DEPTH_LIMIT{2.0};
 const double MIN_SOFT_DEPTH_LIMIT_TOLERANCE{0.05};
 const double MAX_SOFT_DEPTH_LIMIT_TOLERANCE{0.25};
 const double MIN_ETA{1e-3};
+const double MAX_ETA{0.3};
 const double MIN_ETA_SCALE{0.5};
 const double MAX_ETA_SCALE{2.0};
 const double MIN_ETA_GROWTH_RATE_SCALE{0.5};
@@ -669,6 +670,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     // optimisation loop.
 
     auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
+    auto& depthPenaltyMultiplierParameter = hyperparameters.depthPenaltyMultiplier();
     auto& softTreeDepthLimitParameter = hyperparameters.softTreeDepthLimit();
     auto& softTreeDepthToleranceParameter = hyperparameters.softTreeDepthTolerance();
     double log2MaxTreeSize{std::log2(static_cast<double>(m_TreeImpl->maximumTreeSize(
@@ -710,7 +712,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         MIN_SOFT_DEPTH_LIMIT)};
                     double maxSearchValue{
                         softTreeDepthLimitParameter.toSearchValue(maxSoftDepthLimit)};
-                    hyperparameters.depthPenaltyMultiplier().set(m_GainPerNode50thPercentile);
+                    depthPenaltyMultiplierParameter.set(m_GainPerNode50thPercentile);
                     hyperparameters.initializeFineTuneSearchInterval(
                         CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
                             frame, *m_TreeImpl, maxSoftDepthLimit, log2MaxTreeSize,
@@ -733,9 +735,6 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     }
 
     // Update the soft depth tolerance.
-    if (softTreeDepthLimitParameter.fixed()) {
-        softTreeDepthToleranceParameter.fixTo(MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
-    }
     if (softTreeDepthToleranceParameter.rangeFixed() == false) {
         softTreeDepthToleranceParameter.fixToRange(MIN_SOFT_DEPTH_LIMIT_TOLERANCE,
                                                    MAX_SOFT_DEPTH_LIMIT_TOLERANCE);
@@ -756,7 +755,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                             parameter.set(parameter.fromSearchValue(depthPenalty));
                             return true;
                         }},
-                    hyperparameters.depthPenaltyMultiplier());
+                    depthPenaltyMultiplierParameter);
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
@@ -805,12 +804,6 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
         }
-    }
-
-    if (hyperparameters.depthPenaltyMultiplier().fixed() &&
-        hyperparameters.depthPenaltyMultiplier().value() == 0.0) {
-        softTreeDepthLimitParameter.fixTo(MIN_SOFT_DEPTH_LIMIT);
-        softTreeDepthToleranceParameter.fixTo(MIN_SOFT_DEPTH_LIMIT_TOLERANCE);
     }
 }
 
@@ -965,8 +958,8 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
     if (hyperparameters.eta().rangeFixed() == false) {
         if (skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EtaInitialized, [&] {
                 double searchIntervalSize{5.0 * MAX_ETA_SCALE / MIN_ETA_SCALE};
-                double maxEta{std::sqrt(searchIntervalSize) *
-                              hyperparameters.eta().value()};
+                double maxEta{std::min(std::sqrt(searchIntervalSize) *
+                                       hyperparameters.eta().value(), MAX_ETA)};
                 double maxSearchValue{hyperparameters.eta().toSearchValue(1.0)};
                 double minSearchValue{hyperparameters.eta().toSearchValue(MIN_ETA)};
 
