@@ -1162,18 +1162,18 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr mod
     result.m_TreeImpl = std::move(model->m_Impl);
     result.m_TreeImpl->m_Rng.seed(result.m_TreeImpl->m_Seed);
     auto& hyperparameters = result.m_TreeImpl->m_Hyperparameters;
-    hyperparameters.depthPenaltyMultiplier().fix();
-    hyperparameters.treeSizePenaltyMultiplier().fix();
-    hyperparameters.leafWeightPenaltyMultiplier().fix();
-    hyperparameters.softTreeDepthLimit().fix();
-    hyperparameters.softTreeDepthTolerance().fix();
-    hyperparameters.downsampleFactor().fix();
-    hyperparameters.eta().fix();
-    hyperparameters.etaGrowthRatePerTree().fix();
-    hyperparameters.featureBagFraction().fix();
+    hyperparameters.depthPenaltyMultiplier().captureScale().fix();
+    hyperparameters.treeSizePenaltyMultiplier().captureScale().fix();
+    hyperparameters.leafWeightPenaltyMultiplier().captureScale().fix();
+    hyperparameters.softTreeDepthLimit().captureScale().fix();
+    hyperparameters.softTreeDepthTolerance().captureScale().fix();
+    hyperparameters.downsampleFactor().captureScale().fix();
+    hyperparameters.eta().captureScale().fix();
+    hyperparameters.etaGrowthRatePerTree().captureScale().fix();
+    hyperparameters.featureBagFraction().captureScale().fix();
     hyperparameters.resetSearch();
     result.m_TreeImpl->m_PreviousTrainNumberRows = static_cast<std::size_t>(
-        result.m_TreeImpl->meanNumberTrainingRowsPerFold() + 0.5);
+        result.m_TreeImpl->allTrainingRowsMask().manhattan() + 0.5);
     result.m_TreeImpl->m_PreviousTrainLossGap = hyperparameters.bestForestLossGap();
     result.m_TreeImpl->m_FoldRoundTestLosses.clear();
     result.m_TreeImpl->m_InitializationStage = CBoostedTreeImpl::E_NotInitialized;

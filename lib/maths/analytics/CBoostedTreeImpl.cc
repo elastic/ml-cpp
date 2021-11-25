@@ -307,16 +307,16 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-        m_Hyperparameters.restoreBest();
-        m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
-        this->scaleRegularizationMultipliersForFinalTrain();
-
-        this->startProgressMonitoringFinalTrain();
-
-        // Reinitialize random number generator for reproducible results.
-        m_Rng.seed(m_Seed);
-
         if (m_BestForest.empty()) {
+            m_Hyperparameters.restoreBest();
+            m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
+            this->scaleRegularizationMultipliersForFinalTrain();
+
+            this->startProgressMonitoringFinalTrain();
+
+            // Reinitialize random number generator for reproducible results.
+            m_Rng.seed(m_Seed);
+
             m_BestForest = this->trainForest(frame, allTrainingRowsMask,
                                              allTrainingRowsMask, m_TrainingProgress)
                                .s_Forest;
