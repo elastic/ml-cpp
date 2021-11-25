@@ -31,6 +31,7 @@ SRCS= \
     CBufferedIStreamAdapter.cc \
     CCmdLineParser.cc \
     CCommandParser.cc \
+    SettingsValidator.cc \
 
 include $(CPP_SRC_HOME)/mk/stdapp.mk
 
