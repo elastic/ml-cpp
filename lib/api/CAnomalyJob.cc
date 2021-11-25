@@ -93,9 +93,12 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 //! Newer versions are able to read the model state of older versions, but older
 //! versions cannot read the model state of newer versions following a breaking
 //! change.  This constant tells the node assignment code not to load new model states
-//! on old nodes in a mixed version cluster.  (The last breaking change was in 7.11 in
-//! lib/maths/CTimeSeriesDecomposition.cc in https://github.com/elastic/ml-cpp/pull/1614.)
-const std::string MODEL_SNAPSHOT_MIN_VERSION("7.11.0");
+//! on old nodes in a mixed version cluster.  (Most recently this has been updated to
+//! 8.0.0 so that we have a clean break of state compatibility on the major version
+//! boundary.  Model snapshots generated in 8.x will not be loadable by 7.x, and
+//! when 7.x is end-of-life we'll be able to remove all the 7.x state backwards
+//! compatibility code.)
+const std::string MODEL_SNAPSHOT_MIN_VERSION("8.0.0");
 
 //! Persist state as JSON with meaningful tag names.
 class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter {
