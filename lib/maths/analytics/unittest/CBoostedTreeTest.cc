@@ -2460,11 +2460,9 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
         BOOST_REQUIRE_EQUAL(
             10, regression->hyperparameters().maximumNumberTrees().value());
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->hyperparameters().treeSizePenaltyMultiplier().value() /
-                     regression->hyperparameters().treeSizePenaltyMultiplier().scale());
+            0.1, regression->hyperparameters().treeSizePenaltyMultiplier().value());
         BOOST_REQUIRE_EQUAL(
-            0.01, regression->hyperparameters().leafWeightPenaltyMultiplier().value() /
-                      regression->hyperparameters().treeSizePenaltyMultiplier().scale());
+            0.01, regression->hyperparameters().leafWeightPenaltyMultiplier().value());
     }
     {
         auto regression =
@@ -2497,8 +2495,7 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
         regression->train();
 
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->hyperparameters().depthPenaltyMultiplier().value() /
-                     regression->hyperparameters().depthPenaltyMultiplier().scale());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
         BOOST_REQUIRE_EQUAL(
             0.4, regression->hyperparameters().featureBagFraction().value());
         BOOST_REQUIRE_EQUAL(
@@ -2519,8 +2516,7 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
 
         regression->train();
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->hyperparameters().depthPenaltyMultiplier().value() /
-                     regression->hyperparameters().depthPenaltyMultiplier().scale());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
         BOOST_REQUIRE_EQUAL(
             3.0, regression->hyperparameters().softTreeDepthLimit().value());
         BOOST_REQUIRE_EQUAL(

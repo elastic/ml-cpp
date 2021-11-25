@@ -219,7 +219,6 @@ public:
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
-    using TBoolVec = std::vector<bool>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
@@ -364,7 +363,6 @@ private:
     double m_GainPerNode90thPercentile{0.0};
     double m_TotalCurvaturePerNode1stPercentile{0.0};
     double m_TotalCurvaturePerNode90thPercentile{0.0};
-    TBoolVec m_ParameterSupplied;
     std::size_t m_NumberThreads{1};
     TBoostedTreeImplUPtr m_TreeImpl;
     mutable std::size_t m_PaddedExtraColumns{0};

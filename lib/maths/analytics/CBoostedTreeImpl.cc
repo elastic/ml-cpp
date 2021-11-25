@@ -1409,14 +1409,22 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 void CBoostedTreeImpl::scaleRegularizationMultipliersForFinalTrain() {
     double scale{this->allTrainingRowsMask().manhattan() /
                  this->meanNumberTrainingRowsPerFold()};
-    m_Hyperparameters.depthPenaltyMultiplier().scale(
-        scale * m_Hyperparameters.depthPenaltyMultiplier().scale());
-    m_Hyperparameters.treeSizePenaltyMultiplier().scale(
-        scale * m_Hyperparameters.treeSizePenaltyMultiplier().scale());
-    m_Hyperparameters.leafWeightPenaltyMultiplier().scale(
-        scale * m_Hyperparameters.leafWeightPenaltyMultiplier().scale());
-    m_Hyperparameters.treeTopologyChangePenalty().scale(
-        scale * m_Hyperparameters.treeTopologyChangePenalty().scale());
+    if (m_Hyperparameters.depthPenaltyMultiplier().fixed() == false) {
+        m_Hyperparameters.depthPenaltyMultiplier().scale(
+            scale * m_Hyperparameters.depthPenaltyMultiplier().scale());
+    }
+    if (m_Hyperparameters.treeSizePenaltyMultiplier().fixed() == false) {
+        m_Hyperparameters.treeSizePenaltyMultiplier().scale(
+            scale * m_Hyperparameters.treeSizePenaltyMultiplier().scale());
+    }
+    if (m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
+        m_Hyperparameters.leafWeightPenaltyMultiplier().scale(
+            scale * m_Hyperparameters.leafWeightPenaltyMultiplier().scale());
+    }
+    if (m_Hyperparameters.treeTopologyChangePenalty().fixed() == false) {
+        m_Hyperparameters.treeTopologyChangePenalty().scale(
+            scale * m_Hyperparameters.treeTopologyChangePenalty().scale());
+    }
 }
 
 double CBoostedTreeImpl::minimumTestLoss() const {

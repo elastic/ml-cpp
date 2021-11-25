@@ -629,30 +629,6 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
     hyperparameters.retrainedTreeEta().setToRangeMidpointOr(1.0);
     hyperparameters.treeTopologyChangePenalty().setToRangeMidpointOr(0.0);
     hyperparameters.predictionChangeCost().setToRangeMidpointOr(0.5);
-
-    // Cache whether the values or their range was user supplied.
-    m_ParameterSupplied.resize(boosted_tree_detail::NUMBER_HYPERPARAMETERS, true);
-    m_ParameterSupplied[E_Alpha] = hyperparameters.depthPenaltyMultiplier().rangeFixed();
-    m_ParameterSupplied[E_Gamma] = hyperparameters.treeSizePenaltyMultiplier().rangeFixed();
-    m_ParameterSupplied[E_Lambda] =
-        hyperparameters.leafWeightPenaltyMultiplier().rangeFixed();
-    m_ParameterSupplied[E_SoftTreeDepthLimit] =
-        hyperparameters.softTreeDepthLimit().rangeFixed();
-    m_ParameterSupplied[E_SoftTreeDepthTolerance] =
-        hyperparameters.softTreeDepthTolerance().rangeFixed();
-    m_ParameterSupplied[E_FeatureBagFraction] =
-        hyperparameters.featureBagFraction().rangeFixed();
-    m_ParameterSupplied[E_DownsampleFactor] = hyperparameters.downsampleFactor().rangeFixed();
-    m_ParameterSupplied[E_Eta] = hyperparameters.eta().rangeFixed();
-    m_ParameterSupplied[E_EtaGrowthRatePerTree] =
-        hyperparameters.etaGrowthRatePerTree().rangeFixed();
-    m_ParameterSupplied[E_MaximumNumberTrees] =
-        hyperparameters.maximumNumberTrees().rangeFixed();
-    m_ParameterSupplied[E_RetrainedTreeEta] = hyperparameters.retrainedTreeEta().rangeFixed();
-    m_ParameterSupplied[E_TreeTopologyChangePenalty] =
-        hyperparameters.treeTopologyChangePenalty().rangeFixed();
-    m_ParameterSupplied[E_PredictionChangeCost] =
-        hyperparameters.predictionChangeCost().rangeFixed();
 }
 
 void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame) {
@@ -744,7 +720,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     // Search for the depth penalty multipliers at which the model starts
     // to overfit.
-    if (hyperparameters.depthPenaltyMultiplier().rangeFixed() == false) {
+    if (depthPenaltyMultiplierParameter.rangeFixed() == false) {
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_DepthPenaltyMultiplierInitialized, [&] {
                 hyperparameters.initializeFineTuneSearchInterval(
                     CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
@@ -760,6 +736,14 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
         }
+    }
+
+    if (depthPenaltyMultiplierParameter.fixed() &&
+        depthPenaltyMultiplierParameter.value() == 0.0) {
+        // Lock down the depth and tolerance parameters since they have no effect
+        // and adjusting them just wastes time.
+        softTreeDepthLimitParameter.fix();
+        softTreeDepthToleranceParameter.fix();
     }
 
     // Search for the value of the tree size penalty multiplier at which the
@@ -837,16 +821,16 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                 // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
                     double scale{downsampleFactor / initialDownsampleFactor};
-                    if (m_ParameterSupplied[E_Alpha] == false) {
+                    if (tree.m_Hyperparameters.depthPenaltyMultiplier().fixed() == false) {
                         tree.m_Hyperparameters.depthPenaltyMultiplier().scale(scale);
                     }
-                    if (m_ParameterSupplied[E_Gamma] == false) {
+                    if (tree.m_Hyperparameters.treeSizePenaltyMultiplier().fixed() == false) {
                         tree.m_Hyperparameters.treeSizePenaltyMultiplier().scale(scale);
                     }
-                    if (m_ParameterSupplied[E_Lambda] == false) {
+                    if (tree.m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
                         tree.m_Hyperparameters.leafWeightPenaltyMultiplier().scale(scale);
                     }
-                    if (m_ParameterSupplied[E_TreeTopologyChangePenalty] == false) {
+                    if (tree.m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
                         tree.m_Hyperparameters.treeTopologyChangePenalty().scale(scale);
                     }
                 };
@@ -958,8 +942,8 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
     if (hyperparameters.eta().rangeFixed() == false) {
         if (skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EtaInitialized, [&] {
                 double searchIntervalSize{5.0 * MAX_ETA_SCALE / MIN_ETA_SCALE};
-                double maxEta{std::min(std::sqrt(searchIntervalSize) *
-                                       hyperparameters.eta().value(), MAX_ETA)};
+                double maxEta{std::min(
+                    std::sqrt(searchIntervalSize) * hyperparameters.eta().value(), MAX_ETA)};
                 double maxSearchValue{hyperparameters.eta().toSearchValue(1.0)};
                 double minSearchValue{hyperparameters.eta().toSearchValue(MIN_ETA)};
 
@@ -1664,7 +1648,6 @@ const std::string FACTORY_TAG{"factory"};
 const std::string GAIN_PER_NODE_1ST_PERCENTILE_TAG{"gain_per_node_1st_percentile"};
 const std::string GAIN_PER_NODE_50TH_PERCENTILE_TAG{"gain_per_node_50th_percentile"};
 const std::string GAIN_PER_NODE_90TH_PERCENTILE_TAG{"gain_per_node_90th_percentile"};
-const std::string PARAMETER_SUPPLIED_TAG{"parameter_supplied"};
 const std::string INITIALIZATION_CHECKPOINT_TAG{"initialization_checkpoint"};
 const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
 const std::string TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG{"total_curvature_per_node_90th_percentile"};
@@ -1682,7 +1665,6 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
                                      m_GainPerNode50thPercentile, inserter);
         core::CPersistUtils::persist(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
                                      m_GainPerNode90thPercentile, inserter);
-        core::CPersistUtils::persist(PARAMETER_SUPPLIED_TAG, m_ParameterSupplied, inserter);
         core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
                                      m_TotalCurvaturePerNode1stPercentile, inserter);
         core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
@@ -1716,9 +1698,6 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                                 core::CPersistUtils::restore(
                                     GAIN_PER_NODE_90TH_PERCENTILE_TAG,
                                     m_GainPerNode90thPercentile, traverser))
-                        RESTORE(PARAMETER_SUPPLIED_TAG,
-                                core::CPersistUtils::restore(PARAMETER_SUPPLIED_TAG,
-                                                             m_ParameterSupplied, traverser))
                         RESTORE(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
                                 core::CPersistUtils::restore(
                                     TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
