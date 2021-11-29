@@ -50,7 +50,6 @@ const double MIN_SOFT_DEPTH_LIMIT{2.0};
 const double MIN_SOFT_DEPTH_LIMIT_TOLERANCE{0.05};
 const double MAX_SOFT_DEPTH_LIMIT_TOLERANCE{0.25};
 const double MIN_ETA{1e-3};
-const double MAX_ETA{0.3};
 const double MIN_ETA_SCALE{0.5};
 const double MAX_ETA_SCALE{2.0};
 const double MIN_ETA_GROWTH_RATE_SCALE{0.5};
@@ -942,8 +941,8 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
     if (hyperparameters.eta().rangeFixed() == false) {
         if (skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EtaInitialized, [&] {
                 double searchIntervalSize{5.0 * MAX_ETA_SCALE / MIN_ETA_SCALE};
-                double maxEta{std::min(
-                    std::sqrt(searchIntervalSize) * hyperparameters.eta().value(), MAX_ETA)};
+                double maxEta{std::sqrt(searchIntervalSize) *
+                              hyperparameters.eta().value()};
                 double maxSearchValue{hyperparameters.eta().toSearchValue(1.0)};
                 double minSearchValue{hyperparameters.eta().toSearchValue(MIN_ETA)};
 
