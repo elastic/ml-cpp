@@ -1884,7 +1884,6 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
     classifier->trainIncremental();
     classifier->predict();
 
-    LOG_DEBUG(<< "UPDATED...");
     // Get the average error on the old and new training data from the new model.
     newFrame->readRows(1, 0, frame->numberRows(),
                        [&](const TRowItr& beginRows, const TRowItr& endRows) {
