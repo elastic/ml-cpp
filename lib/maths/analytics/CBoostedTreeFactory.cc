@@ -625,9 +625,16 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
     // This needs to be tied to the learn rate to avoid bias.
     hyperparameters.maximumNumberTrees().setToRangeMidpointOr(
         computeMaximumNumberTrees(hyperparameters.eta().value()));
-    hyperparameters.retrainedTreeEta().setToRangeMidpointOr(1.0);
     hyperparameters.treeTopologyChangePenalty().setToRangeMidpointOr(0.0);
     hyperparameters.predictionChangeCost().setToRangeMidpointOr(0.5);
+    // If we're trying to preserve predictions then we'll naturally pull the leaf
+    // values towards the old scaled values and we can get away with a higher value
+    // for eta. If we've overridden this to zero chances are this is part of train
+    // by query and we should start off assuming the initial eta is reasonable.
+    hyperparameters.retrainedTreeEta().setToRangeMidpointOr(
+        hyperparameters.predictionChangeCost().value() > 0.0
+            ? 1.0
+            : hyperparameters.eta().value());
 }
 
 void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame) {
