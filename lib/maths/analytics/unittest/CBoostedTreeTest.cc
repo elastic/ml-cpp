@@ -884,8 +884,14 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
         },
         &newTrainingRowMask);
 
+    double alpha{regression->hyperparameters().depthPenaltyMultiplier().value()};
+    double gamma{regression->hyperparameters().treeSizePenaltyMultiplier().value()};
+    double lambda{regression->hyperparameters().leafWeightPenaltyMultiplier().value()};
     regression = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(regression))
                      .newTrainingRowMask(newTrainingRowMask)
+                     .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                     .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                     .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
                      .buildForTrainIncremental(*newFrame, cols - 1);
 
     regression->trainIncremental();
@@ -1017,8 +1023,14 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
         },
         &newTrainingRowMask);
 
+    double alpha{regression->hyperparameters().depthPenaltyMultiplier().value()};
+    double gamma{regression->hyperparameters().treeSizePenaltyMultiplier().value()};
+    double lambda{regression->hyperparameters().leafWeightPenaltyMultiplier().value()};
     regression = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(regression))
                      .newTrainingRowMask(newTrainingRowMask)
+                     .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                     .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                     .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
                      .buildForTrainIncremental(*newFrame, cols - 1);
 
     regression->trainIncremental();
@@ -1841,8 +1853,14 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
                     },
                     &newTrainingRowMask);
 
+    double alpha{classifier->hyperparameters().depthPenaltyMultiplier().value()};
+    double gamma{classifier->hyperparameters().treeSizePenaltyMultiplier().value()};
+    double lambda{classifier->hyperparameters().leafWeightPenaltyMultiplier().value()};
     classifier = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(classifier))
                      .newTrainingRowMask(newTrainingRowMask)
+                     .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                     .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                     .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
                      .buildForTrainIncremental(*newFrame, cols - 1);
 
     classifier->trainIncremental();

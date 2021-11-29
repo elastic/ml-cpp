@@ -835,48 +835,47 @@ void CBoostedTreeHyperparameters::initializeTunableHyperparameters() {
         switch (static_cast<EHyperparameter>(i)) {
         // Train hyperparameters.
         case E_DownsampleFactor:
-            if ((m_IncrementalTraining || m_DownsampleFactor.fixed()) == false) {
+            if (m_DownsampleFactor.fixed() == false) {
                 m_TunableHyperparameters.push_back(E_DownsampleFactor);
             }
             break;
         case E_Alpha:
-            if ((m_IncrementalTraining || m_DepthPenaltyMultiplier.fixed()) == false) {
+            if (m_DepthPenaltyMultiplier.fixed() == false) {
                 m_TunableHyperparameters.push_back(E_Alpha);
             }
             break;
         case E_Lambda:
-            if ((m_IncrementalTraining || m_LeafWeightPenaltyMultiplier.fixed()) == false) {
+            if (m_LeafWeightPenaltyMultiplier.fixed() == false) {
                 m_TunableHyperparameters.push_back(E_Lambda);
             }
             break;
         case E_Gamma:
-            if ((m_IncrementalTraining || m_TreeSizePenaltyMultiplier.fixed()) == false) {
+            if (m_TreeSizePenaltyMultiplier.fixed() == false) {
                 m_TunableHyperparameters.push_back(E_Gamma);
             }
             break;
         case E_SoftTreeDepthLimit:
-            if ((m_IncrementalTraining || m_SoftTreeDepthLimit.fixed()) == false) {
+            if (m_SoftTreeDepthLimit.fixed() == false) {
                 m_TunableHyperparameters.push_back(E_SoftTreeDepthLimit);
             }
             break;
         case E_SoftTreeDepthTolerance:
-            if ((m_IncrementalTraining || m_SoftTreeDepthTolerance.fixed()) == false) {
+            if (m_SoftTreeDepthTolerance.fixed() == false) {
                 m_TunableHyperparameters.push_back(E_SoftTreeDepthTolerance);
             }
             break;
         case E_Eta:
-            if ((m_IncrementalTraining || m_Eta.fixed()) == false) {
+            if (m_Eta.fixed() == false) {
                 m_TunableHyperparameters.push_back(E_Eta);
             }
             break;
         case E_EtaGrowthRatePerTree:
-            if ((m_IncrementalTraining || m_Eta.fixed() ||
-                 m_EtaGrowthRatePerTree.fixed()) == false) {
+            if ((m_Eta.fixed() || m_EtaGrowthRatePerTree.fixed()) == false) {
                 m_TunableHyperparameters.push_back(E_EtaGrowthRatePerTree);
             }
             break;
         case E_FeatureBagFraction:
-            if ((m_IncrementalTraining || m_FeatureBagFraction.fixed()) == false) {
+            if (m_FeatureBagFraction.fixed() == false) {
                 m_TunableHyperparameters.push_back(E_FeatureBagFraction);
             }
             break;
