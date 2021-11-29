@@ -35,6 +35,7 @@
 * Improve skip_model_update rule behaviour (See {ml-pull}2096[#2096].)
 * Upgrade Boost libraries to version 1.77. (See {ml-pull}2095[#2095].)
 * Upgrade RapidJSON to 31st October 2021 version. (See {ml-pull}2106[#2106].)
+* Prevent over-subscription of threads in pytorch_inference (See {ml-pull}2106[#2141].)
 
 === Bug Fixes
 
