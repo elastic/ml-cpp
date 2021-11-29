@@ -52,24 +52,22 @@ enum EExtraColumnTag {
 };
 
 enum EHyperparameter {
-    // Train parameters.
     E_DownsampleFactor = 0,
     E_Alpha,
     E_Lambda,
     E_Gamma,
     E_SoftTreeDepthLimit,
     E_SoftTreeDepthTolerance,
-    E_Eta,
-    E_EtaGrowthRatePerTree,
-    E_MaximumNumberTrees,
+    E_Eta,                  //!< Train only.
+    E_EtaGrowthRatePerTree, //!< Train only.
+    E_MaximumNumberTrees,   //!< Train only.
     E_FeatureBagFraction,
-    // Incremental train parameters.
-    E_PredictionChangeCost,
-    E_RetrainedTreeEta,
-    E_TreeTopologyChangePenalty
+    E_PredictionChangeCost,     //!< Incremental train only.
+    E_RetrainedTreeEta,         //!< Incremental train only.
+    E_TreeTopologyChangePenalty //!< Incremental train only.
 };
 
-constexpr std::size_t NUMBER_HYPERPARAMETERS(E_TreeTopologyChangePenalty + 1); // This must be last hyperparameter
+constexpr std::size_t NUMBER_HYPERPARAMETERS{E_TreeTopologyChangePenalty + 1}; // This must be last hyperparameter
 
 //! \brief Hyperparameter importance information.
 struct SHyperparameterImportance {
