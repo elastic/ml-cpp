@@ -30,10 +30,11 @@ void validateThreadingParameters(std::int32_t maxThreads,
         LOG_WARN(<< "Setting inference threads to minimum value of 1; value was "
                  << inferenceThreads);
         inferenceThreads = 1;
-    } else if (inferenceThreads > maxThreads) {
+    } else if (inferenceThreads >= maxThreads) {
+        // leave one model thread
         LOG_WARN(<< "Setting inference threads to maximum value of "
-                 << maxThreads << "; value was " << inferenceThreads);
-        inferenceThreads = maxThreads;
+                 << std::max(1, maxThreads - 1) << "; value was " << inferenceThreads);
+        inferenceThreads = std::max(1, maxThreads - 1);
     }
     if (modelThreads < 1) {
         LOG_WARN(<< "Setting model threads to minimum value of 1; value was " << modelThreads);
@@ -46,16 +47,12 @@ void validateThreadingParameters(std::int32_t maxThreads,
     }
 
     if (modelThreads + inferenceThreads > maxThreads) {
-        // 1 model thread is essentially unthreaded as there is no paralisation.
-        // When modelThreads == 1 inferenceThreads is capped at maxThreads
-        if (modelThreads != 1) {
-            std::int32_t oldInferenceThreadCount{inferenceThreads};
-            inferenceThreads = std::max(1, maxThreads - modelThreads);
-            LOG_WARN(<< "Sum of model threads [" << modelThreads << "] and inference threads ["
-                     << oldInferenceThreadCount << "] is greater than max threads ["
-                     << maxThreads << "]. Setting model threads to " << modelThreads
-                     << " and inference threads to " << inferenceThreads);
-        }
+        std::int32_t oldInferenceThreadCount{inferenceThreads};
+        inferenceThreads = std::max(1, maxThreads - modelThreads);
+        LOG_WARN(<< "Sum of model threads [" << modelThreads << "] and inference threads ["
+                 << oldInferenceThreadCount << "] is greater than max threads ["
+                 << maxThreads << "]. Setting model threads to " << modelThreads
+                 << " and inference threads to " << inferenceThreads);
     }
 }
 }

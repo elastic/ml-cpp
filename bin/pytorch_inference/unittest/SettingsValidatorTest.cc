@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(testValidationValuesAreCapped) {
     std::int32_t inferenceThreads{32};
     ml::torch::validateThreadingParameters(16, inferenceThreads, modelThreads);
     BOOST_REQUIRE_EQUAL(1, modelThreads);
-    BOOST_REQUIRE_EQUAL(16, inferenceThreads);
+    BOOST_REQUIRE_EQUAL(15, inferenceThreads);
 
     modelThreads = 32;
     inferenceThreads = 1;
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(testValidationTotalGreaterThanMaxThreads) {
         std::int32_t inferenceThreads{32};
         ml::torch::validateThreadingParameters(16, inferenceThreads, modelThreads);
         BOOST_REQUIRE_EQUAL(1, modelThreads);
-        BOOST_REQUIRE_EQUAL(16, inferenceThreads);
+        BOOST_REQUIRE_EQUAL(15, inferenceThreads);
     }
     {
         std::int32_t modelThreads{4};
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(testValidationTotalGreaterThanMaxThreads) {
         std::int32_t inferenceThreads{4};
         ml::torch::validateThreadingParameters(4, inferenceThreads, modelThreads);
         BOOST_REQUIRE_EQUAL(1, modelThreads);
-        BOOST_REQUIRE_EQUAL(4, inferenceThreads);
+        BOOST_REQUIRE_EQUAL(3, inferenceThreads);
     }
     {
         std::int32_t modelThreads{2};
