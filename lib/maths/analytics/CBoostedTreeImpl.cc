@@ -70,26 +70,6 @@ const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
 const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
 
-//! \brief Executes a register function at the end of its life.
-class CScopeRunAtExit {
-public:
-    using TFunc = std::function<void()>;
-
-public:
-    explicit CScopeRunAtExit(TFunc func) : m_Func{std::move(func)} {}
-    ~CScopeRunAtExit() {
-        if (m_Func != nullptr) {
-            m_Func();
-        }
-    }
-
-    CScopeRunAtExit(const CScopeRunAtExit&) = delete;
-    CScopeRunAtExit& operator=(const CScopeRunAtExit&) = delete;
-
-private:
-    TFunc m_Func;
-};
-
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
 public:
@@ -327,17 +307,16 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-        m_Hyperparameters.restoreBest();
-        m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
-        double scale{allTrainingRowsMask.manhattan() / this->meanNumberTrainingRowsPerFold()};
-        CScopeBoostedTreeParameterOverrides<double> overrides;
-        m_Hyperparameters.scaleRegularizationMultipliers(scale, overrides);
-        this->startProgressMonitoringFinalTrain();
-
-        // Reinitialize random number generator for reproducible results.
-        m_Rng.seed(m_Seed);
-
         if (m_BestForest.empty()) {
+            m_Hyperparameters.restoreBest();
+            m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
+            this->scaleRegularizationMultipliersForFinalTrain();
+
+            this->startProgressMonitoringFinalTrain();
+
+            // Reinitialize random number generator for reproducible results.
+            m_Rng.seed(m_Seed);
+
             m_BestForest = this->trainForest(frame, allTrainingRowsMask,
                                              allTrainingRowsMask, m_TrainingProgress)
                                .s_Forest;
@@ -434,28 +413,6 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "Number trees to retrain = " << numberTreesToRetrain << "/"
               << m_BestForest.size());
 
-    // In the event we fail over and start from a checkpoint we'll apply the scale
-    // to regularisation multipliers again. In order for this to have no effect we
-    // set the previous number of train rows to this->meanNumberTrainingRowsPerFold()
-    // which means that the scale is 1 on re-entry.
-    CScopeRunAtExit _(
-        [ savedPreviousTrainNumberRows = m_PreviousTrainNumberRows, this ] {
-            m_PreviousTrainNumberRows = savedPreviousTrainNumberRows;
-        });
-
-    CScopeBoostedTreeParameterOverrides<double> overrides;
-    if (m_PreviousTrainNumberRows > 0) {
-        // We do not undo these changes because we store the mean number of rows
-        // per fold with the model at the end of update. Therefore, if call update
-        // repeatedly we are always scaling w.r.t. m_PreviousTrainNumberRows is
-        // updated each time.
-        double scale{this->meanNumberTrainingRowsPerFold() /
-                     static_cast<double>(m_PreviousTrainNumberRows)};
-        m_Hyperparameters.scaleRegularizationMultipliers(scale, overrides, false /*undo*/);
-        m_PreviousTrainNumberRows =
-            static_cast<std::size_t>(this->meanNumberTrainingRowsPerFold() + 0.5);
-    }
-
     for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
 
         LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
@@ -520,12 +477,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     if (m_ForceAcceptIncrementalTraining || m_Hyperparameters.bestForestTestLoss() < initialLoss) {
         m_Hyperparameters.restoreBest();
         m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
-
-        if (m_PreviousTrainNumberRows > 0) {
-            double scale{allTrainingRowsMask.manhattan() /
-                         this->meanNumberTrainingRowsPerFold()};
-            m_Hyperparameters.scaleRegularizationMultipliers(scale, overrides);
-        }
+        this->scaleRegularizationMultipliersForFinalTrain();
 
         TNodeVecVec retrainedTrees{this->updateForest(frame, allTrainingRowsMask,
                                                       allTrainingRowsMask, m_TrainingProgress)
@@ -1454,6 +1406,27 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     return tree;
 }
 
+void CBoostedTreeImpl::scaleRegularizationMultipliersForFinalTrain() {
+    double scale{this->allTrainingRowsMask().manhattan() /
+                 this->meanNumberTrainingRowsPerFold()};
+    if (m_Hyperparameters.depthPenaltyMultiplier().fixed() == false) {
+        m_Hyperparameters.depthPenaltyMultiplier().scale(
+            scale * m_Hyperparameters.depthPenaltyMultiplier().scale());
+    }
+    if (m_Hyperparameters.treeSizePenaltyMultiplier().fixed() == false) {
+        m_Hyperparameters.treeSizePenaltyMultiplier().scale(
+            scale * m_Hyperparameters.treeSizePenaltyMultiplier().scale());
+    }
+    if (m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
+        m_Hyperparameters.leafWeightPenaltyMultiplier().scale(
+            scale * m_Hyperparameters.leafWeightPenaltyMultiplier().scale());
+    }
+    if (m_Hyperparameters.treeTopologyChangePenalty().fixed() == false) {
+        m_Hyperparameters.treeTopologyChangePenalty().scale(
+            scale * m_Hyperparameters.treeTopologyChangePenalty().scale());
+    }
+}
+
 double CBoostedTreeImpl::minimumTestLoss() const {
     using TMinAccumulator = common::CBasicStatistics::SMin<double>::TAccumulator;
     TMinAccumulator minimumTestLoss;
@@ -2283,6 +2256,10 @@ void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
 }
 
 const CBoostedTreeHyperparameters& CBoostedTreeImpl::hyperparameters() const {
+    return m_Hyperparameters;
+}
+
+CBoostedTreeHyperparameters& CBoostedTreeImpl::hyperparameters() {
     return m_Hyperparameters;
 }
 
