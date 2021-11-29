@@ -320,8 +320,15 @@ def apply_givens_rotations(rotations: list,
         i, j = rotation['i'], rotation['j']
         xi, xj = x[i], x[j]
         ct, st = math.cos(rotation['theta']), math.sin(rotation['theta'])
-        x[i] = scales[i] * (ct * xi / scales[i] - st * xj / scales[j])
-        x[j] = scales[j] * (st * xi / scales[i] + ct * xj / scales[j])
+        if scales[i] > 0.0 and scales[j] > 0.0:
+            x[i] = scales[i] * (ct * xi / scales[i] - st * xj / scales[j])
+            x[j] = scales[j] * (st * xi / scales[i] + ct * xj / scales[j])
+        else:
+            # The two features effectively comprise two different affine transforms
+            # of the non-constant feature if there is one whatever scaling we apply
+            # so we just don't bother to scale.
+            x[i] = ct * xi - st * xj
+            x[j] = st * xi + ct * xj
 
 
 def rotate_metric_features(seed: int,
