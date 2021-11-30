@@ -472,6 +472,13 @@ double CAnomalyDetectorModel::initialCountWeight(model_t::EFeature feature,
     return 1.0;
 }
 
+bool CAnomalyDetectorModel::shouldSkipUpdate(model_t::EFeature feature,
+                                             std::size_t pid,
+                                             std::size_t cid,
+                                             core_t::TTime time) const {
+    return this->initialCountWeight(feature, pid, cid, time) != 1.0;
+}
+
 const CAnomalyDetectorModel::TStr1Vec&
 CAnomalyDetectorModel::scheduledEventDescriptions(core_t::TTime /*time*/) const {
     return EMPTY_STRING_LIST;

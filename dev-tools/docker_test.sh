@@ -25,11 +25,17 @@ usage() {
 }
 
 PLATFORMS=
+EXTRACT_FIND="-name boost_test_results.xml"
+EXTRACT_EXPLICIT="build/distributions build/test_status.txt"
 
 while [ -n "$1" ]
 do
 
     case "$1" in
+        --extract-unit-tests)
+            EXTRACT_FIND="$EXTRACT_FIND -o -name ml_test"
+            EXTRACT_EXPLICIT="$EXTRACT_EXPLICIT build/distribution"
+            ;;
         linux|linux_aarch64_native)
             PLATFORMS="$1 $PLATFORMS"
             ;;
@@ -85,7 +91,7 @@ do
     # Using tar to copy the build and test artifacts out of the container seems
     # more reliable than docker cp, and also means the files end up with the
     # correct uid/gid
-    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c 'find . -name boost_test_results.xml | xargs tar cf - build/distributions build/test_status.txt' | tar xvf -
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "find . $EXTRACT_FIND | xargs tar cf - $EXTRACT_EXPLICIT" | tar xvf -
     docker rmi --force $TEMP_TAG
     # The image build is set to return zero (i.e. succeed as far as Docker is
     # concerned) when the only problem is that the unit tests fail, as this

@@ -11,12 +11,12 @@
 #ifndef INCLUDED_ml_core_CJsonStateRestoreTraverser_h
 #define INCLUDED_ml_core_CJsonStateRestoreTraverser_h
 
+#include <core/CRapidJsonUnbufferedIStreamWrapper.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 #include <core/ImportExport.h>
 
 #include <rapidjson/document.h>
-#include <rapidjson/istreamwrapper.h>
 #include <rapidjson/reader.h>
 
 #include <iosfwd>
@@ -158,7 +158,7 @@ private:
     };
 
     //! JSON reader istream wrapper
-    rapidjson::IStreamWrapper m_ReadStream;
+    core::CRapidJsonUnbufferedIStreamWrapper m_ReadStream;
 
     //! JSON reader
     rapidjson::Reader m_Reader;

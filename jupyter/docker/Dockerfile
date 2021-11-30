@@ -8,7 +8,7 @@
 # limitation.
 
 # syntax=docker/dockerfile:1.3
-FROM docker.elastic.co/ml-dev/ml-linux-build:20 as builder 
+FROM docker.elastic.co/ml-dev/ml-linux-build:20 as builder
 
 RUN yum install -y epel-release && \
     yum install -y ccache && \

@@ -112,6 +112,11 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
         }
         break;
     case E_UpdateQuantiles:
+        if (node.s_AnnotatedProbability.s_ShouldUpdateQuantiles == false) {
+            LOG_TRACE(<< "NOT Updating quantiles for " << node.s_Spec.print()
+                      << ", scope = '" << scope.print() << "', score = " << score);
+            return;
+        }
         for (auto& normalizer : normalizers) {
             m_HasLastUpdateCausedBigChange |=
                 normalizer->s_Normalizer->updateQuantiles(scope, score);

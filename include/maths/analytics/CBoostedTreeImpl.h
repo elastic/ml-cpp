@@ -112,6 +112,9 @@ public:
     //! Get the hyperparameters.
     const CBoostedTreeHyperparameters& hyperparameters() const;
 
+    //! Get the writeable hyperparameters.
+    CBoostedTreeHyperparameters& hyperparameters();
+
     //! Get the SHAP value calculator.
     //!
     //! \warning Will return a nullptr if a trained model isn't available.
@@ -191,6 +194,8 @@ private:
     using TFloatVec = std::vector<common::CFloatStorage>;
     using TFloatVecVec = std::vector<TFloatVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+    using TDoubleParameter = CBoostedTreeParameter<double>;
+    using TSizeParameter = CBoostedTreeParameter<std::size_t>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
@@ -309,6 +314,10 @@ private:
                        std::size_t maximumNumberInternalNodes,
                        const TMakeRootLeafNodeStatistics& makeRootLeafNodeStatistics,
                        TWorkspace& workspace) const;
+
+    //! Scale the multipliers of the regularisation terms in the loss function to
+    //! account for the difference in data size for final training.
+    void scaleRegularizationMultipliersForFinalTrain();
 
     //! Compute the minimum mean test loss per fold for any round.
     double minimumTestLoss() const;
@@ -446,8 +455,8 @@ private:
 
     //! \name Cross-validation
     //@{
-    CBoostedTreeParameter<std::size_t> m_NumberFolds{4};
-    CBoostedTreeParameter<double> m_TrainFractionPerFold{0.75};
+    TSizeParameter m_NumberFolds{4};
+    TDoubleParameter m_TrainFractionPerFold{0.75};
     bool m_StopCrossValidationEarly{true};
     TOptionalDoubleVecVec m_FoldRoundTestLosses;
     //@}
@@ -501,6 +510,7 @@ private:
 
 private:
     friend class CBoostedTreeFactory;
+    friend class CBoostedTreeHyperparameters;
     friend class CBoostedTreeImplForTest;
 };
 }

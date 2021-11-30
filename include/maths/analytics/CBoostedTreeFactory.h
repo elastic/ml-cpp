@@ -45,11 +45,9 @@ class MATHS_ANALYTICS_EXPORT CBoostedTreeFactory final {
 public:
     using TDoubleVec = std::vector<double>;
     using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
-    using TVector = common::CVectorNx1<double, 3>;
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
-    using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
     using TEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
     using TRestoreDataSummarizationFunc =
@@ -224,12 +222,8 @@ private:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TOptionalVector = boost::optional<TVector>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    using TApplyParameter = std::function<bool(CBoostedTreeImpl&, double)>;
-    using TAdjustTestLoss = std::function<double(double, double, double)>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
@@ -267,6 +261,10 @@ private:
     //! Initialize the regressors sample distribution.
     bool initializeFeatureSampleDistribution() const;
 
+    //! Apply scaling to hyperparameter ranges based on the difference in the update
+    //! data set and original train data set sizes.
+    void initialHyperparameterScaling();
+
     //! Set the initial values for hyperparameters.
     void initializeHyperparameters(core::CDataFrame& frame);
 
@@ -292,6 +290,10 @@ private:
     //! to use for retrained trees when training incrementally.
     void initializeUnsetRetrainedTreeEta();
 
+    //! Estimate a good initial value and range to search for the cost of
+    //! changing predictions when training incrementally.
+    void initializePredictionChangeCost();
+
     //! Estimate a good initial value and range to search for the for tree
     //! topology penalty when training incrementally.
     void initializeUnsetTreeTopologyPenalty(core::CDataFrame& frame);
@@ -300,22 +302,6 @@ private:
     //! the loss function at a split.
     TDoubleDoublePrVec estimateTreeGainAndCurvature(core::CDataFrame& frame,
                                                     const TDoubleVec& percentiles) const;
-
-    //! Perform a line search for the test loss w.r.t. a single hyperparameter.
-    //! At the end we use a smooth curve fit through all test loss values (using
-    //! LOWESS regression) and use this to get a best estimate of where the true
-    //! minimum occurs.
-    //!
-    //! \return The interval to search during the main hyperparameter optimisation
-    //! loop or null if this couldn't be found.
-    TOptionalVector testLossLineSearch(core::CDataFrame& frame,
-                                       const TApplyParameter& applyParameterStep,
-                                       double intervalLeftEnd,
-                                       double intervalRightEnd,
-                                       const TAdjustTestLoss& adjustTestLoss = noopAdjustTestLoss) const;
-
-    //! Initialize the state for hyperparameter optimisation.
-    void initializeHyperparameterOptimisation() const;
 
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
@@ -380,15 +366,6 @@ private:
     std::size_t m_NumberThreads{1};
     TBoostedTreeImplUPtr m_TreeImpl;
     mutable std::size_t m_PaddedExtraColumns{0};
-    TVector m_LogDownsampleFactorSearchInterval{0.0};
-    TVector m_LogFeatureBagFractionInterval{0.0};
-    TVector m_LogDepthPenaltyMultiplierSearchInterval{0.0};
-    TVector m_LogTreeSizePenaltyMultiplierSearchInterval{0.0};
-    TVector m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0};
-    TVector m_SoftDepthLimitSearchInterval{0.0};
-    TVector m_LogEtaSearchInterval{0.0};
-    TVector m_LogRetrainedTreeEtaSearchInterval{0.0};
-    TVector m_LogTreeTopologyChangePenaltySearchInterval{0.0};
     TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
 };
 }

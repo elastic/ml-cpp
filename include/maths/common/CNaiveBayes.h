@@ -99,47 +99,47 @@ public:
     //! Create and return a clone.
     //!
     //! \note The caller owns this.
-    virtual CNaiveBayesFeatureDensityFromPrior* clone() const;
+    CNaiveBayesFeatureDensityFromPrior* clone() const override;
 
     //! Initialize by reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
-                                        core::CStateRestoreTraverser& traverser);
+    bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
+                                core::CStateRestoreTraverser& traverser) override;
 
     //! Persist state by passing information to \p inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
     //! Check whether the density is improper.
-    virtual bool improper() const;
+    bool improper() const override;
 
     //! Add the value \p x.
-    virtual void add(const TDouble1Vec& x);
+    void add(const TDouble1Vec& x) override;
 
     //! Compute the log value of the density function at \p x.
-    virtual double logValue(const TDouble1Vec& x) const;
+    double logValue(const TDouble1Vec& x) const override;
 
     //! Compute the density at the mode.
-    virtual double logMaximumValue() const;
+    double logMaximumValue() const override;
 
     //! Set the data type.
-    virtual void dataType(maths_t::EDataType dataType);
+    void dataType(maths_t::EDataType dataType) override;
 
     //! Age out old values density to account for \p time passing.
-    virtual void propagateForwardsByTime(double time);
+    void propagateForwardsByTime(double time) override;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the static size of this object.
-    virtual std::size_t staticSize() const;
+    std::size_t staticSize() const override;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed) const;
+    uint64_t checksum(uint64_t seed) const override;
 
     //! Get a human readable description of the class density function.
-    virtual std::string print() const;
+    std::string print() const override;
 
 private:
     //! Check the state invariants after restoration

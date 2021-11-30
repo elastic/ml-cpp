@@ -576,12 +576,12 @@ BOOST_AUTO_TEST_CASE(testMseLinear) {
             0.0, modelBias[i][0],
             6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.91);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::common::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testMseNonLinear) {
@@ -701,7 +701,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
         // Unbiased...
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i],
-            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         BOOST_TEST_REQUIRE(modelRSquared[i] > 0.95);
 
@@ -884,8 +884,14 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
         },
         &newTrainingRowMask);
 
+    double alpha{regression->hyperparameters().depthPenaltyMultiplier().value()};
+    double gamma{regression->hyperparameters().treeSizePenaltyMultiplier().value()};
+    double lambda{regression->hyperparameters().leafWeightPenaltyMultiplier().value()};
     regression = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(regression))
                      .newTrainingRowMask(newTrainingRowMask)
+                     .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                     .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                     .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
                      .buildForTrainIncremental(*newFrame, cols - 1);
 
     regression->trainIncremental();
@@ -1017,8 +1023,14 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
         },
         &newTrainingRowMask);
 
+    double alpha{regression->hyperparameters().depthPenaltyMultiplier().value()};
+    double gamma{regression->hyperparameters().treeSizePenaltyMultiplier().value()};
+    double lambda{regression->hyperparameters().leafWeightPenaltyMultiplier().value()};
     regression = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(regression))
                      .newTrainingRowMask(newTrainingRowMask)
+                     .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                     .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                     .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
                      .buildForTrainIncremental(*newFrame, cols - 1);
 
     regression->trainIncremental();
@@ -1471,8 +1483,8 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.08);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.07);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testSingleSplit) {
@@ -1632,7 +1644,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
                 .treeSizePenaltyMultiplier({0.0})
                 .leafWeightPenaltyMultiplier({0.0})
                 .softTreeDepthLimit({targetDepth})
-                .softTreeDepthTolerance({0.01})
+                .softTreeDepthTolerance({0.05})
                 .buildForTrain(*frame, cols - 1);
 
         regression->train();
@@ -1640,7 +1652,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
             BOOST_TEST_REQUIRE(maxDepth(tree, tree[0], 0) <=
-                               static_cast<std::size_t>(targetDepth));
+                               static_cast<std::size_t>(targetDepth + 1));
             meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::common::CBasicStatistics::mean(meanDepth));
@@ -1726,7 +1738,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.77);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.81);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -1739,6 +1751,176 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
 
     // Test incremental training for the binomial logistic objective for drift in the
     // target value.
+
+    test::CRandomNumbers rng;
+    std::size_t rows{750};
+    std::size_t cols{5};
+    std::size_t extraTrainingRows{500};
+
+    auto probability = [&] {
+        TDoubleVec weights{-0.6, 1.0, 0.8, -1.2};
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, 0.5, rows + extraTrainingRows, noise);
+        return [=](const TRowRef& row) {
+            double x{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                x += weights[i] * row[i];
+            }
+            return maths::common::CTools::logisticFunction(x + noise[row.index()]);
+        };
+    }();
+    auto perturbedProbability = [&] {
+        TDoubleVec weights{-0.4, 1.3, 0.9, -1.8};
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, 0.5, rows + extraTrainingRows, noise);
+        return [=](const TRowRef& row) {
+            double x{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                x += weights[i] * row[i];
+            }
+            return maths::common::CTools::logisticFunction(x + noise[row.index()]);
+        };
+    }();
+
+    auto target = [&] {
+        TDoubleVec uniform01;
+        rng.generateUniformSamples(0.0, 1.0, rows + extraTrainingRows, uniform01);
+        return [=](const TRowRef& row) {
+            return uniform01[row.index()] < probability(row) ? 1.0 : 0.0;
+        };
+    }();
+    auto perturbedTarget = [&] {
+        TDoubleVec uniform01;
+        rng.generateUniformSamples(0.0, 1.0, rows + extraTrainingRows, uniform01);
+        return [=](const TRowRef& row) {
+            return uniform01[row.index()] < perturbedProbability(row) ? 1.0 : 0.0;
+        };
+    }();
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(-3.0, 3.0, rows, x[i]);
+    }
+
+    fillDataFrame(rows, 0, cols, {false, false, false, false, true}, x,
+                  TDoubleVec(rows, 0.0), target, *frame);
+
+    auto classifier =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .buildForTrain(*frame, cols - 1);
+    classifier->train();
+
+    frame->resizeColumns(1, cols);
+    auto newFrame = core::makeMainStorageDataFrame(cols).first;
+
+    fillDataFrame(rows, 0, cols, {false, false, false, false, true}, x,
+                  TDoubleVec(rows, 0.0), target, *newFrame);
+
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(-3.0, 3.0, extraTrainingRows, x[i]);
+    }
+
+    fillDataFrame(extraTrainingRows, 0, cols, {false, false, false, false, true},
+                  x, TDoubleVec(extraTrainingRows, 0.0), perturbedTarget, *frame);
+    fillDataFrame(extraTrainingRows, 0, cols, {false, false, false, false, true}, x,
+                  TDoubleVec(extraTrainingRows, 0.0), perturbedTarget, *newFrame);
+
+    classifier->predict();
+
+    core::CPackedBitVector oldTrainingRowMask{rows, true};
+    oldTrainingRowMask.extend(false, extraTrainingRows);
+    core::CPackedBitVector newTrainingRowMask{~oldTrainingRowMask};
+
+    TMeanAccumulator logRelativeErrorBeforeIncrementalTraining[2];
+    TMeanAccumulator logRelativeErrorAfterIncrementalTraining[2];
+
+    auto addToRelativeError = [&](const TRowRef& row, TMeanAccumulator& logRelativeError) {
+        double expectedProbability{probability(row)};
+        double actualProbability{classifier->readPrediction(row)[1]};
+        logRelativeError.add(std::log(std::max(actualProbability, expectedProbability) /
+                                      std::min(actualProbability, expectedProbability)));
+    };
+    auto addToPerturbedRelativeError = [&](const TRowRef& row, TMeanAccumulator& logRelativeError) {
+        double expectedProbability{perturbedProbability(row)};
+        double actualProbability{classifier->readPrediction(row)[1]};
+        logRelativeError.add(std::log(std::max(actualProbability, expectedProbability) /
+                                      std::min(actualProbability, expectedProbability)));
+    };
+
+    frame->resizeColumns(1, cols + 1);
+    classifier->predict();
+
+    // Get the average error on the old and new training data from the old model.
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            addToRelativeError(
+                                *row, logRelativeErrorBeforeIncrementalTraining[OLD_TRAINING_DATA]);
+                        }
+                    },
+                    &oldTrainingRowMask);
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            addToPerturbedRelativeError(
+                                *row, logRelativeErrorBeforeIncrementalTraining[NEW_TRAINING_DATA]);
+                        }
+                    },
+                    &newTrainingRowMask);
+
+    double alpha{classifier->hyperparameters().depthPenaltyMultiplier().value()};
+    double gamma{classifier->hyperparameters().treeSizePenaltyMultiplier().value()};
+    double lambda{classifier->hyperparameters().leafWeightPenaltyMultiplier().value()};
+    classifier = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(classifier))
+                     .newTrainingRowMask(newTrainingRowMask)
+                     .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                     .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                     .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
+                     .buildForTrainIncremental(*newFrame, cols - 1);
+
+    classifier->trainIncremental();
+    classifier->predict();
+
+    // Get the average error on the old and new training data from the new model.
+    newFrame->readRows(1, 0, frame->numberRows(),
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               addToRelativeError(
+                                   *row, logRelativeErrorAfterIncrementalTraining[OLD_TRAINING_DATA]);
+                           }
+                       },
+                       &oldTrainingRowMask);
+    newFrame->readRows(1, 0, frame->numberRows(),
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               addToPerturbedRelativeError(
+                                   *row, logRelativeErrorAfterIncrementalTraining[NEW_TRAINING_DATA]);
+                           }
+                       },
+                       &newTrainingRowMask);
+
+    // We should see little change in the prediction errors on the old data
+    // set which doesn't overlap the new data, but a large improvement on
+    // the new data for constant extrapolation performs poorly.
+    double errorIncreaseOnOld{
+        maths::common::CBasicStatistics::mean(
+            logRelativeErrorAfterIncrementalTraining[OLD_TRAINING_DATA]) /
+            maths::common::CBasicStatistics::mean(
+                logRelativeErrorBeforeIncrementalTraining[OLD_TRAINING_DATA]) -
+        1.0};
+    double errorDecreaseOnNew{
+        maths::common::CBasicStatistics::mean(
+            logRelativeErrorBeforeIncrementalTraining[NEW_TRAINING_DATA]) /
+            maths::common::CBasicStatistics::mean(
+                logRelativeErrorAfterIncrementalTraining[NEW_TRAINING_DATA]) -
+        1.0};
+
+    LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
+    LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 2.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
@@ -1817,7 +1999,6 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
         double actualProbability{classifier->readPrediction(row)[1]};
         logRelativeError.add(std::log(std::max(actualProbability, expectedProbability) /
                                       std::min(actualProbability, expectedProbability)));
-
     };
 
     frame->resizeColumns(1, cols + 1);
@@ -1841,8 +2022,14 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
                     },
                     &newTrainingRowMask);
 
+    double alpha{classifier->hyperparameters().depthPenaltyMultiplier().value()};
+    double gamma{classifier->hyperparameters().treeSizePenaltyMultiplier().value()};
+    double lambda{classifier->hyperparameters().leafWeightPenaltyMultiplier().value()};
     classifier = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(classifier))
                      .newTrainingRowMask(newTrainingRowMask)
+                     .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                     .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                     .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
                      .buildForTrainIncremental(*newFrame, cols - 1);
 
     classifier->trainIncremental();
@@ -1884,7 +2071,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 1.5 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 5.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {

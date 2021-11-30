@@ -65,38 +65,38 @@ void CCountMinSketch::swap(CCountMinSketch& other) noexcept {
     std::swap(m_TotalCount, other.m_TotalCount);
 
     try {
-        TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+        TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
         if (counts) {
             TUInt32FloatPrVec* otherCounts =
-                boost::get<TUInt32FloatPrVec>(&other.m_Sketch);
+                std::get_if<TUInt32FloatPrVec>(&other.m_Sketch);
             if (otherCounts) {
                 counts->swap(*otherCounts);
             } else {
-                SSketch& otherSketch = boost::get<SSketch>(other.m_Sketch);
+                SSketch& otherSketch = std::get<SSketch>(other.m_Sketch);
                 TUInt32FloatPrVec tmp;
                 tmp.swap(*counts);
                 m_Sketch = SSketch();
-                boost::get<SSketch>(m_Sketch).s_Hashes.swap(otherSketch.s_Hashes);
-                boost::get<SSketch>(m_Sketch).s_Counts.swap(otherSketch.s_Counts);
+                std::get<SSketch>(m_Sketch).s_Hashes.swap(otherSketch.s_Hashes);
+                std::get<SSketch>(m_Sketch).s_Counts.swap(otherSketch.s_Counts);
                 other.m_Sketch = TUInt32FloatPrVec();
-                boost::get<TUInt32FloatPrVec>(other.m_Sketch).swap(tmp);
+                std::get<TUInt32FloatPrVec>(other.m_Sketch).swap(tmp);
             }
         } else {
-            SSketch& sketch = boost::get<SSketch>(m_Sketch);
-            SSketch* otherSketch = boost::get<SSketch>(&other.m_Sketch);
+            SSketch& sketch = std::get<SSketch>(m_Sketch);
+            SSketch* otherSketch = std::get_if<SSketch>(&other.m_Sketch);
             if (otherSketch) {
                 sketch.s_Hashes.swap(otherSketch->s_Hashes);
                 sketch.s_Counts.swap(otherSketch->s_Counts);
             } else {
                 TUInt32FloatPrVec& otherCounts =
-                    boost::get<TUInt32FloatPrVec>(other.m_Sketch);
+                    std::get<TUInt32FloatPrVec>(other.m_Sketch);
                 TUInt32FloatPrVec tmp;
                 tmp.swap(otherCounts);
                 other.m_Sketch = SSketch();
-                sketch.s_Hashes.swap(boost::get<SSketch>(other.m_Sketch).s_Hashes);
-                sketch.s_Counts.swap(boost::get<SSketch>(other.m_Sketch).s_Counts);
+                sketch.s_Hashes.swap(std::get<SSketch>(other.m_Sketch).s_Hashes);
+                sketch.s_Counts.swap(std::get<SSketch>(other.m_Sketch).s_Counts);
                 m_Sketch = TUInt32FloatPrVec();
-                boost::get<TUInt32FloatPrVec>(m_Sketch).swap(tmp);
+                std::get<TUInt32FloatPrVec>(m_Sketch).swap(tmp);
             }
         }
     } catch (const std::exception& e) {
@@ -124,7 +124,7 @@ bool CCountMinSketch::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
             }
         } else if (name == CATEGORY_COUNTS_TAG) {
             m_Sketch = TUInt32FloatPrVec();
-            TUInt32FloatPrVec& counts = boost::get<TUInt32FloatPrVec>(m_Sketch);
+            TUInt32FloatPrVec& counts = std::get<TUInt32FloatPrVec>(m_Sketch);
             if (core::CPersistUtils::fromString(traverser.value(), counts, DELIMITER,
                                                 PAIR_DELIMITER) == false) {
                 LOG_ERROR(<< "Invalid category counts in " << traverser.value());
@@ -132,7 +132,7 @@ bool CCountMinSketch::acceptRestoreTraverser(core::CStateRestoreTraverser& trave
             }
         } else if (name == SKETCH_TAG) {
             m_Sketch = SSketch();
-            SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            SSketch& sketch = std::get<SSketch>(m_Sketch);
             sketch.s_Hashes.reserve(m_Rows);
             sketch.s_Counts.reserve(m_Rows);
             if (traverser.traverseSubLevel(
@@ -149,13 +149,13 @@ void CCountMinSketch::acceptPersistInserter(core::CStatePersistInserter& inserte
     inserter.insertValue(ROWS_TAG, m_Rows);
     inserter.insertValue(COLUMNS_TAG, m_Columns);
     inserter.insertValue(TOTAL_COUNT_TAG, m_TotalCount, core::CIEEE754::E_SinglePrecision);
-    const TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+    const TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         inserter.insertValue(CATEGORY_COUNTS_TAG,
                              core::CPersistUtils::toString(*counts, DELIMITER, PAIR_DELIMITER));
     } else {
         try {
-            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = std::get<SSketch>(m_Sketch);
             inserter.insertLevel(SKETCH_TAG, std::bind(&SSketch::acceptPersistInserter,
                                                        &sketch, std::placeholders::_1));
         } catch (const std::exception& e) {
@@ -173,7 +173,7 @@ std::size_t CCountMinSketch::columns() const {
 }
 
 double CCountMinSketch::delta() const {
-    const SSketch* sketch = boost::get<SSketch>(&m_Sketch);
+    const SSketch* sketch = std::get_if<SSketch>(&m_Sketch);
     if (!sketch) {
         return 0.0;
     }
@@ -181,7 +181,7 @@ double CCountMinSketch::delta() const {
 }
 
 double CCountMinSketch::oneMinusDeltaError() const {
-    const SSketch* sketch = boost::get<SSketch>(&m_Sketch);
+    const SSketch* sketch = std::get_if<SSketch>(&m_Sketch);
     if (!sketch) {
         return 0.0;
     }
@@ -194,7 +194,7 @@ void CCountMinSketch::add(uint32_t category, double count) {
 
     m_TotalCount += count;
 
-    TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+    TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         auto itr = std::lower_bound(counts->begin(), counts->end(), category,
                                     common::COrderings::SFirstLess());
@@ -212,7 +212,7 @@ void CCountMinSketch::add(uint32_t category, double count) {
         }
     } else {
         try {
-            SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            SSketch& sketch = std::get<SSketch>(m_Sketch);
             for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
                 uint32_t hash = (sketch.s_Hashes[i])(category);
                 std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
@@ -227,7 +227,7 @@ void CCountMinSketch::add(uint32_t category, double count) {
 }
 
 void CCountMinSketch::removeFromMap(uint32_t category) {
-    TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+    TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         auto itr = std::lower_bound(counts->begin(), counts->end(), category,
                                     common::COrderings::SFirstLess());
@@ -238,14 +238,14 @@ void CCountMinSketch::removeFromMap(uint32_t category) {
 }
 
 void CCountMinSketch::age(double alpha) {
-    TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+    TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         for (std::size_t i = 0; i < counts->size(); ++i) {
             (*counts)[i].second *= alpha;
         }
     } else {
         try {
-            SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            SSketch& sketch = std::get<SSketch>(m_Sketch);
             for (std::size_t i = 0; i < sketch.s_Counts.size(); ++i) {
                 for (std::size_t j = 0; j < sketch.s_Counts[i].size(); ++j) {
                     sketch.s_Counts[i][j] *= alpha;
@@ -264,7 +264,7 @@ double CCountMinSketch::totalCount() const {
 double CCountMinSketch::count(uint32_t category) const {
     using TMinAccumulator = common::CBasicStatistics::COrderStatisticsStack<double, 1>;
 
-    const TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+    const TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         auto itr = std::lower_bound(counts->begin(), counts->end(), category,
                                     common::COrderings::SFirstLess());
@@ -276,7 +276,7 @@ double CCountMinSketch::count(uint32_t category) const {
 
     TMinAccumulator result;
     try {
-        const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+        const SSketch& sketch = std::get<SSketch>(m_Sketch);
         for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
             uint32_t hash = (sketch.s_Hashes[i])(category);
             std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
@@ -295,7 +295,7 @@ double CCountMinSketch::fraction(uint32_t category) const {
 }
 
 bool CCountMinSketch::sketched() const {
-    return boost::get<SSketch>(&m_Sketch) != nullptr;
+    return std::get_if<SSketch>(&m_Sketch) != nullptr;
 }
 
 uint64_t CCountMinSketch::checksum(uint64_t seed) const {
@@ -303,10 +303,10 @@ uint64_t CCountMinSketch::checksum(uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_Columns);
     seed = common::CChecksum::calculate(seed, m_TotalCount);
 
-    const TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+    const TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts == nullptr) {
         try {
-            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = std::get<SSketch>(m_Sketch);
             seed = common::CChecksum::calculate(seed, sketch.s_Hashes);
             return common::CChecksum::calculate(seed, sketch.s_Counts);
         } catch (const std::exception& e) {
@@ -318,12 +318,12 @@ uint64_t CCountMinSketch::checksum(uint64_t seed) const {
 
 void CCountMinSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CCountMinSketch");
-    const TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+    const TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         core::CMemoryDebug::dynamicSize("m_Counts", *counts, mem);
     } else {
         try {
-            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = std::get<SSketch>(m_Sketch);
             mem->addItem("SSketch", sizeof(SSketch));
             core::CMemoryDebug::dynamicSize("sketch", sketch, mem);
             core::CMemoryDebug::dynamicSize("s_Hashes", sketch.s_Hashes, mem);
@@ -336,12 +336,12 @@ void CCountMinSketch::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr
 
 std::size_t CCountMinSketch::memoryUsage() const {
     std::size_t mem = 0;
-    const TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+    const TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         mem += core::CMemory::dynamicSize(*counts);
     } else {
         try {
-            const SSketch& sketch = boost::get<SSketch>(m_Sketch);
+            const SSketch& sketch = std::get<SSketch>(m_Sketch);
             mem += sizeof(SSketch);
             mem += core::CMemory::dynamicSize(sketch.s_Hashes);
             mem += core::CMemory::dynamicSize(sketch.s_Counts);
@@ -360,7 +360,7 @@ void CCountMinSketch::sketch() {
     static const std::size_t VEC_SIZE = sizeof(TUInt32FloatPrVec);
     static const std::size_t SKETCH_SIZE = sizeof(SSketch);
 
-    TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
+    TUInt32FloatPrVec* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
         std::size_t countsSize = VEC_SIZE + PAIR_SIZE * counts->capacity();
         std::size_t sketchSize = SKETCH_SIZE + m_Rows * (m_Columns * FLOAT_SIZE + HASH_SIZE);

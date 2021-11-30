@@ -21,7 +21,7 @@
 
 #include <maths/common/MathsTypes.h>
 
-#include <boost/variant.hpp>
+#include <variant>
 
 namespace ml {
 namespace maths {
@@ -147,7 +147,7 @@ private:
 
     using TUInt32FloatPr = std::pair<uint32_t, common::CFloatStorage>;
     using TUInt32FloatPrVec = std::vector<TUInt32FloatPr>;
-    using TUInt32FloatPrVecOrSketch = boost::variant<TUInt32FloatPrVec, SSketch>;
+    using TUInt32FloatPrVecOrSketch = std::variant<TUInt32FloatPrVec, SSketch>;
 
     //! Maybe switch to sketching the counts.
     void sketch();

@@ -58,7 +58,7 @@ public:
     public:
         CEmpiricalCentralGradient(const CFunction& f, double eps);
 
-        virtual bool operator()(const TVector& x, TVector& result) const;
+        bool operator()(const TVector& x, TVector& result) const override;
 
     private:
         //! The shift used to get the offset points.

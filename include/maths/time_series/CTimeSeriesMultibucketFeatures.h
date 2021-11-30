@@ -148,15 +148,15 @@ public:
 public:
     explicit CTimeSeriesMultibucketMean(std::size_t length = 0)
         : m_SlidingWindow(length) {}
-    virtual ~CTimeSeriesMultibucketMean() = default;
+    ~CTimeSeriesMultibucketMean() override = default;
 
     //! Clone this feature.
-    virtual TPtr clone() const {
+    TPtr clone() const override {
         return std::make_unique<CTimeSeriesMultibucketMean>(*this);
     }
 
     //! Get the feature value and weight.
-    virtual TT1VecTWeightAry1VecPr value() const {
+    TT1VecTWeightAry1VecPr value() const override {
         if (4 * m_SlidingWindow.size() >= 3 * m_SlidingWindow.capacity()) {
             return {{this->mean()}, {maths_t::countWeight(this->count())}};
         }
@@ -164,7 +164,7 @@ public:
     }
 
     //! Get the correlation of this feature with the bucket value.
-    virtual double correlationWithBucketValue() const {
+    double correlationWithBucketValue() const override {
         // This follows from the weighting applied to values in the
         // window and linearity of expectation.
         double r{WINDOW_GEOMETRIC_WEIGHT * WINDOW_GEOMETRIC_WEIGHT};
@@ -173,13 +173,13 @@ public:
     }
 
     //! Clear the feature state.
-    virtual void clear() { m_SlidingWindow.clear(); }
+    void clear() override { m_SlidingWindow.clear(); }
 
     //! Add \p values and \p time.
-    virtual void add(core_t::TTime time,
-                     core_t::TTime bucketLength,
-                     const TT1Vec& values,
-                     const TWeightsAry1Vec& weights) {
+    void add(core_t::TTime time,
+             core_t::TTime bucketLength,
+             const TT1Vec& values,
+             const TWeightsAry1Vec& weights) override {
         // Remove any old samples.
         core_t::TTime cutoff{time - this->windowInterval(bucketLength)};
         while (m_SlidingWindow.size() > 0 && m_SlidingWindow.front().first < cutoff) {
@@ -208,27 +208,27 @@ public:
     }
 
     //! Compute a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const {
+    uint64_t checksum(uint64_t seed = 0) const override {
         seed = common::CChecksum::calculate(seed, m_SlidingWindow.capacity());
         return common::CChecksum::calculate(seed, m_SlidingWindow);
     }
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CTimeSeriesMultibucketMean");
         core::CMemoryDebug::dynamicSize("m_SlidingWindow", m_SlidingWindow, mem);
     }
 
     //! Get the static size of object.
-    virtual std::size_t staticSize() const { return sizeof(*this); }
+    std::size_t staticSize() const override { return sizeof(*this); }
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage() const {
+    std::size_t memoryUsage() const override {
         return core::CMemory::dynamicSize(m_SlidingWindow);
     }
 
     //! Initialize reading state from \p traverser.
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override {
         do {
             const std::string& name{traverser.name()};
             RESTORE_SETUP_TEARDOWN(CAPACITY_TAG, std::size_t capacity,
@@ -241,7 +241,7 @@ public:
     }
 
     //! Persist by passing information to \p inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override {
         inserter.insertValue(CAPACITY_TAG, m_SlidingWindow.capacity());
         core::CPersistUtils::persist(SLIDING_WINDOW_TAG, m_SlidingWindow, inserter);
     }
