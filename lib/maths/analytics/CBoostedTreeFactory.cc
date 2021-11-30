@@ -1419,7 +1419,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(TDoubleVec fraction
 CBoostedTreeFactory& CBoostedTreeFactory::predictionChangeCost(TDoubleVec cost) {
     for (auto& c : cost) {
         if (c < 0.0) {
-            LOG_WARN(<< "Tree topology change penalty must be non-negative");
+            LOG_WARN(<< "Prediction change cost must be non-negative");
             c = 0.0;
         }
     }

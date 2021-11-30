@@ -106,7 +106,11 @@ public:
     //!
     //! \note Has no effect if the parameter is fixed.
     void setToRangeMidpointOr(T value) {
-        m_Value = m_FixedToRange ? (m_MinValue + m_MaxValue) / T{2} : value;
+        m_Value = m_FixedToRange
+                      ? this->fromSearchValue((this->toSearchValue(m_MinValue) +
+                                               this->toSearchValue(m_MaxValue)) /
+                                              T{2})
+                      : value;
     }
 
     //! Fix to \p value.
