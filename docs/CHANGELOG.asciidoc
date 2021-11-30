@@ -46,7 +46,7 @@
 
 === Bug Fixes
 
-* ...
+* Set model state compatibility version to 8.0.0. (See {ml-pull}2139[#2139].)
 
 == {es} version 8.0.0-beta1
 
