@@ -251,6 +251,11 @@ bool CLeastSquaresOnlineRegression<N, T>::covariances(std::size_t n,
     this->gramian(n, x);
     typename SJacobiSvd<MATRIX>::Type svd(x.template selfadjointView<Eigen::Upper>(),
                                           Eigen::ComputeFullU | Eigen::ComputeFullV);
+    if (svd.info() != Eigen::Success) {
+        LOG_TRACE(<< "SVD compute failed with status " << svd.info() << " for x =\n"
+                  << x);
+        return false;
+    }
     if (svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
         LOG_TRACE(<< "singular values = " << svd.singularValues());
         return false;
