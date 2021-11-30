@@ -78,8 +78,12 @@ def read_dataset(_run, dataset_name):
 @ex.capture
 def compute_error(job, dataset, dataset_name, _run):
     job_eval = evaluate(dataset_name=dataset_name, dataset=dataset,
-                        original_job=job, run=_run, verbose=True)
+                        original_job=job, run=_run, verbose=False)
     job_eval.wait_to_complete()
+    prediction = job_eval.get_predictions()
+    dataset['prediction'] = prediction
+    dataset.to_csv('old_strategy_predictions.csv')
+    dataset.drop(columns=['prediction'])
     dependent_variable = job.dependent_variable
     if job.is_regression():
         y_true = np.array([y for y in dataset[dependent_variable]])
@@ -97,7 +101,7 @@ def compute_error(job, dataset, dataset_name, _run):
 @ex.capture
 def get_residuals(job, dataset, dataset_name, _run):
     job_eval = evaluate(dataset_name=dataset_name, dataset=dataset,
-                        original_job=job, run=_run, verbose=False)
+                        original_job=job, run=_run, verbose=True)
     job_eval.wait_to_complete()
     predictions = job_eval.get_predictions()
     residuals = np.absolute(dataset[job_eval.dependent_variable] - predictions)
@@ -190,14 +194,15 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     results['baseline']['hyperparameters'] = baseline_model.get_hyperparameters()
     results['baseline']['forest_statistics'] = get_forest_statistics(
         baseline_model.get_model_definition())
-    results['baseline']['train_error'] = compute_error(
-        baseline_model, train_dataset)
-    results['baseline']['test_error'] = compute_error(
-        baseline_model, test_dataset)
+    # results['baseline']['train_error'] = compute_error(
+    #     baseline_model, train_dataset)
+    # results['baseline']['test_error'] = compute_error(
+    #     baseline_model, test_dataset)
     _run.run_logger.info("Baseline training completed")
     used_dataset = baseline_dataset.copy()
 
     previous_model = baseline_model
+    fraction_of_train = 0.1
     for step in range(update_steps):
         _run.run_logger.info("Update step {} started".format(step))
 
@@ -215,15 +220,17 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
             _run.run_logger.warning(
                 "Update loop interrupted. It seems that you used up all the data!")
             break
-
+        fraction_of_train += update_fraction
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
-                               force=force_update, verbose=verbose, run=_run)
+                               force=force_update, verbose=True, run=_run, update_fraction=update_fraction,
+                               fraction_of_train=fraction_of_train)
         elapsed_time = updated_model.wait_to_complete(clean=False)
+        
         _run.run_logger.debug("Hyperparameters: {}".format(
             updated_model.get_hyperparameters()))
         _run.log_scalar('updated_model.elapsed_time', elapsed_time)
-        _run.log_scalar('updated_model.train_error',
-                        compute_error(updated_model, train_dataset))
+        # _run.log_scalar('updated_model.train_error',
+        #                 compute_error(updated_model, train_dataset))
         _run.log_scalar('updated_model.test_error',
                         compute_error(updated_model, test_dataset))
         _run.log_scalar('training_fraction', training_fraction)
@@ -235,7 +242,7 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
 
         _run.log_scalar('updated_model.hyperparameters',
                         updated_model.get_hyperparameters())
-        
+
         _run.log_scalar('run.comment', _run.meta_info['comment'])
         _run.log_scalar('run.config', _run.config)
         for k, v in get_forest_statistics(updated_model.get_model_definition()).items():
@@ -251,6 +258,8 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
 if __name__ == '__main__':
     run = ex.run_commandline()
     run_data_path = experiment_data_path / str(run._id)
+    import incremental_learning.job
+    ex.add_artifact(incremental_learning.job.__file__)
     if run.config['submit']:
         push2es(data_path=run_data_path, name=experiment_name)
     else:
