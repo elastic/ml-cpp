@@ -1159,12 +1159,12 @@ BOOST_AUTO_TEST_CASE(testShims) {
     {
         BOOST_TEST_REQUIRE(TMatrix4(0.0) ==
                            maths::common::las::conformableZeroMatrix(vector1));
-        BOOST_TEST_REQUIRE(TMatrix(4, 0.0) ==
-                           maths::common::las::conformableZeroMatrix(vector2));
-        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) ==
-                           maths::common::las::conformableZeroMatrix(vector3));
-        BOOST_TEST_REQUIRE(TDenseMatrix::Zero(4, 4) ==
-                           maths::common::las::conformableZeroMatrix(vector4));
+        BOOST_TEST_REQUIRE((TMatrix(4, 0.0) ==
+                            maths::common::las::conformableZeroMatrix(vector2)));
+        BOOST_TEST_REQUIRE((TDenseMatrix::Zero(4, 4) ==
+                            maths::common::las::conformableZeroMatrix(vector3)));
+        BOOST_TEST_REQUIRE((TDenseMatrix::Zero(4, 4) ==
+                            maths::common::las::conformableZeroMatrix(vector4)));
     }
     LOG_DEBUG(<< "Test isZero");
     {
