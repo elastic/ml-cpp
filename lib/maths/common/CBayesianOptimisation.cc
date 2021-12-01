@@ -27,6 +27,7 @@
 #include <maths/common/CTools.h>
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/math/distributions/normal.hpp>
 #include <boost/optional/optional_io.hpp>
 
 #include <exception>
@@ -36,6 +37,7 @@ namespace maths {
 namespace common {
 namespace {
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 const std::string VERSION_7_5_TAG{"7.5"};
 const std::string MIN_BOUNDARY_TAG{"min_boundary"};
@@ -49,22 +51,27 @@ const std::string RANGE_SCALE_TAG{"range_scale"};
 const std::string RESTARTS_TAG{"restarts"};
 const std::string RNG_TAG{"rng"};
 
-//! A version of the normal c.d.f. which is stable across our target platforms.
-double stableNormCdf(double z) {
-    return (1.0 + CTools::stable(std::erf(z / boost::math::constants::root_two<double>()))) / 2.0;
-}
-
-//! A version of the normal p.d.f. which is stable across our target platforms.
-double stableNormPdf(double z) {
-    return CTools::stableExp(-z * z / 2.0) / boost::math::constants::root_two_pi<double>();
-}
-
 // The kernel we use is v * I + a(0)^2 * O(I). We fall back to random search when
 // a(0)^2 < eps * v since for small eps and a reasonable number of dimensions the
 // expected improvement will be constant in the space we search. We don't terminate
 // altogether because it is possible that the function we're interpolating has a
 // narrow deep valley that the Gaussian Process hasn't sampled.
 const double MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION{1e-8};
+
+// For values less than this the EI is essentially zero and we should fallback to
+// dissimilarity. Note that the supplied function values are scaled so that their
+// variance is one and so this is a relative constant.
+double NEGLIGIBLE_EI{1e-12};
+
+//! A version of the normal c.d.f. which is stable across our target platforms.
+double stableNormCdf(double z) {
+    return CTools::stable(CTools::safeCdf(boost::math::normal{0.0, 1.0}, z));
+}
+
+//! A version of the normal p.d.f. which is stable across our target platforms.
+double stableNormPdf(double z) {
+    return CTools::stable(CTools::safePdf(boost::math::normal{0.0, 1.0}, z));
+}
 
 double integrate1dKernel(double theta1, double x) {
     double c{std::sqrt(CTools::pow2(theta1) + MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION)};
@@ -168,12 +175,15 @@ CBayesianOptimisation::maximumExpectedImprovement() {
             double fx{minusEI(x)};
             LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
 
-            if (COrderings::lexicographical_compare(fmax, xmax, -fx, x)) {
+            if (-fx > fmax + NEGLIGIBLE_EI ||
+                this->dissimilarity(x) > this->dissimilarity(xmax)) {
                 xmax = x;
                 fmax = -fx;
             }
             rho_.add(std::fabs(fx));
-            seeds.add({fx, std::move(x)});
+            if (-fx > NEGLIGIBLE_EI) {
+                seeds.add({fx, std::move(x)});
+            }
         }
 
         // We set rho to give the constraint and objective approximately equal priority
@@ -186,12 +196,12 @@ CBayesianOptimisation::maximumExpectedImprovement() {
         TVector xcand;
         double fcand;
         for (auto& x0 : seeds) {
-
             LOG_TRACE(<< "x0 = " << x0.second.transpose());
             std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
                 minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
             LOG_TRACE(<< "xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
-            if (COrderings::lexicographical_compare(fmax, xmax, -fcand, xcand)) {
+            if (-fcand > fmax + NEGLIGIBLE_EI ||
+                this->dissimilarity(xcand) > this->dissimilarity(xmax)) {
                 std::tie(xmax, fmax) = std::make_pair(std::move(xcand), -fcand);
             }
         }
@@ -213,17 +223,6 @@ CBayesianOptimisation::maximumExpectedImprovement() {
     LOG_TRACE(<< "best = " << xmax.transpose() << " EI(best) = " << expectedImprovement);
 
     return {std::move(xmax), expectedImprovement};
-}
-
-CBayesianOptimisation::TVector CBayesianOptimisation::kinvf() const {
-    TVector Kinvf;
-    TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
-    Kinvf = K.ldlt().solve(this->function());
-    return Kinvf;
-}
-
-CBayesianOptimisation::TVector CBayesianOptimisation::transformTo01(const TVector& x) const {
-    return x - m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary);
 }
 
 double CBayesianOptimisation::evaluate(const TVector& input) const {
@@ -592,8 +591,6 @@ void CBayesianOptimisation::precondition() {
     // function values is very different for example if we're modelling the loss surface
     // for different loss functions.
 
-    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-
     for (auto& value : m_FunctionMeanValues) {
         value.second = m_RangeShift + value.second / m_RangeScale;
     }
@@ -708,6 +705,28 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
            CTools::stableExp(-(x - y).transpose() * (m_MinimumKernelCoordinateDistanceScale +
                                                      a.tail(a.size() - 1).cwiseAbs2())
                                                         .cwiseProduct(x - y));
+}
+
+CBayesianOptimisation::TVector CBayesianOptimisation::kinvf() const {
+    TVector Kinvf;
+    TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
+    Kinvf = K.ldlt().solve(this->function());
+    return Kinvf;
+}
+
+CBayesianOptimisation::TVector CBayesianOptimisation::transformTo01(const TVector& x) const {
+    return x - m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary);
+}
+
+double CBayesianOptimisation::dissimilarity(const TVector& x) const {
+    double sum{0.0};
+    double min{0.0};
+    for (const auto& y : m_FunctionMeanValues) {
+        double dxy{las::distance(x, y.first)};
+        sum += dxy;
+        min += std::min(min, -dxy);
+    }
+    return sum / static_cast<double>(m_FunctionMeanValues.size()) - min;
 }
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

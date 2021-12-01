@@ -163,6 +163,15 @@ private:
     static const double MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE;
 
 private:
+    //! \name ANOVA
+    //@{
+    double evaluate(const TVector& Kinvf, const TVector& input) const;
+    double evaluate1D(const TVector& Kinvf, double input, int dimension) const;
+    double anovaConstantFactor(const TVector& Kinvf) const;
+    double anovaTotalVariance(const TVector& Kinvf) const;
+    double anovaMainEffect(const TVector& Kinvf, int dimension) const;
+    //@}
+
     void precondition();
     TVector function() const;
     double meanErrorVariance() const;
@@ -170,13 +179,9 @@ private:
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
-    double evaluate(const TVector& Kinvf, const TVector& input) const;
-    double evaluate1D(const TVector& Kinvf, double input, int dimension) const;
-    double anovaConstantFactor(const TVector& Kinvf) const;
-    double anovaTotalVariance(const TVector& Kinvf) const;
-    double anovaMainEffect(const TVector& Kinvf, int dimension) const;
     TVector kinvf() const;
     TVector transformTo01(const TVector& x) const;
+    double dissimilarity(const TVector& x) const;
     void checkRestoredInvariants() const;
 
 private:
