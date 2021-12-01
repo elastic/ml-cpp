@@ -35,17 +35,21 @@
 * Improve skip_model_update rule behaviour (See {ml-pull}2096[#2096].)
 * Upgrade Boost libraries to version 1.77. (See {ml-pull}2095[#2095].)
 * Upgrade RapidJSON to 31st October 2021 version. (See {ml-pull}2106[#2106].)
+* Upgrade Eigen library to version 3.4.0. (See {ml-pull}2137[#2137].)
+* Prevent over-subscription of threads in pytorch_inference. (See {ml-pull}2141[#2141].)
 
 === Bug Fixes
 
 * Fix a bug in the tuning of the hyperparameters when training regression
   classification models. (See {ml-pull}2128[#2128].)
+* Improve training stability for regression and classification models
+  (See {ml-pull}2144[#2144].)
 
 == {es} version 8.0.0
 
 === Bug Fixes
 
-* ...
+* Set model state compatibility version to 8.0.0. (See {ml-pull}2139[#2139].)
 
 == {es} version 8.0.0-beta1
 
