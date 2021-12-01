@@ -80,10 +80,6 @@ def compute_error(job, dataset, dataset_name, _run):
     job_eval = evaluate(dataset_name=dataset_name, dataset=dataset,
                         original_job=job, run=_run, verbose=False)
     job_eval.wait_to_complete()
-    prediction = job_eval.get_predictions()
-    dataset['prediction'] = prediction
-    dataset.to_csv('old_strategy_predictions.csv')
-    dataset.drop(columns=['prediction'])
     dependent_variable = job.dependent_variable
     if job.is_regression():
         y_true = np.array([y for y in dataset[dependent_variable]])
@@ -194,10 +190,10 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
     results['baseline']['hyperparameters'] = baseline_model.get_hyperparameters()
     results['baseline']['forest_statistics'] = get_forest_statistics(
         baseline_model.get_model_definition())
-    # results['baseline']['train_error'] = compute_error(
-    #     baseline_model, train_dataset)
-    # results['baseline']['test_error'] = compute_error(
-    #     baseline_model, test_dataset)
+    results['baseline']['train_error'] = compute_error(
+        baseline_model, train_dataset)
+    results['baseline']['test_error'] = compute_error(
+        baseline_model, test_dataset)
     _run.run_logger.info("Baseline training completed")
     used_dataset = baseline_dataset.copy()
 
@@ -229,8 +225,8 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
         _run.run_logger.debug("Hyperparameters: {}".format(
             updated_model.get_hyperparameters()))
         _run.log_scalar('updated_model.elapsed_time', elapsed_time)
-        # _run.log_scalar('updated_model.train_error',
-        #                 compute_error(updated_model, train_dataset))
+        _run.log_scalar('updated_model.train_error',
+                        compute_error(updated_model, train_dataset))
         _run.log_scalar('updated_model.test_error',
                         compute_error(updated_model, test_dataset))
         _run.log_scalar('training_fraction', training_fraction)

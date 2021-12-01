@@ -593,7 +593,7 @@ def update(dataset_name: str,
             logger.debug("retrained_tree_eta value is {}".format(value))
         if name == 'retrained_tree_eta':
             min, max = (value/2, value*2)
-            min, max = tuple(np.clip([min, max], 0.01, 1.0))
+            min, max = tuple(np.clip([min, max], 0.1, 0.6))
             config['analysis']['parameters'][name] = [min, max]
             logger.debug("retrained_tree_eta: past value {value}, new range [{min},{max}] clipped to {clipped}".format(
                 value=value,min=min, max=max, clipped=config['analysis']['parameters'][name]))
