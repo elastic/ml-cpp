@@ -42,6 +42,8 @@
 
 * Fix a bug in the tuning of the hyperparameters when training regression
   classification models. (See {ml-pull}2128[#2128].)
+* Improve training stability for regression and classification models
+  (See {ml-pull}2144[#2144].)
 
 == {es} version 8.0.0
 

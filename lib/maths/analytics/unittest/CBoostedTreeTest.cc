@@ -1443,7 +1443,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.56);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.57);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
