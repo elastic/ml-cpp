@@ -78,7 +78,8 @@ double integrate1dKernelProduct(double theta1, double xit, double xjt) {
         boost::math::constants::root_half_pi<double>() / (2 * c) *
         CTools::stableExp(-0.5 * CTools::pow2(c) * CTools::pow2(xit - xjt)) *
         (CTools::stable(std::erf(c / boost::math::constants::root_two<double>() * (xit + xjt))) -
-         CTools::stable(std::erf(c / boost::math::constants::root_two<double>() * (xit + xjt - 2)))));
+         CTools::stable(std::erf(c / boost::math::constants::root_two<double>() *
+                                 (xit + xjt - 2)))));
 }
 }
 
@@ -255,8 +256,8 @@ double CBayesianOptimisation::evaluate1D(const TVector& Kinvf, double input, int
         TVector x{this->transformTo01(m_FunctionMeanValues[i].first)};
         sum += Kinvf(static_cast<int>(i)) *
                CTools::stableExp(-(CTools::pow2(m_KernelParameters[dimension + 1]) +
-                          MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE) *
-                        CTools::pow2(input - x(dimension))) *
+                                   MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE) *
+                                 CTools::pow2(input - x(dimension))) *
                prodXt(x, dimension);
     }
 
