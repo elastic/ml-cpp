@@ -218,8 +218,7 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
             break
         fraction_of_train += update_fraction
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
-                               force=force_update, verbose=True, run=_run, update_fraction=update_fraction,
-                               fraction_of_train=fraction_of_train)
+                               force=force_update, verbose=True, run=_run)
         elapsed_time = updated_model.wait_to_complete(clean=False)
         
         _run.run_logger.debug("Hyperparameters: {}".format(
