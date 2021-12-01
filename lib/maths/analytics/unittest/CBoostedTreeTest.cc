@@ -1015,7 +1015,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testFeatureBags) {
@@ -1673,7 +1673,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 1.8);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 2.4);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
