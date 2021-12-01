@@ -577,7 +577,8 @@ def update(dataset_name: str,
         config['analysis']['parameters']['force_accept_incremental_training'] = True
 
     for name, value in original_job.get_hyperparameters().items():
-        if name not in ['retrained_tree_eta', 'tree_topology_change_penalty', 'soft_tree_depth_limit', 'gamma', 'alpha']:
+        if name not in ['retrained_tree_eta', 'tree_topology_change_penalty', 'soft_tree_depth_limit', 'gamma', 'alpha'] \
+            and name not in config['analysis']['parameters'].keys():
             config['analysis']['parameters'][name] = value
         if name in ['gamma', 'alpha']:
             min, max = (value*0.5, value)

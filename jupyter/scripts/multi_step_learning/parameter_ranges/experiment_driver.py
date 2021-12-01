@@ -58,7 +58,8 @@ def my_config():
                             'prediction_change_cost': 0.0,
                             'data_summarization_fraction': 1.0,
                             'early_stopping_enabled': False,
-                            'max_optimization_rounds_per_hyperparameter': 10}}
+                            'max_optimization_rounds_per_hyperparameter': 10,
+                            'downsample_factor': 1.0}}
     sampling_mode = 'nlargest'
     n_largest_multiplier = 1
     submit = True
@@ -97,7 +98,7 @@ def compute_error(job, dataset, dataset_name, _run):
 @ex.capture
 def get_residuals(job, dataset, dataset_name, _run):
     job_eval = evaluate(dataset_name=dataset_name, dataset=dataset,
-                        original_job=job, run=_run, verbose=True)
+                        original_job=job, run=_run, verbose=False)
     job_eval.wait_to_complete()
     predictions = job_eval.get_predictions()
     residuals = np.absolute(dataset[job_eval.dependent_variable] - predictions)
