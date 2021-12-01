@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
         double f0Bopt{fminBopt};
         for (std::size_t i = 0; i < 20; ++i) {
             TVector x;
-            std::tie(x, std::ignore) = bopt.maximumExpectedImprovement();
+            std::tie(x, std::ignore) = bopt.maximumExpectedImprovement(0.0);
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
             bopt.add(x, f(x), 10.0);
             fminBopt = std::min(fminBopt, f(x));

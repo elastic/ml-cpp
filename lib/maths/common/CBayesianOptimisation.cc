@@ -58,11 +58,6 @@ const std::string RNG_TAG{"rng"};
 // narrow deep valley that the Gaussian Process hasn't sampled.
 const double MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION{1e-8};
 
-// For values less than this the EI is essentially zero and we should fallback to
-// dissimilarity. Note that the supplied function values are scaled so that their
-// variance is one and so this is a relative constant.
-double NEGLIGIBLE_EI{1e-12};
-
 //! A version of the normal c.d.f. which is stable across our target platforms.
 double stableNormCdf(double z) {
     return CTools::stable(CTools::safeCdf(boost::math::normal{0.0, 1.0}, z));
@@ -130,7 +125,7 @@ CBayesianOptimisation::boundingBox() const {
 }
 
 std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TOptionalDouble>
-CBayesianOptimisation::maximumExpectedImprovement() {
+CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImprovement) {
 
     using TMinAccumulator =
         CBasicStatistics::COrderStatisticsHeap<std::pair<double, TVector>>;
@@ -175,13 +170,13 @@ CBayesianOptimisation::maximumExpectedImprovement() {
             double fx{minusEI(x)};
             LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
 
-            if (-fx > fmax + NEGLIGIBLE_EI ||
+            if (-fx > fmax + negligibleExpectedImprovement ||
                 this->dissimilarity(x) > this->dissimilarity(xmax)) {
                 xmax = x;
                 fmax = -fx;
             }
             rho_.add(std::fabs(fx));
-            if (-fx > NEGLIGIBLE_EI) {
+            if (-fx > negligibleExpectedImprovement) {
                 seeds.add({fx, std::move(x)});
             }
         }
@@ -200,7 +195,7 @@ CBayesianOptimisation::maximumExpectedImprovement() {
             std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
                 minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
             LOG_TRACE(<< "xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
-            if (-fcand > fmax + NEGLIGIBLE_EI ||
+            if (-fcand > fmax + negligibleExpectedImprovement ||
                 this->dissimilarity(xcand) > this->dissimilarity(xmax)) {
                 std::tie(xmax, fmax) = std::make_pair(std::move(xcand), -fcand);
             }
@@ -826,6 +821,7 @@ std::size_t CBayesianOptimisation::estimateMemoryUsage(std::size_t numberParamet
 }
 
 const std::size_t CBayesianOptimisation::RESTARTS{10};
+const double CBayesianOptimisation::NEGLIGIBLE_EXPECTED_IMPROVEMENT{1e-12};
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};
 }
 }

@@ -68,6 +68,10 @@ public:
 
 public:
     static const std::size_t RESTARTS;
+    // For values less than this the EI is treated as zero and we fallback to using
+    // dissimilarity (i.e. maximizing diversity). Note that the supplied function
+    // values are scaled so their variance is one thus this is a relative constant.
+    static const double NEGLIGIBLE_EXPECTED_IMPROVEMENT;
 
 public:
     CBayesianOptimisation(TDoubleDoublePrVec parameterBounds, std::size_t restarts = RESTARTS);
@@ -86,7 +90,8 @@ public:
 
     //! Compute the location which maximizes the expected improvement given the
     //! function evaluations added so far.
-    std::pair<TVector, TOptionalDouble> maximumExpectedImprovement();
+    std::pair<TVector, TOptionalDouble>
+    maximumExpectedImprovement(double negligibleExpectedImprovement = NEGLIGIBLE_EXPECTED_IMPROVEMENT);
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
