@@ -36,6 +36,7 @@
 * Upgrade Boost libraries to version 1.77. (See {ml-pull}2095[#2095].)
 * Upgrade RapidJSON to 31st October 2021 version. (See {ml-pull}2106[#2106].)
 * Upgrade Eigen library to version 3.4.0. (See {ml-pull}2137[#2137].)
+* Prevent over-subscription of threads in pytorch_inference. (See {ml-pull}2141[#2141].)
 
 === Bug Fixes
 

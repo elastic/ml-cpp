@@ -23,9 +23,11 @@ all: build
 
 TESTED_OBJS=\
     ../.objs/C*$(OBJECT_FILE_EXT) \
+    ../.objs/SettingsValidator$(OBJECT_FILE_EXT)
 
 SRCS=\
     Main.cc \
     CCommandParserTest.cc \
+    SettingsValidatorTest.cc \
 
 include $(CPP_SRC_HOME)/mk/stdboosttest.mk

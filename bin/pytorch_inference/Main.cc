@@ -28,6 +28,7 @@
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
 #include "CCommandParser.h"
+#include "SettingsValidator.h"
 
 #include <ATen/Parallel.h>
 #include <torch/csrc/api/include/torch/types.h>
@@ -208,31 +209,6 @@ bool handleRequest(const ml::torch::CCommandParser::SRequest& request,
     return true;
 }
 
-void validateThreadingParameters(std::int32_t& inferenceThreads, std::int32_t& modelThreads) {
-    std::int32_t maxThreads{static_cast<int32_t>(std::thread::hardware_concurrency())};
-    if (maxThreads == 0) {
-        LOG_WARN(<< "Could not determine hardware concurrency; setting max threads to 1");
-        maxThreads = 1;
-    }
-    if (inferenceThreads < 1) {
-        LOG_WARN(<< "Setting inference threads to minimum value of 1; value was "
-                 << inferenceThreads);
-        inferenceThreads = 1;
-    } else if (inferenceThreads > maxThreads) {
-        LOG_WARN(<< "Setting inference threads to maximum value of "
-                 << maxThreads << "; value was " << inferenceThreads);
-        inferenceThreads = maxThreads;
-    }
-    if (modelThreads < 1) {
-        LOG_WARN(<< "Setting model threads to minimum value of 1; value was " << modelThreads);
-        modelThreads = 1;
-    } else if (modelThreads > maxThreads) {
-        LOG_WARN(<< "Setting model threads to maximum value of " << maxThreads
-                 << "; value was " << modelThreads);
-        modelThreads = maxThreads;
-    }
-}
-
 int main(int argc, char** argv) {
     // command line options
     std::string modelId;
@@ -258,7 +234,9 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    validateThreadingParameters(inferenceThreads, modelThreads);
+    ml::torch::validateThreadingParameters(
+        static_cast<int32_t>(std::thread::hardware_concurrency()),
+        inferenceThreads, modelThreads);
 
     // Setting the number of threads used by libtorch also sets
     // the number of threads used by MKL or OMP libs. However,
