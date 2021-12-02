@@ -38,6 +38,8 @@ namespace common {
 namespace {
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMinAccumulator =
+    CBasicStatistics::COrderStatisticsHeap<std::pair<double, CBayesianOptimisation::TVector>>;
 
 const std::string VERSION_7_5_TAG{"7.5"};
 const std::string MIN_BOUNDARY_TAG{"min_boundary"};
@@ -127,9 +129,6 @@ CBayesianOptimisation::boundingBox() const {
 std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TOptionalDouble>
 CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImprovement) {
 
-    using TMinAccumulator =
-        CBasicStatistics::COrderStatisticsHeap<std::pair<double, TVector>>;
-
     // Reapply conditioning and recompute the maximum likelihood kernel parameters.
     this->maximumLikelihoodKernel();
 
@@ -148,7 +147,7 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
     TVector a{m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
     TVector b{m_MaxBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
     TMeanAccumulator rho_;
-    TMinAccumulator seeds{m_Restarts};
+    TMinAccumulator probes{m_Restarts};
 
     if (CTools::pow2(m_KernelParameters(0)) <
         MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION * this->meanErrorVariance()) {
@@ -177,7 +176,7 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
             }
             rho_.add(std::fabs(fx));
             if (-fx > negligibleExpectedImprovement) {
-                seeds.add({fx, std::move(x)});
+                probes.add({fx, std::move(x)});
             }
         }
 
@@ -190,7 +189,7 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
 
         TVector xcand;
         double fcand;
-        for (auto& x0 : seeds) {
+        for (auto& x0 : probes) {
             LOG_TRACE(<< "x0 = " << x0.second.transpose());
             std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
                 minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
@@ -539,12 +538,25 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
     // We restart optimization with initial guess on different scales for global probing.
     TDoubleVec scales;
     scales.reserve((m_Restarts - 1) * n);
-    CSampling::uniformSample(m_Rng, CTools::stableLog(0.2),
-                             CTools::stableLog(5.0), (m_Restarts - 1) * n, scales);
+    CSampling::uniformSample(m_Rng, CTools::stableLog(0.2), CTools::stableLog(5.0),
+                             10 * (m_Restarts - 1) * n, scales);
 
     TLikelihoodFunc l;
     TLikelihoodGradientFunc g;
     std::tie(l, g) = this->minusLikelihoodAndGradient();
+
+    TMinAccumulator probes{m_Restarts - 1};
+
+    TVector scale{n};
+    for (std::size_t i = 0; i < scales.size(); /**/) {
+        TVector a{m_KernelParameters};
+        for (std::size_t j = 0; j < n; ++i, ++j) {
+            scale(j) = CTools::stableExp(scales[i]);
+        }
+        a.array() *= scale.array();
+        double la{l(a)};
+        probes.add({la, std::move(a)});
+    }
 
     CLbfgs<TVector> lbfgs{10};
 
@@ -552,18 +564,10 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
     TVector amax;
     std::tie(amax, lmax) = lbfgs.minimize(l, g, m_KernelParameters, 1e-8, 75);
 
-    TVector scale{n};
-    for (std::size_t i = 1; i < m_Restarts; ++i) {
-
-        TVector a{m_KernelParameters};
-        for (std::size_t j = 0; j < n; ++j) {
-            scale(j) = scales[(i - 1) * n + j];
-        }
-        a.array() *= scale.array().exp();
-
-        double la;
-        std::tie(a, la) = lbfgs.minimize(l, g, std::move(a), 1e-8, 75);
-
+    double la;
+    TVector a;
+    for (auto& a0 : probes) {
+        std::tie(a, la) = lbfgs.minimize(l, g, std::move(a0.second), 1e-8, 75);
         if (COrderings::lexicographical_compare(la, a, lmax, amax)) {
             lmax = la;
             amax = std::move(a);
