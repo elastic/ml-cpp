@@ -146,22 +146,31 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
 
     TVector a{m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
     TVector b{m_MaxBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
+    TVector x;
     TMeanAccumulator rho_;
     TMinAccumulator probes{m_Restarts};
+
+    for (int i = 0; i < interpolate.size(); ++i) {
+        interpolate(i) = interpolates[i];
+    }
+    xmax = a + interpolate.cwiseProduct(b - a);
 
     if (CTools::pow2(m_KernelParameters(0)) <
         MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION * this->meanErrorVariance()) {
 
-        for (int i = 0, j = 0; j < interpolate.size(); ++i, ++j) {
-            interpolate(j) = interpolates[i];
+        for (std::size_t i = interpolate.size(); i < interpolates.size(); /**/) {
+            for (int j = 0; j < interpolate.size(); ++i, ++j) {
+                interpolate(j) = interpolates[i];
+            }
+            x = a + interpolate.cwiseProduct(b - a);
+            if (this->dissimilarity(x) > this->dissimilarity(xmax)) {
+                xmax = x;
+            }
         }
-        xmax = a + interpolate.cwiseProduct(b - a);
 
     } else {
 
-        TVector x;
         for (std::size_t i = 0; i < interpolates.size(); /**/) {
-
             for (int j = 0; j < interpolate.size(); ++i, ++j) {
                 interpolate(j) = interpolates[i];
             }
@@ -201,15 +210,8 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
         }
     }
 
-    // fmax was probably NaN, in anycase xmax wasn't initialised so fallback to
-    // random search.
     TOptionalDouble expectedImprovement;
-    if (xmax.size() == 0) {
-        xmax = a + interpolate.cwiseProduct(b - a);
-        expectedImprovement = TOptionalDouble{};
-    } else if (fmax < 0.0 || CMathsFuncs::isFinite(fmax) == false) {
-        expectedImprovement = TOptionalDouble{};
-    } else {
+    if (fmax >= 0.0 && CMathsFuncs::isFinite(fmax)) {
         expectedImprovement = fmax / m_RangeScale;
     }
 
