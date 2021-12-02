@@ -99,6 +99,25 @@ private:
     std::int64_t m_MemoryUsage;
 };
 
+//! \brief Resets a random number generator then jumps 2^64 values using the RAII idiom.
+class CResetAndJumpOnExit {
+public:
+    explicit CResetAndJumpOnExit(common::CPRNG::CXorOShiro128Plus& rng)
+        : m_Rng{rng}, m_RngCopy{rng} {}
+
+    ~CResetAndJumpOnExit() {
+        m_Rng = m_RngCopy;
+        m_Rng.jump();
+    }
+
+    CResetAndJumpOnExit(const CResetAndJumpOnExit&) = delete;
+    CResetAndJumpOnExit& operator=(const CResetAndJumpOnExit&) = delete;
+
+private:
+    common::CPRNG::CXorOShiro128Plus& m_Rng;
+    common::CPRNG::CXorOShiro128Plus m_RngCopy;
+};
+
 //! \brief Manages exiting from the loop adding trees to the forest.
 //!
 //! DESCRIPTION:\n
@@ -635,6 +654,12 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                               core::CLoopProgress& trainingProgress) const {
 
     LOG_TRACE(<< "Training one forest...");
+
+    // We always advance the rng a fixed number of steps training one forest.
+    // This ensures even if decisions change for a single forest then we produce
+    // the same sequence of random numbers next time round. We advance the rng
+    // enough so that the sequences for different calls won't overlap.
+    CResetAndJumpOnExit resetAndJumpOnExit{m_Rng};
 
     std::size_t maximumTreeSize{this->maximumTreeSize(trainingRowMask)};
 
