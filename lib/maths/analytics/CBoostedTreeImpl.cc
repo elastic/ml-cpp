@@ -479,6 +479,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
         this->scaleRegularizationMultipliersForFinalTrain();
 
+        // Reinitialize random number generator for reproducible results.
+        m_Rng.seed(m_Seed);
+
         TNodeVecVec retrainedTrees{this->updateForest(frame, allTrainingRowsMask,
                                                       allTrainingRowsMask, m_TrainingProgress)
                                        .s_Forest};
