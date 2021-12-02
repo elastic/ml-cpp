@@ -143,7 +143,7 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
     // Use random restarts inside the constraint bounding box.
     TVector interpolate(m_MinBoundary.size());
     TDoubleVec interpolates;
-    CSampling::uniformSample(m_Rng, 0.0, 1.0, 3 * m_Restarts * interpolate.size(), interpolates);
+    CSampling::uniformSample(m_Rng, 0.0, 1.0, 5 * m_Restarts * interpolate.size(), interpolates);
 
     TVector a{m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
     TVector b{m_MaxBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
