@@ -550,6 +550,7 @@ def update(dataset_name: str,
            original_job: Job,
            force: bool = False,
            verbose: bool = True,
+           hyperparameters: dict = {},
            run = None) -> Job:
     """Train a new model incrementally using the model and hyperparameters from the original job.
 
@@ -576,9 +577,9 @@ def update(dataset_name: str,
     if force:
         config['analysis']['parameters']['force_accept_incremental_training'] = True
 
-    for name, value in original_job.get_hyperparameters().items():
-        if name not in ['retrained_tree_eta', 'tree_topology_change_penalty']:
-            config['analysis']['parameters'][name] = value
+    for name, value in hyperparameters.items():
+        config['analysis']['parameters'][name] = value
+
     config['analysis']['parameters']['task'] = 'update'
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)
