@@ -31,7 +31,7 @@ namespace model {
 //! breadth first pass over the results.
 class MODEL_EXPORT CHierarchicalResultsProbabilityFinalizer : public CHierarchicalResultsVisitor {
 public:
-    virtual ~CHierarchicalResultsProbabilityFinalizer() override = default;
+    ~CHierarchicalResultsProbabilityFinalizer() override = default;
 
     //! Finalize the probability of \p node.
     void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;
