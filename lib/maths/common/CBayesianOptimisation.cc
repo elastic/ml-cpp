@@ -537,7 +537,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
 
     // We restart optimization with initial guess on different scales for global probing.
     TDoubleVec scales;
-    scales.reserve((m_Restarts - 1) * n);
+    scales.reserve(10 * (m_Restarts - 1) * n);
     CSampling::uniformSample(m_Rng, CTools::stableLog(0.2), CTools::stableLog(5.0),
                              10 * (m_Restarts - 1) * n, scales);
 
