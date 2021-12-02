@@ -714,6 +714,15 @@ CBayesianOptimisation::TVector CBayesianOptimisation::transformTo01(const TVecto
 }
 
 double CBayesianOptimisation::dissimilarity(const TVector& x) const {
+    // This is used as a fallback when GP is very unsure we can actually make progress,
+    // i.e. EI is miniscule. In this case we fallback to a different strategy to break
+    // ties at the probes we used for the GP. We use two criteria:
+    //   1. The average distance to points we already tried: we prefer evaluation points
+    //      where the density of points is low,
+    //   2. The minimum distance to any point we've already tried: we assume the loss
+    //      is fairly smooth (to bother trying to do better than random search) so any
+    //      existing point tells us accurately what the loss will be in its immediate
+    //      neighbourhood and running there again is duplicate work.
     double sum{0.0};
     double min{0.0};
     for (const auto& y : m_FunctionMeanValues) {
