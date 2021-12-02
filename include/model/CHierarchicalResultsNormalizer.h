@@ -108,7 +108,7 @@ public:
 public:
     CHierarchicalResultsNormalizer(const CAnomalyDetectorModelConfig& modelConfig);
 
-    virtual ~CHierarchicalResultsNormalizer() override = default;
+    ~CHierarchicalResultsNormalizer() override = default;
 
     //! Add a job for the subsequent invocations of the normalizer.
     void setJob(EJob job);
