@@ -153,6 +153,8 @@ public:
                                const TResultWriterFunc& resultWriter,
                                const TPivotWriterFunc& pivotsWriterFunc);
 
+    virtual ~CHierarchicalResultsWriter() override = default;
+
     //! Write \p node.
     void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) override;
 

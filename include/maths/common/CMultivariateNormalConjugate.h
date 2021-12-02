@@ -149,7 +149,7 @@ public:
                                              this, std::placeholders::_1));
     }
 
-    ~CMultivariateNormalConjugate() override {}
+    ~CMultivariateNormalConjugate() override = default;
 
     // Default copy constructor and assignment operator work.
 

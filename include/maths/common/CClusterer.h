@@ -147,7 +147,7 @@ public:
                         const TMergeFunc& mergeFunc = CDoNothing())
         : m_SplitFunc(splitFunc), m_MergeFunc(mergeFunc) {}
 
-    virtual ~CClusterer() {}
+    virtual ~CClusterer() = default;
 
     //! \name Clusterer Contract
     //@{

@@ -404,7 +404,7 @@ public:
     using TNode = CHierarchicalResults::TNode;
 
 public:
-    virtual ~CHierarchicalResultsVisitor();
+    virtual ~CHierarchicalResultsVisitor() = default;
 
     //! Visit a node.
     virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) = 0;

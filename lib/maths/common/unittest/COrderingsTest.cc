@@ -50,6 +50,8 @@ public:
 public:
     CDictionary(const TStrVec& words) : m_Words(words) {}
 
+    CDictionary(const CDictionary&) = default;
+
     CDictionary& operator=(const CDictionary& other) {
         ++ms_Copies;
         m_Words = other.m_Words;

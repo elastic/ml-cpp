@@ -91,6 +91,8 @@ public:
         return vector_range_detail::SDoAssign<VECTOR>::dispatch(*this, other);
     }
 
+    CVectorRange(const CVectorRange&) = default;
+
     //! Assign from value.
     template<typename T>
     void assign(size_type n, const T& value) {

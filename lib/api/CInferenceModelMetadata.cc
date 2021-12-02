@@ -177,7 +177,7 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
     writer.EndArray();
 }
 
-void CInferenceModelMetadata::writeTrainParameters(TRapidJsonWriter& writer) const {
+void CInferenceModelMetadata::writeTrainParameters(TRapidJsonWriter& /*writer*/) const {
     // TODO enable with Java changes.
     // Only write out if it has been set.
     //if (m_TrainingFractionPerFold > 0.0) {

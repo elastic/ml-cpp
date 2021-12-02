@@ -52,6 +52,8 @@ public:
 public:
     CHierarchicalResultsAggregator(const CAnomalyDetectorModelConfig& modelConfig);
 
+    virtual ~CHierarchicalResultsAggregator() override = default;
+
     //! Add a job for the subsequent invocations of the normalizer.
     void setJob(EJob job);
 

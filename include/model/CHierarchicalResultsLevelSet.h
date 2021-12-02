@@ -59,6 +59,8 @@ protected:
     explicit CHierarchicalResultsLevelSet(const T& bucketElement)
         : m_BucketElement(bucketElement) {}
 
+    virtual ~CHierarchicalResultsLevelSet() override = default;
+
     //! Get the root unique element.
     const T& bucketElement() const { return m_BucketElement; }
     //! Get a writable root unique element.

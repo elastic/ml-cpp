@@ -17,7 +17,7 @@
 
 #ifndef Windows
 #ifdef MacOSX
-#include <libkern/OSAtomic.h>
+#include <os/lock.h>
 #else
 #include <pthread.h>
 #endif
@@ -76,7 +76,7 @@ private:
 #ifdef Windows
     SRWLOCK m_Mutex;
 #elif defined(MacOSX)
-    OSSpinLock m_Mutex;
+    os_unfair_lock m_Mutex;
 #else
     pthread_mutex_t m_Mutex;
 #endif
