@@ -28,7 +28,7 @@ public:
     //! Constructor
     CHierarchicalResultsPopulator(const CLimits& limits);
 
-    virtual ~CHierarchicalResultsPopulator() override = default;
+    ~CHierarchicalResultsPopulator() override = default;
 
     //! Visit \p node.
     void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;
