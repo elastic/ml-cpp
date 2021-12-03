@@ -27,15 +27,20 @@
 #include <maths/common/CTools.h>
 
 #include <boost/math/constants/constants.hpp>
+#include <boost/math/distributions/normal.hpp>
 #include <boost/optional/optional_io.hpp>
 
 #include <exception>
+#include <limits>
 
 namespace ml {
 namespace maths {
 namespace common {
 namespace {
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMinAccumulator =
+    CBasicStatistics::COrderStatisticsHeap<std::pair<double, CBayesianOptimisation::TVector>>;
 
 const std::string VERSION_7_5_TAG{"7.5"};
 const std::string MIN_BOUNDARY_TAG{"min_boundary"};
@@ -49,22 +54,22 @@ const std::string RANGE_SCALE_TAG{"range_scale"};
 const std::string RESTARTS_TAG{"restarts"};
 const std::string RNG_TAG{"rng"};
 
-//! A version of the normal c.d.f. which is stable across our target platforms.
-double stableNormCdf(double z) {
-    return (1.0 + CTools::stable(std::erf(z / boost::math::constants::root_two<double>()))) / 2.0;
-}
-
-//! A version of the normal p.d.f. which is stable across our target platforms.
-double stableNormPdf(double z) {
-    return CTools::stableExp(-z * z / 2.0) / boost::math::constants::root_two_pi<double>();
-}
-
 // The kernel we use is v * I + a(0)^2 * O(I). We fall back to random search when
 // a(0)^2 < eps * v since for small eps and a reasonable number of dimensions the
 // expected improvement will be constant in the space we search. We don't terminate
 // altogether because it is possible that the function we're interpolating has a
 // narrow deep valley that the Gaussian Process hasn't sampled.
 const double MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION{1e-8};
+
+//! A version of the normal c.d.f. which is stable across our target platforms.
+double stableNormCdf(double z) {
+    return CTools::stable(CTools::safeCdf(boost::math::normal{0.0, 1.0}, z));
+}
+
+//! A version of the normal p.d.f. which is stable across our target platforms.
+double stableNormPdf(double z) {
+    return CTools::stable(CTools::safePdf(boost::math::normal{0.0, 1.0}, z));
+}
 
 double integrate1dKernel(double theta1, double x) {
     double c{std::sqrt(CTools::pow2(theta1) + MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION)};
@@ -123,10 +128,7 @@ CBayesianOptimisation::boundingBox() const {
 }
 
 std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TOptionalDouble>
-CBayesianOptimisation::maximumExpectedImprovement() {
-
-    using TMinAccumulator =
-        CBasicStatistics::COrderStatisticsHeap<std::pair<double, TVector>>;
+CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImprovement) {
 
     // Reapply conditioning and recompute the maximum likelihood kernel parameters.
     this->maximumLikelihoodKernel();
@@ -141,26 +143,35 @@ CBayesianOptimisation::maximumExpectedImprovement() {
     // Use random restarts inside the constraint bounding box.
     TVector interpolate(m_MinBoundary.size());
     TDoubleVec interpolates;
-    CSampling::uniformSample(m_Rng, 0.0, 1.0, 3 * m_Restarts * interpolate.size(), interpolates);
+    CSampling::uniformSample(m_Rng, 0.0, 1.0, 10 * m_Restarts * interpolate.size(), interpolates);
 
     TVector a{m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
     TVector b{m_MaxBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
+    TVector x;
     TMeanAccumulator rho_;
-    TMinAccumulator seeds{m_Restarts};
+    TMinAccumulator probes{m_Restarts};
+
+    for (int i = 0; i < interpolate.size(); ++i) {
+        interpolate(i) = interpolates[i];
+    }
+    xmax = a + interpolate.cwiseProduct(b - a);
 
     if (CTools::pow2(m_KernelParameters(0)) <
         MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION * this->meanErrorVariance()) {
 
-        for (int i = 0, j = 0; j < interpolate.size(); ++i, ++j) {
-            interpolate(j) = interpolates[i];
+        for (std::size_t i = interpolate.size(); i < interpolates.size(); /**/) {
+            for (int j = 0; j < interpolate.size(); ++i, ++j) {
+                interpolate(j) = interpolates[i];
+            }
+            x = a + interpolate.cwiseProduct(b - a);
+            if (this->dissimilarity(x) > this->dissimilarity(xmax)) {
+                xmax = x;
+            }
         }
-        xmax = a + interpolate.cwiseProduct(b - a);
 
     } else {
 
-        TVector x;
         for (std::size_t i = 0; i < interpolates.size(); /**/) {
-
             for (int j = 0; j < interpolate.size(); ++i, ++j) {
                 interpolate(j) = interpolates[i];
             }
@@ -168,12 +179,15 @@ CBayesianOptimisation::maximumExpectedImprovement() {
             double fx{minusEI(x)};
             LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
 
-            if (COrderings::lexicographical_compare(fmax, xmax, -fx, x)) {
+            if (-fx > fmax + negligibleExpectedImprovement ||
+                this->dissimilarity(x) > this->dissimilarity(xmax)) {
                 xmax = x;
                 fmax = -fx;
             }
             rho_.add(std::fabs(fx));
-            seeds.add({fx, std::move(x)});
+            if (-fx > negligibleExpectedImprovement) {
+                probes.add({fx, std::move(x)});
+            }
         }
 
         // We set rho to give the constraint and objective approximately equal priority
@@ -185,27 +199,20 @@ CBayesianOptimisation::maximumExpectedImprovement() {
 
         TVector xcand;
         double fcand;
-        for (auto& x0 : seeds) {
-
+        for (auto& x0 : probes) {
             LOG_TRACE(<< "x0 = " << x0.second.transpose());
             std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
                 minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
             LOG_TRACE(<< "xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
-            if (COrderings::lexicographical_compare(fmax, xmax, -fcand, xcand)) {
+            if (-fcand > fmax + negligibleExpectedImprovement ||
+                this->dissimilarity(xcand) > this->dissimilarity(xmax)) {
                 std::tie(xmax, fmax) = std::make_pair(std::move(xcand), -fcand);
             }
         }
     }
 
-    // fmax was probably NaN, in anycase xmax wasn't initialised so fallback to
-    // random search.
     TOptionalDouble expectedImprovement;
-    if (xmax.size() == 0) {
-        xmax = a + interpolate.cwiseProduct(b - a);
-        expectedImprovement = TOptionalDouble{};
-    } else if (fmax < 0.0 || CMathsFuncs::isFinite(fmax) == false) {
-        expectedImprovement = TOptionalDouble{};
-    } else {
+    if (fmax >= 0.0 && CMathsFuncs::isFinite(fmax)) {
         expectedImprovement = fmax / m_RangeScale;
     }
 
@@ -213,17 +220,6 @@ CBayesianOptimisation::maximumExpectedImprovement() {
     LOG_TRACE(<< "best = " << xmax.transpose() << " EI(best) = " << expectedImprovement);
 
     return {std::move(xmax), expectedImprovement};
-}
-
-CBayesianOptimisation::TVector CBayesianOptimisation::kinvf() const {
-    TVector Kinvf;
-    TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
-    Kinvf = K.ldlt().solve(this->function());
-    return Kinvf;
-}
-
-CBayesianOptimisation::TVector CBayesianOptimisation::transformTo01(const TVector& x) const {
-    return x - m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary);
 }
 
 double CBayesianOptimisation::evaluate(const TVector& input) const {
@@ -544,13 +540,26 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
 
     // We restart optimization with initial guess on different scales for global probing.
     TDoubleVec scales;
-    scales.reserve((m_Restarts - 1) * n);
-    CSampling::uniformSample(m_Rng, CTools::stableLog(0.2),
-                             CTools::stableLog(5.0), (m_Restarts - 1) * n, scales);
+    scales.reserve(10 * (m_Restarts - 1) * n);
+    CSampling::uniformSample(m_Rng, CTools::stableLog(0.2), CTools::stableLog(5.0),
+                             10 * (m_Restarts - 1) * n, scales);
 
     TLikelihoodFunc l;
     TLikelihoodGradientFunc g;
     std::tie(l, g) = this->minusLikelihoodAndGradient();
+
+    TMinAccumulator probes{m_Restarts - 1};
+
+    TVector scale{n};
+    for (std::size_t i = 0; i < scales.size(); /**/) {
+        TVector a{m_KernelParameters};
+        for (std::size_t j = 0; j < n; ++i, ++j) {
+            scale(j) = CTools::stableExp(scales[i]);
+        }
+        a.array() *= scale.array();
+        double la{l(a)};
+        probes.add({la, std::move(a)});
+    }
 
     CLbfgs<TVector> lbfgs{10};
 
@@ -558,18 +567,10 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
     TVector amax;
     std::tie(amax, lmax) = lbfgs.minimize(l, g, m_KernelParameters, 1e-8, 75);
 
-    TVector scale{n};
-    for (std::size_t i = 1; i < m_Restarts; ++i) {
-
-        TVector a{m_KernelParameters};
-        for (std::size_t j = 0; j < n; ++j) {
-            scale(j) = scales[(i - 1) * n + j];
-        }
-        a.array() *= scale.array().exp();
-
-        double la;
-        std::tie(a, la) = lbfgs.minimize(l, g, std::move(a), 1e-8, 75);
-
+    double la;
+    TVector a;
+    for (auto& a0 : probes) {
+        std::tie(a, la) = lbfgs.minimize(l, g, std::move(a0.second), 1e-8, 75);
         if (COrderings::lexicographical_compare(la, a, lmax, amax)) {
             lmax = la;
             amax = std::move(a);
@@ -591,8 +592,6 @@ void CBayesianOptimisation::precondition() {
     // This is useful if one wants to threshold values such as EI but the scale of the
     // function values is very different for example if we're modelling the loss surface
     // for different loss functions.
-
-    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     for (auto& value : m_FunctionMeanValues) {
         value.second = m_RangeShift + value.second / m_RangeScale;
@@ -710,6 +709,37 @@ double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const T
                                                         .cwiseProduct(x - y));
 }
 
+CBayesianOptimisation::TVector CBayesianOptimisation::kinvf() const {
+    TVector Kinvf;
+    TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
+    Kinvf = K.ldlt().solve(this->function());
+    return Kinvf;
+}
+
+CBayesianOptimisation::TVector CBayesianOptimisation::transformTo01(const TVector& x) const {
+    return x - m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary);
+}
+
+double CBayesianOptimisation::dissimilarity(const TVector& x) const {
+    // This is used as a fallback when GP is very unsure we can actually make progress,
+    // i.e. EI is miniscule. In this case we fallback to a different strategy to break
+    // ties at the probes we used for the GP. We use two criteria:
+    //   1. The average distance to points we already tried: we prefer evaluation points
+    //      where the density of points is low,
+    //   2. The minimum distance to any point we've already tried: we assume the loss
+    //      is fairly smooth (to bother trying to do better than random search) so any
+    //      existing point tells us accurately what the loss will be in its immediate
+    //      neighbourhood and running there again is duplicate work.
+    double sum{0.0};
+    double min{std::numeric_limits<double>::max()};
+    for (const auto& y : m_FunctionMeanValues) {
+        double dxy{las::distance(x, y.first)};
+        sum += dxy;
+        min += std::min(min, dxy);
+    }
+    return sum / static_cast<double>(m_FunctionMeanValues.size()) + min;
+}
+
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     try {
         core::CPersistUtils::persist(VERSION_7_5_TAG, "", inserter);
@@ -807,6 +837,7 @@ std::size_t CBayesianOptimisation::estimateMemoryUsage(std::size_t numberParamet
 }
 
 const std::size_t CBayesianOptimisation::RESTARTS{10};
+const double CBayesianOptimisation::NEGLIGIBLE_EXPECTED_IMPROVEMENT{1e-12};
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};
 }
 }

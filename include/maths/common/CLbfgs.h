@@ -202,7 +202,8 @@ public:
             las::min(b, xi);
             fi = f(xi);
 
-            // Snapping can increase objective so make sure we remember the best we've seen.
+            // Snapping can increase the objective so make sure we remember the best
+            // we've seen.
             if (fi < fmin) {
                 xmin = xi;
                 fmin = fi;
