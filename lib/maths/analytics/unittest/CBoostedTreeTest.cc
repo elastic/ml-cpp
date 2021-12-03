@@ -837,6 +837,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
 
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .eta({0.02}) // Ensure there are enough trees.
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();
@@ -933,7 +934,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 25.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
@@ -975,6 +976,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .eta({0.02}) // Ensure there are enough trees.
                           .buildForTrain(*frame, cols - 1);
     regression->train();
 
@@ -1439,7 +1441,7 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
     };
 
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.0073);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.008);
     BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
 }
 
@@ -1530,7 +1532,7 @@ BOOST_AUTO_TEST_CASE(testSingleSplit) {
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.21);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
