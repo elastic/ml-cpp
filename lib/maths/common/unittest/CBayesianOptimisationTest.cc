@@ -279,10 +279,12 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
     TVector a(vector({-10.0, -10.0, -10.0, -10.0}));
     TVector b(vector({10.0, 10.0, 10.0, 10.0}));
 
+    std::size_t wins{0};
+    std::size_t losses{0};
     TMeanAccumulator meanImprovementBopt;
     TMeanAccumulator meanImprovementRs;
 
-    for (std::size_t test = 0; test < 20; ++test) {
+    for (std::size_t test = 0; test < 50; ++test) {
 
         rng.generateUniformSamples(-10.0, 10.0, 12, centreCoordinates);
         rng.generateUniformSamples(0.3, 4.0, 12, coordinateScales);
@@ -323,7 +325,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 
         LOG_TRACE(<< "Bayesian optimisation...");
         double f0Bopt{fminBopt};
-        for (std::size_t i = 0; i < 20; ++i) {
+        for (std::size_t i = 0; i < 30; ++i) {
             TVector x;
             std::tie(x, std::ignore) = bopt.maximumExpectedImprovement();
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
@@ -334,7 +336,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 
         LOG_TRACE(<< "random search...");
         double f0Rs{fminRs};
-        for (std::size_t i = 0; i < 20; ++i) {
+        for (std::size_t i = 0; i < 30; ++i) {
             rng.generateUniformSamples(0.0, 1.0, 4, randomSearch);
             TVector x{a + vector(randomSearch).asDiagonal() * (b - a)};
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
@@ -344,17 +346,20 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 
         LOG_DEBUG(<< "% improvement BO = " << 100.0 * improvementBopt
                   << ", % improvement RS = " << 100.0 * improvementRs);
-        BOOST_TEST_REQUIRE(improvementBopt > improvementRs);
+        wins += improvementBopt > improvementRs ? 1 : 0;
+        losses += improvementBopt > improvementRs ? 0 : 1;
         meanImprovementBopt.add(improvementBopt);
         meanImprovementRs.add(improvementRs);
     }
 
+    LOG_DEBUG(<< "wins = " << wins << ", losses = " << losses);
     LOG_DEBUG(<< "mean % improvement BO = "
               << 100.0 * maths::common::CBasicStatistics::mean(meanImprovementBopt));
     LOG_DEBUG(<< "mean % improvement RS = "
               << 100.0 * maths::common::CBasicStatistics::mean(meanImprovementRs));
+    BOOST_TEST_REQUIRE(wins > static_cast<std::size_t>(0.95 * 50)); // 95% better
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanImprovementBopt) >
-                       1.8 * maths::common::CBasicStatistics::mean(meanImprovementRs)); // 80%
+                       1.6 * maths::common::CBasicStatistics::mean(meanImprovementRs)); // 60% mean improvement
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
