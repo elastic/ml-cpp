@@ -827,7 +827,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
     TDoubleVecVec x(cols - 1);
     TDoubleVec noise;
     for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        rng.generateUniformSamples(0.0, 4.0, rows, x[i]);
     }
     rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
 
@@ -933,7 +933,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 2.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
@@ -965,7 +965,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 
     TDoubleVecVec x(cols - 1);
     for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        rng.generateUniformSamples(0.0, 4.0, rows, x[i]);
     }
 
     TDoubleVec noise;
@@ -1071,7 +1071,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 60.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -1819,8 +1819,10 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
     fillDataFrame(rows, 0, cols, {false, false, false, false, true}, x,
                   TDoubleVec(rows, 0.0), target, *newFrame);
 
+    // If the target drift isn't on a subset of feature space it is an even trade increasing
+    // errors for old and decreasing for new.
     for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(-3.0, 3.0, extraTrainingRows, x[i]);
+        rng.generateUniformSamples(0.0, 3.0, extraTrainingRows, x[i]);
     }
 
     fillDataFrame(extraTrainingRows, 0, cols, {false, false, false, false, true},
@@ -1920,7 +1922,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 2.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
@@ -1934,9 +1936,9 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
     std::size_t extraTrainingRows{250};
 
     auto probability = [&] {
-        TDoubleVec weights{-0.6, 1.0, 0.8, -1.2};
+        TDoubleVec weights{-0.6, 1.0, -0.8, 1.2};
         TDoubleVec noise;
-        rng.generateNormalSamples(0.0, 0.5, rows + extraTrainingRows, noise);
+        rng.generateNormalSamples(0.0, 0.2, rows + extraTrainingRows, noise);
         return [=](const TRowRef& row) {
             double x{0.0};
             for (std::size_t i = 0; i < cols - 1; ++i) {
