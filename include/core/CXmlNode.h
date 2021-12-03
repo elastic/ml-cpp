@@ -71,7 +71,7 @@ public:
 
     CXmlNode(const std::string& name, const std::string& value, const TStrStrMap& attributes);
 
-    virtual ~CXmlNode();
+    virtual ~CXmlNode() = default;
 
     //! Accessors
     const std::string& name() const;

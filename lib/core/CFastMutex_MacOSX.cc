@@ -13,21 +13,18 @@
 namespace ml {
 namespace core {
 
-CFastMutex::CFastMutex()
-    // The OSSpinLock type is just an integer, and zero means unlocked.  See
-    // "man spinlock" for details.
-    : m_Mutex(0) {
+CFastMutex::CFastMutex() : m_Mutex(OS_UNFAIR_LOCK_INIT) {
 }
 
 CFastMutex::~CFastMutex() {
 }
 
 void CFastMutex::lock() {
-    OSSpinLockLock(&m_Mutex);
+    os_unfair_lock_lock(&m_Mutex);
 }
 
 void CFastMutex::unlock() {
-    OSSpinLockUnlock(&m_Mutex);
+    os_unfair_lock_unlock(&m_Mutex);
 }
 }
 }

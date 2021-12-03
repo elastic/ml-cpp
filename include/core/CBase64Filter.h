@@ -95,7 +95,7 @@ public:
     CBase64Encoder();
 
     //! Destructor
-    virtual ~CBase64Encoder();
+    virtual ~CBase64Encoder() = default;
 
     //! Interface method for handling stream data: n bytes are available from s,
     //! and output is written to snk.
@@ -229,7 +229,7 @@ public:
     CBase64Decoder();
 
     //! Destructor
-    virtual ~CBase64Decoder();
+    virtual ~CBase64Decoder() = default;
 
     //! Interface method: read as many bytes as we need from src, and
     //! put up to n output bytes into s

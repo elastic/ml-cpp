@@ -28,6 +28,8 @@ public:
     //! Constructor
     CHierarchicalResultsPopulator(const CLimits& limits);
 
+    ~CHierarchicalResultsPopulator() override = default;
+
     //! Visit \p node.
     void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) override;
 
