@@ -31,6 +31,7 @@
 #include <boost/optional/optional_io.hpp>
 
 #include <exception>
+#include <limits>
 
 namespace ml {
 namespace maths {
@@ -730,13 +731,13 @@ double CBayesianOptimisation::dissimilarity(const TVector& x) const {
     //      existing point tells us accurately what the loss will be in its immediate
     //      neighbourhood and running there again is duplicate work.
     double sum{0.0};
-    double min{0.0};
+    double min{std::numeric_limits<double>::max()};
     for (const auto& y : m_FunctionMeanValues) {
         double dxy{las::distance(x, y.first)};
         sum += dxy;
-        min += std::min(min, -dxy);
+        min += std::min(min, dxy);
     }
-    return sum / static_cast<double>(m_FunctionMeanValues.size()) - min;
+    return sum / static_cast<double>(m_FunctionMeanValues.size()) + min;
 }
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
