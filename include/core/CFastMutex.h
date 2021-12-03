@@ -49,6 +49,8 @@ namespace core {
 //! been tagged as deprecated as of macOS 10.12. Instead, Apple have
 //! provided os_unfair_lock as a replacement (see the documentation here
 //! https://developer.apple.com/documentation/os/1646466-os_unfair_lock_lock)
+//! The other reason is that pthread mutexes are appallingly slow on
+//! Mac OS X so it's easy to massively outperform them
 //!
 //! On Linux, standard non-recursive mutexes are used, on the
 //! assumption that Linux may have relatively few available CPU
