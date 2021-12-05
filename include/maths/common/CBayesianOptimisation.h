@@ -68,6 +68,10 @@ public:
 
 public:
     static const std::size_t RESTARTS;
+    // For values less than this the EI is treated as zero and we fallback to using
+    // dissimilarity (i.e. maximizing diversity). Note that the supplied function
+    // values are scaled so their variance is one thus this is a relative constant.
+    static const double NEGLIGIBLE_EXPECTED_IMPROVEMENT;
 
 public:
     CBayesianOptimisation(TDoubleDoublePrVec parameterBounds, std::size_t restarts = RESTARTS);
@@ -86,7 +90,8 @@ public:
 
     //! Compute the location which maximizes the expected improvement given the
     //! function evaluations added so far.
-    std::pair<TVector, TOptionalDouble> maximumExpectedImprovement();
+    std::pair<TVector, TOptionalDouble>
+    maximumExpectedImprovement(double negligibleExpectedImprovement = NEGLIGIBLE_EXPECTED_IMPROVEMENT);
 
     //! Estimate the maximum booking memory used by this class for optimising
     //! \p numberParameters using \p numberRounds rounds.
@@ -166,6 +171,15 @@ private:
     static const double MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE;
 
 private:
+    //! \name ANOVA
+    //@{
+    double evaluate(const TVector& Kinvf, const TVector& input) const;
+    double evaluate1D(const TVector& Kinvf, double input, int dimension) const;
+    double anovaConstantFactor(const TVector& Kinvf) const;
+    double anovaTotalVariance(const TVector& Kinvf) const;
+    double anovaMainEffect(const TVector& Kinvf, int dimension) const;
+    //@}
+
     void precondition();
     TVector function() const;
     double meanErrorVariance() const;
@@ -173,13 +187,9 @@ private:
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
-    double evaluate(const TVector& Kinvf, const TVector& input) const;
-    double evaluate1D(const TVector& Kinvf, double input, int dimension) const;
-    double anovaConstantFactor(const TVector& Kinvf) const;
-    double anovaTotalVariance(const TVector& Kinvf) const;
-    double anovaMainEffect(const TVector& Kinvf, int dimension) const;
     TVector kinvf() const;
     TVector transformTo01(const TVector& x) const;
+    double dissimilarity(const TVector& x) const;
     void checkRestoredInvariants() const;
 
 private:

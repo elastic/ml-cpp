@@ -22,10 +22,10 @@ VERSION_FILE=eigen/Eigen/src/Core/util/Macros.h
 
 # We want Eigen version 3.3.7 for our current branch
 grep '^#define EIGEN_WORLD_VERSION 3' "$VERSION_FILE" > /dev/null 2>&1 && \
-grep '^#define EIGEN_MAJOR_VERSION 3' "$VERSION_FILE" > /dev/null 2>&1 && \
-grep '^#define EIGEN_MINOR_VERSION 7' "$VERSION_FILE" > /dev/null 2>&1
+grep '^#define EIGEN_MAJOR_VERSION 4' "$VERSION_FILE" > /dev/null 2>&1 && \
+grep '^#define EIGEN_MINOR_VERSION 0' "$VERSION_FILE" > /dev/null 2>&1
 if [ $? -ne 0 ] ; then
     rm -rf eigen
-    git -c advice.detachedHead=false clone --depth=1 --branch=3.3.7 https://gitlab.com/libeigen/eigen.git
+    git -c advice.detachedHead=false clone --depth=1 --branch=3.4.0 https://gitlab.com/libeigen/eigen.git
 fi
 

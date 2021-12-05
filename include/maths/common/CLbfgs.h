@@ -158,7 +158,7 @@ public:
         VECTOR r2;
 
         // Functions to compute the augmented Lagrangian and its gradient w.r.t. x.
-        auto al = [&](const VECTOR& x_) {
+        auto al = [&](const VECTOR& x_) -> double {
             r1 = x_ - z1 + w1 - a;
             r2 = x_ + z2 + w2 - b;
             double n1{las::norm(r1)};
@@ -166,20 +166,22 @@ public:
             // Explicitly construct the return type before returning from the lambda,
             // otherwise the auto return type may be an Eigen closure type which
             // references temporaries
-            return double{f(x_) + 0.5 * rho * (n1 * n1 + n2 * n2)};
+            return f(x_) + 0.5 * rho * (n1 * n1 + n2 * n2);
         };
-        auto gal = [&](const VECTOR& x_) {
+        auto gal = [&](const VECTOR& x_) -> VECTOR {
             // Explicitly construct the return type before returning from the lambda,
             // otherwise the auto return type may be an Eigen closure type which
             // references temporaries
-            return VECTOR{g(x_) + rho * (2 * x_ - z1 + z2 - a - b + w1 + w2)};
+            return g(x_) + rho * (2 * x_ - z1 + z2 - a - b + w1 + w2);
         };
 
-        VECTOR xmin;
-        double fmin;
+        VECTOR xmin{x};
+        double fmin{f(x)};
 
-        double f0{f(x)};
-        double fl{f0};
+        double f0{fmin};
+        double fl{fmin};
+        double fi;
+        VECTOR xi;
         for (std::size_t i = 0; i < iterations; ++i) {
             // x-minimization.
             std::tie(x, std::ignore) = this->minimize(al, gal, x, eps, iterations);
@@ -195,12 +197,19 @@ public:
             w2 += x + z2 - b;
 
             // Snap to nearest feasible point to test for convergence.
-            xmin = x;
-            las::max(a, xmin);
-            las::min(b, xmin);
-            fmin = f(xmin);
+            xi = x;
+            las::max(a, xi);
+            las::min(b, xi);
+            fi = f(xi);
 
-            if (converged(fmin, fl, f0, eps)) {
+            // Snapping can increase the objective so make sure we remember the best
+            // we've seen.
+            if (fi < fmin) {
+                xmin = xi;
+                fmin = fi;
+            }
+
+            if (converged(fi, fl, f0, eps)) {
                 break;
             }
 
