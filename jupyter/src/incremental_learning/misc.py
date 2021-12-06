@@ -8,8 +8,6 @@
 # limitation.
 
 import csv
-# import dask
-# from dask import dataframe
 import heapq
 import random
 from collections import namedtuple
@@ -17,6 +15,8 @@ from operator import itemgetter
 
 import numpy as np
 import pandas
+
+
 
 
 def isnotebook():
@@ -31,7 +31,9 @@ def isnotebook():
     except NameError:
         return False      # Probably standard Python interpreter
 
+
 Row = namedtuple('Row', ['index', 'content'])
+
 
 class DataStream():
     def __init__(self, dataset: str):
@@ -53,7 +55,7 @@ class DataStream():
 
     def __next__(self):
         content = next(self.reader)
-        return Row(index = self.reader.line_num, content=content)
+        return Row(index=self.reader.line_num, content=content)
 
     def weight(self, H: list) -> float:
         return 1.0
@@ -95,6 +97,3 @@ def reservoir_sample_with_jumps(dataset: str, k: int):
                 Hmin = H[0][0]
                 X = np.log(random.random())/np.log(Hmin)
     return pandas.DataFrame(data=map(itemgetter(1), H), columns=S.columns())
-
-
-

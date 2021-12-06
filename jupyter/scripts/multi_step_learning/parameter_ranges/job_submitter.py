@@ -11,42 +11,12 @@
 
 import argparse
 import json
-import multiprocessing
 import os
-import subprocess
 
+from incremental_learning.job_submitter import (generate_job_file,
+                                                init_task_spooler,
+                                                submit_to_task_spooler)
 from jinja2 import Environment, FileSystemLoader
-from pathlib import Path
-
-def init_task_spooler():
-    cmd = ['tsp', '-S', str(multiprocessing.cpu_count())]
-    process = subprocess.Popen(cmd,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
-
-def generate_job_file(config, cwd, force_update, verbose, comment):
-
-    job_name = '_'.join([str(v) for _,v in config.items()])
-    job_file = '{}.job'.format(job_name)
-    job_parameters = ['force_update={}'.format(force_update),
-                      'verbose={}'.format(verbose)] + \
-                      ['{}={}'.format(k,v) for k,v in config.items()]
-
-    job = tm.render(job_name=job_name,
-                    job_parameters=" ".join(job_parameters),
-                    job_file=job_file, comment=comment, cwd=cwd)
-    with open(job_file, 'wt') as fp:
-        fp.write(job)
-    os.chmod(job_file, 0o755)
-    return job_file
-
-def submit_to_task_spooler(threads, job_file_path):
-    cmd = ['tsp', '-N', str(threads), str(job_file_path)]
-    process = subprocess.Popen(cmd,
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-    stdout, stderr = process.communicate()
 
 if __name__ == '__main__':
     """
@@ -55,7 +25,8 @@ if __name__ == '__main__':
     the task spooler for execution.
     """
 
-    parser = argparse.ArgumentParser(description='Run a collection of experiments defined by experiments.json')
+    parser = argparse.ArgumentParser(
+        description='Run a collection of experiments defined by experiments.json')
     parser.add_argument('--verbose',
                         default=False,
                         action='store_true',
@@ -75,13 +46,12 @@ if __name__ == '__main__':
     tm = env.get_template('job.tpl')
     init_task_spooler()
     with open('experiments.json') as fp:
-        # TODO: validate schema of experiments.json
         experiments = json.load(fp)
     for config in experiments['configurations']:
-        job_file = generate_job_file(config=config,
+        job_file_path = generate_job_file(config=config,
                                      cwd=cwd,
                                      force_update=args.force_update,
                                      verbose=args.verbose,
-                                     comment=args.comment)
-        job_file_path = Path(cwd)/job_file
+                                     comment=args.comment,
+                                     template=tm)
         submit_to_task_spooler(config['threads'], job_file_path)
