@@ -22,6 +22,9 @@ USE_NET=1
 USE_RAPIDJSON=1
 USE_TORCH=1
 
+# These lines can be removed once PyTorch code is updated to avoid using features
+# that are deprecated in C++17 (and will be removed in C++20).
+# See https://github.com/pytorch/pytorch/issues/69290
 ifeq ($(OS),Windows)
     CPPFLAGS+=-D_HAS_FEATURES_REMOVED_IN_CXX20 -D_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 endif
