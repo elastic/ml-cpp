@@ -597,7 +597,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
         2 * m_NumberFolds.value() *
         static_cast<std::size_t>(std::ceil(std::min(m_TrainFractionPerFold.value(),
                                                     1.0 - m_TrainFractionPerFold.value()) *
-                                           numberRows))};
+                                           static_cast<double>(numberRows)))};
 
     std::size_t worstCaseMemoryUsage{
         sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
@@ -977,9 +977,9 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             trainingProgress.increment();
         }
 
-        scopeMemoryUsage.remove(downsampledRowMask);
         downsampledRowMask = this->downsample(trainingRowMask);
-        scopeMemoryUsage.add(downsampledRowMask);
+        // The memory variation in the row mask from sample to sample is too
+        // small to bother to track.
 
         if (forceRefreshSplits || forest.size() == nextTreeCountToRefreshSplits) {
             scopeMemoryUsage.remove(candidateSplits);
@@ -1052,8 +1052,11 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
     core::CPackedBitVector oldTrainingRowMask{trainingRowMask & ~m_NewTrainingRowMask};
     core::CPackedBitVector newTrainingRowMask{trainingRowMask & m_NewTrainingRowMask};
-    auto downsampledRowMask = this->downsample(oldTrainingRowMask) |
-                              this->downsample(newTrainingRowMask);
+    auto oldDownsampledRowMask = this->downsample(oldTrainingRowMask);
+    auto newDownsampledRowMask = this->downsample(newTrainingRowMask);
+    auto downsampledRowMask = oldDownsampledRowMask | newDownsampledRowMask;
+    scopeMemoryUsage.add(oldDownsampledRowMask);
+    scopeMemoryUsage.add(newDownsampledRowMask);
     scopeMemoryUsage.add(downsampledRowMask);
     TFloatVecVec candidateSplits;
 
@@ -1121,10 +1124,11 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         retrainedTrees.push_back(std::move(tree));
         trainingProgress.increment();
 
-        scopeMemoryUsage.remove(downsampledRowMask);
-        downsampledRowMask = this->downsample(oldTrainingRowMask) |
-                             this->downsample(newTrainingRowMask);
-        scopeMemoryUsage.add(downsampledRowMask);
+        oldDownsampledRowMask = this->downsample(oldTrainingRowMask);
+        newDownsampledRowMask = this->downsample(newTrainingRowMask);
+        downsampledRowMask = oldDownsampledRowMask | newDownsampledRowMask;
+        // The memory variation in the row mask from sample to sample is too
+        // small to bother to track.
 
         testLosses.push_back(this->meanAdjustedLoss(frame, testingRowMask));
     }
@@ -2303,8 +2307,9 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
 
 core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFrame& frame) const {
 
-    std::size_t sampleSize{std::max(static_cast<size_t>(frame.numberRows() * m_DataSummarizationFraction),
-                                    static_cast<std::size_t>(2))};
+    std::size_t sampleSize{std::max(
+        static_cast<std::size_t>(static_cast<double>(frame.numberRows()) * m_DataSummarizationFraction),
+        static_cast<std::size_t>(2))};
     // get row mask for sampling
     core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
     core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
