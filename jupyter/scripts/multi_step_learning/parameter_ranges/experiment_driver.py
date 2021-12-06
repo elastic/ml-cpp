@@ -9,25 +9,18 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 
-import shutil
 import random
+import shutil
 import string
 
-import diversipy
 import numpy as np
 import pandas as pd
 import sklearn.metrics as metrics
-from deepmerge import always_merger
 from incremental_learning.config import datasets_dir, jobs_dir, logger
 from incremental_learning.elasticsearch import push2es
 from incremental_learning.job import Job, evaluate, train, update
 from incremental_learning.storage import (download_dataset, download_job,
                                           job_exists, upload_job)
-from incremental_learning.transforms import (partition_on_metric_ranges,
-                                             regression_category_drift,
-                                             resample_metric_features,
-                                             rotate_metric_features,
-                                             shift_metric_features)
 from incremental_learning.trees import Forest
 from pathlib2 import Path
 from sacred import Experiment
@@ -218,10 +211,19 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
                 "Update loop interrupted. It seems that you used up all the data!")
             break
         fraction_of_train += update_fraction
+
+        hyperparameters = previous_model.get_hyperparameters()
+        for name, value in hyperparameters.items():
+            if name in ['soft_tree_depth_limit']:
+                min, max = (value, value*1.5)
+                hyperparameters[name] = [min, max]
+            elif name == 'retrained_tree_eta':
+                hyperparameters[name] = 0.5794274*np.exp(-(fraction_of_train - 0.07220894)**2/(2*0.7055225**2))
+
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
-                               force=force_update, verbose=True, run=_run)
+                               force=force_update, verbose=False, hyperparameter_overrides=hyperparameters, run=_run)
         elapsed_time = updated_model.wait_to_complete(clean=False)
-        
+
         _run.run_logger.debug("Hyperparameters: {}".format(
             updated_model.get_hyperparameters()))
         _run.log_scalar('updated_model.elapsed_time', elapsed_time)

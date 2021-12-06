@@ -260,8 +260,8 @@ class Job:
         hyperparameters = {}
         for item in self.results:
             if 'model_metadata' in item:
-                for hyperparameter in item['model_metadata']['hyperparameters']:
-                    hyperparameters[hyperparameter['name']] = hyperparameter['value']
+                for hp in item['model_metadata']['hyperparameters']:
+                    hyperparameters[hp['name']] = hp['value']
                 hyperparameters['previous_train_num_rows'] = item['model_metadata']['train_properties']['num_train_rows']
                 hyperparameters['previous_train_loss_gap'] = item['model_metadata']['train_properties']['loss_gap']
         return hyperparameters
@@ -422,6 +422,7 @@ class JobJSONEncoder(json.JSONEncoder):
             return state
         return json.JSONEncoder.default(self, obj)
 
+
 def update_config(config, run=None) -> dict:
     if run:
         if 'threads' in run.config.keys():
@@ -429,7 +430,8 @@ def update_config(config, run=None) -> dict:
         if 'seed' in run.config.keys():
             config['analysis']['parameters']['seed'] = run.config['seed']
         if 'analysis' in run.config.keys() and 'parameters' in run.config['analysis']:
-            always_merger.merge(config['analysis']['parameters'], run.config['analysis']['parameters'])
+            always_merger.merge(
+                config['analysis']['parameters'], run.config['analysis']['parameters'])
     return config
 
 
@@ -550,7 +552,8 @@ def update(dataset_name: str,
            original_job: Job,
            force: bool = False,
            verbose: bool = True,
-           run = None) -> Job:
+           hyperparameter_overrides: dict = {},
+           run=None) -> Job:
     """Train a new model incrementally using the model and hyperparameters from the original job.
 
     Args:
@@ -559,6 +562,7 @@ def update(dataset_name: str,
         original_job (Job): Job object of the original training
         force (bool): Force accept the update (default: False)
         verbose (bool): Verbosity flag (default: True)
+        hyperparameter_overrides (dict): Hyperparameters to be explicitly set in the config (default: {})
         run: The run context (default: None)
 
     Returns:
@@ -576,28 +580,9 @@ def update(dataset_name: str,
     if force:
         config['analysis']['parameters']['force_accept_incremental_training'] = True
 
-    for name, value in original_job.get_hyperparameters().items():
-        if name not in ['retrained_tree_eta', 'tree_topology_change_penalty', 'soft_tree_depth_limit', 'gamma', 'alpha'] \
-            and name not in config['analysis']['parameters'].keys():
-            config['analysis']['parameters'][name] = value
-        if name in ['gamma', 'alpha']:
-            min, max = (value*0.5, value)
-            config['analysis']['parameters'][name] = [min, max]
-            logger.debug("{name}: past value {value}, new range [{min},{max}]".format(
-                value=value,min=min, max=max, name=name))
-        if name in ['soft_tree_depth_limit']:
-            min, max = (value, value*1.5)
-            config['analysis']['parameters'][name] = [min, max]
-            logger.debug("{name}: past value {value}, new range [{min},{max}]".format(
-                value=value,min=min, max=max, name=name))
-        if name == 'retrained_tree_eta':
-            logger.debug("retrained_tree_eta value is {}".format(value))
-        if name == 'retrained_tree_eta':
-            min, max = (value/2, value*2)
-            min, max = tuple(np.clip([min, max], 0.1, 0.6))
-            config['analysis']['parameters'][name] = [min, max]
-            logger.debug("retrained_tree_eta: past value {value}, new range [{min},{max}] clipped to {clipped}".format(
-                value=value,min=min, max=max, clipped=config['analysis']['parameters'][name]))
+    for name, value in hyperparameter_overrides.items():
+        config['analysis']['parameters'][name] = value
+
     config['analysis']['parameters']['task'] = 'update'
     fconfig = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, fconfig)
