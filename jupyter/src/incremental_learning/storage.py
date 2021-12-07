@@ -105,7 +105,7 @@ def download_job(job_name) -> Union[None, Path]:
     return result
 
 
-def upload_job(local_job_path: Path) -> bool:
+def upload_job(local_job_path: Path, overwrite=False) -> bool:
     """Upload the job file to the Google storage bucket.
 
     If a file with the name already exists in the bucket, it will not be overwritten.
@@ -117,7 +117,7 @@ def upload_job(local_job_path: Path) -> bool:
         bool: True if upload was successful, False otherwise.
     """
     job_name = local_job_path.name
-    if job_exists(job_name, remote=True):
+    if job_exists(job_name, remote=True) and overwrite==False:
         logger.warning(
             "Job {} already exists in the Google storage bucket. Skip uploading.".format(job_name))
         return False
