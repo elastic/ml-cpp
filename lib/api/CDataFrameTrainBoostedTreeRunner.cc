@@ -168,6 +168,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     bool forceAcceptIncrementalTraining{
         parameters[FORCE_ACCEPT_INCREMENTAL_TRAINING].fallback(false)};
+    bool disableHyperparameterScaling{
+        parameters[DISABLE_HYPERPARAMETER_SCALING].fallback(false)};
     double dataSummarizationFraction{parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0)};
     double previousTrainLossGap{parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0)};
     std::size_t previousTrainNumberRows{
@@ -238,6 +240,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .trainingStateCallback(this->statePersister())
         .earlyStoppingEnabled(earlyStoppingEnabled)
         .forceAcceptIncrementalTraining(forceAcceptIncrementalTraining)
+        .disableHyperparameterScaling(disableHyperparameterScaling)
         .downsampleFactor(std::move(downsampleFactor))
         .depthPenaltyMultiplier(std::move(alpha))
         .treeSizePenaltyMultiplier(std::move(gamma))
@@ -572,6 +575,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAM
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
 const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"early_stopping_enabled"};
 const std::string CDataFrameTrainBoostedTreeRunner::FORCE_ACCEPT_INCREMENTAL_TRAINING{"force_accept_incremental_training"};
+const std::string CDataFrameTrainBoostedTreeRunner::DISABLE_HYPERPARAMETER_SCALING{"disable_hyperparameter_scaling"};
 const std::string CDataFrameTrainBoostedTreeRunner::DATA_SUMMARIZATION_FRACTION{"data_summarization_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK{"task"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_TRAIN{"train"};

@@ -70,6 +70,7 @@ public:
     static const std::string FEATURE_PROCESSORS;
     static const std::string EARLY_STOPPING_ENABLED;
     static const std::string FORCE_ACCEPT_INCREMENTAL_TRAINING;
+    static const std::string DISABLE_HYPERPARAMETER_SCALING;
     static const std::string DATA_SUMMARIZATION_FRACTION;
     static const std::string TASK;
     static const std::string TASK_TRAIN;

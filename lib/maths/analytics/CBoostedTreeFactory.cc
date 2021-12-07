@@ -568,7 +568,8 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 }
 
 void CBoostedTreeFactory::initialHyperparameterScaling() {
-    if (m_TreeImpl->m_PreviousTrainNumberRows > 0) {
+    if (m_TreeImpl->m_Hyperparameters.scalingDisabled() == false &&
+        m_TreeImpl->m_PreviousTrainNumberRows > 0) {
         double scale{m_TreeImpl->meanNumberTrainingRowsPerFold() /
                      static_cast<double>(m_TreeImpl->m_PreviousTrainNumberRows)};
         auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
@@ -826,18 +827,20 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                 // We need to scale the regularisation terms to account for the difference
                 // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
-                    double scale{downsampleFactor / initialDownsampleFactor};
-                    if (tree.m_Hyperparameters.depthPenaltyMultiplier().fixed() == false) {
-                        tree.m_Hyperparameters.depthPenaltyMultiplier().scale(scale);
-                    }
-                    if (tree.m_Hyperparameters.treeSizePenaltyMultiplier().fixed() == false) {
-                        tree.m_Hyperparameters.treeSizePenaltyMultiplier().scale(scale);
-                    }
-                    if (tree.m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
-                        tree.m_Hyperparameters.leafWeightPenaltyMultiplier().scale(scale);
-                    }
-                    if (tree.m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
-                        tree.m_Hyperparameters.treeTopologyChangePenalty().scale(scale);
+                    if (tree.m_Hyperparameters.scalingDisabled() == false) {
+                        double scale{downsampleFactor / initialDownsampleFactor};
+                        if (tree.m_Hyperparameters.depthPenaltyMultiplier().fixed() == false) {
+                            tree.m_Hyperparameters.depthPenaltyMultiplier().scale(scale);
+                        }
+                        if (tree.m_Hyperparameters.treeSizePenaltyMultiplier().fixed() == false) {
+                            tree.m_Hyperparameters.treeSizePenaltyMultiplier().scale(scale);
+                        }
+                        if (tree.m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
+                            tree.m_Hyperparameters.leafWeightPenaltyMultiplier().scale(scale);
+                        }
+                        if (tree.m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
+                            tree.m_Hyperparameters.treeTopologyChangePenalty().scale(scale);
+                        }
                     }
                 };
 
@@ -1496,6 +1499,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::previousTrainNumberRows(std::size_t nu
 
 CBoostedTreeFactory& CBoostedTreeFactory::forceAcceptIncrementalTraining(bool force) {
     m_TreeImpl->m_ForceAcceptIncrementalTraining = force;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::disableHyperparameterScaling(bool disabled) {
+    m_TreeImpl->m_Hyperparameters.disableScaling(disabled);
     return *this;
 }
 
