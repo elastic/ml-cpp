@@ -25,7 +25,7 @@ import pandas
 from deepmerge import always_merger
 from IPython import display
 
-from .config import configs_dir, datasets_dir, dfa_path, logger
+from .config import configs_dir, dfa_path, logger
 from .misc import isnotebook
 
 server = libtmux.Server()
@@ -260,8 +260,8 @@ class Job:
         hyperparameters = {}
         for item in self.results:
             if 'model_metadata' in item:
-                for hyperparameter in item['model_metadata']['hyperparameters']:
-                    hyperparameters[hyperparameter['name']] = hyperparameter['value']
+                for hp in item['model_metadata']['hyperparameters']:
+                    hyperparameters[hp['name']] = hp['value']
                 hyperparameters['previous_train_num_rows'] = item['model_metadata']['train_properties']['num_train_rows']
                 hyperparameters['previous_train_loss_gap'] = item['model_metadata']['train_properties']['loss_gap']
         return hyperparameters
@@ -422,6 +422,7 @@ class JobJSONEncoder(json.JSONEncoder):
             return state
         return json.JSONEncoder.default(self, obj)
 
+
 def update_config(config, run=None) -> dict:
     if run:
         if 'threads' in run.config.keys():
@@ -429,7 +430,8 @@ def update_config(config, run=None) -> dict:
         if 'seed' in run.config.keys():
             config['analysis']['parameters']['seed'] = run.config['seed']
         if 'analysis' in run.config.keys() and 'parameters' in run.config['analysis']:
-            always_merger.merge(config['analysis']['parameters'], run.config['analysis']['parameters'])
+            always_merger.merge(
+                config['analysis']['parameters'], run.config['analysis']['parameters'])
     return config
 
 
@@ -550,8 +552,8 @@ def update(dataset_name: str,
            original_job: Job,
            force: bool = False,
            verbose: bool = True,
-           hyperparameters: dict = {},
-           run = None) -> Job:
+           hyperparameter_overrides: dict = {},
+           run=None) -> Job:
     """Train a new model incrementally using the model and hyperparameters from the original job.
 
     Args:
@@ -560,6 +562,7 @@ def update(dataset_name: str,
         original_job (Job): Job object of the original training
         force (bool): Force accept the update (default: False)
         verbose (bool): Verbosity flag (default: True)
+        hyperparameter_overrides (dict): Hyperparameters to be explicitly set in the config (default: {})
         run: The run context (default: None)
 
     Returns:
@@ -577,7 +580,7 @@ def update(dataset_name: str,
     if force:
         config['analysis']['parameters']['force_accept_incremental_training'] = True
 
-    for name, value in hyperparameters.items():
+    for name, value in hyperparameter_overrides.items():
         config['analysis']['parameters'][name] = value
 
     config['analysis']['parameters']['task'] = 'update'
