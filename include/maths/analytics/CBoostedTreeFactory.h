@@ -180,6 +180,9 @@ public:
     CBoostedTreeFactory& previousTrainNumberRows(std::size_t numberRows);
     //! Set whether or not to always accept the result of incremental training.
     CBoostedTreeFactory& forceAcceptIncrementalTraining(bool force);
+    //! Set whether or not to scale regularisation hyperaparameters when varying
+    //! downsample factor.
+    CBoostedTreeFactory& disableHyperparameterScaling(bool disabled);
     //! Set the data summarization information.
     CBoostedTreeFactory& featureEncoder(TEncoderUPtr encoder);
     //! Set the best forest from the previous training.

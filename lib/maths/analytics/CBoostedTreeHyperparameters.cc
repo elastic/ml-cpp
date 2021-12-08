@@ -434,7 +434,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     // the same effect for regularisers we need to scale these terms by the same
     // multiplier.
     double scale{1.0};
-    if (m_DownsampleFactor.fixed() == false) {
+    if (m_ScalingDisabled == false && m_DownsampleFactor.fixed() == false) {
         auto i = std::distance(m_TunableHyperparameters.begin(),
                                std::find(m_TunableHyperparameters.begin(),
                                          m_TunableHyperparameters.end(), E_DownsampleFactor));
