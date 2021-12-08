@@ -9,24 +9,23 @@
 
 import unittest
 from collections import namedtuple
+from copy import copy
 
 import numpy as np
 import pandas as pd
 import sklearn.datasets
 from sklearn.model_selection import train_test_split
-from copy import copy
 
+from incremental_learning.config import jobs_dir, logger
 from incremental_learning.job import Job, evaluate, train, update
 from incremental_learning.storage import (download_dataset, download_job,
                                           job_exists, upload_job)
-from incremental_learning.config import jobs_dir, datasets_dir, logger
-
 
 test_hyperparameters_list = ['alpha', 'gamma', 'lambda',
                              'soft_tree_depth_limit', 'soft_tree_depth_tolerance',
                              'retrained_tree_eta']
 
-FakeRun = namedtuple('FakeRun', ['config'])
+FakeRun = namedtuple('FakeRun', ['config', 'run_logger'])
 
 
 class TestIncrementalLearning(unittest.TestCase):
@@ -42,7 +41,9 @@ class TestIncrementalLearning(unittest.TestCase):
         self.dataset_name = 'test_regression'
 
         self.run = FakeRun(
-            config={'analysis': {'parameters': {'seed': self.seed}}})
+            config={'analysis': {'parameters': {'seed': self.seed,
+                                                'disable_hyperparameter_scaling': True}}},
+            run_logger=logger)
 
         download_successful = download_dataset(self.dataset_name)
         if download_successful == False:
@@ -69,38 +70,29 @@ class TestIncrementalLearning(unittest.TestCase):
             path = jobs_dir / self.baseline_model_name
             self.baseline_model.store(path)
 
-    @classmethod
-    def fix(cls, hyperparameters):
-        hyperparameters['downsample_factor'] = 1.0
-        del(hyperparameters['previous_train_num_rows'])
-        del(hyperparameters['previous_train_loss_gap'])
-
     def test_hyperparameter_consistency(self) -> None:
         """Make sure that we get the same results when searching for hyperparameters or having and
         explicit value set.
         """
         hyperparameters = self.baseline_model.get_hyperparameters()
-        self.fix(hyperparameters)
 
         for hyperparameter in test_hyperparameters_list:
             with self.subTest(msg="Testing hyperparameter", hyperparameter=hyperparameter):
                 # Fix all hyperparameters except of one
                 test_hyperparameters = copy(hyperparameters)
-                # if hyperparameter != 'retrained_tree_eta':
-                #     value = test_hyperparameters[hyperparameter]
-                #     test_hyperparameters[hyperparameter] = [value/2, value*2]
-                # else:
-                #     test_hyperparameters[hyperparameter] = [0.1, 1.0]
-                # FIXME: test fails if the hyperparameter is simply unset
-                del(test_hyperparameters[hyperparameter])
+                if hyperparameter != 'retrained_tree_eta':
+                    value = test_hyperparameters[hyperparameter]
+                    test_hyperparameters[hyperparameter] = [value/2, value*2]
+                else:
+                    test_hyperparameters[hyperparameter] = [0.1, 1.0]
 
                 update_dataset = self.train_dataset.sample(
                     frac=0.5, random_state=self.seed)
                 # Run update job on the baseline model with hyperparameter search
 
                 update_job_expected = update(dataset=update_dataset, dataset_name=self.dataset_name,
-                                             original_job=self.baseline_model, force=True, verbose=False,
-                                             hyperparameters=test_hyperparameters, run=self.run)
+                                             original_job=self.baseline_model, force=True, verbose=True,
+                                             hyperparameter_overrides=test_hyperparameters, run=self.run)
                 update_job_expected.wait_to_complete()
 
                 # Run update job on the baseline model with fixed hyperparameter
@@ -108,8 +100,8 @@ class TestIncrementalLearning(unittest.TestCase):
                 test_hyperparameters[hyperparameter] = update_job_expected.get_hyperparameters()[
                     hyperparameter]
                 update_job_actual = update(dataset=update_dataset, dataset_name=self.dataset_name,
-                                           original_job=self.baseline_model, force=True, verbose=False,
-                                           hyperparameters=test_hyperparameters, run=self.run)
+                                           original_job=self.baseline_model, force=True, verbose=True,
+                                           hyperparameter_overrides=test_hyperparameters, run=self.run)
                 update_job_actual.wait_to_complete()
 
                 # the hyperparameter should have been searched
@@ -135,7 +127,6 @@ class TestIncrementalLearning(unittest.TestCase):
     def test_hyperparameter_monotonicity(self) -> None:
         """Make sure hyperparameter search respects given ranges."""
         hyperparameters = self.baseline_model.get_hyperparameters()
-        self.fix(hyperparameters)
         def increase(value): return (value, value*2)
         def decrease(value): return (value/2, value)
         for hyperparameter in test_hyperparameters_list:
@@ -155,15 +146,14 @@ class TestIncrementalLearning(unittest.TestCase):
                             frac=0.1, random_state=random_state)
                         update_job = update(dataset=update_dataset, dataset_name=self.dataset_name,
                                             original_job=previous_job, force=True, verbose=False,
-                                            hyperparameters=previous_hyperparameters, run=self.run)
+                                            hyperparameter_overrides=previous_hyperparameters, run=self.run)
                         update_job.wait_to_complete()
                         actual_hyperparameters = update_job.get_hyperparameters()
                         self.assertTrue(
                             min <= actual_hyperparameters[hyperparameter] <= max,
                             msg='Range test for {} failed on step {}'.format(hyperparameter, update_step))
-                        self.fix(actual_hyperparameters)
                         for key in actual_hyperparameters.keys():
-                            if key != hyperparameter:
+                            if key not in [hyperparameter, 'previous_train_num_rows', 'previous_train_loss_gap']:
                                 self.assertAlmostEqual(
                                     previous_hyperparameters[key], actual_hyperparameters[key], places=8,
                                     msg='Invariability check for {} failed on step {}'.format(key, update_step))
