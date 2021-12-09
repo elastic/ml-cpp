@@ -329,7 +329,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         if (m_BestForest.empty()) {
             m_Hyperparameters.restoreBest();
             m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
-            this->scaleRegularizationMultipliersForFinalTrain();
+            m_Hyperparameters.captureScale();
+            this->scaleRegularizationMultipliers(this->allTrainingRowsMask().manhattan() /
+                                                 this->meanNumberTrainingRowsPerFold());
 
             this->startProgressMonitoringFinalTrain();
 
@@ -496,7 +498,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     if (m_ForceAcceptIncrementalTraining || m_Hyperparameters.bestForestTestLoss() < initialLoss) {
         m_Hyperparameters.restoreBest();
         m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
-        this->scaleRegularizationMultipliersForFinalTrain();
+        m_Hyperparameters.captureScale();
+        this->scaleRegularizationMultipliers(this->allTrainingRowsMask().manhattan() /
+                                             this->meanNumberTrainingRowsPerFold());
 
         // Reinitialize random number generator for reproducible results.
         m_Rng.seed(m_Seed);
@@ -1444,24 +1448,20 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     return tree;
 }
 
-void CBoostedTreeImpl::scaleRegularizationMultipliersForFinalTrain() {
-    double scale{this->allTrainingRowsMask().manhattan() /
-                 this->meanNumberTrainingRowsPerFold()};
-    if (m_Hyperparameters.depthPenaltyMultiplier().fixed() == false) {
-        m_Hyperparameters.depthPenaltyMultiplier().scale(
-            scale * m_Hyperparameters.depthPenaltyMultiplier().scale());
-    }
-    if (m_Hyperparameters.treeSizePenaltyMultiplier().fixed() == false) {
-        m_Hyperparameters.treeSizePenaltyMultiplier().scale(
-            scale * m_Hyperparameters.treeSizePenaltyMultiplier().scale());
-    }
-    if (m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
-        m_Hyperparameters.leafWeightPenaltyMultiplier().scale(
-            scale * m_Hyperparameters.leafWeightPenaltyMultiplier().scale());
-    }
-    if (m_Hyperparameters.treeTopologyChangePenalty().fixed() == false) {
-        m_Hyperparameters.treeTopologyChangePenalty().scale(
-            scale * m_Hyperparameters.treeTopologyChangePenalty().scale());
+void CBoostedTreeImpl::scaleRegularizationMultipliers(double scale) {
+    if (m_Hyperparameters.scalingDisabled() == false) {
+        if (m_Hyperparameters.depthPenaltyMultiplier().fixed() == false) {
+            m_Hyperparameters.depthPenaltyMultiplier().scale(scale);
+        }
+        if (m_Hyperparameters.treeSizePenaltyMultiplier().fixed() == false) {
+            m_Hyperparameters.treeSizePenaltyMultiplier().scale(scale);
+        }
+        if (m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
+            m_Hyperparameters.leafWeightPenaltyMultiplier().scale(scale);
+        }
+        if (m_Hyperparameters.treeTopologyChangePenalty().fixed() == false) {
+            m_Hyperparameters.treeTopologyChangePenalty().scale(scale);
+        }
     }
 }
 

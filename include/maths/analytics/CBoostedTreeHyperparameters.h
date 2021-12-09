@@ -458,6 +458,13 @@ public:
     //! \return True if we are incremental training.
     bool incrementalTraining() const { return m_IncrementalTraining; }
 
+    //! Set whether we should scale regularisation hyperaparameters as we adjust
+    //! the downsample factor.
+    void disableScaling(bool disabled) { m_ScalingDisabled = disabled; }
+    //! \return True if we are not to scaling regularisation hyperaparameters as
+    //! we adjust the downsample factor.
+    bool scalingDisabled() const { return m_ScalingDisabled; }
+
     //! Get the writeable multiplier of the tree depth penalty.
     TDoubleParameter& depthPenaltyMultiplier() {
         return m_DepthPenaltyMultiplier;
@@ -642,6 +649,9 @@ public:
     //! Restore the hyperparameters saved by captureBest.
     void restoreBest();
 
+    //! Capture any scaling which has been applied to the hyperparameters.
+    void captureScale();
+
     //! The penalty to apply based on the model size.
     double modelSizePenalty(double numberKeptNodes, double numberNewNodes) const;
 
@@ -734,6 +744,7 @@ private:
     //@ \name Hyperparameter Optimisation
     //@{
     bool m_StopHyperparameterOptimizationEarly{true};
+    bool m_ScalingDisabled{false};
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter{2};
     TOptionalSize m_BayesianOptimisationRestarts;
     THyperparametersVec m_TunableHyperparameters;
