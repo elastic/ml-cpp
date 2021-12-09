@@ -95,6 +95,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FORCE_ACCEPT_INCREMENTAL_TRAINING,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(DISABLE_HYPERPARAMETER_SCALING,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(DATA_SUMMARIZATION_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
