@@ -83,27 +83,10 @@ fi
 # distribution that it's running on, which is:
 # - 4KB for Ubuntu, Debian and SLES
 # - 64KB for RHEL and CentOS
-# We still disable the CDS archive as an extra measure to avoid warnings related
-# to mismatched page sizes that can cause problems with Java (both for Gradle
-# and the tests themselves).  This should cease to be necessary in Java 17 and
-# above.
+# There's a link "jdk<version>" pointing to the appropriate JDK on each CI worker,
+# so strip any specifics from what was specified in .ci/java-versions.properties.
 if [ `uname -m` = aarch64 ] ; then
-    case `getconf PAGE_SIZE` in
-        4096)
-            export ES_BUILD_JAVA=adopt$ES_BUILD_JAVA
-            ;;
-
-        65536)
-            export ES_BUILD_JAVA=$(echo $ES_BUILD_JAVA | sed 's/^adopt//')
-            ;;
-
-        *)
-            echo "Unexpected page size:" `getconf PAGE_SIZE 2>&1`
-            exit 2
-            ;;
-    esac
-    export GRADLE_OPTS=-Xshare:off
-    export EXTRA_TEST_OPTS="-Dtests.jvm.argline=-Xshare:off"
+    export ES_BUILD_JAVA=$(echo $ES_BUILD_JAVA | sed 's/.*jdk/jdk/')
 fi
 
 echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
