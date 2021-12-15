@@ -147,7 +147,9 @@ void writeDocumentClosing(ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) 
     jsonWriter.EndObject();
 }
 
-void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream, std::int32_t inferenceThreads, std::int32_t modelThreads) {
+void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream,
+                         std::int32_t inferenceThreads,
+                         std::int32_t modelThreads) {
     ml::core::CRapidJsonConcurrentLineWriter jsonWriter(wrappedOutputStream);
     jsonWriter.StartObject();
     jsonWriter.Key(THREAD_SETTINGS);
