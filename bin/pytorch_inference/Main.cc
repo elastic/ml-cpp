@@ -40,9 +40,13 @@
 #include <string>
 
 namespace {
+const std::string RESULT{"result"};
 const std::string INFERENCE{"inference"};
 const std::string ERROR{"error"};
 const std::string TIME_MS{"time_ms"};
+const std::string THREAD_SETTINGS{"thread_settings"};
+const std::string INFERENCE_THREADS{"inference_threads"};
+const std::string MODEL_THREADS{"model_threads"};
 }
 
 torch::Tensor infer(torch::jit::script::Module& module,
@@ -116,16 +120,21 @@ void writeError(const std::string& requestId,
                 const std::string& message,
                 ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
     jsonWriter.StartObject();
+    jsonWriter.Key(RESULT);
+    jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
     jsonWriter.Key(ERROR);
     jsonWriter.String(message);
+    jsonWriter.EndObject();
     jsonWriter.EndObject();
 }
 
 void writeDocumentOpening(const std::string& requestId,
                           std::uint64_t timeMs,
                           ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
+    jsonWriter.StartObject();
+    jsonWriter.Key(RESULT);
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -134,6 +143,22 @@ void writeDocumentOpening(const std::string& requestId,
 }
 
 void writeDocumentClosing(ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
+    jsonWriter.EndObject();
+    jsonWriter.EndObject();
+}
+
+void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream,
+                         std::int32_t inferenceThreads,
+                         std::int32_t modelThreads) {
+    ml::core::CRapidJsonConcurrentLineWriter jsonWriter(wrappedOutputStream);
+    jsonWriter.StartObject();
+    jsonWriter.Key(THREAD_SETTINGS);
+    jsonWriter.StartObject();
+    jsonWriter.Key(INFERENCE_THREADS);
+    jsonWriter.Uint64(inferenceThreads);
+    jsonWriter.Key(MODEL_THREADS);
+    jsonWriter.Uint64(modelThreads);
+    jsonWriter.EndObject();
     jsonWriter.EndObject();
 }
 
@@ -306,6 +331,10 @@ int main(int argc, char** argv) {
     LOG_DEBUG(<< at::get_parallel_info());
     LOG_DEBUG(<< "Model threads: " << modelThreads);
 
+    ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
+
+    writeThreadSettings(wrappedOutputStream, inferenceThreads, modelThreads);
+
     torch::jit::script::Module module;
     try {
         auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(
@@ -323,8 +352,6 @@ int main(int argc, char** argv) {
     }
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream()};
-
-    ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
 
     // Starting the executor with 1 thread will use an extra thread that isn't necessary
     // so we only start it when more than 1 threads are set.
