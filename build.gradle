@@ -197,6 +197,7 @@ task buildUberZip(type: Zip) {
   with uberZipSpec
   destinationDirectory = file("${buildDir}/distributions")
   archiveVersion = project.version
+  reproducibleFileOrder = true
 }
 
 configurations.create('default')
@@ -318,6 +319,61 @@ task buildUberZipFromDownloads(type: Zip, dependsOn: downloadPlatformSpecific) {
   destinationDirectory = file("${buildDir}/distributions")
   from(fileTree(downloadPlatformSpecific.outputs.files.singleFile))
   description = 'Create an uber zip from combined platform-specific C++ distributions'
+  reproducibleFileOrder = true
+}
+
+def dependenciesSpec = copySpec {
+  from(fileTree(downloadPlatformSpecific.outputs.files.singleFile)) {
+    // Don't copy ML libraries
+    exclude "**/libMl*"
+    // Don't copy ML programs
+    exclude "platform/darwin*/controller.app/Contents/MacOS/*"
+    exclude "platform/linux*/bin/*"
+    exclude "platform/windows*/bin/*.exe"
+    // Don't copy resources
+    exclude "**/ml-en.dict"
+    exclude "**/Info.plist"
+    exclude "**/date_time_zonespec.csv"
+    // Don't copy licenses
+    exclude "**/licenses/**"
+    includeEmptyDirs = false
+  }
+}
+
+task buildDependenciesZipFromDownloads(type: Zip, dependsOn: downloadPlatformSpecific) {
+  archiveBaseName = artifactName + '-deps'
+  archiveVersion = project.version
+  destinationDirectory = file("${buildDir}/distributions")
+  with dependenciesSpec
+  description = 'Create a zip of dependencies only from combined platform-specific C++ distributions'
+  reproducibleFileOrder = true
+}
+
+def noDependenciesSpec = copySpec {
+  from(fileTree(downloadPlatformSpecific.outputs.files.singleFile)) {
+    // Copy ML libraries
+    include "**/libMl*"
+    // Copy ML programs
+    include "platform/darwin*/controller.app/Contents/MacOS/*"
+    include "platform/linux*/bin/*"
+    include "platform/windows*/bin/*.exe"
+    // Copy resources
+    include "**/ml-en.dict"
+    include "**/Info.plist"
+    include "**/date_time_zonespec.csv"
+    // Copy licenses
+    include "**/licenses/**"
+    includeEmptyDirs = false
+  }
+}
+
+task buildNoDependenciesZipFromDownloads(type: Zip, dependsOn: downloadPlatformSpecific) {
+  archiveBaseName = artifactName + '-nodeps'
+  archiveVersion = project.version
+  destinationDirectory = file("${buildDir}/distributions")
+  with noDependenciesSpec
+  description = 'Create a zip excluding dependencies from combined platform-specific C++ distributions'
+  reproducibleFileOrder = true
 }
 
 task buildDependencyReport(type: Exec) {
@@ -342,9 +398,14 @@ task upload(type: UploadS3Task) {
   description = 'Upload C++ zips to S3 Bucket'
 }
 
-task uberUpload(type: UploadS3Task, dependsOn: [buildUberZipFromDownloads, buildDependencyReport]) {
+task uberUpload(type: UploadS3Task, dependsOn: [buildUberZipFromDownloads,
+                                                buildDependenciesZipFromDownloads,
+                                                buildNoDependenciesZipFromDownloads,
+                                                buildDependencyReport]) {
   bucket 'prelert-artifacts'
   upload buildUberZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildUberZipFromDownloads.outputs.files.singleFile.name}"
+  upload buildDependenciesZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildDependenciesZipFromDownloads.outputs.files.singleFile.name}"
+  upload buildNoDependenciesZipFromDownloads.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildNoDependenciesZipFromDownloads.outputs.files.singleFile.name}"
   upload buildDependencyReport.outputs.files.singleFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${buildDependencyReport.outputs.files.singleFile.name}"
   description = 'Upload C++ uber zip and dependency report to S3 Bucket'
 }
