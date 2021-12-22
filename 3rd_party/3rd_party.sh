@@ -248,9 +248,9 @@ if [ ! -z "$TORCH_LOCATION" ] ; then
         if [ -n "$INSTALL_DIR" ] ; then
             for LIBRARY in $TORCH_LIBRARIES
             do
-                rm -f $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
-                cp $TORCH_LOCATION/*$LIBRARY*$TORCH_EXTENSION $INSTALL_DIR
-                chmod u+wx $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
+                rm -f $INSTALL_DIR/*$LIBRARY$TORCH_EXTENSION
+                cp $TORCH_LOCATION/*$LIBRARY$TORCH_EXTENSION $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/*$LIBRARY$TORCH_EXTENSION
             done
         fi
     else
