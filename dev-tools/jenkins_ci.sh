@@ -148,10 +148,8 @@ case `uname` in
             cp "../build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
             # Since this is all local, for simplicity, cheat with the dependencies/no-dependencies split
             cp "../build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-nodeps-$VERSION.zip"
-            mkdir -p ../build/distribution/platform
-            (cd ../build/distribution && zip "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-deps-$VERSION.zip" platform)
-            # temporary - remove
-            ls -l "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
+            # We're cheating here - the dependencies are really in the "no dependencies" zip for this flow
+            cp minimal.zip "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-deps-$VERSION.zip"
             ./run_es_tests.sh "${GIT_TOPLEVEL}/.." "$(cd "${IVY_REPO}" && pwd)"
         fi
         ;;
