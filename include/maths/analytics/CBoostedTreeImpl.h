@@ -316,8 +316,8 @@ private:
                        TWorkspace& workspace) const;
 
     //! Scale the multipliers of the regularisation terms in the loss function to
-    //! account for the difference in data size for final training.
-    void scaleRegularizationMultipliersForFinalTrain();
+    //! account for differences in training data set sizes.
+    void scaleRegularizationMultipliers(double scale);
 
     //! Compute the minimum mean test loss per fold for any round.
     double minimumTestLoss() const;

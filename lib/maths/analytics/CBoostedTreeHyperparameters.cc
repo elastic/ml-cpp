@@ -936,6 +936,22 @@ void CBoostedTreeHyperparameters::restoreBest() {
     LOG_TRACE(<< "parameters*= " << this->print());
 }
 
+void CBoostedTreeHyperparameters::captureScale() {
+    m_DepthPenaltyMultiplier.captureScale();
+    m_TreeSizePenaltyMultiplier.captureScale();
+    m_LeafWeightPenaltyMultiplier.captureScale();
+    m_SoftTreeDepthLimit.captureScale();
+    m_SoftTreeDepthTolerance.captureScale();
+    m_TreeTopologyChangePenalty.captureScale();
+    m_DownsampleFactor.captureScale();
+    m_FeatureBagFraction.captureScale();
+    m_Eta.captureScale();
+    m_EtaGrowthRatePerTree.captureScale();
+    m_RetrainedTreeEta.captureScale();
+    m_PredictionChangeCost.captureScale();
+    m_MaximumNumberTrees.captureScale();
+}
+
 // clang-format off
 const std::string CBoostedTreeHyperparameters::BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string CBoostedTreeHyperparameters::BEST_FOREST_LOSS_GAP_TAG{"best_forest_loss_gap"};

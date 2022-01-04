@@ -649,6 +649,9 @@ public:
     //! Restore the hyperparameters saved by captureBest.
     void restoreBest();
 
+    //! Capture any scaling which has been applied to the hyperparameters.
+    void captureScale();
+
     //! The penalty to apply based on the model size.
     double modelSizePenalty(double numberKeptNodes, double numberNewNodes) const;
 
