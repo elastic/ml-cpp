@@ -568,7 +568,8 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 }
 
 void CBoostedTreeFactory::initialHyperparameterScaling() {
-    if (m_TreeImpl->m_PreviousTrainNumberRows > 0) {
+    if (m_TreeImpl->m_Hyperparameters.scalingDisabled() == false &&
+        m_TreeImpl->m_PreviousTrainNumberRows > 0) {
         m_TreeImpl->scaleRegularizationMultipliers(
             m_TreeImpl->meanNumberTrainingRowsPerFold() /
             static_cast<double>(m_TreeImpl->m_PreviousTrainNumberRows));
