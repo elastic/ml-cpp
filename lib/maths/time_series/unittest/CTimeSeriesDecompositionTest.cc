@@ -2026,7 +2026,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.013, 0.15, 0.02};
+    TDoubleVec bounds{0.01, 0.013, 0.22, 0.02};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::common::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
