@@ -271,23 +271,29 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime value
     LOG_TRACE(<< "eps variance = " << m_EpsVariance);
 }
 
-bool CTimeSeriesTestForSeasonality::canTestComponent(const TFloatMeanAccumulatorVec& values,
-                                                     core_t::TTime bucketsStartTime,
-                                                     core_t::TTime bucketLength,
-                                                     core_t::TTime minimumPeriod,
-                                                     const CSeasonalTime& component) {
+bool CTimeSeriesTestForSeasonality::canTestModelledComponent(
+    const TFloatMeanAccumulatorVec& values,
+    core_t::TTime bucketsStartTime,
+    core_t::TTime bucketLength,
+    core_t::TTime minimumPeriod,
+    std::size_t minimumResolution,
+    const CSeasonalTime& component) {
+    std::size_t minimumPeriodInBuckets{
+        std::max(buckets(bucketLength, minimumPeriod), minimumResolution)};
     return 10 * (component.period() % bucketLength) < component.period() &&
-           canTestPeriod(values, buckets(bucketLength, minimumPeriod),
+           canTestPeriod(values, minimumPeriodInBuckets,
                          toPeriod(bucketsStartTime, bucketLength, component));
 }
 
 void CTimeSeriesTestForSeasonality::addModelledSeasonality(const CSeasonalTime& component,
+                                                           std::size_t minimumResolution,
                                                            std::size_t size) {
     auto period = toPeriod(m_BucketsStartTime, m_BucketLength, component);
     m_ModelledPeriods.push_back(period);
     m_ModelledPeriodsSizes.push_back(size);
-    m_ModelledPeriodsTestable.push_back(canTestComponent(
-        m_Values, m_BucketsStartTime, m_BucketLength, m_MinimumPeriod, component));
+    m_ModelledPeriodsTestable.push_back(
+        canTestModelledComponent(m_Values, m_BucketsStartTime, m_BucketLength,
+                                 m_MinimumPeriod, minimumResolution, component));
     if (period.windowed()) {
         m_StartOfWeekOverride = period.s_StartOfWeek;
         // We need the actual time in case it isn't a multiple of the bucket length
