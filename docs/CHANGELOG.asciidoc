@@ -37,6 +37,17 @@
 * Make sure instrumentation captures the best hyperparameters we found for training
   classification and regression models. (See {ml-pull}2057{#2057}.)
 
+
+== {es} version 7.17.0
+
+=== Bug Fixes
+
+* Avoid transient poor time series modelling after detecting new seasonal components.
+  This can affect cases where we have fast and slow repeats in the data, for example
+  30 mins and 1 day, and the job uses a short bucket length. The outcome can be transient
+  poor predictions and model bounds, and sometimes false positive anomalies. (See
+  {ml-pull}2167[#2167].)
+
 == {es} version 7.16.0
 
 === Enhancements
