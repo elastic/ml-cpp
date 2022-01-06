@@ -121,6 +121,7 @@ private:
     TDoubleVec m_Errors;
 };
 
+const core_t::TTime ONE_MIN{60};
 const core_t::TTime FIVE_MINS{300};
 const core_t::TTime TEN_MINS{600};
 const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
@@ -2113,7 +2114,64 @@ BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
             double prediction{mean(decomposition.value(time, 0.0))};
             debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
         }
+
+        // We shouldn't have any components left at this point.
+        BOOST_REQUIRE_EQUAL(0, decomposition.seasonalComponents().size());
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(testFastAndSlowSeasonality, CTestFixture) {
+
+    // Test we have good modelling of the fast component after detecting a slow periodic component.
+
+    test::CRandomNumbers rng;
+
+    auto trend = [] {
+        TDoubleVec fast{0.0, 7.0, 10.0, 7.0, 0.0, 0.0};
+        return [=](core_t::TTime time) {
+            return 2.0 +
+                   std::sin(boost::math::double_constants::two_pi *
+                            static_cast<double>(time) / static_cast<double>(DAY)) +
+                   fast[static_cast<std::size_t>(time / FIVE_MINS) % fast.size()];
+        };
+    }();
+
+    maths::time_series::CTimeSeriesDecomposition decomposition(0.012, ONE_MIN);
+    maths::time_series::CDecayRateController controller{
+        maths::time_series::CDecayRateController::E_PredictionBias |
+            maths::time_series::CDecayRateController::E_PredictionErrorIncrease,
+        1};
+    CDebugGenerator debug;
+
+    TMeanAccumulator meanError;
+
+    TDoubleVec noise;
+    for (core_t::TTime time = 0; time < WEEK; time += ONE_MIN) {
+        rng.generateNormalSamples(0.0, 0.2, 1, noise);
+
+        decomposition.addPoint(time, trend(time) + noise[0]);
+        debug.addValue(time, trend(time) + noise[0]);
+
+        if (decomposition.initialized()) {
+            TDouble1Vec prediction{decomposition.meanValue(time)};
+            TDouble1Vec predictionError{
+                decomposition.detrend(time, trend(time) + noise[0], 0.0)};
+            double multiplier{controller.multiplier(prediction, {predictionError},
+                                                    FIVE_MINS, 1.0, 0.0001)};
+            decomposition.decayRate(multiplier * decomposition.decayRate());
+        }
+
+        double prediction{mean(decomposition.value(time, 0.0))};
+        debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
+
+        if (time > 4 * DAY) {
+            double error{(std::fabs(trend(time) - prediction)) / trend(time)};
+            BOOST_TEST_REQUIRE(error < 0.75);
+            meanError.add(error);
+        }
+    }
+
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.06);
 }
 
 BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
