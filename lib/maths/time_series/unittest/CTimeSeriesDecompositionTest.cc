@@ -2172,6 +2172,9 @@ BOOST_FIXTURE_TEST_CASE(testFastAndSlowSeasonality, CTestFixture) {
     }
 
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.06);
+
+    // We should be modelling both seasonalities.
+    BOOST_TEST_REQUIRE(2, decomposition.seasonalComponents().size());
 }
 
 BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
