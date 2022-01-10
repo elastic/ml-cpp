@@ -28,7 +28,7 @@
 
 //=== Regressions
 
-== {es} version 8.0.0
+== {es} version 8.0.0-rc1
 
 === Bug Fixes
 
