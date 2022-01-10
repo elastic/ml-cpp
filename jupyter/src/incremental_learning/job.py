@@ -198,6 +198,16 @@ class Job:
             self.results = {}
             if self.verbose:
                 print('Job failed')
+            if self.run:
+                if is_temp(self.persist):
+                    self.run.add_artifact(self.persist.name)
+                if is_temp(self.restore):
+                    self.run.add_artifact(self.restore.name)
+                if is_temp(self.config):
+                    self.run.add_artifact(self.config.name)
+                if is_temp(self.input):
+                    self.run.add_artifact(self.input.name)
+                logger.info("Temprory files are stored as artifacts.")
             if clean:
                 self.clean()
             raise RuntimeError("Running data_frame_analyzer failed.")

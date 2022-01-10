@@ -52,6 +52,7 @@ def my_config():
     update_fraction = 0.1
     threads = 8
     update_steps = 10
+    submit = True
 
     analysis_parameters = {'parameters':
                            {'tree_topology_change_penalty': 0.0,
@@ -75,9 +76,9 @@ def read_dataset(_run, dataset_name):
 
 
 @ex.capture
-def compute_error(job, dataset, dataset_name, _run):
+def compute_error(job, dataset, dataset_name, verbose, _run):
     job_eval = evaluate(dataset_name=dataset_name, dataset=dataset,
-                        original_job=job, run=_run, verbose=False)
+                        original_job=job, run=_run, verbose=verbose)
     job_eval.wait_to_complete()
     dependent_variable = job.dependent_variable
     if job.is_regression():
@@ -94,9 +95,9 @@ def compute_error(job, dataset, dataset_name, _run):
 
 
 @ex.capture
-def get_residuals(job, dataset, dataset_name, _run):
+def get_residuals(job, dataset, dataset_name, verbose, _run):
     job_eval = evaluate(dataset_name=dataset_name, dataset=dataset,
-                        original_job=job, run=_run, verbose=False)
+                        original_job=job, run=_run, verbose=verbose)
     job_eval.wait_to_complete()
     predictions = job_eval.get_predictions()
     residuals = np.absolute(dataset[job_eval.dependent_variable] - predictions)
@@ -215,8 +216,16 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
             break
 
         _run.run_logger.info("Update started")
+        hyperparameters = previous_model.get_hyperparameters()
+        for name, value in hyperparameters.items():
+            if name in ['soft_tree_depth_limit']:
+                min, max = (value, value*1.5)
+                hyperparameters[name] = [min, max]
+            elif name == 'retrained_tree_eta':
+                hyperparameters[name] = (0.1, 0.6)
+
         updated_model = update(dataset_name=dataset_name, dataset=D_update, original_job=previous_model,
-                               force=force_update, verbose=verbose, run=_run)
+                               force=force_update, hyperparameter_overrides=hyperparameters, verbose=verbose, run=_run)
         elapsed_time = updated_model.wait_to_complete(clean=False)
         _run.log_scalar('updated_model.elapsed_time', elapsed_time)
         _run.log_scalar('updated_model.train_error',
@@ -247,5 +256,11 @@ def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, tra
 if __name__ == '__main__':
     run = ex.run_commandline()
     run_data_path = experiment_data_path / str(run._id)
-    push2es(data_path=run_data_path, name=experiment_name)
+    import incremental_learning.job
+    ex.add_artifact(incremental_learning.job.__file__)
+    if run.config['submit']:
+        push2es(data_path=run_data_path, name=experiment_name)
+    else:
+        run.run_logger.info(
+            "Experiment results were not submitted to the index.")
     shutil.rmtree(run_data_path)
