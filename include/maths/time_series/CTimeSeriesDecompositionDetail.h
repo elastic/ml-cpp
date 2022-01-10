@@ -59,6 +59,7 @@ public:
     using TMakeTestForSeasonality =
         std::function<CTimeSeriesTestForSeasonality(const CExpandingWindow&,
                                                     core_t::TTime,
+                                                    std::size_t,
                                                     const TFilteredPredictor&)>;
     // clang-format on
 

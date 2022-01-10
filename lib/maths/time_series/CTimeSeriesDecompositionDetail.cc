@@ -973,27 +973,35 @@ public:
     }
 
     static std::size_t numberBuckets(int window, core_t::TTime bucketLength) {
-        auto result = windowParameters(window, bucketLength);
-        return result != nullptr ? result->s_NumberBuckets : 0;
+        const auto* params = windowParameters(window, bucketLength);
+        return params != nullptr ? params->s_NumberBuckets : 0;
     }
 
     static core_t::TTime maxBucketLength(int window, core_t::TTime bucketLength) {
-        return bucketLengths(window, bucketLength)
-                   ? bucketLengths(window, bucketLength)->back()
-                   : 0;
+        const auto* bucketLengths_ = bucketLengths(window, bucketLength);
+        return bucketLengths_ != nullptr ? bucketLengths_->back() : 0;
     }
 
     static const TTimeVec* bucketLengths(int window, core_t::TTime bucketLength) {
-        auto result = windowParameters(window, bucketLength);
-        return result != nullptr ? &result->s_BucketLengths : nullptr;
+        const auto* params = windowParameters(window, bucketLength);
+        return params != nullptr ? &params->s_BucketLengths : nullptr;
     }
 
     static const TTimeVec& testSchedule(int window, core_t::TTime bucketLength) {
-        return windowParameters(window, bucketLength)->s_TestSchedule;
+        const auto* params = windowParameters(window, bucketLength);
+        return params != nullptr ? params->s_TestSchedule : EMPTY_TEST_SCHEDULE;
     }
 
     static core_t::TTime shortestComponent(int window, core_t::TTime bucketLength) {
-        return windowParameters(window, bucketLength)->s_ShortestComponent;
+        const auto* params = windowParameters(window, bucketLength);
+        return params != nullptr ? params->s_ShortestComponent : 0;
+    }
+
+    static std::size_t minimumResolutionToTestModelledComponent(int window,
+                                                                core_t::TTime bucketLength,
+                                                                bool shorterWindowAvailable) {
+        const auto* params = windowParameters(window, bucketLength);
+        return params != nullptr && shorterWindowAvailable ? params->s_MinimumResolution : 2;
     }
 
 private:
@@ -1002,16 +1010,18 @@ private:
         SParameters(core_t::TTime bucketLength,
                     core_t::TTime shortestComponent,
                     std::size_t numberBuckets,
+                    std::size_t minimumResolution,
                     const std::initializer_list<core_t::TTime>& bucketLengths,
                     const std::initializer_list<core_t::TTime>& testSchedule)
             : s_BucketLength{bucketLength}, s_ShortestComponent{shortestComponent},
-              s_NumberBuckets{numberBuckets}, s_BucketLengths{bucketLengths}, s_TestSchedule{testSchedule} {
-        }
+              s_NumberBuckets{numberBuckets}, s_MinimumResolution{minimumResolution},
+              s_BucketLengths{bucketLengths}, s_TestSchedule{testSchedule} {}
         bool operator<(core_t::TTime rhs) const { return s_BucketLength < rhs; }
 
-        core_t::TTime s_BucketLength = 0;
-        core_t::TTime s_ShortestComponent = 0;
-        std::size_t s_NumberBuckets = 0;
+        core_t::TTime s_BucketLength{0};
+        core_t::TTime s_ShortestComponent{0};
+        std::size_t s_NumberBuckets{0};
+        std::size_t s_MinimumResolution{0};
         TTimeVec s_BucketLengths;
         TTimeVec s_TestSchedule;
     };
@@ -1027,6 +1037,7 @@ private:
 
 private:
     static const TParametersVecVec WINDOW_PARAMETERS;
+    static const TTimeVec EMPTY_TEST_SCHEDULE;
 };
 
 // These parameterise the windows used to test for periodic components. From
@@ -1040,40 +1051,42 @@ private:
 //      when we'll test for seasonal components.
 const CSeasonalityTestParameters::TParametersVecVec CSeasonalityTestParameters::WINDOW_PARAMETERS{
     /* SHORT WINDOW */
-    {{1, 1, 180, {1, 5, 10, 30, 60, 300, 600}, {}},
-     {5, 1, 180, {5, 10, 30, 60, 300, 600}, {}},
-     {10, 1, 180, {10, 30, 60, 300, 600}, {}},
-     {30, 1, 180, {30, 60, 300, 600}, {}},
-     {60, 1, 336, {60, 300, 900, 3600, 7200}, {3 * 604800}},
-     {300, 1, 336, {300, 900, 3600, 7200}, {3 * 604800}},
-     {600, 1, 336, {600, 3600, 7200}, {3 * 604800}},
-     {900, 1, 336, {900, 3600, 7200}, {3 * 604800}},
-     {1200, 1, 336, {1200, 3600, 7200}, {3 * 86400, 3 * 604800}},
-     {1800, 1, 336, {1800, 3600, 7200}, {3 * 86400, 3 * 604800}},
-     {3600, 1, 336, {3600, 7200}, {3 * 86400, 604800, 3 * 604800}},
-     {7200, 1, 336, {7200, 14400}, {3 * 86400, 604800, 3 * 604800}},
-     {14400, 1, 336, {14400}, {604800, 3 * 604800}},
-     {21600, 1, 224, {21600}, {604800, 3 * 604800}},
-     {28800, 1, 168, {28800}, {3 * 604800}},
-     {43200, 1, 112, {43200}, {4 * 604800}},
-     {86400, 1, 56, {86400}, {}}},
+    {{1, 1, 180, 10, {1, 5, 10, 30, 60, 300, 600}, {}},
+     {5, 1, 180, 10, {5, 10, 30, 60, 300, 600}, {}},
+     {10, 1, 180, 10, {10, 30, 60, 300, 600}, {}},
+     {30, 1, 180, 10, {30, 60, 300, 600}, {}},
+     {60, 1, 336, 12, {60, 300, 900, 3600, 7200}, {3 * 604800}},
+     {300, 1, 336, 12, {300, 900, 3600, 7200}, {3 * 604800}},
+     {600, 1, 336, 12, {600, 3600, 7200}, {3 * 604800}},
+     {900, 1, 336, 12, {900, 3600, 7200}, {3 * 604800}},
+     {1200, 1, 336, 12, {1200, 3600, 7200}, {3 * 86400, 3 * 604800}},
+     {1800, 1, 336, 12, {1800, 3600, 7200}, {3 * 86400, 3 * 604800}},
+     {3600, 1, 336, 12, {3600, 7200}, {3 * 86400, 604800, 3 * 604800}},
+     {7200, 1, 336, 12, {7200, 14400}, {3 * 86400, 604800, 3 * 604800}},
+     {14400, 1, 336, 6, {14400}, {604800, 3 * 604800}},
+     {21600, 1, 224, 6, {21600}, {604800, 3 * 604800}},
+     {28800, 1, 168, 6, {28800}, {3 * 604800}},
+     {43200, 1, 112, 6, {43200}, {4 * 604800}},
+     {86400, 1, 56, 6, {86400}, {}}},
     /* LONG WINDOW */
-    {{1, 30601, 336, {900, 3600, 7200}, {3 * 604800}},
-     {5, 30601, 336, {900, 3600, 7200}, {3 * 604800}},
-     {10, 30601, 336, {900, 3600, 7200}, {3 * 604800}},
-     {30, 30601, 336, {900, 3600, 7200}, {3 * 604800}},
-     {60, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {300, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {600, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {900, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {1200, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {1800, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {3600, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {7200, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {14400, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {86400, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
-     {604800, 648001, 156, {43200, 86400, 604800}, {104 * 604800}}}};
+    {{1, 30601, 336, 12, {900, 3600, 7200}, {3 * 604800}},
+     {5, 30601, 336, 12, {900, 3600, 7200}, {3 * 604800}},
+     {10, 30601, 336, 12, {900, 3600, 7200}, {3 * 604800}},
+     {30, 30601, 336, 12, {900, 3600, 7200}, {3 * 604800}},
+     {60, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {300, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {600, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {900, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {1200, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {1800, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {3600, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {7200, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {14400, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {86400, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}},
+     {604800, 648001, 156, 6, {43200, 86400, 604800}, {104 * 604800}}}};
 }
+
+const TTimeVec CSeasonalityTestParameters::EMPTY_TEST_SCHEDULE;
 
 CTimeSeriesDecompositionDetail::CSeasonalityTest::CSeasonalityTest(double decayRate,
                                                                    core_t::TTime bucketLength)
@@ -1203,8 +1216,12 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
                 const auto& window = m_Windows[i];
                 core_t::TTime minimumPeriod{
                     CSeasonalityTestParameters::shortestComponent(i, m_BucketLength)};
-                auto seasonalityTest =
-                    makeTest(*window, minimumPeriod, makePreconditioner());
+                std::size_t minimumResolutionToTestModelledComponent{
+                    CSeasonalityTestParameters::minimumResolutionToTestModelledComponent(
+                        i, m_BucketLength, window->haveShorterWindows())};
+                auto seasonalityTest = makeTest(*window, minimumPeriod,
+                                                minimumResolutionToTestModelledComponent,
+                                                makePreconditioner());
                 seasonalityTest.fitAndRemoveUntestableModelledComponents();
 
                 auto decomposition = seasonalityTest.decompose();
@@ -1974,6 +1991,7 @@ void CTimeSeriesDecompositionDetail::CComponents::useTrendForPrediction() {
 CTimeSeriesDecompositionDetail::TMakeTestForSeasonality
 CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilteredPredictor& predictor) const {
     return [predictor, this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
+                             std::size_t minimumResolutionToTestModelledComponent,
                              const TFilteredPredictor& preconditioner) {
         core_t::TTime valuesStartTime{window.beginValuesTime()};
         core_t::TTime windowBucketStartTime{window.bucketStartTime()};
@@ -1981,9 +1999,9 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
         auto values = window.values();
         TBoolVec testableMask;
         for (const auto& component : this->seasonal()) {
-            testableMask.push_back(CTimeSeriesTestForSeasonality::canTestComponent(
-                values, windowBucketStartTime, windowBucketLength,
-                minimumPeriod, component.time()));
+            testableMask.push_back(CTimeSeriesTestForSeasonality::canTestModelledComponent(
+                values, windowBucketStartTime, windowBucketLength, minimumPeriod,
+                minimumResolutionToTestModelledComponent, component.time()));
         }
         values = window.valuesMinusPrediction(std::move(values), [&](core_t::TTime time) {
             return preconditioner(time, testableMask);
@@ -1997,7 +2015,8 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
             .modelledSeasonalityPredictor(predictor);
         std::ptrdiff_t maximumNumberComponents{MAXIMUM_COMPONENTS};
         for (const auto& component : this->seasonal()) {
-            test.addModelledSeasonality(component.time(), component.size());
+            test.addModelledSeasonality(component.time(), minimumResolutionToTestModelledComponent,
+                                        component.size());
             --maximumNumberComponents;
         }
         test.maximumNumberOfComponents(maximumNumberComponents);
