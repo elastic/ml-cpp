@@ -224,14 +224,17 @@ public:
                                   double outlierFraction = OUTLIER_FRACTION);
 
     //! Check if it is possible to test for \p component given the window \p values.
-    static bool canTestComponent(const TFloatMeanAccumulatorVec& values,
-                                 core_t::TTime bucketsStartTime,
-                                 core_t::TTime bucketLength,
-                                 core_t::TTime minimumPeriod,
-                                 const CSeasonalTime& component);
+    static bool canTestModelledComponent(const TFloatMeanAccumulatorVec& values,
+                                         core_t::TTime bucketsStartTime,
+                                         core_t::TTime bucketLength,
+                                         core_t::TTime minimumPeriod,
+                                         std::size_t minimumResolution,
+                                         const CSeasonalTime& component);
 
     //! Register a seasonal component which is already being modelled.
-    void addModelledSeasonality(const CSeasonalTime& period, std::size_t size);
+    void addModelledSeasonality(const CSeasonalTime& period,
+                                std::size_t minimumResolution,
+                                std::size_t size);
 
     //! Add a predictor for the currently modelled seasonal conponents.
     void modelledSeasonalityPredictor(const TPredictor& predictor);

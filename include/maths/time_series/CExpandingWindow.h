@@ -88,6 +88,9 @@ public:
     //! Get the number of bucket values.
     std::size_t size() const;
 
+    //! Check if there are shorter windows.
+    bool haveShorterWindows() const;
+
     //! Get the mean time offset of the data points added with respect to the start
     //! of the sample interval.
     core_t::TTime sampleAverageOffset() const;
@@ -132,7 +135,7 @@ public:
     bool needToCompress(core_t::TTime time) const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
