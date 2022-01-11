@@ -45,7 +45,7 @@
 * Improve training stability for regression and classification models
   (See {ml-pull}2144[#2144], {ml-pull}2147[#2147] and {ml-pull}2150[#2150].)
 
-== {es} version 8.0.0
+== {es} version 8.0.0-rc1
 
 === Bug Fixes
 
