@@ -59,6 +59,7 @@ public:
     using TLossFunctionUPtr = CBoostedTreeImpl::TLossFunctionUPtr;
     using TSizeVec = CBoostedTreeImpl::TSizeVec;
     using TDoubleVec = CBoostedTreeImpl::TDoubleVec;
+    using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
 public:
     explicit CBoostedTreeImplForTest(CBoostedTreeImpl& treeImpl)
@@ -78,6 +79,18 @@ public:
                         TDoubleVec& probabilities,
                         TSizeVec& nodeFeatureBag) const {
         m_TreeImpl.nodeFeatureBag(treeFeatureBag, probabilities, nodeFeatureBag);
+    }
+
+    TBoostedTreeUPtr cloneFor(core::CDataFrame& frame, std::size_t dependentVariable) const {
+        std::stringstream persistState;
+        {
+            core::CJsonStatePersistInserter inserter(persistState);
+            m_TreeImpl.acceptPersistInserter(inserter);
+            persistState.flush();
+        }
+        std::stringstream stateStr0(persistState.str());
+        return maths::analytics::CBoostedTreeFactory::constructFromString(stateStr0)
+            .restoreFor(frame, dependentVariable);
     }
 
 private:
@@ -1077,6 +1090,8 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 }
 
 BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
+    // Update the base model by allowing 0, 5, and 10 new trees. Verify that the test error is
+    // note getting worse when allowing for more model capacity.
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
     std::size_t batch1Size{150};
@@ -1108,6 +1123,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
     rng.generateNormalSamples(0.0, noiseVariance, batch1Size, noise);
     fillDataFrame(batch1Size, 0, cols, x, noise, target, *batch1);
 
+    // second batch of data extends the domain
     auto batch2 = core::makeMainStorageDataFrame(cols).first;
     fillDataFrame(batch1Size, 0, cols, x, noise, target, *batch2);
     for (std::size_t i = 0; i < cols - 1; ++i) {
@@ -1116,12 +1132,14 @@ BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
     rng.generateNormalSamples(0.0, noiseVariance, batch2Size, noise);
     fillDataFrame(batch2Size, 0, cols, x, noise, target, *batch2);
 
+    // test data cover the complete domain
     auto testData = core::makeMainStorageDataFrame(cols).first;
     for (std::size_t i = 0; i < cols - 1; ++i) {
         rng.generateUniformSamples(0.0, 6.0, testSize, x[i]);
     }
     rng.generateNormalSamples(0.0, noiseVariance, testSize, noise);
     fillDataFrame(testSize, 0, cols, x, noise, target, *testData);
+    testData->resizeColumns(1, cols + 1);
 
     auto baseModel = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
@@ -1130,137 +1148,54 @@ BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
                          .buildForTrain(*batch1, cols - 1);
     baseModel->train();
 
-    batch1->resizeColumns(1, cols);
-    fillDataFrame(batch2Size, 0, cols, x, noise, target, *batch1);
-    baseModel->predict();
+    core::CPackedBitVector batch2RowMask{batch1Size, false};
+    batch2RowMask.extend(true, batch2Size);
 
-    core::CPackedBitVector batch1RowMask{batch1Size, true};
-    batch1RowMask.extend(false, batch2Size);
-    core::CPackedBitVector batch2RowMask{~batch1RowMask};
-
-    TMeanAccumulator mseTestData[4];
-
-    testData->resizeColumns(1, cols + 1);
 
     double alpha{baseModel->hyperparameters().depthPenaltyMultiplier().value()};
     double gamma{baseModel->hyperparameters().treeSizePenaltyMultiplier().value()};
     double lambda{baseModel->hyperparameters().leafWeightPenaltyMultiplier().value()};
 
-    std::stringstream persistState;
+    maths::analytics::CBoostedTreeImplForTest baseImpl{baseModel->impl()};
 
-    {
-        core::CJsonStatePersistInserter inserter(persistState);
-        baseModel->acceptPersistInserter(inserter);
-        persistState.flush();
-    }
+    auto updateBaseModel = [&](std::size_t maxNumNewTrees) {
+        auto updatedModel =
+            maths::analytics::CBoostedTreeFactory::constructFromModel(
+                baseImpl.cloneFor(*batch1, cols - 1))
+                .newTrainingRowMask(batch2RowMask)
+                .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
+                .maximumNumberNewTrees(maxNumNewTrees)
+                .buildForTrainIncremental(*batch2, cols - 1);
+        updatedModel->trainIncremental();
+        return updatedModel;
+    };
 
-    std::stringstream stateStr0(persistState.str());
-    auto updatedModel0Trees =
-        maths::analytics::CBoostedTreeFactory::constructFromModel(
-            maths::analytics::CBoostedTreeFactory::constructFromString(stateStr0)
-                .restoreFor(*batch1, cols - 1))
-            .newTrainingRowMask(batch2RowMask)
-            .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
-            .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
-            .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
-            .maximumNumberNewTrees(0)
-            .buildForTrainIncremental(*batch2, cols - 1);
-    updatedModel0Trees->trainIncremental();
+    auto computeTestError = [&](maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr&& model) {
+        core::CPackedBitVector testDataRowMask{testSize, true};
+        TMeanAccumulator squaredError;
 
-    std::stringstream stateStr5(persistState.str());
-    auto updatedModel5Trees =
-        maths::analytics::CBoostedTreeFactory::constructFromModel(
-            maths::analytics::CBoostedTreeFactory::constructFromString(stateStr5)
-                .restoreFor(*batch1, cols - 1))
-            .newTrainingRowMask(batch2RowMask)
-            .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
-            .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
-            .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
-            .maximumNumberNewTrees(5)
-            .buildForTrainIncremental(*batch2, cols - 1);
-    updatedModel5Trees->trainIncremental();
+        auto predictor =
+            maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(model))
+                .buildForPredict(*testData, cols - 1);
+        predictor->predict();
+        testData->readRows(
+            1, 0, testData->numberRows(),
+            [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    squaredError.add(maths::common::CTools::pow2(
+                        (*row)[cols - 1] - predictor->readPrediction(*row)[0]));
+                }
+            },
+            &testDataRowMask);
+        return maths::common::CBasicStatistics::mean(squaredError);
+    };
 
-    std::stringstream stateStr10(persistState.str());
-    auto updatedModel10Trees =
-        maths::analytics::CBoostedTreeFactory::constructFromModel(
-            maths::analytics::CBoostedTreeFactory::constructFromString(stateStr10)
-                .restoreFor(*batch1, cols - 1))
-            .newTrainingRowMask(batch2RowMask)
-            .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
-            .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
-            .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
-            .maximumNumberNewTrees(10)
-            .buildForTrainIncremental(*batch2, cols - 1);
-    updatedModel10Trees->trainIncremental();
-
-    core::CPackedBitVector testDataRowMask{testSize, true};
-
-    auto predictorBaseModel =
-        maths::analytics::CBoostedTreeFactory::constructFromModel(
-            maths::analytics::CBoostedTreeFactory::constructFromString(persistState)
-                .restoreFor(*batch1, cols - 1))
-            .buildForPredict(*testData, cols - 1);
-    predictorBaseModel->predict();
-    testData->readRows(
-        1, 0, testData->numberRows(),
-        [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                mseTestData[0].add(maths::common::CTools::pow2(
-                    (*row)[cols - 1] - predictorBaseModel->readPrediction(*row)[0]));
-            }
-        },
-        &testDataRowMask);
-
-    auto predictorUpdatedModel0 = maths::analytics::CBoostedTreeFactory::constructFromModel(
-                                      std::move(updatedModel0Trees))
-                                      .buildForPredict(*testData, cols - 1);
-    predictorUpdatedModel0->predict();
-    testData->readRows(1, 0, testData->numberRows(),
-                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               mseTestData[1].add(maths::common::CTools::pow2(
-                                   (*row)[cols - 1] -
-                                   predictorUpdatedModel0->readPrediction(*row)[0]));
-                           }
-                       },
-                       &testDataRowMask);
-
-    auto predictorUpdatedModel5 = maths::analytics::CBoostedTreeFactory::constructFromModel(
-                                      std::move(updatedModel5Trees))
-                                      .buildForPredict(*testData, cols - 1);
-    predictorUpdatedModel5->predict();
-    testData->readRows(1, 0, testData->numberRows(),
-                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               mseTestData[2].add(maths::common::CTools::pow2(
-                                   (*row)[cols - 1] -
-                                   predictorUpdatedModel5->readPrediction(*row)[0]));
-                           }
-                       },
-                       &testDataRowMask);
-
-    auto predictorUpdatedModel10 = maths::analytics::CBoostedTreeFactory::constructFromModel(
-                                       std::move(updatedModel10Trees))
-                                       .buildForPredict(*testData, cols - 1);
-    predictorBaseModel->predict();
-    testData->readRows(1, 0, testData->numberRows(),
-                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               mseTestData[3].add(maths::common::CTools::pow2(
-                                   (*row)[cols - 1] -
-                                   predictorUpdatedModel10->readPrediction(*row)[0]));
-                           }
-                       },
-                       &testDataRowMask);
-
-    // We should see little change in the prediction errors on the old data
-    // set which doesn't overlap the new data, but a large improvement on
-    // the new data for constant extrapolation performs poorly.
-
-    double testErrorBase{maths::common::CBasicStatistics::mean(mseTestData[0])};
-    double testError0{maths::common::CBasicStatistics::mean(mseTestData[1])};
-    double testError5{maths::common::CBasicStatistics::mean(mseTestData[2])};
-    double testError10{maths::common::CBasicStatistics::mean(mseTestData[3])};
+    double testError0{computeTestError(updateBaseModel(0))};
+    double testError5{computeTestError(updateBaseModel(5))};
+    double testError10{computeTestError(updateBaseModel(10))};
+    double testErrorBase{computeTestError(std::move(baseModel))};
 
     LOG_DEBUG(<< "Test errors: base = " << testErrorBase << ", 0 new trees = " << testError0
               << ", 5 new trees = " << testError5 << ", 10 new trees = " << testError10);

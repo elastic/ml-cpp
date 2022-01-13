@@ -1154,10 +1154,6 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
     auto bestLoss = static_cast<std::size_t>(
         std::min_element(testLosses.begin(), testLosses.end()) - testLosses.begin());
-    // LOG_INFO(<<"Loss vector " << core::CContainerPrinter::print(testLosses));
-    LOG_INFO(<< "Best loss " << testLosses[bestLoss] << " at position "
-             << bestLoss << "/" << (testLosses.size() - 1) << ", new tree?: "
-             << (bestLoss >= (testLosses.size() - m_MaximumNumberNewTrees)));
     retrainedTrees.resize(bestLoss + 1);
     LOG_TRACE(<< "# retrained trees = " << retrainedTrees.size());
 
