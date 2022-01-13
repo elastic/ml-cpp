@@ -69,6 +69,7 @@ const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
 const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
+const std::size_t MAX_NUM_NEW_TREES{10};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -381,6 +382,15 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "Main incremental training loop...");
 
     this->selectTreesToRetrain(frame);
+    // Add dummy trees that can be replaced with the new trees in the forest.
+    std::size_t oldBestForestSize{m_BestForest.size()};
+    m_BestForest.resize(oldBestForestSize + MAX_NUM_NEW_TREES);
+    for (auto i = oldBestForestSize; i < m_BestForest.size(); ++i) {
+        m_BestForest[i] = {CBoostedTreeNode(m_Loss->numberParameters())};
+    }
+    m_TreesToRetrain.resize(m_TreesToRetrain.size() + MAX_NUM_NEW_TREES);
+    std::iota(m_TreesToRetrain.end() - MAX_NUM_NEW_TREES,
+              m_TreesToRetrain.end(), oldBestForestSize);
 
     std::int64_t lastMemoryUsage(this->memoryUsage());
 
@@ -511,6 +521,11 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         for (std::size_t i = 0; i < retrainedTrees.size(); ++i) {
             m_BestForest[m_TreesToRetrain[i]] = std::move(retrainedTrees[i]);
         }
+        // Resize the forest to eliminate the unused dummy trees.
+        auto lastChangedTreeIndex = m_TreesToRetrain[retrainedTrees.size() - 1];
+        auto bestForestSize = std::max(lastChangedTreeIndex + 1,
+                                       m_BestForest.size() - MAX_NUM_NEW_TREES);
+        m_BestForest.resize(bestForestSize);
     }
 
     this->computeClassificationWeights(frame);
@@ -1087,9 +1102,9 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         const auto& treeToRetrain = m_BestForest[index];
         const auto& treeWhichWasRetrained = retrainedTrees.back();
 
-        double eta{index < m_BestForest.size()
+        double eta{index < m_BestForest.size() - MAX_NUM_NEW_TREES
                        ? m_Hyperparameters.retrainedTreeEta().value()
-                       : m_Hyperparameters.etaForTreeAtPosition(m_BestForest.size())};
+                       : m_Hyperparameters.etaForTreeAtPosition(index)};
         LOG_TRACE(<< "eta = " << eta);
 
         workspace.retraining(treeToRetrain);
@@ -1140,6 +1155,10 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
 
     auto bestLoss = static_cast<std::size_t>(
         std::min_element(testLosses.begin(), testLosses.end()) - testLosses.begin());
+    // LOG_INFO(<<"Loss vector " << core::CContainerPrinter::print(testLosses));
+    LOG_INFO(<< "Best loss " << testLosses[bestLoss] << " at position "
+             << bestLoss << "/" << (testLosses.size() - 1) << ", new tree?: "
+             << (bestLoss >= (testLosses.size() - MAX_NUM_NEW_TREES)));
     retrainedTrees.resize(bestLoss + 1);
     LOG_TRACE(<< "# retrained trees = " << retrainedTrees.size());
 
