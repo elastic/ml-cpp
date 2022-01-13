@@ -178,6 +178,8 @@ public:
     CBoostedTreeFactory& previousTrainLossGap(double gap);
     //! Set the number of rows for the last train run.
     CBoostedTreeFactory& previousTrainNumberRows(std::size_t numberRows);
+    //! Set the maximum number of trees that can be added during an incremental training step.
+    CBoostedTreeFactory& maximumNumberNewTrees(std::size_t maximumNumberNewTrees);
     //! Set whether or not to always accept the result of incremental training.
     CBoostedTreeFactory& forceAcceptIncrementalTraining(bool force);
     //! Set whether or not to scale regularisation hyperaparameters when varying

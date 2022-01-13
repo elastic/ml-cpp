@@ -69,7 +69,6 @@ const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
 const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
-const std::size_t MAX_NUM_NEW_TREES{10};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -384,12 +383,12 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     this->selectTreesToRetrain(frame);
     // Add dummy trees that can be replaced with the new trees in the forest.
     std::size_t oldBestForestSize{m_BestForest.size()};
-    m_BestForest.resize(oldBestForestSize + MAX_NUM_NEW_TREES);
+    m_BestForest.resize(oldBestForestSize + m_MaximumNumberNewTrees);
     for (auto i = oldBestForestSize; i < m_BestForest.size(); ++i) {
         m_BestForest[i] = {CBoostedTreeNode(m_Loss->numberParameters())};
     }
-    m_TreesToRetrain.resize(m_TreesToRetrain.size() + MAX_NUM_NEW_TREES);
-    std::iota(m_TreesToRetrain.end() - MAX_NUM_NEW_TREES,
+    m_TreesToRetrain.resize(m_TreesToRetrain.size() + m_MaximumNumberNewTrees);
+    std::iota(m_TreesToRetrain.end() - m_MaximumNumberNewTrees,
               m_TreesToRetrain.end(), oldBestForestSize);
 
     std::int64_t lastMemoryUsage(this->memoryUsage());
@@ -524,7 +523,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         // Resize the forest to eliminate the unused dummy trees.
         auto lastChangedTreeIndex = m_TreesToRetrain[retrainedTrees.size() - 1];
         auto bestForestSize = std::max(lastChangedTreeIndex + 1,
-                                       m_BestForest.size() - MAX_NUM_NEW_TREES);
+                                       m_BestForest.size() - m_MaximumNumberNewTrees);
         m_BestForest.resize(bestForestSize);
     }
 
@@ -1102,7 +1101,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         const auto& treeToRetrain = m_BestForest[index];
         const auto& treeWhichWasRetrained = retrainedTrees.back();
 
-        double eta{index < m_BestForest.size() - MAX_NUM_NEW_TREES
+        double eta{index < m_BestForest.size() - m_MaximumNumberNewTrees
                        ? m_Hyperparameters.retrainedTreeEta().value()
                        : m_Hyperparameters.etaForTreeAtPosition(index)};
         LOG_TRACE(<< "eta = " << eta);
@@ -1158,7 +1157,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
     // LOG_INFO(<<"Loss vector " << core::CContainerPrinter::print(testLosses));
     LOG_INFO(<< "Best loss " << testLosses[bestLoss] << " at position "
              << bestLoss << "/" << (testLosses.size() - 1) << ", new tree?: "
-             << (bestLoss >= (testLosses.size() - MAX_NUM_NEW_TREES)));
+             << (bestLoss >= (testLosses.size() - m_MaximumNumberNewTrees)));
     retrainedTrees.resize(bestLoss + 1);
     LOG_TRACE(<< "# retrained trees = " << retrainedTrees.size());
 
@@ -2000,6 +1999,7 @@ const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
 const std::string INITIALIZATION_STAGE_TAG{"initialization_progress"};
 const std::string LOSS_TAG{"loss"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
+const std::string MAXIMUM_NUMBER_NEW_TREES_TAG{"maximum_number_new_trees"};
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
 const std::string NEW_TRAINING_ROW_MASK_TAG{"new_training_row_mask_tag"};
 const std::string NUMBER_FOLDS_TAG{"number_folds"};
@@ -2045,6 +2045,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     }
     core::CPersistUtils::persist(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                  m_MaximumAttemptsToAddTree, inserter);
+    core::CPersistUtils::persist(MAXIMUM_NUMBER_NEW_TREES_TAG,
+                                 m_MaximumNumberNewTrees, inserter);
     core::CPersistUtils::persist(MISSING_FEATURE_ROW_MASKS_TAG,
                                  m_MissingFeatureRowMasks, inserter);
     core::CPersistUtils::persist(NEW_TRAINING_ROW_MASK_TAG, m_NewTrainingRowMask, inserter);
@@ -2124,6 +2126,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                 core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                              m_MaximumAttemptsToAddTree, traverser))
+        RESTORE(MAXIMUM_NUMBER_NEW_TREES_TAG,
+                core::CPersistUtils::restore(MAXIMUM_NUMBER_NEW_TREES_TAG,
+                                             m_MaximumNumberNewTrees, traverser))
         RESTORE(MISSING_FEATURE_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(MISSING_FEATURE_ROW_MASKS_TAG,
                                              m_MissingFeatureRowMasks, traverser))
