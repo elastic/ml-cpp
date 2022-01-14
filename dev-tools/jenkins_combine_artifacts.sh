@@ -10,24 +10,17 @@
 # limitation.
 #
 
-# The non-Windows part of ML C++ CI does the following:
+# The post-processing step of ML C++ CI does the following:
 #
-# 1. If this is not a PR build nor a debug build, obtain credentials from Vault
-#    for the accessing S3
-# 2. Build and unit test the C++ on the native architecture
-# 3. For Linux PR builds, also run some Java integration tests using the newly
-#    built C++ code
-# 4. If this is not a PR build nor a debug build, upload the builds to the
-#    artifacts directory on S3 that subsequent Java builds will download the C++
-#    components from
+# 1. Download the platform-specific artifacts built by the the first phase
+#    of the ML CI job.
+# 2. Combine the platform-specific artifacts into an all-platforms bundle,
+#    as used by the Elasticsearch build.
+# 3. Upload the all-platforms bundle to S3, where day-to-day Elasticsearch
+#    builds will download it from.
+# 4. Upload all artifacts, both platform-specific and all-platforms, to
+#    GCS, where release manager builds will download them from.
 #
-# On Linux all steps run in Docker containers that ensure OS dependencies
-# are appropriate given the support matrix.
-#
-# On macOS the build runs on the native machine, but downloads dependencies
-# that were previously built on a reference build server.  However, care still
-# needs to be taken that the machines running this script are set up
-# appropriately for generating builds for redistribution.
 
 : "${HOME:?Need to set HOME to a non-empty value.}"
 : "${WORKSPACE:?Need to set WORKSPACE to a non-empty value.}"
