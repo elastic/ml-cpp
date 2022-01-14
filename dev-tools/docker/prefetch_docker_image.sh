@@ -15,11 +15,8 @@
 # Making sure the "FROM" image is present locally before building an image
 # based on it removes the risk of a "docker build" failing due to transient
 # Docker registry problems.
-#
-# The argument is the path to the Dockerfile to be built.
 function prefetch_docker_image {
-    DOCKERFILE="$1"
-    IMAGE=$(grep '^FROM' "$DOCKERFILE" | awk '{ print $2 }' | head -1)
+    IMAGE="$1"
     ATTEMPT=0
     MAX_RETRIES=5
   
@@ -41,3 +38,12 @@ function prefetch_docker_image {
     done
 }
 
+# Similar to above, but taking a Dockerfile as an argument instead of the
+# image name and prefetching the base image.
+#
+# The argument is the path to the Dockerfile to be built.
+function prefetch_docker_base_image {
+    DOCKERFILE="$1"
+    IMAGE=$(grep '^FROM' "$DOCKERFILE" | awk '{ print $2 }' | head -1)
+    prefetch_docker_image "$IMAGE"
+}
