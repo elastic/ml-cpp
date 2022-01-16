@@ -1151,7 +1151,6 @@ BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
     core::CPackedBitVector batch2RowMask{batch1Size, false};
     batch2RowMask.extend(true, batch2Size);
 
-
     double alpha{baseModel->hyperparameters().depthPenaltyMultiplier().value()};
     double gamma{baseModel->hyperparameters().treeSizePenaltyMultiplier().value()};
     double lambda{baseModel->hyperparameters().leafWeightPenaltyMultiplier().value()};
