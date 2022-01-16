@@ -1093,11 +1093,11 @@ BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
     // Update the base model by allowing 0, 5, and 10 new trees. Verify that the test error is
     // note getting worse when allowing for more model capacity.
     test::CRandomNumbers rng;
-    double noiseVariance{100.0};
+    double noiseVariance{200.0};
     std::size_t batch1Size{150};
-    std::size_t cols{6};
-    std::size_t batch2Size{100};
+    std::size_t batch2Size{150};
     std::size_t testSize{500};
+    std::size_t cols{6};
 
     auto target = [&] {
         TDoubleVec m;
