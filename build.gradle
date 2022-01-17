@@ -300,6 +300,13 @@ class DownloadPlatformSpecific extends DefaultTask {
         }
       }
       zip.close()
+      // Also download the corresponding zip of debug symbols, but there's no need to extract this
+      File debugZipFile = new File(downloadDirectory, "${baseName}-debug-${version}-${it}.zip")
+      new URL("https://prelert-artifacts.s3.amazonaws.com/maven/${artifactGroupPath}/${baseName}/${version}/${debugZipFile.name}").withInputStream { i ->
+        debugZipFile.withOutputStream { o ->
+          o << i
+        }
+      }
     }
   }
 }
