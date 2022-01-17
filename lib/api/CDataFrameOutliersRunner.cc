@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CDataFrameOutliersRunner.h>
@@ -11,7 +16,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/COutliers.h>
+#include <maths/analytics/COutliers.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -35,10 +40,12 @@ const CDataFrameAnalysisConfigReader& parameterReader() {
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(
             CDataFrameOutliersRunner::METHOD, CDataFrameAnalysisConfigReader::E_OptionalParameter,
-            {{maths::COutliers::LOF, int{maths::COutliers::E_Lof}},
-             {maths::COutliers::LDOF, int{maths::COutliers::E_Ldof}},
-             {maths::COutliers::DISTANCE_KNN, int{maths::COutliers::E_DistancekNN}},
-             {maths::COutliers::TOTAL_DISTANCE_KNN, int{maths::COutliers::E_TotalDistancekNN}}});
+            {{maths::analytics::COutliers::LOF, int{maths::analytics::COutliers::E_Lof}},
+             {maths::analytics::COutliers::LDOF, int{maths::analytics::COutliers::E_Ldof}},
+             {maths::analytics::COutliers::DISTANCE_KNN,
+              int{maths::analytics::COutliers::E_DistancekNN}},
+             {maths::analytics::COutliers::TOTAL_DISTANCE_KNN,
+              int{maths::analytics::COutliers::E_TotalDistancekNN}}});
         theReader.addParameter(CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD,
@@ -63,7 +70,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
     m_StandardizationEnabled = parameters[STANDARDIZATION_ENABLED].fallback(true);
     m_NumberNeighbours = parameters[N_NEIGHBORS].fallback(std::size_t{0});
-    m_Method = parameters[METHOD].fallback(maths::COutliers::E_Ensemble);
+    m_Method = parameters[METHOD].fallback(maths::analytics::COutliers::E_Ensemble);
     m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
     m_FeatureInfluenceThreshold = parameters[FEATURE_INFLUENCE_THRESHOLD].fallback(0.1);
     m_OutlierFraction = parameters[OUTLIER_FRACTION].fallback(0.05);
@@ -73,7 +80,7 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)
     : CDataFrameAnalysisRunner{spec}, m_Method{static_cast<std::size_t>(
-                                          maths::COutliers::E_Ensemble)},
+                                          maths::analytics::COutliers::E_Ensemble)},
       m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
 }
 
@@ -114,7 +121,7 @@ void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
 
 bool CDataFrameOutliersRunner::validate(const core::CDataFrame& frame) const {
     if (frame.numberColumns() < 1) {
-        HANDLE_FATAL(<< "Input error: analysis needs at least one feature")
+        HANDLE_FATAL(<< "Input error: analysis needs at least one feature");
         return false;
     }
     return true;
@@ -137,14 +144,15 @@ void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
                                   frame.numberRows() / this->numberPartitions(),
                                   frame.numberColumns());
 
-    maths::COutliers::SComputeParameters params{this->spec().numberThreads(),
-                                                this->numberPartitions(),
-                                                m_StandardizationEnabled,
-                                                static_cast<maths::COutliers::EMethod>(m_Method),
-                                                m_NumberNeighbours,
-                                                m_ComputeFeatureInfluence,
-                                                m_OutlierFraction};
-    maths::COutliers::compute(params, frame, m_Instrumentation);
+    maths::analytics::COutliers::SComputeParameters params{
+        this->spec().numberThreads(),
+        this->numberPartitions(),
+        m_StandardizationEnabled,
+        static_cast<maths::analytics::COutliers::EMethod>(m_Method),
+        m_NumberNeighbours,
+        m_ComputeFeatureInfluence,
+        m_OutlierFraction};
+    maths::analytics::COutliers::compute(params, frame, m_Instrumentation);
 }
 
 std::size_t
@@ -152,14 +160,15 @@ CDataFrameOutliersRunner::estimateBookkeepingMemoryUsage(std::size_t numberParti
                                                          std::size_t totalNumberRows,
                                                          std::size_t partitionNumberRows,
                                                          std::size_t numberColumns) const {
-    maths::COutliers::SComputeParameters params{this->spec().numberThreads(),
-                                                numberPartitions,
-                                                m_StandardizationEnabled,
-                                                static_cast<maths::COutliers::EMethod>(m_Method),
-                                                m_NumberNeighbours,
-                                                m_ComputeFeatureInfluence,
-                                                m_OutlierFraction};
-    return maths::COutliers::estimateMemoryUsedByCompute(
+    maths::analytics::COutliers::SComputeParameters params{
+        this->spec().numberThreads(),
+        numberPartitions,
+        m_StandardizationEnabled,
+        static_cast<maths::analytics::COutliers::EMethod>(m_Method),
+        m_NumberNeighbours,
+        m_ComputeFeatureInfluence,
+        m_OutlierFraction};
+    return maths::analytics::COutliers::estimateMemoryUsedByCompute(
         params, totalNumberRows, partitionNumberRows, numberColumns);
 }
 

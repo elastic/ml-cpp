@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CGathererTools_h
@@ -12,8 +17,8 @@
 #include <core/CStoredStringPtr.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CQuantileSketch.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CQuantileSketch.h>
 
 #include <model/CBucketQueue.h>
 #include <model/CDataClassifier.h>
@@ -57,13 +62,15 @@ public:
     using TDoubleVec = std::vector<double>;
     using TOptionalDouble = boost::optional<double>;
     using TSampleVec = std::vector<CSample>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMedianAccumulator =
-        maths::CFixedQuantileSketch<maths::CQuantileSketch::E_PiecewiseConstant, 30>;
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+        maths::common::CFixedQuantileSketch<maths::common::CQuantileSketch::E_PiecewiseConstant, 30>;
+    using TMinAccumulator =
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
     using TMaxAccumulator =
-        maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
-    using TVarianceAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+    using TVarianceAccumulator =
+        maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMultivariateMeanAccumulator = CMetricMultivariateStatistic<TMeanAccumulator>;
     using TMultivariateMinAccumulator = CMetricMultivariateStatistic<TMinAccumulator>;
     using TMultivariateMaxAccumulator = CMetricMultivariateStatistic<TMaxAccumulator>;
@@ -262,12 +269,12 @@ public:
             TSampleVec& sum = m_BucketSums.get(time);
             if (sum.empty()) {
                 core_t::TTime bucketLength = m_BucketSums.bucketLength();
-                sum.push_back(CSample(maths::CIntegerTools::floor(time, bucketLength),
+                sum.push_back(CSample(maths::common::CIntegerTools::floor(time, bucketLength),
                                       TDoubleVec(1, 0.0), 1.0, 0.0));
             }
             (sum[0].value())[0] += value[0];
             sum[0].count() += static_cast<double>(count);
-            for (std::size_t i = 0u; i < influences.size(); ++i) {
+            for (std::size_t i = 0; i < influences.size(); ++i) {
                 if (!influences[i]) {
                     continue;
                 }

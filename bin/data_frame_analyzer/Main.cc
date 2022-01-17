@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 //! \brief
 //! Applies a range of ML analyses on a data frame.
@@ -98,11 +103,13 @@ int main(int argc, char** argv) {
     bool isRestoreFileNamedPipe{false};
     std::string persistFileName;
     bool isPersistFileNamedPipe{false};
+    bool validElasticLicenseKeyConfirmed{false};
     if (ml::data_frame_analyzer::CCmdLineParser::parse(
             argc, argv, configFile, memoryUsageEstimationOnly, logProperties,
             logPipe, lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe) == false) {
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            isPersistFileNamedPipe, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
@@ -139,6 +146,11 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
+
+    if (validElasticLicenseKeyConfirmed == false) {
+        LOG_FATAL(<< "Failed to confirm valid license key.");
+        return EXIT_FAILURE;
+    }
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();

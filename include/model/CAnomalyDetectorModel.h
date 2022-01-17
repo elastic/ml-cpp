@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CAnomalyDetectorModel_h
@@ -12,8 +17,9 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CTimeSeriesModel.h>
-#include <maths/MathsTypes.h>
+#include <maths/common/MathsTypes.h>
+
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CAnnotation.h>
 #include <model/CMemoryUsageEstimator.h>
@@ -42,7 +48,9 @@ class CStateRestoreTraverser;
 }
 
 namespace maths {
+namespace common {
 class CMultivariatePrior;
+}
 }
 
 namespace model {
@@ -152,15 +160,15 @@ public:
     using TFeatureInfluenceCalculatorCPtrPrVec = std::vector<TFeatureInfluenceCalculatorCPtrPr>;
     using TFeatureInfluenceCalculatorCPtrPrVecVec =
         std::vector<TFeatureInfluenceCalculatorCPtrPrVec>;
-    using TMathsModelSPtr = std::shared_ptr<maths::CModel>;
+    using TMathsModelSPtr = std::shared_ptr<maths::common::CModel>;
     using TFeatureMathsModelSPtrPr = std::pair<model_t::EFeature, TMathsModelSPtr>;
     using TFeatureMathsModelSPtrPrVec = std::vector<TFeatureMathsModelSPtrPr>;
-    using TMathsModelUPtr = std::unique_ptr<maths::CModel>;
+    using TMathsModelUPtr = std::unique_ptr<maths::common::CModel>;
     using TMathsModelUPtrVec = std::vector<TMathsModelUPtr>;
-    using TMultivariatePriorSPtr = std::shared_ptr<maths::CMultivariatePrior>;
+    using TMultivariatePriorSPtr = std::shared_ptr<maths::common::CMultivariatePrior>;
     using TFeatureMultivariatePriorSPtrPr = std::pair<model_t::EFeature, TMultivariatePriorSPtr>;
     using TFeatureMultivariatePriorSPtrPrVec = std::vector<TFeatureMultivariatePriorSPtrPr>;
-    using TCorrelationsPtr = std::unique_ptr<maths::CTimeSeriesCorrelations>;
+    using TCorrelationsPtr = std::unique_ptr<maths::time_series::CTimeSeriesCorrelations>;
     using TFeatureCorrelationsPtrPr = std::pair<model_t::EFeature, TCorrelationsPtr>;
     using TFeatureCorrelationsPtrPrVec = std::vector<TFeatureCorrelationsPtrPr>;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
@@ -201,6 +209,9 @@ public:
     //@{
     //! Persist the state of the models.
     virtual void persistModelsState(core::CStatePersistInserter& inserter) const = 0;
+
+    //! Should the model be persisted?
+    virtual bool shouldPersist() const = 0;
 
     //! Persist state by passing information to the supplied inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
@@ -517,6 +528,9 @@ protected:
         //! Get the memory used by this model.
         std::size_t memoryUsage() const;
 
+        //! Determine whether the model should be persisted or not.
+        bool shouldPersist() const;
+
         //! The feature.
         model_t::EFeature s_Feature;
         //! A prototype model.
@@ -557,7 +571,8 @@ protected:
     using TFeatureCorrelateModelsVec = std::vector<SFeatureCorrelateModels>;
 
     //! \brief Implements the allocator for new correlate priors.
-    class CTimeSeriesCorrelateModelAllocator : public maths::CTimeSeriesCorrelateModelAllocator {
+    class CTimeSeriesCorrelateModelAllocator
+        : public maths::time_series::CTimeSeriesCorrelateModelAllocator {
     public:
         using TMemoryUsage = std::function<std::size_t(std::size_t)>;
         using TMultivariatePriorUPtr = TMultivariatePriorPtr;
@@ -569,19 +584,19 @@ protected:
                                            std::size_t maxNumberCorrelations);
 
         //! Check if we can still allocate any correlations.
-        virtual bool areAllocationsAllowed() const;
+        bool areAllocationsAllowed() const override;
 
         //! Check if \p correlations exceeds the memory limit.
-        virtual bool exceedsLimit(std::size_t correlations) const;
+        bool exceedsLimit(std::size_t correlations) const override;
 
         //! Get the maximum number of correlations we should model.
-        virtual std::size_t maxNumberCorrelations() const;
+        std::size_t maxNumberCorrelations() const override;
 
         //! Get the chunk size in which to allocate correlations.
-        virtual std::size_t chunkSize() const;
+        std::size_t chunkSize() const override;
 
         //! Create a new prior for a correlation model.
-        virtual TMultivariatePriorUPtr newPrior() const;
+        TMultivariatePriorUPtr newPrior() const override;
 
         //! Set the prototype prior.
         void prototypePrior(const TMultivariatePriorSPtr& prior);
@@ -670,11 +685,18 @@ protected:
     //! Get the object which calculates corrections for interim buckets.
     virtual const CInterimBucketCorrector& interimValueCorrector() const = 0;
 
-    //! Check if any of the sample-filtering detection rules apply to this series.
-    bool shouldIgnoreSample(model_t::EFeature feature,
-                            std::size_t pid,
-                            std::size_t cid,
-                            core_t::TTime time) const;
+    //! Get the value of the initial count weight to apply to the model's
+    //! samples, as determined by the detection rules.
+    double initialCountWeight(model_t::EFeature feature,
+                              std::size_t pid,
+                              std::size_t cid,
+                              core_t::TTime time) const;
+
+    //! Should the event be omitted from the quantiles and the results?
+    bool shouldSkipUpdate(model_t::EFeature feature,
+                          std::size_t pid,
+                          std::size_t cid,
+                          core_t::TTime time) const;
 
     //! Check if any of the result-filtering detection rules apply to this series.
     bool shouldIgnoreResult(model_t::EFeature feature,
@@ -686,9 +708,9 @@ protected:
     //! Get the non-estimated value of the the memory used by this model.
     virtual std::size_t computeMemoryUsage() const = 0;
 
-    //! Create a stub version of maths::CModel for use when pruning people
+    //! Create a stub version of maths::common::CModel for use when pruning people
     //! or attributes to free memory resource.
-    static maths::CModel* tinyModel();
+    static maths::common::CModel* tinyModel();
 
 private:
     using TModelParamsCRef = std::reference_wrapper<const SModelParams>;

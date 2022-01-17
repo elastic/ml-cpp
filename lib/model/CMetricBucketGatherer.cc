@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CMetricBucketGatherer.h>
@@ -10,11 +15,11 @@
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CBasicStatisticsPersist.h>
-#include <maths/CChecksum.h>
-#include <maths/COrderings.h>
-#include <maths/CPrior.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CPrior.h>
 
 #include <model/CGathererTools.h>
 #include <model/CResourceMonitor.h>
@@ -43,7 +48,7 @@ using TStrVec = std::vector<std::string>;
 using TStrCRef = std::reference_wrapper<const std::string>;
 using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
 using TStrCRefStrCRefPrUInt64Map =
-    std::map<TStrCRefStrCRefPr, uint64_t, maths::COrderings::SLexicographicalCompare>;
+    std::map<TStrCRefStrCRefPr, uint64_t, maths::common::COrderings::SLexicographicalCompare>;
 using TSampleVec = std::vector<CSample>;
 using TSizeMeanGathererUMap = boost::unordered_map<std::size_t, CGathererTools::TMeanGatherer>;
 using TSizeSizeMeanGathererUMapUMap = boost::unordered_map<std::size_t, TSizeMeanGathererUMap>;
@@ -786,7 +791,7 @@ private:
                                   bucketLength, result);
             }
         }
-        std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+        std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
     }
 
     //! Individual model specialization
@@ -945,9 +950,12 @@ CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
     : CBucketGatherer(dataGatherer, 0, influenceFieldNames.size()),
       m_ValueFieldName(valueFieldName), m_BeginValueFields(0) {
     this->initializeFieldNamesPart1(personFieldName, attributeFieldName, influenceFieldNames);
-    traverser.traverseSubLevel(std::bind(&CMetricBucketGatherer::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
-    this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
+    if (traverser.traverseSubLevel(std::bind(&CMetricBucketGatherer::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    } else {
+        this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
+    }
 }
 
 CMetricBucketGatherer::CMetricBucketGatherer(bool isForPersistence,
@@ -1172,7 +1180,7 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
                       << m_FieldMetricCategories.size());
             allOk = false;
         }
-        for (std::size_t j = 0u; allOk && i < m_FieldNames.size(); ++i, ++j) {
+        for (std::size_t j = 0; allOk && i < m_FieldNames.size(); ++i, ++j) {
             model_t::EMetricCategory category = m_FieldMetricCategories[j];
             if (fieldValues[i] == nullptr ||
                 m_DataGatherer.extractMetricFromField(
@@ -1313,14 +1321,14 @@ void CMetricBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove
 
 uint64_t CMetricBucketGatherer::checksum() const {
     uint64_t seed = this->CBucketGatherer::checksum();
-    seed = maths::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
+    seed = maths::common::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
     TStrCRefStrCRefPrUInt64Map hashes;
     applyFunc(m_FeatureData, std::bind<void>(SHash(), std::placeholders::_1,
                                              std::placeholders::_2,
                                              std::cref(*this), std::ref(hashes)));
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
-    return maths::CChecksum::calculate(seed, hashes);
+    return maths::common::CChecksum::calculate(seed, hashes);
 }
 
 void CMetricBucketGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {

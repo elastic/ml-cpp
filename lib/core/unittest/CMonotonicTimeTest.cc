@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CLogger.h>
@@ -29,7 +34,9 @@ BOOST_AUTO_TEST_CASE(testMilliseconds) {
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
     BOOST_TEST_REQUIRE(diff > 900);
-    BOOST_TEST_REQUIRE(diff < 1100);
+    // Allow 20% margin of error - sleep seems to sleep too long under Jenkins
+    // on Apple M1
+    BOOST_TEST_REQUIRE(diff < 1200);
 }
 
 BOOST_AUTO_TEST_CASE(testNanoseconds) {
@@ -47,7 +54,9 @@ BOOST_AUTO_TEST_CASE(testNanoseconds) {
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
     BOOST_TEST_REQUIRE(diff > 900000000);
-    BOOST_TEST_REQUIRE(diff < 1100000000);
+    // Allow 20% margin of error - sleep seems to sleep too long under Jenkins
+    // on Apple M1
+    BOOST_TEST_REQUIRE(diff < 1200000000);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

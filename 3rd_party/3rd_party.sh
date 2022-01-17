@@ -1,8 +1,13 @@
 #!/bin/bash
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 #
@@ -42,46 +47,63 @@ case `uname` in
         else
             BOOST_ARCH=a64
         fi
-        BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.dylib
-        BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+        BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.dylib
+        BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
         XML_LOCATION=
         GCC_RT_LOCATION=
+        OMP_LOCATION=
         STL_LOCATION=
         ZLIB_LOCATION=
+        TORCH_LIBRARIES="torch_cpu c10"
+        TORCH_LOCATION=/usr/local/lib
+        TORCH_EXTENSION=.dylib
         ;;
 
     Linux)
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
-            BOOST_LOCATION=/usr/local/gcc93/lib
+            BOOST_LOCATION=/usr/local/gcc103/lib
             BOOST_COMPILER=gcc
             if [ `uname -m` = aarch64 ] ; then
                 BOOST_ARCH=a64
             else
-                BOOST_ARCH=x64
+                BOOST_ARCH=x64                
+                MKL_LOCATION=/usr/local/gcc103/lib
+                MKL_EXTENSION=.so
+                MKL_PREFIX=libmkl_
+                MKL_LIBRARIES=`cd "$MKL_LOCATION" && ls $MKL_PREFIX*$MKL_EXTENSION`
             fi
-            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
-            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
-            XML_LOCATION=/usr/local/gcc93/lib
+            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.so.1.77.0
+            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
+            XML_LOCATION=/usr/local/gcc103/lib
             XML_EXTENSION=.so.2
-            GCC_RT_LOCATION=/usr/local/gcc93/lib64
+            GCC_RT_LOCATION=/usr/local/gcc103/lib64
             GCC_RT_EXTENSION=.so.1
-            STL_LOCATION=/usr/local/gcc93/lib64
+            OMP_LOCATION=/usr/local/gcc103/lib64
+            OMP_EXTENSION=.so.1
+            STL_LOCATION=/usr/local/gcc103/lib64
             STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
+            TORCH_LIBRARIES="torch_cpu c10"
+            TORCH_LOCATION=/usr/local/gcc103/lib
+            TORCH_EXTENSION=.so            
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
             BOOST_COMPILER=clang
-            BOOST_EXTENSION=mt-x64-1_71.dylib
-            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+            BOOST_EXTENSION=mt-x64-1_77.dylib
+            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
             XML_LOCATION=
             GCC_RT_LOCATION=
+            OMP_LOCATION=
             STL_LOCATION=
             ZLIB_LOCATION=
+            TORCH_LIBRARIES="torch_cpu c10"
+            TORCH_LOCATION=$SYSROOT/usr/local/lib
+            TORCH_EXTENSION=.dylib
         else
             SYSROOT=/usr/local/sysroot-$CPP_CROSS_COMPILE-linux-gnu
-            BOOST_LOCATION=$SYSROOT/usr/local/gcc93/lib
+            BOOST_LOCATION=$SYSROOT/usr/local/gcc103/lib
             BOOST_COMPILER=gcc
             if [ "$CPP_CROSS_COMPILE" = aarch64 ] ; then
                 BOOST_ARCH=a64
@@ -89,16 +111,21 @@ case `uname` in
                 echo "Cannot cross compile to $CPP_CROSS_COMPILE"
                 exit 3
             fi
-            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
-            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
-            XML_LOCATION=$SYSROOT/usr/local/gcc93/lib
+            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.so.1.77.0
+            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
+            XML_LOCATION=$SYSROOT/usr/local/gcc103/lib
             XML_EXTENSION=.so.2
-            GCC_RT_LOCATION=$SYSROOT/usr/local/gcc93/lib64
+            GCC_RT_LOCATION=$SYSROOT/usr/local/gcc103/lib64
             GCC_RT_EXTENSION=.so.1
-            STL_LOCATION=$SYSROOT/usr/local/gcc93/lib64
-            STL_PREFIX=libstdc++
+            OMP_LOCATION=$SYSROOT/usr/local/gcc103/lib64
+            OMP_EXTENSION=.so.1
+            STL_LOCATION=$SYSROOT/usr/local/gcc103/lib64
+            STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
+            TORCH_LIBRARIES="torch_cpu c10"
+            TORCH_LOCATION=$SYSROOT/usr/local/gcc103/lib
+            TORCH_EXTENSION=.so
         fi
         ;;
 
@@ -110,11 +137,12 @@ case `uname` in
         # server is currently set up
         BOOST_LOCATION=/$LOCAL_DRIVE/usr/local/lib
         BOOST_COMPILER=vc
-        BOOST_EXTENSION=mt-x64-1_71.dll
-        BOOST_LIBRARIES='chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+        BOOST_EXTENSION=mt-x64-1_77.dll
+        BOOST_LIBRARIES='chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
         XML_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         XML_EXTENSION=.dll
         GCC_RT_LOCATION=
+        OMP_LOCATION=
         # Read VCBASE from environment if defined, otherwise default to VS Professional 2019
         DEFAULTVCBASE=`cd /$LOCAL_DRIVE && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2019/Professional"`
         VCBASE=${VCBASE:-$DEFAULTVCBASE}
@@ -124,6 +152,9 @@ case `uname` in
         STL_EXTENSION=.dll
         ZLIB_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         ZLIB_EXTENSION=1.dll
+        TORCH_LIBRARIES="asmjit c10 fbgemm torch_cpu"
+        TORCH_LOCATION=/$LOCAL_DRIVE/usr/local/bin
+        TORCH_EXTENSION=.dll
         ;;
 
     *)
@@ -176,6 +207,18 @@ if [ ! -z "$GCC_RT_LOCATION" ] ; then
         exit 7
     fi
 fi
+if [ ! -z "$OMP_LOCATION" ] ; then
+    if ls $OMP_LOCATION/libgomp*$OMP_EXTENSION >/dev/null ; then
+        if [ -n "$INSTALL_DIR" ] ; then
+            rm -f $INSTALL_DIR/libgomp*$OMP_EXTENSION
+            cp $OMP_LOCATION/libgomp*$OMP_EXTENSION $INSTALL_DIR
+            chmod u+wx $INSTALL_DIR/libgomp*$OMP_EXTENSION
+        fi
+    else
+        echo "OMP runtime library not found"
+        exit 8
+    fi
+fi
 if [ ! -z "$STL_LOCATION" ] ; then
     if ls $STL_LOCATION/*$STL_PATTERN*$STL_EXTENSION >/dev/null ; then
         if [ -n "$INSTALL_DIR" ] ; then
@@ -185,7 +228,7 @@ if [ ! -z "$STL_LOCATION" ] ; then
         fi
     else
         echo "C++ standard library not found"
-        exit 8
+        exit 9
     fi
 fi
 if [ ! -z "$ZLIB_LOCATION" ] ; then
@@ -197,7 +240,37 @@ if [ ! -z "$ZLIB_LOCATION" ] ; then
         fi
     else
         echo "zlib not found"
-        exit 9
+        exit 10
+    fi
+fi
+if [ ! -z "$TORCH_LOCATION" ] ; then
+    if ls $TORCH_LOCATION/*$TORCH_EXTENSION >/dev/null ; then
+        if [ -n "$INSTALL_DIR" ] ; then
+            for LIBRARY in $TORCH_LIBRARIES
+            do
+                rm -f $INSTALL_DIR/*$LIBRARY$TORCH_EXTENSION
+                cp $TORCH_LOCATION/*$LIBRARY$TORCH_EXTENSION $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/*$LIBRARY$TORCH_EXTENSION
+            done
+        fi
+    else
+        echo "Torch libraries not found"
+        exit 11
+    fi
+fi
+if [ ! -z "$MKL_LOCATION" ] ; then
+    if [ ! -z "$MKL_LIBRARIES" ] ; then
+        if [ -n "$INSTALL_DIR" ] ; then
+            for LIBRARY in $MKL_LIBRARIES
+            do
+                rm -f $INSTALL_DIR/$LIBRARY
+                cp $MKL_LOCATION/$LIBRARY $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/$LIBRARY
+            done
+        fi
+    else
+        echo "Intel MKL libraries not found"
+        exit 12
     fi
 fi
 
@@ -210,7 +283,7 @@ case `uname` in
             for FILE in `find . -type f | egrep -v '^core|-debug$|libMl'`
             do
                 # Replace RPATH for 3rd party libraries that already have one
-                patchelf --print-rpath $FILE | grep lib >/dev/null 2>&1 && patchelf --set-rpath '$ORIGIN/.' $FILE
+                patchelf --print-rpath $FILE | grep lib >/dev/null 2>&1 && patchelf --force-rpath --set-rpath '$ORIGIN' $FILE
                 if [ $? -eq 0 ] ; then
                     echo "Set RPATH in $FILE"
                 else

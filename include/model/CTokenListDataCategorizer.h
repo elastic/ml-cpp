@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_model_CTokenListDataCategorizer_h
 #define INCLUDED_ml_model_CTokenListDataCategorizer_h
@@ -41,11 +46,13 @@ template<bool DO_WARPING = true,
          bool ALLOW_UNDERSCORE = true,
          bool ALLOW_DOT = true,
          bool ALLOW_DASH = true,
+         bool ALLOW_FORWARD_SLASH = true,
          bool IGNORE_LEADING_DIGIT = true,
          bool IGNORE_HEX = true,
          bool IGNORE_DATE_WORDS = true,
          bool IGNORE_FIELD_NAMES = true,
          std::size_t MIN_DICTIONARY_LENGTH = 2,
+         bool TRUNCATE_AT_NEWLINE = true,
          typename DICTIONARY_WEIGHT_FUNC = core::CWordDictionary::TWeightAll2>
 class CTokenListDataCategorizer : public CTokenListDataCategorizerBase {
 public:
@@ -100,12 +107,17 @@ protected:
         std::string::size_type nonHexPos(std::string::npos);
         for (const char curChar : str) {
 
-            // Basically tokenise into [a-zA-Z0-9]+ strings, possibly
+            if (TRUNCATE_AT_NEWLINE && curChar == '\n') {
+                break;
+            }
+
+            // Basically tokenise into [a-zA-Z0-9/]+ strings, possibly
             // allowing underscores, dots and dashes in the middle
             if (std::isalnum(static_cast<unsigned char>(curChar)) ||
                 (!temp.empty() && ((ALLOW_UNDERSCORE && curChar == '_') ||
                                    (ALLOW_DOT && curChar == '.') ||
-                                   (ALLOW_DASH && curChar == '-')))) {
+                                   (ALLOW_DASH && curChar == '-'))) ||
+                (ALLOW_FORWARD_SLASH && curChar == '/')) {
                 temp += curChar;
                 if (IGNORE_HEX) {
                     // Count dots and dashes as numeric
@@ -133,6 +145,8 @@ protected:
 
         LOG_TRACE(<< str << " tokenised to " << tokenIds.size() << " tokens with total weight "
                   << totalWeight << ": " << SIdTranslater(*this, tokenIds, ' '));
+
+        m_DictionaryWeightFunc.reset();
     }
 
     //! Take a string token, convert it to a numeric ID and a weighting and
@@ -147,10 +161,13 @@ protected:
             // Give more weighting to tokens that are dictionary words.
             idWithWeight.second += m_DictionaryWeightFunc(m_Dict.partOfSpeech(token));
         }
+
         tokenIds.push_back(idWithWeight);
         tokenUniqueIds[idWithWeight.first] += idWithWeight.second;
         totalWeight += idWithWeight.second;
     }
+
+    void reset() override { m_DictionaryWeightFunc.reset(); }
 
     //! Compute similarity between two vectors
     double similarity(const TSizeSizePrVec& left,

@@ -1,17 +1,22 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CModelTools.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CIntegerTools.h>
-#include <maths/CModel.h>
-#include <maths/CMultinomialConjugate.h>
-#include <maths/CSampling.h>
-#include <maths/CTools.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CModel.h>
+#include <maths/common/CMultinomialConjugate.h>
+#include <maths/common/CSampling.h>
+#include <maths/common/CTools.h>
 
 #include <model/CSample.h>
 
@@ -24,26 +29,26 @@ namespace model {
 
 namespace {
 
-using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1>;
+using TMinAccumulator = maths::common::CBasicStatistics::COrderStatisticsStack<double, 1>;
 
 //! \brief Visitor to add a probability to variant of possible
 //! aggregation styles.
-struct SAddProbability : public boost::static_visitor<void> {
+struct SAddProbability {
     void operator()(double probability,
                     double weight,
-                    maths::CJointProbabilityOfLessLikelySamples& aggregator) const {
+                    maths::common::CJointProbabilityOfLessLikelySamples& aggregator) const {
         aggregator.add(probability, weight);
     }
     void operator()(double probability,
                     double /*weight*/,
-                    maths::CProbabilityOfExtremeSample& aggregator) const {
+                    maths::common::CProbabilityOfExtremeSample& aggregator) const {
         aggregator.add(probability);
     }
 };
 
 //! \brief Visitor to read aggregate probability from a variant
 //! of possible aggregation styles.
-struct SReadProbability : public boost::static_visitor<bool> {
+struct SReadProbability {
     template<typename T>
     bool operator()(double weight, double& result, const T& aggregator) const {
         double probability;
@@ -112,10 +117,10 @@ void CModelTools::CFuzzyDeduplicate::add(TDouble2Vec value) {
     ++m_Count;
     if (m_RandomSample.size() < 100) {
         m_RandomSample.push_back(std::move(value));
-    } else if (maths::CSampling::uniformSample(m_Rng, 0.0, 1.0) <
+    } else if (maths::common::CSampling::uniformSample(m_Rng, 0.0, 1.0) <
                100.0 / static_cast<double>(m_Count)) {
-        std::size_t evict{
-            maths::CSampling::uniformSample(m_Rng, 0, m_RandomSample.size())};
+        std::size_t evict{maths::common::CSampling::uniformSample(
+            m_Rng, 0, m_RandomSample.size())};
         m_RandomSample[evict].swap(value);
     }
 }
@@ -128,8 +133,8 @@ void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength,
         m_ValueEps.assign(m_RandomSample[0].size(), 0.0);
         if (m_RandomSample.size() > 1) {
             TDoubleVec values(m_RandomSample.size());
-            for (std::size_t i = 0u; i < m_ValueEps.size(); ++i) {
-                for (std::size_t j = 0u; j < m_RandomSample.size(); ++j) {
+            for (std::size_t i = 0; i < m_ValueEps.size(); ++i) {
+                for (std::size_t j = 0; j < m_RandomSample.size(); ++j) {
                     values[j] = m_RandomSample[j][i];
                 }
                 std::size_t p10{values.size() / 10};
@@ -153,7 +158,7 @@ std::size_t CModelTools::CFuzzyDeduplicate::duplicate(core_t::TTime time, TDoubl
 }
 
 CModelTools::TDouble2Vec CModelTools::CFuzzyDeduplicate::quantize(TDouble2Vec value) const {
-    for (std::size_t i = 0u; i < m_ValueEps.size(); ++i) {
+    for (std::size_t i = 0; i < m_ValueEps.size(); ++i) {
         value[i] = m_ValueEps[i] > 0.0
                        ? m_ValueEps[i] * std::floor(value[i] / m_ValueEps[i])
                        : value[i];
@@ -162,7 +167,7 @@ CModelTools::TDouble2Vec CModelTools::CFuzzyDeduplicate::quantize(TDouble2Vec va
 }
 
 core_t::TTime CModelTools::CFuzzyDeduplicate::quantize(core_t::TTime time) const {
-    return m_TimeEps > 0 ? maths::CIntegerTools::floor(time, m_TimeEps) : time;
+    return m_TimeEps > 0 ? maths::common::CIntegerTools::floor(time, m_TimeEps) : time;
 }
 
 std::size_t CModelTools::CFuzzyDeduplicate::SDuplicateValueHash::
@@ -199,9 +204,9 @@ void CModelTools::CProbabilityAggregator::add(const TAggregator& aggregator, dou
 void CModelTools::CProbabilityAggregator::add(double probability, double weight) {
     m_TotalWeight += weight;
     for (auto& aggregator : m_Aggregators) {
-        boost::apply_visitor(std::bind<void>(SAddProbability(), probability,
-                                             weight, std::placeholders::_1),
-                             aggregator.first);
+        std::visit(std::bind<void>(SAddProbability(), probability, weight,
+                                   std::placeholders::_1),
+                   aggregator.first);
     }
 }
 
@@ -227,10 +232,9 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
             n += aggregator.second;
         }
         for (const auto& aggregator : m_Aggregators) {
-            if (!boost::apply_visitor(
-                    std::bind<bool>(SReadProbability(), aggregator.second / n,
-                                    std::ref(p), std::placeholders::_1),
-                    aggregator.first)) {
+            if (!std::visit(std::bind<bool>(SReadProbability(), aggregator.second / n,
+                                            std::ref(p), std::placeholders::_1),
+                            aggregator.first)) {
                 return false;
             }
         }
@@ -239,9 +243,8 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     case E_Min: {
         TMinAccumulator p_;
         for (const auto& aggregator : m_Aggregators) {
-            if (!boost::apply_visitor(std::bind<bool>(SReadProbability(), std::ref(p_),
-                                                      std::placeholders::_1),
-                                      aggregator.first)) {
+            if (!std::visit(std::bind<bool>(SReadProbability(), std::ref(p_), std::placeholders::_1),
+                            aggregator.first)) {
                 return false;
             }
         }
@@ -255,7 +258,8 @@ bool CModelTools::CProbabilityAggregator::calculate(double& result) const {
     if (p < 0.0 || p > 1.001) {
         LOG_ERROR(<< "Unexpected probability = " << p);
     }
-    result = maths::CTools::truncate(p, maths::CTools::smallestProbability(), 1.0);
+    result = maths::common::CTools::truncate(
+        p, maths::common::CTools::smallestProbability(), 1.0);
 
     return true;
 }
@@ -264,7 +268,7 @@ CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache()
     : m_Prior(nullptr), m_SmallestProbability(1.0) {
 }
 
-CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(const maths::CMultinomialConjugate& prior)
+CModelTools::CCategoryProbabilityCache::CCategoryProbabilityCache(const maths::common::CMultinomialConjugate& prior)
     : m_Prior(&prior), m_SmallestProbability(1.0) {
 }
 
@@ -282,7 +286,7 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
         LOG_TRACE(<< "P({c}) <= " << core::CContainerPrinter::print(ub));
         m_Cache.swap(lb);
         m_SmallestProbability = 1.0;
-        for (std::size_t i = 0u; i < ub.size(); ++i) {
+        for (std::size_t i = 0; i < ub.size(); ++i) {
             m_Cache[i] = (m_Cache[i] + ub[i]) / 2.0;
             m_SmallestProbability = std::min(m_SmallestProbability, m_Cache[i]);
         }
@@ -323,7 +327,7 @@ void CModelTools::CProbabilityCache::clear() {
 
 void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature,
                                               std::size_t id,
-                                              const maths::CModel& model) {
+                                              const maths::common::CModel& model) {
     if (model_t::dimension(feature) == 1) {
         TDouble1Vec& modes{m_Caches[{feature, id}].s_Modes};
         if (modes.empty()) {
@@ -340,7 +344,7 @@ void CModelTools::CProbabilityCache::addModes(model_t::EFeature feature,
 void CModelTools::CProbabilityCache::addProbability(model_t::EFeature feature,
                                                     std::size_t id,
                                                     const TDouble2Vec1Vec& value,
-                                                    const maths::SModelProbabilityResult& result) {
+                                                    const maths::common::SModelProbabilityResult& result) {
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
         m_Caches[{feature, id}].s_Probabilities.emplace(value[0][0], result);
     }
@@ -349,7 +353,7 @@ void CModelTools::CProbabilityCache::addProbability(model_t::EFeature feature,
 bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
                                             std::size_t id,
                                             const TDouble2Vec1Vec& value,
-                                            maths::SModelProbabilityResult& result) const {
+                                            maths::common::SModelProbabilityResult& result) const {
     // The idea of this cache is to:
     //   1. Check that the requested value x is in a region where the
     //      probability as a function of value is monotonic
@@ -362,7 +366,7 @@ bool CModelTools::CProbabilityCache::lookup(model_t::EFeature feature,
     // [a, b] if we can verify it doesn't contain more than one stationary
     // point and the gradients satisfy P'(a) * P'(b) > 0.
 
-    result = maths::SModelProbabilityResult{};
+    result = maths::common::SModelProbabilityResult{};
 
     if (m_MaximumError > 0.0 && value.size() == 1 && value[0].size() == 1) {
         auto pos = m_Caches.find({feature, id});
@@ -421,11 +425,11 @@ bool CModelTools::CProbabilityCache::canInterpolate(const TDouble1Vec& modes,
                                                     TDoubleProbabilityFMapCItr right) const {
     return left->second.s_Tail == right->second.s_Tail &&
            std::all_of(left - 1, right + 2,
-                       [](const std::pair<double, maths::SModelProbabilityResult>& cached) {
+                       [](const std::pair<double, maths::common::SModelProbabilityResult>& cached) {
                            return cached.second.s_FeatureProbabilities.size() == 1;
                        }) &&
            std::none_of(left - 1, right + 2,
-                        [](const std::pair<double, maths::SModelProbabilityResult>& cached) {
+                        [](const std::pair<double, maths::common::SModelProbabilityResult>& cached) {
                             return cached.second.s_Conditional;
                         }) &&
            (std::lower_bound(modes.begin(), modes.end(), (left - 1)->first) ==

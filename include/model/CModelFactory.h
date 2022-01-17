@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CModelFactory_h
@@ -10,8 +15,8 @@
 #include <core/CNonCopyable.h>
 #include <core/CoreTypes.h>
 
-#include <maths/COrderings.h>
-#include <maths/MathsTypes.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/MathsTypes.h>
 
 #include <model/CSearchKey.h>
 #include <model/ImportExport.h>
@@ -32,12 +37,16 @@ class CStateRestoreTraverser;
 }
 
 namespace maths {
+namespace common {
 class CModel;
 class CMultinomialConjugate;
 class CMultivariatePrior;
 class CPrior;
+}
+namespace time_series {
 class CTimeSeriesCorrelations;
 class CTimeSeriesDecompositionInterface;
+}
 }
 
 namespace model {
@@ -72,16 +81,17 @@ public:
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefVec = std::vector<TStrCRef>;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
-    using TPriorPtr = std::unique_ptr<maths::CPrior>;
-    using TMultivariatePriorSPtr = std::shared_ptr<maths::CMultivariatePrior>;
-    using TMultivariatePriorUPtr = std::unique_ptr<maths::CMultivariatePrior>;
+    using TPriorPtr = std::unique_ptr<maths::common::CPrior>;
+    using TMultivariatePriorSPtr = std::shared_ptr<maths::common::CMultivariatePrior>;
+    using TMultivariatePriorUPtr = std::unique_ptr<maths::common::CMultivariatePrior>;
     using TFeatureMultivariatePriorSPtrPr = std::pair<model_t::EFeature, TMultivariatePriorSPtr>;
     using TFeatureMultivariatePriorSPtrPrVec = std::vector<TFeatureMultivariatePriorSPtrPr>;
-    using TDecompositionCPtr = std::shared_ptr<const maths::CTimeSeriesDecompositionInterface>;
-    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
+    using TDecompositionCPtr =
+        std::shared_ptr<const maths::time_series::CTimeSeriesDecompositionInterface>;
+    using TMathsModelPtr = std::shared_ptr<maths::common::CModel>;
     using TFeatureMathsModelPtrPr = std::pair<model_t::EFeature, TMathsModelPtr>;
     using TFeatureMathsModelPtrPrVec = std::vector<TFeatureMathsModelPtrPr>;
-    using TCorrelationsPtr = std::unique_ptr<maths::CTimeSeriesCorrelations>;
+    using TCorrelationsPtr = std::unique_ptr<maths::time_series::CTimeSeriesCorrelations>;
     using TFeatureCorrelationsPtrPr = std::pair<model_t::EFeature, TCorrelationsPtr>;
     using TFeatureCorrelationsPtrPrVec = std::vector<TFeatureCorrelationsPtrPr>;
     using TModelPtr = std::shared_ptr<CAnomalyDetectorModel>;
@@ -237,7 +247,7 @@ public:
     defaultCorrelatePrior(model_t::EFeature feature, const SModelParams& params) const = 0;
 
     //! Get the default prior to use for categorical data.
-    maths::CMultinomialConjugate defaultCategoricalPrior() const;
+    maths::common::CMultinomialConjugate defaultCategoricalPrior() const;
 
     //! Get the default time series decomposition.
     //!
@@ -392,7 +402,7 @@ protected:
     TMultivariatePriorUPtr
     multivariateMultimodalPrior(std::size_t dimension,
                                 const SModelParams& params,
-                                const maths::CMultivariatePrior& modePrior) const;
+                                const maths::common::CMultivariatePrior& modePrior) const;
 
     //! Get a multivariate 1-of-n prior with dimension \p dimension.
     //!
@@ -423,7 +433,7 @@ private:
         std::map<TFeatureVec, TFeatureMultivariatePriorSPtrPrVec>;
     using TStrFeatureVecPr = std::pair<std::string, TFeatureVec>;
     using TStrFeatureVecPrInfluenceCalculatorCPtrMap =
-        std::map<TStrFeatureVecPr, TFeatureInfluenceCalculatorCPtrPrVec, maths::COrderings::SLess>;
+        std::map<TStrFeatureVecPr, TFeatureInfluenceCalculatorCPtrPrVec, maths::common::COrderings::SLess>;
 
 private:
     //! Get the field values which partition the data for modeling.

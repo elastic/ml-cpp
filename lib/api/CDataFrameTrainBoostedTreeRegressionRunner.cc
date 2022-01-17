@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
@@ -9,11 +14,11 @@
 #include <core/CLogger.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
-#include <maths/CDataFrameUtils.h>
-#include <maths/CTreeShapFeatureImportance.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CDataFrameUtils.h>
+#include <maths/analytics/CTreeShapFeatureImportance.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -58,17 +63,17 @@ CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysi
         parameters[LOSS_FUNCTION].fallback(TLossFunctionType::E_MseRegression)};
     switch (lossFunctionType) {
     case TLossFunctionType::E_MsleRegression:
-        return std::make_unique<maths::boosted_tree::CMsle>(
+        return std::make_unique<maths::analytics::boosted_tree::CMsle>(
             parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0));
     case TLossFunctionType::E_MseRegression:
-        return std::make_unique<maths::boosted_tree::CMse>();
+        return std::make_unique<maths::analytics::boosted_tree::CMse>();
     case TLossFunctionType::E_HuberRegression:
-        return std::make_unique<maths::boosted_tree::CPseudoHuber>(
+        return std::make_unique<maths::analytics::boosted_tree::CPseudoHuber>(
             parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0));
     case TLossFunctionType::E_BinaryClassification:
     case TLossFunctionType::E_MulticlassClassification:
         LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided. Defaulting to MSE instead.");
-        return std::make_unique<maths::boosted_tree::CMse>();
+        return std::make_unique<maths::analytics::boosted_tree::CMse>();
     }
     return nullptr;
 }
@@ -86,11 +91,12 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
                   this->dependentVariableFieldName()) != categoricalFieldNames.end()) {
-        HANDLE_FATAL(<< "Input error: trying to perform regression with categorical target.")
+        HANDLE_FATAL(<< "Input error: trying to perform regression with categorical target.");
     }
     if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
         HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
-                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST) << ".")
+                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
+                     << ".");
     }
 }
 
@@ -106,14 +112,16 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Key(this->predictionFieldName());
     writer.Double(tree.readPrediction(row)[0]);
     writer.Key(IS_TRAINING_FIELD_NAME);
-    writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
+    writer.Bool(maths::analytics::CDataFrameUtils::isMissing(
+                    row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         featureImportance->shap(
-            row, [&writer, this](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                                 const TStrVec& featureNames,
-                                 const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+            row, [&writer, this](
+                     const maths::analytics::CTreeShapFeatureImportance::TSizeVec& indices,
+                     const TStrVec& featureNames,
+                     const maths::analytics::CTreeShapFeatureImportance::TVectorVec& shap) {
                 writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {
@@ -155,12 +163,13 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
 
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
-    const auto& featureImportance = this->boostedTree().shap();
-    if (featureImportance) {
+    auto* featureImportance = this->boostedTree().shap();
+    if (featureImportance != nullptr) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
     m_InferenceModelMetadata.hyperparameterImportance(
         this->boostedTree().hyperparameterImportance());
+    m_InferenceModelMetadata.trainFractionPerFold(this->boostedTree().trainFractionPerFold());
     return m_InferenceModelMetadata;
 }
 
@@ -180,7 +189,7 @@ const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() con
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
     HANDLE_FATAL(<< "Input error: regression has a non-optional parameter '"
-                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
+                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.");
     return nullptr;
 }
 

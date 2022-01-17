@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CModelFactory.h>
@@ -9,23 +14,24 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/Constants.h>
 
-#include <maths/CDecayRateController.h>
-#include <maths/CModel.h>
-#include <maths/CMultimodalPrior.h>
-#include <maths/CMultinomialConjugate.h>
-#include <maths/CMultivariateMultimodalPriorFactory.h>
-#include <maths/CMultivariateNormalConjugateFactory.h>
-#include <maths/CMultivariateOneOfNPriorFactory.h>
-#include <maths/CNormalMeanPrecConjugate.h>
-#include <maths/COneOfNPrior.h>
-#include <maths/CPrior.h>
-#include <maths/CPriorStateSerialiser.h>
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesDecompositionStateSerialiser.h>
-#include <maths/CTimeSeriesDecompositionStub.h>
-#include <maths/CTimeSeriesModel.h>
-#include <maths/CTimeSeriesMultibucketFeatures.h>
-#include <maths/CXMeansOnline1d.h>
+#include <maths/common/CModel.h>
+#include <maths/common/CMultimodalPrior.h>
+#include <maths/common/CMultinomialConjugate.h>
+#include <maths/common/CMultivariateMultimodalPriorFactory.h>
+#include <maths/common/CMultivariateNormalConjugateFactory.h>
+#include <maths/common/CMultivariateOneOfNPriorFactory.h>
+#include <maths/common/CNormalMeanPrecConjugate.h>
+#include <maths/common/COneOfNPrior.h>
+#include <maths/common/CPrior.h>
+#include <maths/common/CPriorStateSerialiser.h>
+#include <maths/common/CXMeansOnline1d.h>
+
+#include <maths/time_series/CDecayRateController.h>
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
+#include <maths/time_series/CTimeSeriesDecompositionStub.h>
+#include <maths/time_series/CTimeSeriesModel.h>
+#include <maths/time_series/CTimeSeriesMultibucketFeatures.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
@@ -72,26 +78,28 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
         return nullptr;
     }
 
-    using TDecayRateController2Ary = std::array<maths::CDecayRateController, 2>;
+    using TDecayRateController2Ary = std::array<maths::time_series::CDecayRateController, 2>;
 
-    maths::CModelParams params{bucketLength,
-                               m_ModelParams.s_LearnRate,
-                               m_ModelParams.s_DecayRate,
-                               minimumSeasonalVarianceScale,
-                               m_ModelParams.s_MinimumTimeToDetectChange,
-                               m_ModelParams.s_MaximumTimeToTestForChange};
+    maths::common::CModelParams params{bucketLength,
+                                       m_ModelParams.s_LearnRate,
+                                       m_ModelParams.s_DecayRate,
+                                       minimumSeasonalVarianceScale,
+                                       m_ModelParams.s_MinimumTimeToDetectChange,
+                                       m_ModelParams.s_MaximumTimeToTestForChange};
 
     std::size_t dimension{model_t::dimension(feature)};
 
     bool controlDecayRate{m_ModelParams.s_ControlDecayRate && !model_t::isConstant(feature)};
     TDecayRateController2Ary controllers{
-        {maths::CDecayRateController{maths::CDecayRateController::E_PredictionBias |
-                                         maths::CDecayRateController::E_PredictionErrorIncrease,
-                                     dimension},
-         maths::CDecayRateController{maths::CDecayRateController::E_PredictionBias |
-                                         maths::CDecayRateController::E_PredictionErrorIncrease |
-                                         maths::CDecayRateController::E_PredictionErrorDecrease,
-                                     dimension}}};
+        {maths::time_series::CDecayRateController{
+             maths::time_series::CDecayRateController::E_PredictionBias |
+                 maths::time_series::CDecayRateController::E_PredictionErrorIncrease,
+             dimension},
+         maths::time_series::CDecayRateController{
+             maths::time_series::CDecayRateController::E_PredictionBias |
+                 maths::time_series::CDecayRateController::E_PredictionErrorIncrease |
+                 maths::time_series::CDecayRateController::E_PredictionErrorDecrease,
+             dimension}}};
 
     TDecompositionCPtr trend{this->defaultDecomposition(feature, bucketLength)};
 
@@ -99,7 +107,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
         TPriorPtr prior{this->defaultPrior(feature)};
         model_t::TUnivariateMultibucketFeaturePtr multibucketFeature{model_t::univariateMultibucketFeature(
             feature, m_ModelParams.s_MultibucketFeaturesWindowLength)};
-        return std::make_unique<maths::CUnivariateTimeSeriesModel>(
+        return std::make_unique<maths::time_series::CUnivariateTimeSeriesModel>(
             params, 0 /*identifier (overridden)*/, *trend, *prior,
             controlDecayRate ? &controllers : nullptr, multibucketFeature.get(),
             modelAnomalies && model_t::isConstant(feature) == false);
@@ -108,7 +116,7 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
     TMultivariatePriorUPtr prior{this->defaultMultivariatePrior(feature)};
     model_t::TMultivariateMultibucketFeaturePtr multibucketFeature{model_t::multivariateMultibucketFeature(
         feature, m_ModelParams.s_MultibucketFeaturesWindowLength)};
-    return std::make_unique<maths::CMultivariateTimeSeriesModel>(
+    return std::make_unique<maths::time_series::CMultivariateTimeSeriesModel>(
         params, *trend, *prior, controlDecayRate ? &controllers : nullptr,
         multibucketFeature.get(), modelAnomalies && model_t::isConstant(feature) == false);
 }
@@ -134,7 +142,7 @@ CModelFactory::defaultCorrelates(const TFeatureVec& features) const {
     result.reserve(features.size());
     for (auto feature : features) {
         if (!model_t::isCategorical(feature) && model_t::dimension(feature) == 1) {
-            result.emplace_back(feature, std::make_unique<maths::CTimeSeriesCorrelations>(
+            result.emplace_back(feature, std::make_unique<maths::time_series::CTimeSeriesCorrelations>(
                                              m_ModelParams.s_MinimumSignificantCorrelation,
                                              m_ModelParams.s_DecayRate));
         }
@@ -156,8 +164,8 @@ CModelFactory::defaultCorrelatePrior(model_t::EFeature feature) const {
     return this->defaultCorrelatePrior(feature, m_ModelParams);
 }
 
-maths::CMultinomialConjugate CModelFactory::defaultCategoricalPrior() const {
-    return maths::CMultinomialConjugate::nonInformativePrior(
+maths::common::CMultinomialConjugate CModelFactory::defaultCategoricalPrior() const {
+    return maths::common::CMultinomialConjugate::nonInformativePrior(
         boost::numeric::bounds<std::size_t>::highest(), m_ModelParams.s_DecayRate);
 }
 
@@ -166,11 +174,11 @@ CModelFactory::defaultDecomposition(model_t::EFeature feature, core_t::TTime buc
     if (model_t::isCategorical(feature)) {
         return nullptr;
     } else if (model_t::isDiurnal(feature) || model_t::isConstant(feature)) {
-        return std::make_shared<maths::CTimeSeriesDecompositionStub>();
+        return std::make_shared<maths::time_series::CTimeSeriesDecompositionStub>();
     }
     double decayRate = CAnomalyDetectorModelConfig::trendDecayRate(
         m_ModelParams.s_DecayRate, bucketLength);
-    return std::make_shared<maths::CTimeSeriesDecomposition>(
+    return std::make_shared<maths::time_series::CTimeSeriesDecomposition>(
         decayRate, bucketLength, m_ModelParams.s_ComponentSize);
 }
 
@@ -184,7 +192,7 @@ CModelFactory::defaultInfluenceCalculators(const std::string& influencerName,
 
         TStrCRefVec partitioningFields = this->partitioningFields();
         std::sort(partitioningFields.begin(), partitioningFields.end(),
-                  maths::COrderings::SReferenceLess());
+                  maths::common::COrderings::SReferenceLess());
 
         for (auto feature : features) {
             if (model_t::isCategorical(feature)) {
@@ -192,7 +200,7 @@ CModelFactory::defaultInfluenceCalculators(const std::string& influencerName,
             }
             if (std::binary_search(partitioningFields.begin(),
                                    partitioningFields.end(), influencerName,
-                                   maths::COrderings::SReferenceLess())) {
+                                   maths::common::COrderings::SReferenceLess())) {
                 result.emplace_back(
                     feature, std::make_shared<CIndicatorInfluenceCalculator>());
             } else {
@@ -302,15 +310,15 @@ CModelFactory::TInterimBucketCorrectorPtr CModelFactory::interimBucketCorrector(
 
 CModelFactory::TMultivariatePriorUPtr
 CModelFactory::multivariateNormalPrior(std::size_t dimension, const SModelParams& params) const {
-    return maths::CMultivariateNormalConjugateFactory::nonInformative(
+    return maths::common::CMultivariateNormalConjugateFactory::nonInformative(
         dimension, this->dataType(), params.s_DecayRate);
 }
 
 CModelFactory::TMultivariatePriorUPtr
 CModelFactory::multivariateMultimodalPrior(std::size_t dimension,
                                            const SModelParams& params,
-                                           const maths::CMultivariatePrior& modePrior) const {
-    return maths::CMultivariateMultimodalPriorFactory::nonInformative(
+                                           const maths::common::CMultivariatePrior& modePrior) const {
+    return maths::common::CMultivariateMultimodalPriorFactory::nonInformative(
         dimension, this->dataType(), params.s_DecayRate,
         maths_t::E_ClustersFractionWeight, params.s_MinimumModeFraction,
         params.s_MinimumModeCount, params.minimumCategoryCount(), modePrior);
@@ -320,38 +328,40 @@ CModelFactory::TMultivariatePriorUPtr
 CModelFactory::multivariateOneOfNPrior(std::size_t dimension,
                                        const SModelParams& params,
                                        const TMultivariatePriorUPtrVec& models) const {
-    return maths::CMultivariateOneOfNPriorFactory::nonInformative(
+    return maths::common::CMultivariateOneOfNPriorFactory::nonInformative(
         dimension, this->dataType(), params.s_DecayRate, models);
 }
 
 CModelFactory::TPriorPtr CModelFactory::timeOfDayPrior(const SModelParams& params) const {
     maths_t::EDataType dataType = this->dataType();
-    maths::CNormalMeanPrecConjugate normalPrior =
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(dataType, params.s_DecayRate);
+    maths::common::CNormalMeanPrecConjugate normalPrior =
+        maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
+            dataType, params.s_DecayRate);
 
     // Create a multimodal prior with purely normal distributions
     // - don't bother with long-tail distributions
 
-    maths::COneOfNPrior::TPriorPtrVec modePriors;
+    maths::common::COneOfNPrior::TPriorPtrVec modePriors;
     modePriors.reserve(1);
     modePriors.emplace_back(normalPrior.clone());
-    maths::COneOfNPrior modePrior(modePriors, dataType, params.s_DecayRate);
-    maths::CXMeansOnline1d clusterer(
-        dataType, maths::CAvailableModeDistributions::NORMAL,
+    maths::common::COneOfNPrior modePrior(modePriors, dataType, params.s_DecayRate);
+    maths::common::CXMeansOnline1d clusterer(
+        dataType, maths::common::CAvailableModeDistributions::NORMAL,
         maths_t::E_ClustersFractionWeight, params.s_DecayRate,
         0.03 /*minimumClusterFraction*/, 4 /*minimumClusterCount*/,
         CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION);
 
-    return std::make_unique<maths::CMultimodalPrior>(dataType, clusterer, modePrior,
-                                                     params.s_DecayRate);
+    return std::make_unique<maths::common::CMultimodalPrior>(
+        dataType, clusterer, modePrior, params.s_DecayRate);
 }
 
 CModelFactory::TMultivariatePriorUPtr
 CModelFactory::latLongPrior(const SModelParams& params) const {
     maths_t::EDataType dataType = this->dataType();
-    TMultivariatePriorUPtr modePrior = maths::CMultivariateNormalConjugateFactory::nonInformative(
-        2, dataType, params.s_DecayRate);
-    return maths::CMultivariateMultimodalPriorFactory::nonInformative(
+    TMultivariatePriorUPtr modePrior =
+        maths::common::CMultivariateNormalConjugateFactory::nonInformative(
+            2, dataType, params.s_DecayRate);
+    return maths::common::CMultivariateMultimodalPriorFactory::nonInformative(
         2 /*dimension*/, dataType, params.s_DecayRate, maths_t::E_ClustersFractionWeight,
         0.03 /*minimumClusterFraction*/, 4 /*minimumClusterCount*/,
         CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION, *modePrior);

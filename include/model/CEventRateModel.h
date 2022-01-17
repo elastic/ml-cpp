@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CEventRateModel_h
@@ -10,7 +15,7 @@
 #include <core/CMemory.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CMultinomialConjugate.h>
+#include <maths/common/CMultinomialConjugate.h>
 
 #include <model/CFeatureData.h>
 #include <model/CIndividualModel.h>
@@ -102,7 +107,7 @@ public:
                     const TFeatureMathsModelSPtrPrVec& newFeatureModels,
                     const TFeatureMultivariatePriorSPtrPrVec& newFeatureCorrelateModelPriors,
                     TFeatureCorrelationsPtrPrVec&& featureCorrelatesModels,
-                    const maths::CMultinomialConjugate& probabilityPrior,
+                    const maths::common::CMultinomialConjugate& probabilityPrior,
                     const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                     const TInterimBucketCorrectorCPtr& interimBucketCorrector);
 
@@ -325,7 +330,7 @@ private:
     //! The prior for the joint probabilities of seeing the people
     //! we are modeling (this captures information about the person
     //! rarity).
-    maths::CMultinomialConjugate m_ProbabilityPrior;
+    maths::common::CMultinomialConjugate m_ProbabilityPrior;
 
     //! Calculates corrections for interim buckets.
     TInterimBucketCorrectorCPtr m_InterimBucketCorrector;

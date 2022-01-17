@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 // The lack of include guards is deliberate in this file, to allow per-file
@@ -77,7 +82,7 @@
 #undef LOG_WARN
 #endif
 #define LOG_WARN(message)                                                                 \
-    {                                                                                     \
+    do {                                                                                  \
         std::size_t countOfWarnMessages;                                                  \
         bool skipWarnMessage;                                                             \
         std::tie(countOfWarnMessages, skipWarnMessage) =                                  \
@@ -90,12 +95,12 @@
                             ? " | repeated [" + std::to_string(countOfWarnMessages) + "]" \
                             : "");                                                        \
         }                                                                                 \
-    }
+    } while (0)
 #ifdef LOG_ERROR
 #undef LOG_ERROR
 #endif
 #define LOG_ERROR(message)                                                                 \
-    {                                                                                      \
+    do {                                                                                   \
         std::size_t countOfErrorMessages;                                                  \
         bool skipErrorMessage;                                                             \
         std::tie(countOfErrorMessages, skipErrorMessage) =                                 \
@@ -108,7 +113,7 @@
                             ? " | repeated [" + std::to_string(countOfErrorMessages) + "]" \
                             : "");                                                         \
         }                                                                                  \
-    }
+    } while (0)
 #ifdef LOG_FATAL
 #undef LOG_FATAL
 #endif
@@ -120,11 +125,11 @@
 #undef HANDLE_FATAL
 #endif
 #define HANDLE_FATAL(message)                                                  \
-    {                                                                          \
+    do {                                                                       \
         std::ostringstream ss;                                                 \
         ss message;                                                            \
         ml::core::CLogger::instance().handleFatal(ss.str());                   \
-    }
+    } while (0)
 
 #ifdef LOG_ABORT
 #undef LOG_ABORT

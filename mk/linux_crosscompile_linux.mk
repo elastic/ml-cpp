@@ -1,7 +1,12 @@
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 OS=Linux
@@ -33,9 +38,9 @@ endif
 
 PLATPICFLAGS=-fPIC
 PLATPIEFLAGS=-fPIE
-CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
+CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wno-psabi -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden
-CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem $(SYSROOT)/usr/local/gcc93/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
+CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem $(SYSROOT)/usr/local/gcc103/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
 CDEPFLAGS=-MM
 COMP_OUT_FLAG=-o
 LINK_OUT_FLAG=-o
@@ -49,8 +54,8 @@ SHELL_SCRIPT_EXT=.sh
 UT_TMP_DIR=/tmp/$(LOGNAME)
 RESOURCES_DIR=resources
 LOCALLIBS=-lm -lpthread -ldl -lrt
-NETLIBS=-lnsl
-BOOSTVER=1_71
+NETLIBS=
+BOOSTVER=1_77
 ifeq ($(HARDWARE_ARCH),aarch64)
 BOOSTARCH=a64
 else
@@ -58,7 +63,7 @@ BOOSTARCH=not_supported
 endif
 BOOSTGCCVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
-BOOSTINCLUDES=-isystem $(SYSROOT)/usr/local/gcc93/include/boost-$(BOOSTVER)
+BOOSTINCLUDES=-isystem $(SYSROOT)/usr/local/gcc103/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 BOOSTLOGLIBS=-lboost_log-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
 BOOSTLOGSETUPLIBS=-lboost_log_setup-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
@@ -77,9 +82,12 @@ RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING
 endif
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_MAX_ALIGN_BYTES=32
-XMLINCLUDES=-I$(SYSROOT)/usr/local/gcc93/include/libxml2
-XMLLIBS=-L$(SYSROOT)/usr/local/gcc93/lib -lxml2 -lz -lm -ldl
-DYNAMICLIBLDFLAGS=$(PLATPICFLAGS) -shared -Wl,--as-needed -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN/.'
+TORCHINCLUDES=-isystem $(SYSROOT)/usr/local/gcc103/include/pytorch
+TORCHCPULIB=-ltorch_cpu
+C10LIB=-lc10
+XMLINCLUDES=-I$(SYSROOT)/usr/local/gcc103/include/libxml2
+XMLLIBS=-L$(SYSROOT)/usr/local/gcc103/lib -lxml2 -lz -lm -ldl
+DYNAMICLIBLDFLAGS=$(PLATPICFLAGS) -shared -Wl,--as-needed -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN'
 ZLIBLIBS=-lz
 EXELDFLAGS=-pie $(PLATPIEFLAGS) -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN/../lib'
 UTLDFLAGS=$(EXELDFLAGS) -Wl,-rpath,$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR)
@@ -87,13 +95,15 @@ LIB_ML_CORE=-lMlCore
 LIB_ML_VER=-lMlVer
 ML_VER_LDFLAGS=-L$(CPP_SRC_HOME)/lib/ver/.objs
 LIB_ML_API=-lMlApi
-LIB_ML_MATHS=-lMlMaths
+LIB_ML_MATHS_COMMON=-lMlMathsCommon
+LIB_ML_MATHS_TIME_SERIES=-lMlMathsTimeSeries
+LIB_ML_MATHS_ANALYTICS=-lMlMathsAnalytics
 LIB_ML_MODEL=-lMlModel
 LIB_ML_SECCOMP=-lMlSeccomp
 ML_SECCOMP_LDFLAGS=-L$(CPP_SRC_HOME)/lib/seccomp/.objs
 LIB_ML_TEST=-lMlTest
 
-LIB_PATH+=-L$(SYSROOT)/usr/local/gcc93/lib
+LIB_PATH+=-L$(SYSROOT)/usr/local/gcc103/lib
 
 # Using cp instead of install here, to avoid every file being given execute
 # permissions

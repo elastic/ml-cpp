@@ -1,15 +1,21 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CModelDetailsView.h>
 
 #include <core/CSmallVector.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CTimeSeriesDecomposition.h>
+#include <maths/common/CBasicStatistics.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventRateModel.h>
@@ -76,7 +82,7 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
     using TDouble2Vec3Vec = core::CSmallVector<TDouble2Vec, 3>;
 
     if (this->isByFieldIdActive(byFieldId)) {
-        const maths::CModel* model = this->model(feature, byFieldId);
+        const maths::common::CModel* model = this->model(feature, byFieldId);
         if (model == nullptr) {
             return;
         }
@@ -87,7 +93,8 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
         maths_t::TDouble2VecWeightsAry weights{
             maths_t::CUnitWeights::unit<TDouble2Vec>(dimension)};
         TDouble2Vec seasonalWeight;
-        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, seasonalWeight);
+        model->seasonalWeight(maths::common::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL,
+                              time, seasonalWeight);
         maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
         maths_t::setCountVarianceScale(
             TDouble2Vec(dimension, this->countVarianceScale(feature, byFieldId, time)), weights);
@@ -99,9 +106,10 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
         TDouble2Vec3Vec interval(model->confidenceInterval(time, boundsPercentile, weights));
 
         if (interval.size() == 3) {
-            TDouble2Vec lower = maths::CTools::truncate(interval[0], supportLower, supportUpper);
-            TDouble2Vec upper = maths::CTools::truncate(interval[2], lower, supportUpper);
-            TDouble2Vec median = maths::CTools::truncate(interval[1], lower, upper);
+            TDouble2Vec lower = maths::common::CTools::truncate(
+                interval[0], supportLower, supportUpper);
+            TDouble2Vec upper = maths::common::CTools::truncate(interval[2], lower, supportUpper);
+            TDouble2Vec median = maths::common::CTools::truncate(interval[1], lower, upper);
 
             // TODO This data structure should support multivariate features.
             modelPlotData.get(feature, this->byFieldValue(byFieldId)) =
@@ -134,10 +142,10 @@ void CModelDetailsView::addCurrentBucketValues(core_t::TTime time,
     };
 
     if (model_t::includeEmptyBuckets(feature)) {
-        for (std::size_t pid = 0u; pid < gatherer.numberPeople(); ++pid) {
+        for (std::size_t pid = 0; pid < gatherer.numberPeople(); ++pid) {
             if (gatherer.isPersonActive(pid)) {
                 if (isPopulation) {
-                    for (std::size_t cid = 0u; cid < gatherer.numberAttributes(); ++cid) {
+                    for (std::size_t cid = 0; cid < gatherer.numberAttributes(); ++cid) {
                         if (gatherer.isAttributeActive(cid)) {
                             addCurrentBucketValue(pid, cid);
                         }
@@ -206,8 +214,8 @@ CEventRateModelDetailsView::dataTimeInterval(std::size_t byFieldId) const {
     return {m_Model->firstBucketTimes()[byFieldId], m_Model->lastBucketTimes()[byFieldId]};
 }
 
-const maths::CModel* CEventRateModelDetailsView::model(model_t::EFeature feature,
-                                                       std::size_t byFieldId) const {
+const maths::common::CModel*
+CEventRateModelDetailsView::model(model_t::EFeature feature, std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
@@ -233,8 +241,9 @@ CEventRatePopulationModelDetailsView::dataTimeInterval(std::size_t byFieldId) co
             m_Model->attributeLastBucketTimes()[byFieldId]};
 }
 
-const maths::CModel* CEventRatePopulationModelDetailsView::model(model_t::EFeature feature,
-                                                                 std::size_t byFieldId) const {
+const maths::common::CModel*
+CEventRatePopulationModelDetailsView::model(model_t::EFeature feature,
+                                            std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
@@ -259,8 +268,8 @@ CMetricModelDetailsView::dataTimeInterval(std::size_t byFieldId) const {
     return {m_Model->firstBucketTimes()[byFieldId], m_Model->lastBucketTimes()[byFieldId]};
 }
 
-const maths::CModel* CMetricModelDetailsView::model(model_t::EFeature feature,
-                                                    std::size_t byFieldId) const {
+const maths::common::CModel*
+CMetricModelDetailsView::model(model_t::EFeature feature, std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 
@@ -292,8 +301,8 @@ CMetricPopulationModelDetailsView::dataTimeInterval(std::size_t byFieldId) const
             m_Model->attributeLastBucketTimes()[byFieldId]};
 }
 
-const maths::CModel* CMetricPopulationModelDetailsView::model(model_t::EFeature feature,
-                                                              std::size_t byFieldId) const {
+const maths::common::CModel*
+CMetricPopulationModelDetailsView::model(model_t::EFeature feature, std::size_t byFieldId) const {
     return m_Model->model(feature, byFieldId);
 }
 

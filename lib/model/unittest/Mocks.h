@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_Mocks_h
@@ -33,6 +38,8 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
 
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
+    bool shouldPersist() const override;
 
     CAnomalyDetectorModel* cloneForPersistence() const override;
 
@@ -100,7 +107,7 @@ public:
 
     double attributeFrequency(std::size_t cid) const override;
 
-    const maths::CModel* model(std::size_t id) const;
+    const maths::common::CModel* model(std::size_t id) const;
 
     // Setter methods to allow mocking
 
@@ -152,7 +159,8 @@ public:
     explicit CMockModelDetailsView(const CMockModel& model);
 
 private:
-    const maths::CModel* model(model_t::EFeature feature, std::size_t byFieldId) const override;
+    const maths::common::CModel* model(model_t::EFeature feature,
+                                       std::size_t byFieldId) const override;
     TTimeTimePr dataTimeInterval(std::size_t byFieldId) const override;
     const CAnomalyDetectorModel& base() const override;
     double countVarianceScale(model_t::EFeature feature,

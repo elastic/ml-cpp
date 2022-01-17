@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 //! \brief
 //! Group machine generated messages into categories by similarity.
@@ -84,12 +89,14 @@ int main(int argc, char** argv) {
     bool isPersistFileNamedPipe{false};
     bool isPersistInForeground{false};
     std::string categorizationFieldName;
+    bool validElasticLicenseKeyConfirmed{false};
     if (ml::categorize::CCmdLineParser::parse(
             argc, argv, limitConfigFile, jobId, logProperties, logPipe, delimiter,
-            lengthEncodedInput, persistInterval, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
-            isPersistInForeground, categorizationFieldName) == false) {
+            lengthEncodedInput, persistInterval, namedPipeConnectTimeout,
+            inputFileName, isInputFileNamedPipe, outputFileName,
+            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            persistFileName, isPersistFileNamedPipe, isPersistInForeground,
+            categorizationFieldName, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
@@ -121,6 +128,11 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
+
+    if (validElasticLicenseKeyConfirmed == false) {
+        LOG_FATAL(<< "Failed to confirm valid license key.");
+        return EXIT_FAILURE;
+    }
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CDataFrameAnalyzer.h>
 
@@ -12,7 +17,7 @@
 #include <core/CLogger.h>
 #include <core/CStopWatch.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -26,7 +31,7 @@ namespace ml {
 namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
-using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 
@@ -239,7 +244,7 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
     }
     if (unrecognised || fieldValues[m_ControlFieldIndex].size() > 1) {
         HANDLE_FATAL(<< "Input error: invalid control message value '"
-                     << fieldValues[m_ControlFieldIndex] << "'. Please report this problem.")
+                     << fieldValues[m_ControlFieldIndex] << "'. Please report this problem.");
         return false;
     }
     return true;
@@ -311,12 +316,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     std::size_t numberThreads{1};
 
     using TRowItr = core::CDataFrame::TRowItr;
-    m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
-        TMeanVarAccumulator timeAccumulator;
-        core::CStopWatch stopWatch;
-        stopWatch.start();
-        std::uint64_t lastLap{stopWatch.lap()};
-
+    m_DataFrame->readRows(numberThreads, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             writer.StartObject();
             writer.Key(ROW_RESULTS);
@@ -330,12 +330,6 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             writer.EndObject();
             writer.EndObject();
             writer.EndObject();
-
-            std::uint64_t currentLap{stopWatch.lap()};
-            std::uint64_t delta{currentLap - lastLap};
-
-            timeAccumulator.add(static_cast<double>(delta));
-            lastLap = currentLap;
         }
     });
 

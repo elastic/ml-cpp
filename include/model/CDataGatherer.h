@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CDataGatherer_h
@@ -343,7 +348,7 @@ public:
 
         result.clear();
         result.reserve(rawFeatureData.size());
-        for (std::size_t i = 0u; i < rawFeatureData.size(); ++i) {
+        for (std::size_t i = 0; i < rawFeatureData.size(); ++i) {
             TFeatureAnyPr& feature = rawFeatureData[i];
 
             // Check the typeid before attempting the cast so we

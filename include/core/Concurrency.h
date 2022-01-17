@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_Concurrency_h
@@ -131,9 +136,9 @@ void invokeAndWriteResultToPromise(F& f, P& promise, const std::true_type&) {
 //! them. Prefer using high level primitives, such as parallel_for_each, which are
 //! safer.
 template<typename FUNCTION, typename... ARGS>
-std::future<std::result_of_t<std::decay_t<FUNCTION>(std::decay_t<ARGS>...)>>
+std::future<std::invoke_result_t<std::decay_t<FUNCTION>, std::decay_t<ARGS>...>>
 async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
-    using R = std::result_of_t<std::decay_t<FUNCTION>(std::decay_t<ARGS>...)>;
+    using R = std::invoke_result_t<std::decay_t<FUNCTION>, std::decay_t<ARGS>...>;
 
     // Note g stores copies of the arguments in the pack, which are moved into place
     // if possible, so this is safe to invoke later in the context of a packaged task.

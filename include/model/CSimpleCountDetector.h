@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_model_CSimpleCountDetector_h
 #define INCLUDED_ml_model_CSimpleCountDetector_h
@@ -49,15 +54,15 @@ public:
     CSimpleCountDetector(bool isForPersistence, const CAnomalyDetector& other);
 
     //! Returns true.
-    virtual bool isSimpleCount() const;
+    bool isSimpleCount() const override;
 
     //! Don't prune the simple count detector!
-    virtual void pruneModels();
+    void pruneModels() override;
 
 private:
     //! This function is called before adding a record allowing
     //! for varied preprocessing.
-    virtual const TStrCPtrVec& preprocessFieldValues(const TStrCPtrVec& fieldValues);
+    const TStrCPtrVec& preprocessFieldValues(const TStrCPtrVec& fieldValues) override;
 
 private:
     //! Field values are strange compared to other anomaly detectors,

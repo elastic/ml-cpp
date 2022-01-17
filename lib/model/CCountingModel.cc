@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CCountingModel.h>
@@ -9,8 +14,8 @@
 #include <core/CAllocationStrategy.h>
 #include <core/CPersistUtils.h>
 
-#include <maths/CBasicStatisticsPersist.h>
-#include <maths/CChecksum.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CChecksum.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CDataGatherer.h>
@@ -46,8 +51,10 @@ CCountingModel::CCountingModel(const SModelParams& params,
     : CAnomalyDetectorModel(params, dataGatherer, {}),
       m_StartTime(CAnomalyDetectorModel::TIME_UNSET),
       m_InterimBucketCorrector(interimBucketCorrector) {
-    traverser.traverseSubLevel(std::bind(&CCountingModel::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CCountingModel::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 CCountingModel::CCountingModel(bool isForPersistence, const CCountingModel& other)
@@ -122,7 +129,7 @@ CCountingModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
     }
 
     auto result = std::lower_bound(m_Counts.begin(), m_Counts.end(), pid,
-                                   maths::COrderings::SFirstLess());
+                                   maths::common::COrderings::SFirstLess());
 
     return result != m_Counts.end() && result->first == pid
                ? result->second
@@ -130,7 +137,9 @@ CCountingModel::currentBucketCount(std::size_t pid, core_t::TTime time) const {
 }
 
 CCountingModel::TOptionalDouble CCountingModel::baselineBucketCount(std::size_t pid) const {
-    return pid < m_MeanCounts.size() ? maths::CBasicStatistics::mean(m_MeanCounts[pid]) : 0.0;
+    return pid < m_MeanCounts.size()
+               ? maths::common::CBasicStatistics::mean(m_MeanCounts[pid])
+               : 0.0;
 }
 
 CCountingModel::TDouble1Vec CCountingModel::currentBucketValue(model_t::EFeature /*feature*/,
@@ -280,7 +289,7 @@ bool CCountingModel::computeProbability(std::size_t pid,
                                         SAnnotatedProbability& result) const {
     result = SAnnotatedProbability(1.0);
     result.s_CurrentBucketCount =
-        this->currentBucketCount(pid, (startTime + endTime) / 2 - 1);
+        this->currentBucketCount(pid, (startTime + endTime + 1) / 2 - 1);
     result.s_BaselineBucketCount = this->baselineBucketCount(pid);
     return true;
 }
@@ -296,10 +305,10 @@ bool CCountingModel::computeTotalProbability(const std::string& /*person*/,
 
 uint64_t CCountingModel::checksum(bool includeCurrentBucketStats) const {
     uint64_t result = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
-    result = maths::CChecksum::calculate(result, m_MeanCounts);
+    result = maths::common::CChecksum::calculate(result, m_MeanCounts);
     if (includeCurrentBucketStats) {
-        result = maths::CChecksum::calculate(result, m_StartTime);
-        result = maths::CChecksum::calculate(result, m_Counts);
+        result = maths::common::CChecksum::calculate(result, m_StartTime);
+        result = maths::common::CChecksum::calculate(result, m_Counts);
     }
     return result;
 }

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CHierarchicalResultsNormalizer.h>
@@ -9,8 +14,8 @@
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/COrderings.h>
-#include <maths/CTools.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/FunctionTypes.h>
@@ -50,8 +55,8 @@ void SNormalizer::propagateForwardByTime(double time) {
 }
 
 uint64_t SNormalizer::checksum() const {
-    uint64_t seed = maths::CChecksum::calculate(0, s_Description);
-    return maths::CChecksum::calculate(seed, s_Normalizer);
+    uint64_t seed = maths::common::CChecksum::calculate(0, s_Description);
+    return maths::common::CChecksum::calculate(seed, s_Normalizer);
 }
 }
 
@@ -92,7 +97,7 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
     // scaled so that it sums to the bucket anomaly score.
     double score = node.probability() > m_ModelConfig.maximumAnomalousProbability()
                        ? 0.0
-                       : maths::CTools::anomalyScore(node.probability());
+                       : maths::common::CTools::anomalyScore(node.probability());
 
     CAnomalyScore::CNormalizer::CMaximumScoreScope scope{
         dereferenceOrEmpty(node.s_Spec.s_PartitionFieldName),
@@ -107,6 +112,11 @@ void CHierarchicalResultsNormalizer::visit(const CHierarchicalResults& /*results
         }
         break;
     case E_UpdateQuantiles:
+        if (node.s_AnnotatedProbability.s_ShouldUpdateQuantiles == false) {
+            LOG_TRACE(<< "NOT Updating quantiles for " << node.s_Spec.print()
+                      << ", scope = '" << scope.print() << "', score = " << score);
+            return;
+        }
         for (auto& normalizer : normalizers) {
             m_HasLastUpdateCausedBigChange |=
                 normalizer->s_Normalizer->updateQuantiles(scope, score);

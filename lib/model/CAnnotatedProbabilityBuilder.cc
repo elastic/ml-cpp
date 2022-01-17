@@ -1,13 +1,18 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 
-#include <maths/CMultinomialConjugate.h>
-#include <maths/Constants.h>
+#include <maths/common/CMultinomialConjugate.h>
+#include <maths/common/Constants.h>
 
 #include <utility>
 
@@ -57,11 +62,12 @@ void CAnnotatedProbabilityBuilder::personFrequency(double frequency, bool everSe
     }
 }
 
-void CAnnotatedProbabilityBuilder::attributeProbabilityPrior(const maths::CMultinomialConjugate* prior) {
+void CAnnotatedProbabilityBuilder::attributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior) {
     m_AttributeProbabilityPrior = prior;
 }
 
-void CAnnotatedProbabilityBuilder::personAttributeProbabilityPrior(const maths::CMultinomialConjugate* prior) {
+void CAnnotatedProbabilityBuilder::personAttributeProbabilityPrior(
+    const maths::common::CMultinomialConjugate* prior) {
     m_PersonAttributeProbabilityPrior = prior;
 }
 
@@ -104,7 +110,7 @@ void CAnnotatedProbabilityBuilder::addAttributeDescriptiveData(std::size_t cid,
         attributeProbability.addDescriptiveData(
             annotated_probability::E_ACTIVITY_CONCENTRATION, activityConcentration);
 
-        if (pAttribute < maths::LARGEST_SIGNIFICANT_PROBABILITY) {
+        if (pAttribute < maths::common::LARGEST_SIGNIFICANT_PROBABILITY) {
             m_DistinctRareAttributes++;
             m_RareAttributes += activityConcentration;
         }
@@ -118,10 +124,10 @@ void CAnnotatedProbabilityBuilder::build() {
         m_MinAttributeProbabilities.sort();
         m_Result.s_AttributeProbabilities.reserve(m_MinAttributeProbabilities.count());
         double cutoff = std::max(1.1 * m_MinAttributeProbabilities[0].s_Probability,
-                                 maths::LARGEST_SIGNIFICANT_PROBABILITY);
+                                 maths::common::LARGEST_SIGNIFICANT_PROBABILITY);
 
-        for (std::size_t i = 0u; i < m_MinAttributeProbabilities.count() &&
-                                 m_MinAttributeProbabilities[i].s_Probability <= cutoff;
+        for (std::size_t i = 0; i < m_MinAttributeProbabilities.count() &&
+                                m_MinAttributeProbabilities[i].s_Probability <= cutoff;
              ++i) {
             m_Result.s_AttributeProbabilities.push_back(m_MinAttributeProbabilities[i]);
         }

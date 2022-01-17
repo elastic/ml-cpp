@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CIndividualModel.h>
@@ -14,11 +19,12 @@
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
-#include <maths/CMultivariatePrior.h>
-#include <maths/COrderings.h>
-#include <maths/CPrior.h>
-#include <maths/CTimeSeriesDecomposition.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CPrior.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CDataGatherer.h>
@@ -37,25 +43,25 @@ namespace {
 
 using TDouble2Vec = core::CSmallVector<double, 2>;
 using TStrCRef = std::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
+using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
 using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
 using TStrCRefStrCRefPrUInt64Map =
-    std::map<TStrCRefStrCRefPr, uint64_t, maths::COrderings::SLess>;
+    std::map<TStrCRefStrCRefPr, uint64_t, maths::common::COrderings::SLess>;
 
 //! Update \p hashes with the hashes of the active people in \p values.
 template<typename T>
 void hashActive(const CDataGatherer& gatherer,
                 const std::vector<T>& values,
                 TStrCRefUInt64Map& hashes) {
-    for (std::size_t pid = 0u; pid < values.size(); ++pid) {
+    for (std::size_t pid = 0; pid < values.size(); ++pid) {
         if (gatherer.isPersonActive(pid)) {
             uint64_t& hash = hashes[std::cref(gatherer.personName(pid))];
-            hash = maths::CChecksum::calculate(hash, values[pid]);
+            hash = maths::common::CChecksum::calculate(hash, values[pid]);
         }
     }
 }
 
-const std::size_t CHUNK_SIZE = 500u;
+const std::size_t CHUNK_SIZE = 500;
 
 // We use short field names to reduce the state size
 const std::string WINDOW_BUCKET_COUNT_TAG("a");
@@ -90,7 +96,7 @@ CIndividualModel::CIndividualModel(const SModelParams& params,
 
     if (this->params().s_MultivariateByFields) {
         m_FeatureCorrelatesModels.reserve(featureCorrelatesModels.size());
-        for (std::size_t i = 0u; i < featureCorrelatesModels.size(); ++i) {
+        for (std::size_t i = 0; i < featureCorrelatesModels.size(); ++i) {
             m_FeatureCorrelatesModels.emplace_back(
                 featureCorrelatesModels[i].first,
                 newFeatureCorrelateModelPriors[i].second,
@@ -143,7 +149,7 @@ CIndividualModel::currentBucketCount(std::size_t pid, core_t::TTime time) const 
 
     auto result = std::lower_bound(this->currentBucketPersonCounts().begin(),
                                    this->currentBucketPersonCounts().end(), pid,
-                                   maths::COrderings::SFirstLess());
+                                   maths::common::COrderings::SFirstLess());
 
     return result != this->currentBucketPersonCounts().end() && result->first == pid
                ? result->second
@@ -207,7 +213,7 @@ void CIndividualModel::prune(std::size_t maximumAge) {
     CDataGatherer& gatherer = this->dataGatherer();
 
     TSizeVec peopleToRemove;
-    for (std::size_t pid = 0u; pid < m_LastBucketTimes.size(); ++pid) {
+    for (std::size_t pid = 0; pid < m_LastBucketTimes.size(); ++pid) {
         if (gatherer.isPersonActive(pid) &&
             !CAnomalyDetectorModel::isTimeUnset(m_LastBucketTimes[pid])) {
             std::size_t bucketsSinceLastEvent = static_cast<std::size_t>(
@@ -261,17 +267,17 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
             if (gatherer.isPersonActive(pids[0]) && gatherer.isPersonActive(pids[1])) {
                 uint64_t& hash = hashes2[{std::cref(this->personName(pids[0])),
                                           std::cref(this->personName(pids[1]))}];
-                hash = maths::CChecksum::calculate(hash, model.second);
+                hash = maths::common::CChecksum::calculate(hash, model.second);
             }
         }
     }
 
     if (includeCurrentBucketStats) {
-        seed = maths::CChecksum::calculate(seed, this->currentBucketStartTime());
+        seed = maths::common::CChecksum::calculate(seed, this->currentBucketStartTime());
         const TSizeUInt64PrVec& personCounts = this->currentBucketPersonCounts();
         for (const auto& count : personCounts) {
             uint64_t& hash = hashes1[std::cref(this->personName(count.first))];
-            hash = maths::CChecksum::calculate(hash, count.second);
+            hash = maths::common::CChecksum::calculate(hash, count.second);
         }
     }
 
@@ -279,8 +285,8 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
     LOG_TRACE(<< "hashes1 = " << core::CContainerPrinter::print(hashes1));
     LOG_TRACE(<< "hashes2 = " << core::CContainerPrinter::print(hashes2));
 
-    seed = maths::CChecksum::calculate(seed, hashes1);
-    return maths::CChecksum::calculate(seed, hashes2);
+    seed = maths::common::CChecksum::calculate(seed, hashes1);
+    return maths::common::CChecksum::calculate(seed, hashes2);
 }
 
 void CIndividualModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
@@ -334,6 +340,11 @@ void CIndividualModel::doPersistModelsState(core::CStatePersistInserter& inserte
     }
 }
 
+bool CIndividualModel::shouldPersist() const {
+    return std::any_of(m_FeatureModels.begin(), m_FeatureModels.end(),
+                       [](const auto& model) { return model.shouldPersist(); });
+}
+
 void CIndividualModel::doAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(WINDOW_BUCKET_COUNT_TAG, this->windowBucketCount(),
                          core::CIEEE754::E_SinglePrecision);
@@ -385,15 +396,19 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE_BUILT_IN(UPGRADING_PRE_7_5_STATE, upgradingPre7p5State)
     } while (traverser.next());
 
+    if (traverser.haveBadState()) {
+        return false;
+    }
+
     const double DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS{0.2};
 
     for (auto& feature : m_FeatureModels) {
 
         std::size_t dimension{model_t::dimension(feature.s_Feature)};
-        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
+        maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
             maths_t::CUnitWeights::unit<TDouble2Vec>(dimension)};
         maths_t::setCount(TDouble2Vec(dimension, 50.0), weights[0]);
-        maths::CModelAddSamplesParams params;
+        maths::common::CModelAddSamplesParams params;
         params.integer(true)
             .nonNegative(true)
             .propagationInterval(1.0)
@@ -403,7 +418,7 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         for (std::size_t pid = 0; pid < feature.s_Models.size(); ++pid) {
             if (upgradingPre7p5State &&
                 this->personFrequency(pid) < DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS) {
-                maths::CModel::TTimeDouble2VecSizeTrVec value{core::make_triple(
+                maths::common::CModel::TTimeDouble2VecSizeTrVec value{core::make_triple(
                     this->lastBucketTimes()[pid], TDouble2Vec(dimension, 0.0),
                     model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID)};
                 feature.s_Models[pid]->addSamples(params, value);
@@ -415,6 +430,8 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
             }
         }
     }
+
+    VIOLATES_INVARIANT(m_FirstBucketTimes.size(), !=, m_LastBucketTimes.size());
 
     return true;
 }
@@ -545,17 +562,19 @@ double CIndividualModel::emptyBucketWeight(model_t::EFeature feature,
         if (count == boost::none || *count == 0) {
             // We smoothly transition to modelling non-zero count when the bucket
             // occupancy is less than 0.5.
-            weight = maths::CTools::truncate(2.0 * this->personFrequency(pid), 1e-6, 1.0);
+            weight = maths::common::CTools::truncate(
+                2.0 * this->personFrequency(pid), 1e-6, 1.0);
         }
     }
     return weight;
 }
 
-const maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) const {
+const maths::common::CModel* CIndividualModel::model(model_t::EFeature feature,
+                                                     std::size_t pid) const {
     return const_cast<CIndividualModel*>(this)->model(feature, pid);
 }
 
-maths::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) {
+maths::common::CModel* CIndividualModel::model(model_t::EFeature feature, std::size_t pid) {
     auto i = std::find_if(m_FeatureModels.begin(), m_FeatureModels.end(),
                           [feature](const SFeatureModels& model) {
                               return model.s_Feature == feature;
@@ -609,7 +628,7 @@ std::string CIndividualModel::printCurrentBucket() const {
 }
 
 std::size_t CIndividualModel::numberCorrelations() const {
-    std::size_t result = 0u;
+    std::size_t result = 0;
     for (const auto& feature : m_FeatureCorrelatesModels) {
         result += feature.s_Models->correlationModels().size();
     }

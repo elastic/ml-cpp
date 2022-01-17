@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CProgramCounters_h
 #define INCLUDED_ml_core_CProgramCounters_h
@@ -179,6 +184,14 @@ struct SCounterDefinition {
 //! A singleton class: there should only be one collection of global counters
 //!
 class CORE_EXPORT CProgramCounters {
+public:
+    //! \brief
+    //! The cache of program counters is cleared upon destruction of an instance of this class.
+    class CORE_EXPORT CCacheManager {
+    public:
+        ~CCacheManager();
+    };
+
 private:
     //! \brief
     //! An atomic counter object
@@ -257,6 +270,9 @@ public:
 
     //! Copy the collection of live counters to a cache
     static void cacheCounters();
+
+    //! Clear the collection of cached counters
+    static void clearCachedCounters();
 
     //! \name Persistence
     //@{

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -97,7 +102,7 @@ void generateTestMessages(const core_t::TTime& startTime, TMessageVec& result) {
     rng.generateUniformSamples(0.0, static_cast<double>(numberCategories) - 0.01,
                                numberMessages, categories);
 
-    for (std::size_t i = 0u; i < numberMessages; ++i) {
+    for (std::size_t i = 0; i < numberMessages; ++i) {
         core_t::TTime time = startTime + static_cast<core_t::TTime>(times[i]);
         std::size_t person = static_cast<std::size_t>(people[i]);
         std::size_t attribute = static_cast<std::size_t>(categories[i]);
@@ -113,7 +118,7 @@ void addArrival(const SMessage& message, CDataGatherer& gatherer, CResourceMonit
     CDataGatherer::TStrCPtrVec fields;
     fields.push_back(&message.s_Person);
     fields.push_back(&message.s_Attribute);
-    for (std::size_t i = 0u; i < message.s_Influences.size(); ++i) {
+    for (std::size_t i = 0; i < message.s_Influences.size(); ++i) {
         if (message.s_Influences[i].empty()) {
             fields.push_back(static_cast<std::string*>(nullptr));
         } else {
@@ -145,7 +150,7 @@ protected:
 BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
     // Test that we correctly sample the bucket means.
 
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TStrStrPrMeanAccumulatorMap = std::map<TStrStrPr, TMeanAccumulator>;
     using TStrStrPrMeanAccumulatorMapCItr = TStrStrPrMeanAccumulatorMap::const_iterator;
 
@@ -168,7 +173,7 @@ BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
 
     TStrStrPrMeanAccumulatorMap accumulators;
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
@@ -181,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
             const TSizeSizePrFeatureDataPrVec& data = tmp[0].second;
             BOOST_REQUIRE_EQUAL(accumulators.size(), data.size());
             TStrStrPrDoubleMap means;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 if (data[j].second.s_BucketValue) {
                     means[TStrStrPr(gatherer.personName(data[j].first.first),
                                     gatherer.attributeName(data[j].first.second))] =
@@ -192,7 +197,8 @@ BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
             TStrStrPrDoubleMap expectedMeans;
             for (TStrStrPrMeanAccumulatorMapCItr itr = accumulators.begin();
                  itr != accumulators.end(); ++itr) {
-                expectedMeans[itr->first] = maths::CBasicStatistics::mean(itr->second);
+                expectedMeans[itr->first] =
+                    maths::common::CBasicStatistics::mean(itr->second);
             }
 
             BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedMeans),
@@ -211,7 +217,8 @@ BOOST_FIXTURE_TEST_CASE(testMean, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testMin, CTestFixture) {
     // Test that we correctly sample the bucket minimums.
 
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+    using TMinAccumulator =
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
     using TStrStrPrMinAccumulatorMap = std::map<TStrStrPr, TMinAccumulator>;
     using TStrStrPrMinAccumulatorMapCItr = TStrStrPrMinAccumulatorMap::const_iterator;
 
@@ -233,7 +240,7 @@ BOOST_FIXTURE_TEST_CASE(testMin, CTestFixture) {
 
     TStrStrPrMinAccumulatorMap accumulators;
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
@@ -246,7 +253,7 @@ BOOST_FIXTURE_TEST_CASE(testMin, CTestFixture) {
             const TSizeSizePrFeatureDataPrVec& data = tmp[0].second;
             BOOST_REQUIRE_EQUAL(accumulators.size(), data.size());
             TStrStrPrDoubleMap mins;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 if (data[j].second.s_BucketValue) {
                     mins[TStrStrPr(gatherer.personName(data[j].first.first),
                                    gatherer.attributeName(data[j].first.second))] =
@@ -277,7 +284,7 @@ BOOST_FIXTURE_TEST_CASE(testMax, CTestFixture) {
     // Test that we correctly sample the bucket maximums.
 
     using TMaxAccumulator =
-        maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
     using TStrStrPrMaxAccumulatorMap = std::map<TStrStrPr, TMaxAccumulator>;
     using TStrStrPrMaxAccumulatorMapCItr = TStrStrPrMaxAccumulatorMap::const_iterator;
 
@@ -299,7 +306,7 @@ BOOST_FIXTURE_TEST_CASE(testMax, CTestFixture) {
 
     TStrStrPrMaxAccumulatorMap accumulators;
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
@@ -312,7 +319,7 @@ BOOST_FIXTURE_TEST_CASE(testMax, CTestFixture) {
             const TSizeSizePrFeatureDataPrVec& data = tmp[0].second;
             BOOST_REQUIRE_EQUAL(accumulators.size(), data.size());
             TStrStrPrDoubleMap maxs;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 if (data[j].second.s_BucketValue) {
                     maxs[TStrStrPr(gatherer.personName(data[j].first.first),
                                    gatherer.attributeName(data[j].first.second))] =
@@ -360,7 +367,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
 
     TStrStrPrDoubleMap expectedSums;
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
@@ -373,7 +380,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
             const TSizeSizePrFeatureDataPrVec& data = tmp[0].second;
             BOOST_REQUIRE_EQUAL(expectedSums.size(), data.size());
             TStrStrPrDoubleMap sums;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 if (data[j].second.s_BucketValue) {
                     sums[TStrStrPr(gatherer.personName(data[j].first.first),
                                    gatherer.attributeName(data[j].first.second))] =
@@ -416,11 +423,11 @@ BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
     const double tolerance = 5e-4;
 
     TMessageVec messages;
-    for (std::size_t bucket = 0u; bucket < numberBuckets; ++bucket) {
+    for (std::size_t bucket = 0; bucket < numberBuckets; ++bucket) {
         core_t::TTime bucketStart = startTime + static_cast<core_t::TTime>(bucket) * bucketLength;
 
         std::size_t n = personMessageCount[bucket];
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             core_t::TTime time = bucketStart + bucketLength *
                                                    static_cast<core_t::TTime>(i) /
                                                    static_cast<core_t::TTime>(n);
@@ -435,8 +442,8 @@ BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
     CModelFactory::TDataGathererPtr gathererPtr(factory.makeDataGatherer(initData));
     CDataGatherer& gatherer(*gathererPtr);
 
-    std::size_t bucket = 0u;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    std::size_t bucket = 0;
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         core_t::TTime bucketStart = startTime + static_cast<core_t::TTime>(bucket) * bucketLength;
 
         if (messages[i].s_Time >= bucketStart + bucketLength) {
@@ -459,14 +466,15 @@ BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
     // Test we correctly sample the mean, minimum and maximum statistics.
 
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TStrStrPrMeanAccumulatorMap = std::map<TStrStrPr, TMeanAccumulator>;
     using TStrStrPrMeanAccumulatorMapCItr = TStrStrPrMeanAccumulatorMap::const_iterator;
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+    using TMinAccumulator =
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
     using TStrStrPrMinAccumulatorMap = std::map<TStrStrPr, TMinAccumulator>;
     using TStrStrPrMinAccumulatorMapCItr = TStrStrPrMinAccumulatorMap::const_iterator;
     using TMaxAccumulator =
-        maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+        maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
     using TStrStrPrMaxAccumulatorMap = std::map<TStrStrPr, TMaxAccumulator>;
     using TStrStrPrMaxAccumulatorMapCItr = TStrStrPrMaxAccumulatorMap::const_iterator;
     using TStrStrPrDoubleVecMap = std::map<TStrStrPr, TDoubleVec>;
@@ -500,7 +508,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
     TStrStrPrMaxAccumulatorMap sampleMaxAccumulators;
     TStrStrPrDoubleVecMap expectedMaxSamples;
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
@@ -515,7 +523,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                                 tmp[0].first);
             TStrStrPrDoubleMap means;
             TStrStrPrDoubleVecMap meanSamples;
-            for (std::size_t j = 0u; j < tmp[0].second.size(); ++j) {
+            for (std::size_t j = 0; j < tmp[0].second.size(); ++j) {
                 const TSizeSizePrFeatureDataPr& data = tmp[0].second[j];
                 TStrStrPr key(gatherer.personName(data.first.first),
                               gatherer.attributeName(data.first.second));
@@ -523,7 +531,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                     means[key] = data.second.s_BucketValue->value()[0];
                 }
                 TDoubleVec& samples = meanSamples[key];
-                for (std::size_t k = 0u;
+                for (std::size_t k = 0;
                      k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
                         ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
@@ -534,7 +542,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                                 tmp[1].first);
             TStrStrPrDoubleMap mins;
             TStrStrPrDoubleVecMap minSamples;
-            for (std::size_t j = 0u; j < tmp[1].second.size(); ++j) {
+            for (std::size_t j = 0; j < tmp[1].second.size(); ++j) {
                 const TSizeSizePrFeatureDataPr& data = tmp[1].second[j];
                 TStrStrPr key(gatherer.personName(data.first.first),
                               gatherer.attributeName(data.first.second));
@@ -542,7 +550,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                     mins[key] = data.second.s_BucketValue->value()[0];
                 }
                 TDoubleVec& samples = minSamples[key];
-                for (std::size_t k = 0u;
+                for (std::size_t k = 0;
                      k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
                         ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
@@ -553,7 +561,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                                 tmp[2].first);
             TStrStrPrDoubleMap maxs;
             TStrStrPrDoubleVecMap maxSamples;
-            for (std::size_t j = 0u; j < tmp[2].second.size(); ++j) {
+            for (std::size_t j = 0; j < tmp[2].second.size(); ++j) {
                 const TSizeSizePrFeatureDataPr& data = tmp[2].second[j];
                 TStrStrPr key(gatherer.personName(data.first.first),
                               gatherer.attributeName(data.first.second));
@@ -561,7 +569,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
                     maxs[key] = data.second.s_BucketValue->value()[0];
                 }
                 TDoubleVec& samples = maxSamples[key];
-                for (std::size_t k = 0u;
+                for (std::size_t k = 0;
                      k < ml::core::unwrap_ref(data.second.s_Samples).size(); ++k) {
                     samples.push_back(
                         ml::core::unwrap_ref(data.second.s_Samples)[k].value()[0]);
@@ -571,7 +579,8 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
             TStrStrPrDoubleMap expectedMeans;
             for (TStrStrPrMeanAccumulatorMapCItr itr = bucketMeanAccumulators.begin();
                  itr != bucketMeanAccumulators.end(); ++itr) {
-                expectedMeans[itr->first] = maths::CBasicStatistics::mean(itr->second);
+                expectedMeans[itr->first] =
+                    maths::common::CBasicStatistics::mean(itr->second);
             }
 
             TStrStrPrDoubleMap expectedMins;
@@ -627,10 +636,10 @@ BOOST_FIXTURE_TEST_CASE(testFeatureData, CTestFixture) {
             sampleMeanAccumulators[key].add(messages[i].s_Value);
             sampleMinAccumulators[key].add(messages[i].s_Value);
             sampleMaxAccumulators[key].add(messages[i].s_Value);
-            if (maths::CBasicStatistics::count(sampleMeanAccumulators[key]) ==
+            if (maths::common::CBasicStatistics::count(sampleMeanAccumulators[key]) ==
                 std::floor(sampleCount + 0.5)) {
                 expectedMeanSamples[key].push_back(
-                    maths::CBasicStatistics::mean(sampleMeanAccumulators[key]));
+                    maths::common::CBasicStatistics::mean(sampleMeanAccumulators[key]));
                 expectedMinSamples[key].push_back(sampleMinAccumulators[key][0]);
                 expectedMaxSamples[key].push_back(sampleMaxAccumulators[key][0]);
                 sampleMeanAccumulators[key] = TMeanAccumulator();
@@ -669,7 +678,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     generateTestMessages(startTime, messages);
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
@@ -692,7 +701,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     BOOST_REQUIRE_EQUAL(numberPeople, gatherer.numberOverFieldValues());
     TStrVec expectedPersonNames;
     TSizeVec expectedPersonIds;
-    for (std::size_t i = 0u; i < numberPeople; ++i) {
+    for (std::size_t i = 0; i < numberPeople; ++i) {
         if (!std::binary_search(peopleToRemove.begin(), peopleToRemove.end(), i)) {
             expectedPersonNames.push_back(gatherer.personName(i));
             expectedPersonIds.push_back(i);
@@ -705,7 +714,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     {
         TSizeUInt64PrVec nonZeroCounts;
         gatherer.personNonZeroCounts(bucketStart, nonZeroCounts);
-        for (std::size_t i = 0u; i < nonZeroCounts.size(); ++i) {
+        for (std::size_t i = 0; i < nonZeroCounts.size(); ++i) {
             if (!std::binary_search(peopleToRemove.begin(), peopleToRemove.end(),
                                     nonZeroCounts[i].first)) {
                 const std::string& name = gatherer.personName(nonZeroCounts[i].first);
@@ -721,9 +730,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (std::size_t i = 0u; i < featureData.size(); ++i) {
+        for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 if (!std::binary_search(peopleToRemove.begin(),
                                         peopleToRemove.end(), data[j].first.first)) {
                     std::string key = model_t::print(featureData[i].first) + " " +
@@ -740,7 +749,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     gatherer.recyclePeople(peopleToRemove);
 
     BOOST_REQUIRE_EQUAL(numberPeople - peopleToRemove.size(), gatherer.numberActivePeople());
-    for (std::size_t i = 0u; i < expectedPersonNames.size(); ++i) {
+    for (std::size_t i = 0; i < expectedPersonNames.size(); ++i) {
         std::size_t pid;
         BOOST_TEST_REQUIRE(gatherer.personId(expectedPersonNames[i], pid));
         BOOST_REQUIRE_EQUAL(expectedPersonIds[i], pid);
@@ -749,7 +758,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     TStrSizeMap actualNonZeroCounts;
     TSizeUInt64PrVec nonZeroCounts;
     gatherer.personNonZeroCounts(bucketStart, nonZeroCounts);
-    for (std::size_t i = 0u; i < nonZeroCounts.size(); ++i) {
+    for (std::size_t i = 0; i < nonZeroCounts.size(); ++i) {
         const std::string& name = gatherer.personName(nonZeroCounts[i].first);
         actualNonZeroCounts[name] = nonZeroCounts[i].second;
     }
@@ -764,9 +773,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     {
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (std::size_t i = 0u; i < featureData.size(); ++i) {
+        for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 std::string key = model_t::print(featureData[i].first) + " " +
                                   gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
@@ -806,7 +815,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     generateTestMessages(startTime, messages);
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");
@@ -828,7 +837,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     TStrVec expectedAttributeNames;
     TSizeVec expectedAttributeIds;
     TDoubleVec expectedSampleCounts;
-    for (std::size_t i = 0u; i < numberAttributes; ++i) {
+    for (std::size_t i = 0; i < numberAttributes; ++i) {
         if (!std::binary_search(attributesToRemove.begin(), attributesToRemove.end(), i)) {
             expectedAttributeNames.push_back(gatherer.attributeName(i));
             expectedAttributeIds.push_back(i);
@@ -844,9 +853,9 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
         TStrFeatureDataPrVec expected;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (std::size_t i = 0u; i < featureData.size(); ++i) {
+        for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 if (!std::binary_search(attributesToRemove.begin(),
                                         attributesToRemove.end(), data[j].first.second)) {
                     std::string key = model_t::print(featureData[i].first) + " " +
@@ -865,7 +874,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
 
     BOOST_REQUIRE_EQUAL(numberAttributes - attributesToRemove.size(),
                         gatherer.numberActiveAttributes());
-    for (std::size_t i = 0u; i < expectedAttributeNames.size(); ++i) {
+    for (std::size_t i = 0; i < expectedAttributeNames.size(); ++i) {
         std::size_t cid;
         BOOST_TEST_REQUIRE(gatherer.attributeId(expectedAttributeNames[i], cid));
         BOOST_REQUIRE_EQUAL(expectedAttributeIds[i], cid);
@@ -873,7 +882,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
 
     numberAttributes = gatherer.numberActiveAttributes();
     TDoubleVec actualSampleCounts;
-    for (std::size_t i = 0u; i < numberAttributes; ++i) {
+    for (std::size_t i = 0; i < numberAttributes; ++i) {
         actualSampleCounts.push_back(gatherer.effectiveSampleCount(expectedAttributeIds[i]));
     }
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedSampleCounts),
@@ -885,9 +894,9 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
         TStrFeatureDataPrVec actual;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (std::size_t i = 0u; i < featureData.size(); ++i) {
+        for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 std::string key = model_t::print(featureData[i].first) + " " +
                                   gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
@@ -971,21 +980,21 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                            influencerNames, searchKey, features, startTime, 2u);
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u, b = 0u; i < boost::size(data); ++i) {
+    for (std::size_t i = 0u, b = 0; i < boost::size(data); ++i) {
         if (data[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
             gatherer.featureData(bucketStart, bucketLength, featureData);
-            for (std::size_t j = 0u; j < featureData.size(); ++j) {
+            for (std::size_t j = 0; j < featureData.size(); ++j) {
                 model_t::EFeature feature = featureData[j].first;
                 LOG_DEBUG(<< "feature = " << model_t::print(feature));
 
                 const TSizeSizePrFeatureDataPrVec& data_ = featureData[j].second;
-                for (std::size_t k = 0u; k < data_.size(); ++k) {
+                for (std::size_t k = 0; k < data_.size(); ++k) {
                     TStrDoubleDoublePrPrVec statistics;
-                    for (std::size_t m = 0u;
+                    for (std::size_t m = 0;
                          m < data_[k].second.s_InfluenceValues.size(); ++m) {
-                        for (std::size_t n = 0u;
+                        for (std::size_t n = 0;
                              n < data_[k].second.s_InfluenceValues[m].size(); ++n) {
                             statistics.push_back(TStrDoubleDoublePrPr(
                                 data_[k].second.s_InfluenceValues[m][n].first,
@@ -999,7 +1008,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
                         }
                     }
                     std::sort(statistics.begin(), statistics.end(),
-                              maths::COrderings::SFirstLess());
+                              maths::common::COrderings::SFirstLess());
 
                     LOG_DEBUG(<< "statistics = "
                               << core::CContainerPrinter::print(statistics));
@@ -1036,7 +1045,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     generateTestMessages(startTime, messages);
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "Processing bucket [" << bucketStart << ", "
                       << bucketStart + bucketLength << ")");

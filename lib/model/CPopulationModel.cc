@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CPopulationModel.h>
@@ -14,12 +19,13 @@
 #include <core/CoreTypes.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
-#include <maths/COrderings.h>
-#include <maths/CPrior.h>
-#include <maths/CPriorStateSerialiser.h>
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesDecompositionStateSerialiser.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CPrior.h>
+#include <maths/common/CPriorStateSerialiser.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CModelTools.h>
@@ -33,7 +39,7 @@ namespace model {
 namespace {
 
 using TStrCRef = std::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::COrderings::SLess>;
+using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
 
 enum EEntity { E_Person, E_Attribute };
 
@@ -67,19 +73,19 @@ void hashActive(EEntity entity,
                 const CDataGatherer& gatherer,
                 const std::vector<T>& values,
                 TStrCRefUInt64Map& hashes) {
-    for (std::size_t id = 0u; id < values.size(); ++id) {
+    for (std::size_t id = 0; id < values.size(); ++id) {
         if (isActive(entity, gatherer, id)) {
             uint64_t& hash = hashes[std::cref(name(entity, gatherer, id))];
-            hash = maths::CChecksum::calculate(hash, values[id]);
+            hash = maths::common::CChecksum::calculate(hash, values[id]);
         }
     }
 }
 
-const std::size_t COUNT_MIN_SKETCH_ROWS = 3u;
-const std::size_t COUNT_MIN_SKETCH_COLUMNS = 500u;
-const std::size_t BJKST_HASHES = 3u;
-const std::size_t BJKST_MAX_SIZE = 100u;
-const std::size_t CHUNK_SIZE = 500u;
+const std::size_t COUNT_MIN_SKETCH_ROWS = 3;
+const std::size_t COUNT_MIN_SKETCH_COLUMNS = 500;
+const std::size_t BJKST_HASHES = 3;
+const std::size_t BJKST_MAX_SIZE = 100;
+const std::size_t CHUNK_SIZE = 500;
 
 // We use short field names to reduce the state size
 const std::string WINDOW_BUCKET_COUNT_TAG("a");
@@ -101,9 +107,9 @@ CPopulationModel::CPopulationModel(const SModelParams& params,
     : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators),
       m_NewDistinctPersonCounts(BJKST_HASHES, BJKST_MAX_SIZE) {
     const model_t::TFeatureVec& features = dataGatherer->features();
-    for (std::size_t i = 0u; i < features.size(); ++i) {
+    for (std::size_t i = 0; i < features.size(); ++i) {
         if (!model_t::isCategorical(features[i]) && !model_t::isConstant(features[i])) {
-            m_NewPersonBucketCounts.reset(maths::CCountMinSketch(
+            m_NewPersonBucketCounts.reset(maths::time_series::CCountMinSketch(
                 COUNT_MIN_SKETCH_ROWS, COUNT_MIN_SKETCH_COLUMNS));
             break;
         }
@@ -136,7 +142,7 @@ CPopulationModel::currentBucketCount(std::size_t pid, core_t::TTime time) const 
 
     const TSizeUInt64PrVec& personCounts = this->personCounts();
     auto i = std::lower_bound(personCounts.begin(), personCounts.end(), pid,
-                              maths::COrderings::SFirstLess());
+                              maths::common::COrderings::SFirstLess());
     return (i != personCounts.end() && i->first == pid) ? TOptionalUInt64(i->second)
                                                         : TOptionalUInt64();
 }
@@ -181,7 +187,7 @@ void CPopulationModel::sample(core_t::TTime startTime,
     }
 
     double alpha = std::exp(-this->params().s_DecayRate * 1.0);
-    for (std::size_t cid = 0u; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
+    for (std::size_t cid = 0; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
         m_PersonAttributeBucketCounts[cid].age(alpha);
     }
 }
@@ -198,7 +204,7 @@ uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
 
-    return maths::CChecksum::calculate(seed, hashes);
+    return maths::common::CChecksum::calculate(seed, hashes);
 }
 
 void CPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
@@ -250,8 +256,8 @@ double CPopulationModel::sampleRateWeight(std::size_t pid, std::size_t cid) cons
         return 1.0;
     }
 
-    const maths::CCountMinSketch& counts = m_PersonAttributeBucketCounts[cid];
-    const maths::CBjkstUniqueValues& distinctPeople = m_DistinctPersonCounts[cid];
+    const maths::time_series::CCountMinSketch& counts = m_PersonAttributeBucketCounts[cid];
+    const maths::common::CBjkstUniqueValues& distinctPeople = m_DistinctPersonCounts[cid];
 
     double personCount = counts.count(static_cast<uint32_t>(pid)) -
                          counts.oneMinusDeltaError();
@@ -282,15 +288,15 @@ void CPopulationModel::doAcceptPersistInserter(core::CStatePersistInserter& inse
     core::CPersistUtils::persist(ATTRIBUTE_LAST_BUCKET_TIME_TAG,
                                  m_AttributeLastBucketTimes, inserter);
     for (std::size_t cid = 0; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
-        inserter.insertLevel(PERSON_ATTRIBUTE_BUCKET_COUNT_TAG,
-                             std::bind(&maths::CCountMinSketch::acceptPersistInserter,
-                                       &m_PersonAttributeBucketCounts[cid],
-                                       std::placeholders::_1));
+        inserter.insertLevel(
+            PERSON_ATTRIBUTE_BUCKET_COUNT_TAG,
+            std::bind(&maths::time_series::CCountMinSketch::acceptPersistInserter,
+                      &m_PersonAttributeBucketCounts[cid], std::placeholders::_1));
     }
     for (std::size_t cid = 0; cid < m_DistinctPersonCounts.size(); ++cid) {
         inserter.insertLevel(
             DISTINCT_PERSON_COUNT_TAG,
-            std::bind(&maths::CBjkstUniqueValues::acceptPersistInserter,
+            std::bind(&maths::common::CBjkstUniqueValues::acceptPersistInserter,
                       &m_DistinctPersonCounts[cid], std::placeholders::_1));
     }
 }
@@ -310,18 +316,22 @@ bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE(ATTRIBUTE_LAST_BUCKET_TIME_TAG,
                 core::CPersistUtils::restore(name, m_AttributeLastBucketTimes, traverser))
         if (name == PERSON_ATTRIBUTE_BUCKET_COUNT_TAG) {
-            maths::CCountMinSketch sketch(traverser);
-            m_PersonAttributeBucketCounts.push_back(maths::CCountMinSketch(0, 0));
+            maths::time_series::CCountMinSketch sketch(traverser);
+            m_PersonAttributeBucketCounts.push_back(
+                maths::time_series::CCountMinSketch(0, 0));
             m_PersonAttributeBucketCounts.back().swap(sketch);
             continue;
         }
         if (name == DISTINCT_PERSON_COUNT_TAG) {
-            maths::CBjkstUniqueValues sketch(traverser);
-            m_DistinctPersonCounts.push_back(maths::CBjkstUniqueValues(0, 0));
+            maths::common::CBjkstUniqueValues sketch(traverser);
+            m_DistinctPersonCounts.push_back(maths::common::CBjkstUniqueValues(0, 0));
             m_DistinctPersonCounts.back().swap(sketch);
             continue;
         }
     } while (traverser.next());
+
+    VIOLATES_INVARIANT(m_AttributeFirstBucketTimes.size(), !=,
+                       m_AttributeLastBucketTimes.size());
 
     return true;
 }
@@ -465,7 +475,7 @@ void CPopulationModel::correctBaselineForInterim(model_t::EFeature feature,
                                                  const TCorrectionKeyDouble1VecUMap& corrections,
                                                  TDouble1Vec& result) const {
     if (type.isInterim() && model_t::requiresInterimResultAdjustment(feature)) {
-        std::size_t correlated_ = 0u;
+        std::size_t correlated_ = 0;
         switch (type.asConditionalOrUnconditional()) {
         case model_t::CResultType::E_Unconditional:
             break;
@@ -484,7 +494,7 @@ void CPopulationModel::correctBaselineForInterim(model_t::EFeature feature,
 
 double CPopulationModel::propagationTime(std::size_t cid, core_t::TTime time) const {
     return 1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) *
-                     maths::CTools::truncate(
+                     maths::common::CTools::truncate(
                          1.0 - static_cast<double>(time - m_AttributeFirstBucketTimes[cid]) /
                                    static_cast<double>(3 * core::constants::WEEK),
                          0.0, 1.0);
@@ -500,7 +510,7 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
 
     const CDataGatherer& gatherer = this->dataGatherer();
 
-    for (std::size_t pid = 0u; pid < m_PersonLastBucketTimes.size(); ++pid) {
+    for (std::size_t pid = 0; pid < m_PersonLastBucketTimes.size(); ++pid) {
         if ((gatherer.isPersonActive(pid)) &&
             (!CAnomalyDetectorModel::isTimeUnset(m_PersonLastBucketTimes[pid]))) {
             std::size_t bucketsSinceLastEvent = static_cast<std::size_t>(
@@ -513,7 +523,7 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
         }
     }
 
-    for (std::size_t cid = 0u; cid < m_AttributeLastBucketTimes.size(); ++cid) {
+    for (std::size_t cid = 0; cid < m_AttributeLastBucketTimes.size(); ++cid) {
         if ((gatherer.isAttributeActive(cid)) &&
             (!CAnomalyDetectorModel::isTimeUnset(m_AttributeLastBucketTimes[cid]))) {
             std::size_t bucketsSinceLastEvent = static_cast<std::size_t>(
@@ -529,12 +539,12 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
 }
 
 void CPopulationModel::removePeople(const TSizeVec& peopleToRemove) {
-    for (std::size_t i = 0u; i < peopleToRemove.size(); ++i) {
+    for (std::size_t i = 0; i < peopleToRemove.size(); ++i) {
         uint32_t pid = static_cast<uint32_t>(peopleToRemove[i]);
-        for (std::size_t cid = 0u; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
+        for (std::size_t cid = 0; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
             m_PersonAttributeBucketCounts[cid].removeFromMap(pid);
         }
-        for (std::size_t cid = 0u; cid < m_DistinctPersonCounts.size(); ++cid) {
+        for (std::size_t cid = 0; cid < m_DistinctPersonCounts.size(); ++cid) {
             m_DistinctPersonCounts[cid].remove(pid);
         }
     }
@@ -544,14 +554,14 @@ void CPopulationModel::doSkipSampling(core_t::TTime startTime, core_t::TTime end
     const CDataGatherer& gatherer = this->dataGatherer();
     core_t::TTime gapDuration = endTime - startTime;
 
-    for (std::size_t pid = 0u; pid < m_PersonLastBucketTimes.size(); ++pid) {
+    for (std::size_t pid = 0; pid < m_PersonLastBucketTimes.size(); ++pid) {
         if (gatherer.isPersonActive(pid) &&
             !CAnomalyDetectorModel::isTimeUnset(m_PersonLastBucketTimes[pid])) {
             m_PersonLastBucketTimes[pid] = m_PersonLastBucketTimes[pid] + gapDuration;
         }
     }
 
-    for (std::size_t cid = 0u; cid < m_AttributeLastBucketTimes.size(); ++cid) {
+    for (std::size_t cid = 0; cid < m_AttributeLastBucketTimes.size(); ++cid) {
         if (gatherer.isAttributeActive(cid) &&
             !CAnomalyDetectorModel::isTimeUnset(m_AttributeLastBucketTimes[cid])) {
             m_AttributeLastBucketTimes[cid] = m_AttributeLastBucketTimes[cid] + gapDuration;

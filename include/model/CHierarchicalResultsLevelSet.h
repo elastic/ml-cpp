@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CHierarchicalResultsLevelSet_h
@@ -9,8 +14,8 @@
 
 #include <core/CCompressedDictionary.h>
 
-#include <maths/CChecksum.h>
-#include <maths/COrderings.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CHierarchicalResults.h>
 
@@ -53,6 +58,8 @@ protected:
 protected:
     explicit CHierarchicalResultsLevelSet(const T& bucketElement)
         : m_BucketElement(bucketElement) {}
+
+    ~CHierarchicalResultsLevelSet() override = default;
 
     //! Get the root unique element.
     const T& bucketElement() const { return m_BucketElement; }
@@ -222,12 +229,12 @@ protected:
 
     //! Get a checksum of the set data.
     uint64_t checksum(uint64_t seed) const {
-        seed = maths::CChecksum::calculate(seed, m_BucketElement);
-        seed = maths::CChecksum::calculate(seed, m_InfluencerBucketSet);
-        seed = maths::CChecksum::calculate(seed, m_InfluencerSet);
-        seed = maths::CChecksum::calculate(seed, m_PartitionSet);
-        seed = maths::CChecksum::calculate(seed, m_PersonSet);
-        return maths::CChecksum::calculate(seed, m_LeafSet);
+        seed = maths::common::CChecksum::calculate(seed, m_BucketElement);
+        seed = maths::common::CChecksum::calculate(seed, m_InfluencerBucketSet);
+        seed = maths::common::CChecksum::calculate(seed, m_InfluencerSet);
+        seed = maths::common::CChecksum::calculate(seed, m_PartitionSet);
+        seed = maths::common::CChecksum::calculate(seed, m_PersonSet);
+        return maths::common::CChecksum::calculate(seed, m_LeafSet);
     }
 
 private:
@@ -248,18 +255,18 @@ private:
     //! and return the end iterator otherwise.
     static TWordTypePrVecItr element(TWordTypePrVec& set, const TWord& word) {
         return std::lower_bound(set.begin(), set.end(), word,
-                                maths::COrderings::SFirstLess());
+                                maths::common::COrderings::SFirstLess());
     }
 
     //! Sort \p set on its key.
     static void sort(TWordTypePrVec& set) {
-        std::sort(set.begin(), set.end(), maths::COrderings::SFirstLess());
+        std::sort(set.begin(), set.end(), maths::common::COrderings::SFirstLess());
     }
 
     //! Propagate the set elements forwards by \p time.
     template<typename F>
     static void age(TWordTypePrVec& set, F doAge) {
-        for (std::size_t i = 0u; i < set.size(); ++i) {
+        for (std::size_t i = 0; i < set.size(); ++i) {
             doAge(set[i].second);
         }
     }

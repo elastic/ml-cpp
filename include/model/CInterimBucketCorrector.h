@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CInterimBucketCorrector_h
@@ -9,8 +14,9 @@
 
 #include <core/CMemory.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CTimeSeriesDecomposition.h>
+#include <maths/common/CBasicStatistics.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
@@ -42,7 +48,7 @@ namespace model {
 //! accumulator is used.
 class MODEL_EXPORT CInterimBucketCorrector {
 private:
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble10Vec = core::CSmallVector<double, 10>;
 
@@ -105,7 +111,7 @@ private:
     double m_Completeness;
 
     //! A model of the final bucket count trend.
-    maths::CTimeSeriesDecomposition m_FinalCountTrend;
+    maths::time_series::CTimeSeriesDecomposition m_FinalCountTrend;
 
     //! The mean final bucket count.
     TMeanAccumulator m_FinalCountMean;

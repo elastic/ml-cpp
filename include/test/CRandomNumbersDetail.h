@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_test_CRandomNumbersDetail_h
@@ -9,9 +14,9 @@
 
 #include <core/CLogger.h>
 
-#include <maths/CLinearAlgebra.h>
-#include <maths/CLinearAlgebraEigen.h>
-#include <maths/CLinearAlgebraTools.h>
+#include <maths/common/CLinearAlgebra.h>
+#include <maths/common/CLinearAlgebraEigen.h>
+#include <maths/common/CLinearAlgebraTools.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -41,9 +46,9 @@ void CRandomNumbers::generateSamples(RNG& randomNumberGenerator,
 template<typename T, std::size_t N>
 void CRandomNumbers::generateRandomMultivariateNormals(
     const TSizeVec& sizes,
-    std::vector<maths::CVectorNx1<T, N>>& means,
-    std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
-    std::vector<std::vector<maths::CVectorNx1<T, N>>>& points) {
+    std::vector<maths::common::CVectorNx1<T, N>>& means,
+    std::vector<maths::common::CSymmetricMatrixNxN<T, N>>& covariances,
+    std::vector<std::vector<maths::common::CVectorNx1<T, N>>>& points) {
     means.clear();
     covariances.clear();
     points.clear();
@@ -53,7 +58,7 @@ void CRandomNumbers::generateRandomMultivariateNormals(
     TDoubleVec means_;
     this->generateUniformSamples(-100.0, 100.0, N * k, means_);
     for (std::size_t i = 0; i < N * k; i += N) {
-        maths::CVectorNx1<T, N> mean(&means_[i], &means_[i + N]);
+        maths::common::CVectorNx1<T, N> mean(&means_[i], &means_[i + N]);
         means.push_back(mean);
     }
 
@@ -63,7 +68,7 @@ void CRandomNumbers::generateRandomMultivariateNormals(
         constexpr int N_{static_cast<int>(N)};
         Eigen::Matrix<T, N_, N_> covariance = Eigen::Matrix<T, N_, N_>::Zero();
 
-        for (std::size_t j = 0u; j < N; ++j) {
+        for (std::size_t j = 0; j < N; ++j) {
             covariance(j, j) = variances[i * N + j];
         }
 
@@ -78,7 +83,7 @@ void CRandomNumbers::generateRandomMultivariateNormals(
         this->generateUniformSamples(0.0, boost::math::constants::two_pi<double>(), 2, thetas);
 
         Eigen::Matrix<T, N_, N_> rotation = Eigen::Matrix<T, N_, N_>::Identity();
-        for (std::size_t j = 1u; j < coordinates.size(); j += 2) {
+        for (std::size_t j = 1; j < coordinates.size(); j += 2) {
             double ct = std::cos(thetas[j / 2]);
             double st = std::sin(thetas[j / 2]);
 
@@ -91,18 +96,18 @@ void CRandomNumbers::generateRandomMultivariateNormals(
         }
         covariance = rotation.transpose() * covariance * rotation;
 
-        covariances.emplace_back(maths::fromDenseMatrix(covariance));
+        covariances.emplace_back(maths::common::fromDenseMatrix(covariance));
     }
 
     points.resize(k);
     TDoubleVecVec pointsi;
-    for (std::size_t i = 0u; i < k; ++i) {
+    for (std::size_t i = 0; i < k; ++i) {
         LOG_TRACE(<< "mean = " << means[i]);
         LOG_TRACE(<< "covariance = " << covariances[i]);
         this->generateMultivariateNormalSamples(
             means[i].template toVector<TDoubleVec>(),
             covariances[i].template toVectors<TDoubleVecVec>(), sizes[i], pointsi);
-        for (std::size_t j = 0u; j < pointsi.size(); ++j) {
+        for (std::size_t j = 0; j < pointsi.size(); ++j) {
             points[i].emplace_back(pointsi[j]);
         }
     }

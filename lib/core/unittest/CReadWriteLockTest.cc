@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CFastMutex.h>
@@ -36,14 +41,14 @@ public:
           m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             m_Variable += m_Increment;
             std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -64,14 +69,14 @@ public:
           m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             m_Variable.fetch_add(m_Increment);
             std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -93,7 +98,7 @@ public:
           m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedFastLock lock(m_Mutex);
 
@@ -102,7 +107,7 @@ protected:
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -125,7 +130,7 @@ public:
           m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedLock lock(m_Mutex);
 
@@ -134,7 +139,7 @@ protected:
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -157,7 +162,7 @@ public:
           m_Iterations(iterations), m_Increment(increment), m_Variable(variable) {}
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedWriteLock lock(m_ReadWriteLock);
 
@@ -166,7 +171,7 @@ protected:
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -190,7 +195,7 @@ public:
     std::uint32_t lastRead() const { return m_LastRead; }
 
 protected:
-    void run() {
+    void run() override {
         for (std::uint32_t count = 0; count < m_Iterations; ++count) {
             ml::core::CScopedReadLock lock(m_ReadWriteLock);
 
@@ -199,7 +204,7 @@ protected:
         }
     }
 
-    void shutdown() {
+    void shutdown() override {
         // Always just wait for run() to complete
     }
 
@@ -241,9 +246,10 @@ BOOST_AUTO_TEST_CASE(testReadLock) {
 
     LOG_INFO(<< "Reader concurrency test took " << duration << " seconds");
 
-    // Allow the test to run slightly over 1 second, as there is processing
-    // other than the sleeping.
-    BOOST_TEST_REQUIRE(duration <= 2);
+    // Allow the test to run up to 3 seconds, as there is processing
+    // other than the sleeping, and also sleeps are not very accurate
+    // under Jenkins on Apple M1.
+    BOOST_TEST_REQUIRE(duration <= 3);
     BOOST_TEST_REQUIRE(duration >= 1);
 
     BOOST_REQUIRE_EQUAL(testVariable, reader1.lastRead());

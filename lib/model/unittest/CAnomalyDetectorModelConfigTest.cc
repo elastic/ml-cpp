@@ -1,12 +1,17 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
 
-#include <maths/CModel.h>
+#include <maths/common/CModel.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CCountingModelFactory.h>
@@ -89,8 +94,8 @@ BOOST_AUTO_TEST_CASE(testNormal) {
         BOOST_REQUIRE_EQUAL(std::size_t(20),
                             config.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
         TDoubleVec params;
-        for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
-            for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
+        for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+            for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
                 params.push_back(config.aggregationStyleParam(
                     static_cast<model_t::EAggregationStyle>(i),
                     static_cast<model_t::EAggregationParam>(j)));
@@ -223,8 +228,8 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             config2.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor,
             config1.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
-        for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
-            for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
+        for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+            for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
                 BOOST_REQUIRE_EQUAL(config2.aggregationStyleParam(
                                         static_cast<model_t::EAggregationStyle>(i),
                                         static_cast<model_t::EAggregationParam>(j)),
@@ -273,7 +278,7 @@ BOOST_AUTO_TEST_CASE(testConfigureModelPlot) {
     {
         CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
         config.configureModelPlot(true, true, EMPTY_STRING);
-        BOOST_REQUIRE_EQUAL(ml::maths::CModel::DEFAULT_BOUNDS_PERCENTILE,
+        BOOST_REQUIRE_EQUAL(ml::maths::common::CModel::DEFAULT_BOUNDS_PERCENTILE,
                             config.modelPlotBoundsPercentile());
         BOOST_REQUIRE_EQUAL(true, config.modelPlotAnnotationsEnabled());
         BOOST_REQUIRE_EQUAL(0, config.modelPlotTerms().size());
@@ -297,7 +302,7 @@ BOOST_AUTO_TEST_CASE(testConfigureModelPlot) {
         const TStrSet termSet{"foo", "bar", "baz"};
         CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
         config.configureModelPlot(true, false, terms);
-        BOOST_REQUIRE_EQUAL(ml::maths::CModel::DEFAULT_BOUNDS_PERCENTILE,
+        BOOST_REQUIRE_EQUAL(ml::maths::common::CModel::DEFAULT_BOUNDS_PERCENTILE,
                             config.modelPlotBoundsPercentile());
         BOOST_REQUIRE_EQUAL(false, config.modelPlotAnnotationsEnabled());
         BOOST_TEST_REQUIRE(termSet == config.modelPlotTerms());

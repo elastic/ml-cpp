@@ -1,6 +1,6 @@
 # Machine Learning for the Elastic Stack
 
-<https://www.elastic.co/products/stack/machine-learning>
+<https://www.elastic.co/what-is/elasticsearch-machine-learning>
 
 The ml-cpp repo is a part of Machine Learning for the Elastic Stack, which is
 available with either a trial or platinum license for the
@@ -15,24 +15,16 @@ found in the main
 
 ## Elastic License Functionality
 
-Most files in this repository are subject to the Elastic License. The full
-license can be found in [LICENSE.txt](LICENSE.txt). Usage requires a
-[subscription](https://www.elastic.co/subscriptions). Files that are not
-subject to the Elastic License are in the [3rd_party](3rd_party) and
-[build-setup](build-setup) directories.
+Usage in production requires that you have a license key that permits use of
+machine learning features. See [LICENSE.txt](LICENSE.txt) for full information.
 
 ## Getting Started
 
-Before starting with Machine Learning, it's a good idea to get some experience
-with the rest of the
-[Elastic Stack](https://www.elastic.co/guide/en/elastic-stack/current/index.html)
-first.
-
 To get started with Machine Learning please have a look at
-<https://www.elastic.co/guide/en/elastic-stack-overview/current/ml-getting-started.html>.
+<https://www.elastic.co/guide/en/machine-learning/current/ml-getting-started.html>.
 
 Full documentation of Machine Learning can be found at
-<https://www.elastic.co/guide/en/elastic-stack-overview/current/xpack-ml.html>.
+<https://www.elastic.co/guide/en/machine-learning/current/index.html>.
 
 ## Questions/Bug Reports/Help
 
@@ -40,11 +32,11 @@ We are happy to help and to make sure your questions can be answered by the
 right people, please follow the guidelines below:
 
 * If you have a general question about functionality please use our
-  [discuss](https://discuss.elastic.co/tags/c/elasticsearch/machine-learning)
+  [discuss](https://discuss.elastic.co/tag/elastic-stack-machine-learning)
   forums.
 * If you have a support contract please use your dedicated support channel.
 * For questions regarding subscriptions please
-  [contact](https://www.elastic.co/subscriptions#request-info) us.
+  [contact](https://www.elastic.co/contact) us.
 * For bug reports, pull requests and feature requests specifically for machine
   learning analytics, please use this GitHub repository.
 

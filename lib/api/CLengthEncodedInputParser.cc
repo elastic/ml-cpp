@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CLengthEncodedInputParser.h>
 
@@ -26,7 +31,12 @@ namespace ml {
 namespace api {
 
 // Initialise statics
-const std::size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE{8192}; // 8kB
+
+// We keep the buffer at 2KB because it has to be smaller
+// than the OS buffer for the named pipes (smallest is windows at 4KB).
+// This allows flushing the buffer from the java side by sending spaces
+// without the risk of blocking the thread that writes to the process.
+const std::size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE{2048}; // 2kB
 
 CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
     : CLengthEncodedInputParser{TStrVec{}, strmIn} {

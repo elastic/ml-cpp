@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <model/CTokenListDataCategorizerBase.h>
 
@@ -11,7 +16,7 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/COrderings.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CTokenListReverseSearchCreator.h>
 
@@ -367,7 +372,7 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
     // Categories are persisted in order of creation, but this list needs to be
     // sorted by descending count instead
     std::stable_sort(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
-                     maths::COrderings::SFirstGreater{});
+                     maths::common::COrderings::SFirstGreater{});
 
     this->updateCategorizerStats(m_LastCategorizerStats);
 
@@ -526,6 +531,8 @@ bool CTokenListDataCategorizerBase::addPretokenisedTokens(const std::string& tok
 
         this->tokenToIdAndWeight(token, tokenIds, tokenUniqueIds, totalWeight);
     }
+
+    this->reset();
 
     return true;
 }

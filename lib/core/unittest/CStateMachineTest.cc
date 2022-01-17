@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CLogger.h>
@@ -64,11 +69,11 @@ public:
     const TSizeVec& states() const { return m_States; }
 
 private:
-    virtual void run() {
+    void run() override {
         std::size_t n = 10000;
         m_States.reserve(n);
         TSizeVec machine;
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             m_Rng.generateUniformSamples(0, m_Machines.size(), 1, machine);
             core::CStateMachine sm = core::CStateMachine::create(
                 m_Machines[machine[0]].s_Alphabet, m_Machines[machine[0]].s_States,
@@ -81,7 +86,7 @@ private:
         }
     }
 
-    virtual void shutdown() {}
+    void shutdown() override {}
 
 private:
     test::CRandomNumbers m_Rng;
@@ -103,11 +108,11 @@ void randomMachines(std::size_t n, TMachineVec& result) {
     rng.generateUniformSamples(1, boost::size(alphabet), n, na);
 
     result.resize(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         result[i].s_States.assign(states, states + ns[i]);
         result[i].s_Alphabet.assign(alphabet, alphabet + na[i]);
         result[i].s_TransitionFunction.resize(na[i]);
-        for (std::size_t j = 0u; j < na[i]; ++j) {
+        for (std::size_t j = 0; j < na[i]; ++j) {
             rng.generateUniformSamples(0, ns[i], ns[i], result[i].s_TransitionFunction[j]);
         }
 
@@ -125,10 +130,10 @@ BOOST_AUTO_TEST_CASE(testBasics) {
     TMachineVec machines;
     randomMachines(5, machines);
 
-    for (std::size_t m = 0u; m < machines.size(); ++m) {
+    for (std::size_t m = 0; m < machines.size(); ++m) {
         LOG_DEBUG(<< "machine " << m);
-        for (std::size_t i = 0u; i < machines[m].s_Alphabet.size(); ++i) {
-            for (std::size_t j = 0u; j < machines[m].s_States.size(); ++j) {
+        for (std::size_t i = 0; i < machines[m].s_Alphabet.size(); ++i) {
+            for (std::size_t j = 0; j < machines[m].s_States.size(); ++j) {
                 core::CStateMachine sm = core::CStateMachine::create(
                     machines[m].s_Alphabet, machines[m].s_States, machines[m].s_TransitionFunction,
                     j); // initial state
@@ -204,20 +209,20 @@ BOOST_AUTO_TEST_CASE(testMultithreaded) {
     using TThreadPtr = std::shared_ptr<CTestThread>;
     using TThreadVec = std::vector<TThreadPtr>;
     TThreadVec threads;
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         threads.push_back(TThreadPtr(new CTestThread(machines)));
     }
-    for (std::size_t i = 0u; i < threads.size(); ++i) {
+    for (std::size_t i = 0; i < threads.size(); ++i) {
         BOOST_TEST_REQUIRE(threads[i]->start());
     }
-    for (std::size_t i = 0u; i < threads.size(); ++i) {
+    for (std::size_t i = 0; i < threads.size(); ++i) {
         BOOST_TEST_REQUIRE(threads[i]->waitForFinish());
     }
-    for (std::size_t i = 0u; i < threads.size(); ++i) {
+    for (std::size_t i = 0; i < threads.size(); ++i) {
         // No failed reads.
         BOOST_REQUIRE_EQUAL(std::size_t(0), threads[i]->failures());
     }
-    for (std::size_t i = 1u; i < threads.size(); ++i) {
+    for (std::size_t i = 1; i < threads.size(); ++i) {
         // No wrong reads.
         BOOST_TEST_REQUIRE(threads[i]->states() == threads[i - 1]->states());
     }

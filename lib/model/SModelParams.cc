@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/SModelParams.h>
@@ -9,8 +14,8 @@
 #include <core/CMemory.h>
 #include <core/Constants.h>
 
-#include <maths/CChecksum.h>
-#include <maths/CRestoreParams.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CRestoreParams.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
@@ -71,45 +76,45 @@ double SModelParams::minimumCategoryCount() const {
     return s_LearnRate * CAnomalyDetectorModelConfig::DEFAULT_CATEGORY_DELETE_FRACTION;
 }
 
-maths::STimeSeriesDecompositionRestoreParams
+maths::common::STimeSeriesDecompositionRestoreParams
 SModelParams::decompositionRestoreParams(maths_t::EDataType dataType) const {
     double decayRate{CAnomalyDetectorModelConfig::trendDecayRate(s_DecayRate, s_BucketLength)};
     return {decayRate, s_BucketLength, s_ComponentSize,
             this->distributionRestoreParams(dataType)};
 }
 
-maths::SDistributionRestoreParams
+maths::common::SDistributionRestoreParams
 SModelParams::distributionRestoreParams(maths_t::EDataType dataType) const {
     return {dataType, s_DecayRate, s_MinimumModeFraction, s_MinimumModeCount,
             this->minimumCategoryCount()};
 }
 
 uint64_t SModelParams::checksum(uint64_t seed) const {
-    seed = maths::CChecksum::calculate(seed, s_LearnRate);
-    seed = maths::CChecksum::calculate(seed, s_DecayRate);
-    seed = maths::CChecksum::calculate(seed, s_InitialDecayRateMultiplier);
-    seed = maths::CChecksum::calculate(seed, s_MinimumModeFraction);
-    seed = maths::CChecksum::calculate(seed, s_MinimumModeCount);
-    seed = maths::CChecksum::calculate(seed, s_ComponentSize);
-    seed = maths::CChecksum::calculate(seed, s_MinimumTimeToDetectChange);
-    seed = maths::CChecksum::calculate(seed, s_MaximumTimeToTestForChange);
-    seed = maths::CChecksum::calculate(seed, s_ExcludeFrequent);
-    seed = maths::CChecksum::calculate(seed, s_ExcludePersonFrequency);
-    seed = maths::CChecksum::calculate(seed, s_ExcludeAttributeFrequency);
-    seed = maths::CChecksum::calculate(seed, s_MaximumUpdatesPerBucket);
-    seed = maths::CChecksum::calculate(seed, s_InfluenceCutoff);
-    seed = maths::CChecksum::calculate(seed, s_LatencyBuckets);
-    seed = maths::CChecksum::calculate(seed, s_SampleCountFactor);
-    seed = maths::CChecksum::calculate(seed, s_SampleQueueGrowthFactor);
-    seed = maths::CChecksum::calculate(seed, s_PruneWindowScaleMinimum);
-    seed = maths::CChecksum::calculate(seed, s_PruneWindowScaleMaximum);
-    seed = maths::CChecksum::calculate(seed, s_CorrelationModelsOverhead);
-    seed = maths::CChecksum::calculate(seed, s_MultivariateByFields);
-    seed = maths::CChecksum::calculate(seed, s_MinimumSignificantCorrelation);
-    //seed = maths::CChecksum::calculate(seed, s_DetectionRules);
-    //seed = maths::CChecksum::calculate(seed, s_ScheduledEvents);
-    seed = maths::CChecksum::calculate(seed, s_MinimumToFuzzyDeduplicate);
-    return maths::CChecksum::calculate(seed, s_SamplingAgeCutoff);
+    seed = maths::common::CChecksum::calculate(seed, s_LearnRate);
+    seed = maths::common::CChecksum::calculate(seed, s_DecayRate);
+    seed = maths::common::CChecksum::calculate(seed, s_InitialDecayRateMultiplier);
+    seed = maths::common::CChecksum::calculate(seed, s_MinimumModeFraction);
+    seed = maths::common::CChecksum::calculate(seed, s_MinimumModeCount);
+    seed = maths::common::CChecksum::calculate(seed, s_ComponentSize);
+    seed = maths::common::CChecksum::calculate(seed, s_MinimumTimeToDetectChange);
+    seed = maths::common::CChecksum::calculate(seed, s_MaximumTimeToTestForChange);
+    seed = maths::common::CChecksum::calculate(seed, s_ExcludeFrequent);
+    seed = maths::common::CChecksum::calculate(seed, s_ExcludePersonFrequency);
+    seed = maths::common::CChecksum::calculate(seed, s_ExcludeAttributeFrequency);
+    seed = maths::common::CChecksum::calculate(seed, s_MaximumUpdatesPerBucket);
+    seed = maths::common::CChecksum::calculate(seed, s_InfluenceCutoff);
+    seed = maths::common::CChecksum::calculate(seed, s_LatencyBuckets);
+    seed = maths::common::CChecksum::calculate(seed, s_SampleCountFactor);
+    seed = maths::common::CChecksum::calculate(seed, s_SampleQueueGrowthFactor);
+    seed = maths::common::CChecksum::calculate(seed, s_PruneWindowScaleMinimum);
+    seed = maths::common::CChecksum::calculate(seed, s_PruneWindowScaleMaximum);
+    seed = maths::common::CChecksum::calculate(seed, s_CorrelationModelsOverhead);
+    seed = maths::common::CChecksum::calculate(seed, s_MultivariateByFields);
+    seed = maths::common::CChecksum::calculate(seed, s_MinimumSignificantCorrelation);
+    //seed = maths::common::CChecksum::calculate(seed, s_DetectionRules);
+    //seed = maths::common::CChecksum::calculate(seed, s_ScheduledEvents);
+    seed = maths::common::CChecksum::calculate(seed, s_MinimumToFuzzyDeduplicate);
+    return maths::common::CChecksum::calculate(seed, s_SamplingAgeCutoff);
 }
 }
 }

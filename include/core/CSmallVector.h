@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CSmallVector_h
@@ -36,7 +41,7 @@ struct SPlusAssign {
 template<typename T>
 struct SPlusAssign<T, boost::true_type> {
     static void compute(CSmallVectorBase<T>& lhs, const CSmallVectorBase<T>& rhs) {
-        for (std::size_t i = 0u; i < std::min(lhs.size(), rhs.size()); ++i) {
+        for (std::size_t i = 0; i < std::min(lhs.size(), rhs.size()); ++i) {
             lhs[i] += rhs[i];
         }
     }
@@ -50,7 +55,7 @@ struct SMinusAssign {
 template<typename T>
 struct SMinusAssign<T, boost::true_type> {
     static void compute(CSmallVectorBase<T>& lhs, const CSmallVectorBase<T>& rhs) {
-        for (std::size_t i = 0u; i < std::min(lhs.size(), rhs.size()); ++i) {
+        for (std::size_t i = 0; i < std::min(lhs.size(), rhs.size()); ++i) {
             lhs[i] -= rhs[i];
         }
     }

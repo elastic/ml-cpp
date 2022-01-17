@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CEventRateBucketGatherer.h>
@@ -14,10 +19,10 @@
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CBasicStatisticsPersist.h>
-#include <maths/CChecksum.h>
-#include <maths/COrderings.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
@@ -51,7 +56,7 @@ using TUInt64Vec = std::vector<uint64_t>;
 using TSizeUSet = boost::unordered_set<std::size_t>;
 using TSizeUSetCItr = TSizeUSet::const_iterator;
 using TSizeUSetVec = std::vector<TSizeUSet>;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TSizeSizePrMeanAccumulatorUMap = boost::unordered_map<TSizeSizePr, TMeanAccumulator>;
 using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
 using TSizeSizePrMeanAccumulatorUMapQueue = CBucketQueue<TSizeSizePrMeanAccumulatorUMap>;
@@ -87,8 +92,8 @@ struct STimesBucketSerializer {
             ordered.push_back(i);
         }
         std::sort(ordered.begin(), ordered.end(),
-                  core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
-        for (std::size_t i = 0u; i < ordered.size(); ++i) {
+                  core::CFunctional::SDereference<maths::common::COrderings::SFirstLess>());
+        for (std::size_t i = 0; i < ordered.size(); ++i) {
             inserter.insertValue(PERSON_TAG, CDataGatherer::extractPersonId(*ordered[i]));
             inserter.insertValue(ATTRIBUTE_TAG,
                                  CDataGatherer::extractAttributeId(*ordered[i]));
@@ -123,8 +128,8 @@ struct SStrDataBucketSerializer {
             ordered.push_back(i);
         }
         std::sort(ordered.begin(), ordered.end(),
-                  core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
-        for (std::size_t i = 0u; i != ordered.size(); ++i) {
+                  core::CFunctional::SDereference<maths::common::COrderings::SFirstLess>());
+        for (std::size_t i = 0; i != ordered.size(); ++i) {
             inserter.insertValue(PERSON_TAG, CDataGatherer::extractPersonId(*ordered[i]));
             inserter.insertValue(ATTRIBUTE_TAG,
                                  CDataGatherer::extractAttributeId(*ordered[i]));
@@ -167,7 +172,7 @@ void persistAttributePeopleData(const TSizeUSetVec& data,
         // it easier to compare state records.
         TSizeVec orderedPeople(people.begin(), people.end());
         std::sort(orderedPeople.begin(), orderedPeople.end());
-        for (std::size_t i = 0u; i < orderedPeople.size(); ++i) {
+        for (std::size_t i = 0; i < orderedPeople.size(); ++i) {
             inserter.insertValue(PERSON_TAG, orderedPeople[i]);
         }
     }
@@ -231,10 +236,9 @@ bool restoreAttributePeopleData(core::CStateRestoreTraverser& traverser, TSizeUS
                 data.resize(lastCid + 1);
             }
         } else if (name == PERSON_TAG) {
-            if (!seenCid) {
-                LOG_ERROR(<< "Incorrect format - person ID before attribute ID in "
+            if (seenCid == false) {
+                LOG_ABORT(<< "Incorrect format - person ID before attribute ID in "
                           << traverser.value());
-                return false;
             }
             std::size_t pid = 0;
             if (core::CStringUtils::stringToType(traverser.value(), pid) == false) {
@@ -363,15 +367,15 @@ struct SRemovePeople {
     void operator()(TSizeUSetVec& attributePeople,
                     std::size_t lowestPersonToRemove,
                     std::size_t endPeople) const {
-        for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
+        for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
             for (std::size_t pid = lowestPersonToRemove; pid < endPeople; ++pid) {
                 attributePeople[cid].erase(pid);
             }
         }
     }
     void operator()(TSizeUSetVec& attributePeople, const TSizeVec& peopleToRemove) const {
-        for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
-            for (std::size_t i = 0u; i < peopleToRemove.size(); ++i) {
+        for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
+            for (std::size_t i = 0; i < peopleToRemove.size(); ++i) {
                 attributePeople[cid].erase(peopleToRemove[i]);
             }
         }
@@ -424,7 +428,7 @@ struct SRemoveAttributes {
         }
     }
     void operator()(TSizeUSetVec& attributePeople, const TSizeVec& attributesToRemove) const {
-        for (std::size_t i = 0u; i < attributesToRemove.size(); ++i) {
+        for (std::size_t i = 0; i < attributesToRemove.size(); ++i) {
             attributePeople[attributesToRemove[i]].clear();
         }
     }
@@ -472,7 +476,7 @@ struct SChecksum {
         using TStrCRef = std::reference_wrapper<const std::string>;
         using TStrCRefVec = std::vector<TStrCRef>;
 
-        for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
+        for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
                 TStrCRefVec people;
                 people.reserve(attributePeople[cid].size());
@@ -481,9 +485,10 @@ struct SChecksum {
                         people.emplace_back(gatherer.personName(person));
                     }
                 }
-                std::sort(people.begin(), people.end(), maths::COrderings::SReferenceLess());
+                std::sort(people.begin(), people.end(),
+                          maths::common::COrderings::SReferenceLess());
                 uint64_t& hash = hashes[gatherer.attributeName(cid)];
-                hash = maths::CChecksum::calculate(hash, people);
+                hash = maths::common::CChecksum::calculate(hash, people);
             }
         }
     }
@@ -514,14 +519,14 @@ struct SChecksum {
             std::size_t cid = CDataGatherer::extractAttributeId(value);
             if (gatherer.isPersonActive(pid) && gatherer.isAttributeActive(cid)) {
                 attributeHashes[cid].push_back(
-                    maths::CChecksum::calculate(0, value.second));
+                    maths::common::CChecksum::calculate(0, value.second));
             }
         }
 
         for (auto& hash_ : attributeHashes) {
             std::sort(hash_.second.begin(), hash_.second.end());
             uint64_t& hash = hashes[gatherer.attributeName(hash_.first)];
-            hash = maths::CChecksum::calculate(hash, hash_.second);
+            hash = maths::common::CChecksum::calculate(hash, hash_.second);
         }
     }
 };
@@ -663,7 +668,7 @@ void persistInfluencerUniqueStrings(const CUniqueStringFeatureData::TStoredStrin
         for (const auto& influence : map) {
             keys.push_back(influence.first);
         }
-        std::sort(keys.begin(), keys.end(), maths::COrderings::SLess());
+        std::sort(keys.begin(), keys.end(), maths::common::COrderings::SLess());
 
         for (const auto& key : keys) {
             inserter.insertValue(DICTIONARY_WORD_TAG, *key);
@@ -749,8 +754,10 @@ CEventRateBucketGatherer::CEventRateBucketGatherer(CDataGatherer& dataGatherer,
       m_BeginInfluencingFields(0), m_BeginValueField(0), m_BeginSummaryFields(0) {
     this->initializeFieldNames(personFieldName, attributeFieldName, valueFieldName,
                                summaryCountFieldName, influenceFieldNames);
-    traverser.traverseSubLevel(std::bind(&CEventRateBucketGatherer::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CEventRateBucketGatherer::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 CEventRateBucketGatherer::CEventRateBucketGatherer(bool isForPersistence,
@@ -1187,7 +1194,7 @@ void CEventRateBucketGatherer::personCounts(model_t::EFeature feature,
     for (const auto& count_ : this->bucketCounts(time)) {
         uint64_t& count = std::lower_bound(result.begin(), result.end(),
                                            CDataGatherer::extractPersonId(count_),
-                                           maths::COrderings::SFirstLess())
+                                           maths::common::COrderings::SFirstLess())
                               ->second.s_Count;
         count += CDataGatherer::extractData(count_);
     }
@@ -1208,7 +1215,7 @@ void CEventRateBucketGatherer::nonZeroPersonCounts(model_t::EFeature feature,
         result.emplace_back(CDataGatherer::extractPersonId(count),
                             CDataGatherer::extractData(count));
     }
-    std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+    std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
 
     this->addInfluencerCounts(time, result);
 }
@@ -1225,7 +1232,7 @@ void CEventRateBucketGatherer::personIndicator(model_t::EFeature feature,
     for (const auto& count : personAttributeCounts) {
         result.emplace_back(CDataGatherer::extractPersonId(count), 1);
     }
-    std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+    std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
 
     this->addInfluencerCounts(time, result);
 }
@@ -1251,7 +1258,7 @@ void CEventRateBucketGatherer::nonZeroAttributeCounts(model_t::EFeature feature,
             result.emplace_back(count.first, CDataGatherer::extractData(count));
         }
     }
-    std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+    std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
 
     this->addInfluencerCounts(time, result);
 }
@@ -1270,7 +1277,7 @@ void CEventRateBucketGatherer::peoplePerAttribute(model_t::EFeature feature,
     try {
         const TSizeUSetVec& attributePeople = boost::any_cast<const TSizeUSetVec&>(i->second);
         result.reserve(attributePeople.size());
-        for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
+        for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
             if (m_DataGatherer.isAttributeActive(cid)) {
                 result.emplace_back(TSizeSizePr(0, cid), attributePeople[cid].size());
             }
@@ -1296,13 +1303,13 @@ void CEventRateBucketGatherer::attributeIndicator(model_t::EFeature feature,
             result.emplace_back(count.first, 1);
         }
     }
-    std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+    std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
 
     this->addInfluencerCounts(time, result);
-    for (std::size_t i = 0u; i < result.size(); ++i) {
+    for (std::size_t i = 0; i < result.size(); ++i) {
         SEventRateFeatureData& data = result[i].second;
-        for (std::size_t j = 0u; j < data.s_InfluenceValues.size(); ++j) {
-            for (std::size_t k = 0u; k < data.s_InfluenceValues[j].size(); ++k) {
+        for (std::size_t j = 0; j < data.s_InfluenceValues.size(); ++j) {
+            for (std::size_t k = 0; k < data.s_InfluenceValues[j].size(); ++k) {
                 data.s_InfluenceValues[j][k].second.first = TDoubleVec{1.0};
             }
         }
@@ -1330,7 +1337,7 @@ void CEventRateBucketGatherer::bucketUniqueValuesPerPerson(model_t::EFeature fea
             CDataGatherer::extractData(uniques).populateDistinctCountFeatureData(
                 result.back().second);
         }
-        std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+        std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to extract "
                   << model_t::print(model_t::E_IndividualUniqueCountByBucketAndPerson)
@@ -1359,7 +1366,7 @@ void CEventRateBucketGatherer::bucketUniqueValuesPerPersonAttribute(model_t::EFe
             CDataGatherer::extractData(uniques).populateDistinctCountFeatureData(
                 result.back().second);
         }
-        std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+        std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to extract "
                   << model_t::print(model_t::E_PopulationUniqueCountByBucketPersonAndAttribute)
@@ -1388,7 +1395,7 @@ void CEventRateBucketGatherer::bucketCompressedLengthPerPerson(model_t::EFeature
             CDataGatherer::extractData(uniques).populateInfoContentFeatureData(
                 result.back().second);
         }
-        std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+        std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to extract "
                   << model_t::print(model_t::E_IndividualInfoContentByBucketAndPerson)
@@ -1418,7 +1425,7 @@ void CEventRateBucketGatherer::bucketCompressedLengthPerPersonAttribute(
             CDataGatherer::extractData(uniques).populateInfoContentFeatureData(
                 result.back().second);
         }
-        std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+        std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to extract "
                   << model_t::print(model_t::E_PopulationInfoContentByBucketPersonAndAttribute)
@@ -1445,19 +1452,19 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPerson(model_t::EFeature featur
         result.reserve(arrivalTimes.size());
         for (const auto& time_ : arrivalTimes) {
             result.emplace_back(CDataGatherer::extractPersonId(time_),
-                                static_cast<uint64_t>(maths::CBasicStatistics::mean(
+                                static_cast<uint64_t>(maths::common::CBasicStatistics::mean(
                                     CDataGatherer::extractData(time_))));
         }
-        std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+        std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
 
         // We don't bother to gather the influencer bucket means
         // so the best we can do is use the person and attribute
         // bucket mean.
         this->addInfluencerCounts(time, result);
-        for (std::size_t j = 0u; j < result.size(); ++j) {
+        for (std::size_t j = 0; j < result.size(); ++j) {
             SEventRateFeatureData& data = result[j].second;
-            for (std::size_t k = 0u; k < data.s_InfluenceValues.size(); ++k) {
-                for (std::size_t l = 0u; l < data.s_InfluenceValues[k].size(); ++l) {
+            for (std::size_t k = 0; k < data.s_InfluenceValues.size(); ++k) {
+                for (std::size_t l = 0; l < data.s_InfluenceValues[k].size(); ++l) {
                     data.s_InfluenceValues[k][l].second.first =
                         TDouble1Vec{static_cast<double>(data.s_Count)};
                 }
@@ -1488,19 +1495,19 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPersonAttribute(model_t::EFeatu
         result.reserve(arrivalTimes.size());
         for (const auto& time_ : arrivalTimes) {
             result.emplace_back(time_.first,
-                                static_cast<uint64_t>(maths::CBasicStatistics::mean(
+                                static_cast<uint64_t>(maths::common::CBasicStatistics::mean(
                                     CDataGatherer::extractData(time_))));
         }
-        std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
+        std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
 
         // We don't bother to gather the influencer bucket means
         // so the best we can do is use the person and attribute
         // bucket mean.
         this->addInfluencerCounts(time, result);
-        for (std::size_t j = 0u; j < result.size(); ++j) {
+        for (std::size_t j = 0; j < result.size(); ++j) {
             SEventRateFeatureData& data = result[j].second;
-            for (std::size_t k = 0u; k < data.s_InfluenceValues.size(); ++k) {
-                for (std::size_t l = 0u; l < data.s_InfluenceValues[k].size(); ++l) {
+            for (std::size_t k = 0; k < data.s_InfluenceValues.size(); ++k) {
+                for (std::size_t l = 0; l < data.s_InfluenceValues[k].size(); ++l) {
                     data.s_InfluenceValues[k][l].second.first =
                         TDouble1Vec{static_cast<double>(data.s_Count)};
                 }
@@ -1673,15 +1680,15 @@ void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
         return;
     }
 
-    for (std::size_t i = 0u; i < result.size(); ++i) {
+    for (std::size_t i = 0; i < result.size(); ++i) {
         result[i].second.s_InfluenceValues.resize(influencers.size());
     }
 
-    for (std::size_t i = 0u; i < influencers.size(); ++i) {
+    for (std::size_t i = 0; i < influencers.size(); ++i) {
         for (const auto& influence : influencers[i]) {
             std::size_t pid = CDataGatherer::extractPersonId(influence.first);
             auto k = std::lower_bound(result.begin(), result.end(), pid,
-                                      maths::COrderings::SFirstLess());
+                                      maths::common::COrderings::SFirstLess());
             if (k == result.end() || k->first != pid) {
                 LOG_ERROR(<< "Missing feature data for person "
                           << m_DataGatherer.personName(pid));
@@ -1702,15 +1709,15 @@ void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
         return;
     }
 
-    for (std::size_t i = 0u; i < result.size(); ++i) {
+    for (std::size_t i = 0; i < result.size(); ++i) {
         result[i].second.s_InfluenceValues.resize(influencers.size());
     }
 
-    for (std::size_t i = 0u; i < influencers.size(); ++i) {
+    for (std::size_t i = 0; i < influencers.size(); ++i) {
         for (const auto& influence : influencers[i]) {
             auto k = std::lower_bound(result.begin(), result.end(),
                                       influence.first.first,
-                                      maths::COrderings::SFirstLess());
+                                      maths::common::COrderings::SFirstLess());
             if (k == result.end() || k->first != influence.first.first) {
                 std::size_t pid = CDataGatherer::extractPersonId(influence.first);
                 std::size_t cid = CDataGatherer::extractAttributeId(influence.first);
@@ -1747,7 +1754,7 @@ void CUniqueStringFeatureData::populateDistinctCountFeatureData(SEventRateFeatur
     featureData.s_Count = m_UniqueStrings.size();
     featureData.s_InfluenceValues.clear();
     featureData.s_InfluenceValues.resize(m_InfluencerUniqueStrings.size());
-    for (std::size_t i = 0u; i < m_InfluencerUniqueStrings.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerUniqueStrings.size(); ++i) {
         TStrCRefDouble1VecDoublePrPrVec& data = featureData.s_InfluenceValues[i];
         data.reserve(m_InfluencerUniqueStrings[i].size());
         for (const auto& influence : m_InfluencerUniqueStrings[i]) {
@@ -1772,12 +1779,12 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
         for (const auto& string : m_UniqueStrings) {
             strings.emplace_back(string.second);
         }
-        std::sort(strings.begin(), strings.end(), maths::COrderings::SLess());
+        std::sort(strings.begin(), strings.end(), maths::common::COrderings::SLess());
         std::for_each(strings.begin(), strings.end(), [&compressor](const std::string& string) {
             compressor.addString(string);
         });
 
-        std::size_t length = 0u;
+        std::size_t length = 0;
         if (compressor.length(true, length) == false) {
             LOG_ERROR(<< "Failed to get compressed length");
             compressor.reset();
@@ -1785,7 +1792,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
         featureData.s_Count = length;
 
         featureData.s_InfluenceValues.reserve(m_InfluencerUniqueStrings.size());
-        for (std::size_t i = 0u; i < m_InfluencerUniqueStrings.size(); ++i) {
+        for (std::size_t i = 0; i < m_InfluencerUniqueStrings.size(); ++i) {
             featureData.s_InfluenceValues.push_back(TStrCRefDouble1VecDoublePrPrVec());
             TStrCRefDouble1VecDoublePrPrVec& data =
                 featureData.s_InfluenceValues.back();
@@ -1795,12 +1802,13 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
                 for (const auto& word : influence.second) {
                     strings.emplace_back(m_UniqueStrings.at(word));
                 }
-                std::sort(strings.begin(), strings.end(), maths::COrderings::SLess());
+                std::sort(strings.begin(), strings.end(),
+                          maths::common::COrderings::SLess());
                 std::for_each(strings.begin(), strings.end(),
                               [&compressor](const std::string& string) {
                                   compressor.addString(string);
                               });
-                length = 0u;
+                length = 0;
                 if (compressor.length(true, length) == false) {
                     LOG_ERROR(<< "Failed to get compressed length");
                     compressor.reset();
@@ -1819,7 +1827,7 @@ void CUniqueStringFeatureData::acceptPersistInserter(core::CStatePersistInserter
     inserter.insertLevel(UNIQUE_STRINGS_TAG, std::bind(&persistUniqueStrings,
                                                        std::cref(m_UniqueStrings),
                                                        std::placeholders::_1));
-    for (std::size_t i = 0u; i < m_InfluencerUniqueStrings.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerUniqueStrings.size(); ++i) {
         inserter.insertLevel(INFLUENCER_UNIQUE_STRINGS_TAG,
                              std::bind(&persistInfluencerUniqueStrings,
                                        std::cref(m_InfluencerUniqueStrings[i]),
@@ -1846,8 +1854,8 @@ bool CUniqueStringFeatureData::acceptRestoreTraverser(core::CStateRestoreTravers
 }
 
 uint64_t CUniqueStringFeatureData::checksum() const {
-    uint64_t seed = maths::CChecksum::calculate(0, m_UniqueStrings);
-    return maths::CChecksum::calculate(seed, m_InfluencerUniqueStrings);
+    uint64_t seed = maths::common::CChecksum::calculate(0, m_UniqueStrings);
+    return maths::common::CChecksum::calculate(seed, m_InfluencerUniqueStrings);
 }
 
 void CUniqueStringFeatureData::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {

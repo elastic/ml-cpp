@@ -1,12 +1,17 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CRegex.h>
 
-#include <maths/CIntegerTools.h>
+#include <maths/common/CIntegerTools.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -62,9 +67,9 @@ public:
         results.bottomUpBreadthFirst(*this);
     }
 
-    virtual void visit(const ml::model::CHierarchicalResults& results,
-                       const ml::model::CHierarchicalResults::TNode& node,
-                       bool pivot) {
+    void visit(const ml::model::CHierarchicalResults& results,
+               const ml::model::CHierarchicalResults::TNode& node,
+               bool pivot) override {
         if (pivot) {
             return;
         }
@@ -129,7 +134,7 @@ public:
     CMockEventRateModel(const SModelParams& params,
                         const TDataGathererPtr& dataGatherer,
                         const TFeatureMathsModelSPtrPrVec& newFeatureModels,
-                        const maths::CMultinomialConjugate& personProbabilityPrior,
+                        const maths::common::CMultinomialConjugate& personProbabilityPrior,
                         const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators,
                         CResourceMonitor& resourceMonitor)
         : CEventRateModel(params,
@@ -142,24 +147,24 @@ public:
                           std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),
           m_ResourceMonitor(resourceMonitor), m_NewPeople(0), m_NewAttributes(0) {}
 
-    virtual void updateRecycledModels() {
+    void updateRecycledModels() override {
         // Do nothing
     }
 
-    virtual void createNewModels(std::size_t n, std::size_t m) {
+    void createNewModels(std::size_t n, std::size_t m) override {
         m_NewPeople += n;
         m_NewAttributes += m;
         this->CEventRateModel::createNewModels(n, m);
     }
 
-    void test(core_t::TTime time) {
+    void test(core_t::TTime time) override {
         m_ResourceMonitor.clearExtraMemory();
         this->createUpdateNewModels(time, m_ResourceMonitor);
     }
 
-    std::size_t getNewPeople() const { return m_NewPeople; }
+    std::size_t getNewPeople() const override { return m_NewPeople; }
 
-    std::size_t getNewAttributes() const { return m_NewAttributes; }
+    std::size_t getNewAttributes() const override { return m_NewAttributes; }
 
 private:
     CResourceMonitor& m_ResourceMonitor;
@@ -185,24 +190,24 @@ public:
                        std::make_shared<CInterimBucketCorrector>(params.s_BucketLength)),
           m_ResourceMonitor(resourceMonitor), m_NewPeople(0), m_NewAttributes(0) {}
 
-    virtual void updateRecycledModels() {
+    void updateRecycledModels() override {
         // Do nothing
     }
 
-    virtual void createNewModels(std::size_t n, std::size_t m) {
+    void createNewModels(std::size_t n, std::size_t m) override {
         m_NewPeople += n;
         m_NewAttributes += m;
         this->CMetricModel::createNewModels(n, m);
     }
 
-    void test(core_t::TTime time) {
+    void test(core_t::TTime time) override {
         m_ResourceMonitor.clearExtraMemory();
         this->createUpdateNewModels(time, m_ResourceMonitor);
     }
 
-    std::size_t getNewPeople() const { return m_NewPeople; }
+    std::size_t getNewPeople() const override { return m_NewPeople; }
 
-    std::size_t getNewAttributes() const { return m_NewAttributes; }
+    std::size_t getNewAttributes() const override { return m_NewAttributes; }
 
 private:
     CResourceMonitor& m_ResourceMonitor;
@@ -289,7 +294,7 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
 
         gatherer.reset(factory->makeDataGatherer(firstTime));
 
-        const maths::CMultinomialConjugate conjugate;
+        const maths::common::CMultinomialConjugate conjugate;
         std::shared_ptr<CMockEventRateModel> model_ = std::make_shared<CMockEventRateModel>(
             factory->modelParams(), gatherer,
             factory->defaultFeatureModels(features, bucketLength, 0.4, true), conjugate,
@@ -473,8 +478,8 @@ BOOST_FIXTURE_TEST_CASE(testLimitBy, CTestFixture) {
     // turn on resource limiting and still get the same results
 
     static const core_t::TTime BUCKET_LENGTH(3600);
-    static const core_t::TTime FIRST_TIME(
-        maths::CIntegerTools::ceil(core_t::TTime(1407428000), BUCKET_LENGTH));
+    static const core_t::TTime FIRST_TIME(maths::common::CIntegerTools::ceil(
+        core_t::TTime(1407428000), BUCKET_LENGTH));
     CResultWriter::TResultsVec results;
 
     {
@@ -531,8 +536,8 @@ BOOST_FIXTURE_TEST_CASE(testLimitByOver, CTestFixture) {
     // non-limited data, but not results from limited data
 
     static const core_t::TTime BUCKET_LENGTH(3600);
-    static const core_t::TTime FIRST_TIME(
-        maths::CIntegerTools::ceil(core_t::TTime(1407441600), BUCKET_LENGTH));
+    static const core_t::TTime FIRST_TIME(maths::common::CIntegerTools::ceil(
+        core_t::TTime(1407441600), BUCKET_LENGTH));
     CResultWriter::TResultsVec results;
 
     {

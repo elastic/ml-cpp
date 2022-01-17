@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CCountingModel_h
@@ -9,7 +14,7 @@
 
 #include <model/CAnomalyDetectorModel.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <boost/unordered_map.hpp>
 
@@ -83,6 +88,9 @@ public:
     void persistModelsState(core::CStatePersistInserter& /*inserter*/) const override {
         // NO-OP
     }
+
+    //! Counting model is always persisted.
+    bool shouldPersist() const override { return true; }
 
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
@@ -276,7 +284,7 @@ private:
 private:
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TTimeStr1VecUMap = boost::unordered_map<core_t::TTime, TStr1Vec>;
 

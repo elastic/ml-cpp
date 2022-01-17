@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CMetricPopulationModel.h>
@@ -12,14 +17,15 @@
 #include <core/CStatePersistInserter.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
-#include <maths/CIntegerTools.h>
-#include <maths/COrderings.h>
-#include <maths/CPrior.h>
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesDecompositionStateSerialiser.h>
-#include <maths/CTools.h>
-#include <maths/ProbabilityAggregators.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CPrior.h>
+#include <maths/common/CTools.h>
+#include <maths/common/ProbabilityAggregators.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesDecompositionStateSerialiser.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnnotation.h>
@@ -57,10 +63,10 @@ using TSizeFuzzyDeduplicateUMap =
 struct SValuesAndWeights {
     SValuesAndWeights() : s_IsInteger(false), s_IsNonNegative(false) {}
     bool s_IsInteger, s_IsNonNegative;
-    maths::CModel::TTimeDouble2VecSizeTrVec s_BucketValues;
-    maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
+    maths::common::CModel::TTimeDouble2VecSizeTrVec s_BucketValues;
+    maths::common::CModel::TTimeDouble2VecSizeTrVec s_Values;
+    maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
+    maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
 };
 using TSizeValuesAndWeightsUMap = boost::unordered_map<std::size_t, SValuesAndWeights>;
 
@@ -102,8 +108,10 @@ CMetricPopulationModel::CMetricPopulationModel(
       m_InterimBucketCorrector(interimBucketCorrector), m_Probabilities(0.05) {
     this->initialize(newFeatureModels, newFeatureCorrelateModelPriors,
                      std::move(featureCorrelatesModels));
-    traverser.traverseSubLevel(std::bind(&CMetricPopulationModel::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CMetricPopulationModel::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CMetricPopulationModel::initialize(const TFeatureMathsModelSPtrPrVec& newFeatureModels,
@@ -120,7 +128,7 @@ void CMetricPopulationModel::initialize(const TFeatureMathsModelSPtrPrVec& newFe
 
     if (this->params().s_MultivariateByFields) {
         m_FeatureCorrelatesModels.reserve(featureCorrelatesModels.size());
-        for (std::size_t i = 0u; i < featureCorrelatesModels.size(); ++i) {
+        for (std::size_t i = 0; i < featureCorrelatesModels.size(); ++i) {
             m_FeatureCorrelatesModels.emplace_back(
                 featureCorrelatesModels[i].first,
                 newFeatureCorrelateModelPriors[i].second,
@@ -160,6 +168,11 @@ CMetricPopulationModel::CMetricPopulationModel(bool isForPersistence,
     }
 }
 
+bool CMetricPopulationModel::shouldPersist() const {
+    return std::any_of(m_FeatureModels.begin(), m_FeatureModels.end(),
+                       [](const auto& model) { return model.shouldPersist(); });
+}
+
 void CMetricPopulationModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(POPULATION_STATE_TAG,
                          std::bind(&CMetricPopulationModel::doAcceptPersistInserter,
@@ -178,7 +191,7 @@ void CMetricPopulationModel::acceptPersistInserter(core::CStatePersistInserter& 
 }
 
 bool CMetricPopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t i = 0u, j = 0u;
+    std::size_t i = 0u, j = 0;
     do {
         const std::string& name = traverser.name();
         RESTORE(POPULATION_STATE_TAG,
@@ -245,7 +258,7 @@ CMetricPopulationModel::baselineBucketMean(model_t::EFeature feature,
                                            model_t::CResultType type,
                                            const TSizeDoublePr1Vec& correlated,
                                            core_t::TTime time) const {
-    const maths::CModel* model{this->model(feature, cid)};
+    const maths::common::CModel* model{this->model(feature, cid)};
     if (!model) {
         return TDouble1Vec();
     }
@@ -254,7 +267,7 @@ CMetricPopulationModel::baselineBucketMean(model_t::EFeature feature,
     this->correctBaselineForInterim(feature, pid, cid, type, correlated,
                                     this->currentBucketInterimCorrections(), result);
     TDouble1VecDouble1VecPr support = model_t::support(feature);
-    return maths::CTools::truncate(result, support.first, support.second);
+    return maths::common::CTools::truncate(result, support.first, support.second);
 }
 
 bool CMetricPopulationModel::bucketStatsAvailable(core_t::TTime time) const {
@@ -368,13 +381,26 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 std::size_t pid = CDataGatherer::extractPersonId(data_);
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
 
-                maths::CModel* model{this->model(feature, cid)};
+                maths::common::CModel* model{this->model(feature, cid)};
                 if (!model) {
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
+                // initialCountWeight returns a weight value as double:
+                // 0.0 if checkScheduledEvents is true
+                // 1.0 if both checkScheduledEvents and checkRules are false
+                // A small weight - 0.005 - if checkRules is true.
+                // This weight is applied to countWeight (and therefore scaledCountWeight) as multiplier.
+                // This reduces the impact of the values affected by the skip_model_update rule
+                // on the model while not completely ignoring them. This still allows the model to
+                // learn from the affected values - addressing point 1. and 2. in
+                // https://github.com/elastic/ml-cpp/issues/1272, Namely
+                // 1. If you apply it from the start of the modelling it can stop the model learning anything at all.
+                // 2. It can stop the model ever adapting to some change in data characteristics
                 core_t::TTime sampleTime = model_t::sampleTime(feature, time, bucketLength);
-                if (this->shouldIgnoreSample(feature, pid, cid, sampleTime)) {
+                double initialCountWeight{
+                    this->initialCountWeight(feature, pid, cid, sampleTime)};
+                if (initialCountWeight == 0.0) {
                     core_t::TTime skipTime = sampleTime - attributeLastBucketTimesMap[cid];
                     if (skipTime > 0) {
                         model->skipTime(skipTime);
@@ -411,7 +437,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                                                   return sample.time() >= cutoff;
                                               });
                 double updatesPerBucket = this->params().s_MaximumUpdatesPerBucket;
-                double countWeight = this->sampleRateWeight(pid, cid) *
+                double countWeight = initialCountWeight *
+                                     this->sampleRateWeight(pid, cid) *
                                      this->learnRate(feature) *
                                      (updatesPerBucket > 0.0 && n > 0
                                           ? updatesPerBucket / static_cast<double>(n)
@@ -467,7 +494,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     }
                 };
 
-                maths::CModelAddSamplesParams params;
+                maths::common::CModelAddSamplesParams params;
                 params.integer(attribute.second.s_IsInteger)
                     .nonNegative(attribute.second.s_IsNonNegative)
                     .propagationInterval(this->propagationTime(cid, latest))
@@ -480,13 +507,13 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                         annotationCallback(annotation);
                     });
 
-                maths::CModel* model{this->model(feature, cid)};
+                maths::common::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {
                     LOG_TRACE(<< "Model unexpectedly null");
                     return;
                 }
                 if (model->addSamples(params, attribute.second.s_Values) ==
-                    maths::CModel::E_Reset) {
+                    maths::common::CModel::E_Reset) {
                     gatherer.resetSampleCount(cid);
                 }
             }
@@ -568,13 +595,13 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
     LOG_TRACE(<< "computeProbability(" << gatherer.personName(pid) << ")");
 
     CProbabilityAndInfluenceCalculator pJoint(this->params().s_InfluenceCutoff);
-    pJoint.addAggregator(maths::CJointProbabilityOfLessLikelySamples());
-    pJoint.addAggregator(maths::CProbabilityOfExtremeSample());
+    pJoint.addAggregator(maths::common::CJointProbabilityOfLessLikelySamples());
+    pJoint.addAggregator(maths::common::CProbabilityOfExtremeSample());
     if (this->params().s_CacheProbabilities) {
         pJoint.addCache(m_Probabilities);
     }
 
-    for (std::size_t i = 0u; i < gatherer.numberFeatures(); ++i) {
+    for (std::size_t i = 0; i < gatherer.numberFeatures(); ++i) {
         model_t::EFeature feature = gatherer.feature(i);
         if (model_t::isCategorical(feature)) {
             continue;
@@ -596,6 +623,11 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                           << ", person = " << gatherer.personName(pid)
                           << ", attribute = " << gatherer.attributeName(cid));
                 continue;
+            }
+
+            if (this->shouldSkipUpdate(feature, pid, cid,
+                                       model_t::sampleTime(feature, startTime, bucketLength))) {
+                result.s_ShouldUpdateQuantiles = false;
             }
 
             if (this->shouldIgnoreResult(feature, result.s_ResultType, pid, cid,
@@ -624,7 +656,7 @@ bool CMetricPopulationModel::computeProbability(std::size_t pid,
                               << ") = " << params.s_Probability);
                     const auto& influenceValues =
                         CDataGatherer::extractData(featureData[j]).s_InfluenceValues;
-                    for (std::size_t k = 0u; k < influenceValues.size(); ++k) {
+                    for (std::size_t k = 0; k < influenceValues.size(); ++k) {
                         if (const CInfluenceCalculator* influenceCalculator =
                                 this->influenceCalculator(feature, k)) {
                             pJoint.plugin(*influenceCalculator);
@@ -674,23 +706,23 @@ bool CMetricPopulationModel::computeTotalProbability(const std::string& /*person
 uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const {
     uint64_t seed = this->CPopulationModel::checksum(includeCurrentBucketStats);
     if (includeCurrentBucketStats) {
-        seed = maths::CChecksum::calculate(seed, m_CurrentBucketStats.s_StartTime);
+        seed = maths::common::CChecksum::calculate(seed, m_CurrentBucketStats.s_StartTime);
     }
 
     using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
     using TStrCRefStrCRefPrUInt64Map =
-        std::map<TStrCRefStrCRefPr, uint64_t, maths::COrderings::SLess>;
+        std::map<TStrCRefStrCRefPr, uint64_t, maths::common::COrderings::SLess>;
 
     const CDataGatherer& gatherer = this->dataGatherer();
 
     TStrCRefStrCRefPrUInt64Map hashes;
 
     for (const auto& feature : m_FeatureModels) {
-        for (std::size_t cid = 0u; cid < feature.s_Models.size(); ++cid) {
+        for (std::size_t cid = 0; cid < feature.s_Models.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
                 uint64_t& hash =
                     hashes[{std::cref(EMPTY_STRING), std::cref(gatherer.attributeName(cid))}];
-                hash = maths::CChecksum::calculate(hash, feature.s_Models[cid]);
+                hash = maths::common::CChecksum::calculate(hash, feature.s_Models[cid]);
             }
         }
     }
@@ -702,7 +734,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
                 gatherer.isAttributeActive(cids[1])) {
                 uint64_t& hash = hashes[{std::cref(gatherer.attributeName(cids[0])),
                                          std::cref(gatherer.attributeName(cids[1]))}];
-                hash = maths::CChecksum::calculate(hash, model.second);
+                hash = maths::common::CChecksum::calculate(hash, model.second);
             }
         }
     }
@@ -711,7 +743,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
         for (const auto& personCount : this->personCounts()) {
             uint64_t& hash =
                 hashes[{std::cref(gatherer.personName(personCount.first)), std::cref(EMPTY_STRING)}];
-            hash = maths::CChecksum::calculate(hash, personCount.second);
+            hash = maths::common::CChecksum::calculate(hash, personCount.second);
         }
         for (const auto& feature : m_CurrentBucketStats.s_FeatureData) {
             for (const auto& data_ : feature.second) {
@@ -720,9 +752,9 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
                 const TFeatureData& data = CDataGatherer::extractData(data_);
                 uint64_t& hash =
                     hashes[{std::cref(this->personName(pid)), std::cref(this->attributeName(cid))}];
-                hash = maths::CChecksum::calculate(hash, data.s_BucketValue);
-                hash = maths::CChecksum::calculate(hash, data.s_IsInteger);
-                hash = maths::CChecksum::calculate(hash, data.s_Samples);
+                hash = maths::common::CChecksum::calculate(hash, data.s_BucketValue);
+                hash = maths::common::CChecksum::calculate(hash, data.s_IsInteger);
+                hash = maths::common::CChecksum::calculate(hash, data.s_Samples);
             }
         }
     }
@@ -730,7 +762,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
 
-    return maths::CChecksum::calculate(seed, hashes);
+    return maths::common::CChecksum::calculate(seed, hashes);
 }
 
 void CMetricPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
@@ -901,12 +933,13 @@ void CMetricPopulationModel::doSkipSampling(core_t::TTime startTime, core_t::TTi
     this->CPopulationModel::doSkipSampling(startTime, endTime);
 }
 
-const maths::CModel* CMetricPopulationModel::model(model_t::EFeature feature,
-                                                   std::size_t cid) const {
+const maths::common::CModel*
+CMetricPopulationModel::model(model_t::EFeature feature, std::size_t cid) const {
     return const_cast<CMetricPopulationModel*>(this)->model(feature, cid);
 }
 
-maths::CModel* CMetricPopulationModel::model(model_t::EFeature feature, std::size_t cid) {
+maths::common::CModel* CMetricPopulationModel::model(model_t::EFeature feature,
+                                                     std::size_t cid) {
     auto i = std::find_if(m_FeatureModels.begin(), m_FeatureModels.end(),
                           [feature](const SFeatureModels& model) {
                               return model.s_Feature == feature;
@@ -924,7 +957,7 @@ bool CMetricPopulationModel::correlates(model_t::EFeature feature,
         return false;
     }
 
-    const maths::CModel* model{this->model(feature, cid)};
+    const maths::common::CModel* model{this->model(feature, cid)};
     if (model == nullptr) {
         LOG_TRACE(<< "Model unexpectedly null");
         return false;
@@ -953,7 +986,7 @@ bool CMetricPopulationModel::fill(model_t::EFeature feature,
 
     std::size_t dimension{model_t::dimension(feature)};
     auto data = find(this->featureData(feature, bucketTime), pid, cid);
-    const maths::CModel* model{this->model(feature, cid)};
+    const maths::common::CModel* model{this->model(feature, cid)};
     if (model == nullptr) {
         LOG_TRACE(<< "Model unexpectedly null");
         return false;
@@ -963,10 +996,11 @@ bool CMetricPopulationModel::fill(model_t::EFeature feature,
                                            this->bucketLength(), bucket->time())};
     maths_t::TDouble2VecWeightsAry weights(maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
     TDouble2Vec seasonalWeight;
-    model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, seasonalWeight);
+    model->seasonalWeight(maths::common::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL,
+                          time, seasonalWeight);
     maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
-    bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, cid, time);
+    double initialCountWeight{this->initialCountWeight(feature, pid, cid, time)};
 
     params.s_Feature = feature;
     params.s_Model = model;
@@ -985,7 +1019,7 @@ bool CMetricPopulationModel::fill(model_t::EFeature feature,
     params.s_ComputeProbabilityParams
         .addCalculation(model_t::probabilityCalculation(feature))
         .addWeights(weights)
-        .skipAnomalyModelUpdate(skipAnomalyModelUpdate);
+        .initialCountWeight(initialCountWeight);
 
     return true;
 }

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_CModelTestFixtureBase_h
@@ -9,9 +14,9 @@
 
 #include <core/CoreTypes.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CModel.h>
-#include <maths/CMultivariatePrior.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CModel.h>
+#include <maths/common/CMultivariatePrior.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -50,9 +55,9 @@ public:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
 
-    using TMathsModelPtr = std::shared_ptr<ml::maths::CModel>;
-    using TMeanAccumulator = ml::maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMultivariatePriorPtr = std::shared_ptr<ml::maths::CMultivariatePrior>;
+    using TMathsModelPtr = std::shared_ptr<ml::maths::common::CModel>;
+    using TMeanAccumulator = ml::maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMultivariatePriorPtr = std::shared_ptr<ml::maths::common::CMultivariatePrior>;
 
     using TOptionalDouble = boost::optional<double>;
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
@@ -60,7 +65,7 @@ public:
     using TOptionalUInt = boost::optional<unsigned int>;
     using TOptionalUInt64 = boost::optional<uint64_t>;
 
-    using TPriorPtr = std::shared_ptr<ml::maths::CPrior>;
+    using TPriorPtr = std::shared_ptr<ml::maths::common::CPrior>;
 
     using TSizeDoublePr = std::pair<std::size_t, double>;
     using TSizeDoublePr1Vec = ml::core::CSmallVector<TSizeDoublePr, 1>;
@@ -107,7 +112,7 @@ protected:
         std::string print() const {
             std::ostringstream result;
             result << "[" << s_Bucket << ", " + s_Person << ",";
-            for (std::size_t i = 0u; i < s_Attributes.size(); ++i) {
+            for (std::size_t i = 0; i < s_Attributes.size(); ++i) {
                 if (s_Attributes[i].first < 0.01) {
                     result << " " << s_Attributes[i].second;
                 }
@@ -120,7 +125,7 @@ protected:
     using TAnomalyVec = std::vector<SAnomaly>;
     using TDoubleAnomalyPr = std::pair<double, SAnomaly>;
     using TAnomalyAccumulator =
-        ml::maths::CBasicStatistics::COrderStatisticsHeap<TDoubleAnomalyPr, ml::maths::COrderings::SFirstLess>;
+        ml::maths::common::CBasicStatistics::COrderStatisticsHeap<TDoubleAnomalyPr, ml::maths::common::COrderings::SFirstLess>;
 
     struct SMessage {
         SMessage(ml::core_t::TTime time,
@@ -141,7 +146,7 @@ protected:
               s_Inf1(inf1), s_Inf2(inf2), s_Value(value) {}
 
         bool operator<(const SMessage& other) const {
-            return ml::maths::COrderings::lexicographical_compare(
+            return ml::maths::common::COrderings::lexicographical_compare(
                 s_Time, s_Person, s_Attribute, other.s_Time, other.s_Person,
                 other.s_Attribute);
         }

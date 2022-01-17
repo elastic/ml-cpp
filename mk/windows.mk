@@ -1,7 +1,12 @@
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 OS=Windows
@@ -76,7 +81,7 @@ UT_TMP_DIR=/tmp
 RESOURCES_DIR=resources
 LOCALLIBS=AdvAPI32.lib shell32.lib Version.lib
 NETLIBS=WS2_32.lib
-BOOSTVER=1_71
+BOOSTVER=1_77
 BOOSTVCVER=142
 BOOSTINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_ALL_NO_LIB -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
@@ -95,6 +100,9 @@ RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 # versions need to be explicitly enabled
 EIGENINCLUDES=-I$(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_VECTORIZE_SSE3 -DEIGEN_VECTORIZE_SSE4_1 -DEIGEN_VECTORIZE_SSE4_2 -DEIGEN_MAX_ALIGN_BYTES=32
+TORCHINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/pytorch
+TORCHCPULIB=torch_cpu.lib
+C10LIB=c10.lib
 XMLINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/libxml2
 XMLLIBLDFLAGS=-LIBPATH:$(LOCAL_DRIVE):/usr/local/lib
 XMLLIBS=libxml2.lib
@@ -110,7 +118,9 @@ LIB_ML_CORE=libMlCore.lib
 LIB_ML_VER=libMlVer.lib
 ML_VER_LDFLAGS=-LIBPATH:$(CPP_SRC_HOME)/lib/ver/.objs
 LIB_ML_API=libMlApi.lib
-LIB_ML_MATHS=libMlMaths.lib
+LIB_ML_MATHS_COMMON=libMlMathsCommon.lib
+LIB_ML_MATHS_TIME_SERIES=libMlMathsTimeSeries.lib
+LIB_ML_MATHS_ANALYTICS=libMlMathsAnalytics.lib
 LIB_ML_MODEL=libMlModel.lib
 LIB_ML_SECCOMP=libMlSeccomp.lib
 ML_SECCOMP_LDFLAGS=-LIBPATH:$(CPP_SRC_HOME)/lib/seccomp/.objs

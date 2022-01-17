@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
@@ -10,8 +15,8 @@
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
+#include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <api/ImportExport.h>
 
@@ -39,7 +44,7 @@ namespace api {
 //! writing to a shared output stream. For example, it is expected that writes for
 //! progress happen concurrently with writes of other instrumentation.
 class API_EXPORT CDataFrameAnalysisInstrumentation
-    : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
+    : virtual public maths::analytics::CDataFrameAnalysisInstrumentationInterface {
 public:
     //!\brief Memory status
     enum EMemoryStatus { E_Ok, E_HardLimit };
@@ -149,11 +154,11 @@ private:
 //! \brief Instrumentation class for Outlier Detection jobs.
 class API_EXPORT CDataFrameOutliersInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
-      public maths::CDataFrameOutliersInstrumentationInterface {
+      public maths::analytics::CDataFrameOutliersInstrumentationInterface {
 public:
     CDataFrameOutliersInstrumentation(const std::string& jobId, std::size_t memoryLimit)
         : CDataFrameAnalysisInstrumentation(jobId, memoryLimit) {}
-    void parameters(const maths::COutliers::SComputeParameters& parameters) override;
+    void parameters(const maths::analytics::COutliers::SComputeParameters& parameters) override;
     void elapsedTime(std::uint64_t time) override;
     void featureInfluenceThreshold(double featureInfluenceThreshold) override;
 
@@ -166,7 +171,7 @@ private:
     void writeParameters(rapidjson::Value& parentObject);
 
 private:
-    maths::COutliers::SComputeParameters m_Parameters;
+    maths::analytics::COutliers::SComputeParameters m_Parameters;
     std::uint64_t m_ElapsedTime;
     double m_FeatureInfluenceThreshold = -1.0;
     bool m_AnalysisStatsInitialized = false;
@@ -179,22 +184,24 @@ private:
 //! for hyperparameters, validation loss results, and job timing.
 class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
-      public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
+      public maths::analytics::CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
     CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId, std::size_t memoryLimit)
         : CDataFrameAnalysisInstrumentation(jobId, memoryLimit) {}
 
-    //! Supervised learning job \p type, can be E_Regression or E_Classification.
+    //! Set the supervised learning job \p type, can be E_Regression or E_Classification.
     void type(EStatsType type) override;
-    //! Current \p iteration number.
+    //! Set the current \p iteration number.
     void iteration(std::size_t iteration) override;
-    //! Run time of the iteration.
+    //! Set the run time of the current iteration.
     void iterationTime(std::uint64_t delta) override;
-    //! Type of the validation loss result, e.g. "mse".
+    //! Set the type of the validation loss result, e.g. "mse".
     void lossType(const std::string& lossType) override;
-    //! List of \p lossValues of validation error for the given \p fold.
+    //! Set the validation loss values for \p fold for each forest size to \p lossValues.
     void lossValues(std::size_t fold, TDoubleVec&& lossValues) override;
-    //! \return Structure contains hyperparameters.
+    //! Set the fraction of data used for training per fold.
+    void trainingFractionPerFold(double fraction) override;
+    //! \return A writable object containing the training hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
 protected:
@@ -202,23 +209,26 @@ protected:
 
 private:
     using TLossVec = std::vector<std::pair<std::size_t, TDoubleVec>>;
-    using TRowsAccumulator = maths::CBasicStatistics::SSampleMean<std::uint32_t>::TAccumulator;
+    using TRowsAccumulator =
+        maths::common::CBasicStatistics::SSampleMean<std::uint32_t>::TAccumulator;
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
+    void writeMetaData(rapidjson::Value& parentObject);
     void writeHyperparameters(rapidjson::Value& parentObject);
     void writeValidationLoss(rapidjson::Value& parentObject);
     void writeTimingStats(rapidjson::Value& parentObject);
     void reset();
 
 private:
-    EStatsType m_Type = E_Regression;
-    std::size_t m_Iteration = 0;
-    std::uint64_t m_IterationTime = 0;
-    std::uint64_t m_ElapsedTime = 0;
-    bool m_AnalysisStatsInitialized = false;
+    EStatsType m_Type{E_Regression};
+    std::size_t m_Iteration{0};
+    std::uint64_t m_IterationTime{0};
+    std::uint64_t m_ElapsedTime{0};
+    bool m_AnalysisStatsInitialized{false};
     std::string m_LossType;
     TLossVec m_LossValues;
+    double m_TrainingFractionPerFold{0.0};
     SHyperparameters m_Hyperparameters;
 };
 }

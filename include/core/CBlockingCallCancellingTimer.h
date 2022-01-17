@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CBlockingCallCancellingTimer_h
 #define INCLUDED_ml_core_CBlockingCallCancellingTimer_h
@@ -51,11 +56,11 @@ protected:
     //! Derived classes must implement this such that it waits for the
     //! appropriate indication that the blocking call should be cancelled,
     //! or until it is told to stop waiting by stopWaitForCondition().
-    virtual void waitForCondition();
+    void waitForCondition() override;
 
     //! Derived classes must implement this such that when called it causes
     //! the waitForCondition() method to return false immediately.
-    virtual void stopWaitForCondition();
+    void stopWaitForCondition() override;
 
 private:
     using TMutexUniqueLock = std::unique_lock<std::mutex>;

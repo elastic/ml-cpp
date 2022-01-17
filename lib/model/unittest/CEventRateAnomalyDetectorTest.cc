@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -11,8 +16,8 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CIntegerTools.h>
-#include <maths/CModelWeight.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CModelWeight.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CHierarchicalResults.h>
@@ -58,9 +63,9 @@ public:
         results.bottomUpBreadthFirst(*this);
     }
 
-    virtual void visit(const ml::model::CHierarchicalResults& results,
-                       const ml::model::CHierarchicalResults::TNode& node,
-                       bool pivot) {
+    void visit(const ml::model::CHierarchicalResults& results,
+               const ml::model::CHierarchicalResults::TNode& node,
+               bool pivot) override {
         if (pivot) {
             return;
         }
@@ -122,16 +127,17 @@ void importData(ml::core_t::TTime firstTime,
     using TifstreamPtrVec = std::vector<TifstreamPtr>;
 
     TifstreamPtrVec ifss;
-    for (std::size_t i = 0u; i < fileNames.size(); ++i) {
+    for (std::size_t i = 0; i < fileNames.size(); ++i) {
         TifstreamPtr ifs(new std::ifstream(fileNames[i].c_str()));
         BOOST_TEST_REQUIRE(ifs->is_open());
         ifss.push_back(ifs);
     }
 
-    ml::core_t::TTime lastBucketTime = ml::maths::CIntegerTools::ceil(firstTime, bucketLength);
+    ml::core_t::TTime lastBucketTime =
+        ml::maths::common::CIntegerTools::ceil(firstTime, bucketLength);
 
     TTimeVec times(ifss.size());
-    for (std::size_t i = 0u; i < ifss.size(); ++i) {
+    for (std::size_t i = 0; i < ifss.size(); ++i) {
         std::string line;
         std::getline(*ifss[i], line);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(line, times[i]));
@@ -209,9 +215,9 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
 
     BOOST_REQUIRE_EQUAL(EXPECTED_ANOMALOUS_HOURS, peaks.size());
 
-    std::size_t detected503 = 0u;
-    std::size_t detectedMySQL = 0u;
-    for (std::size_t i = 0u; i < peaks.size(); ++i) {
+    std::size_t detected503 = 0;
+    std::size_t detectedMySQL = 0;
+    for (std::size_t i = 0; i < peaks.size(); ++i) {
         LOG_DEBUG(<< "Checking for status 503 anomaly at " << peaks[i]);
         if (writer.allAnomalies().count(TTimeStrPr(peaks[i], "testfiles/status503.txt"))) {
             ++detected503;

@@ -1,15 +1,20 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_test_CRandomNumbers_h
 #define INCLUDED_ml_test_CRandomNumbers_h
 
 #include <test/ImportExport.h>
 
-#include <maths/CLinearAlgebraFwd.h>
-#include <maths/CPRNG.h>
+#include <maths/common/CLinearAlgebraFwd.h>
+#include <maths/common/CPRNG.h>
 
 #include <algorithm>
 #include <memory>
@@ -26,7 +31,7 @@ public:
     using TUIntVec = std::vector<unsigned int>;
     using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
-    using TGenerator = maths::CPRNG::CXorShift1024Mult;
+    using TGenerator = maths::common::CPRNG::CXorShift1024Mult;
     using TGeneratorPtr = std::shared_ptr<TGenerator>;
 
 public:
@@ -144,9 +149,9 @@ public:
     template<typename T, std::size_t N>
     void generateRandomMultivariateNormals(
         const TSizeVec& sizes,
-        std::vector<maths::CVectorNx1<T, N>>& means,
-        std::vector<maths::CSymmetricMatrixNxN<T, N>>& covariances,
-        std::vector<std::vector<maths::CVectorNx1<T, N>>>& points);
+        std::vector<maths::common::CVectorNx1<T, N>>& means,
+        std::vector<maths::common::CSymmetricMatrixNxN<T, N>>& covariances,
+        std::vector<std::vector<maths::common::CVectorNx1<T, N>>>& points);
 
     //! Get a uniform generator in the range [0, n). This can be used
     //! in conjunction with std::random_shuffle if you want a seeded

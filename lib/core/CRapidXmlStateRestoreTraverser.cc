@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
@@ -21,6 +26,10 @@ CRapidXmlStateRestoreTraverser::CRapidXmlStateRestoreTraverser(const CRapidXmlPa
 }
 
 bool CRapidXmlStateRestoreTraverser::next() {
+    if (haveBadState()) {
+        return false;
+    }
+
     CRapidXmlParser::TCharRapidXmlNode* next(this->nextNodeElement());
     if (next == nullptr) {
         return false;
@@ -39,6 +48,11 @@ bool CRapidXmlStateRestoreTraverser::hasSubLevel() const {
 }
 
 const std::string& CRapidXmlStateRestoreTraverser::name() const {
+    if (haveBadState()) {
+        m_CachedName.clear();
+        return m_CachedName;
+    }
+
     if (!m_IsNameCacheValid) {
         if (m_CurrentNode != nullptr) {
             m_CachedName.assign(m_CurrentNode->name(), m_CurrentNode->name_size());
@@ -52,6 +66,11 @@ const std::string& CRapidXmlStateRestoreTraverser::name() const {
 }
 
 const std::string& CRapidXmlStateRestoreTraverser::value() const {
+    if (haveBadState()) {
+        m_CachedValue.clear();
+        return m_CachedValue;
+    }
+
     if (!m_IsValueCacheValid) {
         if (m_CurrentNode != nullptr) {
             // NB: this doesn't work for CDATA - see implementation decisions in

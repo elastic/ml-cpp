@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
@@ -44,6 +49,9 @@ public:
     static const std::string CLASSES_FIELD_NAME;
     static const std::string CLASS_NAME_FIELD_NAME;
     static const TStrVec CLASS_ASSIGNMENT_OBJECTIVE_VALUES;
+    static const std::string CLASSIFICATION_WEIGHTS;
+    static const std::string CLASSIFICATION_WEIGHTS_CLASS;
+    static const std::string CLASSIFICATION_WEIGHTS_WEIGHT;
 
 public:
     static const CDataFrameAnalysisConfigReader& parameterReader();
@@ -66,7 +74,7 @@ public:
                      const TReadClassScoresFunc& readClassScores,
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer,
-                     maths::CTreeShapFeatureImportance* featureImportance = nullptr) const;
+                     maths::analytics::CTreeShapFeatureImportance* featureImportance = nullptr) const;
 
     //! \return A serialisable definition of the trained classification model.
     TInferenceModelDefinitionUPtr

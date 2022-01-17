@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <seccomp/CSystemCallFilter.h>
 
@@ -17,6 +22,10 @@
 namespace ml {
 namespace seccomp {
 
+// The documentation for macOS sandbox is sparse,
+// https://wiki.mozilla.org/Sandbox/OS_X_Rule_Set is a good
+// if old resource, otherwise review the .sb files in
+// /System/Library/Sandbox/Profiles/ for current examples
 namespace {
 // The Sandbox rules deny all actions not explicitly listed.
 // (allow signal (target self)) is required for the SIGIO used
@@ -25,6 +34,8 @@ namespace {
 // (allow file-read*) is required for reading config files.
 // (allow file-write*) is required for mkfifo and that permission
 // can not be set using the more granular controls.
+// (allow sysctl-read) is required to read hw.ncpu and other
+// system information.
 // (debug deny) makes it easier to see which calls need adding
 // when one that is required is not in the list - they show up in
 // the macOS console.
@@ -37,6 +48,7 @@ const std::string SANDBOX_RULES{"\
     (allow file-read-data) \
     (allow file-write*) \
     (allow file-write-data) \
+    (allow sysctl-read) \
     (debug deny)"};
 
 // mkstemps will replace the Xs with random characters

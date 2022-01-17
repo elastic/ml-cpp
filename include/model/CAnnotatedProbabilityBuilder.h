@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CAnnotatedProbabilityBuilder_h
@@ -9,7 +14,7 @@
 
 #include <core/CStoredStringPtr.h>
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/FunctionTypes.h>
@@ -23,7 +28,9 @@
 
 namespace ml {
 namespace maths {
+namespace common {
 class CMultinomialConjugate;
+}
 }
 namespace model {
 class CModel;
@@ -46,8 +53,8 @@ public:
                                  function_t::EFunction function,
                                  std::size_t numberOfPeople);
 
-    void attributeProbabilityPrior(const maths::CMultinomialConjugate* prior);
-    void personAttributeProbabilityPrior(const maths::CMultinomialConjugate* prior);
+    void attributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
+    void personAttributeProbabilityPrior(const maths::common::CMultinomialConjugate* prior);
     void personFrequency(double frequency, bool everSeenBefore);
     void probability(double p);
     void multiBucketImpact(double multiBucketImpact);
@@ -69,14 +76,15 @@ private:
     void addDescriptiveData();
 
 private:
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability>;
+    using TMinAccumulator =
+        maths::common::CBasicStatistics::COrderStatisticsHeap<SAttributeProbability>;
 
 private:
     SAnnotatedProbability& m_Result;
     std::size_t m_NumberAttributeProbabilities;
     std::size_t m_NumberOfPeople;
-    const maths::CMultinomialConjugate* m_AttributeProbabilityPrior;
-    const maths::CMultinomialConjugate* m_PersonAttributeProbabilityPrior;
+    const maths::common::CMultinomialConjugate* m_AttributeProbabilityPrior;
+    const maths::common::CMultinomialConjugate* m_PersonAttributeProbabilityPrior;
     TMinAccumulator m_MinAttributeProbabilities;
     std::size_t m_DistinctTotalAttributes;
     std::size_t m_DistinctRareAttributes;

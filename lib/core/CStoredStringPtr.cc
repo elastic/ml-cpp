@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CStoredStringPtr.h>
 
@@ -46,7 +51,13 @@ CStoredStringPtr::operator bool() const noexcept {
 }
 
 bool CStoredStringPtr::isUnique() const noexcept {
-    return m_String.unique();
+    // Use count is updated in a relaxed manner, so will not necessarily be
+    // accurate in this thread unless this thread has recently done something
+    // that has updated the value. Updating the value like this is obviously
+    // inefficient, so this method should only be used infrequently and only
+    // in unit test code.
+    TStrCPtr sync{m_String};
+    return sync.use_count() == 2;
 }
 
 bool CStoredStringPtr::operator==(std::nullptr_t rhs) const noexcept {

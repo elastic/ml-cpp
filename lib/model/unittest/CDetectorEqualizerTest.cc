@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CLogger.h>
@@ -9,7 +14,7 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
-#include <maths/CStatisticalTests.h>
+#include <maths/common/CStatisticalTests.h>
 
 #include <model/CDetectorEqualizer.h>
 
@@ -26,7 +31,7 @@ using TDoubleVec = std::vector<double>;
 
 namespace {
 
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 const double THRESHOLD = std::log(0.05);
 }
 
@@ -39,11 +44,11 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
@@ -53,11 +58,11 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
 
     TDoubleVec raw[3];
     TDoubleVec corrected[3];
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 raw[i].push_back(p);
@@ -67,19 +72,20 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
     }
 
     TMeanAccumulator similarityIncrease;
-    for (std::size_t i = 1u, k = 0u; i < 3; ++i) {
-        for (std::size_t j = 0u; j < i; ++j, ++k) {
+    for (std::size_t i = 1u, k = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < i; ++j, ++k) {
             double increase =
-                maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) /
-                maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
+                maths::common::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) /
+                maths::common::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
             similarityIncrease.add(std::log(increase));
             LOG_DEBUG(<< "similarity increase = " << increase);
             BOOST_TEST_REQUIRE(increase > 3.0);
         }
     }
     LOG_DEBUG(<< "mean similarity increase = "
-              << std::exp(maths::CBasicStatistics::mean(similarityIncrease)));
-    BOOST_TEST_REQUIRE(std::exp(maths::CBasicStatistics::mean(similarityIncrease)) > 40.0);
+              << std::exp(maths::common::CBasicStatistics::mean(similarityIncrease)));
+    BOOST_TEST_REQUIRE(
+        std::exp(maths::common::CBasicStatistics::mean(similarityIncrease)) > 40.0);
 }
 
 BOOST_AUTO_TEST_CASE(testAge) {
@@ -92,11 +98,11 @@ BOOST_AUTO_TEST_CASE(testAge) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
@@ -110,7 +116,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
         double logp = THRESHOLD;
-        for (std::size_t j = 0u; j < 150; ++j, logp += std::log(0.9)) {
+        for (std::size_t j = 0; j < 150; ++j, logp += std::log(0.9)) {
             double p = std::exp(logp);
             double pc = equalizer.correct(i, p);
             double pca = equalizerAged.correct(i, p);
@@ -119,10 +125,10 @@ BOOST_AUTO_TEST_CASE(testAge) {
             meanBias.add((std::log(pca) - std::log(pc)) / std::log(pc));
             BOOST_TEST_REQUIRE(error < 0.18);
         }
-        LOG_DEBUG(<< "mean bias  = " << maths::CBasicStatistics::mean(meanBias));
-        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(meanBias)) < 0.053);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.053);
+        LOG_DEBUG(<< "mean bias  = " << maths::common::CBasicStatistics::mean(meanBias));
+        LOG_DEBUG(<< "mean error = " << maths::common::CBasicStatistics::mean(meanError));
+        BOOST_TEST_REQUIRE(std::fabs(maths::common::CBasicStatistics::mean(meanBias)) < 0.053);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.053);
     }
 }
 
@@ -136,10 +142,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec logp;
     rng.generateGammaSamples(1.0, 3.1, 1000, logp);
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 origEqualizer.add(static_cast<int>(i), p);

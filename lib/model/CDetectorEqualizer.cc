@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CDetectorEqualizer.h>
@@ -10,9 +15,9 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
-#include <maths/CTools.h>
-#include <maths/Constants.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CTools.h>
+#include <maths/common/Constants.h>
 
 #include <boost/optional.hpp>
 
@@ -31,7 +36,7 @@ void CDetectorEqualizer::acceptPersistInserter(core::CStatePersistInserter& inse
     for (const auto& sketch : m_Sketches) {
         inserter.insertValue(DETECTOR_TAG, sketch.first);
         inserter.insertLevel(
-            SKETCH_TAG, std::bind(&maths::CQuantileSketch::acceptPersistInserter,
+            SKETCH_TAG, std::bind(&maths::common::CQuantileSketch::acceptPersistInserter,
                                   std::cref(sketch.second), std::placeholders::_1));
     }
 }
@@ -45,13 +50,12 @@ bool CDetectorEqualizer::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
                                /**/)
         if (name == SKETCH_TAG) {
             if (!detector) {
-                LOG_ERROR(<< "Expected the detector label first");
-                return false;
+                LOG_ABORT(<< "Expected the detector label first");
             }
-            m_Sketches.emplace_back(
-                *detector, maths::CQuantileSketch(SKETCH_INTERPOLATION, SKETCH_SIZE));
+            m_Sketches.emplace_back(*detector, maths::common::CQuantileSketch(
+                                                   SKETCH_INTERPOLATION, SKETCH_SIZE));
             if (traverser.traverseSubLevel(std::bind(
-                    &maths::CQuantileSketch::acceptRestoreTraverser,
+                    &maths::common::CQuantileSketch::acceptRestoreTraverser,
                     std::ref(m_Sketches.back().second), std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Failed to restore SKETCH_TAG, got " << traverser.value());
                 m_Sketches.pop_back();
@@ -65,7 +69,7 @@ bool CDetectorEqualizer::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
 }
 
 void CDetectorEqualizer::add(int detector, double probability) {
-    double logp = -maths::CTools::fastLog(probability);
+    double logp = -maths::common::CTools::fastLog(probability);
     this->sketch(detector).add(logp);
 }
 
@@ -75,7 +79,7 @@ double CDetectorEqualizer::correct(int detector, double probability) {
         return probability;
     }
 
-    const maths::CQuantileSketch& sketch = this->sketch(detector);
+    const maths::common::CQuantileSketch& sketch = this->sketch(detector);
 
     for (const auto& sketch_ : m_Sketches) {
         if (sketch_.second.count() < MINIMUM_COUNT_FOR_CORRECTION) {
@@ -83,10 +87,11 @@ double CDetectorEqualizer::correct(int detector, double probability) {
         }
     }
 
-    static const double A = -maths::CTools::fastLog(maths::LARGEST_SIGNIFICANT_PROBABILITY);
-    static const double B = -maths::CTools::fastLog(maths::SMALL_PROBABILITY);
+    static const double A = -maths::common::CTools::fastLog(
+        maths::common::LARGEST_SIGNIFICANT_PROBABILITY);
+    static const double B = -maths::common::CTools::fastLog(maths::common::SMALL_PROBABILITY);
 
-    double logp = -maths::CTools::fastLog(probability);
+    double logp = -maths::common::CTools::fastLog(probability);
 
     double percentage;
     if (sketch.cdf(logp, percentage)) {
@@ -107,7 +112,7 @@ double CDetectorEqualizer::correct(int detector, double probability) {
         std::size_t n = logps.size();
         double logpc = n % 2 == 0 ? (logps[n / 2 - 1] + logps[n / 2]) / 2.0
                                   : logps[n / 2];
-        double alpha = maths::CTools::truncate((logp - A) / (B - A), 0.0, 1.0);
+        double alpha = maths::common::CTools::truncate((logp - A) / (B - A), 0.0, 1.0);
         LOG_TRACE(<< "Corrected log(p) = " << -alpha * logpc - (1.0 - alpha) * logp);
 
         return std::exp(-alpha * logpc - (1.0 - alpha) * logp);
@@ -127,25 +132,25 @@ void CDetectorEqualizer::age(double factor) {
 }
 
 uint64_t CDetectorEqualizer::checksum() const {
-    return maths::CChecksum::calculate(0, m_Sketches);
+    return maths::common::CChecksum::calculate(0, m_Sketches);
 }
 
 double CDetectorEqualizer::largestProbabilityToCorrect() {
-    return maths::LARGEST_SIGNIFICANT_PROBABILITY;
+    return maths::common::LARGEST_SIGNIFICANT_PROBABILITY;
 }
 
-maths::CQuantileSketch& CDetectorEqualizer::sketch(int detector) {
+maths::common::CQuantileSketch& CDetectorEqualizer::sketch(int detector) {
     auto i = std::lower_bound(m_Sketches.begin(), m_Sketches.end(), detector,
-                              maths::COrderings::SFirstLess());
+                              maths::common::COrderings::SFirstLess());
     if (i == m_Sketches.end() || i->first != detector) {
-        i = m_Sketches.insert(
-            i, {detector, maths::CQuantileSketch(SKETCH_INTERPOLATION, SKETCH_SIZE)});
+        i = m_Sketches.insert(i, {detector, maths::common::CQuantileSketch(
+                                                SKETCH_INTERPOLATION, SKETCH_SIZE)});
     }
     return i->second;
 }
 
-const maths::CQuantileSketch::EInterpolation
-    CDetectorEqualizer::SKETCH_INTERPOLATION(maths::CQuantileSketch::E_Linear);
+const maths::common::CQuantileSketch::EInterpolation
+    CDetectorEqualizer::SKETCH_INTERPOLATION(maths::common::CQuantileSketch::E_Linear);
 const std::size_t CDetectorEqualizer::SKETCH_SIZE(100);
 const double CDetectorEqualizer::MINIMUM_COUNT_FOR_CORRECTION(1.5);
 }

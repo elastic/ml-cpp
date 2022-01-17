@@ -1,13 +1,18 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CDetectorEqualizer_h
 #define INCLUDED_ml_model_CDetectorEqualizer_h
 
-#include <maths/CQuantileSketch.h>
+#include <maths/common/CQuantileSketch.h>
 
 #include <model/ImportExport.h>
 
@@ -34,7 +39,7 @@ class CModelConfig;
 //! for that rank over all detectors.
 class MODEL_EXPORT CDetectorEqualizer {
 public:
-    using TIntQuantileSketchPr = std::pair<int, maths::CQuantileSketch>;
+    using TIntQuantileSketchPr = std::pair<int, maths::common::CQuantileSketch>;
     using TIntQuantileSketchPrVec = std::vector<TIntQuantileSketchPr>;
 
 public:
@@ -64,11 +69,11 @@ public:
 
 private:
     //! Get the sketch for \p detector.
-    maths::CQuantileSketch& sketch(int detector);
+    maths::common::CQuantileSketch& sketch(int detector);
 
 private:
     //! The style of interpolation to use for the sketch.
-    static const maths::CQuantileSketch::EInterpolation SKETCH_INTERPOLATION;
+    static const maths::common::CQuantileSketch::EInterpolation SKETCH_INTERPOLATION;
     //! The maximum size of the quantile sketch.
     static const std::size_t SKETCH_SIZE;
     //! The minimum count in a detector's sketch for which we'll

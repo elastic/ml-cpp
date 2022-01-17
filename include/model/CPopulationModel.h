@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CPopulationModel_h
@@ -12,10 +17,11 @@
 #include <core/CTriple.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CBjkstUniqueValues.h>
-#include <maths/CCountMinSketch.h>
-#include <maths/CMultivariatePrior.h>
-#include <maths/COrderings.h>
+#include <maths/common/CBjkstUniqueValues.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COrderings.h>
+
+#include <maths/time_series/CCountMinSketch.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CFeatureData.h>
@@ -33,7 +39,9 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace maths {
+namespace common {
 class CPrior;
+}
 }
 namespace model {
 
@@ -60,8 +68,8 @@ public:
     using TTimeVec = std::vector<core_t::TTime>;
     using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
-    using TCountMinSketchVec = std::vector<maths::CCountMinSketch>;
-    using TBjkstUniqueValuesVec = std::vector<maths::CBjkstUniqueValues>;
+    using TCountMinSketchVec = std::vector<maths::time_series::CCountMinSketch>;
+    using TBjkstUniqueValuesVec = std::vector<maths::common::CBjkstUniqueValues>;
     using TSizeTimeUMap = boost::unordered_map<std::size_t, core_t::TTime>;
 
     //! Lift the overloads of baselineBucketMean into the class scope.
@@ -90,16 +98,16 @@ public:
     //@}
 
     //! Returns true.
-    virtual bool isPopulation() const;
+    bool isPopulation() const override;
 
     //! \name Bucket Statistics
     //@{
     //! Get the count of the bucketing interval containing \p time
     //! for the person identified by \p pid.
-    virtual TOptionalUInt64 currentBucketCount(std::size_t pid, core_t::TTime time) const;
+    TOptionalUInt64 currentBucketCount(std::size_t pid, core_t::TTime time) const override;
 
     //! Returns null.
-    virtual TOptionalDouble baselineBucketCount(std::size_t pid) const;
+    TOptionalDouble baselineBucketCount(std::size_t pid) const override;
 
 protected:
     //! Get the index range [begin, end) of the person corresponding to
@@ -134,15 +142,15 @@ public:
     //! \param[in] time The time of interest.
     //! \param[out] result Filled in with the person identifiers
     //! in the bucketing time interval of interest.
-    virtual void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const;
+    void currentBucketPersonIds(core_t::TTime time, TSizeVec& result) const override;
     //@}
 
     //! \name Update
     //@{
     //! Update the rates for \p feature and \p people.
-    virtual void sample(core_t::TTime startTime,
-                        core_t::TTime endTime,
-                        CResourceMonitor& resourceMonitor) = 0;
+    void sample(core_t::TTime startTime,
+                core_t::TTime endTime,
+                CResourceMonitor& resourceMonitor) override = 0;
     //@}
 
     //! Get the checksum of this model.
@@ -150,22 +158,22 @@ public:
     //! \param[in] includeCurrentBucketStats If true then include the
     //! current bucket statistics. (This is designed to handle serialization,
     //! for which we don't serialize the current bucket statistics.)
-    virtual uint64_t checksum(bool includeCurrentBucketStats = true) const = 0;
+    uint64_t checksum(bool includeCurrentBucketStats = true) const override = 0;
 
     //! Debug the memory used by this model.
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override = 0;
 
     //! Get the memory used by this model.
-    virtual std::size_t memoryUsage() const = 0;
+    std::size_t memoryUsage() const override = 0;
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const = 0;
+    std::size_t staticSize() const override = 0;
 
     //! Get the non-estimated value of the the memory used by this model.
-    virtual std::size_t computeMemoryUsage() const = 0;
+    std::size_t computeMemoryUsage() const override = 0;
 
     //! Get the frequency of the attribute identified by \p cid.
-    virtual double attributeFrequency(std::size_t cid) const;
+    double attributeFrequency(std::size_t cid) const override;
 
     //! Get the first time each attribute was seen.
     const TTimeVec& attributeFirstBucketTimes() const;
@@ -215,25 +223,25 @@ protected:
     virtual const TSizeUInt64PrVec& personCounts() const = 0;
 
     //! Check if bucket statistics are available for the specified time.
-    virtual bool bucketStatsAvailable(core_t::TTime time) const = 0;
+    bool bucketStatsAvailable(core_t::TTime time) const override = 0;
 
     //! Monitor the resource usage while creating new models
     void createUpdateNewModels(core_t::TTime time, CResourceMonitor& resourceMonitor);
 
     //! Initialize the time series models for "n" newly observed people
     //! and "m" newly observed attributes.
-    virtual void createNewModels(std::size_t n, std::size_t m) = 0;
+    void createNewModels(std::size_t n, std::size_t m) override = 0;
 
     //! Initialize the time series models for recycled attributes
     //! and/or people.
-    virtual void updateRecycledModels() = 0;
+    void updateRecycledModels() override = 0;
 
     //! Update the correlation models.
     virtual void refreshCorrelationModels(std::size_t resourceLimit,
                                           CResourceMonitor& resourceMonitor) = 0;
 
     //! Clear out large state objects for people/attributes that are pruned.
-    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
+    void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) override = 0;
 
     //! Correct \p baseline with \p corrections for interim results.
     void correctBaselineForInterim(model_t::EFeature feature,
@@ -265,10 +273,10 @@ protected:
     void removePeople(const TSizeVec& peopleToRemove);
 
     //! Skip sampling the interval \p endTime - \p startTime.
-    virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) = 0;
+    void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) override = 0;
 
 private:
-    using TOptionalCountMinSketch = boost::optional<maths::CCountMinSketch>;
+    using TOptionalCountMinSketch = boost::optional<maths::time_series::CCountMinSketch>;
 
 private:
     //! The last time each person was seen.
@@ -281,7 +289,7 @@ private:
     TTimeVec m_AttributeLastBucketTimes;
 
     //! The initial sketch to use for estimating the number of distinct people.
-    maths::CBjkstUniqueValues m_NewDistinctPersonCounts;
+    maths::common::CBjkstUniqueValues m_NewDistinctPersonCounts;
 
     //! The number of distinct people generating each attribute.
     TBjkstUniqueValuesVec m_DistinctPersonCounts;

@@ -1,6 +1,6 @@
 // Tencent is pleased to support the open source community by making RapidJSON available.
 // 
-// Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip. All rights reserved.
+// Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip.
 //
 // Licensed under the MIT License (the "License"); you may not use this file except
 // in compliance with the License. You may obtain a copy of the License at
@@ -26,11 +26,11 @@ using namespace rapidjson;
 TEST(Value, Size) {
     if (sizeof(SizeType) == 4) {
 #if RAPIDJSON_48BITPOINTER_OPTIMIZATION
-        EXPECT_EQ(16, sizeof(Value));
+        EXPECT_EQ(16u, sizeof(Value));
 #elif RAPIDJSON_64BIT
-        EXPECT_EQ(24, sizeof(Value));
+        EXPECT_EQ(24u, sizeof(Value));
 #else
-        EXPECT_EQ(16, sizeof(Value));
+        EXPECT_EQ(16u, sizeof(Value));
 #endif
     }
 }
@@ -439,6 +439,17 @@ TEST(Value, Int) {
     EXPECT_EQ(5678, z.Get<int>());
     EXPECT_EQ(5679, z.Set(5679).Get<int>());
     EXPECT_EQ(5680, z.Set<int>(5680).Get<int>());
+
+#ifdef _MSC_VER
+    // long as int on MSC platforms
+    RAPIDJSON_STATIC_ASSERT(sizeof(long) == sizeof(int));
+    z.SetInt(2222);
+    EXPECT_TRUE(z.Is<long>());
+    EXPECT_EQ(2222l, z.Get<long>());
+    EXPECT_EQ(3333l, z.Set(3333l).Get<long>());
+    EXPECT_EQ(4444l, z.Set<long>(4444l).Get<long>());
+    EXPECT_TRUE(z.IsInt());
+#endif
 }
 
 TEST(Value, Uint) {
@@ -485,6 +496,17 @@ TEST(Value, Uint) {
     EXPECT_EQ(2147483648u, z.Get<unsigned>());
     EXPECT_EQ(2147483649u, z.Set(2147483649u).Get<unsigned>());
     EXPECT_EQ(2147483650u, z.Set<unsigned>(2147483650u).Get<unsigned>());
+
+#ifdef _MSC_VER
+    // unsigned long as unsigned on MSC platforms
+    RAPIDJSON_STATIC_ASSERT(sizeof(unsigned long) == sizeof(unsigned));
+    z.SetUint(2222);
+    EXPECT_TRUE(z.Is<unsigned long>());
+    EXPECT_EQ(2222ul, z.Get<unsigned long>());
+    EXPECT_EQ(3333ul, z.Set(3333ul).Get<unsigned long>());
+    EXPECT_EQ(4444ul, z.Set<unsigned long>(4444ul).Get<unsigned long>());
+    EXPECT_TRUE(x.IsUint());
+#endif
 }
 
 TEST(Value, Int64) {
@@ -1056,9 +1078,9 @@ static void TestArray(T& x, Allocator& allocator) {
 }
 
 TEST(Value, Array) {
+    Value::AllocatorType allocator;
     Value x(kArrayType);
     const Value& y = x;
-    Value::AllocatorType allocator;
 
     EXPECT_EQ(kArrayType, x.GetType());
     EXPECT_TRUE(x.IsArray());
@@ -1097,6 +1119,16 @@ TEST(Value, Array) {
     z.SetArray();
     EXPECT_TRUE(z.IsArray());
     EXPECT_TRUE(z.Empty());
+
+    // PR #1503: assign from inner Value
+    {
+        CrtAllocator a; // Free() is not a noop
+        GenericValue<UTF8<>, CrtAllocator> nullValue;
+        GenericValue<UTF8<>, CrtAllocator> arrayValue(kArrayType);
+        arrayValue.PushBack(nullValue, a);
+        arrayValue = arrayValue[0]; // shouldn't crash (use after free)
+        EXPECT_TRUE(arrayValue.IsNull());
+    }
 }
 
 TEST(Value, ArrayHelper) {
@@ -1113,10 +1145,10 @@ TEST(Value, ArrayHelper) {
         a.PushBack(1, allocator);
 
         Value::Array a2(a); // copy constructor
-        EXPECT_EQ(1, a2.Size());
+        EXPECT_EQ(1u, a2.Size());
 
         Value::Array a3 = a;
-        EXPECT_EQ(1, a3.Size());
+        EXPECT_EQ(1u, a3.Size());
 
         Value::ConstArray y = static_cast<const Value&>(x).GetArray();
         (void)y;
@@ -1153,7 +1185,7 @@ TEST(Value, ArrayHelper) {
         y.PushBack(123, allocator);
         x.PushBack(y.GetArray(), allocator);    // Implicit constructor to convert Array to GenericValue
 
-        EXPECT_EQ(1, x.Size());
+        EXPECT_EQ(1u, x.Size());
         EXPECT_EQ(123, x[0][0].GetInt());
         EXPECT_TRUE(y.IsArray());
         EXPECT_TRUE(y.Empty());
@@ -1402,7 +1434,7 @@ static void TestObject(T& x, Allocator& allocator) {
     for (; itr != x.MemberEnd(); ++itr) {
         size_t i = static_cast<size_t>((itr - x.MemberBegin())) + 1;
         EXPECT_STREQ(itr->name.GetString(), keys[i]);
-        EXPECT_EQ(i, itr->value[0].GetInt());
+        EXPECT_EQ(static_cast<int>(i), itr->value[0].GetInt());
     }
 
     // Erase the last
@@ -1413,7 +1445,7 @@ static void TestObject(T& x, Allocator& allocator) {
     for (; itr != x.MemberEnd(); ++itr) {
         size_t i = static_cast<size_t>(itr - x.MemberBegin()) + 1;
         EXPECT_STREQ(itr->name.GetString(), keys[i]);
-        EXPECT_EQ(i, itr->value[0].GetInt());
+        EXPECT_EQ(static_cast<int>(i), itr->value[0].GetInt());
     }
 
     // Erase the middle
@@ -1425,7 +1457,7 @@ static void TestObject(T& x, Allocator& allocator) {
         size_t i = static_cast<size_t>(itr - x.MemberBegin());
         i += (i < 4) ? 1 : 2;
         EXPECT_STREQ(itr->name.GetString(), keys[i]);
-        EXPECT_EQ(i, itr->value[0].GetInt());
+        EXPECT_EQ(static_cast<int>(i), itr->value[0].GetInt());
     }
 
     // EraseMember(ConstMemberIterator, ConstMemberIterator)
@@ -1459,9 +1491,9 @@ static void TestObject(T& x, Allocator& allocator) {
 }
 
 TEST(Value, Object) {
+    Value::AllocatorType allocator;
     Value x(kObjectType);
     const Value& y = x; // const version
-    Value::AllocatorType allocator;
 
     EXPECT_EQ(kObjectType, x.GetType());
     EXPECT_TRUE(x.IsObject());
@@ -1494,10 +1526,10 @@ TEST(Value, ObjectHelper) {
         o.AddMember("1", 1, allocator);
 
         Value::Object o2(o); // copy constructor
-        EXPECT_EQ(1, o2.MemberCount());
+        EXPECT_EQ(1u, o2.MemberCount());
 
         Value::Object o3 = o;
-        EXPECT_EQ(1, o3.MemberCount());
+        EXPECT_EQ(1u, o3.MemberCount());
 
         Value::ConstObject y = static_cast<const Value&>(x).GetObject();
         (void)y;

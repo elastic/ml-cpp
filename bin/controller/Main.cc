@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 //! \brief
 //! Controller to start other ML processes.
@@ -25,6 +30,7 @@
 //! 2) ./categorize
 //! 3) ./data_frame_analyzer
 //! 4) ./normalize
+//! 5) ./pytorch_inference
 //!
 //! The assumption here is that the working directory of this
 //! process will be the directory containing these other
@@ -156,7 +162,8 @@ int main(int argc, char** argv) {
     }
 
     ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
-        "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize"};
+        "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize",
+        "./pytorch_inference"};
 
     ml::controller::CCommandProcessor processor{permittedProcessPaths, *outputStream};
     processor.processCommands(*commandStream);

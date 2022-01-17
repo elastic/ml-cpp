@@ -1,10 +1,15 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
-#include <maths/CMultinomialConjugate.h>
+#include <maths/common/CMultinomialConjugate.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CStringStore.h>
@@ -135,17 +140,17 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenIndividualRare) {
 }
 
 BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
-    maths::CMultinomialConjugate attributePrior(
-        maths::CMultinomialConjugate::nonInformativePrior(4u));
-    for (std::size_t i = 1u; i <= 4u; ++i) {
+    maths::common::CMultinomialConjugate attributePrior(
+        maths::common::CMultinomialConjugate::nonInformativePrior(4u));
+    for (std::size_t i = 1; i <= 4; ++i) {
         TDouble1Vec samples(i, static_cast<double>(i));
         maths_t::TDoubleWeightsAry1Vec weights(i, maths_t::CUnitWeights::UNIT);
         attributePrior.addSamples(samples, weights);
     }
 
-    maths::CMultinomialConjugate personAttributePrior(
-        maths::CMultinomialConjugate::nonInformativePrior(4u));
-    for (std::size_t i = 1u; i <= 4u; ++i) {
+    maths::common::CMultinomialConjugate personAttributePrior(
+        maths::common::CMultinomialConjugate::nonInformativePrior(4u));
+    for (std::size_t i = 1; i <= 4; ++i) {
         TDouble1Vec samples(2 * i, static_cast<double>(i));
         maths_t::TDoubleWeightsAry1Vec weights(2 * i, maths_t::CUnitWeights::UNIT);
         personAttributePrior.addSamples(samples, weights);
@@ -215,17 +220,17 @@ BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationRare) {
 }
 
 BOOST_AUTO_TEST_CASE(testAddAttributeProbabilityGivenPopulationFreqRare) {
-    maths::CMultinomialConjugate attributePrior(
-        maths::CMultinomialConjugate::nonInformativePrior(4u));
-    for (std::size_t i = 1u; i <= 4u; ++i) {
+    maths::common::CMultinomialConjugate attributePrior(
+        maths::common::CMultinomialConjugate::nonInformativePrior(4u));
+    for (std::size_t i = 1; i <= 4; ++i) {
         TDouble1Vec samples(i, static_cast<double>(i));
         maths_t::TDoubleWeightsAry1Vec weights(i, maths_t::CUnitWeights::UNIT);
         attributePrior.addSamples(samples, weights);
     }
 
-    maths::CMultinomialConjugate personAttributePrior(
-        maths::CMultinomialConjugate::nonInformativePrior(4u));
-    for (std::size_t i = 1u; i <= 4u; ++i) {
+    maths::common::CMultinomialConjugate personAttributePrior(
+        maths::common::CMultinomialConjugate::nonInformativePrior(4u));
+    for (std::size_t i = 1; i <= 4; ++i) {
         TDouble1Vec samples(2 * i, static_cast<double>(i));
         maths_t::TDoubleWeightsAry1Vec weights(2 * i, maths_t::CUnitWeights::UNIT);
         personAttributePrior.addSamples(samples, weights);

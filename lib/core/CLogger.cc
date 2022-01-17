@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CLogger.h>
 
@@ -26,10 +31,10 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <stdexcept>
 
 // environ is a global variable from the C runtime library
 #ifdef Windows
@@ -65,7 +70,7 @@ private:
 
 public:
     formatter_type create_formatter(const boost::log::attribute_name& name,
-                                    const args_map& args) {
+                                    const args_map& args) override {
         args_map::const_iterator iter{args.find(FORMAT)};
         if (iter != args.end()) {
             return boost::log::expressions::stream
@@ -209,7 +214,7 @@ CLogger::TLevelSeverityLogger& CLogger::logger() {
 }
 
 void CLogger::fatal() {
-    throw std::runtime_error("Ml Fatal Exception");
+    std::terminate();
 }
 
 void CLogger::fatalErrorHandler(const TFatalErrorHandler& handler) {

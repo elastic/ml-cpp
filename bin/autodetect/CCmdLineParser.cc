@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include "CCmdLineParser.h"
 
@@ -45,14 +50,15 @@ bool CCmdLineParser::parse(int argc,
                            bool& isPersistFileNamedPipe,
                            bool& isPersistInForeground,
                            std::size_t& maxAnomalyRecords,
-                           bool& memoryUsage) {
+                           bool& memoryUsage,
+                           bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
         desc.add_options()
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
-            ("config", boost::program_options::value<std::string>()->required(),
+            ("config", boost::program_options::value<std::string>(),
                     "The job configuration file")
             ("filtersconfig", boost::program_options::value<std::string>(),
                     "The filters configuration file")
@@ -95,7 +101,9 @@ bool CCmdLineParser::parse(int argc,
                     "The maximum number of records to be outputted for each bucket. Defaults to 100, a value 0 removes the limit.")
             ("memoryUsage",
                     "Log the model memory usage at the end of the job")
-        ;
+            ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
+                    "Confirmation that a valid Elastic license key is in use.")
+            ;
         // clang-format on
         boost::program_options::variables_map vm;
         boost::program_options::store(
@@ -114,9 +122,12 @@ bool CCmdLineParser::parse(int argc,
                       << ver::CBuildInfo::fullInfo() << std::endl;
             return false;
         }
-        if (vm.count("config") > 0) {
-            configFile = vm["config"].as<std::string>();
+        if (vm.count("config") == 0) {
+            std::cerr << "Error processing command line: the option '--config' is required but missing";
+            return false;
         }
+
+        configFile = vm["config"].as<std::string>();
         if (vm.count("filtersconfig") > 0) {
             filtersConfigFile = vm["filtersconfig"].as<std::string>();
         }
@@ -185,6 +196,10 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("memoryUsage") > 0) {
             memoryUsage = true;
+        }
+        if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
+            validElasticLicenseKeyConfirmed =
+                vm["validElasticLicenseKeyConfirmed"].as<bool>();
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
