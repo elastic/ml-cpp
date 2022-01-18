@@ -50,7 +50,8 @@ BOOST_AUTO_TEST_CASE(testPersistAndRestore) {
                                                       params.s_DecayRate,
                                                       minimumSeasonalVarianceScale,
                                                       params.s_MinimumTimeToDetectChange,
-                                                      params.s_MaximumTimeToTestForChange};
+                                                      params.s_MaximumTimeToTestForChange,
+                                                      params.s_MaximumSeasonalJitter};
     maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
         timeSeriesModelParams, 1, trend, prior};
 

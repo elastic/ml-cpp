@@ -149,12 +149,13 @@ public:
                           double minimumScale,
                           const TWriteForecastResult& writer) = 0;
 
-    //! Detrend \p value by the prediction of the modelled features at \p time.
+    //! Remove the prediction of the modelled features at \p time from \p value.
     //!
     //! \note That detrending preserves the time series mean.
     virtual double detrend(core_t::TTime time,
                            double value,
                            double confidence,
+                           core_t::TTime maximumTimeShift = 0,
                            int components = E_All) const = 0;
 
     //! Get the mean variance of the baseline.

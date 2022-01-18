@@ -186,7 +186,7 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
 
     TAnomalyAccumulator anomalies(numAnomalies);
 
-    for (std::size_t i = 0u, bucket = 0; i < messages.size(); ++i) {
+    for (std::size_t i = 0, bucket = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= startTime + bucketLength) {
             LOG_DEBUG(<< "Updating and testing bucket = [" << startTime << ","
                       << startTime + bucketLength << ")");
@@ -199,13 +199,12 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
                 model.computeProbability(pid, startTime, startTime + bucketLength,
                                          partitioningFields, 2, annotatedProbability);
 
-                std::string person = model.personName(pid);
+                std::string person{model.personName(pid)};
                 TDoubleStrPrVec attributes;
                 for (const auto& probability : annotatedProbability.s_AttributeProbabilities) {
                     attributes.emplace_back(probability.s_Probability,
                                             *probability.s_Attribute);
                 }
-                LOG_DEBUG(<< "Adding anomaly " << pid);
                 anomalies.add({annotatedProbability.s_Probability,
                                {bucket, person, attributes}});
             }

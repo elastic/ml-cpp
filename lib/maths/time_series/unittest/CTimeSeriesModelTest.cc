@@ -81,7 +81,7 @@ using TSetWeightsFunc = void (*)(double, std::size_t, TDouble2VecWeightsAry&);
 const double MINIMUM_SEASONAL_SCALE{0.25};
 const double MINIMUM_SIGNIFICANT_CORRELATION{0.4};
 const double DECAY_RATE{0.0005};
-const std::size_t TAG{0u};
+const std::size_t TAG{0};
 
 //! \brief Implements the allocator for new correlate priors.
 class CTimeSeriesCorrelateModelAllocator
@@ -119,7 +119,8 @@ maths::common::CModelParams modelParams(core_t::TTime bucketLength) {
                                        DECAY_RATE,
                                        minimumSeasonalVarianceScale,
                                        12 * core::constants::HOUR,
-                                       core::constants::DAY};
+                                       core::constants::DAY,
+                                       15 * core::constants::MINUTE};
 }
 
 maths::common::CModelAddSamplesParams
@@ -241,7 +242,7 @@ void reinitializeResidualModel(double learnRate,
 
     using TFloatMeanAccumulatorVecVec = std::vector<TFloatMeanAccumulatorVec>;
 
-    if (controllers) {
+    if (controllers != nullptr) {
         for (auto& trend : trends) {
             trend->decayRate(trend->decayRate() / (*controllers)[0].multiplier());
         }
@@ -294,10 +295,11 @@ void reinitializeResidualModel(double learnRate,
 
 class CChangeDebug {
 public:
-    static const bool ENABLED{true};
+    static const bool ENABLED{false};
 
 public:
-    CChangeDebug(std::string file = "results.py") : m_File(file) {
+    explicit CChangeDebug(std::string file = "results.py")
+        : m_File{std::move(file)} {
         if (ENABLED) {
             m_ModelBounds.resize(3);
             m_Forecast.resize(3);
@@ -382,10 +384,10 @@ BOOST_AUTO_TEST_CASE(testClone) {
             time += bucketLength;
         }
 
-        uint64_t checksum1 = model.checksum();
+        std::uint64_t checksum1 = model.checksum();
         std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> clone1{
             model.clone(1)};
-        uint64_t checksum2 = clone1->checksum();
+        std::uint64_t checksum2 = clone1->checksum();
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> clone2{
             model.clone(2)};
@@ -410,14 +412,14 @@ BOOST_AUTO_TEST_CASE(testClone) {
             time += bucketLength;
         }
 
-        uint64_t checksum1 = model.checksum();
+        std::uint64_t checksum1 = model.checksum();
         std::unique_ptr<maths::time_series::CMultivariateTimeSeriesModel> clone1{
             model.clone(1)};
-        uint64_t checksum2 = clone1->checksum();
+        std::uint64_t checksum2 = clone1->checksum();
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::time_series::CMultivariateTimeSeriesModel> clone2{
             model.clone(2)};
-        uint64_t checksum3 = clone2->checksum();
+        std::uint64_t checksum3 = clone2->checksum();
         BOOST_REQUIRE_EQUAL(checksum1, checksum3);
         BOOST_REQUIRE_EQUAL(std::size_t(0), clone2->identifier());
     }
@@ -515,6 +517,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(mean, covariance, 1000, samples);
 
+        auto params = modelParams(bucketLength);
         TDecompositionPtr10Vec trends{
             TDecompositionPtr{new maths::time_series::CTimeSeriesDecomposition{
                 24.0 * DECAY_RATE, bucketLength}},
@@ -523,8 +526,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
             TDecompositionPtr{new maths::time_series::CTimeSeriesDecomposition{
                 24.0 * DECAY_RATE, bucketLength}}};
         maths::common::CMultivariateNormalConjugate<3> prior{multivariateNormal()};
-        maths::time_series::CMultivariateTimeSeriesModel model{
-            modelParams(bucketLength), *trends[0], prior};
+        maths::time_series::CMultivariateTimeSeriesModel model{params, *trends[0], prior};
 
         core_t::TTime time{0};
         for (const auto& sample : samples) {
@@ -708,8 +710,8 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
              maths_t::countWeight(weights[1])});
         prior.propagateForwardsByTime(1.0);
 
-        uint64_t checksum1{trend.checksum()};
-        uint64_t checksum2{model.trendModel().checksum()};
+        std::uint64_t checksum1{trend.checksum()};
+        std::uint64_t checksum2{model.trendModel().checksum()};
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         checksum1 = prior.checksum();
@@ -758,13 +760,13 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
         prior.propagateForwardsByTime(1.0);
 
         for (std::size_t i = 0; i < trends.size(); ++i) {
-            uint64_t checksum1{trends[i]->checksum()};
-            uint64_t checksum2{model.trendModel()[i]->checksum()};
+            std::uint64_t checksum1{trends[i]->checksum()};
+            std::uint64_t checksum2{model.trendModel()[i]->checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         }
-        uint64_t checksum1{prior.checksum()};
-        uint64_t checksum2{model.residualModel().checksum()};
+        std::uint64_t checksum1{prior.checksum()};
+        std::uint64_t checksum2{model.residualModel().checksum()};
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
     }
@@ -795,8 +797,8 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             prior.addSamples(TDouble1Vec(samples[i]), weight);
             prior.propagateForwardsByTime(interval[i]);
 
-            uint64_t checksum1{prior.checksum()};
-            uint64_t checksum2{model.residualModel().checksum()};
+            std::uint64_t checksum1{prior.checksum()};
+            std::uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
@@ -833,8 +835,8 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             prior.addSamples({TDouble10Vec(samples[i])}, weight);
             prior.propagateForwardsByTime(interval[i]);
 
-            uint64_t checksum1{prior.checksum()};
-            uint64_t checksum2{model.residualModel().checksum()};
+            std::uint64_t checksum1{prior.checksum()};
+            std::uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
@@ -889,8 +891,8 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
                 prior.decayRate(multiplier * prior.decayRate());
             }
 
-            uint64_t checksum1{trend.checksum()};
-            uint64_t checksum2{model.trendModel().checksum()};
+            std::uint64_t checksum1{trend.checksum()};
+            std::uint64_t checksum2{model.trendModel().checksum()};
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
             checksum1 = prior.checksum();
             checksum2 = model.residualModel().checksum();
@@ -982,12 +984,12 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             }
 
             for (std::size_t i = 0; i < trends.size(); ++i) {
-                uint64_t checksum1{trends[i]->checksum()};
-                uint64_t checksum2{model.trendModel()[i]->checksum()};
+                std::uint64_t checksum1{trends[i]->checksum()};
+                std::uint64_t checksum2{model.trendModel()[i]->checksum()};
                 BOOST_REQUIRE_EQUAL(checksum1, checksum2);
             }
-            uint64_t checksum1{prior.checksum()};
-            uint64_t checksum2{model.residualModel().checksum()};
+            std::uint64_t checksum1{prior.checksum()};
+            std::uint64_t checksum2{model.residualModel().checksum()};
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
@@ -1050,13 +1052,14 @@ BOOST_AUTO_TEST_CASE(testPredict) {
 
     LOG_DEBUG(<< "Univariate nearest mode");
     {
+        auto params = modelParams(bucketLength);
         maths::time_series::CTimeSeriesDecompositionStub trend;
         maths::common::CMultimodalPrior prior{univariateMultimodal()};
-        maths::time_series::CUnivariateTimeSeriesModel model{
-            modelParams(bucketLength), 0, trend, prior};
+        maths::time_series::CUnivariateTimeSeriesModel model{params, 0, trend, prior};
 
         TMeanAccumulator modes[2];
-        TDoubleVec samples, samples_;
+        TDoubleVec samples;
+        TDoubleVec samples_;
         rng.generateNormalSamples(0.0, 4.0, 500, samples);
         rng.generateNormalSamples(10.0, 4.0, 500, samples_);
         modes[0].add(samples);
@@ -1239,8 +1242,9 @@ BOOST_AUTO_TEST_CASE(testProbability) {
 
     LOG_DEBUG(<< "Univariate");
     {
+        auto params = modelParams(bucketLength);
         maths::time_series::CUnivariateTimeSeriesModel model0{
-            modelParams(bucketLength),
+            params,
             1, // id
             maths::time_series::CTimeSeriesDecompositionStub{},
             univariateNormal(),
@@ -1248,7 +1252,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
             nullptr, // no multi-bucket
             false};
         maths::time_series::CUnivariateTimeSeriesModel model1{
-            modelParams(bucketLength),
+            params,
             1, // id
             maths::time_series::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
             univariateNormal(),
@@ -1299,12 +1303,14 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                         for (std::size_t i = 0; i < weight.size(); ++i) {
                             weight_[i] = weight[i][0];
                         }
-                        double lb[2], ub[2];
+                        double lb[2];
+                        double ub[2];
                         model0.residualModel().probabilityOfLessLikelySamples(
                             calculation, sample, {weight_}, lb[0], ub[0], expectedTail[0]);
                         model1.residualModel().probabilityOfLessLikelySamples(
                             calculation,
-                            {model1.trendModel().detrend(time, sample[0], confidence)},
+                            {model1.trendModel().detrend(time, sample[0], confidence,
+                                                         params.maximumSeasonalJitter())},
                             {weight_}, lb[1], ub[1], expectedTail[1]);
                         expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
                         expectedProbability[1] = (lb[1] + ub[1]) / 2.0;
@@ -1312,13 +1318,13 @@ BOOST_AUTO_TEST_CASE(testProbability) {
 
                     maths::common::SModelProbabilityResult results[2];
                     {
-                        maths::common::CModelProbabilityParams params;
-                        params.addCalculation(calculation)
+                        maths::common::CModelProbabilityParams params_;
+                        params_.addCalculation(calculation)
                             .seasonalConfidenceInterval(confidence)
                             .addWeights(weight)
                             .useMultibucketFeatures(false);
-                        model0.probability(params, time_, {sample}, results[0]);
-                        model1.probability(params, time_, {sample}, results[1]);
+                        model0.probability(params_, time_, {sample}, results[0]);
+                        model1.probability(params_, time_, {sample}, results[1]);
                     }
 
                     BOOST_REQUIRE_EQUAL(expectedProbability[0], results[0].s_Probability);
@@ -1332,15 +1338,16 @@ BOOST_AUTO_TEST_CASE(testProbability) {
 
     LOG_DEBUG(<< "Multivariate");
     {
+        auto params = modelParams(bucketLength);
         maths::time_series::CMultivariateTimeSeriesModel model0{
-            modelParams(bucketLength),
+            params,
             maths::time_series::CTimeSeriesDecompositionStub{},
             multivariateNormal(),
             nullptr,
             nullptr,
             false};
         maths::time_series::CMultivariateTimeSeriesModel model1{
-            modelParams(bucketLength),
+            params,
             maths::time_series::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
             multivariateNormal(),
             nullptr,
@@ -1395,14 +1402,15 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                         for (std::size_t i = 0; i < weight.size(); ++i) {
                             weight_[i] = weight[i];
                         }
-                        double lb[2], ub[2];
+                        double lb[2];
+                        double ub[2];
                         model0.residualModel().probabilityOfLessLikelySamples(
                             calculation, {TDouble10Vec(sample)}, {weight_},
                             lb[0], ub[0], expectedTail[0]);
                         TDouble10Vec detrended;
                         for (std::size_t j = 0; j < sample.size(); ++j) {
                             detrended.push_back(model1.trendModel()[j]->detrend(
-                                time, sample[j], confidence));
+                                time, sample[j], confidence, params.maximumSeasonalJitter()));
                         }
                         model1.residualModel().probabilityOfLessLikelySamples(
                             calculation, {detrended}, {weight_}, lb[1], ub[1],
@@ -1413,13 +1421,13 @@ BOOST_AUTO_TEST_CASE(testProbability) {
 
                     maths::common::SModelProbabilityResult results[2];
                     {
-                        maths::common::CModelProbabilityParams params;
-                        params.addCalculation(calculation)
+                        maths::common::CModelProbabilityParams params_;
+                        params_.addCalculation(calculation)
                             .seasonalConfidenceInterval(confidence)
                             .addWeights(weight)
                             .useMultibucketFeatures(false);
-                        model0.probability(params, time_, {sample}, results[0]);
-                        model1.probability(params, time_, {sample}, results[1]);
+                        model0.probability(params_, time_, {sample}, results[0]);
+                        model1.probability(params_, time_, {sample}, results[1]);
                     }
 
                     BOOST_REQUIRE_EQUAL(expectedProbability[0], results[0].s_Probability);
@@ -2375,8 +2383,8 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 1.6 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.5 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 2.0 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.0 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2396,7 +2404,7 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.6 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.0 * std::sqrt(noiseVariance));
         BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.5 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
@@ -2454,8 +2462,8 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         BOOST_REQUIRE_EQUAL(hour, model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.2 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.6 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.6 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.0 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2476,8 +2484,8 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         BOOST_REQUIRE_EQUAL(core_t::TTime(0), model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.5 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.8 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }

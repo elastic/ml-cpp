@@ -100,6 +100,9 @@ struct MODEL_EXPORT SModelParams {
     //! The maximum time to test for a change point in a time series.
     core_t::TTime s_MaximumTimeToTestForChange;
 
+    //! The maximum random jitter we tolerate in seasonal patterns.
+    core_t::TTime s_MaximumSeasonalJitter;
+
     //! The number of time buckets used to generate multibucket features for anomaly
     //! detection.
     std::size_t s_MultibucketFeaturesWindowLength;

@@ -167,10 +167,14 @@ public:
                   double minimumScale,
                   const TWriteForecastResult& writer) override;
 
-    //! Detrend \p value by the prediction of the modelled features at \p time.
+    //! Remove the prediction of the modelled features at \p time from \p value.
     //!
     //! \note That detrending preserves the time series mean.
-    double detrend(core_t::TTime time, double value, double confidence, int components = E_All) const override;
+    double detrend(core_t::TTime time,
+                   double value,
+                   double confidence,
+                   core_t::TTime maximumTimeShift = 0,
+                   int components = E_All) const override;
 
     //! Get the mean variance of the baseline.
     double meanVariance() const override;

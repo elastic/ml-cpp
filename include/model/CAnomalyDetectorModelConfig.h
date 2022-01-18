@@ -158,6 +158,9 @@ public:
     //! The default maximum time to test for a change point in a time series.
     static const core_t::TTime DEFAULT_MAXIMUM_TIME_TO_TEST_FOR_CHANGE;
 
+    //! The default maximum random jitter we tolerate in seasonal patterns.
+    static const core_t::TTime DEFAULT_MAXIMUM_SEASONAL_JITTER;
+
     //! The default number of time buckets used to generate multibucket features
     //! for anomaly detection.
     static const std::size_t MULTIBUCKET_FEATURES_WINDOW_LENGTH;

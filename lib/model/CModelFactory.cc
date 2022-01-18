@@ -85,7 +85,8 @@ CModelFactory::defaultFeatureModel(model_t::EFeature feature,
                                        m_ModelParams.s_DecayRate,
                                        minimumSeasonalVarianceScale,
                                        m_ModelParams.s_MinimumTimeToDetectChange,
-                                       m_ModelParams.s_MaximumTimeToTestForChange};
+                                       m_ModelParams.s_MaximumTimeToTestForChange,
+                                       m_ModelParams.s_MaximumSeasonalJitter};
 
     std::size_t dimension{model_t::dimension(feature)};
 

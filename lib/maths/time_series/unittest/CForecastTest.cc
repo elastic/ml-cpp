@@ -128,7 +128,8 @@ maths::common::CModelParams params(core_t::TTime bucketLength) {
                                        DECAY_RATE,
                                        minimumSeasonalVarianceScale,
                                        6 * core::constants::HOUR,
-                                       core::constants::DAY};
+                                       core::constants::DAY,
+                                       15 * core::constants::MINUTE};
 }
 
 maths::time_series::CUnivariateTimeSeriesModel::TDecayRateController2Ary decayRateControllers() {
@@ -331,8 +332,8 @@ BOOST_AUTO_TEST_CASE(testDailyVaryingLongTermTrend) {
     test.bucketLength(bucketLength)
         .daysToLearn(98)
         .noiseVariance(9.0)
-        .maximumPercentageOutOfBounds(5.0)
-        .maximumError(0.04)
+        .maximumPercentageOutOfBounds(5.5)
+        .maximumError(0.045)
         .run(trend);
 }
 

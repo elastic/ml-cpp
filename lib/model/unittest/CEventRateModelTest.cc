@@ -853,14 +853,15 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
     TMinAccumulatorVec probabilities{TMinAccumulator{4}, TMinAccumulator{4},
                                      TMinAccumulator{4}, TMinAccumulator{4}};
 
-    SModelParams params(bucketLength);
+    SModelParams params{bucketLength};
     params.s_DecayRate = 0.0002;
     params.s_LearnRate = 1.0;
     params.s_MinimumModeFraction = CAnomalyDetectorModelConfig::DEFAULT_INDIVIDUAL_MINIMUM_MODE_FRACTION;
     params.s_MinimumModeCount = 24.0;
     params.s_MultivariateByFields = true;
+    params.s_MaximumSeasonalJitter = 0;
     this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, startTime, 4);
-    CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
+    auto* model = dynamic_cast<CEventRateModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
     core_t::TTime time{startTime};

@@ -24,6 +24,7 @@
 #include <boost/math/tools/roots.hpp>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <limits>
@@ -33,6 +34,17 @@
 namespace ml {
 namespace maths {
 namespace common {
+namespace solvers_detail {
+template<typename T>
+struct SCreateContainer {
+    static T ofSize(std::size_t n) { return T(n); }
+};
+template<typename T, std::size_t N>
+struct SCreateContainer<std::array<T, N>> {
+    static std::array<T, N> ofSize(std::size_t) { return std::array<T, N>{}; }
+};
+}
+
 //! \brief Collection of root solving functions.
 //!
 //! DESCRIPTION:\n
@@ -88,7 +100,7 @@ private:
     template<typename F>
     class CTrapNaNArgument {
     public:
-        CTrapNaNArgument(const F& f) : m_F(f) {}
+        explicit CTrapNaNArgument(const F& f) : m_F(f) {}
 
         inline double operator()(const double x) const {
             if (CMathsFuncs::isNan(x)) {
@@ -126,9 +138,12 @@ private:
             fx = fb;
         }
 
-        double w = x, v = x;
-        double fw = fx, fv = fx;
-        double s = 0.0, sLast = 0.0;
+        double w = x;
+        double v = x;
+        double fw = fx;
+        double fv = fx;
+        double s = 0.0;
+        double sLast = 0.0;
 
         std::size_t n = maxIterations;
 
@@ -799,20 +814,21 @@ public:
     }
 
     //! Try and find a global minimum for the function evaluating
-    //! it at the points \p p and then searching for a local
-    //! minimum.
+    //! it at the points \p p and then searching for a local minimum.
     //!
-    //! \param[in] p The points at which to evaluate f looking
+    //! \param[in] p The points at which to evaluate \p f looking
     //! for a global minimum.
     //! \param[in] f The function to evaluate. This is expected
     //! to implement a function signature taking a double and
     //! returning a double.
-    //! \param[out] x Set to argmin of f on [\p a, \p b].
-    //! \param[out] fx Set to the value of f at \p x.
+    //! \param[out] x Set to argmin of \p f on [\p a, \p b].
+    //! \param[out] fx Set to the value of \p f at \p x.
+    //! \param[out] fsd The standard deviation of \p f on the set \p p.
     template<typename T, typename F>
-    static bool globalMinimize(const T& p, const F& f, double& x, double& fx) {
+    static bool globalMinimize(const T& p, const F& f, double& x, double& fx, double& fsd) {
         using TDoubleSizePr = std::pair<double, std::size_t>;
         using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1>;
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
         std::size_t n = p.size();
 
@@ -822,12 +838,15 @@ public:
         }
 
         TMinAccumulator min;
-        T fp(p.size());
-        for (std::size_t i = 0; i < p.size(); ++i) {
+        TMeanVarAccumulator moments;
+        T fp = solvers_detail::SCreateContainer<T>::ofSize(n);
+        for (std::size_t i = 0; i < n; ++i) {
             double fi = f(p[i]);
             fp[i] = fi;
             min.add(TDoubleSizePr(fi, i));
+            moments.add(fi);
         }
+        fsd = std::sqrt(CBasicStatistics::maximumLikelihoodVariance(moments));
         LOG_TRACE(<< "p    = " << core::CContainerPrinter::print(p));
         LOG_TRACE(<< "f(p) = " << core::CContainerPrinter::print(fp));
 
@@ -852,20 +871,20 @@ public:
     }
 
     //! Try and find a global minimum for the function evaluating
-    //! it at the points \p p and then searching for a local
-    //! minimum.
+    //! it at the points \p p and then searching for a local minimum.
     //!
-    //! \param[in] p The points at which to evaluate f looking
+    //! \param[in] p The points at which to evaluate \p f looking
     //! for a global minimum.
     //! \param[in] f The function to evaluate. This is expected
     //! to implement a function signature taking a double and
     //! returning a double.
-    //! \param[out] x Set to argmin of f on [\p a, \p b].
-    //! \param[out] fx Set to the value of f at \p x.
+    //! \param[out] x Set to argmin of \p f on [\p a, \p b].
+    //! \param[out] fx Set to the value of \p f at \p x.
+    //! \param[out] fsd The standard deviation of \p f on the set \p p.
     template<typename T, typename F>
-    static bool globalMaximize(const T& p, const F& f, double& x, double& fx) {
+    static bool globalMaximize(const T& p, const F& f, double& x, double& fx, double& fsd) {
         auto minusF = [&f](double x_) { return -f(x_); };
-        bool result{globalMinimize(p, minusF, x, fx)};
+        bool result{globalMinimize(p, minusF, x, fx, fsd)};
         fx = -fx;
         return result;
     }

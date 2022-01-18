@@ -56,7 +56,8 @@ public:
                  double decayRate,
                  double minimumSeasonalVarianceScale,
                  core_t::TTime minimumTimeToDetectChange,
-                 core_t::TTime maximumTimeToTestForChange);
+                 core_t::TTime maximumTimeToTestForChange,
+                 core_t::TTime maximumSeasonalJitter);
 
     //! Get the bucket length.
     core_t::TTime bucketLength() const;
@@ -82,6 +83,13 @@ public:
     //! Get the maximum time to test for a change point in the model.
     core_t::TTime maximumTimeToTestForChange() const;
 
+    //! Get the maximum random jitter we tolerate in seasonal patterns.
+    //!
+    //! \note We treat as normal any time shift of seasonal patterns which is
+    //! smaller than this amount. We also check for larger time shift change
+    //! points, such as when daylight saving and do report anomalies for these.
+    core_t::TTime maximumSeasonalJitter() const;
+
 private:
     //! The data bucketing length.
     core_t::TTime m_BucketLength;
@@ -95,6 +103,8 @@ private:
     core_t::TTime m_MinimumTimeToDetectChange;
     //! The maximum time permitted to test for a change in the model.
     core_t::TTime m_MaximumTimeToTestForChange;
+    //! The maximum random jitter we tolerate in seasonal patterns.
+    core_t::TTime m_MaximumSeasonalJitter;
 };
 
 //! \brief The extra parameters needed by CModel::addSamples.

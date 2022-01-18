@@ -79,8 +79,13 @@ BOOST_FIXTURE_TEST_CASE(testModelPlot, CTestFixture) {
         maths::time_series::CTimeSeriesDecomposition trend;
         maths::common::CNormalMeanPrecConjugate prior{
             maths::common::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData)};
-        maths::common::CModelParams timeSeriesModelParams{
-            bucketLength, 1.0, 0.001, 0.2, 6 * core::constants::HOUR, 24 * core::constants::HOUR};
+        maths::common::CModelParams timeSeriesModelParams{bucketLength,
+                                                          1.0,
+                                                          0.001,
+                                                          0.2,
+                                                          6 * core::constants::HOUR,
+                                                          24 * core::constants::HOUR,
+                                                          15 * core::constants::MINUTE};
         maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
             timeSeriesModelParams, 0, trend, prior};
         model::CMockModel::TMathsModelUPtrVec models;

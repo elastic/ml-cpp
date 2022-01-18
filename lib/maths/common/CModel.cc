@@ -35,7 +35,7 @@ const double EFFECTIVE_COUNT[]{1.0,  0.8,  0.7,  0.65, 0.6,
 //! Get the parameters for the stub model.
 CModelParams stubParameters() {
     return CModelParams{
-        0, 1.0, 0.0, 0.0, 6 * core::constants::HOUR, core::constants::DAY};
+        0, 1.0, 0.0, 0.0, 6 * core::constants::HOUR, core::constants::DAY, 15 * core::constants::MINUTE};
 }
 }
 
@@ -46,11 +46,15 @@ CModelParams::CModelParams(core_t::TTime bucketLength,
                            double decayRate,
                            double minimumSeasonalVarianceScale,
                            core_t::TTime minimumTimeToDetectChange,
-                           core_t::TTime maximumTimeToTestForChange)
-    : m_BucketLength(bucketLength), m_LearnRate(learnRate), m_DecayRate(decayRate),
-      m_MinimumSeasonalVarianceScale(minimumSeasonalVarianceScale),
-      m_MinimumTimeToDetectChange(std::max(minimumTimeToDetectChange, 6 * bucketLength)),
-      m_MaximumTimeToTestForChange(std::max(maximumTimeToTestForChange, 12 * bucketLength)) {
+                           core_t::TTime maximumTimeToTestForChange,
+                           core_t::TTime maximumSeasonalJitter)
+    : m_BucketLength{bucketLength}, m_LearnRate{learnRate}, m_DecayRate{decayRate},
+      m_MinimumSeasonalVarianceScale{minimumSeasonalVarianceScale},
+      m_MinimumTimeToDetectChange{std::max(minimumTimeToDetectChange, 6 * bucketLength)},
+      m_MaximumTimeToTestForChange{std::max(maximumTimeToTestForChange, 12 * bucketLength)},
+      m_MaximumSeasonalJitter{maximumSeasonalJitter > 0
+                                  ? std::max(maximumSeasonalJitter, bucketLength / 4)
+                                  : 0} {
 }
 
 core_t::TTime CModelParams::bucketLength() const {
@@ -83,6 +87,10 @@ core_t::TTime CModelParams::minimumTimeToDetectChange() const {
 
 core_t::TTime CModelParams::maximumTimeToTestForChange() const {
     return m_MaximumTimeToTestForChange;
+}
+
+core_t::TTime CModelParams::maximumSeasonalJitter() const {
+    return m_MaximumSeasonalJitter;
 }
 
 //////// CModelAddSamplesParams ////////

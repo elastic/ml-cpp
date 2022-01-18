@@ -373,15 +373,15 @@ CTimeSeriesDecomposition::predictor(int components) const {
 
         time += m_TimeShift;
 
-        if (components & E_TrendForced) {
+        if ((components & E_TrendForced) != 0) {
             baseline += trend(time);
-        } else if (components & E_Trend) {
+        } else if ((components & E_Trend) != 0) {
             if (m_Components.usingTrendForPrediction()) {
                 baseline += trend(time);
             }
         }
 
-        if (components & E_Seasonal) {
+        if ((components & E_Seasonal) != 0) {
             const auto& seasonal = m_Components.seasonal();
             for (std::size_t i = 0; i < seasonal.size(); ++i) {
                 if (seasonal[i].initialized() &&
@@ -392,7 +392,7 @@ CTimeSeriesDecomposition::predictor(int components) const {
             }
         }
 
-        if (components & E_Calendar) {
+        if ((components & E_Calendar) != 0) {
             for (const auto& component : m_Components.calendar()) {
                 if (component.initialized() && component.feature().inWindow(time)) {
                     baseline += common::CBasicStatistics::mean(component.value(time, 0.0));
@@ -472,11 +472,32 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
 double CTimeSeriesDecomposition::detrend(core_t::TTime time,
                                          double value,
                                          double confidence,
+                                         core_t::TTime maximumTimeShift,
                                          int components) const {
     if (this->initialized() == false) {
         return value;
     }
-    TDoubleDoublePr interval{this->value(time, confidence, components)};
+
+    TDoubleDoublePr interval{this->value(time, confidence, (E_All ^ E_Seasonal) & components)};
+    value = std::min(value - interval.first, 0.0) + std::max(value - interval.second, 0.0);
+
+    if ((components & E_Seasonal) == 0) {
+        return value;
+    }
+
+    core_t::TTime shift{0};
+    if (maximumTimeShift > 0) {
+        auto loss = [&](double offset) {
+            TDoubleDoublePr seasonalInterval{this->value(
+                time + static_cast<core_t::TTime>(offset + 0.5), confidence, E_Seasonal)};
+            return std::fabs(std::min(value - seasonalInterval.first, 0.0) +
+                             std::max(value - seasonalInterval.second, 0.0));
+        };
+        std::tie(shift, std::ignore) =
+            CSeasonalComponent::likelyShift(maximumTimeShift, 0, loss);
+    }
+
+    interval = this->value(time + shift, confidence, E_Seasonal);
     return std::min(value - interval.first, 0.0) + std::max(value - interval.second, 0.0);
 }
 

@@ -94,7 +94,8 @@ maths::common::CModelParams params(core_t::TTime bucketLength) {
                                        0.0,
                                        minimumSeasonalVarianceScale,
                                        6 * core::constants::HOUR,
-                                       24 * core::constants::HOUR};
+                                       24 * core::constants::HOUR,
+                                       15 * core::constants::MINUTE};
 }
 
 std::size_t dimension(double) {
@@ -280,7 +281,8 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
     double probability;
     BOOST_TEST_REQUIRE(calculator.calculate(probability, influences));
 
-    double pj, pe;
+    double pj;
+    double pe;
     BOOST_TEST_REQUIRE(pJoint.calculate(pj));
     BOOST_TEST_REQUIRE(pExtreme.calculate(pe));
 
@@ -458,7 +460,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                 {TStrCRef(i1), make_pair(70.0, 1.0)},
                 {TStrCRef(i2), make_pair(50.0, 1.0)}};
             std::string expectedInfluencerValues[]{"i1", "i2"};
-            TDoubleVecVec expectedInfluences{{1.0, 1.0}, {0.0, 0.0}, {1.0, 1.0}, {0.8, 0.6}};
+            TDoubleVecVec expectedInfluences{{1.0, 1.0}, {0.0, 0.0}, {1.0, 1.0}, {0.8, 0.65}};
 
             for (std::size_t i = 0; i < testTimes.size(); ++i) {
                 core_t::TTime time = testTimes[i];
@@ -513,7 +515,8 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
 
             core_t::TTime times[]{0, 0};
             double values[]{15.0, 15.0};
-            double lb, ub;
+            double lb;
+            double ub;
             TTail10Vec tail;
             prior.probabilityOfLessLikelySamples(
                 maths_t::E_TwoSided, {TDouble10Vec(&values[0], &values[2])},

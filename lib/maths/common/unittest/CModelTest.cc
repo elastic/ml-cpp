@@ -32,9 +32,13 @@ BOOST_AUTO_TEST_CASE(testAll) {
         double learnRate{0.5};
         double decayRate{0.001};
         double minimumSeasonalVarianceScale{0.3};
-        maths::common::CModelParams params(
-            bucketLength, learnRate, decayRate, minimumSeasonalVarianceScale,
-            6 * core::constants::HOUR, core::constants::DAY);
+        maths::common::CModelParams params{bucketLength,
+                                           learnRate,
+                                           decayRate,
+                                           minimumSeasonalVarianceScale,
+                                           6 * core::constants::HOUR,
+                                           core::constants::DAY,
+                                           15 * core::constants::MINUTE};
         BOOST_REQUIRE_EQUAL(bucketLength, params.bucketLength());
         BOOST_REQUIRE_EQUAL(learnRate, params.learnRate());
         BOOST_REQUIRE_EQUAL(decayRate, params.decayRate());
@@ -42,6 +46,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
                             params.minimumSeasonalVarianceScale());
         BOOST_REQUIRE_EQUAL(6 * core::constants::HOUR, params.minimumTimeToDetectChange());
         BOOST_REQUIRE_EQUAL(core::constants::DAY, params.maximumTimeToTestForChange());
+        BOOST_REQUIRE_EQUAL(15 * core::constants::MINUTE, params.maximumSeasonalJitter());
     }
     {
         maths_t::TDouble2VecWeightsAry weight1(maths_t::CUnitWeights::unit<TDouble2Vec>(2));
