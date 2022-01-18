@@ -37,6 +37,8 @@
 * Upgrade RapidJSON to 31st October 2021 version. (See {ml-pull}2106[#2106].)
 * Upgrade Eigen library to version 3.4.0. (See {ml-pull}2137[#2137].)
 * Prevent over-subscription of threads in pytorch_inference. (See {ml-pull}2141[#2141].)
+* Better handle small shifts of the seasonal patterns in time series data.
+  (See {ml-pull}2183[#2183].)
 
 === Bug Fixes
 
