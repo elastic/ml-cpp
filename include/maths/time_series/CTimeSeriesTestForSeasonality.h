@@ -197,7 +197,7 @@ private:
     TOptionalNewTrendSummary m_Trend;
     TNewSeasonalComponentVec m_Seasonal;
     TBoolVec m_SeasonalToRemoveMask;
-    double m_WithinBucketVariance = 0.0;
+    double m_WithinBucketVariance{0.0};
 };
 
 //! \brief Discovers the seasonal components present in the values in a time window
@@ -211,8 +211,8 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
 public:
-    static constexpr double OUTLIER_FRACTION = 0.1;
-    static constexpr std::size_t MAXIMUM_NUMBER_SEGMENTS = 4;
+    static constexpr double OUTLIER_FRACTION{0.1};
+    static constexpr std::size_t MAXIMUM_NUMBER_SEGMENTS{4};
 
 public:
     CTimeSeriesTestForSeasonality(core_t::TTime valuesStartTime,
@@ -220,6 +220,7 @@ public:
                                   core_t::TTime bucketLength,
                                   core_t::TTime sampleInterval,
                                   TFloatMeanAccumulatorVec values,
+                                  double occupancy = 1.0,
                                   double outlierFraction = OUTLIER_FRACTION);
 
     //! Check if it is possible to test for \p component given the window \p values.
@@ -249,26 +250,6 @@ public:
 
     //! \name Parameters
     //@{
-    CTimeSeriesTestForSeasonality& lowAutocorrelation(double value) {
-        m_LowAutocorrelation = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& mediumAutocorrelation(double value) {
-        m_MediumAutocorrelation = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& highAutocorrelation(double value) {
-        m_HighAutocorrelation = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& significantPValue(double value) {
-        m_SignificantPValue = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& verySignificantPValue(double value) {
-        m_VerySignificantPValue = value;
-        return *this;
-    }
     CTimeSeriesTestForSeasonality& acceptedFalsePostiveRate(double value) {
         m_AcceptedFalsePostiveRate = value;
         return *this;
@@ -617,31 +598,31 @@ private:
                                   TFloatMeanAccumulatorVec& values);
 
 private:
-    double m_MinimumRepeatsPerSegmentToTestVariance = 3.0;
-    double m_MinimumRepeatsPerSegmentToTestAmplitude = 5.0;
-    double m_LowAutocorrelation = 0.3;
-    double m_MediumAutocorrelation = 0.5;
-    double m_HighAutocorrelation = 0.7;
-    double m_PValueToEvict = 0.4;
-    double m_SignificantPValue = 5e-3;
-    double m_VerySignificantPValue = 1e-6;
-    double m_AcceptedFalsePostiveRate = 1e-4;
-    std::ptrdiff_t m_MaximumNumberComponents = 10;
-    std::size_t m_MinimumModelSize = 24;
-    std::size_t m_MaximumModelSize = std::numeric_limits<std::size_t>::max();
+    std::size_t m_MaximumNumberSegments{MAXIMUM_NUMBER_SEGMENTS};
+    double m_MinimumRepeatsPerSegmentToTestVariance{3.0};
+    double m_MinimumRepeatsPerSegmentToTestAmplitude{5.0};
+    double m_LowAutocorrelation{0.3};
+    double m_MediumAutocorrelation{0.5};
+    double m_HighAutocorrelation{0.7};
+    double m_PValueToEvict{0.4};
+    double m_SignificantPValue{5e-3};
+    double m_VerySignificantPValue{1e-6};
+    double m_AcceptedFalsePostiveRate{1e-4};
+    std::ptrdiff_t m_MaximumNumberComponents{10};
+    std::size_t m_MinimumModelSize{24};
+    std::size_t m_MaximumModelSize{std::numeric_limits<std::size_t>::max()};
     TOptionalSize m_StartOfWeekOverride;
     TOptionalTime m_StartOfWeekTimeOverride;
-    core_t::TTime m_MinimumPeriod = 0;
-    core_t::TTime m_ValuesStartTime = 0;
-    core_t::TTime m_BucketsStartTime = 0;
-    core_t::TTime m_BucketLength = 0;
-    core_t::TTime m_SampleInterval = 0;
-    double m_SampleVariance = 0.0;
-    double m_OutlierFraction = OUTLIER_FRACTION;
-    double m_EpsVariance = 0.0;
-    TPredictor m_ModelledPredictor = [](core_t::TTime, const TBoolVec&) {
-        return 0.0;
-    };
+    core_t::TTime m_MinimumPeriod{0};
+    core_t::TTime m_ValuesStartTime{0};
+    core_t::TTime m_BucketsStartTime{0};
+    core_t::TTime m_BucketLength{0};
+    core_t::TTime m_SampleInterval{0};
+    double m_SampleVariance{0.0};
+    double m_OutlierFraction{OUTLIER_FRACTION};
+    double m_EpsVariance{0.0};
+    TPredictor m_ModelledPredictor{
+        [](core_t::TTime, const TBoolVec&) { return 0.0; }};
     TSeasonalComponentVec m_ModelledPeriods;
     TSizeVec m_ModelledPeriodsSizes;
     TBoolVec m_ModelledPeriodsTestable;

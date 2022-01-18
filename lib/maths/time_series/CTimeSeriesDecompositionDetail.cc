@@ -1246,7 +1246,6 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
                 auto seasonalityTest = makeTest(*window, minimumPeriod,
                                                 minimumResolutionToTestModelledComponent,
                                                 makePreconditioner(), occupancy);
-                seasonalityTest.fitAndRemoveUntestableModelledComponents();
 
                 auto decomposition = seasonalityTest.decompose();
                 if (decomposition.componentsChanged()) {
@@ -2030,10 +2029,9 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
         values = window.valuesMinusPrediction(std::move(values), [&](core_t::TTime time) {
             return preconditioner(time, testableMask);
         });
-        CTimeSeriesTestForSeasonality test(
-            valuesStartTime, windowBucketStartTime, windowBucketLength,
-            m_BucketLength, std::move(values),
-            CTimeSeriesTestForSeasonality::OUTLIER_FRACTION * occupancy);
+        CTimeSeriesTestForSeasonality test(valuesStartTime, windowBucketStartTime,
+                                           windowBucketLength, m_BucketLength,
+                                           std::move(values), occupancy);
 
         test.minimumPeriod(minimumPeriod)
             .minimumModelSize(2 * m_SeasonalComponentSize / 3)
