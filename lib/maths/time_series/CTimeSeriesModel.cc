@@ -1618,7 +1618,7 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
 }
 
 void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
-    const CModelAddSamplesParams& params,
+    const common::CModelAddSamplesParams& params,
     TFloatMeanAccumulatorVec residuals) {
 
     if (m_Controllers != nullptr) {
@@ -3025,7 +3025,7 @@ void CMultivariateTimeSeriesModel::appendPredictionErrors(double interval,
 }
 
 void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
-    const CModelAddSamplesParams& params,
+    const common::CModelAddSamplesParams& params,
     TFloatMeanAccumulatorVec10Vec residuals) {
 
     using TDoubleVec = std::vector<double>;
