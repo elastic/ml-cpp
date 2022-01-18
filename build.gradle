@@ -387,7 +387,7 @@ task buildNoDependenciesZipFromDownloads(type: Zip, dependsOn: downloadPlatformS
 }
 
 task buildDependencyReport(type: Exec) {
-  outputs.file("${buildDir}/distributions/dependencies.csv")
+  outputs.file("${buildDir}/distributions/dependencies-${version}.csv")
   environment makeEnvironment
   commandLine bash
   args '-c', "source ./set_env.sh && 3rd_party/dependency_report.sh --csv \"${outputs.files.singleFile}\""
