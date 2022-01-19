@@ -1092,6 +1092,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
     // Update the base model by allowing 0, 5, and 10 new trees. Verify that the test error is
     // note getting worse when allowing for more model capacity.
+    // TODO #2188 Add a unit test with hold-out data.
     test::CRandomNumbers rng;
     double noiseVariance{200.0};
     std::size_t batch1Size{150};
@@ -1145,6 +1146,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                          .eta({0.02}) // Ensure there are enough trees.
                          .dataSummarizationFraction(1.0)
+                         .maximumNumberTrees(10)
                          .buildForTrain(*batch1, cols - 1);
     baseModel->train();
 
