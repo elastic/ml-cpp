@@ -1090,11 +1090,11 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 }
 
 BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
-    // Update the base model by allowing 0, 5, and 10 new trees. Verify that the test error is
+    // Update the base model by allowing 0, 2, and 10 new trees. Verify that the test error is
     // note getting worse when allowing for more model capacity.
     // TODO #2188 Add a unit test with hold-out data.
     test::CRandomNumbers rng;
-    double noiseVariance{200.0};
+    double noiseVariance{300.0};
     std::size_t batch1Size{150};
     std::size_t batch2Size{150};
     std::size_t testSize{500};
@@ -1146,7 +1146,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                          .eta({0.02}) // Ensure there are enough trees.
                          .dataSummarizationFraction(1.0)
-                         .maximumNumberTrees(10)
+                         .maximumNumberTrees(3)
                          .buildForTrain(*batch1, cols - 1);
     baseModel->train();
 
@@ -1194,15 +1194,15 @@ BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
     };
 
     double testError0{computeTestError(updateBaseModel(0))};
-    double testError5{computeTestError(updateBaseModel(5))};
+    double testError2{computeTestError(updateBaseModel(2))};
     double testError10{computeTestError(updateBaseModel(10))};
     double testErrorBase{computeTestError(std::move(baseModel))};
 
     LOG_DEBUG(<< "Test errors: base = " << testErrorBase << ", 0 new trees = " << testError0
-              << ", 5 new trees = " << testError5 << ", 10 new trees = " << testError10);
+              << ", 2 new trees = " << testError2 << ", 10 new trees = " << testError10);
     BOOST_TEST_REQUIRE(testErrorBase >= testError0);
-    BOOST_TEST_REQUIRE(testError0 >= testError5);
-    BOOST_TEST_REQUIRE(testError5 >= testError10);
+    BOOST_TEST_REQUIRE(testError0 >= testError2);
+    BOOST_TEST_REQUIRE(testError2 >= testError10);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
