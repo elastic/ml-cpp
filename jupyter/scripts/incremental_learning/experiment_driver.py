@@ -211,7 +211,8 @@ def my_main(_run, dataset_name, force_update, verbose):
     _run.run_logger.info("Update started")
     hyperparameters = trained_model.get_hyperparameters()
     del hyperparameters['retrained_tree_eta']
-    updated_model = update(dataset_name, update_dataset, trained_model, force=force_update, verbose=verbose, run=_run, hyperparameter_overrides=hyperparameters)
+    updated_model = update(dataset_name, update_dataset, trained_model, force=force_update, 
+                           verbose=verbose, run=_run, hyperparameter_overrides=hyperparameters)
     elapsed_time = updated_model.wait_to_complete(clean=False)
     results['updated_model'] = {}
     results['updated_model']['config'] = updated_model.get_config()
