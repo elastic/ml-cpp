@@ -505,6 +505,7 @@ private:
     double m_RetrainFraction{0.1};
     double m_PreviousTrainLossGap{0.0};
     std::size_t m_PreviousTrainNumberRows{0};
+    std::size_t m_MaximumNumberNewTrees{0};
     TSizeVec m_TreesToRetrain;
     //@}
 

@@ -107,6 +107,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(PREVIOUS_TRAIN_NUM_ROWS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(MAX_NUM_NEW_TREES,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -176,6 +178,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double previousTrainLossGap{parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0)};
     std::size_t previousTrainNumberRows{
         parameters[PREVIOUS_TRAIN_NUM_ROWS].fallback(std::size_t{0})};
+    std::size_t maxNumNewTrees{parameters[MAX_NUM_NEW_TREES].fallback(std::size_t{0})};
 
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
@@ -286,6 +289,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (previousTrainNumberRows > 0) {
         m_BoostedTreeFactory->previousTrainNumberRows(previousTrainNumberRows);
+    }
+    if (maxNumNewTrees > 0) {
+        m_BoostedTreeFactory->maximumNumberNewTrees(maxNumNewTrees);
     }
 }
 
@@ -585,6 +591,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::TASK_UPDATE{"update"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_PREDICT{"predict"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_LOSS_GAP{"previous_train_loss_gap"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_NUM_ROWS{"previous_train_num_rows"};
+const std::string CDataFrameTrainBoostedTreeRunner::MAX_NUM_NEW_TREES{"max_num_new_trees"};
 // clang-format on
 }
 }

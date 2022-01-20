@@ -59,6 +59,7 @@ public:
     using TLossFunctionUPtr = CBoostedTreeImpl::TLossFunctionUPtr;
     using TSizeVec = CBoostedTreeImpl::TSizeVec;
     using TDoubleVec = CBoostedTreeImpl::TDoubleVec;
+    using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
 
 public:
     explicit CBoostedTreeImplForTest(CBoostedTreeImpl& treeImpl)
@@ -78,6 +79,18 @@ public:
                         TDoubleVec& probabilities,
                         TSizeVec& nodeFeatureBag) const {
         m_TreeImpl.nodeFeatureBag(treeFeatureBag, probabilities, nodeFeatureBag);
+    }
+
+    TBoostedTreeUPtr cloneFor(core::CDataFrame& frame, std::size_t dependentVariable) const {
+        std::stringstream persistState;
+        {
+            core::CJsonStatePersistInserter inserter(persistState);
+            m_TreeImpl.acceptPersistInserter(inserter);
+            persistState.flush();
+        }
+        std::stringstream stateStr0(persistState.str());
+        return maths::analytics::CBoostedTreeFactory::constructFromString(stateStr0)
+            .restoreFor(frame, dependentVariable);
     }
 
 private:
@@ -1074,6 +1087,122 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
     BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
+}
+
+BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
+    // Update the base model by allowing 0, 2, and 10 new trees. Verify that the test error is
+    // note getting worse when allowing for more model capacity.
+    // TODO #2188 Add a unit test with hold-out data.
+    test::CRandomNumbers rng;
+    double noiseVariance{300.0};
+    std::size_t batch1Size{150};
+    std::size_t batch2Size{150};
+    std::size_t testSize{500};
+    std::size_t cols{6};
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    TDoubleVec noise;
+    TDoubleVecVec x(cols - 1);
+
+    auto batch1 = core::makeMainStorageDataFrame(cols).first;
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 4.0, batch1Size, x[i]);
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, batch1Size, noise);
+    fillDataFrame(batch1Size, 0, cols, x, noise, target, *batch1);
+
+    // second batch of data extends the domain
+    auto batch2 = core::makeMainStorageDataFrame(cols).first;
+    fillDataFrame(batch1Size, 0, cols, x, noise, target, *batch2);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(2.0, 6.0, batch2Size, x[i]);
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, batch2Size, noise);
+    fillDataFrame(batch2Size, 0, cols, x, noise, target, *batch2);
+
+    // test data cover the complete domain
+    auto testData = core::makeMainStorageDataFrame(cols).first;
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 6.0, testSize, x[i]);
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, testSize, noise);
+    fillDataFrame(testSize, 0, cols, x, noise, target, *testData);
+    testData->resizeColumns(1, cols + 1);
+
+    auto baseModel = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                         1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                         .eta({0.02}) // Ensure there are enough trees.
+                         .dataSummarizationFraction(1.0)
+                         .maximumNumberTrees(3)
+                         .buildForTrain(*batch1, cols - 1);
+    baseModel->train();
+
+    core::CPackedBitVector batch2RowMask{batch1Size, false};
+    batch2RowMask.extend(true, batch2Size);
+
+    double alpha{baseModel->hyperparameters().depthPenaltyMultiplier().value()};
+    double gamma{baseModel->hyperparameters().treeSizePenaltyMultiplier().value()};
+    double lambda{baseModel->hyperparameters().leafWeightPenaltyMultiplier().value()};
+
+    maths::analytics::CBoostedTreeImplForTest baseImpl{baseModel->impl()};
+
+    auto updateBaseModel = [&](std::size_t maxNumNewTrees) {
+        auto updatedModel =
+            maths::analytics::CBoostedTreeFactory::constructFromModel(
+                baseImpl.cloneFor(*batch1, cols - 1))
+                .newTrainingRowMask(batch2RowMask)
+                .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
+                .maximumNumberNewTrees(maxNumNewTrees)
+                .buildForTrainIncremental(*batch2, cols - 1);
+        updatedModel->trainIncremental();
+        return updatedModel;
+    };
+
+    auto computeTestError = [&](maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr&& model) {
+        core::CPackedBitVector testDataRowMask{testSize, true};
+        TMeanAccumulator squaredError;
+
+        auto predictor =
+            maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(model))
+                .buildForPredict(*testData, cols - 1);
+        predictor->predict();
+        testData->readRows(
+            1, 0, testData->numberRows(),
+            [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    squaredError.add(maths::common::CTools::pow2(
+                        (*row)[cols - 1] - predictor->readPrediction(*row)[0]));
+                }
+            },
+            &testDataRowMask);
+        return maths::common::CBasicStatistics::mean(squaredError);
+    };
+
+    double testError0{computeTestError(updateBaseModel(0))};
+    double testError2{computeTestError(updateBaseModel(2))};
+    double testError10{computeTestError(updateBaseModel(10))};
+    double testErrorBase{computeTestError(std::move(baseModel))};
+
+    LOG_DEBUG(<< "Test errors: base = " << testErrorBase << ", 0 new trees = " << testError0
+              << ", 2 new trees = " << testError2 << ", 10 new trees = " << testError10);
+    BOOST_TEST_REQUIRE(testErrorBase >= testError0);
+    BOOST_TEST_REQUIRE(testError0 >= testError2);
+    BOOST_TEST_REQUIRE(testError2 >= testError10);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
