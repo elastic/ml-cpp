@@ -1472,6 +1472,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::previousTrainNumberRows(std::size_t nu
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberNewTrees(std::size_t maximumNumberNewTrees) {
+    m_TreeImpl->m_MaximumNumberNewTrees = maximumNumberNewTrees;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::forceAcceptIncrementalTraining(bool force) {
     m_TreeImpl->m_ForceAcceptIncrementalTraining = force;
     return *this;

@@ -78,6 +78,7 @@ public:
     static const std::string TASK_PREDICT;
     static const std::string PREVIOUS_TRAIN_LOSS_GAP;
     static const std::string PREVIOUS_TRAIN_NUM_ROWS;
+    static const std::string MAX_NUM_NEW_TREES;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
