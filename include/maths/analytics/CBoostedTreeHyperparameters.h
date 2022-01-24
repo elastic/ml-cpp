@@ -640,7 +640,7 @@ public:
                     double explainedVariance = 0.0);
 
     //! Capture the current hyperparameters if they're the best we've seen so far.
-    void captureBest(const TMeanVarAccumulator& testLossMoments,
+    bool captureBest(const TMeanVarAccumulator& testLossMoments,
                      double meanLossGap,
                      double numberKeptNodes,
                      double numberNewNodes,

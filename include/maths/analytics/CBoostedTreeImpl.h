@@ -58,15 +58,14 @@ class MATHS_ANALYTICS_EXPORT CBoostedTreeImpl final {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
-    using TStrVec = std::vector<std::string>;
     using TOptionalDouble = boost::optional<double>;
+    using TOptionalDoubleVec = std::vector<TOptionalDouble>;
+    using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
     using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
     using TOptionalStrDoublePrVec = boost::optional<TStrDoublePrVec>;
     using TVector = common::CDenseVector<double>;
-    using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
-    using TBayesinOptimizationUPtr = std::unique_ptr<common::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
     using TNodeVecVec = CBoostedTree::TNodeVecVec;
     using TLossFunction = boosted_tree::CLoss;
@@ -183,14 +182,13 @@ public:
     //!
     //! Get the feature sample probabilities.
     const TDoubleVec& featureSampleProbabilities() const;
+
+    //! Get the fold test losses for each round.
+    const TOptionalDoubleVecVec& foldRoundTestLosses() const;
     //@}
 
 private:
     using TDoubleDoublePr = std::pair<double, double>;
-    using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-    using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TDoubleVecVec = std::vector<TDoubleVec>;
     using TFloatVec = std::vector<common::CFloatStorage>;
     using TFloatVecVec = std::vector<TFloatVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
@@ -217,6 +215,7 @@ private:
 
     //! \brief The result of cross-validation.
     struct SCrossValidationResult {
+        TNodeVecVec s_Forest;
         TMeanVarAccumulator s_TestLossMoments;
         double s_MeanLossGap{0.0};
         std::size_t s_NumberTrees{0};

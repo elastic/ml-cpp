@@ -121,6 +121,8 @@ public:
     CBoostedTreeFactory& trainFractionPerFold(double fraction);
     //! Set the maximum number of rows to use for training when tuning hyperparameters.
     CBoostedTreeFactory& maximumNumberTrainRows(std::size_t rows);
+    //! Evaluate using only the specified hold-out set. This disables cross-valiation.
+    CBoostedTreeFactory& holdoutRowMask(core::CPackedBitVector holdoutRowMask);
     //! Stratify the cross-validation we do for regression.
     CBoostedTreeFactory& stratifyRegressionCrossValidation(bool stratify);
     //! Stop cross-validation early if the test loss is not promising.
@@ -360,6 +362,7 @@ private:
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
+    core::CPackedBitVector m_HoldoutRowMask;
     bool m_StratifyRegressionCrossValidation{true};
     double m_InitialDownsampleRowsPerFeature{200.0};
     std::size_t m_MaximumNumberOfTrainRows{500000};

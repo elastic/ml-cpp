@@ -506,7 +506,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     return true;
 }
 
-void CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLossMoments,
+bool CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLossMoments,
                                               double meanLossGap,
                                               double numberKeptNodes,
                                               double numberNewNodes,
@@ -531,7 +531,9 @@ void CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLos
         m_MaximumNumberTrees.set(numberTrees);
         this->saveCurrent();
         m_MaximumNumberTrees.set(numberTreesToRestore);
+        return true;
     }
+    return false;
 }
 
 double CBoostedTreeHyperparameters::modelSizePenalty(double numberKeptNodes,

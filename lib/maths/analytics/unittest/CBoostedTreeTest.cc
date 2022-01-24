@@ -2850,6 +2850,75 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
+
+    // Check that we can effectively train using loss on a specified holdout set.
+
+    test::CRandomNumbers rng;
+    double noiseVariance{10.0};
+    std::size_t rows{1000};
+    std::size_t cols{6};
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    fillDataFrame(rows, 0, cols, x, noise, target, *frame);
+
+    core::CPackedBitVector holdoutRowMask(rows - 200, false);
+    holdoutRowMask.extend(true, 200);
+
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .holdoutRowMask(holdoutRowMask)
+                          .buildForTrain(*frame, cols - 1);
+
+    regression->train();
+    regression->predict();
+
+    // Test the minimum cross-validation error matches the error we compute for
+    // holdout set.
+
+    auto roundLosses = regression->impl().foldRoundTestLosses()[0];
+
+    TMeanVarAccumulator expectedMse;
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            double actual{(*row)[cols - 1]};
+                            double prediction{regression->readPrediction(*row)[0]};
+                            expectedMse.add(maths::common::CTools::pow2(actual - prediction));
+                        }
+                    },
+                    &holdoutRowMask);
+
+    auto actualMse = *std::min_element(
+        roundLosses.begin(), roundLosses.end(),
+        [](const auto& lhs, const auto& rhs) { return *lhs < *rhs; });
+
+    BOOST_REQUIRE_CLOSE(maths::common::CBasicStatistics::mean(expectedMse), *actualMse, 1e-3);
+}
+
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
     // Check persist + restore is idempotent.
