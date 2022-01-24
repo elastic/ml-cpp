@@ -1858,7 +1858,7 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
         loss += result.s_FunctionState;
     }
 
-    LOG_TRACE(<< "mean loss = " << common::CBasicStatistics::mean(loss));
+    LOG_TRACE(<< "loss = " << common::CBasicStatistics::mean(loss));
 
     return common::CBasicStatistics::mean(loss);
 }
@@ -1887,13 +1887,18 @@ double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
             TMeanAccumulator{}),
         &oldRowMask);
 
-    TMeanAccumulator loss;
+    TMeanAccumulator lossAdjustment;
     for (const auto& result : results.first) {
-        loss += result.s_FunctionState;
+        lossAdjustment += result.s_FunctionState;
     }
 
-    return this->meanLoss(frame, rowMask) + oldRowMask.manhattan() / rowMask.manhattan() *
-                                                common::CBasicStatistics::mean(loss);
+    double loss{this->meanLoss(frame, rowMask)};
+    double adjustedLoss{loss + oldRowMask.manhattan() / rowMask.manhattan() *
+                                   common::CBasicStatistics::mean(lossAdjustment)};
+
+    LOG_TRACE(<< "loss = " << loss << " adjusted loss = " << adjustedLoss);
+
+    return adjustedLoss;
 }
 
 double CBoostedTreeImpl::betweenFoldTestLossVariance() const {
@@ -2238,14 +2243,14 @@ void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const
     }
     for (const auto& mask : m_TrainingRowMasks) {
         if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
+            HANDLE_FATAL(<< "Internal error: unexpected train row mask ("
                          << mask.size() << " !=  " << frame.numberRows()
                          << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_TestingRowMasks) {
         if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
+            HANDLE_FATAL(<< "Internal error: unexpected test row mask ("
                          << mask.size() << " !=  " << frame.numberRows()
                          << "). Please report this problem.");
         }
@@ -2279,14 +2284,14 @@ void CBoostedTreeImpl::checkIncrementalTrainInvariants(const core::CDataFrame& f
     }
     for (const auto& mask : m_TrainingRowMasks) {
         if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
+            HANDLE_FATAL(<< "Internal error: unexpected train row mask ("
                          << mask.size() << " !=  " << frame.numberRows()
                          << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_TestingRowMasks) {
         if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
+            HANDLE_FATAL(<< "Internal error: unexpected test row mask ("
                          << mask.size() << " !=  " << frame.numberRows()
                          << "). Please report this problem.");
         }

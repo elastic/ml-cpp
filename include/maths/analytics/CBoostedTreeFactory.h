@@ -115,14 +115,14 @@ public:
     CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
+    //! Set the number of initial rows to use as a holdout set for evaluation.
+    CBoostedTreeFactory& endOfHoldoutRows(std::size_t endOfHoldoutRows);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Set the fraction fold data to use for training.
     CBoostedTreeFactory& trainFractionPerFold(double fraction);
     //! Set the maximum number of rows to use for training when tuning hyperparameters.
     CBoostedTreeFactory& maximumNumberTrainRows(std::size_t rows);
-    //! Evaluate using only the specified hold-out set. This disables cross-valiation.
-    CBoostedTreeFactory& holdoutRowMask(core::CPackedBitVector holdoutRowMask);
     //! Stratify the cross-validation we do for regression.
     CBoostedTreeFactory& stratifyRegressionCrossValidation(bool stratify);
     //! Stop cross-validation early if the test loss is not promising.
@@ -362,7 +362,7 @@ private:
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
-    core::CPackedBitVector m_HoldoutRowMask;
+    std::size_t m_EndOfHoldoutRows{0};
     bool m_StratifyRegressionCrossValidation{true};
     double m_InitialDownsampleRowsPerFeature{200.0};
     std::size_t m_MaximumNumberOfTrainRows{500000};

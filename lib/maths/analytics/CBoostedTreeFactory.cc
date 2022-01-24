@@ -335,10 +335,10 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
 
 void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 
-    if (m_HoldoutRowMask.size() > 0) {
+    if (m_EndOfHoldoutRows > 0) {
         m_TreeImpl->m_NumberFolds.fixTo(1);
         m_TreeImpl->m_TrainFractionPerFold.fixTo(
-            1.0 - m_HoldoutRowMask.manhattan() /
+            1.0 - static_cast<double>(m_EndOfHoldoutRows) /
                       m_TreeImpl->allTrainingRowsMask().manhattan());
     } else {
         auto result = frame.readRows(
@@ -466,11 +466,19 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
 
-    if (m_HoldoutRowMask.size() > 0) {
-        m_TreeImpl->m_TrainingRowMasks.reserve(1);
-        m_TreeImpl->m_TestingRowMasks.reserve(1);
-        m_TreeImpl->m_TrainingRowMasks.push_back(allTrainingRowsMask & (~m_HoldoutRowMask));
-        m_TreeImpl->m_TestingRowMasks.push_back(allTrainingRowsMask & m_HoldoutRowMask);
+    if (m_EndOfHoldoutRows > 0) {
+        if (m_EndOfHoldoutRows > frame.numberRows()) {
+            HANDLE_FATAL(<< "Supplied fewer than holdout rows (" << frame.numberRows()
+                         << " < " << m_EndOfHoldoutRows << ").");
+        }
+
+        core::CPackedBitVector holdoutRowMask{m_EndOfHoldoutRows, true};
+        holdoutRowMask.extend(false, frame.numberRows() - m_EndOfHoldoutRows);
+
+        m_TreeImpl->m_TrainingRowMasks.clear();
+        m_TreeImpl->m_TestingRowMasks.clear();
+        m_TreeImpl->m_TrainingRowMasks.push_back(allTrainingRowsMask & ~holdoutRowMask);
+        m_TreeImpl->m_TestingRowMasks.push_back(allTrainingRowsMask & holdoutRowMask);
         m_TreeImpl->m_StopCrossValidationEarly = false;
 
     } else {
@@ -1225,6 +1233,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::minimumFrequencyToOneHotEncode(double 
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::endOfHoldoutRows(std::size_t endOfHoldoutRows) {
+    m_EndOfHoldoutRows = endOfHoldoutRows;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::numberFolds(std::size_t numberFolds) {
     if (numberFolds < 2) {
         LOG_WARN(<< "Must use at least two-folds for cross validation");
@@ -1245,11 +1258,6 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainFractionPerFold(double fraction) 
 
 CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberTrainRows(std::size_t rows) {
     m_MaximumNumberOfTrainRows = rows;
-    return *this;
-}
-
-CBoostedTreeFactory& CBoostedTreeFactory::holdoutRowMask(core::CPackedBitVector holdoutRowMask) {
-    m_HoldoutRowMask = std::move(holdoutRowMask);
     return *this;
 }
 

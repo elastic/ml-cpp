@@ -263,20 +263,26 @@ const core::CPackedBitVector& CBoostedTree::newTrainingRowMask() const {
     return m_Impl->newTrainingRowMask();
 }
 
-CBoostedTree::TDouble2Vec CBoostedTree::readPrediction(const TRowRef& row) const {
+CBoostedTree::TDouble2Vec CBoostedTree::prediction(const TRowRef& row) const {
     const auto& loss = m_Impl->loss();
     return loss
-        .transform(boosted_tree_detail::readPrediction(row, m_Impl->extraColumns(),
-                                                       loss.numberParameters()))
+        .transform(readPrediction(row, m_Impl->extraColumns(), loss.numberParameters()))
         .to<TDouble2Vec>();
 }
 
-CBoostedTree::TDouble2Vec CBoostedTree::readAndAdjustPrediction(const TRowRef& row) const {
+CBoostedTree::TDouble2Vec CBoostedTree::previousPrediction(const TRowRef& row) const {
+    const auto& loss = m_Impl->loss();
+    return loss
+        .transform(readPreviousPrediction(row, m_Impl->extraColumns(), loss.numberParameters()))
+        .to<TDouble2Vec>();
+}
+
+CBoostedTree::TDouble2Vec CBoostedTree::adjustedPrediction(const TRowRef& row) const {
 
     const auto& loss = m_Impl->loss();
 
-    auto prediction = loss.transform(boosted_tree_detail::readPrediction(
-        row, m_Impl->extraColumns(), loss.numberParameters()));
+    auto prediction = loss.transform(
+        readPrediction(row, m_Impl->extraColumns(), loss.numberParameters()));
 
     switch (loss.type()) {
     case E_BinaryClassification:
