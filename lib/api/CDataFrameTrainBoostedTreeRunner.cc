@@ -76,8 +76,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TREE_TOPOLOGY_CHANGE_PENALTY,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(NUM_HOLDOUT_ROWS,
-                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(NUM_HOLDOUT_ROWS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUM_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TRAIN_FRACTION_PER_FOLD,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
