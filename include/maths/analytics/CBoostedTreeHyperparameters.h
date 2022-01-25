@@ -639,7 +639,9 @@ public:
     bool selectNext(const TMeanVarAccumulator& testLossMoments,
                     double explainedVariance = 0.0);
 
-    //! Capture the current hyperparameters if they're the best we've seen so far.
+    //! Capture the current hyperparameters if they're the best we've seen.
+    //!
+    //! \return True if we they are the best hyperparameters.
     bool captureBest(const TMeanVarAccumulator& testLossMoments,
                      double meanLossGap,
                      double numberKeptNodes,
