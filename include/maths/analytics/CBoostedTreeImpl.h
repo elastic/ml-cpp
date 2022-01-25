@@ -201,6 +201,8 @@ private:
     using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
     using TArgMinLossVec = std::vector<boosted_tree::CArgMinLoss>;
     using TArgMinLossVecVec = std::vector<TArgMinLossVec>;
+    using TRowRef = boosted_tree_detail::TRowRef;
+    using TMemoryMappedFloatVector = boosted_tree_detail::TMemoryMappedFloatVector;
     // clang-format off
     using TMakeRootLeafNodeStatistics =
         std::function<TLeafNodeStatisticsPtr (const TFloatVecVec&,
@@ -209,8 +211,7 @@ private:
                                               const core::CPackedBitVector&,
                                               TWorkspace&)>;
     using TUpdateRowPrediction =
-        std::function<void (const boosted_tree_detail::TRowRef&,
-                            boosted_tree_detail::TMemoryMappedFloatVector&)>;
+        std::function<void (const TRowRef&, TMemoryMappedFloatVector&)>;
     // clang-format on
 
     //! \brief The result of cross-validation.
@@ -367,27 +368,33 @@ private:
                                TArgMinLossVecVec& result) const;
 
     //! Update the predictions and the \p loss gradient and curvature for the
-    //! \p rowMask rows of \p frame for all training data.
+    //! \p rowMask rows of \p frame for all data.
     void refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
                                               const core::CPackedBitVector& rowMask,
                                               const TLossFunction& loss,
                                               const TUpdateRowPrediction& updateRowPrediction) const;
 
     //! Update the predictions and the \p loss gradient and curvature for the
-    //! \p rowMask rows of \p frame for old or new training data.
+    //! \p rowMask rows of \p frame for old or new data.
     void refreshPredictionsAndLossDerivatives(bool newExample,
                                               core::CDataFrame& frame,
                                               const core::CPackedBitVector& rowMask,
                                               const TLossFunction& loss,
                                               const TUpdateRowPrediction& updateRowPrediction) const;
 
+    //! Update the predictions \p rowMask rows of \p frame.
+    void refreshPredictions(core::CDataFrame& frame,
+                            const core::CPackedBitVector& rowMask,
+                            const TLossFunction& loss,
+                            const TUpdateRowPrediction& updateRowPrediction) const;
+
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
 
     //! Compute the mean of the loss function on the masked rows of \p frame
     //! adjusted for incremental training.
-    double meanAdjustedLoss(const core::CDataFrame& frame,
-                            const core::CPackedBitVector& rowMask) const;
+    double meanChangePenalisedLoss(const core::CDataFrame& frame,
+                                   const core::CPackedBitVector& rowMask) const;
 
     //! Compute the overall variance of the error we see between folds.
     double betweenFoldTestLossVariance() const;

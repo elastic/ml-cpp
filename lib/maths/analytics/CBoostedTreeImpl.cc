@@ -429,7 +429,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
                            [&] {
                                TMeanVarAccumulator lossMoments;
                                for (const auto& mask : m_TestingRowMasks) {
-                                   lossMoments.add(this->meanAdjustedLoss(frame, mask));
+                                   lossMoments.add(this->meanChangePenalisedLoss(frame, mask));
                                }
                                return lossMoments;
                            }()) +
@@ -1126,7 +1126,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
             eta, m_Hyperparameters.predictionChangeCost().value(), treeToRetrain);
 
         this->refreshPredictionsAndLossDerivatives(
-            frame, trainingRowMask | testingRowMask, *loss,
+            frame, trainingRowMask, *loss,
             [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
                 auto encodedRow = m_Encoder->encode(row);
                 prediction -= root(treeToRetrain).value(encodedRow, treeToRetrain);
@@ -1152,6 +1152,18 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
                                 tree);
         LOG_TRACE(<< "retrained = " << root(tree).print(tree));
 
+        // We delay updating the test row predictions until we have the new
+        // tree in order to correctly estimate the validation loss.
+        this->refreshPredictions(
+            frame, testingRowMask, *loss,
+            [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
+                auto encodedRow = m_Encoder->encode(row);
+                prediction -= root(treeToRetrain).value(encodedRow, treeToRetrain);
+                if (tree.empty() == false) {
+                    prediction += root(tree).value(encodedRow, tree);
+                }
+            });
+
         scopeMemoryUsage.add(tree);
         retrainedTrees.push_back(std::move(tree));
         trainingProgress.increment();
@@ -1162,7 +1174,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         // The memory variation in the row mask from sample to sample is too
         // small to bother to track.
 
-        testLosses.push_back(this->meanAdjustedLoss(frame, testingRowMask));
+        testLosses.push_back(this->meanChangePenalisedLoss(frame, testingRowMask));
     }
     retrainedTrees.erase(retrainedTrees.begin());
 
@@ -1834,6 +1846,23 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
         &rowMask);
 }
 
+void CBoostedTreeImpl::refreshPredictions(core::CDataFrame& frame,
+                                          const core::CPackedBitVector& rowMask,
+                                          const TLossFunction& loss,
+                                          const TUpdateRowPrediction& updateRowPrediction) const {
+    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                           std::size_t numberLossParameters{loss.numberParameters()};
+                           for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                               auto row = *row_;
+                               auto prediction = readPrediction(
+                                   row, m_ExtraColumns, numberLossParameters);
+                               updateRowPrediction(row, prediction);
+                           }
+                       },
+                       &rowMask);
+}
+
 double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& rowMask) const {
 
@@ -1863,8 +1892,8 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     return common::CBasicStatistics::mean(loss);
 }
 
-double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
-                                          const core::CPackedBitVector& rowMask) const {
+double CBoostedTreeImpl::meanChangePenalisedLoss(const core::CDataFrame& frame,
+                                                 const core::CPackedBitVector& rowMask) const {
 
     // Add on 0.01 times the difference in the old predictions to encourage us
     // to choose more similar forests if accuracy is similar.
@@ -1892,11 +1921,11 @@ double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
         lossAdjustment += result.s_FunctionState;
     }
 
-    double loss{this->meanLoss(frame, rowMask)};
-    double adjustedLoss{loss + oldRowMask.manhattan() / rowMask.manhattan() *
-                                   common::CBasicStatistics::mean(lossAdjustment)};
+    double adjustedLoss{this->meanLoss(frame, rowMask) +
+                        oldRowMask.manhattan() / rowMask.manhattan() *
+                            common::CBasicStatistics::mean(lossAdjustment)};
 
-    LOG_TRACE(<< "loss = " << loss << " adjusted loss = " << adjustedLoss);
+    LOG_TRACE(<< "adjusted loss = " << adjustedLoss);
 
     return adjustedLoss;
 }

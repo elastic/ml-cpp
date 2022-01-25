@@ -955,15 +955,15 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
             }
         },
         &holdoutRowMask);
-    LOG_DEBUG(<< expectedMse << " " << expectedMsd);
-    LOG_DEBUG(<< maths::common::CBasicStatistics::mean(expectedMse) +
-                     0.01 * maths::common::CBasicStatistics::mean(expectedMsd));
 
     auto roundLosses = regression->impl().foldRoundTestLosses()[0];
-    LOG_DEBUG(<< core::CContainerPrinter::print(roundLosses));
     auto actualMse = *std::min_element(
         roundLosses.begin(), roundLosses.end(),
         [](const auto& lhs, const auto& rhs) { return *lhs < *rhs; });
+
+    BOOST_REQUIRE_CLOSE(maths::common::CBasicStatistics::mean(expectedMse) +
+                            0.01 * maths::common::CBasicStatistics::mean(expectedMsd),
+                        *actualMse, 1e-3);
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
