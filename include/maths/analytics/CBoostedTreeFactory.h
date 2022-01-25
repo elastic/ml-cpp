@@ -116,7 +116,7 @@ public:
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of initial rows to use as a holdout set for evaluation.
-    CBoostedTreeFactory& endOfHoldoutRows(std::size_t endOfHoldoutRows);
+    CBoostedTreeFactory& numberHoldoutRows(std::size_t numberHoldoutRows);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Set the fraction fold data to use for training.
@@ -362,7 +362,7 @@ private:
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
-    std::size_t m_EndOfHoldoutRows{0};
+    std::size_t m_NumberHoldoutRows{0};
     bool m_StratifyRegressionCrossValidation{true};
     double m_InitialDownsampleRowsPerFeature{200.0};
     std::size_t m_MaximumNumberOfTrainRows{500000};

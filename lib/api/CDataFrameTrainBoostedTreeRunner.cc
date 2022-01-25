@@ -76,7 +76,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TREE_TOPOLOGY_CHANGE_PENALTY,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(END_OF_HOLDOUT_ROWS,
+        theReader.addParameter(NUM_HOLDOUT_ROWS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUM_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TRAIN_FRACTION_PER_FOLD,
@@ -143,7 +143,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     std::size_t seed{parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0})};
 
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
-    std::size_t endOfHoldoutRows{parameters[END_OF_HOLDOUT_ROWS].fallback(std::size_t{0})};
+    std::size_t numberHoldoutRows{parameters[NUM_HOLDOUT_ROWS].fallback(std::size_t{0})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
@@ -243,7 +243,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_BoostedTreeFactory = this->boostedTreeFactory(std::move(loss), frameAndDirectory);
     (*m_BoostedTreeFactory)
         .seed(seed)
-        .endOfHoldoutRows(endOfHoldoutRows)
+        .numberHoldoutRows(numberHoldoutRows)
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
@@ -574,7 +574,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST{"prediction_change_cost"};
 const std::string CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY{"tree_topology_change_penalty"};
-const std::string CDataFrameTrainBoostedTreeRunner::END_OF_HOLDOUT_ROWS{"end_of_holdout_rows"};
+const std::string CDataFrameTrainBoostedTreeRunner::NUM_HOLDOUT_ROWS{"num_holdout_rows"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_FOLDS{"num_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD{"train_fraction_per_fold"};
 const std::string CDataFrameTrainBoostedTreeRunner::STOP_CROSS_VALIDATION_EARLY{"stop_cross_validation_early"};

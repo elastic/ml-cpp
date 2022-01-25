@@ -335,10 +335,10 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
 
 void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 
-    if (m_EndOfHoldoutRows > 0) {
+    if (m_NumberHoldoutRows > 0) {
         m_TreeImpl->m_NumberFolds.fixTo(1);
         m_TreeImpl->m_TrainFractionPerFold.fixTo(
-            1.0 - static_cast<double>(m_EndOfHoldoutRows) /
+            1.0 - static_cast<double>(m_NumberHoldoutRows) /
                       m_TreeImpl->allTrainingRowsMask().manhattan());
     } else {
         auto result = frame.readRows(
@@ -466,14 +466,14 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
 
-    if (m_EndOfHoldoutRows > 0) {
-        if (m_EndOfHoldoutRows > frame.numberRows()) {
+    if (m_NumberHoldoutRows > 0) {
+        if (m_NumberHoldoutRows > frame.numberRows()) {
             HANDLE_FATAL(<< "Supplied fewer than holdout rows (" << frame.numberRows()
-                         << " < " << m_EndOfHoldoutRows << ").");
+                         << " < " << m_NumberHoldoutRows << ").");
         }
 
-        core::CPackedBitVector holdoutRowMask{m_EndOfHoldoutRows, true};
-        holdoutRowMask.extend(false, frame.numberRows() - m_EndOfHoldoutRows);
+        core::CPackedBitVector holdoutRowMask{m_NumberHoldoutRows, true};
+        holdoutRowMask.extend(false, frame.numberRows() - m_NumberHoldoutRows);
 
         m_TreeImpl->m_TrainingRowMasks.clear();
         m_TreeImpl->m_TestingRowMasks.clear();
@@ -1233,8 +1233,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::minimumFrequencyToOneHotEncode(double 
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::endOfHoldoutRows(std::size_t endOfHoldoutRows) {
-    m_EndOfHoldoutRows = endOfHoldoutRows;
+CBoostedTreeFactory& CBoostedTreeFactory::numberHoldoutRows(std::size_t numberHoldoutRows) {
+    m_NumberHoldoutRows = numberHoldoutRows;
     return *this;
 }
 

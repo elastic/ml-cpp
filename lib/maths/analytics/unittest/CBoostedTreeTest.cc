@@ -799,7 +799,7 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
     std::size_t rows{1000};
     std::size_t cols{6};
 
-    std::size_t endOfHoldoutRows{200};
+    std::size_t numberHoldoutRows{200};
 
     auto target = [&] {
         TDoubleVec m;
@@ -828,7 +828,7 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
 
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                          .endOfHoldoutRows(endOfHoldoutRows)
+                          .numberHoldoutRows(numberHoldoutRows)
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();
@@ -837,8 +837,8 @@ BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
     // Test the minimum cross-validation error matches the error we compute for
     // holdout set.
 
-    core::CPackedBitVector holdoutRowMask(endOfHoldoutRows, true);
-    holdoutRowMask.extend(false, rows - endOfHoldoutRows);
+    core::CPackedBitVector holdoutRowMask(numberHoldoutRows, true);
+    holdoutRowMask.extend(false, rows - numberHoldoutRows);
 
     TMeanVarAccumulator expectedMse;
     frame->readRows(1, 0, frame->numberRows(),
@@ -871,7 +871,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
     std::size_t cols{6};
 
     std::size_t extraTrainingRows{200};
-    std::size_t endOfHoldoutRows{200};
+    std::size_t numberHoldoutRows{200};
 
     auto target = [&] {
         TDoubleVec m;
@@ -900,7 +900,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
 
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                          .endOfHoldoutRows(endOfHoldoutRows)
+                          .numberHoldoutRows(numberHoldoutRows)
                           .eta({0.02})
                           .buildForTrain(*frame, cols - 1);
 
@@ -926,7 +926,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
     double gamma{regression->hyperparameters().treeSizePenaltyMultiplier().value()};
     double lambda{regression->hyperparameters().leafWeightPenaltyMultiplier().value()};
     regression = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(regression))
-                     .endOfHoldoutRows(endOfHoldoutRows)
+                     .numberHoldoutRows(numberHoldoutRows)
                      .newTrainingRowMask(newTrainingRowMask)
                      .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
                      .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
@@ -939,8 +939,8 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
     // Test the minimum cross-validation error matches the error we compute for
     // holdout set.
 
-    core::CPackedBitVector holdoutRowMask(endOfHoldoutRows, true);
-    holdoutRowMask.extend(false, rows - endOfHoldoutRows);
+    core::CPackedBitVector holdoutRowMask(numberHoldoutRows, true);
+    holdoutRowMask.extend(false, rows - numberHoldoutRows);
     TMeanAccumulator expectedMse;
     TMeanAccumulator expectedMsd;
     newFrame->readRows(

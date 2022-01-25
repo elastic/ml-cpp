@@ -62,7 +62,7 @@ public:
     static const std::string TREE_TOPOLOGY_CHANGE_PENALTY;
     static const std::string NUM_FOLDS;
     static const std::string TRAIN_FRACTION_PER_FOLD;
-    static const std::string END_OF_HOLDOUT_ROWS;
+    static const std::string NUM_HOLDOUT_ROWS;
     static const std::string STOP_CROSS_VALIDATION_EARLY;
     static const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
