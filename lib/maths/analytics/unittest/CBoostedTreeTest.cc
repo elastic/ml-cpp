@@ -330,7 +330,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
             std::tie(bias, rSquared) = computeEvaluationMetrics(
                 *frame, trainRows, rows,
                 [&](const TRowRef& row) {
-                    return regression->readPrediction(row)[0];
+                    return regression->prediction(row)[0];
                 },
                 target, noiseVariance / static_cast<double>(rows));
             modelBias[test].push_back(bias);
@@ -390,9 +390,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
         double rSquared;
         std::tie(bias, rSquared) = computeEvaluationMetrics(
             *frame, trainRows, rows,
-            [&](const TRowRef& row) {
-                return regression->readPrediction(row)[0];
-            },
+            [&](const TRowRef& row) { return regression->prediction(row)[0]; },
             target, noiseVariance / static_cast<double>(rows), outliers);
         modelBias.push_back(bias);
         modelRSquared.push_back(rSquared);
@@ -782,7 +780,7 @@ BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
     double rSquared;
     std::tie(bias, rSquared) = computeEvaluationMetrics(
         *frame, trainRows, rows,
-        [&](const TRowRef& row_) { return regression->readPrediction(row_)[0]; },
+        [&](const TRowRef& row_) { return regression->prediction(row_)[0]; },
         target, noiseVariance / static_cast<double>(rows));
 
     // Unbiased...
@@ -790,6 +788,182 @@ BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
         0.0, bias, 7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
     // Good R^2...
     BOOST_TEST_REQUIRE(rSquared > 0.98);
+}
+
+BOOST_AUTO_TEST_CASE(testHoldoutRowMask) {
+
+    // Check that we can effectively train using loss on a specified holdout set.
+
+    test::CRandomNumbers rng;
+    double noiseVariance{10.0};
+    std::size_t rows{1000};
+    std::size_t cols{6};
+
+    std::size_t numberHoldoutRows{200};
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+    fillDataFrame(rows, 0, cols, x, noise, target, *frame);
+
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .numberHoldoutRows(numberHoldoutRows)
+                          .buildForTrain(*frame, cols - 1);
+
+    regression->train();
+    regression->predict();
+
+    // Test the minimum cross-validation error matches the error we compute for
+    // holdout set.
+
+    core::CPackedBitVector holdoutRowMask(numberHoldoutRows, true);
+    holdoutRowMask.extend(false, rows - numberHoldoutRows);
+
+    TMeanVarAccumulator expectedMse;
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            double actual{(*row)[cols - 1]};
+                            double prediction{regression->prediction(*row)[0]};
+                            expectedMse.add(maths::common::CTools::pow2(actual - prediction));
+                        }
+                    },
+                    &holdoutRowMask);
+
+    auto roundLosses = regression->impl().foldRoundTestLosses()[0];
+
+    auto actualMse = *std::min_element(
+        roundLosses.begin(), roundLosses.end(),
+        [](const auto& lhs, const auto& rhs) { return *lhs < *rhs; });
+
+    BOOST_REQUIRE_CLOSE(maths::common::CBasicStatistics::mean(expectedMse), *actualMse, 1e-3);
+}
+
+BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
+
+    // Check that we can effectively incrementally train using loss on a specified
+    // holdout set.
+
+    test::CRandomNumbers rng;
+    double noiseVariance{10.0};
+    std::size_t rows{1000};
+    std::size_t cols{6};
+
+    std::size_t extraTrainingRows{200};
+    std::size_t numberHoldoutRows{200};
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+    fillDataFrame(rows, 0, cols, x, noise, target, *frame);
+
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .numberHoldoutRows(numberHoldoutRows)
+                          .eta({0.02})
+                          .buildForTrain(*frame, cols - 1);
+
+    regression->train();
+    regression->predict();
+
+    auto newFrame = core::makeMainStorageDataFrame(cols).first;
+
+    fillDataFrame(rows, 0, cols, x, noise, target, *newFrame);
+
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, extraTrainingRows, x[i]);
+    }
+    rng.generateNormalSamples(0.0, noiseVariance, extraTrainingRows, noise);
+
+    fillDataFrame(extraTrainingRows, 0, cols, x, noise, target, *newFrame);
+
+    core::CPackedBitVector oldTrainingRowMask{rows, true};
+    oldTrainingRowMask.extend(false, extraTrainingRows);
+    core::CPackedBitVector newTrainingRowMask{~oldTrainingRowMask};
+
+    double alpha{regression->hyperparameters().depthPenaltyMultiplier().value()};
+    double gamma{regression->hyperparameters().treeSizePenaltyMultiplier().value()};
+    double lambda{regression->hyperparameters().leafWeightPenaltyMultiplier().value()};
+    regression = maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(regression))
+                     .numberHoldoutRows(numberHoldoutRows)
+                     .newTrainingRowMask(newTrainingRowMask)
+                     .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
+                     .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
+                     .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
+                     .buildForTrainIncremental(*newFrame, cols - 1);
+
+    regression->trainIncremental();
+    regression->predict();
+
+    // Test the minimum cross-validation error matches the error we compute for
+    // holdout set.
+
+    core::CPackedBitVector holdoutRowMask(numberHoldoutRows, true);
+    holdoutRowMask.extend(false, rows - numberHoldoutRows);
+    TMeanAccumulator expectedMse;
+    TMeanAccumulator expectedMsd;
+    newFrame->readRows(
+        1, 0, frame->numberRows(),
+        [&](const TRowItr& beginRows, const TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                double actual{(*row)[cols - 1]};
+                double prediction{regression->prediction(*row)[0]};
+                double previousPrediction{regression->previousPrediction(*row)[0]};
+                expectedMse.add(maths::common::CTools::pow2(actual - prediction));
+                expectedMsd.add(maths::common::CTools::pow2(prediction - previousPrediction));
+            }
+        },
+        &holdoutRowMask);
+
+    auto roundLosses = regression->impl().foldRoundTestLosses()[0];
+    auto actualMse = *std::min_element(
+        roundLosses.begin(), roundLosses.end(),
+        [](const auto& lhs, const auto& rhs) { return *lhs < *rhs; });
+
+    BOOST_REQUIRE_CLOSE(maths::common::CBasicStatistics::mean(expectedMse) +
+                            0.01 * maths::common::CBasicStatistics::mean(expectedMsd),
+                        *actualMse, 1e-3);
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
@@ -879,24 +1053,24 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
     regression->predict();
 
     // Get the average error on the old and new training data from the old model.
-    frame->readRows(
-        1, 0, frame->numberRows(),
-        [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                mseBeforeIncrementalTraining[OLD_TRAINING_DATA].add(maths::common::CTools::pow2(
-                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
-            }
-        },
-        &oldTrainingRowMask);
-    frame->readRows(
-        1, 0, frame->numberRows(),
-        [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                mseBeforeIncrementalTraining[NEW_TRAINING_DATA].add(maths::common::CTools::pow2(
-                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
-            }
-        },
-        &newTrainingRowMask);
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            mseBeforeIncrementalTraining[OLD_TRAINING_DATA].add(
+                                maths::common::CTools::pow2(
+                                    (*row)[cols - 1] - regression->prediction(*row)[0]));
+                        }
+                    },
+                    &oldTrainingRowMask);
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            mseBeforeIncrementalTraining[NEW_TRAINING_DATA].add(
+                                maths::common::CTools::pow2(
+                                    (*row)[cols - 1] - regression->prediction(*row)[0]));
+                        }
+                    },
+                    &newTrainingRowMask);
 
     double alpha{regression->hyperparameters().depthPenaltyMultiplier().value()};
     double gamma{regression->hyperparameters().treeSizePenaltyMultiplier().value()};
@@ -917,7 +1091,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 mseAfterIncrementalTraining[OLD_TRAINING_DATA].add(maths::common::CTools::pow2(
-                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+                    (*row)[cols - 1] - regression->prediction(*row)[0]));
             }
         },
         &oldTrainingRowMask);
@@ -926,7 +1100,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 mseAfterIncrementalTraining[NEW_TRAINING_DATA].add(maths::common::CTools::pow2(
-                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+                    (*row)[cols - 1] - regression->prediction(*row)[0]));
             }
         },
         &newTrainingRowMask);
@@ -1019,24 +1193,24 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
     regression->predict();
 
     // Get the average error on the old and new training data from the old model.
-    frame->readRows(
-        1, 0, frame->numberRows(),
-        [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                mseBeforeIncrementalTraining[OLD_TRAINING_DATA].add(maths::common::CTools::pow2(
-                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
-            }
-        },
-        &oldTrainingRowMask);
-    frame->readRows(
-        1, 0, frame->numberRows(),
-        [&](const TRowItr& beginRows, const TRowItr& endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                mseBeforeIncrementalTraining[NEW_TRAINING_DATA].add(maths::common::CTools::pow2(
-                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
-            }
-        },
-        &newTrainingRowMask);
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            mseBeforeIncrementalTraining[OLD_TRAINING_DATA].add(
+                                maths::common::CTools::pow2(
+                                    (*row)[cols - 1] - regression->prediction(*row)[0]));
+                        }
+                    },
+                    &oldTrainingRowMask);
+    frame->readRows(1, 0, frame->numberRows(),
+                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                        for (auto row = beginRows; row != endRows; ++row) {
+                            mseBeforeIncrementalTraining[NEW_TRAINING_DATA].add(
+                                maths::common::CTools::pow2(
+                                    (*row)[cols - 1] - regression->prediction(*row)[0]));
+                        }
+                    },
+                    &newTrainingRowMask);
 
     double alpha{regression->hyperparameters().depthPenaltyMultiplier().value()};
     double gamma{regression->hyperparameters().treeSizePenaltyMultiplier().value()};
@@ -1057,7 +1231,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 mseAfterIncrementalTraining[OLD_TRAINING_DATA].add(maths::common::CTools::pow2(
-                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+                    (*row)[cols - 1] - regression->prediction(*row)[0]));
             }
         },
         &oldTrainingRowMask);
@@ -1066,7 +1240,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 mseAfterIncrementalTraining[NEW_TRAINING_DATA].add(maths::common::CTools::pow2(
-                    (*row)[cols - 1] - regression->readPrediction(*row)[0]));
+                    (*row)[cols - 1] - regression->prediction(*row)[0]));
             }
         },
         &newTrainingRowMask);
@@ -1089,7 +1263,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
     BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
 }
 
-BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
+BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     // Update the base model by allowing 0, 2, and 10 new trees. Verify that the test error is
     // note getting worse when allowing for more model capacity.
     // TODO #2188 Add a unit test with hold-out data.
@@ -1181,15 +1355,14 @@ BOOST_AUTO_TEST_CASE(testIncrementalAddNewTrees) {
             maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(model))
                 .buildForPredict(*testData, cols - 1);
         predictor->predict();
-        testData->readRows(
-            1, 0, testData->numberRows(),
-            [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    squaredError.add(maths::common::CTools::pow2(
-                        (*row)[cols - 1] - predictor->readPrediction(*row)[0]));
-                }
-            },
-            &testDataRowMask);
+        testData->readRows(1, 0, testData->numberRows(),
+                           [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                               for (auto row = beginRows; row != endRows; ++row) {
+                                   squaredError.add(maths::common::CTools::pow2(
+                                       (*row)[cols - 1] - predictor->prediction(*row)[0]));
+                               }
+                           },
+                           &testDataRowMask);
         return maths::common::CBasicStatistics::mean(squaredError);
     };
 
@@ -1273,8 +1446,8 @@ BOOST_AUTO_TEST_CASE(testThreading) {
 
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                modelPredictionErrorMoments.add(
-                    target(*row) - regression->readPrediction(*row)[0]);
+                modelPredictionErrorMoments.add(target(*row) -
+                                                regression->prediction(*row)[0]);
             }
         });
 
@@ -1369,7 +1542,7 @@ BOOST_AUTO_TEST_CASE(testConstantTarget) {
 
     frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            modelPredictionError.add(1.0 - regression->readPrediction(*row)[0]);
+            modelPredictionError.add(1.0 - regression->prediction(*row)[0]);
         }
     });
 
@@ -1443,8 +1616,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     double modelRSquared;
     std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
         *frame, trainRows, rows,
-        [&](const TRowRef& row) { return regression->readPrediction(row)[0]; },
-        target, 0.0);
+        [&](const TRowRef& row) { return regression->prediction(row)[0]; }, target, 0.0);
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
@@ -1609,7 +1781,7 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
     double modelRSquared;
     std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
         *frame, trainRows, rows,
-        [&](const TRowRef& row) { return regression->readPrediction(row)[0]; },
+        [&](const TRowRef& row) { return regression->prediction(row)[0]; },
         [&](const TRowRef& x) { return 10.0 * x[0]; }, 0.0);
 
     LOG_DEBUG(<< "bias = " << modelBias);
@@ -1655,7 +1827,7 @@ BOOST_AUTO_TEST_CASE(testSingleSplit) {
     double modelRSquared;
     std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
         *frame, 0, rows,
-        [&](const TRowRef& row) { return regression->readPrediction(row)[0]; },
+        [&](const TRowRef& row) { return regression->prediction(row)[0]; },
         [](const TRowRef& row) { return 10.0 * row[0]; }, 0.0);
 
     LOG_DEBUG(<< "bias = " << modelBias);
@@ -1714,12 +1886,10 @@ BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
 
         double modelBias;
         double modelRSquared;
-        std::tie(modelBias, modelRSquared) =
-            computeEvaluationMetrics(*frame, trainRows, rows,
-                                     [&](const TRowRef& row) {
-                                         return regression->readPrediction(row)[0];
-                                     },
-                                     target_, 0.0);
+        std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
+            *frame, trainRows, rows,
+            [&](const TRowRef& row) { return regression->prediction(row)[0]; },
+            target_, 0.0);
 
         LOG_DEBUG(<< "bias = " << modelBias);
         LOG_DEBUG(<< " R^2 = " << modelRSquared);
@@ -1859,7 +2029,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
                     double expectedProbability{probability(*row)};
-                    double actualProbability{classifier->readPrediction(*row)[1]};
+                    double actualProbability{classifier->prediction(*row)[1]};
                     logRelativeError.add(
                         std::log(std::max(actualProbability, expectedProbability) /
                                  std::min(actualProbability, expectedProbability)));
@@ -1878,7 +2048,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.52);
 }
 
-BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForTargetDrift) {
 
     // Test incremental training for the binomial logistic objective for drift in the
     // target value.
@@ -1972,13 +2142,13 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
 
     auto addToRelativeError = [&](const TRowRef& row, TMeanAccumulator& logRelativeError) {
         double expectedProbability{probability(row)};
-        double actualProbability{classifier->readPrediction(row)[1]};
+        double actualProbability{classifier->prediction(row)[1]};
         logRelativeError.add(std::log(std::max(actualProbability, expectedProbability) /
                                       std::min(actualProbability, expectedProbability)));
     };
     auto addToPerturbedRelativeError = [&](const TRowRef& row, TMeanAccumulator& logRelativeError) {
         double expectedProbability{perturbedProbability(row)};
-        double actualProbability{classifier->readPrediction(row)[1]};
+        double actualProbability{classifier->prediction(row)[1]};
         logRelativeError.add(std::log(std::max(actualProbability, expectedProbability) /
                                       std::min(actualProbability, expectedProbability)));
     };
@@ -2056,7 +2226,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
     BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
 }
 
-BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
 
     // Test incremental training for binomial logistic objective for values out of the
     // training data domain.
@@ -2129,7 +2299,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
 
     auto addToRelativeError = [&](const TRowRef& row, TMeanAccumulator& logRelativeError) {
         double expectedProbability{probability(row)};
-        double actualProbability{classifier->readPrediction(row)[1]};
+        double actualProbability{classifier->prediction(row)[1]};
         logRelativeError.add(std::log(std::max(actualProbability, expectedProbability) /
                                       std::min(actualProbability, expectedProbability)));
     };
@@ -2263,7 +2433,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
         TDoubleVec falseNegatives(2, 0.0);
         frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                auto scores = classifier->readAndAdjustPrediction(*row);
+                auto scores = classifier->adjustedPrediction(*row);
                 std::size_t prediction(scores[1] < scores[0] ? 0 : 1);
                 if (row->index() >= trainRows &&
                     row->index() < trainRows + classesRowCounts[2]) {
@@ -2421,7 +2591,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
                 if (row->index() >= trainRows) {
                     TVector expectedProbability{probability(*row)};
                     TVector actualProbability{
-                        TVector::fromSmallVector(classifier->readPrediction(*row))};
+                        TVector::fromSmallVector(classifier->prediction(*row))};
                     logRelativeError.add(
                         (expectedProbability.cwiseMax(actualProbability).array() /
                          expectedProbability.cwiseMin(actualProbability).array())
@@ -2732,7 +2902,7 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
     frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (maths::analytics::CDataFrameUtils::isMissing((*row)[cols - 1])) {
-                actualPredictions.push_back(regression->readPrediction(*row)[0]);
+                actualPredictions.push_back(regression->prediction(*row)[0]);
             }
         }
     });

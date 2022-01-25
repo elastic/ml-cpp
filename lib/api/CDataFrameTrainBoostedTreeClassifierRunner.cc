@@ -139,9 +139,9 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const auto& tree = this->boostedTree();
     this->writeOneRow(
         frame, tree.columnHoldingDependentVariable(),
-        [&](const TRowRef& row_) { return tree.readPrediction(row_); },
-        [&](const TRowRef& row_) { return tree.readAndAdjustPrediction(row_); },
-        row, writer, tree.shap());
+        [&](const TRowRef& row_) { return tree.prediction(row_); },
+        [&](const TRowRef& row_) { return tree.adjustedPrediction(row_); }, row,
+        writer, tree.shap());
 }
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(

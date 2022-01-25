@@ -127,9 +127,9 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeNumberFolds(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeNumberFolds(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
             m_TreeImpl->m_NewTrainingRowMask.extend(
@@ -180,9 +180,9 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
     m_TreeImpl->m_Hyperparameters.incrementalTraining(true);
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeNumberFolds(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeNumberFolds(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
             // We assume any additional rows are new examples.
@@ -335,58 +335,66 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
 
 void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 
-    auto result = frame.readRows(
-        m_NumberThreads,
-        core::bindRetrievableState(
-            [this](std::size_t& numberTrainingRows, const TRowItr& beginRows, const TRowItr& endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    double target{(*row)[m_TreeImpl->m_DependentVariable]};
-                    if (CDataFrameUtils::isMissing(target) == false) {
-                        ++numberTrainingRows;
+    if (m_NumberHoldoutRows > 0) {
+        m_TreeImpl->m_NumberFolds.fixTo(1);
+        m_TreeImpl->m_TrainFractionPerFold.fixTo(
+            1.0 - static_cast<double>(m_NumberHoldoutRows) /
+                      m_TreeImpl->allTrainingRowsMask().manhattan());
+    } else {
+        auto result = frame.readRows(
+            m_NumberThreads,
+            core::bindRetrievableState(
+                [this](std::size_t& numberTrainingRows,
+                       const TRowItr& beginRows, const TRowItr& endRows) {
+                    for (auto row = beginRows; row != endRows; ++row) {
+                        double target{(*row)[m_TreeImpl->m_DependentVariable]};
+                        if (CDataFrameUtils::isMissing(target) == false) {
+                            ++numberTrainingRows;
+                        }
                     }
-                }
-            },
-            std::size_t{0}));
-    std::size_t totalNumberTrainingRows{0};
-    for (const auto& numberTrainingRows : result.first) {
-        totalNumberTrainingRows += numberTrainingRows.s_FunctionState;
+                },
+                std::size_t{0}));
+        std::size_t totalNumberTrainingRows{0};
+        for (const auto& numberTrainingRows : result.first) {
+            totalNumberTrainingRows += numberTrainingRows.s_FunctionState;
+        }
+        LOG_TRACE(<< "total number training rows = " << totalNumberTrainingRows);
+
+        // We want to choose the number of folds so we'll have enough training data
+        // after leaving out one fold. We choose the initial downsample size based
+        // on the same sort of criterion. So we require that leaving out one fold
+        // shouldn't mean than we have fewer rows than constant * desired downsample
+        // # rows if possible. We choose the constant to be two for no particularly
+        // good reason except that:
+        //   1. it isn't too large
+        //   2. it still means we'll have plenty of variation between random bags.
+        //
+        // In order to estimate this we use the number of input features as a proxy
+        // for the number of features we'll actually use after feature selection.
+        //
+        // So how does the following work: we'd like "c * f * # rows" training rows.
+        // For k folds we'll have "(1 - 1 / k) * # rows" training rows. So we want
+        // to find the smallest integer k s.t. c * f * # rows <= (1 - 1 / k) * # rows.
+        // This gives k = ceil(1 / (1 - c * f)). However, we also upper bound this
+        // by MAX_NUMBER_FOLDS.
+        //
+        // In addition, we want to constrain the maximum amount of training data we'll
+        // use during hyperparameter search to avoid very long run times. To do this
+        // we use less than the implied 1 - 1/k : 1/k for the train : test split when
+        // it results in more train rows than the defined maximum.
+
+        double initialDownsampleFraction{(m_InitialDownsampleRowsPerFeature *
+                                          static_cast<double>(frame.numberColumns() - 1)) /
+                                         static_cast<double>(totalNumberTrainingRows)};
+        LOG_TRACE(<< "initial downsample fraction = " << initialDownsampleFraction);
+        m_TreeImpl->m_NumberFolds.set(static_cast<std::size_t>(
+            std::ceil(1.0 / std::max(1.0 - initialDownsampleFraction / MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION,
+                                     1.0 / MAX_NUMBER_FOLDS))));
+        m_TreeImpl->m_TrainFractionPerFold.set(std::min(
+            1.0 - 1.0 / static_cast<double>(m_TreeImpl->m_NumberFolds.value()),
+            static_cast<double>(m_MaximumNumberOfTrainRows) /
+                static_cast<double>(totalNumberTrainingRows)));
     }
-    LOG_TRACE(<< "total number training rows = " << totalNumberTrainingRows);
-
-    // We want to choose the number of folds so we'll have enough training data
-    // after leaving out one fold. We choose the initial downsample size based
-    // on the same sort of criterion. So we require that leaving out one fold
-    // shouldn't mean than we have fewer rows than constant * desired downsample
-    // # rows if possible. We choose the constant to be two for no particularly
-    // good reason except that:
-    //   1. it isn't too large
-    //   2. it still means we'll have plenty of variation between random bags.
-    //
-    // In order to estimate this we use the number of input features as a proxy
-    // for the number of features we'll actually use after feature selection.
-    //
-    // So how does the following work: we'd like "c * f * # rows" training rows.
-    // For k folds we'll have "(1 - 1 / k) * # rows" training rows. So we want
-    // to find the smallest integer k s.t. c * f * # rows <= (1 - 1 / k) * # rows.
-    // This gives k = ceil(1 / (1 - c * f)). However, we also upper bound this
-    // by MAX_NUMBER_FOLDS.
-    //
-    // In addition, we want to constrain the maximum amount of training data we'll
-    // use during hyperparameter search to avoid very long run times. To do this
-    // we use less than the implied 1 - 1/k : 1/k for the train : test split when
-    // it results in more train rows than the defined maximum.
-
-    double initialDownsampleFraction{(m_InitialDownsampleRowsPerFeature *
-                                      static_cast<double>(frame.numberColumns() - 1)) /
-                                     static_cast<double>(totalNumberTrainingRows)};
-    LOG_TRACE(<< "initial downsample fraction = " << initialDownsampleFraction);
-    m_TreeImpl->m_NumberFolds.set(static_cast<std::size_t>(
-        std::ceil(1.0 / std::max(1.0 - initialDownsampleFraction / MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION,
-                                 1.0 / MAX_NUMBER_FOLDS))));
-    m_TreeImpl->m_TrainFractionPerFold.set(
-        std::min(1.0 - 1.0 / static_cast<double>(m_TreeImpl->m_NumberFolds.value()),
-                 static_cast<double>(m_MaximumNumberOfTrainRows) /
-                     static_cast<double>(totalNumberTrainingRows)));
     LOG_TRACE(<< "# folds = " << m_TreeImpl->m_NumberFolds.value() << ", train fraction per fold = "
               << m_TreeImpl->m_TrainFractionPerFold.value());
 }
@@ -457,41 +465,61 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
-    std::size_t dependentVariable{m_TreeImpl->m_DependentVariable};
 
-    std::size_t numberThreads{m_TreeImpl->m_NumberThreads};
-    std::size_t numberFolds{m_TreeImpl->m_NumberFolds.value()};
-    std::size_t numberBuckets(m_StratifyRegressionCrossValidation ? 10 : 1);
-    double trainFractionPerFold{m_TreeImpl->m_TrainFractionPerFold.value()};
-    auto& rng = m_TreeImpl->m_Rng;
+    if (m_NumberHoldoutRows > 0) {
+        if (m_NumberHoldoutRows > frame.numberRows()) {
+            HANDLE_FATAL(<< "Supplied fewer than holdout rows (" << frame.numberRows()
+                         << " < " << m_NumberHoldoutRows << ").");
+        }
 
-    if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
-        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, std::ignore) =
-            CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                numberThreads, frame, dependentVariable, rng, numberFolds,
-                trainFractionPerFold, numberBuckets, allTrainingRowsMask);
+        core::CPackedBitVector holdoutRowMask{m_NumberHoldoutRows, true};
+        holdoutRowMask.extend(false, frame.numberRows() - m_NumberHoldoutRows);
+
+        m_TreeImpl->m_TrainingRowMasks.clear();
+        m_TreeImpl->m_TestingRowMasks.clear();
+        m_TreeImpl->m_TrainingRowMasks.push_back(allTrainingRowsMask & ~holdoutRowMask);
+        m_TreeImpl->m_TestingRowMasks.push_back(allTrainingRowsMask & holdoutRowMask);
+        m_TreeImpl->m_StopCrossValidationEarly = false;
+
     } else {
+        std::size_t dependentVariable{m_TreeImpl->m_DependentVariable};
+        std::size_t numberThreads{m_TreeImpl->m_NumberThreads};
+        std::size_t numberFolds{m_TreeImpl->m_NumberFolds.value()};
+        std::size_t numberBuckets(m_StratifyRegressionCrossValidation ? 10 : 1);
+        double trainFractionPerFold{m_TreeImpl->m_TrainFractionPerFold.value()};
+        auto& rng = m_TreeImpl->m_Rng;
 
-        // Use separate stratified samples on old and new training data to ensure
-        // we have even splits of old and new data across all folds.
+        if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
+            std::tie(m_TreeImpl->m_TrainingRowMasks,
+                     m_TreeImpl->m_TestingRowMasks, std::ignore) =
+                CDataFrameUtils::stratifiedCrossValidationRowMasks(
+                    numberThreads, frame, dependentVariable, rng, numberFolds,
+                    trainFractionPerFold, numberBuckets, allTrainingRowsMask);
+        } else {
 
-        const auto& newTrainingRowMask = m_TreeImpl->m_NewTrainingRowMask;
+            // Use separate stratified samples on old and new training data to ensure
+            // we have even splits of old and new data across all folds.
 
-        std::tie(m_TreeImpl->m_TrainingRowMasks, m_TreeImpl->m_TestingRowMasks, std::ignore) =
-            CDataFrameUtils::stratifiedCrossValidationRowMasks(
-                numberThreads, frame, dependentVariable, rng, numberFolds, trainFractionPerFold,
-                numberBuckets, allTrainingRowsMask & ~newTrainingRowMask);
+            const auto& newTrainingRowMask = m_TreeImpl->m_NewTrainingRowMask;
 
-        if (m_TreeImpl->m_NewTrainingRowMask.manhattan() > 0.0) {
-            TPackedBitVectorVec newTrainingRowMasks;
-            TPackedBitVectorVec newTestingRowMasks;
-            std::tie(newTrainingRowMasks, newTestingRowMasks, std::ignore) =
+            std::tie(m_TreeImpl->m_TrainingRowMasks,
+                     m_TreeImpl->m_TestingRowMasks, std::ignore) =
                 CDataFrameUtils::stratifiedCrossValidationRowMasks(
                     numberThreads, frame, dependentVariable, rng, numberFolds, trainFractionPerFold,
-                    numberBuckets, allTrainingRowsMask & newTrainingRowMask);
-            for (std::size_t i = 0; i < numberFolds; ++i) {
-                m_TreeImpl->m_TrainingRowMasks[i] |= newTrainingRowMasks[i];
-                m_TreeImpl->m_TestingRowMasks[i] |= newTestingRowMasks[i];
+                    numberBuckets, allTrainingRowsMask & ~newTrainingRowMask);
+
+            if (m_TreeImpl->m_NewTrainingRowMask.manhattan() > 0.0) {
+                TPackedBitVectorVec newTrainingRowMasks;
+                TPackedBitVectorVec newTestingRowMasks;
+                std::tie(newTrainingRowMasks, newTestingRowMasks, std::ignore) =
+                    CDataFrameUtils::stratifiedCrossValidationRowMasks(
+                        numberThreads, frame, dependentVariable, rng,
+                        numberFolds, trainFractionPerFold, numberBuckets,
+                        allTrainingRowsMask & newTrainingRowMask);
+                for (std::size_t i = 0; i < numberFolds; ++i) {
+                    m_TreeImpl->m_TrainingRowMasks[i] |= newTrainingRowMasks[i];
+                    m_TreeImpl->m_TestingRowMasks[i] |= newTestingRowMasks[i];
+                }
             }
         }
     }
@@ -1202,6 +1230,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::minimumFrequencyToOneHotEncode(double 
         frequency = 1.0 - std::numeric_limits<double>::epsilon();
     }
     m_MinimumFrequencyToOneHotEncode = frequency;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::numberHoldoutRows(std::size_t numberHoldoutRows) {
+    m_NumberHoldoutRows = numberHoldoutRows;
     return *this;
 }
 

@@ -1142,7 +1142,7 @@ BOOST_AUTO_TEST_CASE(testRegressionIncrementalTraining) {
                     [&](const TRowItr& beginRows, const TRowItr& endRows) {
                         for (auto row = beginRows; row != endRows; ++row) {
                             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                                (*prediction++), regression->readPrediction(*row)[0], 1e-6);
+                                (*prediction++), regression->prediction(*row)[0], 1e-6);
                         }
                     },
                     &newTrainingRowMask);
@@ -1342,7 +1342,7 @@ BOOST_AUTO_TEST_CASE(testClassificationWithUserClassWeights) {
     TStrVec expectedPredictions(frame->numberRows());
     frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            auto scores = classifier->readAndAdjustPrediction(*row);
+            auto scores = classifier->adjustedPrediction(*row);
             std::size_t prediction(scores[1] < scores[0] ? 0 : 1);
             expectedPredictions[row->index()] = frame->categoricalColumnValues()[3][prediction];
         }
@@ -1549,7 +1549,7 @@ BOOST_AUTO_TEST_CASE(testClassificationIncrementalTraining) {
         1, 0, frame->numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                double expectedPrediction{classification->readPrediction(*row)[0]};
+                double expectedPrediction{classification->prediction(*row)[0]};
                 // The prediction_probability result contains the highest scoring
                 // class probability which is usually, but not always, the highest
                 // class probability. The probability of the prediction result is
@@ -1836,7 +1836,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalTrainingFieldMismatch) {
         1, 0, frame->numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                double expectedPrediction{classification->readPrediction(*row)[0]};
+                double expectedPrediction{classification->prediction(*row)[0]};
                 // See testClassificationIncrementalTraining for an explanation.
                 BOOST_REQUIRE((std::fabs(*prediction - expectedPrediction) < 1e-6) ||
                               (std::fabs(*prediction + expectedPrediction - 1.0) < 1e-6));

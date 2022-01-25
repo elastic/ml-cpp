@@ -88,10 +88,13 @@ public:
     virtual const core::CPackedBitVector& newTrainingRowMask() const = 0;
 
     //! Read the prediction out of \p row.
-    virtual TDouble2Vec readPrediction(const TRowRef& row) const = 0;
+    virtual TDouble2Vec prediction(const TRowRef& row) const = 0;
+
+    //! Read the previous model prediction from \p row if it has been updated.
+    virtual TDouble2Vec previousPrediction(const TRowRef& row) const = 0;
 
     //! Read the raw model prediction from \p row and make posthoc adjustments.
-    virtual TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const = 0;
+    virtual TDouble2Vec adjustedPrediction(const TRowRef& row) const = 0;
 
     //! Get the selected rows that summarize.
     virtual core::CPackedBitVector dataSummarization() const = 0;
