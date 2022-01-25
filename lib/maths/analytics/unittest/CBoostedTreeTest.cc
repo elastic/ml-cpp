@@ -2048,7 +2048,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.52);
 }
 
-BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForTargetDrift) {
 
     // Test incremental training for the binomial logistic objective for drift in the
     // target value.
@@ -2226,7 +2226,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForTargetDrift) {
     BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
 }
 
-BOOST_AUTO_TEST_CASE(testBinomialLogisticRegressionIncrementalForOutOfDomain) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
 
     // Test incremental training for binomial logistic objective for values out of the
     // training data domain.
