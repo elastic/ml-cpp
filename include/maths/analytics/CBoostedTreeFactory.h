@@ -115,6 +115,8 @@ public:
     CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
+    //! Set the number of initial rows to use as a holdout set for evaluation.
+    CBoostedTreeFactory& numberHoldoutRows(std::size_t numberHoldoutRows);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Set the fraction fold data to use for training.
@@ -178,8 +180,13 @@ public:
     CBoostedTreeFactory& previousTrainLossGap(double gap);
     //! Set the number of rows for the last train run.
     CBoostedTreeFactory& previousTrainNumberRows(std::size_t numberRows);
+    //! Set the maximum number of trees that can be added during an incremental training step.
+    CBoostedTreeFactory& maximumNumberNewTrees(std::size_t maximumNumberNewTrees);
     //! Set whether or not to always accept the result of incremental training.
     CBoostedTreeFactory& forceAcceptIncrementalTraining(bool force);
+    //! Set whether or not to scale regularisation hyperaparameters when varying
+    //! downsample factor.
+    CBoostedTreeFactory& disableHyperparameterScaling(bool disabled);
     //! Set the data summarization information.
     CBoostedTreeFactory& featureEncoder(TEncoderUPtr encoder);
     //! Set the best forest from the previous training.
@@ -355,6 +362,7 @@ private:
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
+    std::size_t m_NumberHoldoutRows{0};
     bool m_StratifyRegressionCrossValidation{true};
     double m_InitialDownsampleRowsPerFeature{200.0};
     std::size_t m_MaximumNumberOfTrainRows{500000};

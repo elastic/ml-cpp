@@ -434,7 +434,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     // the same effect for regularisers we need to scale these terms by the same
     // multiplier.
     double scale{1.0};
-    if (m_DownsampleFactor.fixed() == false) {
+    if (m_ScalingDisabled == false && m_DownsampleFactor.fixed() == false) {
         auto i = std::distance(m_TunableHyperparameters.begin(),
                                std::find(m_TunableHyperparameters.begin(),
                                          m_TunableHyperparameters.end(), E_DownsampleFactor));
@@ -506,7 +506,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     return true;
 }
 
-void CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLossMoments,
+bool CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLossMoments,
                                               double meanLossGap,
                                               double numberKeptNodes,
                                               double numberNewNodes,
@@ -531,7 +531,9 @@ void CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLos
         m_MaximumNumberTrees.set(numberTrees);
         this->saveCurrent();
         m_MaximumNumberTrees.set(numberTreesToRestore);
+        return true;
     }
+    return false;
 }
 
 double CBoostedTreeHyperparameters::modelSizePenalty(double numberKeptNodes,
@@ -934,6 +936,22 @@ void CBoostedTreeHyperparameters::restoreBest() {
     m_MaximumNumberTrees.load();
     LOG_TRACE(<< "loss* = " << m_BestForestTestLoss);
     LOG_TRACE(<< "parameters*= " << this->print());
+}
+
+void CBoostedTreeHyperparameters::captureScale() {
+    m_DepthPenaltyMultiplier.captureScale();
+    m_TreeSizePenaltyMultiplier.captureScale();
+    m_LeafWeightPenaltyMultiplier.captureScale();
+    m_SoftTreeDepthLimit.captureScale();
+    m_SoftTreeDepthTolerance.captureScale();
+    m_TreeTopologyChangePenalty.captureScale();
+    m_DownsampleFactor.captureScale();
+    m_FeatureBagFraction.captureScale();
+    m_Eta.captureScale();
+    m_EtaGrowthRatePerTree.captureScale();
+    m_RetrainedTreeEta.captureScale();
+    m_PredictionChangeCost.captureScale();
+    m_MaximumNumberTrees.captureScale();
 }
 
 // clang-format off

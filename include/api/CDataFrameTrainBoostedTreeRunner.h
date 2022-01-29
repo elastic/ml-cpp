@@ -62,6 +62,7 @@ public:
     static const std::string TREE_TOPOLOGY_CHANGE_PENALTY;
     static const std::string NUM_FOLDS;
     static const std::string TRAIN_FRACTION_PER_FOLD;
+    static const std::string NUM_HOLDOUT_ROWS;
     static const std::string STOP_CROSS_VALIDATION_EARLY;
     static const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
@@ -70,6 +71,7 @@ public:
     static const std::string FEATURE_PROCESSORS;
     static const std::string EARLY_STOPPING_ENABLED;
     static const std::string FORCE_ACCEPT_INCREMENTAL_TRAINING;
+    static const std::string DISABLE_HYPERPARAMETER_SCALING;
     static const std::string DATA_SUMMARIZATION_FRACTION;
     static const std::string TASK;
     static const std::string TASK_TRAIN;
@@ -77,6 +79,7 @@ public:
     static const std::string TASK_PREDICT;
     static const std::string PREVIOUS_TRAIN_LOSS_GAP;
     static const std::string PREVIOUS_TRAIN_NUM_ROWS;
+    static const std::string MAX_NUM_NEW_TREES;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;

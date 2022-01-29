@@ -55,9 +55,9 @@ namespace maths {
 namespace analytics {
 using namespace boosted_tree;
 using namespace boosted_tree_detail;
-using TStrVec = CBoostedTreeImpl::TStrVec;
+using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
-using TMeanVarAccumulator = CBoostedTreeImpl::TMeanVarAccumulator;
+using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMemoryUsageCallback = CDataFrameAnalysisInstrumentationInterface::TMemoryUsageCallback;
 
 namespace {
@@ -285,11 +285,15 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                                              testingRowMask, trainingProgress);
                 });
 
-            m_Hyperparameters.captureBest(crossValidationResult.s_TestLossMoments,
-                                          crossValidationResult.s_MeanLossGap,
-                                          0.0 /*no kept nodes*/,
-                                          crossValidationResult.s_NumberNodes,
-                                          crossValidationResult.s_NumberTrees);
+            // If we have one fold we're evaluating using a hold-out set and will
+            // not retrain on the full data set at the end.
+            if (m_Hyperparameters.captureBest(
+                    crossValidationResult.s_TestLossMoments,
+                    crossValidationResult.s_MeanLossGap, 0.0 /*no kept nodes*/,
+                    crossValidationResult.s_NumberNodes, crossValidationResult.s_NumberTrees) &&
+                m_NumberFolds.value() == 1) {
+                m_BestForest = std::move(crossValidationResult.s_Forest);
+            }
 
             if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
                                              this->betweenFoldTestLossVariance()) == false) {
@@ -329,7 +333,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         if (m_BestForest.empty()) {
             m_Hyperparameters.restoreBest();
             m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
-            this->scaleRegularizationMultipliersForFinalTrain();
+            m_Hyperparameters.captureScale();
+            this->scaleRegularizationMultipliers(this->allTrainingRowsMask().manhattan() /
+                                                 this->meanNumberTrainingRowsPerFold());
 
             this->startProgressMonitoringFinalTrain();
 
@@ -379,6 +385,16 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "Main incremental training loop...");
 
     this->selectTreesToRetrain(frame);
+    // Add dummy trees that can be replaced with the new trees in the forest.
+    std::size_t oldBestForestSize{m_BestForest.size()};
+    m_BestForest.resize(oldBestForestSize + m_MaximumNumberNewTrees);
+    for (auto i = oldBestForestSize; i < m_BestForest.size(); ++i) {
+        m_BestForest[i] = {CBoostedTreeNode(m_Loss->numberParameters())};
+    }
+    m_TreesToRetrain.resize(m_TreesToRetrain.size() + m_MaximumNumberNewTrees);
+    std::iota(m_TreesToRetrain.end() - m_MaximumNumberNewTrees,
+              m_TreesToRetrain.end(), oldBestForestSize);
+    TNodeVecVec retrainedTrees;
 
     std::int64_t lastMemoryUsage(this->memoryUsage());
 
@@ -413,7 +429,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
                            [&] {
                                TMeanVarAccumulator lossMoments;
                                for (const auto& mask : m_TestingRowMasks) {
-                                   lossMoments.add(this->meanAdjustedLoss(frame, mask));
+                                   lossMoments.add(this->meanChangePenalisedLoss(frame, mask));
                                }
                                return lossMoments;
                            }()) +
@@ -448,10 +464,15 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
                                           testingRowMask, trainingProgress);
             });
 
-        m_Hyperparameters.captureBest(crossValidationResult.s_TestLossMoments,
-                                      crossValidationResult.s_MeanLossGap,
-                                      numberKeptNodes, crossValidationResult.s_NumberNodes,
-                                      crossValidationResult.s_NumberTrees);
+        // If we have one fold we're evaluating using a hold-out set and will
+        // not retrain on the full data set at the end.
+        if (m_Hyperparameters.captureBest(crossValidationResult.s_TestLossMoments,
+                                          crossValidationResult.s_MeanLossGap, numberKeptNodes,
+                                          crossValidationResult.s_NumberNodes,
+                                          crossValidationResult.s_NumberTrees) &&
+            m_NumberFolds.value() == 1) {
+            retrainedTrees = std::move(crossValidationResult.s_Forest);
+        }
 
         if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
                                          this->betweenFoldTestLossVariance()) == false) {
@@ -496,17 +517,28 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     if (m_ForceAcceptIncrementalTraining || m_Hyperparameters.bestForestTestLoss() < initialLoss) {
         m_Hyperparameters.restoreBest();
         m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
-        this->scaleRegularizationMultipliersForFinalTrain();
+        m_Hyperparameters.captureScale();
 
-        // Reinitialize random number generator for reproducible results.
-        m_Rng.seed(m_Seed);
+        if (retrainedTrees.empty()) {
+            this->scaleRegularizationMultipliers(this->allTrainingRowsMask().manhattan() /
+                                                 this->meanNumberTrainingRowsPerFold());
 
-        TNodeVecVec retrainedTrees{this->updateForest(frame, allTrainingRowsMask,
-                                                      allTrainingRowsMask, m_TrainingProgress)
-                                       .s_Forest};
+            // Reinitialize random number generator for reproducible results.
+            m_Rng.seed(m_Seed);
+
+            retrainedTrees = this->updateForest(frame, allTrainingRowsMask,
+                                                allTrainingRowsMask, m_TrainingProgress)
+                                 .s_Forest;
+        }
+
         for (std::size_t i = 0; i < retrainedTrees.size(); ++i) {
             m_BestForest[m_TreesToRetrain[i]] = std::move(retrainedTrees[i]);
         }
+        // Resize the forest to eliminate the unused dummy trees.
+        auto lastChangedTreeIndex = m_TreesToRetrain[retrainedTrees.size() - 1];
+        auto bestForestSize = std::max(lastChangedTreeIndex + 1,
+                                       m_BestForest.size() - m_MaximumNumberNewTrees);
+        m_BestForest.resize(bestForestSize);
     }
 
     this->computeClassificationWeights(frame);
@@ -796,6 +828,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
         return false;
     };
 
+    TNodeVecVec forest;
     TMeanVarAccumulator testLossMoments;
     TMeanAccumulator meanLossGap;
     TDoubleVec numberTrees;
@@ -805,7 +838,6 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     while (folds.size() > 0 && stopCrossValidationEarly(testLossMoments) == false) {
         std::size_t fold{folds.back()};
         folds.pop_back();
-        TNodeVecVec forest;
         double testLoss;
         double lossGap;
         TDoubleVec testLossValues;
@@ -836,8 +868,8 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     m_Hyperparameters.addRoundStats(meanForestSizeAccumulator,
                                     common::CBasicStatistics::mean(testLossMoments));
 
-    return {testLossMoments, common::CBasicStatistics::mean(meanLossGap),
-            medianNumberTrees, meanForestSize};
+    return {std::move(forest), testLossMoments,
+            common::CBasicStatistics::mean(meanLossGap), medianNumberTrees, meanForestSize};
 }
 
 CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivatives(
@@ -1083,9 +1115,9 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         const auto& treeToRetrain = m_BestForest[index];
         const auto& treeWhichWasRetrained = retrainedTrees.back();
 
-        double eta{index < m_BestForest.size()
+        double eta{index < m_BestForest.size() - m_MaximumNumberNewTrees
                        ? m_Hyperparameters.retrainedTreeEta().value()
-                       : m_Hyperparameters.etaForTreeAtPosition(m_BestForest.size())};
+                       : m_Hyperparameters.etaForTreeAtPosition(index)};
         LOG_TRACE(<< "eta = " << eta);
 
         workspace.retraining(treeToRetrain);
@@ -1094,7 +1126,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
             eta, m_Hyperparameters.predictionChangeCost().value(), treeToRetrain);
 
         this->refreshPredictionsAndLossDerivatives(
-            frame, trainingRowMask | testingRowMask, *loss,
+            frame, trainingRowMask, *loss,
             [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
                 auto encodedRow = m_Encoder->encode(row);
                 prediction -= root(treeToRetrain).value(encodedRow, treeToRetrain);
@@ -1120,6 +1152,18 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
                                 tree);
         LOG_TRACE(<< "retrained = " << root(tree).print(tree));
 
+        // We delay updating the test row predictions until we have the new
+        // tree in order to correctly estimate the validation loss.
+        this->refreshPredictions(
+            frame, testingRowMask, *loss,
+            [&](const TRowRef& row, TMemoryMappedFloatVector& prediction) {
+                auto encodedRow = m_Encoder->encode(row);
+                prediction -= root(treeToRetrain).value(encodedRow, treeToRetrain);
+                if (tree.empty() == false) {
+                    prediction += root(tree).value(encodedRow, tree);
+                }
+            });
+
         scopeMemoryUsage.add(tree);
         retrainedTrees.push_back(std::move(tree));
         trainingProgress.increment();
@@ -1130,7 +1174,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         // The memory variation in the row mask from sample to sample is too
         // small to bother to track.
 
-        testLosses.push_back(this->meanAdjustedLoss(frame, testingRowMask));
+        testLosses.push_back(this->meanChangePenalisedLoss(frame, testingRowMask));
     }
     retrainedTrees.erase(retrainedTrees.begin());
 
@@ -1444,24 +1488,20 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     return tree;
 }
 
-void CBoostedTreeImpl::scaleRegularizationMultipliersForFinalTrain() {
-    double scale{this->allTrainingRowsMask().manhattan() /
-                 this->meanNumberTrainingRowsPerFold()};
-    if (m_Hyperparameters.depthPenaltyMultiplier().fixed() == false) {
-        m_Hyperparameters.depthPenaltyMultiplier().scale(
-            scale * m_Hyperparameters.depthPenaltyMultiplier().scale());
-    }
-    if (m_Hyperparameters.treeSizePenaltyMultiplier().fixed() == false) {
-        m_Hyperparameters.treeSizePenaltyMultiplier().scale(
-            scale * m_Hyperparameters.treeSizePenaltyMultiplier().scale());
-    }
-    if (m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
-        m_Hyperparameters.leafWeightPenaltyMultiplier().scale(
-            scale * m_Hyperparameters.leafWeightPenaltyMultiplier().scale());
-    }
-    if (m_Hyperparameters.treeTopologyChangePenalty().fixed() == false) {
-        m_Hyperparameters.treeTopologyChangePenalty().scale(
-            scale * m_Hyperparameters.treeTopologyChangePenalty().scale());
+void CBoostedTreeImpl::scaleRegularizationMultipliers(double scale) {
+    if (m_Hyperparameters.scalingDisabled() == false) {
+        if (m_Hyperparameters.depthPenaltyMultiplier().fixed() == false) {
+            m_Hyperparameters.depthPenaltyMultiplier().scale(scale);
+        }
+        if (m_Hyperparameters.treeSizePenaltyMultiplier().fixed() == false) {
+            m_Hyperparameters.treeSizePenaltyMultiplier().scale(scale);
+        }
+        if (m_Hyperparameters.leafWeightPenaltyMultiplier().fixed() == false) {
+            m_Hyperparameters.leafWeightPenaltyMultiplier().scale(scale);
+        }
+        if (m_Hyperparameters.treeTopologyChangePenalty().fixed() == false) {
+            m_Hyperparameters.treeTopologyChangePenalty().scale(scale);
+        }
     }
 }
 
@@ -1483,7 +1523,7 @@ double CBoostedTreeImpl::minimumTestLoss() const {
     return minimumTestLoss[0];
 }
 
-TMeanVarAccumulator
+CBoostedTreeImpl::TMeanVarAccumulator
 CBoostedTreeImpl::correctTestLossMoments(const TSizeVec& missing,
                                          TMeanVarAccumulator testLossMoments) const {
     if (missing.empty()) {
@@ -1806,6 +1846,23 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(
         &rowMask);
 }
 
+void CBoostedTreeImpl::refreshPredictions(core::CDataFrame& frame,
+                                          const core::CPackedBitVector& rowMask,
+                                          const TLossFunction& loss,
+                                          const TUpdateRowPrediction& updateRowPrediction) const {
+    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                           std::size_t numberLossParameters{loss.numberParameters()};
+                           for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                               auto row = *row_;
+                               auto prediction = readPrediction(
+                                   row, m_ExtraColumns, numberLossParameters);
+                               updateRowPrediction(row, prediction);
+                           }
+                       },
+                       &rowMask);
+}
+
 double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& rowMask) const {
 
@@ -1830,13 +1887,13 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
         loss += result.s_FunctionState;
     }
 
-    LOG_TRACE(<< "mean loss = " << common::CBasicStatistics::mean(loss));
+    LOG_TRACE(<< "loss = " << common::CBasicStatistics::mean(loss));
 
     return common::CBasicStatistics::mean(loss);
 }
 
-double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
-                                          const core::CPackedBitVector& rowMask) const {
+double CBoostedTreeImpl::meanChangePenalisedLoss(const core::CDataFrame& frame,
+                                                 const core::CPackedBitVector& rowMask) const {
 
     // Add on 0.01 times the difference in the old predictions to encourage us
     // to choose more similar forests if accuracy is similar.
@@ -1859,13 +1916,18 @@ double CBoostedTreeImpl::meanAdjustedLoss(const core::CDataFrame& frame,
             TMeanAccumulator{}),
         &oldRowMask);
 
-    TMeanAccumulator loss;
+    TMeanAccumulator lossAdjustment;
     for (const auto& result : results.first) {
-        loss += result.s_FunctionState;
+        lossAdjustment += result.s_FunctionState;
     }
 
-    return this->meanLoss(frame, rowMask) + oldRowMask.manhattan() / rowMask.manhattan() *
-                                                common::CBasicStatistics::mean(loss);
+    double adjustedLoss{this->meanLoss(frame, rowMask) +
+                        oldRowMask.manhattan() / rowMask.manhattan() *
+                            common::CBasicStatistics::mean(lossAdjustment)};
+
+    LOG_TRACE(<< "adjusted loss = " << adjustedLoss);
+
+    return adjustedLoss;
 }
 
 double CBoostedTreeImpl::betweenFoldTestLossVariance() const {
@@ -1981,6 +2043,7 @@ const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
 const std::string INITIALIZATION_STAGE_TAG{"initialization_progress"};
 const std::string LOSS_TAG{"loss"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
+const std::string MAXIMUM_NUMBER_NEW_TREES_TAG{"maximum_number_new_trees"};
 const std::string MISSING_FEATURE_ROW_MASKS_TAG{"missing_feature_row_masks"};
 const std::string NEW_TRAINING_ROW_MASK_TAG{"new_training_row_mask_tag"};
 const std::string NUMBER_FOLDS_TAG{"number_folds"};
@@ -2026,6 +2089,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     }
     core::CPersistUtils::persist(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                  m_MaximumAttemptsToAddTree, inserter);
+    core::CPersistUtils::persist(MAXIMUM_NUMBER_NEW_TREES_TAG,
+                                 m_MaximumNumberNewTrees, inserter);
     core::CPersistUtils::persist(MISSING_FEATURE_ROW_MASKS_TAG,
                                  m_MissingFeatureRowMasks, inserter);
     core::CPersistUtils::persist(NEW_TRAINING_ROW_MASK_TAG, m_NewTrainingRowMask, inserter);
@@ -2105,6 +2170,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                 core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                              m_MaximumAttemptsToAddTree, traverser))
+        RESTORE(MAXIMUM_NUMBER_NEW_TREES_TAG,
+                core::CPersistUtils::restore(MAXIMUM_NUMBER_NEW_TREES_TAG,
+                                             m_MaximumNumberNewTrees, traverser))
         RESTORE(MISSING_FEATURE_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(MISSING_FEATURE_ROW_MASKS_TAG,
                                              m_MissingFeatureRowMasks, traverser))
@@ -2204,14 +2272,14 @@ void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const
     }
     for (const auto& mask : m_TrainingRowMasks) {
         if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
+            HANDLE_FATAL(<< "Internal error: unexpected train row mask ("
                          << mask.size() << " !=  " << frame.numberRows()
                          << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_TestingRowMasks) {
         if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
+            HANDLE_FATAL(<< "Internal error: unexpected test row mask ("
                          << mask.size() << " !=  " << frame.numberRows()
                          << "). Please report this problem.");
         }
@@ -2245,14 +2313,14 @@ void CBoostedTreeImpl::checkIncrementalTrainInvariants(const core::CDataFrame& f
     }
     for (const auto& mask : m_TrainingRowMasks) {
         if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
+            HANDLE_FATAL(<< "Internal error: unexpected train row mask ("
                          << mask.size() << " !=  " << frame.numberRows()
                          << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_TestingRowMasks) {
         if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
+            HANDLE_FATAL(<< "Internal error: unexpected test row mask ("
                          << mask.size() << " !=  " << frame.numberRows()
                          << "). Please report this problem.");
         }
@@ -2320,6 +2388,10 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
 
 const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {
     return m_FeatureSampleProbabilities;
+}
+
+const CBoostedTreeImpl::TOptionalDoubleVecVec& CBoostedTreeImpl::foldRoundTestLosses() const {
+    return m_FoldRoundTestLosses;
 }
 
 const CDataFrameCategoryEncoder& CBoostedTreeImpl::encoder() const {

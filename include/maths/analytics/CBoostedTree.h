@@ -315,14 +315,17 @@ public:
     const core::CPackedBitVector& newTrainingRowMask() const override;
 
     //! Read the model prediction from \p row.
-    TDouble2Vec readPrediction(const TRowRef& row) const override;
+    TDouble2Vec prediction(const TRowRef& row) const override;
+
+    //! Read the previous model prediction from \p row if it has been updated.
+    TDouble2Vec previousPrediction(const TRowRef& row) const override;
 
     //! Read the raw model prediction from \p row and make posthoc adjustments.
     //!
     //! For example, classification multiplicative weights are used for each
     //! class to target different objectives (accuracy or minimum recall) when
     //! assigning classes.
-    TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const override;
+    TDouble2Vec adjustedPrediction(const TRowRef& row) const override;
 
     //! Get the selected rows that summarize.
     core::CPackedBitVector dataSummarization() const override;

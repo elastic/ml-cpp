@@ -11,6 +11,8 @@
 
 
 import shutil
+import random
+import string
 
 import numpy as np
 import pandas as pd
@@ -21,10 +23,10 @@ from sacred import Experiment
 from sacred.observers import FileStorageObserver
 from sklearn.model_selection import train_test_split
 
-from incremental_learning.config import datasets_dir, logger
+from incremental_learning.config import datasets_dir, jobs_dir, logger
 from incremental_learning.elasticsearch import push2es
-from incremental_learning.job import evaluate, train, update
-from incremental_learning.storage import download_dataset
+from incremental_learning.job import evaluate, train, update, Job
+from incremental_learning.storage import download_dataset, download_job, job_exists, upload_job
 from incremental_learning.transforms import partition_on_metric_ranges
 from incremental_learning.transforms import regression_category_drift
 from incremental_learning.transforms import resample_metric_features
@@ -32,17 +34,27 @@ from incremental_learning.transforms import rotate_metric_features
 from incremental_learning.transforms import shift_metric_features
 
 experiment_name = 'incremental-training'
+uid = ''.join(random.choices(string.ascii_lowercase, k=6))
 experiment_data_path = Path('/tmp/'+experiment_name)
-ex = Experiment(experiment_name)
+ex = Experiment(name=uid)
 ex.observers.append(FileStorageObserver(experiment_data_path))
 ex.logger = logger
+
+
+@ex.capture
+def parameters_checksum(transform_parameters, checksum_size: int = 8) -> str:
+    import hashlib
+    import json
+    encoded_parameters = json.dumps(
+        transform_parameters, sort_keys=True).encode()
+    hash = hashlib.md5(encoded_parameters)
+    return hash.hexdigest()[:checksum_size]
 
 
 @ex.config
 def my_config():
     force_update = False
     verbose = False
-    tag = ''
     dataset_name = 'ccpp'
     test_fraction = 0.2
     threads = 1
@@ -87,22 +99,23 @@ def compute_classification_metrics(y_true,
 
     for label in np.unique(y_true):
         scores['baseline']['precision_' + label] = \
-            metrics.precision_score(y_true, baseline_model_predictions, pos_label=label)
+            metrics.precision_score(
+                y_true, baseline_model_predictions, pos_label=label)
         scores['trained_model']['precision_' + label] = \
-            metrics.precision_score(y_true, trained_model_predictions, pos_label=label)
+            metrics.precision_score(
+                y_true, trained_model_predictions, pos_label=label)
         scores['updated_model']['precision_' + label] = \
-            metrics.precision_score(y_true, updated_model_predictions, pos_label=label)
+            metrics.precision_score(
+                y_true, updated_model_predictions, pos_label=label)
         scores['baseline']['recall_' + label] = \
-            metrics.recall_score(y_true, baseline_model_predictions, pos_label=label)
+            metrics.recall_score(
+                y_true, baseline_model_predictions, pos_label=label)
         scores['trained_model']['recall_' + label] = \
-            metrics.recall_score(y_true, trained_model_predictions, pos_label=label)
+            metrics.recall_score(
+                y_true, trained_model_predictions, pos_label=label)
         scores['updated_model']['recall_' + label] = \
-            metrics.recall_score(y_true, updated_model_predictions, pos_label=label)
-
-    # TODO these need predicted probability which are not yet extracted by the framework
-    # metrics.roc_auc_score(y_true, baseline_model_predictions)
-    # metrics.roc_auc_score(y_true, trained_model_predictions)
-    # metrics.roc_auc(y_true, updated_model_predictions)
+            metrics.recall_score(
+                y_true, updated_model_predictions, pos_label=label)
 
     return scores
 
@@ -124,27 +137,30 @@ def transform_dataset(dataset: pd.DataFrame,
                       transform_name: str,
                       transform_parameters,
                       _seed: int) -> pd.DataFrame:
+    random_state = np.random.RandomState(seed=_seed)
     if transform_name == 'partition_on_metric_ranges':
         train_dataset, update_dataset = partition_on_metric_ranges(
             dataset=dataset,
             seed=_seed,
             metric_features=transform_parameters['metric_features'])
-        train_dataset, test1_dataset = train_test_split(train_dataset, test_size=test_fraction)
-        update_dataset, test2_dataset = train_test_split(update_dataset, test_size=test_fraction)
+        train_dataset, test1_dataset = train_test_split(
+            train_dataset, test_size=test_fraction, random_state=random_state)
+        update_dataset, test2_dataset = train_test_split(
+            update_dataset, test_size=test_fraction, random_state=random_state)
         return train_dataset, update_dataset, test1_dataset, test2_dataset
 
     transform = None
 
     if transform_name == 'resample_metric_features':
-        transform = lambda dataset, fraction : resample_metric_features(
+        def transform(dataset, fraction): return resample_metric_features(
             dataset=dataset,
-            seed=_seed, 
-            fraction=fraction, 
+            seed=_seed,
+            fraction=fraction,
             magnitude=transform_parameters['magnitude'],
             metric_features=transform_parameters['metric_features'])
 
     if transform_name == 'shift_metric_features':
-        transform = lambda dataset, fraction : shift_metric_features(
+        def transform(dataset, fraction): return shift_metric_features(
             dataset=dataset,
             seed=_seed,
             fraction=fraction,
@@ -152,7 +168,7 @@ def transform_dataset(dataset: pd.DataFrame,
             categorical_features=transform_parameters['categorical_features'])
 
     if transform_name == 'rotate_metric_features':
-        transform = lambda dataset, fraction : rotate_metric_features(
+        def transform(dataset, fraction): return rotate_metric_features(
             dataset=dataset,
             seed=_seed,
             fraction=fraction,
@@ -160,7 +176,7 @@ def transform_dataset(dataset: pd.DataFrame,
             categorical_features=transform_parameters['categorical_features'])
 
     if transform_name == 'regression_category_drift':
-        transform = lambda dataset, fraction : regression_category_drift(
+        def transform(dataset, fraction): return regression_category_drift(
             dataset=dataset,
             seed=_seed,
             fraction=fraction,
@@ -171,45 +187,73 @@ def transform_dataset(dataset: pd.DataFrame,
     if transform == None:
         raise NotImplementedError(transform_name + ' is not implemented.')
 
-    train_dataset, test1_dataset = train_test_split(dataset, test_size=test_fraction)
+    train_dataset, test1_dataset = train_test_split(
+        dataset, test_size=test_fraction, random_state=random_state)
     update_dataset = transform(train_dataset, transform_parameters['fraction'])
     test2_dataset = transform(test1_dataset, 1.0)
     return train_dataset, update_dataset, test1_dataset, test2_dataset
 
 
 @ex.main
-def my_main(_run, dataset_name, force_update, verbose):
+def my_main(_run, _seed, dataset_name, force_update, verbose, test_fraction, transform_name):
+    if 'comment' not in _run.meta_info or not _run.meta_info['comment']:
+        raise RuntimeError("Specify --comment parameter for this experiment.")
     results = {}
 
+    random_state = np.random.RandomState(seed=_seed)
+
+    baseline_model_name = "e{}_baseline_s{}_d{}_t{}_{}".format(
+        experiment_name, _seed, dataset_name, transform_name, test_fraction, parameters_checksum())
+
     original_dataset = read_dataset()
-    train_dataset, update_dataset, test1_dataset, test2_dataset = transform_dataset(dataset=original_dataset)
+    train_dataset, update_dataset, test1_dataset, test2_dataset = transform_dataset(
+        dataset=original_dataset)
     baseline_dataset = pd.concat([train_dataset, update_dataset])
     test_dataset = pd.concat([test1_dataset, test2_dataset])
-    
+
     _run.run_logger.info("Baseline training started")
-    baseline_model = train(dataset_name, baseline_dataset, verbose=verbose, run=_run)
-    elapsed_time = baseline_model.wait_to_complete(clean=False)
+    if job_exists(baseline_model_name, remote=True):
+        path = download_job(baseline_model_name)
+        baseline_model = Job.from_file(path)
+    else:
+        baseline_model = train(dataset_name, baseline_dataset,
+                               verbose=verbose, run=_run)
+        elapsed_time = baseline_model.wait_to_complete()
+        path = jobs_dir / baseline_model_name
+        baseline_model.store(path)
+        upload_job(path)
     results['baseline'] = {}
-    results['baseline']['config'] = baseline_model.get_config()
+    # results['baseline']['config'] = baseline_model.get_config()
     results['baseline']['hyperparameters'] = baseline_model.get_hyperparameters()
-    results['baseline']['elapsed_time'] = elapsed_time
-    baseline_model.clean()
+    # results['baseline']['elapsed_time'] = elapsed_time
+    # baseline_model.clean()
     _run.run_logger.info("Baseline training completed")
 
     dependent_variable = baseline_model.dependent_variable
 
     _run.run_logger.info("Initial training started")
-    trained_model = train(dataset_name, train_dataset, verbose=verbose, run=_run)
-    elapsed_time = trained_model.wait_to_complete(clean=False)
+    trained_model_name = "e{}_trained_s{}_d{}_t{}_{}".format(
+        experiment_name, _seed, dataset_name, transform_name, test_fraction, parameters_checksum())
+    if job_exists(trained_model_name, remote=True):
+        path = download_job(baseline_model_name)
+        trained_model = Job.from_file(path)
+    else:
+        trained_model = train(dataset_name, train_dataset,
+                            verbose=verbose, run=_run)
+        elapsed_time = trained_model.wait_to_complete()
+        path = jobs_dir / baseline_model_name
+        baseline_model.store(path)
+        upload_job(path)
     results['trained_model'] = {}
-    results['trained_model']['config'] = trained_model.get_config()
+    # results['trained_model']['config'] = trained_model.get_config()
     results['trained_model']['hyperparameters'] = trained_model.get_hyperparameters()
-    results['trained_model']['elapsed_time'] = elapsed_time
-    trained_model.clean()
+    # results['trained_model']['elapsed_time'] = elapsed_time
+    # trained_model.clean()
     _run.run_logger.info("Initial training completed")
 
     _run.run_logger.info("Update started")
-    updated_model = update(dataset_name, update_dataset, trained_model, force=force_update, verbose=verbose, run=_run)
+    updated_model = update(dataset_name, update_dataset, trained_model,
+                           force=force_update, verbose=verbose, run=_run)
     elapsed_time = updated_model.wait_to_complete(clean=False)
     results['updated_model'] = {}
     results['updated_model']['config'] = updated_model.get_config()
@@ -218,13 +262,16 @@ def my_main(_run, dataset_name, force_update, verbose):
     updated_model.clean()
     _run.run_logger.info("Update completed")
 
-    baseline_eval = evaluate(dataset_name, test_dataset, baseline_model, verbose=verbose)
+    baseline_eval = evaluate(dataset_name, test_dataset,
+                             baseline_model, verbose=verbose)
     baseline_eval.wait_to_complete()
 
-    trained_model_eval = evaluate(dataset_name, test_dataset, trained_model, verbose=verbose)
+    trained_model_eval = evaluate(
+        dataset_name, test_dataset, trained_model, verbose=verbose)
     trained_model_eval.wait_to_complete()
 
-    updated_model_eval = evaluate(dataset_name, test_dataset, updated_model, verbose=verbose)
+    updated_model_eval = evaluate(
+        dataset_name, test_dataset, updated_model, verbose=verbose)
     updated_model_eval.wait_to_complete()
 
     scores = {}
@@ -250,5 +297,7 @@ def my_main(_run, dataset_name, force_update, verbose):
 if __name__ == '__main__':
     run = ex.run_commandline()
     run_data_path = experiment_data_path / str(run._id)
+    import incremental_learning.job
+    ex.add_artifact(incremental_learning.job.__file__)
     push2es(data_path=run_data_path, name=experiment_name)
     shutil.rmtree(run_data_path)

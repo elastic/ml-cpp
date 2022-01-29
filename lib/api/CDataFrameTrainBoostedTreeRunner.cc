@@ -76,6 +76,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TREE_TOPOLOGY_CHANGE_PENALTY,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(NUM_HOLDOUT_ROWS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUM_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TRAIN_FRACTION_PER_FOLD,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -95,6 +96,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FORCE_ACCEPT_INCREMENTAL_TRAINING,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(DISABLE_HYPERPARAMETER_SCALING,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(DATA_SUMMARIZATION_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
@@ -104,6 +107,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(PREVIOUS_TRAIN_LOSS_GAP,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(PREVIOUS_TRAIN_NUM_ROWS,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(MAX_NUM_NEW_TREES,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
@@ -137,6 +142,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     std::size_t seed{parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0})};
 
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
+    std::size_t numberHoldoutRows{parameters[NUM_HOLDOUT_ROWS].fallback(std::size_t{0})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
@@ -168,10 +174,13 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     bool forceAcceptIncrementalTraining{
         parameters[FORCE_ACCEPT_INCREMENTAL_TRAINING].fallback(false)};
+    bool disableHyperparameterScaling{
+        parameters[DISABLE_HYPERPARAMETER_SCALING].fallback(false)};
     double dataSummarizationFraction{parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0)};
     double previousTrainLossGap{parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0)};
     std::size_t previousTrainNumberRows{
         parameters[PREVIOUS_TRAIN_NUM_ROWS].fallback(std::size_t{0})};
+    std::size_t maxNumNewTrees{parameters[MAX_NUM_NEW_TREES].fallback(std::size_t{0})};
 
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
@@ -233,11 +242,13 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_BoostedTreeFactory = this->boostedTreeFactory(std::move(loss), frameAndDirectory);
     (*m_BoostedTreeFactory)
         .seed(seed)
+        .numberHoldoutRows(numberHoldoutRows)
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
         .earlyStoppingEnabled(earlyStoppingEnabled)
         .forceAcceptIncrementalTraining(forceAcceptIncrementalTraining)
+        .disableHyperparameterScaling(disableHyperparameterScaling)
         .downsampleFactor(std::move(downsampleFactor))
         .depthPenaltyMultiplier(std::move(alpha))
         .treeSizePenaltyMultiplier(std::move(gamma))
@@ -281,6 +292,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (previousTrainNumberRows > 0) {
         m_BoostedTreeFactory->previousTrainNumberRows(previousTrainNumberRows);
+    }
+    if (maxNumNewTrees > 0) {
+        m_BoostedTreeFactory->maximumNumberNewTrees(maxNumNewTrees);
     }
 }
 
@@ -559,6 +573,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST{"prediction_change_cost"};
 const std::string CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY{"tree_topology_change_penalty"};
+const std::string CDataFrameTrainBoostedTreeRunner::NUM_HOLDOUT_ROWS{"num_holdout_rows"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_FOLDS{"num_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD{"train_fraction_per_fold"};
 const std::string CDataFrameTrainBoostedTreeRunner::STOP_CROSS_VALIDATION_EARLY{"stop_cross_validation_early"};
@@ -572,6 +587,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAM
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
 const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"early_stopping_enabled"};
 const std::string CDataFrameTrainBoostedTreeRunner::FORCE_ACCEPT_INCREMENTAL_TRAINING{"force_accept_incremental_training"};
+const std::string CDataFrameTrainBoostedTreeRunner::DISABLE_HYPERPARAMETER_SCALING{"disable_hyperparameter_scaling"};
 const std::string CDataFrameTrainBoostedTreeRunner::DATA_SUMMARIZATION_FRACTION{"data_summarization_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK{"task"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_TRAIN{"train"};
@@ -579,6 +595,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::TASK_UPDATE{"update"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_PREDICT{"predict"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_LOSS_GAP{"previous_train_loss_gap"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_NUM_ROWS{"previous_train_num_rows"};
+const std::string CDataFrameTrainBoostedTreeRunner::MAX_NUM_NEW_TREES{"max_num_new_trees"};
 // clang-format on
 }
 }
