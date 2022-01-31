@@ -1156,7 +1156,7 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
     double threshold;
     double minRecallAtThreshold;
     std::size_t maxIterations{20};
-    common::CSolvers::maximize(0.01, 0.99, minRecall(0.0), minRecall(1.0), minRecall,
+    common::CSolvers::maximize(0.01, 0.99, minRecall(0.01), minRecall(0.99), minRecall,
                                1e-3, maxIterations, threshold, minRecallAtThreshold);
     LOG_TRACE(<< "threshold = " << threshold
               << ", min recall at threshold = " << minRecallAtThreshold);
