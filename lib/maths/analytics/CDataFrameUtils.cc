@@ -1109,9 +1109,9 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
                                                 const core::CPackedBitVector& rowMask,
                                                 std::size_t targetColumn,
                                                 const TReadPredictionFunc& readPrediction) {
-    TDoubleVector probabilities;
     auto readQuantiles = core::bindRetrievableState(
         [&](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) mutable {
+            TDoubleVector probabilities;
             for (auto row = beginRows; row != endRows; ++row) {
                 if (isMissing((*row)[targetColumn]) == false) {
                     std::size_t actualClass{static_cast<std::size_t>((*row)[targetColumn])};
@@ -1146,18 +1146,17 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
         return TDoubleVector::Ones(2);
     }
 
-    auto minRecall = [&](double threshold) {
+    auto minRecall = [&](double threshold) -> double {
         double cdf[2];
         classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
         classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
-        double recalls[]{cdf[0], 1.0 - cdf[1]};
-        return std::min(recalls[0], recalls[1]);
+        return std::min(cdf[0], 1.0 - cdf[1]);
     };
 
     double threshold;
     double minRecallAtThreshold;
     std::size_t maxIterations{20};
-    common::CSolvers::maximize(0.0, 1.0, minRecall(0.0), minRecall(1.0), minRecall,
+    common::CSolvers::maximize(0.01, 0.99, minRecall(0.0), minRecall(1.0), minRecall,
                                1e-3, maxIterations, threshold, minRecallAtThreshold);
     LOG_TRACE(<< "threshold = " << threshold
               << ", min recall at threshold = " << minRecallAtThreshold);
