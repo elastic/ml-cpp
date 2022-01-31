@@ -27,7 +27,7 @@
 #include <maths/common/CLinearAlgebraPersist.h>
 #include <maths/common/CLinearAlgebraTools.h>
 #include <maths/common/CMathsFuncs.h>
-#include <maths/common/CMathsFuncsDetail.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CTools.h>
 
 #include <maths/time_series/CSeasonalTime.h>
