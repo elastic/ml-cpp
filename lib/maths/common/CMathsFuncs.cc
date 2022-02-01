@@ -10,7 +10,6 @@
  */
 
 #include <maths/common/CMathsFuncs.h>
-#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 
 #include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 

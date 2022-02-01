@@ -44,6 +44,9 @@
   classification models. (See {ml-pull}2128[#2128].)
 * Improve training stability for regression and classification models
   (See {ml-pull}2144[#2144], {ml-pull}2147[#2147] and {ml-pull}2150[#2150].)
+* Avoid edge cases in the classification weights calculation to maximize
+  minimum recall which could lead to only a single class being predicted.
+  (See {ml-pull}2194[#2194].)
 
 == {es} version 8.0.0-rc1
 
