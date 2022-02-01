@@ -22,6 +22,7 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLbfgs.h>
 #include <maths/common/CLinearAlgebraEigen.h>
+#include <maths/common/CMathsFuncs.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CPRNG.h>
 #include <maths/common/CQuantileSketch.h>
@@ -54,6 +55,7 @@ using TRowSamplerVec = std::vector<TRowSampler>;
 using TSizeEncoderPtrUMap =
     boost::unordered_map<std::size_t, std::unique_ptr<CDataFrameUtils::CColumnValue>>;
 using TPackedBitVectorVec = CDataFrameUtils::TPackedBitVectorVec;
+using TDoubleVector = CDataFrameUtils::TDoubleVector;
 
 //! Reduce the results of a call to core::CDataFrame::readRows using \p reduceFirst
 //! for the first and \p reduce for the rest and writing the result \p reduction.
@@ -282,6 +284,12 @@ auto computeEncodedCategory(CMic& mic,
         encodedMics.emplace_back(category, mic.compute());
     }
     return encodedMics;
+}
+
+//! Check that all components are neither infinite nor NaN.
+bool allFinite(TDoubleVector x) {
+    return std::all_of(x.begin(), x.end(),
+                       [](auto xi) { return common::CMathsFuncs::isFinite(xi); });
 }
 
 const std::size_t NUMBER_SAMPLES_TO_COMPUTE_MIC{10000};
@@ -1052,15 +1060,28 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
                                                 const core::CPackedBitVector& rowMask,
                                                 std::size_t targetColumn,
                                                 const TReadPredictionFunc& readPrediction) {
-    TDoubleVector probabilities;
     auto readQuantiles = core::bindRetrievableState(
-        [=](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) mutable {
+        [&](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) {
+            TDoubleVector probabilities;
             for (auto row = beginRows; row != endRows; ++row) {
                 if (isMissing((*row)[targetColumn]) == false) {
                     std::size_t actualClass{static_cast<std::size_t>((*row)[targetColumn])};
-                    probabilities = readPrediction(*row);
-                    common::CTools::inplaceSoftmax(probabilities);
-                    quantiles[actualClass].add(probabilities(1));
+                    if (actualClass < quantiles.size()) {
+                        probabilities = readPrediction(*row);
+                        if (allFinite(probabilities)) {
+                            common::CTools::inplaceSoftmax(probabilities);
+                            quantiles[actualClass].add(probabilities(1));
+                        } else {
+                            LOG_WARN(<< "Ignoring unexpected values for class probabilities "
+                                     << core::CContainerPrinter::print(probabilities));
+                        }
+                    } else {
+                        LOG_WARN(<< "Ignoring class " << actualClass << " which is out-of-range. "
+                                 << "Should be less than " << quantiles.size() << ". Classes "
+                                 << core::CContainerPrinter::print(
+                                        frame.categoricalColumnValues()[targetColumn])
+                                 << ".");
+                    }
                 }
             }
         },
@@ -1081,18 +1102,17 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
         return TDoubleVector::Ones(2);
     }
 
-    auto minRecall = [&](double threshold) {
+    auto minRecall = [&](double threshold) -> double {
         double cdf[2];
         classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
         classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
-        double recalls[]{cdf[0], 1.0 - cdf[1]};
-        return std::min(recalls[0], recalls[1]);
+        return std::min(cdf[0], 1.0 - cdf[1]);
     };
 
     double threshold;
     double minRecallAtThreshold;
     std::size_t maxIterations{20};
-    common::CSolvers::maximize(0.0, 1.0, minRecall(0.0), minRecall(1.0), minRecall,
+    common::CSolvers::maximize(0.01, 0.99, minRecall(0.01), minRecall(0.99), minRecall,
                                1e-3, maxIterations, threshold, minRecallAtThreshold);
     LOG_TRACE(<< "threshold = " << threshold
               << ", min recall at threshold = " << minRecallAtThreshold);
@@ -1214,10 +1234,15 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
                     if (isMissing((*row)[targetColumn]) == false) {
                         std::size_t j{static_cast<std::size_t>((*row)[targetColumn])};
                         probabilities = readPrediction(*row);
-                        common::CTools::inplaceSoftmax(probabilities);
-                        scores = probabilities.cwiseProduct(weights);
-                        common::CTools::inplaceSoftmax(scores);
-                        state(j) += (1.0 - scores(j)) / classCounts(j);
+                        if (allFinite(probabilities)) {
+                            common::CTools::inplaceSoftmax(probabilities);
+                            scores = probabilities.cwiseProduct(weights);
+                            common::CTools::inplaceSoftmax(scores);
+                            state(j) += (1.0 - scores(j)) / classCounts(j);
+                        } else {
+                            LOG_WARN(<< "Ignoring unexpected values for class probabilities "
+                                     << core::CContainerPrinter::print(probabilities));
+                        }
                     }
                 }
             },
@@ -1246,15 +1271,20 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
                     if (isMissing((*row)[targetColumn]) == false) {
                         std::size_t j{static_cast<std::size_t>((*row)[targetColumn])};
                         probabilities = readPrediction(*row);
-                        common::CTools::inplaceSoftmax(probabilities);
-                        scores = probabilities.cwiseProduct(weights);
-                        common::CTools::inplaceSoftmax(scores);
-                        state(j, 0) += (1.0 - scores(j)) / classCounts(j);
-                        state.col(j + 1) +=
-                            scores(j) *
-                            probabilities
-                                .cwiseProduct(scores - TDoubleVector::Unit(numberClasses, j))
-                                .cwiseQuotient(classCounts);
+                        if (allFinite(probabilities)) {
+                            common::CTools::inplaceSoftmax(probabilities);
+                            scores = probabilities.cwiseProduct(weights);
+                            common::CTools::inplaceSoftmax(scores);
+                            state(j, 0) += (1.0 - scores(j)) / classCounts(j);
+                            state.col(j + 1) +=
+                                scores(j) *
+                                probabilities
+                                    .cwiseProduct(scores - TDoubleVector::Unit(numberClasses, j))
+                                    .cwiseQuotient(classCounts);
+                        } else {
+                            LOG_WARN(<< "Ignoring unexpected values for class probabilities "
+                                     << core::CContainerPrinter::print(probabilities));
+                        }
                     }
                 }
             },
