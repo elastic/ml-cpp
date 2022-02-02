@@ -20,3 +20,4 @@ eland               ==7.13.0b1
 deepmerge           ==0.3.0
 dask[complete]      ==2021.3.0
 plotly              ==5.3.1
+distro              ==1.6.0
