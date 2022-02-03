@@ -70,7 +70,7 @@ const std::string F_TAG("c");
 const std::string EMPTY_STRING;
 }
 
-double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
+double CStatisticalTests::leftTailFTest(double x, double df0, double df1) {
     if (x < 0.0) {
         return 0.0;
     }
@@ -82,16 +82,30 @@ double CStatisticalTests::leftTailFTest(double x, double d1, double d2) {
         return 1.0;
     }
     try {
-        boost::math::fisher_f F(d1, d2);
+        boost::math::fisher_f F(df0, df1);
         return boost::math::cdf(F, x);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute significance " << e.what()
-                  << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
+                  << " df0 = " << df0 << ", df1 = " << df1 << ", x = " << x);
     }
     return 1.0;
 }
 
-double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
+double CStatisticalTests::rightTailFTest(double v0, double v1, double df0, double df1) {
+    // If there is insufficient data for either hypothesis treat we are conservative
+    // and say the alternative hypothesis is not provable.
+    if (df0 <= 0.0 || df1 <= 0.0) {
+        return 1.0;
+    }
+    // The test statistic is infinite which corresponds to a p-value of 0.
+    if (v0 > 0.0 && v1 == 0) {
+        return 0.0;
+    }
+    double F{v0 == v1 ? df1 / df0 : (df1 * v0) / (df0 * v1)};
+    return rightTailFTest(F, df0, df1);
+}
+
+double CStatisticalTests::rightTailFTest(double x, double df0, double df1) {
     if (x < 0.0) {
         return 1.0;
     }
@@ -103,11 +117,11 @@ double CStatisticalTests::rightTailFTest(double x, double d1, double d2) {
         return 1.0;
     }
     try {
-        boost::math::fisher_f F(d1, d2);
+        boost::math::fisher_f F(df0, df1);
         return boost::math::cdf(boost::math::complement(F, x));
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to compute significance " << e.what()
-                  << " d1 = " << d1 << ", d2 = " << d2 << ", x = " << x);
+                  << " df0 = " << df0 << ", df1 = " << df1 << ", x = " << x);
     }
     return 1.0;
 }
