@@ -13,7 +13,6 @@
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
-#include <limits>
 #include <maths/common/CCompositeFunctions.h>
 #include <maths/common/CEqualWithTolerance.h>
 #include <maths/common/CSolvers.h>
