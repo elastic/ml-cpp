@@ -113,10 +113,11 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
+
                 double x = samples[i] + offset;
                 double n = maths_t::count(weights[i]);
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
-                success = true;
             }
         } else {
             // The marginal likelihood for a single sample is the negative
@@ -136,6 +137,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
 
                 double n = maths_t::count(weights[i]);
                 double x = samples[i] + offset;
@@ -151,13 +153,11 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                     boost::math::negative_binomial negativeBinomial(r, p);
                     result = aggregate(result, func(negativeBinomial, x), n);
                 }
-                success = true;
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Error calculating joint c.d.f."
-                  << " offset = " << offset << ", shape = " << shape
-                  << ", rate = " << rate << ": " << e.what());
+        LOG_ERROR(<< "Error: " << e.what() << " (offset = " << offset
+                  << ", shape = " << shape << ", rate = " << rate << ")");
         return false;
     }
 
@@ -541,6 +541,7 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
             continue;
         }
+        success = true;
 
         double n = maths_t::countForUpdate(weights[i]);
         double x = samples[i] + m_Offset;
@@ -562,7 +563,6 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         sampleSum += n * x;
         // Recall n! = Gamma(n + 1).
         sampleLogFactorialSum += n * std::lgamma(x + 1.0);
-        success = true;
     }
 
     maths_t::EFloatingPointErrorStatus status = maths_t::E_FpFailed;
@@ -786,7 +786,8 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                                                            double& lowerBound,
                                                            double& upperBound,
                                                            maths_t::ETail& tail) const {
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     double value = 0.0;

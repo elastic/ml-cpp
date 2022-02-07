@@ -127,10 +127,11 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
+
                 double x = samples[i];
                 double n = maths_t::count(weights[i]);
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
-                success = true;
             }
         } else if (shape > MINIMUM_GAUSSIAN_SHAPE) {
             // For large shape the marginal likelihood is very well approximated
@@ -143,6 +144,8 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
+
                 double n = maths_t::count(weights[i]);
                 double seasonalScale =
                     std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
@@ -160,7 +163,6 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                                              scaledPrecision * scaledRate / shape);
                 boost::math::normal normal(mean, deviation);
                 result = aggregate(result, func(normal, x + offset), n);
-                success = false;
             }
         } else {
             // The marginal likelihood is a t distribution with 2*a degrees of
@@ -176,6 +178,8 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
+
                 double n = maths_t::count(weights[i]);
                 double seasonalScale =
                     std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
@@ -193,17 +197,16 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                                          scaledPrecision * scaledRate / shape);
                 double sample = (x + offset - mean) / scale;
                 result = aggregate(result, func(students, sample), n);
-                success = false;
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Error calculating joint distribution: " << e.what());
+        LOG_ERROR(<< "Error: " << e.what());
         return false;
     }
 
     LOG_TRACE(<< "result = " << result);
 
-    return true;
+    return success;
 }
 
 //! Evaluates a specified function object, which must be default constructible,
@@ -379,6 +382,8 @@ private:
             if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                 continue;
             }
+            success = true;
+
             double n = maths_t::countForUpdate(weights[i]);
             double seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
             double countVarianceScale = maths_t::countVarianceScale(weights[i]);
@@ -394,7 +399,6 @@ private:
             if (countVarianceScale != 1.0) {
                 logVarianceScaleSum += std::log(countVarianceScale);
             }
-            success = true;
         }
         if (!success) {
             this->addErrorStatus(maths_t::E_FpFailed);
@@ -1144,7 +1148,8 @@ bool CNormalMeanPrecConjugate::probabilityOfLessLikelySamples(
     double& upperBound,
     maths_t::ETail& tail) const {
 
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     detail::CProbabilityOfLessLikelySamples probability(

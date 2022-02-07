@@ -127,7 +127,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
     result = RESULT();
 
     if (samples.empty()) {
-        LOG_ERROR(<< "Can't compute distribution for empty sample set");
+        LOG_ERROR(<< "Can't compute for empty sample set");
         return false;
     }
 
@@ -154,10 +154,11 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
+
                 double n = maths_t::count(weights[i]);
                 result = aggregate(
                     result, func(CTools::SImproperDistribution(), samples[i] + offset), n);
-                success = true;
             }
         } else if (shape > MINIMUM_LOGNORMAL_SHAPE) {
             // For large shape the marginal likelihood is very well approximated
@@ -184,6 +185,8 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
+
                 double n = maths_t::count(weights[i]);
                 double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                        maths_t::countVarianceScale(weights[i]);
@@ -193,7 +196,6 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                                  shape, location, scale);
                 boost::math::lognormal lognormal(location, scale);
                 result = aggregate(result, func(lognormal, samples[i] + offset), n);
-                success = true;
             }
         } else {
             // The marginal likelihood is log t with 2 * a degrees of freedom,
@@ -206,6 +208,8 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
+
                 double n = maths_t::count(weights[i]);
                 double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                        maths_t::countVarianceScale(weights[i]);
@@ -215,11 +219,10 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                                  shape, location, scale);
                 CLogTDistribution logt(2.0 * shape, location, scale);
                 result = aggregate(result, func(logt, samples[i] + offset), n);
-                success = true;
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Error calculating joint c.d.f.: " << e.what());
+        LOG_ERROR(<< "Error: " << e.what());
         return false;
     }
 
@@ -454,6 +457,8 @@ public:
                 if (CMathsFuncs::isNan(m_Samples[i]) || CMathsFuncs::isNan(m_Samples[i])) {
                     continue;
                 }
+                success = true;
+
                 double n = maths_t::countForUpdate(m_Weights[i]);
                 double sample = m_Samples[i] + m_Offset + x;
                 if (sample <= 0.0) {
@@ -477,7 +482,6 @@ public:
 
                 logSamplesSum += n * logSample;
                 logSampleMoments.add(logSample - shift, n * w);
-                success = true;
             }
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate likelihood: " << e.what());
@@ -1392,7 +1396,8 @@ bool CLogNormalMeanPrecConjugate::probabilityOfLessLikelySamples(
     double& upperBound,
     maths_t::ETail& tail) const {
 
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     detail::CProbabilityOfLessLikelySamples probability(

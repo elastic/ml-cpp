@@ -934,11 +934,14 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
             break;
         }
 
-        double modelLowerBound, modelUpperBound;
+        double modelLowerBound;
+        double modelUpperBound;
         maths_t::ETail modelTail;
         if (!model.probabilityOfLessLikelySamples(calculation, samples, weights, modelLowerBound,
                                                   modelUpperBound, modelTail)) {
             // Logging handled at a lower level.
+            lowerBound = 0.0;
+            upperBound = 1.0;
             return false;
         }
 

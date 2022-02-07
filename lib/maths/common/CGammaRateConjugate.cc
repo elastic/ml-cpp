@@ -374,10 +374,11 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
+
                 double n = maths_t::count(weights[i]);
                 double x = samples[i] + offset;
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
-                success = true;
             }
         } else if (priorShape > 2 && priorShape > likelihoodShape * MINIMUM_GAMMA_SHAPE) {
             // The marginal likelihood is well approximated by a moment matched
@@ -408,6 +409,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
 
                 // We assume the data are described by X = Y - u where, Y is
                 // gamma distributed and u is a constant offset. This means
@@ -425,7 +427,6 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 boost::math::gamma_distribution<> gamma(scaledShape, 1.0 / scaledRate);
 
                 result = aggregate(result, func(gamma, x), n);
-                success = true;
             }
         } else {
             // We use the fact that the random variable is Z = X / (b + X) is
@@ -440,6 +441,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
                     continue;
                 }
+                success = true;
 
                 // We assume the data are described by X = Y - u where, Y is
                 // gamma distributed and u is a constant offset. This means
@@ -456,14 +458,12 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                 LOG_TRACE(<< "x = " << x << ", z = " << z);
 
                 result = aggregate(result, func(beta, z), n);
-                success = true;
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Error calculating joint distribution: " << e.what()
-                  << ", offset = " << offset << ", likelihoodShape = " << likelihoodShape
-                  << ", priorShape = " << priorShape << ", priorRate = " << priorRate
-                  << ", samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Error: " << e.what() << " (offset = " << offset
+                  << ", likelihoodShape = " << likelihoodShape << ", priorShape = " << priorShape
+                  << ", priorRate = " << priorRate << ")");
         return false;
     }
 
@@ -615,6 +615,8 @@ public:
                 if (CMathsFuncs::isNan(m_Samples[i]) || CMathsFuncs::isNan(m_Samples[i])) {
                     continue;
                 }
+                success = true;
+
                 double n = maths_t::countForUpdate(m_Weights[i]);
                 double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
                                        maths_t::countVarianceScale(m_Weights[i]);
@@ -638,7 +640,6 @@ public:
                 logSamplesSum += n * (m_LikelihoodShape / varianceScale - 1.0) *
                                  std::log(sample);
                 sampleSum += n / varianceScale * sample;
-                success = true;
             }
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate likelihood: " << e.what());
@@ -1425,7 +1426,8 @@ bool CGammaRateConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
                                                          double& lowerBound,
                                                          double& upperBound,
                                                          maths_t::ETail& tail) const {
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     detail::CProbabilityOfLessLikelySamples probability(
