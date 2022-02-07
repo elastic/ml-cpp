@@ -126,6 +126,11 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     if (!this->check(samples, weights)) {
         return false;
     }
+    if (this->isNonInformative()) {
+        lowerBounds.assign(2, TDouble10Vec(coordinates.size(), 1.0));
+        upperBounds.assign(2, TDouble10Vec(coordinates.size(), 1.0));
+        return true;
+    }
 
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDoubleWeightsAry1Vec = maths_t::TDoubleWeightsAry1Vec;
