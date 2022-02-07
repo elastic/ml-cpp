@@ -10,9 +10,11 @@
 import configparser
 import logging
 import platform
+from pathlib import Path
 from sys import exit
 
-from pathlib import Path
+import distro
+
 
 def find_ancestor_dir(path: Path, resource: str):
     '''
@@ -30,6 +32,7 @@ def find_ancestor_dir(path: Path, resource: str):
     print('Did not find', resource, 'in parent of', path)
     exit(1)
 
+
 root_dir = find_ancestor_dir(path=Path(__file__), resource='data/datasets')
 data_dir = root_dir / 'data'
 datasets_dir = data_dir / 'datasets'
@@ -38,12 +41,14 @@ jobs_dir = data_dir / 'jobs'
 dfa_path = ''
 
 # Assumes your host OS is not CentOS.
-cloud = (platform.system() == 'Linux') and (platform.dist()[0] == 'centos')
+cloud = (platform.system() == 'Linux') and (
+    distro.name() == 'CentOS Linux')
 if cloud:
     search_location = Path('/ml-cpp')
     dfa_path = Path('/ml-cpp/bin/data_frame_analyzer')
 else:
-    search_location = find_ancestor_dir(path=root_dir, resource='build/distribution')
+    search_location = find_ancestor_dir(
+        path=root_dir, resource='build/distribution')
     runners = list(search_location.glob(
         '**/build/distribution/platform/**/data_frame_analyzer'))
     if len(runners) == 0:
@@ -54,7 +59,8 @@ else:
 logger = logging.getLogger(__package__)
 logger.handlers = []
 ch = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s [%(levelname).1s] %(name)s >> %(message)s')
+formatter = logging.Formatter(
+    '%(asctime)s [%(levelname).1s] %(name)s >> %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
@@ -67,14 +73,15 @@ if not config_file.exists():
 if len(config.read(root_dir / 'config.ini')) == 0:
     logger.error("Failed to read configuration file {}.".format(config_file))
     exit(1)
-    
+
 es_cloud_id = ""
 es_user = ""
 es_password = ""
 
 # Elasticsearch deployment configuration.
 if (not config['cloud']['cloud_id']) or (not config['cloud']['user']) or (not config['cloud']['password']):
-    logger.error("Cloud configuration is missing or incomplete. Some functionality will be broken")
+    logger.error(
+        "Cloud configuration is missing or incomplete. Some functionality will be broken")
 else:
     es_cloud_id = config['cloud']['cloud_id']
     es_user = config['cloud']['user']
