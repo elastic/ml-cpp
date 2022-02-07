@@ -285,7 +285,8 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
                                                     double& upperBound,
                                                     maths_t::ETail& tail) const {
 
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     if (samples.empty()) {
@@ -293,9 +294,8 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
         return false;
     }
 
-    lowerBound = upperBound = 1.0;
-
     if (this->isNonInformative()) {
+        lowerBound = upperBound = 1.0;
         return true;
     }
 
