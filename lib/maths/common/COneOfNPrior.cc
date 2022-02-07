@@ -318,9 +318,9 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
     n = this->numberSamples() - n;
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
-        double xi = samples[i];
-        double ni = maths_t::countForUpdate(weights[i]);
-        if (CMathsFuncs::isFinite(xi) && CMathsFuncs::isFinite(ni)) {
+        if (CMathsFuncs::isFinite(samples[i]) && CMathsFuncs::isFinite(weights[i])) {
+            double xi = samples[i];
+            double ni = maths_t::countForUpdate(weights[i]);
             m_SampleMoments.add(xi, ni);
         }
     }
@@ -684,10 +684,10 @@ COneOfNPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
             double logLikelihood;
             maths_t::EFloatingPointErrorStatus status =
                 model.second->jointLogMarginalLikelihood(samples, weights, logLikelihood);
-            if (status & maths_t::E_FpFailed) {
+            if ((status & maths_t::E_FpFailed) != 0) {
                 return status;
             }
-            if (!(status & maths_t::E_FpOverflowed)) {
+            if ((status & maths_t::E_FpOverflowed) == 0) {
                 logLikelihood += model.first.logWeight();
                 logLikelihoods.push_back(logLikelihood);
                 maxLogLikelihood.add(logLikelihood);
@@ -716,13 +716,13 @@ COneOfNPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     result = maxLogLikelihood[0] + CTools::fastLog(result / Z);
 
     maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
-    if (status & maths_t::E_FpFailed) {
+    if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute log likelihood (" << this->debugWeights() << ")");
         LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
         LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
         LOG_ERROR(<< "logLikelihoods = " << core::CContainerPrinter::print(logLikelihoods));
         LOG_ERROR(<< "maxLogLikelihood = " << maxLogLikelihood[0]);
-    } else if (status & maths_t::E_FpOverflowed) {
+    } else if ((status & maths_t::E_FpOverflowed) != 0) {
         LOG_ERROR(<< "Log likelihood overflowed for (" << this->debugWeights() << ")");
         LOG_TRACE(<< "likelihoods = " << core::CContainerPrinter::print(logLikelihoods));
         LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
@@ -934,11 +934,14 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
             break;
         }
 
-        double modelLowerBound, modelUpperBound;
+        double modelLowerBound;
+        double modelUpperBound;
         maths_t::ETail modelTail;
         if (!model.probabilityOfLessLikelySamples(calculation, samples, weights, modelLowerBound,
                                                   modelUpperBound, modelTail)) {
             // Logging handled at a lower level.
+            lowerBound = 0.0;
+            upperBound = 1.0;
             return false;
         }
 
