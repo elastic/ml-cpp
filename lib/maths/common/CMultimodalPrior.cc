@@ -26,6 +26,7 @@
 #include <maths/common/CClustererStateSerialiser.h>
 #include <maths/common/CKMeansOnline1d.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CPriorStateSerialiser.h>
 #include <maths/common/CRestoreParams.h>
@@ -393,8 +394,10 @@ void CMultimodalPrior::addSamples(const TDouble1Vec& samples,
 
         for (std::size_t i = 0; i < samples.size(); ++i) {
             double x{samples[i]};
-            if (CMathsFuncs::isFinite(x) == false) {
-                LOG_ERROR(<< "Discarding " << x);
+            if (CMathsFuncs::isFinite(x) == false ||
+                CMathsFuncs::isFinite(weights[i]) == false) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
+                          << core::CContainerPrinter::print(weights[i]));
                 continue;
             }
             if (hasSeasonalScale) {
@@ -934,7 +937,8 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
                                                       double& lowerBound,
                                                       double& upperBound,
                                                       maths_t::ETail& tail) const {
-    lowerBound = upperBound = 1.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     if (samples.empty()) {
@@ -993,8 +997,6 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
     switch (calculation) {
     case maths_t::E_OneSidedBelow:
         if (this->minusLogJointCdf(samples, weights, upperBound, lowerBound) == false) {
-            LOG_ERROR(<< "Failed computing probability of less likely samples: "
-                      << core::CContainerPrinter::print(samples));
             return false;
         }
         lowerBound = std::exp(-lowerBound);
@@ -1036,6 +1038,10 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
         for (std::size_t i = 0; i < samples.size(); ++i) {
             double x{samples[i]};
             weight[0] = weights[i];
+            if (CMathsFuncs::isNan(x) || CMathsFuncs::isNan(weight[0])) {
+                continue;
+            }
+
             if (hasSeasonalScale) {
                 x = mean + (x - mean) /
                                std::sqrt(maths_t::seasonalVarianceScale(weight[0]));
@@ -1045,11 +1051,11 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
             double fx;
             maths_t::EFloatingPointErrorStatus status =
                 this->jointLogMarginalLikelihood({x}, weight, fx);
-            if (status & maths_t::E_FpFailed) {
+            if ((status & maths_t::E_FpFailed) != 0) {
                 LOG_ERROR(<< "Unable to compute likelihood for " << x);
                 return false;
             }
-            if (status & maths_t::E_FpOverflowed) {
+            if ((status & maths_t::E_FpOverflowed) != 0) {
                 lowerBound = upperBound = 0.0;
                 return true;
             }
@@ -1071,8 +1077,8 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
             double sampleLowerBound{0.0};
             double sampleUpperBound{0.0};
 
-            double lb, ub;
-
+            double lb;
+            double ub;
             double xl;
             CEqualWithTolerance<double> lequal{CToleranceTypes::E_AbsoluteTolerance,
                                                EPS * a};
@@ -1112,7 +1118,9 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
         if (lowerBoundCalculator.calculate(lowerBound) == false ||
             upperBoundCalculator.calculate(upperBound) == false) {
             LOG_ERROR(<< "Couldn't compute probability of less likely samples:"
-                      << " " << lowerBoundCalculator << " " << upperBoundCalculator);
+                      << " " << lowerBoundCalculator << " " << upperBoundCalculator
+                      << " (samples = " << core::CContainerPrinter::print(samples)
+                      << ", weights = " << core::CContainerPrinter::print(weights) << ")");
             return false;
         }
         tail = static_cast<maths_t::ETail>(tail_);
@@ -1120,8 +1128,6 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
 
     case maths_t::E_OneSidedAbove:
         if (this->minusLogJointCdfComplement(samples, weights, upperBound, lowerBound) == false) {
-            LOG_ERROR(<< "Failed computing probability of less likely samples: "
-                      << core::CContainerPrinter::print(samples));
             return false;
         }
         lowerBound = std::exp(-lowerBound);
@@ -1280,11 +1286,17 @@ bool CMultimodalPrior::minusLogJointCdfImpl(CDF minusLogCdf,
     modeLowerBounds.reserve(m_Modes.size());
     modeUpperBounds.reserve(m_Modes.size());
 
+    bool success = false;
     try {
         double mean{maths_t::hasSeasonalVarianceScale(weights) ? this->marginalLikelihoodMean()
                                                                : 0.0};
 
         for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (!CMathsFuncs::isFinite(samples[i]) || !CMathsFuncs::isFinite(weights[i])) {
+                continue;
+            }
+            success = true;
+
             double n{maths_t::count(weights[i])};
             double seasonalScale{std::sqrt(maths_t::seasonalVarianceScale(weights[i]))};
 
@@ -1310,8 +1322,6 @@ bool CMultimodalPrior::minusLogJointCdfImpl(CDF minusLogCdf,
                 double modeUpperBound;
                 if (minusLogCdf(mode.s_Prior, sample, weight, modeLowerBound,
                                 modeUpperBound) == false) {
-                    LOG_ERROR(<< "Unable to compute c.d.f. for "
-                              << core::CContainerPrinter::print(samples));
                     return false;
                 }
                 minLowerBound.add(modeLowerBound);
@@ -1348,10 +1358,15 @@ bool CMultimodalPrior::minusLogJointCdfImpl(CDF minusLogCdf,
         LOG_ERROR(<< "Failed to calculate c.d.f.: " << e.what());
         return false;
     }
+    if (!success) {
+        LOG_ERROR(<< "Unable to compute c.d.f. (samples = "
+                  << core::CContainerPrinter::print(samples)
+                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+    }
 
     LOG_TRACE(<< "Joint -log(c.d.f.) = [" << lowerBound << "," << upperBound << "]");
 
-    return true;
+    return success;
 }
 
 std::string CMultimodalPrior::debugWeights() const {

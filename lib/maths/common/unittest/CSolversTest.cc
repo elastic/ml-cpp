@@ -22,6 +22,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cmath>
+#include <limits>
 #include <utility>
 
 BOOST_AUTO_TEST_SUITE(CSolversTest)
@@ -379,6 +380,31 @@ BOOST_AUTO_TEST_CASE(testBrent) {
         double meanConvergenceFactor = std::pow(lastError / (2.0 / 3.0), 1.0 / 40.0);
         LOG_DEBUG(<< "mean convergence factor = " << meanConvergenceFactor);
         BOOST_TEST_REQUIRE(meanConvergenceFactor < 0.505);
+    }
+
+    // Test convergence on f(x) = eps * (cos(x) - x) with eps ^ 2 < min double.
+    {
+        CEqualWithTolerance<double> equal(CToleranceTypes::E_AbsoluteTolerance, 0.0);
+        a = -1.0;
+        b = 1.0;
+        iterations = 10;
+        double expectedBestGuess;
+        CSolvers::brent(a, b, &f3, iterations, equal, expectedBestGuess);
+        a = -1.0;
+        b = 1.0;
+        iterations = 10;
+        CSolvers::brent(a, b,
+                        [](double x) {
+                            return std::pow(std::numeric_limits<double>::min(), 0.6) *
+                                   f3(x);
+                        },
+                        iterations, equal, bestGuess);
+        LOG_DEBUG(<< "-");
+        LOG_DEBUG(<< "iterations = " << iterations);
+        LOG_DEBUG(<< "a = " << a << ", b = " << b << ", f(a) = " << f3(a)
+                  << ", f(b) = " << f3(b));
+        LOG_DEBUG(<< expectedBestGuess << " " << bestGuess);
+        BOOST_REQUIRE_CLOSE(expectedBestGuess, bestGuess, 1e-6);
     }
 }
 
