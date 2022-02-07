@@ -37,6 +37,8 @@
   30 mins and 1 day, and the job uses a short bucket length. The outcome can be transient
   poor predictions and model bounds, and sometimes false positive anomalies. (See
   {ml-pull}2167[#2167].)
+* Address cause of "[CStatisticalTests.cc@102] Test statistic is nan" log errors.
+  (See {ml-pull}2196[#2196].)
 
 == {es} version 7.16.0
 
