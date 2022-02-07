@@ -21,6 +21,7 @@
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
@@ -45,15 +46,6 @@ namespace common {
 namespace {
 
 const double MINIMUM_GAUSSIAN_MEAN = 100.0;
-
-// Wrapper for static cast which can be used with STL algorithms.
-template<typename TARGET_TYPE>
-struct SStaticCast {
-    template<typename SOURCE_TYPE>
-    inline TARGET_TYPE operator()(const SOURCE_TYPE& source) const {
-        return static_cast<TARGET_TYPE>(source);
-    }
-};
 
 namespace detail {
 
@@ -111,12 +103,18 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
     //
     // This becomes increasingly accurate as the prior distribution narrows.
 
+    bool success = false;
     try {
         if (isNonInformative) {
             // The non-informative prior is improper and effectively 0 everywhere.
             // (It is acceptable to approximate all finite samples as at the median
             // of this distribution.)
             for (std::size_t i = 0; i < samples.size(); ++i) {
+                if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                    continue;
+                }
+                success = true;
+
                 double x = samples[i] + offset;
                 double n = maths_t::count(weights[i]);
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
@@ -136,6 +134,11 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // and the error function is significantly cheaper to compute.
 
             for (std::size_t i = 0; i < samples.size(); ++i) {
+                if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                    continue;
+                }
+                success = true;
+
                 double n = maths_t::count(weights[i]);
                 double x = samples[i] + offset;
 
@@ -153,15 +156,14 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Error calculating joint c.d.f."
-                  << " offset = " << offset << ", shape = " << shape
-                  << ", rate = " << rate << ": " << e.what());
+        LOG_ERROR(<< "Error: " << e.what() << " (offset = " << offset
+                  << ", shape = " << shape << ", rate = " << rate << ")");
         return false;
     }
 
     LOG_TRACE(<< "result = " << result);
 
-    return true;
+    return success;
 }
 
 } // detail::
@@ -340,11 +342,12 @@ void CPoissonMeanConjugate::addSamples(const TDouble1Vec& samples,
     double sampleSum = 0.0;
     for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i] + m_Offset;
-        double n = maths_t::countForUpdate(weights[i]);
-        if (x < 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n)) {
-            LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n);
+        if (x < 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(weights[i])) {
+            LOG_ERROR(<< "Discarding sample = " << x
+                      << ", weights = " << core::CContainerPrinter::print(weights));
             continue;
         }
+        double n = maths_t::countForUpdate(weights[i]);
         numberSamples += n;
         sampleSum += n * x;
     }
@@ -533,7 +536,13 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     double sampleSum = 0.0;
     double sampleLogFactorialSum = 0.0;
 
+    bool success = false;
     for (std::size_t i = 0; i < samples.size(); ++i) {
+        if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+            continue;
+        }
+        success = true;
+
         double n = maths_t::countForUpdate(weights[i]);
         double x = samples[i] + m_Offset;
         if (x < 0.0) {
@@ -556,17 +565,20 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         sampleLogFactorialSum += n * std::lgamma(x + 1.0);
     }
 
-    // Get the implied shape parameter for the gamma distribution
-    // including the samples.
-    double impliedShape = m_Shape + sampleSum;
-    double impliedRate = m_Rate + numberSamples;
+    maths_t::EFloatingPointErrorStatus status = maths_t::E_FpFailed;
+    if (success) {
+        // Get the implied shape parameter for the gamma distribution
+        // including the samples.
+        double impliedShape = m_Shape + sampleSum;
+        double impliedRate = m_Rate + numberSamples;
 
-    result = std::lgamma(impliedShape) + m_Shape * std::log(m_Rate) -
-             impliedShape * std::log(impliedRate) - sampleLogFactorialSum -
-             std::lgamma(m_Shape);
+        result = std::lgamma(impliedShape) + m_Shape * std::log(m_Rate) -
+                 impliedShape * std::log(impliedRate) - sampleLogFactorialSum -
+                 std::lgamma(m_Shape);
 
-    maths_t::EFloatingPointErrorStatus status = CMathsFuncs::fpStatus(result);
-    if (status & maths_t::E_FpFailed) {
+        status = CMathsFuncs::fpStatus(result);
+    }
+    if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute log likelihood");
         LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
         LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
@@ -738,8 +750,9 @@ bool CPoissonMeanConjugate::minusLogJointCdf(const TDouble1Vec& samples,
     if (!detail::evaluateFunctionOnJointDistribution(
             samples, weights, CTools::SMinusLogCdf(), detail::SPlusWeight(),
             m_Offset, this->isNonInformative(), m_Shape, m_Rate, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. for "
-                  << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. (samples = "
+                  << core::CContainerPrinter::print(samples)
+                  << ", weights = " << core::CContainerPrinter::print(samples) << ")");
         return false;
     }
 
@@ -757,8 +770,9 @@ bool CPoissonMeanConjugate::minusLogJointCdfComplement(const TDouble1Vec& sample
     if (!detail::evaluateFunctionOnJointDistribution(
             samples, weights, CTools::SMinusLogCdfComplement(), detail::SPlusWeight(),
             m_Offset, this->isNonInformative(), m_Shape, m_Rate, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. complement for "
-                  << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
+                  << core::CContainerPrinter::print(samples)
+                  << ", weights = " << core::CContainerPrinter::print(samples) << ")");
         return false;
     }
 
@@ -772,7 +786,8 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                                                            double& lowerBound,
                                                            double& upperBound,
                                                            maths_t::ETail& tail) const {
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     double value = 0.0;
@@ -786,8 +801,9 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             CJointProbabilityOfLessLikelySamples::SAddProbability(), m_Offset,
             this->isNonInformative(), m_Shape, m_Rate, probability) ||
         !probability.calculate(value)) {
-        LOG_ERROR(<< "Failed computing probability for "
-                  << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing probability of less likely samples (samples = "
+                  << core::CContainerPrinter::print(samples)
+                  << ", weights = " << core::CContainerPrinter::print(samples) << ")");
         return false;
     }
 

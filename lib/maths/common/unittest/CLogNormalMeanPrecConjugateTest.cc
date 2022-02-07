@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -35,6 +36,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <limits>
 
 BOOST_AUTO_TEST_SUITE(CLogNormalMeanPrecConjugateTest)
 
@@ -1683,6 +1685,48 @@ BOOST_AUTO_TEST_CASE(testNegativeSample) {
     using TEqual = maths::common::CEqualWithTolerance<double>;
     TEqual equal(maths::common::CToleranceTypes::E_RelativeTolerance, 0.1);
     BOOST_TEST_REQUIRE(filter1.equalTolerance(filter2, equal));
+}
+
+BOOST_AUTO_TEST_CASE(testBadValues) {
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec samples;
+    rng.generateLogNormalSamples(std::log(2.0), 1.0, 100, samples);
+
+    CLogNormalMeanPrecConjugate filter =
+        CLogNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData);
+
+    filter.addSamples(samples);
+    std::uint64_t checksum{filter.checksum()};
+
+    TDouble1Vec badSample{std::numeric_limits<double>::quiet_NaN()};
+    auto badWeights = maths_t::CUnitWeights::SINGLE_UNIT;
+    maths_t::setSeasonalVarianceScale(std::numeric_limits<double>::quiet_NaN(),
+                                      badWeights[0]);
+
+    filter.addSamples(badSample, maths_t::CUnitWeights::SINGLE_UNIT);
+    filter.addSamples({1.0}, badWeights);
+
+    // We've just ignored the bad input.
+    BOOST_TEST_REQUIRE(checksum, filter.checksum());
+
+    double lowerBound;
+    double upperBound;
+    maths_t::ETail tail;
+
+    BOOST_TEST_REQUIRE(!filter.probabilityOfLessLikelySamples(
+        maths_t::E_TwoSided, badSample, maths_t::CUnitWeights::SINGLE_UNIT,
+        lowerBound, upperBound, tail));
+    BOOST_REQUIRE_EQUAL(0.0, lowerBound);
+    BOOST_REQUIRE_EQUAL(1.0, upperBound);
+    BOOST_REQUIRE_EQUAL(maths_t::E_UndeterminedTail, tail);
+
+    BOOST_TEST_REQUIRE(!filter.probabilityOfLessLikelySamples(
+        maths_t::E_TwoSided, {1.0}, badWeights, lowerBound, upperBound, tail));
+    BOOST_REQUIRE_EQUAL(0.0, lowerBound);
+    BOOST_REQUIRE_EQUAL(1.0, upperBound);
+    BOOST_REQUIRE_EQUAL(maths_t::E_UndeterminedTail, tail);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
