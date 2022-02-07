@@ -317,7 +317,7 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.26 * sumValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.27 * sumValue);
                 BOOST_TEST_REQUIRE(maxResidual < 0.54 * maxValue);
                 BOOST_TEST_REQUIRE(percentileError < 0.18 * sumValue);
 
@@ -336,7 +336,7 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.16 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.17 * totalSumValue);
     BOOST_TEST_REQUIRE(totalMaxResidual < 0.23 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.10 * totalSumValue);
 }
@@ -915,7 +915,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
                   << maths::common::CBasicStatistics::mean(percentileError));
         LOG_DEBUG(<< "mean scale = " << maths::common::CBasicStatistics::mean(meanScale));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.3);
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(percentileError) < 0.04);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(percentileError) < 0.15);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             1.0, maths::common::CBasicStatistics::mean(meanScale), 0.02);
     }
