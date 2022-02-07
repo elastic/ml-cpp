@@ -23,6 +23,7 @@
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CChecksum.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CSampling.h>
@@ -847,7 +848,8 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                                                            double& lowerBound,
                                                            double& upperBound,
                                                            maths_t::ETail& tail) const {
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     if (samples.empty()) {
@@ -883,9 +885,13 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
 
         detail::CCdf cdf(m_Categories, m_Concentrations, m_TotalConcentration);
         for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                continue;
+            }
             double x = samples[i];
             double n = maths_t::count(weights[i]);
-            double sampleLowerBound, sampleUpperBound;
+            double sampleLowerBound;
+            double sampleUpperBound;
             cdf(x, sampleLowerBound, sampleUpperBound);
             jointLowerBound.add(sampleLowerBound, n);
             jointUpperBound.add(sampleUpperBound, n);
@@ -997,7 +1003,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
 
             // Compute probabilities of less likely categories.
             double pCumulative = 0.0;
-            for (std::size_t i = 0u, j = 0; i < pCategories.size(); /**/) {
+            for (std::size_t i = 0, j = 0; i < pCategories.size(); /**/) {
                 // Find the probability equal range [i, j).
                 double p = pCategories[i].get<1>();
                 pCumulative += p;
@@ -1115,6 +1121,9 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
 
         // Count the occurrences of each category in the sample set.
         for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                continue;
+            }
             double x = samples[i];
             double n = maths_t::count(weights[i]);
             categoryCounts[x] += n;
@@ -1125,10 +1134,9 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         CJointProbabilityOfLessLikelySamples jointLowerBound;
         CJointProbabilityOfLessLikelySamples jointUpperBound;
 
-        for (TDoubleDoubleMapCItr countItr = categoryCounts.begin();
-             countItr != categoryCounts.end(); ++countItr) {
-            double category = countItr->first;
-            double count = countItr->second;
+        for (auto& categoryCount : categoryCounts) {
+            double category = categoryCount.first;
+            double count = categoryCount.second;
             LOG_TRACE(<< "category = " << category << ", count = " << count);
 
             std::size_t index = std::lower_bound(m_Categories.begin(),
@@ -1164,9 +1172,13 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
 
         detail::CCdfComplement cdfComplement(m_Categories, m_Concentrations, m_TotalConcentration);
         for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                continue;
+            }
             double x = samples[i];
             double n = maths_t::count(weights[i]);
-            double sampleLowerBound, sampleUpperBound;
+            double sampleLowerBound;
+            double sampleUpperBound;
             cdfComplement(x, sampleLowerBound, sampleUpperBound);
             jointLowerBound.add(sampleLowerBound, n);
             jointUpperBound.add(sampleUpperBound, n);
