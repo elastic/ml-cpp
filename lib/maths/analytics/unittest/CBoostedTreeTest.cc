@@ -1264,14 +1264,13 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
-    // Update the base model by allowing 0, 2, and 10 new trees. Verify that the test error is
+    // Update the base model by allowing 0, 5, and 10 new trees. Verify that the holdout error is
     // note getting worse when allowing for more model capacity.
-    // TODO #2188 Add a unit test with hold-out data.
     test::CRandomNumbers rng;
-    double noiseVariance{300.0};
-    std::size_t batch1Size{150};
+    double noiseVariance{100.0};
+    std::size_t batch1Size{500};
     std::size_t batch2Size{150};
-    std::size_t testSize{500};
+    std::size_t numberHoldoutRows{200};
     std::size_t cols{6};
 
     auto target = [&] {
@@ -1307,20 +1306,12 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     rng.generateNormalSamples(0.0, noiseVariance, batch2Size, noise);
     fillDataFrame(batch2Size, 0, cols, x, noise, target, *batch2);
 
-    // test data cover the complete domain
-    auto testData = core::makeMainStorageDataFrame(cols).first;
-    for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(0.0, 6.0, testSize, x[i]);
-    }
-    rng.generateNormalSamples(0.0, noiseVariance, testSize, noise);
-    fillDataFrame(testSize, 0, cols, x, noise, target, *testData);
-    testData->resizeColumns(1, cols + 1);
-
     auto baseModel = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                          .eta({0.02}) // Ensure there are enough trees.
                          .dataSummarizationFraction(1.0)
                          .maximumNumberTrees(3)
+                         .numberHoldoutRows(numberHoldoutRows)
                          .buildForTrain(*batch1, cols - 1);
     baseModel->train();
 
@@ -1342,40 +1333,39 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
                 .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
                 .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
                 .maximumNumberNewTrees(maxNumNewTrees)
+                .numberHoldoutRows(numberHoldoutRows)
                 .buildForTrainIncremental(*batch2, cols - 1);
         updatedModel->trainIncremental();
+        updatedModel->predict();
         return updatedModel;
     };
 
-    auto computeTestError = [&](maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr&& model) {
-        core::CPackedBitVector testDataRowMask{testSize, true};
-        TMeanAccumulator squaredError;
+    core::CPackedBitVector holdoutRowMask(numberHoldoutRows, true);
+    holdoutRowMask.extend(false, batch2Size - numberHoldoutRows);
 
-        auto predictor =
-            maths::analytics::CBoostedTreeFactory::constructFromModel(std::move(model))
-                .buildForPredict(*testData, cols - 1);
-        predictor->predict();
-        testData->readRows(1, 0, testData->numberRows(),
-                           [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                               for (auto row = beginRows; row != endRows; ++row) {
-                                   squaredError.add(maths::common::CTools::pow2(
-                                       (*row)[cols - 1] - predictor->prediction(*row)[0]));
-                               }
-                           },
-                           &testDataRowMask);
+    auto computeTestError = [&](maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr&& model) {
+        TMeanAccumulator squaredError;
+        batch2->readRows(1, 0, batch2->numberRows(),
+                         [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                             for (auto row = beginRows; row != endRows; ++row) {
+                                 squaredError.add(maths::common::CTools::pow2(
+                                     (*row)[cols - 1] - model->prediction(*row)[0]));
+                             }
+                         },
+                         &holdoutRowMask);
         return maths::common::CBasicStatistics::mean(squaredError);
     };
 
     double testError0{computeTestError(updateBaseModel(0))};
-    double testError2{computeTestError(updateBaseModel(2))};
+    double testError5{computeTestError(updateBaseModel(5))};
     double testError10{computeTestError(updateBaseModel(10))};
     double testErrorBase{computeTestError(std::move(baseModel))};
 
-    LOG_DEBUG(<< "Test errors: base = " << testErrorBase << ", 0 new trees = " << testError0
-              << ", 2 new trees = " << testError2 << ", 10 new trees = " << testError10);
+    LOG_DEBUG(<< "Holdout errors: base = " << testErrorBase << ", 0 new trees = " << testError0
+              << ", 5 new trees = " << testError5 << ", 10 new trees = " << testError10);
     BOOST_TEST_REQUIRE(testErrorBase >= testError0);
-    BOOST_TEST_REQUIRE(testError0 >= testError2);
-    BOOST_TEST_REQUIRE(testError2 >= testError10);
+    BOOST_TEST_REQUIRE(testError0 >= testError5);
+    BOOST_TEST_REQUIRE(testError5 >= testError10);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
