@@ -46,16 +46,6 @@ namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-double rightTailFTest(double v0, double v1, double df0, double df1) {
-    // If there is insufficient data for either hypothesis treat we are conservative
-    // and say the alternative hypothesis is not provable.
-    if (df0 <= 0.0 || df1 <= 0.0) {
-        return 1.0;
-    }
-    double F{v0 == v1 ? 1.0 : v0 / v1};
-    return common::CStatisticalTests::rightTailFTest(F, df0, df1);
-}
-
 bool almostDivisor(std::size_t i, std::size_t j, double eps) {
     if (i > j) {
         return false;
@@ -2106,8 +2096,8 @@ double CTimeSeriesTestForSeasonality::SModel::pValue(const SModel& H0,
     v1[1] += minimumRelativeTruncatedVariance * v1[0];
 
     return std::max(
-        std::min(rightTailFTest(v0[0] / df0[0], v1[0] / df1[0], df0[0], df1[0]),
-                 rightTailFTest(v0[1] / df0[1], v1[1] / df1[1], df0[1], df1[1])),
+        std::min(common::CStatisticalTests::rightTailFTest(v0[0], v1[0], df0[0], df1[0]),
+                 common::CStatisticalTests::rightTailFTest(v0[1], v1[1], df0[1], df1[1])),
         common::CTools::smallestProbability());
 }
 
