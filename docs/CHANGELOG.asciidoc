@@ -47,6 +47,8 @@
 * Avoid edge cases in the classification weights calculation to maximize
   minimum recall which could lead to only a single class being predicted.
   (See {ml-pull}2194[#2194].)
+* Address cause of "[CStatisticalTests.cc@102] Test statistic is nan"
+  log errors. (See {ml-pull}2196[#2196].)
 * Address possible causes of "x = NaN, distribution = N5boost4math23students_t_distribution"
   log errors. (See {ml-pull}2197[#2197].)
 
