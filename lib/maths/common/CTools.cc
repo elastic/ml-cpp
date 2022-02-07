@@ -774,7 +774,7 @@ operator()(const CLogTDistribution& logt, double x, maths_t::ETail& tail) const 
     double step = std::max(b2, std::exp(l) - b2);
     double growthFactor = 1.0;
     for (;;) {
-        if (maxIterations == 2 || f2 <= fx) {
+        if (maxIterations == 0 || f2 <= fx) {
             break;
         }
 
