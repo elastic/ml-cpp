@@ -135,7 +135,7 @@ double pdf(const CLogTDistribution& distribution, double x) {
     }
 
     double degreesFreedom = distribution.degreesFreedom();
-    boost::math::students_t_distribution<> students(degreesFreedom);
+    boost::math::students_t students(degreesFreedom);
 
     double scale = distribution.scale();
     double location = distribution.location();
@@ -162,7 +162,7 @@ double cdf(const CLogTDistribution& distribution, double x) {
     }
 
     double degreesFreedom = distribution.degreesFreedom();
-    boost::math::students_t_distribution<> students(degreesFreedom);
+    boost::math::students_t students(degreesFreedom);
 
     double scale = distribution.scale();
     double location = distribution.location();
@@ -183,7 +183,7 @@ double cdfComplement(const CLogTDistribution& distribution, double x) {
     }
 
     double degreesFreedom = distribution.degreesFreedom();
-    boost::math::students_t_distribution<> students(degreesFreedom);
+    boost::math::students_t students(degreesFreedom);
 
     double scale = distribution.scale();
     double location = distribution.location();
@@ -198,7 +198,7 @@ double quantile(const CLogTDistribution& distribution, double q) {
     // distribution by the transformation x_q = exp(s * y_q + m).
 
     double degreesFreedom = distribution.degreesFreedom();
-    boost::math::students_t_distribution<> students(degreesFreedom);
+    boost::math::students_t students(degreesFreedom);
     double y_q = boost::math::quantile(students, q);
 
     double scale = distribution.scale();

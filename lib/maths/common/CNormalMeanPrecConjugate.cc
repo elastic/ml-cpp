@@ -23,6 +23,7 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CTools.h>
 #include <maths/common/Constants.h>
@@ -116,19 +117,20 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
     //
     // This becomes increasingly accurate as the prior distribution narrows.
 
+    bool success = false;
     try {
         if (isNonInformative) {
             // The non-informative prior is improper and effectively 0 everywhere.
             // (It is acceptable to approximate all finite samples as at the median
             // of this distribution.)
             for (std::size_t i = 0; i < samples.size(); ++i) {
+                if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                    continue;
+                }
                 double x = samples[i];
                 double n = maths_t::count(weights[i]);
-                if (!CMathsFuncs::isFinite(n)) {
-                    LOG_ERROR(<< "Bad count weight " << n);
-                    return false;
-                }
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
+                success = true;
             }
         } else if (shape > MINIMUM_GAUSSIAN_SHAPE) {
             // For large shape the marginal likelihood is very well approximated
@@ -138,6 +140,9 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // and the error function is significantly cheaper to compute.
 
             for (std::size_t i = 0; i < samples.size(); ++i) {
+                if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                    continue;
+                }
                 double n = maths_t::count(weights[i]);
                 double seasonalScale =
                     std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
@@ -155,6 +160,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                                              scaledPrecision * scaledRate / shape);
                 boost::math::normal normal(mean, deviation);
                 result = aggregate(result, func(normal, x + offset), n);
+                success = false;
             }
         } else {
             // The marginal likelihood is a t distribution with 2*a degrees of
@@ -167,6 +173,9 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             boost::math::students_t students(2.0 * shape);
 
             for (std::size_t i = 0; i < samples.size(); ++i) {
+                if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                    continue;
+                }
                 double n = maths_t::count(weights[i]);
                 double seasonalScale =
                     std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
@@ -184,6 +193,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
                                          scaledPrecision * scaledRate / shape);
                 double sample = (x + offset - mean) / scale;
                 result = aggregate(result, func(students, sample), n);
+                success = false;
             }
         }
     } catch (const std::exception& e) {
@@ -268,7 +278,9 @@ public:
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 x, m_Shape, m_Rate, m_Mean, m_Precision, m_PredictionMean, probability) ||
             !probability.calculate(result)) {
-            LOG_ERROR(<< "Failed to compute probability of less likely samples");
+            LOG_ERROR(<< "Failed to compute probability of less likely samples (samples ="
+                      << core::CContainerPrinter::print(m_Samples) << ", weights = "
+                      << core::CContainerPrinter::print(m_Weights) << ")");
             return false;
         }
 
@@ -329,7 +341,7 @@ public:
     //! Evaluate the log marginal likelihood at the offset \p x.
     bool operator()(double x, double& result) const {
 
-        if (m_ErrorStatus & maths_t::E_FpFailed) {
+        if ((m_ErrorStatus & maths_t::E_FpFailed) != 0) {
             return false;
         }
 
@@ -362,7 +374,11 @@ private:
         TMeanVarAccumulator sampleMoments;
         double logVarianceScaleSum = 0.0;
 
+        bool success = false;
         for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                continue;
+            }
             double n = maths_t::countForUpdate(weights[i]);
             double seasonalScale = std::sqrt(maths_t::seasonalVarianceScale(weights[i]));
             double countVarianceScale = maths_t::countVarianceScale(weights[i]);
@@ -378,7 +394,13 @@ private:
             if (countVarianceScale != 1.0) {
                 logVarianceScaleSum += std::log(countVarianceScale);
             }
+            success = true;
         }
+        if (!success) {
+            this->addErrorStatus(maths_t::E_FpFailed);
+            return;
+        }
+
         m_WeightedNumberSamples = CBasicStatistics::count(sampleMoments);
         m_SampleMean = CBasicStatistics::mean(sampleMoments);
         m_SampleSquareDeviation = (m_WeightedNumberSamples - 1.0) *
@@ -391,11 +413,9 @@ private:
                      0.5 * m_NumberSamples * LOG_2_PI -
                      0.5 * logVarianceScaleSum + std::lgamma(impliedShape) -
                      std::lgamma(m_Shape) + m_Shape * std::log(m_Rate);
-        if (std::isnan(m_Constant)) {
-            LOG_ERROR(<< "Error calculating marginal likelihood, floating point nan");
+        if (CMathsFuncs::isNan(m_Constant)) {
             this->addErrorStatus(maths_t::E_FpFailed);
-        } else if (std::isinf(m_Constant)) {
-            LOG_ERROR(<< "Error calculating marginal likelihood, floating point overflow");
+        } else if (CMathsFuncs::isInf(m_Constant)) {
             this->addErrorStatus(maths_t::E_FpOverflowed);
         }
     }
@@ -621,15 +641,14 @@ void CNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
     TMeanVarAccumulator sampleMoments;
     for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i];
+        if (!CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(weights[i])) {
+            LOG_ERROR(<< "Discarding sample = " << x << ", weights = " < < < <
+                      core::CContainerPrinter::print(weights[i]));
+            continue;
+        }
         double n = maths_t::countForUpdate(weights[i]);
         double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                maths_t::countVarianceScale(weights[i]);
-        if (!CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
-            !CMathsFuncs::isFinite(varianceScale)) {
-            LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
-                      << ", variance scale = " << varianceScale);
-            continue;
-        }
         numberSamples += n;
         sampleMoments.add(samples[i], n / varianceScale);
     }
@@ -854,13 +873,13 @@ CNormalMeanPrecConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
         logMarginalLikelihood(0.0, result);
     }
 
-    maths_t::EFloatingPointErrorStatus status = static_cast<maths_t::EFloatingPointErrorStatus>(
+    auto status = static_cast<maths_t::EFloatingPointErrorStatus>(
         logMarginalLikelihood.errorStatus() | CMathsFuncs::fpStatus(result));
-    if (status & maths_t::E_FpFailed) {
+    if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute log likelihood (" << this->debug() << ")");
         LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
         LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
-    } else if (status & maths_t::E_FpOverflowed) {
+    } else if ((status & maths_t::E_FpOverflowed) != 0) {
         LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
         LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
         LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
@@ -1053,8 +1072,9 @@ bool CNormalMeanPrecConjugate::minusLogJointCdf(const TDouble1Vec& samples,
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdf, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. for "
-                      << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. (samples = "
+                      << core::CContainerPrinter::print(samples) << ", weights = "
+                      << core::CContainerPrinter::print(weights) << ")");
             return false;
         }
 
@@ -1064,8 +1084,9 @@ bool CNormalMeanPrecConjugate::minusLogJointCdf(const TDouble1Vec& samples,
 
     double value;
     if (!minusLogCdf(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. for "
-                  << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. (samples = "
+                  << core::CContainerPrinter::print(samples)
+                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
         return false;
     }
 
@@ -1093,8 +1114,9 @@ bool CNormalMeanPrecConjugate::minusLogJointCdfComplement(const TDouble1Vec& sam
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdfComplement, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. complement for "
-                      << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
+                      << core::CContainerPrinter::print(samples) << ", weights = "
+                      << core::CContainerPrinter::print(weights) << ")");
             return false;
         }
 
@@ -1104,8 +1126,9 @@ bool CNormalMeanPrecConjugate::minusLogJointCdfComplement(const TDouble1Vec& sam
 
     double value;
     if (!minusLogCdfComplement(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. complement for "
-                  << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
+                  << core::CContainerPrinter::print(samples)
+                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
         return false;
     }
 
@@ -1135,8 +1158,6 @@ bool CNormalMeanPrecConjugate::probabilityOfLessLikelySamples(
         double value;
         if (!CIntegration::gaussLegendre<CIntegration::OrderThree>(probability, 0.0,
                                                                    1.0, value)) {
-            LOG_ERROR(<< "Failed computing probability for "
-                      << core::CContainerPrinter::print(samples));
             return false;
         }
 
@@ -1148,8 +1169,6 @@ bool CNormalMeanPrecConjugate::probabilityOfLessLikelySamples(
 
     double value;
     if (!probability(0.0, value)) {
-        LOG_ERROR(<< "Failed computing probability for "
-                  << core::CContainerPrinter::print(samples));
         return false;
     }
 
