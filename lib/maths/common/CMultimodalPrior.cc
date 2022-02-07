@@ -26,6 +26,7 @@
 #include <maths/common/CClustererStateSerialiser.h>
 #include <maths/common/CKMeansOnline1d.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CPriorStateSerialiser.h>
 #include <maths/common/CRestoreParams.h>
@@ -393,8 +394,10 @@ void CMultimodalPrior::addSamples(const TDouble1Vec& samples,
 
         for (std::size_t i = 0; i < samples.size(); ++i) {
             double x{samples[i]};
-            if (CMathsFuncs::isFinite(x) == false) {
-                LOG_ERROR(<< "Discarding " << x);
+            if (CMathsFuncs::isFinite(x) == false ||
+                CMathsFuncs::isFinite(weights[i]) == false) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
+                          << core::CContainerPrinter::print(weights[i]));
                 continue;
             }
             if (hasSeasonalScale) {

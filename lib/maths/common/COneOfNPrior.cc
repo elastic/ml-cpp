@@ -320,7 +320,7 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
     for (std::size_t i = 0; i < samples.size(); ++i) {
         double xi = samples[i];
         double ni = maths_t::countForUpdate(weights[i]);
-        if (CMathsFuncs::isFinite(xi) && CMathsFuncs::isFinite(ni)) {
+        if (CMathsFuncs::isFinite(xi) && CMathsFuncs::isFinite(weights[i])) {
             m_SampleMoments.add(xi, ni);
         }
     }
