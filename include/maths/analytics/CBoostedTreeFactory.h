@@ -266,6 +266,8 @@ private:
     void determineFeatureDataTypes(const core::CDataFrame& frame) const;
 
     //! Initialize the regressors sample distribution.
+    //!
+    //! \return False if initialization failed.
     bool initializeFeatureSampleDistribution() const;
 
     //! Apply scaling to hyperparameter ranges based on the difference in the update
