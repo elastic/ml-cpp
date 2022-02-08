@@ -424,17 +424,17 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     // adjusting for the proportion of old training data we have.
     double numberNewTrainingRows{m_NewTrainingRowMask.manhattan()};
     double numberOldTrainingRows{allTrainingRowsMask.manhattan() - numberNewTrainingRows};
-    double initialLoss{CBoostedTreeHyperparameters::lossAtNSigma(
-                           1.0,
-                           [&] {
-                               TMeanVarAccumulator lossMoments;
-                               for (const auto& mask : m_TestingRowMasks) {
-                                   lossMoments.add(this->meanChangePenalisedLoss(frame, mask));
-                               }
-                               return lossMoments;
-                           }()) +
-                       numberOldTrainingRows * m_PreviousTrainLossGap /
-                           (numberOldTrainingRows + numberNewTrainingRows)};
+    double initialLoss{
+        CBoostedTreeHyperparameters::lossAtNSigma(
+            1.0,
+            [&] {
+                TMeanVarAccumulator lossMoments;
+                for (const auto& mask : m_TestingRowMasks) {
+                    lossMoments.add(this->meanChangePenalisedLoss(frame, mask));
+                }
+                return lossMoments;
+            }()) +
+        this->expectedLossGapAfterTrainIncremental(numberOldTrainingRows, numberNewTrainingRows)};
 
     // Hyperparameter optimisation loop.
 
@@ -662,6 +662,30 @@ std::size_t CBoostedTreeImpl::correctedMemoryUsage(double memoryUsageBytes) {
     spline.interpolate(estimatedMemoryUsageMB, correctedMemoryUsageMB,
                        common::CSplineTypes::E_ParabolicRunout);
     return static_cast<std::size_t>(spline.value(memoryUsageBytes / BYTES_IN_MB) * BYTES_IN_MB);
+}
+
+double CBoostedTreeImpl::expectedLossGapAfterTrainIncremental(double numberOldTrainingRows,
+                                                              double numberNewTrainingRows) const {
+
+    // There are two cases:
+    //   1. We train repeatedly using the same holdout set,
+    //   2. We train incrementally having originally trained via cross-validation.
+    //
+    // In the first case, we compare performance on the same data set throughout and so
+    // the loss of each candidate model can be directly compared. In the second case,
+    // we compare the loss for the retrained model with a model trained on all the
+    // original data. Since the data summary comprises a subset of these data we are
+    // in effect comparing training error on old data + validation error on new training
+    // data for the original model with something closer to validation error on all data
+    // for the retrained model. If we don't have much new data or the improvement we can
+    // make on them is small this typically causes us to reject models which actually
+    // perform better in test. To address this we record gap between the train and
+    // validation loss on the old training data in train and add it on to the threshold
+    // to accept adjusting for the proportion of old training data we have.
+    return m_NumberFolds.value() == 1
+               ? 0.0
+               : numberOldTrainingRows * m_PreviousTrainLossGap /
+                     (numberOldTrainingRows + numberNewTrainingRows);
 }
 
 bool CBoostedTreeImpl::canTrain() const {
