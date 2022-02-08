@@ -285,7 +285,8 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
                                                     double& upperBound,
                                                     maths_t::ETail& tail) const {
 
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     if (samples.empty()) {
@@ -293,17 +294,14 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
         return false;
     }
 
-    lowerBound = upperBound = 1.0;
-
     if (this->isNonInformative()) {
+        lowerBound = upperBound = 1.0;
         return true;
     }
 
     int tail_ = 0;
     for (std::size_t i = 0; i < samples.size(); ++i) {
-        if (samples[i] != *m_Constant) {
-            lowerBound = upperBound = 0.0;
-        }
+        lowerBound = upperBound = samples[i] != *m_Constant ? 0.0 : 1.0;
         if (samples[i] < *m_Constant) {
             tail_ = tail_ | maths_t::E_LeftTail;
         } else if (samples[i] > *m_Constant) {

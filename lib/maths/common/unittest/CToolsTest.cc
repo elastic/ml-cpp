@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
 
     LOG_DEBUG(<< "******** student's t ********");
 
-    boost::math::students_t_distribution<> students(2.0);
+    boost::math::students_t students(2.0);
 
     tail = maths_t::E_UndeterminedTail;
     p1 = numericalProbabilityOfLessLikelySample(students, -4.0);
