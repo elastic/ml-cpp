@@ -33,7 +33,7 @@
 === Enhancements
 
 * Better handle small shifts of the seasonal patterns in time series data.
-  (See {ml-pull}2183[#2183].)
+  (See {ml-pull}2202[#2202].)
 
 == {es} version 8.1.0
 
