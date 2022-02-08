@@ -117,6 +117,8 @@ public:
     CBoostedTreeFactory& etaGrowthRatePerTree(double etaGrowthRatePerTree);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTreeFactory& maximumNumberTrees(std::size_t maximumNumberTrees);
+    //! Set the maximum supported size for deploying a model.
+    CBoostedTreeFactory& maximumDeployedSize(std::size_t maximumDeployedSize);
     //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTreeFactory& featureBagFraction(double featureBagFraction);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter

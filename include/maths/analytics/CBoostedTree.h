@@ -184,6 +184,9 @@ public:
     //! parameters.
     static std::size_t estimateMemoryUsage(std::size_t numberLossParameters);
 
+    //! Get the memory the node will will use in bytes when deployed.
+    std::size_t deployedSize() const;
+
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 

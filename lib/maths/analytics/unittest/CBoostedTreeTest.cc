@@ -1812,6 +1812,111 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
+
+    // Test we always produce a model which meets our memory constraint.
+
+    test::CRandomNumbers rng;
+    double noiseVariance{10.0};
+    std::size_t trainRows{800};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+    std::size_t cols{8};
+    std::size_t capacity{250};
+    std::size_t maximumDeployedSize{20000};
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frameConstrained = core::makeMainStorageDataFrame(cols, capacity).first;
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *frameConstrained);
+    auto regressionConstrained =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .maximumDeployedSize(maximumDeployedSize)
+            .numberFolds(2)
+            .buildFor(*frameConstrained, cols - 1);
+    regressionConstrained->train();
+    regressionConstrained->predict();
+
+    auto frameUnconstrained = core::makeMainStorageDataFrame(cols, capacity).first;
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *frameUnconstrained);
+    auto regressionUnconstrained =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .numberFolds(2)
+            .buildFor(*frameUnconstrained, cols - 1);
+    regressionUnconstrained->train();
+    regressionUnconstrained->predict();
+
+    std::size_t deployedSizeConstrained{
+        std::accumulate(regressionConstrained->trainedModel().begin(),
+                        regressionConstrained->trainedModel().end(),
+                        std::size_t{0}, [](std::size_t sum, const auto& tree) {
+                            for (const auto& node : tree) {
+                                sum += node.deployedSize();
+                            }
+                            return sum;
+                        })};
+    std::size_t deployedSizeUnconstrained{
+        std::accumulate(regressionUnconstrained->trainedModel().begin(),
+                        regressionUnconstrained->trainedModel().end(),
+                        std::size_t{0}, [](std::size_t sum, const auto& tree) {
+                            for (const auto& node : tree) {
+                                sum += node.deployedSize();
+                            }
+                            return sum;
+                        })};
+
+    auto[modelBiasConstrained, modelRSquaredConstrained] = computeEvaluationMetrics(
+        *frameConstrained, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionConstrained->readPrediction(row)[0];
+        },
+        target, 0.0);
+
+    auto[modelBiasUnconstrained, modelRSquaredUnconstrained] = computeEvaluationMetrics(
+        *frameUnconstrained, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionUnconstrained->readPrediction(row)[0];
+        },
+        target, 0.0);
+
+    LOG_DEBUG(<< "deployedSizeConstrained = " << deployedSizeConstrained
+              << ", modelBiasConstrained = " << modelBiasConstrained
+              << ", modelRSquaredConstrained = " << modelRSquaredConstrained);
+    LOG_DEBUG(<< "deployedSizeUnconstrained = " << deployedSizeUnconstrained
+              << ", modelBiasUnconstrained = " << modelBiasUnconstrained
+              << ", modelRSquaredUnconstrained = " << modelRSquaredUnconstrained);
+
+    // We don't hurt model accuracy by more than 1%.
+    BOOST_TEST_REQUIRE(modelRSquaredConstrained > 0.99 * modelRSquaredUnconstrained);
+
+    // We need to constrain vs the optimum for this data and we are within
+    // the memory budget.
+    BOOST_TEST_REQUIRE(deployedSizeConstrained < maximumDeployedSize);
+    BOOST_TEST_REQUIRE(deployedSizeConstrained < deployedSizeUnconstrained);
+}
+
 BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
     // Test progress monitoring invariants.

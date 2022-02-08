@@ -130,6 +130,10 @@ std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParamete
            common::las::estimateMemoryUsage<TVector>(numberLossParameters);
 }
 
+std::size_t CBoostedTreeNode::deployedSize() const {
+    return this->isLeaf() ? (m_NodeValue.size() + 2) * 8 : 7 * 8;
+}
+
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
     core::CPersistUtils::persist(CURVATURE_TAG, m_Curvature, inserter);

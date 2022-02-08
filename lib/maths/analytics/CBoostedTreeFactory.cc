@@ -1329,6 +1329,16 @@ CBoostedTreeFactory& CBoostedTreeFactory::maximumNumberTrees(std::size_t maximum
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::maximumDeployedSize(std::size_t maximumDeployedSize) {
+    // We don't have any validation of this because we don't have a plausible
+    // smallest value. Clearly if it is too small we won't be able to produce
+    // a sensible model, but it is not expected that this will be set by the
+    // user and is instead a function of the inference code and is set
+    // programatically.
+    m_TreeImpl->m_MaximumDeployedSize = maximumDeployedSize;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::featureBagFraction(double featureBagFraction) {
     if (featureBagFraction < 0.0 || featureBagFraction > 1.0) {
         LOG_WARN(<< "Truncating supplied feature bag fraction " << featureBagFraction
