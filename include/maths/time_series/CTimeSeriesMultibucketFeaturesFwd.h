@@ -24,7 +24,8 @@ namespace time_series {
 template<typename>
 class CTimeSeriesMultibucketFeature;
 using CTimeSeriesMultibucketScalarFeature = CTimeSeriesMultibucketFeature<double>;
-using CTimeSeriesMultibucketVectorFeature = CTimeSeriesMultibucketFeature<core::CSmallVector<double, 10>>;
+using CTimeSeriesMultibucketVectorFeature =
+    CTimeSeriesMultibucketFeature<core::CSmallVector<double, 10>>;
 }
 }
 }
