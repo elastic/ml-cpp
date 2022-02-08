@@ -2402,14 +2402,14 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
     // Note that if we are training on using a holdout set we include the holdout
     // set in the data we consider for summarisation. Typical usage in this case
     // is we're planning to train by query and so the summarisation fraction would
-    // be one.
+    // be one ensuring we retain the full holdout set.
     //
     // (I considered ensuring that the holdout set is always included in the data
     // summary in entirety, which is consistent with this usage, but in practice
     // it may be useful to be able to incrementally train a model with a cutdown
-    // summary after having trained by query. When we come to implement this it
-    // will be behind a new API which can ensure the data summarization fraction
-    // is set appropriately.)
+    // summary after having trained by query. When we come to implement train by
+    // query it will be behind a new API which can ensure the data summarization
+    // fraction is set appropriately.)
 
     core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
 
