@@ -103,6 +103,10 @@ std::size_t CNewSeasonalComponentSummary::size() const {
     return m_Size;
 }
 
+bool CNewSeasonalComponentSummary::isOneOf(int periods) const {
+    return (m_PeriodDescriptor & periods) != 0;
+}
+
 CNewSeasonalComponentSummary::TSeasonalTimeUPtr
 CNewSeasonalComponentSummary::seasonalTime() const {
     auto interval = [this](std::size_t i) {
@@ -162,6 +166,10 @@ core_t::TTime CNewSeasonalComponentSummary::initialValuesStartTime() const {
 core_t::TTime CNewSeasonalComponentSummary::initialValuesEndTime() const {
     return m_InitialValuesStartTime +
            static_cast<core_t::TTime>(m_InitialValues.size()) * m_BucketLength;
+}
+
+core_t::TTime CNewSeasonalComponentSummary::bucketLength() const {
+    return m_BucketLength;
 }
 
 const CNewSeasonalComponentSummary::TFloatMeanAccumulatorVec&
@@ -270,7 +278,7 @@ bool CTimeSeriesTestForSeasonality::canTestModelledComponent(
     const CSeasonalTime& component) {
     std::size_t minimumPeriodInBuckets{
         std::max(buckets(bucketLength, minimumPeriod), minimumResolution)};
-    return 10 * (component.period() % bucketLength) < component.period() &&
+    return 100 * (component.period() % bucketLength) < component.period() &&
            canTestPeriod(values, minimumPeriodInBuckets,
                          toPeriod(bucketsStartTime, bucketLength, component));
 }
