@@ -1603,7 +1603,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
             }
         }
         LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(error));
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.29);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.3);
 
         LOG_DEBUG(<< "Winsorisation");
         TDouble2Vec prediction(model.predict(time));
