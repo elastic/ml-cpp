@@ -1908,8 +1908,8 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
               << ", modelBiasUnconstrained = " << modelBiasUnconstrained
               << ", modelRSquaredUnconstrained = " << modelRSquaredUnconstrained);
 
-    // We don't hurt model accuracy by more than 1%.
-    BOOST_TEST_REQUIRE(modelRSquaredConstrained > 0.99 * modelRSquaredUnconstrained);
+    // We don't hurt model accuracy by more than 3%.
+    BOOST_TEST_REQUIRE(modelRSquaredConstrained > 0.97 * modelRSquaredUnconstrained);
 
     // We need to constrain vs the optimum for this data and we are within
     // the memory budget.
