@@ -134,7 +134,7 @@ std::size_t CBoostedTreeNode::deployedSize() const {
     // These are derived from the main terms from TreeSizeInfo.java:
     //   - Java uses separate objects for internal and leaf nodes.
     //   - Each object has a reference.
-    //   - Each internal node additionally has 1 enum, 1 double, 3 ints, 1 boolean,
+    //   - Each internal node additionally has 1 enum, 1 double, 3 ints, 1 boolean
     //     and 1 long. We assume enum is int sized and after alignment the boolean
     //     also consumes 4 bytes.
     //   - Each leaf has 1 double array (equal to the node value size) note Java
