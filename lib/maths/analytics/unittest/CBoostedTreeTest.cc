@@ -1336,6 +1336,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
                 .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
                 .maximumNumberNewTrees(maxNumNewTrees)
                 .numberHoldoutRows(numberHoldoutRows)
+                .forceAcceptIncrementalTraining(true)
                 .buildForTrainIncremental(*batch2, cols - 1);
         updatedModel->trainIncremental();
         updatedModel->predict();
