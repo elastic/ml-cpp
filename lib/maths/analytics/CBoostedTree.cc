@@ -131,7 +131,18 @@ std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParamete
 }
 
 std::size_t CBoostedTreeNode::deployedSize() const {
-    return this->isLeaf() ? (m_NodeValue.size() + 2) * 8 : 7 * 8;
+    // These are derived from the main terms from TreeSizeInfo.java:
+    //   - Java uses separate objects for internal and leaf nodes.
+    //   - Each object has a reference.
+    //   - Each internal node additionally has 1 enum, 1 double, 3 ints, 1 boolean,
+    //     and 1 long. We assume enum is int sized and after alignment the boolean
+    //     also consumes 4 bytes.
+    //   - Each leaf has 1 double array (equal to the node value size) note Java
+    //     arrays have 20 bytes overhead and 1 long.
+    //
+    // (We assume the JVM is are not using compressed refs in the so 8 bytes per
+    // reference which is the worst case.)
+    return this->isLeaf() ? 20 + (m_NodeValue.size() + 3) * 8 : 5 * 4 + 3 * 8;
 }
 
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
