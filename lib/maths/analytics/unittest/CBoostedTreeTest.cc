@@ -902,6 +902,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                           .numberHoldoutRows(numberHoldoutRows)
                           .eta({0.02})
+                          .dataSummarizationFraction(1.0)
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();
