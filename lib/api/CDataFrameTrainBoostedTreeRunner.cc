@@ -18,6 +18,7 @@
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
+#include <core/Constants.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
@@ -63,7 +64,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(SOFT_TREE_DEPTH_TOLERANCE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_TREES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(MAX_DEPLOYED_SIZE,
+        theReader.addParameter(MAX_DEPLOYED_MODEL_SIZE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_BAG_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -109,8 +110,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
 
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
-    std::size_t maximumDeployedSize{
-        parameters[MAX_DEPLOYED_SIZE].fallback(std::size_t{1024 * 1024 * 1024})};
+    std::size_t maximumDeployedSize{parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
+        core::constants::BYTES_IN_GIGABYTES)};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
     std::size_t numberRoundsPerHyperparameter{
@@ -411,7 +412,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE{"et
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
-const std::string CDataFrameTrainBoostedTreeRunner::MAX_DEPLOYED_SIZE{"max_size"};
+const std::string CDataFrameTrainBoostedTreeRunner::MAX_DEPLOYED_MODEL_SIZE{"max_model_size"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_FOLDS{"num_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD{"train_fraction_per_fold"};

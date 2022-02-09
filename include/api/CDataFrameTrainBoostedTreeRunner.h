@@ -53,7 +53,7 @@ public:
     static const std::string SOFT_TREE_DEPTH_LIMIT;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
     static const std::string MAX_TREES;
-    static const std::string MAX_DEPLOYED_SIZE;
+    static const std::string MAX_DEPLOYED_MODEL_SIZE;
     static const std::string FEATURE_BAG_FRACTION;
     static const std::string NUM_FOLDS;
     static const std::string TRAIN_FRACTION_PER_FOLD;
