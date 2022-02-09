@@ -32,6 +32,8 @@
 
 === Enhancements
 
+* Better handle small shifts of the seasonal patterns in time series data.
+  (See {ml-pull}2202[#2202].)
 * Limit the maximum size of classification and regression models training
   produces so they can always be deployed for inference inside the Elastic
   Stack. (See {ml-pull}2205[#2205].)

@@ -80,6 +80,7 @@ void CTimeSeriesDecompositionStub::forecast(core_t::TTime /*startTime*/,
 double CTimeSeriesDecompositionStub::detrend(core_t::TTime /*time*/,
                                              double value,
                                              double /*confidence*/,
+                                             core_t::TTime /*maximumTimeShift*/,
                                              int /*components*/) const {
     return value;
 }

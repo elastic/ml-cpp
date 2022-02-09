@@ -186,7 +186,7 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
 
     TAnomalyAccumulator anomalies(numAnomalies);
 
-    for (std::size_t i = 0u, bucket = 0; i < messages.size(); ++i) {
+    for (std::size_t i = 0, bucket = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= startTime + bucketLength) {
             LOG_DEBUG(<< "Updating and testing bucket = [" << startTime << ","
                       << startTime + bucketLength << ")");
@@ -205,7 +205,6 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
                     attributes.emplace_back(probability.s_Probability,
                                             *probability.s_Attribute);
                 }
-                LOG_DEBUG(<< "Adding anomaly " << pid);
                 anomalies.add({annotatedProbability.s_Probability,
                                {bucket, person, attributes}});
             }

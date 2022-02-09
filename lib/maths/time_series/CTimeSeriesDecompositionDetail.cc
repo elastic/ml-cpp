@@ -2094,7 +2094,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
         return;
     }
 
-    if (components.seasonal().size() == 0) {
+    if (components.seasonal().empty()) {
         LOG_DEBUG(<< "removed all seasonality");
         m_ModelAnnotationCallback("removed all seasonality");
     }
@@ -2106,6 +2106,12 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
         core_t::TTime period{time->period()};
         core_t::TTime startTime{component.initialValuesStartTime()};
         core_t::TTime endTime{component.initialValuesEndTime()};
+        core_t::TTime maxTimeShiftPerPeriod{
+            component.isOneOf(CNewSeasonalComponentSummary::E_Day |
+                              CNewSeasonalComponentSummary::E_Week |
+                              CNewSeasonalComponentSummary::E_Year)
+                ? 0
+                : component.bucketLength() / 2};
         const auto& initialValues = component.initialValues();
 
         // If we see multiple repeats of the component in the window we use
@@ -2117,7 +2123,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
         double bucketLength{static_cast<double>(m_BucketLength)};
 
         // Add the new seasonal component.
-        m_Seasonal->add(*time, component.size(), m_DecayRate, bucketLength,
+        m_Seasonal->add(*time, component.size(), m_DecayRate, bucketLength, maxTimeShiftPerPeriod,
                         boundaryCondition, startTime, endTime, initialValues);
         m_ModelAnnotationCallback(component.annotationText());
     }
@@ -2733,11 +2739,13 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(
     std::size_t size,
     double decayRate,
     double bucketLength,
+    core_t::TTime maxTimeShiftPerPeriod,
     common::CSplineTypes::EBoundaryCondition boundaryCondition,
     core_t::TTime startTime,
     core_t::TTime endTime,
     const TFloatMeanAccumulatorVec& values) {
-    m_Components.emplace_back(seasonalTime, size, decayRate, bucketLength, boundaryCondition);
+    m_Components.emplace_back(seasonalTime, size, decayRate, bucketLength,
+                              maxTimeShiftPerPeriod, boundaryCondition);
     m_Components.back().initialize(startTime, endTime, values);
     m_PredictionErrors.emplace_back();
 }
