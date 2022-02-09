@@ -54,19 +54,20 @@ public:
     CTestSeasonalComponent(core_t::TTime period,
                            std::size_t space,
                            double decayRate = 0.0,
-                           double minimumBucketLength = 0.0)
-        : maths::time_series::CSeasonalComponent(maths::time_series::CGeneralPeriodTime{period},
-                                                 space,
-                                                 decayRate,
-                                                 minimumBucketLength) {
-        this->initialize();
-    }
+                           double minBucketLength = 0.0)
+        : CTestSeasonalComponent{maths::time_series::CGeneralPeriodTime{period},
+                                 space, decayRate, minBucketLength} {}
     CTestSeasonalComponent(const maths::time_series::CSeasonalTime& time,
                            std::size_t space,
                            double decayRate = 0.0,
-                           double minimumBucketLength = 0.0)
-        : maths::time_series::CSeasonalComponent(time, space, decayRate, minimumBucketLength) {
-        this->initialize();
+                           double minBucketLength = 0.0,
+                           core_t::TTime maxTimeShiftPerPeriod = 0,
+                           core_t::TTime startTime = 0,
+                           core_t::TTime endTime = 0,
+                           const TFloatMeanAccumulatorVec& initialValues = {})
+        : maths::time_series::CSeasonalComponent{
+              time, space, decayRate, minBucketLength, maxTimeShiftPerPeriod} {
+        this->initialize(startTime, endTime, initialValues);
     }
 
     void addPoint(core_t::TTime time, double value, double weight = 1.0) {
@@ -112,6 +113,9 @@ void generateSeasonalValues(test::CRandomNumbers& rng,
 double mean(const TDoubleDoublePr& x) {
     return (x.first + x.second) / 2.0;
 }
+
+const core_t::TTime FIVE_MINUTES{5 * core::constants::MINUTE};
+const core_t::TTime TWO_HOURS{2 * core::constants::HOUR};
 }
 
 BOOST_AUTO_TEST_CASE(testSwap) {
@@ -190,8 +194,6 @@ BOOST_AUTO_TEST_CASE(testShouldInterpolate) {
         for (core_t::TTime startTime = 0; startTime < 2 * period; startTime += period) {
             core_t::TTime t{startTime};
             for (/**/; t < startTime + period; t += core::constants::HOUR) {
-                if (component.shouldInterpolate(t))
-                    LOG_DEBUG(<< t);
                 BOOST_REQUIRE_EQUAL(false, component.shouldInterpolate(t));
             }
             BOOST_REQUIRE(component.shouldInterpolate(t));
@@ -576,7 +578,7 @@ BOOST_AUTO_TEST_CASE(testTimeVaryingPeriodic) {
             LOG_TRACE(<< "error1 = " << error1);
             LOG_TRACE(<< "error2 = " << error2);
             BOOST_TEST_REQUIRE(error1 < 27.0);
-            BOOST_TEST_REQUIRE(error2 < 19.0);
+            BOOST_TEST_REQUIRE(error2 < 20.0);
             totalError1 += error1;
             totalError2 += error2;
             numberErrors += 1.0;
@@ -781,6 +783,129 @@ BOOST_AUTO_TEST_CASE(testVariance) {
 
     LOG_DEBUG(<< "mean relative error = " << maths::common::CBasicStatistics::mean(error));
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.12);
+}
+
+BOOST_AUTO_TEST_CASE(testPrecession) {
+    // Check the case that there is a mismatch between the data and component period.
+    // In this case we should mainly compenstate by shifting the component in time.
+
+    auto trend = [&](core_t::TTime time) {
+        return 10.0 + 20.0 * std::sin(boost::math::double_constants::two_pi *
+                                      static_cast<double>(time) /
+                                      static_cast<double>(TWO_HOURS + FIVE_MINUTES / 2));
+    };
+
+    CTestSeasonalComponent::TFloatMeanAccumulatorVec initialValues{12};
+    for (core_t::TTime time = 0; time < 2 * core::constants::HOUR; time += FIVE_MINUTES) {
+        initialValues[6 * time / core::constants::HOUR].add(trend(time));
+    }
+
+    CTestSeasonalComponent seasonalWithShift{
+        maths::time_series::CGeneralPeriodTime{2 * core::constants::HOUR},
+        12,           // buckets
+        0.0,          // decay rate
+        FIVE_MINUTES, // minimum bucket length
+        FIVE_MINUTES, // maximum time shift per period
+        0,            // start time of initial values
+        TWO_HOURS,    // end time of initial values
+        initialValues};
+    CTestSeasonalComponent seasonalWithoutShift{
+        maths::time_series::CGeneralPeriodTime{2 * core::constants::HOUR},
+        12,           // buckets
+        0.0,          // decay rate
+        FIVE_MINUTES, // minimum bucket length
+        0,            // maximum time shift per period
+        0,            // start time of initial values
+        TWO_HOURS,    // end time of initial values
+        initialValues};
+
+    TMeanAccumulator meanErrorWithShift;
+    TMeanAccumulator meanErrorWithoutShift;
+    for (core_t::TTime time = TWO_HOURS; time < core::constants::WEEK; time += FIVE_MINUTES) {
+        seasonalWithShift.addPoint(time, trend(time));
+        seasonalWithoutShift.addPoint(time, trend(time));
+        double errorWithShift{
+            maths::common::CBasicStatistics::mean(seasonalWithShift.value(time, 0.0)) -
+            trend(time)};
+        double errorWithoutShift{maths::common::CBasicStatistics::mean(
+                                     seasonalWithoutShift.value(time, 0.0)) -
+                                 trend(time)};
+        meanErrorWithShift.add(std::fabs(errorWithShift));
+        meanErrorWithoutShift.add(std::fabs(errorWithoutShift));
+    }
+    LOG_DEBUG(<< "mean error with time shift = "
+              << maths::common::CBasicStatistics::mean(meanErrorWithShift));
+    LOG_DEBUG(<< "mean error without time shift = "
+              << maths::common::CBasicStatistics::mean(meanErrorWithoutShift));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanErrorWithShift) <
+                       0.25 * maths::common::CBasicStatistics::mean(meanErrorWithoutShift));
+}
+
+BOOST_AUTO_TEST_CASE(testWithRandomShifts) {
+    // Check we undergo sporadic random shifts in time.
+
+    core_t::TTime shift{0};
+    auto trend = [&](core_t::TTime time) {
+        return 10.0 + 20.0 * std::sin(boost::math::double_constants::two_pi *
+                                      static_cast<double>(time + shift) /
+                                      static_cast<double>(TWO_HOURS));
+    };
+
+    test::CRandomNumbers rng;
+
+    CTestSeasonalComponent::TFloatMeanAccumulatorVec initialValues{12};
+    for (core_t::TTime time = 0; time < 2 * core::constants::HOUR; time += FIVE_MINUTES) {
+        initialValues[6 * time / core::constants::HOUR].add(trend(time));
+    }
+
+    CTestSeasonalComponent seasonalWithShift{
+        maths::time_series::CGeneralPeriodTime{2 * core::constants::HOUR},
+        12,               // buckets
+        0.0,              // decay rate
+        FIVE_MINUTES,     // minimum bucket length
+        FIVE_MINUTES / 2, // maximum time shift per period
+        0,                // start time of initial values
+        TWO_HOURS,        // end time of initial values
+        initialValues};
+    CTestSeasonalComponent seasonalWithoutShift{
+        maths::time_series::CGeneralPeriodTime{2 * core::constants::HOUR},
+        12,           // buckets
+        0.0,          // decay rate
+        FIVE_MINUTES, // minimum bucket length
+        0,            // maximum time shift per period
+        0,            // start time of initial values
+        TWO_HOURS,    // end time of initial values
+        initialValues};
+
+    TMeanAccumulator meanErrorWithShift;
+    TMeanAccumulator meanErrorWithoutShift;
+    TDoubleVec u01;
+    TDoubleVec shift_;
+    for (core_t::TTime time = TWO_HOURS; time < core::constants::WEEK; time += FIVE_MINUTES) {
+        seasonalWithShift.addPoint(time, trend(time));
+        seasonalWithoutShift.addPoint(time, trend(time));
+        double errorWithShift{
+            maths::common::CBasicStatistics::mean(seasonalWithShift.value(time, 0.0)) -
+            trend(time)};
+        double errorWithoutShift{maths::common::CBasicStatistics::mean(
+                                     seasonalWithoutShift.value(time, 0.0)) -
+                                 trend(time)};
+        meanErrorWithShift.add(std::fabs(errorWithShift));
+        meanErrorWithoutShift.add(std::fabs(errorWithoutShift));
+
+        rng.generateUniformSamples(0.0, 1.0, 1, u01);
+        if (u01[0] < 0.01) {
+            rng.generateUniformSamples(-static_cast<double>(3 * FIVE_MINUTES),
+                                       static_cast<double>(3 * FIVE_MINUTES), 1, shift_);
+            shift += static_cast<core_t::TTime>(shift_[0]);
+        }
+    }
+    LOG_DEBUG(<< "mean error with time shift = "
+              << maths::common::CBasicStatistics::mean(meanErrorWithShift));
+    LOG_DEBUG(<< "mean error without time shift = "
+              << maths::common::CBasicStatistics::mean(meanErrorWithoutShift));
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanErrorWithShift) <
+                       0.5 * maths::common::CBasicStatistics::mean(meanErrorWithoutShift));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

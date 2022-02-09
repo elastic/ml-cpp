@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 8.2.0
+
+=== Enhancements
+
+* Better handle small shifts of the seasonal patterns in time series data.
+  (See {ml-pull}2202[#2202].)
+
 == {es} version 8.1.0
 
 === Enhancements
