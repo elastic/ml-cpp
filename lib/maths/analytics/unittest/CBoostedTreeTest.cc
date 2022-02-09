@@ -932,6 +932,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
                      .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
                      .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
                      .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
+                     .forceAcceptIncrementalTraining(true)
                      .buildForTrainIncremental(*newFrame, cols - 1);
 
     regression->trainIncremental();
