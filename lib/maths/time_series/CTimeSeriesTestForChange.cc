@@ -57,16 +57,6 @@ constexpr core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
 constexpr core_t::TTime HOUR{core::constants::HOUR};
 const double LOG0p95{std::log(0.95)};
 
-double rightTailFTest(double v0, double v1, double df0, double df1) {
-    // If there is insufficient data for either hypothesis treat we are conservative
-    // and say the alternative hypothesis is not provable.
-    if (df0 <= 0.0 || df1 <= 0.0) {
-        return 1.0;
-    }
-    double F{v0 == v1 ? 1.0 : (v0 / df0) / (v1 / df1)};
-    return common::CStatisticalTests::rightTailFTest(F, df0, df1);
-}
-
 std::size_t largestShift(const TDoubleVec& shifts) {
     std::size_t result{0};
     double largest{0.0};
@@ -130,10 +120,11 @@ void CChangePoint::add(core_t::TTime time,
 }
 
 bool CChangePoint::shouldUndo() const {
-    return rightTailFTest(common::CBasicStatistics::mean(m_Mse),
-                          common::CBasicStatistics::mean(m_UndoneMse),
-                          common::CBasicStatistics::count(m_Mse),
-                          common::CBasicStatistics::count(m_UndoneMse)) < m_SignificantPValue;
+    return common::CStatisticalTests::rightTailFTest(
+               common::CBasicStatistics::mean(m_Mse),
+               common::CBasicStatistics::mean(m_UndoneMse),
+               common::CBasicStatistics::count(m_Mse),
+               common::CBasicStatistics::count(m_UndoneMse)) < m_SignificantPValue;
 }
 
 CLevelShift::CLevelShift(core_t::TTime time,
@@ -763,8 +754,9 @@ double CTimeSeriesTestForChange::pValue(double varianceH0,
                                         double varianceH1,
                                         double parametersH1,
                                         double n) const {
-    return rightTailFTest(varianceH0 + m_SampleVariance, varianceH1 + m_SampleVariance,
-                          n - parametersH0, n - parametersH1);
+    return common::CStatisticalTests::rightTailFTest(
+        varianceH0 + m_SampleVariance, varianceH1 + m_SampleVariance,
+        n - parametersH0, n - parametersH1);
 }
 
 double CTimeSeriesTestForChange::aic(const SChangePoint& change) const {

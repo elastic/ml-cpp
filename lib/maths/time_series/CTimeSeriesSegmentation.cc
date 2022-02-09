@@ -458,9 +458,9 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
                        common::MINIMUM_COEFFICIENT_OF_VARIATION *
                            common::CBasicStatistics::mean(meanAbs)};
         double df[]{4.0 - 2.0, static_cast<double>(range - 4)};
-        double F{(df[1] * std::max(v[0] - v[1], 0.0)) / (df[0] * v[1])};
         double pValue{common::CTools::oneMinusPowOneMinusX(
-            common::CStatisticalTests::rightTailFTest(F, df[0], df[1]),
+            common::CStatisticalTests::rightTailFTest(std::max(v[0] - v[1], 0.0),
+                                                      v[1], df[0], df[1]),
             static_cast<double>(reweighted.size() / initialStep))};
         LOG_TRACE(<< "  p-value = " << pValue);
 
@@ -632,9 +632,9 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledSeasonal(
                        common::MINIMUM_COEFFICIENT_OF_VARIATION *
                            common::CBasicStatistics::mean(meanAbs)};
         double df[]{2.0 - 1.0, static_cast<double>(range - 2)};
-        double F{df[1] * std::max(v[0] - v[1], 0.0) / (df[0] * v[1])};
         double pValue{common::CTools::oneMinusPowOneMinusX(
-            common::CStatisticalTests::rightTailFTest(F, df[0], df[1]),
+            common::CStatisticalTests::rightTailFTest(std::max(v[0] - v[1], 0.0),
+                                                      v[1], df[0], df[1]),
             static_cast<double>(range - 4))};
         LOG_TRACE(<< "  p-value = " << pValue);
 
@@ -901,9 +901,9 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseTimeShifted(ITR begin,
                    bestSplitVariance + common::MINIMUM_COEFFICIENT_OF_VARIATION *
                                            common::CBasicStatistics::mean(meanAbs)};
         double df[]{3.0 - 2.0, static_cast<double>(range - 3)};
-        double F{df[1] * std::max(v[0] - v[1], 0.0) / (df[0] * v[1])};
         double pValue{common::CTools::oneMinusPowOneMinusX(
-            common::CStatisticalTests::rightTailFTest(F, df[0], df[1]),
+            common::CStatisticalTests::rightTailFTest(std::max(v[0] - v[1], 0.0),
+                                                      v[1], df[0], df[1]),
             static_cast<double>(range - 10))};
         LOG_TRACE(<< "  p-value = " << pValue);
 
