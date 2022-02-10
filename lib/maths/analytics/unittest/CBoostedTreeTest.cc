@@ -902,6 +902,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                           .numberHoldoutRows(numberHoldoutRows)
                           .eta({0.02})
+                          .dataSummarizationFraction(1.0)
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();
@@ -931,6 +932,7 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
                      .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
                      .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
                      .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
+                     .forceAcceptIncrementalTraining(true)
                      .buildForTrainIncremental(*newFrame, cols - 1);
 
     regression->trainIncremental();
@@ -1334,6 +1336,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
                 .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
                 .maximumNumberNewTrees(maxNumNewTrees)
                 .numberHoldoutRows(numberHoldoutRows)
+                .forceAcceptIncrementalTraining(true)
                 .buildForTrainIncremental(*batch2, cols - 1);
         updatedModel->trainIncremental();
         updatedModel->predict();

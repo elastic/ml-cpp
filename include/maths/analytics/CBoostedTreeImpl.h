@@ -250,6 +250,10 @@ private:
 private:
     CBoostedTreeImpl();
 
+    //! Get the loss gap we expect after incremental training.
+    double expectedLossGapAfterTrainIncremental(double numberOldTrainingRows,
+                                                double numberNewTrainingRows) const;
+
     //! Check if we can train a model.
     bool canTrain() const;
 
