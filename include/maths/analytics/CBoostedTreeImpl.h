@@ -347,6 +347,12 @@ private:
     //! a good idea.
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
+    //! Get the maximum memory of any trained model we will produce.
+    //!
+    //! This is the largest model we will train if there is a limit on the
+    //! deployed model.
+    std::size_t maximumTrainedModelSize() const;
+
     //! Start monitoring fine tuning hyperparameters.
     void startProgressMonitoringFineTuneHyperparameters();
 
@@ -397,6 +403,7 @@ private:
     double m_TrainFractionPerFold = 0.75;
     std::size_t m_MaximumNumberTrees = 20;
     std::size_t m_MaximumAttemptsToAddTree = 3;
+    std::size_t m_MaximumDeployedSize = std::numeric_limits<std::size_t>::max();
     std::size_t m_NumberSplitsPerFeature = 75;
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter = 2;
     std::size_t m_RowsPerFeature = 50;

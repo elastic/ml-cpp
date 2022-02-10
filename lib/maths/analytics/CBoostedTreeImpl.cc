@@ -44,6 +44,7 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <numeric>
 
 namespace ml {
 namespace maths {
@@ -695,7 +696,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     scopeMemoryUsage.add(candidateSplits);
 
     std::size_t retries{0};
-
+    std::size_t deployedSize{0};
     TDoubleVec losses;
     losses.reserve(m_MaximumNumberTrees);
     CTrainForestStoppingCondition stoppingCondition{m_MaximumNumberTrees};
@@ -707,7 +708,12 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
-        if (retries == m_MaximumAttemptsToAddTree) {
+        // Simply break out of training if the model exceeds the size limit. We
+        // don't try and anticipate this limit: cross-validation error will direct
+        // hyperparameter tuning to select the best parameters subject to this
+        // constraint.
+        if (retries == m_MaximumAttemptsToAddTree ||
+            deployedSize > this->maximumTrainedModelSize()) {
             break;
         }
 
@@ -719,6 +725,10 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             forest.push_back(std::move(tree));
             eta = std::min(1.0, m_EtaGrowthRatePerTree * eta);
             retries = 0;
+            deployedSize += std::accumulate(forest.back().begin(), forest.back().end(),
+                                            0, [](auto size, const auto& node) {
+                                                return size + node.deployedSize();
+                                            });
             trainingProgress.increment();
         } else {
             // Refresh splits in case it allows us to find tree which can reduce loss.
@@ -1624,6 +1634,10 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(const core::CPackedBitVector& trai
 std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) const {
     return static_cast<std::size_t>(
         std::ceil(10.0 * std::sqrt(static_cast<double>(numberRows))));
+}
+
+std::size_t CBoostedTreeImpl::maximumTrainedModelSize() const {
+    return static_cast<std::size_t>(0.95 * static_cast<double>(m_MaximumDeployedSize) + 0.5);
 }
 
 void CBoostedTreeImpl::recordHyperparameters() {
