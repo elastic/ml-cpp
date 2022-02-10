@@ -142,7 +142,7 @@ std::size_t CBoostedTreeNode::deployedSize() const {
     //
     // (We assume the JVM is are not using compressed refs in the so 8 bytes per
     // reference which is the worst case.)
-    return this->isLeaf() ? 20 + (m_NodeValue.size() + 3) * 8 : 5 * 4 + 3 * 8;
+    return this->isLeaf() ? 20 + (m_NodeValue.size() + 2) * 8 : 5 * 4 + 3 * 8;
 }
 
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
