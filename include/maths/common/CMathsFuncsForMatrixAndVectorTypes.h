@@ -15,6 +15,8 @@
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CMathsFuncs.h>
 
+#include <algorithm>
+
 namespace ml {
 namespace maths {
 namespace common {
@@ -72,6 +74,12 @@ bool CMathsFuncs::isNan(const CSymmetricMatrixNxN<double, N>& val) {
     return anElement(static_cast<bool (*)(double)>(&isNan), val);
 }
 
+template<typename T, std::size_t N>
+bool CMathsFuncs::isNan(const std::array<T, N>& val) {
+    return std::any_of(val.begin(), val.end(),
+                       [](const auto& x) { return isNan(x); });
+}
+
 template<std::size_t N>
 bool CMathsFuncs::isInf(const CVectorNx1<double, N>& val) {
     return aComponent(static_cast<bool (*)(double)>(&isInf), val);
@@ -82,6 +90,12 @@ bool CMathsFuncs::isInf(const CSymmetricMatrixNxN<double, N>& val) {
     return anElement(static_cast<bool (*)(double)>(&isInf), val);
 }
 
+template<typename T, std::size_t N>
+bool CMathsFuncs::isInf(const std::array<T, N>& val) {
+    return std::any_of(val.begin(), val.end(),
+                       [](const auto& x) { return isInf(x); });
+}
+
 template<std::size_t N>
 bool CMathsFuncs::isFinite(const CVectorNx1<double, N>& val) {
     return everyComponent(static_cast<bool (*)(double)>(&isFinite), val);
@@ -90,6 +104,12 @@ bool CMathsFuncs::isFinite(const CVectorNx1<double, N>& val) {
 template<std::size_t N>
 bool CMathsFuncs::isFinite(const CSymmetricMatrixNxN<double, N>& val) {
     return everyElement(static_cast<bool (*)(double)>(&isFinite), val);
+}
+
+template<typename T, std::size_t N>
+bool CMathsFuncs::isFinite(const std::array<T, N>& val) {
+    return std::all_of(val.begin(), val.end(),
+                       [](const auto& x) { return isFinite(x); });
 }
 }
 }

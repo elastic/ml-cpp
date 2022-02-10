@@ -23,13 +23,11 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CPrior.h>
 #include <maths/common/CRestoreParams.h>
 
 #include <maths/time_series/CSeasonalTime.h>
-
-#include <boost/container/flat_map.hpp>
-#include <boost/math/distributions/normal.hpp>
 
 #include <cmath>
 #include <string>
@@ -492,8 +490,12 @@ TDoubleDoublePr CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time
         return {1.0, 1.0};
     }
 
+    if (common::CMathsFuncs::isFinite(variance) == false) {
+        LOG_ERROR(<< "Supplied variance is " << variance << ".");
+        return {1.0, 1.0};
+    }
     double mean{this->meanVariance()};
-    if (mean == 0.0 || variance == 0.0) {
+    if (mean <= 0.0 || variance <= 0.0) {
         return {1.0, 1.0};
     }
 
@@ -525,7 +527,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time
               << " scale = " << core::CContainerPrinter::print(scale));
 
     scale *= m_Components.meanVarianceScale() / mean;
-    scale = TVector2x1{1.0} + bias * (scale - TVector2x1{1.0});
+    scale = max(TVector2x1{1.0} + bias * (scale - TVector2x1{1.0}), TVector2x1{0.0});
 
     if (smooth) {
         scale += vector2x1(this->smooth(
@@ -536,7 +538,8 @@ TDoubleDoublePr CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time
             time, E_All));
     }
 
-    return pair(scale);
+    // If anything overflowed just bail and don't scale.
+    return pair(common::CMathsFuncs::isFinite(scale) ? scale : TVector2x1{1.0});
 }
 
 double CTimeSeriesDecomposition::countWeight(core_t::TTime time) const {
