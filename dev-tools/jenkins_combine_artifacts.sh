@@ -108,6 +108,7 @@ docker run --rm \
     cli collect \
       --project ml-cpp \
       --branch "$BRANCH" \
+      --version "$VERSION" \
       --commit `git rev-parse HEAD` \
       --workflow "$WORKFLOW" \
       --qualifier "$VERSION_QUALIFIER" \
