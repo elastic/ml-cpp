@@ -765,7 +765,7 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
         // quickly.
 
         TVector mse;
-        for (std::size_t order = TRegression::N, scale = 1; order > 0; --order, scale *= 2) {
+        for (std::size_t order = TRegression::N, scale = 1; order > 0; --order, scale *= 3) {
             mse(order - 1) =
                 static_cast<double>(scale) *
                 (common::CTools::pow2(common::CBasicStatistics::mean(residualMoments)) +
