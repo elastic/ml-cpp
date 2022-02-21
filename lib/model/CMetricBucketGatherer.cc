@@ -692,12 +692,11 @@ public:
         for (const auto& cidEntry : data) {
             std::size_t cid = cidEntry.first;
             if (gatherer.dataGatherer().isAttributeActive(cid)) {
-                TStrCRef cidName = TStrCRef(gatherer.dataGatherer().attributeName(cid));
+                auto cidName = TStrCRef(gatherer.dataGatherer().attributeName(cid));
                 for (const auto& pidEntry : cidEntry.second) {
                     std::size_t pid = pidEntry.first;
                     if (gatherer.dataGatherer().isPersonActive(pid)) {
-                        TStrCRef pidName =
-                            TStrCRef(gatherer.dataGatherer().personName(pid));
+                        auto pidName = TStrCRef(gatherer.dataGatherer().personName(pid));
                         hashes.emplace(std::piecewise_construct,
                                        std::forward_as_tuple(cidName, pidName),
                                        std::forward_as_tuple(pidEntry.second.checksum()));
@@ -1156,7 +1155,8 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
 
     std::size_t i = m_BeginInfluencingFields;
     for (/**/; i < m_BeginValueFields; ++i) {
-        result.addInfluence(fieldValues[i] ? TOptionalStr(*fieldValues[i]) : TOptionalStr());
+        result.addInfluence(fieldValues[i] != nullptr ? TOptionalStr(*fieldValues[i])
+                                                      : TOptionalStr());
     }
     if (m_DataGatherer.summaryMode() != model_t::E_None) {
         CEventData::TDouble1VecArraySizePr statistics;
@@ -1279,17 +1279,17 @@ void CMetricBucketGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
         return;
     }
 
-    applyFunc(m_FeatureData,
-              std::bind<void>(SRemovePeople(), std::placeholders::_1,
-                              std::placeholders::_2, std::cref(peopleToRemove)));
+    applyFunc(m_FeatureData, [&, remove = SRemovePeople{} ](const auto& category, auto& data) {
+        remove(category, data, peopleToRemove);
+    });
 
     this->CBucketGatherer::recyclePeople(peopleToRemove);
 }
 
 void CMetricBucketGatherer::removePeople(std::size_t lowestPersonToRemove) {
-    applyFunc(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
-                                             std::placeholders::_2, lowestPersonToRemove,
-                                             m_DataGatherer.numberPeople()));
+    applyFunc(m_FeatureData, [&, remove = SRemovePeople{} ](const auto& category, auto& data) {
+        remove(category, data, lowestPersonToRemove, m_DataGatherer.numberPeople());
+    });
 
     this->CBucketGatherer::removePeople(lowestPersonToRemove);
 }
@@ -1301,8 +1301,9 @@ void CMetricBucketGatherer::recycleAttributes(const TSizeVec& attributesToRemove
 
     if (m_DataGatherer.isPopulation()) {
         applyFunc(m_FeatureData,
-                  std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                                  std::placeholders::_2, std::cref(attributesToRemove)));
+                  [&, remove = SRemoveAttributes{} ](const auto& category, auto& data) {
+                      remove(category, data, attributesToRemove);
+                  });
     }
 
     this->CBucketGatherer::recycleAttributes(attributesToRemove);
@@ -1311,9 +1312,10 @@ void CMetricBucketGatherer::recycleAttributes(const TSizeVec& attributesToRemove
 void CMetricBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
     if (m_DataGatherer.isPopulation()) {
         applyFunc(m_FeatureData,
-                  std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                                  std::placeholders::_2, lowestAttributeToRemove,
-                                  m_DataGatherer.numberAttributes()));
+                  [&, remove = SRemoveAttributes{} ](const auto& category, auto& data) {
+                      remove(category, data, lowestAttributeToRemove,
+                             m_DataGatherer.numberAttributes());
+                  });
     }
 
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
@@ -1323,9 +1325,9 @@ uint64_t CMetricBucketGatherer::checksum() const {
     uint64_t seed = this->CBucketGatherer::checksum();
     seed = maths::common::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
     TStrCRefStrCRefPrUInt64Map hashes;
-    applyFunc(m_FeatureData, std::bind<void>(SHash(), std::placeholders::_1,
-                                             std::placeholders::_2,
-                                             std::cref(*this), std::ref(hashes)));
+    applyFunc(m_FeatureData, [&, hash = SHash{} ](const auto& category, const auto& data) {
+        hash(category, data, *this, hashes);
+    });
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
     return maths::common::CChecksum::calculate(seed, hashes);
@@ -1365,22 +1367,24 @@ bool CMetricBucketGatherer::resetBucket(core_t::TTime bucketStart) {
     if (this->CBucketGatherer::resetBucket(bucketStart) == false) {
         return false;
     }
-    applyFunc(m_FeatureData, std::bind<void>(SResetBucket(), std::placeholders::_1,
-                                             std::placeholders::_2, bucketStart));
+    applyFunc(m_FeatureData, [&, reset = SResetBucket{} ](const auto& category, auto& data) {
+        reset(category, data, bucketStart);
+    });
     return true;
 }
 
 void CMetricBucketGatherer::releaseMemory(core_t::TTime samplingCutoffTime) {
-    applyFunc(m_FeatureData, std::bind<void>(SReleaseMemory(), std::placeholders::_1,
-                                             std::placeholders::_2, samplingCutoffTime));
+    applyFunc(m_FeatureData,
+              [&, releaseMemory = SReleaseMemory{} ](const auto& category, auto& data) {
+                  releaseMemory(category, data, samplingCutoffTime);
+              });
 }
 
 void CMetricBucketGatherer::sample(core_t::TTime time) {
     if (m_DataGatherer.sampleCounts()) {
-        applyFunc(m_FeatureData,
-                  std::bind<void>(SDoSample(), std::placeholders::_1,
-                                  std::placeholders::_2, time, std::cref(*this),
-                                  std::ref(*m_DataGatherer.sampleCounts())));
+        applyFunc(m_FeatureData, [&, sample = SDoSample{} ](const auto& category, auto& data) {
+            sample(category, data, time, *this, *m_DataGatherer.sampleCounts());
+        });
     }
 }
 
@@ -1391,11 +1395,13 @@ void CMetricBucketGatherer::featureData(core_t::TTime time,
 
     if (!this->dataAvailable(time) ||
         time >= this->currentBucketStartTime() + this->bucketLength()) {
-        LOG_DEBUG(<< "No data available at " << time);
+        LOG_DEBUG(<< "No data available at " << time
+                  << ", current bucket = " << this->printCurrentBucket()
+                  << ", bucket length = " << this->bucketLength());
         return;
     }
 
-    for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
+    for (std::size_t i = 0, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
         model_t::EFeature feature = m_DataGatherer.feature(i);
         model_t::EMetricCategory category;
         if (model_t::metricCategory(feature, category)) {
@@ -1405,9 +1411,11 @@ void CMetricBucketGatherer::featureData(core_t::TTime time,
                 auto end = begin;
                 ++end;
                 applyFunc(begin, end,
-                          std::bind<void>(SExtractFeatureData(), std::placeholders::_1,
-                                          std::placeholders::_2, std::cref(*this), feature,
-                                          time, bucketLength, std::ref(result)));
+                          [&, extractFeatureData = SExtractFeatureData{} ](
+                              const auto& category_, const auto& data) {
+                              extractFeatureData(category_, data, *this, feature,
+                                                 time, bucketLength, result);
+                          });
             } else {
                 LOG_ERROR(<< "No data for category " << model_t::print(category));
             }
@@ -1448,9 +1456,9 @@ void CMetricBucketGatherer::addValue(std::size_t pid,
     }
 
     stat.s_Influences = &influences;
-    applyFunc(m_FeatureData, std::bind<void>(SAddValue(), std::placeholders::_1,
-                                             std::placeholders::_2, pid, cid,
-                                             std::cref(*this), std::ref(stat)));
+    applyFunc(m_FeatureData, [&, addValue = SAddValue{} ](const auto& category, auto& data) {
+        addValue(category, data, pid, cid, *this, stat);
+    });
 }
 
 void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates) {
@@ -1492,8 +1500,10 @@ void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates)
             m_DataGatherer.sampleCounts()->refresh(m_DataGatherer);
         }
     }
-    applyFunc(m_FeatureData, std::bind<void>(SStartNewBucket(), std::placeholders::_1,
-                                             std::placeholders::_2, time));
+    applyFunc(m_FeatureData,
+              [&, startNewBucket = SStartNewBucket{} ](const auto& category, auto& data) {
+                  startNewBucket(category, data, time);
+              });
 }
 
 void CMetricBucketGatherer::initializeFieldNamesPart1(const std::string& personFieldName,
@@ -1540,7 +1550,7 @@ void CMetricBucketGatherer::initializeFieldNamesPart2(const std::string& valueFi
 }
 
 void CMetricBucketGatherer::initializeFeatureData() {
-    for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
+    for (std::size_t i = 0, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
         const model_t::EFeature feature = m_DataGatherer.feature(i);
         model_t::EMetricCategory category;
         if (model_t::metricCategory(feature, category)) {

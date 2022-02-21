@@ -132,13 +132,6 @@ public:
     //! Note, the queue should never be empty.
     void clear(const T& initial = T()) { this->fill(initial); }
 
-    //! Resets the queue to \p startTime.
-    //! This will clear the queue and will fill it with default items.
-    void reset(core_t::TTime startTime, const T& initial = T()) {
-        m_LatestBucketEnd = startTime + m_BucketLength - 1;
-        this->fill(initial);
-    }
-
     //! Returns an iterator pointing to the latest bucket and directed
     //! towards the earlier buckets.
     iterator begin() { return m_Queue.begin(); }
@@ -217,11 +210,9 @@ public:
                     if (!(core::CPersistUtils::restore(BUCKET_TAG, dummy, traverser))) {
                         LOG_ERROR(<< "Invalid bucket");
                     }
-                } else {
-                    if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))) {
-                        LOG_ERROR(<< "Invalid bucket");
-                        return false;
-                    }
+                } else if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))) {
+                    LOG_ERROR(<< "Invalid bucket");
+                    return false;
                 }
             }
         } while (traverser.next());

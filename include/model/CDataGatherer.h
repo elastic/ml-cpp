@@ -539,9 +539,6 @@ public:
     //! Get the start of the current bucketing time interval.
     core_t::TTime currentBucketStartTime() const;
 
-    //! Reset the current bucketing interval start time.
-    void currentBucketStartTime(core_t::TTime bucketStart);
-
     //! Get the length of the bucketing time interval.
     core_t::TTime bucketLength() const;
 

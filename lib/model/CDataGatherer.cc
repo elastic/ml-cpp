@@ -549,10 +549,6 @@ core_t::TTime CDataGatherer::currentBucketStartTime() const {
     return m_BucketGatherer->currentBucketStartTime();
 }
 
-void CDataGatherer::currentBucketStartTime(core_t::TTime bucketStart) {
-    m_BucketGatherer->currentBucketStartTime(bucketStart);
-}
-
 core_t::TTime CDataGatherer::bucketLength() const {
     return m_BucketGatherer->bucketLength();
 }
