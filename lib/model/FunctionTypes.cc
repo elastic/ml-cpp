@@ -104,19 +104,6 @@ bool isIndividual(EFunction function) {
     case E_PopulationMeanVelocity:
     case E_PopulationSumVelocity:
         return false;
-
-    case E_PeersCount:
-    case E_PeersLowCounts:
-    case E_PeersHighCounts:
-    case E_PeersDistinctCount:
-    case E_PeersLowDistinctCount:
-    case E_PeersHighDistinctCount:
-    case E_PeersInfoContent:
-    case E_PeersLowInfoContent:
-    case E_PeersHighInfoContent:
-    case E_PeersTimeOfDay:
-    case E_PeersTimeOfWeek:
-        return false;
     }
 
     LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
@@ -202,116 +189,6 @@ bool isPopulation(EFunction function) {
     case E_PopulationMinVelocity:
     case E_PopulationMeanVelocity:
     case E_PopulationSumVelocity:
-        return true;
-
-    case E_PeersCount:
-    case E_PeersLowCounts:
-    case E_PeersHighCounts:
-    case E_PeersDistinctCount:
-    case E_PeersLowDistinctCount:
-    case E_PeersHighDistinctCount:
-    case E_PeersInfoContent:
-    case E_PeersLowInfoContent:
-    case E_PeersHighInfoContent:
-    case E_PeersTimeOfDay:
-    case E_PeersTimeOfWeek:
-        return false;
-    }
-
-    LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
-    return false;
-}
-
-bool isPeers(EFunction function) {
-    switch (function) {
-    case E_IndividualCount:
-    case E_IndividualNonZeroCount:
-    case E_IndividualRareCount:
-    case E_IndividualRareNonZeroCount:
-    case E_IndividualRare:
-    case E_IndividualLowCounts:
-    case E_IndividualHighCounts:
-    case E_IndividualLowNonZeroCount:
-    case E_IndividualHighNonZeroCount:
-    case E_IndividualDistinctCount:
-    case E_IndividualLowDistinctCount:
-    case E_IndividualHighDistinctCount:
-    case E_IndividualInfoContent:
-    case E_IndividualHighInfoContent:
-    case E_IndividualLowInfoContent:
-    case E_IndividualTimeOfDay:
-    case E_IndividualTimeOfWeek:
-    case E_IndividualMetric:
-    case E_IndividualMetricMean:
-    case E_IndividualMetricLowMean:
-    case E_IndividualMetricHighMean:
-    case E_IndividualMetricMedian:
-    case E_IndividualMetricLowMedian:
-    case E_IndividualMetricHighMedian:
-    case E_IndividualMetricMin:
-    case E_IndividualMetricMax:
-    case E_IndividualMetricVariance:
-    case E_IndividualMetricLowVariance:
-    case E_IndividualMetricHighVariance:
-    case E_IndividualMetricSum:
-    case E_IndividualMetricLowSum:
-    case E_IndividualMetricHighSum:
-    case E_IndividualMetricNonNullSum:
-    case E_IndividualMetricLowNonNullSum:
-    case E_IndividualMetricHighNonNullSum:
-    case E_IndividualLatLong:
-    case E_IndividualMaxVelocity:
-    case E_IndividualMinVelocity:
-    case E_IndividualMeanVelocity:
-    case E_IndividualSumVelocity:
-    case E_PopulationCount:
-    case E_PopulationDistinctCount:
-    case E_PopulationLowDistinctCount:
-    case E_PopulationHighDistinctCount:
-    case E_PopulationRare:
-    case E_PopulationRareCount:
-    case E_PopulationFreqRare:
-    case E_PopulationFreqRareCount:
-    case E_PopulationLowCounts:
-    case E_PopulationHighCounts:
-    case E_PopulationInfoContent:
-    case E_PopulationLowInfoContent:
-    case E_PopulationHighInfoContent:
-    case E_PopulationTimeOfDay:
-    case E_PopulationTimeOfWeek:
-    case E_PopulationMetric:
-    case E_PopulationMetricMean:
-    case E_PopulationMetricLowMean:
-    case E_PopulationMetricHighMean:
-    case E_PopulationMetricMedian:
-    case E_PopulationMetricLowMedian:
-    case E_PopulationMetricHighMedian:
-    case E_PopulationMetricMin:
-    case E_PopulationMetricMax:
-    case E_PopulationMetricVariance:
-    case E_PopulationMetricLowVariance:
-    case E_PopulationMetricHighVariance:
-    case E_PopulationMetricSum:
-    case E_PopulationMetricLowSum:
-    case E_PopulationMetricHighSum:
-    case E_PopulationLatLong:
-    case E_PopulationMaxVelocity:
-    case E_PopulationMinVelocity:
-    case E_PopulationMeanVelocity:
-    case E_PopulationSumVelocity:
-        return false;
-
-    case E_PeersCount:
-    case E_PeersLowCounts:
-    case E_PeersHighCounts:
-    case E_PeersDistinctCount:
-    case E_PeersLowDistinctCount:
-    case E_PeersHighDistinctCount:
-    case E_PeersInfoContent:
-    case E_PeersLowInfoContent:
-    case E_PeersHighInfoContent:
-    case E_PeersTimeOfDay:
-    case E_PeersTimeOfWeek:
         return true;
     }
 
@@ -403,19 +280,6 @@ bool isMetric(EFunction function) {
     case E_PopulationMeanVelocity:
     case E_PopulationSumVelocity:
         return true;
-
-    case E_PeersCount:
-    case E_PeersLowCounts:
-    case E_PeersHighCounts:
-    case E_PeersDistinctCount:
-    case E_PeersLowDistinctCount:
-    case E_PeersHighDistinctCount:
-    case E_PeersInfoContent:
-    case E_PeersLowInfoContent:
-    case E_PeersHighInfoContent:
-    case E_PeersTimeOfDay:
-    case E_PeersTimeOfWeek:
-        return false;
     }
 
     LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
@@ -510,19 +374,6 @@ bool isForecastSupported(EFunction function) {
     case E_PopulationMinVelocity:
     case E_PopulationMeanVelocity:
     case E_PopulationSumVelocity:
-        return false;
-
-    case E_PeersCount:
-    case E_PeersLowCounts:
-    case E_PeersHighCounts:
-    case E_PeersDistinctCount:
-    case E_PeersLowDistinctCount:
-    case E_PeersHighDistinctCount:
-    case E_PeersInfoContent:
-    case E_PeersLowInfoContent:
-    case E_PeersHighInfoContent:
-    case E_PeersTimeOfDay:
-    case E_PeersTimeOfWeek:
         return false;
     }
 
@@ -629,19 +480,6 @@ bool isAggressivePruningSupported(EFunction function) {
     case E_PopulationMinVelocity:
     case E_PopulationMeanVelocity:
     case E_PopulationSumVelocity:
-        return false;
-
-    case E_PeersCount:
-    case E_PeersLowCounts:
-    case E_PeersHighCounts:
-    case E_PeersDistinctCount:
-    case E_PeersLowDistinctCount:
-    case E_PeersHighDistinctCount:
-    case E_PeersInfoContent:
-    case E_PeersLowInfoContent:
-    case E_PeersHighInfoContent:
-    case E_PeersTimeOfDay:
-    case E_PeersTimeOfWeek:
         return false;
     }
 
@@ -805,27 +643,6 @@ const model_t::EFeature POPULATION_MEAN_VELOCITY_FEATURES[] = {
     model_t::E_PopulationMeanVelocityByPersonAndAttribute};
 const model_t::EFeature POPULATION_SUM_VELOCITY_FEATURES[] = {
     model_t::E_PopulationSumVelocityByPersonAndAttribute};
-const model_t::EFeature PEERS_COUNT_FEATURES[] = {model_t::E_PeersCountByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_DISTINCT_COUNT_FEATURES[] = {
-    model_t::E_PeersUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_LOW_DISTINCT_COUNT_FEATURES[] = {
-    model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_HIGH_DISTINCT_COUNT_FEATURES[] = {
-    model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_LOW_COUNTS_FEATURES[] = {
-    model_t::E_PeersLowCountsByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_HIGH_COUNTS_FEATURES[] = {
-    model_t::E_PeersHighCountsByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_INFO_CONTENT_FEATURES[] = {
-    model_t::E_PeersInfoContentByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_LOW_INFO_CONTENT_FEATURES[] = {
-    model_t::E_PeersLowInfoContentByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_HIGH_INFO_CONTENT_FEATURES[] = {
-    model_t::E_PeersHighInfoContentByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_TIME_OF_DAY_FEATURES[] = {
-    model_t::E_PeersTimeOfDayByBucketPersonAndAttribute};
-const model_t::EFeature PEERS_TIME_OF_WEEK_FEATURES[] = {
-    model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute};
 
 // Function names
 const std::string COUNT("count");
@@ -1242,55 +1059,6 @@ const TFeatureVec
     POPULATION_SUM_VELOCITY_FEATURES(BEGIN(detail::POPULATION_SUM_VELOCITY_FEATURES),
                                      END(detail::POPULATION_SUM_VELOCITY_FEATURES));
 
-//! The features for the count over function.
-const TFeatureVec PEERS_COUNT_FEATURES(BEGIN(detail::PEERS_COUNT_FEATURES),
-                                       END(detail::PEERS_COUNT_FEATURES));
-
-//! The features for the low count over function.
-const TFeatureVec PEERS_LOW_COUNTS_FEATURES(BEGIN(detail::PEERS_LOW_COUNTS_FEATURES),
-                                            END(detail::PEERS_LOW_COUNTS_FEATURES));
-
-//! The features for the high count over function.
-const TFeatureVec PEERS_HIGH_COUNTS_FEATURES(BEGIN(detail::PEERS_HIGH_COUNTS_FEATURES),
-                                             END(detail::PEERS_HIGH_COUNTS_FEATURES));
-
-//! The features for the distinct count over function.
-const TFeatureVec
-    PEERS_DISTINCT_COUNT_FEATURES(BEGIN(detail::PEERS_DISTINCT_COUNT_FEATURES),
-                                  END(detail::PEERS_DISTINCT_COUNT_FEATURES));
-
-//! The features for the low distinct count over function.
-const TFeatureVec
-    PEERS_LOW_DISTINCT_COUNT_FEATURES(BEGIN(detail::PEERS_LOW_DISTINCT_COUNT_FEATURES),
-                                      END(detail::PEERS_LOW_DISTINCT_COUNT_FEATURES));
-
-//! The features for the high distinct count over function.
-const TFeatureVec
-    PEERS_HIGH_DISTINCT_COUNT_FEATURES(BEGIN(detail::PEERS_HIGH_DISTINCT_COUNT_FEATURES),
-                                       END(detail::PEERS_HIGH_DISTINCT_COUNT_FEATURES));
-
-//! The features for the information content over function.
-const TFeatureVec PEERS_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_INFO_CONTENT_FEATURES),
-                                              END(detail::PEERS_INFO_CONTENT_FEATURES));
-
-//! The features for the low information content over function.
-const TFeatureVec
-    PEERS_LOW_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_LOW_INFO_CONTENT_FEATURES),
-                                    END(detail::PEERS_LOW_INFO_CONTENT_FEATURES));
-
-//! The features for the high information content over function.
-const TFeatureVec
-    PEERS_HIGH_INFO_CONTENT_FEATURES(BEGIN(detail::PEERS_HIGH_INFO_CONTENT_FEATURES),
-                                     END(detail::PEERS_HIGH_INFO_CONTENT_FEATURES));
-
-//! The features for the time_of_week over function.
-const TFeatureVec PEERS_TIME_OF_DAY_FEATURES(BEGIN(detail::PEERS_TIME_OF_DAY_FEATURES),
-                                             END(detail::PEERS_TIME_OF_DAY_FEATURES));
-
-//! The features for the time_of_week over function.
-const TFeatureVec PEERS_TIME_OF_WEEK_FEATURES(BEGIN(detail::PEERS_TIME_OF_WEEK_FEATURES),
-                                              END(detail::PEERS_TIME_OF_WEEK_FEATURES));
-
 const TFeatureVec EMPTY_FEATURES;
 const TFunctionVec EMPTY_FUNCTIONS;
 
@@ -1541,39 +1309,6 @@ TFeatureFunctionVecMap buildFeatureFunctionMap() {
         BOOST_FALLTHROUGH;
     case E_PopulationSumVelocity:
         addFeatures(E_PopulationSumVelocity, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersCount:
-        addFeatures(E_PeersCount, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersLowCounts:
-        addFeatures(E_PeersLowCounts, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersHighCounts:
-        addFeatures(E_PeersHighCounts, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersDistinctCount:
-        addFeatures(E_PeersDistinctCount, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersLowDistinctCount:
-        addFeatures(E_PeersLowDistinctCount, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersHighDistinctCount:
-        addFeatures(E_PeersHighDistinctCount, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersInfoContent:
-        addFeatures(E_PeersInfoContent, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersLowInfoContent:
-        addFeatures(E_PeersLowInfoContent, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersHighInfoContent:
-        addFeatures(E_PeersHighInfoContent, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersTimeOfDay:
-        addFeatures(E_PeersTimeOfDay, result);
-        BOOST_FALLTHROUGH;
-    case E_PeersTimeOfWeek:
-        addFeatures(E_PeersTimeOfWeek, result);
     }
 
     for (TFeatureFunctionVecMapItr i = result.begin(); i != result.end(); ++i) {
@@ -1756,28 +1491,6 @@ const TFeatureVec& features(EFunction function) {
         return POPULATION_MEAN_VELOCITY_FEATURES;
     case E_PopulationSumVelocity:
         return POPULATION_SUM_VELOCITY_FEATURES;
-    case E_PeersCount:
-        return PEERS_COUNT_FEATURES;
-    case E_PeersLowCounts:
-        return PEERS_LOW_COUNTS_FEATURES;
-    case E_PeersHighCounts:
-        return PEERS_HIGH_COUNTS_FEATURES;
-    case E_PeersDistinctCount:
-        return PEERS_DISTINCT_COUNT_FEATURES;
-    case E_PeersLowDistinctCount:
-        return PEERS_LOW_DISTINCT_COUNT_FEATURES;
-    case E_PeersHighDistinctCount:
-        return PEERS_HIGH_DISTINCT_COUNT_FEATURES;
-    case E_PeersInfoContent:
-        return PEERS_INFO_CONTENT_FEATURES;
-    case E_PeersLowInfoContent:
-        return PEERS_LOW_INFO_CONTENT_FEATURES;
-    case E_PeersHighInfoContent:
-        return PEERS_HIGH_INFO_CONTENT_FEATURES;
-    case E_PeersTimeOfDay:
-        return PEERS_TIME_OF_DAY_FEATURES;
-    case E_PeersTimeOfWeek:
-        return PEERS_TIME_OF_WEEK_FEATURES;
     }
 
     LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
@@ -1985,28 +1698,6 @@ const std::string& name(EFunction function) {
         return detail::MEAN_VELOCITY;
     case E_PopulationSumVelocity:
         return detail::SUM_VELOCITY;
-    case E_PeersCount:
-        return detail::COUNT;
-    case E_PeersLowCounts:
-        return detail::LOW_COUNT;
-    case E_PeersHighCounts:
-        return detail::HIGH_COUNT;
-    case E_PeersDistinctCount:
-        return detail::DISTINCT_COUNT;
-    case E_PeersLowDistinctCount:
-        return detail::LOW_DISTINCT_COUNT;
-    case E_PeersHighDistinctCount:
-        return detail::HIGH_DISTINCT_COUNT;
-    case E_PeersInfoContent:
-        return detail::INFO_CONTENT;
-    case E_PeersLowInfoContent:
-        return detail::LOW_INFO_CONTENT;
-    case E_PeersHighInfoContent:
-        return detail::HIGH_INFO_CONTENT;
-    case E_PeersTimeOfDay:
-        return detail::TIME_OF_DAY;
-    case E_PeersTimeOfWeek:
-        return detail::TIME_OF_WEEK;
     }
 
     LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));
@@ -2165,28 +1856,6 @@ std::string print(EFunction function) {
         return "population mean velocity";
     case E_PopulationSumVelocity:
         return "population sum velocity";
-    case E_PeersCount:
-        return "peers count";
-    case E_PeersLowCounts:
-        return "peers low count";
-    case E_PeersHighCounts:
-        return "peers high count";
-    case E_PeersDistinctCount:
-        return "peers distinct count";
-    case E_PeersLowDistinctCount:
-        return "peers low distinct count";
-    case E_PeersHighDistinctCount:
-        return "peers high distinct count";
-    case E_PeersInfoContent:
-        return "peers information content";
-    case E_PeersLowInfoContent:
-        return "peers low information content";
-    case E_PeersHighInfoContent:
-        return "peers high information content";
-    case E_PeersTimeOfDay:
-        return "peers time-of-day";
-    case E_PeersTimeOfWeek:
-        return "peers time-of-week";
     }
 
     LOG_ERROR(<< "Unexpected function = " << static_cast<int>(function));

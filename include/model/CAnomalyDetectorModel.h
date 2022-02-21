@@ -89,19 +89,15 @@ struct SAttributeProbability;
 //! for which the labels are equal for each distinct value of the
 //! label.
 //!
-//! There are three main types of analysis:
+//! There are two main types of analysis:
 //!   -# Individual analysis.
 //!   -# Population analysis.
-//!   -# Peer group analysis.
 //!
 //! Individual analysis looks at the historical values of various
 //! features on a single time series' events and detects significant
 //! changes in those values. Population analysis looks at similar
 //! features, but on a whole collection of processes in conjunction
-//! (induced by the person label equivalence relation). Peer group
-//! analysis is similar to population analysis, but assigns each
-//! person to a peer group and looks for unusual behaviour w.r.t.
-//! its peer group and not the population as a whole. The concrete
+//! (induced by the person label equivalence relation). The concrete
 //! implementations of this class include more detailed descriptions.
 //! This object also maintains the state to find the most correlated
 //! pairs of time series.

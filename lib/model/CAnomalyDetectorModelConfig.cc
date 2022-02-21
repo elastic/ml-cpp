@@ -545,8 +545,6 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
                 break;
             case model_t::E_PopulationEventRate:
             case model_t::E_PopulationMetric:
-            case model_t::E_PeersEventRate:
-            case model_t::E_PeersMetric:
                 factory = E_BadFactory;
                 break;
             }
@@ -559,8 +557,6 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
                 break;
             case model_t::E_PopulationEventRate:
             case model_t::E_PopulationMetric:
-            case model_t::E_PeersEventRate:
-            case model_t::E_PeersMetric:
                 factory = E_BadFactory;
                 break;
             }
@@ -575,8 +571,6 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
             case model_t::E_PopulationEventRate:
                 break;
             case model_t::E_PopulationMetric:
-            case model_t::E_PeersEventRate:
-            case model_t::E_PeersMetric:
                 factory = E_BadFactory;
                 break;
             }
@@ -592,26 +586,6 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
             case model_t::E_PopulationMetric:
                 factory = E_MetricPopulationFactory;
                 break;
-            case model_t::E_PeersEventRate:
-            case model_t::E_PeersMetric:
-                factory = E_BadFactory;
-                break;
-            }
-            break;
-
-        case E_EventRatePeersFactory:
-            switch (model_t::analysisCategory(features[i])) {
-            case model_t::E_EventRate:
-            case model_t::E_Metric:
-            case model_t::E_PopulationEventRate:
-            case model_t::E_PopulationMetric:
-                factory = E_BadFactory;
-                break;
-            case model_t::E_PeersEventRate:
-                break;
-            case model_t::E_PeersMetric:
-                factory = E_BadFactory;
-                break;
             }
             break;
 
@@ -621,8 +595,6 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
             case model_t::E_Metric:
             case model_t::E_PopulationEventRate:
             case model_t::E_PopulationMetric:
-            case model_t::E_PeersEventRate:
-            case model_t::E_PeersMetric:
                 factory = E_BadFactory;
                 break;
             }
@@ -643,13 +615,6 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
                 break;
             case model_t::E_PopulationMetric:
                 factory = E_MetricPopulationFactory;
-                break;
-            case model_t::E_PeersEventRate:
-                factory = E_EventRatePeersFactory;
-                break;
-            case model_t::E_PeersMetric:
-                // TODO
-                factory = E_BadFactory;
                 break;
             }
             break;
@@ -786,7 +751,6 @@ const std::string INITIAL_DECAY_RATE_MULTIPLIER_PROPERTY("initialdecayratemultip
 const std::string MAXIMUM_UPDATES_PER_BUCKET_PROPERTY("maximumupdatesperbucket");
 const std::string INDIVIDUAL_MODE_FRACTION_PROPERTY("individualmodefraction");
 const std::string POPULATION_MODE_FRACTION_PROPERTY("populationmodefraction");
-const std::string PEERS_MODE_FRACTION_PROPERTY("peersmodefraction");
 const std::string COMPONENT_SIZE_PROPERTY("componentsize");
 const std::string SAMPLE_COUNT_FACTOR_PROPERTY("samplecountfactor");
 const std::string PRUNE_WINDOW_SCALE_MINIMUM("prunewindowscaleminimum");
@@ -886,18 +850,6 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             if (m_Factories.count(E_MetricPopulationFactory) > 0) {
                 m_Factories[E_MetricPopulationFactory]->minimumModeFraction(fraction);
             }
-        } else if (propName == PEERS_MODE_FRACTION_PROPERTY) {
-            double fraction;
-            if (core::CStringUtils::stringToType(propValue, fraction) == false ||
-                fraction < 0.0 || fraction > 1.0) {
-                LOG_ERROR(<< "Invalid value for property " << propName << " : " << propValue);
-                result = false;
-                continue;
-            }
-
-            if (m_Factories.count(E_EventRatePeersFactory) > 0) {
-                m_Factories[E_EventRatePeersFactory]->minimumModeFraction(fraction);
-            }
         } else if (propName == COMPONENT_SIZE_PROPERTY) {
             int componentSize;
             if (core::CStringUtils::stringToType(propValue, componentSize) == false ||
@@ -955,7 +907,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (std::size_t j = 0u, l = 0; j < model_t::NUMBER_AGGREGATION_STYLES; ++j) {
+            for (std::size_t j = 0, l = 0; j < model_t::NUMBER_AGGREGATION_STYLES; ++j) {
                 for (std::size_t k = 0; k < model_t::NUMBER_AGGREGATION_PARAMS; ++k, ++l) {
                     double value;
                     if (core::CStringUtils::stringToType(strings[l], value) == false) {
