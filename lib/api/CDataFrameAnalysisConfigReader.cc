@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -77,7 +82,7 @@ CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
         }
         if (found == false) {
             HANDLE_FATAL(<< "Input error: unexpected parameter '"
-                         << i->name.GetString() << "'. Please report this problem.")
+                         << i->name.GetString() << "'. Please report this problem.");
         }
     }
 
@@ -90,62 +95,107 @@ CDataFrameAnalysisConfigReader::CParameter::CParameter(const std::string& name,
     : m_Name{name}, m_Value{&value}, m_PermittedValues{&permittedValues} {
 }
 
-bool CDataFrameAnalysisConfigReader::CParameter::fallback(bool value) const {
+bool CDataFrameAnalysisConfigReader::CParameter::fallback(bool fallback) const {
     if (m_Value == nullptr) {
-        return value;
+        return fallback;
     }
     if (m_Value->IsBool() == false) {
         this->handleFatal();
-        return value;
+        return fallback;
     }
     return m_Value->GetBool();
 }
 
-std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t value) const {
+std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t fallback) const {
     if (m_Value == nullptr) {
-        return value;
+        return fallback;
     }
     if (m_Value->IsUint64() == false) {
         this->handleFatal();
-        return value;
+        return fallback;
     }
     return m_Value->GetUint64();
 }
 
-std::ptrdiff_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::ptrdiff_t value) const {
+std::ptrdiff_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::ptrdiff_t fallback) const {
     if (m_Value == nullptr) {
-        return value;
+        return fallback;
     }
     if (m_Value->IsInt64() == false) {
         this->handleFatal();
-        return value;
+        return fallback;
     }
     return m_Value->GetInt64();
 }
 
-double CDataFrameAnalysisConfigReader::CParameter::fallback(double value) const {
+double CDataFrameAnalysisConfigReader::CParameter::fallback(double fallback) const {
     if (m_Value == nullptr) {
-        return value;
+        return fallback;
     }
     if (m_Value->IsInt64()) {
         return static_cast<double>(m_Value->GetInt64());
     }
     if (m_Value->IsDouble() == false) {
         this->handleFatal();
-        return value;
+        return fallback;
     }
     return m_Value->GetDouble();
 }
 
-std::string CDataFrameAnalysisConfigReader::CParameter::fallback(const std::string& value) const {
+std::string CDataFrameAnalysisConfigReader::CParameter::fallback(const std::string& fallback) const {
     if (m_Value == nullptr) {
-        return value;
+        return fallback;
     }
     if (m_Value->IsString() == false) {
         this->handleFatal();
-        return value;
+        return fallback;
     }
     return m_Value->GetString();
+}
+
+std::pair<std::string, double> CDataFrameAnalysisConfigReader::CParameter::fallback(
+    const std::string& name,
+    const std::string& value,
+    const std::pair<std::string, double>& fallback) const {
+    if (m_Value == nullptr) {
+        return fallback;
+    }
+    if (m_Value->IsObject() == false) {
+        this->handleFatal();
+        return fallback;
+    }
+    auto name_ = m_Value->FindMember(name);
+    auto value_ = m_Value->FindMember(value);
+    if (name_ == m_Value->MemberEnd() || value_ == m_Value->MemberEnd()) {
+        this->handleFatal();
+        return fallback;
+    }
+    if (name_->value.IsString() == false || value_->value.IsDouble() == false) {
+        this->handleFatal();
+        return fallback;
+    }
+    return {name_->value.GetString(), value_->value.GetDouble()};
+}
+
+std::vector<std::pair<std::string, double>> CDataFrameAnalysisConfigReader::CParameter::fallback(
+    const std::string& name,
+    const std::string& value,
+    const std::vector<std::pair<std::string, double>>& fallback) const {
+    if (m_Value == nullptr) {
+        return fallback;
+    }
+    if (m_Value->IsArray() == false) {
+        this->handleFatal();
+        return fallback;
+    }
+    std::vector<std::pair<std::string, double>> result;
+    result.reserve(m_Value->Size());
+    CParameter element{m_Name, SArrayElementTag{}};
+    for (std::size_t i = 0; i < m_Value->Size(); ++i) {
+        element.m_Value = &(*m_Value)[static_cast<int>(i)];
+        result.push_back(element.as(name, value));
+    }
+    return result;
 }
 
 CDataFrameAnalysisConfigReader::CParameter::CParameter(const std::string& name, SArrayElementTag)

@@ -1,14 +1,19 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CDataFrame.h>
 #include <core/CRegex.h>
 #include <core/CSmallVector.h>
 
-#include <maths/CTools.h>
+#include <maths/common/CTools.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
@@ -99,7 +104,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
         core::CJsonOutputStreamWrapper outputStreamWrapper(output);
         core::CRapidJsonConcurrentLineWriter writer(outputStreamWrapper);
 
-        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
             auto columnHoldingDependentVariable =
                 std::find(columnNames.begin(), columnNames.end(), dependentVariableField) -
                 columnNames.begin();
@@ -108,7 +113,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                 columnNames.begin();
             auto readProbability = [&](const TRowRef& row) {
                 TDouble2Vec result(2);
-                double p{maths::CTools::logisticFunction(row[columnHoldingPrediction])};
+                double p{maths::common::CTools::logisticFunction(row[columnHoldingPrediction])};
                 result[0] = 1 - p;
                 result[1] = p;
                 return result;

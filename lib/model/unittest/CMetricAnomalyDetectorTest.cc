@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -10,8 +15,8 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CRegex.h>
 
-#include <maths/CIntegerTools.h>
-#include <maths/CModelWeight.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CModelWeight.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CHierarchicalResults.h>
@@ -72,9 +77,9 @@ public:
     }
 
     //! Visit a node.
-    virtual void visit(const ml::model::CHierarchicalResults& results,
-                       const ml::model::CHierarchicalResults::TNode& node,
-                       bool pivot) {
+    void visit(const ml::model::CHierarchicalResults& results,
+               const ml::model::CHierarchicalResults::TNode& node,
+               bool pivot) override {
         if (pivot) {
             return;
         }
@@ -148,9 +153,9 @@ void importData(core_t::TTime firstTime,
     test::CTimeSeriesTestData::TTimeDoublePrVec timeData;
     BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(fileName, timeData));
 
-    core_t::TTime lastBucketTime = maths::CIntegerTools::ceil(firstTime, bucketLength);
+    core_t::TTime lastBucketTime = maths::common::CIntegerTools::ceil(firstTime, bucketLength);
 
-    for (std::size_t i = 0u; i < timeData.size(); ++i) {
+    for (std::size_t i = 0; i < timeData.size(); ++i) {
         core_t::TTime time = timeData[i].first;
 
         for (/**/; lastBucketTime + bucketLength <= time; lastBucketTime += bucketLength) {
@@ -288,7 +293,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         LOG_DEBUG(<< "anomaly factors = " << core::CContainerPrinter::print(anomalyFactors));
         LOG_DEBUG(<< "anomaly rates = " << core::CContainerPrinter::print(anomalyRates));
 
-        for (std::size_t j = 0u; j < highAnomalyTimes.size(); ++j) {
+        for (std::size_t j = 0; j < highAnomalyTimes.size(); ++j) {
             LOG_DEBUG(<< "Testing " << core::CContainerPrinter::print(highAnomalyTimes[j])
                       << ' ' << highAnomalyFactors[j]);
             BOOST_TEST_REQUIRE(
@@ -323,7 +328,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         LOG_DEBUG(<< "partition rate = " << partitionRate);
 
         // Compute the ratio of noise in the two rate channels.
-        for (std::size_t j = 0u; j < anomalyFactors.size(); ++j) {
+        for (std::size_t j = 0; j < anomalyFactors.size(); ++j) {
             (anomalyRates[j] > partitionRate ? highRateNoise : lowRateNoise) +=
                 anomalyFactors[j];
         }

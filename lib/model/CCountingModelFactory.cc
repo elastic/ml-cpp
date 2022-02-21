@@ -1,16 +1,22 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CCountingModelFactory.h>
 
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/CConstantPrior.h>
-#include <maths/CMultivariateConstantPrior.h>
-#include <maths/CTimeSeriesModel.h>
+#include <maths/common/CConstantPrior.h>
+#include <maths/common/CMultivariateConstantPrior.h>
+
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CCountingModel.h>
 #include <model/CDataGatherer.h>
@@ -77,19 +83,20 @@ CCountingModelFactory::makeDataGatherer(const std::string& partitionFieldValue,
 CCountingModelFactory::TPriorPtr
 CCountingModelFactory::defaultPrior(model_t::EFeature /*feature*/,
                                     const SModelParams& /*params*/) const {
-    return std::make_unique<maths::CConstantPrior>();
+    return std::make_unique<maths::common::CConstantPrior>();
 }
 
 CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultMultivariatePrior(model_t::EFeature feature,
                                                 const SModelParams& /*params*/) const {
-    return std::make_unique<maths::CMultivariateConstantPrior>(model_t::dimension(feature));
+    return std::make_unique<maths::common::CMultivariateConstantPrior>(
+        model_t::dimension(feature));
 }
 
 CCountingModelFactory::TMultivariatePriorUPtr
 CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
                                              const SModelParams& /*params*/) const {
-    return std::make_unique<maths::CMultivariateConstantPrior>(2);
+    return std::make_unique<maths::common::CMultivariateConstantPrior>(2);
 }
 
 const CSearchKey& CCountingModelFactory::searchKey() const {

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CBucketGatherer.h>
@@ -13,9 +18,9 @@
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
-#include <maths/CIntegerTools.h>
-#include <maths/COrderings.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CDataGatherer.h>
 #include <model/CStringStore.h>
@@ -82,7 +87,7 @@ void insertInfluencerPersonAttributeCounts(const TSizeSizePrStoredStringPtrPrUIn
     std::sort(ordered.begin(), ordered.end(),
               [](TSizeSizePrStoredStringPtrPrUInt64UMapCItr lhs,
                  TSizeSizePrStoredStringPtrPrUInt64UMapCItr rhs) {
-                  return maths::COrderings::lexicographical_compare(
+                  return maths::common::COrderings::lexicographical_compare(
                       lhs->first.first, *lhs->first.second, lhs->second,
                       rhs->first.first, *rhs->first.second, rhs->second);
               });
@@ -286,7 +291,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
         }
 
         TStoredStringPtrVec canonicalInfluences(influencerCounts.size());
-        for (std::size_t i = 0u; i < influences.size(); ++i) {
+        for (std::size_t i = 0; i < influences.size(); ++i) {
             const CEventData::TOptionalStr& influence = influences[i];
             if (influence) {
                 const auto& inf = CStringStore::influencers().get(*influence);
@@ -314,10 +319,6 @@ void CBucketGatherer::timeNow(core_t::TTime time) {
 void CBucketGatherer::hiddenTimeNow(core_t::TTime time, bool skipUpdates) {
     m_EarliestTime = std::min(m_EarliestTime, time);
     core_t::TTime n = (time - m_BucketStart) / this->bucketLength();
-    if (n <= 0) {
-        return;
-    }
-
     core_t::TTime newBucketStart = m_BucketStart;
     for (core_t::TTime i = 0; i < n; ++i) {
         newBucketStart += this->bucketLength();
@@ -421,10 +422,6 @@ core_t::TTime CBucketGatherer::currentBucketStartTime() const {
     return m_BucketStart;
 }
 
-void CBucketGatherer::currentBucketStartTime(core_t::TTime time) {
-    m_BucketStart = time;
-}
-
 core_t::TTime CBucketGatherer::earliestBucketStartTime() const {
     return this->currentBucketStartTime() -
            (m_DataGatherer.params().s_LatencyBuckets * this->bucketLength());
@@ -447,11 +444,12 @@ bool CBucketGatherer::validateSampleTimes(core_t::TTime& startTime, core_t::TTim
     //   4) The start time is greater than or equal to the start time
     //      of the last sampled bucket
 
-    if (!maths::CIntegerTools::aligned(startTime - m_BucketStart, this->bucketLength())) {
+    if (!maths::common::CIntegerTools::aligned(startTime - m_BucketStart,
+                                               this->bucketLength())) {
         LOG_ERROR(<< "Sample start time " << startTime << " is not bucket aligned");
         return false;
     }
-    if (!maths::CIntegerTools::aligned(endTime - m_BucketStart, this->bucketLength())) {
+    if (!maths::common::CIntegerTools::aligned(endTime - m_BucketStart, this->bucketLength())) {
         LOG_ERROR(<< "Sample end time " << endTime << " is not bucket aligned");
         return false;
     }
@@ -510,9 +508,10 @@ uint64_t CBucketGatherer::checksum() const {
     using TStrCRefStrCRefPrUInt64Pr = std::pair<TStrCRefStrCRefPr, uint64_t>;
     using TStrCRefStrCRefPrUInt64PrVec = std::vector<TStrCRefStrCRefPrUInt64Pr>;
 
-    uint64_t result = maths::CChecksum::calculate(0, m_BucketStart);
+    uint64_t result = maths::common::CChecksum::calculate(0, m_BucketStart);
 
-    result = maths::CChecksum::calculate(result, m_PersonAttributeCounts.latestBucketEnd());
+    result = maths::common::CChecksum::calculate(
+        result, m_PersonAttributeCounts.latestBucketEnd());
     for (const auto& bucketCounts : m_PersonAttributeCounts) {
         TStrCRefStrCRefPrUInt64PrVec personAttributeCounts;
         personAttributeCounts.reserve(bucketCounts.size());
@@ -524,11 +523,11 @@ uint64_t CBucketGatherer::checksum() const {
             personAttributeCounts.emplace_back(key, CDataGatherer::extractData(count));
         }
         std::sort(personAttributeCounts.begin(), personAttributeCounts.end(),
-                  maths::COrderings::SLexicographicalCompare());
-        result = maths::CChecksum::calculate(result, personAttributeCounts);
+                  maths::common::COrderings::SLexicographicalCompare());
+        result = maths::common::CChecksum::calculate(result, personAttributeCounts);
     }
 
-    result = maths::CChecksum::calculate(
+    result = maths::common::CChecksum::calculate(
         result, m_PersonAttributeExplicitNulls.latestBucketEnd());
     for (const auto& bucketExplicitNulls : m_PersonAttributeExplicitNulls) {
         TStrCRefStrCRefPrVec personAttributeExplicitNulls;
@@ -542,8 +541,8 @@ uint64_t CBucketGatherer::checksum() const {
         }
         std::sort(personAttributeExplicitNulls.begin(),
                   personAttributeExplicitNulls.end(),
-                  maths::COrderings::SLexicographicalCompare());
-        result = maths::CChecksum::calculate(result, personAttributeExplicitNulls);
+                  maths::common::COrderings::SLexicographicalCompare());
+        result = maths::common::CChecksum::calculate(result, personAttributeExplicitNulls);
     }
 
     LOG_TRACE(<< "checksum = " << result);
@@ -574,7 +573,7 @@ void CBucketGatherer::clear() {
 }
 
 bool CBucketGatherer::resetBucket(core_t::TTime bucketStart) {
-    if (!maths::CIntegerTools::aligned(bucketStart, this->bucketLength())) {
+    if (!maths::common::CIntegerTools::aligned(bucketStart, this->bucketLength())) {
         LOG_ERROR(<< "Bucket start time " << bucketStart << " is not bucket aligned");
         return false;
     }

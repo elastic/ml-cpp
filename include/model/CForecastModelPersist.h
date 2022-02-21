@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CForecastModelPersist_h
@@ -10,7 +15,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 
-#include <maths/CModel.h>
+#include <maths/common/CModel.h>
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
@@ -39,7 +44,7 @@ namespace model {
 //! locally never leaving process/io boundaries.
 class MODEL_EXPORT CForecastModelPersist final {
 public:
-    using TMathsModelPtr = std::unique_ptr<maths::CModel>;
+    using TMathsModelPtr = std::unique_ptr<maths::common::CModel>;
 
 public:
     class MODEL_EXPORT CPersist final {
@@ -47,7 +52,7 @@ public:
         explicit CPersist(const std::string& temporaryPath);
 
         //! add a model to persist
-        void addModel(const maths::CModel* model,
+        void addModel(const maths::common::CModel* model,
                       core_t::TTime firstDataTime,
                       core_t::TTime lastDataTime,
                       const model_t::EFeature feature,

@@ -1,15 +1,20 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/ModelTypes.h>
 
 #include <core/Constants.h>
 
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesMultibucketFeatures.h>
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesMultibucketFeatures.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
@@ -638,7 +643,7 @@ double offsetCountToZero(EFeature feature, double count) {
 }
 
 void offsetCountToZero(EFeature feature, TDouble1Vec& count) {
-    for (std::size_t i = 0u; i < count.size(); ++i) {
+    for (std::size_t i = 0; i < count.size(); ++i) {
         count[i] = offsetCountToZero(feature, count[i]);
     }
 }
@@ -686,7 +691,7 @@ double inverseOffsetCountToZero(EFeature feature, double count) {
 }
 
 void inverseOffsetCountToZero(EFeature feature, TDouble1Vec& count) {
-    for (std::size_t i = 0u; i < count.size(); ++i) {
+    for (std::size_t i = 0; i < count.size(); ++i) {
         count[i] = inverseOffsetCountToZero(feature, count[i]);
     }
 }
@@ -1190,7 +1195,7 @@ univariateMultibucketFeature(model_t::EFeature feature, std::size_t windowLength
         case E_IndividualInfoContentByBucketAndPerson:
         case E_IndividualLowInfoContentByBucketAndPerson:
         case E_IndividualHighInfoContentByBucketAndPerson:
-            return std::make_unique<maths::CTimeSeriesMultibucketMean<double>>(windowLength);
+            return std::make_unique<maths::time_series::CTimeSeriesMultibucketScalarMean>(windowLength);
         case E_IndividualTotalBucketCountByPerson:
         case E_IndividualIndicatorOfBucketPerson:
         case E_IndividualTimeOfDayByBucketAndPerson:
@@ -1218,7 +1223,7 @@ univariateMultibucketFeature(model_t::EFeature feature, std::size_t windowLength
         case E_IndividualMinVelocityByPerson:
         case E_IndividualMaxByPerson:
         case E_IndividualMaxVelocityByPerson:
-            return std::make_unique<maths::CTimeSeriesMultibucketMean<double>>(windowLength);
+            return std::make_unique<maths::time_series::CTimeSeriesMultibucketScalarMean>(windowLength);
         case E_IndividualMeanLatLongByPerson:
             break;
 

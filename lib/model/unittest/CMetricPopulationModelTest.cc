@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -13,9 +18,9 @@
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/COrderings.h>
-#include <maths/CSampling.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CSampling.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -51,13 +56,13 @@ using namespace model;
 
 namespace {
 
-using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+using TMinAccumulator = maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u>;
 using TMaxAccumulator =
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+    maths::common::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
 struct SValuesAndWeights {
-    maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
+    maths::common::CModel::TTimeDouble2VecSizeTrVec s_Values;
+    maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
+    maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
 };
 
 const std::size_t numberAttributes{5};
@@ -84,18 +89,18 @@ public:
         //  (bucket, people) | (15,3), |         | (44,9)  | (80,1)  |
         //                   | (40,6)  |         |         |         |
         //
-        // There are 10 people, 4 attributes and 100 buckets.
+        // There are 10 people, 5 attributes and 100 buckets.
 
         const std::size_t numberBuckets{100u};
 
         TStrVec people;
-        for (std::size_t i = 0u; i < numberPeople; ++i) {
+        for (std::size_t i = 0; i < numberPeople; ++i) {
             people.push_back("p" + core::CStringUtils::typeToString(i));
         }
         LOG_DEBUG(<< "people = " << core::CContainerPrinter::print(people));
 
         TStrVec attributes;
-        for (std::size_t i = 0u; i < numberAttributes; ++i) {
+        for (std::size_t i = 0; i < numberAttributes; ++i) {
             attributes.push_back("c" + core::CStringUtils::typeToString(i));
         }
         LOG_DEBUG(<< "attributes = " << core::CContainerPrinter::print(attributes));
@@ -112,12 +117,12 @@ public:
 
         test::CRandomNumbers rng;
 
-        for (std::size_t i = 0u; i < numberBuckets; ++i, startTime += bucketLength) {
-            for (std::size_t j = 0u; j < numberAttributes; ++j) {
+        for (std::size_t i = 0; i < numberBuckets; ++i, startTime += bucketLength) {
+            for (std::size_t j = 0; j < numberAttributes; ++j) {
                 TUIntVec samples;
                 rng.generatePoissonSamples(attributeRates[j], numberPeople, samples);
 
-                for (std::size_t k = 0u; k < numberPeople; ++k) {
+                for (std::size_t k = 0; k < numberPeople; ++k) {
                     bool anomaly = !anomalies[j].empty() &&
                                    anomalies[j].back().first == i &&
                                    anomalies[j].back().second == k;
@@ -134,9 +139,9 @@ public:
                     rng.generateNormalSamples(means[j], variances[j],
                                               dimension * samples[k], values);
 
-                    for (std::size_t l = 0u; l < values.size(); l += dimension) {
+                    for (std::size_t l = 0; l < values.size(); l += dimension) {
                         TDouble1Vec value(dimension);
-                        for (std::size_t d = 0u; d < dimension; ++d) {
+                        for (std::size_t d = 0; d < dimension; ++d) {
                             double vd = values[l + d];
                             if (anomaly && (l % (2 * dimension)) == 0) {
                                 vd += 6.0 * std::sqrt(variances[j]);
@@ -214,13 +219,13 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
             BOOST_REQUIRE_EQUAL(numberAttributes, m_Gatherer->numberActiveAttributes());
 
             // Test the person and attribute invariants.
-            for (std::size_t j = 0u; j < m_Gatherer->numberActivePeople(); ++j) {
+            for (std::size_t j = 0; j < m_Gatherer->numberActivePeople(); ++j) {
                 const std::string& name = model->personName(j);
                 std::size_t pid;
                 BOOST_TEST_REQUIRE(m_Gatherer->personId(name, pid));
                 BOOST_REQUIRE_EQUAL(j, pid);
             }
-            for (std::size_t j = 0u; j < m_Gatherer->numberActiveAttributes(); ++j) {
+            for (std::size_t j = 0; j < m_Gatherer->numberActiveAttributes(); ++j) {
                 const std::string& name = model->attributeName(j);
                 std::size_t cid;
                 BOOST_TEST_REQUIRE(m_Gatherer->attributeId(name, cid));
@@ -259,8 +264,8 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
                 LOG_DEBUG(<< "expected maxs = "
                           << core::CContainerPrinter::print(expectedBucketMaxs));
             }
-            for (std::size_t cid = 0u; cid < numberAttributes; ++cid) {
-                for (std::size_t pid = 0u; pid < numberPeople; ++pid) {
+            for (std::size_t cid = 0; cid < numberAttributes; ++cid) {
+                for (std::size_t pid = 0; pid < numberPeople; ++pid) {
                     const TMeanAccumulator& expectedMean =
                         expectedBucketMeans[pid * numberAttributes + cid];
                     const TMinAccumulator& expectedMin =
@@ -276,11 +281,13 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
                         model_t::E_PopulationMaxByPersonAndAttribute, pid, cid, startTime);
 
                     if (mean.empty()) {
-                        BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(expectedMean) == 0.0);
+                        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::count(
+                                               expectedMean) == 0.0);
                     } else {
-                        BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(expectedMean) > 0.0);
-                        BOOST_REQUIRE_EQUAL(
-                            maths::CBasicStatistics::mean(expectedMean), mean[0]);
+                        BOOST_TEST_REQUIRE(
+                            maths::common::CBasicStatistics::count(expectedMean) > 0.0);
+                        BOOST_REQUIRE_EQUAL(maths::common::CBasicStatistics::mean(expectedMean),
+                                            mean[0]);
                     }
                     if (min.empty()) {
                         BOOST_TEST_REQUIRE(expectedMin.count() == 0u);
@@ -323,7 +330,7 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
     using TSizeSizePrMeanAccumulatorUMap = std::map<TSizeSizePr, TMeanAccumulator>;
     using TSizeSizePrMinAccumulatorMap = std::map<TSizeSizePr, TMinAccumulator>;
     using TSizeSizePrMaxAccumulatorMap = std::map<TSizeSizePr, TMaxAccumulator>;
-    using TMathsModelPtr = std::shared_ptr<maths::CModel>;
+    using TMathsModelPtr = std::shared_ptr<maths::common::CModel>;
     using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
 
     core_t::TTime startTime{1367280000};
@@ -397,10 +404,10 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
 
             for (auto& feature : populationWeightedSamples) {
                 for (auto& attribute : feature.second) {
-                    maths::COrderings::simultaneousSort(
+                    maths::common::COrderings::simultaneousSort(
                         attribute.second.s_Values, attribute.second.s_TrendWeights,
                         attribute.second.s_ResidualWeights);
-                    maths::CModelAddSamplesParams params_;
+                    maths::common::CModelAddSamplesParams params_;
                     params_.integer(false)
                         .nonNegative(nonNegative)
                         .propagationInterval(1.0)
@@ -444,11 +451,11 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
             sampleMeans[key].add(message.s_Dbl1Vec.get()[0]);
             sampleMins[key].add(message.s_Dbl1Vec.get()[0]);
             sampleMaxs[key].add(message.s_Dbl1Vec.get()[0]);
-            if (maths::CBasicStatistics::count(sampleTimes[key]) == sampleCount) {
+            if (maths::common::CBasicStatistics::count(sampleTimes[key]) == sampleCount) {
                 expectedSampleTimes[key].push_back(
-                    maths::CBasicStatistics::mean(sampleTimes[key]));
+                    maths::common::CBasicStatistics::mean(sampleTimes[key]));
                 expectedSamples[0][key].push_back(
-                    maths::CBasicStatistics::mean(sampleMeans[key]));
+                    maths::common::CBasicStatistics::mean(sampleMeans[key]));
                 expectedSamples[1][key].push_back(sampleMins[key][0]);
                 expectedSamples[2][key].push_back(sampleMaxs[key][0]);
                 sampleTimes[key] = TMeanAccumulator();
@@ -542,7 +549,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
-    maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
+    maths::common::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
     // Test that we correctly pick out synthetic the anomalies,
     // their people and attributes.
@@ -575,7 +582,7 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
                                        m_Gatherer, *model, orderedAnomalies);
 
         BOOST_REQUIRE_EQUAL(expectedAnomalies.size(), orderedAnomalies.size());
-        for (std::size_t j = 0u; j < orderedAnomalies.size(); ++j) {
+        for (std::size_t j = 0; j < orderedAnomalies.size(); ++j) {
             BOOST_REQUIRE_EQUAL(expectedAnomalies[j], orderedAnomalies[j].print());
         }
     }
@@ -666,9 +673,9 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     test::CRandomNumbers rng;
 
     TMessageVec messages;
-    for (std::size_t i = 0u; i < people.size(); ++i) {
+    for (std::size_t i = 0; i < people.size(); ++i) {
         core_t::TTime bucketStart{startTime};
-        for (std::size_t j = 0u; j < numberBuckets; ++j, bucketStart += bucketLength) {
+        for (std::size_t j = 0; j < numberBuckets; ++j, bucketStart += bucketLength) {
             const TStrSizePrVec& attributeEventCounts = eventCounts[i][j];
             for (auto& attributeEventCount : attributeEventCounts) {
                 if (attributeEventCount.second == 0) {
@@ -683,7 +690,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
                 core_t::TTime time{bucketStart};
                 core_t::TTime dt{bucketLength / static_cast<core_t::TTime>(n)};
 
-                for (std::size_t l = 0u; l < n; ++l, time += dt) {
+                for (std::size_t l = 0; l < n; ++l, time += dt) {
                     messages.emplace_back(time, people[i], attributeEventCount.first,
                                           TDouble1Vec{1, samples[l]});
                 }
@@ -802,7 +809,7 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
         std::size_t i{0u};
         for (auto& datum : data) {
             if (bucket % datum.s_Period == 0) {
-                for (std::size_t j = 0u; j < i + 1; ++j) {
+                for (std::size_t j = 0; j < i + 1; ++j) {
                     messages.emplace_back(bucketStart + bucketLength / 2, datum.s_Person,
                                           data[j].s_Attribute, TDouble1Vec{1, 0.0});
                 }
@@ -843,8 +850,8 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
             meanError.add(std::fabs(m_Model->personFrequency(pid) -
                                     1.0 / static_cast<double>(datum.s_Period)));
         }
-        LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.002);
+        LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(meanError));
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.002);
     }
     {
         std::size_t i{0};
@@ -951,7 +958,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
         LOG_DEBUG(<< "*** person = " << people[heavyHitter] << " ***");
         std::size_t pid;
         BOOST_TEST_REQUIRE(m_Gatherer->personId(people[heavyHitter], pid));
-        for (std::size_t cid = 0u; cid < attributes.size(); ++cid) {
+        for (std::size_t cid = 0; cid < attributes.size(); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
             LOG_DEBUG(<< "attribute = " << populationModel->attributeName(cid)
                       << ", sampleRateWeight = " << sampleRateWeight);
@@ -964,7 +971,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
         LOG_DEBUG(<< "*** person = " << people[norm] << " ***");
         std::size_t pid;
         BOOST_TEST_REQUIRE(m_Gatherer->personId(people[norm], pid));
-        for (std::size_t cid = 0u; cid < attributes.size(); ++cid) {
+        for (std::size_t cid = 0; cid < attributes.size(); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
             LOG_DEBUG(<< "attribute = " << populationModel->attributeName(cid)
                       << ", sampleRateWeight = " << sampleRateWeight);
@@ -1143,31 +1150,32 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Create 2 models, one of which has a skip sampling rule.
-    // Feed the same data into both models then add extra data
-    // into the first model we know will be filtered out.
-    // At the end the checksums for the underlying models should
-    // be the same.
+    // The skip sampling rule doesn't cause the samples to be completely ignored,
+    // instead it applies a small multiplicative weighting when the rule applies.
+    // Feed the same data into both models including the case when the rule will apply
+    // for one model but not the other.
 
-    core_t::TTime startTime{100};
-    const std::size_t bucketLength{100};
-    core_t::TTime endTime = startTime + bucketLength;
+    core_t::TTime startTime{0};
+    const core_t::TTime bucketLength{300};
+    core_t::TTime endTime = startTime + bucketLength * 100u;
 
-    // Create a categorical rule to filter out attribute a3
-    std::string filterJson("[\"c3\"]");
+    // Create a categorical rule to reduce the weight applied to samples for attribute c4
+    std::string filterJson("[\"c4\"]");
     core::CPatternSet valueFilter;
     valueFilter.initFromJson(filterJson);
 
     CDetectionRule rule;
     rule.action(CDetectionRule::E_SkipModelUpdate);
-    rule.includeScope("", valueFilter);
+    rule.includeScope("byFieldName", valueFilter);
 
     model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute};
+    CModelFactory::SGathererInitializationData gathererInitData(startTime);
 
     SModelParams paramsNoRules(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CMetricPopulationModelFactory factoryNoSkip(paramsNoRules, interimBucketCorrector);
     factoryNoSkip.features(features);
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
+    factoryNoSkip.fieldNames("partitionFieldName", "", "byFieldName", "", {});
     CModelFactory::TDataGathererPtr gathererNoSkip(
         factoryNoSkip.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData modelNoSkipInitData(gathererNoSkip);
@@ -1181,91 +1189,154 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     CMetricPopulationModelFactory factoryWithSkip(paramsWithRules, interimBucketCorrectorWithRules);
     factoryWithSkip.features(features);
+    factoryWithSkip.fieldNames("partitionFieldName", "", "byFieldName", "", {});
     CModelFactory::TDataGathererPtr gathererWithSkip(
         factoryWithSkip.makeDataGatherer(gathererInitData));
     CModelFactory::SModelInitializationData modelWithSkipInitData(gathererWithSkip);
     CAnomalyDetectorModel::TModelPtr modelWithSkip(
         factoryWithSkip.makeModel(modelWithSkipInitData));
 
-    TMessageVec messages{
-        {startTime + 10, "p1", TOptionalStr{"c1"}, TDouble1Vec{1, 20.0}},
-        {startTime + 10, "p1", TOptionalStr{"c2"}, TDouble1Vec{1, 22.0}},
-        {startTime + 10, "p2", TOptionalStr{"c1"}, TDouble1Vec{1, 20.0}},
-        {startTime + 10, "p2", TOptionalStr{"c2"}, TDouble1Vec{1, 22.0}}};
+    // Use the existing test function to generate a set of messages sufficiently complex
+    // that we know some will cause samples to be added to the models.
+    TMessageVec messages;
+    generateTestMessages(1, startTime, bucketLength, messages);
 
-    std::vector<CModelFactory::TDataGathererPtr> gatherers{gathererNoSkip, gathererWithSkip};
-    for (auto& gatherer : gatherers) {
+    using TDataGathererPtrModelPtrPr =
+        std::pair<CModelFactory::TDataGathererPtr, CAnomalyDetectorModel::TModelPtr&>;
+    std::vector<TDataGathererPtrModelPtrPr> configs{
+        TDataGathererPtrModelPtrPr{gathererNoSkip, modelNoSkip},
+        TDataGathererPtrModelPtrPr{gathererWithSkip, modelWithSkip}};
+    // Run the same data through both models, ignoring messages with the c4 attribute
+    // so the skip sampling rule won't apply
+    for (auto& config : configs) {
+        core_t::TTime start{startTime};
         for (auto& message : messages) {
-            this->addArrival(message, gatherer);
+            if (message.s_Attribute.get() == "c4") {
+                continue;
+            }
+            if (message.s_Time >= start + bucketLength) {
+                config.second->sample(start, start + bucketLength, m_ResourceMonitor);
+                start += bucketLength;
+            }
+            this->addArrival(message, config.first);
         }
     }
-    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
-    modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
-    startTime = endTime;
-    endTime += bucketLength;
+
+    // The checksums should match
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
-
-    messages.clear();
-    messages.emplace_back(startTime + 10, "p1", TOptionalStr{"c1"}, TDouble1Vec{1, 21.0});
-    messages.emplace_back(startTime + 10, "p1", TOptionalStr{"c2"}, TDouble1Vec{1, 21.0});
-    messages.emplace_back(startTime + 10, "p2", TOptionalStr{"c1"}, TDouble1Vec{1, 21.0});
-    messages.emplace_back(startTime + 10, "p2", TOptionalStr{"c2"}, TDouble1Vec{1, 21.0});
-    for (auto& gatherer : gatherers) {
-        for (auto& message : messages) {
-            this->addArrival(message, gatherer);
-        }
-    }
-
-    // This should be filtered out
-    this->addArrival(SMessage(startTime + 10, "p1", TOptionalStr{"c3"}, TDouble1Vec{1, 21.0}),
-                     gathererWithSkip);
-    this->addArrival(SMessage(startTime + 10, "p2", TOptionalStr{"c3"}, TDouble1Vec{1, 21.0}),
-                     gathererWithSkip);
-
-    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
-    modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
-
-    // Checksums will be different because a 3rd model is created for attribute c3
-    BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
         modelWithSkip->details();
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
+    const maths::common::CModel* mathsModelWithSkipView = nullptr;
+    const maths::common::CModel* mathsModelNoSkipView = nullptr;
 
-    // but the underlying models for people p1 and p2 are the same
-    uint64_t withSkipChecksum = modelWithSkipView
-                                    ->model(model_t::E_PopulationMeanByPersonAndAttribute, 0)
-                                    ->checksum();
-    uint64_t noSkipChecksum =
-        modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 0)->checksum();
-    BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+    // expect models for attributes c0 - c3...
+    for (std::size_t i = 0; i < 4; ++i) {
+        mathsModelWithSkipView = modelWithSkipView->model(
+            model_t::E_PopulationMeanByPersonAndAttribute, i);
+        BOOST_TEST_REQUIRE(mathsModelWithSkipView != nullptr);
 
-    withSkipChecksum = modelWithSkipView
-                           ->model(model_t::E_PopulationMeanByPersonAndAttribute, 1)
-                           ->checksum();
-    noSkipChecksum =
-        modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1)->checksum();
-    BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+        mathsModelNoSkipView =
+            modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i);
+        BOOST_TEST_REQUIRE(mathsModelNoSkipView != nullptr);
+    }
 
-    // TODO These checks fail see elastic/machine-learning-cpp/issues/485
-    // Check the last value times of all the underlying models are the same
-    //     const maths::CUnivariateTimeSeriesModel *timeSeriesModel =
-    //         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1));
-    //     BOOST_TEST_REQUIRE(timeSeriesModel != 0);
+    // ...But not for c4
+    mathsModelWithSkipView =
+        modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 4);
+    BOOST_REQUIRE_EQUAL(mathsModelWithSkipView, nullptr);
 
-    //     core_t::TTime time = timeSeriesModel->trend().lastValueTime();
-    //     BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_PopulationMeanByPersonAndAttribute, startTime, bucketLength), time);
+    mathsModelNoSkipView =
+        modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 4);
+    BOOST_REQUIRE_EQUAL(mathsModelNoSkipView, nullptr);
 
-    //     // The last times of the underlying time series models should all be the same
-    //     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1));
-    //     BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    messages.clear();
+    startTime = endTime;
 
-    //     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 0));
-    //     BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
-    //     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 1));
-    //     BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
-    //     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 2));
-    //     BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    generateTestMessages(1, startTime, bucketLength, messages);
+
+    // Now add messages with the c4 attribute only to both models.
+    // The model with the skip sampling rule will have a small weighting applied
+    // to the samples.
+    for (auto& config : configs) {
+        core_t::TTime start{startTime};
+        for (auto& message : messages) {
+            if (message.s_Attribute.get() != "c4") {
+                continue;
+            }
+            if (message.s_Time >= start + bucketLength) {
+                config.second->sample(start, start + bucketLength, m_ResourceMonitor);
+                start += bucketLength;
+            }
+            this->addArrival(message, config.first);
+        }
+    }
+
+    // This time we expect the model checksums to differ because of the
+    // different weightings applied to the samples for attribute c4
+    uint64_t withSkipChecksum = modelWithSkip->checksum();
+    uint64_t noSkipChecksum = modelNoSkip->checksum();
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
+
+    // expect models for attributes c0 - c4
+    for (std::size_t i = 0; i < 5; ++i) {
+        mathsModelWithSkipView = modelWithSkipView->model(
+            model_t::E_PopulationMeanByPersonAndAttribute, i);
+        BOOST_TEST_REQUIRE(mathsModelWithSkipView != nullptr);
+
+        mathsModelNoSkipView =
+            modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i);
+        BOOST_TEST_REQUIRE(mathsModelNoSkipView != nullptr);
+    }
+
+    // The underlying models for attributes c0 - c3 are the same
+    for (std::size_t i = 0; i < 4; ++i) {
+        mathsModelWithSkipView = modelWithSkipView->model(
+            model_t::E_PopulationMeanByPersonAndAttribute, i);
+        withSkipChecksum = mathsModelWithSkipView->checksum();
+        mathsModelNoSkipView =
+            modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i);
+        noSkipChecksum = mathsModelNoSkipView->checksum();
+        BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+    }
+
+    // While the underlying models for attribute c4 differ due to the different weighting applied to the samples
+    mathsModelWithSkipView =
+        modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 4);
+    BOOST_TEST_REQUIRE(mathsModelWithSkipView != nullptr);
+    withSkipChecksum = mathsModelWithSkipView->checksum();
+
+    mathsModelNoSkipView =
+        modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, 4);
+    BOOST_TEST_REQUIRE(mathsModelNoSkipView != nullptr);
+    noSkipChecksum = mathsModelNoSkipView->checksum();
+
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
+
+    // Check the last value times are the same for each of the underlying models with the skip rule
+    // and the corresponding model with no skip rule
+    for (std::size_t i = 0; i < 5; ++i) {
+        const maths::time_series::CUnivariateTimeSeriesModel* timeSeriesModel =
+            dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+                modelWithSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i));
+        BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
+        const auto* trendModel =
+            dynamic_cast<const maths::time_series::CTimeSeriesDecomposition*>(
+                &timeSeriesModel->trendModel());
+        BOOST_TEST_REQUIRE(trendModel != nullptr);
+        core_t::TTime modelWithSkipTime = trendModel->lastValueTime();
+
+        timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelNoSkipView->model(model_t::E_PopulationMeanByPersonAndAttribute, i));
+        BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
+        trendModel = dynamic_cast<const maths::time_series::CTimeSeriesDecomposition*>(
+            &timeSeriesModel->trendModel());
+        BOOST_TEST_REQUIRE(trendModel != nullptr);
+        core_t::TTime modelNoSkipTime = trendModel->lastValueTime();
+
+        BOOST_REQUIRE_EQUAL(modelWithSkipTime, modelNoSkipTime);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

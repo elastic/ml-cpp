@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CMetricPartialStatistic_h
@@ -14,10 +19,10 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CBasicStatisticsPersist.h>
-#include <maths/CChecksum.h>
-#include <maths/CDoublePrecisionStorage.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CBasicStatisticsPersist.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CDoublePrecisionStorage.h>
 
 #include <model/CMetricStatisticWrappers.h>
 #include <model/ImportExport.h>
@@ -40,7 +45,7 @@ namespace model {
 //!   -# Member function void add(double value, unsigned int count)
 //!   -# Implementations for every function in CMetricStatisticsWrapper
 //!   -# Member operator +=
-//!   -# Supported by maths::CChecksum::calculate
+//!   -# Supported by maths::common::CChecksum::calculate
 //!   -# Supported by core::CMemoryDebug::dynamicSize
 //!   -# Supported by core::CMemory::dynamicSize
 //!   -# Have overload of operator<<
@@ -49,7 +54,7 @@ class CMetricPartialStatistic {
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TMeanAccumulator =
-        maths::CBasicStatistics::SSampleMean<maths::CDoublePrecisionStorage>::TAccumulator;
+        maths::common::CBasicStatistics::SSampleMean<maths::common::CDoublePrecisionStorage>::TAccumulator;
 
 public:
     static const std::string VALUE_TAG;
@@ -101,12 +106,12 @@ public:
 
     //! Returns the combined count of all the measurements.
     inline double count() const {
-        return maths::CBasicStatistics::count(m_Time);
+        return maths::common::CBasicStatistics::count(m_Time);
     }
 
     //! Returns the mean time of all the measurements.
     inline core_t::TTime time() const {
-        return static_cast<core_t::TTime>(maths::CBasicStatistics::mean(m_Time) + 0.5);
+        return static_cast<core_t::TTime>(maths::common::CBasicStatistics::mean(m_Time) + 0.5);
     }
 
     //! Combine two partial statistics.
@@ -118,8 +123,8 @@ public:
 
     //! Get the checksum of the partial statistic
     inline uint64_t checksum(uint64_t seed) const {
-        seed = maths::CChecksum::calculate(seed, m_Value);
-        return maths::CChecksum::calculate(seed, m_Time);
+        seed = maths::common::CChecksum::calculate(seed, m_Value);
+        return maths::common::CChecksum::calculate(seed, m_Time);
     }
 
     //! Debug the memory used by the statistic.
@@ -138,7 +143,7 @@ public:
     //! Print partial statistic
     inline std::string print() const {
         std::ostringstream result;
-        result << m_Value << ' ' << maths::CBasicStatistics::mean(m_Time);
+        result << m_Value << ' ' << maths::common::CBasicStatistics::mean(m_Time);
         return result.str();
     }
 

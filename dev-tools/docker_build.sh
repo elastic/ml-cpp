@@ -1,8 +1,13 @@
 #!/bin/bash
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 # Builds the machine learning C++ code for Linux or macOS in a Docker
@@ -74,8 +79,8 @@ do
     DOCKERFILE="$TOOLS_DIR/docker/${PLATFORM}_builder/Dockerfile"
     TEMP_TAG=`git rev-parse --short=14 HEAD`-$PLATFORM-$$
 
-    prefetch_docker_image "$DOCKERFILE"
-    docker build --no-cache --force-rm -t $TEMP_TAG --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT -f "$DOCKERFILE" .
+    prefetch_docker_base_image "$DOCKERFILE"
+    docker build --no-cache --force-rm -t $TEMP_TAG --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg ML_DEBUG=$ML_DEBUG -f "$DOCKERFILE" .
     # Using tar to copy the build artifacts out of the container seems more reliable
     # than docker cp, and also means the files end up with the correct uid/gid
     docker run --rm --workdir=/ml-cpp $TEMP_TAG tar cf - build/distributions | tar xvf -

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CAnnotatedProbability.h>
@@ -9,7 +14,7 @@
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 
-#include <maths/COrderings.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CStringStore.h>
 
@@ -31,6 +36,7 @@ const std::string DESCRIPTIVE_DATA_TAG("l");
 const std::string ANOMALY_TYPE_TAG("m");
 const std::string CORRELATED_ATTRIBUTE_TAG("n");
 const std::string MULTI_BUCKET_IMPACT_TAG("o");
+const std::string SHOULD_UPDATE_QUALITIES_TAG("p");
 }
 
 SAttributeProbability::SAttributeProbability()
@@ -51,7 +57,7 @@ SAttributeProbability::SAttributeProbability(std::size_t cid,
 }
 
 bool SAttributeProbability::operator<(const SAttributeProbability& other) const {
-    return maths::COrderings::lexicographical_compare(
+    return maths::common::COrderings::lexicographical_compare(
         s_Probability, *s_Attribute, s_Feature, s_Type.asUint(), s_Correlated,
         other.s_Probability, *other.s_Attribute, other.s_Feature,
         other.s_Type.asUint(), other.s_Correlated);
@@ -161,6 +167,7 @@ void SAnnotatedProbability::swap(SAnnotatedProbability& other) noexcept {
     s_DescriptiveData.swap(other.s_DescriptiveData);
     std::swap(s_CurrentBucketCount, other.s_CurrentBucketCount);
     std::swap(s_BaselineBucketCount, other.s_BaselineBucketCount);
+    std::swap(s_ShouldUpdateQuantiles, other.s_ShouldUpdateQuantiles);
 }
 
 void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -183,6 +190,8 @@ void SAnnotatedProbability::acceptPersistInserter(core::CStatePersistInserter& i
         core::CPersistUtils::persist(BASELINE_BUCKET_COUNT_TAG,
                                      *s_BaselineBucketCount, inserter);
     }
+    core::CPersistUtils::persist(SHOULD_UPDATE_QUALITIES_TAG,
+                                 s_ShouldUpdateQuantiles, inserter);
 }
 
 bool SAnnotatedProbability::isInterim() const {
@@ -243,6 +252,13 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
                 return false;
             }
             s_BaselineBucketCount.reset(d);
+        } else if (name == SHOULD_UPDATE_QUALITIES_TAG) {
+            if (!core::CPersistUtils::restore(SHOULD_UPDATE_QUALITIES_TAG,
+                                              s_ShouldUpdateQuantiles, traverser)) {
+                LOG_ERROR(<< "Restore error for " << traverser.name() << " / "
+                          << traverser.value());
+                return false;
+            }
         }
     } while (traverser.next());
     return true;

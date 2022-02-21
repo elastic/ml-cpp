@@ -28,7 +28,57 @@
 
 //=== Regressions
 
-== {es} version 8.0.0
+== {es} version 8.2.0
+
+=== Enhancements
+
+* Better handle small shifts of the seasonal patterns in time series data.
+  (See {ml-pull}2202[#2202].)
+* Limit the maximum size of classification and regression models training
+  produces so they can always be deployed for inference inside the Elastic
+  Stack. (See {ml-pull}2205[#2205].)
+
+== {es} version 8.1.0
+
+=== Enhancements
+
+* Improve skip_model_update rule behaviour (See {ml-pull}2096[#2096].)
+* Upgrade Boost libraries to version 1.77. (See {ml-pull}2095[#2095].)
+* Upgrade RapidJSON to 31st October 2021 version. (See {ml-pull}2106[#2106].)
+* Upgrade Eigen library to version 3.4.0. (See {ml-pull}2137[#2137].)
+* Prevent over-subscription of threads in pytorch_inference. (See {ml-pull}2141[#2141].)
+
+=== Bug Fixes
+
+* Fix a bug in the tuning of the hyperparameters when training regression
+  classification models. (See {ml-pull}2128[#2128].)
+* Improve training stability for regression and classification models
+  (See {ml-pull}2144[#2144], {ml-pull}2147[#2147] and {ml-pull}2150[#2150].)
+* Avoid edge cases in the classification weights calculation to maximize
+  minimum recall which could lead to only a single class being predicted.
+  (See {ml-pull}2194[#2194].)
+* Address cause of "[CStatisticalTests.cc@102] Test statistic is nan"
+  log errors. (See {ml-pull}2196[#2196].)
+* Address possible causes of "x = NaN, distribution = N5boost4math23students_t_distribution"
+  log errors. (See {ml-pull}2197[#2197].)
+* Fix bug restoring data gatherer state for time of day and week anomaly detection
+  functions. This could lead to "No queue item for time " and "Time is out of range.
+  Returning earliest bucket index" log errors. (See {ml-pull}2213[#2213].)
+
+== {es} version 8.0.0-rc1
+
+=== Bug Fixes
+
+* Set model state compatibility version to 8.0.0. (See {ml-pull}2139[#2139].)
+
+== {es} version 8.0.0-beta1
+
+=== Enhancements
+
+* The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 10.3. (See
+  {ml-pull}2028[#2028].)
+
+== {es} version 8.0.0-alpha1
 
 === Enhancements
 
@@ -38,6 +88,112 @@
   or Ubuntu 20.04 running clang 8 for cross compilation. (See {ml-pull}1429[#1429].)
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
+* Added a new application for evaluating PyTorch models. The app depends on LibTorch
+  - the C++ front end to PyTorch - and performs inference on models stored in the
+  TorchScript format. (See {ml-pull}1902[#1902].)
+
+
+== {es} version 7.17.0
+
+=== Bug Fixes
+
+* Avoid transient poor time series modelling after detecting new seasonal components.
+  This can affect cases where we have fast and slow repeats in the data, for example
+  30 mins and 1 day, and the job uses a short bucket length. The outcome can be transient
+  poor predictions and model bounds, and sometimes false positive anomalies. (See
+  {ml-pull}2167[#2167].)
+
+== {es} version 7.16.0
+
+=== Enhancements
+
+* Speed up training of regression and classification models. (See {ml-pull}2024[#2024].)
+* Improve concurrency for training regression and classification models. (See
+  {ml-pull}2031[#2031].)
+* Improve aspects of implementation of skip_model_update rule (See {ml-pull}2053[#2053].)
+* Make sure instrumentation captures the best hyperparameters we found for training
+  classification and regression models. (See {ml-pull}2057{#2057}.)
+
+=== Bug Fixes
+
+* Correct ANOVA for Gaussian Process we fit to the loss surface. This affects early stopping.
+  Previously, we would always stop early whether it was approproate or not. It also improves
+  the estimates of hyperparameter importances. (See {ml-pull}2073[#2073].)
+* Fix numerical instability in hyperparameter optimisation for training regression and
+  classification models. (See {ml-pull}2078[#2078].)
+* Fix numerical stability issues in time series modelling. (See {ml-pull}2083[#[2083]].)
+
+== {es} version 7.15.2
+
+=== Bug Fixes
+
+* Fix cancellation of named pipe connection on Linux if the remote end does not connect
+  within the configured timeout period. (See {ml-pull}2102[#2102].)
+
+== {es} version 7.15.0
+
+=== Enhancements
+
+* Speed up training of regression and classification models on very large data sets.
+  (See {ml-pull}1941[#1941].)
+* Improve regression and classification training accuracy for small data sets.
+  (See {ml-pull}1960[#1960].)
+* Prune models for split fields (by, partition) that haven't seen data updates for
+  a given period of time. (See {ml-pull}1962[#1962].)
+
+=== Bug Fixes
+
+* Fix potential "process stopped unexpectedly: Fatal error" for training regression
+  and classification models. (See {ml-pull}1997[#1997], issue {ml-pull}1956[#1956].)
+
+== {es} version 7.14.0
+
+=== Enhancements
+
+* Give higher weight to multiple adjacent dictionary words when performing categorization. (See
+  {ml-pull}1903[#1903].)
+
+=== Bug Fixes
+
+* Make atomic operations safer for aarch64. (See {ml-pull}1893[#1893].)
+* Ensure bucket `event_count` is calculated for jobs with 1 second bucket spans.
+(See {ml-pull}1908[#1908].)
+
+== {es} version 7.13.0
+
+=== Enhancements
+
+* Speed up training of regression and classification model training for data sets
+  with many features. (See {ml-pull}1746[#1746].)
+* Avoid overfitting in final training by scaling regularizers to account for the
+  difference in the number of training examples. This results in a better match
+  between train and test error for classification and regression and often slightly
+  improved test errors. (See {ml-pull}1755[#1755].)
+* Adjust the syscall filter to allow mremap and avoid spurious audit logging.
+  (See {ml-pull}1819[#1819].)
+
+=== Bug Fixes
+
+* Ensure the same hyperparameters are chosen if classification or regression training
+  is stopped and restarted, for example, if the node fails. (See {ml-pull}1848[#1848].)
+* Fail gracefully if insufficient data are supplied for classification or regression
+  training. (See {ml-pull}1855[#1855].)
+* Fail gracefully on encountering unexpected state in restore from snapshot for anomaly
+  detection. (See {ml-pull}1872[#1872].)
+* Use appropriate memory ordering flags for aarch64 with string store to avoid excessive
+  string duplication. (See {ml-pull}1888[#1888].)
+
+== {es} version 7.12.2
+
+=== Bug Fixes
+
+* Add missing hyperparamter to the model metadata. (See {ml-pull}1867[#1867].)
+
+== {es} version 7.12.1
+
+=== Enhancements
+
+* Make ML native processes work with glibc 2.33 on x86_64. (See {ml-pull}1828[#1828].)
 
 == {es} version 7.12.0
 
@@ -51,12 +207,24 @@
   model training. (See {ml-pull}1676[#1676].)
 * Correct upgrade for pre-6.3 state for lat_long anomaly anomaly detectors. (See
   {ml-pull}1681[#1681].)
+* Per tree feature bag to speed up training of regression and classification models
+  and improve scalability for large numbers of features. (See {ml-pull}1733[#1733].)
+
+=== Bug Fixes
+
+* Fix a source of instability in time series modeling for anomaly detection. This has
+  been observed to cause spurious anomalies for a partition which no longer receives
+  any data. (See {ml-pull}1675[#1675].)
+* Ensure that we stop modeling seasonality for data which flatlines. This is important
+  for count and sum detectors which treat empty buckets as zero. We could see spurious
+  anomalies in realtime detection after a partition no longer received data any data
+  as a result. (See {ml-pull}1654[#1654].)
 
 == {es} version 7.11.0
 
 === Enhancements
 
-* During regression and classification training prefer smaller models if performance is 
+* During regression and classification training prefer smaller models if performance is
   similar (See {ml-pull}1516[#1516].)
 * Add a response mechanism for commands sent to the native controller. (See
   {ml-pull}1520[#1520], {es-pull}63542[#63542], issue: {es-issue}62823[#62823].)
@@ -64,7 +232,7 @@
   using longer bucket lengths. (See {ml-pull}1549[#1549].)
 * Fix an edge case which could cause typical and model plot bounds to blow up to around
   max double. (See {ml-pull}1551[#1551].)
-* Estimate upper bound of potential gains before splitting a decision tree node to avoid 
+* Estimate upper bound of potential gains before splitting a decision tree node to avoid
   unnecessary computation. (See {ml-pull}1537[#1537].)
 * Improvements to time series modeling particularly in relation to adaption to change.
   (See {ml-pull})1614[#1614].)
@@ -168,7 +336,7 @@
 * Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
   when CPU is constrained. This change is only implemented for Linux and macOS, not
   for Windows. (See {ml-pull}1109[#1109].)
-* Take `training_percent` into account when estimating memory usage for classification and regression. 
+* Take `training_percent` into account when estimating memory usage for classification and regression.
   (See {ml-pull}1111[#1111].)
 * Support maximize minimum recall when assigning class labels for multiclass classification.
   (See {ml-pull}1113[#1113].)
@@ -218,12 +386,12 @@
 
 * Fixed background persistence of categorizer state (See {ml-pull}1137[#1137],
   issue: {ml-issue}1136[#1136].)
-* Fix classification job failures when number of classes in configuration differs 
+* Fix classification job failures when number of classes in configuration differs
   from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
 * Fix underlying cause for "Failed to calculate splitting significance" log errors.
   (See {ml-pull}1157[#1157].)
 * Fix possible root cause for "Bad variance scale nan" log errors. (See {ml-pull}1225[#1225].)
-* Change data frame analytics instrumentation timestamp resolution to milliseconds. (See 
+* Change data frame analytics instrumentation timestamp resolution to milliseconds. (See
   {ml-pull}1237[#1237].)
 * Fix "autodetect process stopped unexpectedly: Fatal error: 'terminate called after
   throwing an instance of 'std::bad_function_call'". (See {ml-pull}1246[#1246],
@@ -344,7 +512,7 @@ boosted tree training. Hard depth based regularization is often the strategy of
 choice to prevent over fitting for XGBoost. By smoothing we can make better tradeoffs.
 Also, the parameters of the penalty function are mode suited to optimising with our
 Bayesian optimisation based hyperparameter search. (See {ml-pull}698[#698].)
-* Binomial logistic regression targeting cross entropy. (See {ml-pull}713[#713].) 
+* Binomial logistic regression targeting cross entropy. (See {ml-pull}713[#713].)
 * Improvements to count and sum anomaly detection for sparse data. This primarily
 aims to improve handling of data which are predictably present: detecting when they
 are unexpectedly missing. (See {ml-pull}721[#721].)

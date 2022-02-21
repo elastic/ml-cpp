@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CJsonOutputStreamWrapper.h>
@@ -215,7 +220,8 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         BOOST_TEST_REQUIRE(this->nameExists("flute"));
         BOOST_TEST_REQUIRE(this->nameExists("tuba"));
 
-        // play some data in a lot later, to bring about pruning
+        // play some data in a lot later, to bring about pruning. One partition
+        // should have been culled.
         time += BUCKET_SPAN * 5000;
         time = playData(time, BUCKET_SPAN, 100, 3, 1, 101, job);
 
@@ -243,7 +249,9 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
 
         // While the 3 composers from the second partition should have been culled in the prune,
-        // their names still exist in the first partition, so will still be in the string store
+        // their names still exist in the first partition, so will still be in the string store.
+        // The 2nd partition should have been culled entirely, including removal of its name
+        // from the string store.
         BOOST_TEST_REQUIRE(this->nameExists("count"));
         BOOST_TEST_REQUIRE(this->nameExists("notes"));
         BOOST_TEST_REQUIRE(this->nameExists("composer"));
@@ -251,10 +259,10 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
         BOOST_TEST_REQUIRE(this->nameExists("Holst"));
         BOOST_TEST_REQUIRE(this->nameExists("Delius"));
-        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute") == false);
         BOOST_TEST_REQUIRE(this->nameExists("tuba"));
 
-        // Play some more data to cull out the third person
+        // Play some more data to cull out the third person and to add back the 2nd partition
         time += BUCKET_SPAN * 5000;
         time = playData(time, BUCKET_SPAN, 100, 2, 2, 101, job);
 
@@ -293,7 +301,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         BOOST_TEST_REQUIRE(this->nameExists("Holst"));
         BOOST_TEST_REQUIRE(this->nameExists("flute"));
         BOOST_TEST_REQUIRE(this->nameExists("tuba"));
-        BOOST_TEST_REQUIRE(!this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("Delius") == false);
     }
 }
 
@@ -425,7 +433,9 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
                             model::CStringStore::influencers().m_Strings.size());
 
         // While the 3 composers from the second partition should have been culled in the prune,
-        // their names still exist in the first partition, so will still be in the string store
+        // their names still exist in the first partition, so will still be in the string store.
+        // The 2nd partition should have been culled entirely, including removal of its name
+        // from the string store.
         BOOST_TEST_REQUIRE(this->nameExists("count"));
         BOOST_TEST_REQUIRE(this->nameExists("notes"));
         BOOST_TEST_REQUIRE(this->nameExists("composer"));
@@ -433,7 +443,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         BOOST_TEST_REQUIRE(this->nameExists("Elgar"));
         BOOST_TEST_REQUIRE(this->nameExists("Holst"));
         BOOST_TEST_REQUIRE(this->nameExists("Delius"));
-        BOOST_TEST_REQUIRE(this->nameExists("flute"));
+        BOOST_TEST_REQUIRE(this->nameExists("flute") == false);
         BOOST_TEST_REQUIRE(this->nameExists("tuba"));
 
         // Play some more data to cull out the third person
@@ -476,7 +486,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         BOOST_TEST_REQUIRE(this->nameExists("Holst"));
         BOOST_TEST_REQUIRE(this->nameExists("flute"));
         BOOST_TEST_REQUIRE(this->nameExists("tuba"));
-        BOOST_TEST_REQUIRE(!this->nameExists("Delius"));
+        BOOST_TEST_REQUIRE(this->nameExists("Delius") == false);
     }
 }
 

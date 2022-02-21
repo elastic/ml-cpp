@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CTimeUtils.h>
 
@@ -30,7 +35,7 @@ using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
-using TLossFunctionType = maths::boosted_tree::ELossType;
+using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
 
 void addOutlierTestData(TStrVec fieldNames,
                         TStrVec fieldValues,
@@ -39,7 +44,7 @@ void addOutlierTestData(TStrVec fieldNames,
                         TDoubleVecVec& expectedFeatureInfluences,
                         std::size_t numberInliers = 100,
                         std::size_t numberOutliers = 10,
-                        maths::COutliers::EMethod method = maths::COutliers::E_Ensemble,
+                        maths::analytics::COutliers::EMethod method = maths::analytics::COutliers::E_Ensemble,
                         std::size_t numberNeighbours = 0,
                         bool computeFeatureInfluence = false) {
 
@@ -78,15 +83,15 @@ void addOutlierTestData(TStrVec fieldNames,
     }
 
     frame->finishWritingRows();
-    maths::CDataFrameOutliersInstrumentationStub instrumentation;
-    maths::COutliers::compute(
+    maths::analytics::CDataFrameOutliersInstrumentationStub instrumentation;
+    maths::analytics::COutliers::compute(
         {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05},
         *frame, instrumentation);
 
     expectedScores.resize(numberInliers + numberOutliers);
     expectedFeatureInfluences.resize(numberInliers + numberOutliers, TDoubleVec(5));
 
-    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             expectedScores[row->index()] = (*row)[5];
             if (computeFeatureInfluence) {

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -10,9 +15,9 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
-#include <maths/CStatisticalTests.h>
-#include <maths/CTools.h>
-#include <maths/ProbabilityAggregators.h>
+#include <maths/common/CStatisticalTests.h>
+#include <maths/common/CTools.h>
+#include <maths/common/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetector.h>
@@ -68,9 +73,7 @@ public:
 public:
     CBreadthFirstCheck() : m_Layer(0), m_Layers(1, TNodeCPtrSet()) {}
 
-    virtual void visit(const model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         LOG_DEBUG(<< "Visiting " << node.print());
 
         if (node.s_Children.empty()) {
@@ -83,7 +86,7 @@ public:
         // otherwise start a new layer.
 
         std::size_t layer = m_Layer + 1;
-        for (std::size_t i = 0u; i < node.s_Children.size(); ++i) {
+        for (std::size_t i = 0; i < node.s_Children.size(); ++i) {
             if (m_Layers[m_Layer].count(node.s_Children[i]) == 0) {
                 layer = m_Layer + 2;
                 break;
@@ -107,7 +110,7 @@ public:
         LOG_DEBUG(<< "# layers = " << m_Layers.size());
         BOOST_REQUIRE_EQUAL(expectedLayers, m_Layers.size());
 
-        for (std::size_t i = 0u; i < m_Layers.size(); ++i) {
+        for (std::size_t i = 0; i < m_Layers.size(); ++i) {
             LOG_DEBUG(<< "Checking layer " << core::CContainerPrinter::print(m_Layers[i]));
             for (TNodeCPtrSetCItr itr = m_Layers[i].begin();
                  itr != m_Layers[i].end(); ++itr) {
@@ -123,7 +126,7 @@ public:
 private:
     //! Get a node's layer.
     std::size_t layer(const TNode* node) const {
-        for (std::size_t i = 0u; i < m_Layers.size(); ++i) {
+        for (std::size_t i = 0; i < m_Layers.size(); ++i) {
             if (m_Layers[i].count(node) > 0) {
                 return i;
             }
@@ -147,9 +150,7 @@ public:
     using TNodeCPtrVec = std::vector<const TNode*>;
 
 public:
-    virtual void visit(const model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         LOG_DEBUG(<< "Visiting " << node.print());
         for (std::size_t i = node.s_Children.size(); i > 0; --i) {
             BOOST_TEST_REQUIRE(!m_Children.empty());
@@ -171,7 +172,7 @@ public:
     CPrinter(bool shouldOnlyPrintWrittenNodes)
         : m_ShouldPrintWrittenNodesOnly(shouldOnlyPrintWrittenNodes) {}
 
-    virtual void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) {
+    void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) override {
         if (m_ShouldPrintWrittenNodesOnly == false ||
             shouldWriteResult(m_Limits, results, node, pivot)) {
             m_Result = std::string(2 * depth(&node), ' ') + node.print() +
@@ -183,7 +184,7 @@ public:
 
 private:
     std::size_t depth(const TNode* node) const {
-        std::size_t result = 0u;
+        std::size_t result = 0;
         for (/**/; node->s_Parent; node = node->s_Parent) {
             ++result;
         }
@@ -202,9 +203,7 @@ public:
     using TNodeCPtrVec = std::vector<const TNode*>;
 
 public:
-    virtual void visit(const model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         if (this->isPartitioned(node)) {
             m_PartitionedNodes.push_back(&node);
         }
@@ -234,12 +233,10 @@ private:
 //! \brief Checks our anomaly scores are correct post scoring.
 class CCheckScores : public model::CHierarchicalResultsVisitor {
 public:
-    virtual void visit(const model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         LOG_DEBUG(<< node.s_Spec.print() << " score = " << node.s_RawAnomalyScore << ", expected score = "
-                  << maths::CTools::anomalyScore(node.probability()));
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CTools::anomalyScore(node.probability()),
+                  << maths::common::CTools::anomalyScore(node.probability()));
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::common::CTools::anomalyScore(node.probability()),
                                      node.s_RawAnomalyScore, 1e-10);
     }
 };
@@ -251,7 +248,7 @@ class CWriteConsistencyChecker : public model::CHierarchicalResultsVisitor {
 public:
     CWriteConsistencyChecker(const model::CLimits& limits) : m_Limits(limits) {}
 
-    virtual void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) {
+    void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) override {
         if (!this->shouldWriteResult(m_Limits, results, node, pivot)) {
             return;
         }
@@ -311,13 +308,12 @@ public:
 public:
     CProbabilityGatherer() : TBase(SNodeProbabilities("bucket")) {}
 
-    virtual void
-    visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool pivot) {
+    void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool pivot) override {
         if (isLeaf(node)) {
             CFactory factory;
             TNodeProbabilitiesPtrVec probabilities;
             this->elements(node, pivot, factory, probabilities);
-            for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+            for (std::size_t i = 0; i < probabilities.size(); ++i) {
                 if (node.probability() <
                     model::CDetectorEqualizer::largestProbabilityToCorrect()) {
                     (*probabilities[i]).s_Probabilities[node.s_Detector].push_back(node.probability());
@@ -327,9 +323,9 @@ public:
     }
 
     double test(double minimumSignificance) const {
-        maths::CBasicStatistics::SSampleMean<double>::TAccumulator meanSignificance;
+        maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator meanSignificance;
 
-        for (std::size_t i = 0u; i < this->leafSet().size(); ++i) {
+        for (std::size_t i = 0; i < this->leafSet().size(); ++i) {
             const SNodeProbabilities& probabilities = this->leafSet()[i].second;
             LOG_DEBUG(<< "leaf = " << probabilities.s_Name);
 
@@ -339,9 +335,9 @@ public:
                 detectors.push_back(j->first);
             }
 
-            for (std::size_t j = 1u; j < detectors.size(); ++j) {
-                for (std::size_t k = 0u; k < j; ++k) {
-                    double significance = maths::CStatisticalTests::twoSampleKS(
+            for (std::size_t j = 1; j < detectors.size(); ++j) {
+                for (std::size_t k = 0; k < j; ++k) {
+                    double significance = maths::common::CStatisticalTests::twoSampleKS(
                         probabilities.s_Probabilities.find(detectors[j])->second,
                         probabilities.s_Probabilities.find(detectors[k])->second);
                     LOG_DEBUG(<< detectors[j] << " vs " << detectors[k]
@@ -352,7 +348,7 @@ public:
             }
         }
 
-        return std::exp(maths::CBasicStatistics::mean(meanSignificance));
+        return std::exp(maths::common::CBasicStatistics::mean(meanSignificance));
     }
 };
 
@@ -1096,11 +1092,11 @@ BOOST_AUTO_TEST_CASE(testAggregator) {
         results.bottomUpBreadthFirst(extract);
         TDoubleVec scores;
         TDoubleVec probabilities;
-        for (std::size_t i = 0u; i < extract.personNodes().size(); ++i) {
+        for (std::size_t i = 0; i < extract.personNodes().size(); ++i) {
             scores.push_back(extract.personNodes()[i]->s_RawAnomalyScore);
             probabilities.push_back(extract.personNodes()[i]->probability());
         }
-        maths::COrderings::simultaneousSort(probabilities, scores);
+        maths::common::COrderings::simultaneousSort(probabilities, scores);
         TDoubleVec expectedScores;
         TDoubleVec expectedProbabilities;
         addAggregateValues(0.5, 0.5, 5, std::begin(rp1), std::end(rp1),
@@ -1109,7 +1105,7 @@ BOOST_AUTO_TEST_CASE(testAggregator) {
                            expectedScores, expectedProbabilities);
         addAggregateValues(0.5, 0.5, 5, std::begin(rp3), std::end(rp3),
                            expectedScores, expectedProbabilities);
-        maths::COrderings::simultaneousSort(expectedProbabilities, expectedScores);
+        maths::common::COrderings::simultaneousSort(expectedProbabilities, expectedScores);
         LOG_DEBUG(<< "expectedScores = " << core::CContainerPrinter::print(expectedScores));
         LOG_DEBUG(<< "scores         = " << core::CContainerPrinter::print(scores));
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedScores),
@@ -1548,12 +1544,12 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         "r", std::make_shared<model::CAnomalyScore::CNormalizer>(modelConfig));
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < 300; ++i) {
+    for (std::size_t i = 0; i < 300; ++i) {
         model::CHierarchicalResults results;
         TDoubleVec p;
         rng.generateUniformSamples(0.0, 1.0, boost::size(fields), p);
         TAttributeProbabilityVec empty;
-        for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+        for (std::size_t j = 0; j < boost::size(fields); ++j) {
             addResult(boost::lexical_cast<int>(fields[j][0]), fields[j][1] == TRUE_STR,
                       FUNC, function, fields[j][2], fields[j][3], fields[j][4],
                       fields[j][5], fields[j][6], p[j], results);
@@ -1606,7 +1602,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
             // CHierarchicalResultsNormalizer::visit()
             double score = probability > modelConfig.maximumAnomalousProbability()
                                ? 0.0
-                               : maths::CTools::anomalyScore(probability);
+                               : maths::common::CTools::anomalyScore(probability);
             expectedNormalizer->updateQuantiles(scope(leaf), score);
         }
         for (const auto& leaf : extract.leafNodes()) {
@@ -1617,7 +1613,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                 // CHierarchicalResultsNormalizer::visit()
                 double score = probability > modelConfig.maximumAnomalousProbability()
                                    ? 0.0
-                                   : maths::CTools::anomalyScore(probability);
+                                   : maths::common::CTools::anomalyScore(probability);
                 normalized.push_back(leaf->s_NormalizedAnomalyScore);
                 BOOST_TEST_REQUIRE(expectedNormalizer->normalize(scope(leaf), score));
                 expectedNormalized.push_back(score);
@@ -1639,7 +1635,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
             // CHierarchicalResultsNormalizer::visit()
             double score = probability > modelConfig.maximumAnomalousProbability()
                                ? 0.0
-                               : maths::CTools::anomalyScore(probability);
+                               : maths::common::CTools::anomalyScore(probability);
             expectedNormalizer->updateQuantiles(scope(person), score);
         }
         for (const auto& person : extract.personNodes()) {
@@ -1650,7 +1646,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                 // CHierarchicalResultsNormalizer::visit()
                 double score = probability > modelConfig.maximumAnomalousProbability()
                                    ? 0.0
-                                   : maths::CTools::anomalyScore(probability);
+                                   : maths::common::CTools::anomalyScore(probability);
                 normalized.push_back(person->s_NormalizedAnomalyScore);
                 BOOST_TEST_REQUIRE(expectedNormalizer->normalize(scope(person), score));
                 expectedNormalized.push_back(score);
@@ -1672,7 +1668,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
             // CHierarchicalResultsNormalizer::visit()
             double score = probability > modelConfig.maximumAnomalousProbability()
                                ? 0.0
-                               : maths::CTools::anomalyScore(probability);
+                               : maths::common::CTools::anomalyScore(probability);
             expectedNormalizer->updateQuantiles(scope(partition), score);
         }
         for (const auto& partition : extract.partitionNodes()) {
@@ -1683,7 +1679,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                 // CHierarchicalResultsNormalizer::visit()
                 double score = probability > modelConfig.maximumAnomalousProbability()
                                    ? 0.0
-                                   : maths::CTools::anomalyScore(probability);
+                                   : maths::common::CTools::anomalyScore(probability);
                 normalized.push_back(partition->s_NormalizedAnomalyScore);
                 BOOST_TEST_REQUIRE(expectedNormalizer->normalize(scope(partition), score));
                 expectedNormalized.push_back(score);
@@ -1701,7 +1697,7 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         // CHierarchicalResultsNormalizer::visit()
         double score = probability > modelConfig.maximumAnomalousProbability()
                            ? 0.0
-                           : maths::CTools::anomalyScore(probability);
+                           : maths::common::CTools::anomalyScore(probability);
 
         expectedNormalizers.find(std::string("r"))->second->isForMembersOfPopulation(false);
         expectedNormalizers.find(std::string("r"))->second->updateQuantiles({"", "", "", ""}, score);
@@ -1757,10 +1753,10 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
             {"3", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING}};
         double scales[] = {1.9, 2.5, 1.7, 2.9};
 
-        for (std::size_t i = 0u; i < 300; ++i) {
+        for (std::size_t i = 0; i < 300; ++i) {
             model::CHierarchicalResults results;
             TAttributeProbabilityVec empty;
-            for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+            for (std::size_t j = 0; j < boost::size(fields); ++j) {
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
@@ -1773,10 +1769,10 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
             results.bottomUpBreadthFirst(aggregator);
         }
 
-        for (std::size_t i = 0u; i < 300; ++i) {
+        for (std::size_t i = 0; i < 300; ++i) {
             model::CHierarchicalResults results;
             TAttributeProbabilityVec empty;
-            for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+            for (std::size_t j = 0; j < boost::size(fields); ++j) {
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
@@ -1838,10 +1834,10 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
             {"1", FALSE_STR, PNF1, pn11, PF1, p11, EMPTY_STRING}};
         double scales[] = {1.0, 3.5};
 
-        for (std::size_t i = 0u; i < 500; ++i) {
+        for (std::size_t i = 0; i < 500; ++i) {
             model::CHierarchicalResults results;
             TAttributeProbabilityVec empty;
-            for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+            for (std::size_t j = 0; j < boost::size(fields); ++j) {
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);
@@ -1855,12 +1851,12 @@ BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
         }
 
         using TDoubleSizePr = std::pair<double, std::size_t>;
-        maths::CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2> mostAnomalous;
+        maths::common::CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2> mostAnomalous;
 
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             model::CHierarchicalResults results;
             TAttributeProbabilityVec empty;
-            for (std::size_t j = 0u; j < boost::size(fields); ++j) {
+            for (std::size_t j = 0; j < boost::size(fields); ++j) {
                 int detector = boost::lexical_cast<int>(fields[j][0]);
                 TDoubleVec p;
                 rng.generateGammaSamples(1.0, scales[detector], 1, p);

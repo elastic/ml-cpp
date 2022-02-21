@@ -1,17 +1,23 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CDataFrame.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CDataFramePredictiveModel.h>
-#include <maths/CSampling.h>
-#include <maths/CTools.h>
-#include <maths/CToolsDetail.h>
-#include <maths/CTreeShapFeatureImportance.h>
+#include <maths/analytics/CDataFramePredictiveModel.h>
+#include <maths/analytics/CTreeShapFeatureImportance.h>
+
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CSampling.h>
+#include <maths/common/CTools.h>
+#include <maths/common/CToolsDetail.h>
 
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
@@ -33,14 +39,14 @@ using namespace ml;
 
 namespace {
 using TDoubleVec = std::vector<double>;
-using TVector = maths::CDenseVector<double>;
+using TVector = maths::common::CDenseVector<double>;
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
-using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-using TMemoryMappedMatrix = maths::CMemoryMappedDenseMatrix<double>;
+using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMemoryMappedMatrix = maths::common::CMemoryMappedDenseMatrix<double>;
 using TDocumentStrPr = std::pair<rapidjson::Document, std::string>;
 
 void setupLinearRegressionData(const TStrVec& fieldNames,
@@ -111,14 +117,14 @@ void setupBinaryClassificationData(const TStrVec& fieldNames,
                                    const TDoubleVec& weights,
                                    const TDoubleVec& values) {
     TStrVec classes{"foo", "bar"};
-    maths::CPRNG::CXorOShiro128Plus rng;
+    maths::common::CPRNG::CXorOShiro128Plus rng;
     std::uniform_real_distribution<double> u01;
     auto target = [&](const TDoubleVec& regressors) {
         double logOddsBar{0.0};
         for (std::size_t i = 0; i < weights.size(); ++i) {
             logOddsBar += weights[i] * regressors[i];
         }
-        return classes[u01(rng) < maths::CTools::logisticFunction(logOddsBar)];
+        return classes[u01(rng) < maths::common::CTools::logisticFunction(logOddsBar)];
     };
 
     for (std::size_t i = 0; i < values.size(); i += weights.size()) {
@@ -143,7 +149,7 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
                                        const TDoubleVec& weights,
                                        const TDoubleVec& values) {
     TStrVec classes{"foo", "bar", "baz"};
-    maths::CPRNG::CXorOShiro128Plus rng;
+    maths::common::CPRNG::CXorOShiro128Plus rng;
     std::uniform_real_distribution<double> u01;
     int numberFeatures{static_cast<int>(weights.size())};
     int numberClasses{static_cast<int>(classes.size())};
@@ -160,12 +166,12 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
             x(i) = row[i];
         }
         TVector result{W * x};
-        maths::CTools::inplaceSoftmax(result);
+        maths::common::CTools::inplaceSoftmax(result);
         return result;
     };
     auto target = [&](const TDoubleVec& row) {
         TDoubleVec probabilities{probability(row).to<TDoubleVec>()};
-        return classes[maths::CSampling::categoricalSample(rng, probabilities)];
+        return classes[maths::common::CSampling::categoricalSample(rng, probabilities)];
     };
 
     for (std::size_t i = 0; i < values.size(); i += weights.size()) {
@@ -195,6 +201,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionCategoricalFieldNames({"c1"})
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
@@ -247,6 +254,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionCategoricalFieldNames({"target"})
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
@@ -296,6 +304,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionCategoricalFieldNames({"target"})
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
@@ -346,6 +355,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
                 .predictionGamma(s_Gamma)
@@ -540,9 +550,14 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     TMeanAccumulator c2TotalShapExpected;
     TMeanAccumulator c3TotalShapExpected;
     TMeanAccumulator c4TotalShapExpected;
-    double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
-    double c1TotalShapActual{0.0}, c2TotalShapActual{0.0},
-        c3TotalShapActual{0.0}, c4TotalShapActual{0.0};
+    double c1Sum{0.0};
+    double c2Sum{0.0};
+    double c3Sum{0.0};
+    double c4Sum{0.0};
+    double c1TotalShapActual{0.0};
+    double c2TotalShapActual{0.0};
+    double c3TotalShapActual{0.0};
+    double c4TotalShapActual{0.0};
     bool hasTotalFeatureImportance{false};
     double baseline{readBaselineValue(results)};
     for (const auto& result : results.GetArray()) {
@@ -577,9 +592,12 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
         }
     }
 
-    // since target is generated using the linear model
-    // 50 c1 + 150 c2 + 50 c3 - 50 c4, with c1 categorical {-10,10}
-    // we expect c2 > c1 > c3 \approx c4
+    // Since the target is generated using the linear model
+    //
+    //   50 c1 + 150 c2 + 50 c3 - 50 c4, with c1 categorical {-10,10}
+    //
+    // we expect c2 > c1 > c3 \approx c4.
+
     BOOST_TEST_REQUIRE(c2Sum > c1Sum);
     // since c1 is categorical -10 or 10, it's influence is generally higher than that of c3 and c4 which are sampled
     // randomly on [-10, 10].
@@ -595,13 +613,13 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
                  << resultsPair.second);
     }
     BOOST_REQUIRE_CLOSE(c1TotalShapActual,
-                        maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+                        maths::common::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
     BOOST_REQUIRE_CLOSE(c2TotalShapActual,
-                        maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+                        maths::common::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
     BOOST_REQUIRE_CLOSE(c3TotalShapActual,
-                        maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+                        maths::common::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
     BOOST_REQUIRE_CLOSE(c4TotalShapActual,
-                        maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
+                        maths::common::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
@@ -617,17 +635,18 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
             double c1{readShapValue(result, "c1")};
             double prediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
-            // c1 explains 92% of the prediction value, i.e. the difference from the prediction is less than 8%.
-            BOOST_REQUIRE_CLOSE(c1, prediction, 8.0);
+            // c1 explains 89-92% of the prediction value depending on platform,
+            // i.e. the difference from the prediction is less than 11%.
+            BOOST_REQUIRE_CLOSE(c1, prediction, 11.0);
             for (const auto& feature : {"c2", "c3", "c4"}) {
                 double c = readShapValue(result, feature);
-                BOOST_REQUIRE_SMALL(c, 3.0);
+                BOOST_REQUIRE_SMALL(c, 3.5);
                 cNoImportanceMean.add(std::fabs(c));
             }
         }
     }
 
-    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::mean(cNoImportanceMean), 0.1);
+    BOOST_REQUIRE_SMALL(maths::common::CBasicStatistics::mean(cNoImportanceMean), 0.1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
@@ -637,15 +656,20 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     // values are indeed a local approximation of the predicted log-odds.
 
     std::size_t topShapValues{4};
-    auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
+    auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.3, -0.3})};
     auto results{std::move(resultsPair.first)};
     TMeanAccumulator c1TotalShapExpected;
     TMeanAccumulator c2TotalShapExpected;
     TMeanAccumulator c3TotalShapExpected;
     TMeanAccumulator c4TotalShapExpected;
-    double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
-    double c1TotalShapActual[2], c2TotalShapActual[2], c3TotalShapActual[2],
-        c4TotalShapActual[2];
+    double c1Sum{0.0};
+    double c2Sum{0.0};
+    double c3Sum{0.0};
+    double c4Sum{0.0};
+    double c1TotalShapActual[2];
+    double c2TotalShapActual[2];
+    double c3TotalShapActual[2];
+    double c4TotalShapActual[2];
     bool hasTotalFeatureImportance{false};
     double baselineFoo{readBaselineValue(results, "foo")};
     double baselineBar{readBaselineValue(results, "bar")};
@@ -693,13 +717,20 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
         }
     }
 
-    // since the target using a linear model
-    // 0.5 c1 + 0.7 c2 + 0.25 c3 - 0.25 c4
-    // to generate the log odds we expect c2 > c1 > c3 \approx c4
+    // Since the target is using the linear model
+    //
+    //   0.5 c1 - 0.7 c2 + 0.2 c3 - 0.2 c4
+    //
+    // to generate the log odds we expect c2 > c1 > c3 \approx c4.
+
+    LOG_DEBUG(<< "c1Sum = " << c1Sum << ", c2Sum = " << c2Sum
+              << ", c3Sum = " << c3Sum << ", c4Sum = " << c4Sum);
+
     BOOST_TEST_REQUIRE(c2Sum > c1Sum);
     BOOST_TEST_REQUIRE(c1Sum > c3Sum);
     BOOST_TEST_REQUIRE(c1Sum > c4Sum);
-    BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 40.0); // c3 and c4 within 40% of each other
+    BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 20.0); // c3 and c4 within 20% of each other
+
     BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
     for (std::size_t i = 0; i < classes.size(); ++i) {
         if (c1TotalShapActual[i] == 0 || c2TotalShapActual[i] == 0 ||
@@ -708,13 +739,13 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
                      << resultsPair.second);
         }
         BOOST_REQUIRE_CLOSE(c1TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+                            maths::common::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
         BOOST_REQUIRE_CLOSE(c2TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+                            maths::common::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
         BOOST_REQUIRE_CLOSE(c3TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+                            maths::common::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
         BOOST_REQUIRE_CLOSE(c4TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
+                            maths::common::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
     }
 }
 
@@ -801,14 +832,18 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             LOG_INFO(<< "Incorrect results, missing total shap values: "
                      << resultsPair.second);
         }
-        BOOST_REQUIRE_CLOSE(c1TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c1TotalShapExpected[i]), 1.0);
-        BOOST_REQUIRE_CLOSE(c2TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c2TotalShapExpected[i]), 1.0);
-        BOOST_REQUIRE_CLOSE(c3TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c3TotalShapExpected[i]), 1.0);
-        BOOST_REQUIRE_CLOSE(c4TotalShapActual[i],
-                            maths::CBasicStatistics::mean(c4TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(
+            c1TotalShapActual[i],
+            maths::common::CBasicStatistics::mean(c1TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(
+            c2TotalShapActual[i],
+            maths::common::CBasicStatistics::mean(c2TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(
+            c3TotalShapActual[i],
+            maths::common::CBasicStatistics::mean(c3TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(
+            c4TotalShapActual[i],
+            maths::common::CBasicStatistics::mean(c4TotalShapExpected[i]), 1.0);
     }
 }
 
@@ -858,7 +893,7 @@ BOOST_FIXTURE_TEST_CASE(testMissingFeatures, SFixture) {
     BOOST_REQUIRE_CLOSE(c1Sum, c3Sum, 15.0); // c1 and c3 within 15% of each other
     BOOST_REQUIRE_CLOSE(c1Sum, c4Sum, 15.0); // c1 and c4 within 15% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
-    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
+    BOOST_REQUIRE_SMALL(maths::common::CBasicStatistics::variance(bias), 1e-6);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_model_CAnomalyDetector_h
 #define INCLUDED_ml_model_CAnomalyDetector_h
@@ -176,6 +181,9 @@ public:
     //! created into which other state can be restored.
     void partitionFieldAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    //! Determine whether the detector should be persisted.
+    bool shouldPersistDetector() const;
+
     //! Persist state for statics - this is only called from the
     //! simple count detector to ensure singleton behaviour
     void staticsAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -243,6 +251,10 @@ public:
     //! CALLING THIS METHOD that you do not hold pointers to any models
     //! that may be deleted as a result of this call.
     virtual void pruneModels();
+
+    //! Remove dead models - i.e. those that have not seen activity
+    //! in the last \p pruneWindow buckets
+    virtual void pruneModels(std::size_t pruneWindow);
 
     //! Reset bucket.
     void resetBucket(core_t::TTime bucketStart);

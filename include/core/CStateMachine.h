@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CStateMachine_h
@@ -58,12 +63,6 @@ class CStateRestoreTraverser;
 //! pattern in create with an atomic to pass a message to other threads that a
 //! new machine is ready to use.
 //!
-//! \warning Currently this class is NOT thread safe.  The unlocked accesses
-//! to ms_Machines can occur at the same time as ms_Machines is being expanded
-//! leading to segmentation faults as the accessors traverse the deque data
-//! structure while it's being changed.  Do not use this class in multithreaded
-//! code until this is fixed.  The bug reference is:
-//! https://github.com/elastic/machine-learning-cpp/issues/10
 class CORE_EXPORT CStateMachine {
 public:
     using TSizeVec = std::vector<std::size_t>;

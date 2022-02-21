@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_api_CHierarchicalResultsWriter_h
@@ -148,8 +153,10 @@ public:
                                const TResultWriterFunc& resultWriter,
                                const TPivotWriterFunc& pivotsWriterFunc);
 
+    ~CHierarchicalResultsWriter() override = default;
+
     //! Write \p node.
-    virtual void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot);
+    void visit(const model::CHierarchicalResults& results, const TNode& node, bool pivot) override;
 
 private:
     //! Write out a population person result if \p node is a

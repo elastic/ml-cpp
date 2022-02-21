@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CSearchKey.h>
@@ -13,8 +18,9 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
+#include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
+#include <maths/common/CChecksum.h>
 
 #include <model/CStringStore.h>
 
@@ -123,7 +129,16 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
         }
     } while (traverser.next());
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CSearchKey::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_FieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_ByFieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_OverFieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_PartitionFieldName, ==, nullptr);
 }
 
 void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -135,7 +150,7 @@ void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) co
     inserter.insertValue(BY_FIELD_NAME_TAG, *m_ByFieldName);
     inserter.insertValue(OVER_FIELD_NAME_TAG, *m_OverFieldName);
     inserter.insertValue(PARTITION_FIELD_NAME_TAG, *m_PartitionFieldName);
-    for (std::size_t i = 0u; i < m_InfluenceFieldNames.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
         inserter.insertValue(INFLUENCE_FIELD_NAME_TAG, *m_InfluenceFieldNames[i]);
     }
 }
@@ -206,7 +221,7 @@ bool CSearchKey::operator<(const CSearchKey& rhs) const {
                             rhs.m_InfluenceFieldNames.size()) {
                             return false;
                         }
-                        for (std::size_t i = 0u; i < m_InfluenceFieldNames.size(); ++i) {
+                        for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
                             comp = m_InfluenceFieldNames[i]->compare(
                                 *rhs.m_InfluenceFieldNames[i]);
                             if (comp != 0) {
@@ -344,11 +359,11 @@ uint64_t CSearchKey::hash() const {
     m_Hash = 4 * m_Hash + static_cast<uint64_t>(m_ExcludeFrequent);
     m_Hash = core::CHashing::hashCombine(m_Hash, static_cast<uint64_t>(m_DetectorIndex));
     m_Hash = core::CHashing::hashCombine(m_Hash, static_cast<uint64_t>(m_Function));
-    m_Hash = maths::CChecksum::calculate(m_Hash, *m_FieldName);
-    m_Hash = maths::CChecksum::calculate(m_Hash, *m_ByFieldName);
-    m_Hash = maths::CChecksum::calculate(m_Hash, *m_OverFieldName);
-    m_Hash = maths::CChecksum::calculate(m_Hash, *m_PartitionFieldName);
-    m_Hash = maths::CChecksum::calculate(m_Hash, m_InfluenceFieldNames);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, *m_FieldName);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, *m_ByFieldName);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, *m_OverFieldName);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, *m_PartitionFieldName);
+    m_Hash = maths::common::CChecksum::calculate(m_Hash, m_InfluenceFieldNames);
     m_Hash = std::max(m_Hash, uint64_t(1));
     return m_Hash;
 }

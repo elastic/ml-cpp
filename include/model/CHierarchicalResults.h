@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CHierarchicalResults_h
@@ -10,7 +15,7 @@
 #include <core/CSmallVector.h>
 #include <core/CStoredStringPtr.h>
 
-#include <maths/COrderings.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/FunctionTypes.h>
@@ -243,9 +248,9 @@ public:
     using TSizeNodePtrUMap = hierarchical_results_detail::SNode::TSizeNodePtrUMap;
     using TNodeDeque = std::deque<TNode>;
     using TStoredStringPtrStoredStringPtrPrNodeMap =
-        std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::COrderings::SLexicographicalCompare>;
+        std::map<TStoredStringPtrStoredStringPtrPr, TNode, maths::common::COrderings::SLexicographicalCompare>;
     using TStoredStringPtrNodeMap =
-        std::map<TStoredStringPtr, TNode, maths::COrderings::SLess>;
+        std::map<TStoredStringPtr, TNode, maths::common::COrderings::SLess>;
 
 public:
     CHierarchicalResults();
@@ -399,7 +404,7 @@ public:
     using TNode = CHierarchicalResults::TNode;
 
 public:
-    virtual ~CHierarchicalResultsVisitor();
+    virtual ~CHierarchicalResultsVisitor() = default;
 
     //! Visit a node.
     virtual void visit(const CHierarchicalResults& results, const TNode& node, bool pivot) = 0;

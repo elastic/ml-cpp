@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_core_CDataFrame_h
@@ -236,7 +241,7 @@ public:
     using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, CAlignment::EType>>;
     using TRowRef = data_frame_detail::CRowRef;
     using TRowItr = data_frame_detail::CRowIterator;
-    using TRowFunc = std::function<void(TRowItr, TRowItr)>;
+    using TRowFunc = std::function<void(const TRowItr&, const TRowItr&)>;
     using TRowFuncVec = std::vector<TRowFunc>;
     using TRowFuncVecBoolPr = std::pair<TRowFuncVec, bool>;
     using TWriteFunc = std::function<void(TFloatVecItr, std::int32_t&)>;
@@ -293,7 +298,7 @@ public:
     //! Get the number of columns in the data frame.
     std::size_t numberColumns() const;
 
-    //! Reserve space for up to \p numberColumns.
+    //! Reserve space for up to \p rowCapacity.
     //!
     //! This enables in-place updates of the data frame for analytics operations
     //! that append columns.

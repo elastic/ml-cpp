@@ -1,17 +1,24 @@
 #!/bin/bash
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 # Set up a build environment, to ensure repeatable builds
 
 umask 0002
 
-# Modify some limits (soft limits only, hence -S)
-ulimit -S -c unlimited
-ulimit -S -n 1024
+# Modify some limits if not running in Docker (soft limits only, hence -S)
+if [ ! -f /.dockerenv ]; then
+    ulimit -S -c unlimited
+    ulimit -S -n 1024
+fi
 
 # Set $CPP_SRC_HOME to be an absolute path to this script's location, as
 # different builds will come from different repositories and go to different
@@ -88,7 +95,7 @@ fi
 case $SIMPLE_PLATFORM in
 
     linux)
-        PATH=/usr/local/gcc93/bin:/usr/bin:/bin:/usr/local/gcc93/sbin:/usr/sbin:/sbin:/usr/local/bin
+        PATH=/usr/local/gcc103/bin:/usr/bin:/bin:/usr/local/gcc103/sbin:/usr/sbin:/sbin:/usr/local/bin
         ;;
 
     macos)
@@ -113,7 +120,7 @@ fi
 case $SIMPLE_PLATFORM in
 
     linux)
-        export LD_LIBRARY_PATH=/usr/local/gcc93/lib64:/usr/local/gcc93/lib:/usr/lib:/lib
+        export LD_LIBRARY_PATH=/usr/local/gcc103/lib64:/usr/local/gcc103/lib:/usr/lib:/lib
         ;;
 
     windows)
@@ -180,13 +187,5 @@ fi
 # possible from an automated build (Jenkins sets $JOB_NAME)
 if [ -n "$JOB_NAME" ] ; then
     export ML_KEEP_GOING=1
-fi
-
-# Finally, switch off debug if we are not in Jenkins doing the debug build
-if [[ ! "$JOB_NAME" == *Debug* ]] ; then
-    unset ML_DEBUG
-    echo "Building $JOB_NAME with ML_DEBUG unset"
-else
-    echo "Building $JOB_NAME with ML_DEBUG=$ML_DEBUG"
 fi
 

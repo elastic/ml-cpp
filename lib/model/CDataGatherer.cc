@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CDataGatherer.h>
@@ -13,9 +18,9 @@
 #include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
-#include <maths/CChecksum.h>
-#include <maths/CIntegerTools.h>
-#include <maths/CMathsFuncs.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CMathsFuncs.h>
 
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CMetricBucketGatherer.h>
@@ -50,9 +55,9 @@ namespace detail {
 //! contain any duplicates, etc.
 const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                                            model_t::EAnalysisCategory gathererType) {
-    std::size_t j = 0u;
+    std::size_t j = 0;
 
-    for (std::size_t i = 0u; i < features.size(); ++i) {
+    for (std::size_t i = 0; i < features.size(); ++i) {
         switch (gathererType) {
         case model_t::E_EventRate:
         case model_t::E_PopulationEventRate:
@@ -544,10 +549,6 @@ core_t::TTime CDataGatherer::currentBucketStartTime() const {
     return m_BucketGatherer->currentBucketStartTime();
 }
 
-void CDataGatherer::currentBucketStartTime(core_t::TTime bucketStart) {
-    m_BucketGatherer->currentBucketStartTime(bucketStart);
-}
-
 core_t::TTime CDataGatherer::bucketLength() const {
     return m_BucketGatherer->bucketLength();
 }
@@ -579,13 +580,13 @@ CDataGatherer::influencerCounts(core_t::TTime time) const {
 
 uint64_t CDataGatherer::checksum() const {
     uint64_t result = m_PeopleRegistry.checksum();
-    result = maths::CChecksum::calculate(result, m_AttributesRegistry);
-    result = maths::CChecksum::calculate(result, m_SummaryMode);
-    result = maths::CChecksum::calculate(result, m_Features);
+    result = maths::common::CChecksum::calculate(result, m_AttributesRegistry);
+    result = maths::common::CChecksum::calculate(result, m_SummaryMode);
+    result = maths::common::CChecksum::calculate(result, m_Features);
     if (m_SampleCounts) {
-        result = maths::CChecksum::calculate(result, m_SampleCounts->checksum(*this));
+        result = maths::common::CChecksum::calculate(result, m_SampleCounts->checksum(*this));
     }
-    result = maths::CChecksum::calculate(result, m_BucketGatherer);
+    result = maths::common::CChecksum::calculate(result, m_BucketGatherer);
 
     LOG_TRACE(<< "checksum = " << result);
 
@@ -640,7 +641,7 @@ const SModelParams& CDataGatherer::params() const {
 }
 
 void CDataGatherer::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    for (std::size_t i = 0u; i < m_Features.size(); ++i) {
+    for (std::size_t i = 0; i < m_Features.size(); ++i) {
         inserter.insertValue(FEATURE_TAG, static_cast<int>(m_Features[i]));
     }
     inserter.insertLevel(PEOPLE_REGISTRY_TAG,
@@ -725,7 +726,7 @@ bool CDataGatherer::extractMetricFromField(const std::string& fieldName,
     const std::string& delimiter = m_Params.get().s_MultivariateComponentDelimiter;
 
     // Split the string up by the delimiter and parse each token separately.
-    std::size_t first = 0u;
+    std::size_t first = 0;
     do {
         std::size_t last = fieldValue.find(delimiter, first);
         double value;
@@ -739,7 +740,7 @@ bool CDataGatherer::extractMetricFromField(const std::string& fieldName,
             result.clear();
             return false;
         }
-        if (maths::CMathsFuncs::isFinite(value) == false) {
+        if (maths::common::CMathsFuncs::isFinite(value) == false) {
             LOG_ERROR(<< "Bad value for " << fieldName << " from " << fieldValue);
             result.clear();
             return false;
@@ -756,11 +757,19 @@ core_t::TTime CDataGatherer::earliestBucketStartTime() const {
 }
 
 bool CDataGatherer::checkInvariants() const {
-    LOG_DEBUG(<< "Checking invariants for people registry");
-    bool result = m_PeopleRegistry.checkInvariants();
-    LOG_DEBUG(<< "Checking invariants for attributes registry");
-    result &= m_AttributesRegistry.checkInvariants();
-    return result;
+    if (m_BucketGatherer == nullptr) {
+        LOG_ERROR(<< "No bucket gatherer");
+        return false;
+    }
+    if (m_PeopleRegistry.checkInvariants() == false) {
+        LOG_ERROR(<< "People registry invariants violated");
+        return false;
+    }
+    if (m_AttributesRegistry.checkInvariants() == false) {
+        LOG_ERROR(<< "Attributes registry invariants violated");
+        return false;
+    }
+    return true;
 }
 
 bool CDataGatherer::acceptRestoreTraverser(const std::string& summaryCountFieldName,
@@ -833,6 +842,11 @@ bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldNa
             }
         }
     } while (traverser.next());
+
+    if (m_BucketGatherer == nullptr) {
+        LOG_ERROR(<< "Failed to restore any bucket gatherer");
+        return false;
+    }
 
     return true;
 }

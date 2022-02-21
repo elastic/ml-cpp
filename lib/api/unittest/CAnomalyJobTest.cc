@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CDataSearcher.h>
@@ -44,7 +49,7 @@ namespace {
 class CEmptySearcher : public ml::core::CDataSearcher {
 public:
     //! Do a search that results in an empty input stream.
-    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+    TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) override {
         return TIStreamP(new std::istringstream());
     }
 };
@@ -63,11 +68,11 @@ class CSingleResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
     CSingleResultVisitor() : m_LastResult(0.0) {}
 
-    virtual ~CSingleResultVisitor() {}
+    ~CSingleResultVisitor() override {}
 
-    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) {
+    void visit(const ml::model::CHierarchicalResults& /*results*/,
+               const TNode& node,
+               bool /*pivot*/) override {
         if (!this->isSimpleCount(node) && this->isLeaf(node)) {
             if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
                 return;
@@ -93,11 +98,11 @@ class CMultiResultVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
     CMultiResultVisitor() : m_LastResult(0.0) {}
 
-    virtual ~CMultiResultVisitor() {}
+    ~CMultiResultVisitor() override {}
 
-    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) {
+    void visit(const ml::model::CHierarchicalResults& /*results*/,
+               const TNode& node,
+               bool /*pivot*/) override {
         if (!this->isSimpleCount(node) && this->isLeaf(node)) {
             if (node.s_AnnotatedProbability.s_AttributeProbabilities.size() == 0) {
                 return;
@@ -131,11 +136,11 @@ class CResultsScoreVisitor : public ml::model::CHierarchicalResultsVisitor {
 public:
     CResultsScoreVisitor(int score) : m_Score(score) {}
 
-    virtual ~CResultsScoreVisitor() {}
+    ~CResultsScoreVisitor() override {}
 
-    virtual void visit(const ml::model::CHierarchicalResults& /*results*/,
-                       const TNode& node,
-                       bool /*pivot*/) {
+    void visit(const ml::model::CHierarchicalResults& /*results*/,
+               const TNode& node,
+               bool /*pivot*/) override {
         if (this->isRoot(node)) {
             node.s_NormalizedAnomalyScore = m_Score;
         }

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CHierarchicalResults.h>
@@ -11,7 +16,7 @@
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
-#include <maths/COrderings.h>
+#include <maths/common/COrderings.h>
 
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
@@ -68,7 +73,7 @@ bool equal(const TStoredStringPtrStoredStringPtrPr& lhs,
 //! Orders nodes by the value of their person field.
 struct SPersonValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::COrderings::lexicographical_compare(
+        return maths::common::COrderings::lexicographical_compare(
             *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
             *lhs->s_Spec.s_PersonFieldName, *lhs->s_Spec.s_PersonFieldValue,
             lhs->s_Spec.s_IsPopulation, *rhs->s_Spec.s_PartitionFieldName,
@@ -80,7 +85,7 @@ struct SPersonValueLess {
 //! Orders nodes by the name of their person field.
 struct SPersonNameLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::COrderings::lexicographical_compare(
+        return maths::common::COrderings::lexicographical_compare(
             *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
             *lhs->s_Spec.s_PersonFieldName, *rhs->s_Spec.s_PartitionFieldName,
             *rhs->s_Spec.s_PartitionFieldValue, *rhs->s_Spec.s_PersonFieldName);
@@ -90,7 +95,7 @@ struct SPersonNameLess {
 //! Orders nodes by the value of their partition field.
 struct SPartitionValueLess {
     bool operator()(const TNodeCPtr& lhs, const TNodeCPtr& rhs) const {
-        return maths::COrderings::lexicographical_compare(
+        return maths::common::COrderings::lexicographical_compare(
             *lhs->s_Spec.s_PartitionFieldName, *lhs->s_Spec.s_PartitionFieldValue,
             *rhs->s_Spec.s_PartitionFieldName, *rhs->s_Spec.s_PartitionFieldValue);
     }
@@ -162,11 +167,13 @@ void aggregateLayer(ITR beginLayer,
 //! that it is either the person or partition field of that node.
 class CCommonInfluencePropagator : public CHierarchicalResultsVisitor {
 public:
-    virtual void visit(const CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) {
+    ~CCommonInfluencePropagator() override = default;
+
+    void visit(const CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         if (this->isLeaf(node)) {
             std::sort(node.s_AnnotatedProbability.s_Influences.begin(),
                       node.s_AnnotatedProbability.s_Influences.end(),
-                      maths::COrderings::SFirstLess());
+                      maths::common::COrderings::SFirstLess());
         } else {
             for (const auto& child : node.s_Children) {
                 for (const auto& influence : child->s_AnnotatedProbability.s_Influences) {
@@ -177,7 +184,7 @@ public:
                         auto i = std::lower_bound(
                             node.s_AnnotatedProbability.s_Influences.begin(),
                             node.s_AnnotatedProbability.s_Influences.end(),
-                            influence.first, maths::COrderings::SFirstLess());
+                            influence.first, maths::common::COrderings::SFirstLess());
                         if (i == node.s_AnnotatedProbability.s_Influences.end()) {
                             node.s_AnnotatedProbability.s_Influences.push_back(influence);
                         } else if (!equal(i->first, influence.first)) {
@@ -240,7 +247,7 @@ void SNode::propagateFields() {
     s_Spec.s_PersonFieldName = s_Children[0]->s_Spec.s_PersonFieldName;
     s_Spec.s_PersonFieldValue = s_Children[0]->s_Spec.s_PersonFieldValue;
     s_BucketStartTime = s_Children[0]->s_BucketStartTime;
-    for (std::size_t i = 1u; i < s_Children.size(); ++i) {
+    for (std::size_t i = 1; i < s_Children.size(); ++i) {
         if (!unset(s_Spec.s_PartitionFieldName) &&
             !equal(s_Spec.s_PartitionFieldName, s_Children[i]->s_Spec.s_PartitionFieldName)) {
             s_Spec.s_PartitionFieldName = UNSET_STRING;
@@ -425,7 +432,7 @@ void CHierarchicalResults::buildHierarchy() {
     if (layer.size() > 1) {
         TNode& root = this->newNode();
         bool population = false;
-        for (std::size_t i = 0u; i < layer.size(); ++i) {
+        for (std::size_t i = 0; i < layer.size(); ++i) {
             root.s_Children.push_back(layer[i]);
             layer[i]->s_Parent = &root;
             population |= layer[i]->s_Spec.s_IsPopulation;
@@ -447,8 +454,8 @@ void CHierarchicalResults::createPivots() {
         const auto& parentInfluences = node.s_Parent->s_AnnotatedProbability.s_Influences;
         for (const auto& influence : node.s_AnnotatedProbability.s_Influences) {
             if (node.s_Parent &&
-                std::binary_search(parentInfluences.begin(), parentInfluences.end(),
-                                   influence, maths::COrderings::SFirstLess())) {
+                std::binary_search(parentInfluences.begin(), parentInfluences.end(), influence,
+                                   maths::common::COrderings::SFirstLess())) {
                 continue;
             }
             this->newPivot(influence.first).s_Children.push_back(&node);
@@ -524,7 +531,7 @@ bool CHierarchicalResults::empty() const {
 }
 
 std::size_t CHierarchicalResults::resultCount() const {
-    std::size_t result = 0u;
+    std::size_t result = 0;
     for (const auto& node : m_Nodes) {
         if (isLeaf(node) && !node.s_Spec.s_IsSimpleCount) {
             ++result;
@@ -582,9 +589,6 @@ void CHierarchicalResults::postorderDepthFirst(const TNode* node,
         this->postorderDepthFirst(child, visitor);
     }
     visitor.visit(*this, *node, /*pivot =*/false);
-}
-
-CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor() {
 }
 
 bool CHierarchicalResultsVisitor::isRoot(const TNode& node) {

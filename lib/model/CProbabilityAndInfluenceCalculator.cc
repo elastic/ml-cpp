@@ -1,20 +1,26 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CProbabilityAndInfluenceCalculator.h>
 
 #include <core/CLogger.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CModel.h>
-#include <maths/CMultivariatePrior.h>
-#include <maths/COrderings.h>
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesModel.h>
-#include <maths/CTools.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CModel.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CTools.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -73,26 +79,26 @@ private:
 //! \brief Orders two mean influences by decreasing influence.
 class CDecreasingMeanInfluence {
 public:
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 public:
     CDecreasingMeanInfluence(maths_t::ETail tail, const TDouble2Vec& value, double count)
         : m_Tail(tail),
-          m_Mean(maths::CBasicStatistics::momentsAccumulator(count, value[0])) {}
+          m_Mean(maths::common::CBasicStatistics::momentsAccumulator(count, value[0])) {}
 
     bool operator()(const TStrCRefDouble1VecDoublePrPr& lhs,
                     const TStrCRefDouble1VecDoublePrPr& rhs) const {
-        TMeanAccumulator l = m_Mean - maths::CBasicStatistics::momentsAccumulator(
+        TMeanAccumulator l = m_Mean - maths::common::CBasicStatistics::momentsAccumulator(
                                           lhs.second.second, lhs.second.first[0]);
-        TMeanAccumulator r = m_Mean - maths::CBasicStatistics::momentsAccumulator(
+        TMeanAccumulator r = m_Mean - maths::common::CBasicStatistics::momentsAccumulator(
                                           rhs.second.second, rhs.second.first[0]);
-        double ml = maths::CBasicStatistics::mean(l);
-        double nl = maths::CBasicStatistics::count(l);
-        double mr = maths::CBasicStatistics::mean(r);
-        double nr = maths::CBasicStatistics::count(r);
+        double ml = maths::common::CBasicStatistics::mean(l);
+        double nl = maths::common::CBasicStatistics::count(l);
+        double mr = maths::common::CBasicStatistics::mean(r);
+        double nr = maths::common::CBasicStatistics::count(r);
         return m_Tail == maths_t::E_LeftTail
-                   ? maths::COrderings::lexicographical_compare(mr, nl, ml, nr)
-                   : maths::COrderings::lexicographical_compare(ml, nl, mr, nr);
+                   ? maths::common::COrderings::lexicographical_compare(mr, nl, ml, nr)
+                   : maths::common::COrderings::lexicographical_compare(ml, nl, mr, nr);
     }
 
 private:
@@ -103,28 +109,31 @@ private:
 //! \brief Orders two variance influences by decreasing influence.
 class CDecreasingVarianceInfluence {
 public:
-    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanVarAccumulator =
+        maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 public:
     CDecreasingVarianceInfluence(maths_t::ETail tail, const TDouble2Vec& value, double count)
         : m_Tail(tail),
-          m_Variance(maths::CBasicStatistics::momentsAccumulator(count, value[1], value[0])) {}
+          m_Variance(maths::common::CBasicStatistics::momentsAccumulator(count,
+                                                                         value[1],
+                                                                         value[0])) {}
 
     bool operator()(const TStrCRefDouble1VecDoublePrPr& lhs,
                     const TStrCRefDouble1VecDoublePrPr& rhs) const {
         TMeanVarAccumulator l =
-            m_Variance - maths::CBasicStatistics::momentsAccumulator(
+            m_Variance - maths::common::CBasicStatistics::momentsAccumulator(
                              lhs.second.second, lhs.second.first[1], lhs.second.first[0]);
         TMeanVarAccumulator r =
-            m_Variance - maths::CBasicStatistics::momentsAccumulator(
+            m_Variance - maths::common::CBasicStatistics::momentsAccumulator(
                              rhs.second.second, rhs.second.first[1], rhs.second.first[0]);
-        double vl = maths::CBasicStatistics::maximumLikelihoodVariance(l);
-        double nl = maths::CBasicStatistics::count(l);
-        double vr = maths::CBasicStatistics::maximumLikelihoodVariance(r);
-        double nr = maths::CBasicStatistics::count(r);
+        double vl = maths::common::CBasicStatistics::maximumLikelihoodVariance(l);
+        double nl = maths::common::CBasicStatistics::count(l);
+        double vr = maths::common::CBasicStatistics::maximumLikelihoodVariance(r);
+        double nr = maths::common::CBasicStatistics::count(r);
         return m_Tail == maths_t::E_LeftTail
-                   ? maths::COrderings::lexicographical_compare(vr, nl, vl, nr)
-                   : maths::COrderings::lexicographical_compare(vl, nl, vr, nr);
+                   ? maths::common::COrderings::lexicographical_compare(vr, nl, vl, nr)
+                   : maths::common::COrderings::lexicographical_compare(vl, nl, vr, nr);
     }
 
 private:
@@ -155,9 +164,9 @@ public:
                     double /*n*/,
                     const TDouble1Vec& vi,
                     double /*ni*/,
-                    maths::CModelProbabilityParams& /*params*/,
+                    maths::common::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& difference) const {
-        for (std::size_t i = 0u; i < v.size(); ++i) {
+        for (std::size_t i = 0; i < v.size(); ++i) {
             difference[i] = v[i] - vi[i];
         }
         return true;
@@ -168,9 +177,9 @@ public:
                     const TDouble2Vec& /*n*/,
                     const TDouble1Vec& vi,
                     const TDouble1Vec& /*ni*/,
-                    maths::CModelProbabilityParams& /*params*/,
+                    maths::common::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& difference) const {
-        for (std::size_t d = 0u; d < 2; ++d) {
+        for (std::size_t d = 0; d < 2; ++d) {
             difference[d] = v[d] - vi[d];
         }
         return true;
@@ -185,9 +194,9 @@ public:
                     double /*n*/,
                     const TDouble1Vec& vi,
                     double /*ni*/,
-                    maths::CModelProbabilityParams& /*params*/,
+                    maths::common::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& intersection) const {
-        for (std::size_t i = 0u; i < vi.size(); ++i) {
+        for (std::size_t i = 0; i < vi.size(); ++i) {
             intersection[i] = vi[i];
         }
         return true;
@@ -198,9 +207,9 @@ public:
                     const TDouble2Vec& /*n*/,
                     const TDouble1Vec& vi,
                     const TDouble1Vec& /*ni*/,
-                    maths::CModelProbabilityParams& /*params*/,
+                    maths::common::CModelProbabilityParams& /*params*/,
                     TDouble2Vec& intersection) const {
-        for (std::size_t d = 0u; d < 2; ++d) {
+        for (std::size_t d = 0; d < 2; ++d) {
             intersection[d] = vi[d];
         }
         return true;
@@ -222,17 +231,17 @@ public:
                     double n,
                     const TDouble1Vec& vi,
                     double ni,
-                    maths::CModelProbabilityParams& params,
+                    maths::common::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
         if (n <= ni) {
             return false;
         }
 
         std::size_t dimension = v.size();
-        for (std::size_t d = 0u; d < dimension; ++d) {
-            difference[d] = maths::CBasicStatistics::mean(
-                maths::CBasicStatistics::momentsAccumulator(n, v[d]) -
-                maths::CBasicStatistics::momentsAccumulator(ni, vi[d]));
+        for (std::size_t d = 0; d < dimension; ++d) {
+            difference[d] = maths::common::CBasicStatistics::mean(
+                maths::common::CBasicStatistics::momentsAccumulator(n, v[d]) -
+                maths::common::CBasicStatistics::momentsAccumulator(ni, vi[d]));
         }
         TDouble2Vec scale(dimension, n / (n - ni));
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
@@ -245,16 +254,16 @@ public:
                     const TDouble2Vec& n,
                     const TDouble1Vec& vi,
                     const TDouble1Vec& ni,
-                    maths::CModelProbabilityParams& params,
+                    maths::common::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
         if (n <= ni) {
             return false;
         }
 
-        for (std::size_t d = 0u; d < 2; ++d) {
-            difference[d] = maths::CBasicStatistics::mean(
-                maths::CBasicStatistics::momentsAccumulator(n[d], v[d]) -
-                maths::CBasicStatistics::momentsAccumulator(ni[d], vi[d]));
+        for (std::size_t d = 0; d < 2; ++d) {
+            difference[d] = maths::common::CBasicStatistics::mean(
+                maths::common::CBasicStatistics::momentsAccumulator(n[d], v[d]) -
+                maths::common::CBasicStatistics::momentsAccumulator(ni[d], vi[d]));
         }
         TDouble2Vec scale{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])};
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
@@ -278,17 +287,19 @@ public:
                     double n,
                     const TDouble1Vec& vi,
                     double ni,
-                    maths::CModelProbabilityParams& params,
+                    maths::common::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
         if (n <= ni) {
             return false;
         }
 
         std::size_t dimension = v.size() / 2;
-        for (std::size_t d = 0u; d < dimension; ++d) {
-            difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
-                maths::CBasicStatistics::momentsAccumulator(n, v[dimension + d], v[d]) -
-                maths::CBasicStatistics::momentsAccumulator(ni, vi[dimension + d], vi[d]));
+        for (std::size_t d = 0; d < dimension; ++d) {
+            difference[d] = maths::common::CBasicStatistics::maximumLikelihoodVariance(
+                maths::common::CBasicStatistics::momentsAccumulator(
+                    n, v[dimension + d], v[d]) -
+                maths::common::CBasicStatistics::momentsAccumulator(
+                    ni, vi[dimension + d], vi[d]));
         }
         TDouble2Vec scale(dimension, n / (n - ni));
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
@@ -301,16 +312,17 @@ public:
                     const TDouble2Vec& n,
                     const TDouble1Vec& vi,
                     const TDouble1Vec& ni,
-                    maths::CModelProbabilityParams& params,
+                    maths::common::CModelProbabilityParams& params,
                     TDouble2Vec& difference) const {
         if (n <= ni) {
             return false;
         }
 
-        for (std::size_t d = 0u; d < 2; ++d) {
-            difference[d] = maths::CBasicStatistics::maximumLikelihoodVariance(
-                maths::CBasicStatistics::momentsAccumulator(n[d], v[2 + d], v[d]) -
-                maths::CBasicStatistics::momentsAccumulator(ni[d], vi[2 + d], vi[d]));
+        for (std::size_t d = 0; d < 2; ++d) {
+            difference[d] = maths::common::CBasicStatistics::maximumLikelihoodVariance(
+                maths::common::CBasicStatistics::momentsAccumulator(n[d], v[2 + d], v[d]) -
+                maths::common::CBasicStatistics::momentsAccumulator(ni[d], vi[2 + d],
+                                                                    vi[d]));
         }
         TDouble2Vec scale{n[0] / (n[0] - ni[0]), n[1] / (n[1] - ni[1])};
         maths_t::multiplyCountVarianceScale(scale, params.weights()[0]);
@@ -361,9 +373,9 @@ template<typename COMPUTE_INFLUENCED_VALUE, typename COMPUTE_INFLUENCE>
 void doComputeInfluences(model_t::EFeature feature,
                          COMPUTE_INFLUENCED_VALUE computeInfluencedParamsAndValue,
                          COMPUTE_INFLUENCE computeInfluence,
-                         const maths::CModel& model,
+                         const maths::common::CModel& model,
                          core_t::TTime elapsedTime,
-                         maths::CModelProbabilityParams& computeProbabilityParams,
+                         maths::common::CModelProbabilityParams& computeProbabilityParams,
                          const TTime2Vec1Vec& time,
                          const TDouble2Vec& value,
                          double count,
@@ -381,15 +393,16 @@ void doComputeInfluences(model_t::EFeature feature,
         return;
     }
 
-    auto probability = [feature, elapsedTime](const maths::SModelProbabilityResult& r) {
+    auto probability = [feature, elapsedTime](const maths::common::SModelProbabilityResult& r) {
         double p{r.s_Probability};
-        p = maths::CTools::truncate(p, maths::CTools::smallestProbability(), 1.0);
+        p = maths::common::CTools::truncate(
+            p, maths::common::CTools::smallestProbability(), 1.0);
         return model_t::adjustProbability(feature, elapsedTime, p);
     };
 
     maths_t::TDouble2VecWeightsAry1Vec weights(computeProbabilityParams.weights());
     computeProbabilityParams.weights(weights).useMultibucketFeatures(false).useAnomalyModel(false);
-    maths::SModelProbabilityResult overallResult;
+    maths::common::SModelProbabilityResult overallResult;
     model.probability(computeProbabilityParams, time,
                       model_t::stripExtraStatistics(feature, {value}), overallResult);
     double overallProbability{probability(overallResult)};
@@ -401,12 +414,12 @@ void doComputeInfluences(model_t::EFeature feature,
 
     result.reserve(influencerValues.size());
 
-    double logOverallProbability{maths::CTools::fastLog(overallProbability)};
+    double logOverallProbability{maths::common::CTools::fastLog(overallProbability)};
 
     // Declared outside the loop to minimize the number of times they are created.
     std::size_t dimension = model_t::dimension(feature);
     TDouble2Vec1Vec influencedValue{TDouble2Vec(dimension)};
-    maths::SModelProbabilityResult influenceResult;
+    maths::common::SModelProbabilityResult influenceResult;
 
     for (auto i = influencerValues.begin(); i != influencerValues.end(); ++i) {
         const auto& influenceValue = i->second.first;
@@ -430,7 +443,7 @@ void doComputeInfluences(model_t::EFeature feature,
         }
 
         double influenceProbability{probability(influenceResult)};
-        double logInfluenceProbability{maths::CTools::fastLog(influenceProbability)};
+        double logInfluenceProbability{maths::common::CTools::fastLog(influenceProbability)};
         double influence{computeInfluence(logOverallProbability, logInfluenceProbability)};
 
         LOG_TRACE(<< "log(p) = " << logOverallProbability
@@ -465,9 +478,9 @@ template<typename COMPUTE_INFLUENCED_VALUE, typename COMPUTE_INFLUENCE>
 void doComputeCorrelateInfluences(model_t::EFeature feature,
                                   COMPUTE_INFLUENCED_VALUE computeInfluencedValue,
                                   COMPUTE_INFLUENCE computeInfluence,
-                                  const maths::CModel& model,
+                                  const maths::common::CModel& model,
                                   core_t::TTime elapsedTime,
-                                  maths::CModelProbabilityParams& computeProbabilityParams,
+                                  maths::common::CModelProbabilityParams& computeProbabilityParams,
                                   const TTime2Vec& time,
                                   const TDouble2Vec& value,
                                   const TDouble2Vec& count,
@@ -479,9 +492,10 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
     auto description = [&influencerName](const std::string& v) {
         return std::make_pair(influencerName, canonical(v));
     };
-    auto probability = [feature, elapsedTime](const maths::SModelProbabilityResult& r) {
+    auto probability = [feature, elapsedTime](const maths::common::SModelProbabilityResult& r) {
         double p{r.s_Probability};
-        p = maths::CTools::truncate(p, maths::CTools::smallestProbability(), 1.0);
+        p = maths::common::CTools::truncate(
+            p, maths::common::CTools::smallestProbability(), 1.0);
         return model_t::adjustProbability(feature, elapsedTime, p);
     };
 
@@ -492,7 +506,7 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
 
     maths_t::TDouble2VecWeightsAry1Vec weights(computeProbabilityParams.weights());
     computeProbabilityParams.weights(weights).useMultibucketFeatures(false).useAnomalyModel(false);
-    maths::SModelProbabilityResult overallResult;
+    maths::common::SModelProbabilityResult overallResult;
     model.probability(computeProbabilityParams, {time},
                       model_t::stripExtraStatistics(feature, {value}), overallResult);
     double overallProbability{probability(overallResult)};
@@ -504,11 +518,11 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
 
     result.reserve(influencerValues.size());
 
-    double logOverallProbability{maths::CTools::fastLog(overallProbability)};
+    double logOverallProbability{maths::common::CTools::fastLog(overallProbability)};
 
     // Declared outside the loop to minimize the number of times they are created.
     TDouble2Vec1Vec influencedValue{TDouble2Vec(2)};
-    maths::SModelProbabilityResult influenceResult;
+    maths::common::SModelProbabilityResult influenceResult;
 
     for (const auto& i : influencerValues) {
         const auto& influenceValue = i.second.first;
@@ -525,7 +539,7 @@ void doComputeCorrelateInfluences(model_t::EFeature feature,
         }
 
         double influenceProbability{probability(influenceResult)};
-        double logInfluenceProbability{maths::CTools::fastLog(influenceProbability)};
+        double logInfluenceProbability{maths::common::CTools::fastLog(influenceProbability)};
         double influence{computeInfluence(logOverallProbability, logInfluenceProbability)};
 
         LOG_TRACE(<< "log(p) = " << logOverallProbability
@@ -545,10 +559,11 @@ CProbabilityAndInfluenceCalculator::CProbabilityAndInfluenceCalculator(double cu
     : m_Cutoff(cutoff), m_InfluenceCalculator(nullptr),
       m_ProbabilityTemplate(CModelTools::CProbabilityAggregator::E_Min),
       m_Probability(CModelTools::CProbabilityAggregator::E_Min),
-      m_ExplainingProbabilities{{maths::SModelProbabilityResult::E_SingleBucketProbability,
-                                 {CModelTools::CProbabilityAggregator::E_Min}},
-                                {maths::SModelProbabilityResult::E_MultiBucketProbability,
-                                 {CModelTools::CProbabilityAggregator::E_Min}}},
+      m_ExplainingProbabilities{
+          {maths::common::SModelProbabilityResult::E_SingleBucketProbability,
+           {CModelTools::CProbabilityAggregator::E_Min}},
+          {maths::common::SModelProbabilityResult::E_MultiBucketProbability,
+           {CModelTools::CProbabilityAggregator::E_Min}}},
       m_ProbabilityCache(nullptr) {
 }
 
@@ -565,7 +580,7 @@ void CProbabilityAndInfluenceCalculator::plugin(const CInfluenceCalculator& infl
 }
 
 void CProbabilityAndInfluenceCalculator::addAggregator(
-    const maths::CJointProbabilityOfLessLikelySamples& aggregator) {
+    const maths::common::CJointProbabilityOfLessLikelySamples& aggregator) {
     m_ProbabilityTemplate.add(aggregator);
     m_Probability.add(aggregator);
     for (auto& ep : m_ExplainingProbabilities) {
@@ -573,7 +588,8 @@ void CProbabilityAndInfluenceCalculator::addAggregator(
     }
 }
 
-void CProbabilityAndInfluenceCalculator::addAggregator(const maths::CProbabilityOfExtremeSample& aggregator) {
+void CProbabilityAndInfluenceCalculator::addAggregator(
+    const maths::common::CProbabilityOfExtremeSample& aggregator) {
     m_ProbabilityTemplate.add(aggregator);
     m_Probability.add(aggregator);
     for (auto& ep : m_ExplainingProbabilities) {
@@ -669,23 +685,24 @@ bool CProbabilityAndInfluenceCalculator::addAttributeProbability(
     return false;
 }
 
-bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature feature,
-                                                        std::size_t id,
-                                                        const maths::CModel& model,
-                                                        core_t::TTime elapsedTime,
-                                                        const maths::CModelProbabilityParams& computeProbabilityParams,
-                                                        const TTime2Vec1Vec& time,
-                                                        const TDouble2Vec1Vec& values_,
-                                                        double& probability,
-                                                        TTail2Vec& tail,
-                                                        model_t::CResultType& type,
-                                                        TSize1Vec& mostAnomalousCorrelate,
-                                                        double weight) {
+bool CProbabilityAndInfluenceCalculator::addProbability(
+    model_t::EFeature feature,
+    std::size_t id,
+    const maths::common::CModel& model,
+    core_t::TTime elapsedTime,
+    const maths::common::CModelProbabilityParams& computeProbabilityParams,
+    const TTime2Vec1Vec& time,
+    const TDouble2Vec1Vec& values_,
+    double& probability,
+    TTail2Vec& tail,
+    model_t::CResultType& type,
+    TSize1Vec& mostAnomalousCorrelate,
+    double weight) {
     if (values_.empty()) {
         return false;
     }
 
-    auto readResult = [&](const maths::SModelProbabilityResult& result) {
+    auto readResult = [&](const maths::common::SModelProbabilityResult& result) {
         for (const auto& fp : result.s_FeatureProbabilities) {
             auto itr = m_ExplainingProbabilities.find(fp.s_Label);
             if (itr != m_ExplainingProbabilities.end()) {
@@ -709,7 +726,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
     if (model_t::isConstant(feature) == false && m_ProbabilityCache) {
         TDouble2Vec1Vec values(model_t::stripExtraStatistics(feature, values_));
         model.detrend(time, computeProbabilityParams.seasonalConfidenceInterval(), values);
-        maths::SModelProbabilityResult cached;
+        maths::common::SModelProbabilityResult cached;
 
         if (m_ProbabilityCache->lookup(feature, id, values, cached)) {
             readResult(cached);
@@ -720,7 +737,7 @@ bool CProbabilityAndInfluenceCalculator::addProbability(model_t::EFeature featur
     // Either there isn't a cache or the accuracy isn't good enough
     // so fall back to calculating.
     TDouble2Vec1Vec values(model_t::stripExtraStatistics(feature, values_));
-    maths::SModelProbabilityResult result;
+    maths::common::SModelProbabilityResult result;
     if (model.probability(computeProbabilityParams, time, values, result)) {
         if (model_t::isConstant(feature) == false) {
             readResult(result);
@@ -758,7 +775,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
 
     const std::string* influencerValue = nullptr;
     if (influencerValues.empty()) {
-        for (std::size_t i = 0u; i < params.s_PartitioningFields.size(); ++i) {
+        for (std::size_t i = 0; i < params.s_PartitioningFields.size(); ++i) {
             if (params.s_PartitioningFields[i].first.get() == influencerName) {
                 influencerValue = &(params.s_PartitioningFields[i].second.get());
                 break;
@@ -769,8 +786,8 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
         }
     }
 
-    double logp = std::log(
-        std::max(params.s_Probability, maths::CTools::smallestProbability()));
+    double logp = std::log(std::max(params.s_Probability,
+                                    maths::common::CTools::smallestProbability()));
 
     params.s_InfluencerName = canonical(influencerName);
     params.s_InfluencerValues = influencerValues;
@@ -797,7 +814,7 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
 
     const std::string* influencerValue = nullptr;
     if (influencerValues.empty()) {
-        for (std::size_t i = 0u; i < params.s_PartitioningFields.size(); ++i) {
+        for (std::size_t i = 0; i < params.s_PartitioningFields.size(); ++i) {
             if (params.s_PartitioningFields[i].first.get() == influencerName) {
                 influencerValue = &(params.s_PartitioningFields[i].second.get());
                 break;
@@ -808,8 +825,8 @@ void CProbabilityAndInfluenceCalculator::addInfluences(const std::string& influe
         }
     }
 
-    double logp = std::log(
-        std::max(params.s_Probability, maths::CTools::smallestProbability()));
+    double logp = std::log(std::max(params.s_Probability,
+                                    maths::common::CTools::smallestProbability()));
 
     params.s_InfluencerName = canonical(influencerName);
     params.s_InfluencerValues = influencerValues[params.s_MostAnomalousCorrelate[0]];
@@ -852,12 +869,14 @@ bool CProbabilityAndInfluenceCalculator::calculateMultiBucketImpact(double& mult
     }
 
     double sbProbability =
-        explainingProbabilities[maths::SModelProbabilityResult::E_SingleBucketProbability];
+        explainingProbabilities[maths::common::SModelProbabilityResult::E_SingleBucketProbability];
     double mbProbability =
-        explainingProbabilities[maths::SModelProbabilityResult::E_MultiBucketProbability];
+        explainingProbabilities[maths::common::SModelProbabilityResult::E_MultiBucketProbability];
 
-    double ls = std::log(std::max(sbProbability, ml::maths::CTools::smallestProbability()));
-    double lm = std::log(std::max(mbProbability, ml::maths::CTools::smallestProbability()));
+    double ls = std::log(
+        std::max(sbProbability, ml::maths::common::CTools::smallestProbability()));
+    double lm = std::log(
+        std::max(mbProbability, ml::maths::common::CTools::smallestProbability()));
 
     double scale = CAnomalyDetectorModelConfig::MAXIMUM_MULTI_BUCKET_IMPACT_MAGNITUDE *
                    std::min(ls, lm) / std::min(std::max(ls, lm), -0.001) /
@@ -902,7 +921,8 @@ bool CProbabilityAndInfluenceCalculator::calculate(
             influences.emplace_back(aggregator.first, influence);
         }
     }
-    std::sort(influences.begin(), influences.end(), maths::COrderings::SSecondGreater());
+    std::sort(influences.begin(), influences.end(),
+              maths::common::COrderings::SSecondGreater());
 
     return true;
 }
@@ -957,11 +977,11 @@ CInfluenceCalculator::~CInfluenceCalculator() {
 }
 
 double CInfluenceCalculator::intersectionInfluence(double logp, double logpi) {
-    return maths::CTools::truncate(ratio(logpi, logp, 1.0), 0.0, 1.0);
+    return maths::common::CTools::truncate(ratio(logpi, logp, 1.0), 0.0, 1.0);
 }
 
 double CInfluenceCalculator::complementInfluence(double logp, double logpi) {
-    return maths::CTools::truncate(1.0 - ratio(logpi, logp, 0.0), 0.0, 1.0);
+    return maths::common::CTools::truncate(1.0 - ratio(logpi, logp, 0.0), 0.0, 1.0);
 }
 
 ////// CInfluenceUnavailableCalculator //////
@@ -993,8 +1013,8 @@ void CIndicatorInfluenceCalculator::computeInfluences(TCorrelateParams& params) 
 void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams computeProbabilityParams;
-    for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
+    maths::common::CModelProbabilityParams computeProbabilityParams;
+    for (std::size_t i = 0; i < params.s_Tail.size(); ++i) {
         if (params.s_Tail[i] == maths_t::E_RightTail) {
             computeProbabilityParams.addCalculation(maths_t::E_OneSidedAbove).addCoordinate(i);
         }
@@ -1027,7 +1047,7 @@ void CLogProbabilityComplementInfluenceCalculator::computeInfluences(TCorrelateP
 
     if (params.s_Tail[0] == maths_t::E_RightTail) {
         std::size_t correlate{params.s_MostAnomalousCorrelate[0]};
-        maths::CModelProbabilityParams computeProbabilityParams;
+        maths::common::CModelProbabilityParams computeProbabilityParams;
         computeProbabilityParams.addCalculation(maths_t::E_OneSidedAbove)
             .seasonalConfidenceInterval(
                 params.s_ComputeProbabilityParams.seasonalConfidenceInterval())
@@ -1051,7 +1071,7 @@ namespace {
 //! Maybe add \p coordinate and the appropriate calculation to \p params.
 void addCoordinate(maths_t::ETail tail,
                    std::size_t coordinate,
-                   maths::CModelProbabilityParams& params) {
+                   maths::common::CModelProbabilityParams& params) {
     switch (tail) {
     case maths_t::E_LeftTail: {
         params.addCalculation(maths_t::E_OneSidedBelow).addCoordinate(coordinate);
@@ -1071,8 +1091,8 @@ void addCoordinate(maths_t::ETail tail,
 void CLogProbabilityInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams computeProbabilityParams;
-    for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
+    maths::common::CModelProbabilityParams computeProbabilityParams;
+    for (std::size_t i = 0; i < params.s_Tail.size(); ++i) {
         addCoordinate(params.s_Tail[i], i, computeProbabilityParams);
     }
 
@@ -1102,7 +1122,7 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TParams& params) cons
 void CLogProbabilityInfluenceCalculator::computeInfluences(TCorrelateParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams computeProbabilityParams;
+    maths::common::CModelProbabilityParams computeProbabilityParams;
     addCoordinate(params.s_Tail[0], 0, computeProbabilityParams);
 
     if (computeProbabilityParams.calculations() > 0) {
@@ -1128,8 +1148,8 @@ void CLogProbabilityInfluenceCalculator::computeInfluences(TCorrelateParams& par
 void CMeanInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams computeProbabilityParams;
-    for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
+    maths::common::CModelProbabilityParams computeProbabilityParams;
+    for (std::size_t i = 0; i < params.s_Tail.size(); ++i) {
         addCoordinate(params.s_Tail[i], i, computeProbabilityParams);
     }
 
@@ -1158,7 +1178,7 @@ void CMeanInfluenceCalculator::computeInfluences(TParams& params) const {
 void CMeanInfluenceCalculator::computeInfluences(TCorrelateParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams computeProbabilityParams;
+    maths::common::CModelProbabilityParams computeProbabilityParams;
     addCoordinate(params.s_Tail[0], 0, computeProbabilityParams);
 
     if (computeProbabilityParams.calculations() > 0) {
@@ -1184,8 +1204,8 @@ void CMeanInfluenceCalculator::computeInfluences(TCorrelateParams& params) const
 void CVarianceInfluenceCalculator::computeInfluences(TParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams computeProbabilityParams;
-    for (std::size_t i = 0u; i < params.s_Tail.size(); ++i) {
+    maths::common::CModelProbabilityParams computeProbabilityParams;
+    for (std::size_t i = 0; i < params.s_Tail.size(); ++i) {
         addCoordinate(params.s_Tail[i], i, computeProbabilityParams);
     }
 
@@ -1215,7 +1235,7 @@ void CVarianceInfluenceCalculator::computeInfluences(TParams& params) const {
 void CVarianceInfluenceCalculator::computeInfluences(TCorrelateParams& params) const {
     params.s_Influences.clear();
 
-    maths::CModelProbabilityParams computeProbabilityParams;
+    maths::common::CModelProbabilityParams computeProbabilityParams;
     addCoordinate(params.s_Tail[0], 0, computeProbabilityParams);
 
     if (computeProbabilityParams.calculations() > 0) {

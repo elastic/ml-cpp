@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CDataFrame.h>
@@ -717,9 +722,17 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
 }
 
 std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns) {
-    std::size_t oneMbChunkSize{constants::BYTES_IN_MEGABYTES /
-                               sizeof(CFloatStorage) / numberColumns};
-    return std::max(oneMbChunkSize, std::size_t{128});
+    // There is some overhead traversing the data frame for each chunk we
+    // use. We also on average get better locality of reference by using
+    // larger chunks. However, if we set the chunk size too large it won't
+    // fit in cache and it also makes masked access of disk backed frames
+    // more expensive. This is at the upper end of L2 and lower end of L3
+    // cache size and performance testing shows it provides a reasonable
+    // tradeoff without the trouble of trying to portably determine cache
+    // sizes at runtime.
+    std::size_t eightMbChunkSize{8 * constants::BYTES_IN_MEGABYTES /
+                                 sizeof(CFloatStorage) / numberColumns};
+    return std::max(eightMbChunkSize, std::size_t{128});
 }
 
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>

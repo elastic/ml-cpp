@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CLoopProgress.h>
@@ -32,7 +37,7 @@ CLoopProgress::CLoopProgress(std::size_t range,
                              const TProgressCallback& recordProgress,
                              double scale,
                              std::size_t steps)
-    : m_Range{range}, m_Steps{std::min(range, steps)},
+    : m_Range{std::max(range, static_cast<std::size_t>(1))}, m_Steps{std::min(range, steps)},
       m_StepProgress{scale / static_cast<double>(m_Steps)}, m_RecordProgress{recordProgress} {
 }
 

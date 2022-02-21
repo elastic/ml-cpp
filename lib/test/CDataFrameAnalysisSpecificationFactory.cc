@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
@@ -145,6 +150,12 @@ CDataFrameAnalysisSpecificationFactory::predictionEta(double eta) {
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionEtaGrowthRatePerTree(double etaGrowthRatePerTree) {
+    m_EtaGrowthRatePerTree = etaGrowthRatePerTree;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::predictionMaximumNumberTrees(std::size_t number) {
     m_MaximumNumberTrees = number;
     return *this;
@@ -182,8 +193,8 @@ CDataFrameAnalysisSpecificationFactory::predictionRestoreSearcherSupplier(
 }
 
 CDataFrameAnalysisSpecificationFactory&
-CDataFrameAnalysisSpecificationFactory::earlyStoppingAllowed(bool earlyStoppingAllowed) {
-    m_EarlyStoppingAllowed = earlyStoppingAllowed;
+CDataFrameAnalysisSpecificationFactory::earlyStoppingEnabled(bool earlyStoppingEnabled) {
+    m_EarlyStoppingEnabled = earlyStoppingEnabled;
     return *this;
 }
 
@@ -202,6 +213,12 @@ CDataFrameAnalysisSpecificationFactory::numberTopClasses(std::size_t number) {
 CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::predictionFieldType(const std::string& type) {
     m_PredictionFieldType = type;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::classificationWeights(const TStrDoublePrVec& weights) {
+    m_ClassificationWeights = weights;
     return *this;
 }
 
@@ -272,97 +289,120 @@ std::string
 CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& analysis,
                                                          const std::string& dependentVariable) const {
 
+    using TRunner = api::CDataFrameTrainBoostedTreeRunner;
+    using TClassificationRunner = api::CDataFrameTrainBoostedTreeClassifierRunner;
+    using TRegressionRunner = api::CDataFrameTrainBoostedTreeRegressionRunner;
+
     rapidjson::StringBuffer parameters;
     TRapidJsonLineWriter writer;
     writer.Reset(parameters);
 
     writer.StartObject();
-    writer.Key(api::CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME);
+    writer.Key(TRunner::DEPENDENT_VARIABLE_NAME);
     writer.String(dependentVariable);
     if (m_Alpha >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::ALPHA);
+        writer.Key(TRunner::ALPHA);
         writer.Double(m_Alpha);
     }
     if (m_Lambda >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::LAMBDA);
+        writer.Key(TRunner::LAMBDA);
         writer.Double(m_Lambda);
     }
     if (m_Gamma >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::GAMMA);
+        writer.Key(TRunner::GAMMA);
         writer.Double(m_Gamma);
     }
     if (m_SoftTreeDepthLimit >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT);
+        writer.Key(TRunner::SOFT_TREE_DEPTH_LIMIT);
         writer.Double(m_SoftTreeDepthLimit);
     }
     if (m_SoftTreeDepthTolerance >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE);
+        writer.Key(TRunner::SOFT_TREE_DEPTH_TOLERANCE);
         writer.Double(m_SoftTreeDepthTolerance);
     }
     if (m_Eta > 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::ETA);
+        writer.Key(TRunner::ETA);
         writer.Double(m_Eta);
     }
+    if (m_EtaGrowthRatePerTree > 0.0) {
+        writer.Key(TRunner::ETA_GROWTH_RATE_PER_TREE);
+        writer.Double(m_EtaGrowthRatePerTree);
+    }
     if (m_DownsampleFactor > 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR);
+        writer.Key(TRunner::DOWNSAMPLE_FACTOR);
         writer.Double(m_DownsampleFactor);
     }
     if (m_MaximumNumberTrees > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAX_TREES);
+        writer.Key(TRunner::MAX_TREES);
         writer.Uint64(m_MaximumNumberTrees);
     }
     if (m_FeatureBagFraction > 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION);
+        writer.Key(TRunner::FEATURE_BAG_FRACTION);
         writer.Double(m_FeatureBagFraction);
     }
     if (m_NumberRoundsPerHyperparameter > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER);
+        writer.Key(TRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER);
         writer.Uint64(m_NumberRoundsPerHyperparameter);
     }
     if (m_BayesianOptimisationRestarts > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS);
+        writer.Key(TRunner::BAYESIAN_OPTIMISATION_RESTARTS);
         writer.Uint64(m_BayesianOptimisationRestarts);
     }
     if (m_NumberTopShapValues > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::NUM_TOP_FEATURE_IMPORTANCE_VALUES);
+        writer.Key(TRunner::NUM_TOP_FEATURE_IMPORTANCE_VALUES);
         writer.Uint64(m_NumberTopShapValues);
     }
     if (m_PredictionFieldName.empty() == false) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME);
+        writer.Key(TRunner::PREDICTION_FIELD_NAME);
         writer.String(m_PredictionFieldName);
     }
-    if (m_PredictionFieldType.empty() == false) {
-        writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE);
-        writer.String(m_PredictionFieldType);
-    }
-    if (analysis == classification()) {
-        writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_CLASSES);
-        writer.Uint64(m_NumberClasses);
-        writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES);
-        writer.Uint64(m_NumberTopClasses);
-    }
     if (m_CustomProcessors.IsNull() == false) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS);
+        writer.Key(TRunner::FEATURE_PROCESSORS);
         writer.write(m_CustomProcessors);
     }
-    if (m_EarlyStoppingAllowed == false) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ALLOWED);
-        writer.Bool(m_EarlyStoppingAllowed);
+    if (m_EarlyStoppingEnabled == false) {
+        writer.Key(TRunner::EARLY_STOPPING_ENABLED);
+        writer.Bool(m_EarlyStoppingEnabled);
     }
 
+    if (analysis == classification()) {
+        writer.Key(TClassificationRunner::NUM_CLASSES);
+        writer.Uint64(m_NumberClasses);
+        writer.Key(TClassificationRunner::NUM_TOP_CLASSES);
+        writer.Uint64(m_NumberTopClasses);
+        if (m_PredictionFieldType.empty() == false) {
+            writer.Key(TClassificationRunner::PREDICTION_FIELD_TYPE);
+            writer.String(m_PredictionFieldType);
+        }
+        if (m_ClassificationWeights.empty() == false) {
+            writer.Key(TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE);
+            writer.String(
+                TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::analytics::CDataFramePredictiveModel::E_Custom]);
+            writer.Key(TClassificationRunner::CLASSIFICATION_WEIGHTS);
+            writer.StartArray();
+            for (const auto& weight : m_ClassificationWeights) {
+                writer.StartObject();
+                writer.Key(TClassificationRunner::CLASSIFICATION_WEIGHTS_CLASS);
+                writer.String(weight.first);
+                writer.Key(TClassificationRunner::CLASSIFICATION_WEIGHTS_WEIGHT);
+                writer.Double(weight.second);
+                writer.EndObject();
+            }
+            writer.EndArray();
+        }
+    }
     if (analysis == regression()) {
-
         if (m_RegressionLossFunction) {
-            writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION);
+            writer.Key(TRegressionRunner::LOSS_FUNCTION);
             switch (m_RegressionLossFunction.get()) {
             case TLossFunctionType::E_MsleRegression:
-                writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSLE);
+                writer.String(TRegressionRunner::MSLE);
                 break;
             case TLossFunctionType::E_MseRegression:
-                writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSE);
+                writer.String(TRegressionRunner::MSE);
                 break;
             case TLossFunctionType::E_HuberRegression:
-                writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::PSEUDO_HUBER);
+                writer.String(TRegressionRunner::PSEUDO_HUBER);
                 break;
             case TLossFunctionType::E_BinaryClassification:
             case TLossFunctionType::E_MulticlassClassification:
@@ -371,7 +411,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
             }
         }
         if (m_RegressionLossFunctionParameter) {
-            writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION_PARAMETER);
+            writer.Key(TRegressionRunner::LOSS_FUNCTION_PARAMETER);
             writer.Double(m_RegressionLossFunctionParameter.get());
         }
     }

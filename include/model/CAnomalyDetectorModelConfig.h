@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CAnomalyDetectorModelConfig_h
@@ -336,6 +341,14 @@ public:
     //! Get the bucket length.
     core_t::TTime bucketLength() const;
 
+    //! Get the period of time at which to perform a potential prune of the models
+    //! expressed in number of seconds.
+    core_t::TTime modelPruneWindow() const;
+
+    //! Set the period of time at which to perform a potential prune of the models
+    //! expressed in number of seconds.
+    void modelPruneWindow(core_t::TTime modelPruneWindow);
+
     //! Get the maximum latency in the arrival of out of order data.
     core_t::TTime latency() const;
 
@@ -440,10 +453,13 @@ public:
 
 private:
     //! Bucket length.
-    core_t::TTime m_BucketLength;
+    core_t::TTime m_BucketLength{0};
+
+    //! Prune window length (in seconds)
+    core_t::TTime m_ModelPruneWindow{0};
 
     //! Should multivariate analysis of correlated 'by' fields be performed?
-    bool m_MultivariateByFields;
+    bool m_MultivariateByFields{false};
 
     //! The single interim bucket correction calculator.
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;

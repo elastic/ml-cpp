@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_t_ModelTypes_h
@@ -11,7 +16,9 @@
 #include <core/CSmallVector.h>
 #include <core/CoreTypes.h>
 
-#include <maths/MathsTypes.h>
+#include <maths/common/MathsTypes.h>
+
+#include <maths/time_series/CTimeSeriesMultibucketFeaturesFwd.h>
 
 #include <model/ImportExport.h>
 
@@ -21,10 +28,6 @@
 #include <utility>
 
 namespace ml {
-namespace maths {
-template<typename>
-class CTimeSeriesMultibucketFeature;
-}
 namespace model {
 class CInfluenceCalculator;
 struct SModelParams;
@@ -39,9 +42,9 @@ using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
 using TInfluenceCalculatorCPtr = std::shared_ptr<const model::CInfluenceCalculator>;
 using TUnivariateMultibucketFeaturePtr =
-    std::unique_ptr<maths::CTimeSeriesMultibucketFeature<double>>;
+    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketScalarFeature>;
 using TMultivariateMultibucketFeaturePtr =
-    std::unique_ptr<maths::CTimeSeriesMultibucketFeature<TDouble10Vec>>;
+    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketVectorFeature>;
 
 //! The types of model available.
 //!
@@ -853,7 +856,7 @@ enum EAggregationParam {
 const std::size_t NUMBER_AGGREGATION_PARAMS = E_MaxExtremeSamples + 1;
 
 //! The dummy attribute identifier used for modeling individual features.
-const std::size_t INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID = 0u;
+const std::size_t INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID = 0;
 }
 }
 

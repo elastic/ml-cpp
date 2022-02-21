@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 //! \brief
 //! Reformat searches of model state to assist with problem reproduction.
@@ -25,6 +30,8 @@
 namespace {
 const std::string ID_PREFIX{"\"_id\":\""};
 const std::string SOURCE_PREFIX{"\"_source\":"};
+const std::string ID_PREFIX_PRETTY{"\"_id\" : \""};
+const std::string SOURCE_PREFIX_PRETTY{"\"_source\" : "};
 }
 
 void skipPreamble(std::istream& input) {
@@ -41,32 +48,37 @@ void skipPreamble(std::istream& input) {
 
 void saveSource(const std::string& doc) {
 
-    std::size_t idPos{doc.find(ID_PREFIX)};
+    bool isPretty{doc.find(ID_PREFIX_PRETTY) != std::string::npos};
+
+    const std::string& idPrefix{isPretty ? ID_PREFIX_PRETTY : ID_PREFIX};
+    const std::string& sourcePrefix{isPretty ? SOURCE_PREFIX_PRETTY : SOURCE_PREFIX};
+
+    std::size_t idPos{doc.find(idPrefix)};
     if (idPos == std::string::npos) {
         LOG_ERROR(<< "_id start not found");
         return;
     }
-    std::size_t idEnd{doc.find('"', idPos + ID_PREFIX.length())};
+    std::size_t idEnd{doc.find('"', idPos + idPrefix.length())};
     if (idEnd == std::string::npos) {
         LOG_ERROR(<< "_id end not found");
         return;
     }
-    std::size_t sourcePos{doc.find(SOURCE_PREFIX)};
+    std::size_t sourcePos{doc.find(sourcePrefix)};
     if (sourcePos == std::string::npos) {
         LOG_ERROR(<< "_source start not found");
         return;
     }
     std::size_t sourceEnd{doc.length() - 1};
-    std::string docId{doc.substr(idPos + ID_PREFIX.length(),
-                                 idEnd - idPos - ID_PREFIX.length())};
+    std::string docId{doc.substr(idPos + idPrefix.length(),
+                                 idEnd - idPos - idPrefix.length())};
     std::ofstream singleSourceFile{docId + ".json"};
     if (singleSourceFile.is_open() == false) {
         LOG_ERROR(<< "Could not open output file " << docId << ".json");
         return;
     }
     LOG_INFO(<< "Saving _source of document with _id " << docId);
-    singleSourceFile << doc.substr(sourcePos + SOURCE_PREFIX.length(),
-                                   sourceEnd - sourcePos - SOURCE_PREFIX.length())
+    singleSourceFile << doc.substr(sourcePos + sourcePrefix.length(),
+                                   sourceEnd - sourcePos - sourcePrefix.length())
                      << std::endl;
 }
 

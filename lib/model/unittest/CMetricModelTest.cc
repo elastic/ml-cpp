@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -12,10 +17,10 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CLinearAlgebraTools.h>
-#include <maths/CPrior.h>
-#include <maths/CSampling.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CLinearAlgebraTools.h>
+#include <maths/common/CPrior.h>
+#include <maths/common/CSampling.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -54,8 +59,8 @@ using namespace model;
 
 namespace {
 
-using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
-using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
+using TMinAccumulator = maths::common::CBasicStatistics::SMin<double>::TAccumulator;
+using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
 
 const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
 }
@@ -159,9 +164,9 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                     if (j % expectedSampleCounts[i] == 0) {
                         ++numberSamples;
                         expectedSampleTimes.push_back(
-                            maths::CBasicStatistics::mean(expectedSampleTime));
+                            maths::common::CBasicStatistics::mean(expectedSampleTime));
                         expectedMeanSamples.push_back(
-                            maths::CBasicStatistics::mean(expectedMeanSample));
+                            maths::common::CBasicStatistics::mean(expectedMeanSample));
                         expectedMinSamples.push_back(expectedMinSample[0]);
                         expectedMaxSamples.push_back(expectedMaxSample[0]);
                         expectedSampleTime = TMeanAccumulator();
@@ -173,8 +178,9 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                     LOG_DEBUG(<< "Sampling [" << time << ", " << time + bucketLength << ")");
 
                     model.sample(time, time + bucketLength, m_ResourceMonitor);
-                    if (maths::CBasicStatistics::count(expectedMean) > 0.0) {
-                        expectedBaselineMean.add(maths::CBasicStatistics::mean(expectedMean));
+                    if (maths::common::CBasicStatistics::count(expectedMean) > 0.0) {
+                        expectedBaselineMean.add(
+                            maths::common::CBasicStatistics::mean(expectedMean));
                     }
                     if (numberSamples > 0) {
                         LOG_DEBUG(<< "Adding mean samples = "
@@ -182,19 +188,19 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                                   << core::CContainerPrinter::print(expectedMinSamples) << ", max samples = "
                                   << core::CContainerPrinter::print(expectedMaxSamples));
 
-                        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights(
+                        maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights(
                             numberSamples, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-                        maths::CModelAddSamplesParams params_;
+                        maths::common::CModelAddSamplesParams params_;
                         params_.integer(false)
                             .nonNegative(true)
                             .propagationInterval(1.0)
                             .trendWeights(weights)
                             .priorWeights(weights);
 
-                        maths::CModel::TTimeDouble2VecSizeTrVec expectedMeanSamples_;
-                        maths::CModel::TTimeDouble2VecSizeTrVec expectedMinSamples_;
-                        maths::CModel::TTimeDouble2VecSizeTrVec expectedMaxSamples_;
-                        for (std::size_t k = 0u; k < numberSamples; ++k) {
+                        maths::common::CModel::TTimeDouble2VecSizeTrVec expectedMeanSamples_;
+                        maths::common::CModel::TTimeDouble2VecSizeTrVec expectedMinSamples_;
+                        maths::common::CModel::TTimeDouble2VecSizeTrVec expectedMaxSamples_;
+                        for (std::size_t k = 0; k < numberSamples; ++k) {
                             // We round to the nearest integer time (note this has to match
                             // the behaviour of CMetricPartialStatistic::time).
                             core_t::TTime sampleTime{static_cast<core_t::TTime>(
@@ -209,7 +215,7 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                         expectedMeanModel->addSamples(params_, expectedMeanSamples_);
                         expectedMinModel->addSamples(params_, expectedMinSamples_);
                         expectedMaxModel->addSamples(params_, expectedMaxSamples_);
-                        numberSamples = 0u;
+                        numberSamples = 0;
                         expectedSampleTimes.clear();
                         expectedMeanSamples.clear();
                         expectedMinSamples.clear();
@@ -228,15 +234,16 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                               << core::CContainerPrinter::print(currentCount));
                     LOG_DEBUG(<< "current bucket mean = "
                               << core::CContainerPrinter::print(bucketMean) << ", expected baseline bucket mean = "
-                              << maths::CBasicStatistics::mean(expectedBaselineMean) << ", baseline bucket mean = "
+                              << maths::common::CBasicStatistics::mean(expectedBaselineMean)
+                              << ", baseline bucket mean = "
                               << core::CContainerPrinter::print(baselineMean));
 
                     BOOST_TEST_REQUIRE(currentCount);
                     BOOST_REQUIRE_EQUAL(expectedCount, *currentCount);
 
                     TDouble1Vec mean =
-                        maths::CBasicStatistics::count(expectedMean) > 0.0
-                            ? TDouble1Vec(1, maths::CBasicStatistics::mean(expectedMean))
+                        maths::common::CBasicStatistics::count(expectedMean) > 0.0
+                            ? TDouble1Vec(1, maths::common::CBasicStatistics::mean(expectedMean))
                             : TDouble1Vec();
                     TDouble1Vec min = expectedMin.count() > 0
                                           ? TDouble1Vec(1, expectedMin[0])
@@ -248,7 +255,8 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                     BOOST_TEST_REQUIRE(mean == bucketMean);
                     if (!baselineMean.empty()) {
                         baselineMeanError.add(std::fabs(
-                            baselineMean[0] - maths::CBasicStatistics::mean(expectedBaselineMean)));
+                            baselineMean[0] - maths::common::CBasicStatistics::mean(
+                                                  expectedBaselineMean)));
                     }
 
                     BOOST_TEST_REQUIRE(mean == featureData(model, model_t::E_IndividualMeanByPerson,
@@ -314,8 +322,8 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                 }
             }
             LOG_DEBUG(<< "baseline mean error = "
-                      << maths::CBasicStatistics::mean(baselineMeanError));
-            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(baselineMeanError) < 0.25);
+                      << maths::common::CBasicStatistics::mean(baselineMeanError));
+            BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(baselineMeanError) < 0.25);
 
             ++i;
         }
@@ -323,8 +331,8 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
-    using TVector2 = maths::CVectorNx1<double, 2>;
-    using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
+    using TVector2 = maths::common::CVectorNx1<double, 2>;
+    using TMean2Accumulator = maths::common::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
     using TTimeDouble2AryPr = std::pair<core_t::TTime, std::array<double, 2>>;
     using TTimeDouble2AryPrVec = std::vector<TTimeDouble2AryPr>;
 
@@ -387,16 +395,19 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                 if (++j % expectedSampleCounts[i] == 0) {
                     ++numberSamples;
                     expectedLatLongSamples.push_back(TDoubleVec(
-                        maths::CBasicStatistics::mean(expectedLatLongSample).begin(),
-                        maths::CBasicStatistics::mean(expectedLatLongSample).end()));
+                        maths::common::CBasicStatistics::mean(expectedLatLongSample)
+                            .begin(),
+                        maths::common::CBasicStatistics::mean(expectedLatLongSample)
+                            .end()));
                     expectedLatLongSample = TMean2Accumulator();
                 }
             } else {
                 LOG_DEBUG(<< "Sampling [" << time << ", " << time + bucketLength << ")");
                 model.sample(time, time + bucketLength, m_ResourceMonitor);
 
-                if (maths::CBasicStatistics::count(expectedLatLong) > 0.0) {
-                    expectedBaselineLatLong.add(maths::CBasicStatistics::mean(expectedLatLong));
+                if (maths::common::CBasicStatistics::count(expectedLatLong) > 0.0) {
+                    expectedBaselineLatLong.add(
+                        maths::common::CBasicStatistics::mean(expectedLatLong));
                 }
                 if (numberSamples > 0) {
                     std::sort(expectedLatLongSamples.begin(),
@@ -410,7 +421,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                             expectedLatLongSamples.size(),
                             maths_t::CUnitWeights::unit<maths_t::TDouble10Vec>(2)));
                     expectedPrior->propagateForwardsByTime(1.0);
-                    numberSamples = 0u;
+                    numberSamples = 0;
                     expectedLatLongSamples.clear();
                 }
 
@@ -425,29 +436,32 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                 TDouble1Vec featureLatLong = featureData(
                     model, model_t::E_IndividualMeanLatLongByPerson, 0, time);
                 const auto& prior =
-                    dynamic_cast<const maths::CMultivariateTimeSeriesModel*>(
+                    dynamic_cast<const maths::time_series::CMultivariateTimeSeriesModel*>(
                         model.details()->model(model_t::E_IndividualMeanLatLongByPerson, 0))
                         ->residualModel();
 
                 LOG_DEBUG(<< "bucket count = " << core::CContainerPrinter::print(count));
                 LOG_DEBUG(<< "current = " << core::CContainerPrinter::print(bucketLatLong)
                           << ", expected baseline = "
-                          << maths::CBasicStatistics::mean(expectedBaselineLatLong) << ", actual baseline = "
+                          << maths::common::CBasicStatistics::mean(expectedBaselineLatLong)
+                          << ", actual baseline = "
                           << core::CContainerPrinter::print(baselineLatLong));
 
                 BOOST_TEST_REQUIRE(count);
                 BOOST_REQUIRE_EQUAL(expectedCount, *count);
 
                 TDouble1Vec latLong;
-                if (maths::CBasicStatistics::count(expectedLatLong) > 0.0) {
-                    latLong.push_back(maths::CBasicStatistics::mean(expectedLatLong)(0));
-                    latLong.push_back(maths::CBasicStatistics::mean(expectedLatLong)(1));
+                if (maths::common::CBasicStatistics::count(expectedLatLong) > 0.0) {
+                    latLong.push_back(
+                        maths::common::CBasicStatistics::mean(expectedLatLong)(0));
+                    latLong.push_back(
+                        maths::common::CBasicStatistics::mean(expectedLatLong)(1));
                 }
                 BOOST_REQUIRE_EQUAL(latLong, bucketLatLong);
                 if (!baselineLatLong.empty()) {
-                    baselineLatLongError.add(maths::fabs(
+                    baselineLatLongError.add(maths::common::fabs(
                         TVector2(baselineLatLong) -
-                        maths::CBasicStatistics::mean(expectedBaselineLatLong)));
+                        maths::common::CBasicStatistics::mean(expectedBaselineLatLong)));
                 }
 
                 BOOST_REQUIRE_EQUAL(latLong, featureLatLong);
@@ -493,9 +507,11 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
             }
         }
         LOG_DEBUG(<< "baseline mean error = "
-                  << maths::CBasicStatistics::mean(baselineLatLongError));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(baselineLatLongError)(0) < 0.25);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(baselineLatLongError)(1) < 0.25);
+                  << maths::common::CBasicStatistics::mean(baselineLatLongError));
+        BOOST_TEST_REQUIRE(
+            maths::common::CBasicStatistics::mean(baselineLatLongError)(0) < 0.25);
+        BOOST_TEST_REQUIRE(
+            maths::common::CBasicStatistics::mean(baselineLatLongError)(1) < 0.25);
 
         ++i;
     }
@@ -521,18 +537,18 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
-    maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
+    maths::common::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
     test::CRandomNumbers rng;
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < bucketCounts.size(); ++i) {
+    for (std::size_t i = 0; i < bucketCounts.size(); ++i) {
         TDoubleVec values;
         rng.generateNormalSamples(mean, variance, bucketCounts[i], values);
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
         LOG_DEBUG(<< "i = " << i << ", anomalousBucket = " << anomalousBucket
                   << ", offset = " << (i == anomalousBucket ? anomaly : 0.0));
 
-        for (std::size_t j = 0u; j < values.size(); ++j) {
+        for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(SMessage(time + static_cast<core_t::TTime>(j), "p",
                                       values[j] + (i == anomalousBucket ? anomaly : 0.0)),
                              m_Gatherer);
@@ -573,11 +589,11 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
-    maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
+    maths::common::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
     test::CRandomNumbers rng;
 
     core_t::TTime time{startTime};
-    for (std::size_t i = 0u; i < bucketCounts.size(); ++i) {
+    for (std::size_t i = 0; i < bucketCounts.size(); ++i) {
         LOG_DEBUG(<< "i = " << i << ", anomalousBucket = " << anomalousBucket);
 
         TDoubleVec values;
@@ -591,7 +607,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
 
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j) {
+        for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
                 SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
@@ -648,7 +664,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
     core_t::TTime time{startTime};
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
+    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
         if (i == lowMeanBucket) {
             meanForBucket = lowMean;
@@ -660,7 +676,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j) {
+        for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
                 SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
@@ -704,7 +720,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
     core_t::TTime time{startTime};
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
+    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
         if (i == lowMeanBucket) {
             meanForBucket = lowMean;
@@ -716,7 +732,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j) {
+        for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
                 SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
@@ -758,7 +774,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
     core_t::TTime time{startTime};
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
+    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
         if (i == lowSumBucket) {
             meanForBucket = lowMean;
@@ -770,7 +786,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j) {
+        for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
                 SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
@@ -811,7 +827,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
     core_t::TTime time{startTime};
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
+    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
         if (i == lowSumBucket) {
             meanForBucket = lowMean;
@@ -823,7 +839,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j) {
+        for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
                 SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
@@ -883,13 +899,13 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
 
         test::CRandomNumbers rng;
         core_t::TTime time{startTime};
-        for (std::size_t i = 0u; i < numberOfBuckets; ++i, time += bucketLength) {
+        for (std::size_t i = 0; i < numberOfBuckets; ++i, time += bucketLength) {
             TDoubleVec samples;
             rng.generateNormalSamples(mean, variance, bucketCount, samples);
 
-            maths::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator min;
-            maths::CBasicStatistics::SMax<TDoubleStrPr>::TAccumulator max;
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            maths::common::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator min;
+            maths::common::CBasicStatistics::SMax<TDoubleStrPr>::TAccumulator max;
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 this->addArrival(SMessage(time, "p", samples[j], {},
                                           TOptionalStr(influencerValues[j])),
                                  gatherer);
@@ -907,7 +923,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
             LOG_DEBUG(<< "influences = "
                       << core::CContainerPrinter::print(annotatedProbability.s_Influences));
             if (!annotatedProbability.s_Influences.empty()) {
-                std::size_t j = 0u;
+                std::size_t j = 0;
                 for (/**/; j < annotatedProbability.s_Influences.size(); ++j) {
                     if (feature == model_t::E_IndividualMinByPerson &&
                         *annotatedProbability.s_Influences[j].first.second ==
@@ -951,7 +967,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
         SAnnotatedProbability annotatedProbability;
 
         core_t::TTime time{startTime};
-        for (std::size_t i = 0u; i < values.size(); ++i) {
+        for (std::size_t i = 0; i < values.size(); ++i) {
             this->processBucket(time, bucketLength, values[i], influencers[i],
                                 gatherer, model, annotatedProbability);
             BOOST_REQUIRE_EQUAL(influences[i].size(),
@@ -1098,7 +1114,7 @@ BOOST_FIXTURE_TEST_CASE(testLatLongInfluence, CTestFixture, *boost::unit_test::d
 }
 
 BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
-    maths::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
+    maths::common::CSampling::CScopeMockRandomNumberGenerator scopeMockRng;
 
     using TEventDataVec = std::vector<CEventData>;
     using TSizeSizeMap = std::map<std::size_t, std::size_t>;
@@ -1161,8 +1177,8 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 
     TEventDataVec events;
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < eventCounts.size(); ++i, bucketStart = startTime) {
-        for (std::size_t j = 0u; j < eventCounts[i].size(); ++j, bucketStart += bucketLength) {
+    for (std::size_t i = 0; i < eventCounts.size(); ++i, bucketStart = startTime) {
+        for (std::size_t j = 0; j < eventCounts[i].size(); ++j, bucketStart += bucketLength) {
             core_t::TTime n = static_cast<core_t::TTime>(eventCounts[i][j]);
             if (n > 0) {
                 TDoubleVec samples;
@@ -1188,7 +1204,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
         std::size_t pid = this->addPerson(people[expectedPerson], expectedGatherer);
         mapping[expectedPerson] = pid;
     }
-    for (std::size_t i = 0u; i < events.size(); ++i) {
+    for (std::size_t i = 0; i < events.size(); ++i) {
         if (std::binary_search(std::begin(expectedPeople),
                                std::end(expectedPeople), events[i].personId())) {
             expectedEvents.push_back(makeEventData(events[i].time(),
@@ -1198,7 +1214,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     }
 
     bucketStart = startTime;
-    for (std::size_t i = 0u; i < events.size(); ++i) {
+    for (std::size_t i = 0; i < events.size(); ++i) {
         if (events[i].time() >= bucketStart + bucketLength) {
             model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
@@ -1215,7 +1231,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     BOOST_REQUIRE_EQUAL(maxDimensionBeforePrune, maxDimensionAfterPrune);
 
     bucketStart = startTime;
-    for (std::size_t i = 0u; i < expectedEvents.size(); ++i) {
+    for (std::size_t i = 0; i < expectedEvents.size(); ++i) {
         if (expectedEvents[i].time() >= bucketStart + bucketLength) {
             expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
@@ -1357,11 +1373,11 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     }
 
     BOOST_REQUIRE_EQUAL(
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelNoGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))
             ->residualModel()
             .checksum(),
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelWithGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))
             ->residualModel()
             .checksum());
@@ -1463,11 +1479,11 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
     modelExNullGap.sample(600, 700, m_ResourceMonitor);
 
     BOOST_REQUIRE_EQUAL(
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelSkipGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))
             ->residualModel()
             .checksum(),
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelExNullGap.details()->model(model_t::E_IndividualSumByBucketAndPerson, 0))
             ->residualModel()
             .checksum());
@@ -1787,8 +1803,8 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrectionsWithCorrelations, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testCorrelatePersist, CTestFixture) {
-    using TVector2 = maths::CVectorNx1<double, 2>;
-    using TMatrix2 = maths::CSymmetricMatrixNxN<double, 2>;
+    using TVector2 = maths::common::CVectorNx1<double, 2>;
+    using TMatrix2 = maths::common::CSymmetricMatrixNxN<double, 2>;
 
     const core_t::TTime startTime{0};
     const core_t::TTime bucketLength{600};
@@ -1813,7 +1829,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatePersist, CTestFixture) {
 
     core_t::TTime time{startTime};
     core_t::TTime bucket{time + bucketLength};
-    for (std::size_t i = 0u; i < samples.size(); ++i, time += 60) {
+    for (std::size_t i = 0; i < samples.size(); ++i, time += 60) {
         if (time >= bucket) {
             m_Model->sample(bucket - bucketLength, bucket, m_ResourceMonitor);
             bucket += bucketLength;
@@ -1982,12 +1998,12 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                 referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES,
                                                    t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "mean = " << maths::common::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG(<< "reference = "
-                  << maths::CBasicStatistics::mean(meanReferencePredictionError));
+                  << maths::common::CBasicStatistics::mean(meanReferencePredictionError));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            maths::CBasicStatistics::mean(meanReferencePredictionError),
-            maths::CBasicStatistics::mean(meanPredictionError), 0.05);
+            maths::common::CBasicStatistics::mean(meanReferencePredictionError),
+            maths::common::CBasicStatistics::mean(meanPredictionError), 0.05);
     }
 
     LOG_DEBUG(<< "*** Test step change ***");
@@ -2042,12 +2058,12 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                 referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES,
                                                    t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "mean = " << maths::common::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG(<< "reference = "
-                  << maths::CBasicStatistics::mean(meanReferencePredictionError));
+                  << maths::common::CBasicStatistics::mean(meanReferencePredictionError));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            maths::CBasicStatistics::mean(meanReferencePredictionError),
-            maths::CBasicStatistics::mean(meanPredictionError), 0.05);
+            maths::common::CBasicStatistics::mean(meanReferencePredictionError),
+            maths::common::CBasicStatistics::mean(meanPredictionError), 0.05);
     }
 
     LOG_DEBUG(<< "*** Test unmodelled cyclic component ***");
@@ -2059,7 +2075,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
         // control.
 
         params.s_ControlDecayRate = true;
-        params.s_DecayRate = 0.001;
+        params.s_DecayRate = 0.0005;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
         CMetricModelFactory factory(params, interimBucketCorrector);
         factory.features(features);
@@ -2067,7 +2083,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
         CModelFactory::TModelPtr model(factory.makeModel(gatherer));
 
         params.s_ControlDecayRate = false;
-        params.s_DecayRate = 0.001;
+        params.s_DecayRate = 0.0005;
         CMetricModelFactory referenceFactory(params, interimBucketCorrector);
         referenceFactory.features(features);
         CModelFactory::TDataGathererPtr referenceGatherer(
@@ -2107,11 +2123,12 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                 referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES,
                                                    t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "mean = " << maths::common::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG(<< "reference = "
-                  << maths::CBasicStatistics::mean(meanReferencePredictionError));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanPredictionError) <
-                           0.8 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                  << maths::common::CBasicStatistics::mean(meanReferencePredictionError));
+        BOOST_TEST_REQUIRE(
+            maths::common::CBasicStatistics::mean(meanPredictionError) <
+            0.8 * maths::common::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 
@@ -2120,8 +2137,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMedian, CTestFixture) {
     core_t::TTime bucketLength(10);
     std::size_t numberOfBuckets = 100;
     std::size_t bucketCount = 5;
-    std::size_t lowMedianBucket = 60u;
-    std::size_t highMedianBucket = 80u;
+    std::size_t lowMedianBucket = 60;
+    std::size_t highMedianBucket = 80;
     double mean = 5.0;
     double variance = 0.00001;
     double lowMean = 2.0;
@@ -2135,7 +2152,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMedian, CTestFixture) {
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
+    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
         if (i == lowMedianBucket) {
             meanForBucket = lowMean;
@@ -2147,7 +2164,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMedian, CTestFixture) {
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j) {
+        for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
                 SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
@@ -2189,7 +2206,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberOfBuckets; ++i) {
+    for (std::size_t i = 0; i < numberOfBuckets; ++i) {
         double meanForBucket = mean;
         if (i == lowMedianBucket) {
             meanForBucket = lowMean;
@@ -2201,7 +2218,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
         rng.generateNormalSamples(meanForBucket, variance, bucketCount, values);
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
-        for (std::size_t j = 0u; j < values.size(); ++j) {
+        for (std::size_t j = 0; j < values.size(); ++j) {
             this->addArrival(
                 SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
@@ -2225,10 +2242,10 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // Create 2 models, one of which has a skip sampling rule.
-    // Feed the same data into both models then add extra data
-    // into the first model we know will be filtered out.
-    // At the end the checksums for the underlying models should
-    // be the same.
+    // The skip sampling rule doesn't cause the samples to be completely ignored,
+    // instead it applies a small multiplicative weighting when the rule applies.
+    // Feed the same data into both models including the case when the rule will apply
+    // for one model but not the other.
 
     // Create a rule to filter buckets where the actual value > 100
     CRuleCondition condition;
@@ -2240,13 +2257,14 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     rule.addCondition(condition);
 
     std::size_t bucketLength(300);
-    std::size_t startTime(300);
+    std::size_t startTime(0);
 
     // Model without the skip sampling rule
     SModelParams paramsNoRules(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CMetricModelFactory factory(paramsNoRules, interimBucketCorrector);
     model_t::TFeatureVec features{model_t::E_IndividualMeanByPerson};
+    factory.features(features);
     CModelFactory::TDataGathererPtr gathererNoSkip(factory.makeDataGatherer(startTime));
     CModelFactory::TModelPtr modelPtrNoSkip(factory.makeModel(gathererNoSkip));
     CMetricModel* modelNoSkip = dynamic_cast<CMetricModel*>(modelPtrNoSkip.get());
@@ -2256,6 +2274,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     SModelParams::TDetectionRuleVec rules{rule};
     paramsWithRules.s_DetectionRules = SModelParams::TDetectionRuleVecCRef(rules);
     CMetricModelFactory factoryWithSkip(paramsWithRules, interimBucketCorrector);
+    factoryWithSkip.features(features);
     CModelFactory::TDataGathererPtr gathererWithSkip(
         factoryWithSkip.makeDataGatherer(startTime));
     CModelFactory::TModelPtr modelPtrWithSkip(factoryWithSkip.makeModel(gathererWithSkip));
@@ -2263,8 +2282,19 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     std::size_t endTime = startTime + bucketLength;
 
+    // Add a few buckets to both models (this seems to be necessary to ensure subsequent calls to 'sample'
+    // actually result in samples being added to the model)
+    for (std::size_t j = 0; j < 3; ++j) {
+        for (std::size_t i = 0; i < bucketLength; i++) {
+            this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
+            this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
+        }
+        startTime = endTime;
+        endTime += bucketLength;
+    }
+
     // Add a bucket to both models
-    for (std::size_t i = 0; i < 60; i++) {
+    for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
     }
@@ -2274,61 +2304,72 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     endTime += bucketLength;
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
-    // Add a bucket to both models
-    for (std::size_t i = 0; i < 60; i++) {
-        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
-        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
-    }
-    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
-    modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
-    startTime = endTime;
-    endTime += bucketLength;
-    BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
-
-    // this sample will be skipped by the detection rule
-    for (std::size_t i = 0; i < 60; i++) {
+    // Add data to both models
+    // the model with the detection rule will apply a small weighting to the sample
+    for (std::size_t i = 0; i < bucketLength; i++) {
+        this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererWithSkip);
     }
+    modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
+
+    // Checksums will be different due to the small weighting applied to the sample
+    // added to the model with the detector rule.
+    BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
     startTime = endTime;
     endTime += bucketLength;
 
-    // Wind the other model forward
-    modelNoSkip->skipSampling(startTime);
-
-    for (std::size_t i = 0; i < 60; i++) {
+    // Add more data to both models, for which the detection rule will not apply
+    for (std::size_t i = 0; i < bucketLength; i++) {
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererNoSkip);
         this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererWithSkip);
     }
     modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
 
-    // Checksums will be different due to the data gatherers
+    // Checksums will be different due to the small weighting applied to the sample
+    // added to the model with the detector rule.
     BOOST_TEST_REQUIRE(modelWithSkip->checksum() != modelNoSkip->checksum());
 
-    // but the underlying models should be the same
+    // The underlying models should also differ due to the different weighting applied to the samples.
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelWithSkipView =
         modelWithSkip->details();
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
 
-    // TODO this test fails due a different checksums for the decay rate and prior
-    // uint64_t withSkipChecksum = modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();
-    // uint64_t noSkipChecksum = modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0)->checksum();
-    // BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+    const maths::common::CModel* mathsModelWithSkip =
+        modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0);
+    BOOST_TEST_REQUIRE(mathsModelWithSkip != nullptr);
+    uint64_t withSkipChecksum = mathsModelWithSkip->checksum();
+    const maths::common::CModel* mathsModelNoSkip =
+        modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0);
+    BOOST_TEST_REQUIRE(mathsModelNoSkip != nullptr);
+    uint64_t noSkipChecksum = mathsModelNoSkip->checksum();
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
-    // TODO These checks fail see elastic/machine-learning-cpp/issues/485
     // Check the last value times of the underlying models are the same
-    // const maths::CUnivariateTimeSeriesModel *timeSeriesModel =
-    //     dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
-    // BOOST_TEST_REQUIRE(timeSeriesModel != 0);
+    const maths::time_series::CUnivariateTimeSeriesModel* timeSeriesModel =
+        dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0));
+    BOOST_TEST_REQUIRE(timeSeriesModel != nullptr);
+    const auto* trendModel = dynamic_cast<const maths::time_series::CTimeSeriesDecomposition*>(
+        &timeSeriesModel->trendModel());
+    BOOST_TEST_REQUIRE(trendModel != nullptr);
+    core_t::TTime modelNoSkipTime = trendModel->lastValueTime();
 
-    // core_t::TTime time = timeSeriesModel->trend().lastValueTime();
-    // BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_IndividualMeanByPerson, startTime, bucketLength), time);
+    // The last times of model with a skip should be the same
+    timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+        modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
+    BOOST_TEST_REQUIRE(timeSeriesModel);
+    trendModel = dynamic_cast<const maths::time_series::CTimeSeriesDecomposition*>(
+        &timeSeriesModel->trendModel());
+    BOOST_TEST_REQUIRE(trendModel != nullptr);
+    core_t::TTime modelWithSkipTime = trendModel->lastValueTime();
 
-    // // The last times of model with a skip should be the same
-    // timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0));
-    // BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trend().lastValueTime());
+    BOOST_REQUIRE_EQUAL(modelNoSkipTime, modelWithSkipTime);
+    BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_IndividualMeanByPerson,
+                                            startTime, bucketLength),
+                        modelNoSkipTime);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

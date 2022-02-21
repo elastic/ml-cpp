@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include "CModelTestFixtureBase.h"
@@ -38,7 +43,7 @@ std::size_t CModelTestFixtureBase::addPerson(const std::string& p,
 std::string CModelTestFixtureBase::valueAsString(const TDouble1Vec& value) {
     std::string result{ml::core::CStringUtils::typeToStringPrecise(
         value[0], ml::core::CIEEE754::E_DoublePrecision)};
-    for (std::size_t i = 1u; i < value.size(); ++i) {
+    for (std::size_t i = 1; i < value.size(); ++i) {
         result += ml::model::CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER +
                   ml::core::CStringUtils::typeToStringPrecise(
                       value[i], ml::core::CIEEE754::E_DoublePrecision);
@@ -97,7 +102,7 @@ void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
                                           ml::model::CModelFactory::TDataGathererPtr& gatherer,
                                           ml::model::CAnomalyDetectorModel& model,
                                           ml::model::SAnnotatedProbability& probability) {
-    for (std::size_t i = 0u; i < bucket.size(); ++i) {
+    for (std::size_t i = 0; i < bucket.size(); ++i) {
         this->addArrival(
             SMessage(time, "p", bucket[i], {}, TOptionalStr(influencerValues[i])), gatherer);
     }
@@ -118,7 +123,7 @@ void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
                                           ml::model::SAnnotatedProbability& probability2) {
     const std::string person("p");
     const std::string person2("q");
-    for (std::size_t i = 0u; i < bucket.size(); ++i) {
+    for (std::size_t i = 0; i < bucket.size(); ++i) {
         ml::model::CDataGatherer::TStrCPtrVec fieldValues;
         if (i % 2 == 0) {
             fieldValues.push_back(&person);
@@ -181,7 +186,7 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
 
     TAnomalyAccumulator anomalies(numAnomalies);
 
-    for (std::size_t i = 0u, bucket = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0, bucket = 0; i < messages.size(); ++i) {
         if (messages[i].s_Time >= startTime + bucketLength) {
             LOG_DEBUG(<< "Updating and testing bucket = [" << startTime << ","
                       << startTime + bucketLength << ")");
@@ -190,7 +195,7 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
 
             ml::model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             ml::model::SAnnotatedProbability annotatedProbability;
-            for (std::size_t pid = 0u; pid < gatherer->numberActivePeople(); ++pid) {
+            for (std::size_t pid = 0; pid < gatherer->numberActivePeople(); ++pid) {
                 model.computeProbability(pid, startTime, startTime + bucketLength,
                                          partitioningFields, 2, annotatedProbability);
 
@@ -200,7 +205,6 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
                     attributes.emplace_back(probability.s_Probability,
                                             *probability.s_Attribute);
                 }
-                LOG_DEBUG(<< "Adding anomaly " << pid);
                 anomalies.add({annotatedProbability.s_Probability,
                                {bucket, person, attributes}});
             }
@@ -215,7 +219,7 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
     anomalies.sort();
     LOG_DEBUG(<< "Anomalies = " << anomalies.print());
 
-    for (std::size_t i = 0u; i < anomalies.count(); ++i) {
+    for (std::size_t i = 0; i < anomalies.count(); ++i) {
         orderedAnomalies.push_back(anomalies[i].second);
     }
 

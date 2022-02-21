@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CForecastRunner.h>
@@ -401,7 +406,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
 
         // note: this is not exposed on the Java side
         forecastJob.s_BoundsPercentile = properties.get<double>(
-            "boundspercentile", maths::CModel::DEFAULT_BOUNDS_PERCENTILE);
+            "boundspercentile", maths::common::CModel::DEFAULT_BOUNDS_PERCENTILE);
     } catch (const std::exception& e) {
         LOG_ERROR(<< ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
         return false;

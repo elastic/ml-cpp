@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CIndividualModel_h
@@ -85,7 +90,7 @@ public:
     //@}
 
     //! Returns false.
-    virtual bool isPopulation() const;
+    bool isPopulation() const override;
 
     //! \name Bucket Statistics
     //@{
@@ -94,10 +99,10 @@ public:
     //!
     //! \param[in] pid The person of interest.
     //! \param[in] time The time of interest.
-    virtual TOptionalUInt64 currentBucketCount(std::size_t pid, core_t::TTime time) const;
+    TOptionalUInt64 currentBucketCount(std::size_t pid, core_t::TTime time) const override;
 
     //! Check if bucket statistics are available for the specified time.
-    virtual bool bucketStatsAvailable(core_t::TTime time) const;
+    bool bucketStatsAvailable(core_t::TTime time) const override;
     //@}
 
     //! \name Update
@@ -108,9 +113,9 @@ public:
     //!
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
-    virtual void sampleBucketStatistics(core_t::TTime startTime,
-                                        core_t::TTime endTime,
-                                        CResourceMonitor& resourceMonitor) = 0;
+    void sampleBucketStatistics(core_t::TTime startTime,
+                                core_t::TTime endTime,
+                                CResourceMonitor& resourceMonitor) override = 0;
 
     //! Update the model with features samples from the time interval
     //! [\p startTime, \p endTime].
@@ -118,22 +123,22 @@ public:
     //! \param[in] startTime The start of the time interval to sample.
     //! \param[in] endTime The end of the time interval to sample.
     //! \param[in] resourceMonitor The resourceMonitor.
-    virtual void sample(core_t::TTime startTime,
-                        core_t::TTime endTime,
-                        CResourceMonitor& resourceMonitor) = 0;
+    void sample(core_t::TTime startTime,
+                core_t::TTime endTime,
+                CResourceMonitor& resourceMonitor) override = 0;
 
     //! Prune any person models which haven't been updated for a
     //! specified period.
-    virtual void prune(std::size_t maximumAge);
+    void prune(std::size_t maximumAge) override;
     //@}
 
     //! \name Probability
     //@{
     //! Clears \p probability and \p attributeProbabilities.
-    virtual bool computeTotalProbability(const std::string& person,
-                                         std::size_t numberAttributeProbabilities,
-                                         TOptionalDouble& probability,
-                                         TAttributeProbability1Vec& attributeProbabilities) const;
+    bool computeTotalProbability(const std::string& person,
+                                 std::size_t numberAttributeProbabilities,
+                                 TOptionalDouble& probability,
+                                 TAttributeProbability1Vec& attributeProbabilities) const override;
     //@}
 
     //! Get the checksum of this model.
@@ -142,19 +147,19 @@ public:
     //! the current bucket statistics. (This is designed to handle
     //! serialization, for which we don't serialize the current
     //! bucket statistics.)
-    virtual uint64_t checksum(bool includeCurrentBucketStats = true) const = 0;
+    uint64_t checksum(bool includeCurrentBucketStats = true) const override = 0;
 
     //! Debug the memory used by this model.
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override = 0;
 
     //! Get the memory used by this model.
-    virtual std::size_t memoryUsage() const = 0;
+    std::size_t memoryUsage() const override = 0;
 
     //! Get the static size of this object - used for virtual hierarchies.
-    virtual std::size_t staticSize() const = 0;
+    std::size_t staticSize() const override = 0;
 
     //! Get the non-estimated value of the the memory used by this model.
-    virtual std::size_t computeMemoryUsage() const = 0;
+    std::size_t computeMemoryUsage() const override = 0;
 
     //! Get the first time each person was seen.
     const TTimeVec& firstBucketTimes() const;
@@ -174,6 +179,9 @@ protected:
     //! Persist the state of the models only.
     void doPersistModelsState(core::CStatePersistInserter& inserter) const;
 
+    //! Should this model be persisted?
+    bool shouldPersist() const override;
+
     //! Persist state by passing information to the supplied inserter.
     void doAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
@@ -181,25 +189,25 @@ protected:
     bool doAcceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get the start time of the current bucket.
-    virtual core_t::TTime currentBucketStartTime() const = 0;
+    core_t::TTime currentBucketStartTime() const override = 0;
 
     //! Set the start time of the current bucket.
-    virtual void currentBucketStartTime(core_t::TTime time) = 0;
+    void currentBucketStartTime(core_t::TTime time) override = 0;
 
     //! Monitor the resource usage while creating new models.
     void createUpdateNewModels(core_t::TTime time, CResourceMonitor& resourceMonitor);
 
     //! Create the time series models for "n" newly observed people.
-    virtual void createNewModels(std::size_t n, std::size_t m);
+    void createNewModels(std::size_t n, std::size_t m) override;
 
     //! Reinitialize the time series models for recycled people.
-    virtual void updateRecycledModels();
+    void updateRecycledModels() override;
 
     //! Update the correlation models.
     void refreshCorrelationModels(std::size_t resourceLimit, CResourceMonitor& resourceMonitor);
 
     //! Clear out large state objects for people that are pruned.
-    virtual void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) = 0;
+    void clearPrunedResources(const TSizeVec& people, const TSizeVec& attributes) override = 0;
 
     //! Get the person unique identifiers which have a feature value
     //! in the bucketing time interval including \p time.
@@ -237,10 +245,10 @@ protected:
     double emptyBucketWeight(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const;
 
     //! Get a read only model corresponding to \p feature of the person \p pid.
-    const maths::CModel* model(model_t::EFeature feature, std::size_t pid) const;
+    const maths::common::CModel* model(model_t::EFeature feature, std::size_t pid) const;
 
     //! Get a writable model corresponding to \p feature of the person \p pid.
-    maths::CModel* model(model_t::EFeature feature, std::size_t pid);
+    maths::common::CModel* model(model_t::EFeature feature, std::size_t pid);
 
     //! Sample the correlate models.
     void sampleCorrelateModels();
@@ -271,13 +279,13 @@ private:
     std::size_t numberCorrelations() const;
 
     //! Returns one.
-    virtual double attributeFrequency(std::size_t cid) const;
+    double attributeFrequency(std::size_t cid) const override;
 
     //! Perform derived class specific operations to accomplish skipping sampling
-    virtual void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime);
+    void doSkipSampling(core_t::TTime startTime, core_t::TTime endTime) override;
 
     //! Get the model memory usage estimator
-    virtual CMemoryUsageEstimator* memoryUsageEstimator() const;
+    CMemoryUsageEstimator* memoryUsageEstimator() const override;
 
 private:
     //! The time that each person was first seen.

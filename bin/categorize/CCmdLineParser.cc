@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include "CCmdLineParser.h"
 
@@ -36,7 +41,8 @@ bool CCmdLineParser::parse(int argc,
                            std::string& persistFileName,
                            bool& isPersistFileNamedPipe,
                            bool& isPersistInForeground,
-                           std::string& categorizationFieldName) {
+                           std::string& categorizationFieldName,
+                           bool& validElasticLicenseKeyConfirmed) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -74,6 +80,8 @@ bool CCmdLineParser::parse(int argc,
             ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
             ("categorizationfield", boost::program_options::value<std::string>(),
                     "Field to compute mlcategory from")
+            ("validElasticLicenseKeyConfirmed", boost::program_options::value<bool>(),
+             "Confirmation that a valid Elastic license key is in use.")
         ;
         // clang-format on
 
@@ -143,6 +151,10 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("categorizationfield") > 0) {
             categorizationFieldName = vm["categorizationfield"].as<std::string>();
+        }
+        if (vm.count("validElasticLicenseKeyConfirmed") > 0) {
+            validElasticLicenseKeyConfirmed =
+                vm["validElasticLicenseKeyConfirmed"].as<bool>();
         }
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

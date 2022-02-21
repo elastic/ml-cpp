@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
@@ -13,22 +18,29 @@
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
+#include <core/Constants.h>
 
-#include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
-#include <maths/CDataFrameUtils.h>
+#include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeFactory.h>
+#include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CDataFrameUtils.h>
 
+#include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CInferenceModelDefinition.h>
 #include <api/ElasticsearchStateIndex.h>
 
-#include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <rapidjson/document.h>
+
+#include <limits>
 
 namespace ml {
 namespace api {
+namespace {
+const std::size_t NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET{
+    std::numeric_limits<std::size_t>::max()};
+}
 
 const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
@@ -45,14 +57,20 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(LAMBDA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(GAMMA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(ETA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(ETA_GROWTH_RATE_PER_TREE,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(SOFT_TREE_DEPTH_LIMIT,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(SOFT_TREE_DEPTH_TOLERANCE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_TREES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(MAX_DEPLOYED_MODEL_SIZE,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_BAG_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUM_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(TRAIN_FRACTION_PER_FOLD,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(STOP_CROSS_VALIDATION_EARLY,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER,
@@ -65,7 +83,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_PROCESSORS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(EARLY_STOPPING_ALLOWED,
+        theReader.addParameter(EARLY_STOPPING_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
@@ -76,25 +94,29 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters,
     TLossFunctionUPtr loss)
-    : CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
+    : CDataFrameAnalysisRunner{spec}, m_NumberLossParameters{loss->numberParameters()},
+      m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
 
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
-
     m_PredictionFieldName = parameters[PREDICTION_FIELD_NAME].fallback(
         m_DependentVariableFieldName + "_prediction");
 
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
 
-    bool earlyStoppingAllowed = parameters[EARLY_STOPPING_ALLOWED].fallback(true);
+    bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
 
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
     double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
 
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
+    std::size_t maximumDeployedSize{parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
+        core::constants::BYTES_IN_GIGABYTES)};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
+    double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
     std::size_t numberRoundsPerHyperparameter{
-        parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
+        parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
+            NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET)};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
@@ -114,43 +136,45 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                                     m_CustomProcessors.GetAllocator());
     }
     if (alpha != -1.0 && alpha < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.");
     }
     if (lambda != -1.0 && lambda < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << LAMBDA << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << LAMBDA << "' should be non-negative.");
     }
     if (gamma != -1.0 && gamma < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << GAMMA << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << GAMMA << "' should be non-negative.");
     }
     if (eta != -1.0 && (eta <= 0.0 || eta > 1.0)) {
-        HANDLE_FATAL(<< "Input error: '" << ETA << "' should be in the range (0, 1].")
+        HANDLE_FATAL(<< "Input error: '" << ETA << "' should be in the range (0, 1].");
     }
     if (etaGrowthRatePerTree != -1.0 && etaGrowthRatePerTree <= 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << ETA_GROWTH_RATE_PER_TREE << "' should be positive.")
+        HANDLE_FATAL(<< "Input error: '" << ETA_GROWTH_RATE_PER_TREE << "' should be positive.");
     }
     if (softTreeDepthLimit != -1.0 && softTreeDepthLimit < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_LIMIT << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_LIMIT << "' should be non-negative.");
     }
     if (softTreeDepthTolerance != -1.0 && softTreeDepthTolerance <= 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_TOLERANCE << "' should be positive.")
+        HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_TOLERANCE << "' should be positive.");
     }
     if (downsampleFactor != -1.0 && (downsampleFactor <= 0.0 || downsampleFactor > 1.0)) {
-        HANDLE_FATAL(<< "Input error: '" << DOWNSAMPLE_FACTOR << "' should be in the range (0, 1]")
+        HANDLE_FATAL(<< "Input error: '" << DOWNSAMPLE_FACTOR << "' should be in the range (0, 1]");
     }
     if (featureBagFraction != -1.0 &&
         (featureBagFraction <= 0.0 || featureBagFraction > 1.0)) {
-        HANDLE_FATAL(<< "Input error: '" << FEATURE_BAG_FRACTION << "' should be in the range (0, 1]")
+        HANDLE_FATAL(<< "Input error: '" << FEATURE_BAG_FRACTION
+                     << "' should be in the range (0, 1]");
     }
 
-    m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
-        maths::CBoostedTreeFactory::constructFromParameters(
+    m_BoostedTreeFactory = std::make_unique<maths::analytics::CBoostedTreeFactory>(
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
             this->spec().numberThreads(), std::move(loss)));
 
     (*m_BoostedTreeFactory)
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
-        .stopHyperparameterOptimizationEarly(earlyStoppingAllowed);
+        .earlyStoppingEnabled(earlyStoppingEnabled)
+        .maximumDeployedSize(maximumDeployedSize);
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -189,7 +213,10 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (numberFolds > 1) {
         m_BoostedTreeFactory->numberFolds(numberFolds);
     }
-    if (numberRoundsPerHyperparameter > 0) {
+    if (trainFractionPerFold > 0.0) {
+        m_BoostedTreeFactory->trainFractionPerFold(trainFractionPerFold);
+    }
+    if (numberRoundsPerHyperparameter != NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET) {
         m_BoostedTreeFactory->maximumOptimisationRoundsPerHyperparameter(numberRoundsPerHyperparameter);
     }
     if (bayesianOptimisationRestarts > 0) {
@@ -203,7 +230,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
-    return m_BoostedTreeFactory->numberExtraColumnsForTrain();
+    return maths::analytics::CBoostedTreeFactory::estimatedExtraColumns(
+        this->spec().numberColumns(), m_NumberLossParameters);
 }
 
 std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
@@ -235,13 +263,13 @@ const std::string& CDataFrameTrainBoostedTreeRunner::predictionFieldName() const
 
 bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) const {
     if (frame.numberColumns() <= 1) {
-        HANDLE_FATAL(<< "Input error: analysis need at least one regressor.")
+        HANDLE_FATAL(<< "Input error: analysis need at least one regressor.");
         return false;
     }
-    if (frame.numberRows() > maths::CBoostedTreeFactory::maximumNumberRows()) {
+    if (frame.numberRows() > maths::analytics::CBoostedTreeFactory::maximumNumberRows()) {
         HANDLE_FATAL(<< "Input error: no more than "
-                     << maths::CBoostedTreeFactory::maximumNumberRows()
-                     << " are supported. You need to downsample your data.")
+                     << maths::analytics::CBoostedTreeFactory::maximumNumberRows()
+                     << " are supported. You need to downsample your data.");
         return false;
     }
     return true;
@@ -254,23 +282,24 @@ void CDataFrameTrainBoostedTreeRunner::accept(CBoostedTreeInferenceModelBuilder&
     this->boostedTree().accept(builder);
 }
 
-const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
+const maths::analytics::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
     if (m_BoostedTree == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.")
+        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
     }
     return *m_BoostedTree;
 }
 
-maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
+maths::analytics::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
     if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.")
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
     }
     return *m_BoostedTreeFactory;
 }
 
-const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
+const maths::analytics::CBoostedTreeFactory&
+CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
     if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.")
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
     }
     return *m_BoostedTreeFactory;
 }
@@ -282,7 +311,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     if (dependentVariablePos == frame.columnNames().end()) {
         HANDLE_FATAL(<< "Input error: supplied variable to predict '"
                      << m_DependentVariableFieldName << "' is missing from training"
-                     << " data " << core::CContainerPrinter::print(frame.columnNames()))
+                     << " data " << core::CContainerPrinter::print(frame.columnNames()));
         return;
     }
 
@@ -296,9 +325,8 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     std::size_t dependentVariableColumn(dependentVariablePos -
                                         frame.columnNames().begin());
 
-    // Create restore searcher and restore in a scope
-    // so that the restore searcher gets destructed
-    // and performs any cleanup necessary.
+    // Create restore searcher and restore in a scope so that the restore searcher
+    // gets destructed and performs any cleanup necessary.
     {
         auto restoreSearcher{this->spec().restoreSearcher()};
         bool treeRestored{false};
@@ -340,7 +368,7 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
             LOG_ERROR(<< "State restoration search returned failed stream");
             return false;
         }
-        m_BoostedTree = maths::CBoostedTreeFactory::constructFromString(*inputStream)
+        m_BoostedTree = maths::analytics::CBoostedTreeFactory::constructFromString(*inputStream)
                             .analysisInstrumentation(m_Instrumentation)
                             .trainingStateCallback(this->statePersister())
                             .restoreFor(frame, dependentVariableColumn);
@@ -384,8 +412,10 @@ const std::string CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE{"et
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
+const std::string CDataFrameTrainBoostedTreeRunner::MAX_DEPLOYED_MODEL_SIZE{"max_model_size"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_FOLDS{"num_folds"};
+const std::string CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD{"train_fraction_per_fold"};
 const std::string CDataFrameTrainBoostedTreeRunner::STOP_CROSS_VALIDATION_EARLY{"stop_cross_validation_early"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER{"max_optimization_rounds_per_hyperparameter"};
 const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
@@ -395,7 +425,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME{"fea
 const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
-const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ALLOWED{"early_stopping_allowed"};
+const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"early_stopping_enabled"};
 // clang-format on
 }
 }

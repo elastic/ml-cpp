@@ -1,12 +1,17 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CIntegerTools.h>
+#include <maths/common/CIntegerTools.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
@@ -369,7 +374,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                 }
             }
             core_t::TTime startOfBucket{
-                maths::CIntegerTools::floor(time, testParam.s_BucketLength)};
+                maths::common::CIntegerTools::floor(time, testParam.s_BucketLength)};
             auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
             LOG_DEBUG(<< "# by = " << used.s_ByFields);
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
@@ -422,7 +427,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                 }
             }
             core_t::TTime startOfBucket{
-                maths::CIntegerTools::floor(time, testParam.s_BucketLength)};
+                maths::common::CIntegerTools::floor(time, testParam.s_BucketLength)};
             auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
             LOG_DEBUG(<< "# by = " << used.s_ByFields);
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
@@ -474,7 +479,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
                 }
             }
             core_t::TTime startOfBucket{
-                maths::CIntegerTools::floor(time, testParam.s_BucketLength)};
+                maths::common::CIntegerTools::floor(time, testParam.s_BucketLength)};
             auto used = limits.resourceMonitor().createMemoryUsageReport(startOfBucket);
             LOG_DEBUG(<< "# over = " << used.s_OverFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);

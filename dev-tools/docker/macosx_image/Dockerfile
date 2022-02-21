@@ -1,7 +1,12 @@
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 FROM ubuntu:20.04
@@ -26,7 +31,7 @@ RUN \
 RUN \
   mkdir -p /usr/local/sysroot-x86_64-apple-macosx10.14/usr && \
   cd /usr/local/sysroot-x86_64-apple-macosx10.14/usr && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-x86_64-apple-macosx10.14-1.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-x86_64-apple-macosx10.14-5.tar.bz2 | tar jxf - && \
   wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/xcode-x86_64-apple-macosx10.14-1.tar.bz2 | tar jxf - && \
   wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/sdk-x86_64-apple-macosx10.14-1.tar.bz2 | tar jxf -
 

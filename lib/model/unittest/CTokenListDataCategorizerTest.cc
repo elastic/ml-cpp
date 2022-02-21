@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -32,12 +37,14 @@ using TTokenListDataCategorizerKeepsFields =
                                          true,  // Underscores
                                          true,  // Dots
                                          true,  // Dashes
+                                         true,  // Forward slashes
                                          true,  // Ignore leading digit
                                          true,  // Ignore hex
                                          true,  // Ignore date words
                                          false, // Ignore field names
                                          2,     // Min dictionary word length
-                                         ml::core::CWordDictionary::TWeightVerbs5Other2>;
+                                         true,  // Truncate at newline
+                                         ml::core::CWordDictionary::TWeightVerbs5Other2AdjacentBoost6>;
 
 const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr NO_REVERSE_SEARCH_CREATOR;
 
@@ -61,16 +68,6 @@ void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields&
 
 class CTestFixture {
 public:
-    CTestFixture() {
-        // Enable trace level logging for these unit tests
-        ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Trace);
-    }
-
-    ~CTestFixture() {
-        // Revert to debug level logging for any subsequent unit tests
-        ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
-    }
-
     std::string makeUniqueToken() {
         std::string token;
         for (std::uint32_t workSeed = ++m_Seed; workSeed > 0; workSeed /= 20) {
@@ -184,7 +181,7 @@ BOOST_FIXTURE_TEST_CASE(testProxyData, CTestFixture) {
                                                     " [1111529792] INFO  session <45409105041220090733@192.168.251.123> - ----------------- PROXY "
                                                     "Session DESTROYED --------------------",
                                                     500));
-    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{5},
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{6},
                         categorizer.computeCategory(false,
                                                     " [1094662464] INFO  session <ch6z1bho8xeprb3z4ty604iktl6c@dave.proxy.uk> - ----------------- "
                                                     "PROXY Session DESTROYED --------------------",
@@ -255,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE(testBrokerageData, CTestFixture) {
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{3},
                         categorizer.computeCategory(
                             false,
-                            "AUDIT  ; tomcat-http--39; ee256201da7c0c11d6b90f9bc8b54aaa77; REQ4e42023b0a022925200027180002aa33; "
+                            "AUDIT  ; tomcat-http--38; ee256201da7c0c11d6b90f9bc8b54aaa77; REQ4e42023b0a022925200027180002aa33; "
                             "applnx711.elastic.co; ; Request Complete: /mlgw/mlb/ofpositions/brokerageAccountPositionsIframe "
                             "[T=90ms,CacheStore-GetAttribute=5,MAUI-ECAPPOS=50,RR-QUOTE_TRANSACTION=11]",
                             500));
@@ -430,6 +427,42 @@ BOOST_FIXTURE_TEST_CASE(testJavaGcData, CTestFixture) {
                                                     106));
 
     checkMemoryUsageInstrumentation(categorizer);
+}
+
+BOOST_FIXTURE_TEST_CASE(testPathologicalApmMessage, CTestFixture) {
+    const std::string apmMessage1{
+        "a client request body is buffered to a temporary file /tmp/client-body/0000021894, client: 10.8.0.12, server: apm.35.205.226.121.ip.es.io, request: \"POST /intake/v2/events HTTP/1.1\", host: \"apm.35.205.226.121.ip.es.io\"\n"
+        "10.8.0.12 - - [29/Nov/2020:21:34:55 +0000] \"POST /intake/v2/events HTTP/1.1\" 202 0 \"-\" \"elasticapm-dotnet/1.5.1 System.Net.Http/4.6.28208.02 .NET_Core/2.2.8\" 27821 0.002 [default-apm-apm-server-8200] [] 10.8.1.19:8200 0 0.001 202 f961c776ff732f5c8337530aa22c7216\n"
+        "10.8.0.14 - - [29/Nov/2020:21:34:56 +0000] \"POST /intake/v2/events HTTP/1.1\" 202 0 \"-\" \"elasticapm-python/5.10.0\" 3594 0.002 [default-apm-apm-server-8200] [] 10.8.1.18:8200 0 0.001 202 61feb8fb9232b1ebe54b588b95771ce4\n"
+        "10.8.4.90 - - [29/Nov/2020:21:34:56 +0000] \"OPTIONS /intake/v2/rum/events HTTP/2.0\" 200 0 \"http://opbeans-frontend:3000/dashboard\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/3.3.1 Chrome/61.0.3163.100 Electron/2.0.18 Safari/537.36\" 292 0.001 [default-apm-apm-server-8200] [] 10.8.1.19:8200 0 0.000 200 5fbe8cd4d217b932def1c17ed381c66b\n"
+        "10.8.4.90 - - [29/Nov/2020:21:34:56 +0000] \"POST /intake/v2/rum/events HTTP/2.0\" 202 0 \"http://opbeans-frontend:3000/dashboard\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/3.3.1 Chrome/61.0.3163.100 Electron/2.0.18 Safari/537.36\" 3004 0.001 [default-apm-apm-server-8200] [] 10.8.1.18:8200 0 0.001 202 4735f571928595744ac6a9545c3ecdf5\n"
+        "10.8.0.11 - - [29/Nov/2020:21:34:56 +0000] \"POST /intake/v2/events HTTP/1.1\" 202 0 \"-\" \"elasticapm-node/3.8.0 elastic-apm-http-client/9.4.2 node/12.20.0\" 4913 10.006 [default-apm-apm-server-8200] [] 10.8.1.18:8200 0 0.002 202 1eac41789ea9a60a8be4e476c54cbbc9\n"
+        "10.8.0.14 - - [29/Nov/2020:21:34:57 +0000] \"POST /intake/v2/events HTTP/1.1\" 202 0 \"-\" \"elasticapm-python/5.10.0\" 1025 0.001 [default-apm-apm-server-8200] [] 10.8.1.18:8200 0 0.001 202 d27088936cadd3b8804b68998a5f94fa"};
+
+    const std::string apmMessage2{
+        "a client request body is buffered to a temporary file /tmp/client-body/0000021895, client: 10.8.0.13, server: apm.35.205.226.121.ip.es.io, request: \"POST /intake/v3/events HTTP/1.1\", host: \"apm.35.205.226.121.ip.es.io\"\n"
+        "10.8.0.12 - - [29/Nov/2020:21:34:55 +0000] \"POST /intake/v3/events HTTP/1.1\" 202 0 \"-\" \"elasticapm-dotnet/1.5.1 System.Net.Http/4.6.28208.02 .NET_Core/2.2.8\" 27821 0.002 [default-apm-apm-server-8200] [] 10.8.1.19:8200 0 0.001 202 f961c776ff732f5c8337530aa22c7216\n"
+        "10.8.0.14 - - [29/Nov/2020:21:34:56 +0000] \"POST /intake/v3/events HTTP/1.1\" 202 0 \"-\" \"elasticapm-python/5.10.0\" 3594 0.002 [default-apm-apm-server-8200] [] 10.8.1.18:8200 0 0.001 202 61feb8fb9232b1ebe54b588b95771ce4\n"
+        "10.8.4.90 - - [29/Nov/2020:21:34:56 +0000] \"OPTIONS /intake/v3/rum/events HTTP/2.0\" 200 0 \"http://opbeans-frontend:3000/dashboard\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/3.3.1 Chrome/61.0.3163.100 Electron/2.0.18 Safari/537.36\" 292 0.001 [default-apm-apm-server-8200] [] 10.8.1.19:8200 0 0.000 200 5fbe8cd4d217b932def1c17ed381c66b\n"
+        "10.8.4.90 - - [29/Nov/2020:21:34:56 +0000] \"POST /intake/v3/rum/events HTTP/2.0\" 202 0 \"http://opbeans-frontend:3000/dashboard\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Cypress/3.3.1 Chrome/61.0.3163.100 Electron/2.0.18 Safari/537.36\" 3004 0.001 [default-apm-apm-server-8200] [] 10.8.1.18:8200 0 0.001 202 4735f571928595744ac6a9545c3ecdf5\n"
+        "10.8.0.11 - - [29/Nov/2020:21:34:56 +0000] \"POST /intake/v3/events HTTP/1.1\" 202 0 \"-\" \"elasticapm-node/3.8.0 elastic-apm-http-client/9.4.2 node/12.20.0\" 4913 10.006 [default-apm-apm-server-8200] [] 10.8.1.18:8200 0 0.002 202 1eac41789ea9a60a8be4e476c54cbbc9\n"
+        "10.8.0.14 - - [29/Nov/2020:21:34:57 +0000] \"POST /intake/v3/events HTTP/1.1\" 202 0 \"-\" \"elasticapm-python/5.10.0\" 1025 0.001 [default-apm-apm-server-8200] [] 10.8.1.18:8200 0 0.001 202 d27088936cadd3b8804b68998a5f94fa"};
+
+    const std::string apmMessage3{
+        "a client request body is buffered to a temporary file client server request"};
+
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
+
+    BOOST_REQUIRE_EQUAL(
+        ml::model::CLocalCategoryId{1},
+        categorizer.computeCategory(false, apmMessage1, apmMessage1.size()));
+    BOOST_REQUIRE_EQUAL(
+        ml::model::CLocalCategoryId{1},
+        categorizer.computeCategory(false, apmMessage2, apmMessage2.size()));
+    BOOST_REQUIRE_EQUAL(
+        ml::model::CLocalCategoryId{1},
+        categorizer.computeCategory(false, apmMessage3, apmMessage3.size()));
 }
 
 BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {

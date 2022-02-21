@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CXmlParser_h
 #define INCLUDED_ml_core_CXmlParser_h
@@ -79,22 +84,22 @@ public:
 
 public:
     CXmlParser();
-    virtual ~CXmlParser();
+    ~CXmlParser() override;
 
     bool parseFile(const std::string& fileName);
 
     //! Parse XML stored in a string
-    virtual bool parseString(const std::string& xml);
+    bool parseString(const std::string& xml) override;
 
     //! Parse XML stored in a char buffer
-    virtual bool parseBuffer(const char* begin, size_t length);
+    bool parseBuffer(const char* begin, size_t length) override;
 
     //! Parse XML stored in a char buffer that may be modified by the
     //! parsing and will outlive this object
-    virtual bool parseBufferInSitu(char* begin, size_t length);
+    bool parseBufferInSitu(char* begin, size_t length) override;
 
     //! Return the root element name (empty string if not parsed yet)
-    virtual std::string rootElementName() const;
+    std::string rootElementName() const override;
 
     //! Return result from an XPath expression, if the number of matches != 1
     //! return false.
@@ -139,7 +144,7 @@ public:
     void dumpToStdout() const;
 
     //! Dump the document to string
-    virtual std::string dumpToString() const;
+    std::string dumpToString() const override;
 
     //! Convert a node hierarchy to XML.
     //! (This will escape the text correctly.)
@@ -176,30 +181,30 @@ public:
     //! This is much more efficient than making repeated calls to
     //! evalXPathExpression() to retrieve the entire contents of a parsed
     //! document.
-    virtual bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    bool toNodeHierarchy(CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
 
     //! As above, but use a pool to avoid XML node memory allocations where possible
-    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                         CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
 
     //! As above, but use a string cache to avoid string representation memory
     //! allocations where possible
-    virtual bool toNodeHierarchy(CStringCache& cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    bool toNodeHierarchy(CStringCache& cache,
+                         CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
 
     //! As above, but use both a node pool and a string cache
-    virtual bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
-                                 CStringCache& cache,
-                                 CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const;
+    bool toNodeHierarchy(CXmlNodeWithChildrenPool& pool,
+                         CStringCache& cache,
+                         CXmlNodeWithChildren::TXmlNodeWithChildrenP& rootNodePtr) const override;
 
     //! Functions for navigating an XML document without converting it to a
     //! node hierarchy
-    virtual bool navigateRoot();
-    virtual bool navigateFirstChild();
-    virtual bool navigateNext();
-    virtual bool navigateParent();
-    virtual bool currentNodeName(std::string& name);
-    virtual bool currentNodeValue(std::string& value);
+    bool navigateRoot() override;
+    bool navigateFirstChild() override;
+    bool navigateNext() override;
+    bool navigateParent() override;
+    bool currentNodeName(std::string& name) override;
+    bool currentNodeValue(std::string& value) override;
 
     //! Set root name
     bool setRootNode(const std::string&);

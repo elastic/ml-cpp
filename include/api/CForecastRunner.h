@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_api_CForecastRunner_h
@@ -13,7 +18,7 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CModel.h>
+#include <maths/common/CModel.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CForecastDataSink.h>
@@ -129,7 +134,7 @@ public:
     using TForecastModelWrapper = model::CForecastDataSink::CForecastModelWrapper;
     using TForecastResultSeries = model::CForecastDataSink::SForecastResultSeries;
     using TForecastResultSeriesVec = std::vector<TForecastResultSeries>;
-    using TMathsModelPtr = std::unique_ptr<maths::CModel>;
+    using TMathsModelPtr = std::unique_ptr<maths::common::CModel>;
 
     using TStrUSet = boost::unordered_set<std::string>;
 
@@ -206,7 +211,7 @@ private:
         core_t::TTime s_ExpiryTime{0};
 
         //! Forecast bounds
-        double s_BoundsPercentile{maths::CModel::DEFAULT_BOUNDS_PERCENTILE};
+        double s_BoundsPercentile{maths::common::CModel::DEFAULT_BOUNDS_PERCENTILE};
 
         //! total number of models
         std::size_t s_NumberOfModels{0};

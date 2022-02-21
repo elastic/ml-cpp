@@ -1,8 +1,13 @@
 #!/bin/bash
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 # Builds the machine learning C++ code for Linux in a Docker container,
@@ -20,11 +25,17 @@ usage() {
 }
 
 PLATFORMS=
+EXTRACT_FIND="-name boost_test_results.xml"
+EXTRACT_EXPLICIT="build/distributions build/test_status.txt"
 
 while [ -n "$1" ]
 do
 
     case "$1" in
+        --extract-unit-tests)
+            EXTRACT_FIND="$EXTRACT_FIND -o -name ml_test"
+            EXTRACT_EXPLICIT="$EXTRACT_EXPLICIT build/distribution"
+            ;;
         linux|linux_aarch64_native)
             PLATFORMS="$1 $PLATFORMS"
             ;;
@@ -75,12 +86,12 @@ do
     DOCKERFILE="$TOOLS_DIR/docker/${PLATFORM}_tester/Dockerfile"
     TEMP_TAG=`git rev-parse --short=14 HEAD`-$PLATFORM-$$
 
-    prefetch_docker_image "$DOCKERFILE"
-    docker build --no-cache --force-rm -t $TEMP_TAG --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT -f "$DOCKERFILE" .
+    prefetch_docker_base_image "$DOCKERFILE"
+    docker build --no-cache --force-rm -t $TEMP_TAG --build-arg VERSION_QUALIFIER="$VERSION_QUALIFIER" --build-arg SNAPSHOT=$SNAPSHOT --build-arg ML_DEBUG=$ML_DEBUG -f "$DOCKERFILE" .
     # Using tar to copy the build and test artifacts out of the container seems
     # more reliable than docker cp, and also means the files end up with the
     # correct uid/gid
-    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c 'find . -name boost_test_results.xml | xargs tar cf - build/distributions build/test_status.txt' | tar xvf -
+    docker run --rm --workdir=/ml-cpp $TEMP_TAG bash -c "find . $EXTRACT_FIND | xargs tar cf - $EXTRACT_EXPLICIT" | tar xvf -
     docker rmi --force $TEMP_TAG
     # The image build is set to return zero (i.e. succeed as far as Docker is
     # concerned) when the only problem is that the unit tests fail, as this

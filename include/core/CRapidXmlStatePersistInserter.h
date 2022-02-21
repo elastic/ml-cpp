@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CRapidXmlStatePersistInserter_h
 #define INCLUDED_ml_core_CRapidXmlStatePersistInserter_h
@@ -41,7 +46,7 @@ public:
     CRapidXmlStatePersistInserter(const std::string& rootName, const TStrStrMap& rootAttributes);
 
     //! Store a name/value
-    virtual void insertValue(const std::string& name, const std::string& value);
+    void insertValue(const std::string& name, const std::string& value) override;
 
     // Bring extra base class overloads into scope
     using CStatePersistInserter::insertValue;
@@ -54,10 +59,10 @@ public:
 
 protected:
     //! Start a new level with the given name
-    virtual void newLevel(const std::string& name);
+    void newLevel(const std::string& name) override;
 
     //! End the current level
-    virtual void endLevel();
+    void endLevel() override;
 
 private:
     //! Get a const char * version of a string that will last at least as

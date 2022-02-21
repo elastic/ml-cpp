@@ -1,18 +1,24 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CLogger.h>
 #include <core/CSmallVector.h>
 #include <core/Constants.h>
 
-#include <maths/CMultimodalPrior.h>
-#include <maths/CNormalMeanPrecConjugate.h>
-#include <maths/CTimeSeriesDecomposition.h>
-#include <maths/CTimeSeriesModel.h>
-#include <maths/CXMeansOnline1d.h>
+#include <maths/common/CMultimodalPrior.h>
+#include <maths/common/CNormalMeanPrecConjugate.h>
+#include <maths/common/CXMeansOnline1d.h>
+
+#include <maths/time_series/CTimeSeriesDecomposition.h>
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <model/CModelTools.h>
 
@@ -38,29 +44,30 @@ const double MINIMUM_SEASONAL_SCALE{0.25};
 const double DECAY_RATE{0.0005};
 const std::size_t TAG{0u};
 
-maths::CModelParams params(core_t::TTime bucketLength) {
+maths::common::CModelParams params(core_t::TTime bucketLength) {
     using TTimeDoubleMap = std::map<core_t::TTime, double>;
     static TTimeDoubleMap learnRates;
     learnRates[bucketLength] = static_cast<double>(bucketLength) / 1800.0;
     double minimumSeasonalVarianceScale{MINIMUM_SEASONAL_SCALE};
-    return maths::CModelParams{bucketLength,
-                               learnRates[bucketLength],
-                               DECAY_RATE,
-                               minimumSeasonalVarianceScale,
-                               6 * core::constants::HOUR,
-                               24 * core::constants::HOUR};
+    return maths::common::CModelParams{bucketLength,
+                                       learnRates[bucketLength],
+                                       DECAY_RATE,
+                                       minimumSeasonalVarianceScale,
+                                       6 * core::constants::HOUR,
+                                       24 * core::constants::HOUR};
 }
 
-maths::CNormalMeanPrecConjugate normal() {
-    return maths::CNormalMeanPrecConjugate::nonInformativePrior(
+maths::common::CNormalMeanPrecConjugate normal() {
+    return maths::common::CNormalMeanPrecConjugate::nonInformativePrior(
         maths_t::E_ContinuousData, DECAY_RATE);
 }
 
-maths::CMultimodalPrior multimodal() {
-    maths::CXMeansOnline1d clusterer{maths_t::E_ContinuousData,
-                                     maths::CAvailableModeDistributions::ALL,
-                                     maths_t::E_ClustersFractionWeight, DECAY_RATE};
-    return maths::CMultimodalPrior{maths_t::E_ContinuousData, clusterer, normal(), DECAY_RATE};
+maths::common::CMultimodalPrior multimodal() {
+    maths::common::CXMeansOnline1d clusterer{
+        maths_t::E_ContinuousData, maths::common::CAvailableModeDistributions::ALL,
+        maths_t::E_ClustersFractionWeight, DECAY_RATE};
+    return maths::common::CMultimodalPrior{maths_t::E_ContinuousData, clusterer,
+                                           normal(), DECAY_RATE};
 }
 }
 
@@ -169,12 +176,12 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
     using TTime2Vec1Vec = core::CSmallVector<TTime2Vec, 1>;
     using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
     using TDouble2VecWeightsAryVec = std::vector<maths_t::TDouble2VecWeightsAry>;
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     core_t::TTime bucketLength{1800};
 
-    maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
-    maths::CUnivariateTimeSeriesModel model{
+    maths::time_series::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
+    maths::time_series::CUnivariateTimeSeriesModel model{
         params(bucketLength), 0, trend, multimodal(), nullptr, nullptr, false};
     test::CRandomNumbers rng;
 
@@ -192,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
         samples.insert(samples.end(), samples_[2].begin(), samples_[2].end());
         rng.random_shuffle(samples.begin(), samples.end());
         for (auto sample : samples) {
-            maths::CModelAddSamplesParams params;
+            maths::common::CModelAddSamplesParams params;
             params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
             model.addSamples(
                 params, {core::make_triple(time_, TDouble2Vec(1, sample), TAG)});
@@ -225,14 +232,14 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
         for (auto sample_ : samples) {
             sample[0][0] = sample_;
 
-            maths::CModelProbabilityParams params;
+            maths::common::CModelProbabilityParams params;
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
                 .addWeights(weights[0]);
-            maths::SModelProbabilityResult expectedResult;
+            maths::common::SModelProbabilityResult expectedResult;
             model.probability(params, time, sample, expectedResult);
 
-            maths::SModelProbabilityResult result;
+            maths::common::SModelProbabilityResult result;
             if (cache.lookup(feature, id, sample, result)) {
                 ++hits;
                 error.add(std::fabs(result.s_Probability - expectedResult.s_Probability) /
@@ -250,9 +257,9 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
         }
 
         LOG_DEBUG(<< "hits = " << hits);
-        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
+        LOG_DEBUG(<< "mean error = " << maths::common::CBasicStatistics::mean(error));
         BOOST_TEST_REQUIRE(hits > 19000);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.001);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.001);
     }
 
     LOG_DEBUG(<< "Test Adversary");
@@ -261,16 +268,16 @@ BOOST_AUTO_TEST_CASE(testProbabilityCache) {
         for (auto sample_ : {0.5, 1.4, 23.0, 26.0, 20.0}) {
             sample[0][0] = sample_;
 
-            maths::CModelProbabilityParams params;
+            maths::common::CModelProbabilityParams params;
             params.addCalculation(maths_t::E_TwoSided)
                 .seasonalConfidenceInterval(0.0)
                 .addWeights(weights[0]);
-            maths::SModelProbabilityResult expectedResult;
+            maths::common::SModelProbabilityResult expectedResult;
             model.probability(params, time, sample, expectedResult);
             LOG_DEBUG(<< "probability = " << expectedResult.s_Probability
                       << ", tail = " << expectedResult.s_Tail);
 
-            maths::SModelProbabilityResult result;
+            maths::common::SModelProbabilityResult result;
             if (cache.lookup(feature, id, sample, result)) {
                 // Shouldn't have any cache hits.
                 BOOST_TEST_REQUIRE(false);

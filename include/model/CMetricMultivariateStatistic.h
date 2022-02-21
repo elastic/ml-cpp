@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_CMetricMultivariateStatistic_h
@@ -12,7 +17,7 @@
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
 
-#include <maths/CChecksum.h>
+#include <maths/common/CChecksum.h>
 
 #include <model/CMetricStatisticWrappers.h>
 
@@ -35,7 +40,7 @@ namespace model {
 //!   -# Member function void add(double value, unsigned int count)
 //!   -# Implementations for every function in CMetricStatisticsWrapper
 //!   -# Member operator +=
-//!   -# Supported by maths::CChecksum::calculate
+//!   -# Supported by maths::common::CChecksum::calculate
 //!   -# Supported by core::CMemoryDebug::dynamicSize
 //!   -# Supported by core::CMemory::dynamicSize
 //!   -# Have overload of operator<<
@@ -52,14 +57,14 @@ public:
 
     //! Persist to a state document.
     void persist(core::CStatePersistInserter& inserter) const {
-        for (std::size_t i = 0u; i < m_Values.size(); ++i) {
+        for (std::size_t i = 0; i < m_Values.size(); ++i) {
             CMetricStatisticWrappers::persist(m_Values[i], VALUE_TAG, inserter);
         }
     }
 
     //! Restore from the supplied state document traverser.
     bool restore(core::CStateRestoreTraverser& traverser) {
-        std::size_t i = 0u;
+        std::size_t i = 0;
         do {
             const std::string& name = traverser.name();
             if (name == VALUE_TAG) {
@@ -83,7 +88,7 @@ public:
                       << m_Values.size());
             return;
         }
-        for (std::size_t i = 0u; i < value.size(); ++i) {
+        for (std::size_t i = 0; i < value.size(); ++i) {
             m_Values[i].add(value[i], count);
         }
     }
@@ -92,12 +97,12 @@ public:
     TDouble1Vec value() const {
         std::size_t dimension = m_Values.size();
         TDouble1Vec result(dimension);
-        for (std::size_t i = 0u; i < dimension; ++i) {
+        for (std::size_t i = 0; i < dimension; ++i) {
             TDouble1Vec vi = CMetricStatisticWrappers::value(m_Values[i]);
             if (vi.size() > 1) {
                 result.resize(vi.size() * dimension);
             }
-            for (std::size_t j = 0u; j < vi.size(); ++j) {
+            for (std::size_t j = 0; j < vi.size(); ++j) {
                 result[i + j * dimension] = vi[j];
             }
         }
@@ -109,12 +114,12 @@ public:
     TDouble1Vec influencerValue() const {
         std::size_t dimension = m_Values.size();
         TDouble1Vec result(dimension);
-        for (std::size_t i = 0u; i < dimension; ++i) {
+        for (std::size_t i = 0; i < dimension; ++i) {
             TDouble1Vec vi = CMetricStatisticWrappers::influencerValue(m_Values[i]);
             if (vi.size() > 1) {
                 result.resize(vi.size() * dimension);
             }
-            for (std::size_t j = 0u; j < vi.size(); ++j) {
+            for (std::size_t j = 0; j < vi.size(); ++j) {
                 result[i + j * dimension] = vi[j];
             }
         }
@@ -128,7 +133,7 @@ public:
 
     //! Combine two partial statistics.
     const CMetricMultivariateStatistic& operator+=(const CMetricMultivariateStatistic& rhs) {
-        for (std::size_t i = 0u; i < m_Values.size(); ++i) {
+        for (std::size_t i = 0; i < m_Values.size(); ++i) {
             m_Values[i] += rhs.m_Values[i];
         }
         return *this;
@@ -136,7 +141,7 @@ public:
 
     //! Get the checksum of the partial statistic
     uint64_t checksum(uint64_t seed) const {
-        return maths::CChecksum::calculate(seed, m_Values);
+        return maths::common::CChecksum::calculate(seed, m_Values);
     }
 
     //! Debug the memory used by the statistic.

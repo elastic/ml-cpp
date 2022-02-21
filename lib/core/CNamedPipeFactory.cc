@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CNamedPipeFactory.h>
 
@@ -55,7 +60,7 @@ const bool SIGPIPE_IGNORED{ignoreSigPipe()};
 //! be a fatal error (see https://svn.boost.org/trac10/ticket/4913).
 //!
 //! This class is a reimplementation of the Sink concept (see
-//! http://www.boost.org/doc/libs/1_71_0/libs/iostreams/doc/concepts/sink.html)
+//! http://www.boost.org/doc/libs/1_77_0/libs/iostreams/doc/concepts/sink.html)
 //! that will retry writes that get interrupted.
 //!
 class CRetryingFileDescriptorSink : private boost::iostreams::file_descriptor {
@@ -240,10 +245,6 @@ CNamedPipeFactory::initPipeHandle(const std::string& fileName,
             return -1;
         }
         madeFifo = true;
-    }
-
-    if (isCancelled.load()) {
-        return -1;
     }
 
     // The open call here will block if there is no other connection to the

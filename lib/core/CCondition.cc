@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CCondition.h>
 
@@ -94,7 +99,7 @@ bool CCondition::convert(uint32_t t, timespec& tm) {
         uint32_t s((remainder * 1000U) + static_cast<uint32_t>(now.tv_usec));
 
         tm.tv_sec = tm.tv_sec + (s / 1000000U);
-        tm.tv_nsec = (s % 1000000U) * 1000U;
+        tm.tv_nsec = (s % 1000000U) * 1000;
     }
 
     return true;

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -11,10 +16,11 @@
 #include <core/CStreamUtils.h>
 #include <core/Constants.h>
 
-#include <maths/CMultivariatePrior.h>
-#include <maths/CTimeSeriesModel.h>
-#include <maths/CTools.h>
-#include <maths/Constants.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/CTools.h>
+#include <maths/common/Constants.h>
+
+#include <maths/time_series/CTimeSeriesModel.h>
 
 #include <core/CRegex.h>
 #include <model/CCountingModelFactory.h>
@@ -168,8 +174,8 @@ CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig()
       m_NormalizedScoreKnotPoints(std::begin(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS),
                                   std::end(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS)),
       m_DetectionRules(EMPTY_RULES_MAP), m_ScheduledEvents(EMPTY_EVENTS) {
-    for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
-        for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
+    for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+        for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
             m_AggregationStyleParams[i][j] = DEFAULT_AGGREGATION_STYLE_PARAMS[i][j];
         }
     }
@@ -245,12 +251,13 @@ bool CAnomalyDetectorModelConfig::aggregationStyleParams(model_t::EAggregationSt
 }
 
 void CAnomalyDetectorModelConfig::maximumAnomalousProbability(double probability) {
-    double minimum = 100 * maths::MINUSCULE_PROBABILITY;
+    double minimum = 100 * maths::common::MINUSCULE_PROBABILITY;
     if (probability < minimum || probability > 1.0) {
         LOG_INFO(<< "Maximum anomalous probability " << probability
                  << " out of range [" << minimum << "," << 1.0 << "] truncating");
     }
-    m_MaximumAnomalousProbability = maths::CTools::truncate(probability, minimum, 1.0);
+    m_MaximumAnomalousProbability =
+        maths::common::CTools::truncate(probability, minimum, 1.0);
 }
 
 bool CAnomalyDetectorModelConfig::noisePercentile(double percentile) {
@@ -284,7 +291,7 @@ bool CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(const TDoubleDoubleP
         LOG_ERROR(<< "Last knot point must be (100,100)");
         return false;
     }
-    for (std::size_t i = 0u; i < points.size(); i += 2) {
+    for (std::size_t i = 0; i < points.size(); i += 2) {
         if (points[i].first < 0.0 || points[i].first > 100.0) {
             LOG_ERROR(<< "Unexpected value " << points[i].first << " for percentile");
             return false;
@@ -294,12 +301,14 @@ bool CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(const TDoubleDoubleP
             return false;
         }
     }
-    if (!std::is_sorted(points.begin(), points.end(), maths::COrderings::SFirstLess())) {
+    if (!std::is_sorted(points.begin(), points.end(),
+                        maths::common::COrderings::SFirstLess())) {
         LOG_ERROR(<< "Percentiles must be monotonic increasing "
                   << core::CContainerPrinter::print(points));
         return false;
     }
-    if (!std::is_sorted(points.begin(), points.end(), maths::COrderings::SSecondLess())) {
+    if (!std::is_sorted(points.begin(), points.end(),
+                        maths::common::COrderings::SSecondLess())) {
         LOG_ERROR(<< "Scores must be monotonic increasing "
                   << core::CContainerPrinter::print(points));
         return false;
@@ -378,7 +387,7 @@ void CAnomalyDetectorModelConfig::configureModelPlot(bool modelPlotEnabled,
     m_ModelPlotEnabled = modelPlotEnabled;
 
     if (m_ModelPlotEnabled) {
-        m_ModelPlotBoundsPercentile = maths::CModel::DEFAULT_BOUNDS_PERCENTILE;
+        m_ModelPlotBoundsPercentile = maths::common::CModel::DEFAULT_BOUNDS_PERCENTILE;
     }
 
     m_ModelPlotAnnotationsEnabled = annotationsEnabled;
@@ -525,7 +534,7 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
     // Simple state machine to deduce the factory type from
     // a collection of features.
     EFactoryType factory = E_UnknownFactory;
-    for (std::size_t i = 0u; i < features.size(); ++i) {
+    for (std::size_t i = 0; i < features.size(); ++i) {
         switch (factory) {
         case E_EventRateFactory:
             switch (model_t::analysisCategory(features[i])) {
@@ -692,6 +701,10 @@ core_t::TTime CAnomalyDetectorModelConfig::bucketLength() const {
     return m_BucketLength;
 }
 
+core_t::TTime CAnomalyDetectorModelConfig::modelPruneWindow() const {
+    return m_ModelPruneWindow;
+}
+
 core_t::TTime CAnomalyDetectorModelConfig::latency() const {
     return m_BucketLength * m_Factories.begin()->second->modelParams().s_LatencyBuckets;
 }
@@ -756,6 +769,10 @@ void CAnomalyDetectorModelConfig::detectionRules(TIntDetectionRuleVecUMapCRef de
 
 void CAnomalyDetectorModelConfig::scheduledEvents(TStrDetectionRulePrVecCRef scheduledEvents) {
     m_ScheduledEvents = scheduledEvents;
+}
+
+void CAnomalyDetectorModelConfig::modelPruneWindow(core_t::TTime modelPruneWindow) {
+    m_ModelPruneWindow = modelPruneWindow;
 }
 
 core_t::TTime CAnomalyDetectorModelConfig::samplingAgeCutoff() const {
@@ -938,8 +955,8 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (std::size_t j = 0u, l = 0u; j < model_t::NUMBER_AGGREGATION_STYLES; ++j) {
-                for (std::size_t k = 0u; k < model_t::NUMBER_AGGREGATION_PARAMS; ++k, ++l) {
+            for (std::size_t j = 0u, l = 0; j < model_t::NUMBER_AGGREGATION_STYLES; ++j) {
+                for (std::size_t k = 0; k < model_t::NUMBER_AGGREGATION_PARAMS; ++k, ++l) {
                     double value;
                     if (core::CStringUtils::stringToType(strings[l], value) == false) {
                         LOG_ERROR(<< "Unexpected value " << strings[l]
@@ -997,7 +1014,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             TDoubleDoublePrVec points;
             points.reserve(strings.size() / 2 + 2);
             points.emplace_back(0.0, 0.0);
-            for (std::size_t j = 0u; j < strings.size(); j += 2) {
+            for (std::size_t j = 0; j < strings.size(); j += 2) {
                 double rate;
                 double score;
                 if (core::CStringUtils::stringToType(strings[j], rate) == false) {

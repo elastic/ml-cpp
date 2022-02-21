@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CHashing.h>
@@ -97,7 +102,7 @@ uint32_t CHashing::CUniversalHash::CUInt32VecHash::b() const {
 std::string CHashing::CUniversalHash::CUInt32VecHash::print() const {
     std::ostringstream result;
     result << "\"((" << m_A[0] << "* x0";
-    for (std::size_t i = 1u; i < m_A.size(); ++i) {
+    for (std::size_t i = 1; i < m_A.size(); ++i) {
         result << " + " << m_A[i] << "* x" << i;
     }
     result << ") mod " << BIG_PRIME << ") mod " << m_M << "\"";
@@ -195,10 +200,10 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32
         TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(a), k,
                         std::bind(uniform1, std::ref(ms_Generator)));
-        for (std::size_t i = 0u; i < a.size(); ++i) {
+        for (std::size_t i = 0; i < a.size(); ++i) {
             if (a[i] == 0) {
                 LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
-                a[i] = 1u;
+                a[i] = 1;
             }
         }
 
@@ -208,7 +213,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32
     }
 
     result.reserve(k);
-    for (std::size_t i = 0u; i < k; ++i) {
+    for (std::size_t i = 0; i < k; ++i) {
         result.push_back(CUInt32Hash(m, a[i], b[i]));
     }
 }
@@ -225,10 +230,10 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
         TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(a), k,
                         std::bind(uniform1, std::ref(ms_Generator)));
-        for (std::size_t i = 0u; i < a.size(); ++i) {
+        for (std::size_t i = 0; i < a.size(); ++i) {
             if (a[i] == 0) {
                 LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
-                a[i] = 1u;
+                a[i] = 1;
             }
         }
 
@@ -238,7 +243,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
     }
 
     result.reserve(k);
-    for (std::size_t i = 0u; i < k; ++i) {
+    for (std::size_t i = 0; i < k; ++i) {
         result.push_back(CUInt32UnrestrictedHash(a[i], b[i]));
     }
 }
@@ -257,16 +262,16 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
     {
         CScopedFastLock scopedLock(ms_Mutex);
 
-        for (std::size_t i = 0u; i < k; ++i) {
+        for (std::size_t i = 0; i < k; ++i) {
             a.push_back(TUInt32Vec());
             a.back().reserve(n);
             TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
             std::generate_n(std::back_inserter(a.back()), n,
                             std::bind(uniform1, std::ref(ms_Generator)));
-            for (std::size_t j = 0u; j < a.back().size(); ++j) {
+            for (std::size_t j = 0; j < a.back().size(); ++j) {
                 if ((a.back())[j] == 0) {
                     LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
-                    (a.back())[j] = 1u;
+                    (a.back())[j] = 1;
                 }
             }
         }
@@ -277,7 +282,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
     }
 
     result.reserve(k);
-    for (std::size_t i = 0u; i < k; ++i) {
+    for (std::size_t i = 0; i < k; ++i) {
         result.push_back(CUInt32VecHash(m, a[i], b[i]));
     }
 }

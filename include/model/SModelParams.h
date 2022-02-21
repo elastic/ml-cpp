@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_model_SModelParams_h
@@ -10,7 +15,7 @@
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
 
-#include <maths/MathsTypes.h>
+#include <maths/common/MathsTypes.h>
 
 #include <model/CDetectionRule.h>
 #include <model/ImportExport.h>
@@ -22,8 +27,10 @@
 
 namespace ml {
 namespace maths {
+namespace common {
 struct SDistributionRestoreParams;
 struct STimeSeriesDecompositionRestoreParams;
+}
 }
 namespace model {
 //! \brief Wraps up model global parameters.
@@ -53,11 +60,12 @@ struct MODEL_EXPORT SModelParams {
     double minimumCategoryCount() const;
 
     //! Get the parameters supplied when restoring time series decompositions.
-    maths::STimeSeriesDecompositionRestoreParams
+    maths::common::STimeSeriesDecompositionRestoreParams
     decompositionRestoreParams(maths_t::EDataType dataType) const;
 
     //! Get the parameters supplied when restoring distribution models.
-    maths::SDistributionRestoreParams distributionRestoreParams(maths_t::EDataType dataType) const;
+    maths::common::SDistributionRestoreParams
+    distributionRestoreParams(maths_t::EDataType dataType) const;
 
     //! Get a checksum for an object of this class.
     uint64_t checksum(uint64_t seed) const;

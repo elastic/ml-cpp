@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CGathererTools.h>
@@ -13,13 +18,13 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
-#include <maths/CBasicStatistics.h>
-#include <maths/CChecksum.h>
-#include <maths/CIntegerTools.h>
-#include <maths/CMultinomialConjugate.h>
-#include <maths/CMultivariatePrior.h>
-#include <maths/CTools.h>
-#include <maths/Constants.h>
+#include <maths/common/CBasicStatistics.h>
+#include <maths/common/CChecksum.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CMultinomialConjugate.h>
+#include <maths/common/CMultivariatePrior.h>
+#include <maths/common/CTools.h>
+#include <maths/common/Constants.h>
 
 #include <model/CStringStore.h>
 
@@ -72,8 +77,8 @@ struct SInfluencerSumSerializer {
         for (TStoredStringPtrDoubleUMapCItr i = map.begin(); i != map.end(); ++i) {
             ordered.emplace_back(TStrCRef(*i->first), i->second);
         }
-        std::sort(ordered.begin(), ordered.end(), maths::COrderings::SFirstLess());
-        for (std::size_t i = 0u; i < ordered.size(); ++i) {
+        std::sort(ordered.begin(), ordered.end(), maths::common::COrderings::SFirstLess());
+        for (std::size_t i = 0; i < ordered.size(); ++i) {
             inserter.insertValue(SUM_MAP_KEY_TAG, ordered[i].first);
             inserter.insertValue(SUM_MAP_VALUE_TAG, ordered[i].second,
                                  core::CIEEE754::E_SinglePrecision);
@@ -106,8 +111,8 @@ CGathererTools::CArrivalTimeGatherer::CArrivalTimeGatherer()
 }
 
 CGathererTools::TOptionalDouble CGathererTools::CArrivalTimeGatherer::featureData() const {
-    return maths::CBasicStatistics::count(m_Value) > 0.0
-               ? TOptionalDouble(maths::CBasicStatistics::mean(m_Value))
+    return maths::common::CBasicStatistics::count(m_Value) > 0.0
+               ? TOptionalDouble(maths::common::CBasicStatistics::mean(m_Value))
                : TOptionalDouble();
 }
 
@@ -137,13 +142,13 @@ bool CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser(core::CStateRe
 }
 
 uint64_t CGathererTools::CArrivalTimeGatherer::checksum() const {
-    return maths::CChecksum::calculate(static_cast<uint64_t>(m_LastTime), m_Value);
+    return maths::common::CChecksum::calculate(static_cast<uint64_t>(m_LastTime), m_Value);
 }
 
 std::string CGathererTools::CArrivalTimeGatherer::print() const {
     std::ostringstream o;
-    if (maths::CBasicStatistics::count(m_Value) > 0.0) {
-        o << maths::CBasicStatistics::mean(m_Value);
+    if (maths::common::CBasicStatistics::count(m_Value) > 0.0) {
+        o << maths::common::CBasicStatistics::mean(m_Value);
     } else {
         o << "-";
     }
@@ -188,7 +193,7 @@ CGathererTools::CSumGatherer::featureData(core_t::TTime time,
         sum = &emptySample;
     }
     TStrCRefDouble1VecDoublePrPrVecVec influenceValues(m_InfluencerBucketSums.size());
-    for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerBucketSums.size(); ++i) {
         const TStoredStringPtrDoubleUMap& influencerStats =
             m_InfluencerBucketSums[i].get(time);
         influenceValues[i].reserve(influencerStats.size());
@@ -205,7 +210,7 @@ CGathererTools::CSumGatherer::featureData(core_t::TTime time,
                 (*sum)[0].count(),
                 influenceValues,
                 m_Classifier.isInteger() &&
-                    maths::CIntegerTools::isInteger(((*sum)[0].value())[0]),
+                    maths::common::CIntegerTools::isInteger(((*sum)[0].value())[0]),
                 m_Classifier.isNonNegative(),
                 *sum};
     }
@@ -222,14 +227,14 @@ void CGathererTools::CSumGatherer::startNewBucket(core_t::TTime time) {
         m_Classifier.add(model_t::E_IndividualSumByBucketAndPerson, sum[0].value(), 1);
     }
     m_BucketSums.push(TSampleVec(), time);
-    for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerBucketSums.size(); ++i) {
         m_InfluencerBucketSums[i].push(TStoredStringPtrDoubleUMap(1), time);
     }
 }
 
 void CGathererTools::CSumGatherer::resetBucket(core_t::TTime bucketStart) {
     m_BucketSums.get(bucketStart).clear();
-    for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerBucketSums.size(); ++i) {
         m_InfluencerBucketSums[i].get(bucketStart).clear();
     }
 }
@@ -244,7 +249,7 @@ void CGathererTools::CSumGatherer::acceptPersistInserter(core::CStatePersistInse
             std::bind<void>(TSampleVecQueue::CSerializer<SSumSerializer>(),
                             std::cref(m_BucketSums), std::placeholders::_1));
     }
-    for (std::size_t i = 0u; i < m_InfluencerBucketSums.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerBucketSums.size(); ++i) {
         inserter.insertLevel(
             INFLUENCER_BUCKET_SUM_QUEUE_TAG,
             std::bind<void>(
@@ -254,7 +259,7 @@ void CGathererTools::CSumGatherer::acceptPersistInserter(core::CStatePersistInse
 }
 
 bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t i = 0u;
+    std::size_t i = 0;
     do {
         const std::string& name = traverser.name();
         if (name == CLASSIFIER_TAG) {
@@ -288,9 +293,9 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
 
 uint64_t CGathererTools::CSumGatherer::checksum() const {
     uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
-    seed = maths::CChecksum::calculate(seed, m_Classifier.isNonNegative());
-    seed = maths::CChecksum::calculate(seed, m_BucketSums);
-    return maths::CChecksum::calculate(seed, m_InfluencerBucketSums);
+    seed = maths::common::CChecksum::calculate(seed, m_Classifier.isNonNegative());
+    seed = maths::common::CChecksum::calculate(seed, m_BucketSums);
+    return maths::common::CChecksum::calculate(seed, m_InfluencerBucketSums);
 }
 
 void CGathererTools::CSumGatherer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {

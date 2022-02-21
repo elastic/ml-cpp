@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <core/CJsonStateRestoreTraverser.h>
 
@@ -24,11 +29,15 @@ CJsonStateRestoreTraverser::CJsonStateRestoreTraverser(std::istream& inputStream
 }
 
 bool CJsonStateRestoreTraverser::isEof() const {
-    // Rapid JSON istreamwrapper returns \0 when it reaches EOF
+    // CRapidJsonUnbufferedIStreamWrapper returns \0 when it reaches EOF
     return m_ReadStream.Peek() == '\0';
 }
 
 bool CJsonStateRestoreTraverser::next() {
+    if (haveBadState()) {
+        return false;
+    }
+
     if (!m_Started) {
         if (this->start() == false) {
             return false;
@@ -82,6 +91,10 @@ bool CJsonStateRestoreTraverser::hasSubLevel() const {
 }
 
 const std::string& CJsonStateRestoreTraverser::name() const {
+    if (haveBadState()) {
+        return EMPTY_STRING;
+    }
+
     if (!m_Started) {
         if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return EMPTY_STRING;
@@ -92,6 +105,10 @@ const std::string& CJsonStateRestoreTraverser::name() const {
 }
 
 const std::string& CJsonStateRestoreTraverser::value() const {
+    if (haveBadState()) {
+        return EMPTY_STRING;
+    }
+
     if (!m_Started) {
         if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return EMPTY_STRING;
@@ -262,6 +279,10 @@ bool CJsonStateRestoreTraverser::start() {
 }
 
 bool CJsonStateRestoreTraverser::advance() {
+    if (haveBadState()) {
+        return false;
+    }
+
     bool keepGoing(true);
 
     while (keepGoing) {

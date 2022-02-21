@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #ifndef INCLUDED_ml_core_CFastMutex_h
 #define INCLUDED_ml_core_CFastMutex_h
@@ -12,7 +17,7 @@
 
 #ifndef Windows
 #ifdef MacOSX
-#include <libkern/OSAtomic.h>
+#include <os/lock.h>
 #else
 #include <pthread.h>
 #endif
@@ -40,16 +45,12 @@ namespace core {
 //!
 //! All errors are just warnings - no action taken.
 //!
-//! On Mac OS X, spin locks are also used, which might seem strange
-//! given that Mac OS X will have relatively few available CPU cores
-//! (say 2-4).  However, Mac OS X spinlocks are actually quite clever
-//! about yielding if they don't quickly get a lock, and are hence
-//! more akin to adaptive mutexes than pure spinlocks.  The source
-//! code at confirms this:
-//! http://www.opensource.apple.com/source/Libc/Libc-825.25/x86_64/sys/spinlocks_asm.s
+//! On Mac OS X, spin locks used to be used, but OSSpinLock has now
+//! been tagged as deprecated as of macOS 10.12. Instead, Apple have
+//! provided os_unfair_lock as a replacement (see the documentation here
+//! https://developer.apple.com/documentation/os/1646466-os_unfair_lock_lock)
 //! The other reason is that pthread mutexes are appallingly slow on
-//! Mac OS X so it's easy to massively outperform them - e.g. see:
-//! http://www.mr-edd.co.uk/blog/sad_state_of_osx_pthread_mutex_t
+//! Mac OS X so it's easy to massively outperform them
 //!
 //! On Linux, standard non-recursive mutexes are used, on the
 //! assumption that Linux may have relatively few available CPU
@@ -71,7 +72,7 @@ private:
 #ifdef Windows
     SRWLOCK m_Mutex;
 #elif defined(MacOSX)
-    OSSpinLock m_Mutex;
+    os_unfair_lock m_Mutex;
 #else
     pthread_mutex_t m_Mutex;
 #endif

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <model/CAnomalyDetector.h>
@@ -13,9 +18,9 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 
-#include <maths/CIntegerTools.h>
-#include <maths/COrderings.h>
-#include <maths/CSampling.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/COrderings.h>
+#include <maths/common/CSampling.h>
 
 #include <model/CAnnotation.h>
 #include <model/CAnomalyDetectorModel.h>
@@ -96,7 +101,8 @@ CAnomalyDetector::CAnomalyDetector(CLimits& limits,
                                    core_t::TTime firstTime,
                                    const TModelFactoryCPtr& modelFactory)
     : m_Limits(limits), m_ModelConfig(modelConfig),
-      m_LastBucketEndTime(maths::CIntegerTools::ceil(firstTime, modelConfig.bucketLength())),
+      m_LastBucketEndTime(
+          maths::common::CIntegerTools::ceil(firstTime, modelConfig.bucketLength())),
       m_DataGatherer(makeDataGatherer(modelFactory, m_LastBucketEndTime, partitionFieldValue)),
       m_ModelFactory(modelFactory),
       m_Model(makeModel(modelFactory, m_DataGatherer)), m_IsForPersistence(false) {
@@ -204,7 +210,7 @@ bool CAnomalyDetector::legacyModelEnsembleAcceptRestoreTraverser(const std::stri
         if (name == DATA_GATHERER_TAG) {
             m_DataGatherer.reset(
                 m_ModelFactory->makeDataGatherer(partitionFieldValue, traverser));
-            if (!m_DataGatherer) {
+            if (m_DataGatherer == nullptr || m_DataGatherer->checkInvariants() == false) {
                 LOG_ERROR(<< "Failed to restore the data gatherer from "
                           << traverser.value());
                 return false;
@@ -248,7 +254,7 @@ bool CAnomalyDetector::staticsAcceptRestoreTraverser(core::CStateRestoreTraverse
             }
         } else if (name == SAMPLING_TAG) {
             if (traverser.traverseSubLevel(
-                    &maths::CSampling::staticsAcceptRestoreTraverser) == false) {
+                    &maths::common::CSampling::staticsAcceptRestoreTraverser) == false) {
                 LOG_ERROR(<< "Failed to restore sampling state");
                 return false;
             }
@@ -299,6 +305,19 @@ void CAnomalyDetector::partitionFieldAcceptPersistInserter(core::CStatePersistIn
     inserter.insertValue(PARTITION_FIELD_VALUE_TAG, m_DataGatherer->partitionFieldValue());
 }
 
+bool CAnomalyDetector::shouldPersistDetector() const {
+    // Query the model to determine if it should be persisted.
+    // This may return false if every constituent feature model is effectively
+    // empty, i.e. all the models are stubs due to them being pruned.
+    // If the model should not be persisted neither should the detector.
+    if (m_Model->shouldPersist() == false) {
+        LOG_TRACE(<< "NOT persisting detector \"" << this->description()
+                  << "\" due to all feature models being pruned");
+        return false;
+    }
+    return true;
+}
+
 void CAnomalyDetector::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     // Persist static members only once within the simple count detector
     // and do this first so that other model components can use
@@ -318,7 +337,7 @@ void CAnomalyDetector::acceptPersistInserter(core::CStatePersistInserter& insert
 void CAnomalyDetector::staticsAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(PROGRAM_COUNTERS_TAG,
                          &core::CProgramCounters::staticsAcceptPersistInserter);
-    inserter.insertLevel(SAMPLING_TAG, &maths::CSampling::staticsAcceptPersistInserter);
+    inserter.insertLevel(SAMPLING_TAG, &maths::common::CSampling::staticsAcceptPersistInserter);
 }
 
 void CAnomalyDetector::legacyModelEnsembleAcceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -362,8 +381,8 @@ void CAnomalyDetector::buildResults(core_t::TTime bucketStartTime,
                                     core_t::TTime bucketEndTime,
                                     CHierarchicalResults& results) {
     core_t::TTime bucketLength = m_ModelConfig.bucketLength();
-    bucketStartTime = maths::CIntegerTools::floor(bucketStartTime, bucketLength);
-    bucketEndTime = maths::CIntegerTools::floor(bucketEndTime, bucketLength);
+    bucketStartTime = maths::common::CIntegerTools::floor(bucketStartTime, bucketLength);
+    bucketEndTime = maths::common::CIntegerTools::floor(bucketEndTime, bucketLength);
     if (bucketEndTime <= m_LastBucketEndTime) {
         return;
     }
@@ -485,7 +504,7 @@ CAnomalyDetector::getForecastPrerequisites() const {
         // todo: Add terms filtering here
         if (m_DataGatherer->isPersonActive(pid)) {
             for (auto feature : view->features()) {
-                const maths::CModel* model = view->model(feature, pid);
+                const maths::common::CModel* model = view->model(feature, pid);
 
                 // The model might not exist, e.g. for categorical features.
                 if (model != nullptr) {
@@ -532,7 +551,7 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
             // todo: Add terms filtering here
             if (m_DataGatherer->isPersonActive(pid)) {
                 for (auto feature : view->features()) {
-                    const maths::CModel* model{view->model(feature, pid)};
+                    const maths::common::CModel* model{view->model(feature, pid)};
                     if (model != nullptr && model->isForecastPossible()) {
                         core_t::TTime firstDataTime;
                         core_t::TTime lastDataTime;
@@ -551,7 +570,7 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
             // todo: Add terms filtering here
             if (m_DataGatherer->isPersonActive(pid)) {
                 for (auto feature : view->features()) {
-                    const maths::CModel* model{view->model(feature, pid)};
+                    const maths::common::CModel* model{view->model(feature, pid)};
                     if (model != nullptr && model->isForecastPossible()) {
                         core_t::TTime firstDataTime;
                         core_t::TTime lastDataTime;
@@ -583,6 +602,15 @@ void CAnomalyDetector::buildInterimResults(core_t::TTime bucketStartTime,
 void CAnomalyDetector::pruneModels() {
     // Purge out any ancient models which are effectively dead.
     m_Model->prune(m_Model->defaultPruneWindow());
+}
+
+void CAnomalyDetector::pruneModels(std::size_t buckets) {
+    // Purge out any models that haven't seen activity in the given number of buckets.
+
+    function_t::EFunction function{m_DataGatherer->function()};
+    if (function_t::isAggressivePruningSupported(function)) {
+        m_Model->prune(buckets);
+    }
 }
 
 void CAnomalyDetector::resetBucket(core_t::TTime bucketStart) {

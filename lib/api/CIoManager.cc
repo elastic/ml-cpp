@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 #include <api/CIoManager.h>
 
@@ -35,7 +40,7 @@ bool setUpIStream(const std::string& fileName,
         return stream != nullptr && !stream->bad();
     }
     std::ifstream* fileStream{nullptr};
-    stream.reset(fileStream = new std::ifstream(fileName.c_str()));
+    stream.reset(fileStream = new std::ifstream(fileName, std::ios::binary | std::ios::in));
     return fileStream->is_open();
 }
 
@@ -56,7 +61,7 @@ bool setUpOStream(const std::string& fileName,
         return stream != nullptr && !stream->bad();
     }
     std::ofstream* fileStream{nullptr};
-    stream.reset(fileStream = new std::ofstream(fileName.c_str()));
+    stream.reset(fileStream = new std::ofstream(fileName, std::ios::binary | std::ios::out));
     return fileStream->is_open();
 }
 }

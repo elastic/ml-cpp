@@ -1,13 +1,18 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeRunner_h
 
-#include <maths/CBasicStatistics.h>
+#include <maths/common/CBasicStatistics.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
@@ -23,8 +28,10 @@ namespace maths {
 namespace boosted_tree {
 class CLoss;
 }
+namespace analytics {
 class CBoostedTree;
 class CBoostedTreeFactory;
+}
 }
 namespace api {
 class CDataFrameAnalysisConfigReader;
@@ -46,15 +53,17 @@ public:
     static const std::string SOFT_TREE_DEPTH_LIMIT;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
     static const std::string MAX_TREES;
+    static const std::string MAX_DEPLOYED_MODEL_SIZE;
     static const std::string FEATURE_BAG_FRACTION;
     static const std::string NUM_FOLDS;
+    static const std::string TRAIN_FRACTION_PER_FOLD;
     static const std::string STOP_CROSS_VALIDATION_EARLY;
     static const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
     static const std::string NUM_TOP_FEATURE_IMPORTANCE_VALUES;
     static const std::string TRAINING_PERCENT_FIELD_NAME;
     static const std::string FEATURE_PROCESSORS;
-    static const std::string EARLY_STOPPING_ALLOWED;
+    static const std::string EARLY_STOPPING_ENABLED;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
@@ -72,10 +81,10 @@ public:
     std::size_t dataFrameSliceCapacity() const override;
 
     //! The boosted tree.
-    const maths::CBoostedTree& boostedTree() const;
+    const maths::analytics::CBoostedTree& boostedTree() const;
 
     //! The boosted tree factory.
-    const maths::CBoostedTreeFactory& boostedTreeFactory() const;
+    const maths::analytics::CBoostedTreeFactory& boostedTreeFactory() const;
 
     //! \return Reference to the analysis state.
     const CDataFrameAnalysisInstrumentation& instrumentation() const override;
@@ -83,7 +92,7 @@ public:
     CDataFrameAnalysisInstrumentation& instrumentation() override;
 
 protected:
-    using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
+    using TLossFunctionUPtr = std::unique_ptr<maths::analytics::boosted_tree::CLoss>;
 
 protected:
     CDataFrameTrainBoostedTreeRunner(const CDataFrameAnalysisSpecification& spec,
@@ -97,7 +106,7 @@ protected:
     //! Name of prediction field.
     const std::string& predictionFieldName() const;
     //! The boosted tree factory.
-    maths::CBoostedTreeFactory& boostedTreeFactory();
+    maths::analytics::CBoostedTreeFactory& boostedTreeFactory();
 
     //! Validate if \p frame is suitable for running the analysis on.
     bool validate(const core::CDataFrame& frame) const override;
@@ -106,8 +115,8 @@ protected:
     void accept(CBoostedTreeInferenceModelBuilder& builder) const;
 
 private:
-    using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
-    using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
+    using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::analytics::CBoostedTreeFactory>;
+    using TBoostedTreeUPtr = std::unique_ptr<maths::analytics::CBoostedTree>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
 
 private:
@@ -129,6 +138,7 @@ private:
     rapidjson::Document m_CustomProcessors;
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
+    std::size_t m_NumberLossParameters;
     double m_TrainingPercent;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;

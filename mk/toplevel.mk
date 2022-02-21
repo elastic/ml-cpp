@@ -1,7 +1,12 @@
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 include $(CPP_SRC_HOME)/mk/rules.mk
@@ -14,7 +19,7 @@ include $(CPP_SRC_HOME)/mk/rules.mk
 # - TOP_DIR_MKF_LAST is used to perform actions at this level AFTER
 #   recursing into the sub-directories
 #
-# If $ML_DEBUG is set then the recursion will stop at the first error;
+# If $ML_KEEP_GOING is set then the recursion will stop at the first error;
 # otherwise it will attempt to build every directory even after an earlier
 # one fails.  This latter behaviour is useful during nightly builds as it
 # means each nightly build has a chance to uncover more than one error.

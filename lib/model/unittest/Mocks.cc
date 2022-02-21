@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include "Mocks.h"
@@ -16,6 +21,10 @@ CMockModel::CMockModel(const SModelParams& params,
                        const TFeatureInfluenceCalculatorCPtrPrVecVec& influenceCalculators)
     : CAnomalyDetectorModel(params, dataGatherer, influenceCalculators),
       m_IsPopulation(false), m_InterimBucketCorrector(params.s_BucketLength) {
+}
+
+bool CMockModel::shouldPersist() const {
+    return true;
 }
 
 void CMockModel::persistModelsState(core::CStatePersistInserter& /*inserter*/) const {
@@ -168,7 +177,7 @@ const CInterimBucketCorrector& CMockModel::interimValueCorrector() const {
 void CMockModel::doSkipSampling(core_t::TTime /*startTime*/, core_t::TTime /*endTime*/) {
 }
 
-const maths::CModel* CMockModel::model(std::size_t id) const {
+const maths::common::CModel* CMockModel::model(std::size_t id) const {
     return m_Models[id].get();
 }
 
@@ -204,8 +213,8 @@ CMockModelDetailsView::CMockModelDetailsView(const CMockModel& model)
     : m_Model{&model} {
 }
 
-const maths::CModel* CMockModelDetailsView::model(model_t::EFeature /*feature*/,
-                                                  std::size_t byFieldId) const {
+const maths::common::CModel* CMockModelDetailsView::model(model_t::EFeature /*feature*/,
+                                                          std::size_t byFieldId) const {
     return m_Model->model(byFieldId);
 }
 

@@ -1,8 +1,13 @@
 #!/bin/bash
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 # Runs some Elasticsearch CI tests using C++ artifacts from a local Ivy repo.
@@ -71,11 +76,17 @@ if [ -z "$ES_BUILD_JAVA" ]; then
     exit 1
 fi
 
-# On aarch64 adoptopenjdk is used in place of openjdk,
-# and the CDS archive can cause problems with Gradle
+# On aarch64:
+# - openjdk is built with a 64KB page size
+# - adoptopenjdk is built with a 4KB page size
+# It's necessary to use use the one that matches the page size of the
+# distribution that it's running on, which is:
+# - 4KB for Ubuntu, Debian and SLES
+# - 64KB for RHEL and CentOS
+# There's a link "jdk<version>" pointing to the appropriate JDK on each CI worker,
+# so strip any specifics from what was specified in .ci/java-versions.properties.
 if [ `uname -m` = aarch64 ] ; then
-    export ES_BUILD_JAVA=adopt$ES_BUILD_JAVA
-    export GRADLE_OPTS=-Xshare:off
+    export ES_BUILD_JAVA=$(echo $ES_BUILD_JAVA | sed 's/.*jdk/jdk/')
 fi
 
 echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
@@ -94,5 +105,5 @@ export GIT_COMMIT="$(git rev-parse HEAD)"
 export GIT_PREVIOUS_COMMIT="$GIT_COMMIT"
 
 IVY_REPO_URL="file://$2"
-./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest
-./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}"
+./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
+./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CCompressedDictionary.h>
@@ -36,9 +41,9 @@ BOOST_AUTO_TEST_CASE(testAll) {
     // Don't set this too high as it slows down every build - it can be
     // temporarily set high in uncommitted code for a thorough soak test
     // following changes to the class being tested
-    const std::size_t numberTests = 10u;
-    const std::size_t wordLength = 16u;
-    const std::size_t numberWords = 500000u;
+    const std::size_t numberTests = 10;
+    const std::size_t wordLength = 16;
+    const std::size_t numberWords = 500000;
 
     CRandomNumbers rng;
     TStrVec words;
@@ -46,7 +51,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
     std::string word2("word2");
     std::string word3("word3");
 
-    for (std::size_t i = 0u; i < numberTests; ++i) {
+    for (std::size_t i = 0; i < numberTests; ++i) {
         LOG_DEBUG(<< "Collision test = " << i);
 
         rng.generateWords(wordLength, numberWords, words);
@@ -54,7 +59,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         TDictionary2 dictionary;
 
         TWordUSet uniqueWords;
-        for (std::size_t j = 0u; j < words.size(); ++j) {
+        for (std::size_t j = 0; j < words.size(); ++j) {
             BOOST_TEST_REQUIRE(uniqueWords.insert(dictionary.word(words[j])).second);
             BOOST_TEST_REQUIRE(
                 uniqueWords.insert(dictionary.word(words[j], word2)).second);

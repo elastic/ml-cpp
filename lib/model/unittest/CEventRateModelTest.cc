@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CContainerPrinter.h>
@@ -11,9 +16,9 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CIntegerTools.h>
-#include <maths/CModelWeight.h>
-#include <maths/CPrior.h>
+#include <maths/common/CIntegerTools.h>
+#include <maths/common/CModelWeight.h>
+#include <maths/common/CPrior.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -62,7 +67,7 @@ public:
         uint64_t counts[] = {54, 67, 39, 58, 46, 50, 42,
                              48, 53, 51, 50, 57, 53, 49};
         TUInt64Vec result;
-        for (std::size_t i = 0u; i < copies; ++i) {
+        for (std::size_t i = 0; i < copies; ++i) {
             result.insert(result.end(), std::begin(counts), std::end(counts));
         }
         return result;
@@ -191,7 +196,7 @@ public:
                                                  model_t::E_EventRateOnline, m_Gatherer,
                                                  m_Model, {}, summaryCountField);
 
-        for (std::size_t i = 0u; i < numberPeople; ++i) {
+        for (std::size_t i = 0; i < numberPeople; ++i) {
             BOOST_REQUIRE_EQUAL(
                 i, this->addPerson("p" + core::CStringUtils::typeToString(i + 1), m_Gatherer));
         }
@@ -199,7 +204,8 @@ public:
 
 protected:
     using TDoubleSizeStrTr = core::CTriple<double, std::size_t, std::string>;
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
+    using TMinAccumulator =
+        maths::common::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
     using TMinAccumulatorVec = std::vector<TMinAccumulator>;
 };
 
@@ -214,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
 
     TMathsModelPtr timeseriesModel{m_Factory->defaultFeatureModel(
         model_t::E_IndividualCountByBucketAndPerson, bucketLength, 0.4, true)};
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
+    maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
 
     // Generate some events.
@@ -241,16 +247,16 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
 
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
-        maths::CModelAddSamplesParams params_;
+        maths::common::CModelAddSamplesParams params_;
         params_.integer(true)
             .nonNegative(true)
             .propagationInterval(1.0)
             .trendWeights(weights)
             .priorWeights(weights);
         double sample{static_cast<double>(expectedEventCounts[j])};
-        maths::CModel::TTimeDouble2VecSizeTrVec expectedSamples{
-            core::make_triple((bucketStartTime + bucketEndTime) / 2,
-                              maths::CModel::TDouble2Vec{sample}, std::size_t{0})};
+        maths::common::CModel::TTimeDouble2VecSizeTrVec expectedSamples{core::make_triple(
+            (bucketStartTime + bucketEndTime) / 2,
+            maths::common::CModel::TDouble2Vec{sample}, std::size_t{0})};
         timeseriesModel->addSamples(params_, expectedSamples);
 
         // Test we sample the data correctly.
@@ -309,7 +315,7 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
 
     TMathsModelPtr timeseriesModel{m_Factory->defaultFeatureModel(
         model_t::E_IndividualNonZeroCountByBucketAndPerson, bucketLength, 0.4, true)};
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
+    maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
 
     // Generate some events.
@@ -337,7 +343,7 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
         if (*model->currentBucketCount(0, bucketStartTime) > 0) {
-            maths::CModelAddSamplesParams params_;
+            maths::common::CModelAddSamplesParams params_;
             params_.integer(true)
                 .nonNegative(true)
                 .propagationInterval(1.0)
@@ -346,9 +352,9 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
             double sample{static_cast<double>(model_t::offsetCountToZero(
                 model_t::E_IndividualNonZeroCountByBucketAndPerson,
                 static_cast<double>(expectedEventCounts[j])))};
-            maths::CModel::TTimeDouble2VecSizeTrVec expectedSamples{core::make_triple(
+            maths::common::CModel::TTimeDouble2VecSizeTrVec expectedSamples{core::make_triple(
                 (bucketStartTime + bucketEndTime) / 2,
-                maths::CModel::TDouble2Vec{sample}, std::size_t{0})};
+                maths::common::CModel::TDouble2Vec{sample}, std::size_t{0})};
             timeseriesModel->addSamples(params_, expectedSamples);
 
             // Test we sample the data correctly.
@@ -398,7 +404,7 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
     model->sample(time, time + bucketLength, m_ResourceMonitor);
 
     TDoubleVec probabilities;
-    for (std::size_t pid = 0u; pid < 5; ++pid) {
+    for (std::size_t pid = 0; pid < 5; ++pid) {
         SAnnotatedProbability annotatedProbability;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         BOOST_TEST_REQUIRE(model->computeProbability(
@@ -445,7 +451,7 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculation, CTestFixture) {
     using TDoubleSizeAnotatedProbabilityTr =
         core::CTriple<double, std::size_t, SAnnotatedProbability>;
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<
+    using TMinAccumulator = maths::common::CBasicStatistics::COrderStatisticsHeap<
         TDoubleSizeAnotatedProbabilityTr,
         std::function<bool(const TDoubleSizeAnotatedProbabilityTr&, const TDoubleSizeAnotatedProbabilityTr&)>>;
 
@@ -546,7 +552,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowNonZeroCount, CTestFixtu
     for (auto count : bucketCounts) {
         LOG_DEBUG(<< "Writing " << count << " values");
 
-        for (std::size_t i = 0u; i < count; ++i) {
+        for (std::size_t i = 0; i < count; ++i) {
             this->addArrival(SMessage(time + static_cast<core_t::TTime>(i),
                                       "p1", TOptionalDouble()),
                              m_Gatherer);
@@ -592,7 +598,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighNonZeroCount, CTestFixt
     for (auto count : bucketCounts) {
         LOG_DEBUG(<< "Writing " << count << " values");
 
-        for (std::size_t i = 0u; i < count; ++i) {
+        for (std::size_t i = 0; i < count; ++i) {
             this->addArrival(SMessage(time + static_cast<core_t::TTime>(i),
                                       "p1", TOptionalDouble()),
                              m_Gatherer);
@@ -659,15 +665,15 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                                          TMinAccumulator{2}, TMinAccumulator{2}};
 
         core_t::TTime time{startTime};
-        for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
-            for (std::size_t j = 0u; j < samples[i].size(); ++j) {
+        for (std::size_t i = 0u, anomaly = 0; i < numberBuckets; ++i) {
+            for (std::size_t j = 0; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
                                      core::CStringUtils::typeToString(j + 1);
                 double n = samples[i][j];
                 if (i == anomalyBuckets[anomaly]) {
                     n += anomalies[anomaly][j];
                 }
-                for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k) {
+                for (std::size_t k = 0; k < static_cast<std::size_t>(n); ++k) {
                     this->addArrival(SMessage(time + static_cast<core_t::TTime>(j),
                                               person, TOptionalDouble()),
                                      m_Gatherer);
@@ -678,7 +684,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
             }
             model->sample(time, time + bucketLength, m_ResourceMonitor);
 
-            for (std::size_t pid = 0u; pid < samples[i].size(); ++pid) {
+            for (std::size_t pid = 0; pid < samples[i].size(); ++pid) {
                 SAnnotatedProbability p;
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
                 BOOST_TEST_REQUIRE(model->computeProbability(
@@ -696,10 +702,10 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
 
         TStrVec expectedResults{"[(100,p2), (190,p2)]", "[(100,p1), (190,p1)]",
                                 "[(160,p4), (190,p4)]", "[(160,p3), (190,p3)]"};
-        for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+        for (std::size_t i = 0; i < probabilities.size(); ++i) {
             LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
             std::string results[2];
-            for (std::size_t j = 0u; j < 2; ++j) {
+            for (std::size_t j = 0; j < 2; ++j) {
                 results[j] =
                     std::string("(") +
                     core::CStringUtils::typeToString(probabilities[i][j].second) +
@@ -756,8 +762,8 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                                          TMinAccumulator{3}, TMinAccumulator{3}};
 
         core_t::TTime time{startTime};
-        for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
-            for (std::size_t j = 0u; j < samples[i].size(); ++j) {
+        for (std::size_t i = 0u, anomaly = 0; i < numberBuckets; ++i) {
+            for (std::size_t j = 0; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
                                      core::CStringUtils::typeToString(j + 1);
                 double n = samples[i][j];
@@ -765,7 +771,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                     n += anomalies[anomaly][j];
                 }
                 n = std::max(n, 0.0);
-                for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k) {
+                for (std::size_t k = 0; k < static_cast<std::size_t>(n); ++k) {
                     this->addArrival(SMessage(time + static_cast<core_t::TTime>(j),
                                               person, TOptionalDouble()),
                                      m_Gatherer);
@@ -776,7 +782,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
             }
             model->sample(time, time + bucketLength, m_ResourceMonitor);
 
-            for (std::size_t pid = 0u; pid < samples[i].size(); ++pid) {
+            for (std::size_t pid = 0; pid < samples[i].size(); ++pid) {
                 SAnnotatedProbability p;
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
                 BOOST_TEST_REQUIRE(model->computeProbability(
@@ -794,7 +800,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
 
         TStrVecVec expectedResults{
             {"100,", "190,"}, {"100,", "190,"}, {"160,", "190,"}, {"160,", "190,"}};
-        for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+        for (std::size_t i = 0; i < probabilities.size(); ++i) {
             LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
             TStrVec results;
             for (const auto& result : probabilities[i]) {
@@ -967,7 +973,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     BOOST_TEST_REQUIRE(expectedModel);
 
     TEventDataVec events;
-    for (std::size_t i = 0u; i < eventCounts.size(); ++i) {
+    for (std::size_t i = 0; i < eventCounts.size(); ++i) {
         TTimeVec eventTimes;
         generateEvents(startTime, bucketLength, eventCounts[i], eventTimes);
         if (eventTimes.size() > 0) {
@@ -1016,7 +1022,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     size_t maxDimensionAfterPrune(model->dataGatherer().maxDimension());
     BOOST_REQUIRE_EQUAL(maxDimensionBeforePrune, maxDimensionAfterPrune);
 
-    bucketStart = maths::CIntegerTools::floor(expectedEvents[0].time(), bucketLength);
+    bucketStart = maths::common::CIntegerTools::floor(expectedEvents[0].time(), bucketLength);
     for (const auto& event : expectedEvents) {
         while (event.time() >= bucketStart + bucketLength) {
             expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
@@ -1104,7 +1110,7 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
         TStrVec strings{"p1", "c1", "c2"};
         TSizeVecVecVec fieldsPerBucket;
 
-        for (std::size_t i = 0u; i < numberBuckets; i++) {
+        for (std::size_t i = 0; i < numberBuckets; i++) {
             TSizeVecVec fields;
             std::size_t attribute1Strings = 10;
             std::size_t attribute2Strings = 10;
@@ -1113,7 +1119,7 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
                 attribute2Strings = 15;
             }
 
-            for (std::size_t j = 0u;
+            for (std::size_t j = 0;
                  j < std::max(attribute1Strings, attribute2Strings); j++) {
                 std::ostringstream ss1;
                 std::ostringstream ss2;
@@ -1158,7 +1164,7 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
 
         TSizeVecVecVec fieldsPerBucket;
 
-        for (std::size_t i = 0u; i < numberBuckets; i++) {
+        for (std::size_t i = 0; i < numberBuckets; i++) {
             TSizeVecVec fields;
 
             TSizeVec fb;
@@ -1562,7 +1568,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         core_t::TTime bucketStartTime = startTime;
         core_t::TTime bucketEndTime = startTime + bucketLength;
-        for (std::size_t i = 0u, j = 0u; bucketStartTime < endTime;
+        for (std::size_t i = 0u, j = 0; bucketStartTime < endTime;
              bucketStartTime += bucketLength, bucketEndTime += bucketLength, ++j) {
 
             double count{0.0};
@@ -1968,7 +1974,7 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
     model->sample(time, time + bucketLength, m_ResourceMonitor);
 
     TDoubleVec probabilities;
-    for (std::size_t pid = 0u; pid < 5; ++pid) {
+    for (std::size_t pid = 0; pid < 5; ++pid) {
         SAnnotatedProbability annotatedProbability;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         BOOST_TEST_REQUIRE(model->computeProbability(
@@ -2033,7 +2039,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
                                              model_t::E_EventRateOnline,
                                              gathererNoGap, modelNoGap_);
     CEventRateModel* modelNoGap = dynamic_cast<CEventRateModel*>(modelNoGap_.get());
-    for (std::size_t i = 0u; i < 2; ++i) {
+    for (std::size_t i = 0; i < 2; ++i) {
         BOOST_REQUIRE_EQUAL(
             i, this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererNoGap));
     }
@@ -2054,7 +2060,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
                                              model_t::E_EventRateOnline,
                                              gathererWithGap, modelWithGap_);
     CEventRateModel* modelWithGap = dynamic_cast<CEventRateModel*>(modelWithGap_.get());
-    for (std::size_t i = 0u; i < 2; ++i) {
+    for (std::size_t i = 0; i < 2; ++i) {
         BOOST_REQUIRE_EQUAL(
             i, this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererWithGap));
     }
@@ -2084,22 +2090,24 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     modelWithGap->sample(1100, 1200, m_ResourceMonitor);
 
     // Check priors are the same
-    BOOST_REQUIRE_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                            modelWithGap->details()->model(feature, 0))
-                            ->residualModel()
-                            .checksum(),
-                        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                            modelNoGap->details()->model(feature, 0))
-                            ->residualModel()
-                            .checksum());
-    BOOST_REQUIRE_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                            modelWithGap->details()->model(feature, 1))
-                            ->residualModel()
-                            .checksum(),
-                        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                            modelNoGap->details()->model(feature, 1))
-                            ->residualModel()
-                            .checksum());
+    BOOST_REQUIRE_EQUAL(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelWithGap->details()->model(feature, 0))
+            ->residualModel()
+            .checksum(),
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelNoGap->details()->model(feature, 0))
+            ->residualModel()
+            .checksum());
+    BOOST_REQUIRE_EQUAL(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelWithGap->details()->model(feature, 1))
+            ->residualModel()
+            .checksum(),
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelNoGap->details()->model(feature, 1))
+            ->residualModel()
+            .checksum());
 
     // Confirm last seen times are only updated by gap duration by forcing p2 to be pruned
     modelWithGap->sample(1200, 1500, m_ResourceMonitor);
@@ -2214,22 +2222,24 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
     modelExNullGap->sample(600, 700, m_ResourceMonitor);
 
     // Check priors are the same
-    BOOST_REQUIRE_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                            modelExNullGap->details()->model(feature, 0))
-                            ->residualModel()
-                            .checksum(),
-                        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                            modelSkipGap->details()->model(feature, 0))
-                            ->residualModel()
-                            .checksum());
-    BOOST_REQUIRE_EQUAL(static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                            modelExNullGap->details()->model(feature, 1))
-                            ->residualModel()
-                            .checksum(),
-                        static_cast<const maths::CUnivariateTimeSeriesModel*>(
-                            modelSkipGap->details()->model(feature, 1))
-                            ->residualModel()
-                            .checksum());
+    BOOST_REQUIRE_EQUAL(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelExNullGap->details()->model(feature, 0))
+            ->residualModel()
+            .checksum(),
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelSkipGap->details()->model(feature, 0))
+            ->residualModel()
+            .checksum());
+    BOOST_REQUIRE_EQUAL(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelExNullGap->details()->model(feature, 1))
+            ->residualModel()
+            .checksum(),
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
+            modelSkipGap->details()->model(feature, 1))
+            ->residualModel()
+            .checksum());
 }
 
 BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
@@ -2591,7 +2601,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                                        t < core::constants::WEEK + 4 * 3600
                                    ? 1.0
                                    : 0.0);
-            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate[0]); ++i) {
+            for (std::size_t i = 0; i < static_cast<std::size_t>(rate[0]); ++i) {
                 this->addArrival(
                     SMessage(t + bucketLength / 2, "p1", TOptionalDouble()), gatherer);
                 this->addArrival(SMessage(t + bucketLength / 2, "p1", TOptionalDouble()),
@@ -2608,12 +2618,12 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                 referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES,
                                                    t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "mean = " << maths::common::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG(<< "reference = "
-                  << maths::CBasicStatistics::mean(meanReferencePredictionError));
+                  << maths::common::CBasicStatistics::mean(meanReferencePredictionError));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            maths::CBasicStatistics::mean(meanReferencePredictionError),
-            maths::CBasicStatistics::mean(meanPredictionError), 0.01);
+            maths::common::CBasicStatistics::mean(meanReferencePredictionError),
+            maths::common::CBasicStatistics::mean(meanPredictionError), 0.01);
     }
 
     LOG_DEBUG(<< "*** Test linear scaling ***");
@@ -2655,7 +2665,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                           (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
-            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
+            for (std::size_t i = 0; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
                 this->addArrival(
                     SMessage(t + bucketLength / 2, "p1", TOptionalDouble()), gatherer);
                 this->addArrival(SMessage(t + bucketLength / 2, "p1", TOptionalDouble()),
@@ -2672,12 +2682,12 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                 referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES,
                                                    t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "mean = " << maths::common::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG(<< "reference = "
-                  << maths::CBasicStatistics::mean(meanReferencePredictionError));
+                  << maths::common::CBasicStatistics::mean(meanReferencePredictionError));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            maths::CBasicStatistics::mean(meanReferencePredictionError),
-            maths::CBasicStatistics::mean(meanPredictionError), 0.05);
+            maths::common::CBasicStatistics::mean(meanReferencePredictionError),
+            maths::common::CBasicStatistics::mean(meanPredictionError), 0.05);
     }
 
     LOG_DEBUG(<< "*** Test unmodelled cyclic component ***");
@@ -2689,7 +2699,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
         // control.
 
         params.s_ControlDecayRate = true;
-        params.s_DecayRate = 0.001;
+        params.s_DecayRate = 0.0005;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
         CEventRateModelFactory factory(params, interimBucketCorrector);
         factory.features(features);
@@ -2698,7 +2708,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
         this->addPerson("p1", gatherer);
 
         params.s_ControlDecayRate = false;
-        params.s_DecayRate = 0.001;
+        params.s_DecayRate = 0.0005;
         CEventRateModelFactory referenceFactory(params, interimBucketCorrector);
         referenceFactory.features(features);
         CModelFactory::TDataGathererPtr referenceGatherer{
@@ -2724,7 +2734,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                                           static_cast<double>(core::constants::WEEK)));
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
-            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
+            for (std::size_t i = 0; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
                 this->addArrival(
                     SMessage(t + bucketLength / 2, "p1", TOptionalDouble()), gatherer);
                 this->addArrival(SMessage(t + bucketLength / 2, "p1", TOptionalDouble()),
@@ -2741,11 +2751,12 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                 referenceModel->baselineBucketMean(feature, 0, 0, type, NO_CORRELATES,
                                                    t + bucketLength / 2)[0]));
         }
-        LOG_DEBUG(<< "mean = " << maths::CBasicStatistics::mean(meanPredictionError));
+        LOG_DEBUG(<< "mean = " << maths::common::CBasicStatistics::mean(meanPredictionError));
         LOG_DEBUG(<< "reference = "
-                  << maths::CBasicStatistics::mean(meanReferencePredictionError));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanPredictionError) <
-                           0.82 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                  << maths::common::CBasicStatistics::mean(meanReferencePredictionError));
+        BOOST_TEST_REQUIRE(
+            maths::common::CBasicStatistics::mean(meanPredictionError) <
+            0.8 * maths::common::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 
@@ -2844,23 +2855,24 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
 
     std::uint64_t withSkipChecksum{
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelWithSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0))
             ->residualModel()
             .checksum()};
     std::uint64_t noSkipChecksum{
-        static_cast<const maths::CUnivariateTimeSeriesModel*>(
+        static_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelNoSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0))
             ->residualModel()
             .checksum()};
-    BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
+    // Checksums differ due to different weighting applied to samples for the "skip" model
+    BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
     // Check the last value times of the underlying models are the same
-    const maths::CUnivariateTimeSeriesModel* timeSeriesModel =
-        dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+    const maths::time_series::CUnivariateTimeSeriesModel* timeSeriesModel =
+        dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
             modelNoSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0));
     BOOST_TEST_REQUIRE(timeSeriesModel);
-    const auto* trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+    const auto* trendModel = dynamic_cast<const maths::time_series::CTimeSeriesDecomposition*>(
         &timeSeriesModel->trendModel());
     BOOST_TEST_REQUIRE(trendModel);
 
@@ -2869,10 +2881,10 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
                                             startTime, bucketLength),
                         time);
 
-    timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
+    timeSeriesModel = dynamic_cast<const maths::time_series::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0));
     BOOST_TEST_REQUIRE(timeSeriesModel);
-    trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+    trendModel = dynamic_cast<const maths::time_series::CTimeSeriesDecomposition*>(
         &timeSeriesModel->trendModel());
     BOOST_TEST_REQUIRE(trendModel);
 

@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -88,19 +93,20 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
     return std::move(m_Definition);
 }
 
-void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
-                                                double splitValue,
-                                                bool assignMissingToLeft,
-                                                const TVector& nodeValue,
-                                                double gain,
-                                                std::size_t numberSamples,
-                                                maths::CBoostedTreeNode::TOptionalNodeIndex leftChild,
-                                                maths::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
+void CBoostedTreeInferenceModelBuilder::addNode(
+    std::size_t splitFeature,
+    double splitValue,
+    bool assignMissingToLeft,
+    const TVector& nodeValue,
+    double gain,
+    std::size_t numberSamples,
+    maths::analytics::CBoostedTreeNode::TOptionalNodeIndex leftChild,
+    maths::analytics::CBoostedTreeNode::TOptionalNodeIndex rightChild) {
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
     // use dynamic cast to prevent using wrong type of trained models
     auto tree = dynamic_cast<CTree*>(ensemble->trainedModels().back().get());
     if (tree == nullptr) {
-        HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.")
+        HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.");
     }
     tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft,
                                        nodeValue.to<TDoubleVec>(), splitFeature,
@@ -148,7 +154,8 @@ CRegressionInferenceModelBuilder::CRegressionInferenceModelBuilder(const TStrVec
 void CRegressionInferenceModelBuilder::addClassificationWeights(TDoubleVec /*weights*/) {
 }
 
-void CRegressionInferenceModelBuilder::addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) {
+void CRegressionInferenceModelBuilder::addLossFunction(
+    const maths::analytics::CBoostedTree::TLossFunction& lossFunction) {
     m_LossType = lossFunction.type();
 }
 
@@ -186,7 +193,7 @@ void CClassificationInferenceModelBuilder::addClassificationWeights(TDoubleVec w
 }
 
 void CClassificationInferenceModelBuilder::addLossFunction(
-    const maths::CBoostedTree::TLossFunction& /*lossFunction*/) {
+    const maths::analytics::CBoostedTree::TLossFunction& /*lossFunction*/) {
 }
 
 void CClassificationInferenceModelBuilder::setTargetType() {

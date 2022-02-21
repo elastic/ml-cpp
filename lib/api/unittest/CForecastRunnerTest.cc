@@ -1,7 +1,12 @@
 /*
  * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
- * or more contributor license agreements. Licensed under the Elastic License;
- * you may not use this file except in compliance with the Elastic License.
+ * or more contributor license agreements. Licensed under the Elastic License
+ * 2.0 and the following additional limitation. Functionality enabled by the
+ * files subject to the Elastic License 2.0 may only be used in production when
+ * invoked by an Elasticsearch process with a license key installed that permits
+ * use of machine learning features. You may not use this file except in
+ * compliance with the Elastic License 2.0 and the foregoing additional
+ * limitation.
  */
 
 #include <core/CJsonOutputStreamWrapper.h>
@@ -58,7 +63,7 @@ void generatePopulationRecord(ml::core_t::TTime time, CTestAnomalyJob::TStrStrUM
 void populateJob(TGenerateRecord generateRecord, CTestAnomalyJob& job, std::size_t buckets = 1000) {
     ml::core_t::TTime time = START_TIME;
     CTestAnomalyJob::TStrStrUMap dataRows;
-    for (std::size_t bucket = 0u; bucket < 2 * buckets;
+    for (std::size_t bucket = 0; bucket < 2 * buckets;
          ++bucket, time += (BUCKET_LENGTH / 2)) {
         generateRecord(time, dataRows);
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));

@@ -1,7 +1,12 @@
 #
 # Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
-# or more contributor license agreements. Licensed under the Elastic License;
-# you may not use this file except in compliance with the Elastic License.
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
 #
 
 OS=MacOSX
@@ -31,7 +36,7 @@ endif
 
 SDK_PATH:=$(shell xcrun --show-sdk-path)
 # Start by enabling all warnings and then disable the really pointless/annoying ones
-CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-poison-system-directories -Wno-sign-conversion -Wno-unreachable-code -Wno-used-but-marked-unused $(COVERAGE)
+CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-poison-system-directories -Wno-sign-conversion -Wno-unknown-warning-option -Wno-unreachable-code -Wno-used-but-marked-unused $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-exit-time-destructors -Wno-global-constructors -Wno-return-std-move-in-c++11 -Wno-unused-member-function -Wno-weak-vtables
 CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/include -D$(OS) $(OPTCPPFLAGS)
 ANALYZEFLAGS=--analyze
@@ -50,13 +55,15 @@ UT_TMP_DIR=/tmp/$(LOGNAME)
 RESOURCES_DIR=$(APP_CONTENTS)/Resources
 LOCALLIBS=
 NETLIBS=
-BOOSTVER=1_71
+BOOSTVER=1_77
 ifeq ($(HARDWARE_ARCH),x86_64)
 BOOSTARCH=x64
 else
 BOOSTARCH=a64
 endif
-BOOSTCLANGVER:=$(shell $(CXX) --version | grep ' version ' | sed 's/.* version //' | awk -F. '{ print $$1$$2; }')
+# The clang version used to build Boost may be overridden if the
+# compiler on the build machine is upgraded without rebuilding Boost
+BOOSTCLANGVER?=$(shell $(CXX) --version | grep ' version ' | sed 's/.* version //' | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
@@ -77,6 +84,9 @@ RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_NEON
 endif
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_MAX_ALIGN_BYTES=32
+TORCHINCLUDES=-isystem /usr/local/include/pytorch
+TORCHCPULIB=-ltorch_cpu
+C10LIB=-lc10
 XMLINCLUDES=-isystem $(SDK_PATH)/usr/include/libxml2
 XMLLIBLDFLAGS=-L/usr/lib
 XMLLIBS=-lxml2
@@ -94,7 +104,9 @@ LIB_ML_API=-lMlApi
 LIB_ML_CORE=-lMlCore
 LIB_ML_VER=-lMlVer
 ML_VER_LDFLAGS=-L$(CPP_SRC_HOME)/lib/ver/.objs
-LIB_ML_MATHS=-lMlMaths
+LIB_ML_MATHS_COMMON=-lMlMathsCommon
+LIB_ML_MATHS_TIME_SERIES=-lMlMathsTimeSeries
+LIB_ML_MATHS_ANALYTICS=-lMlMathsAnalytics
 LIB_ML_MODEL=-lMlModel
 LIB_ML_SECCOMP=-lMlSeccomp
 ML_SECCOMP_LDFLAGS=-L$(CPP_SRC_HOME)/lib/seccomp/.objs
