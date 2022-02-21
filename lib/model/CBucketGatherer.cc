@@ -319,10 +319,6 @@ void CBucketGatherer::timeNow(core_t::TTime time) {
 void CBucketGatherer::hiddenTimeNow(core_t::TTime time, bool skipUpdates) {
     m_EarliestTime = std::min(m_EarliestTime, time);
     core_t::TTime n = (time - m_BucketStart) / this->bucketLength();
-    if (n <= 0) {
-        return;
-    }
-
     core_t::TTime newBucketStart = m_BucketStart;
     for (core_t::TTime i = 0; i < n; ++i) {
         newBucketStart += this->bucketLength();
@@ -424,10 +420,6 @@ void CBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
 
 core_t::TTime CBucketGatherer::currentBucketStartTime() const {
     return m_BucketStart;
-}
-
-void CBucketGatherer::currentBucketStartTime(core_t::TTime time) {
-    m_BucketStart = time;
 }
 
 core_t::TTime CBucketGatherer::earliestBucketStartTime() const {

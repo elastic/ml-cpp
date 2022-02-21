@@ -571,7 +571,9 @@ struct SAddValue {
             return;
         }
         if (time > personAttributeUniqueCounts.latestBucketEnd()) {
-            LOG_ERROR(<< "No queue item for time " << time);
+            LOG_ERROR(<< "No queue item for time " << time << ", end of latest bucket "
+                      << personAttributeUniqueCounts.latestBucketEnd() << ", bucket length "
+                      << personAttributeUniqueCounts.bucketLength());
             personAttributeUniqueCounts.push(TSizeSizePrStrDataUMap(1), time);
         }
         TSizeSizePrStrDataUMap& counts = personAttributeUniqueCounts.get(time);
@@ -586,7 +588,9 @@ struct SAddValue {
                     const CEventData::TOptionalStr& /*uniqueStrings*/,
                     const TStoredStringPtrVec& /*influences*/) const {
         if (time > arrivalTimes.latestBucketEnd()) {
-            LOG_ERROR(<< "No queue item for time " << time);
+            LOG_ERROR(<< "No queue item for time " << time << ", end of latest bucket "
+                      << arrivalTimes.latestBucketEnd() << ", bucket length "
+                      << arrivalTimes.bucketLength());
             arrivalTimes.push(TSizeSizePrMeanAccumulatorUMap(1), time);
         }
         TSizeSizePrMeanAccumulatorUMap& times = arrivalTimes.get(time);
@@ -860,8 +864,9 @@ bool CEventRateBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
         return false;
     }
 
-    for (std::size_t i = m_DataGatherer.isPopulation() + 1; i < m_BeginValueField; ++i) {
-        result.addInfluence(fieldValues[i] ? TOptionalStr(*fieldValues[i]) : TOptionalStr());
+    for (std::size_t i = m_DataGatherer.isPopulation() ? 2 : 1; i < m_BeginValueField; ++i) {
+        result.addInfluence(fieldValues[i] != nullptr ? TOptionalStr(*fieldValues[i])
+                                                      : TOptionalStr());
     }
 
     if (m_BeginValueField != m_BeginSummaryFields) {
@@ -965,16 +970,16 @@ void CEventRateBucketGatherer::recyclePeople(const TSizeVec& peopleToRemove) {
     if (peopleToRemove.empty()) {
         return;
     }
-
-    applyFunc(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1,
-                                             std::cref(peopleToRemove)));
-
+    applyFunc(m_FeatureData, [&, remove = SRemovePeople{} ](auto& data) {
+        remove(data, peopleToRemove);
+    });
     this->CBucketGatherer::recyclePeople(peopleToRemove);
 }
 
 void CEventRateBucketGatherer::removePeople(std::size_t lowestPersonToRemove) {
-    applyFunc(m_FeatureData, std::bind<void>(SRemovePeople(), std::placeholders::_1, lowestPersonToRemove,
-                                             m_DataGatherer.numberPeople()));
+    applyFunc(m_FeatureData, [&, remove = SRemovePeople{} ](auto& data) {
+        remove(data, lowestPersonToRemove, m_DataGatherer.numberPeople());
+    });
     this->CBucketGatherer::removePeople(lowestPersonToRemove);
 }
 
@@ -982,25 +987,25 @@ void CEventRateBucketGatherer::recycleAttributes(const TSizeVec& attributesToRem
     if (attributesToRemove.empty()) {
         return;
     }
-
-    applyFunc(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                                             std::cref(attributesToRemove)));
-
+    applyFunc(m_FeatureData, [&, remove = SRemoveAttributes{} ](auto& data) {
+        remove(data, attributesToRemove);
+    });
     this->CBucketGatherer::recycleAttributes(attributesToRemove);
 }
 
 void CEventRateBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove) {
-    applyFunc(m_FeatureData, std::bind<void>(SRemoveAttributes(), std::placeholders::_1,
-                                             lowestAttributeToRemove));
+    applyFunc(m_FeatureData, [&, remove = SRemoveAttributes{} ](auto& data) {
+        remove(data, lowestAttributeToRemove);
+    });
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
 uint64_t CEventRateBucketGatherer::checksum() const {
     uint64_t seed = this->CBucketGatherer::checksum();
-
     TStrUInt64Map hashes;
-    applyFunc(m_FeatureData, std::bind<void>(SChecksum(), std::placeholders::_1,
-                                             std::cref(m_DataGatherer), std::ref(hashes)));
+    applyFunc(m_FeatureData, [&, checksum = SChecksum{} ](const auto& data) {
+        checksum(data, m_DataGatherer, hashes);
+    });
     LOG_TRACE(<< "seed = " << seed);
     LOG_TRACE(<< "hashes = " << core::CContainerPrinter::print(hashes));
     core::CHashing::CSafeMurmurHash2String64 hasher;
@@ -1053,11 +1058,12 @@ void CEventRateBucketGatherer::featureData(core_t::TTime time,
     if (!this->dataAvailable(time) ||
         time >= this->currentBucketStartTime() + this->bucketLength()) {
         LOG_DEBUG(<< "No data available at " << time
-                  << ", current bucket = " << this->printCurrentBucket());
+                  << ", current bucket = " << this->printCurrentBucket()
+                  << ", bucket length = " << this->bucketLength());
         return;
     }
 
-    for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
+    for (std::size_t i = 0, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
         const model_t::EFeature feature = m_DataGatherer.feature(i);
 
         switch (feature) {
@@ -1179,7 +1185,7 @@ void CEventRateBucketGatherer::personCounts(model_t::EFeature feature,
         *boost::unsafe_any_cast<TSizeFeatureDataPrVec>(&result_.back().second);
     result.reserve(m_DataGatherer.numberActivePeople());
 
-    for (std::size_t pid = 0u, n = m_DataGatherer.numberPeople(); pid < n; ++pid) {
+    for (std::size_t pid = 0, n = m_DataGatherer.numberPeople(); pid < n; ++pid) {
         if (!m_DataGatherer.isPersonActive(pid) ||
             this->hasExplicitNullsOnly(time, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID)) {
             continue;
@@ -1271,7 +1277,7 @@ void CEventRateBucketGatherer::peoplePerAttribute(model_t::EFeature feature,
     }
 
     try {
-        const TSizeUSetVec& attributePeople = boost::any_cast<const TSizeUSetVec&>(i->second);
+        const auto& attributePeople = boost::any_cast<const TSizeUSetVec&>(i->second);
         result.reserve(attributePeople.size());
         for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
             if (m_DataGatherer.isAttributeActive(cid)) {
@@ -1516,7 +1522,8 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPersonAttribute(model_t::EFeatu
 }
 
 void CEventRateBucketGatherer::resize(std::size_t pid, std::size_t cid) {
-    applyFunc(m_FeatureData, std::bind<void>(SResize(), std::placeholders::_1, pid, cid));
+    applyFunc(m_FeatureData,
+              [&, resize = SResize{} ](auto& data) { resize(data, pid, cid); });
 }
 
 void CEventRateBucketGatherer::addValue(std::size_t pid,
@@ -1528,14 +1535,15 @@ void CEventRateBucketGatherer::addValue(std::size_t pid,
                                         const TStoredStringPtrVec& influences) {
     // Check that we are correctly sized - a person/attribute might have been added
     this->resize(pid, cid);
-    applyFunc(m_FeatureData,
-              std::bind<void>(SAddValue(), std::placeholders::_1, pid, cid,
-                              time, count, std::cref(values),
-                              std::cref(stringValue), std::cref(influences)));
+    applyFunc(m_FeatureData, [&, addValue = SAddValue{} ](auto& data) {
+        addValue(data, pid, cid, time, count, values, stringValue, influences);
+    });
 }
 
 void CEventRateBucketGatherer::startNewBucket(core_t::TTime time, bool /*skipUpdates*/) {
-    applyFunc(m_FeatureData, std::bind<void>(SNewBucket(), std::placeholders::_1, time));
+    applyFunc(m_FeatureData, [&, newBucket = SNewBucket{} ](auto& data) {
+        newBucket(data, time);
+    });
 }
 
 void CEventRateBucketGatherer::initializeFieldNames(const std::string& personFieldName,
@@ -1564,14 +1572,13 @@ void CEventRateBucketGatherer::initializeFieldNames(const std::string& personFie
     case model_t::E_Manual:
         m_FieldNames.push_back(summaryCountFieldName);
         break;
-    };
+    }
 
-    // swap trick to reduce unused capacity
-    TStrVec(m_FieldNames).swap(m_FieldNames);
+    m_FieldNames.shrink_to_fit();
 }
 
 void CEventRateBucketGatherer::initializeFeatureData() {
-    for (std::size_t i = 0u, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
+    for (std::size_t i = 0, n = m_DataGatherer.numberFeatures(); i < n; ++i) {
         switch (m_DataGatherer.feature(i)) {
         case model_t::E_IndividualCountByBucketAndPerson:
         case model_t::E_IndividualNonZeroCountByBucketAndPerson:
