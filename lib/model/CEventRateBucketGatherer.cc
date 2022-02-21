@@ -260,7 +260,7 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
                         core_t::TTime currentBucketStartTime) {
     const std::string& name = traverser.name();
     if (name == ATTRIBUTE_PEOPLE_TAG) {
-        TSizeUSetVec* data{boost::unsafe_any_cast<TSizeUSetVec>(
+        auto* data{boost::unsafe_any_cast<TSizeUSetVec>(
             &featureData.emplace(model_t::E_AttributePeople, TSizeUSetVec())
                  .first->second)};
         if (traverser.traverseSubLevel(std::bind(&restoreAttributePeopleData, std::placeholders::_1,
@@ -269,10 +269,8 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
             return false;
         }
     } else if (name == UNIQUE_VALUES_TAG) {
-        if (featureData.count(model_t::E_UniqueValues) != 0) {
-            featureData.erase(model_t::E_UniqueValues);
-        }
-        TSizeSizePrStrDataUMapQueue* data{boost::unsafe_any_cast<TSizeSizePrStrDataUMapQueue>(
+        featureData.erase(model_t::E_UniqueValues);
+        auto* data{boost::unsafe_any_cast<TSizeSizePrStrDataUMapQueue>(
             &featureData
                  .emplace(model_t::E_UniqueValues,
                           TSizeSizePrStrDataUMapQueue(latencyBuckets, bucketLength, currentBucketStartTime,
@@ -286,10 +284,8 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
             return false;
         }
     } else if (name == TIMES_OF_DAY_TAG) {
-        if (featureData.count(model_t::E_DiurnalTimes) == 0) {
-            featureData.erase(model_t::E_DiurnalTimes);
-        }
-        TSizeSizePrMeanAccumulatorUMapQueue* data{boost::unsafe_any_cast<TSizeSizePrMeanAccumulatorUMapQueue>(
+        featureData.erase(model_t::E_DiurnalTimes);
+        auto* data{boost::unsafe_any_cast<TSizeSizePrMeanAccumulatorUMapQueue>(
             &featureData
                  .emplace(model_t::E_DiurnalTimes,
                           TSizeSizePrMeanAccumulatorUMapQueue(latencyBuckets, bucketLength, currentBucketStartTime))
