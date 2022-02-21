@@ -36,6 +36,9 @@
   (See {ml-pull}2196[#2196].)
 * Address possible causes of "x = NaN, distribution = N5boost4math23students_t_distribution"
   log errors. (See {ml-pull}2197[#2197].)
+* Fix bug restoring data gatherer state for time of day and week anomaly detection
+  functions. This could lead to "No queue item for time " and "Time is out of range.
+  Returning earliest bucket index" log errors. (See {ml-pull}2213[#2213].)
 
 == {es} version 7.17.0
 
