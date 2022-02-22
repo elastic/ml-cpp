@@ -129,8 +129,6 @@ const core::TPersistenceTag CLUSTERER_TAG("a", "clusterer");
 const core::TPersistenceTag SEED_PRIOR_TAG("b", "seed_prior");
 const core::TPersistenceTag MODE_TAG("c", "mode");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("d", "number_samples");
-//const std::string MINIMUM_TAG("e"); No longer used
-//const std::string MAXIMUM_TAG("f"); No longer used
 const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
 
 const std::string EMPTY_STRING;
@@ -183,9 +181,9 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType, double decayRate
 CMultimodalPrior::CMultimodalPrior(const SDistributionRestoreParams& params,
                                    core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
-    if (traverser.traverseSubLevel(std::bind(&CMultimodalPrior::acceptRestoreTraverser,
-                                             this, std::cref(params),
-                                             std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([&](auto& traverser_) {
+            return this->acceptRestoreTraverser(params, traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -567,8 +565,8 @@ double CMultimodalPrior::marginalLikelihoodMode(const TDoubleWeightsAry& weights
         const auto& prior = mode.s_Prior;
         distributionMode[0] = prior->marginalLikelihoodMode(weight[0]);
         double likelihood;
-        if (prior->jointLogMarginalLikelihood(distributionMode, weight, likelihood) &
-            (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) {
+        if ((prior->jointLogMarginalLikelihood(distributionMode, weight, likelihood) &
+             (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) != 0) {
             continue;
         }
         if (maxLikelihood.add(std::log(w) + likelihood)) {
@@ -802,11 +800,11 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
                 double modeLogLikelihood;
                 maths_t::EFloatingPointErrorStatus status{m_Modes[j].s_Prior->jointLogMarginalLikelihood(
                     sample, weight, modeLogLikelihood)};
-                if (status & maths_t::E_FpFailed) {
+                if ((status & maths_t::E_FpFailed) != 0) {
                     // Logging handled at a lower level.
                     return status;
                 }
-                if ((status & maths_t::E_FpOverflowed) == false) {
+                if ((status & maths_t::E_FpOverflowed) == 0) {
                     modeLogLikelihoods.emplace_back(j, modeLogLikelihood);
                     maxLogLikelihood = std::max(maxLogLikelihood, modeLogLikelihood);
                 }
@@ -854,7 +852,7 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     }
 
     maths_t::EFloatingPointErrorStatus status{CMathsFuncs::fpStatus(result)};
-    if (status & maths_t::E_FpFailed) {
+    if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute likelihood (" << this->debugWeights() << ")");
         LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
         LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));

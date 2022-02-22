@@ -71,12 +71,6 @@ const core::TPersistenceTag SEASONALITY_TEST_6_3_TAG{"c", "periodicity_test"};
 const core::TPersistenceTag CALENDAR_CYCLIC_TEST_6_3_TAG{"d", "calendar_cyclic_test"};
 const core::TPersistenceTag COMPONENTS_6_3_TAG{"e", "components"};
 const core::TPersistenceTag TIME_SHIFT_6_3_TAG{"f", "time_shift"};
-// Version < 6.3
-const std::string DECAY_RATE_OLD_TAG{"a"};
-const std::string LAST_VALUE_TIME_OLD_TAG{"b"};
-const std::string CALENDAR_CYCLIC_TEST_OLD_TAG{"f"};
-const std::string COMPONENTS_OLD_TAG{"g"};
-const std::string LAST_PROPAGATION_TIME_OLD_TAG{"h"};
 
 const std::string EMPTY_STRING;
 }
@@ -98,9 +92,11 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const common::STimeSeriesDeco
       m_SeasonalityTest{params.s_DecayRate, params.s_MinimumBucketLength},
       m_CalendarCyclicTest{params.s_DecayRate, params.s_MinimumBucketLength},
       m_Components{params.s_DecayRate, params.s_MinimumBucketLength, params.s_ComponentSize} {
-    traverser.traverseSubLevel(
-        std::bind(&CTimeSeriesDecomposition::acceptRestoreTraverser, this,
-                  std::cref(params.s_ChangeModelParams), std::placeholders::_1));
+    if (traverser.traverseSubLevel([&](auto& traverser_) {
+            return this->acceptRestoreTraverser(params.s_ChangeModelParams, traverser_);
+        }) == false) {
+        traverser.setBadState();
+    }
     this->initializeMediator();
 }
 
@@ -124,21 +120,20 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const common::SDistributio
             RESTORE_BUILT_IN(LAST_VALUE_TIME_7_11_TAG, m_LastValueTime)
             RESTORE_BUILT_IN(LAST_PROPAGATION_TIME_7_11_TAG, m_LastPropagationTime)
             RESTORE(CHANGE_POINT_TEST_7_11_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&CChangePointTest::acceptRestoreTraverser,
-                                  &m_ChangePointTest, std::placeholders::_1)))
+                    traverser.traverseSubLevel([this](auto& traverser_) {
+                        return m_ChangePointTest.acceptRestoreTraverser(traverser_);
+                    }))
             RESTORE(SEASONALITY_TEST_7_11_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&CSeasonalityTest::acceptRestoreTraverser,
-                                  &m_SeasonalityTest, std::placeholders::_1)))
+                    traverser.traverseSubLevel([this](auto& traverser_) {
+                        return m_SeasonalityTest.acceptRestoreTraverser(traverser_);
+                    }))
             RESTORE(CALENDAR_CYCLIC_TEST_7_11_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&CCalendarTest::acceptRestoreTraverser,
-                                  &m_CalendarCyclicTest, std::placeholders::_1)))
-            RESTORE(COMPONENTS_7_11_TAG,
-                    traverser.traverseSubLevel(std::bind(
-                        &CComponents::acceptRestoreTraverser, &m_Components,
-                        std::cref(params), m_LastValueTime, std::placeholders::_1)))
+                    traverser.traverseSubLevel([this](auto& traverser_) {
+                        return m_CalendarCyclicTest.acceptRestoreTraverser(traverser_);
+                    }))
+            RESTORE(COMPONENTS_7_11_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
+                return m_Components.acceptRestoreTraverser(params, traverser_);
+            }))
         }
     } else if (traverser.name() == VERSION_6_3_TAG) {
         while (traverser.next()) {
@@ -146,37 +141,17 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const common::SDistributio
             RESTORE_BUILT_IN(TIME_SHIFT_6_3_TAG, m_TimeShift)
             RESTORE_BUILT_IN(LAST_VALUE_TIME_6_3_TAG, m_LastValueTime)
             RESTORE_BUILT_IN(LAST_PROPAGATION_TIME_6_3_TAG, m_LastPropagationTime)
-            RESTORE(SEASONALITY_TEST_6_3_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&CSeasonalityTest::acceptRestoreTraverser,
-                                  &m_SeasonalityTest, std::placeholders::_1)))
+            RESTORE(SEASONALITY_TEST_6_3_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+                return m_SeasonalityTest.acceptRestoreTraverser(traverser_);
+            }))
             RESTORE(CALENDAR_CYCLIC_TEST_6_3_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&CCalendarTest::acceptRestoreTraverser,
-                                  &m_CalendarCyclicTest, std::placeholders::_1)))
-            RESTORE(COMPONENTS_6_3_TAG,
-                    traverser.traverseSubLevel(std::bind(
-                        &CComponents::acceptRestoreTraverser, &m_Components,
-                        std::cref(params), m_LastValueTime, std::placeholders::_1)))
+                    traverser.traverseSubLevel([this](auto& traverser_) {
+                        return m_CalendarCyclicTest.acceptRestoreTraverser(traverser_);
+                    }))
+            RESTORE(COMPONENTS_6_3_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
+                return m_Components.acceptRestoreTraverser(params, traverser_);
+            }))
         }
-    } else {
-        // There is no version string this is historic state.
-        double decayRate{0.012};
-        do {
-            const std::string& name{traverser.name()};
-            RESTORE_BUILT_IN(DECAY_RATE_OLD_TAG, decayRate)
-            RESTORE_BUILT_IN(LAST_VALUE_TIME_OLD_TAG, m_LastValueTime)
-            RESTORE_BUILT_IN(LAST_PROPAGATION_TIME_OLD_TAG, m_LastPropagationTime)
-            RESTORE(CALENDAR_CYCLIC_TEST_OLD_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&CCalendarTest::acceptRestoreTraverser,
-                                  &m_CalendarCyclicTest, std::placeholders::_1)))
-            RESTORE(COMPONENTS_OLD_TAG,
-                    traverser.traverseSubLevel(std::bind(
-                        &CComponents::acceptRestoreTraverser, &m_Components,
-                        std::cref(params), m_LastValueTime, std::placeholders::_1)))
-        } while (traverser.next());
-        this->decayRate(decayRate);
     }
     return true;
 }
@@ -205,18 +180,18 @@ void CTimeSeriesDecomposition::acceptPersistInserter(core::CStatePersistInserter
     inserter.insertValue(TIME_SHIFT_7_11_TAG, m_TimeShift);
     inserter.insertValue(LAST_VALUE_TIME_7_11_TAG, m_LastValueTime);
     inserter.insertValue(LAST_PROPAGATION_TIME_7_11_TAG, m_LastPropagationTime);
-    inserter.insertLevel(CHANGE_POINT_TEST_7_11_TAG,
-                         std::bind(&CChangePointTest::acceptPersistInserter,
-                                   &m_ChangePointTest, std::placeholders::_1));
-    inserter.insertLevel(SEASONALITY_TEST_7_11_TAG,
-                         std::bind(&CSeasonalityTest::acceptPersistInserter,
-                                   &m_SeasonalityTest, std::placeholders::_1));
-    inserter.insertLevel(CALENDAR_CYCLIC_TEST_7_11_TAG,
-                         std::bind(&CCalendarTest::acceptPersistInserter,
-                                   &m_CalendarCyclicTest, std::placeholders::_1));
-    inserter.insertLevel(COMPONENTS_7_11_TAG,
-                         std::bind(&CComponents::acceptPersistInserter,
-                                   &m_Components, std::placeholders::_1));
+    inserter.insertLevel(CHANGE_POINT_TEST_7_11_TAG, [this](auto& inserter_) {
+        m_ChangePointTest.acceptPersistInserter(inserter_);
+    });
+    inserter.insertLevel(SEASONALITY_TEST_7_11_TAG, [this](auto& inserter_) {
+        m_SeasonalityTest.acceptPersistInserter(inserter_);
+    });
+    inserter.insertLevel(CALENDAR_CYCLIC_TEST_7_11_TAG, [this](auto& inserter_) {
+        m_CalendarCyclicTest.acceptPersistInserter(inserter_);
+    });
+    inserter.insertLevel(COMPONENTS_7_11_TAG, [this](auto& inserter_) {
+        m_Components.acceptPersistInserter(inserter_);
+    });
 }
 
 CTimeSeriesDecomposition* CTimeSeriesDecomposition::clone(bool isForForecast) const {
@@ -323,15 +298,15 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
 
     time += m_TimeShift;
 
-    if (components & E_TrendForced) {
+    if ((components & E_TrendForced) != 0) {
         baseline += vector2x1(m_Components.trend().value(time, confidence));
-    } else if (components & E_Trend) {
+    } else if ((components & E_Trend) != 0) {
         if (m_Components.usingTrendForPrediction()) {
             baseline += vector2x1(m_Components.trend().value(time, confidence));
         }
     }
 
-    if (components & E_Seasonal) {
+    if ((components & E_Seasonal) != 0) {
         const auto& seasonal = m_Components.seasonal();
         for (std::size_t i = 0; i < seasonal.size(); ++i) {
             if (seasonal[i].initialized() &&
@@ -342,7 +317,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
         }
     }
 
-    if (components & E_Calendar) {
+    if ((components & E_Calendar) != 0) {
         for (const auto& component : m_Components.calendar()) {
             if (component.initialized() && component.feature().inWindow(time)) {
                 baseline += vector2x1(component.value(time, confidence));
@@ -440,7 +415,7 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
     endTime += m_TimeShift;
     endTime = startTime + common::CIntegerTools::ceil(endTime - startTime, step);
 
-    auto forecastSeasonal = [&](core_t::TTime time) {
+    auto forecastSeasonal = [&](core_t::TTime time) -> TDouble3Vec {
         m_Components.interpolateForForecast(time);
 
         TVector2x1 bounds{vector2x1(seasonal(time))};
@@ -459,8 +434,7 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
         double prediction{(bounds(0) + bounds(1)) / 2.0};
         double interval{boundsScale * (bounds(1) - bounds(0))};
 
-        return TDouble3Vec{prediction - interval / 2.0, prediction,
-                           prediction + interval / 2.0};
+        return {prediction - interval / 2.0, prediction, prediction + interval / 2.0};
     };
 
     m_Components.trend().forecast(startTime, endTime, step, confidence,

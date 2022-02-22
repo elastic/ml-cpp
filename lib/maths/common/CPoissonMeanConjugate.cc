@@ -172,8 +172,6 @@ const core::TPersistenceTag SHAPE_TAG("a", "shape");
 const core::TPersistenceTag RATE_TAG("b", "rate");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("c", "number_samples");
 const core::TPersistenceTag OFFSET_TAG("d", "offset");
-//const std::string MINIMUM_TAG("e"); No longer used
-//const std::string MAXIMUM_TAG("f"); No longer used
 const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
@@ -189,8 +187,9 @@ CPoissonMeanConjugate::CPoissonMeanConjugate(const SDistributionRestoreParams& p
                                              core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_IntegerData, params.s_DecayRate), m_Offset(0.0),
       m_Shape(0.0), m_Rate(0.0) {
-    if (traverser.traverseSubLevel(std::bind(&CPoissonMeanConjugate::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -880,7 +879,7 @@ std::string CPoissonMeanConjugate::printJointDensityFunction() const {
     return coordinates.str() + pdf.str();
 }
 
-uint64_t CPoissonMeanConjugate::checksum(uint64_t seed) const {
+std::uint64_t CPoissonMeanConjugate::checksum(std::uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     seed = CChecksum::calculate(seed, m_Offset);
     seed = CChecksum::calculate(seed, m_Shape);

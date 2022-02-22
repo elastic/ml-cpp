@@ -413,25 +413,23 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
                 LOG_ERROR(<< "Ignoring bad value for outlier fraction " << outlierFraction
                           << ". This must be in the range [0,1).");
                 break;
-            } else if (reweights == 1 || outlierFraction == 0.0) {
-                break;
-            } else {
-                split = minResidualVariance[0].second;
-                double splitTime{
-                    static_cast<double>(std::distance(reweighted.cbegin(), split))};
-                leftModel = fitLinearModel(reweighted.cbegin(), split, startTime);
-                rightModel = fitLinearModel(split, reweighted.cend(), splitTime);
-                leftModel.parameters(leftParameters);
-                rightModel.parameters(rightParameters);
-                auto predict = [&](std::size_t j) {
-                    double time{startTime + static_cast<double>(j)};
-                    return time < splitTime
-                               ? TRegression::predict(leftParameters, time)
-                               : TRegression::predict(rightParameters, time);
-                };
-                reweighted.assign(begin, end);
-                CSignal::reweightOutliers(predict, outlierFraction, reweighted);
             }
+            if (reweights == 1 || outlierFraction == 0.0) {
+                break;
+            }
+            split = minResidualVariance[0].second;
+            double splitTime{static_cast<double>(std::distance(reweighted.cbegin(), split))};
+            leftModel = fitLinearModel(reweighted.cbegin(), split, startTime);
+            rightModel = fitLinearModel(split, reweighted.cend(), splitTime);
+            leftModel.parameters(leftParameters);
+            rightModel.parameters(rightParameters);
+            auto predict = [&](std::size_t j) {
+                double time{startTime + static_cast<double>(j)};
+                return time < splitTime ? TRegression::predict(leftParameters, time)
+                                        : TRegression::predict(rightParameters, time);
+            };
+            reweighted.assign(begin, end);
+            CSignal::reweightOutliers(predict, outlierFraction, reweighted);
         }
 
         ITR split{minResidualVariance[0].second};

@@ -60,27 +60,27 @@ double CBasicStatistics::mean(const TDoubleVec& data) {
                               static_cast<double>(data.size());
 }
 
-double CBasicStatistics::median(const TDoubleVec& data_) {
-    if (data_.empty()) {
+double CBasicStatistics::median(const TDoubleVec& data) {
+    if (data.empty()) {
         return 0.0;
     }
-    if (data_.size() == 1) {
-        return data_[0];
+    if (data.size() == 1) {
+        return data[0];
     }
-    TDoubleVec data{data_};
-    return medianInPlace(data);
+    TDoubleVec data_{data};
+    return medianInPlace(data_);
 }
 
-double CBasicStatistics::mad(const TDoubleVec& data_) {
-    if (data_.size() < 2) {
+double CBasicStatistics::mad(const TDoubleVec& data) {
+    if (data.size() < 2) {
         return 0.0;
     }
-    TDoubleVec data{data_};
-    double median{medianInPlace(data)};
-    for (auto& datum : data) {
+    TDoubleVec data_{data};
+    double median{medianInPlace(data_)};
+    for (auto& datum : data_) {
         datum = std::fabs(datum - median);
     }
-    return medianInPlace(data);
+    return medianInPlace(data_);
 }
 
 double CBasicStatistics::varianceAtPercentile(double percentage, double variance, double degreesFreedom) {

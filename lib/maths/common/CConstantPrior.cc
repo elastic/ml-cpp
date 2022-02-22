@@ -58,8 +58,9 @@ CConstantPrior::CConstantPrior(const TOptionalDouble& constant)
 
 CConstantPrior::CConstantPrior(core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_DiscreteData, 0.0) {
-    if (traverser.traverseSubLevel(std::bind(&CConstantPrior::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -341,7 +342,7 @@ std::string CConstantPrior::printJointDensityFunction() const {
     return EMPTY_STRING;
 }
 
-uint64_t CConstantPrior::checksum(uint64_t seed) const {
+std::uint64_t CConstantPrior::checksum(std::uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     return CChecksum::calculate(seed, m_Constant);
 }

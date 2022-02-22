@@ -120,7 +120,8 @@ double pdf(const CLogTDistribution& distribution, double x) {
 
     if (x < 0.0) {
         return 0.0;
-    } else if (x == 0.0) {
+    }
+    if (x == 0.0) {
         // In limit x tends down to 0 it can be shown that the density
         // function tends to:
         //   f(x) = f(e^l) * (v^(1/2) * s)^(v+1) / (y * log(y)^(v+1))
@@ -157,7 +158,8 @@ double cdf(const CLogTDistribution& distribution, double x) {
     if (CMathsFuncs::isNan(x)) {
         LOG_ERROR(<< "Bad argument x = " << x);
         return 0.0;
-    } else if (x <= 0.0) {
+    }
+    if (x <= 0.0) {
         return 0.0;
     }
 
@@ -178,7 +180,8 @@ double cdfComplement(const CLogTDistribution& distribution, double x) {
     if (CMathsFuncs::isNan(x)) {
         LOG_ERROR(<< "Bad argument x = " << x);
         return 0.0;
-    } else if (x <= 0.0) {
+    }
+    if (x <= 0.0) {
         return 1.0;
     }
 

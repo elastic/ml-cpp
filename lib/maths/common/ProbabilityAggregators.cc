@@ -691,7 +691,7 @@ std::ostream& operator<<(std::ostream& o, const CProbabilityOfExtremeSample& pro
 //////// CProbabilityOfMFromNMostExtremeSamples Implementation ////////
 
 CLogProbabilityOfMFromNExtremeSamples::CLogProbabilityOfMFromNExtremeSamples(std::size_t m)
-    : m_MinValues(m), m_NumberSamples(0u) {
+    : m_MinValues(m), m_NumberSamples(0) {
 }
 
 bool CLogProbabilityOfMFromNExtremeSamples::fromDelimited(const std::string& value) {

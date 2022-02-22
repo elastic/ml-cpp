@@ -252,8 +252,6 @@ const core::TPersistenceTag CATEGORY_TAG("b", "category");
 const core::TPersistenceTag CONCENTRATION_TAG("c", "concentration");
 const core::TPersistenceTag TOTAL_CONCENTRATION_TAG("d", "total_concentration");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("e", "number_samples");
-//const std::string MINIMUM_TAG("f"); No longer used
-//const std::string MAXIMUM_TAG("g"); No longer used
 const core::TPersistenceTag DECAY_RATE_TAG("h", "decay_rate");
 
 const std::string EMPTY_STRING;
@@ -282,8 +280,9 @@ CMultinomialConjugate::CMultinomialConjugate(const SDistributionRestoreParams& p
                                              core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_DiscreteData, params.s_DecayRate),
       m_NumberAvailableCategories(0), m_TotalConcentration(0.0) {
-    if (traverser.traverseSubLevel(std::bind(&CMultinomialConjugate::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -1255,7 +1254,7 @@ std::string CMultinomialConjugate::printJointDensityFunction() const {
     return result.str();
 }
 
-uint64_t CMultinomialConjugate::checksum(uint64_t seed) const {
+std::uint64_t CMultinomialConjugate::checksum(std::uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     seed = CChecksum::calculate(seed, m_NumberAvailableCategories);
     seed = CChecksum::calculate(seed, m_Categories);
@@ -1299,7 +1298,7 @@ void CMultinomialConjugate::removeCategories(TDoubleVec categoriesToRemove) {
 
     std::sort(categoriesToRemove.begin(), categoriesToRemove.end());
     categoriesToRemove.push_back(boost::numeric::bounds<double>::highest());
-    for (std::size_t i = 0u, j = 0; i < m_Categories.size(); /**/) {
+    for (std::size_t i = 0, j = 0; i < m_Categories.size(); /**/) {
         if (m_Categories[i] < categoriesToRemove[j]) {
             std::swap(m_Categories[end], m_Categories[i]);
             std::swap(m_Concentrations[end], m_Concentrations[i]);
@@ -1421,7 +1420,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
 
             // Compute probabilities of less likely categories.
             double pCumulative = 0.0;
-            for (std::size_t i = 0u, j = 0; i < pCategories.size(); /**/) {
+            for (std::size_t i = 0, j = 0; i < pCategories.size(); /**/) {
                 // Find the probability equal range [i, j).
                 double p = pCategories[i].get<1>();
                 pCumulative += p;

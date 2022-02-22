@@ -21,7 +21,7 @@ namespace maths {
 namespace common {
 bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& params,
                                            TClusterer1dPtr& ptr,
-                                           core::CStateRestoreTraverser& traverser) {
+                                           core::CStateRestoreTraverser& traverser) const {
     return this->operator()(params, CClusterer1d::CDoNothing(),
                             CClusterer1d::CDoNothing(), ptr, traverser);
 }
@@ -30,7 +30,7 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& par
                                            const CClusterer1d::TSplitFunc& splitFunc,
                                            const CClusterer1d::TMergeFunc& mergeFunc,
                                            TClusterer1dPtr& ptr,
-                                           core::CStateRestoreTraverser& traverser) {
+                                           core::CStateRestoreTraverser& traverser) const {
     std::size_t numResults(0);
 
     do {
@@ -56,10 +56,10 @@ bool CClustererStateSerialiser::operator()(const SDistributionRestoreParams& par
 }
 
 void CClustererStateSerialiser::operator()(const CClusterer1d& clusterer,
-                                           core::CStatePersistInserter& inserter) {
-    inserter.insertLevel(clusterer.persistenceTag(),
-                         std::bind(&CClusterer1d::acceptPersistInserter,
-                                   &clusterer, std::placeholders::_1));
+                                           core::CStatePersistInserter& inserter) const {
+    inserter.insertLevel(clusterer.persistenceTag(), [&](auto& inserter_) {
+        clusterer.acceptPersistInserter(inserter_);
+    });
 }
 }
 }

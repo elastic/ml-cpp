@@ -1269,7 +1269,7 @@ std::string CNormalMeanPrecConjugate::printJointDensityFunction() const {
     return xCoordinates.str() + yCoordinates.str() + pdf.str();
 }
 
-uint64_t CNormalMeanPrecConjugate::checksum(uint64_t seed) const {
+std::uint64_t CNormalMeanPrecConjugate::checksum(std::uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     seed = CChecksum::calculate(seed, m_GaussianMean);
     seed = CChecksum::calculate(seed, m_GaussianPrecision);

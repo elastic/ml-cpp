@@ -534,9 +534,11 @@ public:
 
         if (!evaluateFunctionOnJointDistribution(
                 m_Samples, m_Weights,
-                std::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
-                                  std::placeholders::_1, std::placeholders::_2,
-                                  std::ref(tail)),
+                [
+                    &tail, p = CTools::CProbabilityOfLessLikelySample(m_Calculation)
+                ](const auto& distribution, double x_) {
+                    return p(distribution, x_, tail);
+                },
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_LikelihoodShape, m_PriorShape, m_PriorRate, probability) ||
             !probability.calculate(result)) {
@@ -730,8 +732,6 @@ const core::TPersistenceTag SAMPLE_MOMENTS_TAG("d", "sample_moments");
 const core::TPersistenceTag PRIOR_SHAPE_TAG("e", "prior_shape");
 const core::TPersistenceTag PRIOR_RATE_TAG("f", "prior_rate");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("g", "number_samples");
-//const std::string MINIMUM_TAG("h"); No longer used
-//const std::string MAXIMUM_TAG("i"); No longer used
 const core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
@@ -754,8 +754,9 @@ CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams& param
                                          double offsetMargin)
     : CPrior(params.s_DataType, 0.0), m_Offset(0.0), m_OffsetMargin(offsetMargin),
       m_LikelihoodShape(1.0), m_PriorShape(0.0), m_PriorRate(0.0) {
-    if (traverser.traverseSubLevel(std::bind(&CGammaRateConjugate::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -1550,7 +1551,7 @@ std::string CGammaRateConjugate::printJointDensityFunction() const {
     return xCoordinates.str() + yCoordinates.str() + pdf.str();
 }
 
-uint64_t CGammaRateConjugate::checksum(uint64_t seed) const {
+std::uint64_t CGammaRateConjugate::checksum(std::uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     seed = CChecksum::calculate(seed, m_Offset);
     seed = CChecksum::calculate(seed, m_LikelihoodShape);

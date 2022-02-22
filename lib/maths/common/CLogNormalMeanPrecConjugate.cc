@@ -368,9 +368,11 @@ public:
 
         if (!evaluateFunctionOnJointDistribution(
                 m_Samples, m_Weights,
-                std::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
-                                  std::placeholders::_1, std::placeholders::_2,
-                                  std::ref(tail)),
+                [
+                    &tail, p = CTools::CProbabilityOfLessLikelySample(m_Calculation)
+                ](const auto& distribution, double x_) {
+                    return p(distribution, x_, tail);
+                },
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_Shape, m_Rate, m_Mean, m_Precision, probability) ||
             !probability.calculate(result)) {
@@ -633,8 +635,6 @@ const core::TPersistenceTag GAUSSIAN_PRECISION_TAG("c", "gaussian_precision");
 const core::TPersistenceTag GAMMA_SHAPE_TAG("d", "gamma_shape");
 const core::TPersistenceTag GAMMA_RATE_TAG("e", "gamma_rate");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("f", "number_samples");
-//const std::string MINIMUM_TAG("g"); No longer used
-//const std::string MAXIMUM_TAG("h"); No longer used
 const core::TPersistenceTag DECAY_RATE_TAG("i", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
@@ -660,8 +660,9 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRest
     : CPrior(params.s_DataType, params.s_DecayRate), m_Offset(0.0),
       m_OffsetMargin(offsetMargin), m_GaussianMean(0.0),
       m_GaussianPrecision(0.0), m_GammaShape(0.0), m_GammaRate(0.0) {
-    if (traverser.traverseSubLevel(std::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -1526,7 +1527,7 @@ std::string CLogNormalMeanPrecConjugate::printJointDensityFunction() const {
     return xCoordinates.str() + yCoordinates.str() + pdf.str();
 }
 
-uint64_t CLogNormalMeanPrecConjugate::checksum(uint64_t seed) const {
+std::uint64_t CLogNormalMeanPrecConjugate::checksum(std::uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     seed = CChecksum::calculate(seed, m_Offset);
     seed = CChecksum::calculate(seed, m_GaussianMean);

@@ -139,14 +139,6 @@ const std::string ANOMALY_MODEL_6_3_TAG{"h"};
 //const std::string CHANGE_DETECTOR_6_3_TAG{"l"}; Removed in 7.11
 const std::string MULTIBUCKET_FEATURE_6_3_TAG{"m"};
 const std::string MULTIBUCKET_FEATURE_MODEL_6_3_TAG{"n"};
-// Version < 6.3
-const std::string ID_OLD_TAG{"a"};
-const std::string CONTROLLER_OLD_TAG{"b"};
-const std::string TREND_OLD_TAG{"c"};
-const std::string PRIOR_OLD_TAG{"d"};
-const std::string ANOMALY_MODEL_OLD_TAG{"e"};
-const std::string IS_NON_NEGATIVE_OLD_TAG{"g"};
-const std::string IS_FORECASTABLE_OLD_TAG{"h"};
 
 // Anomaly model
 // Version >= 7.3
@@ -563,23 +555,21 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const common::SModelRestore
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_SETUP_TEARDOWN(ANOMALY_6_5_TAG, CAnomaly restored,
-                                   traverser.traverseSubLevel(
-                                       std::bind(&CAnomaly::acceptRestoreTraverser,
-                                                 &restored, std::placeholders::_1)),
+                                   traverser.traverseSubLevel([&](auto& traverser_) {
+                                       return restored.acceptRestoreTraverser(traverser_);
+                                   }),
                                    m_Anomaly.reset(restored))
-            RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG,
-                    traverser.traverseSubLevel(std::bind(
-                        &TMultivariateNormalConjugate::acceptRestoreTraverser,
-                        &m_AnomalyFeatureModels[index++], std::placeholders::_1)))
+            RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
+                return m_AnomalyFeatureModels[index++].acceptRestoreTraverser(traverser_);
+            }))
         }
     } else if (traverser.name() == VERSION_6_5_TAG) {
         std::size_t index{0};
         while (traverser.next()) {
             const std::string& name{traverser.name()};
-            RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG,
-                    traverser.traverseSubLevel(std::bind(
-                        &TMultivariateNormalConjugate::acceptRestoreTraverser,
-                        &m_AnomalyFeatureModels[index++], std::placeholders::_1)))
+            RESTORE(ANOMALY_FEATURE_MODEL_6_5_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
+                return m_AnomalyFeatureModels[index++].acceptRestoreTraverser(traverser_);
+            }))
         }
     }
     // else we can't upgrade the state of the anomaly model pre 6.5.
@@ -590,16 +580,16 @@ bool CTimeSeriesAnomalyModel::acceptRestoreTraverser(const common::SModelRestore
 void CTimeSeriesAnomalyModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_7_3_TAG, "");
     if (m_Anomaly) {
-        inserter.insertLevel(ANOMALY_6_5_TAG,
-                             std::bind(&CAnomaly::acceptPersistInserter,
-                                       m_Anomaly.get(), std::placeholders::_1));
+        inserter.insertLevel(ANOMALY_6_5_TAG, [this](auto& inserter_) {
+            m_Anomaly->acceptPersistInserter(inserter_);
+        });
     }
-    inserter.insertLevel(ANOMALY_FEATURE_MODEL_6_5_TAG,
-                         std::bind(&TMultivariateNormalConjugate::acceptPersistInserter,
-                                   &m_AnomalyFeatureModels[0], std::placeholders::_1));
-    inserter.insertLevel(ANOMALY_FEATURE_MODEL_6_5_TAG,
-                         std::bind(&TMultivariateNormalConjugate::acceptPersistInserter,
-                                   &m_AnomalyFeatureModels[1], std::placeholders::_1));
+    inserter.insertLevel(ANOMALY_FEATURE_MODEL_6_5_TAG, [this](auto& inserter_) {
+        m_AnomalyFeatureModels[0].acceptPersistInserter(inserter_);
+    });
+    inserter.insertLevel(ANOMALY_FEATURE_MODEL_6_5_TAG, [this](auto& inserter_) {
+        m_AnomalyFeatureModels[1].acceptPersistInserter(inserter_);
+    });
 }
 
 const maths_t::TDouble10VecWeightsAry1Vec CTimeSeriesAnomalyModel::UNIT{
@@ -1292,35 +1282,6 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRest
                     m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
                 /**/)
         }
-    } else {
-        // There is no version string this is historic state.
-        stateMissingControllerChecks = true;
-        do {
-            const std::string& name{traverser.name()};
-            RESTORE_BUILT_IN(ID_OLD_TAG, m_Id)
-            RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
-            RESTORE_BOOL(IS_FORECASTABLE_OLD_TAG, m_IsForecastable)
-            RESTORE_SETUP_TEARDOWN(
-                CONTROLLER_OLD_TAG,
-                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
-                core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_Controllers, traverser),
-                /**/)
-            RESTORE(TREND_OLD_TAG, traverser.traverseSubLevel(std::bind<bool>(
-                                       CTimeSeriesDecompositionStateSerialiser(),
-                                       std::cref(params.s_DecompositionParams),
-                                       std::ref(m_TrendModel), std::placeholders::_1)))
-            RESTORE(PRIOR_OLD_TAG,
-                    traverser.traverseSubLevel(std::bind<bool>(
-                        common::CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
-                        std::ref(m_ResidualModel), std::placeholders::_1)))
-            RESTORE_SETUP_TEARDOWN(
-                ANOMALY_MODEL_OLD_TAG,
-                m_AnomalyModel = std::make_unique<CTimeSeriesAnomalyModel>(),
-                traverser.traverseSubLevel(std::bind(
-                    &CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                    m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
-                /**/)
-        } while (traverser.next());
     }
 
     if (m_Controllers != nullptr && stateMissingControllerChecks) {
@@ -1892,8 +1853,7 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator& 
 
         // Remove the remaining most weakly correlated models subject
         // to the capacity constraint.
-        common::COrderings::simultaneousSort(presentRank, present,
-                                             std::greater<std::size_t>());
+        common::COrderings::simultaneousSort(presentRank, present, std::greater<>());
         for (std::size_t i = 0; m_CorrelationDistributionModels.size() >
                                 allocator.maxNumberCorrelations();
              ++i) {
@@ -2721,34 +2681,6 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRe
                     m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
                 /**/)
         }
-    } else {
-        stateMissingControllerChecks = true;
-        do {
-            const std::string& name{traverser.name()};
-            RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
-            RESTORE_SETUP_TEARDOWN(
-                CONTROLLER_OLD_TAG,
-                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
-                core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_Controllers, traverser),
-                /**/)
-            RESTORE_SETUP_TEARDOWN(
-                TREND_OLD_TAG, m_TrendModel.push_back(TDecompositionPtr()),
-                traverser.traverseSubLevel(std::bind<bool>(
-                    CTimeSeriesDecompositionStateSerialiser(), std::cref(params.s_DecompositionParams),
-                    std::ref(m_TrendModel.back()), std::placeholders::_1)),
-                /**/)
-            RESTORE(PRIOR_OLD_TAG,
-                    traverser.traverseSubLevel(std::bind<bool>(
-                        common::CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
-                        std::ref(m_ResidualModel), std::placeholders::_1)))
-            RESTORE_SETUP_TEARDOWN(
-                ANOMALY_MODEL_OLD_TAG,
-                m_AnomalyModel = std::make_unique<CTimeSeriesAnomalyModel>(),
-                traverser.traverseSubLevel(std::bind(
-                    &CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                    m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
-                /**/)
-        } while (traverser.next());
     }
 
     this->checkRestoredInvariants();

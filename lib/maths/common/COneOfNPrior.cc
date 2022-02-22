@@ -815,7 +815,7 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
     TMaxAccumulator maxLogLowerBound;
     TMaxAccumulator maxLogUpperBound;
     double logMaximumRemainder = MINUS_INF;
-    for (std::size_t i = 0u, n = logWeights.size(); i < n; ++i) {
+    for (std::size_t i = 0, n = logWeights.size(); i < n; ++i) {
         double wi = logWeights[i].first;
         const CPrior& model = *m_Models[logWeights[i].second].second;
 
@@ -825,7 +825,8 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
             LOG_ERROR(<< "Failed computing c.d.f. complement for "
                       << core::CContainerPrinter::print(samples));
             return false;
-        } else if (!complement && !model.minusLogJointCdf(samples, weights, li, ui)) {
+        }
+        if (!complement && !model.minusLogJointCdf(samples, weights, li, ui)) {
             LOG_ERROR(<< "Failed computing c.d.f. for "
                       << core::CContainerPrinter::print(samples));
             return false;
@@ -1008,7 +1009,7 @@ std::string COneOfNPrior::printJointDensityFunction() const {
     return "Not supported";
 }
 
-uint64_t COneOfNPrior::checksum(uint64_t seed) const {
+std::uint64_t COneOfNPrior::checksum(std::uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     seed = CChecksum::calculate(seed, m_Models);
     seed = CChecksum::calculate(seed, m_SampleMoments);
