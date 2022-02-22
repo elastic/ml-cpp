@@ -95,7 +95,9 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const common::STimeSeriesDeco
     if (traverser.traverseSubLevel([&](auto& traverser_) {
             return this->acceptRestoreTraverser(params.s_ChangeModelParams, traverser_);
         }) == false) {
+        HANDLE_FATAL(<< "Failed to restore time series decomposition.");
         traverser.setBadState();
+        return;
     }
     this->initializeMediator();
 }

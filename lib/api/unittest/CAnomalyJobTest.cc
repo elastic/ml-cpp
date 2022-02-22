@@ -22,11 +22,14 @@
 #include <api/CCsvInputParser.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
+#include <api/CSingleStreamSearcher.h>
+#include <api/CStateRestoreStreamFilter.h>
 
 #include "CTestAnomalyJob.h"
 
 #include <rapidjson/document.h>
 
+#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/tuple/tuple.hpp>
 
@@ -837,6 +840,62 @@ BOOST_AUTO_TEST_CASE(testParsePersistControlMessageArgs) {
         BOOST_TEST_REQUIRE(ml::api::CAnomalyJob::parsePersistControlMessageArgs(
                                invalidPersistControlMessage, snapshotTimestamp,
                                snapshotId, snapshotDescription) == false);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
+    using TStrVec = std::vector<std::string>;
+    using TStrIntMap = std::map<std::string, int>;
+    // map of names of state files to the number of times the fatal error message
+    // "Failed to restore time series decomposition." occurs in the output
+    TStrIntMap stateFiles{{"testfiles/badState1.json", 0},
+                          {"testfiles/badState2.json", 0},
+                          {"testfiles/badState3.json", 2},
+                          {"testfiles/badState4.json", 1}};
+    for (const auto& stateFile : stateFiles) {
+
+        // Open the input state file
+        std::ifstream inputStrm(stateFile.first.c_str());
+        BOOST_TEST_REQUIRE(inputStrm.is_open());
+        std::string persistedState(std::istreambuf_iterator<char>{inputStrm},
+                                   std::istreambuf_iterator<char>{});
+
+        model::CLimits limits;
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "high_sum", "responsetime", "airline", "", "");
+
+        model::CAnomalyDetectorModelConfig modelConfig =
+            model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+
+        std::stringstream outputStrm;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
+
+        ml::core_t::TTime completeToTime(0);
+
+        std::stringstream* output = new std::stringstream();
+        ml::api::CSingleStreamSearcher::TIStreamP strm(output);
+        boost::iostreams::filtering_ostream in;
+        in.push(ml::api::CStateRestoreStreamFilter());
+        in.push(*output);
+        in << persistedState;
+        in.flush();
+
+        ml::api::CSingleStreamSearcher restoreSearcher(strm);
+
+        TStrVec errors;
+        auto errorHandler = [&errors](std::string error) {
+            errors.push_back(error);
+        };
+        core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+        BOOST_TEST_REQUIRE(job.restoreState(restoreSearcher, completeToTime) == false);
+
+        BOOST_TEST_REQUIRE(errors.size() == stateFile.second);
+        for (int i = 0; i < stateFile.second; i++) {
+            BOOST_REQUIRE_EQUAL(errors[i], "Failed to restore time series decomposition.");
+        }
     }
 }
 

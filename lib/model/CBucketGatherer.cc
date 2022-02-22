@@ -155,7 +155,8 @@ struct SBucketCountsPersister {
             }
             if (traverser.traverseSubLevel(
                     std::bind(&restorePersonAttributeCounts, std::placeholders::_1,
-                              std::ref(key), std::ref(count))) == false) {
+                              std::ref(key), std::ref(count))) == false ||
+                traverser.haveBadState()) {
                 LOG_ERROR(<< "Invalid person attribute count");
                 continue;
             }
