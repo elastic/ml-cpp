@@ -18,9 +18,8 @@
 #include <maths/common/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -130,7 +129,7 @@ public:
         void age(double factor);
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     private:
         //! Create by traversing a state document.

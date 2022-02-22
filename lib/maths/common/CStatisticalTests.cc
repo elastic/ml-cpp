@@ -305,7 +305,7 @@ void CStatisticalTests::CCramerVonMises::age(double factor) {
     m_T.age(factor);
 }
 
-uint64_t CStatisticalTests::CCramerVonMises::checksum(uint64_t seed) const {
+std::uint64_t CStatisticalTests::CCramerVonMises::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Size);
     seed = CChecksum::calculate(seed, m_T);
     return CChecksum::calculate(seed, m_F);
