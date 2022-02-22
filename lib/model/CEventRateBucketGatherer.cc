@@ -1141,33 +1141,6 @@ void CEventRateBucketGatherer::featureData(core_t::TTime time,
         CASE_POPULATION_METRIC:
             LOG_ERROR(<< "Unexpected feature = " << model_t::print(feature));
             break;
-
-        case model_t::E_PeersAttributeTotalCountByPerson:
-        case model_t::E_PeersCountByBucketPersonAndAttribute:
-            this->nonZeroAttributeCounts(feature, time, result);
-            break;
-        case model_t::E_PeersUniqueCountByBucketPersonAndAttribute:
-        case model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute:
-        case model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute:
-            this->bucketUniqueValuesPerPersonAttribute(feature, time, result);
-            break;
-        case model_t::E_PeersLowCountsByBucketPersonAndAttribute:
-        case model_t::E_PeersHighCountsByBucketPersonAndAttribute:
-            this->nonZeroAttributeCounts(feature, time, result);
-            break;
-        case model_t::E_PeersInfoContentByBucketPersonAndAttribute:
-        case model_t::E_PeersLowInfoContentByBucketPersonAndAttribute:
-        case model_t::E_PeersHighInfoContentByBucketPersonAndAttribute:
-            this->bucketCompressedLengthPerPersonAttribute(feature, time, result);
-            break;
-        case model_t::E_PeersTimeOfDayByBucketPersonAndAttribute:
-        case model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute:
-            this->bucketMeanTimesPerPersonAttribute(feature, time, result);
-            break;
-
-        CASE_PEERS_METRIC:
-            LOG_ERROR(<< "Unexpected feature = " << model_t::print(feature));
-            break;
         }
     }
 }
@@ -1642,32 +1615,8 @@ void CEventRateBucketGatherer::initializeFeatureData() {
                 this->currentBucketStartTime());
             break;
 
-        case model_t::E_PeersAttributeTotalCountByPerson:
-        case model_t::E_PeersCountByBucketPersonAndAttribute:
-        case model_t::E_PeersLowCountsByBucketPersonAndAttribute:
-        case model_t::E_PeersHighCountsByBucketPersonAndAttribute:
-            // We always gather person attribute counts.
-            break;
-        case model_t::E_PeersUniqueCountByBucketPersonAndAttribute:
-        case model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute:
-        case model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute:
-        case model_t::E_PeersInfoContentByBucketPersonAndAttribute:
-        case model_t::E_PeersLowInfoContentByBucketPersonAndAttribute:
-        case model_t::E_PeersHighInfoContentByBucketPersonAndAttribute:
-            m_FeatureData[model_t::E_UniqueValues] = TSizeSizePrStrDataUMapQueue(
-                m_DataGatherer.params().s_LatencyBuckets, this->bucketLength(),
-                this->currentBucketStartTime(), TSizeSizePrStrDataUMap(1));
-            break;
-        case model_t::E_PeersTimeOfDayByBucketPersonAndAttribute:
-        case model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute:
-            m_FeatureData[model_t::E_DiurnalTimes] = TSizeSizePrMeanAccumulatorUMapQueue(
-                m_DataGatherer.params().s_LatencyBuckets, this->bucketLength(),
-                this->currentBucketStartTime());
-            break;
-
         CASE_INDIVIDUAL_METRIC:
         CASE_POPULATION_METRIC:
-        CASE_PEERS_METRIC:
             LOG_ERROR(<< "Unexpected feature = "
                       << model_t::print(m_DataGatherer.feature(i)));
             break;

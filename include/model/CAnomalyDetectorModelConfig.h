@@ -59,7 +59,6 @@ public:
         E_EventRatePopulationFactory = 2,
         E_MetricPopulationFactory = 3,
         E_CountingFactory = 4,
-        E_EventRatePeersFactory = 5,
         E_UnknownFactory,
         E_BadFactory
     };

@@ -191,23 +191,6 @@ enum EFunction {
     E_PopulationMetricHighVariance = 317,
     E_PopulationMetricLowMedian = 318,
     E_PopulationMetricHighMedian = 319,
-
-    // Peers event rate functions
-    E_PeersCount = 400,
-    E_PeersLowCounts = 401,
-    E_PeersHighCounts = 402,
-    E_PeersDistinctCount = 403,
-    E_PeersLowDistinctCount = 404,
-    E_PeersHighDistinctCount = 405,
-    E_PeersInfoContent = 406,
-    E_PeersLowInfoContent = 407,
-    E_PeersHighInfoContent = 408,
-    //E_PeersRare = 409,
-    //E_PeersRareCount = 410,
-    //E_PeersFreqRare = 411,
-    //E_PeersFreqRareCount = 412,
-    E_PeersTimeOfDay = 413,
-    E_PeersTimeOfWeek = 414
 };
 
 using TFunctionVec = std::vector<EFunction>;
@@ -219,10 +202,6 @@ bool isIndividual(EFunction function);
 //! Is this function for use with the population models?
 MODEL_EXPORT
 bool isPopulation(EFunction function);
-
-//! Is this function for use with the peer group models?
-MODEL_EXPORT
-bool isPeers(EFunction function);
 
 //! Is this function for use with metric models?
 MODEL_EXPORT

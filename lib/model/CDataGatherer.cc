@@ -61,7 +61,6 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
         switch (gathererType) {
         case model_t::E_EventRate:
         case model_t::E_PopulationEventRate:
-        case model_t::E_PeersEventRate:
             switch (features[i]) {
             CASE_INDIVIDUAL_COUNT:
                 features[j] = features[i];
@@ -78,15 +77,6 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                 break;
 
             CASE_POPULATION_METRIC:
-                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
-                break;
-
-            CASE_PEERS_COUNT:
-                features[j] = features[i];
-                ++j;
-                break;
-
-            CASE_PEERS_METRIC:
                 LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
                 break;
             }
@@ -94,8 +84,6 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
 
         case model_t::E_Metric:
         case model_t::E_PopulationMetric:
-        case model_t::E_PeersMetric:
-
             switch (features[i]) {
             CASE_INDIVIDUAL_COUNT:
                 LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
@@ -111,15 +99,6 @@ const CDataGatherer::TFeatureVec& sanitize(CDataGatherer::TFeatureVec& features,
                 break;
 
             CASE_POPULATION_METRIC:
-                features[j] = features[i];
-                ++j;
-                break;
-
-            CASE_PEERS_COUNT:
-                LOG_ERROR(<< "Unexpected feature = " << model_t::print(features[i]));
-                break;
-
-            CASE_PEERS_METRIC:
                 features[j] = features[i];
                 ++j;
                 break;
@@ -150,9 +129,7 @@ bool isPopulation(model_t::EAnalysisCategory gathererType) {
         return false;
 
     case model_t::E_PopulationEventRate:
-    case model_t::E_PeersEventRate:
     case model_t::E_PopulationMetric:
-    case model_t::E_PeersMetric:
         return true;
     }
     return false;
@@ -868,14 +845,12 @@ void CDataGatherer::createBucketGatherer(model_t::EAnalysisCategory gathererType
     switch (gathererType) {
     case model_t::E_EventRate:
     case model_t::E_PopulationEventRate:
-    case model_t::E_PeersEventRate:
         m_BucketGatherer = std::make_unique<CEventRateBucketGatherer>(
             *this, summaryCountFieldName, personFieldName, attributeFieldName,
             valueFieldName, influenceFieldNames, startTime);
         break;
     case model_t::E_Metric:
     case model_t::E_PopulationMetric:
-    case model_t::E_PeersMetric:
         m_SampleCounts = std::make_unique<CSampleCounts>(sampleCountOverride);
         m_BucketGatherer = std::make_unique<CMetricBucketGatherer>(
             *this, summaryCountFieldName, personFieldName, attributeFieldName,
