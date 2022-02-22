@@ -421,7 +421,8 @@ private:
                 if (name == ATTRIBUTE_TAG) {
                     if (traverser.traverseSubLevel(std::bind<bool>(
                             &CDoNewRestore::restoreAttributes<T>, this, std::placeholders::_1,
-                            std::cref(gatherer), std::ref(result))) == false) {
+                            std::cref(gatherer), std::ref(result))) == false ||
+                        traverser.haveBadState()) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -455,7 +456,8 @@ private:
                     }
                     if (traverser.traverseSubLevel(std::bind<bool>(
                             &CDoNewRestore::restorePeople<T>, this, std::placeholders::_1,
-                            std::cref(gatherer), std::ref(result[lastCid]))) == false) {
+                            std::cref(gatherer), std::ref(result[lastCid]))) == false ||
+                        traverser.haveBadState()) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -492,7 +494,8 @@ private:
                               gatherer.endInfluencers());
                     if (traverser.traverseSubLevel(
                             std::bind<bool>(&T::acceptRestoreTraverser, &initial,
-                                            std::placeholders::_1)) == false) {
+                                            std::placeholders::_1)) == false ||
+                        traverser.haveBadState()) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -539,7 +542,8 @@ private:
                               gatherer.endInfluencers());
                     if (traverser.traverseSubLevel(
                             std::bind(&T::acceptRestoreTraverser, &initial,
-                                      std::placeholders::_1)) == false) {
+                                      std::placeholders::_1)) == false ||
+                        traverser.haveBadState()) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -581,7 +585,8 @@ private:
                               gatherer.endInfluencers());
                     if (traverser.traverseSubLevel(
                             std::bind(&T::acceptRestoreTraverser, &initial,
-                                      std::placeholders::_1)) == false) {
+                                      std::placeholders::_1)) == false ||
+                        traverser.haveBadState()) {
                         LOG_ERROR(<< "Invalid data in " << traverser.value());
                         return false;
                     }
@@ -985,7 +990,8 @@ bool CMetricBucketGatherer::acceptRestoreTraverser(core::CStateRestoreTraverser&
         const std::string& name = traverser.name();
         if (name == BASE_TAG) {
             if (traverser.traverseSubLevel(std::bind(&CBucketGatherer::baseAcceptRestoreTraverser,
-                                                     this, std::placeholders::_1)) == false) {
+                                                     this, std::placeholders::_1)) == false ||
+                traverser.haveBadState()) {
                 LOG_ERROR(<< "Invalid data gatherer in " << traverser.value());
                 return false;
             }
