@@ -58,9 +58,6 @@ struct SRestoreTestConfig {
 // The persist/restore cycle of the latest version is always expected to be symmetric.
 // The flags in the version structures will need to be maintained accordingly.
 const std::vector<SRestoreTestConfig> BWC_VERSIONS{
-    SRestoreTestConfig{"5.6.0", false, false},
-    SRestoreTestConfig{"6.0.0", false, false},
-    SRestoreTestConfig{"6.1.0", false, false},
     SRestoreTestConfig{"6.5.0", false, false},
     SRestoreTestConfig{"7.1.0", false, false},
     SRestoreTestConfig{"7.3.0", false, false},
