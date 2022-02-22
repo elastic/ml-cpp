@@ -203,7 +203,8 @@ CDataGatherer::CDataGatherer(model_t::EAnalysisCategory gathererType,
     if (traverser.traverseSubLevel(std::bind(
             &CDataGatherer::acceptRestoreTraverser, this, std::cref(summaryCountFieldName),
             std::cref(personFieldName), std::cref(attributeFieldName), std::cref(valueFieldName),
-            std::cref(influenceFieldNames), std::placeholders::_1)) == false) {
+            std::cref(influenceFieldNames), std::placeholders::_1)) == false ||
+        traverser.haveBadState()) {
         LOG_ERROR(<< "Failed to correctly restore data gatherer");
     }
 }

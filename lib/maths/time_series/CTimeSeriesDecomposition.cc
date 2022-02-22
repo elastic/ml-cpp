@@ -98,9 +98,12 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const common::STimeSeriesDeco
       m_SeasonalityTest{params.s_DecayRate, params.s_MinimumBucketLength},
       m_CalendarCyclicTest{params.s_DecayRate, params.s_MinimumBucketLength},
       m_Components{params.s_DecayRate, params.s_MinimumBucketLength, params.s_ComponentSize} {
-    traverser.traverseSubLevel(
-        std::bind(&CTimeSeriesDecomposition::acceptRestoreTraverser, this,
-                  std::cref(params.s_ChangeModelParams), std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(
+            &CTimeSeriesDecomposition::acceptRestoreTraverser, this,
+            std::cref(params.s_ChangeModelParams), std::placeholders::_1)) == false) {
+        HANDLE_FATAL(<< "Failed to restore time series decomposition.");
+        return;
+    }
     this->initializeMediator();
 }
 
