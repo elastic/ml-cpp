@@ -37,31 +37,29 @@ public:
 
 public:
     //! Get the significance of a left tail F-test for the
-    //! statistic \p v1 / \p v0 under the null hypothesis,
-    //! when H0 and H1 have \p d1 and \p d2 degrees of freedom,
-    //! respectively.
+    //! statistic \p v0 / \p v1 when v0 and v1 have \p d0 and
+    //! \p d1 degrees of freedom, respectively.
     //!
     //! \note This handles edge cases where any of \p v0, \p v1,
     //! \p df0 or \p df1 are zero.
     static double leftTailFTest(double v0, double v1, double df0, double df1);
 
     //! Get the significance of a left tail F-test for \p x
-    //! under the null hypothesis, when the H0 and H1 have
-    // \p d1 and \p d2 degrees of freedom, respectively.
+    //! when the numerator and denominator have \p d0 and \p d1
+    //! degrees of freedom, respectively.
     static double leftTailFTest(double x, double df0, double df1);
 
     //! Get the significance of a right tail F-test for the
-    //! statistic \p v0 / \p v1 under the null hypothesis,
-    //! when H0 and H1 have \p d1 and \p d2 degrees of freedom,
-    //! respectively.
+    //! statistic \p v0 / \p v1 when v0 and v1 have \p d0 and
+    //! \p d1 degrees of freedom, respectively.
     //!
     //! \note This handles edge cases where any of \p v0, \p v1,
     //! \p df0 or \p df1 are zero.
     static double rightTailFTest(double v0, double v1, double df0, double df1);
 
-    //! Get the significance of a right tail F-test for \p x when
-    //! the test statistic has \p d1 and \p d2 degrees of freedom
-    //! under the null hypothesis.
+    //! Get the significance of a right tail F-test for \p x
+    //! when the numerator and denominator have \p d0 and \p d1
+    //! degrees of freedom, respectively.
     static double rightTailFTest(double x, double df0, double df1);
 
     //! A two sample Kolmogorov-Smirnov test.
