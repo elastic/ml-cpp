@@ -75,10 +75,9 @@ bool CDataCategorizer::areNewCategoriesAllowed() {
 }
 
 bool CDataCategorizer::restoreExamplesCollector(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(
-            std::bind(&model::CCategoryExamplesCollector::acceptRestoreTraverser,
-                      std::ref(m_ExamplesCollector), std::placeholders::_1)) == false ||
-        traverser.haveBadState()) {
+    if (traverser.traverseSubLevel(std::bind(
+            &model::CCategoryExamplesCollector::acceptRestoreTraverser,
+            std::ref(m_ExamplesCollector), std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Cannot restore category examples, unexpected element: "
                   << traverser.value());
         return false;
