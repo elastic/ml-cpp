@@ -179,9 +179,11 @@ public:
     CMultivariateMultimodalPrior(const SDistributionRestoreParams& params,
                                  core::CStateRestoreTraverser& traverser)
         : CMultivariatePrior(params.s_DataType, params.s_DecayRate) {
-        traverser.traverseSubLevel([&](auto& traverser_) {
-            return this->acceptRestoreTraverser(params, traverser_);
-        });
+        if (traverser.traverseSubLevel([&](auto& traverser_) {
+                return this->acceptRestoreTraverser(params, traverser_);
+            }) == false) {
+            traverser.setBadState();
+        }
     }
 
     //! Implements value semantics for copy construction.

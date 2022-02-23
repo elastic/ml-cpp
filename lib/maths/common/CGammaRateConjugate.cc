@@ -529,15 +529,15 @@ public:
           m_PriorRate(priorRate), m_Tail(0) {}
 
     bool operator()(double x, double& result) const {
+
         CJointProbabilityOfLessLikelySamples probability;
         maths_t::ETail tail = maths_t::E_UndeterminedTail;
+        CTools::CProbabilityOfLessLikelySample sampleProbability{m_Calculation};
 
         if (!evaluateFunctionOnJointDistribution(
                 m_Samples, m_Weights,
-                [
-                    &tail, p = CTools::CProbabilityOfLessLikelySample(m_Calculation)
-                ](const auto& distribution, double x_) {
-                    return p(distribution, x_, tail);
+                [&](const auto& distribution, double x_) {
+                    return sampleProbability(distribution, x_, tail);
                 },
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_LikelihoodShape, m_PriorShape, m_PriorRate, probability) ||

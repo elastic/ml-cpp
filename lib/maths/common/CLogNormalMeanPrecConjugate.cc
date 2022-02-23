@@ -365,13 +365,12 @@ public:
 
         CJointProbabilityOfLessLikelySamples probability;
         maths_t::ETail tail = maths_t::E_UndeterminedTail;
+        CTools::CProbabilityOfLessLikelySample sampleProbability{m_Calculation};
 
         if (!evaluateFunctionOnJointDistribution(
                 m_Samples, m_Weights,
-                [
-                    &tail, p = CTools::CProbabilityOfLessLikelySample(m_Calculation)
-                ](const auto& distribution, double x_) {
-                    return p(distribution, x_, tail);
+                [&](const auto& distribution, double x_) {
+                    return sampleProbability(distribution, x_, tail);
                 },
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_Shape, m_Rate, m_Mean, m_Precision, probability) ||

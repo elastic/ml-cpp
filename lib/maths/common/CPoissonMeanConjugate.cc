@@ -791,12 +791,14 @@ bool CPoissonMeanConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
 
     double value = 0.0;
     maths_t::ETail tail_ = maths_t::E_UndeterminedTail;
+    CTools::CProbabilityOfLessLikelySample sampleProbability{calculation};
 
     CJointProbabilityOfLessLikelySamples probability;
     if (!detail::evaluateFunctionOnJointDistribution(
             samples, weights,
-            std::bind<double>(CTools::CProbabilityOfLessLikelySample(calculation),
-                              std::placeholders::_1, std::placeholders::_2, std::ref(tail_)),
+            [&](const auto& distribution, double x_) {
+                return sampleProbability(distribution, x_, tail_);
+            },
             CJointProbabilityOfLessLikelySamples::SAddProbability(), m_Offset,
             this->isNonInformative(), m_Shape, m_Rate, probability) ||
         !probability.calculate(value)) {

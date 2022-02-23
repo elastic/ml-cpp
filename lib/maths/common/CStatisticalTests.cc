@@ -169,8 +169,9 @@ CStatisticalTests::CCramerVonMises::CCramerVonMises(std::size_t size)
 }
 
 CStatisticalTests::CCramerVonMises::CCramerVonMises(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CStatisticalTests::CCramerVonMises::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }

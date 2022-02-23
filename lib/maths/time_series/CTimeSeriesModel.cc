@@ -622,8 +622,11 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const common::SModelResto
                                                        core::CStateRestoreTraverser& traverser)
     : common::CModel(params.s_Params), m_IsForecastable(false),
       m_Correlations(nullptr) {
-    traverser.traverseSubLevel(std::bind(&CUnivariateTimeSeriesModel::acceptRestoreTraverser,
-                                         this, std::cref(params), std::placeholders::_1));
+    if (traverser.traverseSubLevel([&](auto& traverser_) {
+            return this->acceptRestoreTraverser(params, traverser_);
+        }) == false) {
+        traverser.setBadState();
+    }
 }
 
 CUnivariateTimeSeriesModel::~CUnivariateTimeSeriesModel() {
@@ -1258,28 +1261,33 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRest
                 core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE(TREND_MODEL_6_3_TAG,
-                    traverser.traverseSubLevel(std::bind<bool>(
-                        CTimeSeriesDecompositionStateSerialiser(),
-                        std::cref(params.s_DecompositionParams),
-                        std::ref(m_TrendModel), std::placeholders::_1)))
+                    traverser.traverseSubLevel(
+                        [&, serialiser = CTimeSeriesDecompositionStateSerialiser{}](auto& traverser_) {
+                            return serialiser(params.s_DecompositionParams, m_TrendModel, traverser_);
+                        }))
             RESTORE(RESIDUAL_MODEL_6_3_TAG,
-                    traverser.traverseSubLevel(std::bind<bool>(
-                        common::CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
-                        std::ref(m_ResidualModel), std::placeholders::_1)))
-            RESTORE(MULTIBUCKET_FEATURE_6_3_TAG,
-                    traverser.traverseSubLevel(std::bind<bool>(
-                        CTimeSeriesMultibucketFeatureSerialiser(),
-                        std::ref(m_MultibucketFeature), std::placeholders::_1)))
+                    traverser.traverseSubLevel(
+                        [&, serialiser = common::CPriorStateSerialiser{} ](auto& traverser_) {
+                            return serialiser(params.s_DistributionParams,
+                                              m_ResidualModel, traverser_);
+                        }))
+            RESTORE(MULTIBUCKET_FEATURE_6_3_TAG, traverser.traverseSubLevel([
+                this, serialiser = CTimeSeriesMultibucketFeatureSerialiser{}
+            ](auto& traverser_) {
+                return serialiser(m_MultibucketFeature, traverser_);
+            }))
             RESTORE(MULTIBUCKET_FEATURE_MODEL_6_3_TAG,
-                    traverser.traverseSubLevel(std::bind<bool>(
-                        common::CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
-                        std::ref(m_MultibucketFeatureModel), std::placeholders::_1)))
+                    traverser.traverseSubLevel(
+                        [&, serialiser = common::CPriorStateSerialiser{} ](auto& traverser_) {
+                            return serialiser(params.s_DistributionParams,
+                                              m_MultibucketFeatureModel, traverser_);
+                        }))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_6_3_TAG,
                 m_AnomalyModel = std::make_unique<CTimeSeriesAnomalyModel>(),
-                traverser.traverseSubLevel(std::bind(
-                    &CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                    m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
+                traverser.traverseSubLevel([&](auto& traverser_) {
+                    return m_AnomalyModel->acceptRestoreTraverser(params, traverser_);
+                }),
                 /**/)
         }
     }
@@ -1306,17 +1314,15 @@ void CUnivariateTimeSeriesModel::checkRestoredInvariants() const {
 
 void CUnivariateTimeSeriesModel::persistModelsState(core::CStatePersistInserter& inserter) const {
     if (m_TrendModel != nullptr) {
-        inserter.insertLevel(
-            TREND_MODEL_6_3_TAG,
-            std::bind<void>(CTimeSeriesDecompositionStateSerialiser{},
-                            std::cref(*m_TrendModel), std::placeholders::_1));
+        inserter.insertLevel(TREND_MODEL_6_3_TAG, [
+            this, serialiser = CTimeSeriesDecompositionStateSerialiser{}
+        ](auto& inserter_) { serialiser(*m_TrendModel, inserter_); });
     }
 
     if (m_ResidualModel != nullptr) {
-        inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
-                             std::bind<void>(common::CPriorStateSerialiser{},
-                                             std::cref(*m_ResidualModel),
-                                             std::placeholders::_1));
+        inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG, [
+            this, serialiser = common::CPriorStateSerialiser{}
+        ](auto& inserter_) { serialiser(*m_ResidualModel, inserter_); });
     }
 }
 
@@ -1332,33 +1338,29 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
         core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
     }
     if (m_TrendModel != nullptr) {
-        inserter.insertLevel(
-            TREND_MODEL_6_3_TAG,
-            std::bind<void>(CTimeSeriesDecompositionStateSerialiser{},
-                            std::cref(*m_TrendModel), std::placeholders::_1));
+        inserter.insertLevel(TREND_MODEL_6_3_TAG, [
+            this, serialiser = CTimeSeriesDecompositionStateSerialiser{}
+        ](auto& inserter_) { serialiser(*m_TrendModel, inserter_); });
     }
     if (m_ResidualModel != nullptr) {
-        inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
-                             std::bind<void>(common::CPriorStateSerialiser{},
-                                             std::cref(*m_ResidualModel),
-                                             std::placeholders::_1));
+        inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG, [
+            this, serialiser = common::CPriorStateSerialiser{}
+        ](auto& inserter_) { serialiser(*m_ResidualModel, inserter_); });
     }
     if (m_MultibucketFeature != nullptr) {
-        inserter.insertLevel(MULTIBUCKET_FEATURE_6_3_TAG,
-                             std::bind<void>(CTimeSeriesMultibucketFeatureSerialiser(),
-                                             std::cref(m_MultibucketFeature),
-                                             std::placeholders::_1));
+        inserter.insertLevel(MULTIBUCKET_FEATURE_6_3_TAG, [
+            this, serialiser = CTimeSeriesMultibucketFeatureSerialiser{}
+        ](auto& inserter_) { serialiser(m_MultibucketFeature, inserter_); });
     }
     if (m_MultibucketFeatureModel != nullptr) {
-        inserter.insertLevel(MULTIBUCKET_FEATURE_MODEL_6_3_TAG,
-                             std::bind<void>(common::CPriorStateSerialiser{},
-                                             std::cref(*m_MultibucketFeatureModel),
-                                             std::placeholders::_1));
+        inserter.insertLevel(MULTIBUCKET_FEATURE_MODEL_6_3_TAG, [
+            this, serialiser = common::CPriorStateSerialiser{}
+        ](auto& inserter_) { serialiser(*m_MultibucketFeatureModel, inserter_); });
     }
     if (m_AnomalyModel != nullptr) {
-        inserter.insertLevel(ANOMALY_MODEL_6_3_TAG,
-                             std::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
-                                       m_AnomalyModel.get(), std::placeholders::_1));
+        inserter.insertLevel(ANOMALY_MODEL_6_3_TAG, [this](auto& inserter_) {
+            m_AnomalyModel->acceptPersistInserter(inserter_);
+        });
     }
 }
 
@@ -1910,15 +1912,14 @@ bool CTimeSeriesCorrelations::acceptRestoreTraverser(const common::SDistribution
                                                      core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
-        RESTORE(K_MOST_CORRELATED_TAG, traverser.traverseSubLevel(std::bind(
-                                           &common::CKMostCorrelated::acceptRestoreTraverser,
-                                           &m_Correlations, std::placeholders::_1)))
+        RESTORE(K_MOST_CORRELATED_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+            return m_Correlations.acceptRestoreTraverser(traverser_);
+        }))
         RESTORE(CORRELATED_LOOKUP_TAG,
                 core::CPersistUtils::restore(CORRELATED_LOOKUP_TAG, m_CorrelatedLookup, traverser))
-        RESTORE(CORRELATION_MODELS_TAG,
-                traverser.traverseSubLevel(
-                    std::bind(&CTimeSeriesCorrelations::restoreCorrelationModels,
-                              this, std::cref(params), std::placeholders::_1)))
+        RESTORE(CORRELATION_MODELS_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
+            return this->restoreCorrelationModels(params, traverser_);
+        }))
     } while (traverser.next());
     return true;
 }
@@ -1929,24 +1930,25 @@ void CTimeSeriesCorrelations::acceptPersistInserter(core::CStatePersistInserter&
     // maintained transitively during an update at the end of a bucket
     // and so always empty at the point persistence occurs.
 
-    inserter.insertLevel(K_MOST_CORRELATED_TAG,
-                         std::bind(&common::CKMostCorrelated::acceptPersistInserter,
-                                   &m_Correlations, std::placeholders::_1));
+    inserter.insertLevel(K_MOST_CORRELATED_TAG, [this](auto& inserter_) {
+        m_Correlations.acceptPersistInserter(inserter_);
+    });
     core::CPersistUtils::persist(CORRELATED_LOOKUP_TAG, m_CorrelatedLookup, inserter);
-    inserter.insertLevel(CORRELATION_MODELS_TAG,
-                         std::bind(&CTimeSeriesCorrelations::persistCorrelationModels,
-                                   this, std::placeholders::_1));
+    inserter.insertLevel(CORRELATION_MODELS_TAG, [this](auto& inserter_) {
+        this->persistCorrelationModels(inserter_);
+    });
 }
 
 bool CTimeSeriesCorrelations::restoreCorrelationModels(const common::SDistributionRestoreParams& params,
                                                        core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
-        RESTORE_SETUP_TEARDOWN(
-            CORRELATION_MODEL_TAG, TSizeSizePrMultivariatePriorPtrDoublePrPr prior,
-            traverser.traverseSubLevel(std::bind(
-                &restore, std::cref(params), std::ref(prior), std::placeholders::_1)),
-            m_CorrelationDistributionModels.insert(std::move(prior)))
+        RESTORE_SETUP_TEARDOWN(CORRELATION_MODEL_TAG,
+                               TSizeSizePrMultivariatePriorPtrDoublePrPr prior,
+                               traverser.traverseSubLevel([&](auto& traverser_) {
+                                   return restore(params, prior, traverser_);
+                               }),
+                               m_CorrelationDistributionModels.insert(std::move(prior)))
     } while (traverser.next());
     return true;
 }
@@ -1963,8 +1965,9 @@ void CTimeSeriesCorrelations::persistCorrelationModels(core::CStatePersistInsert
     std::sort(ordered.begin(), ordered.end(),
               core::CFunctional::SDereference<common::COrderings::SFirstLess>());
     for (auto prior : ordered) {
-        inserter.insertLevel(CORRELATION_MODEL_TAG,
-                             std::bind(&persist, std::cref(*prior), std::placeholders::_1));
+        inserter.insertLevel(CORRELATION_MODEL_TAG, [&](auto& inserter_) {
+            return persist(*prior, inserter_);
+        });
     }
 }
 
@@ -1976,9 +1979,10 @@ bool CTimeSeriesCorrelations::restore(const common::SDistributionRestoreParams& 
         RESTORE_BUILT_IN(FIRST_CORRELATE_ID_TAG, model.first.first)
         RESTORE_BUILT_IN(SECOND_CORRELATE_ID_TAG, model.first.second)
         RESTORE(CORRELATION_MODEL_TAG,
-                traverser.traverseSubLevel(std::bind<bool>(
-                    common::CPriorStateSerialiser(), std::cref(params),
-                    std::ref(model.second.first), std::placeholders::_1)))
+                traverser.traverseSubLevel(
+                    [&, serialiser = common::CPriorStateSerialiser{} ](auto& traverser_) {
+                        return serialiser(params, model.second.first, traverser_);
+                    }))
         RESTORE_BUILT_IN(CORRELATION_TAG, model.second.second)
 
     } while (traverser.next());
@@ -1989,10 +1993,9 @@ void CTimeSeriesCorrelations::persist(const TConstSizeSizePrMultivariatePriorPtr
                                       core::CStatePersistInserter& inserter) {
     inserter.insertValue(FIRST_CORRELATE_ID_TAG, model.first.first);
     inserter.insertValue(SECOND_CORRELATE_ID_TAG, model.first.second);
-    inserter.insertLevel(CORRELATION_MODEL_TAG,
-                         std::bind<void>(common::CPriorStateSerialiser(),
-                                         std::cref(*model.second.first),
-                                         std::placeholders::_1));
+    inserter.insertLevel(CORRELATION_MODEL_TAG, [
+        &model, serialiser = common::CPriorStateSerialiser{}
+    ](auto& inserter_) { serialiser(*model.second.first, inserter_); });
     inserter.insertValue(CORRELATION_TAG, model.second.second, core::CIEEE754::E_SinglePrecision);
 }
 
@@ -2161,8 +2164,11 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const CMultivariateTi
 CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const common::SModelRestoreParams& params,
                                                            core::CStateRestoreTraverser& traverser)
     : common::CModel(params.s_Params) {
-    traverser.traverseSubLevel(std::bind(&CMultivariateTimeSeriesModel::acceptRestoreTraverser,
-                                         this, std::cref(params), std::placeholders::_1));
+    if (traverser.traverseSubLevel([&](auto& traverser_) {
+            return this->acceptRestoreTraverser(params, traverser_);
+        }) == false) {
+        traverser.setBadState();
+    }
 }
 
 CMultivariateTimeSeriesModel::~CMultivariateTimeSeriesModel() {
@@ -2656,29 +2662,36 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRe
                 core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
-                TREND_MODEL_6_3_TAG, m_TrendModel.push_back(TDecompositionPtr()),
-                traverser.traverseSubLevel(std::bind<bool>(
-                    CTimeSeriesDecompositionStateSerialiser(), std::cref(params.s_DecompositionParams),
-                    std::ref(m_TrendModel.back()), std::placeholders::_1)),
+                TREND_MODEL_6_3_TAG, m_TrendModel.emplace_back(),
+                traverser.traverseSubLevel([
+                    &, serialiser = CTimeSeriesDecompositionStateSerialiser{}
+                ](auto& traverser_) {
+                    return serialiser(params.s_DecompositionParams, m_TrendModel.back(), traverser_);
+                }),
                 /**/)
             RESTORE(RESIDUAL_MODEL_6_3_TAG,
-                    traverser.traverseSubLevel(std::bind<bool>(
-                        common::CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
-                        std::ref(m_ResidualModel), std::placeholders::_1)))
-            RESTORE(MULTIBUCKET_FEATURE_6_3_TAG,
-                    traverser.traverseSubLevel(std::bind<bool>(
-                        CTimeSeriesMultibucketFeatureSerialiser(),
-                        std::ref(m_MultibucketFeature), std::placeholders::_1)))
+                    traverser.traverseSubLevel(
+                        [&, serialiser = common::CPriorStateSerialiser{} ](auto& traverser_) {
+                            return serialiser(params.s_DistributionParams,
+                                              m_ResidualModel, traverser_);
+                        }))
+            RESTORE(MULTIBUCKET_FEATURE_6_3_TAG, traverser.traverseSubLevel([
+                this, serialiser = CTimeSeriesMultibucketFeatureSerialiser{}
+            ](auto& traverser_) {
+                return serialiser(m_MultibucketFeature, traverser_);
+            }))
             RESTORE(MULTIBUCKET_FEATURE_MODEL_6_3_TAG,
-                    traverser.traverseSubLevel(std::bind<bool>(
-                        common::CPriorStateSerialiser(), std::cref(params.s_DistributionParams),
-                        std::ref(m_MultibucketFeatureModel), std::placeholders::_1)))
+                    traverser.traverseSubLevel(
+                        [&, serialiser = common::CPriorStateSerialiser{} ](auto& traverser_) {
+                            return serialiser(params.s_DistributionParams,
+                                              m_MultibucketFeatureModel, traverser_);
+                        }))
             RESTORE_SETUP_TEARDOWN(
                 ANOMALY_MODEL_6_3_TAG,
                 m_AnomalyModel = std::make_unique<CTimeSeriesAnomalyModel>(),
-                traverser.traverseSubLevel(std::bind(
-                    &CTimeSeriesAnomalyModel::acceptRestoreTraverser,
-                    m_AnomalyModel.get(), std::cref(params), std::placeholders::_1)),
+                traverser.traverseSubLevel([&](auto& traverser_) {
+                    return m_AnomalyModel->acceptRestoreTraverser(params, traverser_);
+                }),
                 /**/)
         }
     }
@@ -2719,32 +2732,29 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
         core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
     }
     for (const auto& trend : m_TrendModel) {
-        inserter.insertLevel(TREND_MODEL_6_3_TAG,
-                             std::bind<void>(CTimeSeriesDecompositionStateSerialiser(),
-                                             std::cref(*trend), std::placeholders::_1));
+        inserter.insertLevel(TREND_MODEL_6_3_TAG, [
+            &trend, serialiser = CTimeSeriesDecompositionStateSerialiser{}
+        ](auto& inserter_) { serialiser(*trend, inserter_); });
     }
     if (m_ResidualModel != nullptr) {
-        inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG,
-                             std::bind<void>(common::CPriorStateSerialiser(),
-                                             std::cref(*m_ResidualModel),
-                                             std::placeholders::_1));
+        inserter.insertLevel(RESIDUAL_MODEL_6_3_TAG, [
+            this, serialiser = common::CPriorStateSerialiser{}
+        ](auto& inserter_) { serialiser(*m_ResidualModel, inserter_); });
     }
     if (m_MultibucketFeature != nullptr) {
-        inserter.insertLevel(MULTIBUCKET_FEATURE_6_3_TAG,
-                             std::bind<void>(CTimeSeriesMultibucketFeatureSerialiser(),
-                                             std::cref(m_MultibucketFeature),
-                                             std::placeholders::_1));
+        inserter.insertLevel(MULTIBUCKET_FEATURE_6_3_TAG, [
+            this, serialiser = CTimeSeriesMultibucketFeatureSerialiser{}
+        ](auto& inserter_) { serialiser(m_MultibucketFeature, inserter_); });
     }
     if (m_MultibucketFeatureModel != nullptr) {
-        inserter.insertLevel(MULTIBUCKET_FEATURE_MODEL_6_3_TAG,
-                             std::bind<void>(common::CPriorStateSerialiser{},
-                                             std::cref(*m_MultibucketFeatureModel),
-                                             std::placeholders::_1));
+        inserter.insertLevel(MULTIBUCKET_FEATURE_MODEL_6_3_TAG, [
+            this, serialiser = common::CPriorStateSerialiser{}
+        ](auto& inserter_) { serialiser(*m_MultibucketFeatureModel, inserter_); });
     }
     if (m_AnomalyModel != nullptr) {
-        inserter.insertLevel(ANOMALY_MODEL_6_3_TAG,
-                             std::bind(&CTimeSeriesAnomalyModel::acceptPersistInserter,
-                                       m_AnomalyModel.get(), std::placeholders::_1));
+        inserter.insertLevel(ANOMALY_MODEL_6_3_TAG, [this](auto& inserter_) {
+            m_AnomalyModel->acceptPersistInserter(inserter_);
+        });
     }
 }
 
