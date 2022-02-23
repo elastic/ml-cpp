@@ -263,9 +263,8 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
         auto* data{boost::unsafe_any_cast<TSizeUSetVec>(
             &featureData.emplace(model_t::E_AttributePeople, TSizeUSetVec())
                  .first->second)};
-        if (traverser.traverseSubLevel(std::bind(
-                &restoreAttributePeopleData, std::placeholders::_1, std::ref(*data))) == false ||
-            traverser.haveBadState()) {
+        if (traverser.traverseSubLevel(std::bind(&restoreAttributePeopleData, std::placeholders::_1,
+                                                 std::ref(*data))) == false) {
             LOG_ERROR(<< "Invalid attribute/people mapping in " << traverser.value());
             return false;
         }
@@ -280,8 +279,7 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
         if (traverser.traverseSubLevel(std::bind<bool>(
                 TSizeSizePrStrDataUMapQueue::CSerializer<SStrDataBucketSerializer>(
                     TSizeSizePrStrDataUMap(1)),
-                std::ref(*data), std::placeholders::_1)) == false ||
-            traverser.haveBadState()) {
+                std::ref(*data), std::placeholders::_1)) == false) {
             LOG_ERROR(<< "Invalid unique value mapping in " << traverser.value());
             return false;
         }
@@ -294,8 +292,7 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
                  .first->second)};
         if (traverser.traverseSubLevel(std::bind<bool>(
                 TSizeSizePrMeanAccumulatorUMapQueue::CSerializer<STimesBucketSerializer>(),
-                std::ref(*data), std::placeholders::_1)) == false ||
-            traverser.haveBadState()) {
+                std::ref(*data), std::placeholders::_1)) == false) {
             LOG_ERROR(<< "Invalid times mapping in " << traverser.value());
             return false;
         }

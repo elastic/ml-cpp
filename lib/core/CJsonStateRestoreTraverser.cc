@@ -73,6 +73,10 @@ bool CJsonStateRestoreTraverser::nextObject() {
         return false;
     }
 
+    if (haveBadState()) {
+        return false;
+    }
+
     // Advance to the next start object token
     bool ok = this->advance() && this->advance();
     ok = ok && this->next();
@@ -85,6 +89,10 @@ bool CJsonStateRestoreTraverser::hasSubLevel() const {
         if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return false;
         }
+    }
+
+    if (haveBadState()) {
+        return false;
     }
 
     return this->currentLevel() == 1 + m_DesiredLevel;
@@ -125,6 +133,10 @@ bool CJsonStateRestoreTraverser::descend() {
         }
     }
 
+    if (haveBadState()) {
+        return false;
+    }
+
     if (this->currentLevel() != 1 + m_DesiredLevel) {
         return false;
     }
@@ -148,6 +160,10 @@ bool CJsonStateRestoreTraverser::ascend() {
     // wrong
     if (m_DesiredLevel == 0) {
         LOG_ERROR(<< "Inconsistency - trying to ascend above JSON root");
+        return false;
+    }
+
+    if (haveBadState()) {
         return false;
     }
 
