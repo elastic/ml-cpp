@@ -950,8 +950,7 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
             m_ModelConfig.interimBucketCorrector(interimBucketCorrector);
         } else if (name == TOP_LEVEL_DETECTOR_TAG) {
             if (traverser.traverseSubLevel(std::bind(&CAnomalyJob::restoreSingleDetector,
-                                                     this, std::placeholders::_1)) == false ||
-                traverser.haveBadState()) {
+                                                     this, std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Cannot restore anomaly detector");
                 return false;
             }
@@ -959,8 +958,7 @@ bool CAnomalyJob::restoreState(core::CStateRestoreTraverser& traverser,
         } else if (name == RESULTS_AGGREGATOR_TAG) {
             if (traverser.traverseSubLevel(std::bind(
                     &model::CHierarchicalResultsAggregator::acceptRestoreTraverser,
-                    &m_Aggregator, std::placeholders::_1)) == false ||
-                traverser.haveBadState()) {
+                    &m_Aggregator, std::placeholders::_1)) == false) {
                 LOG_ERROR(<< "Cannot restore results aggregator");
                 return false;
             }
@@ -1038,8 +1036,7 @@ bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser& traverser)
         return false;
     }
 
-    if (this->restoreDetectorState(key, partitionFieldValue, traverser) == false ||
-        traverser.haveBadState()) {
+    if (this->restoreDetectorState(key, partitionFieldValue, traverser) == false) {
         LOG_ERROR(<< "Delegated portion of anomaly detector restore failed");
         m_RestoredStateDetail.s_RestoredStateStatus = E_Failure;
         return false;
@@ -1070,8 +1067,7 @@ bool CAnomalyJob::restoreDetectorState(const model::CSearchKey& key,
 
     if (traverser.traverseSubLevel(std::bind(
             &model::CAnomalyDetector::acceptRestoreTraverser, detector.get(),
-            std::cref(partitionFieldValue), std::placeholders::_1)) == false ||
-        traverser.haveBadState()) {
+            std::cref(partitionFieldValue), std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Error restoring anomaly detector for key '" << key.debug()
                   << '/' << partitionFieldValue << '\'');
         return false;
