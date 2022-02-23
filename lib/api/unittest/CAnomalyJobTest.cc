@@ -884,18 +884,7 @@ BOOST_AUTO_TEST_CASE(testRestoreFromBadState) {
 
         ml::api::CSingleStreamSearcher restoreSearcher(strm);
 
-        TStrVec errors;
-        auto errorHandler = [&errors](std::string error) {
-            errors.push_back(error);
-        };
-        core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
-
         BOOST_TEST_REQUIRE(job.restoreState(restoreSearcher, completeToTime) == false);
-
-        BOOST_TEST_REQUIRE(errors.size() == stateFile.second);
-        for (int i = 0; i < stateFile.second; i++) {
-            BOOST_REQUIRE_EQUAL(errors[i], "Failed to restore time series decomposition.");
-        }
     }
 }
 
