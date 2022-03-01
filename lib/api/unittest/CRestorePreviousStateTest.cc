@@ -58,10 +58,8 @@ struct SRestoreTestConfig {
 // The persist/restore cycle of the latest version is always expected to be symmetric.
 // The flags in the version structures will need to be maintained accordingly.
 const std::vector<SRestoreTestConfig> BWC_VERSIONS{
-    SRestoreTestConfig{"6.5.0", false, false},
-    SRestoreTestConfig{"7.1.0", false, false},
-    SRestoreTestConfig{"7.3.0", false, false},
-    SRestoreTestConfig{"7.9.0", false, true}};
+    SRestoreTestConfig{"6.5.0", false, false}, SRestoreTestConfig{"7.1.0", false, false},
+    SRestoreTestConfig{"7.3.0", false, false}, SRestoreTestConfig{"7.9.0", false, true}};
 
 std::string stripDocIds(const std::string& persistedState) {
     // State is persisted in the Elasticsearch bulk format.
