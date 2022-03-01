@@ -526,7 +526,6 @@ public:
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(const common::SDistributionRestoreParams& params,
-                                    core_t::TTime lastValueTime,
                                     core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.

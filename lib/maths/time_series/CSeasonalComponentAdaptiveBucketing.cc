@@ -76,13 +76,6 @@ const core::TPersistenceTag REGRESSION_6_3_TAG{"e", "regression"};
 const core::TPersistenceTag VARIANCE_6_3_TAG{"f", "variance"};
 const core::TPersistenceTag FIRST_UPDATE_6_3_TAG{"g", "first_update"};
 const core::TPersistenceTag LAST_UPDATE_6_3_TAG{"h", "last_update"};
-// Version < 6.3
-const std::string ADAPTIVE_BUCKETING_OLD_TAG{"a"};
-const std::string TIME_OLD_TAG{"b"};
-const std::string INITIAL_TIME_OLD_TAG{"c"};
-const std::string REGRESSION_OLD_TAG{"d"};
-const std::string VARIANCES_OLD_TAG{"e"};
-const std::string LAST_UPDATES_OLD_TAG{"f"};
 
 const std::string EMPTY_STRING;
 const core_t::TTime UNSET_TIME{0};
@@ -109,13 +102,14 @@ CSeasonalComponentAdaptiveBucketing::CSeasonalComponentAdaptiveBucketing(
     double minimumBucketLength,
     core::CStateRestoreTraverser& traverser)
     : CAdaptiveBucketing{decayRate, minimumBucketLength} {
-    if (traverser.traverseSubLevel(std::bind(&CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
 
-const CSeasonalComponentAdaptiveBucketing& CSeasonalComponentAdaptiveBucketing::
+CSeasonalComponentAdaptiveBucketing& CSeasonalComponentAdaptiveBucketing::
 operator=(const CSeasonalComponentAdaptiveBucketing& rhs) {
     if (&rhs != this) {
         CSeasonalComponentAdaptiveBucketing tmp(rhs);
@@ -127,9 +121,9 @@ operator=(const CSeasonalComponentAdaptiveBucketing& rhs) {
 void CSeasonalComponentAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_6_3_TAG, "");
     inserter.insertLevel(ADAPTIVE_BUCKETING_6_3_TAG, this->getAcceptPersistInserter());
-    inserter.insertLevel(TIME_6_3_TAG,
-                         std::bind(&CSeasonalTimeStateSerializer::acceptPersistInserter,
-                                   std::cref(*m_Time), std::placeholders::_1));
+    inserter.insertLevel(TIME_6_3_TAG, [this](auto& inserter_) {
+        CSeasonalTimeStateSerializer::acceptPersistInserter(*m_Time, inserter_);
+    });
     core::CPersistUtils::persist(BUCKETS_6_3_TAG, m_Buckets, inserter);
 }
 
@@ -286,7 +280,7 @@ void CSeasonalComponentAdaptiveBucketing::propagateForwardsByTime(double time, d
 
 double CSeasonalComponentAdaptiveBucketing::count(core_t::TTime time) const {
     const TRegression* regression{this->regression(time)};
-    return regression ? regression->count() : 0.0;
+    return regression != nullptr ? regression->count() : 0.0;
 }
 
 const TRegression* CSeasonalComponentAdaptiveBucketing::regression(core_t::TTime time) const {
@@ -340,51 +334,14 @@ bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
             const std::string& name{traverser.name()};
             RESTORE(ADAPTIVE_BUCKETING_6_3_TAG,
                     traverser.traverseSubLevel(this->getAcceptRestoreTraverser()))
-            RESTORE(TIME_6_3_TAG, traverser.traverseSubLevel(std::bind(
-                                      &CSeasonalTimeStateSerializer::acceptRestoreTraverser,
-                                      std::ref(m_Time), std::placeholders::_1)))
+            RESTORE(TIME_6_3_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+                return CSeasonalTimeStateSerializer::acceptRestoreTraverser(m_Time, traverser_);
+            }))
             RESTORE(BUCKETS_6_3_TAG,
                     core::CPersistUtils::restore(BUCKETS_6_3_TAG, m_Buckets, traverser))
         }
     } else {
-        // There is no version string this is historic state.
-
-        using TTimeVec = std::vector<core_t::TTime>;
-        using TRegressionVec = std::vector<TRegression>;
-
-        core_t::TTime initialTime;
-        TRegressionVec regressions;
-        TFloatVec variances;
-        TTimeVec lastUpdates;
-        do {
-            const std::string& name{traverser.name()};
-            RESTORE(ADAPTIVE_BUCKETING_OLD_TAG,
-                    traverser.traverseSubLevel(this->getAcceptRestoreTraverser()));
-            RESTORE(TIME_OLD_TAG, traverser.traverseSubLevel(std::bind(
-                                      &CSeasonalTimeStateSerializer::acceptRestoreTraverser,
-                                      std::ref(m_Time), std::placeholders::_1)))
-            RESTORE_BUILT_IN(INITIAL_TIME_OLD_TAG, initialTime)
-            RESTORE_SETUP_TEARDOWN(REGRESSION_OLD_TAG, TRegression regression,
-                                   traverser.traverseSubLevel(std::bind(
-                                       &TRegression::acceptRestoreTraverser,
-                                       &regression, std::placeholders::_1)),
-                                   regressions.push_back(regression))
-            RESTORE(VARIANCES_OLD_TAG,
-                    core::CPersistUtils::fromString(traverser.value(), variances))
-            RESTORE(LAST_UPDATES_OLD_TAG,
-                    core::CPersistUtils::fromString(traverser.value(), lastUpdates))
-        } while (traverser.next());
-        // This wasn't present in version 5.6 so needs to be default
-        // initialised if it is missing from the state object.
-        if (lastUpdates.empty()) {
-            lastUpdates.resize(regressions.size(), UNSET_TIME);
-        }
-        m_Buckets.clear();
-        m_Buckets.reserve(regressions.size());
-        for (std::size_t i = 0; i < regressions.size(); ++i) {
-            m_Buckets.emplace_back(regressions[i], variances[i], initialTime,
-                                   lastUpdates[i]);
-        }
+        return false;
     }
 
     m_Buckets.shrink_to_fit();
@@ -658,9 +615,9 @@ CSeasonalComponentAdaptiveBucketing::SBucket::SBucket(const TRegression& regress
 bool CSeasonalComponentAdaptiveBucketing::SBucket::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
-        RESTORE(REGRESSION_6_3_TAG, traverser.traverseSubLevel(std::bind(
-                                        &TRegression::acceptRestoreTraverser,
-                                        &s_Regression, std::placeholders::_1)))
+        RESTORE(REGRESSION_6_3_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+            return s_Regression.acceptRestoreTraverser(traverser_);
+        }))
         RESTORE(VARIANCE_6_3_TAG, s_Variance.fromString(traverser.value()))
         RESTORE_BUILT_IN(FIRST_UPDATE_6_3_TAG, s_FirstUpdate)
         RESTORE_BUILT_IN(LAST_UPDATE_6_3_TAG, s_LastUpdate)
@@ -670,9 +627,9 @@ bool CSeasonalComponentAdaptiveBucketing::SBucket::acceptRestoreTraverser(core::
 
 void CSeasonalComponentAdaptiveBucketing::SBucket::acceptPersistInserter(
     core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(REGRESSION_6_3_TAG,
-                         std::bind(&TRegression::acceptPersistInserter,
-                                   &s_Regression, std::placeholders::_1));
+    inserter.insertLevel(REGRESSION_6_3_TAG, [this](auto& inserter_) {
+        s_Regression.acceptPersistInserter(inserter_);
+    });
     inserter.insertValue(VARIANCE_6_3_TAG, s_Variance.toString());
     inserter.insertValue(FIRST_UPDATE_6_3_TAG, s_FirstUpdate);
     inserter.insertValue(LAST_UPDATE_6_3_TAG, s_LastUpdate);

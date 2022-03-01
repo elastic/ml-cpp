@@ -372,13 +372,13 @@ CTimeSeriesTestForChange::TChangePointUPtr CTimeSeriesTestForChange::test() cons
 
     TChangePointVec changes;
     changes.reserve(3);
-    if (m_TestFor & E_LevelShift) {
+    if ((m_TestFor & E_LevelShift) != 0) {
         changes.push_back(this->levelShift(variance, truncatedVariance, parameters));
     }
-    if (m_TestFor & E_LinearScale) {
+    if ((m_TestFor & E_LinearScale) != 0) {
         changes.push_back(this->scale(variance, truncatedVariance, parameters));
     }
-    if (m_TestFor & E_TimeShift) {
+    if ((m_TestFor & E_TimeShift) != 0) {
         changes.push_back(this->timeShift(variance, truncatedVariance, parameters));
     }
 

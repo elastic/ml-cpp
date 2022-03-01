@@ -55,7 +55,7 @@ public:
             EIGENVECTOR y(toDenseVector(residual));
 
             // Check the residual is zero on the singular subspace.
-            std::size_t rank = static_cast<std::size_t>(covariance.rank());
+            auto rank = static_cast<std::size_t>(covariance.rank());
             if (!ignoreSingularSubspace && rank < d) {
                 double normC =
                     (y.transpose() * covariance.matrixU().leftCols(rank)).norm();
@@ -102,7 +102,7 @@ public:
             EIGENVECTOR y(toDenseVector(residual));
 
             // Check the residual is zero on the singular subspace.
-            std::size_t rank = static_cast<std::size_t>(covariance.rank());
+            auto rank = static_cast<std::size_t>(covariance.rank());
             if (!ignoreSingularSubspace && rank < d) {
                 double normC =
                     (y.transpose() * covariance.matrixU().leftCols(rank)).norm();
@@ -154,7 +154,7 @@ public:
         VECTOR_PRECISE mean(mean_);
         auto covariance =
             toDenseMatrix(covariance_).jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
-        std::size_t rank = static_cast<std::size_t>(covariance.rank());
+        auto rank = static_cast<std::size_t>(covariance.rank());
 
         std::size_t numberIntervals = n / rank;
         if (numberIntervals == 0) {
@@ -219,7 +219,7 @@ public:
             auto svd = toDenseMatrix(m_).jacobiSvd();
 
             // Check the residual is zero on the singular subspace.
-            std::size_t rank = static_cast<std::size_t>(svd.rank());
+            auto rank = static_cast<std::size_t>(svd.rank());
             if (!ignoreSingularSubspace && rank < d) {
                 result = static_cast<double>(d - rank) *
                          std::log(svd.threshold() * svd.singularValues()(0));

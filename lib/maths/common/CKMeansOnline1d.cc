@@ -61,11 +61,11 @@ double logLikelihoodFromCluster(const TDouble1Vec& sample,
     double likelihood;
     maths_t::EFloatingPointErrorStatus status = normal.jointLogMarginalLikelihood(
         sample, maths_t::CUnitWeights::SINGLE_UNIT, likelihood);
-    if (status & maths_t::E_FpFailed) {
+    if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Unable to compute probability for: " << sample[0]);
         return core::constants::LOG_MIN_DOUBLE - 1.0;
     }
-    if (status & maths_t::E_FpOverflowed) {
+    if ((status & maths_t::E_FpOverflowed) != 0) {
         return likelihood;
     }
     return likelihood + std::log(normal.numberSamples());
@@ -86,8 +86,11 @@ CKMeansOnline1d::CKMeansOnline1d(TNormalVec& clusters) {
 
 CKMeansOnline1d::CKMeansOnline1d(const SDistributionRestoreParams& params,
                                  core::CStateRestoreTraverser& traverser) {
-    traverser.traverseSubLevel(std::bind(&CKMeansOnline1d::acceptRestoreTraverser, this,
-                                         std::cref(params), std::placeholders::_1));
+    if (traverser.traverseSubLevel([&](auto& traverser_) {
+            return this->acceptRestoreTraverser(params, traverser_);
+        }) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CKMeansOnline1d::acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -108,10 +111,10 @@ const core::TPersistenceTag& CKMeansOnline1d::persistenceTag() const {
 }
 
 void CKMeansOnline1d::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
-        inserter.insertLevel(CLUSTER_TAG,
-                             std::bind(&CNormalMeanPrecConjugate::acceptPersistInserter,
-                                       &m_Clusters[i], std::placeholders::_1));
+    for (const auto& cluster : m_Clusters) {
+        inserter.insertLevel(CLUSTER_TAG, [&](auto& inserter_) {
+            cluster.acceptPersistInserter(inserter_);
+        });
     }
 }
 

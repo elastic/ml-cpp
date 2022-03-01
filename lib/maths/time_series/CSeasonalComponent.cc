@@ -69,7 +69,7 @@ CSeasonalComponent::CSeasonalComponent(double decayRate,
                                        common::CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{0, common::CSplineTypes::E_Periodic,
                               valueInterpolationType, varianceInterpolationType} {
-    if (traverser.traverseSubLevel([&](core::CStateRestoreTraverser& traverser_) {
+    if (traverser.traverseSubLevel([&](auto& traverser_) {
             return this->acceptRestoreTraverser(decayRate, minBucketLength, traverser_);
         }) == false) {
         traverser.setBadState();
@@ -92,10 +92,9 @@ bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
     bool restoredBucketing{false};
     do {
         const std::string& name{traverser.name()};
-        RESTORE(DECOMPOSITION_COMPONENT_TAG,
-                traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
-                    return this->CDecompositionComponent::acceptRestoreTraverser(traverser_);
-                }))
+        RESTORE(DECOMPOSITION_COMPONENT_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->CDecompositionComponent::acceptRestoreTraverser(traverser_);
+        }))
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
         RESTORE_SETUP_TEARDOWN(BUCKETING_TAG,
                                CSeasonalComponentAdaptiveBucketing bucketing(
@@ -118,11 +117,11 @@ bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
 }
 
 void CSeasonalComponent::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(DECOMPOSITION_COMPONENT_TAG, [this](core::CStatePersistInserter& inserter_) {
+    inserter.insertLevel(DECOMPOSITION_COMPONENT_TAG, [this](auto& inserter_) {
         this->CDecompositionComponent::acceptPersistInserter(inserter_);
     });
     inserter.insertValue(RNG_TAG, m_Rng.toString());
-    inserter.insertLevel(BUCKETING_TAG, [this](core::CStatePersistInserter& inserter_) {
+    inserter.insertLevel(BUCKETING_TAG, [this](auto& inserter_) {
         m_Bucketing.acceptPersistInserter(inserter_);
     });
     inserter.insertValue(LAST_INTERPOLATION_TAG, m_LastInterpolationTime);

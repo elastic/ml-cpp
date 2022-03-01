@@ -230,7 +230,7 @@ operator-=(const SSampleCovariances<OTHER_POINT>& rhs) {
 
         // If any of the diagonal elements are negative round them
         // up to zero and zero the corresponding row and column.
-        for (std::size_t i = 0u, dimension = las::dimension(s_Mean); i < dimension; ++i) {
+        for (std::size_t i = 0, dimension = las::dimension(s_Mean); i < dimension; ++i) {
             if (s_Covariances(i, i) < TCoordinate{0}) {
                 for (std::size_t j = 0; j < dimension; ++j) {
                     s_Covariances(i, j) = s_Covariances(j, i) = TCoordinate{0};

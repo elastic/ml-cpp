@@ -145,8 +145,11 @@ public:
     CMultivariateNormalConjugate(const SDistributionRestoreParams& params,
                                  core::CStateRestoreTraverser& traverser)
         : CMultivariatePrior(params.s_DataType, params.s_DecayRate) {
-        traverser.traverseSubLevel(std::bind(&CMultivariateNormalConjugate::acceptRestoreTraverser,
-                                             this, std::placeholders::_1));
+        if (traverser.traverseSubLevel([this](auto& traverser_) {
+                return this->acceptRestoreTraverser(traverser_);
+            }) == false) {
+            traverser.setBadState();
+        }
     }
 
     ~CMultivariateNormalConjugate() override = default;

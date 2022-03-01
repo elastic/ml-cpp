@@ -129,8 +129,6 @@ const core::TPersistenceTag CLUSTERER_TAG("a", "clusterer");
 const core::TPersistenceTag SEED_PRIOR_TAG("b", "seed_prior");
 const core::TPersistenceTag MODE_TAG("c", "mode");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("d", "number_samples");
-//const std::string MINIMUM_TAG("e"); No longer used
-//const std::string MAXIMUM_TAG("f"); No longer used
 const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
 
 const std::string EMPTY_STRING;
@@ -183,9 +181,9 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType, double decayRate
 CMultimodalPrior::CMultimodalPrior(const SDistributionRestoreParams& params,
                                    core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
-    if (traverser.traverseSubLevel(std::bind(&CMultimodalPrior::acceptRestoreTraverser,
-                                             this, std::cref(params),
-                                             std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([&](auto& traverser_) {
+            return this->acceptRestoreTraverser(params, traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -199,16 +197,20 @@ bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& 
             m_Clusterer != nullptr && m_SeedPrior != nullptr &&
                 core::CStringUtils::stringToType(traverser.value(), decayRate),
             this->decayRate(decayRate))
-        RESTORE(CLUSTERER_TAG, traverser.traverseSubLevel(std::bind<bool>(
-                                   CClustererStateSerialiser(), std::cref(params),
-                                   std::ref(m_Clusterer), std::placeholders::_1)))
-        RESTORE(SEED_PRIOR_TAG, traverser.traverseSubLevel(std::bind<bool>(
-                                    CPriorStateSerialiser(), std::cref(params),
-                                    std::ref(m_SeedPrior), std::placeholders::_1)))
+        RESTORE(CLUSTERER_TAG,
+                traverser.traverseSubLevel(
+                    [&, serialiser = CClustererStateSerialiser{} ](auto& traverser_) {
+                        return serialiser(params, m_Clusterer, traverser_);
+                    }))
+        RESTORE(SEED_PRIOR_TAG,
+                traverser.traverseSubLevel(
+                    [&, serialiser = CPriorStateSerialiser{} ](auto& traverser_) {
+                        return serialiser(params, m_SeedPrior, traverser_);
+                    }))
         RESTORE_SETUP_TEARDOWN(MODE_TAG, TMode mode,
-                               traverser.traverseSubLevel(std::bind(
-                                   &TMode::acceptRestoreTraverser, &mode,
-                                   std::cref(params), std::placeholders::_1)),
+                               traverser.traverseSubLevel([&](auto& traverser_) {
+                                   return mode.acceptRestoreTraverser(params, traverser_);
+                               }),
                                m_Modes.push_back(std::move(mode)))
         RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG, double numberSamples,
                                core::CStringUtils::stringToType(traverser.value(), numberSamples),
@@ -567,8 +569,8 @@ double CMultimodalPrior::marginalLikelihoodMode(const TDoubleWeightsAry& weights
         const auto& prior = mode.s_Prior;
         distributionMode[0] = prior->marginalLikelihoodMode(weight[0]);
         double likelihood;
-        if (prior->jointLogMarginalLikelihood(distributionMode, weight, likelihood) &
-            (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) {
+        if ((prior->jointLogMarginalLikelihood(distributionMode, weight, likelihood) &
+             (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) != 0) {
             continue;
         }
         if (maxLikelihood.add(std::log(w) + likelihood)) {
@@ -802,11 +804,11 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
                 double modeLogLikelihood;
                 maths_t::EFloatingPointErrorStatus status{m_Modes[j].s_Prior->jointLogMarginalLikelihood(
                     sample, weight, modeLogLikelihood)};
-                if (status & maths_t::E_FpFailed) {
+                if ((status & maths_t::E_FpFailed) != 0) {
                     // Logging handled at a lower level.
                     return status;
                 }
-                if ((status & maths_t::E_FpOverflowed) == false) {
+                if ((status & maths_t::E_FpOverflowed) == 0) {
                     modeLogLikelihoods.emplace_back(j, modeLogLikelihood);
                     maxLogLikelihood = std::max(maxLogLikelihood, modeLogLikelihood);
                 }
@@ -854,7 +856,7 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     }
 
     maths_t::EFloatingPointErrorStatus status{CMathsFuncs::fpStatus(result)};
-    if (status & maths_t::E_FpFailed) {
+    if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute likelihood (" << this->debugWeights() << ")");
         LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
         LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
@@ -1194,15 +1196,16 @@ std::size_t CMultimodalPrior::staticSize() const {
 }
 
 void CMultimodalPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(CLUSTERER_TAG, std::bind<void>(CClustererStateSerialiser(),
-                                                        std::cref(*m_Clusterer),
-                                                        std::placeholders::_1));
-    inserter.insertLevel(SEED_PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
-                                                         std::cref(*m_SeedPrior),
-                                                         std::placeholders::_1));
-    for (std::size_t i = 0; i < m_Modes.size(); ++i) {
-        inserter.insertLevel(MODE_TAG, std::bind(&TMode::acceptPersistInserter,
-                                                 &m_Modes[i], std::placeholders::_1));
+    inserter.insertLevel(CLUSTERER_TAG, [
+        this, serialiser = CClustererStateSerialiser{}
+    ](auto& inserter_) { serialiser(*m_Clusterer, inserter_); });
+    inserter.insertLevel(SEED_PRIOR_TAG, [
+        this, serialiser = CPriorStateSerialiser{}
+    ](auto& inserter_) { serialiser(*m_SeedPrior, inserter_); });
+    for (const auto& mode : m_Modes) {
+        inserter.insertLevel(MODE_TAG, [&mode](auto& inserter_) {
+            mode.acceptPersistInserter(inserter_);
+        });
     }
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),

@@ -28,13 +28,13 @@ bool CIntegerTools::isInteger(double value, double tolerance) {
 std::size_t CIntegerTools::nextPow2(std::uint64_t x) {
     // This is just a binary search for the highest non-zero bit.
 
-    static const std::size_t SHIFTS[]{32u, 16u, 8u, 4u, 2u, 1u};
+    static const std::size_t SHIFTS[]{32, 16, 8, 4, 2, 1};
     static const std::uint64_t MASKS[]{0xffffffff, 0xffff, 0xff, 0xf, 0x3, 0x1};
 
     std::size_t result{0};
     for (std::size_t i = 0; i < 6; ++i) {
         std::uint64_t y = (x >> SHIFTS[i]);
-        if (y & MASKS[i]) {
+        if ((y & MASKS[i]) != 0) {
             result += SHIFTS[i];
             x = y;
         }
