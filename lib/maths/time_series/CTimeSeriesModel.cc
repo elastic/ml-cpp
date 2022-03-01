@@ -1290,6 +1290,9 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRest
                 }),
                 /**/)
         }
+    } else {
+        LOG_ERROR(<< "Unsupported version '" << traverser.name() << "'");
+        return false;
     }
 
     if (m_Controllers != nullptr && stateMissingControllerChecks) {
@@ -2694,6 +2697,9 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const common::SModelRe
                 }),
                 /**/)
         }
+    } else {
+        LOG_ERROR(<< "Unsupported version '" << traverser.name() << "'");
+        return false;
     }
 
     this->checkRestoredInvariants();

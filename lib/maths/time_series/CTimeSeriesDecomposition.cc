@@ -153,6 +153,9 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const common::SDistributio
                 return m_Components.acceptRestoreTraverser(params, traverser_);
             }))
         }
+    } else {
+        LOG_ERROR(<< "Unsupported version '" << traverser.name() << "'");
+        return false;
     }
     return true;
 }
