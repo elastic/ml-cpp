@@ -2246,7 +2246,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::shouldUseTrendForPrediction() 
                m_Trend.parameters()};
     if (df0 > 0.0 && df1 > 0.0 && v0 > 0.0) {
         double relativeLogSignificance{
-            common::CTools::fastLog(common::CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
+            common::CTools::fastLog(common::CStatisticalTests::leftTailFTest(v1, v0, df1, df0)) /
             common::CTools::fastLog(0.001)};
         double vt{0.6 * v0};
         double p{common::CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *

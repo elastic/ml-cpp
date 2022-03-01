@@ -70,6 +70,20 @@ const std::string F_TAG("c");
 const std::string EMPTY_STRING;
 }
 
+double CStatisticalTests::leftTailFTest(double v0, double v1, double df0, double df1) {
+    // If there is insufficient data for either hypothesis treat we are conservative
+    // and say the alternative hypothesis is not provable.
+    if (df0 <= 0.0 || df1 <= 0.0) {
+        return 1.0;
+    }
+    // The test statistic is infinite which corresponds to a p-value of 0.
+    if (v0 > 0.0 && v1 == 0) {
+        return 1.0;
+    }
+    double F{v0 == v1 ? df1 / df0 : (df1 * v0) / (df0 * v1)};
+    return leftTailFTest(F, df0, df1);
+}
+
 double CStatisticalTests::leftTailFTest(double x, double df0, double df1) {
     if (x < 0.0) {
         return 0.0;
@@ -291,7 +305,7 @@ void CStatisticalTests::CCramerVonMises::age(double factor) {
     m_T.age(factor);
 }
 
-uint64_t CStatisticalTests::CCramerVonMises::checksum(uint64_t seed) const {
+std::uint64_t CStatisticalTests::CCramerVonMises::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Size);
     seed = CChecksum::calculate(seed, m_T);
     return CChecksum::calculate(seed, m_F);

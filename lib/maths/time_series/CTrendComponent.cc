@@ -648,22 +648,22 @@ CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() con
         const SModel& model{m_TrendModels[i]};
 
         double n{common::CBasicStatistics::count(model.s_Mse)};
-        double mseH0{common::CBasicStatistics::mean(model.s_Mse)(0)};
-        double dfH0{n - 1.0};
+        double mse0{common::CBasicStatistics::mean(model.s_Mse)(0)};
+        double df0{n - 1.0};
 
-        for (std::size_t order = 2; mseH0 > 0.0 && order <= TRegression::N; ++order) {
+        for (std::size_t order = 2; mse0 > 0.0 && order <= TRegression::N; ++order) {
 
-            double mseH1{common::CBasicStatistics::mean(model.s_Mse)(order - 1)};
-            double dfH1{n - static_cast<double>(order)};
-            if (dfH1 < 0.0) {
+            double mse1{common::CBasicStatistics::mean(model.s_Mse)(order - 1)};
+            double df1{n - static_cast<double>(order)};
+            if (df1 < 0.0) {
                 break;
             }
 
-            double p{common::CStatisticalTests::leftTailFTest(mseH1 / mseH0, dfH1, dfH0)};
+            double p{common::CStatisticalTests::leftTailFTest(mse1, mse0, df1, df0)};
             if (p < MODEL_MSE_DECREASE_SIGNFICANT) {
                 result[i] = order;
-                mseH0 = mseH1;
-                dfH0 = dfH1;
+                mse0 = mse1;
+                df0 = df1;
             }
         }
     }
@@ -765,7 +765,7 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
         // quickly.
 
         TVector mse;
-        for (std::size_t order = TRegression::N, scale = 1; order > 0; --order, scale *= 2) {
+        for (std::size_t order = TRegression::N, scale = 1; order > 0; --order, scale *= 3) {
             mse(order - 1) =
                 static_cast<double>(scale) *
                 (common::CTools::pow2(common::CBasicStatistics::mean(residualMoments)) +
