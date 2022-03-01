@@ -367,30 +367,30 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 
 void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
 
+    if (m_RowWeightColumn != UNIT_ROW_WEIGHT_COLUMN &&
+        (m_RowWeightColumn >= frame.numberColumns() ||
+         m_RowWeightColumn == m_TreeImpl->columnHoldingDependentVariable())) {
+        HANDLE_FATAL(<< "Input error: invalid column '" << m_RowWeightColumn
+                     << "' for row weights. It must be less than '"
+                     << frame.numberColumns() << "' and not equal to '"
+                     << m_TreeImpl->columnHoldingDependentVariable() << "'.");
+    }
+
     std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
     TSizeVec extraColumns_;
     std::size_t paddedExtraColumns;
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
     std::tie(extraColumns_, paddedExtraColumns) = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
-    m_TreeImpl->m_ExtraColumns.resize(static_cast<std::size_t>(E_BeginSplits) + 1);
+    m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
+    m_TreeImpl->m_ExtraColumns[E_Weight] = m_RowWeightColumn;
     m_TreeImpl->m_ExtraColumns[E_Prediction] = extraColumns_[0];
     m_TreeImpl->m_ExtraColumns[E_Gradient] = extraColumns_[1];
     m_TreeImpl->m_ExtraColumns[E_Curvature] = extraColumns_[2];
-    m_TreeImpl->m_ExtraColumns[E_Weight] = extraColumns_[3];
     m_TreeImpl->m_PaddedExtraColumns += paddedExtraColumns;
     std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
     m_TreeImpl->m_Instrumentation->flush();
-
-    core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
-    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
-                           }
-                       },
-                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
@@ -413,6 +413,11 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(core::CDataFrame& fr
     TSizeVec regressors(frame.numberColumns() - m_TreeImpl->m_PaddedExtraColumns);
     std::iota(regressors.begin(), regressors.end(), 0);
     regressors.erase(regressors.begin() + m_TreeImpl->m_DependentVariable);
+    auto weightColumn = std::find(regressors.begin(), regressors.end(),
+                                  m_TreeImpl->m_ExtraColumns[E_Weight]);
+    if (weightColumn != regressors.end()) {
+        regressors.erase(weightColumn);
+    }
     std::size_t numberTrainingRows{
         static_cast<std::size_t>(m_TreeImpl->allTrainingRowsMask().manhattan())};
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
@@ -1159,9 +1164,9 @@ CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctio
       m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0} {
 }
 
-CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
+CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept = default;
 
-CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = default;
+CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) noexcept = default;
 
 CBoostedTreeFactory::~CBoostedTreeFactory() = default;
 
@@ -1173,6 +1178,11 @@ CBoostedTreeFactory::classAssignmentObjective(CBoostedTree::EClassAssignmentObje
 
 CBoostedTreeFactory& CBoostedTreeFactory::classificationWeights(TStrDoublePrVec weights) {
     m_TreeImpl->m_ClassificationWeightsOverride = std::move(weights);
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::rowWeightColumn(std::size_t column) {
+    m_RowWeightColumn = column;
     return *this;
 }
 
@@ -1408,10 +1418,8 @@ std::size_t CBoostedTreeFactory::estimatedExtraColumns(std::size_t numberColumns
     //   1. The predicted values for the dependent variable
     //   2. The gradient of the loss function
     //   3. The upper triangle of the hessian of the loss function
-    //   4. The example's weight
-    //   5. The example's splits packed into uint8_t
-    return numberLossParameters * (numberLossParameters + 5) / 2 + 1 +
-           (numberColumns + 2) / 4;
+    //   4. The example's splits packed into uint8_t
+    return numberLossParameters * (numberLossParameters + 5) / 2 + (numberColumns + 2) / 4;
 }
 
 void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {
@@ -1532,6 +1540,7 @@ const std::string LOG_ETA_SEARCH_INTERVAL_TAG{"log_eta_search_interval"};
 const std::string LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG{"log_feature_bag_fraction_interval"};
 const std::string LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_leaf_weight_penalty_multiplier_search_interval"};
 const std::string LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_tree_size_penalty_multiplier_search_interval"};
+const std::string ROW_WEIGHT_COLUMN_TAG{"row_weight_column"};
 const std::string SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG{"soft_depth_limit_search_interval"};
 const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
 const std::string TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG{"total_curvature_per_node_90th_percentile"};
@@ -1562,6 +1571,7 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
             m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
         core::CPersistUtils::persist(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
                                      m_LogTreeSizePenaltyMultiplierSearchInterval, inserter);
+        core::CPersistUtils::persist(ROW_WEIGHT_COLUMN_TAG, m_RowWeightColumn, inserter);
         core::CPersistUtils::persist(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
                                      m_SoftDepthLimitSearchInterval, inserter);
         core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
@@ -1620,6 +1630,9 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                                 core::CPersistUtils::restore(
                                     LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
                                     m_LogTreeSizePenaltyMultiplierSearchInterval, traverser))
+                        RESTORE(ROW_WEIGHT_COLUMN_TAG,
+                                core::CPersistUtils::restore(ROW_WEIGHT_COLUMN_TAG,
+                                                             m_RowWeightColumn, traverser))
                         RESTORE(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
                                 core::CPersistUtils::restore(
                                     SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,

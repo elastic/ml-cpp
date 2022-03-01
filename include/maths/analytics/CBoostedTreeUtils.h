@@ -58,8 +58,11 @@ enum EHyperparameters {
     E_FeatureBagFraction
 };
 
+constexpr std::size_t NUMBER_EXTRA_COLUMNS = E_BeginSplits + 1; // This must be last extra column
 constexpr std::size_t NUMBER_HYPERPARAMETERS = E_FeatureBagFraction + 1; // This must be last hyperparameter
+constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN = std::numeric_limits<std::size_t>::max();
 
+//! \brief Information related to hyperparameter importance.
 struct SHyperparameterImportance {
     enum EType { E_Double = 0, E_Uint64 };
     EHyperparameters s_Hyperparameter;
@@ -82,10 +85,9 @@ inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters
 
 //! Get the extra columns needed by training.
 inline TSizeAlignmentPrVec extraColumns(std::size_t numberLossParameters) {
-    return {{numberLossParameters, core::CAlignment::E_Unaligned},
-            {numberLossParameters, core::CAlignment::E_Aligned16},
-            {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned},
-            {1, core::CAlignment::E_Unaligned}};
+    return {{numberLossParameters, core::CAlignment::E_Unaligned}, // prediction
+            {numberLossParameters, core::CAlignment::E_Aligned16}, // gradient
+            {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned}}; // curvature
 }
 
 //! Read the prediction from \p row.
@@ -143,12 +145,10 @@ void writeLossCurvature(const TRowRef& row,
 
 //! Read the example weight from \p row.
 inline double readExampleWeight(const TRowRef& row, const TSizeVec& extraColumns) {
-    return row[extraColumns[E_Weight]];
-}
-
-//! Write the example weight to \p row .
-inline void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns, double weight) {
-    row.writeColumn(extraColumns[E_Weight], weight);
+    std::size_t weightColumn{extraColumns[E_Weight]};
+    return weightColumn == UNIT_ROW_WEIGHT_COLUMN
+               ? 1.0
+               : static_cast<double>(row[weightColumn]);
 }
 
 //! Get a writable pointer to the start of the row split indices.

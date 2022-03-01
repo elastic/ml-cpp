@@ -23,6 +23,7 @@
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -85,6 +86,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(EARLY_STOPPING_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(ROW_WEIGHT_COLUMN,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -103,15 +106,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
 
-    bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
-
-    std::size_t downsampleRowsPerFeature{
-        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
-    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
-
-    std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
-    std::size_t maximumDeployedSize{parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
-        core::constants::BYTES_IN_GIGABYTES)};
+    bool earlyStoppingEnabled{parameters[EARLY_STOPPING_ENABLED].fallback(true)};
+    std::size_t rowWeightColumn{parameters[ROW_WEIGHT_COLUMN].fallback(
+        maths::analytics::boosted_tree_detail::UNIT_ROW_WEIGHT_COLUMN)};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
     std::size_t numberRoundsPerHyperparameter{
@@ -122,7 +119,13 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
     std::size_t numTopFeatureImportanceValues{
         parameters[NUM_TOP_FEATURE_IMPORTANCE_VALUES].fallback(std::size_t{0})};
+    std::size_t maximumDeployedSize{parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
+        core::constants::BYTES_IN_GIGABYTES)};
 
+    std::size_t downsampleRowsPerFeature{
+        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
+    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
+    std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
     double alpha{parameters[ALPHA].fallback(-1.0)};
     double lambda{parameters[LAMBDA].fallback(-1.0)};
     double gamma{parameters[GAMMA].fallback(-1.0)};
@@ -174,7 +177,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
         .earlyStoppingEnabled(earlyStoppingEnabled)
-        .maximumDeployedSize(maximumDeployedSize);
+        .maximumDeployedSize(maximumDeployedSize)
+        .rowWeightColumn(rowWeightColumn);
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -426,6 +430,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"impor
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
 const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"early_stopping_enabled"};
+const std::string CDataFrameTrainBoostedTreeRunner::ROW_WEIGHT_COLUMN{"weight_column"};
 // clang-format on
 }
 }

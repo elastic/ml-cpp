@@ -16,6 +16,7 @@
 #include <core/CNonCopyable.h>
 
 #include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/ImportExport.h>
 
@@ -74,14 +75,16 @@ public:
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&) = delete;
-    CBoostedTreeFactory(CBoostedTreeFactory&&);
-    CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
+    CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept;
+    CBoostedTreeFactory& operator=(CBoostedTreeFactory&&) noexcept;
 
     //! Set the objective to use when choosing the class assignments.
     CBoostedTreeFactory&
     classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
     //! Set the class weights used for assigning labels to classes from the predicted probabilities.
     CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
+    //! Set the column containing the row weights to use for training.
+    CBoostedTreeFactory& rowWeightColumn(std::size_t column);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
@@ -299,6 +302,7 @@ private:
     double m_TotalCurvaturePerNode1stPercentile{0.0};
     double m_TotalCurvaturePerNode90thPercentile{0.0};
     std::size_t m_NumberThreads;
+    std::size_t m_RowWeightColumn{boosted_tree_detail::UNIT_ROW_WEIGHT_COLUMN};
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDownsampleFactorSearchInterval;
     TVector m_LogFeatureBagFractionInterval;

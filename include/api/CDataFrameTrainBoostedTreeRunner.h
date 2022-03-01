@@ -64,6 +64,7 @@ public:
     static const std::string TRAINING_PERCENT_FIELD_NAME;
     static const std::string FEATURE_PROCESSORS;
     static const std::string EARLY_STOPPING_ENABLED;
+    static const std::string ROW_WEIGHT_COLUMN;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
