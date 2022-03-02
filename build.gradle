@@ -1,3 +1,5 @@
+apply plugin: 'base'
+
 description = 'Builds the Machine Learning native binaries'
 
 import org.elastic.gradle.UploadS3Task
@@ -90,11 +92,15 @@ configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-task clean(type: Exec) {
-  environment makeEnvironment
-  commandLine bash
-  args '-c', 'source ./set_env.sh && rm -rf build && ' + make + ' clean'
-  workingDir "${projectDir}"
+clean {
+  doLast {
+    exec {
+      environment makeEnvironment
+      commandLine bash
+      args '-c', 'source ./set_env.sh && ' + make + ' clean'
+      workingDir "${projectDir}"
+    }
+  }
 }
 
 task compile(type: Exec) {
@@ -129,7 +135,8 @@ task format(type: Exec) {
   workingDir "${projectDir}"
 }
 
-def zipSpec = copySpec {
+task buildZip(type: Zip) {
+  dependsOn strip
   from("${buildDir}/distribution") {
     // Don't copy Windows import libraries
     exclude "**/*.lib"
@@ -146,16 +153,9 @@ def zipSpec = copySpec {
   }
 }
 
-task buildZip(type: Zip) {
+task buildZipSymbols(type: Zip) {
   dependsOn strip
-  archiveBaseName = artifactName
-  with zipSpec
-  destinationDirectory = file("${buildDir}/distributions")
-  archiveVersion = project.version
-  archiveClassifier = artifactClassifier
-}
-
-def zipSpecSymbols = copySpec {
+  classifier = "debug"
   from("${buildDir}/distribution") {
     // only take debug files
     include "**/*-debug"
@@ -165,19 +165,10 @@ def zipSpecSymbols = copySpec {
   }
 }
 
-task buildZipSymbols(type: Zip) {
+task buildUberZip(type: Zip) {
   dependsOn strip
-  archiveBaseName = "$artifactName-debug"
-  with zipSpecSymbols
-  destinationDirectory = file("${buildDir}/distributions")
-  archiveVersion = project.version
-  archiveClassifier = artifactClassifier
-}
 
-// The uber zip contains C++ binaries for as many platforms as possible
-def uberZipSpec = copySpec {
-  // We know we'll have binaries from the current build
-  from(zipTree(buildZip.outputs.files.singleFile))
+  with buildZip
   // We might also have binaries for other platforms (e.g. if they've been built in Docker)
   def localZips = fileTree("${buildDir}/distributions").matching {
       include "${artifactName}-${project.version}-darwin-*.zip"
@@ -189,22 +180,9 @@ def uberZipSpec = copySpec {
       duplicatesStrategy 'exclude'
     }
   }
-}
-
-task buildUberZip(type: Zip) {
-  dependsOn buildZip
-  archiveBaseName = "$artifactName"
-  with uberZipSpec
-  destinationDirectory = file("${buildDir}/distributions")
-  archiveVersion = project.version
   reproducibleFileOrder = true
 }
 
-configurations.create('default')
-
-artifacts {
-  'default' buildUberZip
-}
 
 String artifactGroupPath = project.group.replaceAll("\\.", "/")
 
@@ -217,18 +195,17 @@ task test(type: Exec) {
   description = 'Run C++ tests'
 }
 
-task check {
-  dependsOn 'test'
+check {
+  dependsOn = ['test']
   description = 'Run all verification tasks'
 }
 
-task assemble {
-  dependsOn 'buildUberZip', 'buildZipSymbols'
+assemble {
+  dependsOn = ['buildUberZip', 'buildZipSymbols']
   description = 'Assemble the C++ part of Machine Learning'
 }
 
-task build(dependsOn: [check, assemble]) {
-  group = 'Build'
+build {
   description = 'Assemble and test the C++ part of Machine Learning'
 }
 
@@ -314,76 +291,106 @@ class DownloadPlatformSpecific extends DefaultTask {
 }
 
 task downloadPlatformSpecific(type: DownloadPlatformSpecific) {
+  description = 'Download and extract previously created platform-specific C++ zips'
   baseName = artifactName
   downloadDirectory = "${buildDir}/distributions"
   extractDirectory = file("${buildDir}/temp")
-  description = 'Download and extract previously created platform-specific C++ zips'
 }
 
-task buildUberZipFromDownloads(type: Zip, dependsOn: downloadPlatformSpecific) {
-  archiveBaseName = artifactName
-  archiveVersion = project.version
-  destinationDirectory = file("${buildDir}/distributions")
-  from(fileTree(downloadPlatformSpecific.outputs.files.singleFile))
+task buildUberZipFromDownloads(type: Zip) {
   description = 'Create an uber zip from combined platform-specific C++ distributions'
+  destinationDirectory = file("${buildDir}/distributions")
+  from(downloadPlatformSpecific)
   reproducibleFileOrder = true
 }
 
-def dependenciesSpec = copySpec {
-  from(fileTree(downloadPlatformSpecific.outputs.files.singleFile)) {
-    // Don't copy ML libraries
-    exclude "**/libMl*"
-    // Don't copy ML programs
-    exclude "platform/darwin*/controller.app/Contents/MacOS/*"
-    exclude "platform/linux*/bin/*"
-    exclude "platform/windows*/bin/*.exe"
-    // Don't copy resources
-    exclude "**/ml-en.dict"
-    exclude "**/Info.plist"
-    exclude "**/date_time_zonespec.csv"
-    // Don't copy licenses
-    exclude "**/licenses/**"
-    includeEmptyDirs = false
+def dependenciesSpec(source) {
+  return copySpec {
+    from(source) {
+      // Don't copy ML libraries
+      exclude "**/libMl*"
+      // Don't copy ML programs
+      exclude "platform/darwin*/controller.app/Contents/MacOS/*"
+      exclude "platform/linux*/bin/*"
+      exclude "platform/windows*/bin/*.exe"
+      // Don't copy resources
+      exclude "**/ml-en.dict"
+      exclude "**/Info.plist"
+      exclude "**/date_time_zonespec.csv"
+      // Don't copy licenses
+      exclude "**/licenses/**"
+      includeEmptyDirs = false
+    }
   }
 }
 
-task buildDependenciesZipFromDownloads(type: Zip, dependsOn: downloadPlatformSpecific) {
-  archiveBaseName = artifactName + '-deps'
-  archiveVersion = project.version
-  destinationDirectory = file("${buildDir}/distributions")
-  with dependenciesSpec
+task buildDependenciesZip(type: Zip) {
   description = 'Create a zip of dependencies only from combined platform-specific C++ distributions'
+
+  classifier = 'deps'
   reproducibleFileOrder = true
   // Drop the file timestamps for the dependencies to avoid
   // timestamp diffs between otherwise identical archives
   preserveFileTimestamps = false
+
+  with dependenciesSpec(buildUberZip)
 }
 
-def noDependenciesSpec = copySpec {
-  from(fileTree(downloadPlatformSpecific.outputs.files.singleFile)) {
-    // Copy ML libraries
-    include "**/libMl*"
-    // Copy ML programs
-    include "platform/darwin*/controller.app/Contents/MacOS/*"
-    include "platform/linux*/bin/*"
-    include "platform/windows*/bin/*.exe"
-    // Copy resources
-    include "**/ml-en.dict"
-    include "**/Info.plist"
-    include "**/date_time_zonespec.csv"
-    // Copy licenses
-    include "**/licenses/**"
-    includeEmptyDirs = false
+task buildDependenciesZipFromDownloads(type: Zip) {
+  description = 'Create a zip of dependencies only from combined platform-specific C++ distributions from published snapshot'
+
+  classifier = 'deps'
+  reproducibleFileOrder = true
+  // Drop the file timestamps for the dependencies to avoid
+  // timestamp diffs between otherwise identical archives
+  preserveFileTimestamps = false
+
+  with dependenciesSpec(downloadPlatformSpecific)
+}
+
+
+def noDependenciesSpec(source) {
+   return copySpec {
+    from(source) {
+      // Copy ML libraries
+      include "**/libMl*"
+      // Copy ML programs
+      include "platform/darwin*/controller.app/Contents/MacOS/*"
+      include "platform/linux*/bin/*"
+      include "platform/windows*/bin/*.exe"
+      // Copy resources
+      include "**/ml-en.dict"
+      include "**/Info.plist"
+      include "**/date_time_zonespec.csv"
+      // Copy licenses
+      include "**/licenses/**"
+      includeEmptyDirs = false
+    }
   }
 }
 
-task buildNoDependenciesZipFromDownloads(type: Zip, dependsOn: downloadPlatformSpecific) {
-  archiveBaseName = artifactName + '-nodeps'
-  archiveVersion = project.version
-  destinationDirectory = file("${buildDir}/distributions")
-  with noDependenciesSpec
+task buildNoDependenciesZip(type: Zip) {
   description = 'Create a zip excluding dependencies from combined platform-specific C++ distributions'
+
+  classifier = 'nodeps'
   reproducibleFileOrder = true
+  // Drop the file timestamps for the dependencies to avoid
+  // timestamp diffs between otherwise identical archives
+  preserveFileTimestamps = false
+
+  with noDependenciesSpec(buildUberZip)
+}
+
+task buildNoDependenciesZipFromDownloads(type: Zip) {
+  description = 'Create a zip excluding dependencies from combined platform-specific C++ distributions from published snapshot'
+
+  classifier = 'nodeps'
+  reproducibleFileOrder = true
+  // Drop the file timestamps for the dependencies to avoid
+  // timestamp diffs between otherwise identical archives
+  preserveFileTimestamps = false
+
+  with noDependenciesSpec(downloadPlatformSpecific)
 }
 
 task buildDependencyReport(type: Exec) {
@@ -431,4 +438,10 @@ wrapper {
     wrapper.getPropertiesFile() << "distributionSha256Sum=${sha256Sum}\n"
     println "Added checksum to wrapper properties"
   }
+}
+
+
+artifacts {
+  'default' buildDependenciesZip
+  'default' buildNoDependenciesZip
 }
