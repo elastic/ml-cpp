@@ -63,10 +63,12 @@ function pickCloneTarget {
     return 1
 }
 
-pickCloneTarget
+SELECTED_FORK=mark-vieira
+SELECTED_BRANCH=ml_dependency_caching
 
 cd "$1"
 rm -rf elasticsearch
+echo Running git clone -b "$SELECTED_BRANCH" "git@github.com:${SELECTED_FORK}/elasticsearch.git" --depth=1
 git clone -b "$SELECTED_BRANCH" "git@github.com:${SELECTED_FORK}/elasticsearch.git" --depth=1
 cd elasticsearch
 
