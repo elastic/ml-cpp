@@ -488,6 +488,46 @@ BOOST_AUTO_TEST_CASE(testAge) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testR2) {
+
+    using TMeanVarAccumulator = maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+
+    double pi = 3.14159265358979;
+
+    TMeanAccumulator m;
+    maths::common::CLeastSquaresOnlineRegression<1, double, true> ls1;
+    maths::common::CLeastSquaresOnlineRegression<2, double, true> ls2;
+
+    TMeanVarAccumulator yMoments;
+    for (std::size_t i = 0; i <= 400; ++i) {
+        double x = 0.002 * pi * static_cast<double>(i);
+        double y = std::sin(x);
+        ls1.add(x, y);
+        ls2.add(x, y);
+        yMoments.add(y);
+    }
+
+    double r1;
+    double r2;
+    ls1.r2(r1);
+    ls2.r2(r2);
+
+    TMeanVarAccumulator yMinusP1Moments;
+    TMeanVarAccumulator yMinusP2Moments;
+    for (std::size_t i = 0; i <= 400; ++i) {
+        double x = 0.002 * pi * static_cast<double>(i);
+        double y = std::sin(x);
+        yMinusP1Moments.add(y - ls1.predict(x));
+        yMinusP2Moments.add(y - ls2.predict(x));
+    }
+
+    double r1Expected{1.0 - maths::common::CBasicStatistics::variance(yMinusP1Moments) / maths::common::CBasicStatistics::variance(yMoments)};
+    double r2Expected{1.0 - maths::common::CBasicStatistics::variance(yMinusP2Moments) / maths::common::CBasicStatistics::variance(yMoments)};
+
+    LOG_DEBUG(<< "         r1 = " << r1 << ", r2 = " << r2);
+    LOG_DEBUG(<< "expected r1 = " << r1Expected << ", r2 = " << r2Expected);
+}
+
 BOOST_AUTO_TEST_CASE(testPrediction) {
     // Check we get successive better predictions of a power
     // series function, i.e. x -> sin(x), using higher order

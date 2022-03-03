@@ -56,6 +56,18 @@ template<>
 struct MATHS_COMMON_EXPORT CMaxCondition<CFloatStorage> {
     static const double VALUE;
 };
+
+template<std::size_t N, bool> struct SSize {};
+
+template<std::size_t N>
+struct SSize<N, false> {
+    static const std::size_t VALUE = 3 * N - 1;
+};
+
+template<std::size_t N>
+struct SSize<N, true> {
+    static const std::size_t VALUE = 3 * N;
+};
 }
 
 //! DESCRIPTION:\n
@@ -97,14 +109,14 @@ struct MATHS_COMMON_EXPORT CMaxCondition<CFloatStorage> {
 //!
 //! \tparam N_ The degree of the polynomial.
 // clang-format off
-template<std::size_t N_, typename T = CFloatStorage>
+template<std::size_t N_, typename T = CFloatStorage, bool R_2 = false>
 class CLeastSquaresOnlineRegression : boost::addable<CLeastSquaresOnlineRegression<N_, T>,
                                       boost::subtractable<CLeastSquaresOnlineRegression<N_, T>>> {
     // clang-format on
 public:
     static const std::size_t N = N_ + 1;
     using TArray = std::array<double, N>;
-    using TVector = CVectorNx1<T, 3 * N - 1>;
+    using TVector = CVectorNx1<T, least_squares_online_regression_detail::SSize<N, R_2>::VALUE>;
     using TMatrix = CSymmetricMatrixNxN<double, N>;
     using TVectorMeanAccumulator = typename CBasicStatistics::SSampleMean<TVector>::TAccumulator;
 
@@ -138,6 +150,9 @@ public:
         }
         for (std::size_t i = N; i < 2 * N - 1; ++i, xi *= x) {
             d(i) = xi;
+        }
+        if (R_2) {
+            d(3 * N - 1) = y * y;
         }
         m_S.add(d, weight);
     }
@@ -271,6 +286,8 @@ public:
         return predict(params, x);
     }
 
+    bool r2(double& result, double maxCondition = MAX_CONDITION) const;
+
     //! Get the regression parameters.
     //!
     //! i.e. The intercept, slope, curvature, etc.
@@ -401,6 +418,14 @@ public:
     std::string print() const;
 
 private:
+    template<typename MATRIX, typename VECTOR>
+    bool residualVariance(std::size_t n,
+                          MATRIX& x,
+                          VECTOR& y,
+                          VECTOR& z,
+                          double maxCondition,
+                          double& result) const;
+
     //! Get the first \p n regression parameters.
     template<typename MATRIX, typename VECTOR>
     bool parameters(std::size_t n, MATRIX& x, VECTOR& y, double maxCondition, TArray& result) const;
@@ -430,11 +455,11 @@ private:
     friend class CTimeSeriesDecompositionTest::CNanInjector;
 };
 
-template<std::size_t N_, typename T>
+template<std::size_t N_, typename T, bool R_2>
 const core::TPersistenceTag
-    CLeastSquaresOnlineRegression<N_, T>::STATISTIC_TAG("a", "statistic");
-template<std::size_t N_, typename T>
-const T CLeastSquaresOnlineRegression<N_, T>::MAX_CONDITION{
+    CLeastSquaresOnlineRegression<N_, T, R_2>::STATISTIC_TAG("a", "statistic");
+template<std::size_t N_, typename T, bool R_2>
+const T CLeastSquaresOnlineRegression<N_, T, R_2>::MAX_CONDITION{
     least_squares_online_regression_detail::CMaxCondition<T>::VALUE};
 }
 }

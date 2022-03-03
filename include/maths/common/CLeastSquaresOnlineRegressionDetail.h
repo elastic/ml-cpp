@@ -22,6 +22,7 @@
 #include <maths/common/CBasicStatisticsPersist.h>
 #include <maths/common/CLeastSquaresOnlineRegression.h>
 #include <maths/common/CLinearAlgebraTools.h>
+#include <maths/common/CTools.h>
 #include <maths/common/CTypeTraits.h>
 
 #include <sstream>
@@ -29,8 +30,8 @@
 namespace ml {
 namespace maths {
 namespace common {
-template<std::size_t N, typename T>
-bool CLeastSquaresOnlineRegression<N, T>::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+template<std::size_t N, typename T, bool R_2>
+bool CLeastSquaresOnlineRegression<N, T, R_2>::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
         RESTORE(STATISTIC_TAG, m_S.fromDelimited(traverser.value()))
@@ -39,13 +40,13 @@ bool CLeastSquaresOnlineRegression<N, T>::acceptRestoreTraverser(core::CStateRes
     return true;
 }
 
-template<std::size_t N, typename T>
-void CLeastSquaresOnlineRegression<N, T>::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+template<std::size_t N, typename T, bool R_2>
+void CLeastSquaresOnlineRegression<N, T, R_2>::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(STATISTIC_TAG, m_S.toDelimited());
 }
 
-template<std::size_t N, typename T>
-void CLeastSquaresOnlineRegression<N, T>::shiftAbscissa(double dx) {
+template<std::size_t N, typename T, bool R_2>
+void CLeastSquaresOnlineRegression<N, T, R_2>::shiftAbscissa(double dx) {
     if (CBasicStatistics::count(m_S) == 0.0) {
         return;
     }
@@ -85,15 +86,62 @@ void CLeastSquaresOnlineRegression<N, T>::shiftAbscissa(double dx) {
     LOG_TRACE(<< "S(after) = " << CBasicStatistics::mean(m_S));
 }
 
-template<std::size_t N, typename T>
-bool CLeastSquaresOnlineRegression<N, T>::parameters(TArray& result, double maxCondition) const {
+template<std::size_t N, typename T, bool R_2>
+bool CLeastSquaresOnlineRegression<N, T, R_2>::r2(double& result, double maxCondition) const {
+
+    result = 0.0;
+
+    if (R_2 == false) {
+        return false;
+    }
+    if (CBasicStatistics::count(m_S) == T{0}) {
+        return true;
+    }
+
+    const auto& s = CBasicStatistics::mean(m_S);
+    
+    double variance{s(3 * N - 1) - CTools::pow2(s(2 * N - 1))};
+    double residualVariance{variance};
+
+    std::size_t n{N + 1};
+    bool done{false};
+    while (--n > 0 && done == false) {
+        switch (n) {
+        case 1: {
+            return true;
+        }
+        case N: {
+            constexpr int N_{static_cast<int>(N)};
+            Eigen::Matrix<double, N_, N_> x;
+            Eigen::Matrix<double, N_, 1> y;
+            Eigen::Matrix<double, N_, 1> z;
+            done = this->residualVariance(n, x, y, z, maxCondition, residualVariance);
+            break;
+        }
+        default: {
+            CDenseMatrix<double> x(n, n);
+            CDenseVector<double> y(n);
+            CDenseVector<double> z(n);
+            done = this->residualVariance(n, x, y, z, maxCondition, residualVariance);
+            break;
+        }
+        }
+    }
+
+    result = CTools::truncate(1.0 - residualVariance / variance, 0.0, 1.0);
+
+    return true;
+}
+
+template<std::size_t N, typename T, bool R_2>
+bool CLeastSquaresOnlineRegression<N, T, R_2>::parameters(TArray& result, double maxCondition) const {
     return this->parameters(N, result, maxCondition);
 }
 
-template<std::size_t N, typename T>
-bool CLeastSquaresOnlineRegression<N, T>::parameters(std::size_t n,
-                                                     TArray& result,
-                                                     double maxCondition) const {
+template<std::size_t N, typename T, bool R_2>
+bool CLeastSquaresOnlineRegression<N, T, R_2>::parameters(std::size_t n,
+                                                          TArray& result,
+                                                          double maxCondition) const {
     result.fill(0.0);
 
     // Define all parameters as zero if no data have been added.
@@ -131,18 +179,18 @@ bool CLeastSquaresOnlineRegression<N, T>::parameters(std::size_t n,
     return false;
 }
 
-template<std::size_t N, typename T>
-bool CLeastSquaresOnlineRegression<N, T>::covariances(double variance,
-                                                      TMatrix& result,
-                                                      double maxCondition) const {
+template<std::size_t N, typename T, bool R_2>
+bool CLeastSquaresOnlineRegression<N, T, R_2>::covariances(double variance,
+                                                           TMatrix& result,
+                                                           double maxCondition) const {
     return this->covariances(N, variance, result, maxCondition);
 }
 
-template<std::size_t N, typename T>
-bool CLeastSquaresOnlineRegression<N, T>::covariances(std::size_t n,
-                                                      double variance,
-                                                      TMatrix& result,
-                                                      double maxCondition) const {
+template<std::size_t N, typename T, bool R_2>
+bool CLeastSquaresOnlineRegression<N, T, R_2>::covariances(std::size_t n,
+                                                           double variance,
+                                                           TMatrix& result,
+                                                           double maxCondition) const {
     result = TMatrix(0.0);
 
     // Define covariance as zero matrix if no data have been added.
@@ -179,8 +227,8 @@ bool CLeastSquaresOnlineRegression<N, T>::covariances(std::size_t n,
     return false;
 }
 
-template<std::size_t N, typename T>
-std::string CLeastSquaresOnlineRegression<N, T>::print() const {
+template<std::size_t N, typename T, bool R_2>
+std::string CLeastSquaresOnlineRegression<N, T, R_2>::print() const {
     TArray params;
     if (this->parameters(params)) {
         std::string result;
@@ -194,13 +242,48 @@ std::string CLeastSquaresOnlineRegression<N, T>::print() const {
     return std::string("bad");
 }
 
-template<std::size_t N, typename T>
+template<std::size_t N, typename T, bool R_2>
 template<typename MATRIX, typename VECTOR>
-bool CLeastSquaresOnlineRegression<N, T>::parameters(std::size_t n,
-                                                     MATRIX& x,
-                                                     VECTOR& y,
-                                                     double maxCondition,
-                                                     TArray& result) const {
+bool CLeastSquaresOnlineRegression<N, T, R_2>::residualVariance(std::size_t n,
+                                                                MATRIX& x,
+                                                                VECTOR& y,
+                                                                VECTOR& z,
+                                                                double maxCondition,
+                                                                double& result) const {
+    const auto& s = CBasicStatistics::mean(m_S);
+
+    if (n == 1) {
+        result = s(3 * N - 1) - CTools::pow2(s(2 * N - 1));
+        return true;
+    }
+
+    this->gramian(n, x);
+    for (std::size_t i = 0; i < n; ++i) {
+        y(i) = s(i + 2 * N - 1);
+        z(i) = s(i);
+    }
+
+    typename SJacobiSvd<MATRIX>::Type svd(x.template selfadjointView<Eigen::Upper>(),
+                                          Eigen::ComputeFullU | Eigen::ComputeFullV);
+    if (svd.info() != Eigen::Success ||
+        svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
+        return false;
+    }
+
+    // Don't bother checking the solution since we check the matrix condition above.
+    VECTOR r{svd.solve(y)};
+    result = (s(3 * N - 1) - y.transpose() * r) - CTools::pow2(s(2 * N - 1) - z.transpose() * r);
+
+    return true;
+}
+
+template<std::size_t N, typename T, bool R_2>
+template<typename MATRIX, typename VECTOR>
+bool CLeastSquaresOnlineRegression<N, T, R_2>::parameters(std::size_t n,
+                                                          MATRIX& x,
+                                                          VECTOR& y,
+                                                          double maxCondition,
+                                                          TArray& result) const {
     if (n == 1) {
         result[0] = CBasicStatistics::mean(m_S)(2 * N - 1);
         return true;
@@ -236,13 +319,13 @@ bool CLeastSquaresOnlineRegression<N, T>::parameters(std::size_t n,
     return true;
 }
 
-template<std::size_t N, typename T>
+template<std::size_t N, typename T, bool R_2>
 template<typename MATRIX>
-bool CLeastSquaresOnlineRegression<N, T>::covariances(std::size_t n,
-                                                      MATRIX& x,
-                                                      double variance,
-                                                      double maxCondition,
-                                                      TMatrix& result) const {
+bool CLeastSquaresOnlineRegression<N, T, R_2>::covariances(std::size_t n,
+                                                           MATRIX& x,
+                                                           double variance,
+                                                           double maxCondition,
+                                                           TMatrix& result) const {
     if (n == 1) {
         x(0) = variance / CBasicStatistics::count(m_S);
         return true;
