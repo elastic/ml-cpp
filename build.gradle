@@ -137,6 +137,7 @@ task format(type: Exec) {
 
 task buildZip(type: Zip) {
   dependsOn strip
+  archiveClassifier = artifactClassifier
   from("${buildDir}/distribution") {
     // Don't copy Windows import libraries
     exclude "**/*.lib"
@@ -155,7 +156,7 @@ task buildZip(type: Zip) {
 
 task buildZipSymbols(type: Zip) {
   dependsOn strip
-  classifier = "debug"
+  archiveClassifier = "${artifactClassifier}-debug"
   from("${buildDir}/distribution") {
     // only take debug files
     include "**/*-debug"
@@ -201,7 +202,7 @@ check {
 }
 
 assemble {
-  dependsOn = ['buildUberZip', 'buildZipSymbols']
+  dependsOn = ['buildUberZip', 'buildZip', 'buildZipSymbols']
   description = 'Assemble the C++ part of Machine Learning'
 }
 
@@ -326,6 +327,7 @@ def dependenciesSpec(source) {
 
 task buildDependenciesZip(type: Zip) {
   description = 'Create a zip of dependencies only from combined platform-specific C++ distributions'
+  dependsOn buildUberZip
 
   classifier = 'deps'
   reproducibleFileOrder = true
@@ -333,7 +335,7 @@ task buildDependenciesZip(type: Zip) {
   // timestamp diffs between otherwise identical archives
   preserveFileTimestamps = false
 
-  with dependenciesSpec(buildUberZip)
+  with dependenciesSpec(zipTree(buildUberZip))
 }
 
 task buildDependenciesZipFromDownloads(type: Zip) {
@@ -371,6 +373,7 @@ def noDependenciesSpec(source) {
 
 task buildNoDependenciesZip(type: Zip) {
   description = 'Create a zip excluding dependencies from combined platform-specific C++ distributions'
+  dependsOn buildUberZip
 
   classifier = 'nodeps'
   reproducibleFileOrder = true
@@ -378,7 +381,7 @@ task buildNoDependenciesZip(type: Zip) {
   // timestamp diffs between otherwise identical archives
   preserveFileTimestamps = false
 
-  with noDependenciesSpec(buildUberZip)
+  with noDependenciesSpec(zipTree(buildUberZip))
 }
 
 task buildNoDependenciesZipFromDownloads(type: Zip) {
