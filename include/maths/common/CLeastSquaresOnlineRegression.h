@@ -45,10 +45,8 @@ namespace least_squares_online_regression_detail {
 //! when computing parameters.
 template<typename T>
 struct CMaxCondition {
-    static const double VALUE;
+    static constexpr double VALUE{1e15};
 };
-template<typename T>
-const double CMaxCondition<T>::VALUE = 1e15;
 
 //! Used for getting the default maximum condition number to use
 //! when computing parameters.
@@ -57,17 +55,10 @@ struct MATHS_COMMON_EXPORT CMaxCondition<CFloatStorage> {
     static const double VALUE;
 };
 
-template<std::size_t N, bool> struct SSize {};
-
-template<std::size_t N>
-struct SSize<N, false> {
-    static const std::size_t VALUE = 3 * N - 1;
-};
-
-template<std::size_t N>
-struct SSize<N, true> {
-    static const std::size_t VALUE = 3 * N;
-};
+//! The number of statistics needed by the regression model.
+constexpr std::size_t numberStatistics(std::size_t n, bool r2) {
+    return r2 ? 3 * n : 3 * n - 1;
+}
 }
 
 //! DESCRIPTION:\n
@@ -116,7 +107,8 @@ class CLeastSquaresOnlineRegression : boost::addable<CLeastSquaresOnlineRegressi
 public:
     static const std::size_t N = N_ + 1;
     using TArray = std::array<double, N>;
-    using TVector = CVectorNx1<T, least_squares_online_regression_detail::SSize<N, R_2>::VALUE>;
+    using TVector =
+        CVectorNx1<T, least_squares_online_regression_detail::numberStatistics(N, R_2)>;
     using TMatrix = CSymmetricMatrixNxN<double, N>;
     using TVectorMeanAccumulator = typename CBasicStatistics::SSampleMean<TVector>::TAccumulator;
 
@@ -125,6 +117,7 @@ public:
     static const T MAX_CONDITION;
 
 public:
+    // This is purposely not explicit to allow type coercion.
     CLeastSquaresOnlineRegression() = default;
     template<typename U>
     CLeastSquaresOnlineRegression(const CLeastSquaresOnlineRegression<N_, U>& other)
@@ -151,7 +144,7 @@ public:
         for (std::size_t i = N; i < 2 * N - 1; ++i, xi *= x) {
             d(i) = xi;
         }
-        if (R_2) {
+        if constexpr (R_2) {
             d(3 * N - 1) = y * y;
         }
         m_S.add(d, weight);
@@ -159,7 +152,7 @@ public:
 
     //! Set the statistics from \p rhs.
     template<typename U>
-    const CLeastSquaresOnlineRegression
+    CLeastSquaresOnlineRegression&
     operator=(const CLeastSquaresOnlineRegression<N_, U>& rhs) {
         m_S = rhs.statistic();
         return *this;
@@ -286,6 +279,14 @@ public:
         return predict(params, x);
     }
 
+    //! Get the regression model R^2 if it can be computed.
+    //!
+    //! If created with R_2 true then the regression model R^2 can
+    //! be computed from the statistics maintained.
+    //! \param[in] maxCondition The maximum condition number for
+    //! the Gramian this will consider solving. If the condition
+    //! is worse than this it'll fit a lower order polynomial.
+    //! \param[out] result Filled in with the regression model R^2.
     bool r2(double& result, double maxCondition = MAX_CONDITION) const;
 
     //! Get the regression parameters.
@@ -418,13 +419,9 @@ public:
     std::string print() const;
 
 private:
+    //! Compute the residual variance for an order \p n regression model.
     template<typename MATRIX, typename VECTOR>
-    bool residualVariance(std::size_t n,
-                          MATRIX& x,
-                          VECTOR& y,
-                          VECTOR& z,
-                          double maxCondition,
-                          double& result) const;
+    bool residualVariance(std::size_t n, MATRIX& x, VECTOR& y, VECTOR& z, double maxCondition, double& result) const;
 
     //! Get the first \p n regression parameters.
     template<typename MATRIX, typename VECTOR>

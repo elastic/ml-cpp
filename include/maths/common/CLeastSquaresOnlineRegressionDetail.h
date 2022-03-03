@@ -99,7 +99,7 @@ bool CLeastSquaresOnlineRegression<N, T, R_2>::r2(double& result, double maxCond
     }
 
     const auto& s = CBasicStatistics::mean(m_S);
-    
+
     double variance{s(3 * N - 1) - CTools::pow2(s(2 * N - 1))};
     double residualVariance{variance};
 
@@ -134,7 +134,8 @@ bool CLeastSquaresOnlineRegression<N, T, R_2>::r2(double& result, double maxCond
 }
 
 template<std::size_t N, typename T, bool R_2>
-bool CLeastSquaresOnlineRegression<N, T, R_2>::parameters(TArray& result, double maxCondition) const {
+bool CLeastSquaresOnlineRegression<N, T, R_2>::parameters(TArray& result,
+                                                          double maxCondition) const {
     return this->parameters(N, result, maxCondition);
 }
 
@@ -263,16 +264,20 @@ bool CLeastSquaresOnlineRegression<N, T, R_2>::residualVariance(std::size_t n,
         z(i) = s(i);
     }
 
-    typename SJacobiSvd<MATRIX>::Type svd(x.template selfadjointView<Eigen::Upper>(),
-                                          Eigen::ComputeFullU | Eigen::ComputeFullV);
+    typename SJacobiSvd<MATRIX>::Type svd{x.template selfadjointView<Eigen::Upper>(),
+                                          Eigen::ComputeFullU | Eigen::ComputeFullV};
     if (svd.info() != Eigen::Success ||
         svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
+        LOG_TRACE(<< "SVD compute failed with status " << svd.info()
+                  << " singular values = " << svd.singularValues() << " for x =\n"
+                  << x);
         return false;
     }
 
     // Don't bother checking the solution since we check the matrix condition above.
     VECTOR r{svd.solve(y)};
-    result = (s(3 * N - 1) - y.transpose() * r) - CTools::pow2(s(2 * N - 1) - z.transpose() * r);
+    result = (s(3 * N - 1) - y.transpose() * r) -
+             CTools::pow2(s(2 * N - 1) - z.transpose() * r);
 
     return true;
 }
@@ -284,28 +289,25 @@ bool CLeastSquaresOnlineRegression<N, T, R_2>::parameters(std::size_t n,
                                                           VECTOR& y,
                                                           double maxCondition,
                                                           TArray& result) const {
+    const auto& s = CBasicStatistics::mean(m_S);
+
     if (n == 1) {
-        result[0] = CBasicStatistics::mean(m_S)(2 * N - 1);
+        result[0] = s(2 * N - 1);
         return true;
     }
 
     this->gramian(n, x);
     for (std::size_t i = 0; i < n; ++i) {
-        y(i) = CBasicStatistics::mean(m_S)(i + 2 * N - 1);
+        y(i) = s(i + 2 * N - 1);
     }
-    LOG_TRACE(<< "S = " << CBasicStatistics::mean(m_S));
-    LOG_TRACE(<< "x =\n" << x);
-    LOG_TRACE(<< "y =\n" << y);
 
-    typename SJacobiSvd<MATRIX>::Type svd(x.template selfadjointView<Eigen::Upper>(),
-                                          Eigen::ComputeFullU | Eigen::ComputeFullV);
-    if (svd.info() != Eigen::Success) {
-        LOG_TRACE(<< "SVD compute failed with status " << svd.info() << " for x =\n"
+    typename SJacobiSvd<MATRIX>::Type svd{x.template selfadjointView<Eigen::Upper>(),
+                                          Eigen::ComputeFullU | Eigen::ComputeFullV};
+    if (svd.info() != Eigen::Success ||
+        svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
+        LOG_TRACE(<< "SVD compute failed with status " << svd.info()
+                  << " singular values = " << svd.singularValues() << " for x =\n"
                   << x);
-        return false;
-    }
-    if (svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
-        LOG_TRACE(<< "singular values = " << svd.singularValues());
         return false;
     }
 
@@ -332,15 +334,13 @@ bool CLeastSquaresOnlineRegression<N, T, R_2>::covariances(std::size_t n,
     }
 
     this->gramian(n, x);
-    typename SJacobiSvd<MATRIX>::Type svd(x.template selfadjointView<Eigen::Upper>(),
-                                          Eigen::ComputeFullU | Eigen::ComputeFullV);
-    if (svd.info() != Eigen::Success) {
-        LOG_TRACE(<< "SVD compute failed with status " << svd.info() << " for x =\n"
+    typename SJacobiSvd<MATRIX>::Type svd{x.template selfadjointView<Eigen::Upper>(),
+                                          Eigen::ComputeFullU | Eigen::ComputeFullV};
+    if (svd.info() != Eigen::Success ||
+        svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
+        LOG_TRACE(<< "SVD compute failed with status " << svd.info()
+                  << ", singular values = " << svd.singularValues() << " for x =\n"
                   << x);
-        return false;
-    }
-    if (svd.singularValues()(0) > maxCondition * svd.singularValues()(n - 1)) {
-        LOG_TRACE(<< "singular values = " << svd.singularValues());
         return false;
     }
 
