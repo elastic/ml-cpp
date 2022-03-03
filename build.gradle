@@ -327,7 +327,6 @@ def dependenciesSpec(source) {
 
 task buildDependenciesZip(type: Zip) {
   description = 'Create a zip of dependencies only from combined platform-specific C++ distributions'
-  dependsOn buildUberZip
 
   classifier = 'deps'
   reproducibleFileOrder = true
@@ -335,7 +334,7 @@ task buildDependenciesZip(type: Zip) {
   // timestamp diffs between otherwise identical archives
   preserveFileTimestamps = false
 
-  with dependenciesSpec(zipTree(buildUberZip))
+  with dependenciesSpec(zipTree(buildUberZip.archiveFile))
 }
 
 task buildDependenciesZipFromDownloads(type: Zip) {
@@ -373,7 +372,6 @@ def noDependenciesSpec(source) {
 
 task buildNoDependenciesZip(type: Zip) {
   description = 'Create a zip excluding dependencies from combined platform-specific C++ distributions'
-  dependsOn buildUberZip
 
   classifier = 'nodeps'
   reproducibleFileOrder = true
@@ -381,7 +379,7 @@ task buildNoDependenciesZip(type: Zip) {
   // timestamp diffs between otherwise identical archives
   preserveFileTimestamps = false
 
-  with noDependenciesSpec(zipTree(buildUberZip))
+  with noDependenciesSpec(zipTree(buildUberZip.archiveFile))
 }
 
 task buildNoDependenciesZipFromDownloads(type: Zip) {
