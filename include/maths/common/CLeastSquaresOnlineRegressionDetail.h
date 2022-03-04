@@ -87,27 +87,23 @@ void CLeastSquaresOnlineRegression<N, T, R_2>::shiftAbscissa(double dx) {
 }
 
 template<std::size_t N, typename T, bool R_2>
-bool CLeastSquaresOnlineRegression<N, T, R_2>::r2(double& result, double maxCondition) const {
+bool CLeastSquaresOnlineRegression<N, T, R_2>::residualMoments(TMeanVarAccumulator& result,
+                                                               double maxCondition) const {
 
-    result = 0.0;
+    result = TMeanVarAccumulator{};
 
-    if (R_2 == false) {
+    if constexpr (R_2 == false) {
         return false;
     }
     if (CBasicStatistics::count(m_S) == T{0}) {
         return true;
     }
 
-    const auto& s = CBasicStatistics::mean(m_S);
-
-    double variance{s(3 * N - 1) - CTools::pow2(s(2 * N - 1))};
-    double residualVariance{variance};
-
     std::size_t n{N + 1};
-    bool done{false};
-    while (--n > 0 && done == false) {
+    while (--n > 0) {
         switch (n) {
         case 1: {
+            result = TMeanVarAccumulator{};
             return true;
         }
         case N: {
@@ -115,22 +111,23 @@ bool CLeastSquaresOnlineRegression<N, T, R_2>::r2(double& result, double maxCond
             Eigen::Matrix<double, N_, N_> x;
             Eigen::Matrix<double, N_, 1> y;
             Eigen::Matrix<double, N_, 1> z;
-            done = this->residualVariance(n, x, y, z, maxCondition, residualVariance);
+            if (this->residualMoments(n, x, y, z, maxCondition, result)) {
+                return true;
+            }
             break;
         }
         default: {
             CDenseMatrix<double> x(n, n);
             CDenseVector<double> y(n);
             CDenseVector<double> z(n);
-            done = this->residualVariance(n, x, y, z, maxCondition, residualVariance);
+            if (this->residualMoments(n, x, y, z, maxCondition, result)) {
+                return true;
+            }
             break;
         }
         }
     }
-
-    result = CTools::truncate(1.0 - residualVariance / variance, 0.0, 1.0);
-
-    return true;
+    return false;
 }
 
 template<std::size_t N, typename T, bool R_2>
@@ -245,16 +242,19 @@ std::string CLeastSquaresOnlineRegression<N, T, R_2>::print() const {
 
 template<std::size_t N, typename T, bool R_2>
 template<typename MATRIX, typename VECTOR>
-bool CLeastSquaresOnlineRegression<N, T, R_2>::residualVariance(std::size_t n,
-                                                                MATRIX& x,
-                                                                VECTOR& y,
-                                                                VECTOR& z,
-                                                                double maxCondition,
-                                                                double& result) const {
+bool CLeastSquaresOnlineRegression<N, T, R_2>::residualMoments(std::size_t n,
+                                                               MATRIX& x,
+                                                               VECTOR& y,
+                                                               VECTOR& z,
+                                                               double maxCondition,
+                                                               TMeanVarAccumulator& result) const {
     const auto& s = CBasicStatistics::mean(m_S);
 
     if (n == 1) {
-        result = s(3 * N - 1) - CTools::pow2(s(2 * N - 1));
+        double count{CBasicStatistics::count(m_S)};
+        double mean{s(2 * N - 1)};
+        double variance{s(3 * N - 1) - CTools::pow2(mean)};
+        result = CBasicStatistics::momentsAccumulator(count, mean, variance);
         return true;
     }
 
@@ -276,9 +276,11 @@ bool CLeastSquaresOnlineRegression<N, T, R_2>::residualVariance(std::size_t n,
 
     // Don't bother checking the solution since we check the matrix condition above.
     VECTOR r{svd.solve(y)};
-    result = (s(3 * N - 1) - y.transpose() * r) -
-             CTools::pow2(s(2 * N - 1) - z.transpose() * r);
+    double count{CBasicStatistics::count(m_S)};
+    double mean{s(2 * N - 1) - z.transpose() * r};
+    double variance{(s(3 * N - 1) - y.transpose() * r) - CTools::pow2(mean)};
 
+    result = CBasicStatistics::momentsAccumulator(count, mean, variance);
     return true;
 }
 

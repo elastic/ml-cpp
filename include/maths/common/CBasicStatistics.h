@@ -422,19 +422,19 @@ public:
     //! Accumulator object to compute the sample mean.
     template<typename T>
     struct SSampleMean {
-        using TAccumulator = SSampleCentralMoments<T, 1u>;
+        using TAccumulator = SSampleCentralMoments<T, 1>;
     };
 
     //! Accumulator object to compute the sample mean and variance.
     template<typename T>
     struct SSampleMeanVar {
-        using TAccumulator = SSampleCentralMoments<T, 2u>;
+        using TAccumulator = SSampleCentralMoments<T, 2>;
     };
 
     //! Accumulator object to compute the sample mean, variance and skewness.
     template<typename T>
     struct SSampleMeanVarSkew {
-        using TAccumulator = SSampleCentralMoments<T, 3u>;
+        using TAccumulator = SSampleCentralMoments<T, 3>;
     };
     //@}
 
@@ -442,8 +442,8 @@ public:
     //@{
     //! Make a mean accumulator.
     template<typename T, typename U>
-    static SSampleCentralMoments<T, 1u> momentsAccumulator(const U& count, const T& m1) {
-        SSampleCentralMoments<T, 1u> result;
+    static SSampleCentralMoments<T, 1> momentsAccumulator(const U& count, const T& m1) {
+        SSampleCentralMoments<T, 1> result;
         result.s_Count = count;
         result.s_Moments[0] = m1;
         return result;
@@ -451,9 +451,9 @@ public:
 
     //! Make a mean and variance accumulator.
     template<typename T, typename U>
-    static SSampleCentralMoments<T, 2u>
+    static SSampleCentralMoments<T, 2>
     momentsAccumulator(const U& count, const T& m1, const T& m2) {
-        SSampleCentralMoments<T, 2u> result;
+        SSampleCentralMoments<T, 2> result;
         result.s_Count = count;
         result.s_Moments[0] = m1;
         result.s_Moments[1] = m2;
@@ -462,9 +462,9 @@ public:
 
     //! Make a mean, variance and skew accumulator.
     template<typename T, typename U>
-    static SSampleCentralMoments<T, 3u>
+    static SSampleCentralMoments<T, 3>
     momentsAccumulator(const U& count, const T& m1, const T& m2, const T& m3) {
-        SSampleCentralMoments<T, 3u> result;
+        SSampleCentralMoments<T, 3> result;
         result.s_Count = count;
         result.s_Moments[0] = m1;
         result.s_Moments[1] = m2;
@@ -677,14 +677,14 @@ public:
     //@{
     //! Print a mean accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 1u>& accumulator) {
+    static inline std::string print(const SSampleCentralMoments<T, 1>& accumulator) {
         std::ostringstream result;
         result << '(' << count(accumulator) << ", " << mean(accumulator) << ')';
         return result.str();
     }
     //! Print a mean and variance accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 2u>& accumulator) {
+    static inline std::string print(const SSampleCentralMoments<T, 2>& accumulator) {
         std::ostringstream result;
         result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
                << variance(accumulator) << ')';
@@ -692,7 +692,7 @@ public:
     }
     //! Print a mean, variance and skew accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 3u>& accumulator) {
+    static inline std::string print(const SSampleCentralMoments<T, 3>& accumulator) {
         std::ostringstream result;
         result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
                << variance(accumulator) << ", " << skewness(accumulator) << ')';
@@ -1441,19 +1441,19 @@ public:
 
 template<typename T>
 std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 1u>& accumulator) {
+                         const CBasicStatistics::SSampleCentralMoments<T, 1>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
 std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 2u>& accumulator) {
+                         const CBasicStatistics::SSampleCentralMoments<T, 2>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
 std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 3u>& accumulator) {
+                         const CBasicStatistics::SSampleCentralMoments<T, 3>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 

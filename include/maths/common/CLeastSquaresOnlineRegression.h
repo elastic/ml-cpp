@@ -111,6 +111,7 @@ public:
         CVectorNx1<T, least_squares_online_regression_detail::numberStatistics(N, R_2)>;
     using TMatrix = CSymmetricMatrixNxN<double, N>;
     using TVectorMeanAccumulator = typename CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 public:
     static const core::TPersistenceTag STATISTIC_TAG;
@@ -120,7 +121,7 @@ public:
     // This is purposely not explicit to allow type coercion.
     CLeastSquaresOnlineRegression() = default;
     template<typename U>
-    CLeastSquaresOnlineRegression(const CLeastSquaresOnlineRegression<N_, U>& other)
+    CLeastSquaresOnlineRegression(const CLeastSquaresOnlineRegression<N_, U, R_2>& other)
         : m_S{other.statistic()} {}
 
     //! Restore by traversing a state document.
@@ -153,7 +154,7 @@ public:
     //! Set the statistics from \p rhs.
     template<typename U>
     CLeastSquaresOnlineRegression&
-    operator=(const CLeastSquaresOnlineRegression<N_, U>& rhs) {
+    operator=(const CLeastSquaresOnlineRegression<N_, U, R_2>& rhs) {
         m_S = rhs.statistic();
         return *this;
     }
@@ -169,7 +170,7 @@ public:
     //! values add to this.
     template<typename U>
     const CLeastSquaresOnlineRegression&
-    operator-=(const CLeastSquaresOnlineRegression<N_, U>& rhs) {
+    operator-=(const CLeastSquaresOnlineRegression<N_, U, R_2>& rhs) {
         m_S -= rhs.statistic();
         return *this;
     }
@@ -184,7 +185,7 @@ public:
     //! origin.
     template<typename U>
     const CLeastSquaresOnlineRegression&
-    operator+=(const CLeastSquaresOnlineRegression<N_, U>& rhs) {
+    operator+=(const CLeastSquaresOnlineRegression<N_, U, R_2>& rhs) {
         m_S += rhs.statistic();
         return *this;
     }
@@ -241,6 +242,9 @@ public:
             for (std::size_t i = 0; i < N; ++i) {
                 CBasicStatistics::moment<0>(m_S)(i + 2 * N - 1) *= scale;
             }
+            if constexpr (R_2) {
+                CBasicStatistics::moment<0>(m_S)(3 * N - 1) *= scale * scale;
+            }
         }
     }
 
@@ -287,7 +291,37 @@ public:
     //! the Gramian this will consider solving. If the condition
     //! is worse than this it'll fit a lower order polynomial.
     //! \param[out] result Filled in with the regression model R^2.
-    bool r2(double& result, double maxCondition = MAX_CONDITION) const;
+    bool r2(double& result, double maxCondition = MAX_CONDITION) const {
+
+        result = 0.0;
+
+        if (R_2 == false) {
+            return false;
+        }
+        if (CBasicStatistics::count(m_S) == T{0}) {
+            return true;
+        }
+
+        TMeanVarAccumulator residualMoments;
+        if (this->residualMoments(residualMoments, maxCondition) == false) {
+            return false;
+        }
+
+        const auto& s = CBasicStatistics::mean(m_S);
+        double variance{s(3 * N - 1) - CTools::pow2(s(2 * N - 1))};
+        double residualVariance{CBasicStatistics::variance(residualMoments)};
+        result = CTools::truncate(1.0 - residualVariance / variance, 0.0, 1.0);
+        return true;
+    }
+
+    //! Compute the residual moments.
+    //!
+    //! \param[in] maxCondition The maximum condition number for
+    //! the Gramian this will consider solving. If the condition
+    //! is worse than this it'll fit a lower order polynomial.
+    //! \param[out] result Filled in with the residual moments.
+    //! \note This is only possible if R_2 is true.
+    bool residualMoments(TMeanVarAccumulator& result, double maxCondition = MAX_CONDITION) const;
 
     //! Get the regression parameters.
     //!
@@ -421,7 +455,12 @@ public:
 private:
     //! Compute the residual variance for an order \p n regression model.
     template<typename MATRIX, typename VECTOR>
-    bool residualVariance(std::size_t n, MATRIX& x, VECTOR& y, VECTOR& z, double maxCondition, double& result) const;
+    bool residualMoments(std::size_t n,
+                         MATRIX& x,
+                         VECTOR& y,
+                         VECTOR& z,
+                         double maxCondition,
+                         TMeanVarAccumulator& result) const;
 
     //! Get the first \p n regression parameters.
     template<typename MATRIX, typename VECTOR>
