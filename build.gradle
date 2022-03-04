@@ -156,7 +156,7 @@ task buildZip(type: Zip) {
 
 task buildZipSymbols(type: Zip) {
   dependsOn strip
-  archiveClassifier = "${artifactClassifier}-debug"
+  archiveClassifier = "debug-${artifactClassifier}"
   from("${buildDir}/distribution") {
     // only take debug files
     include "**/*-debug"
@@ -281,7 +281,7 @@ class DownloadPlatformSpecific extends DefaultTask {
       }
       zip.close()
       // Also download the corresponding zip of debug symbols, but there's no need to extract this
-      File debugZipFile = new File(downloadDirectory, "${baseName}-debug-${version}-${it}.zip")
+      File debugZipFile = new File(downloadDirectory, "${baseName}-${version}-debug-${it}.zip")
       new URL("https://prelert-artifacts.s3.amazonaws.com/maven/${artifactGroupPath}/${baseName}/${version}/${debugZipFile.name}").withInputStream { i ->
         debugZipFile.withOutputStream { o ->
           o << i
@@ -410,7 +410,7 @@ task upload(type: UploadS3Task) {
   bucket 'prelert-artifacts'
   // Only upload the platform-specific artifacts in this task
   def zipFileDir = fileTree("${buildDir}/distributions").matching {
-    include "*-aarch64.zip", "*-aarch64-debug.zip", "*-x86_64.zip", "*-x86_64-debug.zip"
+    include "*-aarch64.zip", "*-x86_64.zip"
   }
   for (zipFile in zipFileDir) {
     upload zipFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${zipFile.name}"
