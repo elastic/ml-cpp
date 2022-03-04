@@ -274,7 +274,23 @@ bool CLeastSquaresOnlineRegression<N, T, R_2>::residualMoments(std::size_t n,
         return false;
     }
 
-    // Don't bother checking the solution since we check the matrix condition above.
+    // The mean predictions are given by 1^t X p and the square residuals are given
+    // by 
+    //   ||y - X p - 1^t X p||^2                                                (1)
+    //
+    // and for least sqaures solution the parameters p = (X^t X)^-1 X^t y. We can
+    // calculate 1^t X from the statistics we maintain. To compute (1) we first use
+    // the fact that
+    //
+    //   ||y - X p - 1^t X p||^2 = ||y - X p||^2 + ||1^t X p||^2
+    //
+    // Substituting for p in the first term we have
+    //
+    //   ||y - X (X^t X)^-1 X^t y||^2
+    //       = y^t y - 2 y^t X (X^t X)^-1 X^t y + y^t X (X^t X)^-1 X^t X (X^t X)^-1 X^t y
+    //       = y^t y - 2 y^t X (X^t X)^-1 X^t y + y^t X (X^t X)^-1 X^t y
+    //       = y^t y - y^t X (X^t X)^-1 X^t y
+
     VECTOR r{svd.solve(y)};
     double count{CBasicStatistics::count(m_S)};
     double mean{s(2 * N - 1) - z.transpose() * r};
