@@ -50,7 +50,7 @@ mkdir ../distributions
 # Exclude import libraries, test support libraries, debug files and core dumps
 zip -9 ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep -v '\.lib$|unit_test_framework|libMlTest|\.dSYM|-debug$|\.pdb$|/core'`
 # Include only debug files
-zip -9 ../distributions/$ARTIFACT_NAME-debug-$PRODUCT_VERSION-$BUNDLE_PLATFORM.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
+zip -9 ../distributions/$ARTIFACT_NAME-$PRODUCT_VERSION-$BUNDLE_PLATFORM-debug.zip `find * | egrep '\.dSYM|-debug$|\.pdb$'`
 cd ../..
 
 if [ "x$1" = "x--test" ] ; then

@@ -409,7 +409,9 @@ task buildDependencyReport(type: Exec) {
 task upload(type: UploadS3Task) {
   bucket 'prelert-artifacts'
   // Only upload the platform-specific artifacts in this task
-  def zipFileDir = fileTree("${buildDir}/distributions").matching { include "*-aarch64.zip", "*-x86_64.zip" }
+  def zipFileDir = fileTree("${buildDir}/distributions").matching {
+    include "*-aarch64.zip", "*-aarch64-debug.zip", "*-x86_64.zip", "*-x86_64-debug.zip"
+  }
   for (zipFile in zipFileDir) {
     upload zipFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${zipFile.name}"
   }
@@ -440,7 +442,6 @@ wrapper {
     println "Added checksum to wrapper properties"
   }
 }
-
 
 artifacts {
   'default' buildDependenciesZip
