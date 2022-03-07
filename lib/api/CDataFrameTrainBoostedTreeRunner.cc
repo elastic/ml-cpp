@@ -107,8 +107,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
 
     bool earlyStoppingEnabled{parameters[EARLY_STOPPING_ENABLED].fallback(true)};
-    std::size_t rowWeightColumn{parameters[ROW_WEIGHT_COLUMN].fallback(
-        maths::analytics::boosted_tree_detail::UNIT_ROW_WEIGHT_COLUMN)};
+    std::string rowWeightColumnName{parameters[ROW_WEIGHT_COLUMN].fallback(std::string{})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
     std::size_t numberRoundsPerHyperparameter{
@@ -167,6 +166,15 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         HANDLE_FATAL(<< "Input error: '" << FEATURE_BAG_FRACTION
                      << "' should be in the range (0, 1]");
     }
+    if (rowWeightColumnName.empty() == false &&
+        (rowWeightColumnName == m_DependentVariableFieldName ||
+         std::find(spec.categoricalFieldNames().begin(),
+                   spec.categoricalFieldNames().end(),
+                   rowWeightColumnName) != spec.categoricalFieldNames().end())) {
+        HANDLE_FATAL(<< "Input error: row weight column '" << rowWeightColumnName
+                     << "' can't be categorical or the same as the supplied '"
+                     << DEPENDENT_VARIABLE_NAME << "'.");
+    }
 
     m_BoostedTreeFactory = std::make_unique<maths::analytics::CBoostedTreeFactory>(
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
@@ -178,7 +186,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .trainingStateCallback(this->statePersister())
         .earlyStoppingEnabled(earlyStoppingEnabled)
         .maximumDeployedSize(maximumDeployedSize)
-        .rowWeightColumn(rowWeightColumn);
+        .rowWeightColumnName(std::move(rowWeightColumnName));
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(

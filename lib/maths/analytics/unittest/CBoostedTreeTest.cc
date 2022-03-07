@@ -768,6 +768,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
 
     auto frameWithoutWeights = core::makeMainStorageDataFrame(cols, rows).first;
+    frameWithoutWeights->columnNames({"x1", "x2", "x3", "x4", "x5", "x6"});
     fillDataFrame(trainRows, testRows, cols, x, noise, targetWithOutliers, *frameWithoutWeights);
 
     auto regressionWithoutWeights =
@@ -779,6 +780,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     regressionWithoutWeights->predict();
 
     auto frameWithWeights = core::makeMainStorageDataFrame(cols + 1, rows).first;
+    frameWithWeights->columnNames({"x1", "x2", "x3", "x4", "x5", "x6", "w"});
     fillDataFrame(trainRows, testRows, cols, TBoolVec(cols + 1, false), x,
                   noise, targetWithOutliers, *frameWithWeights);
     fillDataFrameWeights(weightCol, weight, *frameWithWeights);
@@ -786,7 +788,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     auto regressionWithWeights =
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-            .rowWeightColumn(weightCol)
+            .rowWeightColumnName("w")
             .buildFor(*frameWithWeights, cols - 1);
 
     regressionWithWeights->train();

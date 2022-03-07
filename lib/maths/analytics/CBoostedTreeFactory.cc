@@ -367,13 +367,15 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 
 void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
 
-    if (m_RowWeightColumn != UNIT_ROW_WEIGHT_COLUMN &&
-        (m_RowWeightColumn >= frame.numberColumns() ||
-         m_RowWeightColumn == m_TreeImpl->columnHoldingDependentVariable())) {
-        HANDLE_FATAL(<< "Input error: invalid column '" << m_RowWeightColumn
-                     << "' for row weights. It must be less than '"
-                     << frame.numberColumns() << "' and not equal to '"
-                     << m_TreeImpl->columnHoldingDependentVariable() << "'.");
+    std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
+    const auto& columnNames = frame.columnNames();
+    if (m_RowWeightColumnName.empty() == false) {
+        auto column = std::find(columnNames.begin(), columnNames.end(), m_RowWeightColumnName);
+        if (column == columnNames.end()) {
+            HANDLE_FATAL(<< "Input error: unrecognised row weight field name '"
+                         << m_RowWeightColumnName << "'.");
+        }
+        rowWeightColumn = static_cast<std::size_t>(column - columnNames.begin());
     }
 
     std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
@@ -383,7 +385,7 @@ void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
     std::tie(extraColumns_, paddedExtraColumns) = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
     m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
-    m_TreeImpl->m_ExtraColumns[E_Weight] = m_RowWeightColumn;
+    m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
     m_TreeImpl->m_ExtraColumns[E_Prediction] = extraColumns_[0];
     m_TreeImpl->m_ExtraColumns[E_Gradient] = extraColumns_[1];
     m_TreeImpl->m_ExtraColumns[E_Curvature] = extraColumns_[2];
@@ -1181,8 +1183,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::classificationWeights(TStrDoublePrVec 
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::rowWeightColumn(std::size_t column) {
-    m_RowWeightColumn = column;
+CBoostedTreeFactory& CBoostedTreeFactory::rowWeightColumnName(std::string column) {
+    m_RowWeightColumnName = std::move(column);
     return *this;
 }
 
@@ -1540,7 +1542,7 @@ const std::string LOG_ETA_SEARCH_INTERVAL_TAG{"log_eta_search_interval"};
 const std::string LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG{"log_feature_bag_fraction_interval"};
 const std::string LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_leaf_weight_penalty_multiplier_search_interval"};
 const std::string LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_tree_size_penalty_multiplier_search_interval"};
-const std::string ROW_WEIGHT_COLUMN_TAG{"row_weight_column"};
+const std::string ROW_WEIGHT_COLUMN_NAME_TAG{"row_weight_column_name"};
 const std::string SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG{"soft_depth_limit_search_interval"};
 const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
 const std::string TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG{"total_curvature_per_node_90th_percentile"};
@@ -1571,7 +1573,8 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
             m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
         core::CPersistUtils::persist(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
                                      m_LogTreeSizePenaltyMultiplierSearchInterval, inserter);
-        core::CPersistUtils::persist(ROW_WEIGHT_COLUMN_TAG, m_RowWeightColumn, inserter);
+        core::CPersistUtils::persist(ROW_WEIGHT_COLUMN_NAME_TAG,
+                                     m_RowWeightColumnName, inserter);
         core::CPersistUtils::persist(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
                                      m_SoftDepthLimitSearchInterval, inserter);
         core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
@@ -1630,9 +1633,9 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                                 core::CPersistUtils::restore(
                                     LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
                                     m_LogTreeSizePenaltyMultiplierSearchInterval, traverser))
-                        RESTORE(ROW_WEIGHT_COLUMN_TAG,
-                                core::CPersistUtils::restore(ROW_WEIGHT_COLUMN_TAG,
-                                                             m_RowWeightColumn, traverser))
+                        RESTORE(ROW_WEIGHT_COLUMN_NAME_TAG,
+                                core::CPersistUtils::restore(ROW_WEIGHT_COLUMN_NAME_TAG,
+                                                             m_RowWeightColumnName, traverser))
                         RESTORE(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
                                 core::CPersistUtils::restore(
                                     SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
