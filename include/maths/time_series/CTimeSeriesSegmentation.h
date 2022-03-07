@@ -251,6 +251,11 @@ private:
     using TRegressionArray = TRegression::TArray;
     using TPredictor = std::function<double(double)>;
     using TScale = std::function<double(std::size_t)>;
+    template<typename ITR>
+    using TDoubleItrPr = std::pair<double, ITR>;
+    template<typename ITR>
+    using TMinAccumulator =
+        typename common::CBasicStatistics::SMin<TDoubleItrPr<ITR>>::TAccumulator;
 
 private:
     //! Choose the final segmentation we'll use.
@@ -271,6 +276,16 @@ private:
                                           TSizeVec& segmentation,
                                           TDoubleDoublePrVec& depthAndPValue,
                                           TFloatMeanAccumulatorVec& values);
+
+    //! Finds the split of [\p begin, \p end) to minimise square residuals for a
+    //! linear model.
+    template<typename ITR>
+    static CTimeSeriesSegmentation::TMinAccumulator<ITR>
+    minimumResidualVarianceSplit(ITR begin,
+                                 ITR end,
+                                 std::ptrdiff_t step,
+                                 double startTime,
+                                 const TFloatMeanAccumulatorVec& reweighted);
 
     //! Fit a piecewise linear model to \p values for the segmentation \p segmentation.
     static TPredictor fitPiecewiseLinear(const TSizeVec& segmentation,
