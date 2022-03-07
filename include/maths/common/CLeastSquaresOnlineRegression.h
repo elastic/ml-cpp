@@ -101,7 +101,7 @@ constexpr std::size_t numberStatistics(std::size_t n, bool r2) {
 //! \tparam N_ The degree of the polynomial.
 //! \tparam T The storage type used for the statistics. Note that since
 //! we can't avoid losing precision in our formulation be careful using
-//! single precision if the polynomial degree is high. 
+//! single precision if the polynomial degree is high.
 //! \tparam R_2 If this is true you can additionally compute R^2 and
 //! the residual statistics, but it adds sizeof(T) to the memory usage.
 // clang-format off
