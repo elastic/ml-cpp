@@ -39,6 +39,11 @@
   Stack. (See {ml-pull}2205[#2205].)
 * Reduce worst case bucket processing time for anomaly detection. (See {ml-pull}2225[#2225].)
 
+=== Bug Fixes
+
+* Fix possible source of "Discarding sample = -nan(ind), weight = 1, variance scale = 1"
+  log errors training classification and regression models. (See {ml-pull}2226[#2226].)
+
 == {es} version 8.1.0
 
 === Enhancements
