@@ -37,6 +37,7 @@
 * Limit the maximum size of classification and regression models training
   produces so they can always be deployed for inference inside the Elastic
   Stack. (See {ml-pull}2205[#2205].)
+* Reduce worst case bucket processing time for anomaly detection. (See {ml-pull}2225[#2225].)
 
 == {es} version 8.1.0
 
