@@ -23,6 +23,7 @@
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -85,6 +86,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(EARLY_STOPPING_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(ROW_WEIGHT_COLUMN,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -103,15 +106,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
 
-    bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
-
-    std::size_t downsampleRowsPerFeature{
-        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
-    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
-
-    std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
-    std::size_t maximumDeployedSize{parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
-        core::constants::BYTES_IN_GIGABYTES)};
+    bool earlyStoppingEnabled{parameters[EARLY_STOPPING_ENABLED].fallback(true)};
+    std::string rowWeightColumnName{parameters[ROW_WEIGHT_COLUMN].fallback(std::string{})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
     std::size_t numberRoundsPerHyperparameter{
@@ -122,7 +118,13 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
     std::size_t numTopFeatureImportanceValues{
         parameters[NUM_TOP_FEATURE_IMPORTANCE_VALUES].fallback(std::size_t{0})};
+    std::size_t maximumDeployedSize{parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
+        core::constants::BYTES_IN_GIGABYTES)};
 
+    std::size_t downsampleRowsPerFeature{
+        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
+    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
+    std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
     double alpha{parameters[ALPHA].fallback(-1.0)};
     double lambda{parameters[LAMBDA].fallback(-1.0)};
     double gamma{parameters[GAMMA].fallback(-1.0)};
@@ -164,6 +166,15 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         HANDLE_FATAL(<< "Input error: '" << FEATURE_BAG_FRACTION
                      << "' should be in the range (0, 1]");
     }
+    if (rowWeightColumnName.empty() == false &&
+        (rowWeightColumnName == m_DependentVariableFieldName ||
+         std::find(spec.categoricalFieldNames().begin(),
+                   spec.categoricalFieldNames().end(),
+                   rowWeightColumnName) != spec.categoricalFieldNames().end())) {
+        HANDLE_FATAL(<< "Input error: row weight column '" << rowWeightColumnName
+                     << "' can't be categorical or the same as the supplied '"
+                     << DEPENDENT_VARIABLE_NAME << "'.");
+    }
 
     m_BoostedTreeFactory = std::make_unique<maths::analytics::CBoostedTreeFactory>(
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
@@ -174,7 +185,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
         .earlyStoppingEnabled(earlyStoppingEnabled)
-        .maximumDeployedSize(maximumDeployedSize);
+        .maximumDeployedSize(maximumDeployedSize)
+        .rowWeightColumnName(std::move(rowWeightColumnName));
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -426,6 +438,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"impor
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
 const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"early_stopping_enabled"};
+const std::string CDataFrameTrainBoostedTreeRunner::ROW_WEIGHT_COLUMN{"weight_column"};
 // clang-format on
 }
 }

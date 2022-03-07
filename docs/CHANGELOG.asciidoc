@@ -37,6 +37,8 @@
 * Limit the maximum size of classification and regression models training
   produces so they can always be deployed for inference inside the Elastic
   Stack. (See {ml-pull}2205[#2205].)
+* Support user defined example weights when training classification and
+  regression models. (See {ml-pull}2222[#2222].)
 
 === Bug Fixes
 
