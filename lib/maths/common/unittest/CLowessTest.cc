@@ -124,6 +124,9 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
         BOOST_REQUIRE_CLOSE(1.05, lowess.predict(1.0), 1e-3);
 
         LOG_DEBUG(<< "minimum = " << core::CContainerPrinter::print(lowess.minimum()));
+        auto[min, fmin] = lowess.minimum();
+        BOOST_REQUIRE_EQUAL(0.0, min);
+        BOOST_REQUIRE_CLOSE(1.05, fmin, 1e-3);
     }
 }
 
