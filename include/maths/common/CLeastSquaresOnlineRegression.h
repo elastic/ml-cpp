@@ -99,6 +99,11 @@ constexpr std::size_t numberStatistics(std::size_t n, bool r2) {
 //! is at a premium.
 //!
 //! \tparam N_ The degree of the polynomial.
+//! \tparam T The storage type used for the statistics. Note that since
+//! we can't avoid losing precision in our formulation be careful using
+//! single precision if the polynomial degree is high. 
+//! \tparam R_2 If this is true you can additionally compute R^2 and
+//! the residual statistics, but it adds sizeof(T) to the memory usage.
 // clang-format off
 template<std::size_t N_, typename T = CFloatStorage, bool R_2 = false>
 class CLeastSquaresOnlineRegression : boost::addable<CLeastSquaresOnlineRegression<N_, T>,
@@ -295,7 +300,7 @@ public:
 
         result = 0.0;
 
-        if (R_2 == false) {
+        if constexpr (R_2 == false) {
             return false;
         }
         if (CBasicStatistics::count(m_S) == T{0}) {
@@ -482,8 +487,8 @@ private:
     }
 
 private:
-    //! Sufficient statistics for computing the least squares
-    //! regression. There are 3N - 1 in total, for the distinct
+    //! Sufficient statistics for computing the least squares regression.
+    //! There are 3N - 1 (or 3N if computing R^2) in total, for the distinct
     //! values in the design matrix and vector.
     TVectorMeanAccumulator m_S;
 
