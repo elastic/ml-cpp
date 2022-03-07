@@ -61,8 +61,11 @@ CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(
     double minimumBucketLength,
     core::CStateRestoreTraverser& traverser)
     : CAdaptiveBucketing{decayRate, minimumBucketLength} {
-    traverser.traverseSubLevel(std::bind(&CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CCalendarComponentAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
@@ -137,7 +140,9 @@ void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time) {
 
 double CCalendarComponentAdaptiveBucketing::count(core_t::TTime time) const {
     const TFloatMeanVarAccumulator* value{this->value(time)};
-    return value ? static_cast<double>(common::CBasicStatistics::count(*value)) : 0.0;
+    return value != nullptr
+               ? static_cast<double>(common::CBasicStatistics::count(*value))
+               : 0.0;
 }
 
 const CCalendarComponentAdaptiveBucketing::TFloatMeanVarAccumulator*
@@ -175,8 +180,8 @@ bool CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
     do {
         const std::string& name{traverser.name()};
         RESTORE(ADAPTIVE_BUCKETING_TAG,
-                traverser.traverseSubLevel(this->getAcceptRestoreTraverser()));
-        RESTORE(FEATURE_TAG, m_Feature.fromDelimited(traverser.value()));
+                traverser.traverseSubLevel(this->getAcceptRestoreTraverser()))
+        RESTORE(FEATURE_TAG, m_Feature.fromDelimited(traverser.value()))
         RESTORE(VALUES_TAG, core::CPersistUtils::restore(VALUES_TAG, m_Values, traverser))
     } while (traverser.next());
 

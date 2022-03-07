@@ -222,7 +222,7 @@ bool CNaturalBreaksClassifier::split(std::size_t n, std::size_t p, TClassifierVe
     }
 
     result.reserve(n);
-    for (std::size_t i = 0u, j = 0; i < split.size(); ++i) {
+    for (std::size_t i = 0, j = 0; i < split.size(); ++i) {
         TTupleVec categories;
         for (/**/; j < split[i]; ++j) {
             categories.push_back(m_Categories[j]);
@@ -248,7 +248,7 @@ bool CNaturalBreaksClassifier::split(const TSizeVec& split, TClassifierVec& resu
 
     result.reserve(split.size());
     TTupleVec categories;
-    for (std::size_t i = 0u, j = 0; i < split.size(); ++i) {
+    for (std::size_t i = 0, j = 0; i < split.size(); ++i) {
         categories.clear();
         categories.reserve(split[i] - j);
         for (/**/; j < split[i]; ++j) {
@@ -310,7 +310,7 @@ bool CNaturalBreaksClassifier::categories(std::size_t n, std::size_t p, TTupleVe
     }
 
     result.reserve(result.size() + n);
-    for (std::size_t i = 0u, j = 0; i < split.size(); ++i) {
+    for (std::size_t i = 0, j = 0; i < split.size(); ++i) {
         TTuple category;
         for (/**/; j < split[i]; ++j) {
             category += m_Categories[j];
@@ -332,7 +332,7 @@ bool CNaturalBreaksClassifier::categories(const TSizeVec& split, TTupleVec& resu
     }
 
     result.reserve(split.size());
-    for (std::size_t i = 0u, j = 0; i < split.size(); ++i) {
+    for (std::size_t i = 0, j = 0; i < split.size(); ++i) {
         TTuple category;
         for (/**/; j < split[i]; ++j) {
             category += m_Categories[j];

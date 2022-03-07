@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/common/CBasicStatistics.h>
@@ -98,6 +99,34 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
             BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::variance(residualMoments) <
                                lowess.residualVariance());
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testEdgeCases) {
+    // Check we correctly initialise when there are too few points to cross-validate k.
+    {
+        maths::common::CLowess<2> lowess;
+        TDoubleDoublePrVec data{{0.0, 0.0}, {1.0, 0.5}, {2.0, 1.0}};
+        lowess.fit(data, 3);
+        LOG_DEBUG(<< "f(1.5) = " << lowess.predict(1.5));
+        // Should be 0.5 * x.
+        BOOST_REQUIRE_CLOSE(0.5 * 1.5, lowess.predict(1.5), 1e-3);
+    }
+    // Check we handle the case that all values are colocated.
+    {
+        maths::common::CLowess<2> lowess;
+        TDoubleDoublePrVec data{{0.0, 1.0}, {0.0, 0.9}, {0.0, 1.1}, {0.0, 1.2}};
+        lowess.fit(data, 4);
+        LOG_DEBUG(<< "f(0) = " << lowess.predict(0.0)
+                  << ", f(1) = " << lowess.predict(1.0));
+        // Should be the average of y values, i.e. 1.05.
+        BOOST_REQUIRE_CLOSE(1.05, lowess.predict(0.0), 1e-3);
+        BOOST_REQUIRE_CLOSE(1.05, lowess.predict(1.0), 1e-3);
+
+        LOG_DEBUG(<< "minimum = " << core::CContainerPrinter::print(lowess.minimum()));
+        auto[min, fmin] = lowess.minimum();
+        BOOST_REQUIRE_EQUAL(0.0, min);
+        BOOST_REQUIRE_CLOSE(1.05, fmin, 1e-3);
     }
 }
 

@@ -341,9 +341,9 @@ double CDecayRateController::change(const TDouble3Ary& stats, core_t::TTime buck
 }
 
 bool CDecayRateController::notControlling() const {
-    return (m_Checks & E_PredictionErrorIncrease) == false &&
-           (m_Checks & E_PredictionErrorDecrease) == false &&
-           (m_Checks & E_PredictionBias) == false;
+    return (m_Checks & E_PredictionErrorIncrease) == 0 &&
+           (m_Checks & E_PredictionErrorDecrease) == 0 &&
+           (m_Checks & E_PredictionBias) == 0;
 }
 
 bool CDecayRateController::increaseDecayRateErrorIncreasing(const TDouble3Ary& stats) const {
@@ -361,17 +361,17 @@ bool CDecayRateController::increaseDecayRateBiased(const TDouble3Ary& stats) con
 }
 
 bool CDecayRateController::decreaseDecayRateErrorNotIncreasing(const TDouble3Ary& stats) const {
-    return (m_Checks & E_PredictionErrorIncrease) == false ||
+    return (m_Checks & E_PredictionErrorIncrease) == 0 ||
            stats[RECENT_ERROR] < ERROR_NOT_INCREASING * stats[HISTORIC_ERROR];
 }
 
 bool CDecayRateController::decreaseDecayRateErrorNotDecreasing(const TDouble3Ary& stats) const {
-    return (m_Checks & E_PredictionErrorDecrease) == false ||
+    return (m_Checks & E_PredictionErrorDecrease) == 0 ||
            stats[HISTORIC_ERROR] < ERROR_NOT_DECREASING * stats[RECENT_ERROR];
 }
 
 bool CDecayRateController::decreaseDecayRateNotBiased(const TDouble3Ary& stats) const {
-    return (m_Checks & E_PredictionBias) == false ||
+    return (m_Checks & E_PredictionBias) == 0 ||
            stats[BIAS] < NOT_BIASED * stats[RECENT_ERROR];
 }
 }

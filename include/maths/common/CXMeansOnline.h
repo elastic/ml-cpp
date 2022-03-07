@@ -36,7 +36,6 @@
 
 #include <cmath>
 #include <cstddef>
-#include <functional>
 #include <numeric>
 #include <vector>
 
@@ -121,9 +120,9 @@ public:
                 const std::string& name = traverser.name();
                 RESTORE_BUILT_IN(INDEX_TAG, m_Index)
                 RESTORE(COVARIANCES_TAG, m_Covariances.fromDelimited(traverser.value()))
-                RESTORE(STRUCTURE_TAG, traverser.traverseSubLevel(std::bind(
-                                           &TKMeansOnline::acceptRestoreTraverser, &m_Structure,
-                                           std::cref(params), std::placeholders::_1)))
+                RESTORE(STRUCTURE_TAG, traverser.traverseSubLevel([&](auto& traverser_) {
+                    return m_Structure.acceptRestoreTraverser(params, traverser_);
+                }))
             } while (traverser.next());
 
             return true;
@@ -133,9 +132,9 @@ public:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
             inserter.insertValue(INDEX_TAG, m_Index);
             inserter.insertValue(COVARIANCES_TAG, m_Covariances.toDelimited());
-            inserter.insertLevel(STRUCTURE_TAG,
-                                 std::bind(&TKMeansOnline::acceptPersistInserter,
-                                           m_Structure, std::placeholders::_1));
+            inserter.insertLevel(STRUCTURE_TAG, [this](auto& inserter_) {
+                m_Structure.acceptPersistInserter(inserter_);
+            });
         }
 
         //! Efficiently swap the contents of this and \p other.
@@ -226,12 +225,12 @@ public:
                 CBasicStatistics::maximumLikelihoodCovariances(m_Covariances);
             maths_t::EFloatingPointErrorStatus status =
                 gaussianLogLikelihood(covariances, x - mean, likelihood, false);
-            if (status & maths_t::E_FpFailed) {
+            if ((status & maths_t::E_FpFailed) != 0) {
                 LOG_ERROR(<< "Unable to compute likelihood for " << x
                           << " and cluster " << m_Index);
                 return core::constants::LOG_MIN_DOUBLE - 1.0;
             }
-            if (status & maths_t::E_FpOverflowed) {
+            if ((status & maths_t::E_FpOverflowed) != 0) {
                 return likelihood;
             }
             return likelihood + std::log(this->weight(calc));
@@ -297,7 +296,7 @@ public:
                       << this->centre() << " left = " << structure[0].print()
                       << ", right = " << structure[1].print());
 
-            std::size_t index[] = {indexGenerator.next(), indexGenerator.next()};
+            std::size_t index[]{indexGenerator.next(), indexGenerator.next()};
             indexGenerator.recycle(m_Index);
 
             return TClusterClusterPr{{index[0], m_DataType, m_DecayRate,
@@ -419,8 +418,8 @@ public:
                 TCovariances covariances[]{TCovariances(N), TCovariances(N)};
                 CBasicStatistics::covariancesLedoitWolf(candidate[0], covariances[0]);
                 CBasicStatistics::covariancesLedoitWolf(candidate[1], covariances[1]);
-                double n[] = {CBasicStatistics::count(covariances[0]),
-                              CBasicStatistics::count(covariances[1])};
+                double n[]{CBasicStatistics::count(covariances[0]),
+                           CBasicStatistics::count(covariances[1])};
                 double nmin = std::min(n[0], n[1]);
 
                 // Check the count constraint.
@@ -606,8 +605,11 @@ public:
           m_DataType(params.s_DataType), m_InitialDecayRate(params.s_DecayRate),
           m_DecayRate(params.s_DecayRate),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
-        traverser.traverseSubLevel(std::bind(&CXMeansOnline::acceptRestoreTraverser, this,
-                                             std::cref(params), std::placeholders::_1));
+        if (traverser.traverseSubLevel([&](auto& traverser_) {
+                return this->acceptRestoreTraverser(params, traverser_);
+            })) {
+            traverser.setBadState();
+        }
     }
 
     //! Construct by traversing a state document.
@@ -618,8 +620,11 @@ public:
         : TClusterer(splitFunc, mergeFunc), m_DataType(params.s_DataType),
           m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
-        traverser.traverseSubLevel(std::bind(&CXMeansOnline::acceptRestoreTraverser, this,
-                                             std::cref(params), std::placeholders::_1));
+        if (traverser.traverseSubLevel([&](auto& traverser_) {
+                return this->acceptRestoreTraverser(params, traverser_);
+            }) == false) {
+            traverser.setBadState();
+        }
     }
 
     //! The x-means clusterer has value semantics.
@@ -671,9 +676,9 @@ public:
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override {
         for (const auto& cluster : m_Clusters) {
-            inserter.insertLevel(CLUSTER_TAG,
-                                 std::bind(&CCluster::acceptPersistInserter,
-                                           &cluster, std::placeholders::_1));
+            inserter.insertLevel(CLUSTER_TAG, [&cluster](auto& inserter_) {
+                cluster.acceptPersistInserter(inserter_);
+            });
         }
         inserter.insertValue(DECAY_RATE_TAG, m_DecayRate.toString());
         inserter.insertValue(HISTORY_LENGTH_TAG, m_HistoryLength.toString());
@@ -682,9 +687,9 @@ public:
         inserter.insertValue(MINIMUM_CLUSTER_FRACTION_TAG,
                              m_MinimumClusterFraction.toString());
         inserter.insertValue(MINIMUM_CLUSTER_COUNT_TAG, m_MinimumClusterCount.toString());
-        inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG,
-                             std::bind(&CClustererTypes::CIndexGenerator::acceptPersistInserter,
-                                       &m_ClusterIndexGenerator, std::placeholders::_1));
+        inserter.insertLevel(CLUSTER_INDEX_GENERATOR_TAG, [this](auto& inserter_) {
+            m_ClusterIndexGenerator.acceptPersistInserter(inserter_);
+        });
     }
 
     //! Creates a copy of the clusterer.
@@ -1006,9 +1011,9 @@ protected:
         do {
             const std::string& name = traverser.name();
             RESTORE_SETUP_TEARDOWN(CLUSTER_TAG, CCluster cluster(*this),
-                                   traverser.traverseSubLevel(std::bind(
-                                       &CCluster::acceptRestoreTraverser, &cluster,
-                                       std::cref(params), std::placeholders::_1)),
+                                   traverser.traverseSubLevel([&](auto& traverser_) {
+                                       return cluster.acceptRestoreTraverser(params, traverser_);
+                                   }),
                                    m_Clusters.push_back(cluster))
             RESTORE_SETUP_TEARDOWN(DECAY_RATE_TAG, double decayRate,
                                    core::CStringUtils::stringToType(traverser.value(), decayRate),
@@ -1016,9 +1021,9 @@ protected:
             RESTORE(HISTORY_LENGTH_TAG, m_HistoryLength.fromString(traverser.value()))
             RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()));
             RESTORE(CLUSTER_INDEX_GENERATOR_TAG,
-                    traverser.traverseSubLevel(std::bind(
-                        &CClustererTypes::CIndexGenerator::acceptRestoreTraverser,
-                        &m_ClusterIndexGenerator, std::placeholders::_1)))
+                    traverser.traverseSubLevel([this](auto& traverser_) {
+                        return m_ClusterIndexGenerator.acceptRestoreTraverser(traverser_);
+                    }))
             RESTORE_ENUM(WEIGHT_CALC_TAG, m_WeightCalc, maths_t::EClusterWeightCalc)
             RESTORE(MINIMUM_CLUSTER_FRACTION_TAG,
                     m_MinimumClusterFraction.fromString(traverser.value()))
@@ -1176,7 +1181,8 @@ private:
     //! \brief Checks if probabilities are less than a specified threshold.
     class CProbabilityLessThan {
     public:
-        CProbabilityLessThan(double threshold) : m_Threshold(threshold) {}
+        explicit CProbabilityLessThan(double threshold)
+            : m_Threshold(threshold) {}
 
         bool operator()(const TSizeDoublePr& p) const {
             return p.second < m_Threshold;

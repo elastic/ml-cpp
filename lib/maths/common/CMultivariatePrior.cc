@@ -441,7 +441,7 @@ void CMultivariatePrior::remainingVariables(const TSize10Vec& marginalize,
                                             TSize10Vec& result) const {
     std::size_t d = this->dimension();
     result.reserve(d - marginalize.size() - condition.size());
-    for (std::size_t i = 0u, j = 0u, k = 0; k < d; ++k) {
+    for (std::size_t i = 0, j = 0, k = 0; k < d; ++k) {
         if (i < marginalize.size() && k == marginalize[i]) {
             ++i;
             continue;

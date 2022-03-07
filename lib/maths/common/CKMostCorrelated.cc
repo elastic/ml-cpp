@@ -590,7 +590,7 @@ void CKMostCorrelated::nextProjection() {
                              NUMBER_PROJECTIONS * PROJECTION_DIMENSION, uniform01);
     m_Projections.reserve(PROJECTION_DIMENSION);
     m_Projections.resize(PROJECTION_DIMENSION);
-    for (std::size_t i = 0u, j = 0; i < PROJECTION_DIMENSION; ++i) {
+    for (std::size_t i = 0, j = 0; i < PROJECTION_DIMENSION; ++i) {
         for (std::size_t k = 0; k < NUMBER_PROJECTIONS; ++j, ++k) {
             m_Projections[i](k) = uniform01[j] < 0.5 ? -1.0 : 1.0;
         }

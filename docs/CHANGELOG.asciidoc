@@ -40,6 +40,11 @@
 * Support user defined example weights when training classification and
   regression models. (See {ml-pull}2222[#2222].)
 
+=== Bug Fixes
+
+* Fix possible source of "Discarding sample = -nan(ind), weight = 1, variance scale = 1"
+  log errors training classification and regression models. (See {ml-pull}2226[#2226].)
+
 == {es} version 8.1.0
 
 === Enhancements

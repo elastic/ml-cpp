@@ -48,16 +48,16 @@ public:
 
 public:
     //! Compute the mean of a pair.
-    static double mean(const TDoubleDoublePr& samples);
+    static double mean(const TDoubleDoublePr& data);
 
     //! Compute the vector mean of a pair.
     template<typename VECTOR>
-    static VECTOR mean(const std::pair<VECTOR, VECTOR>& samples) {
-        std::size_t n = std::min(samples.first.size(), samples.second.size());
+    static VECTOR mean(const std::pair<VECTOR, VECTOR>& data) {
+        std::size_t n = std::min(data.first.size(), data.second.size());
         VECTOR result;
         result.reserve(n);
         for (std::size_t i = 0; i < n; ++i) {
-            result.push_back(0.5 * (samples.first[i] + samples.second[i]));
+            result.push_back(0.5 * (data.first[i] + data.second[i]));
         }
         return result;
     }

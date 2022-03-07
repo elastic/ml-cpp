@@ -125,7 +125,7 @@ public:
     //! median.
     class MATHS_COMMON_EXPORT CProbabilityOfLessLikelySample {
     public:
-        CProbabilityOfLessLikelySample(maths_t::EProbabilityCalculation calculation);
+        explicit CProbabilityOfLessLikelySample(maths_t::EProbabilityCalculation calculation);
 
         double operator()(const SImproperDistribution&, double, maths_t::ETail& tail) const;
         double operator()(const normal& normal_, double x, maths_t::ETail& tail) const;

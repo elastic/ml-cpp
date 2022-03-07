@@ -58,11 +58,11 @@ jointLogMarginalLikelihood(const TModeVec& modes,
             double modeLogLikelihood;
             maths_t::EFloatingPointErrorStatus status =
                 modes[i].s_Prior->jointLogMarginalLikelihood(sample, weights, modeLogLikelihood);
-            if (status & maths_t::E_FpFailed) {
+            if ((status & maths_t::E_FpFailed) != 0) {
                 // Logging handled at a lower level.
                 return status;
             }
-            if (!(status & maths_t::E_FpOverflowed)) {
+            if ((status & maths_t::E_FpOverflowed) == 0) {
                 modeLogLikelihoods.emplace_back(i, modeLogLikelihood);
                 maxLogLikelihood = std::max(maxLogLikelihood, modeLogLikelihood);
             }

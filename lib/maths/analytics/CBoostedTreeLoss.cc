@@ -700,8 +700,9 @@ CArgMinLoss CLoss::makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& imp
 }
 
 CMse::CMse(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CMse::acceptRestoreTraverser, this,
-                                             std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CMse"};
     }
 }
@@ -768,8 +769,9 @@ CMsle::CMsle(double offset) : m_Offset{offset} {
 }
 
 CMsle::CMsle(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CMsle::acceptRestoreTraverser, this,
-                                             std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CMsle"};
     }
 }
@@ -861,8 +863,9 @@ const std::string CMsle::NAME{"msle"};
 CPseudoHuber::CPseudoHuber(double delta) : m_Delta{delta} {};
 
 CPseudoHuber::CPseudoHuber(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CPseudoHuber::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CPseudoHuber"};
     }
 }
@@ -945,8 +948,9 @@ bool CPseudoHuber::acceptRestoreTraverser(core::CStateRestoreTraverser& traverse
 const std::string CPseudoHuber::NAME{"pseudo_huber"};
 
 CBinomialLogisticLoss::CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CBinomialLogisticLoss::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CBinomialLogisticLoss"};
     }
 }
@@ -1032,8 +1036,9 @@ CMultinomialLogisticLoss::CMultinomialLogisticLoss(std::size_t numberClasses)
 }
 
 CMultinomialLogisticLoss::CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CMultinomialLogisticLoss::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CMultinomialLogisticLoss"};
     }
 }

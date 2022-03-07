@@ -296,7 +296,7 @@ public:
     std::string printJointDensityFunction() const override;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const override;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
