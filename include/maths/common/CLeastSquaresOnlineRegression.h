@@ -309,7 +309,7 @@ public:
 
         const auto& s = CBasicStatistics::mean(m_S);
         double variance{s(3 * N - 1) - CTools::pow2(s(2 * N - 1))};
-        double residualVariance{CBasicStatistics::variance(residualMoments)};
+        double residualVariance{CBasicStatistics::maximumLikelihoodVariance(residualMoments)};
         result = CTools::truncate(1.0 - residualVariance / variance, 0.0, 1.0);
         return true;
     }
