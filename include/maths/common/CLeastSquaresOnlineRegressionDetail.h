@@ -275,7 +275,7 @@ bool CLeastSquaresOnlineRegression<N, T, R_2>::residualMoments(std::size_t n,
     }
 
     // The mean predictions are given by 1^t X p and the square residuals are given
-    // by 
+    // by
     //   ||y - X p - 1^t X p||^2                                                (1)
     //
     // and for least sqaures solution the parameters p = (X^t X)^-1 X^t y. We can
