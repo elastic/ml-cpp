@@ -83,12 +83,12 @@ public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      TLossFunctionUPtr loss,
                      TAnalysisInstrumentationPtr instrumentation = nullptr);
-    CBoostedTreeImpl(CBoostedTreeImpl&&);
+    CBoostedTreeImpl(CBoostedTreeImpl&&) noexcept;
 
     ~CBoostedTreeImpl();
 
     CBoostedTreeImpl& operator=(const CBoostedTreeImpl&) = delete;
-    CBoostedTreeImpl& operator=(CBoostedTreeImpl&&);
+    CBoostedTreeImpl& operator=(CBoostedTreeImpl&&) noexcept;
 
     //! Train the model on the values in \p frame.
     void train(core::CDataFrame& frame, const TTrainingStateCallback& recordTrainStateCallback);

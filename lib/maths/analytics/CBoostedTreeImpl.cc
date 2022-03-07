@@ -200,8 +200,8 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
 CBoostedTreeImpl::~CBoostedTreeImpl() = default;
-CBoostedTreeImpl::CBoostedTreeImpl(CBoostedTreeImpl&&) = default;
-CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
+CBoostedTreeImpl::CBoostedTreeImpl(CBoostedTreeImpl&&) noexcept = default;
+CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) noexcept = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TTrainingStateCallback& recordTrainStateCallback) {
@@ -1374,10 +1374,12 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
         core::bindRetrievableState(
             [&](TMeanAccumulator& loss, const TRowItr& beginRows, const TRowItr& endRows) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
-                for (auto row = beginRows; row != endRows; ++row) {
-                    auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
-                    double actual{readActual(*row, m_DependentVariable)};
-                    loss.add(m_Loss->value(prediction, actual));
+                for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                    auto row = *row_;
+                    auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
+                    double actual{readActual(row, m_DependentVariable)};
+                    double weight{readExampleWeight(row, m_ExtraColumns)};
+                    loss.add(m_Loss->value(prediction, actual), weight);
                 }
             },
             TMeanAccumulator{}),
