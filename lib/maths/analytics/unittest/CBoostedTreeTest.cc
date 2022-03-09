@@ -836,7 +836,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
               << ", rSquaredWithWeights    = " << rSquaredWithWeights);
 
     BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.2 * std::fabs(biasWithoutWeights));
-    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.75 * (1.0 - rSquaredWithoutWeights));
+    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.8 * (1.0 - rSquaredWithoutWeights));
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
