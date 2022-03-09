@@ -105,14 +105,6 @@ BOOST_AUTO_TEST_CASE(testRetrainTreeSelectionProbabilities) {
             newRowsMask.extend(true);
         }
 
-        frame->writeColumns(1, 0, frame->numberRows(),
-                            [&](const core::CDataFrame::TRowItr& beginRows,
-                                const core::CDataFrame::TRowItr& endRows) {
-                                for (auto row = beginRows; row != endRows; ++row) {
-                                    writeExampleWeight(*row, impl.extraColumns(), 1.0);
-                                }
-                            },
-                            &newRowsMask);
         regression->predict();
 
         auto probabilities = retrainTreeSelectionProbabilities(

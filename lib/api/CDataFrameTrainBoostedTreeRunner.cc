@@ -113,6 +113,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(PREVIOUS_TRAIN_NUM_ROWS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_NUM_NEW_TREES,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(ROW_WEIGHT_COLUMN,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
@@ -145,21 +146,21 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_Task = parameters[TASK].fallback(E_Train);
 
     auto seed = parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0});
-    auto numberFolds = parameters[NUM_FOLDS].fallback(std::size_t{0});
-    auto downsampleRowsPerFeature = 
-        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0});
-    auto trainFractionPerFold = parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0);
-    auto rowWeightColumnName = parameters[ROW_WEIGHT_COLUMN].fallback(std::string{});
     auto numberHoldoutRows = parameters[NUM_HOLDOUT_ROWS].fallback(std::size_t{0});
-    auto numberRoundsPerHyperparameter = 
+    auto numberFolds = parameters[NUM_FOLDS].fallback(std::size_t{0});
+    auto trainFractionPerFold = parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0);
+    auto downsampleRowsPerFeature =
+        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0});
+    auto numberRoundsPerHyperparameter =
         parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
             NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET);
     auto earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
     auto bayesianOptimisationRestarts =
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0});
     auto stopCrossValidationEarly = parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true);
-    auto numTopFeatureImportanceValues = 
+    auto numTopFeatureImportanceValues =
         parameters[NUM_TOP_FEATURE_IMPORTANCE_VALUES].fallback(std::size_t{0});
+    auto rowWeightColumnName = parameters[ROW_WEIGHT_COLUMN].fallback(std::string{});
     auto maximumDeployedSize = parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
         core::constants::BYTES_IN_GIGABYTES);
 
@@ -179,13 +180,13 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     auto treeTopologyChangePenalty =
         parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(TDoubleVec{});
 
-    auto forceAcceptIncrementalTraining = 
+    auto forceAcceptIncrementalTraining =
         parameters[FORCE_ACCEPT_INCREMENTAL_TRAINING].fallback(false);
-    auto disableHyperparameterScaling = 
+    auto disableHyperparameterScaling =
         parameters[DISABLE_HYPERPARAMETER_SCALING].fallback(false);
     auto dataSummarizationFraction = parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0);
     auto previousTrainLossGap = parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0);
-    auto previousTrainNumberRows = 
+    auto previousTrainNumberRows =
         parameters[PREVIOUS_TRAIN_NUM_ROWS].fallback(std::size_t{0});
     auto maxNumNewTrees = parameters[MAX_NUM_NEW_TREES].fallback(std::size_t{0});
 
@@ -242,6 +243,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                     [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << TREE_TOPOLOGY_CHANGE_PENALTY
                      << "' should be non-negative");
+    }
     if (rowWeightColumnName.empty() == false &&
         (rowWeightColumnName == m_DependentVariableFieldName ||
          std::find(spec.categoricalFieldNames().begin(),

@@ -793,7 +793,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     auto regressionWithoutWeights =
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-            .buildFor(*frameWithoutWeights, cols - 1);
+            .buildForTrain(*frameWithoutWeights, cols - 1);
 
     regressionWithoutWeights->train();
     regressionWithoutWeights->predict();
@@ -808,7 +808,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CMse>())
             .rowWeightColumnName("w")
-            .buildFor(*frameWithWeights, cols - 1);
+            .buildForTrain(*frameWithWeights, cols - 1);
 
     regressionWithWeights->train();
     regressionWithWeights->predict();
@@ -818,7 +818,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     std::tie(biasWithoutWeights, rSquaredWithoutWeights) = computeEvaluationMetrics(
         *frameWithoutWeights, trainRows, rows,
         [&](const TRowRef& row) {
-            return regressionWithoutWeights->readPrediction(row)[0];
+            return regressionWithoutWeights->prediction(row)[0];
         },
         target, noiseVariance / static_cast<double>(rows));
     LOG_DEBUG(<< "biasWithoutWeights = " << biasWithoutWeights
@@ -829,14 +829,14 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     std::tie(biasWithWeights, rSquaredWithWeights) = computeEvaluationMetrics(
         *frameWithWeights, trainRows, rows,
         [&](const TRowRef& row) {
-            return regressionWithWeights->readPrediction(row)[0];
+            return regressionWithWeights->prediction(row)[0];
         },
         target, noiseVariance / static_cast<double>(rows));
     LOG_DEBUG(<< "biasWithWeights    = " << biasWithWeights
               << ", rSquaredWithWeights    = " << rSquaredWithWeights);
 
     BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.2 * std::fabs(biasWithoutWeights));
-    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.75 * (1.0 - rSquaredWithoutWeights));
+    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.8 * (1.0 - rSquaredWithoutWeights));
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -2891,7 +2891,7 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
             1, std::make_unique<maths::analytics::boosted_tree::CMse>())
             .maximumDeployedSize(maximumDeployedSize)
             .numberFolds(2)
-            .buildFor(*frameConstrained, cols - 1);
+            .buildForTrain(*frameConstrained, cols - 1);
     regressionConstrained->train();
     regressionConstrained->predict();
 
@@ -2901,7 +2901,7 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CMse>())
             .numberFolds(2)
-            .buildFor(*frameUnconstrained, cols - 1);
+            .buildForTrain(*frameUnconstrained, cols - 1);
     regressionUnconstrained->train();
     regressionUnconstrained->predict();
 
@@ -2924,17 +2924,17 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
                             return sum;
                         })};
 
-    auto[modelBiasConstrained, modelRSquaredConstrained] = computeEvaluationMetrics(
-        *frameConstrained, trainRows, rows,
-        [&](const TRowRef& row) {
-            return regressionConstrained->readPrediction(row)[0];
-        },
-        target, 0.0);
+    auto[modelBiasConstrained, modelRSquaredConstrained] =
+        computeEvaluationMetrics(*frameConstrained, trainRows, rows,
+                                 [&](const TRowRef& row) {
+                                     return regressionConstrained->prediction(row)[0];
+                                 },
+                                 target, 0.0);
 
     auto[modelBiasUnconstrained, modelRSquaredUnconstrained] = computeEvaluationMetrics(
         *frameUnconstrained, trainRows, rows,
         [&](const TRowRef& row) {
-            return regressionUnconstrained->readPrediction(row)[0];
+            return regressionUnconstrained->prediction(row)[0];
         },
         target, 0.0);
 
