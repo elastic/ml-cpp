@@ -113,6 +113,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(PREVIOUS_TRAIN_NUM_ROWS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_NUM_NEW_TREES,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(ROW_WEIGHT_COLUMN,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
