@@ -29,7 +29,7 @@ namespace {
 using TUniform32 = boost::random::uniform_int_distribution<uint32_t>;
 }
 
-const uint64_t CHashing::CUniversalHash::BIG_PRIME = 4294967291ull;
+const uint64_t CHashing::CUniversalHash::BIG_PRIME = 4294967291ULL;
 boost::random::mt11213b CHashing::CUniversalHash::ms_Generator;
 CFastMutex CHashing::CUniversalHash::ms_Mutex;
 
@@ -190,26 +190,27 @@ bool CHashing::CUniversalHash::CFromString::operator()(const std::string& token,
 }
 
 void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32HashVec& result) {
-    TUInt32Vec a, b;
+    TUInt32Vec a;
+    TUInt32Vec b;
     a.reserve(k);
     b.reserve(k);
 
     {
         CScopedFastLock scopedLock(ms_Mutex);
 
-        TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
+        TUniform32 uniform1(1, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(a), k,
-                        std::bind(uniform1, std::ref(ms_Generator)));
-        for (std::size_t i = 0; i < a.size(); ++i) {
-            if (a[i] == 0) {
-                LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
-                a[i] = 1;
-            }
-        }
+                        [uniform1] { return uniform1(ms_Generator); });
 
-        TUniform32 uniform0(0u, static_cast<uint32_t>(BIG_PRIME - 1));
+        TUniform32 uniform0(0, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(b), k,
-                        std::bind(uniform0, std::ref(ms_Generator)));
+                        [uniform0] { return uniform0(ms_Generator); });
+    }
+    for (unsigned int& ai : a) {
+        if (ai == 0) {
+            LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
+            ai = 1;
+        }
     }
 
     result.reserve(k);
@@ -220,26 +221,27 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k, uint32_t m, TUInt32
 
 void CHashing::CUniversalHash::generateHashes(std::size_t k,
                                               TUInt32UnrestrictedHashVec& result) {
-    TUInt32Vec a, b;
+    TUInt32Vec a;
+    TUInt32Vec b;
     a.reserve(k);
     b.reserve(k);
 
     {
         CScopedFastLock scopedLock(ms_Mutex);
 
-        TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
+        TUniform32 uniform1(1, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(a), k,
-                        std::bind(uniform1, std::ref(ms_Generator)));
-        for (std::size_t i = 0; i < a.size(); ++i) {
-            if (a[i] == 0) {
-                LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
-                a[i] = 1;
-            }
-        }
+                        [uniform1] { return uniform1(ms_Generator); });
 
-        TUniform32 uniform0(0u, static_cast<uint32_t>(BIG_PRIME - 1));
+        TUniform32 uniform0(0, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(b), k,
-                        std::bind(uniform0, std::ref(ms_Generator)));
+                        [uniform0] { return uniform0(ms_Generator); });
+    }
+    for (unsigned int& ai : a) {
+        if (ai == 0) {
+            LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
+            ai = 1;
+        }
     }
 
     result.reserve(k);
@@ -265,20 +267,20 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
         for (std::size_t i = 0; i < k; ++i) {
             a.push_back(TUInt32Vec());
             a.back().reserve(n);
-            TUniform32 uniform1(1u, static_cast<uint32_t>(BIG_PRIME - 1));
+            TUniform32 uniform1(1, static_cast<uint32_t>(BIG_PRIME - 1));
             std::generate_n(std::back_inserter(a.back()), n,
-                            std::bind(uniform1, std::ref(ms_Generator)));
-            for (std::size_t j = 0; j < a.back().size(); ++j) {
-                if ((a.back())[j] == 0) {
+                            [uniform1] { return uniform1(ms_Generator); });
+            for (unsigned int& aj : a.back()) {
+                if (aj == 0) {
                     LOG_ERROR(<< "Expected a in [1," << BIG_PRIME << ")");
-                    (a.back())[j] = 1;
+                    aj = 1;
                 }
             }
         }
 
-        TUniform32 uniform0(0u, static_cast<uint32_t>(BIG_PRIME - 1));
+        TUniform32 uniform0(0, static_cast<uint32_t>(BIG_PRIME - 1));
         std::generate_n(std::back_inserter(b), k,
-                        std::bind(uniform0, std::ref(ms_Generator)));
+                        [uniform0] { return uniform0(ms_Generator); });
     }
 
     result.reserve(k);
@@ -288,14 +290,14 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
 }
 
 uint32_t CHashing::murmurHash32(const void* key, int length, uint32_t seed) {
-    const uint32_t m = 0x5bd1e995;
-    const int r = 24;
+    constexpr uint32_t m = 0x5bd1e995;
+    constexpr int r = 24;
 
     uint32_t h = seed ^ length;
 
     // Note, remainder = length % 4
     const int remainder = length & 0x3;
-    const uint32_t* data = static_cast<const uint32_t*>(key);
+    const auto* data = static_cast<const uint32_t*>(key);
     // Note, shift = (length - remainder) / 4
     const uint32_t* end = data + ((length - remainder) >> 2);
 
@@ -312,7 +314,7 @@ uint32_t CHashing::murmurHash32(const void* key, int length, uint32_t seed) {
         ++data;
     }
 
-    const unsigned char* remainingData = reinterpret_cast<const unsigned char*>(end);
+    const auto* remainingData = reinterpret_cast<const unsigned char*>(end);
 
     switch (remainder) {
     case 3:
@@ -327,7 +329,7 @@ uint32_t CHashing::murmurHash32(const void* key, int length, uint32_t seed) {
         BOOST_FALLTHROUGH;
     default:
         break;
-    };
+    }
 
     h ^= h >> 13;
     h *= m;
@@ -337,12 +339,12 @@ uint32_t CHashing::murmurHash32(const void* key, int length, uint32_t seed) {
 }
 
 uint32_t CHashing::safeMurmurHash32(const void* key, int length, uint32_t seed) {
-    const uint32_t m = 0x5bd1e995;
-    const int r = 24;
+    constexpr uint32_t m = 0x5bd1e995;
+    constexpr int r = 24;
 
     uint32_t h = seed ^ length;
 
-    const unsigned char* data = static_cast<const unsigned char*>(key);
+    const auto* data = static_cast<const unsigned char*>(key);
 
     // Endian and alignment neutral implementation of the main loop.
     while (length >= 4) {
@@ -387,14 +389,14 @@ uint32_t CHashing::safeMurmurHash32(const void* key, int length, uint32_t seed) 
 }
 
 uint64_t CHashing::murmurHash64(const void* key, int length, uint64_t seed) {
-    const uint64_t m = 0xc6a4a7935bd1e995ull;
-    const int r = 47;
+    constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
+    constexpr int r = 47;
 
     uint64_t h = seed ^ (length * m);
 
     // Note, remainder = length % 8
     const int remainder = length & 0x7;
-    const uint64_t* data = static_cast<const uint64_t*>(key);
+    const auto* data = static_cast<const uint64_t*>(key);
     // Note, shift = (length - remainder) / 8
     const uint64_t* end = data + ((length - remainder) >> 3);
 
@@ -411,7 +413,7 @@ uint64_t CHashing::murmurHash64(const void* key, int length, uint64_t seed) {
         ++data;
     }
 
-    const unsigned char* remainingData = reinterpret_cast<const unsigned char*>(end);
+    const auto* remainingData = reinterpret_cast<const unsigned char*>(end);
 
     switch (remainder) {
     case 7:
@@ -438,7 +440,7 @@ uint64_t CHashing::murmurHash64(const void* key, int length, uint64_t seed) {
         BOOST_FALLTHROUGH;
     default:
         break;
-    };
+    }
 
     h ^= h >> r;
     h *= m;
@@ -448,12 +450,12 @@ uint64_t CHashing::murmurHash64(const void* key, int length, uint64_t seed) {
 }
 
 uint64_t CHashing::safeMurmurHash64(const void* key, int length, uint64_t seed) {
-    const uint64_t m = 0xc6a4a7935bd1e995ull;
-    const int r = 47;
+    constexpr uint64_t m = 0xc6a4a7935bd1e995ULL;
+    constexpr int r = 47;
 
     uint64_t h = seed ^ (length * m);
 
-    const unsigned char* data = static_cast<const unsigned char*>(key);
+    const auto* data = static_cast<const unsigned char*>(key);
 
     // Endian and alignment neutral implementation.
     while (length >= 8) {
@@ -504,7 +506,7 @@ uint64_t CHashing::safeMurmurHash64(const void* key, int length, uint64_t seed) 
         BOOST_FALLTHROUGH;
     default:
         break;
-    };
+    }
 
     h ^= h >> r;
     h *= m;
@@ -514,7 +516,7 @@ uint64_t CHashing::safeMurmurHash64(const void* key, int length, uint64_t seed) 
 }
 
 uint32_t CHashing::hashCombine(uint32_t seed, uint32_t h) {
-    static const uint32_t C = 0x9e3779b9;
+    constexpr uint32_t C = 0x9e3779b9;
     seed ^= h + C + (seed << 6) + (seed >> 2);
     return seed;
 }
@@ -523,7 +525,7 @@ uint64_t CHashing::hashCombine(uint64_t seed, uint64_t h) {
     // As with boost::hash_combine use the binary expansion of an irrational
     // number to generate 64 random independent bits, i.e.
     //   C = 2^64 / "golden ratio" = 2^65 / (1 + 5^(1/2))
-    static const uint64_t C = 0x9e3779b97f4A7c15ull;
+    constexpr uint64_t C = 0x9e3779b97f4A7c15ULL;
     seed ^= h + C + (seed << 6) + (seed >> 2);
     return seed;
 }

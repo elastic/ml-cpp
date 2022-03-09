@@ -42,6 +42,8 @@ void CLowess<N>::fit(TDoubleDoublePrVec data, std::size_t numberFolds) {
     m_K = 0.0;
     m_Data = std::move(data);
     std::sort(m_Data.begin(), m_Data.end(), COrderings::SFirstLess{});
+    m_Mask.resize(m_Data.size());
+    std::iota(m_Mask.begin(), m_Mask.end(), 0);
 
     if (m_Data.size() < 4) {
         return;
@@ -67,9 +69,6 @@ void CLowess<N>::fit(TDoubleDoublePrVec data, std::size_t numberFolds) {
     // with sigma estimated from the training data prediction residuals to compute
     // the likelihood function L(Yi | f(x | p^*(k))).
 
-    m_Mask.resize(m_Data.size());
-    std::iota(m_Mask.begin(), m_Mask.end(), 0);
-
     TSizeVecVec trainingMasks;
     TSizeVecVec testingMasks;
     this->setupMasks(numberFolds, trainingMasks, testingMasks);
@@ -80,23 +79,26 @@ void CLowess<N>::fit(TDoubleDoublePrVec data, std::size_t numberFolds) {
     // parameters. We finish up by polishing up the minimum on the best candidate
     // interval using Brent's method. See CSolvers::globalMaximize for details.
 
-    TDoubleVec K(17);
     double range{m_Data.back().first - m_Data.front().first};
-    for (std::size_t i = 0; i < K.size(); ++i) {
-        K[i] = 2.0 * static_cast<double>(i) / range;
+    if (range > 0.0) {
+        TDoubleVec K(17);
+        for (std::size_t i = 0; i < K.size(); ++i) {
+            K[i] = 2.0 * static_cast<double>(i) / range;
+        }
+        LOG_TRACE(<< "range = " << range << ", K = " << core::CContainerPrinter::print(K));
+
+        double kmax;
+        double likelihoodMax;
+        double likelihoodStandardDeviation;
+        CSolvers::globalMaximize(K,
+                                 [&](double k) -> double {
+                                     return this->likelihood(trainingMasks, testingMasks, k);
+                                 },
+                                 kmax, likelihoodMax, likelihoodStandardDeviation);
+        LOG_TRACE(<< "kmax = " << kmax << " likelihood(kmax) = " << likelihoodMax);
+
+        m_K = kmax;
     }
-    LOG_TRACE(<< "range = " << range << ", K = " << core::CContainerPrinter::print(K));
-
-    double kmax;
-    double likelihoodMax;
-    CSolvers::globalMaximize(K,
-                             [&](double k) -> double {
-                                 return this->likelihood(trainingMasks, testingMasks, k);
-                             },
-                             kmax, likelihoodMax);
-    LOG_TRACE(<< "kmax = " << kmax << " likelihood(kmax) = " << likelihoodMax);
-
-    m_K = kmax;
 }
 
 template<std::size_t N>
@@ -135,10 +137,16 @@ typename CLowess<N>::TDoubleDoublePr CLowess<N>::minimum() const {
         X.push_back(xi.first);
     }
     X.push_back(xb);
+    X.erase(std::unique(X.begin(), X.end()), X.end());
+    if (X.size() == 1) {
+        return {X[0], this->predict(X[0])};
+    }
+
     double xmin;
     double fmin;
+    double fsd;
     CSolvers::globalMinimize(
-        X, [this](double x) -> double { return this->predict(x); }, xmin, fmin);
+        X, [this](double x) -> double { return this->predict(x); }, xmin, fmin, fsd);
 
     // Refine.
     double range{(xb - xa) / static_cast<double>(X.size())};
@@ -152,7 +160,7 @@ typename CLowess<N>::TDoubleDoublePr CLowess<N>::minimum() const {
     double xcand;
     double fcand;
     CSolvers::globalMinimize(
-        X, [this](double x) -> double { return this->predict(x); }, xcand, fcand);
+        X, [this](double x) -> double { return this->predict(x); }, xcand, fcand, fsd);
 
     if (fcand < fmin) {
         xmin = xcand;

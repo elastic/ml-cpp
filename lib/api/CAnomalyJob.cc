@@ -845,7 +845,8 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
         // We're dealing with streaming JSON state
         core::CJsonStateRestoreTraverser traverser(*strm);
 
-        if (this->restoreState(traverser, completeToTime, numDetectors) == false) {
+        if (this->restoreState(traverser, completeToTime, numDetectors) == false ||
+            traverser.haveBadState()) {
             LOG_ERROR(<< "Failed to restore detectors");
             return false;
         }
@@ -1035,8 +1036,7 @@ bool CAnomalyJob::restoreSingleDetector(core::CStateRestoreTraverser& traverser)
         return false;
     }
 
-    if (this->restoreDetectorState(key, partitionFieldValue, traverser) == false ||
-        traverser.haveBadState()) {
+    if (this->restoreDetectorState(key, partitionFieldValue, traverser) == false) {
         LOG_ERROR(<< "Delegated portion of anomaly detector restore failed");
         m_RestoredStateDetail.s_RestoredStateStatus = E_Failure;
         return false;

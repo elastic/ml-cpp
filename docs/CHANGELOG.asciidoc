@@ -28,6 +28,24 @@
 
 //=== Regressions
 
+== {es} version 8.2.0
+
+=== Enhancements
+
+* Better handle small shifts of the seasonal patterns in time series data.
+  (See {ml-pull}2202[#2202].)
+* Limit the maximum size of classification and regression models training
+  produces so they can always be deployed for inference inside the Elastic
+  Stack. (See {ml-pull}2205[#2205].)
+* Support user defined example weights when training classification and
+  regression models. (See {ml-pull}2222[#2222].)
+* Reduce worst case bucket processing time for anomaly detection. (See {ml-pull}2225[#2225].)
+
+=== Bug Fixes
+
+* Fix possible source of "Discarding sample = -nan(ind), weight = 1, variance scale = 1"
+  log errors training classification and regression models. (See {ml-pull}2226[#2226].)
+
 == {es} version 8.1.0
 
 === Enhancements
@@ -44,8 +62,18 @@
   classification models. (See {ml-pull}2128[#2128].)
 * Improve training stability for regression and classification models
   (See {ml-pull}2144[#2144], {ml-pull}2147[#2147] and {ml-pull}2150[#2150].)
+* Avoid edge cases in the classification weights calculation to maximize
+  minimum recall which could lead to only a single class being predicted.
+  (See {ml-pull}2194[#2194].)
+* Address cause of "[CStatisticalTests.cc@102] Test statistic is nan"
+  log errors. (See {ml-pull}2196[#2196].)
+* Address possible causes of "x = NaN, distribution = N5boost4math23students_t_distribution"
+  log errors. (See {ml-pull}2197[#2197].)
+* Fix bug restoring data gatherer state for time of day and week anomaly detection
+  functions. This could lead to "No queue item for time " and "Time is out of range.
+  Returning earliest bucket index" log errors. (See {ml-pull}2213[#2213].)
 
-== {es} version 8.0.0
+== {es} version 8.0.0-rc1
 
 === Bug Fixes
 
@@ -71,6 +99,17 @@
 * Added a new application for evaluating PyTorch models. The app depends on LibTorch
   - the C++ front end to PyTorch - and performs inference on models stored in the
   TorchScript format. (See {ml-pull}1902[#1902].)
+
+
+== {es} version 7.17.0
+
+=== Bug Fixes
+
+* Avoid transient poor time series modelling after detecting new seasonal components.
+  This can affect cases where we have fast and slow repeats in the data, for example
+  30 mins and 1 day, and the job uses a short bucket length. The outcome can be transient
+  poor predictions and model bounds, and sometimes false positive anomalies. (See
+  {ml-pull}2167[#2167].)
 
 == {es} version 7.16.0
 

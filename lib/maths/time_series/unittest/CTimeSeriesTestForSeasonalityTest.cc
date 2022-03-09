@@ -1078,7 +1078,7 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithNoChange) {
             maths::time_series::CTimeSeriesTestForSeasonality seasonality{
                 0, 0, HOUR, FIVE_MINS, values};
             for (const auto& time : modelledComponents[index[0]]) {
-                seasonality.addModelledSeasonality(time, 24);
+                seasonality.addModelledSeasonality(time, 2, 24);
             }
 
             auto result = seasonality.decompose();
@@ -1136,7 +1136,7 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
             maths::time_series::CTimeSeriesTestForSeasonality seasonality{
                 0, 0, HOUR, FIVE_MINS, values};
             for (const auto& time : modelledComponents[index[0]]) {
-                seasonality.addModelledSeasonality(time, 24);
+                seasonality.addModelledSeasonality(time, 2, 24);
             }
 
             auto result = seasonality.decompose();
@@ -1159,8 +1159,8 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.92);
-    BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.85);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.9);
+    BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.8);
 }
 
 BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
@@ -1461,7 +1461,8 @@ BOOST_AUTO_TEST_CASE(testWithSuppliedPredictor) {
 
     maths::time_series::CTimeSeriesTestForSeasonality seasonality{
         startTime, startTime, HOUR, HOUR, values};
-    seasonality.addModelledSeasonality(maths::time_series::CDiurnalTime{0, 0, WEEK, DAY}, 24);
+    seasonality.addModelledSeasonality(
+        maths::time_series::CDiurnalTime{0, 0, WEEK, DAY}, 2, 24);
     seasonality.modelledSeasonalityPredictor([](core_t::TTime time, const TBoolVec&) {
         return std::sin(boost::math::double_constants::pi *
                         static_cast<double>(time % DAY) / static_cast<double>(DAY));

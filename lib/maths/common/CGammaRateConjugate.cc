@@ -23,6 +23,7 @@
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegration.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/COrderings.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CSolvers.h>
@@ -363,12 +364,18 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
     LOG_TRACE(<< "likelihoodShape = " << likelihoodShape
               << ", priorShape = " << priorShape << ", priorRate = " << priorRate);
 
+    bool success = false;
     try {
         if (isNonInformative) {
             // The non-informative prior is improper and effectively zero
             // everywhere. (It is acceptable to approximate all finite samples
             // as at the median of this distribution.)
             for (std::size_t i = 0; i < samples.size(); ++i) {
+                if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                    continue;
+                }
+                success = true;
+
                 double n = maths_t::count(weights[i]);
                 double x = samples[i] + offset;
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
@@ -399,6 +406,11 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             LOG_TRACE(<< "shape = " << shape << ", rate = " << rate);
 
             for (std::size_t i = 0; i < samples.size(); ++i) {
+                if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                    continue;
+                }
+                success = true;
+
                 // We assume the data are described by X = Y - u where, Y is
                 // gamma distributed and u is a constant offset. This means
                 // that {x(i) + u} are gamma distributed.
@@ -426,6 +438,11 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // and then using the beta distribution.
 
             for (std::size_t i = 0; i < samples.size(); ++i) {
+                if (CMathsFuncs::isNan(samples[i]) || CMathsFuncs::isNan(weights[i])) {
+                    continue;
+                }
+                success = true;
+
                 // We assume the data are described by X = Y - u where, Y is
                 // gamma distributed and u is a constant offset. This means
                 // that {x(i) + u} are gamma distributed.
@@ -444,16 +461,15 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             }
         }
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Error calculating joint distribution: " << e.what()
-                  << ", offset = " << offset << ", likelihoodShape = " << likelihoodShape
-                  << ", priorShape = " << priorShape << ", priorRate = " << priorRate
-                  << ", samples = " << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Error: " << e.what() << " (offset = " << offset
+                  << ", likelihoodShape = " << likelihoodShape << ", priorShape = " << priorShape
+                  << ", priorRate = " << priorRate << ")");
         return false;
     }
 
     LOG_TRACE(<< "result = " << result);
 
-    return true;
+    return success;
 }
 
 //! Evaluates a specified function object, which must be default constructible,
@@ -513,18 +529,23 @@ public:
           m_PriorRate(priorRate), m_Tail(0) {}
 
     bool operator()(double x, double& result) const {
+
         CJointProbabilityOfLessLikelySamples probability;
         maths_t::ETail tail = maths_t::E_UndeterminedTail;
+        CTools::CProbabilityOfLessLikelySample sampleProbability{m_Calculation};
 
         if (!evaluateFunctionOnJointDistribution(
                 m_Samples, m_Weights,
-                std::bind<double>(CTools::CProbabilityOfLessLikelySample(m_Calculation),
-                                  std::placeholders::_1, std::placeholders::_2,
-                                  std::ref(tail)),
+                [&](const auto& distribution, double x_) {
+                    return sampleProbability(distribution, x_, tail);
+                },
                 CJointProbabilityOfLessLikelySamples::SAddProbability(), m_IsNonInformative,
                 m_Offset + x, m_LikelihoodShape, m_PriorShape, m_PriorRate, probability) ||
             !probability.calculate(result)) {
-            LOG_ERROR(<< "Failed to compute probability of less likely samples");
+            LOG_ERROR(<< "Failed to compute probability of less likely samples (samples ="
+                      << core::CContainerPrinter::print(m_Samples)
+                      << ", weights = " << core::CContainerPrinter::print(m_Weights)
+                      << ", offset = " << m_Offset + x << ")");
             return false;
         }
 
@@ -582,7 +603,7 @@ public:
     //! Evaluate the log marginal likelihood at the offset \p x.
     bool operator()(double x, double& result) const {
 
-        if (m_ErrorStatus & maths_t::E_FpFailed) {
+        if ((m_ErrorStatus & maths_t::E_FpFailed) != 0) {
             return false;
         }
 
@@ -590,8 +611,14 @@ public:
         double sampleSum = 0.0;
         double logSeasonalScaleSum = 0.0;
 
+        bool success = false;
         try {
             for (std::size_t i = 0; i < m_Samples.size(); ++i) {
+                if (CMathsFuncs::isNan(m_Samples[i]) || CMathsFuncs::isNan(m_Samples[i])) {
+                    continue;
+                }
+                success = true;
+
                 double n = maths_t::countForUpdate(m_Weights[i]);
                 double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
                                        maths_t::countVarianceScale(m_Weights[i]);
@@ -618,6 +645,10 @@ public:
             }
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate likelihood: " << e.what());
+            this->addErrorStatus(maths_t::E_FpFailed);
+            return false;
+        }
+        if (!success) {
             this->addErrorStatus(maths_t::E_FpFailed);
             return false;
         }
@@ -667,11 +698,9 @@ private:
                      nResidual * std::lgamma(m_LikelihoodShape) +
                      std::lgamma(m_ImpliedShape);
 
-        if (std::isnan(m_ImpliedShape) || std::isnan(m_Constant)) {
-            LOG_ERROR(<< "Error calculating marginal likelihood: floating point nan");
+        if (CMathsFuncs::isNan(m_ImpliedShape) || CMathsFuncs::isNan(m_Constant)) {
             this->addErrorStatus(maths_t::E_FpFailed);
-        } else if (std::isinf(m_ImpliedShape) || std::isinf(m_Constant)) {
-            LOG_ERROR(<< "Error calculating marginal likelihood: floating point overflow");
+        } else if (CMathsFuncs::isInf(m_ImpliedShape) || CMathsFuncs::isInf(m_Constant)) {
             this->addErrorStatus(maths_t::E_FpOverflowed);
         }
     }
@@ -703,8 +732,6 @@ const core::TPersistenceTag SAMPLE_MOMENTS_TAG("d", "sample_moments");
 const core::TPersistenceTag PRIOR_SHAPE_TAG("e", "prior_shape");
 const core::TPersistenceTag PRIOR_RATE_TAG("f", "prior_rate");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("g", "number_samples");
-//const std::string MINIMUM_TAG("h"); No longer used
-//const std::string MAXIMUM_TAG("i"); No longer used
 const core::TPersistenceTag DECAY_RATE_TAG("j", "decay_rate");
 const std::string MEAN_TAG("mean");
 const std::string STANDARD_DEVIATION_TAG("standard_deviation");
@@ -727,8 +754,9 @@ CGammaRateConjugate::CGammaRateConjugate(const SDistributionRestoreParams& param
                                          double offsetMargin)
     : CPrior(params.s_DataType, 0.0), m_Offset(0.0), m_OffsetMargin(offsetMargin),
       m_LikelihoodShape(1.0), m_PriorShape(0.0), m_PriorRate(0.0) {
-    if (traverser.traverseSubLevel(std::bind(&CGammaRateConjugate::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -882,16 +910,15 @@ void CGammaRateConjugate::addSamples(const TDouble1Vec& samples,
         double shift = boost::math::digamma(m_LikelihoodShape);
         for (std::size_t i = 0; i < samples.size(); ++i) {
             double x = samples[i] + m_Offset;
+            if (x <= 0.0 || !CMathsFuncs::isFinite(x) ||
+                !CMathsFuncs::isFinite(weights[i])) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
+                          << core::CContainerPrinter::print(weights));
+                continue;
+            }
             double n = maths_t::countForUpdate(weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                    maths_t::countVarianceScale(weights[i]);
-
-            if (x <= 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
-                !CMathsFuncs::isFinite(varianceScale)) {
-                LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
-                          << ", variance scale = " << varianceScale);
-                continue;
-            }
 
             double shift_ = -shift + boost::math::digamma(m_LikelihoodShape / varianceScale) +
                             std::log(varianceScale);
@@ -1167,11 +1194,11 @@ CGammaRateConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
 
         status = static_cast<maths_t::EFloatingPointErrorStatus>(
             logMarginalLikelihood.errorStatus() | CMathsFuncs::fpStatus(result));
-        if (status & maths_t::E_FpFailed) {
+        if ((status & maths_t::E_FpFailed) != 0) {
             LOG_ERROR(<< "Failed to compute log likelihood (" << this->debug() << ")");
             LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
             LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
-        } else if (status & maths_t::E_FpOverflowed) {
+        } else if ((status & maths_t::E_FpOverflowed) != 0) {
             LOG_TRACE(<< "Log likelihood overflowed for (" << this->debug() << ")");
             LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
             LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
@@ -1201,10 +1228,10 @@ void CGammaRateConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
         double root_two = boost::math::double_constants::root_two;
 
         switch (numberSamples) {
-        case 1u:
+        case 1:
             samples.push_back(mean);
             break;
-        case 2u:
+        case 2:
             samples.push_back(mean - deviation / root_two);
             samples.push_back(mean + deviation / root_two);
             break;
@@ -1330,8 +1357,9 @@ bool CGammaRateConjugate::minusLogJointCdf(const TDouble1Vec& samples,
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdf, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. for "
-                      << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. (samples = "
+                      << core::CContainerPrinter::print(samples) << ", weights = "
+                      << core::CContainerPrinter::print(weights) << ")");
             return false;
         }
 
@@ -1341,8 +1369,9 @@ bool CGammaRateConjugate::minusLogJointCdf(const TDouble1Vec& samples,
 
     double value;
     if (!minusLogCdf(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. for "
-                  << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. (samples = "
+                  << core::CContainerPrinter::print(samples)
+                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
         return false;
     }
 
@@ -1370,8 +1399,9 @@ bool CGammaRateConjugate::minusLogJointCdfComplement(const TDouble1Vec& samples,
         double value;
         if (!CIntegration::logGaussLegendre<CIntegration::OrderThree>(
                 minusLogCdfComplement, 0.0, 1.0, value)) {
-            LOG_ERROR(<< "Failed computing c.d.f. complement for "
-                      << core::CContainerPrinter::print(samples));
+            LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
+                      << core::CContainerPrinter::print(samples) << ", weights = "
+                      << core::CContainerPrinter::print(weights) << ")");
             return false;
         }
 
@@ -1381,8 +1411,9 @@ bool CGammaRateConjugate::minusLogJointCdfComplement(const TDouble1Vec& samples,
 
     double value;
     if (!minusLogCdfComplement(0.0, value)) {
-        LOG_ERROR(<< "Failed computing c.d.f. complement for "
-                  << core::CContainerPrinter::print(samples));
+        LOG_ERROR(<< "Failed computing c.d.f. complement (samples = "
+                  << core::CContainerPrinter::print(samples)
+                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
         return false;
     }
 
@@ -1396,7 +1427,8 @@ bool CGammaRateConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
                                                          double& lowerBound,
                                                          double& upperBound,
                                                          maths_t::ETail& tail) const {
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     detail::CProbabilityOfLessLikelySamples probability(
@@ -1410,8 +1442,6 @@ bool CGammaRateConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
         double value;
         if (!CIntegration::gaussLegendre<CIntegration::OrderThree>(probability, 0.0,
                                                                    1.0, value)) {
-            LOG_ERROR(<< "Failed computing probability for "
-                      << core::CContainerPrinter::print(samples));
             return false;
         }
 
@@ -1423,8 +1453,6 @@ bool CGammaRateConjugate::probabilityOfLessLikelySamples(maths_t::EProbabilityCa
 
     double value;
     if (!probability(0.0, value)) {
-        LOG_ERROR(<< "Failed computing probability for "
-                  << core::CContainerPrinter::print(samples));
         return false;
     }
 
@@ -1523,7 +1551,7 @@ std::string CGammaRateConjugate::printJointDensityFunction() const {
     return xCoordinates.str() + yCoordinates.str() + pdf.str();
 }
 
-uint64_t CGammaRateConjugate::checksum(uint64_t seed) const {
+std::uint64_t CGammaRateConjugate::checksum(std::uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     seed = CChecksum::calculate(seed, m_Offset);
     seed = CChecksum::calculate(seed, m_LikelihoodShape);

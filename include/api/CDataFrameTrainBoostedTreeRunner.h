@@ -25,10 +25,10 @@
 
 namespace ml {
 namespace maths {
+namespace analytics {
 namespace boosted_tree {
 class CLoss;
 }
-namespace analytics {
 class CBoostedTree;
 class CBoostedTreeFactory;
 }
@@ -57,6 +57,7 @@ public:
     static const std::string SOFT_TREE_DEPTH_LIMIT;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
     static const std::string MAX_TREES;
+    static const std::string MAX_DEPLOYED_MODEL_SIZE;
     static const std::string FEATURE_BAG_FRACTION;
     static const std::string PREDICTION_CHANGE_COST;
     static const std::string TREE_TOPOLOGY_CHANGE_PENALTY;
@@ -80,6 +81,7 @@ public:
     static const std::string PREVIOUS_TRAIN_LOSS_GAP;
     static const std::string PREVIOUS_TRAIN_NUM_ROWS;
     static const std::string MAX_NUM_NEW_TREES;
+    static const std::string ROW_WEIGHT_COLUMN;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;

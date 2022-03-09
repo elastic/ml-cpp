@@ -384,7 +384,7 @@ public:
     virtual std::string printJointDensityFunction() const = 0;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const = 0;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
 
     //! Get the memory used by this component
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
@@ -449,7 +449,7 @@ protected:
     //! of those priors with non-negative support.
     class MATHS_COMMON_EXPORT COffsetParameters {
     public:
-        COffsetParameters(CPrior& prior);
+        explicit COffsetParameters(CPrior& prior);
         virtual ~COffsetParameters() = default;
 
         //! Add a collection of samples.
@@ -483,7 +483,7 @@ protected:
         using result_type = double;
 
     public:
-        COffsetCost(CPrior& prior);
+        explicit COffsetCost(CPrior& prior);
 
         //! Compute the cost.
         double operator()(double offset) const;
@@ -496,7 +496,7 @@ protected:
     //! \brief Apply a specified offset to a prior.
     class MATHS_COMMON_EXPORT CApplyOffset : public COffsetParameters {
     public:
-        CApplyOffset(CPrior& prior);
+        explicit CApplyOffset(CPrior& prior);
 
         //! Apply the offset.
         virtual void operator()(double offset) const;

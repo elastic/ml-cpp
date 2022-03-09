@@ -58,8 +58,9 @@ CConstantPrior::CConstantPrior(const TOptionalDouble& constant)
 
 CConstantPrior::CConstantPrior(core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_DiscreteData, 0.0) {
-    if (traverser.traverseSubLevel(std::bind(&CConstantPrior::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -285,7 +286,8 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
                                                     double& upperBound,
                                                     maths_t::ETail& tail) const {
 
-    lowerBound = upperBound = 0.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     if (samples.empty()) {
@@ -293,17 +295,14 @@ bool CConstantPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcula
         return false;
     }
 
-    lowerBound = upperBound = 1.0;
-
     if (this->isNonInformative()) {
+        lowerBound = upperBound = 1.0;
         return true;
     }
 
     int tail_ = 0;
     for (std::size_t i = 0; i < samples.size(); ++i) {
-        if (samples[i] != *m_Constant) {
-            lowerBound = upperBound = 0.0;
-        }
+        lowerBound = upperBound = samples[i] != *m_Constant ? 0.0 : 1.0;
         if (samples[i] < *m_Constant) {
             tail_ = tail_ | maths_t::E_LeftTail;
         } else if (samples[i] > *m_Constant) {
@@ -343,7 +342,7 @@ std::string CConstantPrior::printJointDensityFunction() const {
     return EMPTY_STRING;
 }
 
-uint64_t CConstantPrior::checksum(uint64_t seed) const {
+std::uint64_t CConstantPrior::checksum(std::uint64_t seed) const {
     seed = this->CPrior::checksum(seed);
     return CChecksum::calculate(seed, m_Constant);
 }

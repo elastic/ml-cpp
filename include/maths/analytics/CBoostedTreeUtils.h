@@ -47,8 +47,7 @@ enum EExtraColumnTag {
     E_Curvature,
     E_Weight,
     E_PreviousPrediction,
-    E_BeginSplits,
-    E_NumberExtraColumnTags // Keep at end!
+    E_BeginSplits
 };
 
 enum EHyperparameter {
@@ -67,7 +66,9 @@ enum EHyperparameter {
     E_TreeTopologyChangePenalty //!< Incremental train only.
 };
 
+constexpr std::size_t NUMBER_EXTRA_COLUMNS{E_BeginSplits + 1}; // This must be last extra column
 constexpr std::size_t NUMBER_HYPERPARAMETERS{E_TreeTopologyChangePenalty + 1}; // This must be last hyperparameter
+constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::max()};
 
 //! \brief Hyperparameter importance information.
 struct SHyperparameterImportance {
@@ -110,10 +111,9 @@ inline TSizeVec extraColumnTagsForTrain() {
 
 //! Get the extra columns needed by training.
 inline TSizeAlignmentPrVec extraColumnsForTrain(std::size_t numberLossParameters) {
-    return {{numberLossParameters, core::CAlignment::E_Unaligned},
-            {numberLossParameters, core::CAlignment::E_Aligned16},
-            {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned},
-            {1, core::CAlignment::E_Unaligned}};
+    return {{numberLossParameters, core::CAlignment::E_Unaligned}, // prediction
+            {numberLossParameters, core::CAlignment::E_Aligned16}, // gradient
+            {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned}}; // curvature
 }
 
 //! Get the tags for extra columns needed by training.
@@ -208,12 +208,10 @@ void writeLossCurvature(const TRowRef& row,
 
 //! Read the example weight from \p row.
 inline double readExampleWeight(const TRowRef& row, const TSizeVec& extraColumns) {
-    return row[extraColumns[E_Weight]];
-}
-
-//! Write the example weight to \p row .
-inline void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns, double weight) {
-    row.writeColumn(extraColumns[E_Weight], weight);
+    std::size_t weightColumn{extraColumns[E_Weight]};
+    return weightColumn == UNIT_ROW_WEIGHT_COLUMN
+               ? 1.0
+               : static_cast<double>(row[weightColumn]);
 }
 
 //! Get a writable pointer to the start of the row split indices.

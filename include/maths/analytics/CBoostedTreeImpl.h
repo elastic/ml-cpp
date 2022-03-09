@@ -431,6 +431,12 @@ private:
     //! Get the number of trees to retrain.
     std::size_t numberTreesToRetrain() const;
 
+    //! Get the maximum memory of any trained model we will produce.
+    //!
+    //! This is the largest model we will train if there is a limit on the
+    //! deployed model.
+    std::size_t maximumTrainedModelSize() const;
+
     //! Start monitoring fine tuning hyperparameters.
     void startProgressMonitoringFineTuneHyperparameters();
 
@@ -454,8 +460,9 @@ private:
     //@{
     std::uint64_t m_Seed{0};
     mutable common::CPRNG::CXorOShiro128Plus m_Rng;
-    std::size_t m_NumberThreads;
+    std::size_t m_NumberThreads{1};
     std::size_t m_DependentVariable{std::numeric_limits<std::size_t>::max()};
+    std::size_t m_MaximumDeployedSize{std::numeric_limits<std::size_t>::max()};
     TSizeVec m_ExtraColumns;
     TLossFunctionUPtr m_Loss;
     EInitializationStage m_InitializationStage{E_NotInitialized};

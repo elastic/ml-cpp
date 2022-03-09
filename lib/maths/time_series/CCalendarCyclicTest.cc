@@ -43,7 +43,7 @@ namespace {
 //! \brief Sets the time zone to a specified value in a constructor
 //! call so it can be called once by static initialisation.
 struct SSetTimeZone {
-    SSetTimeZone(const std::string& zone) {
+    explicit SSetTimeZone(const std::string& zone) {
         core::CTimezone::instance().timezoneName(zone);
     }
 };
@@ -93,10 +93,9 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
     if (traverser.name() == VERSION_6_4_TAG) {
         while (traverser.next()) {
             const std::string& name = traverser.name();
-            RESTORE(ERROR_QUANTILES_6_4_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&common::CQuantileSketch::acceptRestoreTraverser,
-                                  &m_ErrorQuantiles, std::placeholders::_1)))
+            RESTORE(ERROR_QUANTILES_6_4_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+                return m_ErrorQuantiles.acceptRestoreTraverser(traverser_);
+            }))
             RESTORE_BUILT_IN(CURRENT_BUCKET_TIME_6_4_TAG, m_CurrentBucketTime)
             RESTORE_BUILT_IN(CURRENT_BUCKET_INDEX_6_4_TAG, m_CurrentBucketIndex)
             RESTORE(CURRENT_BUCKET_ERROR_STATS_6_4_TAG,
@@ -107,10 +106,9 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
     } else {
         do {
             const std::string& name = traverser.name();
-            RESTORE(ERROR_QUANTILES_OLD_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&common::CQuantileSketch::acceptRestoreTraverser,
-                                  &m_ErrorQuantiles, std::placeholders::_1)))
+            RESTORE(ERROR_QUANTILES_OLD_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+                return m_ErrorQuantiles.acceptRestoreTraverser(traverser_);
+            }))
         } while (traverser.next());
         errors.resize(SIZE);
     }
@@ -127,9 +125,9 @@ void CCalendarCyclicTest::checkRestoredInvariants(const TErrorStatsVec& errors) 
 
 void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_6_4_TAG, "");
-    inserter.insertLevel(ERROR_QUANTILES_6_4_TAG,
-                         std::bind(&common::CQuantileSketch::acceptPersistInserter,
-                                   &m_ErrorQuantiles, std::placeholders::_1));
+    inserter.insertLevel(ERROR_QUANTILES_6_4_TAG, [this](auto& inserter_) {
+        m_ErrorQuantiles.acceptPersistInserter(inserter_);
+    });
     inserter.insertValue(CURRENT_BUCKET_TIME_6_4_TAG, m_CurrentBucketTime);
     inserter.insertValue(CURRENT_BUCKET_INDEX_6_4_TAG, m_CurrentBucketIndex);
     inserter.insertValue(CURRENT_BUCKET_ERROR_STATS_6_4_TAG,
@@ -180,11 +178,11 @@ CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test() const {
     // The statistics we need in order to be able to test for calendar
     // features.
     struct SStats {
-        core_t::TTime s_Offset = 0;
-        unsigned int s_Repeats = 0;
-        double s_Sum = 0.0;
-        double s_Count = 0.0;
-        double s_Significance = 0.0;
+        core_t::TTime s_Offset{0};
+        unsigned int s_Repeats{0};
+        double s_Sum{0.0};
+        double s_Count{0.0};
+        double s_Significance{0.0};
     };
     using TFeatureStatsUMap = boost::unordered_map<CCalendarFeature, SStats, SHashFeature>;
     using TDoubleTimeCalendarFeatureTr = core::CTriple<double, core_t::TTime, CCalendarFeature>;

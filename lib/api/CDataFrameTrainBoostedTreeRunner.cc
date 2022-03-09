@@ -19,10 +19,12 @@
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
+#include <core/Constants.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -70,6 +72,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(SOFT_TREE_DEPTH_TOLERANCE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_TREES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(MAX_DEPLOYED_MODEL_SIZE,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_BAG_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(PREDICTION_CHANGE_COST,
@@ -109,6 +113,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(PREVIOUS_TRAIN_NUM_ROWS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_NUM_NEW_TREES,
+        theReader.addParameter(ROW_WEIGHT_COLUMN,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
@@ -139,24 +144,26 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     m_Task = parameters[TASK].fallback(E_Train);
 
-    std::size_t seed{parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0})};
-
-    std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
-    std::size_t numberHoldoutRows{parameters[NUM_HOLDOUT_ROWS].fallback(std::size_t{0})};
-    std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
-    std::size_t downsampleRowsPerFeature{
-        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
-    double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
-    std::size_t numberRoundsPerHyperparameter{
+    auto seed = parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0});
+    auto numberFolds = parameters[NUM_FOLDS].fallback(std::size_t{0});
+    auto downsampleRowsPerFeature = 
+        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0});
+    auto trainFractionPerFold = parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0);
+    auto rowWeightColumnName = parameters[ROW_WEIGHT_COLUMN].fallback(std::string{});
+    auto numberHoldoutRows = parameters[NUM_HOLDOUT_ROWS].fallback(std::size_t{0});
+    auto numberRoundsPerHyperparameter = 
         parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
-            NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET)};
-    bool earlyStoppingEnabled{parameters[EARLY_STOPPING_ENABLED].fallback(true)};
-    std::size_t bayesianOptimisationRestarts{
-        parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
-    bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
-    std::size_t numTopFeatureImportanceValues{
-        parameters[NUM_TOP_FEATURE_IMPORTANCE_VALUES].fallback(std::size_t{0})};
+            NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET);
+    auto earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
+    auto bayesianOptimisationRestarts =
+        parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0});
+    auto stopCrossValidationEarly = parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true);
+    auto numTopFeatureImportanceValues = 
+        parameters[NUM_TOP_FEATURE_IMPORTANCE_VALUES].fallback(std::size_t{0});
+    auto maximumDeployedSize = parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
+        core::constants::BYTES_IN_GIGABYTES);
 
+    auto maxTrees = parameters[MAX_TREES].fallback(std::size_t{0});
     auto alpha = parameters[ALPHA].fallback(TDoubleVec{});
     auto lambda = parameters[LAMBDA].fallback(TDoubleVec{});
     auto gamma = parameters[GAMMA].fallback(TDoubleVec{});
@@ -172,15 +179,15 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     auto treeTopologyChangePenalty =
         parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(TDoubleVec{});
 
-    bool forceAcceptIncrementalTraining{
-        parameters[FORCE_ACCEPT_INCREMENTAL_TRAINING].fallback(false)};
-    bool disableHyperparameterScaling{
-        parameters[DISABLE_HYPERPARAMETER_SCALING].fallback(false)};
-    double dataSummarizationFraction{parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0)};
-    double previousTrainLossGap{parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0)};
-    std::size_t previousTrainNumberRows{
-        parameters[PREVIOUS_TRAIN_NUM_ROWS].fallback(std::size_t{0})};
-    std::size_t maxNumNewTrees{parameters[MAX_NUM_NEW_TREES].fallback(std::size_t{0})};
+    auto forceAcceptIncrementalTraining = 
+        parameters[FORCE_ACCEPT_INCREMENTAL_TRAINING].fallback(false);
+    auto disableHyperparameterScaling = 
+        parameters[DISABLE_HYPERPARAMETER_SCALING].fallback(false);
+    auto dataSummarizationFraction = parameters[DATA_SUMMARIZATION_FRACTION].fallback(-1.0);
+    auto previousTrainLossGap = parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0);
+    auto previousTrainNumberRows = 
+        parameters[PREVIOUS_TRAIN_NUM_ROWS].fallback(std::size_t{0});
+    auto maxNumNewTrees = parameters[MAX_NUM_NEW_TREES].fallback(std::size_t{0});
 
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
@@ -235,6 +242,14 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                     [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << TREE_TOPOLOGY_CHANGE_PENALTY
                      << "' should be non-negative");
+    if (rowWeightColumnName.empty() == false &&
+        (rowWeightColumnName == m_DependentVariableFieldName ||
+         std::find(spec.categoricalFieldNames().begin(),
+                   spec.categoricalFieldNames().end(),
+                   rowWeightColumnName) != spec.categoricalFieldNames().end())) {
+        HANDLE_FATAL(<< "Input error: row weight column '" << rowWeightColumnName
+                     << "' can't be categorical or the same as the supplied '"
+                     << DEPENDENT_VARIABLE_NAME << "'.");
     }
 
     this->computeAndSaveExecutionStrategy();
@@ -260,7 +275,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .softTreeDepthTolerance(std::move(softTreeDepthTolerance))
         .featureBagFraction(std::move(featureBagFraction))
         .predictionChangeCost(std::move(predictionChangeCost))
-        .treeTopologyChangePenalty(std::move(treeTopologyChangePenalty));
+        .treeTopologyChangePenalty(std::move(treeTopologyChangePenalty))
+        .maximumDeployedSize(maximumDeployedSize)
+        .rowWeightColumnName(std::move(rowWeightColumnName));
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -570,6 +587,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA{"retraine
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
+const std::string CDataFrameTrainBoostedTreeRunner::MAX_DEPLOYED_MODEL_SIZE{"max_model_size"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST{"prediction_change_cost"};
 const std::string CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY{"tree_topology_change_penalty"};
@@ -596,6 +614,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::TASK_PREDICT{"predict"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_LOSS_GAP{"previous_train_loss_gap"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREVIOUS_TRAIN_NUM_ROWS{"previous_train_num_rows"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_NUM_NEW_TREES{"max_num_new_trees"};
+const std::string CDataFrameTrainBoostedTreeRunner::ROW_WEIGHT_COLUMN{"weight_column"};
 // clang-format on
 }
 }

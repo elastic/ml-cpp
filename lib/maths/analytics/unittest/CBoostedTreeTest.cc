@@ -275,6 +275,15 @@ void fillDataFrame(std::size_t trainRows,
                   noise, target, frame);
 }
 
+template<typename W>
+void fillDataFrameWeights(std::size_t col, const W& weight, core::CDataFrame& frame) {
+    frame.writeColumns(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            row->writeColumn(col, weight(*row));
+        }
+    });
+}
+
 template<typename F>
 auto predictAndComputeEvaluationMetrics(const F& generateFunction,
                                         test::CRandomNumbers& rng,
@@ -354,27 +363,21 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
 
     std::size_t rows{trainRows + testRows};
 
-    TFactoryFunc makeMainMemory{
-        [=] { return core::makeMainStorageDataFrame(cols, rows).first; }};
-
-    TFactoryFuncVec factories{makeMainMemory, makeMainMemory};
-
     TDoubleVec modelBias;
     TDoubleVec modelRSquared;
 
-    for (const auto& factory : factories) {
-
+    for (std::size_t i = 0; i < 2; ++i) {
         auto target = generateFunction(rng, cols);
 
         TDoubleVecVec x(cols - 1);
-        for (std::size_t i = 0; i < cols - 1; ++i) {
-            rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        for (std::size_t j = 0; j < cols - 1; ++j) {
+            rng.generateUniformSamples(0.0, 10.0, rows, x[j]);
         }
 
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
 
-        auto frame = factory();
+        auto frame = core::makeMainStorageDataFrame(cols, rows).first;
 
         fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
 
@@ -725,6 +728,115 @@ BOOST_AUTO_TEST_CASE(testHuber) {
 
 BOOST_AUTO_TEST_CASE(testMsle) {
     // TODO #1744 test quality of MSLE on data with log-normal errors.
+}
+
+BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
+
+    // Check that downweighting outlier values improves prediction errors and bias
+    // on inlier values.
+
+    std::size_t trainRows{500};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+    double noiseVariance{25.0};
+    std::size_t cols{6};
+    std::size_t weightCol{cols};
+
+    TSizeVec outliers;
+    test::CRandomNumbers rng;
+    for (std::size_t i = 0; i < trainRows + testRows; ++i) {
+        TDoubleVec u01;
+        rng.generateUniformSamples(0.0, 1.0, 1, u01);
+        if (u01[0] < 0.05) {
+            outliers.push_back(i);
+        }
+    }
+    LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    auto targetWithOutliers = [&](const TRowRef& row) {
+        return target(row) +
+               (std::binary_search(outliers.begin(), outliers.end(), row.index())
+                    ? 8.0 * std::sqrt(noiseVariance)
+                    : 0.0);
+    };
+
+    auto weight = [&](const TRowRef& row) {
+        return std::binary_search(outliers.begin(), outliers.end(), row.index()) ? 0.1 : 1.0;
+    };
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frameWithoutWeights = core::makeMainStorageDataFrame(cols, rows).first;
+    frameWithoutWeights->columnNames({"x1", "x2", "x3", "x4", "x5", "x6"});
+    fillDataFrame(trainRows, testRows, cols, x, noise, targetWithOutliers, *frameWithoutWeights);
+
+    auto regressionWithoutWeights =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .buildFor(*frameWithoutWeights, cols - 1);
+
+    regressionWithoutWeights->train();
+    regressionWithoutWeights->predict();
+
+    auto frameWithWeights = core::makeMainStorageDataFrame(cols + 1, rows).first;
+    frameWithWeights->columnNames({"x1", "x2", "x3", "x4", "x5", "x6", "w"});
+    fillDataFrame(trainRows, testRows, cols, TBoolVec(cols + 1, false), x,
+                  noise, targetWithOutliers, *frameWithWeights);
+    fillDataFrameWeights(weightCol, weight, *frameWithWeights);
+
+    auto regressionWithWeights =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .rowWeightColumnName("w")
+            .buildFor(*frameWithWeights, cols - 1);
+
+    regressionWithWeights->train();
+    regressionWithWeights->predict();
+
+    double biasWithoutWeights;
+    double rSquaredWithoutWeights;
+    std::tie(biasWithoutWeights, rSquaredWithoutWeights) = computeEvaluationMetrics(
+        *frameWithoutWeights, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionWithoutWeights->readPrediction(row)[0];
+        },
+        target, noiseVariance / static_cast<double>(rows));
+    LOG_DEBUG(<< "biasWithoutWeights = " << biasWithoutWeights
+              << ", rSquaredWithoutWeights = " << rSquaredWithoutWeights);
+
+    double biasWithWeights;
+    double rSquaredWithWeights;
+    std::tie(biasWithWeights, rSquaredWithWeights) = computeEvaluationMetrics(
+        *frameWithWeights, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionWithWeights->readPrediction(row)[0];
+        },
+        target, noiseVariance / static_cast<double>(rows));
+    LOG_DEBUG(<< "biasWithWeights    = " << biasWithWeights
+              << ", rSquaredWithWeights    = " << rSquaredWithWeights);
+
+    BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.2 * std::fabs(biasWithoutWeights));
+    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.75 * (1.0 - rSquaredWithoutWeights));
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -2038,7 +2150,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.52);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.53);
 }
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForTargetDrift) {
@@ -2735,6 +2847,111 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
         BOOST_TEST_REQUIRE(previousEstimatedMemory > estimatedMemory);
         previousEstimatedMemory = estimatedMemory;
     }
+}
+
+BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
+
+    // Test we always produce a model which meets our memory constraint.
+
+    test::CRandomNumbers rng;
+    double noiseVariance{10.0};
+    std::size_t trainRows{800};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+    std::size_t cols{8};
+    std::size_t capacity{250};
+    std::size_t maximumDeployedSize{20000};
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frameConstrained = core::makeMainStorageDataFrame(cols, capacity).first;
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *frameConstrained);
+    auto regressionConstrained =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .maximumDeployedSize(maximumDeployedSize)
+            .numberFolds(2)
+            .buildFor(*frameConstrained, cols - 1);
+    regressionConstrained->train();
+    regressionConstrained->predict();
+
+    auto frameUnconstrained = core::makeMainStorageDataFrame(cols, capacity).first;
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *frameUnconstrained);
+    auto regressionUnconstrained =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .numberFolds(2)
+            .buildFor(*frameUnconstrained, cols - 1);
+    regressionUnconstrained->train();
+    regressionUnconstrained->predict();
+
+    std::size_t deployedSizeConstrained{
+        std::accumulate(regressionConstrained->trainedModel().begin(),
+                        regressionConstrained->trainedModel().end(),
+                        std::size_t{0}, [](std::size_t sum, const auto& tree) {
+                            for (const auto& node : tree) {
+                                sum += node.deployedSize();
+                            }
+                            return sum;
+                        })};
+    std::size_t deployedSizeUnconstrained{
+        std::accumulate(regressionUnconstrained->trainedModel().begin(),
+                        regressionUnconstrained->trainedModel().end(),
+                        std::size_t{0}, [](std::size_t sum, const auto& tree) {
+                            for (const auto& node : tree) {
+                                sum += node.deployedSize();
+                            }
+                            return sum;
+                        })};
+
+    auto[modelBiasConstrained, modelRSquaredConstrained] = computeEvaluationMetrics(
+        *frameConstrained, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionConstrained->readPrediction(row)[0];
+        },
+        target, 0.0);
+
+    auto[modelBiasUnconstrained, modelRSquaredUnconstrained] = computeEvaluationMetrics(
+        *frameUnconstrained, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionUnconstrained->readPrediction(row)[0];
+        },
+        target, 0.0);
+
+    LOG_DEBUG(<< "deployedSizeConstrained = " << deployedSizeConstrained
+              << ", modelBiasConstrained = " << modelBiasConstrained
+              << ", modelRSquaredConstrained = " << modelRSquaredConstrained);
+    LOG_DEBUG(<< "deployedSizeUnconstrained = " << deployedSizeUnconstrained
+              << ", modelBiasUnconstrained = " << modelBiasUnconstrained
+              << ", modelRSquaredUnconstrained = " << modelRSquaredUnconstrained);
+
+    // We don't hurt model accuracy by more than 3%.
+    BOOST_TEST_REQUIRE(modelRSquaredConstrained > 0.97 * modelRSquaredUnconstrained);
+
+    // We need to constrain vs the optimum for this data and we are within
+    // the memory budget.
+    BOOST_TEST_REQUIRE(deployedSizeConstrained < maximumDeployedSize);
+    BOOST_TEST_REQUIRE(deployedSizeConstrained < deployedSizeUnconstrained);
 }
 
 BOOST_AUTO_TEST_CASE(testProgressMonitoring) {

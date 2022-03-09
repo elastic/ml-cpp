@@ -301,7 +301,8 @@ private:
 
         double smin;
         double fmin;
-        CSolvers::globalMinimize(probes, f_, smin, fmin);
+        double fsd;
+        CSolvers::globalMinimize(probes, f_, smin, fmin, fsd);
         xs = m_X - smin * step;
         fs = f(xs);
     }

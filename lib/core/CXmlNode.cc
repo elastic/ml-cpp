@@ -28,9 +28,6 @@ CXmlNode::CXmlNode(const std::string& name, const std::string& value, const TStr
       m_Attributes(attributes.begin(), attributes.end()) {
 }
 
-CXmlNode::~CXmlNode() {
-}
-
 const std::string& CXmlNode::name() const {
     return m_Name;
 }

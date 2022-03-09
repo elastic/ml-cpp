@@ -104,6 +104,10 @@ std::size_t CExpandingWindow::size() const {
     return m_Size;
 }
 
+bool CExpandingWindow::haveShorterWindows() const {
+    return m_BucketLengthIndex > 0;
+}
+
 core_t::TTime CExpandingWindow::sampleAverageOffset() const {
     return static_cast<core_t::TTime>(common::CBasicStatistics::mean(m_MeanOffset) + 0.5);
 }
@@ -246,7 +250,7 @@ bool CExpandingWindow::needToCompress(core_t::TTime time) const {
     return time >= this->endTime();
 }
 
-uint64_t CExpandingWindow::checksum(uint64_t seed) const {
+std::uint64_t CExpandingWindow::checksum(std::uint64_t seed) const {
     CScopeInflate inflate(*this, false);
     seed = common::CChecksum::calculate(seed, m_BucketLengthIndex);
     seed = common::CChecksum::calculate(seed, m_StartTime);

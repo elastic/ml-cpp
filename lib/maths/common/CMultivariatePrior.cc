@@ -115,7 +115,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
         return true;
     }
 
-    lowerBounds.assign(2, TDouble10Vec(coordinates.size(), 1.0));
+    lowerBounds.assign(2, TDouble10Vec(coordinates.size(), 0.0));
     upperBounds.assign(2, TDouble10Vec(coordinates.size(), 1.0));
     tail.assign(coordinates.size(), maths_t::E_UndeterminedTail);
 
@@ -125,6 +125,11 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
     }
     if (!this->check(samples, weights)) {
         return false;
+    }
+    if (this->isNonInformative()) {
+        lowerBounds.assign(2, TDouble10Vec(coordinates.size(), 1.0));
+        upperBounds.assign(2, TDouble10Vec(coordinates.size(), 1.0));
+        return true;
     }
 
     using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -160,7 +165,7 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
         }
 
         for (std::size_t j = 0; j < samples.size(); ++j) {
-            for (std::size_t k = 0u, l = 0; k < d; ++k) {
+            for (std::size_t k = 0, l = 0; k < d; ++k) {
                 if (k != coordinate) {
                     condition[l++] = std::make_pair(k, samples[j][k]);
                 }
@@ -219,10 +224,12 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
                                                         double& lowerBound,
                                                         double& upperBound,
                                                         TTail10Vec& tail) const {
-    lowerBound = upperBound = 1.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail.assign(this->dimension(), maths_t::E_UndeterminedTail);
 
     if (this->isNonInformative()) {
+        lowerBound = upperBound = 1.0;
         return true;
     }
 
@@ -252,7 +259,8 @@ bool CMultivariatePrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCal
         }
     }
 
-    double lb[2], ub[2];
+    double lb[2];
+    double ub[2];
     if (!lowerBound_[0].calculate(lb[0]) || !upperBound_[0].calculate(ub[0]) ||
         !lowerBound_[1].calculate(lb[1]) || !upperBound_[1].calculate(ub[1])) {
         return false;
@@ -433,7 +441,7 @@ void CMultivariatePrior::remainingVariables(const TSize10Vec& marginalize,
                                             TSize10Vec& result) const {
     std::size_t d = this->dimension();
     result.reserve(d - marginalize.size() - condition.size());
-    for (std::size_t i = 0u, j = 0u, k = 0; k < d; ++k) {
+    for (std::size_t i = 0, j = 0, k = 0; k < d; ++k) {
         if (i < marginalize.size() && k == marginalize[i]) {
             ++i;
             continue;

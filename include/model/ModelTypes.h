@@ -18,6 +18,8 @@
 
 #include <maths/common/MathsTypes.h>
 
+#include <maths/time_series/CTimeSeriesMultibucketFeaturesFwd.h>
+
 #include <model/ImportExport.h>
 
 #include <functional>
@@ -26,12 +28,6 @@
 #include <utility>
 
 namespace ml {
-namespace maths {
-namespace time_series {
-template<typename>
-class CTimeSeriesMultibucketFeature;
-}
-}
 namespace model {
 class CInfluenceCalculator;
 struct SModelParams;
@@ -46,9 +42,9 @@ using TDouble2Vec1Vec = core::CSmallVector<TDouble2Vec, 1>;
 using TDouble1VecDouble1VecPr = std::pair<TDouble1Vec, TDouble1Vec>;
 using TInfluenceCalculatorCPtr = std::shared_ptr<const model::CInfluenceCalculator>;
 using TUnivariateMultibucketFeaturePtr =
-    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketFeature<double>>;
+    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketScalarFeature>;
 using TMultivariateMultibucketFeaturePtr =
-    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketFeature<TDouble10Vec>>;
+    std::unique_ptr<maths::time_series::CTimeSeriesMultibucketVectorFeature>;
 
 //! The types of model available.
 //!
@@ -284,30 +280,6 @@ private:
 //!   -# PopulationHighSumByBucketPersonAndAttribute: is for detecting
 //!      unusually high sums of the metric values in a bucketing interval
 //!      for each (person, attribute) pair analyzed as a population.
-//!   -# PeersAttributeTotalCountByPerson: is the count of events for each
-//!      attribute for each person over all time analyzed as categorical
-//!      data.
-//!   -# PeersCountByBucketPersonAndAttribute: is the non-zero count of
-//!      events for each (person, attribute) pair in a bucketing interval
-//!      analyzed by peer group.
-//!   -# PeersUniqueCountByBucketPersonAndAttribute: is the count of unique
-//!      values for each person and attribute in a bucketing interval analyzed
-//!      by peer group.
-//!   -# PeersLowCountsByBucketPersonAndAttribute: is for detecting unusually
-//!      low non-zero counts of events for each (person, attribute) pair in a
-//!      bucketing interval analyzed as a population.
-//!   -# PeersHighCountsByBucketPersonAndAttribute: is for detecting unusually
-//!      high non-zero counts of events for each (person, attribute) pair in a
-//!      bucketing interval analyzed as a population.
-//!   -# PopulationInfoContentByBucketAndPerson: is for detecting unusual
-//!      information content (or compressibility) of values for each person
-//!      and attribute in a bucketing interval.
-//!   -# PopulationLowInfoContentByBucketAndPerson: is for detecting
-//!      unusualy low information content (or compressibility) of values
-//!      for each person and attribute in a bucketing interval.
-//!   -# PopulationHighInfoContentByBucketAndPerson: is for detecting
-//!      unusualy high information content (or compressibility) of values
-//!      for each person and attribute in a bucketing interval.
 enum EFeature {
     // IMPORTANT: The integer values associated with these enum values are
     // stored in persisted state.  DO NOT CHANGE EXISTING NUMBERS, as this
@@ -394,34 +366,7 @@ enum EFeature {
     E_PopulationLowVarianceByPersonAndAttribute = 315,
     E_PopulationHighVarianceByPersonAndAttribute = 316,
     E_PopulationLowMedianByPersonAndAttribute = 317,
-    E_PopulationHighMedianByPersonAndAttribute = 318,
-
-    // Peer group event rate feature
-    E_PeersAttributeTotalCountByPerson = 400,
-    E_PeersCountByBucketPersonAndAttribute = 401,
-    //E_PeersIndicatorOfBucketPersonAndAttribute = 402,
-    //E_PeersUniquePersonCountByAttribute = 403,
-    E_PeersUniqueCountByBucketPersonAndAttribute = 404,
-    E_PeersLowCountsByBucketPersonAndAttribute = 405,
-    E_PeersHighCountsByBucketPersonAndAttribute = 406,
-    E_PeersInfoContentByBucketPersonAndAttribute = 407,
-    E_PeersLowInfoContentByBucketPersonAndAttribute = 408,
-    E_PeersHighInfoContentByBucketPersonAndAttribute = 409,
-    E_PeersLowUniqueCountByBucketPersonAndAttribute = 410,
-    E_PeersHighUniqueCountByBucketPersonAndAttribute = 411,
-    E_PeersTimeOfDayByBucketPersonAndAttribute = 412,
-    E_PeersTimeOfWeekByBucketPersonAndAttribute = 413,
-
-    // Peer group metric features
-    E_PeersMeanByPersonAndAttribute = 500,
-    E_PeersMinByPersonAndAttribute = 501,
-    E_PeersMaxByPersonAndAttribute = 502,
-    E_PeersSumByBucketPersonAndAttribute = 503,
-    E_PeersLowMeanByPersonAndAttribute = 504,
-    E_PeersHighMeanByPersonAndAttribute = 505,
-    E_PeersLowSumByBucketPersonAndAttribute = 506,
-    E_PeersHighSumByBucketPersonAndAttribute = 507,
-    E_PeersMedianByPersonAndAttribute = 508
+    E_PopulationHighMedianByPersonAndAttribute = 318
 };
 
 using TFeatureVec = std::vector<EFeature>;
@@ -666,33 +611,6 @@ std::string print(EFeature feature);
     case model_t::E_PopulationLowMedianByPersonAndAttribute:                   \
     case model_t::E_PopulationHighMedianByPersonAndAttribute
 
-//! Peers count feature case statement block.
-#define CASE_PEERS_COUNT                                                       \
-    case model_t::E_PeersAttributeTotalCountByPerson:                          \
-    case model_t::E_PeersCountByBucketPersonAndAttribute:                      \
-    case model_t::E_PeersUniqueCountByBucketPersonAndAttribute:                \
-    case model_t::E_PeersLowCountsByBucketPersonAndAttribute:                  \
-    case model_t::E_PeersHighCountsByBucketPersonAndAttribute:                 \
-    case model_t::E_PeersInfoContentByBucketPersonAndAttribute:                \
-    case model_t::E_PeersLowInfoContentByBucketPersonAndAttribute:             \
-    case model_t::E_PeersHighInfoContentByBucketPersonAndAttribute:            \
-    case model_t::E_PeersLowUniqueCountByBucketPersonAndAttribute:             \
-    case model_t::E_PeersHighUniqueCountByBucketPersonAndAttribute:            \
-    case model_t::E_PeersTimeOfDayByBucketPersonAndAttribute:                  \
-    case model_t::E_PeersTimeOfWeekByBucketPersonAndAttribute
-
-// Peers metric features case statement block.
-#define CASE_PEERS_METRIC                                                      \
-    case model_t::E_PeersMeanByPersonAndAttribute:                             \
-    case model_t::E_PeersMedianByPersonAndAttribute:                           \
-    case model_t::E_PeersMinByPersonAndAttribute:                              \
-    case model_t::E_PeersMaxByPersonAndAttribute:                              \
-    case model_t::E_PeersSumByBucketPersonAndAttribute:                        \
-    case model_t::E_PeersLowMeanByPersonAndAttribute:                          \
-    case model_t::E_PeersHighMeanByPersonAndAttribute:                         \
-    case model_t::E_PeersLowSumByBucketPersonAndAttribute:                     \
-    case model_t::E_PeersHighSumByBucketPersonAndAttribute
-
 //! The categories of metric feature.
 //!
 //! These enumerate the distinct types of metric statistic
@@ -745,17 +663,11 @@ std::string print(EEventRateCategory category);
 //!      a population.
 //!   -# Population metric: analysis of message values as
 //!      a population.
-//!   -# Population event rate: analysis of message rates in
-//!      peer groups.
-//!   -# Population metric: analysis of message values in
-//!      peer groups.
 enum EAnalysisCategory {
     E_EventRate,
     E_Metric,
     E_PopulationEventRate,
-    E_PopulationMetric,
-    E_PeersEventRate,
-    E_PeersMetric
+    E_PopulationMetric
 };
 
 //! Get the category of analysis to which \p feature belongs.

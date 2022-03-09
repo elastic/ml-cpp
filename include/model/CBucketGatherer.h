@@ -281,9 +281,6 @@ public:
     //! Get the start of the current bucketing time interval.
     core_t::TTime currentBucketStartTime() const;
 
-    //! Set the start of the current bucketing time interval.
-    void currentBucketStartTime(core_t::TTime time);
-
     //! The earliest time for which data can still arrive.
     core_t::TTime earliestBucketStartTime() const;
 

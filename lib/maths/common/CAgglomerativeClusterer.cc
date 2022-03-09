@@ -163,8 +163,7 @@ void mstCluster(const TDoubleVecVec& distanceMatrix, TDoubleSizeSizePrPrVec& L) 
         std::size_t n = 0;
         double d = INF;
 
-        for (std::size_t i = 0; i < S.size(); ++i) {
-            std::size_t x = S[i];
+        for (std::size_t x : S) {
             D[x] = std::min(D[x], distance(distanceMatrix, x, c));
             if (D[x] < d) {
                 n = x;
@@ -259,8 +258,7 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
             std::size_t c = 0;
             std::size_t ra = rightmost[a];
             d = INF;
-            for (std::size_t i = 0; i < S.size(); ++i) {
-                std::size_t x = S[i];
+            for (std::size_t x : S) {
                 std::size_t rx = rightmost[x];
                 if (a != x) {
                     double dx = distance(distanceMatrix, ra, rx);
@@ -291,10 +289,9 @@ void nnCluster(TDoubleVecVec& distanceMatrix, UPDATE update, TDoubleSizeSizePrPr
 
         // Update the index set, the distance matrix, the sizes
         // and the rightmost direct address table.
-        std::size_t merged[] = {a, b};
+        std::size_t merged[]{a, b};
         CSetTools::inplace_set_difference(S, merged, merged + 2);
-        for (std::size_t i = 0; i < S.size(); ++i) {
-            std::size_t x = S[i];
+        for (std::size_t x : S) {
             update(size, rightmost[x], ra, rb, distanceMatrix);
         }
         size[rb] += size[ra];
@@ -407,12 +404,12 @@ CAgglomerativeClusterer::CNode::CNode(std::size_t index, double height)
 }
 
 bool CAgglomerativeClusterer::CNode::addChild(CNode& child) {
-    if (!m_LeftChild) {
+    if (m_LeftChild == nullptr) {
         m_LeftChild = &child;
         child.m_Parent = this;
         return true;
     }
-    if (!m_RightChild) {
+    if (m_RightChild == nullptr) {
         m_RightChild = &child;
         child.m_Parent = this;
         return true;
@@ -433,53 +430,53 @@ double CAgglomerativeClusterer::CNode::height() const {
 
 TNode& CAgglomerativeClusterer::CNode::root() {
     CNode* result = this;
-    for (CNode* parent = m_Parent; parent; parent = parent->m_Parent) {
+    for (CNode* parent = m_Parent; parent != nullptr; parent = parent->m_Parent) {
         result = parent;
     }
     return *result;
 }
 
 void CAgglomerativeClusterer::CNode::points(TSizeVec& result) const {
-    if (!m_LeftChild && !m_RightChild) {
+    if ((m_LeftChild == nullptr) && (m_RightChild == nullptr)) {
         result.push_back(m_Index);
     }
-    if (m_LeftChild) {
+    if (m_LeftChild != nullptr) {
         m_LeftChild->points(result);
     }
-    if (m_RightChild) {
+    if (m_RightChild != nullptr) {
         m_RightChild->points(result);
     }
 }
 
 void CAgglomerativeClusterer::CNode::clusters(TDoubleSizeVecPrVec& result) const {
-    if (m_LeftChild && m_RightChild) {
+    if ((m_LeftChild != nullptr) && (m_RightChild != nullptr)) {
         TSizeVec points;
         this->points(points);
         result.emplace_back(m_Height, points);
     }
-    if (m_LeftChild) {
+    if (m_LeftChild != nullptr) {
         m_LeftChild->clusters(result);
     }
-    if (m_RightChild) {
+    if (m_RightChild != nullptr) {
         m_RightChild->clusters(result);
     }
 }
 
 void CAgglomerativeClusterer::CNode::clusteringAt(double height, TSizeVecVec& result) const {
     if (height >= m_Height) {
-        result.push_back(TSizeVec());
+        result.emplace_back();
         this->points(result.back());
     } else {
-        if (m_LeftChild && height < m_LeftChild->height()) {
+        if (m_LeftChild != nullptr && height < m_LeftChild->height()) {
             m_LeftChild->clusteringAt(height, result);
-        } else if (m_LeftChild) {
-            result.push_back(TSizeVec());
+        } else if (m_LeftChild != nullptr) {
+            result.emplace_back();
             m_LeftChild->points(result.back());
         }
-        if (m_RightChild && height < m_RightChild->height()) {
+        if (m_RightChild != nullptr && height < m_RightChild->height()) {
             m_RightChild->clusteringAt(height, result);
-        } else if (m_RightChild) {
-            result.push_back(TSizeVec());
+        } else if (m_RightChild != nullptr) {
+            result.emplace_back();
             m_RightChild->points(result.back());
         }
     }
@@ -488,13 +485,13 @@ void CAgglomerativeClusterer::CNode::clusteringAt(double height, TSizeVecVec& re
 std::string CAgglomerativeClusterer::CNode::print(const std::string& indent) const {
     std::string result;
     result += "height = " + core::CStringUtils::typeToStringPretty(m_Height);
-    if (m_LeftChild) {
+    if (m_LeftChild != nullptr) {
         result += core_t::LINE_ENDING + indent + m_LeftChild->print(indent + "  ");
     }
-    if (m_RightChild) {
+    if (m_RightChild != nullptr) {
         result += core_t::LINE_ENDING + indent + m_RightChild->print(indent + "  ");
     }
-    if (!m_LeftChild && !m_RightChild) {
+    if ((m_LeftChild == nullptr) && (m_RightChild == nullptr)) {
         result += ", point = " + core::CStringUtils::typeToStringPretty(m_Index);
     }
     return result;

@@ -56,13 +56,13 @@ bool CModelStateSerialiser::operator()(const common::SModelRestoreParams& params
 void CModelStateSerialiser::operator()(const common::CModel& model,
                                        core::CStatePersistInserter& inserter) const {
     if (dynamic_cast<const CUnivariateTimeSeriesModel*>(&model) != nullptr) {
-        inserter.insertLevel(UNIVARIATE_TIME_SERIES_TAG,
-                             std::bind(&common::CModel::acceptPersistInserter,
-                                       &model, std::placeholders::_1));
+        inserter.insertLevel(UNIVARIATE_TIME_SERIES_TAG, [&model](auto& inserter_) {
+            model.acceptPersistInserter(inserter_);
+        });
     } else if (dynamic_cast<const CMultivariateTimeSeriesModel*>(&model) != nullptr) {
-        inserter.insertLevel(MULTIVARIATE_TIME_SERIES_TAG,
-                             std::bind(&common::CModel::acceptPersistInserter,
-                                       &model, std::placeholders::_1));
+        inserter.insertLevel(MULTIVARIATE_TIME_SERIES_TAG, [&model](auto& inserter_) {
+            model.acceptPersistInserter(inserter_);
+        });
     } else if (dynamic_cast<const common::CModelStub*>(&model) != nullptr) {
         inserter.insertValue(MODEL_STUB_TAG, "");
     } else {

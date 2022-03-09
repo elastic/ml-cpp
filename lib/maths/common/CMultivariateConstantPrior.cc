@@ -74,8 +74,11 @@ CMultivariateConstantPrior::CMultivariateConstantPrior(std::size_t dimension,
 CMultivariateConstantPrior::CMultivariateConstantPrior(std::size_t dimension,
                                                        core::CStateRestoreTraverser& traverser)
     : CMultivariatePrior(maths_t::E_DiscreteData, 0.0), m_Dimension(dimension) {
-    traverser.traverseSubLevel(std::bind(&CMultivariateConstantPrior::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CMultivariateConstantPrior::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -282,7 +285,7 @@ void CMultivariateConstantPrior::print(const std::string& separator, std::string
                                         : core::CContainerPrinter::print(*m_Constant));
 }
 
-uint64_t CMultivariateConstantPrior::checksum(uint64_t seed) const {
+std::uint64_t CMultivariateConstantPrior::checksum(std::uint64_t seed) const {
     seed = this->CMultivariatePrior::checksum(seed);
     return CChecksum::calculate(seed, m_Constant);
 }

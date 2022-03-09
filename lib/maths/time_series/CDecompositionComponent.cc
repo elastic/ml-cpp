@@ -69,9 +69,9 @@ bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverse
             BOUNDARY_CONDITION_TAG, int boundaryCondition,
             core::CStringUtils::stringToType(traverser.value(), boundaryCondition),
             m_BoundaryCondition = static_cast<common::CSplineTypes::EBoundaryCondition>(boundaryCondition))
-        RESTORE(SPLINES_TAG, traverser.traverseSubLevel(std::bind(
-                                 &CPackedSplines::acceptRestoreTraverser, &m_Splines,
-                                 m_BoundaryCondition, std::placeholders::_1)))
+        RESTORE(SPLINES_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+            return m_Splines.acceptRestoreTraverser(m_BoundaryCondition, traverser_);
+        }))
     } while (traverser.next());
 
     if (this->initialized()) {
@@ -85,8 +85,9 @@ bool CDecompositionComponent::acceptRestoreTraverser(core::CStateRestoreTraverse
 void CDecompositionComponent::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(MAX_SIZE_TAG, m_MaxSize);
     inserter.insertValue(BOUNDARY_CONDITION_TAG, static_cast<int>(m_BoundaryCondition));
-    inserter.insertLevel(SPLINES_TAG, std::bind(&CPackedSplines::acceptPersistInserter,
-                                                &m_Splines, std::placeholders::_1));
+    inserter.insertLevel(SPLINES_TAG, [this](auto& inserter_) {
+        m_Splines.acceptPersistInserter(inserter_);
+    });
 }
 
 void CDecompositionComponent::swap(CDecompositionComponent& other) {
@@ -321,9 +322,8 @@ void CDecompositionComponent::CPackedSplines::interpolate(const TDoubleVec& knot
     this->swap(oldSpline);
     TSplineRef valueSpline{this->spline(E_Value)};
     TSplineRef varianceSpline{this->spline(E_Variance)};
-    if (!valueSpline.interpolate(knots, values, boundary)) {
-        this->swap(oldSpline);
-    } else if (!varianceSpline.interpolate(knots, variances, boundary)) {
+    if (!valueSpline.interpolate(knots, values, boundary) ||
+        !varianceSpline.interpolate(knots, variances, boundary)) {
         this->swap(oldSpline);
     }
     LOG_TRACE(<< "types = " << core::CContainerPrinter::print(m_Types));

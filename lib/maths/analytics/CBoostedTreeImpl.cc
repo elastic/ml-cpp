@@ -49,6 +49,7 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <numeric>
 
 namespace ml {
 namespace maths {
@@ -990,6 +991,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     std::size_t retries{0};
 
+    std::size_t deployedSize{0};
     TDoubleVec testLosses;
     testLosses.reserve(m_Hyperparameters.maximumNumberTrees().value());
     scopeMemoryUsage.add(testLosses);
@@ -1011,7 +1013,12 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
-        if (retries == m_MaximumAttemptsToAddTree) {
+        // Simply break out of training if the model exceeds the size limit. We
+        // don't try and anticipate this limit: cross-validation error will direct
+        // hyperparameter tuning to select the best parameters subject to this
+        // constraint.
+        if (retries == m_MaximumAttemptsToAddTree ||
+            deployedSize > this->maximumTrainedModelSize()) {
             break;
         }
 
@@ -1030,6 +1037,10 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
             forest.push_back(std::move(tree));
             eta = std::min(1.0, m_Hyperparameters.etaGrowthRatePerTree().value() * eta);
             retries = 0;
+            deployedSize += std::accumulate(forest.back().begin(), forest.back().end(),
+                                            0, [](auto size, const auto& node) {
+                                                return size + node.deployedSize();
+                                            });
             trainingProgress.increment();
         }
 
@@ -1900,7 +1911,7 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                     auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
                     double actual{readActual(row, m_DependentVariable)};
                     double weight{readExampleWeight(row, m_ExtraColumns)};
-                    loss.add(m_Loss->value(prediction, actual, weight));
+                    loss.add(m_Loss->value(prediction, actual), weight);
                 }
             },
             TMeanAccumulator{}),
@@ -1933,8 +1944,8 @@ double CBoostedTreeImpl::meanChangePenalisedLoss(const core::CDataFrame& frame,
                     auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
                     auto previousPrediction = readPreviousPrediction(
                         row, m_ExtraColumns, numberLossParameters);
-                    double weight{0.01 * readExampleWeight(row, m_ExtraColumns)};
-                    loss.add(m_Loss->difference(prediction, previousPrediction, weight));
+                    double weight{readExampleWeight(row, m_ExtraColumns)};
+                    loss.add(m_Loss->difference(prediction, previousPrediction, 0.01), weight);
                 }
             },
             TMeanAccumulator{}),
@@ -1987,6 +1998,10 @@ std::size_t CBoostedTreeImpl::maximumTreeSize(std::size_t numberRows) {
 
 std::size_t CBoostedTreeImpl::numberTreesToRetrain() const {
     return m_TreesToRetrain.size();
+}
+
+std::size_t CBoostedTreeImpl::maximumTrainedModelSize() const {
+    return static_cast<std::size_t>(0.95 * static_cast<double>(m_MaximumDeployedSize) + 0.5);
 }
 
 void CBoostedTreeImpl::recordHyperparameters() {

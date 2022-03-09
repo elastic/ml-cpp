@@ -51,8 +51,8 @@ case `uname` in
         BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
         XML_LOCATION=
         GCC_RT_LOCATION=
-        OMP_LOCATION=
         STL_LOCATION=
+        OMP_LOCATION=
         ZLIB_LOCATION=
         TORCH_LIBRARIES="torch_cpu c10"
         TORCH_LOCATION=/usr/local/lib
@@ -66,7 +66,7 @@ case `uname` in
             if [ `uname -m` = aarch64 ] ; then
                 BOOST_ARCH=a64
             else
-                BOOST_ARCH=x64                
+                BOOST_ARCH=x64
                 MKL_LOCATION=/usr/local/gcc103/lib
                 MKL_EXTENSION=.so
                 MKL_PREFIX=libmkl_
@@ -78,15 +78,16 @@ case `uname` in
             XML_EXTENSION=.so.2
             GCC_RT_LOCATION=/usr/local/gcc103/lib64
             GCC_RT_EXTENSION=.so.1
-            OMP_LOCATION=/usr/local/gcc103/lib64
-            OMP_EXTENSION=.so.1
             STL_LOCATION=/usr/local/gcc103/lib64
             STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
+            OMP_LOCATION=/usr/local/gcc103/lib64
+            OMP_PATTERN=libgomp
+            OMP_EXTENSION=.so.1
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
             TORCH_LOCATION=/usr/local/gcc103/lib
-            TORCH_EXTENSION=.so            
+            TORCH_EXTENSION=.so
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
@@ -95,8 +96,8 @@ case `uname` in
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
             XML_LOCATION=
             GCC_RT_LOCATION=
-            OMP_LOCATION=
             STL_LOCATION=
+            OMP_LOCATION=
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
             TORCH_LOCATION=$SYSROOT/usr/local/lib
@@ -117,11 +118,12 @@ case `uname` in
             XML_EXTENSION=.so.2
             GCC_RT_LOCATION=$SYSROOT/usr/local/gcc103/lib64
             GCC_RT_EXTENSION=.so.1
-            OMP_LOCATION=$SYSROOT/usr/local/gcc103/lib64
-            OMP_EXTENSION=.so.1
             STL_LOCATION=$SYSROOT/usr/local/gcc103/lib64
             STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
+            OMP_LOCATION=$SYSROOT/usr/local/gcc103/lib64
+            OMP_PATTERN=libgomp
+            OMP_EXTENSION=.so.1
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
             TORCH_LOCATION=$SYSROOT/usr/local/gcc103/lib
@@ -142,7 +144,6 @@ case `uname` in
         XML_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         XML_EXTENSION=.dll
         GCC_RT_LOCATION=
-        OMP_LOCATION=
         # Read VCBASE from environment if defined, otherwise default to VS Professional 2019
         DEFAULTVCBASE=`cd /$LOCAL_DRIVE && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2019/Professional"`
         VCBASE=${VCBASE:-$DEFAULTVCBASE}
@@ -150,6 +151,9 @@ case `uname` in
         STL_LOCATION=/$LOCAL_DRIVE/$VCBASE/VC/Redist/MSVC/$VCVER/x64/Microsoft.VC142.CRT
         STL_PATTERN=140
         STL_EXTENSION=.dll
+        OMP_LOCATION=/$LOCAL_DRIVE/$VCBASE/VC/Redist/MSVC/$VCVER/x64/Microsoft.VC142.OpenMP
+        OMP_PATTERN=vcomp
+        OMP_EXTENSION=.dll
         ZLIB_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         ZLIB_EXTENSION=1.dll
         TORCH_LIBRARIES="asmjit c10 fbgemm torch_cpu"
@@ -207,18 +211,6 @@ if [ ! -z "$GCC_RT_LOCATION" ] ; then
         exit 7
     fi
 fi
-if [ ! -z "$OMP_LOCATION" ] ; then
-    if ls $OMP_LOCATION/libgomp*$OMP_EXTENSION >/dev/null ; then
-        if [ -n "$INSTALL_DIR" ] ; then
-            rm -f $INSTALL_DIR/libgomp*$OMP_EXTENSION
-            cp $OMP_LOCATION/libgomp*$OMP_EXTENSION $INSTALL_DIR
-            chmod u+wx $INSTALL_DIR/libgomp*$OMP_EXTENSION
-        fi
-    else
-        echo "OMP runtime library not found"
-        exit 8
-    fi
-fi
 if [ ! -z "$STL_LOCATION" ] ; then
     if ls $STL_LOCATION/*$STL_PATTERN*$STL_EXTENSION >/dev/null ; then
         if [ -n "$INSTALL_DIR" ] ; then
@@ -228,6 +220,18 @@ if [ ! -z "$STL_LOCATION" ] ; then
         fi
     else
         echo "C++ standard library not found"
+        exit 8
+    fi
+fi
+if [ ! -z "$OMP_LOCATION" ] ; then
+    if ls $OMP_LOCATION/$OMP_PATTERN*$OMP_EXTENSION >/dev/null ; then
+        if [ -n "$INSTALL_DIR" ] ; then
+            rm -f $INSTALL_DIR/$OMP_PATTERN*$OMP_EXTENSION
+            cp $OMP_LOCATION/$OMP_PATTERN*$OMP_EXTENSION $INSTALL_DIR
+            chmod u+wx $INSTALL_DIR/$OMP_PATTERN*$OMP_EXTENSION
+        fi
+    else
+        echo "OMP runtime library not found"
         exit 9
     fi
 fi
@@ -248,9 +252,9 @@ if [ ! -z "$TORCH_LOCATION" ] ; then
         if [ -n "$INSTALL_DIR" ] ; then
             for LIBRARY in $TORCH_LIBRARIES
             do
-                rm -f $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
-                cp $TORCH_LOCATION/*$LIBRARY*$TORCH_EXTENSION $INSTALL_DIR
-                chmod u+wx $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
+                rm -f $INSTALL_DIR/*$LIBRARY$TORCH_EXTENSION
+                cp $TORCH_LOCATION/*$LIBRARY$TORCH_EXTENSION $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/*$LIBRARY$TORCH_EXTENSION
             done
         fi
     else

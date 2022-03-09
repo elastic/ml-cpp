@@ -1118,7 +1118,7 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
                                                 std::size_t targetColumn,
                                                 const TReadPredictionFunc& readPrediction) {
     auto readQuantiles = core::bindRetrievableState(
-        [&](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) mutable {
+        [&](TQuantileSketchVec& quantiles, const TRowItr& beginRows, const TRowItr& endRows) {
             TDoubleVector probabilities;
             for (auto row = beginRows; row != endRows; ++row) {
                 if (isMissing((*row)[targetColumn]) == false) {

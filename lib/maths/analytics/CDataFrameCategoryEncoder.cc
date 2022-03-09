@@ -253,8 +253,9 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncod
 }
 
 CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CDataFrameCategoryEncoder::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore category encoder"};
     }
 }
@@ -303,18 +304,18 @@ std::uint64_t CDataFrameCategoryEncoder::checksum(std::uint64_t seed) const {
 
 void CDataFrameCategoryEncoder::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(VERSION_7_5_TAG, "", inserter);
-    inserter.insertLevel(ENCODING_VECTOR_TAG,
-                         std::bind(&CDataFrameCategoryEncoder::persistEncodings,
-                                   this, std::placeholders::_1));
+    inserter.insertLevel(ENCODING_VECTOR_TAG, [this](auto& inserter_) {
+        this->persistEncodings(inserter_);
+    });
 }
 
 bool CDataFrameCategoryEncoder::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     if (traverser.name() == VERSION_7_5_TAG) {
         do {
             const std::string& name{traverser.name()};
-            RESTORE(ENCODING_VECTOR_TAG, traverser.traverseSubLevel(std::bind(
-                                             &CDataFrameCategoryEncoder::restoreEncodings,
-                                             this, std::placeholders::_1)))
+            RESTORE(ENCODING_VECTOR_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+                return this->restoreEncodings(traverser_);
+            }))
         } while (traverser.next());
         return true;
     }
@@ -466,7 +467,7 @@ EEncoding CDataFrameCategoryEncoder::COneHotEncoding::type() const {
 double CDataFrameCategoryEncoder::COneHotEncoding::encode(double value) const {
     return CDataFrameUtils::isMissing(value)
                ? value
-               : static_cast<std::size_t>(value) == m_HotCategory;
+               : static_cast<double>(static_cast<std::size_t>(value) == m_HotCategory);
 }
 
 bool CDataFrameCategoryEncoder::COneHotEncoding::isBinary() const {

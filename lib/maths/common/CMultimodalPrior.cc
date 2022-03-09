@@ -26,6 +26,7 @@
 #include <maths/common/CClustererStateSerialiser.h>
 #include <maths/common/CKMeansOnline1d.h>
 #include <maths/common/CMathsFuncs.h>
+#include <maths/common/CMathsFuncsForMatrixAndVectorTypes.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CPriorStateSerialiser.h>
 #include <maths/common/CRestoreParams.h>
@@ -128,8 +129,6 @@ const core::TPersistenceTag CLUSTERER_TAG("a", "clusterer");
 const core::TPersistenceTag SEED_PRIOR_TAG("b", "seed_prior");
 const core::TPersistenceTag MODE_TAG("c", "mode");
 const core::TPersistenceTag NUMBER_SAMPLES_TAG("d", "number_samples");
-//const std::string MINIMUM_TAG("e"); No longer used
-//const std::string MAXIMUM_TAG("f"); No longer used
 const core::TPersistenceTag DECAY_RATE_TAG("g", "decay_rate");
 
 const std::string EMPTY_STRING;
@@ -182,9 +181,9 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType, double decayRate
 CMultimodalPrior::CMultimodalPrior(const SDistributionRestoreParams& params,
                                    core::CStateRestoreTraverser& traverser)
     : CPrior(params.s_DataType, params.s_DecayRate) {
-    if (traverser.traverseSubLevel(std::bind(&CMultimodalPrior::acceptRestoreTraverser,
-                                             this, std::cref(params),
-                                             std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([&](auto& traverser_) {
+            return this->acceptRestoreTraverser(params, traverser_);
+        }) == false) {
         traverser.setBadState();
     }
 }
@@ -198,16 +197,20 @@ bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& 
             m_Clusterer != nullptr && m_SeedPrior != nullptr &&
                 core::CStringUtils::stringToType(traverser.value(), decayRate),
             this->decayRate(decayRate))
-        RESTORE(CLUSTERER_TAG, traverser.traverseSubLevel(std::bind<bool>(
-                                   CClustererStateSerialiser(), std::cref(params),
-                                   std::ref(m_Clusterer), std::placeholders::_1)))
-        RESTORE(SEED_PRIOR_TAG, traverser.traverseSubLevel(std::bind<bool>(
-                                    CPriorStateSerialiser(), std::cref(params),
-                                    std::ref(m_SeedPrior), std::placeholders::_1)))
+        RESTORE(CLUSTERER_TAG,
+                traverser.traverseSubLevel(
+                    [&, serialiser = CClustererStateSerialiser{} ](auto& traverser_) {
+                        return serialiser(params, m_Clusterer, traverser_);
+                    }))
+        RESTORE(SEED_PRIOR_TAG,
+                traverser.traverseSubLevel(
+                    [&, serialiser = CPriorStateSerialiser{} ](auto& traverser_) {
+                        return serialiser(params, m_SeedPrior, traverser_);
+                    }))
         RESTORE_SETUP_TEARDOWN(MODE_TAG, TMode mode,
-                               traverser.traverseSubLevel(std::bind(
-                                   &TMode::acceptRestoreTraverser, &mode,
-                                   std::cref(params), std::placeholders::_1)),
+                               traverser.traverseSubLevel([&](auto& traverser_) {
+                                   return mode.acceptRestoreTraverser(params, traverser_);
+                               }),
                                m_Modes.push_back(std::move(mode)))
         RESTORE_SETUP_TEARDOWN(NUMBER_SAMPLES_TAG, double numberSamples,
                                core::CStringUtils::stringToType(traverser.value(), numberSamples),
@@ -393,8 +396,10 @@ void CMultimodalPrior::addSamples(const TDouble1Vec& samples,
 
         for (std::size_t i = 0; i < samples.size(); ++i) {
             double x{samples[i]};
-            if (CMathsFuncs::isFinite(x) == false) {
-                LOG_ERROR(<< "Discarding " << x);
+            if (CMathsFuncs::isFinite(x) == false ||
+                CMathsFuncs::isFinite(weights[i]) == false) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
+                          << core::CContainerPrinter::print(weights[i]));
                 continue;
             }
             if (hasSeasonalScale) {
@@ -564,8 +569,8 @@ double CMultimodalPrior::marginalLikelihoodMode(const TDoubleWeightsAry& weights
         const auto& prior = mode.s_Prior;
         distributionMode[0] = prior->marginalLikelihoodMode(weight[0]);
         double likelihood;
-        if (prior->jointLogMarginalLikelihood(distributionMode, weight, likelihood) &
-            (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) {
+        if ((prior->jointLogMarginalLikelihood(distributionMode, weight, likelihood) &
+             (maths_t::E_FpFailed | maths_t::E_FpOverflowed)) != 0) {
             continue;
         }
         if (maxLikelihood.add(std::log(w) + likelihood)) {
@@ -799,11 +804,11 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
                 double modeLogLikelihood;
                 maths_t::EFloatingPointErrorStatus status{m_Modes[j].s_Prior->jointLogMarginalLikelihood(
                     sample, weight, modeLogLikelihood)};
-                if (status & maths_t::E_FpFailed) {
+                if ((status & maths_t::E_FpFailed) != 0) {
                     // Logging handled at a lower level.
                     return status;
                 }
-                if ((status & maths_t::E_FpOverflowed) == false) {
+                if ((status & maths_t::E_FpOverflowed) == 0) {
                     modeLogLikelihoods.emplace_back(j, modeLogLikelihood);
                     maxLogLikelihood = std::max(maxLogLikelihood, modeLogLikelihood);
                 }
@@ -851,7 +856,7 @@ CMultimodalPrior::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     }
 
     maths_t::EFloatingPointErrorStatus status{CMathsFuncs::fpStatus(result)};
-    if (status & maths_t::E_FpFailed) {
+    if ((status & maths_t::E_FpFailed) != 0) {
         LOG_ERROR(<< "Failed to compute likelihood (" << this->debugWeights() << ")");
         LOG_ERROR(<< "samples = " << core::CContainerPrinter::print(samples));
         LOG_ERROR(<< "weights = " << core::CContainerPrinter::print(weights));
@@ -934,7 +939,8 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
                                                       double& lowerBound,
                                                       double& upperBound,
                                                       maths_t::ETail& tail) const {
-    lowerBound = upperBound = 1.0;
+    lowerBound = 0.0;
+    upperBound = 1.0;
     tail = maths_t::E_UndeterminedTail;
 
     if (samples.empty()) {
@@ -993,8 +999,6 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
     switch (calculation) {
     case maths_t::E_OneSidedBelow:
         if (this->minusLogJointCdf(samples, weights, upperBound, lowerBound) == false) {
-            LOG_ERROR(<< "Failed computing probability of less likely samples: "
-                      << core::CContainerPrinter::print(samples));
             return false;
         }
         lowerBound = std::exp(-lowerBound);
@@ -1036,6 +1040,10 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
         for (std::size_t i = 0; i < samples.size(); ++i) {
             double x{samples[i]};
             weight[0] = weights[i];
+            if (CMathsFuncs::isNan(x) || CMathsFuncs::isNan(weight[0])) {
+                continue;
+            }
+
             if (hasSeasonalScale) {
                 x = mean + (x - mean) /
                                std::sqrt(maths_t::seasonalVarianceScale(weight[0]));
@@ -1045,11 +1053,11 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
             double fx;
             maths_t::EFloatingPointErrorStatus status =
                 this->jointLogMarginalLikelihood({x}, weight, fx);
-            if (status & maths_t::E_FpFailed) {
+            if ((status & maths_t::E_FpFailed) != 0) {
                 LOG_ERROR(<< "Unable to compute likelihood for " << x);
                 return false;
             }
-            if (status & maths_t::E_FpOverflowed) {
+            if ((status & maths_t::E_FpOverflowed) != 0) {
                 lowerBound = upperBound = 0.0;
                 return true;
             }
@@ -1071,8 +1079,8 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
             double sampleLowerBound{0.0};
             double sampleUpperBound{0.0};
 
-            double lb, ub;
-
+            double lb;
+            double ub;
             double xl;
             CEqualWithTolerance<double> lequal{CToleranceTypes::E_AbsoluteTolerance,
                                                EPS * a};
@@ -1112,7 +1120,9 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
         if (lowerBoundCalculator.calculate(lowerBound) == false ||
             upperBoundCalculator.calculate(upperBound) == false) {
             LOG_ERROR(<< "Couldn't compute probability of less likely samples:"
-                      << " " << lowerBoundCalculator << " " << upperBoundCalculator);
+                      << " " << lowerBoundCalculator << " " << upperBoundCalculator
+                      << " (samples = " << core::CContainerPrinter::print(samples)
+                      << ", weights = " << core::CContainerPrinter::print(weights) << ")");
             return false;
         }
         tail = static_cast<maths_t::ETail>(tail_);
@@ -1120,8 +1130,6 @@ bool CMultimodalPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalcu
 
     case maths_t::E_OneSidedAbove:
         if (this->minusLogJointCdfComplement(samples, weights, upperBound, lowerBound) == false) {
-            LOG_ERROR(<< "Failed computing probability of less likely samples: "
-                      << core::CContainerPrinter::print(samples));
             return false;
         }
         lowerBound = std::exp(-lowerBound);
@@ -1188,15 +1196,16 @@ std::size_t CMultimodalPrior::staticSize() const {
 }
 
 void CMultimodalPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(CLUSTERER_TAG, std::bind<void>(CClustererStateSerialiser(),
-                                                        std::cref(*m_Clusterer),
-                                                        std::placeholders::_1));
-    inserter.insertLevel(SEED_PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
-                                                         std::cref(*m_SeedPrior),
-                                                         std::placeholders::_1));
-    for (std::size_t i = 0; i < m_Modes.size(); ++i) {
-        inserter.insertLevel(MODE_TAG, std::bind(&TMode::acceptPersistInserter,
-                                                 &m_Modes[i], std::placeholders::_1));
+    inserter.insertLevel(CLUSTERER_TAG, [
+        this, serialiser = CClustererStateSerialiser{}
+    ](auto& inserter_) { serialiser(*m_Clusterer, inserter_); });
+    inserter.insertLevel(SEED_PRIOR_TAG, [
+        this, serialiser = CPriorStateSerialiser{}
+    ](auto& inserter_) { serialiser(*m_SeedPrior, inserter_); });
+    for (const auto& mode : m_Modes) {
+        inserter.insertLevel(MODE_TAG, [&mode](auto& inserter_) {
+            mode.acceptPersistInserter(inserter_);
+        });
     }
     inserter.insertValue(DECAY_RATE_TAG, this->decayRate(), core::CIEEE754::E_SinglePrecision);
     inserter.insertValue(NUMBER_SAMPLES_TAG, this->numberSamples(),
@@ -1280,11 +1289,17 @@ bool CMultimodalPrior::minusLogJointCdfImpl(CDF minusLogCdf,
     modeLowerBounds.reserve(m_Modes.size());
     modeUpperBounds.reserve(m_Modes.size());
 
+    bool success = false;
     try {
         double mean{maths_t::hasSeasonalVarianceScale(weights) ? this->marginalLikelihoodMean()
                                                                : 0.0};
 
         for (std::size_t i = 0; i < samples.size(); ++i) {
+            if (!CMathsFuncs::isFinite(samples[i]) || !CMathsFuncs::isFinite(weights[i])) {
+                continue;
+            }
+            success = true;
+
             double n{maths_t::count(weights[i])};
             double seasonalScale{std::sqrt(maths_t::seasonalVarianceScale(weights[i]))};
 
@@ -1310,8 +1325,6 @@ bool CMultimodalPrior::minusLogJointCdfImpl(CDF minusLogCdf,
                 double modeUpperBound;
                 if (minusLogCdf(mode.s_Prior, sample, weight, modeLowerBound,
                                 modeUpperBound) == false) {
-                    LOG_ERROR(<< "Unable to compute c.d.f. for "
-                              << core::CContainerPrinter::print(samples));
                     return false;
                 }
                 minLowerBound.add(modeLowerBound);
@@ -1348,10 +1361,15 @@ bool CMultimodalPrior::minusLogJointCdfImpl(CDF minusLogCdf,
         LOG_ERROR(<< "Failed to calculate c.d.f.: " << e.what());
         return false;
     }
+    if (!success) {
+        LOG_ERROR(<< "Unable to compute c.d.f. (samples = "
+                  << core::CContainerPrinter::print(samples)
+                  << ", weights = " << core::CContainerPrinter::print(weights) << ")");
+    }
 
     LOG_TRACE(<< "Joint -log(c.d.f.) = [" << lowerBound << "," << upperBound << "]");
 
-    return true;
+    return success;
 }
 
 std::string CMultimodalPrior::debugWeights() const {

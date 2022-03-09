@@ -167,6 +167,8 @@ void aggregateLayer(ITR beginLayer,
 //! that it is either the person or partition field of that node.
 class CCommonInfluencePropagator : public CHierarchicalResultsVisitor {
 public:
+    ~CCommonInfluencePropagator() override = default;
+
     void visit(const CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
         if (this->isLeaf(node)) {
             std::sort(node.s_AnnotatedProbability.s_Influences.begin(),
@@ -587,9 +589,6 @@ void CHierarchicalResults::postorderDepthFirst(const TNode* node,
         this->postorderDepthFirst(child, visitor);
     }
     visitor.visit(*this, *node, /*pivot =*/false);
-}
-
-CHierarchicalResultsVisitor::~CHierarchicalResultsVisitor() {
 }
 
 bool CHierarchicalResultsVisitor::isRoot(const TNode& node) {

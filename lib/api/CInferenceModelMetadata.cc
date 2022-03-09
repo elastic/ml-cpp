@@ -201,6 +201,20 @@ void CInferenceModelMetadata::writeTrainProperties(TRapidJsonWriter& writer) con
     }
 }
 
+void CInferenceModelMetadata::writeTrainParameters(TRapidJsonWriter& /*writer*/) const {
+    // TODO enable with Java changes.
+    // Only write out if it has been set.
+    //if (m_TrainingFractionPerFold > 0.0) {
+    //    writer.Key(JSON_TRAIN_PARAMETERS_TAG);
+    //    writer.StartObject();
+    //    writer.Key(JSON_NUM_TRAINING_ROWS_TAG);
+    //    writer.Uint64(m_NumberRowsUsedForTrain);
+    //    writer.Key(CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD);
+    //    writer.Double(m_TrainingFractionPerFold);
+    //    writer.EndObject();
+    //}
+}
+
 const std::string& CInferenceModelMetadata::typeString() {
     return JSON_MODEL_METADATA_TAG;
 }

@@ -28,7 +28,7 @@ cd `dirname $0`
 
 . ./prefetch_docker_image.sh
 CONTEXT=check_style_image
-prefetch_docker_image $CONTEXT/Dockerfile
+prefetch_docker_base_image $CONTEXT/Dockerfile
 docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT
 # Get a username and password for this by visiting
 # https://docker-auth.elastic.co and allowing it to authenticate against your

@@ -59,6 +59,7 @@ public:
     using TMakeTestForSeasonality =
         std::function<CTimeSeriesTestForSeasonality(const CExpandingWindow&,
                                                     core_t::TTime,
+                                                    std::size_t,
                                                     const TFilteredPredictor&)>;
     // clang-format on
 
@@ -525,7 +526,6 @@ public:
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(const common::SDistributionRestoreParams& params,
-                                    core_t::TTime lastValueTime,
                                     core::CStateRestoreTraverser& traverser);
 
         //! Persist state by passing information to \p inserter.
@@ -781,6 +781,7 @@ public:
                      std::size_t size,
                      double decayRate,
                      double bucketLength,
+                     core_t::TTime maxTimeShiftPerPeriod,
                      common::CSplineTypes::EBoundaryCondition boundaryCondition,
                      core_t::TTime startTime,
                      core_t::TTime endTime,

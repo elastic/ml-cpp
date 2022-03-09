@@ -60,6 +60,24 @@ double squareResidual(const T& params, const TDoubleVec& x, const TDoubleVec& y)
     }
     return result;
 }
+
+template<std::size_t N>
+class CRegressionPrediction {
+public:
+    using result_type = double;
+
+public:
+    CRegressionPrediction(const maths::common::CLeastSquaresOnlineRegression<N, double>& regression)
+        : m_Regression(regression) {}
+
+    bool operator()(double x, double& result) const {
+        result = m_Regression.predict(x);
+        return true;
+    }
+
+private:
+    maths::common::CLeastSquaresOnlineRegression<N, double> m_Regression;
+};
 }
 
 using TDoubleArray2 = std::array<double, 2>;
@@ -392,7 +410,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         LOG_DEBUG(<< "params(0) = " << core::CContainerPrinter::print(params));
 
         lastParams = params;
-        ls.age(exp(-0.01), true);
+        ls.age(exp(-0.01), 1.0);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.01) = " << core::CContainerPrinter::print(params));
         BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
@@ -401,7 +419,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         BOOST_TEST_REQUIRE(params[1] > 0.0);
 
         lastParams = params;
-        ls.age(exp(-0.49), true);
+        ls.age(exp(-0.49), 1.0);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.5) = " << core::CContainerPrinter::print(params));
         BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
@@ -410,7 +428,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         BOOST_TEST_REQUIRE(params[1] > 0.0);
 
         lastParams = params;
-        ls.age(exp(-0.5), true);
+        ls.age(exp(-0.5), 1.0);
         ls.parameters(params);
         LOG_DEBUG(<< "params(1.0) = " << core::CContainerPrinter::print(params));
         BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
@@ -419,7 +437,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         BOOST_TEST_REQUIRE(params[1] > 0.0);
 
         lastParams = params;
-        ls.age(exp(-4.0), true);
+        ls.age(exp(-4.0), 1.0);
         ls.parameters(params, ls.MAX_CONDITION);
         LOG_DEBUG(<< "params(5.0) = " << core::CContainerPrinter::print(params));
         BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
@@ -443,7 +461,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         LOG_DEBUG(<< "params(0) = " << core::CContainerPrinter::print(params));
 
         lastParams = params;
-        ls.age(exp(-0.01), true);
+        ls.age(exp(-0.01), 1.0);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.01) = " << core::CContainerPrinter::print(params));
         BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
@@ -454,7 +472,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         BOOST_TEST_REQUIRE(params[2] > 0.0);
 
         lastParams = params;
-        ls.age(exp(-0.49), true);
+        ls.age(exp(-0.49), 1.0);
         ls.parameters(params);
         LOG_DEBUG(<< "params(0.5) = " << core::CContainerPrinter::print(params));
         BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
@@ -465,7 +483,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         BOOST_TEST_REQUIRE(params[2] > 0.0);
 
         lastParams = params;
-        ls.age(exp(-0.5), true);
+        ls.age(exp(-0.5), 1.0);
         ls.parameters(params);
         LOG_DEBUG(<< "params(1.0) = " << core::CContainerPrinter::print(params));
         BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
@@ -476,7 +494,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         BOOST_TEST_REQUIRE(params[2] > 0.0);
 
         lastParams = params;
-        ls.age(exp(-4.0), true);
+        ls.age(exp(-4.0), 1.0);
         ls.parameters(params);
         LOG_DEBUG(<< "params(5.0) = " << core::CContainerPrinter::print(params));
         BOOST_TEST_REQUIRE(params[0] > lastParams[0]);
@@ -486,6 +504,51 @@ BOOST_AUTO_TEST_CASE(testAge) {
         BOOST_TEST_REQUIRE(params[2] < lastParams[0]);
         BOOST_TEST_REQUIRE(params[2] > 0.0);
     }
+}
+
+BOOST_AUTO_TEST_CASE(testR2) {
+
+    using TMeanVarAccumulator =
+        maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+
+    double pi = 3.14159265358979;
+
+    TMeanAccumulator m;
+    maths::common::CLeastSquaresOnlineRegression<1, double, true> ls1;
+    maths::common::CLeastSquaresOnlineRegression<2, double, true> ls2;
+
+    TMeanVarAccumulator yMoments;
+    for (std::size_t i = 0; i <= 400; ++i) {
+        double x = 0.002 * pi * static_cast<double>(i);
+        double y = std::sin(x);
+        ls1.add(x, y);
+        ls2.add(x, y);
+        yMoments.add(y);
+    }
+
+    double r1;
+    double r2;
+    ls1.r2(r1);
+    ls2.r2(r2);
+
+    TMeanVarAccumulator yMinusP1Moments;
+    TMeanVarAccumulator yMinusP2Moments;
+    for (std::size_t i = 0; i <= 400; ++i) {
+        double x = 0.002 * pi * static_cast<double>(i);
+        double y = std::sin(x);
+        yMinusP1Moments.add(y - ls1.predict(x));
+        yMinusP2Moments.add(y - ls2.predict(x));
+    }
+
+    double r1Expected{1.0 - maths::common::CBasicStatistics::variance(yMinusP1Moments) /
+                                maths::common::CBasicStatistics::variance(yMoments)};
+    double r2Expected{1.0 - maths::common::CBasicStatistics::variance(yMinusP2Moments) /
+                                maths::common::CBasicStatistics::variance(yMoments)};
+
+    LOG_DEBUG(<< "actual   r1 = " << r1 << ", r2 = " << r2);
+    LOG_DEBUG(<< "expected r1 = " << r1Expected << ", r2 = " << r2Expected);
+    BOOST_REQUIRE_CLOSE(r1Expected, r1, 0.001);
+    BOOST_REQUIRE_CLOSE(r2Expected, r2, 0.001);
 }
 
 BOOST_AUTO_TEST_CASE(testPrediction) {
@@ -775,24 +838,6 @@ BOOST_AUTO_TEST_CASE(testScale) {
                         core::CContainerPrinter::print(params3));
     BOOST_REQUIRE_EQUAL(maths::common::CBasicStatistics::count(regression3.statistic()), 5.0);
 }
-
-template<std::size_t N>
-class CRegressionPrediction {
-public:
-    using result_type = double;
-
-public:
-    CRegressionPrediction(const maths::common::CLeastSquaresOnlineRegression<N, double>& regression)
-        : m_Regression(regression) {}
-
-    bool operator()(double x, double& result) const {
-        result = m_Regression.predict(x);
-        return true;
-    }
-
-private:
-    maths::common::CLeastSquaresOnlineRegression<N, double> m_Regression;
-};
 
 BOOST_AUTO_TEST_CASE(testMean) {
     // Test that the mean agrees with the numeric integration

@@ -80,7 +80,11 @@ public:
                   const TWriteForecastResult& writer) override;
 
     //! Returns \p value.
-    double detrend(core_t::TTime time, double value, double confidence, int components = E_All) const override;
+    double detrend(core_t::TTime time,
+                   double value,
+                   double confidence,
+                   core_t::TTime maximumTimeShift = 0,
+                   int components = E_All) const override;
 
     //! Returns 0.0.
     double meanVariance() const override;

@@ -107,8 +107,9 @@ CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds,
 }
 
 CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CBayesianOptimisation::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore Bayesian optimisation"};
     }
 }

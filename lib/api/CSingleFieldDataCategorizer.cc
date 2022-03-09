@@ -184,8 +184,7 @@ bool CSingleFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTrav
         if (traverser.name() == CATEGORY_ID_MAPPER_TAG) {
             if (traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
                     return m_CategoryIdMapper->acceptRestoreTraverser(traverser_);
-                }) == false ||
-                traverser.haveBadState()) {
+                }) == false) {
                 LOG_ERROR(<< "Cannot restore category ID mapper, unexpected element: "
                           << traverser.value());
                 return false;

@@ -46,16 +46,6 @@ namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-double rightTailFTest(double v0, double v1, double df0, double df1) {
-    // If there is insufficient data for either hypothesis treat we are conservative
-    // and say the alternative hypothesis is not provable.
-    if (df0 <= 0.0 || df1 <= 0.0) {
-        return 1.0;
-    }
-    double F{v0 == v1 ? 1.0 : v0 / v1};
-    return common::CStatisticalTests::rightTailFTest(F, df0, df1);
-}
-
 bool almostDivisor(std::size_t i, std::size_t j, double eps) {
     if (i > j) {
         return false;
@@ -111,6 +101,10 @@ const std::string& CNewSeasonalComponentSummary::annotationText() const {
 
 std::size_t CNewSeasonalComponentSummary::size() const {
     return m_Size;
+}
+
+bool CNewSeasonalComponentSummary::isOneOf(int periods) const {
+    return (m_PeriodDescriptor & periods) != 0;
 }
 
 CNewSeasonalComponentSummary::TSeasonalTimeUPtr
@@ -172,6 +166,10 @@ core_t::TTime CNewSeasonalComponentSummary::initialValuesStartTime() const {
 core_t::TTime CNewSeasonalComponentSummary::initialValuesEndTime() const {
     return m_InitialValuesStartTime +
            static_cast<core_t::TTime>(m_InitialValues.size()) * m_BucketLength;
+}
+
+core_t::TTime CNewSeasonalComponentSummary::bucketLength() const {
+    return m_BucketLength;
 }
 
 const CNewSeasonalComponentSummary::TFloatMeanAccumulatorVec&
@@ -271,23 +269,29 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime value
     LOG_TRACE(<< "eps variance = " << m_EpsVariance);
 }
 
-bool CTimeSeriesTestForSeasonality::canTestComponent(const TFloatMeanAccumulatorVec& values,
-                                                     core_t::TTime bucketsStartTime,
-                                                     core_t::TTime bucketLength,
-                                                     core_t::TTime minimumPeriod,
-                                                     const CSeasonalTime& component) {
-    return 10 * (component.period() % bucketLength) < component.period() &&
-           canTestPeriod(values, buckets(bucketLength, minimumPeriod),
+bool CTimeSeriesTestForSeasonality::canTestModelledComponent(
+    const TFloatMeanAccumulatorVec& values,
+    core_t::TTime bucketsStartTime,
+    core_t::TTime bucketLength,
+    core_t::TTime minimumPeriod,
+    std::size_t minimumResolution,
+    const CSeasonalTime& component) {
+    std::size_t minimumPeriodInBuckets{
+        std::max(buckets(bucketLength, minimumPeriod), minimumResolution)};
+    return 100 * (component.period() % bucketLength) < component.period() &&
+           canTestPeriod(values, minimumPeriodInBuckets,
                          toPeriod(bucketsStartTime, bucketLength, component));
 }
 
 void CTimeSeriesTestForSeasonality::addModelledSeasonality(const CSeasonalTime& component,
+                                                           std::size_t minimumResolution,
                                                            std::size_t size) {
     auto period = toPeriod(m_BucketsStartTime, m_BucketLength, component);
     m_ModelledPeriods.push_back(period);
     m_ModelledPeriodsSizes.push_back(size);
-    m_ModelledPeriodsTestable.push_back(canTestComponent(
-        m_Values, m_BucketsStartTime, m_BucketLength, m_MinimumPeriod, component));
+    m_ModelledPeriodsTestable.push_back(
+        canTestModelledComponent(m_Values, m_BucketsStartTime, m_BucketLength,
+                                 m_MinimumPeriod, minimumResolution, component));
     if (period.windowed()) {
         m_StartOfWeekOverride = period.s_StartOfWeek;
         // We need the actual time in case it isn't a multiple of the bucket length
@@ -2100,8 +2104,8 @@ double CTimeSeriesTestForSeasonality::SModel::pValue(const SModel& H0,
     v1[1] += minimumRelativeTruncatedVariance * v1[0];
 
     return std::max(
-        std::min(rightTailFTest(v0[0] / df0[0], v1[0] / df1[0], df0[0], df1[0]),
-                 rightTailFTest(v0[1] / df0[1], v1[1] / df1[1], df0[1], df1[1])),
+        std::min(common::CStatisticalTests::rightTailFTest(v0[0], v1[0], df0[0], df1[0]),
+                 common::CStatisticalTests::rightTailFTest(v0[1], v1[1], df0[1], df1[1])),
         common::CTools::smallestProbability());
 }
 

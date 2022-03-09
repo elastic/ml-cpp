@@ -71,9 +71,10 @@ struct SMultimodalPriorMode {
         do {
             const std::string& name = traverser.name();
             RESTORE_BUILT_IN(INDEX_TAG, s_Index)
-            RESTORE(PRIOR_TAG, traverser.traverseSubLevel(std::bind<bool>(
-                                   CPriorStateSerialiser(), std::cref(params),
-                                   std::ref(s_Prior), std::placeholders::_1)))
+            RESTORE(PRIOR_TAG, traverser.traverseSubLevel(
+                                   [&, serializer = CPriorStateSerialiser{} ](auto& traverser_) {
+                                       return serializer(params, s_Prior, traverser_);
+                                   }))
         } while (traverser.next());
 
         this->checkRestoredInvariants();
@@ -90,9 +91,10 @@ struct SMultimodalPriorMode {
     //! Persist state by passing information to the supplied inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
         inserter.insertValue(INDEX_TAG, s_Index);
-        inserter.insertLevel(PRIOR_TAG, std::bind<void>(CPriorStateSerialiser(),
-                                                        std::cref(*s_Prior),
-                                                        std::placeholders::_1));
+        inserter.insertLevel(
+            PRIOR_TAG, [&, serializer = CPriorStateSerialiser{} ](auto& inserter_) {
+                serializer(*s_Prior, inserter_);
+            });
     }
 
     //! Full debug dump of the mode weights.

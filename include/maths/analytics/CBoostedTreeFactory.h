@@ -17,6 +17,7 @@
 #include <core/CNonCopyable.h>
 
 #include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/ImportExport.h>
 
@@ -113,6 +114,8 @@ public:
     //! Set the class weights used for assigning labels to classes from the
     //! predicted probabilities.
     CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
+    //! Set the column containing the row weights to use for training.
+    CBoostedTreeFactory& rowWeightColumnName(std::string columnName);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of initial rows to use as a holdout set for evaluation.
@@ -154,6 +157,8 @@ public:
     CBoostedTreeFactory& etaGrowthRatePerTree(TDoubleVec growthRate);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTreeFactory& maximumNumberTrees(std::size_t maximumNumberTrees);
+    //! Set the maximum supported size for deploying a model.
+    CBoostedTreeFactory& maximumDeployedSize(std::size_t maximumDeployedSize);
     //! Set the fraction of features we'll use in the bag to build a tree.
     CBoostedTreeFactory& featureBagFraction(TDoubleVec fraction);
     //! Set the relative weight to assign changing old predictions in the loss
@@ -374,6 +379,7 @@ private:
     double m_TotalCurvaturePerNode1stPercentile{0.0};
     double m_TotalCurvaturePerNode90thPercentile{0.0};
     std::size_t m_NumberThreads{1};
+    std::string m_RowWeightColumnName;
     TBoostedTreeImplUPtr m_TreeImpl;
     mutable std::size_t m_PaddedExtraColumns{0};
     TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};

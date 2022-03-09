@@ -401,6 +401,17 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 
 void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) const {
 
+    std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
+    const auto& columnNames = frame.columnNames();
+    if (m_RowWeightColumnName.empty() == false) {
+        auto column = std::find(columnNames.begin(), columnNames.end(), m_RowWeightColumnName);
+        if (column == columnNames.end()) {
+            HANDLE_FATAL(<< "Input error: unrecognised row weight field name '"
+                         << m_RowWeightColumnName << "'.");
+        }
+        rowWeightColumn = static_cast<std::size_t>(column - columnNames.begin());
+    }
+
     // Extend the frame with the bookkeeping columns used in train.
     std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
     TSizeVec extraColumns;
@@ -409,23 +420,16 @@ void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) cons
     std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumnsForTrain(numberLossParameters));
     auto extraColumnTags = extraColumnTagsForTrain();
-    m_TreeImpl->m_ExtraColumns.resize(E_NumberExtraColumnTags);
-    for (std::size_t i = 0; i < extraColumnTags.size(); ++i) {
+    m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
+    for (std::size_t i = 0; i < extraColumns.size(); ++i) {
         m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
     }
+    m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
     m_PaddedExtraColumns += paddedExtraColumns;
+
     std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
     m_TreeImpl->m_Instrumentation->flush();
-
-    core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
-    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
-                           }
-                       },
-                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& frame) const {
@@ -440,7 +444,7 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
     std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumnsForIncrementalTrain(numberLossParameters));
     auto extraColumnTags = extraColumnTagsForIncrementalTrain();
-    for (std::size_t i = 0; i < extraColumnTags.size(); ++i) {
+    for (std::size_t i = 0; i < extraColumns.size(); ++i) {
         m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
     }
     m_PaddedExtraColumns += paddedExtraColumns;
@@ -532,6 +536,11 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(core::CDataFrame& fr
     TSizeVec regressors(frame.numberColumns() - m_PaddedExtraColumns);
     std::iota(regressors.begin(), regressors.end(), 0);
     regressors.erase(regressors.begin() + m_TreeImpl->m_DependentVariable);
+    auto weightColumn = std::find(regressors.begin(), regressors.end(),
+                                  m_TreeImpl->m_ExtraColumns[E_Weight]);
+    if (weightColumn != regressors.end()) {
+        regressors.erase(weightColumn);
+    }
     std::size_t numberTrainingRows{
         static_cast<std::size_t>(m_TreeImpl->allTrainingRowsMask().manhattan())};
     LOG_TRACE(<< "candidate regressors = " << core::CContainerPrinter::print(regressors));
@@ -1224,6 +1233,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::classificationWeights(TStrDoublePrVec 
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::rowWeightColumnName(std::string column) {
+    m_RowWeightColumnName = std::move(column);
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::minimumFrequencyToOneHotEncode(double frequency) {
     if (frequency >= 1.0) {
         LOG_WARN(<< "Frequency to one-hot encode must be less than one");
@@ -1438,6 +1452,16 @@ CBoostedTreeFactory& CBoostedTreeFactory::predictionChangeCost(TDoubleVec cost) 
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::maximumDeployedSize(std::size_t maximumDeployedSize) {
+    // We don't have any validation of this because we don't have a plausible
+    // smallest value. Clearly if it is too small we won't be able to produce
+    // a sensible model, but it is not expected that this will be set by the
+    // user and is instead a function of the inference code and is set
+    // programatically.
+    m_TreeImpl->m_MaximumDeployedSize = maximumDeployedSize;
+    return *this;
+}
+
 CBoostedTreeFactory&
 CBoostedTreeFactory::maximumOptimisationRoundsPerHyperparameter(std::size_t rounds) {
     m_TreeImpl->m_Hyperparameters.maximumOptimisationRoundsPerHyperparameter(rounds);
@@ -1554,10 +1578,8 @@ std::size_t CBoostedTreeFactory::estimatedExtraColumnsForTrain(std::size_t numbe
     //   1. The predicted values for the dependent variable
     //   2. The gradient of the loss function
     //   3. The upper triangle of the hessian of the loss function
-    //   4. The example's weight
-    //   5. The example's splits packed into uint8_t
-    return numberLossParameters * (numberLossParameters + 5) / 2 + 1 +
-           (numberColumns + 2) / 4;
+    //   4. The example's splits packed into uint8_t
+    return numberLossParameters * (numberLossParameters + 5) / 2 + (numberColumns + 2) / 4;
 }
 
 void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {
@@ -1676,6 +1698,7 @@ const std::string GAIN_PER_NODE_1ST_PERCENTILE_TAG{"gain_per_node_1st_percentile
 const std::string GAIN_PER_NODE_50TH_PERCENTILE_TAG{"gain_per_node_50th_percentile"};
 const std::string GAIN_PER_NODE_90TH_PERCENTILE_TAG{"gain_per_node_90th_percentile"};
 const std::string INITIALIZATION_CHECKPOINT_TAG{"initialization_checkpoint"};
+const std::string ROW_WEIGHT_COLUMN_NAME_TAG{"row_weight_column_name"};
 const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
 const std::string TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG{"total_curvature_per_node_90th_percentile"};
 const std::string TREE_TAG{"tree"};
@@ -1692,6 +1715,8 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
                                      m_GainPerNode50thPercentile, inserter);
         core::CPersistUtils::persist(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
                                      m_GainPerNode90thPercentile, inserter);
+        core::CPersistUtils::persist(ROW_WEIGHT_COLUMN_NAME_TAG,
+                                     m_RowWeightColumnName, inserter);
         core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
                                      m_TotalCurvaturePerNode1stPercentile, inserter);
         core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
@@ -1725,6 +1750,9 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                                 core::CPersistUtils::restore(
                                     GAIN_PER_NODE_90TH_PERCENTILE_TAG,
                                     m_GainPerNode90thPercentile, traverser))
+                        RESTORE(ROW_WEIGHT_COLUMN_NAME_TAG,
+                                core::CPersistUtils::restore(ROW_WEIGHT_COLUMN_NAME_TAG,
+                                                             m_RowWeightColumnName, traverser))
                         RESTORE(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
                                 core::CPersistUtils::restore(
                                     TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,

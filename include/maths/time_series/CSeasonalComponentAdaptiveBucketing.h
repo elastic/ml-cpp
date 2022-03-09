@@ -63,7 +63,7 @@ public:
                                         core::CStateRestoreTraverser& traverser);
 
     //! Copy from \p rhs.
-    const CSeasonalComponentAdaptiveBucketing&
+    CSeasonalComponentAdaptiveBucketing&
     operator=(const CSeasonalComponentAdaptiveBucketing& rhs);
 
     //! Persist by passing information to the supplied inserter.

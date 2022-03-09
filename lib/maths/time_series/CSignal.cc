@@ -825,10 +825,10 @@ double CSignal::nestedDecompositionPValue(const SVarianceStats& H0,
                 H1.s_DegreesFreedom};
 
     // This assumes that H1 is nested in H0.
-    double F[]{(df[1] * std::max(v0[0] - v1[0], 0.0)) / (df[0] * v1[0]),
-               (df[1] * std::max(v0[1] - v1[1], 0.0)) / (df[0] * v1[1])};
-    return std::min(common::CStatisticalTests::rightTailFTest(F[0], df[0], df[1]),
-                    common::CStatisticalTests::rightTailFTest(F[1], df[0], df[1]));
+    return std::min(common::CStatisticalTests::rightTailFTest(
+                        std::max(v0[0] - v1[0], 0.0), v1[0], df[0], df[1]),
+                    common::CStatisticalTests::rightTailFTest(
+                        std::max(v0[1] - v1[1], 0.0), v1[1], df[0], df[1]));
 }
 
 std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
@@ -908,16 +908,14 @@ std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
                       << core::CContainerPrinter::print(degreesFreedom));
             LOG_TRACE(<< "variances = " << core::CContainerPrinter::print(variances));
 
-            if ((variances[H0] > 0.0 && variances[1 - H0] == 0.0) ||
-                common::CStatisticalTests::rightTailFTest(
-                    variances[H0] == variances[1 - H0] ? 1.0 : variances[H0] / variances[1 - H0],
-                    degreesFreedom[H0], degreesFreedom[1 - H0]) < 0.1) {
+            if (common::CStatisticalTests::rightTailFTest(
+                    variances[H0], variances[1 - H0], degreesFreedom[H0],
+                    degreesFreedom[1 - H0]) < 0.1) {
                 break;
             }
-            if ((variances[1 - H0] > 0.0 && variances[H0] == 0.0) ||
-                common::CStatisticalTests::rightTailFTest(
-                    variances[1 - H0] == variances[H0] ? 1.0 : variances[1 - H0] / variances[H0],
-                    degreesFreedom[1 - H0], degreesFreedom[H0]) < 0.1) {
+            if (common::CStatisticalTests::rightTailFTest(
+                    variances[1 - H0], variances[H0], degreesFreedom[1 - H0],
+                    degreesFreedom[H0]) < 0.1) {
                 H0 = 1 - H0;
             }
             size = compressedComponent.size();
