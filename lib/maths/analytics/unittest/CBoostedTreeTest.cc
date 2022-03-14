@@ -879,7 +879,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
         target, noiseVariance / static_cast<double>(rows));
     LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
 
-    BOOST_TEST_REQUIRE(rSquared > 0.97);
+    BOOST_TEST_REQUIRE(rSquared > 0.96);
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -1355,7 +1355,7 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.082);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.96);
 }
 
 BOOST_AUTO_TEST_CASE(testSingleSplit) {
