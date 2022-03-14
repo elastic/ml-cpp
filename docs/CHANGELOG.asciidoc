@@ -40,6 +40,8 @@
 * Support user defined example weights when training classification and
   regression models. (See {ml-pull}2222[#2222].)
 * Reduce worst case bucket processing time for anomaly detection. (See {ml-pull}2225[#2225].)
+* Improve handling of low cardinality features for training classification
+  and regression models. (See {ml-pull}2229[#2229].)
 
 === Bug Fixes
 
