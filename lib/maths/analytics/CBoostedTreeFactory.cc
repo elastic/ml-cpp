@@ -119,6 +119,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->determineFeatureDataTypes(frame); });
 
+    bool initializeHyperparameters{this->initializeFeatureSampleDistribution()};
     this->initializeSplitsCache(frame);
 
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
@@ -127,7 +128,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
 
     this->startProgressMonitoringInitializeHyperparameters(frame);
 
-    if (this->initializeFeatureSampleDistribution()) {
+    if (initializeHyperparameters) {
         this->initializeHyperparameters(frame);
         this->initializeHyperparameterOptimisation();
     }
@@ -444,6 +445,7 @@ void CBoostedTreeFactory::initializeSplitsCache(core::CDataFrame& frame) const {
     std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
     m_TreeImpl->m_Instrumentation->flush();
+    m_TreeImpl->initializeFixedCandidateSplits(frame);
 }
 
 void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {

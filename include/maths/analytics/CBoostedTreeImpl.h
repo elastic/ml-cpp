@@ -170,6 +170,7 @@ public:
     //@}
 
 private:
+    using TBoolVec = std::vector<bool>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
     using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
@@ -241,6 +242,10 @@ private:
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
 
+    //! Set the candidate splits for low cardinality features which remain
+    //! fixed for the duration of training.
+    void initializeFixedCandidateSplits(core::CDataFrame& frame);
+
     //! Get the candidate splits values for each feature.
     TFloatVecVec candidateSplits(const core::CDataFrame& frame,
                                  const core::CPackedBitVector& trainingRowMask) const;
@@ -248,6 +253,7 @@ private:
     //! Updates the row's cached splits if the candidate splits have changed.
     void refreshSplitsCache(core::CDataFrame& frame,
                             const TFloatVecVec& candidateSplits,
+                            const TBoolVec& featureMask,
                             const core::CPackedBitVector& trainingRowMask) const;
 
     //! Train one tree on the rows of \p frame in the mask \p trainingRowMask.
@@ -411,6 +417,7 @@ private:
     TDataFrameCategoryEncoderUPtr m_Encoder;
     TDataTypeVec m_FeatureDataTypes;
     TDoubleVec m_FeatureSampleProbabilities;
+    TFloatVecVec m_FixedCandidateSplits;
     TPackedBitVectorVec m_MissingFeatureRowMasks;
     TPackedBitVectorVec m_TrainingRowMasks;
     TPackedBitVectorVec m_TestingRowMasks;
