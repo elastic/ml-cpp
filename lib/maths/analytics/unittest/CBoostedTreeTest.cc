@@ -820,6 +820,68 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
     BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.75 * (1.0 - rSquaredWithoutWeights));
 }
 
+BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
+
+    // Test a linear model with low cardinality features.
+
+    std::size_t trainRows{500};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+    double noiseVariance{9.0};
+    std::size_t cols{6};
+
+    test::CRandomNumbers rng;
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-2.0, 2.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+    for (auto& ni : noise) {
+        ni = std::floor(ni + 0.5);
+    }
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+    for (std::size_t i = 0; i < (cols - 1) / 2 + 1; ++i) {
+        for (auto& xj : x[i]) {
+            xj = std::floor(xj + 0.5);
+        }
+    }
+
+    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
+
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .buildFor(*frame, cols - 1);
+
+    regression->train();
+    regression->predict();
+
+    double bias;
+    double rSquared;
+    std::tie(bias, rSquared) = computeEvaluationMetrics(
+        *frame, trainRows, rows,
+        [&](const TRowRef& row) { return regression->readPrediction(row)[0]; },
+        target, noiseVariance / static_cast<double>(rows));
+    LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
+
+    BOOST_TEST_REQUIRE(rSquared > 0.96);
+}
+
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
 
     // Test regression using a very low train fraction per fold. This should
@@ -1293,7 +1355,7 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.082);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.96);
 }
 
 BOOST_AUTO_TEST_CASE(testSingleSplit) {
