@@ -48,8 +48,8 @@ using TComplexVec = std::vector<TComplex>;
 using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-constexpr double LOG_TWO{0.6931471805599453};
-constexpr double LOG_SIXTEEN{2.772588722239781};
+constexpr double LOG_SMALL_OUTLIER_SCALE{0.6931471805599453};
+constexpr double LOG_LARGE_OUTLIER_SCALE{2.772588722239781};
 
 //! Scale \p f by \p scale.
 void scale(double scale, TComplexVec& f) {
@@ -666,6 +666,55 @@ void CSignal::fitSeasonalComponentsRobust(const TSeasonalComponentVec& periods,
     }
 }
 
+void CSignal::removeExtremeOutliers(double fraction, TFloatMeanAccumulatorVec& values) {
+
+    using TMaxAccumulator =
+        common::CBasicStatistics::SMax<std::pair<double, std::size_t>>::TAccumulator;
+    using TMinMaxAccumulator = common::CBasicStatistics::CMinMax<double>;
+
+    std::size_t windowLength{static_cast<std::size_t>(
+        fraction * static_cast<double>(countNotMissing(values)) + 0.5)};
+
+    TMaxAccumulator outliers;
+    for (std::size_t i = windowLength; i < values.size(); ++i) {
+
+        TMinMaxAccumulator minmax;
+        for (std::size_t j = 0; j + windowLength < i; ++j) {
+            minmax.add(common::CBasicStatistics::mean(values[j]),
+                       static_cast<std::size_t>(
+                           std::ceil(common::CBasicStatistics::mean(values[j]))));
+        }
+        for (std::size_t j = i; j < values.size(); ++j) {
+            minmax.add(common::CBasicStatistics::mean(values[j]),
+                       static_cast<std::size_t>(
+                           std::ceil(common::CBasicStatistics::mean(values[j]))));
+        }
+
+        if (minmax.initialized()) {
+            TMeanAccumulator level;
+            for (std::size_t j = i - windowLength; j < i; ++j) {
+                level.add(common::CBasicStatistics::mean(values[j]),
+                          common::CBasicStatistics::count(values[j]));
+            }
+            if (common::CBasicStatistics::count(level) > 0.0) {
+                double x{common::CBasicStatistics::mean(level)};
+                outliers.add({(std::max(minmax.min() - x, std::max(x - minmax.max(), 0.0))) /
+                                  minmax.range(),
+                              i});
+            }
+        }
+    }
+
+    if (outliers.count() > 0) {
+        auto[size, position] = outliers[0];
+        if (size > std::exp(LOG_LARGE_OUTLIER_SCALE)) {
+            for (std::size_t i = position - windowLength; i < position; ++i) {
+                values[i] = TMeanAccumulator{};
+            }
+        }
+    }
+}
+
 bool CSignal::reweightOutliers(const TSeasonalComponentVec& periods,
                                const TMeanAccumulatorVecVec& components,
                                double fraction,
@@ -731,10 +780,11 @@ bool CSignal::reweightOutliers(const TIndexPredictor& predictor,
     double logThreshold{std::log(threshold)};
     for (const auto& outlier : outliers) {
         double logDifference{std::log(outlier.first)};
-        double weight{common::CTools::linearlyInterpolate(logThreshold - LOG_TWO, logThreshold,
-                                                          1.0, 0.1, logDifference) *
-                      common::CTools::linearlyInterpolate(logThreshold, logThreshold + LOG_SIXTEEN,
-                                                          1.0, 0.1, logDifference)};
+        double weight{
+            common::CTools::linearlyInterpolate(logThreshold - LOG_SMALL_OUTLIER_SCALE,
+                                                logThreshold, 1.0, 0.1, logDifference) *
+            common::CTools::linearlyInterpolate(logThreshold, logThreshold + LOG_LARGE_OUTLIER_SCALE,
+                                                1.0, 0.1, logDifference)};
         common::CBasicStatistics::count(values[outlier.second]) *= weight;
         result |= (weight < 1.0);
     }

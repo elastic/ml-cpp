@@ -246,7 +246,7 @@ public:
     void modelledSeasonalityPredictor(const TPredictor& predictor);
 
     //! Fit and remove any seasonality we're modelling and can't test.
-    void fitAndRemoveUntestableModelledComponents();
+    void prepareWindowForDecompose();
 
     //! Check invariants which are relied on to hold.
     bool checkInvariants() const;
@@ -479,7 +479,7 @@ private:
                                                        removeComponentsMask)} {}
 
         //! Does this include seasonality?
-        bool seasonal() const { return s_Hypotheses.size() > 0; }
+        bool seasonal() const { return s_Hypotheses.empty() == false; }
         //! True if every seasonal component could be tested.
         bool isTestable() const;
         //! Should this behave as a null hypothesis?
@@ -564,7 +564,7 @@ private:
     std::size_t similarModelled(const TSeasonalComponent& period) const;
     void removeModelledPredictions(const TBoolVec& componentsToRemoveMask,
                                    TFloatMeanAccumulatorVec& values) const;
-    void removeDiscontinuities(const TSizeVec& modelTrendSegments,
+    void removeDiscontinuities(const TSizeVec& trendSegments,
                                TFloatMeanAccumulatorVec& values) const;
     bool constantScale(const TConstantScale& scale,
                        const TSeasonalComponentVec& periods,
