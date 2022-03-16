@@ -42,6 +42,8 @@
 * Reduce worst case bucket processing time for anomaly detection. (See {ml-pull}2225[#2225].)
 * Improve handling of low cardinality features for training classification
   and regression models. (See {ml-pull}2229[#2229].)
+* Improve handling of extremely large outliers in time series modelling.
+  (See {ml-pull}2230[#2230].)
 
 === Bug Fixes
 
