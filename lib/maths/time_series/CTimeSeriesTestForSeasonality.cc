@@ -1427,8 +1427,8 @@ void CTimeSeriesTestForSeasonality::removeDiscontinuities(const TSizeVec& trendS
                                                           TFloatMeanAccumulatorVec& values) const {
     if (trendSegments.size() > 2) {
         // Ignore short segments since they often fit outliers.
-        std::size_t minimumSegmentLength{static_cast<std::size_t>(
-            m_OutlierFraction * static_cast<double>(CSignal::countNotMissing(values)) + 0.5)};
+        std::size_t minimumSegmentLength{static_cast<std::size_t>(std::ceil(
+            m_OutlierFraction * static_cast<double>(CSignal::countNotMissing(values)) / 2.0))};
         for (std::size_t i = 1; i < trendSegments.size(); ++i) {
             if (trendSegments[i] - trendSegments[i - 1] < minimumSegmentLength) {
                 for (std::size_t j = trendSegments[i - 1]; j < trendSegments[i]; ++j) {
@@ -1449,8 +1449,8 @@ bool CTimeSeriesTestForSeasonality::constantScale(const TConstantScale& scale,
                                                   TDoubleVec& scales) const {
     if (scaleSegments.size() > 2) {
         // Ignore short segments since they often fit outliers.
-        std::size_t minimumSegmentLength{static_cast<std::size_t>(
-            m_OutlierFraction * static_cast<double>(CSignal::countNotMissing(values)) + 0.5)};
+        std::size_t minimumSegmentLength{static_cast<std::size_t>(std::ceil(
+            m_OutlierFraction * static_cast<double>(CSignal::countNotMissing(values)) / 2.0))};
         for (std::size_t i = 1; i < scaleSegments.size(); ++i) {
             if (scaleSegments[i] - scaleSegments[i - 1] < minimumSegmentLength) {
                 for (std::size_t j = scaleSegments[i - 1]; j < scaleSegments[i]; ++j) {
