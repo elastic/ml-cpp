@@ -20,6 +20,7 @@
 #include <maths/common/CLeastSquaresOnlineRegression.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CStatisticalTests.h>
+#include <maths/common/CTools.h>
 
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 
@@ -668,48 +669,67 @@ void CSignal::fitSeasonalComponentsRobust(const TSeasonalComponentVec& periods,
 
 void CSignal::removeExtremeOutliers(double fraction, TFloatMeanAccumulatorVec& values) {
 
+    using TMinAccumulator =
+        common::CBasicStatistics::SMin<std::pair<double, std::size_t>>::TAccumulator;
     using TMaxAccumulator =
         common::CBasicStatistics::SMax<std::pair<double, std::size_t>>::TAccumulator;
     using TMinMaxAccumulator = common::CBasicStatistics::CMinMax<double>;
 
     std::size_t windowLength{static_cast<std::size_t>(
-        fraction * static_cast<double>(countNotMissing(values)) + 0.5)};
+        std::ceil(common::CTools::truncate(fraction, 0.0, 1.0) *
+                  static_cast<double>(countNotMissing(values))))};
+    if (windowLength == 0 || windowLength == values.size()) {
+        return;
+    }
+
+    TMinAccumulator min;
+    TMaxAccumulator max;
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        double x{common::CBasicStatistics::mean(values[i])};
+        std::size_t n{static_cast<std::size_t>(
+            std::ceil(common::CBasicStatistics::count(values[i])))};
+        min.add({x, i}, n);
+        max.add({x, i}, n);
+    }
 
     TMaxAccumulator outliers;
-    for (std::size_t i = windowLength; i < values.size(); ++i) {
+    for (auto i : {min[0].second, max[0].second}) {
+        std::size_t end{std::min(i + windowLength, values.size())};
+        for (std::size_t j = i; j < end; ++j) {
 
-        TMinMaxAccumulator minmax;
-        for (std::size_t j = 0; j + windowLength < i; ++j) {
-            minmax.add(common::CBasicStatistics::mean(values[j]),
-                       static_cast<std::size_t>(
-                           std::ceil(common::CBasicStatistics::mean(values[j]))));
-        }
-        for (std::size_t j = i; j < values.size(); ++j) {
-            minmax.add(common::CBasicStatistics::mean(values[j]),
-                       static_cast<std::size_t>(
-                           std::ceil(common::CBasicStatistics::mean(values[j]))));
-        }
-
-        if (minmax.initialized()) {
-            TMeanAccumulator level;
-            for (std::size_t j = i - windowLength; j < i; ++j) {
-                level.add(common::CBasicStatistics::mean(values[j]),
-                          common::CBasicStatistics::count(values[j]));
+            TMinMaxAccumulator minmax;
+            for (std::size_t k = 0; k + windowLength <= j; ++k) {
+                minmax.add(common::CBasicStatistics::mean(values[k]),
+                           static_cast<std::size_t>(std::ceil(
+                               common::CBasicStatistics::mean(values[k]))));
             }
-            if (common::CBasicStatistics::count(level) > 0.0) {
-                double x{common::CBasicStatistics::mean(level)};
-                outliers.add({(std::max(minmax.min() - x, std::max(x - minmax.max(), 0.0))) /
-                                  minmax.range(),
-                              i});
+            for (std::size_t k = j + 1; k < values.size(); ++k) {
+                minmax.add(common::CBasicStatistics::mean(values[k]),
+                           static_cast<std::size_t>(std::ceil(
+                               common::CBasicStatistics::mean(values[k]))));
+            }
+
+            if (minmax.initialized()) {
+                TMeanAccumulator level;
+                for (std::size_t k = j - std::min(windowLength - 1, j); k <= j; ++k) {
+                    level.add(common::CBasicStatistics::mean(values[k]),
+                              common::CBasicStatistics::count(values[k]));
+                }
+                if (common::CBasicStatistics::count(level) > 0.0) {
+                    double x{common::CBasicStatistics::mean(level)};
+                    double difference{
+                        (std::max(minmax.min() - x, std::max(x - minmax.max(), 0.0)))};
+                    outliers.add({difference / minmax.range(), j});
+                }
             }
         }
     }
 
     if (outliers.count() > 0) {
-        auto[size, position] = outliers[0];
+        auto[size, i] = outliers[0];
         if (size > std::exp(LOG_LARGE_OUTLIER_SCALE)) {
-            for (std::size_t i = position - windowLength; i < position; ++i) {
-                values[i] = TMeanAccumulator{};
+            for (std::size_t j = i - std::min(windowLength - 1, i); j <= i; ++j) {
+                values[j] = TMeanAccumulator{};
             }
         }
     }
