@@ -1173,7 +1173,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
                 auto seasonalityTest = makeTest(*window, minimumPeriod,
                                                 minimumResolutionToTestModelledComponent,
                                                 makePreconditioner());
-                seasonalityTest.fitAndRemoveUntestableModelledComponents();
+                seasonalityTest.prepareWindowForDecompose();
 
                 auto decomposition = seasonalityTest.decompose();
                 if (decomposition.componentsChanged()) {
@@ -1555,7 +1555,7 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(double decayRate,
 }
 
 CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& other)
-    : CHandler{}, m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
+    : m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
       m_BucketLength{other.m_BucketLength}, m_GainController{other.m_GainController},
       m_SeasonalComponentSize{other.m_SeasonalComponentSize},
       m_CalendarComponentSize{other.m_CalendarComponentSize}, m_Trend{other.m_Trend},
@@ -2378,7 +2378,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CGainController::seed(const TD
 
 void CTimeSeriesDecompositionDetail::CComponents::CGainController::add(core_t::TTime time,
                                                                        const TDoubleVec& predictions) {
-    if (predictions.size() > 0) {
+    if (predictions.empty() == false) {
         m_MeanSumAmplitudes.add(std::accumulate(
             predictions.begin(), predictions.end(), 0.0, [](double sum, double prediction) {
                 return sum + std::fabs(prediction);
