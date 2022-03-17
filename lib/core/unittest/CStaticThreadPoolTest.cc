@@ -212,11 +212,13 @@ BOOST_AUTO_TEST_CASE(testNumberThreadsInUse) {
     // Start a threadpool then change the number of threads and check we aren't
     // getting execution on more than the specified number of distinct threads.
 
+    using TThreadIdUSet = boost::unordered_set<std::thread::id, std::hash<std::thread::id>>;
+
     core::CStaticThreadPool pool{8};
 
     std::mutex mutex;
     std::size_t numberProcessedTasks{0};
-    boost::unordered_set<std::thread::id> executionThreads;
+    TThreadIdUSet executionThreads;
 
     for (std::size_t numberThreadsInUse : {5, 6, 2}) {
 
