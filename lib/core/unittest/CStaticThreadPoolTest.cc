@@ -18,7 +18,9 @@
 
 #include <atomic>
 #include <chrono>
+#include <mutex>
 #include <thread>
+#include <unordered_set>
 
 BOOST_AUTO_TEST_SUITE(CStaticThreadPoolTest)
 
@@ -72,7 +74,7 @@ BOOST_AUTO_TEST_CASE(testScheduleDelayMinimisation) {
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
         //BOOST_TEST_REQUIRE(timeToSchedule <= 1);
     }
-    BOOST_REQUIRE_EQUAL(200u, counter.load());
+    BOOST_REQUIRE_EQUAL(200, counter.load());
 }
 
 BOOST_AUTO_TEST_CASE(testThroughputStability) {
@@ -108,11 +110,11 @@ BOOST_AUTO_TEST_CASE(testThroughputStability) {
 
         uint64_t timeToSchedule{watch.stop()};
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
-        //BOOST_TEST_REQUIRE(timeToSchedule >= 330);
+        //BOOST_TEST_REQUIRE(timeToSchedule >= 300);
         //BOOST_TEST_REQUIRE(timeToSchedule <= 350);
     }
 
-    BOOST_REQUIRE_EQUAL(2000u, counter.load());
+    BOOST_REQUIRE_EQUAL(2000, counter.load());
 
     // The best we can achieve is 2000ms ignoring all overheads.
     std::uint64_t totalTime{totalTimeWatch.stop()};
@@ -148,7 +150,7 @@ BOOST_AUTO_TEST_CASE(testManyTasksThroughput) {
         }
     }
 
-    BOOST_REQUIRE_EQUAL(10000u, counter.load());
+    BOOST_REQUIRE_EQUAL(10000, counter.load());
 
     // We have 1400ms of delays so the best we can achieve here is 700ms elapsed.
     std::uint64_t totalTime{watch.stop()};
@@ -202,7 +204,43 @@ BOOST_AUTO_TEST_CASE(testWithExceptions) {
     }
 
     // We didn't lose any real tasks.
-    BOOST_REQUIRE_EQUAL(200u, counter.load());
+    BOOST_REQUIRE_EQUAL(200, counter.load());
+}
+
+BOOST_AUTO_TEST_CASE(testNumberThreadsInUse) {
+
+    // Start a threadpool then change the number of threads and check we aren't
+    // getting execution on more than the specified number of distinct threads.
+
+    core::CStaticThreadPool pool{8};
+
+    std::mutex mutex;
+    std::size_t numberProcessedTasks{0};
+    std::unordered_set<std::thread::id> executionThreads;
+
+    for (std::size_t numberThreadsInUse : {5, 6, 2}) {
+
+        pool.numberThreadsInUse(numberThreadsInUse);
+
+        for (std::size_t i = 0; i < 200; ++i) {
+            pool.schedule([&] {
+                std::scoped_lock<std::mutex> lock{mutex};
+                ++numberProcessedTasks;
+                executionThreads.insert(std::this_thread::get_id());
+            });
+        }
+
+        for (;;) {
+            std::scoped_lock<std::mutex> lock{mutex};
+            if (numberProcessedTasks == 200) {
+                LOG_DEBUG(<< "# threads used = " << executionThreads.size());
+                numberProcessedTasks = 0;
+                executionThreads.clear();
+                BOOST_REQUIRE_EQUAL(numberThreadsInUse, executionThreads.size());
+                break;
+            }
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

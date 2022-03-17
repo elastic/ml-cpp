@@ -25,6 +25,7 @@ std::size_t computeSize(std::size_t hint) {
 
 CStaticThreadPool::CStaticThreadPool(std::size_t size)
     : m_Busy{false}, m_Cursor{0}, m_TaskQueues{computeSize(size)} {
+    m_NumberThreadsInUse.store(m_TaskQueues.size());
     m_Pool.reserve(m_TaskQueues.size());
     for (std::size_t id = 0; id < m_TaskQueues.size(); ++id) {
         try {
@@ -40,9 +41,14 @@ CStaticThreadPool::~CStaticThreadPool() {
     this->shutdown();
 }
 
+void CStaticThreadPool::numberThreadsInUse(std::size_t threads) {
+    threads = std::max(std::min(threads, m_Pool.size()), 1UL);
+    m_NumberThreadsInUse.store(threads);
+}
+
 void CStaticThreadPool::schedule(TTask&& task_) {
     // Only block if every queue is full.
-    std::size_t size{m_TaskQueues.size()};
+    std::size_t size{m_NumberThreadsInUse.load()};
     std::size_t i{m_Cursor.load()};
     std::size_t end{i + size};
     CWrappedTask task{std::forward<TTask>(task_)};
@@ -72,8 +78,8 @@ bool CStaticThreadPool::busy() const {
     return m_Busy.load();
 }
 
-void CStaticThreadPool::busy(bool value) {
-    m_Busy.store(value);
+void CStaticThreadPool::busy(bool busy) {
+    m_Busy.store(busy);
 }
 
 void CStaticThreadPool::shutdown() {
@@ -105,7 +111,6 @@ void CStaticThreadPool::worker(std::size_t id) {
     };
 
     TOptionalTask task;
-    std::size_t size{m_TaskQueues.size()};
 
     while (m_Done == false) {
         // We maintain "worker count" queues and each worker has an affinity to a
@@ -115,11 +120,18 @@ void CStaticThreadPool::worker(std::size_t id) {
         // if everything is working well we have essentially no contention between
         // workers on queue reads.
 
-        for (std::size_t i = 0; i < size; ++i) {
-            task = m_TaskQueues[(id + i) % size].tryPop(ifAllowed);
-            if (task != boost::none) {
-                break;
+        std::size_t size{m_NumberThreadsInUse.load()};
+
+        // Only steal work if the thread is in use.
+        if (id < size) {
+            for (std::size_t i = 0; i < size; ++i) {
+                task = m_TaskQueues[(id + i) % size].tryPop(ifAllowed);
+                if (task != boost::none) {
+                    break;
+                }
             }
+        } else {
+            task = boost::none;
         }
         if (task == boost::none) {
             task = m_TaskQueues[id].pop();
