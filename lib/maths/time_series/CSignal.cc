@@ -686,11 +686,12 @@ void CSignal::removeExtremeOutliers(double fraction, TFloatMeanAccumulatorVec& v
     TMaxAccumulator max;
     for (std::size_t i = 0; i < values.size(); ++i) {
         double x{common::CBasicStatistics::mean(values[i])};
-        std::size_t n{static_cast<std::size_t>(
-            std::ceil(common::CBasicStatistics::count(values[i])))};
+        std::size_t n{common::CBasicStatistics::count(values[i]) > 0.0 ? 1U : 0U};
         min.add({x, i}, n);
         max.add({x, i}, n);
     }
+
+    double threshold{std::exp(LOG_LARGE_OUTLIER_SCALE)};
 
     TMaxAccumulator outliers;
     for (auto i : {min[0].second, max[0].second}) {
@@ -700,13 +701,11 @@ void CSignal::removeExtremeOutliers(double fraction, TFloatMeanAccumulatorVec& v
             TMinMaxAccumulator minmax;
             for (std::size_t k = 0; k + windowLength <= j; ++k) {
                 minmax.add(common::CBasicStatistics::mean(values[k]),
-                           static_cast<std::size_t>(std::ceil(
-                               common::CBasicStatistics::mean(values[k]))));
+                           common::CBasicStatistics::count(values[k]) > 0.0 ? 1 : 0);
             }
             for (std::size_t k = j + 1; k < values.size(); ++k) {
                 minmax.add(common::CBasicStatistics::mean(values[k]),
-                           static_cast<std::size_t>(std::ceil(
-                               common::CBasicStatistics::mean(values[k]))));
+                           common::CBasicStatistics::count(values[k]) > 0.0 ? 1 : 0);
             }
 
             if (minmax.initialized()) {
@@ -719,7 +718,7 @@ void CSignal::removeExtremeOutliers(double fraction, TFloatMeanAccumulatorVec& v
                     double x{common::CBasicStatistics::mean(level)};
                     double difference{
                         (std::max(minmax.min() - x, std::max(x - minmax.max(), 0.0)))};
-                    outliers.add({difference / minmax.range(), j});
+                    outliers.add({std::min(difference / minmax.range(), threshold + 1.0), j});
                 }
             }
         }
@@ -727,7 +726,7 @@ void CSignal::removeExtremeOutliers(double fraction, TFloatMeanAccumulatorVec& v
 
     if (outliers.count() > 0) {
         auto[size, i] = outliers[0];
-        if (size > std::exp(LOG_LARGE_OUTLIER_SCALE)) {
+        if (size > threshold) {
             for (std::size_t j = i - std::min(windowLength - 1, i); j <= i; ++j) {
                 values[j] = TMeanAccumulator{};
             }
