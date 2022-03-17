@@ -42,7 +42,7 @@ CStaticThreadPool::~CStaticThreadPool() {
 }
 
 void CStaticThreadPool::numberThreadsInUse(std::size_t threads) {
-    threads = std::max(std::min(threads, m_Pool.size()), 1UL);
+    threads = std::max(std::min(threads, m_Pool.size()), std::size_t{1});
     m_NumberThreadsInUse.store(threads);
 }
 

@@ -15,12 +15,12 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <atomic>
 #include <chrono>
 #include <mutex>
 #include <thread>
-#include <unordered_set>
 
 BOOST_AUTO_TEST_SUITE(CStaticThreadPoolTest)
 
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(testNumberThreadsInUse) {
 
     std::mutex mutex;
     std::size_t numberProcessedTasks{0};
-    std::unordered_set<std::thread::id> executionThreads;
+    boost::unordered_set<std::thread::id> executionThreads;
 
     for (std::size_t numberThreadsInUse : {5, 6, 2}) {
 
