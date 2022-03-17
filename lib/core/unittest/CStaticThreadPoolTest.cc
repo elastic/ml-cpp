@@ -234,9 +234,9 @@ BOOST_AUTO_TEST_CASE(testNumberThreadsInUse) {
             std::scoped_lock<std::mutex> lock{mutex};
             if (numberProcessedTasks == 200) {
                 LOG_DEBUG(<< "# threads used = " << executionThreads.size());
+                BOOST_REQUIRE_EQUAL(numberThreadsInUse, executionThreads.size());
                 numberProcessedTasks = 0;
                 executionThreads.clear();
-                BOOST_REQUIRE_EQUAL(numberThreadsInUse, executionThreads.size());
                 break;
             }
         }
