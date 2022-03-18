@@ -3491,4 +3491,50 @@ BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testEncodingOnly) {
+    // Test that we can do encoding separately from training.
+
+    TDoubleVec categoryValue{-15.0, 20.0, 0.0};
+
+    auto target = [&](const TDoubleVecVec& features, std::size_t row) {
+        return categoryValue[static_cast<std::size_t>(std::min(features[0][row], 2.0))] +
+               2.8 * features[1][row] - 5.3 * features[2][row];
+    };
+
+    test::CRandomNumbers rng;
+    std::size_t rows{300};
+    std::size_t cols{4};
+    double numberCategories{5.0};
+
+    TDoubleVecVec features(cols - 1);
+    rng.generateUniformSamples(0.0, numberCategories, rows, features[0]);
+    rng.generateNormalSamples(0.0, 4.0, rows, features[1]);
+    rng.generateNormalSamples(2.0, 2.0, rows, features[2]);
+
+    auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
+
+    frame->categoricalColumns(TBoolVec{true, false, false, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            *(column++) = std::floor(features[0][i]);
+            for (std::size_t j = 1; j + 1 < cols; ++j, ++column) {
+                *column = features[j][i];
+            }
+            *column = target(features, i);
+        });
+    }
+    frame->finishWritingRows();
+
+     std::stringstream persistOnceState;
+    {
+    auto boostedTree = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .buildForEncode(*frame, cols - 1);
+    core::CJsonStatePersistInserter inserter(persistOnceState);
+    boostedTree->acceptPersistInserter(inserter);
+    persistOnceState.flush();
+    }
+    LOG_DEBUG(<<persistOnceState.str());
+}
+
 BOOST_AUTO_TEST_SUITE_END()

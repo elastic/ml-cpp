@@ -121,6 +121,48 @@ auto validInputStream(core::CDataSearcher& restoreSearcher) {
 }
 }
 
+    
+CBoostedTreeFactory::TBoostedTreeUPtr 
+CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t dependentVariable) {
+    m_TreeImpl->m_DependentVariable = dependentVariable;
+
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeMissingFeatureMasks(frame); });
+    // skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+    //     if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
+    //         m_TreeImpl->m_NewTrainingRowMask.extend(
+    //             false, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
+    //     }
+    // });
+
+    this->prepareDataFrameForEncode(frame);
+
+    m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_NotInitialized
+        ? this->skipProgressMonitoringFeatureSelection()
+        : this->startProgressMonitoringFeatureSelection();
+
+    // skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+    //             [&] { this->initializeCrossValidation(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->selectFeaturesAndEncodeCategories(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->determineFeatureDataTypes(frame); });
+
+    // this->initializeSplitsCache(frame);
+
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->flush();
+
+    auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
+                                                       m_TreeImpl->m_Loss->clone());
+    std::swap(m_TreeImpl, treeImpl);
+    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
+
+    return TBoostedTreeUPtr{
+        new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
+}
+
+
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable) {
 
@@ -397,6 +439,25 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
     }
     LOG_TRACE(<< "# folds = " << m_TreeImpl->m_NumberFolds.value() << ", train fraction per fold = "
               << m_TreeImpl->m_TrainFractionPerFold.value());
+}
+
+void CBoostedTreeFactory::prepareDataFrameForEncode(core::CDataFrame& frame) const {
+
+    std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
+    const auto& columnNames = frame.columnNames();
+    if (m_RowWeightColumnName.empty() == false) {
+        auto column = std::find(columnNames.begin(), columnNames.end(), m_RowWeightColumnName);
+        if (column == columnNames.end()) {
+            HANDLE_FATAL(<< "Input error: unrecognised row weight field name '"
+                         << m_RowWeightColumnName << "'.");
+        }
+        rowWeightColumn = static_cast<std::size_t>(column - columnNames.begin());
+    }
+
+    // Encoding only requires to know about the weight column.
+    m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
+    m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
+
 }
 
 void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) const {

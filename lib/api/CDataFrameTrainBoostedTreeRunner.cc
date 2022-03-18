@@ -436,6 +436,8 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     this->validate(frame, dependentVariableColumn);
 
     switch (m_Task) {
+    case E_Encode:
+        break;
     case E_Train:
         m_BoostedTree = [&] {
             auto boostedTree = this->restoreBoostedTree(

@@ -215,6 +215,8 @@ public:
     static std::size_t estimatedExtraColumnsForTrain(std::size_t numberColumns,
                                                      std::size_t numberLossParameters);
 
+    TBoostedTreeUPtr buildForEncode(core::CDataFrame& frame, std::size_t dependentVariable);
+
     //! Build a boosted tree object for training on \p frame.
     TBoostedTreeUPtr buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable);
 
@@ -251,6 +253,9 @@ private:
 
     //! Set up the number of folds we'll use for cross-validation.
     void initializeNumberFolds(core::CDataFrame& frame) const;
+
+    //! Initialize data frame information required for encode.
+    void prepareDataFrameForEncode(core::CDataFrame& frame) const;
 
     //! Resize the data frame with the extra columns used by train.
     void prepareDataFrameForTrain(core::CDataFrame& frame) const;

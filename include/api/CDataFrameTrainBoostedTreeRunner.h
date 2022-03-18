@@ -41,7 +41,7 @@ class CBoostedTreeInferenceModelBuilder;
 //! \brief Runs boosted tree regression on a core::CDataFrame.
 class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
 public:
-    enum ETask { E_Train = 0, E_Update, E_Predict };
+    enum ETask { E_Encode=0, E_Train, E_Update, E_Predict};
 
     static const std::string RANDOM_NUMBER_GENERATOR_SEED;
     static const std::string DEPENDENT_VARIABLE_NAME;
