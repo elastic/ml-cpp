@@ -3505,6 +3505,7 @@ BOOST_AUTO_TEST_CASE(testEncodingOnly) {
     std::size_t rows{300};
     std::size_t cols{4};
     double numberCategories{5.0};
+    std::uint64_t seed{1000};
 
     TDoubleVecVec features(cols - 1);
     rng.generateUniformSamples(0.0, numberCategories, rows, features[0]);
@@ -3525,16 +3526,56 @@ BOOST_AUTO_TEST_CASE(testEncodingOnly) {
     }
     frame->finishWritingRows();
 
-     std::stringstream persistOnceState;
+    // Encode and persist
+    std::stringstream persistState;
     {
-    auto boostedTree = maths::analytics::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                          .buildForEncode(*frame, cols - 1);
-    core::CJsonStatePersistInserter inserter(persistOnceState);
-    boostedTree->acceptPersistInserter(inserter);
-    persistOnceState.flush();
+        auto boostedTree =
+            maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                .seed(seed)
+                .buildForEncode(*frame, cols - 1);
+        core::CJsonStatePersistInserter inserter(persistState);
+        boostedTree->acceptPersistInserter(inserter);
+        persistState.flush();
     }
-    LOG_DEBUG(<<persistOnceState.str());
+    // Restore from encoded state.
+    auto encodedFirstModel =
+        maths::analytics::CBoostedTreeFactory::constructFromString(persistState)
+            .restoreFor(*frame, cols - 1);
+    encodedFirstModel->train();
+    encodedFirstModel->predict();
+
+    TDoubleVec encodedFirstPredictions;
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            encodedFirstPredictions.push_back(encodedFirstModel->prediction(*row)[0]);
+        }
+    });
+
+    // Resize data frame back to the original column number
+    frame->resizeColumns(1, cols);
+    auto trainedFromScratchModel =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .seed(seed)
+            .buildForTrain(*frame, cols - 1);
+    trainedFromScratchModel->train();
+    trainedFromScratchModel->predict();
+
+    TDoubleVec trainedFromScratchPredictions;
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            trainedFromScratchPredictions.push_back(
+                trainedFromScratchModel->prediction(*row)[0]);
+        }
+    });
+
+    BOOST_REQUIRE_EQUAL(encodedFirstPredictions.size(),
+                        trainedFromScratchPredictions.size());
+    for (std::size_t i = 0; i < encodedFirstPredictions.size(); ++i) {
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(encodedFirstPredictions[i],
+                                     trainedFromScratchPredictions[i], 0.9);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

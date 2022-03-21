@@ -121,20 +121,12 @@ auto validInputStream(core::CDataSearcher& restoreSearcher) {
 }
 }
 
-    
-CBoostedTreeFactory::TBoostedTreeUPtr 
+CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t dependentVariable) {
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
-    // skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
-    //     if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
-    //         m_TreeImpl->m_NewTrainingRowMask.extend(
-    //             false, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
-    //     }
-    // });
-
     this->prepareDataFrameForEncode(frame);
 
     m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_NotInitialized
@@ -148,20 +140,19 @@ CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t depende
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->determineFeatureDataTypes(frame); });
 
-    // this->initializeSplitsCache(frame);
-
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->flush();
+
+    this->initializeFeatureSampleDistribution();
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
-    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
+    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_EncodingInitialized;
 
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
 }
-
 
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependentVariable) {
@@ -170,9 +161,9 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
                 [&] { this->initializeNumberFolds(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
             m_TreeImpl->m_NewTrainingRowMask.extend(
                 false, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
@@ -181,11 +172,11 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 
     this->prepareDataFrameForTrain(frame);
 
-    m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_NotInitialized
+    m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_EncodingInitialized
         ? this->skipProgressMonitoringFeatureSelection()
         : this->startProgressMonitoringFeatureSelection();
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
                 [&] { this->initializeCrossValidation(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->selectFeaturesAndEncodeCategories(frame); });
@@ -200,7 +191,8 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 
     this->startProgressMonitoringInitializeHyperparameters(frame);
 
-    if (this->initializeFeatureSampleDistribution()) {
+    if (m_TreeImpl->m_InitializationStage == CBoostedTreeImpl::E_EncodingInitialized ||
+        this->initializeFeatureSampleDistribution()) {
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
     }
@@ -320,6 +312,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     case CBoostedTreeImpl::E_FullyInitialized:
         break;
     case CBoostedTreeImpl::E_NotInitialized:
+    case CBoostedTreeImpl::E_EncodingInitialized:
     case CBoostedTreeImpl::E_SoftTreeDepthLimitInitialized:
     case CBoostedTreeImpl::E_DepthPenaltyMultiplierInitialized:
     case CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized:
@@ -457,7 +450,6 @@ void CBoostedTreeFactory::prepareDataFrameForEncode(core::CDataFrame& frame) con
     // Encoding only requires to know about the weight column.
     m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
     m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
-
 }
 
 void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) const {
@@ -676,7 +668,7 @@ void CBoostedTreeFactory::initialHyperparameterScaling() {
 }
 
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
                 [&] { this->initializeHyperparametersSetup(frame); });
     this->initializeUnsetRegularizationHyperparameters(frame);
     this->initializePredictionChangeCost();
@@ -746,7 +738,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     double log2MaxTreeSize{std::log2(static_cast<double>(m_TreeImpl->maximumTreeSize(
                                m_TreeImpl->m_TrainingRowMasks[0]))) +
                            1.0};
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         softTreeDepthLimitParameter.set(log2MaxTreeSize);
         softTreeDepthToleranceParameter.set(
             0.5 * (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE));
