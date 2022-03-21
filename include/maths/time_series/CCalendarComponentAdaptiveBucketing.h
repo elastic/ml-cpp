@@ -86,7 +86,7 @@ public:
     void propagateForwardsByTime(double time);
 
     //! Get the calendar feature.
-    CCalendarFeature feature() const;
+    CCalendarFeatureAndTZ feature() const;
 
     //! The count in the bucket containing \p time.
     double count(core_t::TTime time) const;

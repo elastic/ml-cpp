@@ -43,18 +43,18 @@ CCalendarComponent::CCalendarComponent(const CCalendarFeature& feature,
                                        core_t::TTime timeZoneOffset,
                                        std::size_t maxSize,
                                        double decayRate,
-                                       double minimumBucketLength,
+                                       double minBucketLength,
                                        common::CSplineTypes::EBoundaryCondition boundaryCondition,
                                        common::CSplineTypes::EType valueInterpolationType,
                                        common::CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{maxSize, boundaryCondition,
                               valueInterpolationType, varianceInterpolationType},
-      m_Bucketing{feature, timeZoneOffset, decayRate, minimumBucketLength},
+      m_Bucketing{feature, timeZoneOffset, decayRate, minBucketLength},
       m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
 }
 
 CCalendarComponent::CCalendarComponent(double decayRate,
-                                       double minimumBucketLength,
+                                       double minBucketLength,
                                        core::CStateRestoreTraverser& traverser,
                                        common::CSplineTypes::EType valueInterpolationType,
                                        common::CSplineTypes::EType varianceInterpolationType)
@@ -62,7 +62,7 @@ CCalendarComponent::CCalendarComponent(double decayRate,
                               valueInterpolationType, varianceInterpolationType},
       m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
     if (traverser.traverseSubLevel([&](auto& traverser_) {
-            return this->acceptRestoreTraverser(decayRate, minimumBucketLength, traverser_);
+            return this->acceptRestoreTraverser(decayRate, minBucketLength, traverser_);
         }) == false) {
         traverser.setBadState();
     }
@@ -163,7 +163,7 @@ void CCalendarComponent::propagateForwardsByTime(double time) {
     m_Bucketing.propagateForwardsByTime(time);
 }
 
-CCalendarFeature CCalendarComponent::feature() const {
+CCalendarFeatureAndTZ CCalendarComponent::feature() const {
     return m_Bucketing.feature();
 }
 

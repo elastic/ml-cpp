@@ -104,6 +104,35 @@ private:
 
 MATHS_TIME_SERIES_EXPORT
 std::ostream& operator<<(std::ostream& strm, const CCalendarFeature& feature);
+
+//! \brief A wrapper around CCalendarFeature and time zone offset.
+class CCalendarFeatureAndTZ {
+public:
+    CCalendarFeatureAndTZ(CCalendarFeature feature, core_t::TTime timeZoneOffset);
+
+    //! Check if the underlying feature matches.
+    bool operator==(CCalendarFeature feature) const;
+
+    //! \name Time Transforms
+    //@{
+    //! The offset of \p time w.r.t. the start of the current month's
+    //! feature window.
+    core_t::TTime offset(core_t::TTime time) const;
+
+    //! Check if \p time is in this feature's window.
+    bool inWindow(core_t::TTime time) const;
+    //@}
+
+    //! Get this feature's window.
+    core_t::TTime window() const;
+
+    //! Get a debug description of the feature.
+    std::string print() const;
+
+private:
+    CCalendarFeature m_Feature;
+    core_t::TTime m_TimeZoneOffset;
+};
 }
 }
 }

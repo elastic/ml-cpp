@@ -48,7 +48,7 @@ public:
     //! \param[in] maxSize The maximum number of component buckets.
     //! \param[in] decayRate Controls the rate at which information is lost from
     //! its adaptive bucketing.
-    //! \param[in] minimumBucketLength The minimum bucket length permitted in the
+    //! \param[in] minBucketLength The minimum bucket length permitted in the
     //! adaptive bucketing.
     //! \param[in] boundaryCondition The boundary condition to use for the splines.
     //! \param[in] valueInterpolationType The style of interpolation to use for
@@ -60,14 +60,14 @@ public:
         core_t::TTime timeZoneOffset,
         std::size_t maxSize,
         double decayRate = 0.0,
-        double minimumBucketLength = 0.0,
+        double minBucketLength = 0.0,
         common::CSplineTypes::EBoundaryCondition boundaryCondition = common::CSplineTypes::E_Periodic,
         common::CSplineTypes::EType valueInterpolationType = common::CSplineTypes::E_Cubic,
         common::CSplineTypes::EType varianceInterpolationType = common::CSplineTypes::E_Linear);
 
     //! Construct by traversing part of an state document.
     CCalendarComponent(double decayRate,
-                       double minimumBucketLength,
+                       double minBucketLength,
                        core::CStateRestoreTraverser& traverser,
                        common::CSplineTypes::EType valueInterpolationType = common::CSplineTypes::E_Cubic,
                        common::CSplineTypes::EType varianceInterpolationType = common::CSplineTypes::E_Linear);
@@ -120,7 +120,7 @@ public:
     void propagateForwardsByTime(double time);
 
     //! Get the calendar feature.
-    CCalendarFeature feature() const;
+    CCalendarFeatureAndTZ feature() const;
 
     //! Interpolate the component at \p time.
     //!

@@ -247,6 +247,31 @@ const std::uint16_t CCalendarFeature::INVALID(std::numeric_limits<std::uint16_t>
 std::ostream& operator<<(std::ostream& strm, const CCalendarFeature& feature) {
     return strm << feature.print();
 }
+
+CCalendarFeatureAndTZ::CCalendarFeatureAndTZ(CCalendarFeature feature, core_t::TTime timeZoneOffset)
+    : m_Feature{feature}, m_TimeZoneOffset{timeZoneOffset} {
+}
+
+bool CCalendarFeatureAndTZ::operator==(CCalendarFeature feature) const {
+    return m_Feature == feature;
+}
+
+core_t::TTime CCalendarFeatureAndTZ::offset(core_t::TTime time) const {
+    return m_Feature.offset(time + m_TimeZoneOffset);
+}
+
+bool CCalendarFeatureAndTZ::inWindow(core_t::TTime time) const {
+    return m_Feature.inWindow(time + m_TimeZoneOffset);
+}
+
+core_t::TTime CCalendarFeatureAndTZ::window() const {
+    return m_Feature.window();
+}
+
+std::string CCalendarFeatureAndTZ::print() const {
+    return m_Feature.print() + (m_TimeZoneOffset < 0 ? " -" : " +") +
+           std::to_string(m_TimeZoneOffset / core::constants::HOUR);
+}
 }
 }
 }

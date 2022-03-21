@@ -22,12 +22,9 @@
 #include <maths/time_series/CCalendarCyclicTest.h>
 
 #include <test/CRandomNumbers.h>
-#include <test/CTimeSeriesTestData.h>
 
 #include "TestUtils.h"
 
-#include <boost/optional.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <vector>
@@ -40,6 +37,7 @@ namespace {
 using TDoubleVec = std::vector<double>;
 
 const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
+const core_t::TTime HOUR{core::constants::HOUR};
 const core_t::TTime DAY{core::constants::DAY};
 const core_t::TTime MONTH{4 * core::constants::WEEK};
 const core_t::TTime YEAR{core::constants::YEAR};
@@ -335,6 +333,67 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
                     (feature->first.print() == "0 Saturdays before end of month"
                          ? truePositive
                          : falsePositive) += 1.0;
+                }
+            }
+        }
+    }
+    LOG_DEBUG(<< "true positive = " << truePositive);
+    LOG_DEBUG(<< "false negative = " << falseNegative);
+    LOG_DEBUG(<< "false positive = " << falsePositive);
+
+    double accuracy{(truePositive / (truePositive + falseNegative + falsePositive))};
+    LOG_DEBUG(<< "accuracy = " << accuracy);
+    BOOST_TEST_REQUIRE(accuracy > 0.9);
+}
+
+BOOST_AUTO_TEST_CASE(testVeryLargeCyclicSpikes) {
+    // Test the true positive rate for very large spikes.
+
+    test::CRandomNumbers rng;
+
+    double truePositive{0.0};
+    double falsePositive{0.0};
+    double falseNegative{0.0};
+
+    LOG_DEBUG(<< "Day of month");
+    for (std::size_t t = 0; t < 10; ++t) {
+        // Repeated error on the second day of the month.
+        core_t::TTime months[]{
+            86400,    // 2nd Jan
+            2764800,  // 2nd Feb
+            5184000,  // 2nd Mar
+            7862400,  // 2nd Apr
+            10454400, // 2nd May
+            13132800, // 2nd June
+            15724800, // 2nd July
+            18403200, // 2nd Aug
+            21081600, // 2nd Sep
+            23673600  // 2nd Oct
+        };
+        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+
+        maths::time_series::CCalendarCyclicTest cyclic(HOUR);
+
+        TDoubleVec error;
+        for (core_t::TTime time = 0; time <= end; time += HOUR) {
+            ptrdiff_t i = maths::common::CTools::truncate(
+                std::lower_bound(std::begin(months), std::end(months), time) -
+                    std::begin(months),
+                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+
+            rng.generateNormalSamples(0.0, 9.0, 1, error);
+            if (time >= months[i - 1] + 36000 && time < months[i - 1] + 39600) {
+                error[0] += 30.0;
+            }
+            cyclic.add(time, error[0]);
+
+            if (time > 121 * DAY && time % DAY == 0) {
+                auto feature = cyclic.test();
+                if (feature == boost::none) {
+                    falseNegative += 1.0;
+                } else {
+                    (feature->first.print() == "2nd day of month" ? truePositive
+                                                                  : falsePositive) += 1.0;
                 }
             }
         }

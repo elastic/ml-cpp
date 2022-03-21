@@ -49,7 +49,6 @@ CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(CCalend
                                                                          double decayRate,
                                                                          double minimumBucketLength)
     : CAdaptiveBucketing{decayRate, minimumBucketLength}, m_Feature{feature}, m_TimeZoneOffset{timeZoneOffset} {
-    LOG_INFO(<< "time zone = " << m_TimeZoneOffset);
 }
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(
@@ -121,8 +120,8 @@ void CCalendarComponentAdaptiveBucketing::add(core_t::TTime time, double value, 
     }
 }
 
-CCalendarFeature CCalendarComponentAdaptiveBucketing::feature() const {
-    return m_Feature;
+CCalendarFeatureAndTZ CCalendarComponentAdaptiveBucketing::feature() const {
+    return {m_Feature, m_TimeZoneOffset};
 }
 
 void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time) {

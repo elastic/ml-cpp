@@ -295,7 +295,7 @@ double CCalendarCyclicTest::winsorise(double error) const {
 double CCalendarCyclicTest::survivalFunction(double error) const {
     using TMomentsAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-    // We us an approximation for the right tail of a KDE from the error
+    // We use an approximation for the right tail of a KDE from the error
     // percentiles to estimate the survival function.
     TMomentsAccumulator tailMoments;
     for (double i = 0.0; i < 5.0; i += 1.0) {
