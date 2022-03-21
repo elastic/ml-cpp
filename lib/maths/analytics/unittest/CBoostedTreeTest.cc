@@ -3574,7 +3574,7 @@ BOOST_AUTO_TEST_CASE(testEncodingOnly) {
                         trainedFromScratchPredictions.size());
     for (std::size_t i = 0; i < encodedFirstPredictions.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(encodedFirstPredictions[i],
-                                     trainedFromScratchPredictions[i], 0.9);
+                                     trainedFromScratchPredictions[i], 0.01);
     }
 }
 
