@@ -421,6 +421,9 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
 
     writer.Key(TRunner::TASK);
     switch (m_Task) {
+    case TTask::E_Encode:
+        writer.String(TRunner::TASK_ENCODE);
+        break;
     case TTask::E_Train:
         writer.String(TRunner::TASK_TRAIN);
         break;

@@ -75,6 +75,7 @@ public:
     static const std::string DISABLE_HYPERPARAMETER_SCALING;
     static const std::string DATA_SUMMARIZATION_FRACTION;
     static const std::string TASK;
+    static const std::string TASK_ENCODE;
     static const std::string TASK_TRAIN;
     static const std::string TASK_UPDATE;
     static const std::string TASK_PREDICT;

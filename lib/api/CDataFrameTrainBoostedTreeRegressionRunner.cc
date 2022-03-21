@@ -167,7 +167,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     if (featureImportance != nullptr) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
-    if (this->task() != E_Predict) {
+    if (this->task() != E_Predict && this->task() != E_Encode) {
         m_InferenceModelMetadata.hyperparameterImportance(
             this->boostedTree().hyperparameterImportance());
     }

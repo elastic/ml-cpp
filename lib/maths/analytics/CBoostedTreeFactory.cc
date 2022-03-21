@@ -150,6 +150,8 @@ CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t depende
     std::swap(m_TreeImpl, treeImpl);
     treeImpl->m_InitializationStage = CBoostedTreeImpl::E_EncodingInitialized;
 
+    treeImpl->recordState(m_RecordTrainingState);
+
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
 }
@@ -159,7 +161,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
                 [&] { this->initializeNumberFolds(frame); });

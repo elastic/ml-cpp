@@ -38,6 +38,7 @@
 
 #include <rapidjson/prettywriter.h>
 
+#include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
@@ -2215,6 +2216,80 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoringFromRestart) {
     BOOST_TEST_REQUIRE(fineTuneParametersFirstProgress > 50);
     BOOST_REQUIRE_EQUAL(100, fineTuneParametersLastProgress);
     BOOST_REQUIRE_EQUAL(100, finalTrainLastProgress);
+}
+
+BOOST_AUTO_TEST_CASE(testCreationForEncoding) {
+
+    ml::core::CLogger& logger{ml::core::CLogger::instance()};
+    logger.reset();
+    logger.setLoggingLevel(ml::core::CLogger::E_Error);
+    // std::stringstream logData;
+    boost::shared_ptr<std::ostream> logDataSPtr = boost::make_shared<std::stringstream>();
+    logger.reconfigure(logDataSPtr);
+
+    auto persistenceStream = std::make_shared<std::ostringstream>();
+    TPersisterSupplier persisterSupplier{[&persistenceStream]() {
+        return std::make_unique<api::CSingleStreamDataAdder>(persistenceStream);
+    }};
+
+    auto makeSpec = [&](std::size_t rows, TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
+                        TPersisterSupplier* persisterSupplier,
+                        TRestoreSearcherSupplier* restorerSupplier,
+                        test::CDataFrameAnalysisSpecificationFactory::TTask task) {
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        return specFactory.rows(rows)
+            .columns(6)
+            .memoryLimit(15000000)
+            .predictionMaximumNumberTrees(10)
+            .predictionPersisterSupplier(persisterSupplier)
+            .predictionRestoreSearcherSupplier(restorerSupplier)
+            .regressionLossFunction(TLossFunctionType::E_MseRegression)
+            .earlyStoppingEnabled(false)
+            .task(task)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                            "target", &frameAndDirectory);
+    };
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "", "0", ""};
+    TDataFrameUPtrTemporaryDirectoryPtrPr frameAndDirectory;
+
+    std::size_t rowsEncode{1000};
+    auto spec = makeSpec(rowsEncode, frameAndDirectory, &persisterSupplier, nullptr,
+                         test::CDataFrameAnalysisSpecificationFactory::TTask::E_Encode);
+    api::CDataFrameAnalyzer analyzer{std::move(spec), std::move(frameAndDirectory),
+                                     outputWriterFactory};
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer, rowsEncode);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
+    TStrVec persistedStates{
+        splitOnNull(std::stringstream{std::move(persistenceStream->str())})};
+
+    BOOST_REQUIRE(persistedStates.size() > 0);
+    std::istringstream lastStateStream{persistedStates[0]};
+    TRestoreSearcherSupplier restoreSearcherSupplier{[&lastStateStream]() {
+        return std::make_unique<CTestDataSearcher>(lastStateStream.str());
+    }};
+
+    std::size_t rowsTrain{100};
+    spec = makeSpec(rowsTrain, frameAndDirectory, nullptr, &restoreSearcherSupplier,
+                    test::CDataFrameAnalysisSpecificationFactory::TTask::E_Train);
+    api::CDataFrameAnalyzer restoredAnalyzer{
+        std::move(spec), std::move(frameAndDirectory), outputWriterFactory};
+
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues,
+        restoredAnalyzer, rowsTrain);
+    restoredAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
+
+    logger.reset();
+    // Check that no error messages were logged
+    BOOST_TEST_REQUIRE(logDataSPtr->rdbuf()->in_avail() == 0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
