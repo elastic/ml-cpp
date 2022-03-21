@@ -69,6 +69,9 @@ public:
     //! Total ordering of two calendar features.
     bool operator<(CCalendarFeature rhs) const;
 
+    //! Check if we should test the feature for \p timeZoneOffset.
+    bool testForTimeZoneOffset(core_t::TTime timeZoneOffset) const;
+
     //! \name Time Transforms
     //@{
     //! The offset of \p time w.r.t. the start of the current month's

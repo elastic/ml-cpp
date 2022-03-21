@@ -127,10 +127,15 @@ public:
     //! \brief The message passed to indicate calendar components have been
     //! detected.
     struct MATHS_TIME_SERIES_EXPORT SDetectedCalendar : public SMessage {
-        SDetectedCalendar(core_t::TTime time, core_t::TTime lastTime, CCalendarFeature feature);
+        SDetectedCalendar(core_t::TTime time,
+                          core_t::TTime lastTime,
+                          CCalendarFeature feature,
+                          core_t::TTime timeZoneOffset);
 
         //! The calendar feature found.
         CCalendarFeature s_Feature;
+        //! The time zone offset which applies to the feature.
+        core_t::TTime s_TimeZoneOffset;
     };
 
     //! \brief The message passed to indicate the trend is being used for prediction.
@@ -875,7 +880,11 @@ public:
             bool initialized() const;
 
             //! Add and initialize a new component.
-            void add(const CCalendarFeature& feature, std::size_t size, double decayRate, double bucketLength);
+            void add(const CCalendarFeature& feature,
+                     core_t::TTime timeZoneOffset,
+                     std::size_t size,
+                     double decayRate,
+                     double bucketLength);
 
             //! Apply \p change to the components.
             void apply(const CChangePoint& change);
@@ -916,7 +925,7 @@ public:
         void addSeasonalComponents(const CSeasonalDecomposition& components);
 
         //! Add a new calendar component.
-        void addCalendarComponent(const CCalendarFeature& feature);
+        void addCalendarComponent(const CCalendarFeature& feature, core_t::TTime timeZoneOffset);
 
         //! Fit the trend component \p component to \p values.
         void fitTrend(core_t::TTime startTime,

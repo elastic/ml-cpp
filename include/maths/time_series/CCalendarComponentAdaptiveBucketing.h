@@ -47,9 +47,10 @@ public:
 
 public:
     CCalendarComponentAdaptiveBucketing();
-    explicit CCalendarComponentAdaptiveBucketing(CCalendarFeature feature,
-                                                 double decayRate = 0.0,
-                                                 double minimumBucketLength = 0.0);
+    CCalendarComponentAdaptiveBucketing(CCalendarFeature feature,
+                                        core_t::TTime timeZoneOffset,
+                                        double decayRate = 0.0,
+                                        double minimumBucketLength = 0.0);
     //! Construct by traversing a state document.
     CCalendarComponentAdaptiveBucketing(double decayRate,
                                         double minimumBucketLength,
@@ -154,6 +155,9 @@ private:
 private:
     //! The time provider.
     CCalendarFeature m_Feature;
+
+    //! The timezone offset to apply to the feature (which is in GMT).
+    core_t::TTime m_TimeZoneOffset{0};
 
     //! The bucket values.
     TFloatMeanVarVec m_Values;

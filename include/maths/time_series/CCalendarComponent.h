@@ -57,6 +57,7 @@ public:
     //! computing variances.
     CCalendarComponent(
         const CCalendarFeature& feature,
+        core_t::TTime timeZoneOffset,
         std::size_t maxSize,
         double decayRate = 0.0,
         double minimumBucketLength = 0.0,

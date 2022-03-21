@@ -148,6 +148,23 @@ bool CCalendarFeature::operator<(CCalendarFeature rhs) const {
                                                        rhs.m_Feature, rhs.m_Value);
 }
 
+bool CCalendarFeature::testForTimeZoneOffset(core_t::TTime timeZoneOffset) const {
+    switch (m_Feature) {
+    case DAYS_SINCE_START_OF_MONTH:
+    case DAYS_BEFORE_END_OF_MONTH:
+        // Translations in time of these features are irrelevant since
+        // they'll remain cyclic w.r.t. the calendar.
+        return timeZoneOffset == 0;
+    case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH:
+    case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH:
+        return true;
+    default:
+        LOG_ERROR(<< "Invalid feature: '" << m_Feature << "'");
+        break;
+    }
+    return false;
+}
+
 core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
     int dayOfWeek{};
     int dayOfMonth{};
