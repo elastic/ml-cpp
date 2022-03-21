@@ -167,10 +167,18 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     if (featureImportance != nullptr) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
-    if (this->task() != E_Predict && this->task() != E_Encode) {
+
+    switch (this->task()) {
+    case E_Encode:
+    case E_Predict:
+        break;
+    case E_Train:
+    case E_Update:
         m_InferenceModelMetadata.hyperparameterImportance(
             this->boostedTree().hyperparameterImportance());
+        break;
     }
+
     m_InferenceModelMetadata.numTrainRows(this->boostedTree().numberTrainRows());
     m_InferenceModelMetadata.lossGap(this->boostedTree().lossGap());
     m_InferenceModelMetadata.numDataSummarizationRows(static_cast<std::size_t>(

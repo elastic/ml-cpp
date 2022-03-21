@@ -133,8 +133,6 @@ CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t depende
         ? this->skipProgressMonitoringFeatureSelection()
         : this->startProgressMonitoringFeatureSelection();
 
-    // skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-    //             [&] { this->initializeCrossValidation(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->selectFeaturesAndEncodeCategories(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,

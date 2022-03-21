@@ -473,7 +473,6 @@ CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
                                                      TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     switch (m_Task) {
     case E_Encode:
-        break;
     case E_Train:
         break;
     case E_Update:

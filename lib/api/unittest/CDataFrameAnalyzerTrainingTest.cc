@@ -2219,7 +2219,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoringFromRestart) {
 }
 
 BOOST_AUTO_TEST_CASE(testCreationForEncoding) {
-    // We perform encoding and training in two separate steps and make sure that 
+    // We perform encoding and training in two separate steps and make sure that
     // no errors were logged.
 
     std::size_t rowsEncode{1000};
