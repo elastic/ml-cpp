@@ -274,18 +274,13 @@ sudo yum-config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-m
 sudo yum -y install intel-mkl-2020.4-912
 ```
 
-Then copy the required libraries to the system directory:
+Then copy the shared libraries to the system directory:
 
 ```
-sudo cp /opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so /usr/local/gcc103/lib
-sudo cp /opt/intel/mkl/lib/intel64/libmkl_core.so /usr/local/gcc103/lib
-sudo cp /opt/intel/mkl/lib/intel64/libmkl_def.so /usr/local/gcc103/lib
-sudo cp /opt/intel/mkl/lib/intel64/libmkl_gnu_thread.so /usr/local/gcc103/lib
-sudo cp /opt/intel/mkl/lib/intel64/libmkl_avx*.so /usr/local/gcc103/lib
-sudo cp /opt/intel/mkl/lib/intel64/libmkl_vml*.so /usr/local/gcc103/lib
+sudo cp /opt/intel/mkl/lib/intel64/libmkl*.so /usr/local/gcc103/lib
 ```
 
-### PyTorch 1.9.0
+### PyTorch 1.11.0
 
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:
 
@@ -302,7 +297,7 @@ sudo /usr/local/gcc103/bin/python3.7 -m pip install install numpy pyyaml setupto
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v1.9.0 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v1.11.0 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -330,7 +325,7 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-export PYTORCH_BUILD_VERSION=1.9.0
+export PYTORCH_BUILD_VERSION=1.11.0
 export PYTORCH_BUILD_NUMBER=1
 /usr/local/gcc103/bin/python3.7 setup.py install
 ```
