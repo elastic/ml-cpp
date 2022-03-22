@@ -11,7 +11,7 @@ import pandas as pd
 import unittest
 
 from incremental_learning.config import datasets_dir
-from incremental_learning.job import train, update, evaluate
+from incremental_learning.job import train, update, evaluate, encode
 from incremental_learning.storage import download_dataset
 
 class TestUpdateAndEvaluate(unittest.TestCase):
@@ -23,6 +23,19 @@ class TestUpdateAndEvaluate(unittest.TestCase):
         if download_successful == False:
             self.fail("Dataset is not available")
         self.dataset = pd.read_csv(datasets_dir / '{}.csv'.format(self.dataset_name))
+
+    def test_encode_train(self) -> None:
+        job1 = encode(self.dataset_name, self.dataset, verbose=False)
+        success = job1.wait_to_complete()
+        self.assertTrue(success)
+        print("Model", job1.model)
+        self.assertTrue(job1.model != '')
+
+        job2 = train(self.dataset_name, self.dataset.sample(frac=0.8), 
+                     encode_job=job1, verbose=False)
+        success = job2.wait_to_complete()
+        self.assertTrue(success)
+
 
     def test_train_update(self) -> None:
         job1 = train(self.dataset_name, self.dataset, verbose=False)
