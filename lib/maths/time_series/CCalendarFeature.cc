@@ -148,6 +148,23 @@ bool CCalendarFeature::operator<(CCalendarFeature rhs) const {
                                                        rhs.m_Feature, rhs.m_Value);
 }
 
+bool CCalendarFeature::testForTimeZoneOffset(core_t::TTime timeZoneOffset) const {
+    switch (m_Feature) {
+    case DAYS_SINCE_START_OF_MONTH:
+    case DAYS_BEFORE_END_OF_MONTH:
+        // Translations in time of these features are irrelevant since
+        // they'll remain cyclic w.r.t. the calendar.
+        return timeZoneOffset == 0;
+    case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH:
+    case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH:
+        return true;
+    default:
+        LOG_ERROR(<< "Invalid feature: '" << m_Feature << "'");
+        break;
+    }
+    return false;
+}
+
 core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
     int dayOfWeek{};
     int dayOfMonth{};
@@ -229,6 +246,31 @@ const std::uint16_t CCalendarFeature::INVALID(std::numeric_limits<std::uint16_t>
 
 std::ostream& operator<<(std::ostream& strm, const CCalendarFeature& feature) {
     return strm << feature.print();
+}
+
+CCalendarFeatureAndTZ::CCalendarFeatureAndTZ(CCalendarFeature feature, core_t::TTime timeZoneOffset)
+    : m_Feature{feature}, m_TimeZoneOffset{timeZoneOffset} {
+}
+
+bool CCalendarFeatureAndTZ::operator==(CCalendarFeature feature) const {
+    return m_Feature == feature;
+}
+
+core_t::TTime CCalendarFeatureAndTZ::offset(core_t::TTime time) const {
+    return m_Feature.offset(time + m_TimeZoneOffset);
+}
+
+bool CCalendarFeatureAndTZ::inWindow(core_t::TTime time) const {
+    return m_Feature.inWindow(time + m_TimeZoneOffset);
+}
+
+core_t::TTime CCalendarFeatureAndTZ::window() const {
+    return m_Feature.window();
+}
+
+std::string CCalendarFeatureAndTZ::print() const {
+    return m_Feature.print() + (m_TimeZoneOffset < 0 ? " -" : " +") +
+           std::to_string(m_TimeZoneOffset / core::constants::HOUR);
 }
 }
 }

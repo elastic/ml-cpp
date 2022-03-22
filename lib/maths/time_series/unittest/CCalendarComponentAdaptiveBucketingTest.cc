@@ -35,10 +35,10 @@ using namespace ml;
 namespace {
 using TDoubleVec = std::vector<double>;
 using TFloatVec = std::vector<maths::common::CFloatStorage>;
+using TTimeVec = std::vector<core_t::TTime>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMinAccumulator = maths::common::CBasicStatistics::SMin<double>::TAccumulator;
 using TMaxAccumulator = maths::common::CBasicStatistics::SMax<double>::TAccumulator;
-}
 
 class CTestFixture {
 public:
@@ -52,11 +52,12 @@ public:
 private:
     std::string m_OrigTimezone;
 };
+}
 
 BOOST_FIXTURE_TEST_CASE(testInitialize, CTestFixture) {
     maths::time_series::CCalendarFeature feature{
         maths::time_series::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 86400};
-    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{feature};
+    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{feature, 0};
 
     BOOST_TEST_REQUIRE(!bucketing.initialize(0));
 
@@ -87,7 +88,7 @@ BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
 
     maths::time_series::CCalendarFeature feature1{
         maths::time_series::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, now};
-    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing1{feature1, 0.05};
+    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing1{feature1, 0, 0.05};
 
     test::CRandomNumbers rng;
 
@@ -112,7 +113,7 @@ BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
     maths::time_series::CCalendarFeature feature2{
         maths::time_series::CCalendarFeature::DAYS_BEFORE_END_OF_MONTH,
         now - core::constants::WEEK};
-    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing2{feature2, 0.1};
+    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing2{feature2, 0, 0.1};
 
     uint64_t checksum1{bucketing1.checksum()};
     uint64_t checksum2{bucketing2.checksum()};
@@ -129,15 +130,15 @@ BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testRefine, CTestFixture) {
     // Test that refine reduces the function approximation error.
 
-    core_t::TTime times[] = {-1,    3600,  10800, 18000, 25200, 32400, 39600,
-                             46800, 54000, 61200, 68400, 75600, 82800, 86400};
-    double function[] = {10, 10,  10, 10, 100, 90, 80,
-                         90, 100, 20, 10, 10,  10, 10};
+    TTimeVec times{-1,    3600,  10800, 18000, 25200, 32400, 39600,
+                   46800, 54000, 61200, 68400, 75600, 82800, 86400};
+    TDoubleVec function{10, 10,  10, 10, 100, 90, 80,
+                        90, 100, 20, 10, 10,  10, 10};
 
     maths::time_series::CCalendarFeature feature{
         maths::time_series::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 0};
-    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing1{feature};
-    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing2{feature};
+    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing1{feature, 0};
+    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing2{feature, 0};
 
     bucketing1.initialize(12);
     bucketing2.initialize(12);
@@ -218,7 +219,7 @@ BOOST_FIXTURE_TEST_CASE(testPropagateForwardsByTime, CTestFixture) {
 
     maths::time_series::CCalendarFeature feature{
         maths::time_series::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 0};
-    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{feature, 0.2};
+    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{feature, 0, 0.2};
 
     bucketing.initialize(10);
     for (core_t::TTime t = 0; t < 86400; t += 1800) {
@@ -244,17 +245,17 @@ BOOST_FIXTURE_TEST_CASE(testPropagateForwardsByTime, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testMinimumBucketLength, CTestFixture) {
     using TSizeVec = std::vector<std::size_t>;
 
-    double function[]{0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0,
-                      0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-                      0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
+    TDoubleVec function{0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0,
+                        0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                        0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
     std::size_t n{boost::size(function)};
 
     test::CRandomNumbers rng;
 
     maths::time_series::CCalendarFeature feature{
         maths::time_series::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 0};
-    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing1{feature, 0.0, 0.0};
-    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing2{feature, 0.0, 1500.0};
+    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing1{feature, 0, 0.0, 0.0};
+    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing2{feature, 0, 0.0, 1500.0};
     bucketing1.initialize(n);
     bucketing2.initialize(n);
 
@@ -333,7 +334,7 @@ BOOST_FIXTURE_TEST_CASE(testUnintialized, CTestFixture) {
 
     maths::time_series::CCalendarFeature feature{
         maths::time_series::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 0};
-    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{feature, 0.1};
+    maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{feature, 0, 0.1};
 
     bucketing.add(0, 1.0, 1.0);
     bucketing.add(1, 2.0, 2.0);
@@ -381,7 +382,8 @@ BOOST_FIXTURE_TEST_CASE(testKnots, CTestFixture) {
 
     LOG_DEBUG(<< "*** Values ***");
     {
-        maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{feature, 0.0, 600.0};
+        maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{
+            feature, 0, 0.0, 600.0};
 
         bucketing.initialize(24);
 
@@ -420,7 +422,8 @@ BOOST_FIXTURE_TEST_CASE(testKnots, CTestFixture) {
 
     LOG_DEBUG(<< "*** Variances ***");
     {
-        maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{feature, 0.0, 600.0};
+        maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{
+            feature, 0, 0.0, 600.0};
 
         bucketing.initialize(24);
 
@@ -471,11 +474,12 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 
     double decayRate{0.1};
     double minimumBucketLength{1.0};
+    core_t::TTime timeZoneOffset{3600};
 
     maths::time_series::CCalendarFeature feature{
         maths::time_series::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 0};
     maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{
-        feature, decayRate, minimumBucketLength};
+        feature, timeZoneOffset, decayRate, minimumBucketLength};
 
     bucketing.initialize(10);
     for (std::size_t p = 0; p < 10; ++p) {
@@ -527,11 +531,12 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testName, CTestFixture) {
     double decayRate{0.1};
     double minimumBucketLength{1.0};
+    core_t::TTime timeZoneOffset{3600};
 
     maths::time_series::CCalendarFeature feature{
         maths::time_series::CCalendarFeature::DAYS_SINCE_START_OF_MONTH, 0};
     maths::time_series::CCalendarComponentAdaptiveBucketing bucketing{
-        feature, decayRate, minimumBucketLength};
+        feature, timeZoneOffset, decayRate, minimumBucketLength};
 
     BOOST_REQUIRE_EQUAL(std::string("Calendar[") + std::to_string(decayRate) +
                             "," + std::to_string(minimumBucketLength) + "]",

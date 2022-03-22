@@ -22,12 +22,9 @@
 #include <maths/time_series/CCalendarCyclicTest.h>
 
 #include <test/CRandomNumbers.h>
-#include <test/CTimeSeriesTestData.h>
 
 #include "TestUtils.h"
 
-#include <boost/optional.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <vector>
@@ -38,9 +35,9 @@ using namespace ml;
 
 namespace {
 using TDoubleVec = std::vector<double>;
-using TOptionalFeature = maths::time_series::CCalendarCyclicTest::TOptionalFeature;
 
 const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
+const core_t::TTime HOUR{core::constants::HOUR};
 const core_t::TTime DAY{core::constants::DAY};
 const core_t::TTime MONTH{4 * core::constants::WEEK};
 const core_t::TTime YEAR{core::constants::YEAR};
@@ -56,7 +53,6 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
     double falseNegative{0.0};
 
     LOG_DEBUG(<< "Day of month");
-
     for (std::size_t t = 0; t < 10; ++t) {
         // Repeated error on the second day of the month.
         core_t::TTime months[]{
@@ -91,16 +87,15 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
             cyclic.add(time, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
-                TOptionalFeature feature{cyclic.test()};
+                auto feature = cyclic.test();
                 if (feature == boost::none) {
                     falseNegative += 1.0;
                 } else {
-                    (core::CContainerPrinter::print(feature) == "2nd day of month"
-                         ? truePositive
-                         : falsePositive) += 1.0;
+                    (feature->first.print() == "2nd day of month" ? truePositive
+                                                                  : falsePositive) += 1.0;
                 }
             }
-            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 710);
+            BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 720);
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -137,11 +132,11 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
             cyclic.add(time, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
-                TOptionalFeature feature = cyclic.test();
+                auto feature = cyclic.test();
                 if (feature == boost::none) {
                     falseNegative += 1.0;
                 } else {
-                    (core::CContainerPrinter::print(feature) == "0 days before end of month"
+                    (feature->first.print() == "0 days before end of month"
                          ? truePositive
                          : falsePositive) += 1.0;
                 }
@@ -181,11 +176,11 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
             cyclic.add(time, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
-                TOptionalFeature feature = cyclic.test();
+                auto feature = cyclic.test();
                 if (feature == boost::none) {
                     falseNegative += 1.0;
                 } else {
-                    (core::CContainerPrinter::print(feature) == "1st Monday of month"
+                    (feature->first.print() == "1st Monday of month"
                          ? truePositive
                          : falsePositive) += 1.0;
                 }
@@ -225,16 +220,182 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
             cyclic.add(time, error[0]);
 
             if (time > 121 * DAY && time % DAY == 0) {
-                TOptionalFeature feature = cyclic.test();
+                auto feature = cyclic.test();
                 if (feature == boost::none) {
                     falseNegative += 1.0;
                 } else {
-                    (core::CContainerPrinter::print(feature) == "0 Fridays before end of month"
+                    (feature->first.print() == "0 Fridays before end of month"
                          ? truePositive
                          : falsePositive) += 1.0;
                 }
             }
             BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 710);
+        }
+    }
+    LOG_DEBUG(<< "true positive = " << truePositive);
+    LOG_DEBUG(<< "false negative = " << falseNegative);
+    LOG_DEBUG(<< "false positive = " << falsePositive);
+
+    double accuracy{(truePositive / (truePositive + falseNegative + falsePositive))};
+    LOG_DEBUG(<< "accuracy = " << accuracy);
+    BOOST_TEST_REQUIRE(accuracy > 0.9);
+}
+
+BOOST_AUTO_TEST_CASE(testTimeZones) {
+    test::CRandomNumbers rng;
+
+    double truePositive{0.0};
+    double falsePositive{0.0};
+    double falseNegative{0.0};
+
+    LOG_DEBUG(<< "Day of week week of month");
+    for (auto timeZoneOffset : {0, 12 * 3600}) {
+        LOG_DEBUG(<< "time zone offset = " << timeZoneOffset);
+
+        // Repeated error on first Sunday of each month.
+        core_t::TTime months[]{
+            259200,  // Sun 4th Jan
+            2678400, // Sun 1st Feb
+            5097600, // Sun 1st Mar
+            8121600, // Sun 5th Apr
+            10540800 // Sun 3rd May
+        };
+        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+
+        maths::time_series::CCalendarCyclicTest cyclic(HALF_HOUR);
+
+        TDoubleVec error;
+        for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
+            ptrdiff_t i = maths::common::CTools::truncate(
+                std::lower_bound(std::begin(months), std::end(months), time + timeZoneOffset) -
+                    std::begin(months),
+                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+
+            rng.generateNormalSamples(0.0, 9.0, 1, error);
+            if (time + timeZoneOffset >= months[i - 1] + 25000 &&
+                time + timeZoneOffset < months[i - 1] + 40000) {
+                error[0] += 15.0;
+            }
+            cyclic.add(time, error[0]);
+
+            if (time > 121 * DAY && time % DAY == 0) {
+                auto feature = cyclic.test();
+                if (feature == boost::none) {
+                    falseNegative += 1.0;
+                } else {
+                    LOG_DEBUG(<< feature->first.print() << " " << feature->second);
+                    (feature->first.print() == "1st Sunday of month"
+                         ? truePositive
+                         : falsePositive) += 1.0;
+                }
+            }
+        }
+    }
+    LOG_DEBUG(<< "true positive = " << truePositive);
+    LOG_DEBUG(<< "false negative = " << falseNegative);
+    LOG_DEBUG(<< "false positive = " << falsePositive);
+
+    LOG_DEBUG(<< "Day of week weeks before end of month");
+    for (auto timeZoneOffset : {0, -12 * 3600}) {
+        LOG_DEBUG(<< "time zone offset = " << timeZoneOffset);
+
+        // Repeated error on last Friday of each month.
+        core_t::TTime months[]{
+            2592000, // Sat 31th Jan
+            5011200, // Sat 28th Feb
+            7430400, // Sat 28th Mar
+            9849600, // Sat 25th Apr
+            12873600 // Sat 30th May
+        };
+        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+
+        maths::time_series::CCalendarCyclicTest cyclic(HALF_HOUR);
+
+        TDoubleVec error;
+        for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
+            ptrdiff_t i = maths::common::CTools::truncate(
+                std::lower_bound(std::begin(months), std::end(months), time + timeZoneOffset) -
+                    std::begin(months),
+                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+
+            rng.generateNormalSamples(0.0, 9.0, 1, error);
+            if (time + timeZoneOffset >= months[i - 1] + 45000 &&
+                time + timeZoneOffset < months[i - 1] + 60000) {
+                error[0] -= 12.0;
+            }
+            cyclic.add(time, error[0]);
+
+            if (time > 121 * DAY && time % DAY == 0) {
+                auto feature = cyclic.test();
+                if (feature == boost::none) {
+                    falseNegative += 1.0;
+                } else {
+                    (feature->first.print() == "0 Saturdays before end of month"
+                         ? truePositive
+                         : falsePositive) += 1.0;
+                }
+            }
+        }
+    }
+    LOG_DEBUG(<< "true positive = " << truePositive);
+    LOG_DEBUG(<< "false negative = " << falseNegative);
+    LOG_DEBUG(<< "false positive = " << falsePositive);
+
+    double accuracy{(truePositive / (truePositive + falseNegative + falsePositive))};
+    LOG_DEBUG(<< "accuracy = " << accuracy);
+    BOOST_TEST_REQUIRE(accuracy > 0.9);
+}
+
+BOOST_AUTO_TEST_CASE(testVeryLargeCyclicSpikes) {
+    // Test the true positive rate for very large spikes.
+
+    test::CRandomNumbers rng;
+
+    double truePositive{0.0};
+    double falsePositive{0.0};
+    double falseNegative{0.0};
+
+    LOG_DEBUG(<< "Day of month");
+    for (std::size_t t = 0; t < 10; ++t) {
+        // Repeated error on the second day of the month.
+        core_t::TTime months[]{
+            86400,    // 2nd Jan
+            2764800,  // 2nd Feb
+            5184000,  // 2nd Mar
+            7862400,  // 2nd Apr
+            10454400, // 2nd May
+            13132800, // 2nd June
+            15724800, // 2nd July
+            18403200, // 2nd Aug
+            21081600, // 2nd Sep
+            23673600  // 2nd Oct
+        };
+        core_t::TTime end = months[boost::size(months) - 1] + 86400;
+
+        maths::time_series::CCalendarCyclicTest cyclic(HOUR);
+
+        TDoubleVec error;
+        for (core_t::TTime time = 0; time <= end; time += HOUR) {
+            ptrdiff_t i = maths::common::CTools::truncate(
+                std::lower_bound(std::begin(months), std::end(months), time) -
+                    std::begin(months),
+                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+
+            rng.generateNormalSamples(0.0, 9.0, 1, error);
+            if (time >= months[i - 1] + 36000 && time < months[i - 1] + 39600) {
+                error[0] += 30.0;
+            }
+            cyclic.add(time, error[0]);
+
+            if (time > 121 * DAY && time % DAY == 0) {
+                auto feature = cyclic.test();
+                if (feature == boost::none) {
+                    falseNegative += 1.0;
+                } else {
+                    (feature->first.print() == "2nd day of month" ? truePositive
+                                                                  : falsePositive) += 1.0;
+                }
+            }
         }
     }
     LOG_DEBUG(<< "true positive = " << truePositive);
@@ -266,10 +427,10 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
             cyclic.add(time, error[0]);
 
             if (time % MONTH == 0) {
-                TOptionalFeature feature{cyclic.test()};
+                auto feature = cyclic.test();
                 (feature == boost::none ? trueNegatives : falsePositives) += 1.0;
                 if (feature != boost::none) {
-                    LOG_DEBUG(<< "Detected = " << feature->print());
+                    LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
                 BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 840);
             }
@@ -290,12 +451,12 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
             cyclic.add(time, error[0]);
 
             if (time % MONTH == 0) {
-                TOptionalFeature feature{cyclic.test()};
+                auto feature = cyclic.test();
                 (feature == boost::none ? trueNegatives : falsePositives) += 1.0;
                 if (feature != boost::none) {
-                    LOG_DEBUG(<< "Detected = " << feature->print());
+                    LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
-                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 840);
+                BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 860);
             }
         }
     }
@@ -316,10 +477,10 @@ BOOST_AUTO_TEST_CASE(testFalsePositives) {
             cyclic.add(time, error[0]);
 
             if (time % MONTH == 0) {
-                TOptionalFeature feature{cyclic.test()};
+                auto feature = cyclic.test();
                 (feature == boost::none ? trueNegatives : falsePositives) += 1.0;
                 if (feature != boost::none) {
-                    LOG_DEBUG(<< "Detected = " << feature->print());
+                    LOG_DEBUG(<< "Detected = " << feature->first.print());
                 }
                 BOOST_TEST_REQUIRE(core::CMemory::dynamicSize(&cyclic) < 840);
             }

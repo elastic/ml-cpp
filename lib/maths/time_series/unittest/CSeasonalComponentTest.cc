@@ -37,7 +37,6 @@ BOOST_AUTO_TEST_SUITE(CSeasonalComponentTest)
 using namespace ml;
 
 namespace {
-
 using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleVec = std::vector<double>;
 using TTimeVec = std::vector<core_t::TTime>;
@@ -74,7 +73,7 @@ public:
         if (this->shouldInterpolate(time)) {
             this->interpolate(time);
         }
-        this->maths::time_series::CSeasonalComponent::add(time, value, weight);
+        this->add(time, value, weight);
     }
 };
 
@@ -350,7 +349,7 @@ BOOST_AUTO_TEST_CASE(testStablePeriodic) {
         double totalError1 = 0.0;
         double totalError2 = 0.0;
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u, d = 0; i < n; ++i) {
+        for (std::size_t i = 0, d = 0; i < n; ++i) {
             seasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
 
             if (samples[i].first >= time + core::constants::DAY) {
@@ -912,7 +911,6 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // Check that persistence is idempotent.
 
     const core_t::TTime startTime = 1354492800;
-    const core_t::TTime minute = 60;
     const double decayRate = 0.001;
     const double minimumBucketLength = 0.0;
 
@@ -935,57 +933,37 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec residuals;
     rng.generateGammaSamples(10.0, 1.2, n, residuals);
 
-    CTestSeasonalComponent origSeasonal(core::constants::DAY, 24, decayRate);
+    CTestSeasonalComponent origComponent(core::constants::DAY, 24, decayRate);
 
     for (std::size_t i = 0; i < n; ++i) {
-        origSeasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
+        origComponent.addPoint(samples[i].first, samples[i].second + residuals[i]);
     }
 
     std::string origXml;
     {
         core::CRapidXmlStatePersistInserter inserter("root");
-        origSeasonal.acceptPersistInserter(inserter);
+        origComponent.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
 
     LOG_DEBUG(<< "seasonal component XML representation:\n" << origXml);
 
-    // Restore the XML into a new filter
+    // Restore the XML into a new component.
     core::CRapidXmlParser parser;
     BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
-    maths::time_series::CSeasonalComponent restoredSeasonal(
-        decayRate, minimumBucketLength, traverser);
+    maths::time_series::CSeasonalComponent restoredComponent{
+        decayRate, minimumBucketLength, traverser};
 
     std::string newXml;
     {
         core::CRapidXmlStatePersistInserter inserter("root");
-        restoredSeasonal.acceptPersistInserter(inserter);
+        restoredComponent.acceptPersistInserter(inserter);
         inserter.toXml(newXml);
     }
     BOOST_REQUIRE_EQUAL(origXml, newXml);
-
-    // Test that the values and variances of the original and
-    // restored components are similar.
-    for (core_t::TTime time = 0; time < core::constants::DAY; time += minute) {
-        TDoubleDoublePr xo = origSeasonal.value(time, 80.0);
-        TDoubleDoublePr xn = restoredSeasonal.value(time, 80.0);
-        if (time % (15 * minute) == 0) {
-            LOG_DEBUG(<< "xo = " << core::CContainerPrinter::print(xo)
-                      << ", xn = " << core::CContainerPrinter::print(xn));
-        }
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(xo.first, xn.first, 0.3);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(xo.second, xn.second, 0.3);
-        TDoubleDoublePr vo = origSeasonal.variance(time, 80.0);
-        TDoubleDoublePr vn = origSeasonal.variance(time, 80.0);
-        if (time % (15 * minute) == 0) {
-            LOG_DEBUG(<< "vo = " << core::CContainerPrinter::print(vo)
-                      << ", vn = " << core::CContainerPrinter::print(vn));
-        }
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(vo.first, vn.first, 1e-3);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(vo.second, vn.second, 1e-3);
-    }
+    BOOST_REQUIRE_EQUAL(origComponent.checksum(), restoredComponent.checksum());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

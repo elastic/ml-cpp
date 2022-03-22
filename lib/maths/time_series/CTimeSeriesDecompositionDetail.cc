@@ -414,8 +414,9 @@ CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(core_t::TTi
 
 CTimeSeriesDecompositionDetail::SDetectedCalendar::SDetectedCalendar(core_t::TTime time,
                                                                      core_t::TTime lastTime,
-                                                                     CCalendarFeature feature)
-    : SMessage{time, lastTime}, s_Feature{feature} {
+                                                                     CCalendarFeature feature,
+                                                                     core_t::TTime timeZoneOffset)
+    : SMessage{time, lastTime}, s_Feature{feature}, s_TimeZoneOffset{timeZoneOffset} {
 }
 
 //////// SDetectedTrend ////////
@@ -1440,8 +1441,10 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::test(const SMessage& message
     if (this->shouldTest(time)) {
         switch (m_Machine.state()) {
         case CC_TEST: {
-            if (CCalendarCyclicTest::TOptionalFeature feature = m_Test->test()) {
-                this->mediator()->forward(SDetectedCalendar(time, lastTime, *feature));
+            if (auto result = m_Test->test()) {
+                auto[feature, timeZoneOffset] = *result;
+                this->mediator()->forward(
+                    SDetectedCalendar(time, lastTime, feature, timeZoneOffset));
             }
             break;
         }
@@ -1689,6 +1692,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         }
 
         double weight{maths_t::countForUpdate(weights)};
+        double initialWeight{maths_t::count(weights)};
         std::size_t m{seasonalComponents.size()};
         std::size_t n{calendarComponents.size()};
 
@@ -1725,14 +1729,15 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
             CSeasonalComponent* component{seasonalComponents[i - 1]};
             CComponentErrors* error_{seasonalErrors[i - 1]};
             double varianceIncrease{variance == 0.0 ? 1.0 : variances[i] / variance / expectedVarianceIncrease};
-            component->add(time, values[i], weight, 0.5);
+            component->add(time, values[i],
+                           component->initialized() ? weight : initialWeight, 0.5);
             error_->add(referenceError, error, predictions[i - 1], varianceIncrease, weight);
         }
         for (std::size_t i = m + 1; i <= m + n; ++i) {
             CCalendarComponent* component{calendarComponents[i - m - 1]};
             CComponentErrors* error_{calendarErrors[i - m - 1]};
             double varianceIncrease{variance == 0.0 ? 1.0 : variances[i] / variance / expectedVarianceIncrease};
-            component->add(time, values[i], weight);
+            component->add(time, values[i], component->initialized() ? weight : initialWeight);
             error_->add(referenceError, error, predictions[i - 1], varianceIncrease, weight);
         }
 
@@ -1799,13 +1804,14 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
 
         core_t::TTime time{message.s_Time};
         CCalendarFeature feature{message.s_Feature};
+        core_t::TTime timeZoneOffset{message.s_TimeZoneOffset};
 
         if (m_Calendar->haveComponent(feature)) {
             break;
         }
 
         LOG_DEBUG(<< "Detected feature '" << feature.print() << "' at " << time);
-        this->addCalendarComponent(feature);
+        this->addCalendarComponent(feature, timeZoneOffset);
         this->apply(SC_ADDED_COMPONENTS, message);
         break;
     }
@@ -2099,9 +2105,10 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
     m_ComponentChangeCallback(std::move(initialValues));
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCalendarFeature& feature) {
+void CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCalendarFeature& feature,
+                                                                       core_t::TTime timeZoneOffset) {
     double bucketLength{static_cast<double>(m_BucketLength)};
-    m_Calendar->add(feature, m_CalendarComponentSize, m_DecayRate, bucketLength);
+    m_Calendar->add(feature, timeZoneOffset, m_CalendarComponentSize, m_DecayRate, bucketLength);
     m_ModelAnnotationCallback("Detected calendar feature: " + feature.print());
 }
 
@@ -2936,11 +2943,12 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::initialized() const
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CCalendar::add(const CCalendarFeature& feature,
+                                                                 core_t::TTime timeZoneOffset,
                                                                  std::size_t size,
                                                                  double decayRate,
                                                                  double bucketLength) {
-    m_Components.emplace_back(feature, size, decayRate, bucketLength,
-                              common::CSplineTypes::E_Natural);
+    m_Components.emplace_back(feature, timeZoneOffset, size, decayRate,
+                              bucketLength, common::CSplineTypes::E_Natural);
     m_Components.back().initialize();
     m_PredictionErrors.resize(m_Components.size());
 }
