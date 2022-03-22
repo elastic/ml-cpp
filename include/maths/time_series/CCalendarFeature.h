@@ -106,7 +106,7 @@ MATHS_TIME_SERIES_EXPORT
 std::ostream& operator<<(std::ostream& strm, const CCalendarFeature& feature);
 
 //! \brief A wrapper around CCalendarFeature and time zone offset.
-class CCalendarFeatureAndTZ {
+class MATHS_TIME_SERIES_EXPORT CCalendarFeatureAndTZ {
 public:
     CCalendarFeatureAndTZ(CCalendarFeature feature, core_t::TTime timeZoneOffset);
 
