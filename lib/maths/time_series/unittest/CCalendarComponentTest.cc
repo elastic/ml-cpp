@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <boost/test/tools/interface.hpp>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -20,15 +19,14 @@
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CTools.h>
-
 #include <maths/common/MathsTypes.h>
+
 #include <maths/time_series/CCalendarComponent.h>
 #include <maths/time_series/CCalendarFeature.h>
 
 #include <test/CRandomNumbers.h>
 
 #include "TestUtils.h"
-#include "maths/common/CBasicStatistics.h"
 
 #include <boost/test/unit_test.hpp>
 
