@@ -1456,7 +1456,8 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     };
 
     core::CPackedBitVector holdoutRowMask(numberHoldoutRows, true);
-    holdoutRowMask.extend(false, batch2Size - numberHoldoutRows);
+    holdoutRowMask.extend(false, batch1Size + batch2Size - numberHoldoutRows);
+    BOOST_TEST_REQUIRE(batch2->numberRows() = holdoutRowMask.size());
 
     auto computeTestError = [&](maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr&& model) {
         TMeanAccumulator squaredError;
