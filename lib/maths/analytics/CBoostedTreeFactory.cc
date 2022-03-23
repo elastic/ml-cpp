@@ -125,31 +125,20 @@ CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t dependentVariable) {
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeMissingFeatureMasks(frame); });
-    this->prepareDataFrameForEncode(frame);
+    this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
+        this->initializeMissingFeatureMasks(frame);
+        this->prepareDataFrameForEncode(frame);
+        this->startProgressMonitoringFeatureSelection();
+        this->selectFeaturesAndEncodeCategories(frame);
+        this->determineFeatureDataTypes(frame);
 
-    m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_NotInitialized
-        ? this->skipProgressMonitoringFeatureSelection()
-        : this->startProgressMonitoringFeatureSelection();
-
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->selectFeaturesAndEncodeCategories(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->determineFeatureDataTypes(frame); });
-
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
-    m_TreeImpl->m_Instrumentation->flush();
-
-    this->initializeFeatureSampleDistribution();
-
+        m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+        m_TreeImpl->m_Instrumentation->flush();
+        this->initializeFeatureSampleDistribution();
+    });
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
-    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_EncodingInitialized;
-
-    treeImpl->recordState(m_RecordTrainingState);
-
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
 }
@@ -159,11 +148,9 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
-    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
-                [&] { this->initializeMissingFeatureMasks(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
-                [&] { this->initializeNumberFolds(frame); });
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
+        this->initializeMissingFeatureMasks(frame);
+        this->initializeNumberFolds(frame);
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
             m_TreeImpl->m_NewTrainingRowMask.extend(
                 false, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
@@ -176,12 +163,12 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
         ? this->skipProgressMonitoringFeatureSelection()
         : this->startProgressMonitoringFeatureSelection();
 
+    skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
+        this->selectFeaturesAndEncodeCategories(frame);
+        this->determineFeatureDataTypes(frame);
+    });
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
                 [&] { this->initializeCrossValidation(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->selectFeaturesAndEncodeCategories(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->determineFeatureDataTypes(frame); });
 
     this->initializeSplitsCache(frame);
 

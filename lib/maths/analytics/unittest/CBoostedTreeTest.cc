@@ -1457,7 +1457,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
 
     core::CPackedBitVector holdoutRowMask(numberHoldoutRows, true);
     holdoutRowMask.extend(false, batch1Size + batch2Size - numberHoldoutRows);
-    BOOST_TEST_REQUIRE(batch2->numberRows() = holdoutRowMask.size());
+    BOOST_REQUIRE_EQUAL(batch2->numberRows(), holdoutRowMask.size());
 
     auto computeTestError = [&](maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr&& model) {
         TMeanAccumulator squaredError;
@@ -3492,7 +3492,7 @@ BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testEncodingOnly) {
+BOOST_AUTO_TEST_CASE(testEncodingSeparately) {
     // Test that we can do encoding separately from training.
 
     TDoubleVec categoryValue{-15.0, 20.0, 0.0};
