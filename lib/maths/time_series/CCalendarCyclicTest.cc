@@ -304,6 +304,10 @@ double CCalendarCyclicTest::survivalFunction(double error) const {
             LARGE_ERROR_PERCENTILE + i * (100.0 - LARGE_ERROR_PERCENTILE) / 5.0, eq);
         tailMoments.add(eq);
     }
+
+    if (common::CBasicStatistics::variance(tailMoments) == 0.0) {
+        return error > common::CBasicStatistics::mean(tailMoments) ? 0.0 : 1.0;
+    }
     try {
         boost::math::normal normal{common::CBasicStatistics::mean(tailMoments),
                                    std::sqrt(common::CBasicStatistics::variance(tailMoments))};
