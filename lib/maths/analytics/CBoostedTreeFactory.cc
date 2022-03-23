@@ -134,7 +134,9 @@ CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t depende
 
         m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
         m_TreeImpl->m_Instrumentation->flush();
+
         this->initializeFeatureSampleDistribution();
+
     });
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
@@ -168,7 +170,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
         this->determineFeatureDataTypes(frame);
     });
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
-                [&] { this->initializeCrossValidation(frame); });
+                [&] { this->initializeCrossValidation(frame);});
 
     this->initializeSplitsCache(frame);
 
@@ -178,8 +180,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 
     this->startProgressMonitoringInitializeHyperparameters(frame);
 
-    if (m_TreeImpl->m_InitializationStage == CBoostedTreeImpl::E_EncodingInitialized ||
-        this->initializeFeatureSampleDistribution()) {
+    if (this->initializeFeatureSampleDistribution()) {
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
     }
@@ -624,8 +625,11 @@ void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& fram
 
 bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 
+    if (m_TreeImpl->m_FeatureSampleProbabilities.empty() == false) {
+        return true;
+    }
     // Compute feature sample probabilities.
-
+    
     TDoubleVec mics(m_TreeImpl->m_Encoder->encodedColumnMics());
     LOG_TRACE(<< "candidate regressors MICe = " << core::CContainerPrinter::print(mics));
 
