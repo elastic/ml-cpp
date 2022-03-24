@@ -325,6 +325,7 @@ export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
+[ $(uname -m) != x86_64 ] && export USE_BREAKPAD=OFF
 export PYTORCH_BUILD_VERSION=1.11.0
 export PYTORCH_BUILD_NUMBER=1
 /usr/local/gcc103/bin/python3.7 setup.py install
