@@ -1429,8 +1429,17 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue& mess
 }
 
 void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SDetectedSeasonal& message) {
-    if (m_Machine.state() != CC_NOT_TESTING) {
+    switch (m_Machine.state()) {
+    case CC_TEST:
+        m_Test->forgetErrorDistribution();
+        break;
+    case CC_NOT_TESTING:
+    case CC_INITIAL:
+        break;
+    default:
+        LOG_ERROR(<< "Test in a bad state: " << m_Machine.state());
         this->apply(CC_RESET, message);
+        break;
     }
 }
 
