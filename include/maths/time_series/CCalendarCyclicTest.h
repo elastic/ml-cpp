@@ -61,6 +61,9 @@ public:
     //! Persist state by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    //! Clear the error distribution summary.
+    void forgetErrorDistribution();
+
     //! Age the bucket values to account for \p time elapsed time.
     void propagateForwardsByTime(double time);
 

@@ -145,6 +145,10 @@ void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& ins
     core::CPersistUtils::persist(ERRORS_6_4_TAG, errors, inserter);
 }
 
+void CCalendarCyclicTest::forgetErrorDistribution() {
+    m_ErrorQuantiles = common::CQuantileSketch{common::CQuantileSketch::E_Linear, 20};
+}
+
 void CCalendarCyclicTest::propagateForwardsByTime(double time) {
     if (common::CMathsFuncs::isFinite(time) == false || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
