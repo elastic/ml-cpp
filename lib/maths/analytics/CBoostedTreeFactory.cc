@@ -165,10 +165,10 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
         ? this->skipProgressMonitoringFeatureSelection()
         : this->startProgressMonitoringFeatureSelection();
 
-    skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
+    if (m_TreeImpl->m_InitializationStage < CBoostedTreeImpl::E_EncodingInitialized) {
         this->selectFeaturesAndEncodeCategories(frame);
         this->determineFeatureDataTypes(frame);
-    });
+    }
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
                 [&] { this->initializeCrossValidation(frame); });
 
