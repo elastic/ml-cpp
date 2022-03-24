@@ -45,7 +45,7 @@
 * Improve handling of extremely large outliers in time series modelling.
   (See {ml-pull}2230[#2230].)
 * Improve detection and modeling of time series' calendar cyclic features.
-  (See {ml-pull}2236[#2236].)
+  (See {ml-pull}2236[#2236] and {ml-pull}2243[#2243].)
 
 === Bug Fixes
 
