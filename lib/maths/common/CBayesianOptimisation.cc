@@ -837,6 +837,20 @@ std::size_t CBayesianOptimisation::estimateMemoryUsage(std::size_t numberParamet
            kernelParametersMemoryUsage + minimumKernelCoordinateDistanceScale;
 }
 
+std::uint64_t CBayesianOptimisation::checksum(std::uint64_t seed) const {
+    seed = CChecksum::calculate(seed, m_Rng);
+    seed = CChecksum::calculate(seed, m_Restarts);
+    seed = CChecksum::calculate(seed, m_RangeShift);
+    seed = CChecksum::calculate(seed, m_RangeScale);
+    seed = CChecksum::calculate(seed, m_ExplainedErrorVariance);
+    seed = CChecksum::calculate(seed, m_MinBoundary);
+    seed = CChecksum::calculate(seed, m_MaxBoundary);
+    seed = CChecksum::calculate(seed, m_FunctionMeanValues);
+    seed = CChecksum::calculate(seed, m_ErrorVariances);
+    seed = CChecksum::calculate(seed, m_KernelParameters);
+    return CChecksum::calculate(seed, m_MinimumKernelCoordinateDistanceScale);
+}
+
 const std::size_t CBayesianOptimisation::RESTARTS{10};
 const double CBayesianOptimisation::NEGLIGIBLE_EXPECTED_IMPROVEMENT{1e-12};
 const double CBayesianOptimisation::MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE{1e-3};

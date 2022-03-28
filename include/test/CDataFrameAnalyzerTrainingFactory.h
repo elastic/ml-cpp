@@ -156,28 +156,28 @@ public:
         maths::analytics::CBoostedTreeFactory treeFactory{
             maths::analytics::CBoostedTreeFactory::constructFromParameters(1, std::move(loss))};
         if (alpha >= 0.0) {
-            treeFactory.depthPenaltyMultiplier(alpha);
+            treeFactory.depthPenaltyMultiplier({alpha});
         }
         if (lambda >= 0.0) {
-            treeFactory.leafWeightPenaltyMultiplier(lambda);
+            treeFactory.leafWeightPenaltyMultiplier({lambda});
         }
         if (gamma >= 0.0) {
-            treeFactory.treeSizePenaltyMultiplier(gamma);
+            treeFactory.treeSizePenaltyMultiplier({gamma});
         }
         if (softTreeDepthLimit >= 0.0) {
-            treeFactory.softTreeDepthLimit(softTreeDepthLimit);
+            treeFactory.softTreeDepthLimit({softTreeDepthLimit});
         }
         if (softTreeDepthTolerance >= 0.0) {
-            treeFactory.softTreeDepthTolerance(softTreeDepthTolerance);
+            treeFactory.softTreeDepthTolerance({softTreeDepthTolerance});
         }
         if (eta > 0.0) {
-            treeFactory.eta(eta);
+            treeFactory.eta({eta});
         }
         if (maximumNumberTrees > 0) {
             treeFactory.maximumNumberTrees(maximumNumberTrees);
         }
         if (featureBagFraction > 0.0) {
-            treeFactory.featureBagFraction(featureBagFraction);
+            treeFactory.featureBagFraction({featureBagFraction});
         }
 
         ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation(

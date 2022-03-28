@@ -374,11 +374,11 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(std::size_t numberThr
     }
 
     if (m_Derivatives.numberLossParameters() <= 2 && result.s_Gain > 0) {
-        double lambda{regularization.leafWeightPenaltyMultiplier()};
+        double lambda{regularization.leafWeightPenaltyMultiplier().value()};
         double childPenaltyForDepth{regularization.penaltyForDepth(m_Depth + 1)};
         double childPenaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 2)};
-        double childPenalty{regularization.treeSizePenaltyMultiplier() +
-                            regularization.depthPenaltyMultiplier() *
+        double childPenalty{regularization.treeSizePenaltyMultiplier().value() +
+                            regularization.depthPenaltyMultiplier().value() *
                                 (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
         result.s_LeftChildMaxGain =
             0.5 * this->childMaxGain(childrenGainStatisticsGlobal.s_GLeft,
@@ -408,7 +408,7 @@ CBoostedTreeLeafNodeStatistics::featureBestSplitSearch(
     using TDoubleMatrixAry = std::array<TDoubleMatrix, 2>;
 
     int d{static_cast<int>(m_NumberLossParameters)};
-    double lambda{regularization.leafWeightPenaltyMultiplier()};
+    double lambda{regularization.leafWeightPenaltyMultiplier().value()};
     auto minimumLoss_ = TThreading::makeThreadLocalMinimumLossFunction(d, lambda);
 
     TDoubleVector g_{d};
@@ -529,8 +529,8 @@ CBoostedTreeLeafNodeStatistics::featureBestSplitSearch(
         // The gain is the difference between the quadratic minimum for loss with
         // no split and the loss with the minimum loss split we found.
         double totalGain{0.5 * (maximumGain - minimumLoss(g, h)) -
-                         regularization.treeSizePenaltyMultiplier() -
-                         regularization.depthPenaltyMultiplier() *
+                         regularization.treeSizePenaltyMultiplier().value() -
+                         regularization.depthPenaltyMultiplier().value() *
                              (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
         SSplitStatistics candidateSplitStatistics{
             totalGain,
