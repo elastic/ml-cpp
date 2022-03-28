@@ -40,6 +40,12 @@
 * Support user defined example weights when training classification and
   regression models. (See {ml-pull}2222[#2222].)
 * Reduce worst case bucket processing time for anomaly detection. (See {ml-pull}2225[#2225].)
+* Improve handling of low cardinality features for training classification
+  and regression models. (See {ml-pull}2229[#2229].)
+* Improve handling of extremely large outliers in time series modelling.
+  (See {ml-pull}2230[#2230].)
+* Improve detection and modeling of time series' calendar cyclic features.
+  (See {ml-pull}2236[#2236] and {ml-pull}2243[#2243].)
 
 === Bug Fixes
 

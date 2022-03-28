@@ -45,6 +45,7 @@
 #include <maths/common/MathsTypes.h>
 
 #include <boost/circular_buffer.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -621,7 +622,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
                                      m_Loss->numberParameters()) /
                                  2};
     std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
-    std::size_t featureSampleProbabilities{maximumNumberFeatures * sizeof(double)};
+    std::size_t featureSampleProbabilitiesMemoryUsage{maximumNumberFeatures * sizeof(double)};
+    std::size_t fixedCandidateSplitsMemoryUsage{maximumNumberFeatures * sizeof(TFloatVec)};
     // Assuming either many or few missing rows, we get good compression of the bit
     // vector. Specifically, we'll assume the average run length is 64 for which
     // we get a constant 8 / 64.
@@ -634,8 +636,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
 
     std::size_t worstCaseMemoryUsage{
         sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
-        hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
-        dataTypeMemoryUsage + featureSampleProbabilities +
+        hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage + dataTypeMemoryUsage +
+        featureSampleProbabilitiesMemoryUsage + fixedCandidateSplitsMemoryUsage +
         missingFeatureMaskMemoryUsage + trainTestMaskMemoryUsage};
 
     return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
@@ -860,7 +862,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame,
     numberTrees.reserve(m_Hyperparameters.currentRound());
     TMeanAccumulator meanForestSizeAccumulator;
 
-    while (folds.size() > 0 && stopCrossValidationEarly(testLossMoments) == false) {
+    while (folds.empty() == false && stopCrossValidationEarly(testLossMoments) == false) {
         std::size_t fold{folds.back()};
         folds.pop_back();
         double testLoss;
@@ -986,7 +988,13 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     auto downsampledRowMask = this->downsample(trainingRowMask);
     scopeMemoryUsage.add(downsampledRowMask);
     auto candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-    this->refreshSplitsCache(frame, candidateSplits, trainingRowMask);
+    // We compute and cache row splits once upfront for features using fixed splits.
+    TBoolVec featuresToRefresh(m_FixedCandidateSplits.size());
+    for (std::size_t i = 0; i < m_FixedCandidateSplits.size(); ++i) {
+        featuresToRefresh[i] = m_FeatureSampleProbabilities[i] > 0.0 &&
+                               m_FixedCandidateSplits[i].empty();
+    }
+    this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh, trainingRowMask);
     scopeMemoryUsage.add(candidateSplits);
 
     std::size_t retries{0};
@@ -1051,7 +1059,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
         if (forceRefreshSplits || forest.size() == nextTreeCountToRefreshSplits) {
             scopeMemoryUsage.remove(candidateSplits);
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-            this->refreshSplitsCache(frame, candidateSplits, trainingRowMask);
+            this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh, trainingRowMask);
             scopeMemoryUsage.add(candidateSplits);
             nextTreeCountToRefreshSplits += static_cast<std::size_t>(
                 std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
@@ -1126,6 +1134,12 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
     scopeMemoryUsage.add(newDownsampledRowMask);
     scopeMemoryUsage.add(downsampledRowMask);
     TFloatVecVec candidateSplits;
+    // We compute and cache row splits once upfront for features using fixed splits.
+    TBoolVec featuresToRefresh(m_FixedCandidateSplits.size());
+    for (std::size_t i = 0; i < m_FixedCandidateSplits.size(); ++i) {
+        featuresToRefresh[i] = m_FeatureSampleProbabilities[i] > 0.0 &&
+                               m_FixedCandidateSplits[i].empty();
+    }
 
     TDoubleVec testLosses;
     testLosses.reserve(m_TreesToRetrain.size());
@@ -1173,7 +1187,7 @@ CBoostedTreeImpl::updateForest(core::CDataFrame& frame,
         if (retrainedTrees.size() == nextTreeCountToRefreshSplits) {
             scopeMemoryUsage.remove(candidateSplits);
             candidateSplits = this->candidateSplits(frame, downsampledRowMask);
-            this->refreshSplitsCache(frame, candidateSplits, trainingRowMask);
+            this->refreshSplitsCache(frame, candidateSplits, featuresToRefresh, trainingRowMask);
             scopeMemoryUsage.add(candidateSplits);
             nextTreeCountToRefreshSplits += static_cast<std::size_t>(
                 std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
@@ -1247,24 +1261,102 @@ CBoostedTreeImpl::downsample(const core::CPackedBitVector& trainingRowMask) cons
     return result;
 }
 
+void CBoostedTreeImpl::initializeFixedCandidateSplits(core::CDataFrame& frame) {
+
+    using TDoubleUSet = boost::unordered_set<double>;
+    using TDoubleUSetVec = std::vector<TDoubleUSet>;
+
+    TSizeVec features;
+    candidateRegressorFeatures(m_FeatureSampleProbabilities, features);
+
+    m_FixedCandidateSplits.clear();
+    m_FixedCandidateSplits.resize(this->numberFeatures());
+
+    for (auto i : features) {
+        if (m_Encoder->isBinary(i)) {
+            m_FixedCandidateSplits[i] = TFloatVec{0.5F};
+            LOG_TRACE(<< "feature '" << i << "' splits = "
+                      << core::CContainerPrinter::print(m_FixedCandidateSplits[i]));
+        }
+    }
+
+    features.erase(std::remove_if(features.begin(), features.end(),
+                                  [this](std::size_t index) {
+                                      return m_Encoder->isBinary(index);
+                                  }),
+                   features.end());
+    LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
+
+    auto allTrainingRowsMask = this->allTrainingRowsMask();
+    auto result = frame.readRows(
+        m_NumberThreads, 0, frame.numberRows(),
+        core::bindRetrievableState(
+            [&](TDoubleUSetVec& state, const TRowItr& beginRows, const TRowItr& endRows) {
+                for (auto& set : state) {
+                    set.reserve(m_NumberSplitsPerFeature + 2);
+                }
+                for (auto row = beginRows; row != endRows; ++row) {
+                    for (std::size_t i = 0; i < features.size(); ++i) {
+                        if (state[i].size() <= m_NumberSplitsPerFeature + 1) {
+                            state[i].insert(m_Encoder->encode(*row)[features[i]]);
+                        }
+                    }
+                }
+            },
+            TDoubleUSetVec(features.size())),
+        &allTrainingRowsMask);
+    auto sets = result.first;
+
+    TDoubleUSetVec uniques{std::move(sets[0].s_FunctionState)};
+    for (std::size_t i = 1; i < sets.size(); ++i) {
+        for (std::size_t j = 0; j < uniques.size(); ++j) {
+            const auto& uniques_ = sets[i].s_FunctionState[j];
+            uniques[j].insert(uniques_.begin(), uniques_.end());
+        }
+    }
+
+    TDoubleVec values;
+    for (std::size_t i = 0; i < features.size(); ++i) {
+        if (uniques[i].size() <= m_NumberSplitsPerFeature) {
+            values.assign(uniques[i].begin(), uniques[i].end());
+            std::sort(values.begin(), values.end());
+            auto& featureCandidateSplits = m_FixedCandidateSplits[features[i]];
+            featureCandidateSplits.reserve(values.size() - 1);
+            for (std::size_t j = 1; j < values.size(); ++j) {
+                featureCandidateSplits.emplace_back(0.5 * (values[j] + values[j - 1]));
+            }
+            LOG_TRACE(<< "feature '" << features[i] << "' splits = "
+                      << core::CContainerPrinter::print(featureCandidateSplits));
+        }
+    }
+
+    TBoolVec featuresToRefresh(m_FixedCandidateSplits.size());
+    for (std::size_t i = 0; i < m_FixedCandidateSplits.size(); ++i) {
+        featuresToRefresh[i] = (m_FixedCandidateSplits[i].empty() == false);
+    }
+
+    this->refreshSplitsCache(frame, m_FixedCandidateSplits, featuresToRefresh,
+                             allTrainingRowsMask);
+}
+
 CBoostedTreeImpl::TFloatVecVec
 CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask) const {
 
+    TFloatVecVec candidateSplits{m_FixedCandidateSplits};
+
     TSizeVec features;
     candidateRegressorFeatures(m_FeatureSampleProbabilities, features);
+    features.erase(std::remove_if(features.begin(), features.end(),
+                                  [this](std::size_t index) {
+                                      return m_FixedCandidateSplits[index].empty() == false;
+                                  }),
+                   features.end());
     LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
 
-    TSizeVec binaryFeatures(features);
-    binaryFeatures.erase(std::remove_if(binaryFeatures.begin(), binaryFeatures.end(),
-                                        [this](std::size_t index) {
-                                            return m_Encoder->isBinary(index) == false;
-                                        }),
-                         binaryFeatures.end());
-    common::CSetTools::inplace_set_difference(features, binaryFeatures.begin(),
-                                              binaryFeatures.end());
-    LOG_TRACE(<< "binary features = " << core::CContainerPrinter::print(binaryFeatures)
-              << " other features = " << core::CContainerPrinter::print(features));
+    if (features.empty()) {
+        return candidateSplits;
+    }
 
     auto featureQuantiles =
         CDataFrameUtils::columnQuantiles(
@@ -1280,11 +1372,6 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
             })
             .first;
 
-    TFloatVecVec candidateSplits(this->numberFeatures());
-
-    for (auto i : binaryFeatures) {
-        candidateSplits[i] = TFloatVec{0.5};
-    }
     for (std::size_t i = 0; i < features.size(); ++i) {
 
         auto& featureCandidateSplits = candidateSplits[features[i]];
@@ -1301,7 +1388,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                             common::CSampling::uniformSample(m_Rng, -0.1, 0.1)};
                 double q;
                 if (featureQuantiles[i].quantile(rank, q)) {
-                    featureCandidateSplits.push_back(q);
+                    featureCandidateSplits.emplace_back(q);
                 } else {
                     LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");
                 }
@@ -1339,7 +1426,13 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
 
 void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                                           const TFloatVecVec& candidateSplits,
+                                          const TBoolVec& featureMask,
                                           const core::CPackedBitVector& trainingRowMask) const {
+    if (std::none_of(featureMask.begin(), featureMask.end(),
+                     [](bool refresh) { return refresh; })) {
+        return;
+    }
+
     frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
         [&](const TRowItr& beginRows, const TRowItr& endRows) {
@@ -1348,19 +1441,22 @@ void CBoostedTreeImpl::refreshSplitsCache(core::CDataFrame& frame,
                 auto encodedRow = m_Encoder->encode(row);
                 auto* splits = beginSplits(row, m_ExtraColumns);
                 for (std::size_t i = 0; i < encodedRow.numberColumns(); ++splits) {
-                    CPackedUInt8Decorator::TUInt8Ary packedSplits;
-                    packedSplits.fill(0);
+                    CPackedUInt8Decorator::TUInt8Ary packedSplits{
+                        CPackedUInt8Decorator{*splits}.readBytes()};
                     for (std::size_t j = 0;
                          j < packedSplits.size() && i < encodedRow.numberColumns();
                          ++i, ++j) {
-                        double feature{encodedRow[i]};
-                        packedSplits[j] =
-                            CDataFrameUtils::isMissing(feature)
-                                ? static_cast<std::uint8_t>(missingSplit(candidateSplits[i]))
-                                : packedSplits[j] = static_cast<std::uint8_t>(
-                                      std::upper_bound(candidateSplits[i].begin(),
-                                                       candidateSplits[i].end(), feature) -
-                                      candidateSplits[i].begin());
+                        if (featureMask[i]) {
+                            double feature{encodedRow[i]};
+                            packedSplits[j] =
+                                CDataFrameUtils::isMissing(feature)
+                                    ? static_cast<std::uint8_t>(
+                                          missingSplit(candidateSplits[i]))
+                                    : static_cast<std::uint8_t>(
+                                          std::upper_bound(candidateSplits[i].begin(),
+                                                           candidateSplits[i].end(), feature) -
+                                          candidateSplits[i].begin());
+                        }
                     }
                     *splits = CPackedUInt8Decorator{packedSplits};
                 }
@@ -2374,6 +2470,7 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
     mem += core::CMemory::dynamicSize(m_FeatureDataTypes);
     mem += core::CMemory::dynamicSize(m_FeatureSampleProbabilities);
     mem += core::CMemory::dynamicSize(m_MissingFeatureRowMasks);
+    mem += core::CMemory::dynamicSize(m_FixedCandidateSplits);
     mem += core::CMemory::dynamicSize(m_TrainingRowMasks);
     mem += core::CMemory::dynamicSize(m_TestingRowMasks);
     mem += core::CMemory::dynamicSize(m_NewTrainingRowMask);

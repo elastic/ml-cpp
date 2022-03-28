@@ -26,6 +26,7 @@ SRCS=\
 	Main.cc \
 	CAdaptiveBucketingTest.cc \
 	CCalendarComponentAdaptiveBucketingTest.cc \
+	CCalendarComponentTest.cc \
 	CCalendarCyclicTestTest.cc \
 	CCalendarFeatureTest.cc \
 	CCountMinSketchTest.cc \
