@@ -409,8 +409,8 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
 
     // Test some edge case inputs fail gracefully.
 
-    auto errorHandler = [](std::string error) {
-        throw std::runtime_error{std::move(error)};
+    auto errorHandler = [](const std::string& error) {
+        throw std::runtime_error{error};
     };
 
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
@@ -817,7 +817,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
               << ", rSquaredWithWeights    = " << rSquaredWithWeights);
 
     BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.2 * std::fabs(biasWithoutWeights));
-    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.75 * (1.0 - rSquaredWithoutWeights));
+    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.8 * (1.0 - rSquaredWithoutWeights));
 }
 
 BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
@@ -1310,7 +1310,7 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
     };
 
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.0073);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.014);
     BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
 }
 
