@@ -1711,7 +1711,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     int initializationStage{static_cast<int>(E_FullyInitialized)};
 
     do {
-        const std::string& name = traverser.name();
+        const std::string& name{traverser.name()};
         RESTORE(BEST_FOREST_TAG,
                 core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
         RESTORE_SETUP_TEARDOWN(

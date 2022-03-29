@@ -1517,7 +1517,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
                 .treeSizePenaltyMultiplier({0.0})
                 .leafWeightPenaltyMultiplier({0.0})
                 .softTreeDepthLimit({targetDepth})
-                .softTreeDepthTolerance({0.01})
+                .softTreeDepthTolerance({0.05})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
@@ -1525,7 +1525,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
             BOOST_TEST_REQUIRE(maxDepth(tree, tree[0], 0) <=
-                               static_cast<std::size_t>(targetDepth));
+                               static_cast<std::size_t>(targetDepth + 1));
             meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::common::CBasicStatistics::mean(meanDepth));
