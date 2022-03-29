@@ -397,7 +397,7 @@ struct SFixture {
     double s_SoftTreeDepthLimit{5.0};
     double s_SoftTreeDepthTolerance{0.1};
     double s_Eta{0.9};
-    std::size_t s_MaximumNumberTrees{1};
+    std::size_t s_MaximumNumberTrees{2};
     double s_FeatureBagFraction{1.0};
 
     int s_Rows{2000};
