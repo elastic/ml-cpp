@@ -213,7 +213,7 @@ On the "Advanced Options" screen, check "Install for all users" and "Add Python 
 
 For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
 
-### PyTorch 1.9.0
+### PyTorch 1.11.0
 
 PyTorch requires that certain Python modules are installed.  Start a command prompt "cmd.exe" using "Run as administrator".  In it run:
 
@@ -227,7 +227,7 @@ Next, in a Git bash shell run:
 
 ```
 cd /c/tools
-git clone --depth=1 --branch=v1.9.0 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v1.11.0 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -278,7 +278,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=1.9.0
+set PYTORCH_BUILD_VERSION=1.11.0
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```
