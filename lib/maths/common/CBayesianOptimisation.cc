@@ -399,6 +399,7 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     double v{this->meanErrorVariance()};
     TVector ones;
     TVector gradient;
+    Eigen::LDLT<Eigen::MatrixXd> Kldl;
     TMatrix K;
     TVector Kinvf;
     TMatrix Kinv;
@@ -406,26 +407,35 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
 
     auto minusLogLikelihood = [=](const TVector& a) mutable -> double {
         K = this->kernel(a, v);
-        Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
-        Kinvf = Kldl.solve(f);
+        Kldl.compute(K);
+        double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
+        K.diagonal().array() += eps;
+        Kldl.compute(K);
+        Kinvf.noalias() = f;
+        Kldl.solveInPlace(Kinvf);
+
         // We can only determine values up to eps * "max diagonal". If the diagonal
         // has a zero it blows up the determinant term. In practice, we know the
         // kernel can't be singular by construction so we perturb the diagonal by
         // the numerical error in such a way as to recover a non-singular matrix.
         // (Note that the solve routine deals with the zero for us.)
-        double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
         return 0.5 * (f.transpose() * Kinvf +
                       Kldl.vectorD().cwiseMax(eps).array().log().sum());
     };
 
     auto minusLogLikelihoodGradient = [=](const TVector& a) mutable -> TVector {
         K = this->kernel(a, v);
-        Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
+        Kldl.compute(K);
+        double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
+        K.diagonal().array() += eps;
+        Kldl.compute(K);
 
-        Kinvf = Kldl.solve(f);
+        Kinvf.noalias() = f;
+        Kldl.solveInPlace(Kinvf);
 
         ones = TVector::Ones(f.size());
-        Kinv = Kldl.solve(TMatrix::Identity(f.size(), f.size()));
+        Kinv.noalias() = TMatrix::Identity(f.size(), f.size());
+        Kldl.solveInPlace(Kinv);
 
         K.diagonal() -= v * ones;
 
@@ -452,8 +462,8 @@ std::pair<CBayesianOptimisation::TEIFunc, CBayesianOptimisation::TEIGradientFunc
 CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
 
     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
-    Eigen::ColPivHouseholderQR<Eigen::MatrixXd> KHQR{K};
-    TVector Kinvf{KHQR.solve(this->function())};
+    Eigen::ColPivHouseholderQR<Eigen::MatrixXd> Khqr{K};
+    TVector Kinvf{Khqr.solve(this->function())};
     double vx{this->meanErrorVariance()};
 
     TVector Kxn;
@@ -477,8 +487,8 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
             return 0.0;
         }
 
-        KinvKxn = KHQR.solve(Kxn);
-        double error{(K * KinvKxn - Kxn).norm()};
+        KinvKxn = Khqr.solve(Kxn);
+        double error{(K.lazyProduct(KinvKxn) - Kxn).norm()};
         if (CMathsFuncs::isNan(error) || error > 0.01 * Kxn.norm()) {
             return 0.0;
         }
@@ -504,8 +514,8 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
             return las::zero(x);
         }
 
-        KinvKxn = KHQR.solve(Kxn);
-        double error{(K * KinvKxn - Kxn).norm()};
+        KinvKxn = Khqr.solve(Kxn);
+        double error{(K.lazyProduct(KinvKxn) - Kxn).norm()};
         if (CMathsFuncs::isNan(error) || error > 0.01 * Kxn.norm()) {
             return las::zero(x);
         }
