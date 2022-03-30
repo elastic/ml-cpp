@@ -284,10 +284,6 @@ void CInferenceModelMetadata::numberTrainingRows(std::size_t numberRows) {
     m_NumberTrainingRows = numberRows;
 }
 
-void CInferenceModelMetadata::trainFractionPerFold(double fraction) {
-    m_TrainFractionPerFold = fraction;
-}
-
 // clang-format off
 const std::string CInferenceModelMetadata::JSON_ABSOLUTE_IMPORTANCE_TAG{"absolute_importance"};
 const std::string CInferenceModelMetadata::JSON_BASELINE_TAG{"baseline"};

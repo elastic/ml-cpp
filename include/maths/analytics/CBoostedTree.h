@@ -287,9 +287,6 @@ public:
     //! Get the number of rows used to train the model.
     std::size_t numberTrainingRows() const override;
 
-    //! Get the fraction of data per fold used for training when tuning hyperparameters.
-    double trainFractionPerFold() const override;
-
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;
 
@@ -323,18 +320,8 @@ public:
     //! Get the weight that has been chosen for each feature for training.
     const TDoubleVec& featureWeightsForTraining() const;
 
-    //! The name of the object holding the best hyperaparameters in the state document.
-    static const std::string& bestHyperparametersName();
-
-    //! The name of the object holding the best regularisation hyperparameters in the
-    //! state document.
-    static const std::string& bestRegularizationHyperparametersName();
-
-    //! A list of the names of the best individual hyperparameters in the state document.
-    static TStrVec bestHyperparameterNames();
-
     //! \return The best hyperparameters.
-    const CBoostedTreeHyperparameters& bestHyperparameters() const;
+    const CBoostedTreeHyperparameters& hyperparameters() const;
 
     //! \return The classification weights vector.
     TDoubleVec classificationWeights() const;

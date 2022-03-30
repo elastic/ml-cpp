@@ -409,8 +409,8 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
 
     // Test some edge case inputs fail gracefully.
 
-    auto errorHandler = [](std::string error) {
-        throw std::runtime_error{std::move(error)};
+    auto errorHandler = [](const std::string& error) {
+        throw std::runtime_error{error};
     };
 
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
@@ -817,7 +817,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
               << ", rSquaredWithWeights    = " << rSquaredWithWeights);
 
     BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.2 * std::fabs(biasWithoutWeights));
-    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.75 * (1.0 - rSquaredWithoutWeights));
+    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.8 * (1.0 - rSquaredWithoutWeights));
 }
 
 BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
@@ -1310,8 +1310,10 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
     };
 
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.0073);
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
+    LOG_DEBUG(<< "distanceToSorted(selectedForTree) = " << distanceToSorted(selectedForTree)
+              << ", distanceToSorted(selectedForNode) = " << distanceToSorted(selectedForNode));
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.014);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.014);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -1514,10 +1516,10 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .treeSizePenaltyMultiplier(0.0)
-                .leafWeightPenaltyMultiplier(0.0)
-                .softTreeDepthLimit(targetDepth)
-                .softTreeDepthTolerance(0.01)
+                .treeSizePenaltyMultiplier({0.0})
+                .leafWeightPenaltyMultiplier({0.0})
+                .softTreeDepthLimit({targetDepth})
+                .softTreeDepthTolerance({0.05})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
@@ -1525,7 +1527,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
             BOOST_TEST_REQUIRE(maxDepth(tree, tree[0], 0) <=
-                               static_cast<std::size_t>(targetDepth));
+                               static_cast<std::size_t>(targetDepth + 1));
             meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::common::CBasicStatistics::mean(meanDepth));
@@ -2288,76 +2290,80 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
                 .maximumNumberTrees(10)
-                .treeSizePenaltyMultiplier(0.1)
-                .leafWeightPenaltyMultiplier(0.01)
+                .treeSizePenaltyMultiplier({0.1})
+                .leafWeightPenaltyMultiplier({0.01})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
 
         // We use a single leaf to centre the data so end up with *at most* limit + 1 trees.
-        BOOST_TEST_REQUIRE(regression->bestHyperparameters().maximumNumberTrees() <= 11);
+        BOOST_TEST_REQUIRE(regression->hyperparameters().maximumNumberTrees().value() <= 11);
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->bestHyperparameters().regularization().treeSizePenaltyMultiplier());
+            0.1, regression->hyperparameters().treeSizePenaltyMultiplier().value());
         BOOST_REQUIRE_EQUAL(
-            0.01, regression->bestHyperparameters().regularization().leafWeightPenaltyMultiplier());
+            0.01, regression->hyperparameters().leafWeightPenaltyMultiplier().value());
     }
     {
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
-                .eta(0.2)
-                .softTreeDepthLimit(2.0)
-                .softTreeDepthTolerance(0.1)
+                .eta({0.2})
+                .softTreeDepthLimit({2.0})
+                .softTreeDepthTolerance({0.1})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
 
-        BOOST_REQUIRE_EQUAL(0.2, regression->bestHyperparameters().eta());
+        BOOST_REQUIRE_EQUAL(0.2, regression->hyperparameters().eta().value());
         BOOST_REQUIRE_EQUAL(
-            2.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+            2.0, regression->hyperparameters().softTreeDepthLimit().value());
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
+            0.1, regression->hyperparameters().softTreeDepthTolerance().value());
     }
     {
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
-                .depthPenaltyMultiplier(1.0)
-                .featureBagFraction(0.4)
-                .downsampleFactor(0.6)
+                .depthPenaltyMultiplier({1.0})
+                .featureBagFraction({0.4})
+                .downsampleFactor({0.6})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
 
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
-        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
-        BOOST_REQUIRE_EQUAL(0.6, regression->bestHyperparameters().downsampleFactor());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
+        BOOST_REQUIRE_EQUAL(
+            0.4, regression->hyperparameters().featureBagFraction().value());
+        BOOST_REQUIRE_EQUAL(
+            0.6, regression->hyperparameters().downsampleFactor().value());
     }
     {
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
-                .depthPenaltyMultiplier(1.0)
-                .softTreeDepthLimit(3.0)
-                .softTreeDepthTolerance(0.1)
-                .featureBagFraction(0.4)
-                .downsampleFactor(0.6)
-                .etaGrowthRatePerTree(1.1)
+                .depthPenaltyMultiplier({1.0})
+                .softTreeDepthLimit({3.0})
+                .softTreeDepthTolerance({0.1})
+                .featureBagFraction({0.4})
+                .downsampleFactor({0.6})
+                .etaGrowthRatePerTree({1.1})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
         BOOST_REQUIRE_EQUAL(
-            3.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+            3.0, regression->hyperparameters().softTreeDepthLimit().value());
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
-        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
-        BOOST_REQUIRE_EQUAL(1.1, regression->bestHyperparameters().etaGrowthRatePerTree());
+            0.1, regression->hyperparameters().softTreeDepthTolerance().value());
+        BOOST_REQUIRE_EQUAL(
+            0.4, regression->hyperparameters().featureBagFraction().value());
+        BOOST_REQUIRE_EQUAL(
+            1.1, regression->hyperparameters().etaGrowthRatePerTree().value());
     }
 }
 
