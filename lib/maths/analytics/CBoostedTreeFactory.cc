@@ -123,24 +123,26 @@ auto validInputStream(core::CDataSearcher& restoreSearcher) {
 
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t dependentVariable) {
+
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
-    this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
+    skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         this->initializeMissingFeatureMasks(frame);
         this->prepareDataFrameForEncode(frame);
         this->startProgressMonitoringFeatureSelection();
         this->selectFeaturesAndEncodeCategories(frame);
         this->determineFeatureDataTypes(frame);
-
-        m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
-        m_TreeImpl->m_Instrumentation->flush();
-
         this->initializeFeatureSampleDistribution();
-
     });
+
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+    m_TreeImpl->m_Instrumentation->flush();
+
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
+
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
 }
@@ -165,14 +167,15 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
         ? this->skipProgressMonitoringFeatureSelection()
         : this->startProgressMonitoringFeatureSelection();
 
-    if (m_TreeImpl->m_InitializationStage < CBoostedTreeImpl::E_EncodingInitialized) {
+    skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         this->selectFeaturesAndEncodeCategories(frame);
         this->determineFeatureDataTypes(frame);
-    }
+        this->initializeFeatureSampleDistribution();
+    });
+
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
                 [&] { this->initializeCrossValidation(frame); });
 
-    bool initializeHyperparameters{this->initializeFeatureSampleDistribution()};
     this->initializeSplitsCache(frame);
 
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
@@ -181,7 +184,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 
     this->startProgressMonitoringInitializeHyperparameters(frame);
 
-    if (initializeHyperparameters) {
+    if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
     }
@@ -202,11 +205,9 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
     m_TreeImpl->m_DependentVariable = dependentVariable;
     m_TreeImpl->m_Hyperparameters.incrementalTraining(true);
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeMissingFeatureMasks(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeNumberFolds(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        this->initializeMissingFeatureMasks(frame);
+        this->initializeNumberFolds(frame);
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
             // We assume any additional rows are new examples.
             m_TreeImpl->m_NewTrainingRowMask.extend(
@@ -216,12 +217,12 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
 
     this->prepareDataFrameForIncrementalTrain(frame);
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeCrossValidation(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->determineFeatureDataTypes(frame); });
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { m_TreeImpl->selectTreesToRetrain(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        this->initializeCrossValidation(frame);
+        this->determineFeatureDataTypes(frame);
+        m_TreeImpl->selectTreesToRetrain(frame);
+        this->initializeFeatureSampleDistribution();
+    });
 
     this->initializeSplitsCache(frame);
 
@@ -236,7 +237,7 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initialHyperparameterScaling(); });
 
-    if (this->initializeFeatureSampleDistribution()) {
+    if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
     }
@@ -255,9 +256,8 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->initializeMissingFeatureMasks(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        this->initializeMissingFeatureMasks(frame);
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
             // We assume any additional rows are new examples.
             m_TreeImpl->m_NewTrainingRowMask.extend(
@@ -267,9 +267,8 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
 
     this->prepareDataFrameForTrain(frame);
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->determineFeatureDataTypes(frame); });
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        this->determineFeatureDataTypes(frame);
         m_TreeImpl->predict(frame);
         m_TreeImpl->computeClassificationWeights(frame);
     });
@@ -630,12 +629,13 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
     if (m_TreeImpl->m_FeatureSampleProbabilities.empty() == false) {
         return true;
     }
+
     // Compute feature sample probabilities.
 
     TDoubleVec mics(m_TreeImpl->m_Encoder->encodedColumnMics());
     LOG_TRACE(<< "candidate regressors MICe = " << core::CContainerPrinter::print(mics));
 
-    if (mics.size() > 0) {
+    if (mics.empty() == false) {
         double Z{std::accumulate(mics.begin(), mics.end(), 0.0,
                                  [](double z, double mic) { return z + mic; })};
         LOG_TRACE(<< "Z = " << Z);
