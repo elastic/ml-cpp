@@ -452,8 +452,8 @@ std::pair<CBayesianOptimisation::TEIFunc, CBayesianOptimisation::TEIGradientFunc
 CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
 
     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
-    Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
-    TVector Kinvf{Kldl.solve(this->function())};
+    Eigen::ColPivHouseholderQR<Eigen::MatrixXd> KHQR{K};
+    TVector Kinvf{KHQR.solve(this->function())};
     double vx{this->meanErrorVariance()};
 
     TVector Kxn;
@@ -477,7 +477,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
             return 0.0;
         }
 
-        KinvKxn = Kldl.solve(Kxn);
+        KinvKxn = KHQR.solve(Kxn);
         double error{(K * KinvKxn - Kxn).norm()};
         if (CMathsFuncs::isNan(error) || error > 0.01 * Kxn.norm()) {
             return 0.0;
@@ -504,7 +504,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
             return las::zero(x);
         }
 
-        KinvKxn = Kldl.solve(Kxn);
+        KinvKxn = KHQR.solve(Kxn);
         double error{(K * KinvKxn - Kxn).norm()};
         if (CMathsFuncs::isNan(error) || error > 0.01 * Kxn.norm()) {
             return las::zero(x);
