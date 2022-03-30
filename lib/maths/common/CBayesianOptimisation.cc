@@ -473,9 +473,17 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
     auto EI = [=](const TVector& x) mutable -> double {
         double Kxx;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
+        if (CMathsFuncs::isNan(Kxx)) {
+            return 0.0;
+        }
 
-        double sigma{Kxx - Kxn.transpose() * Kldl.solve(Kxn)};
+        KinvKxn = Kldl.solve(Kxn);
+        double error{(K * KinvKxn - Kxn).norm()};
+        if (CMathsFuncs::isNan(error) || error > 0.01 * Kxn.norm()) {
+            return 0.0;
+        }
 
+        double sigma{Kxx - Kxn.transpose() * KinvKxn};
         if (sigma <= 0.0) {
             return 0.0;
         }
@@ -492,10 +500,17 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
     auto EIGradient = [=](const TVector& x) mutable -> TVector {
         double Kxx;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
+        if (CMathsFuncs::isNan(Kxx)) {
+            return las::zero(x);
+        }
 
         KinvKxn = Kldl.solve(Kxn);
-        double sigma{Kxx - Kxn.transpose() * KinvKxn};
+        double error{(K * KinvKxn - Kxn).norm()};
+        if (CMathsFuncs::isNan(error) || error > 0.01 * Kxn.norm()) {
+            return las::zero(x);
+        }
 
+        double sigma{Kxx - Kxn.transpose() * KinvKxn};
         if (sigma <= 0.0) {
             return las::zero(x);
         }
