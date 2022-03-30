@@ -105,7 +105,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(DATA_SUMMARIZATION_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TASK, CDataFrameAnalysisConfigReader::E_OptionalParameter,
-                               {{TASK_TRAIN, int{ETask::E_Train}},
+                               {{TASK_ENCODE, int{ETask::E_Encode}},
+                                {TASK_TRAIN, int{ETask::E_Train}},
                                 {TASK_UPDATE, int{ETask::E_Update}},
                                 {TASK_PREDICT, int{ETask::E_Predict}}});
         theReader.addParameter(PREVIOUS_TRAIN_LOSS_GAP,
@@ -346,6 +347,8 @@ std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
 core::CPackedBitVector
 CDataFrameTrainBoostedTreeRunner::rowsToWriteMask(const core::CDataFrame& frame) const {
     switch (m_Task) {
+    case E_Encode:
+        return {frame.numberRows(), false};
     case E_Train:
         return {frame.numberRows(), true};
     case E_Predict:
@@ -436,6 +439,9 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     this->validate(frame, dependentVariableColumn);
 
     switch (m_Task) {
+    case E_Encode:
+        m_BoostedTree = m_BoostedTreeFactory->buildForEncode(frame, dependentVariableColumn);
+        break;
     case E_Train:
         m_BoostedTree = [&] {
             auto boostedTree = this->restoreBoostedTree(
@@ -466,6 +472,7 @@ CDataFrameTrainBoostedTreeRunner::TBoostedTreeFactoryUPtr
 CDataFrameTrainBoostedTreeRunner::boostedTreeFactory(TLossFunctionUPtr loss,
                                                      TDataFrameUPtrTemporaryDirectoryPtrPr* frameAndDirectory) const {
     switch (m_Task) {
+    case E_Encode:
     case E_Train:
         break;
     case E_Update:
@@ -610,6 +617,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::FORCE_ACCEPT_INCREMENTAL_TRA
 const std::string CDataFrameTrainBoostedTreeRunner::DISABLE_HYPERPARAMETER_SCALING{"disable_hyperparameter_scaling"};
 const std::string CDataFrameTrainBoostedTreeRunner::DATA_SUMMARIZATION_FRACTION{"data_summarization_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK{"task"};
+const std::string CDataFrameTrainBoostedTreeRunner::TASK_ENCODE{"encode"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_TRAIN{"train"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_UPDATE{"update"};
 const std::string CDataFrameTrainBoostedTreeRunner::TASK_PREDICT{"predict"};

@@ -238,14 +238,15 @@ private:
     //! Tag progress through initialization.
     enum EInitializationStage {
         E_NotInitialized = 0,
-        E_SoftTreeDepthLimitInitialized = 1,
-        E_DepthPenaltyMultiplierInitialized = 2,
-        E_TreeSizePenaltyMultiplierInitialized = 3,
-        E_LeafWeightPenaltyMultiplierInitialized = 4,
-        E_DownsampleFactorInitialized = 5,
-        E_FeatureBagFractionInitialized = 6,
-        E_EtaInitialized = 7,
-        E_FullyInitialized = 8
+        E_EncodingInitialized = 1,
+        E_SoftTreeDepthLimitInitialized = 2,
+        E_DepthPenaltyMultiplierInitialized = 3,
+        E_TreeSizePenaltyMultiplierInitialized = 4,
+        E_LeafWeightPenaltyMultiplierInitialized = 5,
+        E_DownsampleFactorInitialized = 6,
+        E_FeatureBagFractionInitialized = 7,
+        E_EtaInitialized = 8,
+        E_FullyInitialized = 9
     };
 
 private:

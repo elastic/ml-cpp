@@ -1520,7 +1520,8 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     };
 
     core::CPackedBitVector holdoutRowMask(numberHoldoutRows, true);
-    holdoutRowMask.extend(false, batch2Size - numberHoldoutRows);
+    holdoutRowMask.extend(false, batch1Size + batch2Size - numberHoldoutRows);
+    BOOST_REQUIRE_EQUAL(batch2->numberRows(), holdoutRowMask.size());
 
     auto computeTestError = [&](maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr&& model) {
         TMeanAccumulator squaredError;
@@ -3552,6 +3553,93 @@ BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
             (lhs[i] <= rhs[i]) ==
             (maths::analytics::CBoostedTreeImpl::correctedMemoryUsage(lhs[i]) <=
              maths::analytics::CBoostedTreeImpl::correctedMemoryUsage(rhs[i])));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testEncodingSeparately) {
+    // Test that we can do encoding separately from training.
+
+    TDoubleVec categoryValue{-15.0, 20.0, 0.0};
+
+    auto target = [&](const TDoubleVecVec& features, std::size_t row) {
+        return categoryValue[static_cast<std::size_t>(std::min(features[0][row], 2.0))] +
+               2.8 * features[1][row] - 5.3 * features[2][row];
+    };
+
+    test::CRandomNumbers rng;
+    std::size_t rows{300};
+    std::size_t cols{4};
+    double numberCategories{5.0};
+    std::uint64_t seed{1000};
+
+    TDoubleVecVec features(cols - 1);
+    rng.generateUniformSamples(0.0, numberCategories, rows, features[0]);
+    rng.generateNormalSamples(0.0, 4.0, rows, features[1]);
+    rng.generateNormalSamples(2.0, 2.0, rows, features[2]);
+
+    auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
+
+    frame->categoricalColumns(TBoolVec{true, false, false, false});
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            *(column++) = std::floor(features[0][i]);
+            for (std::size_t j = 1; j + 1 < cols; ++j, ++column) {
+                *column = features[j][i];
+            }
+            *column = target(features, i);
+        });
+    }
+    frame->finishWritingRows();
+
+    // Encode and persist
+    std::stringstream persistState;
+    {
+        auto boostedTree =
+            maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                .seed(seed)
+                .buildForEncode(*frame, cols - 1);
+        core::CJsonStatePersistInserter inserter(persistState);
+        boostedTree->acceptPersistInserter(inserter);
+        persistState.flush();
+    }
+    // Restore from encoded state.
+    auto encodedFirstModel =
+        maths::analytics::CBoostedTreeFactory::constructFromString(persistState)
+            .restoreFor(*frame, cols - 1);
+    encodedFirstModel->train();
+    encodedFirstModel->predict();
+
+    TDoubleVec encodedFirstPredictions;
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            encodedFirstPredictions.push_back(encodedFirstModel->prediction(*row)[0]);
+        }
+    });
+
+    // Resize data frame back to the original column number
+    frame->resizeColumns(1, cols);
+    auto trainedFromScratchModel =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .seed(seed)
+            .buildForTrain(*frame, cols - 1);
+    trainedFromScratchModel->train();
+    trainedFromScratchModel->predict();
+
+    TDoubleVec trainedFromScratchPredictions;
+    frame->readRows(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            trainedFromScratchPredictions.push_back(
+                trainedFromScratchModel->prediction(*row)[0]);
+        }
+    });
+
+    BOOST_REQUIRE_EQUAL(encodedFirstPredictions.size(),
+                        trainedFromScratchPredictions.size());
+    for (std::size_t i = 0; i < encodedFirstPredictions.size(); ++i) {
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(encodedFirstPredictions[i],
+                                     trainedFromScratchPredictions[i], 0.01);
     }
 }
 

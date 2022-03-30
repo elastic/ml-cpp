@@ -494,7 +494,8 @@ def run_job(input, config, persist=None, restore=None, verbose=True, run=None) -
     return job
 
 
-def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True, run=None) -> Job:
+def train(dataset_name: str, dataset: pandas.DataFrame, 
+          encode_job: Job=None, verbose: bool = True, run=None) -> Job:
     """Train a model on the dataset .
 
     Args:
@@ -519,8 +520,15 @@ def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True, ru
 
     model_file = tempfile.NamedTemporaryFile(mode='wt')
 
+    if encode_job is not None:
+        if not encode_job.model:
+            raise AttributeError("Encode job is missing the model.")
+        restore_file = tempfile.NamedTemporaryFile(mode='wt')
+        restore_file.write(encode_job.model)
+
     job = run_job(input=data_file, config=config_file,
-                  persist=model_file, verbose=verbose, run=run)
+                  persist=model_file, restore=restore_file, 
+                  verbose=verbose, run=run)
     return job
 
 
@@ -602,4 +610,40 @@ def update(dataset_name: str,
     fmodel.file.close()
     job = run_job(input=fdata, config=fconfig,
                   restore=fmodel, verbose=verbose, run=run)
+    return job
+
+
+def encode(dataset_name: str,
+           dataset: pandas.DataFrame,
+           verbose: bool = True,
+           run=None) -> Job:
+    """Generate data frame encoding without training.
+
+    Args:
+        dataset_name (str): dataset name (to get configuration)
+        dataset (pandas.DataFrame): new dataset
+        verbose (bool): Verbosity flag (default: True)
+        run: The run context (default: None)
+
+    Returns:
+        Job: new Job object
+    """
+    fdata = tempfile.NamedTemporaryFile(mode='wt')
+    dataset.to_csv(fdata, index=False, na_rep=0)
+    fdata.file.close()
+    with open(configs_dir / f'{dataset_name}.json', encoding='utf-8') as fc:
+        config = json.load(fc)
+    config['rows'] = dataset.shape[0] 
+    config = update_config(config, run=run)
+
+    config['analysis']['parameters']['task'] = 'encode'
+    fconfig = tempfile.NamedTemporaryFile(mode='wt')
+    json.dump(config, fconfig)
+    fconfig.file.close()
+
+    persist = tempfile.NamedTemporaryFile(mode='wt')
+    persist.close()
+
+    job = run_job(input=fdata, config=fconfig, persist=persist,
+                  verbose=verbose, run=run)
     return job
