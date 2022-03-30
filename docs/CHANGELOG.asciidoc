@@ -58,6 +58,8 @@
 
 * Fix possible source of "Discarding sample = -nan(ind), weight = 1, variance scale = 1"
   log errors training classification and regression models. (See {ml-pull}2226[#2226].)
+* Fix possible source of "x = NaN, distribution = class boost::math::normal_distribution<..."
+  log errors training classification and regression models. (See {ml-pull}2249[#2249].)
 
 == {es} version 8.1.0
 
