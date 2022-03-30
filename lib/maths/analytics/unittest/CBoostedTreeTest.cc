@@ -1313,7 +1313,7 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
 
     LOG_DEBUG(<< "distanceToSorted(selectedForTree) = " << distanceToSorted(selectedForTree)
               << ", distanceToSorted(selectedForNode) = " << distanceToSorted(selectedForNode));
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.008);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.01);
     BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
 }
 
