@@ -1307,13 +1307,14 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                         std::min(selected[i], selectedSorted[i]);
         }
         return static_cast<double>(distance) /
-               static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
+               static_cast<double>(std::accumulate(selected.begin(),
+                                                   selected.end(), std::size_t{0}));
     };
 
     LOG_DEBUG(<< "distanceToSorted(selectedForTree) = " << distanceToSorted(selectedForTree)
               << ", distanceToSorted(selectedForNode) = " << distanceToSorted(selectedForNode));
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.014);
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.014);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.008);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {

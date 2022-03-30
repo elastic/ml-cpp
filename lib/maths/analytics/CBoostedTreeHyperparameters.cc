@@ -225,7 +225,8 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
                                               TDoubleDoublePrVec testLosses) const {
     common::CLowess<2> lowess;
-    lowess.fit(std::move(testLosses), testLosses.size());
+    std::size_t numberFolds{testLosses.size()};
+    lowess.fit(std::move(testLosses), numberFolds);
 
     double bestParameter;
     double bestParameterTestLoss;
