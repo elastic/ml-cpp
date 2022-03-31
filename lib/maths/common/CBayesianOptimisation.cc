@@ -408,9 +408,6 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     auto minusLogLikelihood = [=](const TVector& a) mutable -> double {
         K = this->kernel(a, v);
         Kldl.compute(K);
-        double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
-        K.diagonal().array() += eps;
-        Kldl.compute(K);
         Kinvf.noalias() = f;
         Kldl.solveInPlace(Kinvf);
 
@@ -419,15 +416,13 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
         // kernel can't be singular by construction so we perturb the diagonal by
         // the numerical error in such a way as to recover a non-singular matrix.
         // (Note that the solve routine deals with the zero for us.)
+        double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
         return 0.5 * (f.transpose() * Kinvf +
                       Kldl.vectorD().cwiseMax(eps).array().log().sum());
     };
 
     auto minusLogLikelihoodGradient = [=](const TVector& a) mutable -> TVector {
         K = this->kernel(a, v);
-        Kldl.compute(K);
-        double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
-        K.diagonal().array() += eps;
         Kldl.compute(K);
 
         Kinvf.noalias() = f;
@@ -462,8 +457,8 @@ std::pair<CBayesianOptimisation::TEIFunc, CBayesianOptimisation::TEIGradientFunc
 CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
 
     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
-    Eigen::ColPivHouseholderQR<Eigen::MatrixXd> Khqr{K};
-    TVector Kinvf{Khqr.solve(this->function())};
+    Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
+    TVector Kinvf{Kldl.solve(this->function())};
     double vx{this->meanErrorVariance()};
 
     TVector Kxn;
@@ -487,7 +482,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
             return 0.0;
         }
 
-        KinvKxn = Khqr.solve(Kxn);
+        KinvKxn = Kldl.solve(Kxn);
         double error{(K.lazyProduct(KinvKxn) - Kxn).norm()};
         if (CMathsFuncs::isNan(error) || error > 0.01 * Kxn.norm()) {
             return 0.0;
@@ -514,7 +509,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
             return las::zero(x);
         }
 
-        KinvKxn = Khqr.solve(Kxn);
+        KinvKxn = Kldl.solve(Kxn);
         double error{(K.lazyProduct(KinvKxn) - Kxn).norm()};
         if (CMathsFuncs::isNan(error) || error > 0.01 * Kxn.norm()) {
             return las::zero(x);
