@@ -65,7 +65,7 @@ using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
 
 class CTestDataSearcher : public core::CDataSearcher {
 public:
-    CTestDataSearcher(const std::string& data)
+    explicit CTestDataSearcher(const std::string& data)
         : m_Stream(new std::istringstream(data)) {}
 
     TIStreamP search(std::size_t /*currentDocNum*/, std::size_t /*limit*/) override {
@@ -153,8 +153,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
         fieldNames, fieldValues, analyzer, weights, regressors, targets, targetTransformer);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    TStrVec persistedStates{
-        splitOnNull(std::stringstream{std::move(persistenceStream->str())})};
+    TStrVec persistedStates{splitOnNull(std::stringstream{persistenceStream->str()})};
     auto expectedTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
 
     persistenceStream->str("");
@@ -182,22 +181,14 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters = expectedResults["hyperparameters"];
-    const auto& expectedRegularizationHyperparameters = expectedHyperparameters["hyperparameters"];
 
     rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
     const auto& actualHyperparameters = actualResults["hyperparameters"];
-    const auto& actualRegularizationHyperparameters = actualResults["hyperparameters"];
 
     for (const auto& key : maths::analytics::CBoostedTreeHyperparameters::names()) {
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key]["value"].GetString())};
             double actual{std::stod(actualHyperparameters[key]["value"].GetString())};
-            BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
-        } else if (expectedRegularizationHyperparameters.HasMember(key)) {
-            double expected{std::stod(
-                expectedRegularizationHyperparameters[key]["value"].GetString())};
-            double actual{std::stod(
-                actualRegularizationHyperparameters[key]["value"].GetString())};
             BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
         } else {
             BOOST_FAIL("Missing " + key);
