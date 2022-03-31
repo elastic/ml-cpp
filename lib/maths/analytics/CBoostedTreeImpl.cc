@@ -303,12 +303,12 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-        this->startProgressMonitoringFinalTrain();
 
         if (m_BestForest.empty()) {
             m_Hyperparameters.restoreBest();
             m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
             m_Hyperparameters.captureScale();
+            this->startProgressMonitoringFinalTrain();
             this->scaleRegularizationMultipliers(this->allTrainingRowsMask().manhattan() /
                                                  this->meanNumberTrainingRowsPerFold());
 
@@ -320,6 +320,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                                .s_Forest;
 
             this->recordState(recordTrainStateCallback);
+        } else {
+            this->skipProgressMonitoringFinalTrain();
         }
         m_Instrumentation->iteration(m_Hyperparameters.currentRound());
         m_Instrumentation->flush(TRAIN_FINAL_FOREST);
