@@ -58,6 +58,7 @@
 
 * Fix possible source of "Discarding sample = -nan(ind), weight = 1, variance scale = 1"
   log errors training classification and regression models. (See {ml-pull}2226[#2226].)
+* Fix error message for failure to create reverse search. (See {ml-pull}2247[#2247].)
 
 == {es} version 8.1.0
 
