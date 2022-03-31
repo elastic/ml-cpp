@@ -953,4 +953,21 @@ BOOST_FIXTURE_TEST_CASE(testStatsWriteUrgentDueToManyCategories, CTestFixture) {
                         categorizerStats.s_CategorizationStatus);
 }
 
+BOOST_FIXTURE_TEST_CASE(testReverseSearchImpossibleDueToLongToken, CTestFixture) {
+
+    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr reverseSearchCreator =
+        std::make_shared<ml::model::CTokenListReverseSearchCreator>("whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{m_Limits, reverseSearchCreator,
+                                                     0.7, "whatever"};
+
+    // Create a message with one token that is as long as the available cost
+    // (and then the overhead will push it over the limit)
+    std::string singleMessage(reverseSearchCreator->availableCost(), 'z');
+    BOOST_REQUIRE_EQUAL(
+        ml::model::CLocalCategoryId{1},
+        categorizer.computeCategory(false, singleMessage, singleMessage.length()));
+    BOOST_REQUIRE_EQUAL(
+        false, categorizer.cacheReverseSearch(ml::model::CLocalCategoryId{1}));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
