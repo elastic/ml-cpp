@@ -204,11 +204,10 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     this->checkTrainInvariants(frame);
 
-    if (m_Loss->isRegression()) {
-        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression);
-    } else {
-        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Classification);
-    }
+    m_Instrumentation->type(
+        m_Loss->isRegression()
+            ? CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression
+            : CDataFrameTrainBoostedTreeInstrumentationInterface::E_Classification);
 
     LOG_TRACE(<< "Main training loop...");
 
@@ -234,7 +233,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                                       1 /*single tree*/);
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-    } else if (m_Hyperparameters.searchNotFinished() || m_BestForest.empty()) {
+    } else if (m_BestForest.empty()) {
         TMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();
@@ -304,14 +303,14 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
+        this->startProgressMonitoringFinalTrain();
+
         if (m_BestForest.empty()) {
             m_Hyperparameters.restoreBest();
             m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
             m_Hyperparameters.captureScale();
             this->scaleRegularizationMultipliers(this->allTrainingRowsMask().manhattan() /
                                                  this->meanNumberTrainingRowsPerFold());
-
-            this->startProgressMonitoringFinalTrain();
 
             // Reinitialize random number generator for reproducible results.
             m_Rng.seed(m_Seed);
