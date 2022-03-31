@@ -35,6 +35,11 @@
 * Upgrade PyTorch to version 1.11. (See {ml-pull}2233[#2233], {ml-pull}2235[#2235]
   and {ml-pull}2238[#2238].)
 
+=== Bug Fixes
+
+* Correct logic for restart from failover fine tuning hyperparameters for training
+  classification and regression models. (See {ml-pull}2251[#2251].)
+
 == {es} version 8.2.0
 
 === Enhancements
