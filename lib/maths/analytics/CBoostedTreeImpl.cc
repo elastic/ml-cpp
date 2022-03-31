@@ -303,7 +303,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-
         if (m_BestForest.empty()) {
             m_Hyperparameters.restoreBest();
             m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
