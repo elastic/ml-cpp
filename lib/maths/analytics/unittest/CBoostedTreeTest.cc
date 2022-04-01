@@ -432,8 +432,8 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
 
     // Test some edge case inputs fail gracefully.
 
-    auto errorHandler = [](std::string error) {
-        throw std::runtime_error{std::move(error)};
+    auto errorHandler = [](const std::string& error) {
+        throw std::runtime_error{error};
     };
 
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
@@ -1136,8 +1136,10 @@ BOOST_AUTO_TEST_CASE(testIncrementalHoldoutRowMask) {
 
     auto roundLosses = regression->impl().foldRoundTestLosses()[0];
     auto actualMse = *std::min_element(
-        roundLosses.begin(), roundLosses.end(),
-        [](const auto& lhs, const auto& rhs) { return *lhs < *rhs; });
+        roundLosses.begin(), roundLosses.end(), [](const auto& lhs, const auto& rhs) {
+            return maths::common::COrderings::lexicographical_compare(
+                lhs == boost::none ? 1 : 0, *lhs, rhs == boost::none ? 1 : 0, *rhs);
+        });
 
     BOOST_REQUIRE_CLOSE(maths::common::CBasicStatistics::mean(expectedMse) +
                             0.01 * maths::common::CBasicStatistics::mean(expectedMsd),
@@ -1909,9 +1911,12 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                         std::min(selected[i], selectedSorted[i]);
         }
         return static_cast<double>(distance) /
-               static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
+               static_cast<double>(std::accumulate(selected.begin(),
+                                                   selected.end(), std::size_t{0}));
     };
 
+    LOG_DEBUG(<< "distanceToSorted(selectedForTree) = " << distanceToSorted(selectedForTree)
+              << ", distanceToSorted(selectedForNode) = " << distanceToSorted(selectedForNode));
     BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.008);
     BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
 }
@@ -2823,7 +2828,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
         std::int64_t estimatedMemory(
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .estimateMemoryUsageTrain(rows, cols));
+                .estimateMemoryUsageForTrain(rows, cols));
 
         CTestInstrumentation instrumentation;
         auto regression =
@@ -2893,7 +2898,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
         std::int64_t estimatedMemory(
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .estimateMemoryUsageTrain(trainRows, cols));
+                .estimateMemoryUsageForTrain(trainRows, cols));
 
         CTestInstrumentation instrumentation;
         auto regression =

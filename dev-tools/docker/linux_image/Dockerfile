@@ -128,18 +128,13 @@ ENV PATH=${PATH}:/usr/local/cmake/bin
 RUN \
   yum-config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.repo && \
   yum -y install intel-mkl-2020.4-912 && \
-  cp /opt/intel/mkl/lib/intel64/libmkl_intel_lp64.so /usr/local/gcc103/lib && \
-  cp /opt/intel/mkl/lib/intel64/libmkl_core.so /usr/local/gcc103/lib && \
-  cp /opt/intel/mkl/lib/intel64/libmkl_def.so /usr/local/gcc103/lib && \
-  cp /opt/intel/mkl/lib/intel64/libmkl_gnu_thread.so /usr/local/gcc103/lib && \
-  cp /opt/intel/mkl/lib/intel64/libmkl_avx*.so /usr/local/gcc103/lib && \
-  cp /opt/intel/mkl/lib/intel64/libmkl_vml*.so /usr/local/gcc103/lib
+  cp /opt/intel/mkl/lib/intel64/libmkl*.so /usr/local/gcc103/lib
 
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v1.9.0 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.11.0 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
@@ -153,7 +148,7 @@ RUN \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
   export USE_XNNPACK=OFF && \
-  export PYTORCH_BUILD_VERSION=1.9.0 && \
+  export PYTORCH_BUILD_VERSION=1.11.0 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc103/include/pytorch && \

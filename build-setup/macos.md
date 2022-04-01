@@ -128,7 +128,7 @@ Download the graphical installer for Python 3.7.9 from <https://www.python.org/f
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
-### PyTorch 1.9.0
+### PyTorch 1.11.0
 
 PyTorch requires that certain Python modules are installed.  To install them:
 
@@ -139,7 +139,7 @@ sudo /Library/Frameworks/Python.framework/Versions/3.7/bin/pip3.7 install instal
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v1.9.0 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v1.11.0 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -153,6 +153,10 @@ a heuristic virus scanner looking for potentially dangerous function
 calls in our shipped product will not encounter these functions that run
 external processes.
 
+Edit `tools/setup_helpers/cmake.py b/tools/setup_helpers/cmake.py` and
+add `'DNNL_TARGET_ARCH'` to the list of environment variables that get
+passed through to CMake (around line 267).
+
 Build as follows:
 
 ```
@@ -161,20 +165,19 @@ export BUILD_TEST=OFF
 export BUILD_CAFFE2=OFF
 export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
-# TODO: check if this can be made unconditional next time we upgrade.
-# In PyTorch 1.9 the version of oneDNN used doesn't work on Apple M1.
-# In PyTorch 1.10 oneDNN is upgraded and should build, but there
-# might still be further problems.
-[ $(uname -m) = x86_64 ] && export USE_MKLDNN=ON
+[ $(uname -m) != x86_64 ] && export DNNL_TARGET_ARCH=AARCH64
+export USE_MKLDNN=ON
 export USE_QNNPACK=OFF
 export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
-# TODO: recheck if this is still necessary next time we upgrade.
-# At present CMake is set up to build for x86_64 on an Apple M1.
-# This line can be removed if CMake is changed to build for the
-# native architecture on M1.
+# TODO: avoid this by upgrading to Python 3.9 next time we rebuild
+# dependencies. The build scripts misdetect the architecture on Apple
+# M1 because we are using Python 3.7, which is x86_64 only on macOS,
+# and the PyTorch build uses CMake and Ninja via Python. Python 3.9
+# has a native arm64 build for macOS, so we should switch to that next
+# time.
 [ $(uname -m) != x86_64 ] && export CMAKE_OSX_ARCHITECTURES=`uname -m`
-export PYTORCH_BUILD_VERSION=1.9.0
+export PYTORCH_BUILD_VERSION=1.11.0
 export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7 setup.py install
 ```

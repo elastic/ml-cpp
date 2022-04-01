@@ -218,22 +218,14 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
 
     rapidjson::Document expectedResults{treeToJsonDocument(*expectedTree)};
     const auto& expectedHyperparameters = expectedResults["hyperparameters"];
-    const auto& expectedRegularizationHyperparameters = expectedHyperparameters["hyperparameters"];
 
     rapidjson::Document actualResults{treeToJsonDocument(*actualTree)};
     const auto& actualHyperparameters = actualResults["hyperparameters"];
-    const auto& actualRegularizationHyperparameters = actualHyperparameters["hyperparameters"];
 
     for (const auto& key : maths::analytics::CBoostedTreeHyperparameters::names()) {
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key]["value"].GetString())};
             double actual{std::stod(actualHyperparameters[key]["value"].GetString())};
-            BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
-        } else if (expectedRegularizationHyperparameters.HasMember(key)) {
-            double expected{std::stod(
-                expectedRegularizationHyperparameters[key]["value"].GetString())};
-            double actual{std::stod(
-                actualRegularizationHyperparameters[key]["value"].GetString())};
             BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
         } else {
             BOOST_FAIL("Missing " + key);
@@ -794,7 +786,6 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalOnly, *utf::tolerance(0.00
     test::CRandomNumbers rng;
     TSizeVec seed{1};
     rng.generateUniformSamples(0, 1000, 1, seed);
-    LOG_DEBUG(<< "Seed: " << seed[0]);
 
     std::stringstream outputStream;
     auto outputWriterFactory = [&outputStream]() {
@@ -879,8 +870,6 @@ BOOST_AUTO_TEST_CASE(testRegressionPredictionNumericalCategoricalMix,
     test::CRandomNumbers rng;
     TSizeVec seed{1};
     rng.generateUniformSamples(0, 1000, 1, seed);
-    LOG_DEBUG(<< "Seed: " << seed[0]);
-    rng.seed(seed[0]);
 
     // Generate the training values.
     TDoubleVec weights{10.0, 50.0};

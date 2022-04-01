@@ -98,8 +98,6 @@ class MATHS_ANALYTICS_EXPORT CDataFrameTrainBoostedTreeInstrumentationInterface
 public:
     enum EStatsType { E_Regression, E_Classification };
     struct SHyperparameters {
-        double s_Eta{-1.0};
-        double s_RetrainedTreeEta{-1.0};
         CBoostedTree::EClassAssignmentObjective s_ClassAssignmentObjective{
             CBoostedTree::E_MinimumRecall};
         double s_DepthPenaltyMultiplier{-1.0};
@@ -109,13 +107,15 @@ public:
         double s_LeafWeightPenaltyMultiplier{-1.0};
         double s_TreeTopologyChangePenalty{-1.0};
         double s_DownsampleFactor{-1.0};
-        std::size_t s_NumFolds{0};
-        std::size_t s_MaxTrees{0};
         double s_FeatureBagFraction{-1.0};
+        double s_Eta{-1.0};
         double s_EtaGrowthRatePerTree{-1.0};
+        double s_RetrainedTreeEta{-1.0};
         double s_PredictionChangeCost{-1.0};
+        std::size_t s_MaxTrees{0};
         std::size_t s_MaxAttemptsToAddTree{0};
         std::size_t s_NumSplitsPerFeature{0};
+        std::size_t s_NumFolds{0};
         std::size_t s_MaxOptimizationRoundsPerHyperparameter{0};
     };
     using TDoubleVec = std::vector<double>;

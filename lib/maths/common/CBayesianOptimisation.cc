@@ -805,20 +805,6 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
     return false;
 }
 
-std::uint64_t CBayesianOptimisation::checksum(std::uint64_t seed) const {
-    seed = CChecksum::calculate(seed, m_Rng);
-    seed = CChecksum::calculate(seed, m_Restarts);
-    seed = CChecksum::calculate(seed, m_RangeShift);
-    seed = CChecksum::calculate(seed, m_RangeScale);
-    seed = CChecksum::calculate(seed, m_ExplainedErrorVariance);
-    seed = CChecksum::calculate(seed, m_MinBoundary);
-    seed = CChecksum::calculate(seed, m_MaxBoundary);
-    seed = CChecksum::calculate(seed, m_FunctionMeanValues);
-    seed = CChecksum::calculate(seed, m_ErrorVariances);
-    seed = CChecksum::calculate(seed, m_KernelParameters);
-    return CChecksum::calculate(seed, m_MinimumKernelCoordinateDistanceScale);
-}
-
 void CBayesianOptimisation::checkRestoredInvariants() const {
     VIOLATES_INVARIANT(m_FunctionMeanValues.size(), !=, m_ErrorVariances.size());
     VIOLATES_INVARIANT(m_MinBoundary.size(), !=, m_MaxBoundary.size());
@@ -850,6 +836,20 @@ std::size_t CBayesianOptimisation::estimateMemoryUsage(std::size_t numberParamet
     return sizeof(CBayesianOptimisation) + boundaryMemoryUsage +
            functionMeanValuesMemoryUsage + errorVariancesMemoryUsage +
            kernelParametersMemoryUsage + minimumKernelCoordinateDistanceScale;
+}
+
+std::uint64_t CBayesianOptimisation::checksum(std::uint64_t seed) const {
+    seed = CChecksum::calculate(seed, m_Rng);
+    seed = CChecksum::calculate(seed, m_Restarts);
+    seed = CChecksum::calculate(seed, m_RangeShift);
+    seed = CChecksum::calculate(seed, m_RangeScale);
+    seed = CChecksum::calculate(seed, m_ExplainedErrorVariance);
+    seed = CChecksum::calculate(seed, m_MinBoundary);
+    seed = CChecksum::calculate(seed, m_MaxBoundary);
+    seed = CChecksum::calculate(seed, m_FunctionMeanValues);
+    seed = CChecksum::calculate(seed, m_ErrorVariances);
+    seed = CChecksum::calculate(seed, m_KernelParameters);
+    return CChecksum::calculate(seed, m_MinimumKernelCoordinateDistanceScale);
 }
 
 const std::size_t CBayesianOptimisation::RESTARTS{10};

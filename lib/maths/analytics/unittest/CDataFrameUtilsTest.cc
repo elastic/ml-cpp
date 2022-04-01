@@ -1550,7 +1550,6 @@ BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeightsBadInputs) {
                 }
                 column[category[0]] += static_cast<double>(category[0] + 1);
                 if (i % 500 == 0) {
-                    LOG_DEBUG(<< "here");
                     column[category[0]] = std::numeric_limits<double>::quiet_NaN();
                 }
                 if (i % 600 == 0) {

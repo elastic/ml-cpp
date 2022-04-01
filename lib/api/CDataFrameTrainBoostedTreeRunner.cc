@@ -321,7 +321,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
-    return maths::analytics::CBoostedTreeFactory::estimatedExtraColumnsForTrain(
+    return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(
         this->spec().numberColumns(), m_NumberLossParameters);
 }
 
@@ -555,7 +555,7 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
     // TODO https://github.com/elastic/ml-cpp/issues/1790.
-    return m_BoostedTreeFactory->estimateMemoryUsageTrain(
+    return m_BoostedTreeFactory->estimateMemoryUsageForTrain(
         static_cast<std::size_t>(static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5),
         numberColumns);
 }

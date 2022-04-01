@@ -74,8 +74,9 @@ public:
     static const double NEGLIGIBLE_EXPECTED_IMPROVEMENT;
 
 public:
-    CBayesianOptimisation(TDoubleDoublePrVec parameterBounds, std::size_t restarts = RESTARTS);
-    CBayesianOptimisation(core::CStateRestoreTraverser& traverser);
+    explicit CBayesianOptimisation(TDoubleDoublePrVec parameterBounds,
+                                   std::size_t restarts = RESTARTS);
+    explicit CBayesianOptimisation(core::CStateRestoreTraverser& traverser);
 
     //! Add the result of evaluating the function to be \p fx at \p x where the
     //! variance in the error in \p fx w.r.t. the true value is \p vx.

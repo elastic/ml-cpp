@@ -79,25 +79,25 @@ BOOST_AUTO_TEST_CASE(testCreate) {
                        const std::string& parameters = "", const std::string& junk = "") {
         std::ostringstream result;
         result << "{\n";
-        if (jobId.size() > 0) {
+        if (jobId.empty() == false) {
             result << "   \"job_id\": \"" << jobId << "\",\n";
         }
-        if (rows.size() > 0) {
+        if (rows.empty() == false) {
             result << "   \"rows\": " << rows << ",\n";
         }
-        if (cols.size() > 0) {
+        if (cols.empty() == false) {
             result << "   \"cols\": " << cols << ",\n";
         }
-        if (memory.size() > 0) {
+        if (memory.empty() == false) {
             result << "   \"memory_limit\": " << memory << ",\n";
         }
-        if (threads.size() > 0) {
+        if (threads.empty() == false) {
             result << "   \"threads\": " << threads << ",\n";
         }
-        if (resultsField.size() > 0) {
+        if (resultsField.empty() == false) {
             result << "   \"results_field\": \"" << resultsField << "\",\n";
         }
-        if (categoricalFields.size() > 0) {
+        if (categoricalFields.empty() == false) {
             result << "   \"categorical_fields\": [";
             result << " \"" << categoricalFields[0] << "\"";
             for (std::size_t i = 1; i < categoricalFields.size(); ++i) {
@@ -105,14 +105,14 @@ BOOST_AUTO_TEST_CASE(testCreate) {
             }
             result << " ],\n";
         }
-        if (junk.size() > 0) {
+        if (junk.empty() == false) {
             result << "   \"" << junk << "\": 4,\n";
         }
         result << "   \"analysis\": {\n";
-        if (name.size() > 0) {
+        if (name.empty() == false) {
             result << "     \"name\": \"" << name << "\"";
         }
-        if (parameters.size() > 0) {
+        if (parameters.empty() == false) {
             result << ",\n     \"parameters\": " << parameters << ",\n";
         } else {
             result << ",\n";
