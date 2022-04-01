@@ -1617,7 +1617,7 @@ CBoostedTreeFactory::estimateMemoryUsageForTrainIncremental(std::size_t numberRo
 }
 
 std::size_t CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t numberColumns,
-                                                               std::size_t numberLossParameters) {
+                                                              std::size_t numberLossParameters) {
     // We store as follows:
     //   1. The predicted values for the dependent variable
     //   2. The gradient of the loss function
