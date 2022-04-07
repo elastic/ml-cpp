@@ -2,25 +2,6 @@ cmake_minimum_required(VERSION 3.7)
 
 project("ML Core lib unit tests")
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../../../cmake/Modules/")
-set(Boost_COMPILER -clang-darwin13)
-set (CMAKE_CXX_STANDARD 17)
-
-find_package(Boost 1.77.0 REQUIRED COMPONENTS iostreams filesystem program_options regex date_time log_setup thread unit_test_framework)
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
-endif()
-
-find_package(LibXml2)
-if(LIBXML2_FOUND)
-  include_directories(${LIBXML2_INCLUDE_DIR})
-endif()
-
-find_package(ZLIB)
-if(ZLIB_FOUND)
-  include_directories(${ZLIB_INCLUDE_DIR})
-endif()
-
 include_directories(../../../include)
 
 # TODO make platform safe
