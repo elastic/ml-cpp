@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.7)
-
 project("ML Maths Analytics lib unit tests")
 
 include_directories(../../../../include)
@@ -24,8 +22,6 @@ COutliersTest.cc
 CTreeShapFeatureImportanceTest.cc 
 TestUtils.cc 
 )
-
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_executable(ml_test_maths_analytics ${SRCS} ${PLATFORM_SRCS})
 

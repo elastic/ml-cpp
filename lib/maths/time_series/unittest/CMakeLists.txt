@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.7)
-
 project("ML Maths Time Series lib unit tests")
 
 include_directories(../../../../include)
@@ -37,8 +35,6 @@ CTrendComponentTest.cc
 TestUtils.cc
 )
 
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-
 add_executable(ml_test_maths_time_series ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_maths_time_series ${Boost_LIBRARIES})
@@ -48,13 +44,9 @@ target_link_libraries(ml_test_maths_time_series MlMathsTimeSeries)
 target_link_libraries(ml_test_maths_time_series MlTest)
 
 
-# we expect to be built out of source, in a sub ditrectory
-# so need to change working directory up a level to find
-# test files
 add_test(ml_test_maths_time_series ml_test_maths_time_series
 )
 
-# make "make test" run the test program
 add_custom_target(test_math_time_series
      DEPENDS ml_test_maths_time_series
      COMMAND ml_test_maths_time_series

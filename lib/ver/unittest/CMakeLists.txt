@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.7)
-
 project("ML Core lib unit tests")
 
 include_directories(../../../include)
@@ -12,8 +10,6 @@ set (SRCS
 Main.cc 
 CBuildInfoTest.cc
 )
-
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_executable(ml_test_ver ${SRCS} ${PLATFORM_SRCS})
 
