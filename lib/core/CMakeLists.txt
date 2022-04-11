@@ -7,22 +7,21 @@ include_directories(SYSTEM ../../3rd_party/include)
 include_directories(SYSTEM ../../3rd_party/eigen)
 include_directories(SYSTEM ../../3rd_party/rapidjson/include)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-set(PLATFORM_SRCS
+set(PLATFORM_SRCS_TMP
 CCondition.cc
 CCrashHandler.cc
 CCTimeR.cc
 CDetachedProcessSpawner.cc
-CFastMutex_MacOSX.cc
+CFastMutex.cc
 CGmTimeR.cc
 CIEEE754.cc
-CMonotonicTime_MacOSX.cc
+CMonotonicTime.cc
 CMutex.cc
 CNamedPipeFactory.cc
 COsFileFuncs.cc
 CProcess.cc
 CProcessPriority.cc
-CProgName_MacOSX.cc
+CProgName.cc
 CReadWriteLock.cc
 CSetEnv.cc
 CSetMode.cc
@@ -39,41 +38,16 @@ CUname.cc
 CUnSetEnv.cc
 CWindowsError.cc
 )
-endif()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-set(PLATFORM_SRCS
-CCondition.cc
-CCrashHandler_Linux.cc
-CCTimeR.cc
-CDetachedProcessSpawner.cc
-CFastMutex.cc
-CGmTimeR.cc
-CIEEE754.cc
-CMonotonicTime.cc
-CMutex.cc
-CNamedPipeFactory.cc
-COsFileFuncs.cc
-CProcess.cc
-CProcessPriority_Linux.cc
-CProgName_Linux.cc
-CReadWriteLock.cc
-CSetEnv.cc
-CSetMode.cc
-CShellArgQuoter.cc
-CStateMachine.cc
-CStrCaseCmp.cc
-CStrFTime.cc
-CStrPTime_Linux.cc
-CStrTokR.cc
-CThread.cc
-CTimeGm.cc
-CTimezone.cc
-CUname.cc
-CUnSetEnv.cc
-CWindowsError.cc
-)
-endif()
+foreach(FILE ${PLATFORM_SRCS_TMP})
+    set(FILE "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}")
+    string(REPLACE ".cc" "_${PLATFORM_NAME}.cc" FILE_TMP ${FILE})
+    if (EXISTS ${FILE_TMP})
+        list(APPEND PLATFORM_SRCS ${FILE_TMP})
+    else()
+        list(APPEND PLATFORM_SRCS ${FILE})
+    endif()
+endforeach()
 
 set(SRCS
 CBase64Filter.cc 
