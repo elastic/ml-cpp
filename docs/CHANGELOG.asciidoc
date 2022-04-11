@@ -46,6 +46,7 @@
   (See {ml-pull}2230[#2230].)
 * Improve detection and modeling of time series' calendar cyclic features.
   (See {ml-pull}2236[#2236] and {ml-pull}2243[#2243].)
+* Compress quantiles state. (See {ml-pull}2252[#2252].)
 
 === Bug Fixes
 
