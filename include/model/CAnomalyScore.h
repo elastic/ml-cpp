@@ -24,6 +24,7 @@
 #include <boost/unordered_map.hpp>
 
 #include <functional>
+#include <iosfwd>
 #include <memory>
 #include <string>
 #include <utility>
@@ -355,7 +356,7 @@ public:
                                  const std::string& cue,
                                  const std::string& description,
                                  core_t::TTime time,
-                                 std::string& json);
+                                 std::ostream& strm);
 };
 }
 }

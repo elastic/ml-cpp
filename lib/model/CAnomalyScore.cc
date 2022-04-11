@@ -32,6 +32,8 @@
 #include <boost/optional.hpp>
 
 #include <numeric>
+#include <ostream>
+#include <sstream>
 #include <vector>
 
 namespace ml {
@@ -970,6 +972,9 @@ const std::string& CAnomalyScore::normalizedScoreToSeverity(double normalizedSco
 }
 
 bool CAnomalyScore::normalizerFromJson(const std::string& json, CNormalizer& normalizer) {
+    // This only works with uncompressed JSON - compression must be handled in
+    // an outer layer. The method below works more efficiently with compressed
+    // input.
     std::istringstream iss(json);
     core::CJsonStateRestoreTraverser traverser(iss);
 
@@ -1030,28 +1035,20 @@ void CAnomalyScore::normalizerToJson(const CNormalizer& normalizer,
                                      const std::string& cue,
                                      const std::string& description,
                                      core_t::TTime time,
-                                     std::string& json) {
-    std::ostringstream ss;
+                                     std::ostream& strm) {
+    core::CJsonStatePersistInserter inserter(strm);
 
-    // The JSON inserter will only close the object when it is destroyed
-    {
-        core::CJsonStatePersistInserter inserter(ss);
+    // Important: Even though some of these fields appear to be unnecessary,
+    // the CHierarchicalResultsNormalizer requires them to exist in this
+    // order.  Do not change the fields or the ordering.
+    inserter.insertValue(MLCUE_ATTRIBUTE, cue);
+    inserter.insertValue(MLKEY_ATTRIBUTE, searchKey);
+    inserter.insertValue(MLQUANTILESDESCRIPTION_ATTRIBUTE, description);
+    inserter.insertValue(MLVERSION_ATTRIBUTE, CURRENT_FORMAT_VERSION);
+    inserter.insertValue(TIME_ATTRIBUTE, core::CStringUtils::typeToString(time));
 
-        // Important: Even though some of these fields appear to be unnecessary,
-        // the CHierarchicalResultsNormalizer requires them to exist in this
-        // order.  Do not change the fields or the ordering.
-        inserter.insertValue(MLCUE_ATTRIBUTE, cue);
-        inserter.insertValue(MLKEY_ATTRIBUTE, searchKey);
-        inserter.insertValue(MLQUANTILESDESCRIPTION_ATTRIBUTE, description);
-        inserter.insertValue(MLVERSION_ATTRIBUTE, CURRENT_FORMAT_VERSION);
-        inserter.insertValue(TIME_ATTRIBUTE, core::CStringUtils::typeToString(time));
-
-        inserter.insertLevel(NORMALIZER_TAG,
-                             std::bind(&CNormalizer::acceptPersistInserter,
-                                       &normalizer, std::placeholders::_1));
-    }
-
-    json = ss.str();
+    inserter.insertLevel(NORMALIZER_TAG, std::bind(&CNormalizer::acceptPersistInserter,
+                                                   &normalizer, std::placeholders::_1));
 }
 }
 }
