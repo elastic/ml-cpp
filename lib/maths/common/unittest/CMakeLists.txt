@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.7)
-
 project("ML Maths Common lib unit tests")
 
 include_directories(../../../../include)
@@ -72,8 +70,6 @@ CXMeansTest.cc
 TestUtils.cc 
 )
 
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-
 add_executable(ml_test_maths_common ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_maths_common ${Boost_LIBRARIES})
@@ -82,9 +78,6 @@ target_link_libraries(ml_test_maths_common MlMathsCommon)
 target_link_libraries(ml_test_maths_common MlTest)
 
 
-# we expect to be built out of source, in a sub ditrectory
-# so need to change working directory up a level to find
-# test files
 add_test(ml_test_maths_common ml_test_maths_common
 )
 

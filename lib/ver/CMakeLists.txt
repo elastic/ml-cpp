@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 3.7)
-
 project("ML Ver")
 
 include_directories(../../include)
-include_directories(../../3rd_party/include)
+include_directories(SYSTEM ../../3rd_party/include)
 
 set(SRCS
 CBuildInfo.cc

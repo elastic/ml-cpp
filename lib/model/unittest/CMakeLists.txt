@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.7)
-
 project("ML Model lib unit tests")
 
 include_directories(../../../include)
@@ -60,8 +58,6 @@ CTokenListReverseSearchCreatorTest.cc
 CToolsTest.cc 
 Mocks.cc
 )
-
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_executable(ml_test_model ${SRCS} ${PLATFORM_SRCS})
 
