@@ -15,6 +15,8 @@ if($ENV{ML_DEBUG})
   endif()
 endif()
 
+set(SNAPSHOT yes)
+
 execute_process(COMMAND uname -m OUTPUT_VARIABLE HARDWARE_ARCH)
 
 execute_process(COMMAND awk -F= "/elasticsearchVersion/ {gsub(/-.*/,\"\"); print $2}" $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE ML_VERSION_NUM)
@@ -129,6 +131,7 @@ add_subdirectory(lib/maths/time_series)
 add_subdirectory(lib/maths/analytics)
 add_subdirectory(lib/model)
 add_subdirectory(lib/api)
+add_subdirectory(lib/api/dump_state)
 add_subdirectory(lib/test)
 add_subdirectory(lib/ver)
 add_subdirectory(lib/seccomp)
@@ -136,9 +139,11 @@ add_subdirectory(lib/seccomp)
 add_subdirectory(bin/autodetect)
 add_subdirectory(bin/categorize)
 add_subdirectory(bin/controller)
+add_subdirectory(bin/controller/unittest)
 add_subdirectory(bin/data_frame_analyzer)
 add_subdirectory(bin/normalize)
 add_subdirectory(bin/pytorch_inference)
+add_subdirectory(bin/pytorch_inference/unittest)
 
 add_subdirectory(lib/core/unittest)
 add_subdirectory(lib/maths/common/unittest)
@@ -189,6 +194,17 @@ add_custom_target(run_test_ver
     COMMAND ml_test_ver
     WORKING_DIRECTORY ../lib/ver/unittest
 )
+add_custom_target(run_test_controller
+    DEPENDS ml_test_controller
+    COMMAND ml_test_controller
+    WORKING_DIRECTORY ../bin/controller/unittest
+)
+add_custom_target(run_test_pytorch_inference
+    DEPENDS ml_test_pytorch_inference
+    COMMAND ml_test_pytorch_inference
+    WORKING_DIRECTORY ../bin/pytorch_inference/unittest
+)
 add_custom_target(test
-    DEPENDS run_test_model run_test_core run_test_api run_test_seccomp run_test_ver run_test_maths_common run_test_maths_time_series run_test_analytics
+    DEPENDS run_test_model run_test_core run_test_api run_test_seccomp run_test_ver run_test_maths_common
+    run_test_maths_time_series run_test_analytics run_test_controller run_test_pytorch_inference
 )
