@@ -34,6 +34,7 @@
 
 * Upgrade PyTorch to version 1.11. (See {ml-pull}2233[#2233], {ml-pull}2235[#2235]
   and {ml-pull}2238[#2238].)
+* Upgrade zlib to version 1.2.12 on Windows. (See {ml-pull}2253[#2253].)
 
 === Bug Fixes
 
