@@ -86,7 +86,7 @@ target_link_libraries(ml_test_api MlTest)
 target_link_libraries(ml_test_api ${NETLIBS})
 
 
-# we expect to be built out of source, in a sub ditrectory
+# we expect to be built out of source, in a sub directory
 # so need to change working directory up a level to find
 # test files
 add_test(ml_test_api ml_test_api

@@ -85,7 +85,7 @@ add_test(ml_test_model ml_test_model
 )
 
 # make "make test" run the test program
-# we expect to be built out of source, in a sub ditrectory
+# we expect to be built out of source, in a sub directory
 # so need to change working directory up a level to find
 # test files
 add_custom_target(test_model

@@ -46,11 +46,10 @@ target_link_libraries(ml_test_pytorch_inference ${NETLIBS})
 target_link_libraries(ml_test_pytorch_inference "${TORCH_LIB}")
 target_link_libraries(ml_test_pytorch_inference "${C10_LIB}")
 
-file(GLOB_RECURSE PYTORCH_INFERENCE_OBJS ${CMAKE_CURRENT_BINARY_DIR}/../C*.cc.o* ${CMAKE_CURRENT_BINARY_DIR}/../S*.cc.o*)
-list(FILTER PYTORCH_INFERENCE_OBJS EXCLUDE REGEX "Test" )
+set(PYTORCH_INFERENCE_OBJS "${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CBufferedIStreamAdapter.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CCmdLineParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CCommandParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/SettingsValidator.cc${OBJECT_FILE_EXT}")
 target_link_libraries(ml_test_pytorch_inference ${PYTORCH_INFERENCE_OBJS})
 
-# we expect to be built out of source, in a sub ditrectory
+# we expect to be built out of source, in a sub directory
 # so need to change working directory up a level to find
 # test files
 add_test(ml_test_pytorch_inference ml_test_pytorch_inference

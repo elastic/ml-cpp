@@ -37,11 +37,10 @@ target_link_libraries(ml_test_controller MlCore)
 target_link_libraries(ml_test_controller MlTest)
 target_link_libraries(ml_test_controller MlVer)
 
-file(GLOB_RECURSE CONTROLLER_OBJS ${CMAKE_CURRENT_BINARY_DIR}/../C*.cc.o*)
-list(FILTER CONTROLLER_OBJS EXCLUDE REGEX "Test" )
+set(CONTROLLER_OBJS "${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/controller.dir/CBlockingCallCancellingStreamMonitor.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/controller.dir/CCmdLineParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/controller.dir/CCommandProcessor.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/controller.dir/CResponseJsonWriter.cc${OBJECT_FILE_EXT}")
 target_link_libraries(ml_test_controller ${CONTROLLER_OBJS})
 
-# we expect to be built out of source, in a sub ditrectory
+# we expect to be built out of source, in a sub directory
 # so need to change working directory up a level to find
 # test files
 add_test(ml_test_controller ml_test_controller

@@ -43,7 +43,7 @@ target_link_libraries(ml_test_maths_analytics MlMathsAnalytics)
 target_link_libraries(ml_test_maths_analytics MlTest)
 
 
-# we expect to be built out of source, in a sub ditrectory
+# we expect to be built out of source, in a sub directory
 # so need to change working directory up a level to find
 # test files
 add_test(ml_test_maths_analytics ml_test_maths_analytics
