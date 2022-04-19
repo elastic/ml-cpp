@@ -81,6 +81,8 @@ add_library(MlMathsCommon SHARED ${SRCS})
 target_link_libraries(MlMathsCommon PUBLIC ${Boost_LIBRARIES})
 target_link_libraries(MlMathsCommon PUBLIC MlCore)
 
+add_dependencies(MlMathsCommon eigen)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_link_libraries(MlMathsCommon PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()

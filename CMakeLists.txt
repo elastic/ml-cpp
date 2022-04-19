@@ -143,6 +143,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     string(REPLACE "/RTC1" "" ${CompilerFlag} "${${CompilerFlag}}")
   endforeach()
 
+  set(CMAKE_STATIC_LIBRARY_PREFIX lib)
+  set(CMAKE_SHARED_LIBRARY_PREFIX lib)
+  set(CMAKE_IMPORT_LIBRARY_PREFIX lib)
+
   install(FILES $ENV{CPP_SRC_HOME}/lib/core/date_time_zonespec.csv DESTINATION ${CMAKE_INSTALL_PREFIX}/resources)
   install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/resources)
 

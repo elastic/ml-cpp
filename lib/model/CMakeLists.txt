@@ -95,6 +95,8 @@ target_link_libraries(MlModel PUBLIC MlCore)
 target_link_libraries(MlModel PUBLIC MlMathsCommon)
 target_link_libraries(MlModel PUBLIC MlMathsTimeSeries)
 
+add_dependencies(MlModel eigen)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_link_libraries(MlModel PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()

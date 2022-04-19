@@ -40,6 +40,8 @@ target_link_libraries(MlMathsAnalytics PUBLIC ${Boost_LIBRARIES})
 target_link_libraries(MlMathsAnalytics PUBLIC MlMathsCommon)
 target_link_libraries(MlMathsAnalytics PUBLIC MlCore)
 
+add_dependencies(MlMathsAnalytics eigen)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_link_libraries(MlMathsAnalytics PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()

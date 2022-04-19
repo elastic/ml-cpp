@@ -25,7 +25,7 @@ add_custom_target(licenses ALL
 # so expect to be built out-of-source, hence the need
 # to change the working directory upon execution
 add_custom_target(
-    eigen ALL
+    eigen
     DEPENDS 3rd_party.sh pull-eigen.sh
     COMMAND sh -c "./3rd_party.sh --add ${INSTALL_DIR}"
     COMMAND sh -c "./pull-eigen.sh"

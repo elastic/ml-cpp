@@ -133,6 +133,8 @@ target_link_libraries(MlCore PUBLIC ${LIBXML2_LIBRARIES})
 target_link_libraries(MlCore PUBLIC ${STRPTIME_LIB})
 target_link_libraries(MlCore PUBLIC ${Boost_LIBRARIES})
 
+add_dependencies(MlCore eigen)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   target_link_libraries(MlCore PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()

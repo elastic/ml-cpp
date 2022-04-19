@@ -57,6 +57,8 @@ target_link_libraries(MlTest PUBLIC MlCore)
 target_link_libraries(MlTest PUBLIC MlMathsAnalytics)
 target_link_libraries(MlTest PUBLIC MlMathsCommon)
 
+add_dependencies(MlTest eigen)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_link_libraries(MlTest PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()

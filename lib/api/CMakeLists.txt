@@ -81,6 +81,9 @@ target_link_libraries(MlApi PUBLIC MlMathsCommon)
 target_link_libraries(MlApi PUBLIC MlMathsTimeSeries)
 target_link_libraries(MlApi PUBLIC MlMathsAnalytics)
 target_link_libraries(MlApi PUBLIC MlModel)
+
+add_dependencies(MlApi eigen)
+
 if (WIN32)
   target_link_libraries(MlApi PUBLIC ws2_32)
 endif()

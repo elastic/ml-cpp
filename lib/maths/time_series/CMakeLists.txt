@@ -50,6 +50,8 @@ target_link_libraries(MlMathsTimeSeries PUBLIC ${Boost_LIBRARIES})
 target_link_libraries(MlMathsTimeSeries PUBLIC MlMathsCommon)
 target_link_libraries(MlMathsTimeSeries PUBLIC MlCore)
 
+add_dependencies(MlMathsTimeSeries eigen)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_link_libraries(MlMathsTimeSeries PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()
