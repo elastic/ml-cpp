@@ -25,9 +25,9 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 add_executable(dump_state ${SRCS})
 
 target_link_libraries(dump_state ${Boost_LIBRARIES})
-target_link_libraries(dump_state libMlCore)
-target_link_libraries(dump_state libMlApi)
-target_link_libraries(dump_state libMlSeccomp)
-target_link_libraries(dump_state libMlVer)
+target_link_libraries(dump_state MlCore)
+target_link_libraries(dump_state MlApi)
+target_link_libraries(dump_state MlSeccomp)
+target_link_libraries(dump_state MlVer)
 
 #install(TARGETS dump_state DESTINATION "${EXE_DIR}")

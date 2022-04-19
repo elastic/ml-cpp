@@ -59,7 +59,7 @@ set(SRCS
 CBuildInfo.cc
 )
 
-add_library(libMlVer STATIC ${SRCS})
-target_link_libraries(libMlVer ${Boost_LIBRARIES})
+add_library(MlVer STATIC ${SRCS})
+target_link_libraries(MlVer ${Boost_LIBRARIES})
 #
-##install(TARGETS libMlVer DESTINATION lib)
+##install(TARGETS MlVer DESTINATION lib)

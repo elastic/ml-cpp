@@ -88,17 +88,19 @@ SModelParams.cc
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-add_library(libMlModel SHARED ${SRCS} ${PLATFORM_SRCS})
-target_link_libraries(libMlModel PUBLIC ${Boost_LIBRARIES})
-target_link_libraries(libMlModel PUBLIC ${LOG4CXX_LIBRARIES})
-target_link_libraries(libMlModel PUBLIC libMlCore)
-target_link_libraries(libMlModel PUBLIC libMlMathsCommon)
-target_link_libraries(libMlModel PUBLIC libMlMathsTimeSeries)
+add_library(MlModel SHARED ${SRCS} ${PLATFORM_SRCS})
+target_link_libraries(MlModel PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(MlModel PUBLIC ${LOG4CXX_LIBRARIES})
+target_link_libraries(MlModel PUBLIC MlCore)
+target_link_libraries(MlModel PUBLIC MlMathsCommon)
+target_link_libraries(MlModel PUBLIC MlMathsTimeSeries)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_link_libraries(libMlModel PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
+    target_link_libraries(MlModel PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()
 
 
-install(TARGETS libMlModel RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
-install(FILES $<TARGET_PDB_FILE:libMlModel> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
+install(TARGETS MlModel RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
+if(MSVC)
+  install(FILES $<TARGET_PDB_FILE:MlModel> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
+endif()

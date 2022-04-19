@@ -95,9 +95,9 @@ CXmlParserTest.cc
 add_executable(ml_test_core ${SRCS} ${PLATFORM_SRCS})
 target_link_libraries(ml_test_core ${Boost_LIBRARIES})
 target_link_libraries(ml_test_core ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_core libMlMathsCommon)
-target_link_libraries(ml_test_core libMlCore)
-target_link_libraries(ml_test_core libMlTest)
+target_link_libraries(ml_test_core MlMathsCommon)
+target_link_libraries(ml_test_core MlCore)
+target_link_libraries(ml_test_core MlTest)
 
 add_test(ml_test_core ml_test_core)
 # make "make test" run the test program

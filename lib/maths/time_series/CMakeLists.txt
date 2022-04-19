@@ -45,14 +45,16 @@ CTimeSeriesTestForSeasonality.cc
 CTrendComponent.cc 
 )
 
-add_library(libMlMathsTimeSeries SHARED ${SRCS})
-target_link_libraries(libMlMathsTimeSeries PUBLIC ${Boost_LIBRARIES})
-target_link_libraries(libMlMathsTimeSeries PUBLIC libMlMathsCommon)
-target_link_libraries(libMlMathsTimeSeries PUBLIC libMlCore)
+add_library(MlMathsTimeSeries SHARED ${SRCS})
+target_link_libraries(MlMathsTimeSeries PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(MlMathsTimeSeries PUBLIC MlMathsCommon)
+target_link_libraries(MlMathsTimeSeries PUBLIC MlCore)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_link_libraries(libMlMathsTimeSeries PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
+    target_link_libraries(MlMathsTimeSeries PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()
 
-install(TARGETS libMlMathsTimeSeries  RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
-install(FILES $<TARGET_PDB_FILE:libMlMathsTimeSeries> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
+install(TARGETS MlMathsTimeSeries  RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
+if(MSVC)
+  install(FILES $<TARGET_PDB_FILE:MlMathsTimeSeries> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
+endif()

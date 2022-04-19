@@ -107,6 +107,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   find_library(C10_LIB c10 HINTS /usr/local/gcc103/lib)
   #find_path(TORCH_INC caffe2/serialize/read_adapter_interface.h)
   include_directories(SYSTEM /usr/local/gcc103/include/pytorch)
+
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/resources)
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -141,7 +143,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     string(REPLACE "/RTC1" "" ${CompilerFlag} "${${CompilerFlag}}")
   endforeach()
 
-  install(FILES $ENV{CPP_SRC_HOME}/lib/core/date_time_zonespec.csv DESTINATION ${CMAKE_INSTALL_PREFIX}/Resources)
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/date_time_zonespec.csv DESTINATION ${CMAKE_INSTALL_PREFIX}/resources)
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/resources)
+
   set(EXE_DIR bin)
   set(PLATFORM_NAME "Windows")
   find_library(TORCH_LIB torch_cpu)

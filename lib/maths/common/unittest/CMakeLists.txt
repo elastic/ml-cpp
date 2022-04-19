@@ -84,9 +84,9 @@ TestUtils.cc
 add_executable(ml_test_maths_common ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_maths_common ${Boost_LIBRARIES})
-target_link_libraries(ml_test_maths_common libMlCore)
-target_link_libraries(ml_test_maths_common libMlMathsCommon)
-target_link_libraries(ml_test_maths_common libMlTest)
+target_link_libraries(ml_test_maths_common MlCore)
+target_link_libraries(ml_test_maths_common MlMathsCommon)
+target_link_libraries(ml_test_maths_common MlTest)
 
 
 add_test(ml_test_maths_common ml_test_maths_common

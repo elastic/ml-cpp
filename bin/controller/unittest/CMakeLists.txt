@@ -33,9 +33,9 @@ add_executable(ml_test_controller ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_controller ${Boost_LIBRARIES})
 target_link_libraries(ml_test_controller ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_controller libMlCore)
-target_link_libraries(ml_test_controller libMlTest)
-target_link_libraries(ml_test_controller libMlVer)
+target_link_libraries(ml_test_controller MlCore)
+target_link_libraries(ml_test_controller MlTest)
+target_link_libraries(ml_test_controller MlVer)
 
 file(GLOB_RECURSE CONTROLLER_OBJS ${CMAKE_CURRENT_BINARY_DIR}/../C*.cc.o*)
 list(FILTER CONTROLLER_OBJS EXCLUDE REGEX "Test" )

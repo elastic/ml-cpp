@@ -20,5 +20,5 @@ set(PLATFORM_SRCS
 set(SRCS
 )
 
-add_library(libMlSeccomp STATIC ${SRCS} ${PLATFORM_SRCS})
-target_link_libraries(libMlSeccomp ${Boost_LIBRARIES})
+add_library(MlSeccomp STATIC ${SRCS} ${PLATFORM_SRCS})
+target_link_libraries(MlSeccomp ${Boost_LIBRARIES})

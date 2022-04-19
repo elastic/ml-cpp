@@ -26,9 +26,9 @@ add_executable(ml_test_seccomp ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_seccomp ${Boost_LIBRARIES})
 target_link_libraries(ml_test_seccomp ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_seccomp libMlCore)
-target_link_libraries(ml_test_seccomp libMlSeccomp)
-target_link_libraries(ml_test_seccomp libMlTest)
+target_link_libraries(ml_test_seccomp MlCore)
+target_link_libraries(ml_test_seccomp MlSeccomp)
+target_link_libraries(ml_test_seccomp MlTest)
 
 add_test(ml_test_seccomp ml_test_seccomp)
 # make "make test" run the test program

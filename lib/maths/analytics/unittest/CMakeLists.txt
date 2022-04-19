@@ -37,10 +37,10 @@ TestUtils.cc
 add_executable(ml_test_maths_analytics ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_maths_analytics ${Boost_LIBRARIES})
-target_link_libraries(ml_test_maths_analytics libMlCore)
-target_link_libraries(ml_test_maths_analytics libMlMathsCommon)
-target_link_libraries(ml_test_maths_analytics libMlMathsAnalytics)
-target_link_libraries(ml_test_maths_analytics libMlTest)
+target_link_libraries(ml_test_maths_analytics MlCore)
+target_link_libraries(ml_test_maths_analytics MlMathsCommon)
+target_link_libraries(ml_test_maths_analytics MlMathsAnalytics)
+target_link_libraries(ml_test_maths_analytics MlTest)
 
 
 # we expect to be built out of source, in a sub ditrectory

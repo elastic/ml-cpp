@@ -77,13 +77,15 @@ MathsTypes.cc
 ProbabilityAggregators.cc 
 )
 
-add_library(libMlMathsCommon SHARED ${SRCS})
-target_link_libraries(libMlMathsCommon PUBLIC ${Boost_LIBRARIES})
-target_link_libraries(libMlMathsCommon PUBLIC libMlCore)
+add_library(MlMathsCommon SHARED ${SRCS})
+target_link_libraries(MlMathsCommon PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(MlMathsCommon PUBLIC MlCore)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_link_libraries(libMlMathsCommon PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
+    target_link_libraries(MlMathsCommon PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()
 
-install(TARGETS libMlMathsCommon RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
-install(FILES $<TARGET_PDB_FILE:libMlMathsCommon> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
+install(TARGETS MlMathsCommon RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
+if(MSVC)
+  install(FILES $<TARGET_PDB_FILE:MlMathsCommon> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
+endif()

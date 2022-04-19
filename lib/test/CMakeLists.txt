@@ -50,16 +50,18 @@ CTimeSeriesTestData.cc
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 
-add_library(libMlTest SHARED ${SRCS} ${PLATFORM_SRCS})
-target_link_libraries(libMlTest PUBLIC ${Boost_LIBRARIES})
-target_link_libraries(libMlTest PUBLIC libMlApi)
-target_link_libraries(libMlTest PUBLIC libMlCore)
-target_link_libraries(libMlTest PUBLIC libMlMathsAnalytics)
-target_link_libraries(libMlTest PUBLIC libMlMathsCommon)
+add_library(MlTest SHARED ${SRCS} ${PLATFORM_SRCS})
+target_link_libraries(MlTest PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(MlTest PUBLIC MlApi)
+target_link_libraries(MlTest PUBLIC MlCore)
+target_link_libraries(MlTest PUBLIC MlMathsAnalytics)
+target_link_libraries(MlTest PUBLIC MlMathsCommon)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_link_libraries(libMlTest PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
+    target_link_libraries(MlTest PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()
 
-install(TARGETS libMlTest RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
-install(FILES $<TARGET_PDB_FILE:libMlTest> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
+install(TARGETS MlTest RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
+if(MSVC)
+  install(FILES $<TARGET_PDB_FILE:MlTest> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
+endif()

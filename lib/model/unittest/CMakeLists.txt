@@ -73,11 +73,11 @@ Mocks.cc
 add_executable(ml_test_model ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_model ${Boost_LIBRARIES})
-target_link_libraries(ml_test_model libMlCore)
-target_link_libraries(ml_test_model libMlMathsCommon)
-target_link_libraries(ml_test_model libMlMathsTimeSeries)
-target_link_libraries(ml_test_model libMlModel)
-target_link_libraries(ml_test_model libMlTest)
+target_link_libraries(ml_test_model MlCore)
+target_link_libraries(ml_test_model MlMathsCommon)
+target_link_libraries(ml_test_model MlMathsTimeSeries)
+target_link_libraries(ml_test_model MlModel)
+target_link_libraries(ml_test_model MlTest)
 target_link_libraries(ml_test_model ${NETLIBS})
 
 

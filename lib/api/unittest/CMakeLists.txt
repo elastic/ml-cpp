@@ -77,12 +77,12 @@ set(NETLIBS "")
 
 target_link_libraries(ml_test_api ${Boost_LIBRARIES})
 target_link_libraries(ml_test_api ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_api libMlCore)
-target_link_libraries(ml_test_api libMlMathsCommon)
-target_link_libraries(ml_test_api libMlMathsAnalytics)
-target_link_libraries(ml_test_api libMlModel)
-target_link_libraries(ml_test_api libMlApi)
-target_link_libraries(ml_test_api libMlTest)
+target_link_libraries(ml_test_api MlCore)
+target_link_libraries(ml_test_api MlMathsCommon)
+target_link_libraries(ml_test_api MlMathsAnalytics)
+target_link_libraries(ml_test_api MlModel)
+target_link_libraries(ml_test_api MlApi)
+target_link_libraries(ml_test_api MlTest)
 target_link_libraries(ml_test_api ${NETLIBS})
 
 

@@ -49,10 +49,10 @@ TestUtils.cc
 add_executable(ml_test_maths_time_series ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_maths_time_series ${Boost_LIBRARIES})
-target_link_libraries(ml_test_maths_time_series libMlCore)
-target_link_libraries(ml_test_maths_time_series libMlMathsCommon)
-target_link_libraries(ml_test_maths_time_series libMlMathsTimeSeries)
-target_link_libraries(ml_test_maths_time_series libMlTest)
+target_link_libraries(ml_test_maths_time_series MlCore)
+target_link_libraries(ml_test_maths_time_series MlMathsCommon)
+target_link_libraries(ml_test_maths_time_series MlMathsTimeSeries)
+target_link_libraries(ml_test_maths_time_series MlTest)
 
 
 add_test(ml_test_maths_time_series ml_test_maths_time_series
