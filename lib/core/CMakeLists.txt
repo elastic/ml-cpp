@@ -1,11 +1,22 @@
-project("ML Core lib")
+#
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+#
 
-list( APPEND CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib )
+project("ML Core")
 
 include_directories(../../include)
 include_directories(SYSTEM ../../3rd_party/include)
 include_directories(SYSTEM ../../3rd_party/eigen)
 include_directories(SYSTEM ../../3rd_party/rapidjson/include)
+
+add_compile_definitions(BUILDING_libMlCore)
 
 set(PLATFORM_SRCS_TMP
 CCondition.cc
@@ -113,13 +124,18 @@ CXmlParser.cc
 CXmlParserIntf.cc
 )
 
-add_library(MlCore SHARED ${SRCS} ${PLATFORM_SRCS})
-target_link_libraries(MlCore PUBLIC ${Boost_LIBRARIES})
-target_link_libraries(MlCore PUBLIC ${ZLIB_LIBRARIES})
-target_link_libraries(MlCore PUBLIC ${LIBXML2_LIBRARIES})
+add_library(libMlCore SHARED ${SRCS} ${PLATFORM_SRCS})
+if (WIN32)
+  target_link_libraries(libMlCore PUBLIC "AdvAPI32.lib shell32.lib Version.lib")
+endif()
+target_link_libraries(libMlCore PUBLIC ${ZLIB_LIBRARIES})
+target_link_libraries(libMlCore PUBLIC ${LIBXML2_LIBRARIES})
+target_link_libraries(libMlCore PUBLIC ${STRPTIME_LIB})
+target_link_libraries(libMlCore PUBLIC ${Boost_LIBRARIES})
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_link_libraries(MlCore PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
+  target_link_libraries(libMlCore PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
 endif()
 
-install(TARGETS MlCore DESTINATION lib)
+install(TARGETS libMlCore RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
+install(FILES $<TARGET_PDB_FILE:libMlCore> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)

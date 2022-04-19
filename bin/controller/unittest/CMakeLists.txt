@@ -1,4 +1,13 @@
-cmake_minimum_required(VERSION 3.7)
+#
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+#
 
 project("ML controller unit tests")
 
@@ -24,11 +33,11 @@ add_executable(ml_test_controller ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_controller ${Boost_LIBRARIES})
 target_link_libraries(ml_test_controller ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_controller MlCore)
-target_link_libraries(ml_test_controller MlTest)
-target_link_libraries(ml_test_controller MlVer)
+target_link_libraries(ml_test_controller libMlCore)
+target_link_libraries(ml_test_controller libMlTest)
+target_link_libraries(ml_test_controller libMlVer)
 
-file(GLOB_RECURSE CONTROLLER_OBJS ${CMAKE_CURRENT_BINARY_DIR}/../C*.cc.o)
+file(GLOB_RECURSE CONTROLLER_OBJS ${CMAKE_CURRENT_BINARY_DIR}/../C*.cc.o*)
 list(FILTER CONTROLLER_OBJS EXCLUDE REGEX "Test" )
 target_link_libraries(ml_test_controller ${CONTROLLER_OBJS})
 

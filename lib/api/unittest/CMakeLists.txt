@@ -1,6 +1,15 @@
-cmake_minimum_required(VERSION 3.7)
+#
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+#
 
-project("ML Api lib unit tests")
+project("ML Api unit tests")
 
 include_directories(../../../include)
 include_directories(SYSTEM ../../../3rd_party/include)
@@ -68,12 +77,12 @@ set(NETLIBS "")
 
 target_link_libraries(ml_test_api ${Boost_LIBRARIES})
 target_link_libraries(ml_test_api ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_api MlCore)
-target_link_libraries(ml_test_api MlMathsCommon)
-target_link_libraries(ml_test_api MlMathsAnalytics)
-target_link_libraries(ml_test_api MlModel)
-target_link_libraries(ml_test_api MlApi)
-target_link_libraries(ml_test_api MlTest)
+target_link_libraries(ml_test_api libMlCore)
+target_link_libraries(ml_test_api libMlMathsCommon)
+target_link_libraries(ml_test_api libMlMathsAnalytics)
+target_link_libraries(ml_test_api libMlModel)
+target_link_libraries(ml_test_api libMlApi)
+target_link_libraries(ml_test_api libMlTest)
 target_link_libraries(ml_test_api ${NETLIBS})
 
 

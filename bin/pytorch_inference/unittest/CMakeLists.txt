@@ -1,4 +1,13 @@
-cmake_minimum_required(VERSION 3.7)
+#
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+#
 
 project("ML pytorch_inference unit tests")
 
@@ -26,18 +35,18 @@ set(NETLIBS "")
 
 target_link_libraries(ml_test_pytorch_inference ${Boost_LIBRARIES})
 target_link_libraries(ml_test_pytorch_inference ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_pytorch_inference MlCore)
-target_link_libraries(ml_test_pytorch_inference MlMathsCommon)
-target_link_libraries(ml_test_pytorch_inference MlMathsAnalytics)
-target_link_libraries(ml_test_pytorch_inference MlModel)
-target_link_libraries(ml_test_pytorch_inference MlApi)
-target_link_libraries(ml_test_pytorch_inference MlTest)
-target_link_libraries(ml_test_pytorch_inference MlVer)
+target_link_libraries(ml_test_pytorch_inference libMlCore)
+target_link_libraries(ml_test_pytorch_inference libMlMathsCommon)
+target_link_libraries(ml_test_pytorch_inference libMlMathsAnalytics)
+target_link_libraries(ml_test_pytorch_inference libMlModel)
+target_link_libraries(ml_test_pytorch_inference libMlApi)
+target_link_libraries(ml_test_pytorch_inference libMlTest)
+target_link_libraries(ml_test_pytorch_inference libMlVer)
 target_link_libraries(ml_test_pytorch_inference ${NETLIBS})
 target_link_libraries(ml_test_pytorch_inference "${TORCH_LIB}")
 target_link_libraries(ml_test_pytorch_inference "${C10_LIB}")
 
-file(GLOB_RECURSE PYTORCH_INFERENCE_OBJS ${CMAKE_CURRENT_BINARY_DIR}/../C*.cc.o ${CMAKE_CURRENT_BINARY_DIR}/../S*.cc.o)
+file(GLOB_RECURSE PYTORCH_INFERENCE_OBJS ${CMAKE_CURRENT_BINARY_DIR}/../C*.cc.o* ${CMAKE_CURRENT_BINARY_DIR}/../S*.cc.o*)
 list(FILTER PYTORCH_INFERENCE_OBJS EXCLUDE REGEX "Test" )
 target_link_libraries(ml_test_pytorch_inference ${PYTORCH_INFERENCE_OBJS})
 

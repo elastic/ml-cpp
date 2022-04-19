@@ -1,4 +1,15 @@
-project("ML Maths Analytics lib unit tests")
+#
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+#
+
+project("ML Maths Analytics unit tests")
 
 include_directories(../../../../include)
 include_directories(SYSTEM ../../../../3rd_party/include)
@@ -26,10 +37,10 @@ TestUtils.cc
 add_executable(ml_test_maths_analytics ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_maths_analytics ${Boost_LIBRARIES})
-target_link_libraries(ml_test_maths_analytics MlCore)
-target_link_libraries(ml_test_maths_analytics MlMathsCommon)
-target_link_libraries(ml_test_maths_analytics MlMathsAnalytics)
-target_link_libraries(ml_test_maths_analytics MlTest)
+target_link_libraries(ml_test_maths_analytics libMlCore)
+target_link_libraries(ml_test_maths_analytics libMlMathsCommon)
+target_link_libraries(ml_test_maths_analytics libMlMathsAnalytics)
+target_link_libraries(ml_test_maths_analytics libMlTest)
 
 
 # we expect to be built out of source, in a sub ditrectory

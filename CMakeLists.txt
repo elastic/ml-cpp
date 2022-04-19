@@ -1,13 +1,23 @@
-cmake_minimum_required(VERSION 3.7)
+#
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+#
 
 project("ML")
+
+cmake_minimum_required(VERSION 3.7)
 
 set (CMAKE_CXX_STANDARD 17)
 
 if(NOT ENV{ML_DEBUG})
   set(OPTCFLAGS "-O3")
   set(OPTCPPFLAGS "-DNDEBUG -DEXCLUDE_TRACE_LOGGING")
-  message(STATUS "NOT ML_DEBUG blah")
 endif()
 
 if($ENV{ML_DEBUG})
@@ -28,6 +38,9 @@ add_compile_definitions(BOOST_ALL_DYN_LINK BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTI
 add_compile_definitions(RAPIDJSON_HAS_STDSTRING)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(DYNAMIC_LIB_DIR controller.app/Contents/lib)
+  set(IMPORT_LIB_DIR lib)
+
   set(ML_APP_NAME controller)
   message(STATUS "Darwin detected")
   string(REPLACE arm6 aarch64 HARDWARE_ARCH ${HARDWARE_ARCH})
@@ -66,7 +79,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    message(STATUS "Linux detected")
+  message(STATUS "Linux detected")
+  set(DYNAMIC_LIB_DIR lib)
+  set(IMPORT_LIB_DIR lib)
   # linux flags
   set(CMAKE_C_FLAGS "-g ${OPTCFLAGS} ${ARCHCFLAGS} -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wno-psabi -Wparentheses -Wpointer-arith -Wswitch-enum")
   set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden")
@@ -87,7 +102,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(EXE_DIR bin)
   set(PLATFORM_NAME "Linux")
   add_compile_definitions(Linux)
-    # TODO create simple  cmake module for pytorch
+  # TODO create simple  cmake module for pytorch
   find_library(TORCH_LIB torch_cpu HINTS /usr/local/gcc103/lib)
   find_library(C10_LIB c10 HINTS /usr/local/gcc103/lib)
   #find_path(TORCH_INC caffe2/serialize/read_adapter_interface.h)
@@ -95,8 +110,58 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  install(FILES $ENV{CPP_SRC_HOME}/lib/core/date_time_zonespec.csv DESTINATION ${CMAKE_INSTALL_PREFIX}/Resources)
+  set(DYNAMIC_LIB_DIR bin)
+  set(IMPORT_LIB_DIR lib)
+  set(OS Windows)
   add_compile_definitions(Windows)
+  if(NOT ENV{ML_DEBUG})
+    set(OPTCFLAGS "-O2 -Qfast_transcendentals -Qvec-report:1")
+    add_compile_definitions(NDEBUG EXCLUDE_TRACE_LOGGING)
+  endif()
+  
+  if(NOT CRT_OPT)
+   set(CRT_OPT -MD)
+  endif()
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_DEPRECATE WIN32_LEAN_AND_MEAN NTDDI_VERSION=0x06010000 _WIN32_WINNT=0x0601 Windows)
+  set(CMAKE_C_FLAGS "-nologo ${OPTCFLAGS} -W4 ${CRT_OPT} -EHsc -Zi -Gw -FS -Zc:inline -diagnostics:caret -utf-8")
+  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -TP ${CFLAGS} -Zc:rvalueCast -Zc:strictStrings -wd4127 -we4150 -wd4201 -wd4231 -wd4251 -wd4355 -wd4512 -wd4702 -bigobj ${CPPFLAGS}")
+
+  #take a stick to the compiler flags to get what we need
+  set(CompilerFlags
+          CMAKE_CXX_FLAGS
+          CMAKE_CXX_FLAGS_DEBUG
+          CMAKE_CXX_FLAGS_RELEASE
+          CMAKE_C_FLAGS
+          CMAKE_C_FLAGS_DEBUG
+          CMAKE_C_FLAGS_RELEASE
+          )
+  foreach(CompilerFlag ${CompilerFlags})
+    string(REPLACE "/MDd" "/MD" ${CompilerFlag} "${${CompilerFlag}}")
+    string(REPLACE "/Od" "/O2" ${CompilerFlag} "${${CompilerFlag}}")
+    string(REPLACE "/RTC1" "" ${CompilerFlag} "${${CompilerFlag}}")
+  endforeach()
+
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/date_time_zonespec.csv DESTINATION ${CMAKE_INSTALL_PREFIX}/Resources)
+  set(EXE_DIR bin)
+  set(PLATFORM_NAME "Windows")
+  find_library(TORCH_LIB torch_cpu)
+  find_library(C10_LIB c10)
+  find_library(STRPTIME_LIB strptime)
+  find_library(ZLIB_LIB zdll)
+  include_directories(SYSTEM /usr/local/include/pytorch)
+  include_directories(SYSTEM c:/usr/local/include)
+
+  set(Boost_USE_DEBUG_LIBS OFF)
+  set(Boost_USE_RELEASE_LIBS ON)
+  set(Boost_USE_MULTITHREADED ON)
+  set(Boost_USE_STATIC_LIBS OFF)
+  set(Boost_USE_STATIC_RUNTIME OFF)
+  set(Boost_USE_DEBUG_RUNTIME OFF)
+  set(Boost_COMPILER vc142)
+  set(Boost_DEBUG OFF)
+
+  add_definitions( -DBOOST_ALL_NO_LIB )
+  add_definitions( -DBOOST_ALL_DYN_LINK )
 endif()
 
 add_compile_definitions(EIGEN_MPL2_ONLY EIGEN_MAX_ALIGN_BYTES=32)
@@ -108,11 +173,11 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 list( APPEND CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib )
 
 set(Boost_USE_MULTITHREADED ON)
-
 set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_DEBUG OFF)
+set(Boost_USE_DEBUG_LIBS OFF)
 
-find_package(Boost 1.77.0 REQUIRED COMPONENTS iostreams filesystem program_options regex date_time log log_setup thread unit_test_framework HINTS /usr/local/gcc103 /usr/local)
+find_package(Boost 1.77.0 REQUIRED COMPONENTS iostreams filesystem program_options regex date_time log log_setup thread unit_test_framework)
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()

@@ -1,4 +1,15 @@
-project("ML Maths Common lib unit tests")
+#
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License
+# 2.0 and the following additional limitation. Functionality enabled by the
+# files subject to the Elastic License 2.0 may only be used in production when
+# invoked by an Elasticsearch process with a license key installed that permits
+# use of machine learning features. You may not use this file except in
+# compliance with the Elastic License 2.0 and the foregoing additional
+# limitation.
+#
+
+project("ML Maths Common unit tests")
 
 include_directories(../../../../include)
 include_directories(SYSTEM ../../../../3rd_party/include)
@@ -73,9 +84,9 @@ TestUtils.cc
 add_executable(ml_test_maths_common ${SRCS} ${PLATFORM_SRCS})
 
 target_link_libraries(ml_test_maths_common ${Boost_LIBRARIES})
-target_link_libraries(ml_test_maths_common MlCore)
-target_link_libraries(ml_test_maths_common MlMathsCommon)
-target_link_libraries(ml_test_maths_common MlTest)
+target_link_libraries(ml_test_maths_common libMlCore)
+target_link_libraries(ml_test_maths_common libMlMathsCommon)
+target_link_libraries(ml_test_maths_common libMlTest)
 
 
 add_test(ml_test_maths_common ml_test_maths_common

@@ -8,20 +8,17 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
-cmake_minimum_required(VERSION 3.7)
-
-set(DYNAMIC_LIB_DIR controller.app/Contents/lib)
 
 set(INSTALL_DIR $ENV{CPP_PLATFORM_HOME}/${DYNAMIC_LIB_DIR})
-set(LICENSE_DIR $ENV{CPP_PLATFORM_HOME}/..)
+set(LICENSE_DIR $ENV{CPP_PLATFORM_HOME}/../licenses)
 
 # For now we want to co-exist with static Makefiles
 # so expect to be built out-of-source, hence the need
 # to change the working directory upon execution
 add_custom_target(licenses ALL
-    COMMAND mkdir -p $ENV{CPP_PLATFORM_HOME}
-    COMMAND tar cf - licenses | (cd ${LICENSE_DIR} && tar xvf -)
-    WORKING_DIRECTORY $ENV{CPP_SRC_HOME}/3rd_party
+  COMMAND cmake -E make_directory $ENV{CPP_PLATFORM_HOME}
+  COMMAND cmake -E copy_directory licenses ${LICENSE_DIR}
+  WORKING_DIRECTORY $ENV{CPP_SRC_HOME}/3rd_party
 )
 
 # For now we want to co-exist with static Makefiles
@@ -30,8 +27,8 @@ add_custom_target(licenses ALL
 add_custom_target(
     eigen ALL
     DEPENDS 3rd_party.sh pull-eigen.sh
-    COMMAND ./3rd_party.sh --add ${INSTALL_DIR}
-    COMMAND ./pull-eigen.sh
+    COMMAND sh -c "./3rd_party.sh --add ${INSTALL_DIR}"
+    COMMAND sh -c "./pull-eigen.sh"
     WORKING_DIRECTORY $ENV{CPP_SRC_HOME}/3rd_party
 )
 
