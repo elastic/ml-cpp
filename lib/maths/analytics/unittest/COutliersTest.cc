@@ -416,8 +416,8 @@ BOOST_AUTO_TEST_CASE(testEnsemble) {
     TDoubleVec TN;
     TDoubleVec FP;
     TDoubleVec FN;
-    double precisionLowerBounds[]{0.23, 0.85, 0.98};
-    double recallLowerBounds[]{0.98, 0.92, 0.62};
+    double precisionLowerBounds[]{0.25, 0.85, 0.99};
+    double recallLowerBounds[]{0.98, 0.90, 0.61};
 
     core::stopDefaultAsyncExecutor();
 
@@ -532,17 +532,17 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
                     if (row->index() == outlierIndexes[0]) {
                         LOG_DEBUG(<< "x-significance = " << (*row)[3]
                                   << ", y-significance = " << (*row)[4]);
-                        passed &= (1.0 - (*row)[4] < 0.005);
+                        passed &= (1.0 - (*row)[4] < 0.06);
                     }
                     if (row->index() == outlierIndexes[1]) {
                         LOG_DEBUG(<< "x-significance = " << (*row)[3]
                                   << ", y-significance = " << (*row)[4]);
-                        passed &= (1.0 - (*row)[3] < 0.005);
+                        passed &= (1.0 - (*row)[3] < 0.06);
                     }
                     if (row->index() == outlierIndexes[2]) {
                         LOG_DEBUG(<< "x-significance = " << (*row)[3]
                                   << ", y-significance = " << (*row)[4]);
-                        passed &= (std::fabs((*row)[4] - (*row)[3]) < 0.2);
+                        passed &= (std::fabs((*row)[4] - (*row)[3]) < 0.06);
                     }
                     averageSignificances[0].add((*row)[3]);
                     averageSignificances[1].add((*row)[4]);
@@ -550,10 +550,9 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
             });
             BOOST_TEST_REQUIRE(passed);
 
-            LOG_DEBUG(<< averageSignificances[0] << " " << averageSignificances[1]);
             BOOST_TEST_REQUIRE(
                 std::fabs(maths::common::CBasicStatistics::mean(averageSignificances[0]) -
-                          maths::common::CBasicStatistics::mean(averageSignificances[1])) < 0.05);
+                          maths::common::CBasicStatistics::mean(averageSignificances[1])) < 0.02);
             core::startDefaultAsyncExecutor();
         }
 

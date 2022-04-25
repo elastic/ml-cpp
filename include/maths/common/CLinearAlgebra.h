@@ -267,7 +267,7 @@ public:
 
     //! Construct from C-style array of arrays.
     explicit CSymmetricMatrixNxN(const TArray& m) {
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -276,7 +276,7 @@ public:
 
     //! Construct from a vector of vectors.
     explicit CSymmetricMatrixNxN(const TVecVec& m) {
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -286,7 +286,7 @@ public:
     //! Construct from a small vector of small vectors.
     template<std::size_t M>
     explicit CSymmetricMatrixNxN(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m) {
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -454,7 +454,7 @@ public:
     }
 
     //! Get a checksum for the matrix.
-    uint64_t checksum() const { return this->TBase::checksum(); }
+    std::uint64_t checksum() const { return this->TBase::checksum(); }
 };
 
 //! \brief Gets a constant symmetric matrix with specified dimension.
@@ -462,6 +462,18 @@ template<typename T, std::size_t N>
 struct SConstant<CSymmetricMatrixNxN<T, N>> {
     static CSymmetricMatrixNxN<T, N> get(std::size_t /*dimension*/, T constant) {
         return CSymmetricMatrixNxN<T, N>(constant);
+    }
+};
+
+//! \brief Gets the identity matrix with specified dimesion.
+template<typename T, std::size_t N>
+struct SIdentity<CSymmetricMatrixNxN<T, N>> {
+    static CSymmetricMatrixNxN<T, N> get(std::size_t /*dimension*/) {
+        CSymmetricMatrixNxN<T, N> result(T{0});
+        for (std::size_t i = 0; i < N; ++i) {
+            result(i, i) = T{1};
+        }
+        return result;
     }
 };
 
@@ -518,7 +530,7 @@ public:
 
 public:
     //! Set to multiple of ones matrix.
-    explicit CSymmetricMatrix(std::size_t d = 0u, T v = T(0)) : m_D(d) {
+    explicit CSymmetricMatrix(std::size_t d = 0, T v = T(0)) : m_D(d) {
         if (d > 0) {
             TBase::m_LowerTriangle.resize(d * (d + 1) / 2, v);
         }
@@ -527,7 +539,7 @@ public:
     //! Construct from C-style array of arrays.
     explicit CSymmetricMatrix(const TArray& m) : m_D(m.size()) {
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
-        for (std::size_t i = 0u, i_ = 0; i < m_D; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < m_D; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -539,7 +551,7 @@ public:
     explicit CSymmetricMatrix(const core::CSmallVectorBase<core::CSmallVector<T, M>>& m)
         : m_D(m.size()) {
         TBase::m_LowerTriangle.resize(m_D * (m_D + 1) / 2);
-        for (std::size_t i = 0u, i_ = 0; i < m_D; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < m_D; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = m[i][j];
             }
@@ -728,9 +740,9 @@ public:
     }
 
     //! Get a checksum for the matrix.
-    uint64_t checksum() const {
+    std::uint64_t checksum() const {
         return core::CHashing::hashCombine(this->TBase::checksum(),
-                                           static_cast<uint64_t>(m_D));
+                                           static_cast<std::uint64_t>(m_D));
     }
 
 private:
@@ -750,6 +762,18 @@ template<typename T>
 struct SConstant<CSymmetricMatrix<T>> {
     static CSymmetricMatrix<T> get(std::size_t dimension, T constant) {
         return CSymmetricMatrix<T>(dimension, constant);
+    }
+};
+
+//! \brief Gets the identity matrix with specified dimesion.
+template<typename T>
+struct SIdentity<CSymmetricMatrix<T>> {
+    static CSymmetricMatrix<T> get(std::size_t dimension) {
+        CSymmetricMatrix<T> result(dimension, T{0});
+        for (std::size_t i = 0; i < dimension; ++i) {
+            result(i, i) = T{1};
+        }
+        return result;
     }
 };
 
@@ -1143,7 +1167,7 @@ public:
     }
 
     //! Get a checksum of this vector's components.
-    uint64_t checksum() const { return this->TBase::checksum(); }
+    std::uint64_t checksum() const { return this->TBase::checksum(); }
 
     //! Get the smallest possible vector.
     static const CVectorNx1& smallest() {
@@ -1164,14 +1188,14 @@ CSymmetricMatrixNxN<T, N>::CSymmetricMatrixNxN(ESymmetricMatrixType type,
                                                const CVectorNx1<T, N>& x) {
     switch (type) {
     case E_OuterProduct:
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = x(i) * x(j);
             }
         }
         break;
     case E_Diagonal:
-        for (std::size_t i = 0u, i_ = 0; i < N; ++i) {
+        for (std::size_t i = 0, i_ = 0; i < N; ++i) {
             for (std::size_t j = 0; j <= i; ++j, ++i_) {
                 TBase::m_LowerTriangle[i_] = i == j ? x(i) : T(0);
             }
@@ -1447,7 +1471,7 @@ public:
     }
 
     //! Get a checksum of this vector's components.
-    uint64_t checksum() const { return this->TBase::checksum(); }
+    std::uint64_t checksum() const { return this->TBase::checksum(); }
 
     //! Get the smallest possible vector.
     static const CVector& smallest(std::size_t d) {

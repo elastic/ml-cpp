@@ -52,22 +52,14 @@ using TDouble1Vec2Vec = core::CSmallVector<TDouble1Vec, 2>;
 using TProgressCallback = std::function<void(double)>;
 using TMemoryUsageCallback = std::function<void(std::int64_t)>;
 using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-//! Get the distance in the complement space of the projection.
-//!
-//! We use Euclidean distances so this is just \f$\sqrt{d^2 - x^2}\f$ for
-//! \f$d\f$ the total distance and \f$x\f$ is the distance in the projection
-//! space.
-inline double complementDistance(double distance, double projectionDistance) {
-    return std::sqrt(std::max(
-        common::CTools::pow2(distance) - common::CTools::pow2(projectionDistance), 0.0));
-}
+using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 
 //! \brief The interface for a nearest neighbour outlier calculation method.
 template<typename POINT, typename NEAREST_NEIGHBOURS>
 class CNearestNeighbourMethod {
 public:
     using TPointVec = std::vector<POINT>;
+    using TMatrix = typename common::SConformableMatrix<POINT>::Type;
 
 public:
     CNearestNeighbourMethod(bool computeFeatureInfluence,
@@ -91,23 +83,25 @@ public:
     const NEAREST_NEIGHBOURS& lookup() const { return m_Lookup; }
 
     //! Compute the outlier scores for \p points.
-    TDouble1VecVec2Vec run(const TPointVec& points, std::size_t numberScores) {
+    TDouble1VecVec2Vec
+    run(const TPointVec& points, const TMatrix& projection, double eps, std::size_t numberScores) {
 
         this->setup(points);
 
         // We call add exactly once for each point. Scores is presized
         // so any writes to it are safe.
         TDouble1VecVec2Vec scores(this->numberMethods(), TDouble1VecVec(numberScores));
-        core::parallel_for_each(points.begin(), points.end(),
-                                [&, neighbours = TPointVec{} ](const POINT& point) mutable {
-                                    m_Lookup.nearestNeighbours(m_K + 1, point, neighbours);
-                                    this->add(point, neighbours, scores);
-                                },
-                                [this](double fractionalProgress) {
-                                    this->recordProgress(fractionalProgress);
-                                });
+        core::parallel_for_each(
+            points.begin(), points.end(),
+            [&, neighbours = TPointVec{} ](const POINT& point) mutable {
+                m_Lookup.nearestNeighbours(m_K + 1, point, neighbours);
+                this->add(point, projection, eps, neighbours, scores);
+            },
+            [this](double fractionalProgress) {
+                this->recordProgress(fractionalProgress);
+            });
 
-        this->compute(points, scores);
+        this->compute(points, projection, eps, scores);
 
         return scores;
     }
@@ -138,15 +132,36 @@ public:
     }
 
     virtual void setup(const TPointVec&) {}
-    virtual void add(const POINT&, const TPointVec&, TDouble1VecVec&) {}
-    virtual void compute(const TPointVec&, TDouble1VecVec&) {}
+    virtual void add(const POINT&, const TMatrix&, double, const TPointVec&, TDouble1VecVec&) {
+    }
+    virtual void compute(const TPointVec&, const TMatrix&, double, TDouble1VecVec&) {}
+
+protected:
+    static double distanceAtEps(const TMatrix& projection,
+                                std::size_t j,
+                                double eps,
+                                const POINT& x,
+                                const POINT& y) {
+        double result{0.0};
+        for (std::size_t i = 0; i < common::las::dimension(x); ++i) {
+            result += common::CTools::pow2(x(i) + eps * projection(i, j) - y(i));
+        }
+        return std::sqrt(result);
+    }
 
 private:
-    virtual void add(const POINT& point, const TPointVec& neighbours, TDouble1VecVec2Vec& scores) {
-        this->add(point, neighbours, scores[0]);
+    virtual void add(const POINT& point,
+                     const TMatrix& projection,
+                     double eps,
+                     const TPointVec& neighbours,
+                     TDouble1VecVec2Vec& scores) {
+        this->add(point, projection, eps, neighbours, scores[0]);
     }
-    virtual void compute(const TPointVec& points, TDouble1VecVec2Vec& scores) {
-        this->compute(points, scores[0]);
+    virtual void compute(const TPointVec& points,
+                         const TMatrix& projection,
+                         double eps,
+                         TDouble1VecVec2Vec& scores) {
+        this->compute(points, projection, eps, scores[0]);
     }
     virtual std::size_t numberMethods() const { return 1; }
     virtual std::string name() const = 0;
@@ -163,10 +178,12 @@ template<typename POINT, typename NEAREST_NEIGHBOURS>
 class CLof final : public CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS> {
 public:
     using TPointVec = std::vector<POINT>;
+    using TMatrix = typename common::SConformableMatrix<POINT>::Type;
     using TCoordinate = typename common::SCoordinate<POINT>::Type;
     using TCoordinateVec = std::vector<TCoordinate>;
     using TUInt32CoordinatePr = std::pair<uint32_t, TCoordinate>;
     using TUInt32CoordinatePrVec = std::vector<TUInt32CoordinatePr>;
+    using CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>::distanceAtEps;
     static const TCoordinate UNSET_DISTANCE;
 
 public:
@@ -179,12 +196,12 @@ public:
 
     void recoverMemory() override {
         m_KDistances.resize(this->k() * m_StartAddresses);
-        m_Lrd.resize(m_StartAddresses);
         m_KDistances.shrink_to_fit();
+        m_Lrd.resize(m_StartAddresses);
         m_Lrd.shrink_to_fit();
         if (this->computeFeatureInfluence()) {
-            m_CoordinateLrd.resize(m_Dimension * m_StartAddresses);
-            m_CoordinateLrd.shrink_to_fit();
+            m_LrdAtEps.resize(m_Dimension * m_StartAddresses);
+            m_LrdAtEps.shrink_to_fit();
         }
     }
 
@@ -192,8 +209,7 @@ public:
 
     std::size_t memoryUsage() const override {
         return core::CMemory::dynamicSize(m_KDistances) +
-               core::CMemory::dynamicSize(m_Lrd) +
-               core::CMemory::dynamicSize(m_CoordinateLrd);
+               core::CMemory::dynamicSize(m_Lrd) + core::CMemory::dynamicSize(m_LrdAtEps);
     }
 
     static std::size_t estimateOwnMemoryOverhead(bool computeFeatureInfluence,
@@ -217,21 +233,21 @@ private:
         m_StartAddresses = minmax.first->annotation();
         m_EndAddresses = minmax.second->annotation() + 1;
 
+        // In the following, we first shrink then grow to ensure we overwrite
+        // values in the range [start addresses, end addresses).
+
         std::size_t k{this->k()};
         m_KDistances.resize(k * m_StartAddresses, {0, UNSET_DISTANCE});
         m_KDistances.resize(k * m_EndAddresses, {0, UNSET_DISTANCE});
         m_Lrd.resize(m_StartAddresses, UNSET_DISTANCE);
         m_Lrd.resize(m_EndAddresses, UNSET_DISTANCE);
-        std::copy(m_LrdOfLookupPoints.begin(), m_LrdOfLookupPoints.end(), m_Lrd.begin());
-        m_LrdOfLookupPoints.assign(m_Lrd.begin(), m_Lrd.begin() + m_StartAddresses);
-
         if (this->computeFeatureInfluence()) {
-            m_CoordinateLrd.resize(m_Dimension * m_StartAddresses, UNSET_DISTANCE);
-            m_CoordinateLrd.resize(m_Dimension * m_EndAddresses, UNSET_DISTANCE);
+            m_LrdAtEps.resize(m_Dimension * m_StartAddresses, UNSET_DISTANCE);
+            m_LrdAtEps.resize(m_Dimension * m_EndAddresses, UNSET_DISTANCE);
         }
     }
 
-    void add(const POINT& point, const TPointVec& neighbours, TDouble1VecVec&) override {
+    void add(const POINT& point, const TMatrix&, double, const TPointVec& neighbours, TDouble1VecVec&) override {
         // This is called exactly once for each point therefore an element
         // of m_KDistances is only ever written by one thread.
         if (neighbours.size() < 2) {
@@ -248,14 +264,19 @@ private:
         }
     }
 
-    void compute(const TPointVec& points, TDouble1VecVec& scores) override {
-        this->computeLocalReachabilityDistances(points);
-        this->computeLocalOutlierFactors(points, scores);
+    void compute(const TPointVec& points,
+                 const TMatrix& projection,
+                 double eps,
+                 TDouble1VecVec& scores) override {
+        this->computeLocalReachabilityDistances(points, projection, eps);
+        this->computeLocalOutlierFactors(points, eps, scores);
     }
 
     std::string name() const override { return "lof"; }
 
-    void computeLocalReachabilityDistances(const TPointVec& points) {
+    void computeLocalReachabilityDistances(const TPointVec& points,
+                                           const TMatrix& projection,
+                                           double eps) {
 
         // We bind minimum accumulators (by value) to each lambda (since
         // one copy is then accessed by each thread) and take the minimum
@@ -267,7 +288,6 @@ private:
             points.begin(), points.end(),
             core::bindRetrievableState(
                 [this](TMinAccumulator& min, const POINT& point) mutable {
-
                     std::size_t i{point.annotation()};
                     TMeanAccumulator reachability_;
                     for (std::size_t j = 0; j < this->k(); ++j) {
@@ -300,71 +320,39 @@ private:
             }
         }
 
-        if (this->computeFeatureInfluence()) {
-            // The idea is to compute the score placing each point p at the
-            // locations which minimise the lof on each axis aligned line
-            // passing through p. If we let p'(x) denote the point obtained
-            // by replacing the i'th coordinate of p with x then this is p'(y)
-            // where
-            //   y = argmin_{x}{sum_{i in neighbours of p}{rd(p'(x))}}
-            // and rd(.) denotes the reachability distance. Unfortunately,
-            // we need to look up nearest neighbours again.
-
-            core::parallel_for_each(
-                points.begin(), points.end(),
-                [&, neighbours = TPointVec{} ](const POINT& point) mutable {
-
-                    std::size_t i{point.annotation()};
-                    this->lookup().nearestNeighbours(this->k() + 1, point, neighbours);
-
-                    if (neighbours.size() < 2) {
-                        return;
-                    }
-
-                    std::size_t a(point == neighbours[0] ? 1 : 0);
-                    std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
-
-                    POINT point_(point);
-                    for (std::size_t j = 0; j < m_Dimension; ++j) {
-                        // p'(y) can be found by an iterative scheme.
-                        for (std::size_t round = 0; round < 2; ++round) {
-                            TMeanAccumulator centroid;
-                            for (std::size_t k = a; k <= b; ++k) {
-                                centroid.add(neighbours[k](j));
-                            }
-                            point_(j) = common::CBasicStatistics::mean(centroid);
-
-                            centroid = TMeanAccumulator{};
-                            for (std::size_t k = a; k <= b; ++k) {
-                                if (this->kdistance(neighbours[k].annotation()) <
-                                    common::las::distance(point_, neighbours[k])) {
-                                    centroid.add(neighbours[k](j));
-                                }
-                            }
-                            point_(j) = (point_(j) + common::CBasicStatistics::mean(centroid)) / 2.0;
-                        }
-
-                        TMeanAccumulator reachability_;
-                        for (std::size_t k = a; k <= b; ++k) {
-                            POINT& neighbour{neighbours[k]};
-                            double kdistance{this->kdistance(neighbour.annotation())};
-                            double distance{common::las::distance(point_, neighbour)};
-                            reachability_.add(std::max(kdistance, distance));
-                        }
-                        double reachability{common::CBasicStatistics::mean(reachability_)};
-                        if (min.count() > 0) {
-                            reachability = std::max(reachability, min[0]);
-                        }
-
-                        point_(j) = point(j);
-
-                        m_CoordinateLrd[this->coordinateLrdIndex(i, j)] = 1.0 / reachability;
-                    }
-                });
+        if (eps <= 0.0 || this->computeFeatureInfluence() == false) {
+            return;
         }
+
+        // Unfortunately, we need to look up nearest neighbours again or cache
+        // the distance for each coordinate perturbation for each neighbour
+        // which is prohibitive.
+
+        core::parallel_for_each(
+            points.begin(), points.end(),
+            [&, neighbours = TPointVec{} ](const POINT& point) mutable {
+                this->lookup().nearestNeighbours(this->k() + 1, point, neighbours);
+                if (neighbours.size() < 2) {
+                    return;
+                }
+                std::size_t i{point.annotation()};
+                std::size_t a(point == neighbours[0] ? 1 : 0);
+                std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
+                for (std::size_t k = 0; k < m_Dimension; ++k) {
+                    TMeanAccumulator reachability_;
+                    for (std::size_t j = a; j <= b; ++j) {
+                        reachability_.add(this->reachabilityDistance(
+                            {neighbours[j].annotation(),
+                             distanceAtEps(projection, k, eps, point, neighbours[j])}));
+                    }
+                    double reachability{common::CBasicStatistics::mean(reachability_)};
+                    m_LrdAtEps[this->epsLrdIndex(i, k)] =
+                        1.0 / std::max(reachability, min[0] / 2.0);
+                }
+            });
     }
 
-    void computeLocalOutlierFactors(const TPointVec& points, TDouble1VecVec& scores) {
+    void computeLocalOutlierFactors(const TPointVec& points, double eps, TDouble1VecVec& scores) {
 
         core::parallel_for_each(points.begin(), points.end(), [&](const POINT& point) mutable {
 
@@ -378,7 +366,8 @@ private:
                 }
             }
 
-            scores[i].resize(this->computeFeatureInfluence() ? m_Dimension + 1 : 1);
+            scores[i].resize(
+                eps > 0.0 && this->computeFeatureInfluence() ? m_Dimension + 1 : 1);
             scores[i][0] = common::CBasicStatistics::mean(neighbourhoodLrd) / m_Lrd[i];
 
             // We choose to ignore the impact of moving the point on its
@@ -386,7 +375,7 @@ private:
             // scores for each coordinate.
             for (std::size_t j = 1; j < scores[i].size(); ++j) {
                 scores[i][j] = common::CBasicStatistics::mean(neighbourhoodLrd) /
-                               m_CoordinateLrd[this->coordinateLrdIndex(i, j - 1)];
+                               m_LrdAtEps[this->epsLrdIndex(i, j - 1)];
             }
         });
     }
@@ -394,7 +383,7 @@ private:
     std::size_t kDistanceIndex(std::size_t index, std::size_t neighbourIndex) const {
         return index * this->k() + neighbourIndex;
     }
-    std::size_t coordinateLrdIndex(std::size_t index, std::size_t coordinate) const {
+    std::size_t epsLrdIndex(std::size_t index, std::size_t coordinate) const {
         return index * m_Dimension + coordinate;
     }
 
@@ -426,10 +415,9 @@ private:
     // flattened: [neighbours of 0, neighbours of 1,...].
     TUInt32CoordinatePrVec m_KDistances;
     TCoordinateVec m_Lrd;
-    TCoordinateVec m_LrdOfLookupPoints;
-    // The coordinate local reachability distances are stored flattened:
+    // The epsilon local reachability distances are stored flattened:
     // [coordinates of 0, coordinates of 2, ...].
-    TCoordinateVec m_CoordinateLrd;
+    TCoordinateVec m_LrdAtEps;
 };
 
 template<typename POINT, typename NEAREST_NEIGHBOURS>
@@ -448,11 +436,19 @@ public:
               computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
 private:
-    void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
+    using TMatrix = typename common::SConformableMatrix<POINT>::Type;
+    using CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>::distanceAtEps;
+
+private:
+    void add(const POINT& point,
+             const TMatrix& projection,
+             double eps,
+             const std::vector<POINT>& neighbours,
+             TDouble1VecVec& scores) override {
 
         std::size_t dimension{common::las::dimension(point)};
         auto& score = scores[point.annotation()];
-        score.assign(this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
+        score.assign(eps > 0.0 && this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
 
         if (neighbours.size() < 2) {
             return;
@@ -468,38 +464,22 @@ private:
         std::size_t a(point == neighbours[0] ? 1 : 0);
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
 
+        TMeanAccumulator d;
         TMeanAccumulator D;
-        {
-            TMeanAccumulator d;
-            for (std::size_t i = a; i <= b; ++i) {
-                d.add(common::las::distance(point, neighbours[i]));
-                for (std::size_t j = 1; j < i; ++j) {
-                    D.add(common::las::distance(neighbours[i], neighbours[j]));
-                }
+        for (std::size_t i = a; i <= b; ++i) {
+            d.add(common::las::distance(point, neighbours[i]));
+            for (std::size_t j = 1; j < i; ++j) {
+                D.add(common::las::distance(neighbours[i], neighbours[j]));
             }
-            score[0] = ldof(d, D);
         }
-        if (score.size() > 1) {
-            // The idea is to compute the score placing the point at the
-            // locations which minimise the ldof on each axis aligned line
-            // passing through the point. These are just the neighbours
-            // coordinate centroids.
-            POINT point_{point};
-            for (std::size_t i = 0; i < dimension; ++i) {
-                TMeanAccumulator centroid;
-                for (std::size_t j = a; j <= b; ++j) {
-                    centroid.add(neighbours[j](i));
-                }
+        score[0] = ldof(d, D);
 
-                TMeanAccumulator d;
-                point_(i) = common::CBasicStatistics::mean(centroid);
-                for (std::size_t j = a; j <= b; ++j) {
-                    d.add(common::las::distance(point_, neighbours[j]));
-                }
-                point_(i) = point(i);
-
-                score[i + 1] = ldof(d, D);
+        for (std::size_t j = 1; j < score.size(); ++j) {
+            d = TMeanAccumulator{};
+            for (std::size_t i = a; i <= b; ++i) {
+                d.add(distanceAtEps(projection, j - 1, eps, point, neighbours[i]));
             }
+            score[j] = ldof(d, D);
         }
     }
 
@@ -518,11 +498,19 @@ public:
               computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
 private:
-    void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
+    using TMatrix = typename common::SConformableMatrix<POINT>::Type;
+    using CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>::distanceAtEps;
 
+private:
+    void add(const POINT& point,
+             const TMatrix& projection,
+             double eps,
+             const std::vector<POINT>& neighbours,
+             TDouble1VecVec& scores) override {
+
+        std::size_t dimension{common::las::dimension(point)};
         auto& score = scores[point.annotation()];
-        score.assign(
-            this->computeFeatureInfluence() ? common::las::dimension(point) + 1 : 1, 0.0);
+        score.assign(eps > 0.0 && this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
 
         if (neighbours.size() < 2) {
             return;
@@ -532,12 +520,9 @@ private:
                       (point == neighbours[0] ? 0 : 1)};
         const auto& kthNeighbour = neighbours[k];
 
-        double d{common::las::distance(point, kthNeighbour)};
-        score[0] = d;
+        score[0] = common::las::distance(point, kthNeighbour);
         for (std::size_t i = 1; i < score.size(); ++i) {
-            // The idea here is to compute the score for the complement
-            // space of each coordinate projection.
-            score[i] = complementDistance(d, kthNeighbour(i - 1) - point(i - 1));
+            score[i] = distanceAtEps(projection, i - 1, eps, point, kthNeighbour);
         }
     }
 
@@ -557,11 +542,19 @@ public:
               computeFeatureInfluence, k, std::move(lookup), std::move(recordProgress)} {}
 
 private:
-    void add(const POINT& point, const std::vector<POINT>& neighbours, TDouble1VecVec& scores) override {
+    using TMatrix = typename common::SConformableMatrix<POINT>::Type;
+    using CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>::distanceAtEps;
 
+private:
+    void add(const POINT& point,
+             const TMatrix& projection,
+             double eps,
+             const std::vector<POINT>& neighbours,
+             TDouble1VecVec& scores) override {
+
+        std::size_t dimension{common::las::dimension(point)};
         auto& score = scores[point.annotation()];
-        score.assign(
-            this->computeFeatureInfluence() ? common::las::dimension(point) + 1 : 1, 0.0);
+        score.assign(eps > 0.0 && this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
 
         if (neighbours.size() < 2) {
             return;
@@ -571,12 +564,9 @@ private:
         std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
 
         for (std::size_t i = a; i <= b; ++i) {
-            double d{common::las::distance(point, neighbours[i])};
-            score[0] += d;
-            // The idea here is to compute the score for the complement
-            // space of each coordinate projection.
+            score[0] += common::las::distance(point, neighbours[i]);
             for (std::size_t j = 1; j < score.size(); ++j) {
-                score[j] += complementDistance(d, neighbours[i](j - 1) - point(j - 1));
+                score[j] += distanceAtEps(projection, j - 1, eps, point, neighbours[i]);
             }
         }
         for (std::size_t i = 0; i < score.size(); ++i) {
@@ -597,6 +587,7 @@ class CMultipleMethods final
     : public CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS> {
 public:
     using TPointVec = std::vector<POINT>;
+    using TMatrix = typename common::SConformableMatrix<POINT>::Type;
     using TMethodUPtr = std::unique_ptr<CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>>;
     using TMethodUPtrVec = std::vector<TMethodUPtr>;
 
@@ -640,15 +631,22 @@ private:
         }
     }
 
-    void add(const POINT& point, const TPointVec& neighbours, TDouble1VecVec2Vec& scores) override {
+    void add(const POINT& point,
+             const TMatrix& projection,
+             double eps,
+             const TPointVec& neighbours,
+             TDouble1VecVec2Vec& scores) override {
         for (std::size_t i = 0; i < m_Methods.size(); ++i) {
-            m_Methods[i]->add(point, neighbours, scores[i]);
+            m_Methods[i]->add(point, projection, eps, neighbours, scores[i]);
         }
     }
 
-    void compute(const TPointVec& points, TDouble1VecVec2Vec& scores) override {
+    void compute(const TPointVec& points,
+                 const TMatrix& projection,
+                 double eps,
+                 TDouble1VecVec2Vec& scores) override {
         for (std::size_t i = 0; i < m_Methods.size(); ++i) {
-            m_Methods[i]->compute(points, scores[i]);
+            m_Methods[i]->compute(points, projection, eps, scores[i]);
         }
     }
 
@@ -680,6 +678,8 @@ public:
 
     //! Instrumentation phase.
     static const std::string COMPUTING_OUTLIERS;
+    //! Used to compute numeric derivative for influence.
+    static constexpr double EPS{0.01};
 
     //! The outlier detection methods which are available.
     enum EMethod {
@@ -798,15 +798,21 @@ private:
     //! Compute normalised outlier scores for a specified method.
     template<template<typename, typename> class METHOD, typename POINT>
     static void compute(std::size_t k, std::vector<POINT> points, TDoubleVec& scores) {
+        using TPoint = TAnnotatedPoint<POINT>;
+        using TMethod = METHOD<TPoint, common::CKdTree<TPoint>>;
+        using TMatrix = typename common::SConformableMatrix<TPoint>::Type;
+
         if (points.size() > 0) {
             auto annotatedPoints = annotate(std::move(points));
             common::CKdTree<TAnnotatedPoint<POINT>> lookup;
             lookup.reserve(points.size());
             lookup.build(annotatedPoints);
 
-            METHOD<TAnnotatedPoint<POINT>, common::CKdTree<TAnnotatedPoint<POINT>>> scorer{
-                false, k, noopRecordProgress, std::move(lookup)};
-            auto scores_ = scorer.run(annotatedPoints, annotatedPoints.size());
+            TMethod scorer{false, k, noopRecordProgress, std::move(lookup)};
+            TMatrix projection{common::SIdentity<TMatrix>::get(
+                common::las::dimension(annotatedPoints[0]))};
+            auto scores_ = scorer.run(annotatedPoints, projection, EPS,
+                                      annotatedPoints.size());
 
             scores.resize(scores_[0].size());
             for (std::size_t i = 0; i < scores.size(); ++i) {
