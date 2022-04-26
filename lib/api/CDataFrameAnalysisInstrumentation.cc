@@ -440,7 +440,6 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
     auto* writer = this->writer();
 
     if (writer != nullptr) {
-
         writer->addMember(CDataFrameTrainBoostedTreeRunner::ETA,
                           rapidjson::Value(m_Hyperparameters.s_Eta).Move(), parentObject);
         writer->addMember(CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA,

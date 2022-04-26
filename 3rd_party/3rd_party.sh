@@ -70,7 +70,7 @@ case `uname` in
                 MKL_LOCATION=/usr/local/gcc103/lib
                 MKL_EXTENSION=.so
                 MKL_PREFIX=libmkl_
-                MKL_LIBRARIES=`cd "$MKL_LOCATION" && ls $MKL_PREFIX*$MKL_EXTENSION`
+                MKL_LIBRARIES='avx avx2 avx512 avx512_mic core def gnu_thread intel_lp64 mc3 vml_avx vml_avx2 vml_avx512 vml_avx512_mic vml_cmpt vml_def vml_mc3'
             fi
             BOOST_EXTENSION=mt-${BOOST_ARCH}-1_77.so.1.77.0
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread unit_test_framework'
@@ -265,11 +265,11 @@ fi
 if [ ! -z "$MKL_LOCATION" ] ; then
     if [ ! -z "$MKL_LIBRARIES" ] ; then
         if [ -n "$INSTALL_DIR" ] ; then
+            rm -f $INSTALL_DIR/$MKL_PREFIX*$MKL_EXTENSION
             for LIBRARY in $MKL_LIBRARIES
             do
-                rm -f $INSTALL_DIR/$LIBRARY
-                cp $MKL_LOCATION/$LIBRARY $INSTALL_DIR
-                chmod u+wx $INSTALL_DIR/$LIBRARY
+                cp $MKL_LOCATION/$MKL_PREFIX$LIBRARY$MKL_EXTENSION $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/$MKL_PREFIX$LIBRARY$MKL_EXTENSION
             done
         fi
     else

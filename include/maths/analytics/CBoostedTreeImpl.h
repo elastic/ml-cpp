@@ -43,9 +43,6 @@
 
 namespace ml {
 namespace maths {
-namespace common {
-class CBayesianOptimisation;
-}
 namespace analytics {
 class CBoostedTreeImplForTest;
 class CTreeShapFeatureImportance;

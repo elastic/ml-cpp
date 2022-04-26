@@ -71,7 +71,7 @@ constexpr std::size_t NUMBER_HYPERPARAMETERS{E_TreeTopologyChangePenalty + 1}; /
 constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::max()};
 
 //! \brief Hyperparameter importance information.
-struct SHyperparameterImportance {
+struct MATHS_ANALYTICS_EXPORT SHyperparameterImportance {
     enum EType { E_Double = 0, E_Uint64 };
     EHyperparameter s_Hyperparameter;
     double s_Value;

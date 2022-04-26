@@ -443,6 +443,7 @@ public:
     static const std::string SOFT_TREE_DEPTH_LIMIT_TAG;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE_TAG;
     static const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG;
+    static const std::string STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG;
     static const std::string TRAIN_FRACTION_PER_FOLD_TAG;
     static const std::string TREE_SIZE_PENALTY_MULTIPLIER_TAG;
     static const std::string TREE_TOPOLOGY_CHANGE_PENALTY_TAG;
@@ -615,7 +616,10 @@ public:
     void startSearch();
 
     //! Check if the search for the best hyperparameter values has finished.
-    bool searchNotFinished() const { return m_CurrentRound < m_NumberRounds; }
+    bool searchNotFinished() const {
+        return m_StoppedHyperparameterOptimizationEarly == false &&
+               m_CurrentRound < m_NumberRounds;
+    }
 
     //! Start a new round of hyperparameter search.
     void startNextSearchRound() { ++m_CurrentRound; }
@@ -720,7 +724,7 @@ private:
                           TDoubleDoublePrVec& testLosses) const;
     TVector3x1 minimizeTestLoss(double intervalLeftEnd,
                                 double intervalRightEnd,
-                                const TDoubleDoublePrVec& testLosses) const;
+                                TDoubleDoublePrVec testLosses) const;
     void saveCurrent();
 
 private:
@@ -746,6 +750,7 @@ private:
     //@ \name Hyperparameter Optimisation
     //@{
     bool m_StopHyperparameterOptimizationEarly{true};
+    bool m_StoppedHyperparameterOptimizationEarly{false};
     bool m_ScalingDisabled{false};
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter{2};
     TOptionalSize m_BayesianOptimisationRestarts;

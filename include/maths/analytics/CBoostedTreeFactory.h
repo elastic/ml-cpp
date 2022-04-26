@@ -111,8 +111,7 @@ public:
     //! Set the objective to use when choosing the class assignments.
     CBoostedTreeFactory&
     classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
-    //! Set the class weights used for assigning labels to classes from the
-    //! predicted probabilities.
+    //! Set the class weights used for assigning classes from predicted probabilities.
     CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
     //! Set the column containing the row weights to use for training.
     CBoostedTreeFactory& rowWeightColumnName(std::string columnName);
@@ -165,7 +164,7 @@ public:
     //! function for incremental training.
     CBoostedTreeFactory& predictionChangeCost(TDoubleVec cost);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
-    //! optimisation per parameter for training.
+    //! optimisation per parameter for fine tuning.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
     //! Set the number of restarts to use in global probing for Bayesian Optimisation.
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
@@ -205,15 +204,16 @@ public:
 
     //! Estimate the maximum booking memory that training a boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
-    std::size_t estimateMemoryUsageTrain(std::size_t numberRows, std::size_t numberColumns) const;
+    std::size_t estimateMemoryUsageForTrain(std::size_t numberRows,
+                                            std::size_t numberColumns) const;
     //! Estimate the maximum booking memory that incrementally training a boosted
     //! tree on a data frame with \p numberRows row and \p numberColumns columns
     //! will use.
-    std::size_t estimateMemoryUsageTrainIncremental(std::size_t numberRows,
-                                                    std::size_t numberColumns) const;
+    std::size_t estimateMemoryUsageForTrainIncremental(std::size_t numberRows,
+                                                       std::size_t numberColumns) const;
     //! Estimate the number of columns training the model will add to the data frame.
-    static std::size_t estimatedExtraColumnsForTrain(std::size_t numberColumns,
-                                                     std::size_t numberLossParameters);
+    static std::size_t estimateExtraColumnsForTrain(std::size_t numberColumns,
+                                                    std::size_t numberLossParameters);
 
     //! Build a boosted tree object for encoding on \p frame.
     TBoostedTreeUPtr buildForEncode(core::CDataFrame& frame, std::size_t dependentVariable);
@@ -277,9 +277,7 @@ private:
     void determineFeatureDataTypes(const core::CDataFrame& frame) const;
 
     //! Initialize the regressors sample distribution.
-    //!
-    //! \return False if initialization failed.
-    bool initializeFeatureSampleDistribution() const;
+    void initializeFeatureSampleDistribution() const;
 
     //! Apply scaling to hyperparameter ranges based on the difference in the update
     //! data set and original train data set sizes.

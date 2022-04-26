@@ -230,11 +230,10 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     this->checkTrainInvariants(frame);
 
-    if (m_Loss->isRegression()) {
-        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression);
-    } else {
-        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Classification);
-    }
+    m_Instrumentation->type(
+        m_Loss->isRegression()
+            ? CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression
+            : CDataFrameTrainBoostedTreeInstrumentationInterface::E_Classification);
 
     LOG_TRACE(<< "Main training loop...");
 
@@ -336,10 +335,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             m_Hyperparameters.restoreBest();
             m_Hyperparameters.recordHyperparameters(*m_Instrumentation);
             m_Hyperparameters.captureScale();
+            this->startProgressMonitoringFinalTrain();
             this->scaleRegularizationMultipliers(this->allTrainingRowsMask().manhattan() /
                                                  this->meanNumberTrainingRowsPerFold());
-
-            this->startProgressMonitoringFinalTrain();
 
             // Reinitialize random number generator for reproducible results.
             m_Rng.seed(m_Seed);
@@ -349,6 +347,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                                .s_Forest;
 
             this->recordState(recordTrainStateCallback);
+        } else {
+            this->skipProgressMonitoringFinalTrain();
         }
         m_Instrumentation->iteration(m_Hyperparameters.currentRound());
         m_Instrumentation->flush(TRAIN_FINAL_FOREST);
@@ -384,7 +384,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         return;
     }
 
-    LOG_TRACE(<< "Main incremental training loop...");
+    LOG_DEBUG(<< "Main incremental training loop...");
 
     this->selectTreesToRetrain(frame);
     // Add dummy trees that can be replaced with the new trees in the forest.
@@ -2161,10 +2161,8 @@ void CBoostedTreeImpl::startProgressMonitoringTrainIncremental() {
 }
 
 namespace {
-const std::string VERSION_8_0_TAG{"8.0"};
-const std::string VERSION_7_11_TAG{"7.11"};
-const std::string VERSION_7_8_TAG{"7.8"};
-const TStrVec SUPPORTED_VERSIONS{VERSION_8_0_TAG};
+const std::string VERSION_8_2_TAG{"8.2"};
+const TStrVec SUPPORTED_VERSIONS{VERSION_8_2_TAG};
 
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string CLASSIFICATION_WEIGHTS_OVERRIDE_TAG{"classification_weights_tag"};
@@ -2200,7 +2198,7 @@ const std::string DATA_SUMMARIZATION_FRACTION_TAG{"data_summarization_fraction"}
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(VERSION_8_0_TAG, "", inserter);
+    core::CPersistUtils::persist(VERSION_8_2_TAG, "", inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
     core::CPersistUtils::persistIfNotNull(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
                                           m_ClassificationWeightsOverride, inserter);
@@ -2267,7 +2265,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     int initializationStage{static_cast<int>(E_FullyInitialized)};
 
     do {
-        const std::string& name = traverser.name();
+        const std::string& name{traverser.name()};
         RESTORE(BEST_FOREST_TAG,
                 core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
         RESTORE_SETUP_TEARDOWN(

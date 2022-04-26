@@ -624,10 +624,10 @@ void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& fram
         columnMask, m_TreeImpl->m_Encoder.get());
 }
 
-bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
+void CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 
     if (m_TreeImpl->m_FeatureSampleProbabilities.empty() == false) {
-        return true;
+        return;
     }
 
     // Compute feature sample probabilities.
@@ -645,9 +645,7 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
         m_TreeImpl->m_FeatureSampleProbabilities = std::move(mics);
         LOG_TRACE(<< "P(sample) = "
                   << core::CContainerPrinter::print(m_TreeImpl->m_FeatureSampleProbabilities));
-        return true;
     }
-    return false;
 }
 
 void CBoostedTreeFactory::initialHyperparameterScaling() {
@@ -1600,8 +1598,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::bestForest(TNodeVecVec forest) {
     return *this;
 }
 
-std::size_t CBoostedTreeFactory::estimateMemoryUsageTrain(std::size_t numberRows,
-                                                          std::size_t numberColumns) const {
+std::size_t CBoostedTreeFactory::estimateMemoryUsageForTrain(std::size_t numberRows,
+                                                             std::size_t numberColumns) const {
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
         m_TreeImpl->m_Hyperparameters.eta().fixed()
             ? m_TreeImpl->m_Hyperparameters.eta().value()
@@ -1613,13 +1611,13 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsageTrain(std::size_t numberRows
 }
 
 std::size_t
-CBoostedTreeFactory::estimateMemoryUsageTrainIncremental(std::size_t numberRows,
-                                                         std::size_t numberColumns) const {
+CBoostedTreeFactory::estimateMemoryUsageForTrainIncremental(std::size_t numberRows,
+                                                            std::size_t numberColumns) const {
     return m_TreeImpl->estimateMemoryUsageTrainIncremental(numberRows, numberColumns);
 }
 
-std::size_t CBoostedTreeFactory::estimatedExtraColumnsForTrain(std::size_t numberColumns,
-                                                               std::size_t numberLossParameters) {
+std::size_t CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t numberColumns,
+                                                              std::size_t numberLossParameters) {
     // We store as follows:
     //   1. The predicted values for the dependent variable
     //   2. The gradient of the loss function
