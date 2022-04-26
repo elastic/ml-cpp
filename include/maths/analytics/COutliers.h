@@ -86,7 +86,7 @@ public:
     TDouble1VecVec2Vec
     run(const TPointVec& points, const TMatrix& projection, double eps, std::size_t numberScores) {
 
-        this->setup(points);
+        this->setup(points, projection);
 
         // We call add exactly once for each point. Scores is presized
         // so any writes to it are safe.
@@ -131,7 +131,7 @@ public:
                ", k = " + std::to_string(m_K) + ")";
     }
 
-    virtual void setup(const TPointVec&) {}
+    virtual void setup(const TPointVec&, const TMatrix&) {}
     virtual void add(const POINT&, const TMatrix&, double, const TPointVec&, TDouble1VecVec&) {
     }
     virtual void compute(const TPointVec&, const TMatrix&, double, TDouble1VecVec&) {}
@@ -200,7 +200,7 @@ public:
         m_Lrd.resize(m_StartAddresses);
         m_Lrd.shrink_to_fit();
         if (this->computeFeatureInfluence()) {
-            m_LrdAtEps.resize(m_Dimension * m_StartAddresses);
+            m_LrdAtEps.resize(m_NumberInfluences * m_StartAddresses);
             m_LrdAtEps.shrink_to_fit();
         }
     }
@@ -222,9 +222,9 @@ public:
     }
 
 private:
-    void setup(const TPointVec& points) override {
+    void setup(const TPointVec& points, const TMatrix& projection) override {
 
-        m_Dimension = common::las::dimension(points[0]);
+        m_NumberInfluences = common::las::columns(projection);
 
         auto minmax = std::minmax_element(
             points.begin(), points.end(), [](const POINT& lhs, const POINT& rhs) {
@@ -242,8 +242,8 @@ private:
         m_Lrd.resize(m_StartAddresses, UNSET_DISTANCE);
         m_Lrd.resize(m_EndAddresses, UNSET_DISTANCE);
         if (this->computeFeatureInfluence()) {
-            m_LrdAtEps.resize(m_Dimension * m_StartAddresses, UNSET_DISTANCE);
-            m_LrdAtEps.resize(m_Dimension * m_EndAddresses, UNSET_DISTANCE);
+            m_LrdAtEps.resize(m_NumberInfluences * m_StartAddresses, UNSET_DISTANCE);
+            m_LrdAtEps.resize(m_NumberInfluences * m_EndAddresses, UNSET_DISTANCE);
         }
     }
 
@@ -338,7 +338,7 @@ private:
                 std::size_t i{point.annotation()};
                 std::size_t a(point == neighbours[0] ? 1 : 0);
                 std::size_t b{std::min(this->k() + a - 1, neighbours.size() + a - 2)};
-                for (std::size_t k = 0; k < m_Dimension; ++k) {
+                for (std::size_t k = 0; k < m_NumberInfluences; ++k) {
                     TMeanAccumulator reachability_;
                     for (std::size_t j = a; j <= b; ++j) {
                         reachability_.add(this->reachabilityDistance(
@@ -366,8 +366,9 @@ private:
                 }
             }
 
-            scores[i].resize(
-                eps > 0.0 && this->computeFeatureInfluence() ? m_Dimension + 1 : 1);
+            scores[i].resize(eps > 0.0 && this->computeFeatureInfluence()
+                                 ? m_NumberInfluences + 1
+                                 : 1);
             scores[i][0] = common::CBasicStatistics::mean(neighbourhoodLrd) / m_Lrd[i];
 
             // We choose to ignore the impact of moving the point on its
@@ -384,7 +385,7 @@ private:
         return index * this->k() + neighbourIndex;
     }
     std::size_t epsLrdIndex(std::size_t index, std::size_t coordinate) const {
-        return index * m_Dimension + coordinate;
+        return index * m_NumberInfluences + coordinate;
     }
 
     static std::size_t index(const TUInt32CoordinatePr& neighbour) {
@@ -408,7 +409,7 @@ private:
     }
 
 private:
-    std::size_t m_Dimension;
+    std::size_t m_NumberInfluences;
     std::size_t m_StartAddresses;
     std::size_t m_EndAddresses;
     // The k distances to the neighbouring points of each point are stored
@@ -446,9 +447,10 @@ private:
              const std::vector<POINT>& neighbours,
              TDouble1VecVec& scores) override {
 
-        std::size_t dimension{common::las::dimension(point)};
+        std::size_t numberInfluences{common::las::columns(projection)};
         auto& score = scores[point.annotation()];
-        score.assign(eps > 0.0 && this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
+        score.assign(
+            eps > 0.0 && this->computeFeatureInfluence() ? numberInfluences + 1 : 1, 0.0);
 
         if (neighbours.size() < 2) {
             return;
@@ -508,9 +510,10 @@ private:
              const std::vector<POINT>& neighbours,
              TDouble1VecVec& scores) override {
 
-        std::size_t dimension{common::las::dimension(point)};
+        std::size_t numberInfluences{common::las::columns(projection)};
         auto& score = scores[point.annotation()];
-        score.assign(eps > 0.0 && this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
+        score.assign(
+            eps > 0.0 && this->computeFeatureInfluence() ? numberInfluences + 1 : 1, 0.0);
 
         if (neighbours.size() < 2) {
             return;
@@ -552,9 +555,10 @@ private:
              const std::vector<POINT>& neighbours,
              TDouble1VecVec& scores) override {
 
-        std::size_t dimension{common::las::dimension(point)};
+        std::size_t numberInfluences{common::las::columns(projection)};
         auto& score = scores[point.annotation()];
-        score.assign(eps > 0.0 && this->computeFeatureInfluence() ? dimension + 1 : 1, 0.0);
+        score.assign(
+            eps > 0.0 && this->computeFeatureInfluence() ? numberInfluences + 1 : 1, 0.0);
 
         if (neighbours.size() < 2) {
             return;
@@ -625,9 +629,9 @@ public:
 private:
     std::size_t numberMethods() const override { return m_Methods.size(); }
 
-    void setup(const TPointVec& points) override {
+    void setup(const TPointVec& points, const TMatrix& projection) override {
         for (auto& method : m_Methods) {
-            method->setup(points);
+            method->setup(points, projection);
         }
     }
 

@@ -42,6 +42,7 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TDoubleSizePr = std::pair<double, std::size_t>;
 using TMaxAccumulator =
     maths::common::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
@@ -416,8 +417,8 @@ BOOST_AUTO_TEST_CASE(testEnsemble) {
     TDoubleVec TN;
     TDoubleVec FP;
     TDoubleVec FN;
-    double precisionLowerBounds[]{0.25, 0.85, 0.99};
-    double recallLowerBounds[]{0.98, 0.90, 0.61};
+    double precisionLowerBounds[]{0.27, 0.83, 0.98};
+    double recallLowerBounds[]{0.98, 0.93, 0.65};
 
     core::stopDefaultAsyncExecutor();
 
@@ -469,94 +470,117 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
             test::CTestTmpDir::tmpDir(), points);
     }};
     TFactoryFunc factories[]{toMainMemoryDataFrame, toOnDiskDataFrame};
-    std::size_t numberPartitions[]{1, 3};
-    std::size_t numberThreads[]{1, 4};
+    TSizeVec numberPartitions{1, 3};
+    TSizeVec numberThreads{1, 4};
+    TSizeVec dimensions{2, 7};
+    TDoubleVecVec thresholds{{0.95, 0.95, 0.48}, {0.4, 0.4, 0.2}};
 
     test::CRandomNumbers rng;
 
-    TDoubleVec means[]{{0.0, 0.0}, {100.0, 100.0}};
-    TDoubleVecVec covariances[]{{{7.0, 1.0}, {1.0, 8.0}}, {{5.0, 2.0}, {2.0, 12.0}}};
+    for (std::size_t t = 0; t < dimensions.size(); ++t) {
+        std::size_t dimension{dimensions[t]};
+        LOG_DEBUG(<< "dimension = " << dimension);
 
-    TPointVec points;
-    for (std::size_t i = 0; i < 2; ++i) {
-        TDoubleVecVec inliers;
-        rng.generateMultivariateNormalSamples(means[i], covariances[i], 100, inliers);
-
-        points.resize(points.size() + inliers.size(), TPoint{2});
-        for (std::size_t j = inliers.size(); j > 0; --j) {
-            for (std::size_t k = 0; k < inliers[j - 1].size(); ++k) {
-                points[points.size() - j](k) = inliers[j - 1][k];
+        TDoubleVec means[]{{0.0, 0.0}, {100.0, 100.0}};
+        TDoubleVecVec covariances[]{{{7.0, 1.0}, {1.0, 8.0}}, {{5.0, 2.0}, {2.0, 12.0}}};
+        TPointVec points;
+        for (std::size_t i = 0; i < 2; ++i) {
+            TDoubleVecVec inliers;
+            rng.generateMultivariateNormalSamples(means[i], covariances[i], 100, inliers);
+            points.resize(points.size() + inliers.size(), TPoint{dimension});
+            for (std::size_t j = inliers.size(); j > 0; --j) {
+                for (std::size_t k = 0; k < inliers[j - 1].size(); ++k) {
+                    points[points.size() - j](k) = inliers[j - 1][k];
+                }
             }
         }
-    }
-    points.emplace_back(2);
-    points.back() << 0.0, 50.0;
-    points.emplace_back(2);
-    points.back() << 150.0, 100.0;
-    points.emplace_back(2);
-    points.back() << -30.0, -30.0;
-
-    std::size_t outlierIndexes[]{points.size() - 3, points.size() - 2, points.size() - 1};
-
-    core::stopDefaultAsyncExecutor();
-
-    std::string tags[]{"sequential", "parallel"};
-
-    CTestInstrumentation instrumentation;
-
-    // Test in/out of core.
-    for (std::size_t i = 0; i < 2; ++i) {
-
-        // Test sequential then parallel.
-        for (std::size_t j = 0; j < 2; ++j) {
-            LOG_DEBUG(<< "Testing " << tags[j]);
-
-            auto frame = factories[i](points);
-            maths::analytics::COutliers::SComputeParameters params{
-                numberThreads[j],
-                numberPartitions[i],
-                true, // Standardize columns
-                maths::analytics::COutliers::E_Ensemble,
-                0,     // Compute number neighbours
-                true,  // Compute feature influences
-                0.05}; // Outlier fraction
-            maths::analytics::COutliers::compute(params, *frame, instrumentation);
-
-            bool passed{true};
-            TMeanAccumulator averageSignificances[2];
-
-            frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
-                                   const core::CDataFrame::TRowItr& endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    passed &= (std::fabs((*row)[3] + (*row)[4] - 1.0) < 1e-6);
-                    if (row->index() == outlierIndexes[0]) {
-                        LOG_DEBUG(<< "x-significance = " << (*row)[3]
-                                  << ", y-significance = " << (*row)[4]);
-                        passed &= (1.0 - (*row)[4] < 0.06);
-                    }
-                    if (row->index() == outlierIndexes[1]) {
-                        LOG_DEBUG(<< "x-significance = " << (*row)[3]
-                                  << ", y-significance = " << (*row)[4]);
-                        passed &= (1.0 - (*row)[3] < 0.06);
-                    }
-                    if (row->index() == outlierIndexes[2]) {
-                        LOG_DEBUG(<< "x-significance = " << (*row)[3]
-                                  << ", y-significance = " << (*row)[4]);
-                        passed &= (std::fabs((*row)[4] - (*row)[3]) < 0.06);
-                    }
-                    averageSignificances[0].add((*row)[3]);
-                    averageSignificances[1].add((*row)[4]);
+        points.emplace_back(dimension);
+        points.back()(0) = 100.0;
+        points.back()(1) = 250.0;
+        points.emplace_back(dimension);
+        points.back()(0) = -150.0;
+        points.back()(1) = 0.0;
+        points.emplace_back(dimension);
+        points.back()(0) = -100.0;
+        points.back()(1) = -100.0;
+        if (dimension > 2) {
+            TDoubleVec noise;
+            rng.generateNormalSamples(0.0, 1.0, (dimension - 2) * points.size(), noise);
+            for (std::size_t i = 0, k = 0; i < points.size(); ++i) {
+                for (std::size_t j = 2; j < dimension; ++j) {
+                    points[i](j) = noise[k++];
                 }
-            });
-            BOOST_TEST_REQUIRE(passed);
-
-            BOOST_TEST_REQUIRE(
-                std::fabs(maths::common::CBasicStatistics::mean(averageSignificances[0]) -
-                          maths::common::CBasicStatistics::mean(averageSignificances[1])) < 0.02);
-            core::startDefaultAsyncExecutor();
+            }
         }
 
+        TSizeVec outlierIndexes{points.size() - 3, points.size() - 2, points.size() - 1};
+
         core::stopDefaultAsyncExecutor();
+        std::string tags[]{"sequential", "parallel"};
+
+        CTestInstrumentation instrumentation;
+
+        // Test in/out of core.
+        for (std::size_t i = 0; i < 2; ++i) {
+
+            // Test sequential then parallel.
+            for (std::size_t j = 0; j < 2; ++j) {
+                LOG_DEBUG(<< "Testing " << tags[j]);
+
+                auto frame = factories[i](points);
+                maths::analytics::COutliers::SComputeParameters params{
+                    numberThreads[j],
+                    numberPartitions[i],
+                    true, // Standardize columns
+                    maths::analytics::COutliers::E_Ensemble,
+                    0,     // Compute number neighbours
+                    true,  // Compute feature influences
+                    0.05}; // Outlier fraction
+                maths::analytics::COutliers::compute(params, *frame, instrumentation);
+
+                bool passed{true};
+                TMeanAccumulatorVec averageInfluences(dimension);
+
+                frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                                       const core::CDataFrame::TRowItr& endRows) {
+                    for (auto row = beginRows; row != endRows; ++row) {
+                        double sum{0.0};
+                        TDoubleVec influences;
+                        for (std::size_t k = 0; k < dimension; ++k) {
+                            passed &= ((*row)[dimension + 1 + k] >= 0.0);
+                            sum += (*row)[dimension + 1 + k];
+                            averageInfluences[k].add((*row)[dimension + 1 + k]);
+                            influences.push_back((*row)[dimension + 1 + k]);
+                        }
+                        passed &= (std::fabs(sum - 1.0) < 1e-6);
+                        if (row->index() == outlierIndexes[0]) {
+                            LOG_DEBUG(<< "influences = "
+                                      << core::CContainerPrinter::print(influences));
+                            passed &= (*row)[dimension + 2] > thresholds[t][0];
+                        }
+                        if (row->index() == outlierIndexes[1]) {
+                            LOG_DEBUG(<< "influences = "
+                                      << core::CContainerPrinter::print(influences));
+                            passed &= (*row)[dimension + 1] > thresholds[t][1];
+                        }
+                        if (row->index() == outlierIndexes[2]) {
+                            LOG_DEBUG(<< "influences = "
+                                      << core::CContainerPrinter::print(influences));
+                            passed &= ((*row)[dimension + 2] > thresholds[t][2]) &&
+                                      ((*row)[dimension + 1] > thresholds[t][2]);
+                        }
+                    }
+                });
+                BOOST_TEST_REQUIRE(passed);
+
+                BOOST_TEST_REQUIRE(
+                    std::fabs(maths::common::CBasicStatistics::mean(averageInfluences[0]) -
+                              maths::common::CBasicStatistics::mean(averageInfluences[1])) < 0.06);
+                core::startDefaultAsyncExecutor();
+            }
+
+            core::stopDefaultAsyncExecutor();
+        }
     }
 }
 

@@ -9,7 +9,9 @@
  * limitation.
  */
 
+#include "core/CContainerPrinter.h"
 #include "maths/common/CBasicStatistics.h"
+#include "maths/common/CSpline.h"
 #include <limits>
 #include <maths/analytics/COutliers.h>
 
@@ -561,7 +563,6 @@ CEnsemble<POINT>::CModelBuilder::makeSampler(common::CPRNG::CXorOShiro128Plus& r
 template<typename POINT>
 void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMoments,
                                     const TDouble1Vec2Vec& scores) {
-
     if (scores.empty()) {
         return;
     }
@@ -600,7 +601,7 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
         return 0.5;
     };
 
-    auto pOutlierGiven = [](double cdfComplement) {
+    auto pOutlierGiven = [] {
         static const TDoubleVec LOG_KNOTS{
             common::CTools::fastLog(std::numeric_limits<double>::min()),
             common::CTools::fastLog(1e-5),
@@ -614,20 +615,24 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
             common::CTools::fastLog(0.8),
             common::CTools::fastLog(1.0)};
         static const TDoubleVec KNOTS_P_OUTLIER{
-            0.99, 0.98, 0.87, 0.76, 0.65, 0.6, 0.5, 0.5, 0.5, 0.3, 0.3};
+            0.9999, 0.99, 0.96, 0.82, 0.67, 0.62, 0.51, 0.5, 0.5, 0.35, 0.33};
+        static common::CSpline<> P_OUTLIER{[&] {
+            common::CSpline<> result{common::CSplineTypes::E_Linear};
+            result.interpolate(LOG_KNOTS, KNOTS_P_OUTLIER,
+                               common::CSplineTypes::E_ParabolicRunout);
+            return result;
+        }()};
 
-        double logCdfComplement{common::CTools::fastLog(
-            std::max(cdfComplement, std::numeric_limits<double>::min()))};
-        auto k = std::upper_bound(LOG_KNOTS.begin(), LOG_KNOTS.end(), logCdfComplement);
-
-        return common::CTools::linearlyInterpolate(
-            *(k - 1), *k, KNOTS_P_OUTLIER[k - LOG_KNOTS.begin() - 1],
-            KNOTS_P_OUTLIER[k - LOG_KNOTS.begin()], logCdfComplement);
-    };
+        return [&](double cdfComplement) {
+            double logCdfComplement{common::CTools::fastLog(
+                std::max(cdfComplement, std::numeric_limits<double>::min()))};
+            return P_OUTLIER.value(logCdfComplement);
+        };
+    }();
 
     static const double EXPECTED_P_OUTLIER{[=] {
         double result{0.0};
-        for (double x = 0.0, dx = 0.1; x < 0.99; x += dx) {
+        for (double x = 0.0, dx = 0.05; x < 0.99; x += dx) {
             double interval;
             common::CIntegration::gaussLegendre<common::CIntegration::OrderTwo>(
                 [=](double x_, double& r) {
@@ -650,15 +655,14 @@ void CEnsemble<POINT>::CScorer::add(const TMeanVarAccumulator2Vec& logScoreMomen
         for (std::size_t i = 0; i < scores.size(); ++i) {
             double pOutlier{0.5 / EXPECTED_P_OUTLIER *
                             pOutlierGiven(scoreCdfComplement(i, j))};
-            logLikelihoodOutlier += common::CTools::fastLog(pOutlier);
-            logLikelihoodInlier += common::CTools::fastLog(1.0 - pOutlier);
+            logLikelihoodOutlier += std::log(pOutlier);
+            logLikelihoodInlier += std::log(1.0 - pOutlier);
         }
         double likelihoodOutlier{std::exp(logLikelihoodOutlier)};
         double likelihoodInlier{std::exp(logLikelihoodInlier)};
         double pOutlier{likelihoodOutlier / (likelihoodInlier + likelihoodOutlier)};
         double pInlier{1.0 - pOutlier};
-        this->logLikelihoodOutlier(j) += common::CTools::fastLog(pOutlier) -
-                                         common::CTools::fastLog(pInlier);
+        this->logLikelihoodOutlier(j) += std::log(pOutlier) - std::log(pInlier);
     }
 }
 
@@ -934,11 +938,11 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         }
     }
 
-    std::size_t dimension{frame.numberColumns()};
+    std::size_t numberColumns{frame.numberColumns()};
 
     auto writeScores = [&](const TRowItr& beginRows, const TRowItr& endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            std::size_t index{dimension};
+            std::size_t index{numberColumns};
             for (auto value : scores[row->index()].compute(params.s_OutlierFraction)) {
                 row->writeColumn(index++, value);
             }
@@ -947,7 +951,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
 
     std::int64_t frameMemory{signedMemoryUsage(frame)};
     frame.resizeColumns(params.s_NumberThreads,
-                        (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
+                        (params.s_ComputeFeatureInfluence ? 2 : 1) * numberColumns + 1);
     instrumentation.updateMemoryUsage(signedMemoryUsage(frame) - frameMemory);
 
     bool successful;
