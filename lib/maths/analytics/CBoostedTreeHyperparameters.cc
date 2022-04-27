@@ -389,6 +389,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else if (m_StopHyperparameterOptimizationEarly &&
                m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3) {
+        m_StoppedHyperparameterOptimizationEarly = true;
         return false;
     } else {
         std::tie(parameters, std::ignore) =
@@ -626,6 +627,8 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
                                  m_SoftTreeDepthTolerance, inserter);
     core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                  m_StopHyperparameterOptimizationEarly, inserter);
+    core::CPersistUtils::persist(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
+                                 m_StoppedHyperparameterOptimizationEarly, inserter);
     core::CPersistUtils::persist(TREE_SIZE_PENALTY_MULTIPLIER_TAG,
                                  m_TreeSizePenaltyMultiplier, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is re-generated
@@ -683,6 +686,9 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
         RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                              m_StopHyperparameterOptimizationEarly, traverser))
+        RESTORE(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
+                core::CPersistUtils::restore(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
+                                             m_StoppedHyperparameterOptimizationEarly, traverser))
         RESTORE(TREE_SIZE_PENALTY_MULTIPLIER_TAG,
                 core::CPersistUtils::restore(TREE_SIZE_PENALTY_MULTIPLIER_TAG,
                                              m_TreeSizePenaltyMultiplier, traverser))
@@ -858,6 +864,7 @@ const std::string CBoostedTreeHyperparameters::NUMBER_ROUNDS_TAG{"number_rounds"
 const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT_TAG{"soft_tree_depth_limit"};
 const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE_TAG{"soft_tree_depth_tolerance"};
 const std::string CBoostedTreeHyperparameters::STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
+const std::string CBoostedTreeHyperparameters::STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stopped_hyperparameter_optimization_early"};
 const std::string CBoostedTreeHyperparameters::TREE_SIZE_PENALTY_MULTIPLIER_TAG{"tree_size_penalty_multiplier"};
 // clang-format on
 }
