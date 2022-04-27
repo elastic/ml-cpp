@@ -8,8 +8,7 @@
  * compliance with the Elastic License 2.0 and the foregoing additional
  * limitation.
  */
-
-#include "SettingsValidator.h"
+#include "CThreadSettings.h"
 
 #include <core/CLogger.h>
 
@@ -19,9 +18,25 @@
 namespace ml {
 namespace torch {
 
-void validateThreadingParameters(std::int32_t maxThreads,
-                                 std::int32_t& inferenceThreads,
-                                 std::int32_t& modelThreads) {
+CThreadSettings::CThreadSettings(std::int32_t inferenceThreads, std::int32_t modelThreads)
+    : m_InferenceThreads(inferenceThreads), m_ModelThreads(modelThreads) {
+}
+
+std::int32_t CThreadSettings::inferenceThreads() const {
+    return m_InferenceThreads;
+}
+
+std::int32_t CThreadSettings::modelThreads() const {
+    return m_ModelThreads;
+}
+
+void CThreadSettings::modelThreads(std::int32_t modelThreads) {
+    m_ModelThreads = modelThreads;
+}
+
+void CThreadSettings::validateThreadingParameters(std::int32_t maxThreads,
+                                                  std::int32_t& inferenceThreads,
+                                                  std::int32_t& modelThreads) {
     if (maxThreads == 0) {
         LOG_WARN(<< "Could not determine hardware concurrency; setting max threads to 1");
         maxThreads = 1;

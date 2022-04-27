@@ -27,6 +27,7 @@ public:
     void schedule(std::function<void()>&& f) override { f(); }
     bool busy() const override { return false; }
     void busy(bool) override {}
+    void numberThreadsInUse(std::size_t) override {}
 };
 
 //! \brief Executes a function in a thread pool.
@@ -39,6 +40,13 @@ public:
     }
     bool busy() const override { return m_ThreadPool.busy(); }
     void busy(bool value) override { return m_ThreadPool.busy(value); }
+
+    //! Adjust the number of threads which are being used by the pool.
+    //!
+    //! \note \p threads should be in the range [1, pool size].
+    void numberThreadsInUse(std::size_t threads) override {
+        m_ThreadPool.numberThreadsInUse(threads);
+    }
 
 private:
     CStaticThreadPool m_ThreadPool;

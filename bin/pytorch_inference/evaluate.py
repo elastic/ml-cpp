@@ -240,8 +240,8 @@ def run_benchmark(args):
         # ignore the warmup results
         for i in range(NUM_WARM_UP_REQUESTS, len(result_docs)):
             if args.benchmark:
-                print(result_docs[i]['time_ms'])
-            total_time_ms += result_docs[i]['time_ms']
+                print(result_docs[i]['result']['time_ms'])
+            total_time_ms += result_docs[i]['result']['time_ms']
             doc_count += 1
 
         avg_time_ms = total_time_ms / doc_count
@@ -279,8 +279,12 @@ def test_evaluation(args):
 
         for result in result_docs:
             if 'error' in result: 
-                print(f"Inference failed. Request: {result['request_id']}, Msg: {result['error']}")
+                print(f"Inference failed. Request: {result['error']['request_id']}, Msg: {result['error']['error']}")
                 results_match = False
+                continue
+
+            if 'thread_settings' in result:
+                print(f"Thread settings read: {result}")
                 continue
 
             expected = test_evaluation[doc_count]['expected_output']
@@ -289,10 +293,10 @@ def test_evaluation(args):
             if 'how_close' in test_evaluation[doc_count]:
                 tolerance = test_evaluation[doc_count]['how_close']                                   
 
-            total_time_ms += result['time_ms']
+            total_time_ms += result['result']['time_ms']
 
             # compare to expected
-            if compare_results(expected, result, tolerance) == False:
+            if compare_results(expected, result['result'], tolerance) == False:
                 print()
                 print(f'ERROR: inference result [{doc_count}] does not match expected results')
                 print()
