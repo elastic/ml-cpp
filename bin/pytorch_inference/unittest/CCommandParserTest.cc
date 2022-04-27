@@ -381,23 +381,6 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessage) {
     {
         std::vector<std::string> errors;
 
-        std::string command{R"({"request_id":"ctrl1",  "control": 1})"};
-        std::istringstream commandStream{command};
-
-        ml::torch::CCommandParser processor{commandStream};
-        BOOST_TEST_REQUIRE(processor.ioLoop(
-            unexpectedRequest, unexpectedControlMessage,
-            [&errors](const std::string&, const ::std::string& message) {
-                errors.push_back(message);
-            }));
-
-        BOOST_REQUIRE_EQUAL(1, errors.size());
-        BOOST_REQUIRE_EQUAL("Invalid control message: unknown control message type",
-                            errors[0]);
-    }
-    {
-        std::vector<std::string> errors;
-
         std::string command{R"({"request_id": "ctrl1", "control": 0})"};
         std::istringstream commandStream{command};
 
@@ -430,5 +413,42 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessage) {
                             errors[0]);
     }
 }
+
+BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessageType) {
+    {
+        std::vector<std::string> errors;
+
+        std::string command{R"({"request_id":"ctrl1",  "control": 1})"};
+        std::istringstream commandStream{command};
+
+        ml::torch::CCommandParser processor{commandStream};
+        BOOST_TEST_REQUIRE(processor.ioLoop(
+            unexpectedRequest, unexpectedControlMessage,
+            [&errors](const std::string&, const ::std::string& message) {
+                errors.push_back(message);
+            }));
+
+        BOOST_REQUIRE_EQUAL(1, errors.size());
+        BOOST_REQUIRE_EQUAL("Invalid control message: unknown control message type",
+                            errors[0]);
+    }
+    {
+        std::vector<std::string> errors;
+
+        std::string command{R"({"request_id":"ctrl1",  "control": -1})"};
+        std::istringstream commandStream{command};
+
+        ml::torch::CCommandParser processor{commandStream};
+        BOOST_TEST_REQUIRE(processor.ioLoop(
+            unexpectedRequest, unexpectedControlMessage,
+            [&errors](const std::string&, const ::std::string& message) {
+                errors.push_back(message);
+            }));
+
+        BOOST_REQUIRE_EQUAL(1, errors.size());
+        BOOST_REQUIRE_EQUAL("Invalid control message: unknown control message type",
+                            errors[0]);
+    }
+}    
 
 BOOST_AUTO_TEST_SUITE_END()

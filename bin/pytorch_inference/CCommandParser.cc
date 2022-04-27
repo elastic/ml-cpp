@@ -132,6 +132,7 @@ CCommandParser::validateControlMessageJson(const rapidjson::Document& doc,
 
     const rapidjson::Value& control = doc[CONTROL];
     if (control.IsInt() == false ||
+        control.GetInt() < 0 ||
         control.GetInt() >= SControlMessage::EControlMessageType::E_Unknown) {
         errorHandler(UNKNOWN_ID, "Invalid control message: unknown control message type");
         return EMessageType::E_MalformedMessage;
