@@ -698,7 +698,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
             0.0, modelBias[i],
             6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.94);
+        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.92);
 
         meanModelRSquared.add(modelRSquared[i]);
     }

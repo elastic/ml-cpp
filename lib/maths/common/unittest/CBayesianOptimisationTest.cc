@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
               << 100.0 * maths::common::CBasicStatistics::mean(meanImprovementRs));
     BOOST_TEST_REQUIRE(wins > static_cast<std::size_t>(0.95 * 50)); // 95% better
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanImprovementBopt) >
-                       1.6 * maths::common::CBasicStatistics::mean(meanImprovementRs)); // 60% mean improvement
+                       1.5 * maths::common::CBasicStatistics::mean(meanImprovementRs)); // 50% mean improvement
 }
 
 BOOST_AUTO_TEST_CASE(testKernelInvariants) {
@@ -418,6 +418,42 @@ BOOST_AUTO_TEST_CASE(testKernelInvariants) {
     for (std::size_t i = 1; i < kernelParameters.size(); ++i) {
         BOOST_TEST_REQUIRE((kernelParameters[i] - kernelParameters[0]).norm() < 1e-6);
     }
+}
+
+BOOST_AUTO_TEST_CASE(testKernelParameterEstimateForSmallMeasurementErrors) {
+
+    // One has to be very careful estimating the likelihood function when the
+    // function measurement error is small. Basically, as soon as the Kernel
+    // matrix becomes singular our linear algebra library solve method only 
+    // computes the contribution to the log likelihood of the rank full portion
+    // of f^t K^-1 f by default. This means maximum likelihood will happily
+    // collapse the kernel to a constant matrix even when f_i != f_j for all i,j.
+    // This shows up when we let the measurement error become very small.
+
+    test::CRandomNumbers rng;
+
+    std::size_t dimension{2};
+    double xl{0.0};
+    double xu{100.0};
+
+    TDoubleVec coords;
+    rng.generateUniformSamples(xl, xu, dimension * 20, coords);
+
+    maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb;
+    for (std::size_t i = 0; i < dimension; ++i) {
+        bb.emplace_back(xl, xu);
+    }
+
+    maths::common::CBayesianOptimisation bopt{bb};
+    for (std::size_t i = 0; i < 10; ++i) {
+        TVector x{dimension};
+        for (std::size_t j = 0; j < dimension; ++j) {
+            x(j) = coords[i * dimension + j];
+        }
+        bopt.maximumLikelihoodKernel();
+        bopt.add(x, x.norm(), 0.0);
+    }
+
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
