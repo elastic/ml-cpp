@@ -373,8 +373,8 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 BOOST_AUTO_TEST_CASE(testKernelInvariants) {
 
     // Test that the kernel parameters we estimate do not change when:
-    //   1. Changing the function range,
-    //   2. Changing the function domain,
+    //   1. Changing the function domain,
+    //   2. Changing the function level,
     //   3. Linearly scaling the function.
 
     TFunctionParamsVec tests{{0.0, 100.0, 0.0, 1.0},
@@ -589,7 +589,7 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
 BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
 
     // Test that the various parts of ANOVA change as we expect when:
-    //   1. Changing the function domain,
+    //   1. Changing the function level,
     //   2. Linearly scaling the function.
 
     TFunctionParamsVec tests{

@@ -190,6 +190,8 @@ private:
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
     TVector kinvf() const;
     double dissimilarity(const TVector& x) const;
+    TVector to01(TVector x) const;
+    TVector from01(TVector x) const;
     void checkRestoredInvariants() const;
 
 private:

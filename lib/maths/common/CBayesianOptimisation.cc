@@ -123,9 +123,8 @@ CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& trave
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
-    m_FunctionMeanValues.emplace_back(
-        (x - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary),
-        toScaled(m_RangeShift, m_RangeScale, fx));
+    m_FunctionMeanValues.emplace_back(this->to01(std::move(x)),
+                                      toScaled(m_RangeShift, m_RangeScale, fx));
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
@@ -227,7 +226,7 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
         expectedImprovement = fmax / m_RangeScale;
     }
 
-    xmax = m_MinBoundary + xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary);
+    xmax = this->from01(std::move(xmax));
     LOG_TRACE(<< "best = " << xmax.transpose() << " EI(best) = " << expectedImprovement);
 
     return {std::move(xmax), expectedImprovement};
@@ -240,9 +239,7 @@ double CBayesianOptimisation::evaluate(const TVector& input) const {
 double CBayesianOptimisation::evaluate(const TVector& Kinvf, const TVector& input) const {
     TVector Kxn;
     std::tie(Kxn, std::ignore) = this->kernelCovariates(
-        m_KernelParameters,
-        (input - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary),
-        this->meanErrorVariance());
+        m_KernelParameters, this->to01(input), this->meanErrorVariance());
     return fromScaled(m_RangeShift, m_RangeScale, Kxn.transpose() * Kinvf);
 }
 
@@ -762,6 +759,17 @@ double CBayesianOptimisation::dissimilarity(const TVector& x) const {
         min += std::min(min, dxy);
     }
     return sum / static_cast<double>(m_FunctionMeanValues.size()) + min;
+}
+
+CBayesianOptimisation::TVector CBayesianOptimisation::to01(TVector x) const {
+    // Self assign so operations are performed inplace.
+    x = (x - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary);
+    return x;
+}
+
+CBayesianOptimisation::TVector CBayesianOptimisation::from01(TVector x) const {
+    x = m_MinBoundary + x.cwiseProduct(m_MaxBoundary - m_MinBoundary);
+    return x;
 }
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
