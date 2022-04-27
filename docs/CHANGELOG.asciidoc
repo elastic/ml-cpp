@@ -40,6 +40,8 @@
 
 * Correct logic for restart from failover fine tuning hyperparameters for training
   classification and regression models. (See {ml-pull}2251[#2251].)
+* Fix some bugs affecting decision to stop optimising hyperparameters for training
+  classification and regression models. (See {ml-pull}2259[#2259].)
 
 == {es} version 8.2.0
 
