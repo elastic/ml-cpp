@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 
@@ -33,6 +34,14 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TVector = maths::common::CDenseVector<double>;
+using TVectorVec = std::vector<TVector>;
+struct SFunctionParams {
+    double s_Xl;
+    double s_Xu;
+    double s_F0;
+    double s_Scale;
+};
+using TFunctionParamsVec = std::vector<SFunctionParams>;
 
 TVector vector(TDoubleVec components) {
     TVector result(components.size());
@@ -362,11 +371,63 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
                        1.6 * maths::common::CBasicStatistics::mean(meanImprovementRs)); // 60% mean improvement
 }
 
+BOOST_AUTO_TEST_CASE(testKernelInvariants) {
+
+    // Test that the kernel parameters we estimate do not change when:
+    //   1. Changing the function range,
+    //   2. Changing the function domain,
+    //   3. Linearly scaling the function.
+
+    TFunctionParamsVec tests{
+        {0.0, 100.0, 0.0, 1.0},
+        {0.0, 1000.0, 0.0, 1.0},
+        {0.0, 100.0, 10.0, 1.0},
+        {0.0, 100.0, 0.0, 2.0}
+    };
+
+    TVectorVec kernelParameters;
+
+    for (const auto& test : tests) {
+
+        test::CRandomNumbers rng;
+
+        std::size_t dimension{2};
+        double xl{test.s_Xl};
+        double xu{test.s_Xu};
+        double f0{test.s_F0};
+        double scale{test.s_Scale};
+
+        TDoubleVec coords;
+        rng.generateUniformSamples(xl, xu, dimension * 20, coords);
+
+        maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb;
+        for (std::size_t i = 0; i < dimension; ++i) {
+            bb.emplace_back(xl, xu);
+        }
+
+        maths::common::CBayesianOptimisation bopt{bb};
+        for (std::size_t i = 0; i < 10; ++i) {
+            TVector x{dimension};
+            for (std::size_t j = 0; j < dimension; ++j) {
+                x(j) = coords[i * dimension + j];
+            }
+            bopt.maximumLikelihoodKernel();
+            bopt.add(x, scale * x.norm() + f0, scale * scale * (xu - xl) * (xu - xl) * 0.0001);
+        }
+
+        kernelParameters.push_back(bopt.maximumLikelihoodKernel());
+    }
+
+    for (std::size_t i = 1; i < kernelParameters.size(); ++i) {
+        BOOST_TEST_REQUIRE((kernelParameters[i] - kernelParameters[0]).norm() < 1e-6);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
     // 1d
     {
-        TDoubleVec minBoundary{0.};
-        TDoubleVec maxBoundary{10.};
+        TDoubleVec minBoundary{0.0};
+        TDoubleVec maxBoundary{10.0};
         // empty
         {
             std::vector<TDoubleVec> parameterFunctionValues{};
@@ -375,8 +436,8 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         // with data
         {
             std::vector<TDoubleVec> parameterFunctionValues{
-                {5., 1., 0.2},
-                {7., 1., 0.2},
+                {5.0, 1.0, 0.2},
+                {7.0, 1.0, 0.2},
             };
             testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
@@ -384,8 +445,8 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
     // 2d
     {
-        TDoubleVec minBoundary{0., -1.};
-        TDoubleVec maxBoundary{10., 1.};
+        TDoubleVec minBoundary{0.0, -1.0};
+        TDoubleVec maxBoundary{10.0, 1.0};
         // empty
         {
             std::vector<TDoubleVec> parameterFunctionValues{};
@@ -394,8 +455,8 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         // with data
         {
             std::vector<TDoubleVec> parameterFunctionValues{
-                {5., 0., 1., 0.2},
-                {7., 0., 1., 0.2},
+                {5.0, 0.0, 1.0, 0.2},
+                {7.0, 0.0, 1.0, 0.2},
             };
             testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
@@ -531,6 +592,83 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
     verify(0.0, 1.0);
     verify(-3.0, 3.0);
     verify(0.2, 0.8);
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
+
+    // Test that the various parts of ANOVA change as we expect when:
+    //   1. Changing the function domain,
+    //   2. Linearly scaling the function.
+
+    TFunctionParamsVec tests{
+        {0.0, 100.0, 0.0, 1.0},
+        {0.0, 100.0, 10.0, 1.0},
+        {0.0, 100.0, 0.0, 2.0}
+    };
+
+    TDoubleVec evaluateResults;
+    TDoubleVecVec evaluate1DResults;
+    TDoubleVec totalVarianceResults;
+    TDoubleVec totalCoefficientOfVariationResults;
+
+    for (const auto& test : tests) {
+
+        test::CRandomNumbers rng;
+
+        std::size_t dimension{2};
+        double xl{test.s_Xl};
+        double xu{test.s_Xu};
+        double f0{test.s_F0};
+        double scale{test.s_Scale};
+
+        TDoubleVec coords;
+        rng.generateUniformSamples(xl, xu, dimension * 20, coords);
+
+        maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb;
+        for (std::size_t i = 0; i < dimension; ++i) {
+            bb.emplace_back(xl, xu);
+        }
+
+        maths::common::CBayesianOptimisation bopt{bb};
+        for (std::size_t i = 0; i < 10; ++i) {
+            TVector x{dimension};
+            for (std::size_t j = 0; j < dimension; ++j) {
+                x(j) = coords[i * dimension + j];
+            }
+            bopt.maximumLikelihoodKernel();
+            bopt.add(x, scale * x.norm() + f0, scale * scale * (xu - xl) * (xu - xl) * 0.001);
+        }
+        
+        TVector probe{dimension};
+        rng.generateUniformSamples(xl, xu, dimension, coords);
+        for (std::size_t i = 0; i < dimension; ++i) {
+            probe(i) = coords[i];
+        }
+        evaluateResults.push_back(bopt.evaluate(probe));
+        evaluate1DResults.emplace_back();
+        for (std::size_t i = 0; i < dimension; ++i) {
+            evaluate1DResults.back().push_back(bopt.evaluate1D(probe[i], static_cast<int>(i)));
+        }
+        totalVarianceResults.push_back(bopt.anovaTotalVariance());
+        totalCoefficientOfVariationResults.push_back(bopt.anovaTotalCoefficientOfVariation());
+    }
+
+    LOG_DEBUG(<< "evaluate      = " << core::CContainerPrinter::print(evaluateResults));
+    LOG_DEBUG(<< "evaluate1D    = " << core::CContainerPrinter::print(evaluate1DResults));
+    LOG_DEBUG(<< "totalVariance = " << core::CContainerPrinter::print(totalVarianceResults));
+    LOG_DEBUG(<< "totalCoefficientOfVariationResults = " << core::CContainerPrinter::print(totalCoefficientOfVariationResults));
+
+    for (std::size_t i = 1; i < tests.size(); ++i) {
+        double f0{tests[i].s_F0};
+        double scale{tests[i].s_Scale};
+        BOOST_REQUIRE_CLOSE(evaluateResults[i], scale * evaluateResults[0] + f0, 1e-3);
+        for (std::size_t j = 0; j < evaluate1DResults[i].size(); ++j) {
+            BOOST_REQUIRE_CLOSE(evaluate1DResults[i][j], scale * evaluate1DResults[0][j] + f0, 1e-3);
+        }
+        BOOST_REQUIRE_CLOSE(totalVarianceResults[i], scale * scale * totalVarianceResults[0], 1e-3);
+    }
+    BOOST_TEST_REQUIRE(totalCoefficientOfVariationResults[1] < totalCoefficientOfVariationResults[0]);
+    BOOST_REQUIRE_CLOSE(totalCoefficientOfVariationResults[2], totalCoefficientOfVariationResults[0], 1e-3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -189,7 +189,6 @@ private:
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
     TVector kinvf() const;
-    TVector transformTo01(const TVector& x) const;
     double dissimilarity(const TVector& x) const;
     void checkRestoredInvariants() const;
 

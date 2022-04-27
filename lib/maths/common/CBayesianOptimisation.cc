@@ -30,6 +30,7 @@
 #include <boost/math/distributions/normal.hpp>
 #include <boost/optional/optional_io.hpp>
 
+#include <cmath>
 #include <exception>
 #include <limits>
 
@@ -60,6 +61,14 @@ const std::string RNG_TAG{"rng"};
 // altogether because it is possible that the function we're interpolating has a
 // narrow deep valley that the Gaussian Process hasn't sampled.
 const double MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION{1e-8};
+
+double toScaled(double shift, double scale, double fx) {
+    return scale * (fx - shift);
+}
+
+double fromScaled(double shift, double scale, double fx) {
+    return shift + fx / scale;
+}
 
 //! A version of the normal c.d.f. which is stable across our target platforms.
 double stableNormCdf(double z) {
@@ -114,8 +123,8 @@ CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& trave
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
-    m_FunctionMeanValues.emplace_back(x.cwiseQuotient(m_MaxBoundary - m_MinBoundary),
-                                      m_RangeScale * (fx - m_RangeShift));
+    m_FunctionMeanValues.emplace_back((x - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary),
+                                      toScaled(m_RangeShift, m_RangeScale, fx));
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
@@ -146,8 +155,8 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
     TDoubleVec interpolates;
     CSampling::uniformSample(m_Rng, 0.0, 1.0, 10 * m_Restarts * interpolate.size(), interpolates);
 
-    TVector a{m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
-    TVector b{m_MaxBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
+    TVector a{TVector::Zero(m_MinBoundary.size())};
+    TVector b{TVector::Ones(m_MaxBoundary.size())};
     TVector x;
     TMeanAccumulator rho_;
     TMinAccumulator probes{m_Restarts};
@@ -217,7 +226,7 @@ CBayesianOptimisation::maximumExpectedImprovement(double negligibleExpectedImpro
         expectedImprovement = fmax / m_RangeScale;
     }
 
-    xmax = xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary);
+    xmax = m_MinBoundary + xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary);
     LOG_TRACE(<< "best = " << xmax.transpose() << " EI(best) = " << expectedImprovement);
 
     return {std::move(xmax), expectedImprovement};
@@ -230,9 +239,9 @@ double CBayesianOptimisation::evaluate(const TVector& input) const {
 double CBayesianOptimisation::evaluate(const TVector& Kinvf, const TVector& input) const {
     TVector Kxn;
     std::tie(Kxn, std::ignore) = this->kernelCovariates(
-        m_KernelParameters, input.cwiseQuotient(m_MaxBoundary - m_MinBoundary),
+        m_KernelParameters, (input - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary),
         this->meanErrorVariance());
-    return Kxn.transpose() * Kinvf;
+    return fromScaled(m_RangeShift, m_RangeScale, Kxn.transpose() * Kinvf);
 }
 
 double CBayesianOptimisation::evaluate1D(const TVector& Kinvf, double input, int dimension) const {
@@ -250,20 +259,24 @@ double CBayesianOptimisation::evaluate1D(const TVector& Kinvf, double input, int
     input = (input - m_MinBoundary(dimension)) /
             (m_MaxBoundary(dimension) - m_MinBoundary(dimension));
     for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
-        TVector x{this->transformTo01(m_FunctionMeanValues[i].first)};
+        const TVector& x{m_FunctionMeanValues[i].first};
         sum += Kinvf(static_cast<int>(i)) *
                CTools::stableExp(-(CTools::pow2(m_KernelParameters[dimension + 1]) +
                                    MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE) *
                                  CTools::pow2(input - x(dimension))) *
                prodXt(x, dimension);
     }
+    double f2{this->anovaConstantFactor(Kinvf)};
 
-    // We rewrite theta_0^2 sum - f_0 as (theta + f) * (theta - f) where
-    // theta = theta_0 sum^(1/2) and f = f_0^(1/2) because it has better
-    // numerics.
-    double theta{m_KernelParameters(0) * std::sqrt(sum)};
-    double f{std::sqrt(this->anovaConstantFactor(Kinvf))};
-    return (theta + f) * (theta - f);
+    if (std::signbit(sum) == std::signbit(f2)) {
+        // We rewrite theta_0^2 sum - f_0 as (theta + f) * (theta - f) where
+        // theta = theta_0 sum^(1/2) and f = f_0^(1/2) because it has better
+        // numerics.
+        double theta{m_KernelParameters(0) * std::sqrt(std::fabs(sum))};
+        double f{std::sqrt(std::fabs(f2))};
+        return fromScaled(m_RangeShift, m_RangeScale, std::copysign((theta + f) * (theta - f), sum));
+    }
+    return fromScaled(m_RangeShift, m_RangeScale, CTools::pow2(m_KernelParameters(0)) * sum - f2);
 }
 
 double CBayesianOptimisation::evaluate1D(double input, int dimension) const {
@@ -279,7 +292,7 @@ double CBayesianOptimisation::anovaConstantFactor(const TVector& Kinvf) const {
     double sum{0.0};
     for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
         double prod{1.0};
-        TVector x{this->transformTo01(m_FunctionMeanValues[i].first)};
+        const TVector& x{m_FunctionMeanValues[i].first};
         for (int d = 0; d < x.size(); ++d) {
             prod *= integrate1dKernel(m_KernelParameters(d + 1), x(d));
         }
@@ -294,8 +307,8 @@ double CBayesianOptimisation::anovaConstantFactor() const {
 
 double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
     auto prodIj = [&Kinvf, this](std::size_t i, std::size_t j) -> double {
-        TVector xi{this->transformTo01(m_FunctionMeanValues[i].first)};
-        TVector xj{this->transformTo01(m_FunctionMeanValues[j].first)};
+        const TVector& xi{m_FunctionMeanValues[i].first};
+        const TVector& xj{m_FunctionMeanValues[j].first};
         double prod{1.0};
         for (int d = 0; d < xi.size(); ++d) {
             prod *= integrate1dKernelProduct(m_KernelParameters[d + 1], xi(d), xj(d));
@@ -311,17 +324,22 @@ double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
         }
     }
 
-    // We rewrite theta_0^4 sum - f_0^2 as (theta^2 + f_0) * (theta^2 - f_0)
-    // where theta^2 = theta_0^2 sum^(1/2) because it has better numerics.
-    double theta2{CTools::pow2(m_KernelParameters(0)) * std::sqrt(sum)};
+    double theta2{CTools::pow2(m_KernelParameters(0))};
     double f0{this->anovaConstantFactor(Kinvf)};
-    double variance{(theta2 + f0) * (theta2 - f0)};
-    return std::max(0.0, variance);
+    double scale2{CTools::pow2(m_RangeScale)};
+    if (sum > 0.0) {
+        // We rewrite theta_0^4 sum - f_0^2 as (theta^2 + f_0) * (theta^2 - f_0)
+        // where theta^2 = theta_0^2 sum^(1/2) because it has better numerics.
+        theta2 *= std::sqrt(sum);
+        double variance{(theta2 + f0) * (theta2 - f0)};
+        return std::max(0.0, variance / scale2);
+    }
+    return std::max(0.0, (theta2 * theta2 * sum - f0 * f0) / scale2);
 }
 
 double CBayesianOptimisation::anovaTotalCoefficientOfVariation() {
     this->precondition();
-    return std::sqrt(this->anovaTotalVariance()) * m_RangeScale / m_RangeShift;
+    return std::sqrt(this->anovaTotalVariance()) / m_RangeShift;
 }
 
 double CBayesianOptimisation::anovaTotalVariance() const {
@@ -341,9 +359,9 @@ double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimensio
     double sum1{0.0};
     double sum2{0.0};
     for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
-        TVector xi{this->transformTo01(m_FunctionMeanValues[i].first)};
+        const TVector& xi{m_FunctionMeanValues[i].first};
         for (std::size_t j = 0; j < m_FunctionMeanValues.size(); ++j) {
-            TVector xj{this->transformTo01(m_FunctionMeanValues[j].first)};
+            const TVector& xj{m_FunctionMeanValues[j].first};
             sum1 += Kinvf(static_cast<int>(i)) * Kinvf(static_cast<int>(j)) *
                     prodXt(xi, dimension) * prodXt(xj, dimension) *
                     integrate1dKernelProduct(m_KernelParameters(dimension + 1),
@@ -353,12 +371,11 @@ double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimensio
                 integrate1dKernel(m_KernelParameters(dimension + 1), xi(dimension)) *
                 prodXt(xi, dimension);
     }
+    double shift2{CTools::pow2(m_RangeShift)};
     double theta02{CTools::pow2(m_KernelParameters(0))};
-    double theta04{CTools::pow2(theta02)};
     double f0{this->anovaConstantFactor()};
     double f02{CTools::pow2(f0)};
-    double scale{std::max(1.0, theta04)}; // prevent cancellation errors
-    return scale * (theta04 * sum1 / scale - 2 * theta02 * sum2 * f0 / scale + f02 / scale);
+    return (theta02 * (theta02 * sum1 - 2.0 * f0 * sum2) + f02) / shift2;
 }
 
 double CBayesianOptimisation::anovaMainEffect(int dimension) const {
@@ -375,7 +392,7 @@ CBayesianOptimisation::TDoubleDoublePrVec CBayesianOptimisation::anovaMainEffect
     mainEffects.reserve(static_cast<std::size_t>(m_MinBoundary.size()));
     TVector Kinvf{this->kinvf()};
     double f0{this->anovaConstantFactor(Kinvf)};
-    double totalVariance(this->anovaTotalVariance(Kinvf));
+    double totalVariance{this->anovaTotalVariance(Kinvf)};
     for (int i = 0; i < m_MinBoundary.size(); ++i) {
         double effect{this->anovaMainEffect(Kinvf, i)};
         mainEffects.emplace_back(effect, effect / totalVariance);
@@ -533,6 +550,10 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
 
 const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKernel() {
 
+    if (m_FunctionMeanValues.size() < 2) {
+        return m_KernelParameters;
+    }
+
     // Use random restarts of L-BFGS to find maximum likelihood parameters.
 
     this->precondition();
@@ -595,7 +616,7 @@ void CBayesianOptimisation::precondition() {
     // for different loss functions.
 
     for (auto& value : m_FunctionMeanValues) {
-        value.second = m_RangeShift + value.second / m_RangeScale;
+        value.second = fromScaled(m_RangeShift, m_RangeScale, value.second);
     }
     for (auto& variance : m_ErrorVariances) {
         variance /= CTools::pow2(m_RangeScale);
@@ -613,7 +634,7 @@ void CBayesianOptimisation::precondition() {
                        : 1.0 / std::sqrt(CBasicStatistics::variance(valueMoments));
 
     for (auto& value : m_FunctionMeanValues) {
-        value.second = m_RangeScale * (value.second - m_RangeShift);
+        value.second = toScaled(m_RangeShift, m_RangeScale, value.second);
     }
     for (auto& variance : m_ErrorVariances) {
         variance *= CTools::pow2(m_RangeScale);
@@ -715,10 +736,6 @@ CBayesianOptimisation::TVector CBayesianOptimisation::kinvf() const {
     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
     Kinvf = K.ldlt().solve(this->function());
     return Kinvf;
-}
-
-CBayesianOptimisation::TVector CBayesianOptimisation::transformTo01(const TVector& x) const {
-    return x - m_MinBoundary.cwiseQuotient(m_MaxBoundary - m_MinBoundary);
 }
 
 double CBayesianOptimisation::dissimilarity(const TVector& x) const {
