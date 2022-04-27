@@ -533,4 +533,47 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
     verify(0.2, 0.8);
 }
 
+BOOST_AUTO_TEST_CASE(testAnovaTotalCoefficientOfVariation) {
+    std::size_t dim{1};
+    std::size_t numSamples{20};
+
+    auto verify = [&](double min, double max) {
+        test::CRandomNumbers rng;
+        using TMeanVarAccumulator =
+            maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+
+        LOG_DEBUG(<< "Testing boundaries [" << min << ", " << max << "]");
+        TMeanVarAccumulator meanVarAccumulator;
+        TDoubleVec trainSamples;
+        rng.generateUniformSamples(min, max, numSamples * dim, trainSamples);
+        maths::common::CBayesianOptimisation::TDoubleDoublePrVec boundaries;
+        boundaries.reserve(dim);
+        for (std::size_t d = 0; d < dim; ++d) {
+            boundaries.emplace_back(min, max);
+        }
+
+        maths::common::CBayesianOptimisation bopt{boundaries};
+        for (std::size_t i = 0; i < numSamples; ++i) {
+            TVector x(dim);
+            for (std::size_t j = 0; j < dim; ++j) {
+                x(j) = trainSamples[i * dim + j];
+            }
+            bopt.add(x, x.norm(), (max - min) * (max - min) * 0.01);
+            bopt.maximumLikelihoodKernel();
+            meanVarAccumulator.add(x.norm());
+        }
+        double empiricalCoefficientOfVariation{
+            std::sqrt(maths::common::CBasicStatistics::variance(meanVarAccumulator)) /
+            maths::common::CBasicStatistics::mean(meanVarAccumulator)};
+        double anovaTotalCoefficientOfVariation{bopt.anovaTotalCoefficientOfVariation()};
+        LOG_DEBUG(<< "empiricalCoefficientOfVariation " << empiricalCoefficientOfVariation);
+        LOG_DEBUG(<< "anovaTotalCoefficientOfVariation " << anovaTotalCoefficientOfVariation);
+        BOOST_REQUIRE_CLOSE(empiricalCoefficientOfVariation,
+                            anovaTotalCoefficientOfVariation, 25.0);
+    };
+    verify(-1000.0, 1000.0);
+    verify(0.0, 1000);
+    verify(-2.0, 1.0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

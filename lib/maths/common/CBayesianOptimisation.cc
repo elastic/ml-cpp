@@ -322,8 +322,6 @@ double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
 
 double CBayesianOptimisation::anovaTotalCoefficientOfVariation() {
     this->precondition();
-    LOG_DEBUG(<< "Parameters " << m_KernelParameters << "\nRangeScale "
-              << m_RangeScale << "\tRangeShift " << m_RangeShift);
     return std::sqrt(this->anovaTotalVariance()) / (m_RangeScale * m_RangeShift);
 }
 
@@ -584,8 +582,8 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
     // Ensure that kernel lengths are always positive. It shouldn't change the results
     // but improves traceability.
     m_KernelParameters = amax.cwiseAbs();
-    LOG_DEBUG(<< "kernel parameters = " << m_KernelParameters.transpose());
-    LOG_DEBUG(<< "likelihood = " << -lmax);
+    LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
+    LOG_TRACE(<< "likelihood = " << -lmax);
 
     return m_KernelParameters;
 }
