@@ -40,6 +40,8 @@
 
 * Correct logic for restart from failover fine tuning hyperparameters for training
   classification and regression models. (See {ml-pull}2251[#2251].)
+* Fix possible source of "x = NaN, distribution = class boost::math::normal_distribution<..."
+  log errors training classification and regression models. (See {ml-pull}2249[#2249].)
 
 == {es} version 8.2.0
 
