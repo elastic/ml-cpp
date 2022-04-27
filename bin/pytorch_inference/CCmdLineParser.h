@@ -47,7 +47,7 @@ public:
                       bool& isRestoreFileNamedPipe,
                       std::string& loggingFileName,
                       std::string& logProperties,
-                      std::int32_t& inferenceThreads,
+                      std::int32_t& numThreadsPerAllocation,
                       std::int32_t& numAllocations,
                       bool& validElasticLicenseKeyConfirmed);
 

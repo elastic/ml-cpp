@@ -157,9 +157,9 @@ void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
     jsonWriter.Key(INFERENCE_THREADS);
-    jsonWriter.Uint64(threadSettings.inferenceThreads());
+    jsonWriter.Uint(threadSettings.numThreadsPerAllocation());
     jsonWriter.Key(NUM_ALLOCATIONS);
-    jsonWriter.Uint64(threadSettings.numAllocations());
+    jsonWriter.Uint(threadSettings.numAllocations());
     jsonWriter.EndObject();
     jsonWriter.EndObject();
 }
@@ -259,23 +259,23 @@ int main(int argc, char** argv) {
     std::string logProperties;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
-    std::int32_t inferenceThreads{1};
+    std::int32_t numThreadsPerAllocation{1};
     std::int32_t numAllocations{1};
     bool validElasticLicenseKeyConfirmed{false};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, logFileName, logProperties, inferenceThreads,
+            isRestoreFileNamedPipe, logFileName, logProperties, numThreadsPerAllocation,
             numAllocations, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
     ml::torch::CThreadSettings::validateThreadingParameters(
         static_cast<int32_t>(std::thread::hardware_concurrency()),
-        inferenceThreads, numAllocations);
+        numThreadsPerAllocation, numAllocations);
 
-    ml::torch::CThreadSettings threadSettings{inferenceThreads, numAllocations};
+    ml::torch::CThreadSettings threadSettings{numThreadsPerAllocation, numAllocations};
 
     // Setting the number of threads used by libtorch also sets
     // the number of threads used by MKL or OMP libs. However,
@@ -284,7 +284,7 @@ int main(int argc, char** argv) {
     // It doesn't hurt to set variables that won't have any effect on some platforms.
     ml::core::CSetEnv::setEnv(
         "VECLIB_MAXIMUM_THREADS",
-        ml::core::CStringUtils::typeToString(inferenceThreads).c_str(), 0);
+        ml::core::CStringUtils::typeToString(numThreadsPerAllocation).c_str(), 0);
 
     ml::core::CBlockingCallCancellingTimer cancellerThread{
         ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
@@ -336,7 +336,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    at::set_num_threads(threadSettings.inferenceThreads());
+    at::set_num_threads(threadSettings.numThreadsPerAllocation());
 
     // This is not used as we don't call at::launch anywhere.
     // Setting it to 1 to ensure there is no thread pool sitting around.

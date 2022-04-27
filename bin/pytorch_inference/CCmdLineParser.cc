@@ -34,7 +34,7 @@ bool CCmdLineParser::parse(int argc,
                            bool& isRestoreFileNamedPipe,
                            std::string& loggingFileName,
                            std::string& logProperties,
-                           std::int32_t& inferenceThreads,
+                           std::int32_t& numThreadsPerAllocation,
                            std::int32_t& numAllocations,
                            bool& validElasticLicenseKeyConfirmed) {
     try {
@@ -59,7 +59,7 @@ bool CCmdLineParser::parse(int argc,
             ("logPipe", boost::program_options::value<std::string>(),
                         "Named pipe to write log messages to")
             ("logProperties", "Optional logger properties file")
-            ("inferenceThreads", boost::program_options::value<std::int32_t>(),
+            ("numThreadsPerAllocation", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of threads used per inference request - default is 1")
             ("numAllocations", boost::program_options::value<std::int32_t>(),
                         "Optionaly set number of allocations to parallelize model forwarding - default is 1")
@@ -113,8 +113,8 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();
         }
-        if (vm.count("inferenceThreads") > 0) {
-            inferenceThreads = vm["inferenceThreads"].as<std::int32_t>();
+        if (vm.count("numThreadsPerAllocation") > 0) {
+            numThreadsPerAllocation = vm["numThreadsPerAllocation"].as<std::int32_t>();
         }
         if (vm.count("numAllocations") > 0) {
             numAllocations = vm["numAllocations"].as<std::int32_t>();

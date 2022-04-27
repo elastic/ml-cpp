@@ -23,18 +23,18 @@ namespace torch {
 class CThreadSettings {
 public:
 public:
-    explicit CThreadSettings(std::int32_t inferenceThreads, std::int32_t numAllocations);
+    explicit CThreadSettings(std::int32_t numThreadsPerAllocation, std::int32_t numAllocations);
 
-    std::int32_t inferenceThreads() const;
+    std::int32_t numThreadsPerAllocation() const;
     std::int32_t numAllocations() const;
     void numAllocations(std::int32_t numAllocations);
 
     static void validateThreadingParameters(std::int32_t maxThreads,
-                                            std::int32_t& inferenceThreads,
+                                            std::int32_t& numThreadsPerAllocation,
                                             std::int32_t& numAllocations);
 
 private:
-    std::int32_t m_InferenceThreads;
+    std::int32_t m_NumThreadsPerAllocation;
     std::int32_t m_NumAllocations;
 };
 }
