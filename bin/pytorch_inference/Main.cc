@@ -46,7 +46,7 @@ const std::string ERROR{"error"};
 const std::string TIME_MS{"time_ms"};
 const std::string THREAD_SETTINGS{"thread_settings"};
 const std::string NUM_ALLOCATIONS{"num_allocations"};
-const std::string INFERENCE_THREADS{"inference_threads"};
+const std::string NUM_THREADS_PER_ALLOCATION{"num_threads_per_allocation"};
 }
 
 torch::Tensor infer(torch::jit::script::Module& module,
@@ -156,7 +156,7 @@ void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
-    jsonWriter.Key(INFERENCE_THREADS);
+    jsonWriter.Key(NUM_THREADS_PER_ALLOCATION);
     jsonWriter.Uint(threadSettings.numThreadsPerAllocation());
     jsonWriter.Key(NUM_ALLOCATIONS);
     jsonWriter.Uint(threadSettings.numAllocations());

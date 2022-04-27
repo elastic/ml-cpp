@@ -35,7 +35,7 @@ Switch to benchmark mode by passing the `--benchmark` argument.
 
 Setting the number of threads used by inference has the biggest affect
 on performance and is controlled two arguments. First, there is
-`--inferenceThreads` which controls the number of threads used by
+`--numThreadsPerAllocation` which controls the number of threads used by
 LibTorch. If not set LibTorch will choose the defaults. Second, we have
 `--numAllocations` which controls how many allocations are
 calling LibTorch's forwarding. If not set it defaults to 1.
@@ -44,7 +44,7 @@ THREADING_BENCHMARK MODE
 -----------
 
 This mode will execute multiple runs setting various options to the two threading
-parameters, `--inferenceThreads` and `--numAllocations`.
+parameters, `--numThreadsPerAllocation` and `--numAllocations`.
 Define those options by setting the variable `threading_options`.
 At the end of the execution the output will be a CSV format summary of the runs
 with the total runtime and the avg time per request.
@@ -59,7 +59,7 @@ For test evaluation:
     python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json
 
 For Benchmarking:
-    python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --benchmark --inferenceThreads=2
+    python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --benchmark --numThreadsPerAllocation=2
 
 For threading benchmark:
     python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --threading_benchmark
@@ -85,7 +85,7 @@ def parse_arguments():
     parser.add_argument('--restore_file', default='restore_file')
     parser.add_argument('--input_file', default='input_file')
     parser.add_argument('--output_file', default='output_file')
-    parser.add_argument('--inferenceThreads', type=int, help='The number of inference threads used by LibTorch. Defaults to 1.')
+    parser.add_argument('--numThreadsPerAllocation', type=int, help='The number of inference threads used by LibTorch. Defaults to 1.')
     parser.add_argument('--numAllocations', type=int, help='The number of allocations for parallel forwarding. Defaults to 1')
     benchmark_group = parser.add_mutually_exclusive_group()
     benchmark_group.add_argument('--benchmark', action='store_true', help='Benchmark inference time rather than evaluting expected results')
@@ -119,8 +119,8 @@ def launch_pytorch_app(args):
         '--validElasticLicenseKeyConfirmed=true'
         ]
 
-    if args.inferenceThreads:
-        command.append('--inferenceThreads=' + str(args.inferenceThreads))
+    if args.numThreadsPerAllocation:
+        command.append('--numThreadsPerAllocation=' + str(args.numThreadsPerAllocation))
 
     if args.numAllocations:
         command.append('--numAllocations=' + str(args.numAllocations))
@@ -239,8 +239,6 @@ def run_benchmark(args):
 
         # ignore the warmup results
         for i in range(NUM_WARM_UP_REQUESTS, len(result_docs)):
-            if args.benchmark:
-                print(result_docs[i]['result']['time_ms'])
             total_time_ms += result_docs[i]['result']['time_ms']
             doc_count += 1
 
