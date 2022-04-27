@@ -48,7 +48,7 @@ public:
                       std::string& loggingFileName,
                       std::string& logProperties,
                       std::int32_t& inferenceThreads,
-                      std::int32_t& modelThreads,
+                      std::int32_t& numAllocations,
                       bool& validElasticLicenseKeyConfirmed);
 
 private:

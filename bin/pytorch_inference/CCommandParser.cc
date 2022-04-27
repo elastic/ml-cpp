@@ -277,8 +277,9 @@ void CCommandParser::jsonToControlMessage(const rapidjson::Document& doc) {
     // wipe any previous
     m_ControlMessage.reset();
 
-    m_ControlMessage.s_MessageType = static_cast<SControlMessage::EControlMessageType>(doc[CONTROL].GetInt());
-    m_ControlMessage.s_NumModelThreads = doc[NUM_ALLOCATIONS].GetInt();
+    m_ControlMessage.s_MessageType =
+        static_cast<SControlMessage::EControlMessageType>(doc[CONTROL].GetInt());
+    m_ControlMessage.s_NumAllocations = doc[NUM_ALLOCATIONS].GetInt();
     m_ControlMessage.s_RequestId = doc[REQUEST_ID].GetString();
 }
 
@@ -292,7 +293,7 @@ void CCommandParser::SRequest::reset() {
 
 void CCommandParser::SControlMessage::reset() {
     s_MessageType = E_Unknown;
-    s_NumModelThreads = 0;
+    s_NumAllocations = 0;
     s_RequestId.clear();
 }
 }

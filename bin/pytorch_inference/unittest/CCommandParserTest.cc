@@ -319,9 +319,9 @@ BOOST_AUTO_TEST_CASE(testParsingControlMessageSimple) {
         unexpectedError));
 
     BOOST_REQUIRE_EQUAL(1, parsedControlMessages.size());
-    BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::SControlMessage::E_ModelThreads,
+    BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::SControlMessage::E_NumberOfAllocations,
                         parsedControlMessages[0].s_MessageType);
-    BOOST_REQUIRE_EQUAL(2, parsedControlMessages[0].s_NumModelThreads);
+    BOOST_REQUIRE_EQUAL(2, parsedControlMessages[0].s_NumAllocations);
 }
 
 BOOST_AUTO_TEST_CASE(testParsingControlMessageInterleaved) {
@@ -352,12 +352,12 @@ BOOST_AUTO_TEST_CASE(testParsingControlMessageInterleaved) {
     BOOST_REQUIRE_EQUAL("bar", parsedInferenceRequests[1].s_RequestId);
 
     BOOST_REQUIRE_EQUAL(2, parsedControlMessages.size());
-    BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::SControlMessage::E_ModelThreads,
+    BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::SControlMessage::E_NumberOfAllocations,
                         parsedControlMessages[0].s_MessageType);
-    BOOST_REQUIRE_EQUAL(1, parsedControlMessages[0].s_NumModelThreads);
-    BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::SControlMessage::E_ModelThreads,
+    BOOST_REQUIRE_EQUAL(1, parsedControlMessages[0].s_NumAllocations);
+    BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::SControlMessage::E_NumberOfAllocations,
                         parsedControlMessages[1].s_MessageType);
-    BOOST_REQUIRE_EQUAL(2, parsedControlMessages[1].s_NumModelThreads);
+    BOOST_REQUIRE_EQUAL(2, parsedControlMessages[1].s_NumAllocations);
 }
 
 BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessage) {

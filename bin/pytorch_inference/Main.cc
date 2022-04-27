@@ -45,8 +45,8 @@ const std::string INFERENCE{"inference"};
 const std::string ERROR{"error"};
 const std::string TIME_MS{"time_ms"};
 const std::string THREAD_SETTINGS{"thread_settings"};
+const std::string NUM_ALLOCATIONS{"num_allocations"};
 const std::string INFERENCE_THREADS{"inference_threads"};
-const std::string MODEL_THREADS{"model_threads"};
 }
 
 torch::Tensor infer(torch::jit::script::Module& module,
@@ -158,8 +158,8 @@ void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream
     jsonWriter.String(requestId);
     jsonWriter.Key(INFERENCE_THREADS);
     jsonWriter.Uint64(threadSettings.inferenceThreads());
-    jsonWriter.Key(MODEL_THREADS);
-    jsonWriter.Uint64(threadSettings.modelThreads());
+    jsonWriter.Key(NUM_ALLOCATIONS);
+    jsonWriter.Uint64(threadSettings.numAllocations());
     jsonWriter.EndObject();
     jsonWriter.EndObject();
 }
@@ -241,8 +241,8 @@ void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& cont
                           ml::core::CJsonOutputStreamWrapper& wrappedOutputStream) {
 
     // No need to check the control message type there is only 1
-    threadSettings.modelThreads(controlMessage.s_NumModelThreads);
-    ml::core::defaultAsyncExecutor().numberThreadsInUse(controlMessage.s_NumModelThreads);
+    threadSettings.numAllocations(controlMessage.s_NumAllocations);
+    ml::core::defaultAsyncExecutor().numberThreadsInUse(controlMessage.s_NumAllocations);
     writeThreadSettings(wrappedOutputStream, controlMessage.s_RequestId, threadSettings);
 }
 
@@ -260,22 +260,22 @@ int main(int argc, char** argv) {
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::int32_t inferenceThreads{1};
-    std::int32_t modelThreads{1};
+    std::int32_t numAllocations{1};
     bool validElasticLicenseKeyConfirmed{false};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
             isRestoreFileNamedPipe, logFileName, logProperties, inferenceThreads,
-            modelThreads, validElasticLicenseKeyConfirmed) == false) {
+            numAllocations, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
     ml::torch::CThreadSettings::validateThreadingParameters(
         static_cast<int32_t>(std::thread::hardware_concurrency()),
-        inferenceThreads, modelThreads);
+        inferenceThreads, numAllocations);
 
-    ml::torch::CThreadSettings threadSettings{inferenceThreads, modelThreads};
+    ml::torch::CThreadSettings threadSettings{inferenceThreads, numAllocations};
 
     // Setting the number of threads used by libtorch also sets
     // the number of threads used by MKL or OMP libs. However,
@@ -343,7 +343,7 @@ int main(int argc, char** argv) {
     at::set_num_interop_threads(1);
 
     LOG_DEBUG(<< at::get_parallel_info());
-    LOG_DEBUG(<< "Model threads: " << threadSettings.modelThreads());
+    LOG_DEBUG(<< "Number of allocations: " << threadSettings.numAllocations());
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
 
@@ -370,8 +370,8 @@ int main(int argc, char** argv) {
 
     // Starting the executor with 1 thread will use an extra thread that isn't necessary
     // so we only start it when more than 1 threads are set.
-    if (modelThreads > 1) {
-        ml::core::startDefaultAsyncExecutor(modelThreads);
+    if (numAllocations > 1) {
+        ml::core::startDefaultAsyncExecutor(numAllocations);
     }
 
     commandParser.ioLoop(

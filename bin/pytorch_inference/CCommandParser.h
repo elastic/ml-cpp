@@ -83,10 +83,10 @@ public:
     };
 
     struct SControlMessage {
-        enum EControlMessageType { E_ModelThreads, E_Unknown };
+        enum EControlMessageType { E_NumberOfAllocations, E_Unknown };
 
         EControlMessageType s_MessageType;
-        std::int32_t s_NumModelThreads;
+        std::int32_t s_NumAllocations;
         std::string s_RequestId;
 
         void reset();
