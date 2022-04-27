@@ -123,8 +123,9 @@ CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& trave
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
-    m_FunctionMeanValues.emplace_back((x - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary),
-                                      toScaled(m_RangeShift, m_RangeScale, fx));
+    m_FunctionMeanValues.emplace_back(
+        (x - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary),
+        toScaled(m_RangeShift, m_RangeScale, fx));
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
@@ -239,7 +240,8 @@ double CBayesianOptimisation::evaluate(const TVector& input) const {
 double CBayesianOptimisation::evaluate(const TVector& Kinvf, const TVector& input) const {
     TVector Kxn;
     std::tie(Kxn, std::ignore) = this->kernelCovariates(
-        m_KernelParameters, (input - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary),
+        m_KernelParameters,
+        (input - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary),
         this->meanErrorVariance());
     return fromScaled(m_RangeShift, m_RangeScale, Kxn.transpose() * Kinvf);
 }
@@ -274,9 +276,11 @@ double CBayesianOptimisation::evaluate1D(const TVector& Kinvf, double input, int
         // numerics.
         double theta{m_KernelParameters(0) * std::sqrt(std::fabs(sum))};
         double f{std::sqrt(std::fabs(f2))};
-        return fromScaled(m_RangeShift, m_RangeScale, std::copysign((theta + f) * (theta - f), sum));
+        return fromScaled(m_RangeShift, m_RangeScale,
+                          std::copysign(1.0, sum) * (theta + f) * (theta - f));
     }
-    return fromScaled(m_RangeShift, m_RangeScale, CTools::pow2(m_KernelParameters(0)) * sum - f2);
+    return fromScaled(m_RangeShift, m_RangeScale,
+                      CTools::pow2(m_KernelParameters(0)) * sum - f2);
 }
 
 double CBayesianOptimisation::evaluate1D(double input, int dimension) const {
@@ -406,6 +410,8 @@ CBayesianOptimisation::TDoubleDoublePrVec CBayesianOptimisation::anovaMainEffect
 void CBayesianOptimisation::kernelParameters(const TVector& parameters) {
     if (m_KernelParameters.size() == parameters.size()) {
         m_KernelParameters = parameters;
+        /*m_RangeShift = 0.0;
+        m_RangeScale = 1.0;*/
     }
 }
 
