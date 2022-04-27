@@ -534,16 +534,18 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
 }
 
 BOOST_AUTO_TEST_CASE(testAnovaTotalCoefficientOfVariation) {
-    std::size_t dim{1};
+    // Verify that anova total coefficient of variation is correct for different
+    // intervalscales.    
     std::size_t numSamples{20};
+    std::size_t dim{1};
 
     auto verify = [&](double min, double max) {
+        LOG_DEBUG(<< "Testing boundaries [" << min << ", " << max << "]");
         test::CRandomNumbers rng;
         using TMeanVarAccumulator =
             maths::common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-
-        LOG_DEBUG(<< "Testing boundaries [" << min << ", " << max << "]");
         TMeanVarAccumulator meanVarAccumulator;
+
         TDoubleVec trainSamples;
         rng.generateUniformSamples(min, max, numSamples * dim, trainSamples);
         maths::common::CBayesianOptimisation::TDoubleDoublePrVec boundaries;
@@ -569,7 +571,7 @@ BOOST_AUTO_TEST_CASE(testAnovaTotalCoefficientOfVariation) {
         LOG_DEBUG(<< "empiricalCoefficientOfVariation " << empiricalCoefficientOfVariation);
         LOG_DEBUG(<< "anovaTotalCoefficientOfVariation " << anovaTotalCoefficientOfVariation);
         BOOST_REQUIRE_CLOSE(empiricalCoefficientOfVariation,
-                            anovaTotalCoefficientOfVariation, 25.0);
+                            anovaTotalCoefficientOfVariation, 25.0); // within 25% of the empirical
     };
     verify(-1000.0, 1000.0);
     verify(0.0, 1000);
