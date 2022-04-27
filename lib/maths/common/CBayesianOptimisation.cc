@@ -375,11 +375,11 @@ double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimensio
                 integrate1dKernel(m_KernelParameters(dimension + 1), xi(dimension)) *
                 prodXt(xi, dimension);
     }
-    double shift2{CTools::pow2(m_RangeShift)};
+    double scale2{CTools::pow2(m_RangeScale)};
     double theta02{CTools::pow2(m_KernelParameters(0))};
     double f0{this->anovaConstantFactor()};
     double f02{CTools::pow2(f0)};
-    return (theta02 * (theta02 * sum1 - 2.0 * f0 * sum2) + f02) / shift2;
+    return (theta02 * (theta02 * sum1 - 2.0 * f0 * sum2) + f02) / scale2;
 }
 
 double CBayesianOptimisation::anovaMainEffect(int dimension) const {

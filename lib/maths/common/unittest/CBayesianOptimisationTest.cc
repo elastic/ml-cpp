@@ -35,6 +35,7 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TVector = maths::common::CDenseVector<double>;
 using TVectorVec = std::vector<TVector>;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 struct SFunctionParams {
     double s_Xl;
     double s_Xu;
@@ -277,8 +278,6 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
     // We check the value of the function we find after fixed number of iterations
     // vs a random search baseline.
 
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
     test::CRandomNumbers rng;
     TDoubleVec centreCoordinates;
     TDoubleVec coordinateScales;
@@ -378,12 +377,10 @@ BOOST_AUTO_TEST_CASE(testKernelInvariants) {
     //   2. Changing the function domain,
     //   3. Linearly scaling the function.
 
-    TFunctionParamsVec tests{
-        {0.0, 100.0, 0.0, 1.0},
-        {0.0, 1000.0, 0.0, 1.0},
-        {0.0, 100.0, 10.0, 1.0},
-        {0.0, 100.0, 0.0, 2.0}
-    };
+    TFunctionParamsVec tests{{0.0, 100.0, 0.0, 1.0},
+                             {0.0, 1000.0, 0.0, 1.0},
+                             {0.0, 100.0, 10.0, 1.0},
+                             {0.0, 100.0, 0.0, 2.0}};
 
     TVectorVec kernelParameters;
 
@@ -494,7 +491,6 @@ BOOST_AUTO_TEST_CASE(testEvaluate) {
 }
 
 BOOST_AUTO_TEST_CASE(testEvaluate1D) {
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     test::CRandomNumbers rng;
     std::size_t dim{2};
     std::size_t mcSamples{100};
@@ -521,8 +517,6 @@ BOOST_AUTO_TEST_CASE(testEvaluate1D) {
 }
 
 BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     TDoubleVecVec testSamples;
@@ -545,7 +539,6 @@ BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
 }
 
 BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     TDoubleVecVec testSamples;
@@ -569,7 +562,6 @@ BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
 }
 
 BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     TDoubleVecVec testSamples;
@@ -601,10 +593,7 @@ BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
     //   2. Linearly scaling the function.
 
     TFunctionParamsVec tests{
-        {0.0, 100.0, 0.0, 1.0},
-        {0.0, 100.0, 10.0, 1.0},
-        {0.0, 100.0, 0.0, 2.0}
-    };
+        {0.0, 100.0, 0.0, 1.0}, {0.0, 100.0, 10.0, 1.0}, {0.0, 100.0, 0.0, 2.0}};
 
     TDoubleVec evaluateResults;
     TDoubleVecVec evaluate1DResults;
@@ -638,7 +627,7 @@ BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
             bopt.maximumLikelihoodKernel();
             bopt.add(x, scale * x.norm() + f0, scale * scale * (xu - xl) * (xu - xl) * 0.001);
         }
-        
+
         TVector probe{dimension};
         rng.generateUniformSamples(xl, xu, dimension, coords);
         for (std::size_t i = 0; i < dimension; ++i) {
@@ -647,7 +636,8 @@ BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
         evaluateResults.push_back(bopt.evaluate(probe));
         evaluate1DResults.emplace_back();
         for (std::size_t i = 0; i < dimension; ++i) {
-            evaluate1DResults.back().push_back(bopt.evaluate1D(probe[i], static_cast<int>(i)));
+            evaluate1DResults.back().push_back(
+                bopt.evaluate1D(probe[i], static_cast<int>(i)));
         }
         totalVarianceResults.push_back(bopt.anovaTotalVariance());
         totalCoefficientOfVariationResults.push_back(bopt.anovaTotalCoefficientOfVariation());
@@ -656,19 +646,24 @@ BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
     LOG_DEBUG(<< "evaluate      = " << core::CContainerPrinter::print(evaluateResults));
     LOG_DEBUG(<< "evaluate1D    = " << core::CContainerPrinter::print(evaluate1DResults));
     LOG_DEBUG(<< "totalVariance = " << core::CContainerPrinter::print(totalVarianceResults));
-    LOG_DEBUG(<< "totalCoefficientOfVariationResults = " << core::CContainerPrinter::print(totalCoefficientOfVariationResults));
+    LOG_DEBUG(<< "totalCoefficientOfVariationResults = "
+              << core::CContainerPrinter::print(totalCoefficientOfVariationResults));
 
     for (std::size_t i = 1; i < tests.size(); ++i) {
         double f0{tests[i].s_F0};
         double scale{tests[i].s_Scale};
         BOOST_REQUIRE_CLOSE(evaluateResults[i], scale * evaluateResults[0] + f0, 1e-3);
         for (std::size_t j = 0; j < evaluate1DResults[i].size(); ++j) {
-            BOOST_REQUIRE_CLOSE(evaluate1DResults[i][j], scale * evaluate1DResults[0][j] + f0, 1e-3);
+            BOOST_REQUIRE_CLOSE(evaluate1DResults[i][j],
+                                scale * evaluate1DResults[0][j] + f0, 1e-3);
         }
-        BOOST_REQUIRE_CLOSE(totalVarianceResults[i], scale * scale * totalVarianceResults[0], 1e-3);
+        BOOST_REQUIRE_CLOSE(totalVarianceResults[i],
+                            scale * scale * totalVarianceResults[0], 1e-3);
     }
-    BOOST_TEST_REQUIRE(totalCoefficientOfVariationResults[1] < totalCoefficientOfVariationResults[0]);
-    BOOST_REQUIRE_CLOSE(totalCoefficientOfVariationResults[2], totalCoefficientOfVariationResults[0], 1e-3);
+    BOOST_TEST_REQUIRE(totalCoefficientOfVariationResults[1] <
+                       totalCoefficientOfVariationResults[0]);
+    BOOST_REQUIRE_CLOSE(totalCoefficientOfVariationResults[2],
+                        totalCoefficientOfVariationResults[0], 1e-3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
