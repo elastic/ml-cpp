@@ -407,8 +407,8 @@ CBayesianOptimisation::TDoubleDoublePrVec CBayesianOptimisation::anovaMainEffect
 void CBayesianOptimisation::kernelParameters(const TVector& parameters) {
     if (m_KernelParameters.size() == parameters.size()) {
         m_KernelParameters = parameters;
-        /*m_RangeShift = 0.0;
-        m_RangeScale = 1.0;*/
+        m_RangeShift = 0.0;
+        m_RangeScale = 1.0;
     }
 }
 
