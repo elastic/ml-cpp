@@ -20,6 +20,7 @@
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/ImportExport.h>
+#include <maths/analytics/CBoostedTreeHyperparameters.h>
 
 #include <maths/common/CLinearAlgebra.h>
 
@@ -239,6 +240,9 @@ private:
     using TOptionalDouble = boost::optional<double>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
+    using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
+    using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
+    using THyperparametersDoublePrVecSPtr = std::shared_ptr<THyperparametersDoublePrVec>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
@@ -387,6 +391,7 @@ private:
     TBoostedTreeImplUPtr m_TreeImpl;
     mutable std::size_t m_PaddedExtraColumns{0};
     TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
+    THyperparametersDoublePrVecSPtr m_HyperparametersLosses;
 };
 }
 }

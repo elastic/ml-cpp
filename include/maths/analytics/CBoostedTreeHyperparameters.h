@@ -65,6 +65,9 @@ public:
         : m_Value{value}, m_MinValue{value}, m_MaxValue{value}, m_LogSearch{logSearch == E_LogSearch} {
     }
 
+    CBoostedTreeParameter(const CBoostedTreeParameter<T>& other) = default;
+    CBoostedTreeParameter& operator=(const CBoostedTreeParameter<T>& other) = default;
+
     //! Get the value.
     T value() const { return m_Scale * m_Value; }
 
@@ -368,17 +371,23 @@ public:
     class MATHS_ANALYTICS_EXPORT CInitializeFineTuneArguments {
     public:
         using TUpdateParameter = std::function<bool(CBoostedTreeImpl&, double)>;
+        using TRecordParameters = std::function<void(CBoostedTreeHyperparameters&, double)>;
         using TTruncateParameter = std::function<void(TVector3x1&)>;
         using TAdjustTestLoss = std::function<double(double, double, double)>;
+        using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
+        using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
+        using THyperparametersDoublePrVecSPtr = std::shared_ptr<THyperparametersDoublePrVec>;
 
     public:
         CInitializeFineTuneArguments(core::CDataFrame& frame,
                                      CBoostedTreeImpl& tree,
                                      double maxValue,
                                      double searchInterval,
-                                     TUpdateParameter updateParameter)
+                                     TUpdateParameter updateParameter,
+                                     THyperparametersDoublePrVecSPtr hyperparametersLosses)
             : m_UpdateParameter{std::move(updateParameter)}, m_Frame{frame}, m_Tree{tree},
-              m_MaxValue{maxValue}, m_SearchInterval{searchInterval} {}
+              m_MaxValue{maxValue}, m_SearchInterval{searchInterval},
+              m_HyperparametersLosses{hyperparametersLosses} {}
 
         CInitializeFineTuneArguments(const CInitializeFineTuneArguments&) = delete;
         CInitializeFineTuneArguments& operator=(const CInitializeFineTuneArguments&) = delete;
@@ -400,6 +409,11 @@ public:
         const TUpdateParameter& updateParameter() const {
             return m_UpdateParameter;
         }
+        void recordParameters(const CBoostedTreeHyperparameters& hyperparameters,
+                              double loss) const {
+            // CBoostedTreeHyperparameters newHyperparameters{hyperparameters};
+            m_HyperparametersLosses->emplace_back(hyperparameters, loss);
+        }
         const TAdjustTestLoss& adjustLoss() const { return m_AdjustLoss; }
         const TTruncateParameter& truncateParameter() const {
             return m_TruncateParameter;
@@ -419,6 +433,7 @@ public:
         CBoostedTreeImpl& m_Tree;
         double m_MaxValue;
         double m_SearchInterval;
+        THyperparametersDoublePrVecSPtr m_HyperparametersLosses;
     };
 
 public:
@@ -453,6 +468,8 @@ public:
 
 public:
     CBoostedTreeHyperparameters();
+    CBoostedTreeHyperparameters(const CBoostedTreeHyperparameters& other);
+    CBoostedTreeHyperparameters& operator=(const CBoostedTreeHyperparameters& other);
 
     //! Set if we're incremental training.
     void incrementalTraining(bool value) { m_IncrementalTraining = value; }

@@ -773,7 +773,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                 auto& parameter = tree.m_Hyperparameters.softTreeDepthLimit();
                                 parameter.set(parameter.fromSearchValue(softDepthLimit));
                                 return true;
-                            }}
+                            },
+                            m_HyperparametersLosses}
                             .truncateParameter([&](TVector& range) {
                                 range = truncate(range, minSearchValue, maxSearchValue);
                             }),
@@ -807,7 +808,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                             auto& parameter = tree.m_Hyperparameters.depthPenaltyMultiplier();
                             parameter.set(parameter.fromSearchValue(depthPenalty));
                             return true;
-                        }},
+                        },
+                        m_HyperparametersLosses},
                     depthPenaltyMultiplierParameter);
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
@@ -837,7 +839,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                     tree.m_Hyperparameters.treeSizePenaltyMultiplier();
                                 parameter.set(parameter.fromSearchValue(treeSizePenalty));
                                 return true;
-                            }},
+                            },
+                            m_HyperparametersLosses},
                         hyperparameters.treeSizePenaltyMultiplier());
                 })) {
             m_TreeImpl->m_TrainingProgress.increment(
@@ -859,7 +862,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                     tree.m_Hyperparameters.leafWeightPenaltyMultiplier();
                                 parameter.set(parameter.fromSearchValue(leafWeightPenalty));
                                 return true;
-                            }},
+                            },
+                            m_HyperparametersLosses},
                         hyperparameters.leafWeightPenaltyMultiplier());
                 })) {
             m_TreeImpl->m_TrainingProgress.increment(
@@ -909,7 +913,8 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                             parameter.set(downsampleFactor);
                             scaleRegularizers(tree, downsampleFactor);
                             return downsampleFactor * numberTrainingRows > 10.0;
-                        }}
+                        },
+                        m_HyperparametersLosses}
                         .adjustLoss([&](double downsampleFactor, double minTestLoss, double testLoss) {
                             // If there is very little relative difference in the loss prefer
                             // smaller downsample factors because they train faster. We add a
@@ -975,7 +980,8 @@ void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& fr
                             featureBagFraction = parameter.fromSearchValue(featureBagFraction);
                             parameter.set(featureBagFraction);
                             return tree.featureBagSize(featureBagFraction) > 1;
-                        }}
+                        },
+                        m_HyperparametersLosses}
                         .adjustLoss([&](double featureBagFraction, double minTestLoss, double testLoss) {
                             // If there is very little relative difference in the loss prefer
                             // smaller feature bag fractions because they train faster. We add
@@ -1024,7 +1030,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
                 hyperparameters.initializeFineTuneSearchInterval(
                     CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
-                        frame, *m_TreeImpl, maxEta, searchIntervalSize, applyEta}
+                        frame, *m_TreeImpl, maxEta, searchIntervalSize, applyEta, m_HyperparametersLosses}
                         .truncateParameter([&](TVector& range) {
                             range = truncate(range, minSearchValue, maxSearchValue);
                         }),

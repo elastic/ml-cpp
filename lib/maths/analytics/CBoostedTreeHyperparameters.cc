@@ -46,6 +46,31 @@ CBoostedTreeHyperparameters::CBoostedTreeHyperparameters() {
     this->initializeTunableHyperparameters();
 }
 
+CBoostedTreeHyperparameters::CBoostedTreeHyperparameters(const CBoostedTreeHyperparameters& other) {
+    *this = other;
+}
+
+CBoostedTreeHyperparameters& CBoostedTreeHyperparameters::
+operator=(const CBoostedTreeHyperparameters& other) {
+    // copy hyperparameter attributes not related to hyperparameter optimization
+    m_IncrementalTraining = other.m_IncrementalTraining;
+    m_DepthPenaltyMultiplier = other.m_DepthPenaltyMultiplier;
+    m_TreeSizePenaltyMultiplier = other.m_TreeSizePenaltyMultiplier;
+    m_LeafWeightPenaltyMultiplier = other.m_LeafWeightPenaltyMultiplier;
+    m_SoftTreeDepthLimit = other.m_SoftTreeDepthLimit;
+    m_SoftTreeDepthTolerance = other.m_SoftTreeDepthTolerance;
+    m_TreeTopologyChangePenalty = other.m_TreeTopologyChangePenalty;
+    m_DownsampleFactor = other.m_DownsampleFactor;
+    m_FeatureBagFraction = other.m_FeatureBagFraction;
+    m_Eta = other.m_Eta;
+    m_EtaGrowthRatePerTree = other.m_EtaGrowthRatePerTree;
+    m_RetrainedTreeEta = other.m_RetrainedTreeEta;
+    m_PredictionChangeCost = other.m_PredictionChangeCost;
+    m_MaximumNumberTrees = other.m_MaximumNumberTrees;
+
+    return *this;
+}
+
 double CBoostedTreeHyperparameters::penaltyForDepth(std::size_t depth) const {
     return std::exp((static_cast<double>(depth) / m_SoftTreeDepthLimit.value() - 1.0) /
                     m_SoftTreeDepthTolerance.value());
@@ -169,6 +194,7 @@ void CBoostedTreeHyperparameters::initialTestLossLineSearch(const CInitializeFin
                                          args.tree().m_TestingRowMasks[0],
                                          args.tree().m_TrainingProgress)
                             .s_TestLoss};
+        args.recordParameters(args.tree().hyperparameters(), testLoss);
         testLosses.emplace_back(parameter, testLoss);
     }
 }
@@ -226,6 +252,7 @@ void CBoostedTreeHyperparameters::fineTineTestLoss(const CInitializeFineTuneArgu
 
         double adjustedTestLoss{adjustTestLoss(parameter(0), testLoss)};
         bopt.add(parameter, adjustedTestLoss, 0.0);
+        args.recordParameters(args.tree().hyperparameters(), adjustedTestLoss);
         testLosses.emplace_back(parameter(0), adjustedTestLoss);
     }
 
