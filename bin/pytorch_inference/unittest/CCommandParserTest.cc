@@ -449,6 +449,6 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidControlMessageType) {
         BOOST_REQUIRE_EQUAL("Invalid control message: unknown control message type",
                             errors[0]);
     }
-}    
+}
 
 BOOST_AUTO_TEST_SUITE_END()

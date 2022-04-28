@@ -19,7 +19,8 @@ namespace ml {
 namespace torch {
 
 CThreadSettings::CThreadSettings(std::int32_t numThreadsPerAllocation, std::int32_t numAllocations)
-    : m_NumThreadsPerAllocation(numThreadsPerAllocation), m_NumAllocations(numAllocations) {
+    : m_NumThreadsPerAllocation(numThreadsPerAllocation),
+      m_NumAllocations(numAllocations) {
 }
 
 std::int32_t CThreadSettings::numThreadsPerAllocation() const {
@@ -65,7 +66,7 @@ void CThreadSettings::validateThreadingParameters(std::int32_t maxThreads,
     if (numAllocations + numThreadsPerAllocation > maxThreads) {
         std::int32_t oldInferenceThreadCount{numThreadsPerAllocation};
         numThreadsPerAllocation = std::max(1, maxThreads - numAllocations);
-        LOG_WARN(<< "Sum of allocation cound [" << numAllocations << "] and inference threads ["
+        LOG_WARN(<< "Sum of allocation count [" << numAllocations << "] and inference threads ["
                  << oldInferenceThreadCount << "] is greater than max threads ["
                  << maxThreads << "]. Setting number of allocations to " << numAllocations
                  << " and number of threads per allocation to " << numThreadsPerAllocation);
