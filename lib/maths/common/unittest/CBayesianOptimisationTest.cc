@@ -24,6 +24,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <limits>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CBayesianOptimisationTest)
@@ -420,40 +421,70 @@ BOOST_AUTO_TEST_CASE(testKernelInvariants) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testKernelParameterEstimateForSmallMeasurementErrors) {
+BOOST_AUTO_TEST_CASE(testForSingularKernel) {
 
-    // One has to be very careful estimating the likelihood function when the
-    // function measurement error is small. Basically, as soon as the Kernel
-    // matrix becomes singular our linear algebra library solve method only 
-    // computes the contribution to the log likelihood of the rank full portion
-    // of f^t K^-1 f by default. This means maximum likelihood will happily
-    // collapse the kernel to a constant matrix even when f_i != f_j for all i,j.
-    // This shows up when we let the measurement error become very small.
+    // Explore some edge cases where the kernel can go singular.
 
-    test::CRandomNumbers rng;
-
-    std::size_t dimension{2};
-    double xl{0.0};
+    // Test that decreasing additive variance. In this case the maximum likelihood
+    // can decide it is a good idea to force a singular kernel matrix if we don't
+    // compute the likelihood carefully. We should see the kernel parameters smoothly
+    // converge towards the case the additive variance is zero as we reduce it.
+    TVectorVec kernels;
+    std::size_t dimension{3};
+    std::size_t n{30};
+    double xl{-100.0};
     double xu{100.0};
+    for (auto v : {0.1, 0.01, 0.001, 0.00001, 0.0}) {
+        test::CRandomNumbers rng;
+        TDoubleVec coords;
+        rng.generateUniformSamples(xl, xu, dimension * n, coords);
 
-    TDoubleVec coords;
-    rng.generateUniformSamples(xl, xu, dimension * 20, coords);
-
-    maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb;
-    for (std::size_t i = 0; i < dimension; ++i) {
-        bb.emplace_back(xl, xu);
-    }
-
-    maths::common::CBayesianOptimisation bopt{bb};
-    for (std::size_t i = 0; i < 10; ++i) {
-        TVector x{dimension};
-        for (std::size_t j = 0; j < dimension; ++j) {
-            x(j) = coords[i * dimension + j];
+        maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb;
+        for (std::size_t i = 0; i < dimension; ++i) {
+            bb.emplace_back(xl, xu);
         }
-        bopt.maximumLikelihoodKernel();
-        bopt.add(x, x.norm(), 0.0);
+
+        maths::common::CBayesianOptimisation bopt{bb};
+        for (std::size_t i = 0; i < n; ++i) {
+            TVector x{dimension};
+            for (std::size_t j = 0; j < dimension; ++j) {
+                x(j) = coords[i * dimension + j];
+            }
+            bopt.maximumLikelihoodKernel();
+            bopt.add(x, x.norm(), v);
+        }
+
+        auto kernel = bopt.maximumLikelihoodKernel();
+        LOG_DEBUG(<< "kernel = " << kernel.transpose());
+        kernels.push_back(kernel);
     }
 
+    double lastNorm{std::numeric_limits<double>::max()};
+    for (std::size_t i = 0; i + 1 < kernels.size(); ++i) {
+        double norm{(kernels[kernels.size() - 1] - kernels[i]).norm()};
+        BOOST_TEST_REQUIRE(norm < lastNorm);
+        BOOST_TEST_REQUIRE(norm / kernels[i].norm() < 0.05);
+        lastNorm = norm;
+    }
+
+    // Adding a duplicate point would create a singular kernel if we didn't explicitly
+    // deduplicate.
+    maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb{{0.0, 1.0}};
+    maths::common::CBayesianOptimisation bopt{bb};
+    for (auto x : {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}) {
+        bopt.add(x * TVector::Ones(1), 1.0 + x, 0.0);
+        bopt.maximumLikelihoodKernel();
+    }
+    auto kernelBefore = bopt.maximumLikelihoodKernel();
+    LOG_DEBUG(<< "kernel before duplicate = " << kernelBefore.transpose());
+
+    bopt.add(0.1 * TVector::Ones(1), 1.0 + 0.1, 0.0);
+    auto kernelAfter = bopt.maximumLikelihoodKernel();
+    LOG_DEBUG(<< "kernel after duplicate  = " << kernelAfter.transpose());
+
+    // Check that the decay rate is not significantly changed.
+    BOOST_TEST_REQUIRE(std::fabs(kernelAfter(1) - kernelBefore(1)) <
+                       0.01 * std::fabs(kernelBefore(1)));
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
