@@ -1189,7 +1189,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testFeatureBags) {
