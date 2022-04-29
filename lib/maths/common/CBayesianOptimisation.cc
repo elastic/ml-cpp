@@ -68,7 +68,7 @@ double toScaled(double shift, double scale, double fx) {
     return scale * (fx - shift);
 }
 
-//! Affine transform \p shift + \p scale * \p fx.
+//! Affine transform \p shift + \p scale / \p fx.
 double fromScaled(double shift, double scale, double fx) {
     return shift + fx / scale;
 }
@@ -293,6 +293,9 @@ double CBayesianOptimisation::evaluate1D(const TVector& Kinvf, double input, int
     }
     double f2{this->anovaConstantFactor(Kinvf)};
 
+    // We only get cancellation if the signs are the same (and we need also
+    // to take the square root of both sum and f2 for which they need to be
+    // positive).
     if (std::signbit(sum) == std::signbit(f2)) {
         // We rewrite theta_0^2 sum - f_0 as (theta + f) * (theta - f) where
         // theta = theta_0 sum^(1/2) and f = f_0^(1/2) because it has better
