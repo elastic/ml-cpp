@@ -187,16 +187,14 @@ BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel) {
     for (std::size_t test = 0; test < 50; ++test) {
 
         maths::common::CBayesianOptimisation bopt{
-            {{-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}}};
-
-        double scale{5.0 / std::sqrt(static_cast<double>(test + 1))};
+            {{0.0, 10.0}, {0.0, 10.0}, {0.0, 10.0}, {0.0, 10.0}}};
 
         for (std::size_t i = 0; i < 10; ++i) {
             rng.generateUniformSamples(-10.0, 10.0, 4, coordinates);
             rng.generateNormalSamples(0.0, 2.0, 1, noise);
             TVector x{vector(coordinates)};
-            double fx{scale * x.squaredNorm() + noise[0]};
-            bopt.add(x, fx, 1.0);
+            double fx{x.squaredNorm() + noise[0]};
+            bopt.add(x, fx, 0.1);
         }
 
         TVector parameters{bopt.maximumLikelihoodKernel()};
@@ -213,9 +211,9 @@ BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel) {
         TVector eps{parameters.size()};
         eps.setZero();
         for (std::size_t i = 0; i < 4; ++i) {
-            eps(i) = 0.1;
+            eps(i) = 0.01;
             double minusLPlusEps{l(parameters + eps)};
-            eps(i) = -0.1;
+            eps(i) = -0.01;
             double minusLMinusEps{l(parameters + eps)};
             eps(i) = 0.0;
             BOOST_TEST_REQUIRE(minusML < minusLPlusEps);

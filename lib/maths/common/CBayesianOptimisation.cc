@@ -450,6 +450,7 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     TVector Kinvf;
     TMatrix Kinv;
     TMatrix dKdai;
+    double eps{1e-4};
 
     // We need to be careful when we compute the kernel decomposition. Basically,
     // if the kernel matrix is singular to working precision then if the function
@@ -458,12 +459,10 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
     // log(1 / lambda_i) -> +infinity, -1/2 sum_i{ ||f_i||^2 / lambda_i } -> -infinity
     // faster for all ||f_i|| > 0 and lambda_i sufficiently small. Here {lambda_i}
     // denote the Eigenvalues of the nullspace. We use a rank revealing decomposition
-    // and compute the likelihood on the complement of the row space and add on a
-    // large penalty to discourage choosing kernel parameters for which the kernel
-    // is singular.
+    // and compute the likelihood on the row space.
 
     auto minusLogLikelihood = [=](const TVector& a) mutable -> double {
-        K = this->kernel(a, v);
+        K = this->kernel(a, v + eps);
         Kqr.compute(K);
         Kinvf.noalias() = Kqr.solve(f);
         // Note that Kqr.logAbsDeterminant() = -infinity if K is singular.
@@ -472,17 +471,11 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
             logAbsDet += std::log(std::fabs(Kqr.matrixR()(i, i)));
         }
         logAbsDet = CTools::stable(logAbsDet);
-        // We just need a _positive_ number which will dominate the smallest
-        // possible value for logAbsDet, which is rank * log(min double).
-        double singularPenalty{Kqr.isInvertible()
-                                   ? 0.0
-                                   : -static_cast<double>(Kqr.rank() + 1) *
-                                         core::constants::LOG_MIN_DOUBLE};
-        return 0.5 * (f.transpose() * Kinvf + logAbsDet + singularPenalty);
+        return 0.5 * (f.transpose() * Kinvf + logAbsDet);
     };
 
     auto minusLogLikelihoodGradient = [=](const TVector& a) mutable -> TVector {
-        K = this->kernel(a, v);
+        K = this->kernel(a, v + eps);
         Kqr.compute(K);
 
         Kinvf.noalias() = Kqr.solve(f);
@@ -615,46 +608,53 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
         return m_KernelParameters;
     }
 
-    // Use random restarts of L-BFGS to find maximum likelihood parameters.
+    using TDoubleVecVec = std::vector<TDoubleVec>;
 
     this->precondition();
-
-    std::size_t n(m_KernelParameters.size());
-
-    // We restart optimization with initial guess on different scales for global probing.
-    TDoubleVec scales;
-    scales.reserve(10 * (m_Restarts - 1) * n);
-    CSampling::uniformSample(m_Rng, CTools::stableLog(0.2), CTools::stableLog(5.0),
-                             10 * (m_Restarts - 1) * n, scales);
 
     TLikelihoodFunc l;
     TLikelihoodGradientFunc g;
     std::tie(l, g) = this->minusLikelihoodAndGradient();
 
+    CLbfgs<TVector> lbfgs{10};
+
+    double lmax{l(m_KernelParameters)};
+    TVector amax{m_KernelParameters};
+
+    // Try the current values first.
+    double la;
+    TVector a;
+    std::tie(a, la) = lbfgs.minimize(l, g, m_KernelParameters, 1e-8, 75);
+    if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
+        lmax = la;
+        amax = a;
+    }
+
     TMinAccumulator probes{m_Restarts - 1};
 
-    TVector scale{n};
-    for (std::size_t i = 0; i < scales.size(); /**/) {
-        TVector a{m_KernelParameters};
-        for (std::size_t j = 0; j < n; ++i, ++j) {
-            scale(j) = CTools::stableExp(scales[i]);
+    // We restart optimization with scales of the current values for global probing.
+    std::size_t n(m_KernelParameters.size());
+    TDoubleVecVec scales;
+    scales.reserve(10 * (m_Restarts - 1));
+    CSampling::sobolSequenceSample(n, 10 * (m_Restarts - 1), scales);
+
+    for (const auto& scale : scales) {
+        a.noalias() = m_KernelParameters;
+        for (std::size_t j = 0; j < n; ++j) {
+            a(j) *= CTools::stableExp(CTools::linearlyInterpolate(
+                0.0, 1.0, std::log(0.2), std::log(2.0), scale[j]));
         }
-        a.array() *= scale.array();
-        double la{l(a)};
+        la = l(a);
+        if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
+            lmax = la;
+            amax = a;
+        }
         probes.add({la, std::move(a)});
     }
 
-    CLbfgs<TVector> lbfgs{10};
-
-    double lmax;
-    TVector amax;
-    std::tie(amax, lmax) = lbfgs.minimize(l, g, m_KernelParameters, 1e-8, 75);
-
-    double la;
-    TVector a;
     for (auto& a0 : probes) {
         std::tie(a, la) = lbfgs.minimize(l, g, std::move(a0.second), 1e-8, 75);
-        if (COrderings::lexicographical_compare(la, a, lmax, amax)) {
+        if (COrderings::lexicographical_compare(la, a.norm(), lmax, amax.norm())) {
             lmax = la;
             amax = std::move(a);
         }
