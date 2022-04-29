@@ -486,7 +486,7 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
         ones = TVector::Ones(f.size());
         Kinv.noalias() = Kqr.solve(TMatrix::Identity(f.size(), f.size()));
 
-        K.diagonal() -= v * ones;
+        K.diagonal() -= (v + eps) * ones;
 
         gradient = TVector::Zero(a.size());
         for (int i = 0; i < Kinvf.size(); ++i) {

@@ -482,7 +482,7 @@ BOOST_AUTO_TEST_CASE(testForSingularKernel) {
 
     // Check that the decay rate is not significantly changed.
     BOOST_TEST_REQUIRE(std::fabs(kernelAfter(1) - kernelBefore(1)) <
-                       0.01 * std::fabs(kernelBefore(1)));
+                       0.001 * std::fabs(kernelBefore(1)));
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
