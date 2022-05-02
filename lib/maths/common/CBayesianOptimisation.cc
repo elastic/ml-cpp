@@ -115,6 +115,7 @@ CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& trave
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
+    // LOG_DEBUG(<<"add() " << x.transpose() << "\n" << m_MaxBoundary.transpose() << "\n" << m_MinBoundary.transpose());
     m_FunctionMeanValues.emplace_back(x.cwiseQuotient(m_MaxBoundary - m_MinBoundary),
                                       m_RangeScale * (fx - m_RangeShift));
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);

@@ -67,6 +67,7 @@ operator=(const CBoostedTreeHyperparameters& other) {
     m_RetrainedTreeEta = other.m_RetrainedTreeEta;
     m_PredictionChangeCost = other.m_PredictionChangeCost;
     m_MaximumNumberTrees = other.m_MaximumNumberTrees;
+    m_TunableHyperparameters = other.m_TunableHyperparameters;
 
     return *this;
 }
@@ -371,58 +372,7 @@ void CBoostedTreeHyperparameters::addRoundStats(const TMeanAccumulator& meanFore
 bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLossMoments,
                                              double explainedVariance) {
 
-    using TVector = common::CDenseVector<double>;
-
-    TVector parameters{m_TunableHyperparameters.size()};
-
-    TVector minBoundary;
-    TVector maxBoundary;
-    std::tie(minBoundary, maxBoundary) = m_BayesianOptimization->boundingBox();
-
-    // Read parameters for last round.
-    for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
-        switch (m_TunableHyperparameters[i]) {
-        case E_Alpha:
-            parameters(i) = m_DepthPenaltyMultiplier.toSearchValue();
-            break;
-        case E_DownsampleFactor:
-            parameters(i) = m_DownsampleFactor.toSearchValue();
-            break;
-        case E_Eta:
-            parameters(i) = m_Eta.toSearchValue();
-            break;
-        case E_EtaGrowthRatePerTree:
-            parameters(i) = m_EtaGrowthRatePerTree.toSearchValue();
-            break;
-        case E_FeatureBagFraction:
-            parameters(i) = m_FeatureBagFraction.toSearchValue();
-            break;
-        case E_MaximumNumberTrees:
-            parameters(i) = m_MaximumNumberTrees.toSearchValue();
-            break;
-        case E_Gamma:
-            parameters(i) = m_TreeSizePenaltyMultiplier.toSearchValue();
-            break;
-        case E_Lambda:
-            parameters(i) = m_LeafWeightPenaltyMultiplier.toSearchValue();
-            break;
-        case E_SoftTreeDepthLimit:
-            parameters(i) = m_SoftTreeDepthLimit.toSearchValue();
-            break;
-        case E_SoftTreeDepthTolerance:
-            parameters(i) = m_SoftTreeDepthTolerance.toSearchValue();
-            break;
-        case E_PredictionChangeCost:
-            parameters(i) = m_PredictionChangeCost.toSearchValue();
-            break;
-        case E_RetrainedTreeEta:
-            parameters(i) = m_RetrainedTreeEta.toSearchValue();
-            break;
-        case E_TreeTopologyChangePenalty:
-            parameters(i) = m_TreeTopologyChangePenalty.toSearchValue();
-            break;
-        }
-    }
+    TVector parameters{this->selectParametersVector(m_TunableHyperparameters)};
 
     double meanTestLoss{common::CBasicStatistics::mean(testLossMoments)};
     double testLossVariance{common::CBasicStatistics::variance(testLossMoments)};
@@ -432,7 +382,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
               << ", explained variance = " << explainedVariance);
     LOG_TRACE(<< "parameters = " << this->print());
 
-    m_BayesianOptimization->add(parameters, meanTestLoss, testLossVariance);
+    this->addObservation(parameters, meanTestLoss, testLossVariance);
 
     // One fold might have examples which are harder to predict on average than
     // another fold, particularly if the sample size is small. What we really care
@@ -442,12 +392,15 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     // in the loss values in the Gaussian Process.
     m_BayesianOptimization->explainedErrorVariance(explainedVariance);
 
+    TVector minBoundary;
+    TVector maxBoundary;
+    std::tie(minBoundary, maxBoundary) = m_BayesianOptimization->boundingBox();
+
     if (m_CurrentRound < m_HyperparameterSamples.size()) {
         std::copy(m_HyperparameterSamples[m_CurrentRound].begin(),
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
-    } else if (m_StopHyperparameterOptimizationEarly &&
-               m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3) {
+    } else if (this->stopEarly()) {
         m_StoppedHyperparameterOptimizationEarly = true;
         return false;
     } else {
@@ -984,6 +937,76 @@ void CBoostedTreeHyperparameters::captureScale() {
     m_RetrainedTreeEta.captureScale();
     m_PredictionChangeCost.captureScale();
     m_MaximumNumberTrees.captureScale();
+}
+
+CBoostedTreeHyperparameters::TVector CBoostedTreeHyperparameters::selectParametersVector(
+    const CBoostedTreeHyperparameters::THyperparametersVec& selectedHyperparameters) const {
+    TVector parameters{selectedHyperparameters.size()};
+
+    // Read parameters for last round.
+    for (std::size_t i = 0; i < selectedHyperparameters.size(); ++i) {
+        switch (selectedHyperparameters[i]) {
+        case E_Alpha:
+            parameters(i) = m_DepthPenaltyMultiplier.toSearchValue();
+            // LOG_DEBUG(<< "alpha " << parameters(i));
+            break;
+        case E_DownsampleFactor:
+            parameters(i) = m_DownsampleFactor.toSearchValue();
+            // LOG_DEBUG(<< "E_DownsampleFactor " << parameters(i));
+            break;
+        case E_Eta:
+            parameters(i) = m_Eta.toSearchValue();
+            // LOG_DEBUG(<< "E_Eta " << parameters(i));
+            break;
+        case E_EtaGrowthRatePerTree:
+            parameters(i) = m_EtaGrowthRatePerTree.toSearchValue();
+            // LOG_DEBUG(<< "E_EtaGrowthRatePerTree " << parameters(i));
+            break;
+        case E_FeatureBagFraction:
+            parameters(i) = m_FeatureBagFraction.toSearchValue();
+            // LOG_DEBUG(<< "E_FeatureBagFraction " << parameters(i));
+            break;
+        case E_MaximumNumberTrees:
+            parameters(i) = m_MaximumNumberTrees.toSearchValue();
+            // LOG_DEBUG(<< "E_MaximumNumberTrees " << parameters(i));
+            break;
+        case E_Gamma:
+            parameters(i) = m_TreeSizePenaltyMultiplier.toSearchValue();
+            // LOG_DEBUG(<< "E_Gamma " << parameters(i));
+            break;
+        case E_Lambda:
+            parameters(i) = m_LeafWeightPenaltyMultiplier.toSearchValue();
+            // LOG_DEBUG(<< "E_Lambda " << parameters(i));
+            break;
+        case E_SoftTreeDepthLimit:
+            parameters(i) = m_SoftTreeDepthLimit.toSearchValue();
+            // LOG_DEBUG(<< "E_SoftTreeDepthLimit " << parameters(i));
+            break;
+        case E_SoftTreeDepthTolerance:
+            parameters(i) = m_SoftTreeDepthTolerance.toSearchValue();
+            // LOG_DEBUG(<< "E_SoftTreeDepthTolerance " << parameters(i));
+            break;
+        case E_PredictionChangeCost:
+            parameters(i) = m_PredictionChangeCost.toSearchValue();
+            // LOG_DEBUG(<< "alpha " << parameters(i));
+            break;
+        case E_RetrainedTreeEta:
+            parameters(i) = m_RetrainedTreeEta.toSearchValue();
+            // LOG_DEBUG(<< "E_RetrainedTreeEta " << parameters(i));
+            break;
+        case E_TreeTopologyChangePenalty:
+            parameters(i) = m_TreeTopologyChangePenalty.toSearchValue();
+            // LOG_DEBUG(<< "E_TreeTopologyChangePenalty " << parameters(i));
+            break;
+        }
+    }
+    return parameters;
+}
+
+void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TVector parameters,
+                                                 double loss,
+                                                 double variance) {
+    m_BayesianOptimization->add(parameters, loss, variance);
 }
 
 // clang-format off

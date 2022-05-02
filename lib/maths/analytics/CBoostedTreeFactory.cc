@@ -187,6 +187,15 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
+        for (auto& hyperparameterLoss : *m_HyperparametersLosses) {
+            common::CDenseVector<double> parameters = hyperparameterLoss.first.selectParametersVector(
+                m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
+
+            // LOG_DEBUG(<< "Tunable parameters vector size " << parameters.rows() << " " << parameters.cols());
+            m_TreeImpl->m_Hyperparameters.addObservation(
+                parameters, hyperparameterLoss.second, 0.0);
+        }
+        // LOG_DEBUG(<<"Stop early? " << m_TreeImpl->m_Hyperparameters.stopEarly());
     }
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
@@ -1266,6 +1275,7 @@ std::size_t CBoostedTreeFactory::maximumNumberRows() {
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
     : m_NumberThreads{numberThreads},
       m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
+    m_HyperparametersLosses = std::make_shared<THyperparametersDoublePrVec>();
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept = default;
@@ -1838,6 +1848,11 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
         }
     }
     return true;
+}
+
+const CBoostedTreeFactory::THyperparametersDoublePrVecSPtr&
+CBoostedTreeFactory::hyperparametersLosses() const {
+    return m_HyperparametersLosses;
 }
 
 const std::string CBoostedTreeFactory::FEATURE_SELECTION{"feature_selection"};

@@ -360,12 +360,14 @@ public:
     using TStrVec = std::vector<std::string>;
     using TDoubleParameter = CBoostedTreeParameter<double>;
     using TSizeParameter = CBoostedTreeParameter<std::size_t>;
+    using TVector = common::CDenseVector<double>;
     using TVector3x1 = common::CVectorNx1<double, 3>;
     using TOptionalVector3x1 = boost::optional<TVector3x1>;
     using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
+    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
 
     //! \brief The arguments to the initial search we perform for each parameter.
     class MATHS_ANALYTICS_EXPORT CInitializeFineTuneArguments {
@@ -587,6 +589,19 @@ public:
         return m_MaximumNumberTrees;
     }
 
+    TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
+
+    void addObservation(TVector parameters, double loss, double variance);
+
+    bool stopEarly() const {
+        return m_StopHyperparameterOptimizationEarly &&
+               m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3;
+    }
+
+    const THyperparametersVec& tunableHyperparameters() const {
+        return m_TunableHyperparameters;
+    }
+
     //! \name Optimisation
     //@{
     //! Set the number of search rounds to use per hyperparameter which is being tuned.
@@ -726,7 +741,6 @@ private:
     using TBayesinOptimizationUPtr = std::unique_ptr<common::CBayesianOptimisation>;
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
-    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameter>;
     using TOptionalSize = boost::optional<std::size_t>;
 
 private:

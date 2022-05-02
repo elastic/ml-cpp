@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <boost/test/tools/old/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
@@ -3646,6 +3647,54 @@ BOOST_AUTO_TEST_CASE(testEncodingSeparately) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(encodedFirstPredictions[i],
                                      trainedFromScratchPredictions[i], 0.01);
     }
+}
+
+BOOST_AUTO_TEST_CASE(testCoarseParameterTuningEarlyStopping) {
+
+    // Check that we can effectively train using loss on a specified holdout set.
+
+    test::CRandomNumbers rng;
+    // double noiseVariance{10.0};
+    std::size_t rows{500};
+    std::size_t cols{3};
+
+    std::size_t numberHoldoutRows{200};
+
+    auto verify = [&](double noiseVariance) {
+        auto target = [&] {
+            TDoubleVec m;
+            TDoubleVec s;
+            rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+            rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+            return [=](const TRowRef& row) {
+                double result{0.0};
+                for (std::size_t i = 0; i < cols - 1; ++i) {
+                    result += m[i] + s[i] * row[i];
+                }
+                return result;
+            };
+        }();
+
+        TDoubleVecVec x(cols - 1);
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        }
+
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+        auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+        fillDataFrame(rows, 0, cols, x, noise, target, *frame);
+
+        auto factory = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>());
+        factory.numberHoldoutRows(numberHoldoutRows);
+        auto regression = factory.buildForTrain(*frame, cols - 1);
+        BOOST_REQUIRE(factory.hyperparametersLosses()->empty() == false);
+        return regression->hyperparameters().stopEarly();
+    };
+    BOOST_REQUIRE_EQUAL(verify(10.0), false);
+    BOOST_REQUIRE_EQUAL(verify(1000.0), true);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

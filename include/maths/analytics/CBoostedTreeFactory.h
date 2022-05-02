@@ -17,10 +17,10 @@
 #include <core/CNonCopyable.h>
 
 #include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeHyperparameters.h>
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/ImportExport.h>
-#include <maths/analytics/CBoostedTreeHyperparameters.h>
 
 #include <maths/common/CLinearAlgebra.h>
 
@@ -60,6 +60,13 @@ public:
     using TNodeVecVecUPtr = std::unique_ptr<TNodeVecVec>;
     using TRestoreBestForestFunc =
         std::function<TNodeVecVecUPtr(core::CDataSearcher::TIStreamP, const TStrSizeUMap&)>;
+    using THyperparametersDoublePrVec =
+        CBoostedTreeHyperparameters::CInitializeFineTuneArguments::THyperparametersDoublePrVec;
+    using THyperparametersDoublePrVecSPtr =
+        CBoostedTreeHyperparameters::CInitializeFineTuneArguments::THyperparametersDoublePrVecSPtr;
+    // using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
+    // using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
+    // using THyperparametersDoublePrVecSPtr = std::shared_ptr<THyperparametersDoublePrVec>;
 
 public:
     //! \name Instrumentation Phases
@@ -234,15 +241,14 @@ public:
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
+    const THyperparametersDoublePrVecSPtr& hyperparametersLosses() const;
+
 private:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
-    using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
-    using THyperparametersDoublePrVecSPtr = std::shared_ptr<THyperparametersDoublePrVec>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
