@@ -260,7 +260,10 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             1.0 /*single node used to centre the data*/, 1 /*single tree*/);
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-    } else if (m_Hyperparameters.searchNotFinished() || m_BestForest.empty()) {
+    } else if (m_Hyperparameters.stopEarly() == false 
+    && (m_Hyperparameters.searchNotFinished() || m_BestForest.empty())) {
+        m_Hyperparameters.clearObservations();
+        
         TMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();

@@ -194,6 +194,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
             // LOG_DEBUG(<< "Tunable parameters vector size " << parameters.rows() << " " << parameters.cols());
             m_TreeImpl->m_Hyperparameters.addObservation(
                 parameters, hyperparameterLoss.second, 0.0);
+            
         }
         // LOG_DEBUG(<<"Stop early? " << m_TreeImpl->m_Hyperparameters.stopEarly());
     }

@@ -82,6 +82,8 @@ public:
     //! variance in the error in \p fx w.r.t. the true value is \p vx.
     void add(TVector x, double fx, double vx);
 
+    void reset();
+
     //! Any portion of the variance of the function error which is explained and
     //! shouldn't be included in the kernel.
     void explainedErrorVariance(double vx);

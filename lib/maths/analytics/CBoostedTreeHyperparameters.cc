@@ -1007,6 +1007,11 @@ void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TV
                                                  double loss,
                                                  double variance) {
     m_BayesianOptimization->add(parameters, loss, variance);
+    // m_BayesianOptimization->maximumLikelihoodKernel();
+}
+
+void CBoostedTreeHyperparameters::clearObservations() {
+    m_BayesianOptimization->reset();
 }
 
 // clang-format off

@@ -121,6 +121,11 @@ void CBayesianOptimisation::add(TVector x, double fx, double vx) {
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
 }
 
+void CBayesianOptimisation::reset() {
+    m_FunctionMeanValues.clear();
+    m_ErrorVariances.clear();
+}
+
 void CBayesianOptimisation::explainedErrorVariance(double vx) {
     m_ExplainedErrorVariance = CTools::pow2(m_RangeScale) * vx;
 }

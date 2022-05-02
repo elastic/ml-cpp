@@ -593,6 +593,8 @@ public:
 
     void addObservation(TVector parameters, double loss, double variance);
 
+    void clearObservations();
+
     bool stopEarly() const {
         return m_StopHyperparameterOptimizationEarly &&
                m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3;

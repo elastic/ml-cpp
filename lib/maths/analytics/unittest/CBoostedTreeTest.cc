@@ -3654,7 +3654,6 @@ BOOST_AUTO_TEST_CASE(testCoarseParameterTuningEarlyStopping) {
     // Check that we can effectively train using loss on a specified holdout set.
 
     test::CRandomNumbers rng;
-    // double noiseVariance{10.0};
     std::size_t rows{500};
     std::size_t cols{3};
 
@@ -3691,9 +3690,10 @@ BOOST_AUTO_TEST_CASE(testCoarseParameterTuningEarlyStopping) {
         factory.numberHoldoutRows(numberHoldoutRows);
         auto regression = factory.buildForTrain(*frame, cols - 1);
         BOOST_REQUIRE(factory.hyperparametersLosses()->empty() == false);
-        return regression->hyperparameters().stopEarly();
+        bool stopEarly{regression->hyperparameters().stopEarly()};
+        return stopEarly;
     };
-    BOOST_REQUIRE_EQUAL(verify(10.0), false);
+    BOOST_REQUIRE_EQUAL(verify(0.1), false);
     BOOST_REQUIRE_EQUAL(verify(1000.0), true);
 }
 
