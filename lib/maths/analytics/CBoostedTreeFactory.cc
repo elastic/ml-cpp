@@ -756,6 +756,14 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                   << core::CContainerPrinter::print(gainAndTotalCurvaturePerNode));
     });
 
+    // initialize unset regularization hyperparameters with meaningful values
+    if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed() == false) {
+        hyperparameters.treeSizePenaltyMultiplier().set(m_GainPerNode90thPercentile);
+    }
+    if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed() == false) {
+        hyperparameters.leafWeightPenaltyMultiplier().set(m_TotalCurvaturePerNode90thPercentile);
+    }
+
     // Search for depth limit at which the tree starts to overfit.
     if (softTreeDepthLimitParameter.rangeFixed() == false) {
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_SoftTreeDepthLimitInitialized, [&] {
