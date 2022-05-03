@@ -44,6 +44,8 @@
   log errors training classification and regression models. (See {ml-pull}2249[#2249].)
 * Fix some bugs affecting decision to stop optimising hyperparameters for training
   classification and regression models. (See {ml-pull}2259[#2259].)
+* Fix edge case which could cause the model bounds to blow up after detecting seasonality.
+  (See {ml-pull}2261[#2261].)
 
 == {es} version 8.2.0
 
