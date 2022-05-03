@@ -591,7 +591,7 @@ BOOST_AUTO_TEST_CASE(testMseLinear) {
             0.0, modelBias[i][0],
             6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.94);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -899,7 +899,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
         target, noiseVariance / static_cast<double>(rows));
     LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
 
-    BOOST_TEST_REQUIRE(rSquared > 0.96);
+    BOOST_TEST_REQUIRE(rSquared > 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -1794,7 +1794,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testFeatureBags) {

@@ -34,11 +34,16 @@
 
 * Upgrade PyTorch to version 1.11. (See {ml-pull}2233[#2233], {ml-pull}2235[#2235]
   and {ml-pull}2238[#2238].)
+* Upgrade zlib to version 1.2.12 on Windows. (See {ml-pull}2253[#2253].)
 
 === Bug Fixes
 
 * Correct logic for restart from failover fine tuning hyperparameters for training
   classification and regression models. (See {ml-pull}2251[#2251].)
+* Fix possible source of "x = NaN, distribution = class boost::math::normal_distribution<..."
+  log errors training classification and regression models. (See {ml-pull}2249[#2249].)
+* Fix some bugs affecting decision to stop optimising hyperparameters for training
+  classification and regression models. (See {ml-pull}2259[#2259].)
 
 == {es} version 8.2.0
 
@@ -58,6 +63,7 @@
   (See {ml-pull}2230[#2230].)
 * Improve detection and modeling of time series' calendar cyclic features.
   (See {ml-pull}2236[#2236] and {ml-pull}2243[#2243].)
+* Compress quantiles state. (See {ml-pull}2252[#2252].)
 
 === Bug Fixes
 

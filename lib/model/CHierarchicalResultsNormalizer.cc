@@ -11,6 +11,7 @@
 
 #include <model/CHierarchicalResultsNormalizer.h>
 
+#include <core/CBase64Filter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
 
@@ -22,7 +23,11 @@
 
 #include <rapidjson/document.h>
 
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+
 #include <algorithm>
+#include <sstream>
 
 namespace ml {
 namespace model {
@@ -152,62 +157,70 @@ void CHierarchicalResultsNormalizer::toJson(core_t::TTime time,
                                             const std::string& key,
                                             std::string& json,
                                             bool makeArray) const {
-    TStrVec jsonVec(1 // m_RootNormalizer
-                    + this->influencerBucketSet().size() +
-                    this->influencerSet().size() + this->partitionSet().size() +
-                    this->personSet().size() + this->leafSet().size());
-    std::size_t index = 0;
+    std::ostringstream compressedStream;
+    using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
+    {
+        TFilteredOutput outFilter;
+        outFilter.push(boost::iostreams::gzip_compressor());
+        outFilter.push(core::CBase64Encoder());
+        outFilter.push(compressedStream);
+        if (makeArray) {
+            outFilter << '[';
+        }
 
-    for (std::size_t i = 0; i < this->leafSet().size(); ++i) {
-        const TWord& word = this->leafSet()[i].first;
-        const TNormalizer& normalizer = this->leafSet()[i].second;
-        CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key,
-                                        leafCue(word), normalizer.s_Description,
-                                        time, jsonVec[index++]);
+        for (std::size_t i = 0; i < this->leafSet().size(); ++i) {
+            const TWord& word = this->leafSet()[i].first;
+            const TNormalizer& normalizer = this->leafSet()[i].second;
+            CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key, leafCue(word),
+                                            normalizer.s_Description, time, outFilter);
+            outFilter << ',';
+        }
+
+        for (std::size_t i = 0; i < this->personSet().size(); ++i) {
+            const TWord& word = this->personSet()[i].first;
+            const TNormalizer& normalizer = this->personSet()[i].second;
+            CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key,
+                                            personCue(word), normalizer.s_Description,
+                                            time, outFilter);
+            outFilter << ',';
+        }
+
+        for (std::size_t i = 0; i < this->partitionSet().size(); ++i) {
+            const TWord& word = this->partitionSet()[i].first;
+            const TNormalizer& normalizer = this->partitionSet()[i].second;
+            CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key,
+                                            partitionCue(word), normalizer.s_Description,
+                                            time, outFilter);
+            outFilter << ',';
+        }
+
+        for (std::size_t i = 0; i < this->influencerSet().size(); ++i) {
+            const TWord& word = this->influencerSet()[i].first;
+            const TNormalizer& normalizer = this->influencerSet()[i].second;
+            CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key,
+                                            influencerCue(word),
+                                            normalizer.s_Description, time, outFilter);
+            outFilter << ',';
+        }
+
+        for (std::size_t i = 0; i < this->influencerBucketSet().size(); ++i) {
+            const TWord& word = this->influencerBucketSet()[i].first;
+            const TNormalizer& normalizer = this->influencerBucketSet()[i].second;
+            CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key,
+                                            influencerBucketCue(word),
+                                            normalizer.s_Description, time, outFilter);
+            outFilter << ',';
+        }
+
+        // Put the bucket normalizer last so that incomplete restorations can be
+        // detected by checking whether the bucket normalizer is restored
+        CAnomalyScore::normalizerToJson(*this->bucketElement().s_Normalizer, key,
+                                        bucketCue(), "root", time, outFilter);
+        if (makeArray) {
+            outFilter << ']';
+        }
     }
-
-    for (std::size_t i = 0; i < this->personSet().size(); ++i) {
-        const TWord& word = this->personSet()[i].first;
-        const TNormalizer& normalizer = this->personSet()[i].second;
-        CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key,
-                                        personCue(word), normalizer.s_Description,
-                                        time, jsonVec[index++]);
-    }
-
-    for (std::size_t i = 0; i < this->partitionSet().size(); ++i) {
-        const TWord& word = this->partitionSet()[i].first;
-        const TNormalizer& normalizer = this->partitionSet()[i].second;
-        CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key,
-                                        partitionCue(word), normalizer.s_Description,
-                                        time, jsonVec[index++]);
-    }
-
-    for (std::size_t i = 0; i < this->influencerSet().size(); ++i) {
-        const TWord& word = this->influencerSet()[i].first;
-        const TNormalizer& normalizer = this->influencerSet()[i].second;
-        CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key,
-                                        influencerCue(word), normalizer.s_Description,
-                                        time, jsonVec[index++]);
-    }
-
-    for (std::size_t i = 0; i < this->influencerBucketSet().size(); ++i) {
-        const TWord& word = this->influencerBucketSet()[i].first;
-        const TNormalizer& normalizer = this->influencerBucketSet()[i].second;
-        CAnomalyScore::normalizerToJson(*normalizer.s_Normalizer, key,
-                                        influencerBucketCue(word), normalizer.s_Description,
-                                        time, jsonVec[index++]);
-    }
-
-    // Put the bucket normalizer last so that incomplete restorations can be
-    // detected by checking whether the bucket normalizer is restored
-    CAnomalyScore::normalizerToJson(*this->bucketElement().s_Normalizer, key,
-                                    bucketCue(), "root", time, jsonVec[index++]);
-
-    json = core::CStringUtils::join(jsonVec, ",");
-    if (makeArray) {
-        json.insert(size_t(0), 1, '[');
-        json += ']';
-    }
+    json = compressedStream.str();
 }
 
 CHierarchicalResultsNormalizer::ERestoreOutcome
@@ -216,11 +229,36 @@ CHierarchicalResultsNormalizer::fromJsonStream(std::istream& inputStream) {
 
     this->TBase::clear();
 
-    core::CJsonStateRestoreTraverser traverser(inputStream);
+    // The state may be compressed or uncompressed. We can distinguish because
+    // the first character of a base64 encoded zlib compressed stream will never
+    // be a bracket.
+    using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
+    TFilteredInput filteredInput;
+    std::istream* streamToTraverse = nullptr;
+    switch (inputStream.peek()) {
+    case EOF:
+        LOG_DEBUG(<< "No normalizer state to restore");
+        // this is not an error
+        return E_Ok;
+    case '[':
+    case '{':
+        LOG_DEBUG(<< "Detected uncompressed normalizer state");
+        streamToTraverse = &inputStream;
+        break;
+    default:
+        LOG_DEBUG(<< "Detected compressed normalizer state");
+        filteredInput.push(boost::iostreams::gzip_decompressor());
+        filteredInput.push(core::CBase64Decoder{});
+        filteredInput.push(inputStream);
+        streamToTraverse = &filteredInput;
+        break;
+    }
+
+    core::CJsonStateRestoreTraverser traverser(*streamToTraverse);
 
     do {
         // Call name() to prime the traverser if it hasn't started
-        if (traverser.name() == EMPTY_STRING) {
+        if (traverser.name().empty()) {
             if (traverser.isEof()) {
                 LOG_DEBUG(<< "No normalizer state to restore");
                 // this is not an error

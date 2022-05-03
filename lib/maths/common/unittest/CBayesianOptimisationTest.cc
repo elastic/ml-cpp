@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 
@@ -23,6 +24,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <limits>
 #include <tuple>
 #include <vector>
 
@@ -34,6 +36,15 @@ namespace {
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TVector = maths::common::CDenseVector<double>;
+using TVectorVec = std::vector<TVector>;
+using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
+struct SFunctionParams {
+    double s_Xl;
+    double s_Xu;
+    double s_F0;
+    double s_Scale;
+};
+using TFunctionParamsVec = std::vector<SFunctionParams>;
 
 TVector vector(TDoubleVec components) {
     TVector result(components.size());
@@ -177,16 +188,14 @@ BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel) {
     for (std::size_t test = 0; test < 50; ++test) {
 
         maths::common::CBayesianOptimisation bopt{
-            {{-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}, {-10.0, 10.0}}};
-
-        double scale{5.0 / std::sqrt(static_cast<double>(test + 1))};
+            {{0.0, 10.0}, {0.0, 10.0}, {0.0, 10.0}, {0.0, 10.0}}};
 
         for (std::size_t i = 0; i < 10; ++i) {
             rng.generateUniformSamples(-10.0, 10.0, 4, coordinates);
             rng.generateNormalSamples(0.0, 2.0, 1, noise);
             TVector x{vector(coordinates)};
-            double fx{scale * x.squaredNorm() + noise[0]};
-            bopt.add(x, fx, 1.0);
+            double fx{x.squaredNorm() + noise[0]};
+            bopt.add(x, fx, 0.1);
         }
 
         TVector parameters{bopt.maximumLikelihoodKernel()};
@@ -203,9 +212,9 @@ BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel) {
         TVector eps{parameters.size()};
         eps.setZero();
         for (std::size_t i = 0; i < 4; ++i) {
-            eps(i) = 0.1;
+            eps(i) = 0.01;
             double minusLPlusEps{l(parameters + eps)};
-            eps(i) = -0.1;
+            eps(i) = -0.01;
             double minusLMinusEps{l(parameters + eps)};
             eps(i) = 0.0;
             BOOST_TEST_REQUIRE(minusML < minusLPlusEps);
@@ -268,8 +277,6 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
     // This tests the efficiency of the search on a variety of non-convex functions.
     // We check the value of the function we find after fixed number of iterations
     // vs a random search baseline.
-
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     test::CRandomNumbers rng;
     TDoubleVec centreCoordinates;
@@ -360,14 +367,130 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
               << 100.0 * maths::common::CBasicStatistics::mean(meanImprovementRs));
     BOOST_TEST_REQUIRE(wins > static_cast<std::size_t>(0.95 * 50)); // 95% better
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanImprovementBopt) >
-                       1.6 * maths::common::CBasicStatistics::mean(meanImprovementRs)); // 60% mean improvement
+                       1.5 * maths::common::CBasicStatistics::mean(meanImprovementRs)); // 50% mean improvement
+}
+
+BOOST_AUTO_TEST_CASE(testKernelInvariants) {
+
+    // Test that the kernel parameters we estimate do not change when:
+    //   1. Changing the function domain,
+    //   2. Changing the function level,
+    //   3. Linearly scaling the function.
+
+    TFunctionParamsVec tests{{0.0, 100.0, 0.0, 1.0},
+                             {0.0, 1000.0, 0.0, 1.0},
+                             {0.0, 100.0, 10.0, 1.0},
+                             {0.0, 100.0, 0.0, 2.0}};
+
+    TVectorVec kernelParameters;
+
+    for (const auto& test : tests) {
+
+        test::CRandomNumbers rng;
+
+        std::size_t dimension{2};
+        double xl{test.s_Xl};
+        double xu{test.s_Xu};
+        double f0{test.s_F0};
+        double scale{test.s_Scale};
+
+        TDoubleVec coords;
+        rng.generateUniformSamples(xl, xu, dimension * 20, coords);
+
+        maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb;
+        for (std::size_t i = 0; i < dimension; ++i) {
+            bb.emplace_back(xl, xu);
+        }
+
+        maths::common::CBayesianOptimisation bopt{bb};
+        for (std::size_t i = 0; i < 10; ++i) {
+            TVector x{dimension};
+            for (std::size_t j = 0; j < dimension; ++j) {
+                x(j) = coords[i * dimension + j];
+            }
+            bopt.maximumLikelihoodKernel();
+            bopt.add(x, scale * x.norm() + f0, scale * scale * (xu - xl) * (xu - xl) * 0.0001);
+        }
+
+        kernelParameters.push_back(bopt.maximumLikelihoodKernel());
+    }
+
+    for (std::size_t i = 1; i < kernelParameters.size(); ++i) {
+        BOOST_TEST_REQUIRE((kernelParameters[i] - kernelParameters[0]).norm() < 1e-6);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testForSingularKernel) {
+
+    // Explore some edge cases where the kernel can go singular.
+
+    // Test that decreasing additive variance. In this case the maximum likelihood
+    // can decide it is a good idea to force a singular kernel matrix if we don't
+    // compute the likelihood carefully. We should see the kernel parameters smoothly
+    // converge towards the case the additive variance is zero as we reduce it.
+    TVectorVec kernels;
+    std::size_t dimension{3};
+    std::size_t n{30};
+    double xl{-100.0};
+    double xu{100.0};
+    for (auto v : {0.1, 0.01, 0.001, 0.00001, 0.0}) {
+        test::CRandomNumbers rng;
+        TDoubleVec coords;
+        rng.generateUniformSamples(xl, xu, dimension * n, coords);
+
+        maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb;
+        for (std::size_t i = 0; i < dimension; ++i) {
+            bb.emplace_back(xl, xu);
+        }
+
+        maths::common::CBayesianOptimisation bopt{bb};
+        for (std::size_t i = 0; i < n; ++i) {
+            TVector x{dimension};
+            for (std::size_t j = 0; j < dimension; ++j) {
+                x(j) = coords[i * dimension + j];
+            }
+            bopt.maximumLikelihoodKernel();
+            bopt.add(x, x.norm(), v);
+        }
+
+        auto kernel = bopt.maximumLikelihoodKernel();
+        LOG_DEBUG(<< "kernel = " << kernel.transpose());
+        kernels.push_back(kernel);
+    }
+
+    double lastNorm{std::numeric_limits<double>::max()};
+    for (std::size_t i = 0; i + 1 < kernels.size(); ++i) {
+        double norm{(kernels[kernels.size() - 1] - kernels[i]).norm()};
+        BOOST_TEST_REQUIRE(norm < lastNorm);
+        BOOST_TEST_REQUIRE(norm / kernels[i].norm() < 0.05);
+        lastNorm = norm;
+    }
+
+    // Adding a duplicate point would create a singular kernel if we didn't explicitly
+    // deduplicate.
+    maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb{{0.0, 1.0}};
+    maths::common::CBayesianOptimisation bopt{bb};
+    for (auto x : {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}) {
+        bopt.add(x * TVector::Ones(1), 1.0 + x, 0.0);
+        bopt.maximumLikelihoodKernel();
+    }
+    auto kernelBefore = bopt.maximumLikelihoodKernel();
+    LOG_DEBUG(<< "kernel before duplicate = " << kernelBefore.transpose());
+
+    bopt.add(0.1 * TVector::Ones(1), 1.0 + 0.1, 0.0);
+    auto kernelAfter = bopt.maximumLikelihoodKernel();
+    LOG_DEBUG(<< "kernel after duplicate  = " << kernelAfter.transpose());
+
+    // Check that the decay rate is not significantly changed.
+    BOOST_TEST_REQUIRE(std::fabs(kernelAfter(1) - kernelBefore(1)) <
+                       0.001 * std::fabs(kernelBefore(1)));
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
     // 1d
     {
-        TDoubleVec minBoundary{0.};
-        TDoubleVec maxBoundary{10.};
+        TDoubleVec minBoundary{0.0};
+        TDoubleVec maxBoundary{10.0};
         // empty
         {
             std::vector<TDoubleVec> parameterFunctionValues{};
@@ -376,8 +499,8 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         // with data
         {
             std::vector<TDoubleVec> parameterFunctionValues{
-                {5., 1., 0.2},
-                {7., 1., 0.2},
+                {5.0, 1.0, 0.2},
+                {7.0, 1.0, 0.2},
             };
             testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
@@ -385,8 +508,8 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
     // 2d
     {
-        TDoubleVec minBoundary{0., -1.};
-        TDoubleVec maxBoundary{10., 1.};
+        TDoubleVec minBoundary{0.0, -1.0};
+        TDoubleVec maxBoundary{10.0, 1.0};
         // empty
         {
             std::vector<TDoubleVec> parameterFunctionValues{};
@@ -395,8 +518,8 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         // with data
         {
             std::vector<TDoubleVec> parameterFunctionValues{
-                {5., 0., 1., 0.2},
-                {7., 0., 1., 0.2},
+                {5.0, 0.0, 1.0, 0.2},
+                {7.0, 0.0, 1.0, 0.2},
             };
             testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
@@ -434,7 +557,6 @@ BOOST_AUTO_TEST_CASE(testEvaluate) {
 }
 
 BOOST_AUTO_TEST_CASE(testEvaluate1D) {
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     test::CRandomNumbers rng;
     std::size_t dim{2};
     std::size_t mcSamples{100};
@@ -461,8 +583,6 @@ BOOST_AUTO_TEST_CASE(testEvaluate1D) {
 }
 
 BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     TDoubleVecVec testSamples;
@@ -485,7 +605,6 @@ BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
 }
 
 BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     TDoubleVecVec testSamples;
@@ -509,7 +628,6 @@ BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
 }
 
 BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
-    using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     TDoubleVecVec testSamples;
@@ -532,6 +650,86 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
     verify(0.0, 1.0);
     verify(-3.0, 3.0);
     verify(0.2, 0.8);
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaInvariants) {
+
+    // Test that the various parts of ANOVA change as we expect when:
+    //   1. Changing the function level,
+    //   2. Linearly scaling the function.
+
+    TFunctionParamsVec tests{
+        {0.0, 100.0, 0.0, 1.0}, {0.0, 100.0, 10.0, 1.0}, {0.0, 100.0, 0.0, 2.0}};
+
+    TDoubleVec evaluateResults;
+    TDoubleVecVec evaluate1DResults;
+    TDoubleVec totalVarianceResults;
+    TDoubleVec totalCoefficientOfVariationResults;
+
+    for (const auto& test : tests) {
+
+        test::CRandomNumbers rng;
+
+        std::size_t dimension{2};
+        double xl{test.s_Xl};
+        double xu{test.s_Xu};
+        double f0{test.s_F0};
+        double scale{test.s_Scale};
+
+        TDoubleVec coords;
+        rng.generateUniformSamples(xl, xu, dimension * 20, coords);
+
+        maths::common::CBayesianOptimisation::TDoubleDoublePrVec bb;
+        for (std::size_t i = 0; i < dimension; ++i) {
+            bb.emplace_back(xl, xu);
+        }
+
+        maths::common::CBayesianOptimisation bopt{bb};
+        for (std::size_t i = 0; i < 10; ++i) {
+            TVector x{dimension};
+            for (std::size_t j = 0; j < dimension; ++j) {
+                x(j) = coords[i * dimension + j];
+            }
+            bopt.maximumLikelihoodKernel();
+            bopt.add(x, scale * x.norm() + f0, scale * scale * (xu - xl) * (xu - xl) * 0.001);
+        }
+
+        TVector probe{dimension};
+        rng.generateUniformSamples(xl, xu, dimension, coords);
+        for (std::size_t i = 0; i < dimension; ++i) {
+            probe(i) = coords[i];
+        }
+        evaluateResults.push_back(bopt.evaluate(probe));
+        evaluate1DResults.emplace_back();
+        for (std::size_t i = 0; i < dimension; ++i) {
+            evaluate1DResults.back().push_back(
+                bopt.evaluate1D(probe[i], static_cast<int>(i)));
+        }
+        totalVarianceResults.push_back(bopt.anovaTotalVariance());
+        totalCoefficientOfVariationResults.push_back(bopt.anovaTotalCoefficientOfVariation());
+    }
+
+    LOG_DEBUG(<< "evaluate      = " << core::CContainerPrinter::print(evaluateResults));
+    LOG_DEBUG(<< "evaluate1D    = " << core::CContainerPrinter::print(evaluate1DResults));
+    LOG_DEBUG(<< "totalVariance = " << core::CContainerPrinter::print(totalVarianceResults));
+    LOG_DEBUG(<< "totalCoefficientOfVariationResults = "
+              << core::CContainerPrinter::print(totalCoefficientOfVariationResults));
+
+    for (std::size_t i = 1; i < tests.size(); ++i) {
+        double f0{tests[i].s_F0};
+        double scale{tests[i].s_Scale};
+        BOOST_REQUIRE_CLOSE(evaluateResults[i], scale * evaluateResults[0] + f0, 1e-3);
+        for (std::size_t j = 0; j < evaluate1DResults[i].size(); ++j) {
+            BOOST_REQUIRE_CLOSE(evaluate1DResults[i][j],
+                                scale * evaluate1DResults[0][j] + f0, 1e-3);
+        }
+        BOOST_REQUIRE_CLOSE(totalVarianceResults[i],
+                            scale * scale * totalVarianceResults[0], 1e-3);
+    }
+    BOOST_TEST_REQUIRE(totalCoefficientOfVariationResults[1] <
+                       totalCoefficientOfVariationResults[0]);
+    BOOST_REQUIRE_CLOSE(totalCoefficientOfVariationResults[2],
+                        totalCoefficientOfVariationResults[0], 1e-3);
 }
 
 BOOST_AUTO_TEST_CASE(testAnovaOutOfBoundaries) {
