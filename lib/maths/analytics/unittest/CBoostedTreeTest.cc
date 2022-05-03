@@ -1492,6 +1492,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
                          .dataSummarizationFraction(1.0)
                          .maximumNumberTrees(3)
                          .numberHoldoutRows(numberHoldoutRows)
+                         .earlyStoppingEnabled(false)
                          .buildForTrain(*batch1, cols - 1);
     baseModel->train();
 
@@ -1855,6 +1856,7 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
 
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .earlyStoppingEnabled(false)
                           .buildForTrain(*frame, cols - 1);
 
     maths::analytics::CBoostedTreeImplForTest impl{regression->impl()};
@@ -1917,7 +1919,7 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
 
     LOG_DEBUG(<< "distanceToSorted(selectedForTree) = " << distanceToSorted(selectedForTree)
               << ", distanceToSorted(selectedForNode) = " << distanceToSorted(selectedForNode));
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.008);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.0095);
     BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
 }
 
@@ -2445,6 +2447,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
     auto classifier =
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CBinomialLogisticLoss>())
+            .earlyStoppingEnabled(false)
             .buildForTrain(*frame, cols - 1);
     classifier->train();
 

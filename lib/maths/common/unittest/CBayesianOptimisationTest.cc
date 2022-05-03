@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
 
 BOOST_AUTO_TEST_CASE(testAnovaTotalCoefficientOfVariation) {
     // Verify that anova total coefficient of variation is correct for different
-    // intervalscales.    
+    // intervalscales.
     std::size_t numSamples{20};
     std::size_t dim{1};
 
