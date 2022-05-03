@@ -125,9 +125,6 @@ public:
     //! of the total variance.
     TDoubleDoublePrVec anovaMainEffects() const;
 
-    //! Set kernel \p parameters explicitly.
-    void kernelParameters(const TVector& parameters);
-
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
@@ -142,6 +139,9 @@ public:
 
     //! \name Test Interface
     //@{
+    //! Set kernel \p parameters explicitly.
+    void kernelParameters(const TVector& parameters);
+
     //! Get minus the data likelihood and its gradient as a function of the kernel
     //! hyperparameters.
     std::pair<TLikelihoodFunc, TLikelihoodGradientFunc> minusLikelihoodAndGradient() const;
@@ -189,8 +189,9 @@ private:
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
     TVector kinvf() const;
-    TVector transformTo01(const TVector& x) const;
     double dissimilarity(const TVector& x) const;
+    TVector to01(TVector x) const;
+    TVector from01(TVector x) const;
     void checkRestoredInvariants() const;
 
 private:
