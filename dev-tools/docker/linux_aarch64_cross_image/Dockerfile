@@ -18,7 +18,7 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Make sure OS packages are up to date and required packages are installed
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y bzip2 gcc gcc-c++ git make texinfo unzip wget which zip zlib-devel
+  yum install -y bzip2 cmake gcc gcc-c++ git make texinfo unzip wget which zip zlib-devel
 
 # Add build dependencies transferred from native aarch64 build server
 RUN \

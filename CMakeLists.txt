@@ -8,10 +8,10 @@
 # compliance with the Elastic License 2.0 and the foregoing additional
 # limitation.
 #
+cmake_minimum_required(VERSION 3.7)
 
 project("ML")
 
-cmake_minimum_required(VERSION 3.7)
 
 set (CMAKE_CXX_STANDARD 17)
 
@@ -53,20 +53,33 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   endif()
 
   # darwin flags
-  set(CMAKE_C_FLAGS "-g ${OPT_C_FLAGS} ${ARCHFLAGS} -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-poison-system-directories -Wno-sign-conversion -Wno-unknown-warning-option -Wno-unreachable-code -Wno-used-but-marked-unused ${OPTCFLAGS} ${COVERAGE}" )
-  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-exit-time-destructors -Wno-global-constructors -Wno-return-std-move-in-c++11 -Wno-unused-member-function -Wno-weak-vtables ${OPTCPPFLAGS}")
-  set(Boost_COMPILER -clang-darwin13)
+  if(${CMAKE_CROSSCOMPILING})
+    message(STATUS "CROSS_TARGET_PLATFORM=${CROSS_TARGET_PLATFORM}")
+    message(STATUS "CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD}")
+    set(Boost_COMPILER -clang-darwin11)
+    set(SYSROOT /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
+    set(CROSS_FLAGS "--sysroot=${SYSROOT} -B /usr/local/bin -target ${CROSS_TARGET_PLATFORM} -stdlib=libc++")
+    set(ARCHCFLAGS -msse4.2)
+  else()
+    set(Boost_COMPILER -clang-darwin13)
+    add_compile_definitions(RAPIDJSON_NEON)
+  endif()
+  set(CMAKE_C_FLAGS "-g ${CROSS_FLAGS} ${OPT_C_FLAGS} ${ARCHFLAGS} -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-extra-semi-stmt -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-poison-system-directories -Wno-sign-conversion -Wno-unknown-warning-option -Wno-unreachable-code -Wno-used-but-marked-unused ${OPTCFLAGS} ${COVERAGE}" )
+  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-exit-time-destructors -Wno-global-constructors -Wno-return-std-move-in-c++11 -Wno-unused-member-function -Wno-weak-vtables ${OPTCPPFLAGS}" )
+  message(STATUS "CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
+  message(STATUS "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
   set(EXE_DIR MacOS)
   set(CMAKE_MACOSX_RPATH 1)
   add_compile_definitions(MacOSX)
   set(PLATFORM_NAME "MacOSX")
-  #TODO test for arm
-  add_compile_definitions(RAPIDJSON_NEON)
   # TODO create simple  cmake module for pytorch
   find_library(TORCH_LIB torch_cpu HINTS /usr/local/lib)
   find_library(C10_LIB c10 HINTS /usr/local/lib)
-  #find_path(TORCH_INC caffe2/serialize/read_adapter_interface.h)
-  include_directories(SYSTEM /usr/local/include/pytorch)
+  find_path(TORCH_INC caffe2/serialize/read_adapter_interface.h)
+  include_directories(SYSTEM ${SYSROOT}/usr/include/c++/v1)
+  include_directories(SYSTEM ${SYSROOT}/usr/include)
+  include_directories(SYSTEM ${SYSROOT}/usr/local/include)
+  include_directories(SYSTEM ${SYSROOT}/usr/local/include/pytorch)
 
   add_custom_target(
       plist ALL
@@ -74,8 +87,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
       DEPENDS $ENV{CPP_SRC_HOME}/gradle.properties
       COMMAND $ENV{CPP_SRC_HOME}/mk/make_info_plist.sh "${ML_APP_NAME}" false > Info.plist
   )
-  install(FILES ${CMAKE_BINARY_DIR}/INFO.plist DESTINATION ${CMAKE_INSTALL_PREFIX})
-  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/Resources)
+  install(FILES ${CMAKE_BINARY_DIR}/Info.plist DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT Distributed)
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/Resources COMPONENT Distributed)
 
 endif()
 
@@ -84,10 +97,20 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(DYNAMIC_LIB_DIR lib)
   set(IMPORT_LIB_DIR lib)
   # linux flags
-  set(CMAKE_C_FLAGS "-g ${OPTCFLAGS} ${ARCHCFLAGS} -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wno-psabi -Wparentheses -Wpointer-arith -Wswitch-enum")
+
+  if(${CMAKE_CROSSCOMPILING})
+    message(STATUS "CROSS_TARGET_PLATFORM=${CROSS_TARGET_PLATFORM}")
+    message(STATUS "CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD}")
+    set(SYSROOT /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
+    set(CROSS_FLAGS "--sysroot=${SYSROOT}")
+    add_compile_definitions(RAPIDJSON_NEON)
+  endif()
+
+  set(CMAKE_C_FLAGS "-g ${CROSS_FLAGS} ${OPTCFLAGS} ${ARCHCFLAGS} -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wno-psabi -Wparentheses -Wpointer-arith -Wswitch-enum")
   set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden")
   
   execute_process(COMMAND uname -m OUTPUT_VARIABLE HARDWARE_ARCH)
+  string(STRIP "${HARDWARE_ARCH}" HARDWARE_ARCH)
   
   if(HARDWARE_ARCH STREQUAL "aarch64")
     message(STATUS "aarch64 detected")
@@ -96,21 +119,29 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   else()
     message(STATUS "x86-64 detected")
     set (ARCHCFLAGS "-msse4.2 -mfpmath=sse")
-    add_compile_definitions(RAPIDJSON_SSE42)
+    if(NOT ${CMAKE_CROSSCOMPILING})
+      add_compile_definitions(RAPIDJSON_SSE42)
+    endif()
   endif()
   set(OBJECT_FILE_EXT ".o")
-  
+
   set(Boost_COMPILER gcc10)
   set(EXE_DIR bin)
   set(PLATFORM_NAME "Linux")
   add_compile_definitions(Linux)
+
+  set(LIBXML2_HINTS /usr/local/gcc103)
+
   # TODO create simple  cmake module for pytorch
   find_library(TORCH_LIB torch_cpu HINTS /usr/local/gcc103/lib)
   find_library(C10_LIB c10 HINTS /usr/local/gcc103/lib)
-  #find_path(TORCH_INC caffe2/serialize/read_adapter_interface.h)
-  include_directories(SYSTEM /usr/local/gcc103/include/pytorch)
+  find_path(TORCH_INC caffe2/serialize/read_adapter_interface.h)
+  include_directories(SYSTEM ${SYSROOT}/usr/include)
+  include_directories(SYSTEM ${SYSROOT}/usr/local/include)
+  include_directories(SYSTEM ${SYSROOT}/usr/local/gcc103/include/libxml2)
+  include_directories(SYSTEM ${SYSROOT}/usr/local/gcc103/include/pytorch)
 
-  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/resources)
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/resources COMPONENT Distributed)
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -150,8 +181,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(CMAKE_SHARED_LIBRARY_PREFIX lib)
   set(CMAKE_IMPORT_LIBRARY_PREFIX lib)
 
-  install(FILES $ENV{CPP_SRC_HOME}/lib/core/date_time_zonespec.csv DESTINATION ${CMAKE_INSTALL_PREFIX}/resources)
-  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/resources)
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/date_time_zonespec.csv DESTINATION ${CMAKE_INSTALL_PREFIX}/resources COMPONENT Distributed)
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/resources COMPONENT Distributed)
 
   set(EXE_DIR bin)
   set(PLATFORM_NAME "Windows")
@@ -193,7 +224,11 @@ if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
 endif()
 
-find_package(LibXml2)
+if (LIBXML2_HINTS)
+    find_package(LibXml2 HINTS ${LIBXML2_HINTS})
+else()
+    find_package(LibXml2)
+endif()
 if(LIBXML2_FOUND)
   include_directories(${LIBXML2_INCLUDE_DIR})
 endif()
@@ -233,6 +268,13 @@ add_subdirectory(lib/model/unittest)
 add_subdirectory(lib/api/unittest)
 add_subdirectory(lib/ver/unittest)
 add_subdirectory(lib/seccomp/unittest)
+
+install(TARGETS MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel MlSeccomp MlTest MlVer autodetect categorize controller data_frame_analyzer normalize pytorch_inference COMPONENT Distributed)
+
+add_custom_target(install-distributed
+  DEPENDS eigen licenses plist MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel MlSeccomp MlTest MlVer autodetect categorize controller data_frame_analyzer normalize pytorch_inference
+  COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=Distributed -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+)
 
 add_custom_target(run_test_model
     DEPENDS ml_test_model

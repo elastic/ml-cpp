@@ -33,6 +33,9 @@ add_executable(ml_test_pytorch_inference ${SRCS} ${PLATFORM_SRCS})
 #TODO make portable for windows
 set(NETLIBS "")
 
+set(PYTORCH_INFERENCE_OBJS "${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CBufferedIStreamAdapter.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CCmdLineParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CCommandParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/SettingsValidator.cc${OBJECT_FILE_EXT}")
+target_link_libraries(ml_test_pytorch_inference ${PYTORCH_INFERENCE_OBJS})
+
 target_link_libraries(ml_test_pytorch_inference ${Boost_LIBRARIES})
 target_link_libraries(ml_test_pytorch_inference ${LIBXML2_LIBRARIES})
 target_link_libraries(ml_test_pytorch_inference MlCore)
@@ -45,9 +48,6 @@ target_link_libraries(ml_test_pytorch_inference MlVer)
 target_link_libraries(ml_test_pytorch_inference ${NETLIBS})
 target_link_libraries(ml_test_pytorch_inference "${TORCH_LIB}")
 target_link_libraries(ml_test_pytorch_inference "${C10_LIB}")
-
-set(PYTORCH_INFERENCE_OBJS "${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CBufferedIStreamAdapter.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CCmdLineParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CCommandParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/SettingsValidator.cc${OBJECT_FILE_EXT}")
-target_link_libraries(ml_test_pytorch_inference ${PYTORCH_INFERENCE_OBJS})
 
 # we expect to be built out of source, in a sub directory
 # so need to change working directory up a level to find

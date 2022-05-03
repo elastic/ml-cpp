@@ -128,8 +128,17 @@ add_library(MlCore SHARED ${SRCS} ${PLATFORM_SRCS})
 if (WIN32)
   target_link_libraries(MlCore PUBLIC "AdvAPI32.lib shell32.lib Version.lib")
 endif()
-target_link_libraries(MlCore PUBLIC ${ZLIB_LIBRARIES})
-target_link_libraries(MlCore PUBLIC ${LIBXML2_LIBRARIES})
+
+# workaround for linker insisting on picking "tbd" libraries when cross compiling for Darwin
+if(${CMAKE_CROSSCOMPILING})
+  if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    target_link_libraries(MlCore PUBLIC "-lz")
+    target_link_libraries(MlCore PUBLIC "-lxml2")
+  endif()
+else()
+  target_link_libraries(MlCore PUBLIC ${ZLIB_LIBRARIES})
+  target_link_libraries(MlCore PUBLIC ${LIBXML2_LIBRARIES})
+endif()
 target_link_libraries(MlCore PUBLIC ${STRPTIME_LIB})
 target_link_libraries(MlCore PUBLIC ${Boost_LIBRARIES})
 
@@ -143,3 +152,8 @@ install(TARGETS MlCore RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATIO
 if(MSVC)
   install(FILES $<TARGET_PDB_FILE:MlCore> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
 endif()
+
+#get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+#foreach(dir ${dirs})
+#  message(STATUS "dir='${dir}'")
+#endforeach()

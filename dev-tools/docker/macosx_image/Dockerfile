@@ -19,7 +19,7 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 RUN \
   export DEBIAN_FRONTEND=noninteractive && \
   apt-get update && \
-  apt-get install --no-install-recommends -y apt-utils automake autogen build-essential bzip2 git gobjc gpg-agent libtool software-properties-common unzip wget zip
+  apt-get install --no-install-recommends -y apt-utils automake autogen build-essential bzip2 cmake git gobjc gpg-agent libtool software-properties-common unzip wget zip
 
 # Install clang
 RUN \

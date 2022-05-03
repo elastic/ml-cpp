@@ -32,22 +32,32 @@ case `uname` in
     Darwin)
         SIMPLE_PLATFORM=macos
         BUNDLE_PLATFORM=darwin-`uname -m | sed 's/arm64/aarch64/'`
+        CMAKE=cmake
+        CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/"
         ;;
 
     Linux)
         SIMPLE_PLATFORM=linux
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
             BUNDLE_PLATFORM=linux-`uname -m`
+            CMAKE=cmake
+            CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             BUNDLE_PLATFORM=darwin-x86_64
+            CMAKE=cmake
+            CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/ -DCMAKE_TOOLCHAIN_FILE=tc-darwin.cmake"
         else
             BUNDLE_PLATFORM=linux-$CPP_CROSS_COMPILE
+            CMAKE=cmake3
+            CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM -DCMAKE_TOOLCHAIN_FILE=tc-linux-aarch64.cmake"
         fi
         ;;
 
     MINGW*)
         SIMPLE_PLATFORM=windows
         BUNDLE_PLATFORM=windows-x86_64
+        CMAKE=cmake
+        CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
         ;;
 
     *)
