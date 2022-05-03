@@ -188,12 +188,31 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
         for (auto& hyperparameterLoss : *m_HyperparametersLosses) {
-            common::CDenseVector<double> parameters = hyperparameterLoss.first.selectParametersVector(
-                m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
+            auto parameters =
+                std::get<0>(hyperparameterLoss)
+                    .selectParametersVector(
+                        m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
 
             // LOG_DEBUG(<< "Tunable parameters vector size " << parameters.rows() << " " << parameters.cols());
             m_TreeImpl->m_Hyperparameters.addObservation(
-                parameters, hyperparameterLoss.second, 0.0);
+                parameters, std::get<1>(hyperparameterLoss), 0.0);
+        }
+        if (m_TreeImpl->m_Hyperparameters.stopEarly()) {
+            auto minTuple = std::min_element(
+                m_HyperparametersLosses->begin(), m_HyperparametersLosses->end(),
+                [](const auto& lhs, const auto& rhs) {
+                    return std::get<1>(lhs) < std::get<1>(rhs);
+                });
+            auto parameters = std::get<0>(*minTuple).selectParametersVector(
+                m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
+            m_TreeImpl->m_Hyperparameters.storeHyperparameters(parameters);
+            using TMeanVarAccumulator =
+                common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+            TMeanVarAccumulator lossMoments;
+            lossMoments.add(std::get<1>(*minTuple));
+            m_TreeImpl->m_Hyperparameters.captureBest(
+                lossMoments, 0.0, 0.0, 0.0,
+                m_TreeImpl->m_Hyperparameters.maximumNumberTrees().value());
         }
         // LOG_DEBUG(<<"Stop early? " << m_TreeImpl->m_Hyperparameters.stopEarly());
     }
@@ -1275,7 +1294,7 @@ std::size_t CBoostedTreeFactory::maximumNumberRows() {
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
     : m_NumberThreads{numberThreads},
       m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
-    m_HyperparametersLosses = std::make_shared<THyperparametersDoublePrVec>();
+    m_HyperparametersLosses = std::make_shared<THyperparametersDoubleSizeTupleVec>();
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept = default;
@@ -1850,7 +1869,7 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
     return true;
 }
 
-const CBoostedTreeFactory::THyperparametersDoublePrVecSPtr&
+const CBoostedTreeFactory::THyperparametersDoubleSizeTupleVecSPtr&
 CBoostedTreeFactory::hyperparametersLosses() const {
     return m_HyperparametersLosses;
 }

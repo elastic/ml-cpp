@@ -60,10 +60,10 @@ public:
     using TNodeVecVecUPtr = std::unique_ptr<TNodeVecVec>;
     using TRestoreBestForestFunc =
         std::function<TNodeVecVecUPtr(core::CDataSearcher::TIStreamP, const TStrSizeUMap&)>;
-    using THyperparametersDoublePrVec =
-        CBoostedTreeHyperparameters::CInitializeFineTuneArguments::THyperparametersDoublePrVec;
-    using THyperparametersDoublePrVecSPtr =
-        CBoostedTreeHyperparameters::CInitializeFineTuneArguments::THyperparametersDoublePrVecSPtr;
+    using THyperparametersDoubleSizeTupleVec =
+        CBoostedTreeHyperparameters::CInitializeFineTuneArguments::THyperparametersDoubleSizeTupleVec;
+    using THyperparametersDoubleSizeTupleVecSPtr =
+        CBoostedTreeHyperparameters::CInitializeFineTuneArguments::THyperparametersDoubleSizeTupleVecSPtr;
     // using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
     // using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
     // using THyperparametersDoublePrVecSPtr = std::shared_ptr<THyperparametersDoublePrVec>;
@@ -241,7 +241,7 @@ public:
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
-    const THyperparametersDoublePrVecSPtr& hyperparametersLosses() const;
+    const THyperparametersDoubleSizeTupleVecSPtr& hyperparametersLosses() const;
 
 private:
     using TDoubleDoublePr = std::pair<double, double>;
@@ -397,7 +397,7 @@ private:
     TBoostedTreeImplUPtr m_TreeImpl;
     mutable std::size_t m_PaddedExtraColumns{0};
     TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
-    THyperparametersDoublePrVecSPtr m_HyperparametersLosses;
+    THyperparametersDoubleSizeTupleVecSPtr m_HyperparametersLosses;
 };
 }
 }

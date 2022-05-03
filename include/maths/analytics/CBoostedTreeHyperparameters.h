@@ -33,6 +33,7 @@
 #include <locale>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 namespace ml {
@@ -376,9 +377,11 @@ public:
         using TRecordParameters = std::function<void(CBoostedTreeHyperparameters&, double)>;
         using TTruncateParameter = std::function<void(TVector3x1&)>;
         using TAdjustTestLoss = std::function<double(double, double, double)>;
-        using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
-        using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
-        using THyperparametersDoublePrVecSPtr = std::shared_ptr<THyperparametersDoublePrVec>;
+        using THyperparametersDoubleSizeTuple =
+            std::tuple<CBoostedTreeHyperparameters, double>;
+        using THyperparametersDoubleSizeTupleVec = std::vector<THyperparametersDoubleSizeTuple>;
+        using THyperparametersDoubleSizeTupleVecSPtr =
+            std::shared_ptr<THyperparametersDoubleSizeTupleVec>;
 
     public:
         CInitializeFineTuneArguments(core::CDataFrame& frame,
@@ -386,7 +389,7 @@ public:
                                      double maxValue,
                                      double searchInterval,
                                      TUpdateParameter updateParameter,
-                                     THyperparametersDoublePrVecSPtr hyperparametersLosses)
+                                     THyperparametersDoubleSizeTupleVecSPtr hyperparametersLosses)
             : m_UpdateParameter{std::move(updateParameter)}, m_Frame{frame}, m_Tree{tree},
               m_MaxValue{maxValue}, m_SearchInterval{searchInterval},
               m_HyperparametersLosses{hyperparametersLosses} {}
@@ -435,7 +438,7 @@ public:
         CBoostedTreeImpl& m_Tree;
         double m_MaxValue;
         double m_SearchInterval;
-        THyperparametersDoublePrVecSPtr m_HyperparametersLosses;
+        THyperparametersDoubleSizeTupleVecSPtr m_HyperparametersLosses;
     };
 
 public:
@@ -595,6 +598,8 @@ public:
 
     void clearObservations();
 
+    void storeHyperparameters(TVector parameters);
+
     bool stopEarly() const {
         return m_StopHyperparameterOptimizationEarly &&
                m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3;
@@ -698,6 +703,8 @@ public:
     //! Compute the loss at \p n standard deviations of \p lossMoments above
     //! the mean.
     static double lossAtNSigma(double n, const TMeanVarAccumulator& lossMoments) {
+        LOG_DEBUG(<< "mean " << common::CBasicStatistics::mean(lossMoments)
+                  << "var " << common::CBasicStatistics::variance(lossMoments));
         return common::CBasicStatistics::mean(lossMoments) +
                n * std::sqrt(common::CBasicStatistics::variance(lossMoments));
     }
