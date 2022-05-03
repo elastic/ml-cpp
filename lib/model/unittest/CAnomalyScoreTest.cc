@@ -710,9 +710,10 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
     // The persisted representation should include most the partial
     // representation and extra fields that are used for indexing
     // in a database
-    std::string toJson;
+    ss.str("");
     model::CAnomalyScore::normalizerToJson(origNormalizer, "dummy", "sysChange",
-                                           "my normalizer", 1234567890, toJson);
+                                           "my normalizer", 1234567890, ss);
+    std::string toJson = ss.str();
 
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(toJson.c_str());
@@ -773,9 +774,10 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
     model::CAnomalyScore::CNormalizer fromJsonNormalizer(config);
     BOOST_TEST_REQUIRE(model::CAnomalyScore::normalizerFromJson(toJson, fromJsonNormalizer));
 
-    std::string restoredJson;
+    ss.str("");
     model::CAnomalyScore::normalizerToJson(fromJsonNormalizer, "dummy", "sysChange",
-                                           "my normalizer", 1234567890, restoredJson);
+                                           "my normalizer", 1234567890, ss);
+    std::string restoredJson = ss.str();
 
     BOOST_REQUIRE_EQUAL(toJson, restoredJson);
 }
@@ -791,9 +793,10 @@ BOOST_AUTO_TEST_CASE(testPersistEmpty) {
 
     BOOST_TEST_REQUIRE(!origNormalizer.canNormalize());
 
-    std::string origJson;
+    std::ostringstream ss;
     model::CAnomalyScore::normalizerToJson(origNormalizer, "test", "test",
-                                           "test", 1234567890, origJson);
+                                           "test", 1234567890, ss);
+    std::string origJson = ss.str();
 
     model::CAnomalyScore::CNormalizer newNormalizer(config);
 
@@ -801,9 +804,10 @@ BOOST_AUTO_TEST_CASE(testPersistEmpty) {
 
     BOOST_TEST_REQUIRE(!newNormalizer.canNormalize());
 
-    std::string newJson;
+    ss.str("");
     model::CAnomalyScore::normalizerToJson(newNormalizer, "test", "test",
-                                           "test", 1234567890, newJson);
+                                           "test", 1234567890, ss);
+    std::string newJson = ss.str();
 
     BOOST_REQUIRE_EQUAL(origJson, newJson);
 }
