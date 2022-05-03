@@ -112,12 +112,12 @@ public:
     CCommandParser& operator=(const CCommandParser&) = delete;
 
 private:
-    EMessageType validateJson(const rapidjson::Document& doc,
-                              const TErrorHandlerFunc& errorHandler) const;
-    EMessageType validateInferenceRequestJson(const rapidjson::Document& doc,
-                                              const TErrorHandlerFunc& errorHandler) const;
-    EMessageType validateControlMessageJson(const rapidjson::Document& doc,
-                                            const TErrorHandlerFunc& errorHandler) const;
+    static EMessageType validateJson(const rapidjson::Document& doc,
+                                     const TErrorHandlerFunc& errorHandler);
+    static EMessageType validateInferenceRequestJson(const rapidjson::Document& doc,
+                                                     const TErrorHandlerFunc& errorHandler);
+    static EMessageType validateControlMessageJson(const rapidjson::Document& doc,
+                                                   const TErrorHandlerFunc& errorHandler);
     static bool checkArrayContainsUInts(const rapidjson::Value::ConstArray& arr);
     static bool checkArrayContainsDoubles(const rapidjson::Value::ConstArray& arr);
     void jsonToInferenceRequest(const rapidjson::Document& doc);

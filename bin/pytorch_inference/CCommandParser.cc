@@ -85,21 +85,21 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
             return false;
         }
 
-        EMessageType messageType = validateJson(doc, errorHandler);
         LOG_TRACE(<< "Inference command: " << doc);
-        if (messageType == EMessageType::E_MalformedMessage) {
-            continue;
-        }
-
-        if (messageType == EMessageType::E_InferenceRequest) {
+        switch (validateJson(doc, errorHandler)) {
+        case EMessageType::E_InferenceRequest:
             jsonToInferenceRequest(doc);
             if (requestHandler(m_Request) == false) {
                 LOG_ERROR(<< "Request handler forced exit");
                 return false;
             }
-        } else if (messageType == EMessageType::E_ControlMessage) {
+            break;
+        case EMessageType::E_ControlMessage:
             jsonToControlMessage(doc);
             controlHandler(m_ControlMessage);
+            break;
+        case EMessageType::E_MalformedMessage:
+            continue;
         }
     }
 
@@ -108,7 +108,7 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
 
 CCommandParser::EMessageType
 CCommandParser::validateJson(const rapidjson::Document& doc,
-                             const TErrorHandlerFunc& errorHandler) const {
+                             const TErrorHandlerFunc& errorHandler) {
     if (doc.HasMember(REQUEST_ID) == false) {
         errorHandler(UNKNOWN_ID, "Invalid command: missing field [" + REQUEST_ID + "]");
         return EMessageType::E_MalformedMessage;
@@ -128,7 +128,7 @@ CCommandParser::validateJson(const rapidjson::Document& doc,
 
 CCommandParser::EMessageType
 CCommandParser::validateControlMessageJson(const rapidjson::Document& doc,
-                                           const TErrorHandlerFunc& errorHandler) const {
+                                           const TErrorHandlerFunc& errorHandler) {
 
     const rapidjson::Value& control = doc[CONTROL];
     if (control.IsInt() == false || control.GetInt() < 0 ||
@@ -155,7 +155,7 @@ CCommandParser::validateControlMessageJson(const rapidjson::Document& doc,
 
 CCommandParser::EMessageType
 CCommandParser::validateInferenceRequestJson(const rapidjson::Document& doc,
-                                             const TErrorHandlerFunc& errorHandler) const {
+                                             const TErrorHandlerFunc& errorHandler) {
     if (doc.HasMember(TOKENS) == false) {
         errorHandler(doc[REQUEST_ID].GetString(),
                      "Invalid command: missing field [" + TOKENS + "]");

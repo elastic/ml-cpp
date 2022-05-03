@@ -372,6 +372,8 @@ int main(int argc, char** argv) {
     // so we only start it when more than 1 threads are set.
     if (numAllocations > 1) {
         ml::core::startDefaultAsyncExecutor(numAllocations);
+    } else {
+        ml::core::stopDefaultAsyncExecutor();
     }
 
     commandParser.ioLoop(
