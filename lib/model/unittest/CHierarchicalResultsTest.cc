@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <core/CBase64Filter.h>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -40,6 +41,8 @@
 #include <test/CRandomNumbers.h>
 
 #include <boost/algorithm/cxx11/is_sorted.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
@@ -1712,17 +1715,48 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
     std::string origJson;
     normalizer.toJson(123, "mykey", origJson, true);
     BOOST_TEST_REQUIRE(!origJson.empty());
+    LOG_DEBUG(<< "Compressed JSON doc is:\n" << origJson);
 
-    LOG_DEBUG(<< "JSON doc is:\n" << origJson);
+    {
+        model::CHierarchicalResultsNormalizer newNormalizerJson(modelConfig);
+        std::stringstream stream(origJson);
+        BOOST_REQUIRE_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
+                            newNormalizerJson.fromJsonStream(stream));
 
-    model::CHierarchicalResultsNormalizer newNormalizerJson(modelConfig);
-    std::stringstream stream(origJson);
-    BOOST_REQUIRE_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
-                        newNormalizerJson.fromJsonStream(stream));
+        std::string newJson;
+        newNormalizerJson.toJson(123, "mykey", newJson, true);
+        BOOST_REQUIRE_EQUAL(newJson, origJson);
+    }
 
-    std::string newJson;
-    newNormalizerJson.toJson(123, "mykey", newJson, true);
-    BOOST_REQUIRE_EQUAL(newJson, origJson);
+    // Test it still works if what we restore was uncompressed.
+    // (This will be the case for quantiles persisted by old versions.)
+    {
+        std::string uncompressedJson;
+        std::istringstream streamToDecompress{origJson};
+        using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
+        TFilteredInput filteredInput;
+        filteredInput.push(boost::iostreams::gzip_decompressor());
+        filteredInput.push(core::CBase64Decoder{});
+        filteredInput.push(streamToDecompress);
+        char buf[100];
+        do {
+            filteredInput.read(buf, sizeof(buf));
+            std::streamsize num{filteredInput.gcount()};
+            if (filteredInput.bad() == false && num > 0) {
+                uncompressedJson.append(buf, num);
+            }
+        } while (filteredInput);
+        LOG_DEBUG(<< "Uncompressed JSON doc is:\n" << uncompressedJson);
+
+        model::CHierarchicalResultsNormalizer newNormalizerJson(modelConfig);
+        std::stringstream stream(uncompressedJson);
+        BOOST_REQUIRE_EQUAL(model::CHierarchicalResultsNormalizer::E_Ok,
+                            newNormalizerJson.fromJsonStream(stream));
+
+        std::string newJson;
+        newNormalizerJson.toJson(123, "mykey", newJson, true);
+        BOOST_REQUIRE_EQUAL(newJson, origJson);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorEqualizing) {
