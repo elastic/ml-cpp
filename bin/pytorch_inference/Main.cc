@@ -28,7 +28,7 @@
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
 #include "CCommandParser.h"
-#include "SettingsValidator.h"
+#include "CThreadSettings.h"
 
 #include <ATen/Parallel.h>
 #include <torch/csrc/api/include/torch/types.h>
@@ -45,8 +45,8 @@ const std::string INFERENCE{"inference"};
 const std::string ERROR{"error"};
 const std::string TIME_MS{"time_ms"};
 const std::string THREAD_SETTINGS{"thread_settings"};
-const std::string INFERENCE_THREADS{"inference_threads"};
-const std::string MODEL_THREADS{"model_threads"};
+const std::string NUM_ALLOCATIONS{"num_allocations"};
+const std::string NUM_THREADS_PER_ALLOCATION{"num_threads_per_allocation"};
 }
 
 torch::Tensor infer(torch::jit::script::Module& module,
@@ -120,7 +120,7 @@ void writeError(const std::string& requestId,
                 const std::string& message,
                 ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
     jsonWriter.StartObject();
-    jsonWriter.Key(RESULT);
+    jsonWriter.Key(ERROR);
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
@@ -130,9 +130,9 @@ void writeError(const std::string& requestId,
     jsonWriter.EndObject();
 }
 
-void writeDocumentOpening(const std::string& requestId,
-                          std::uint64_t timeMs,
-                          ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
+void writeInferenceResultOpening(const std::string& requestId,
+                                 std::uint64_t timeMs,
+                                 ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
     jsonWriter.StartObject();
     jsonWriter.Key(RESULT);
     jsonWriter.StartObject();
@@ -142,22 +142,24 @@ void writeDocumentOpening(const std::string& requestId,
     jsonWriter.Uint64(timeMs);
 }
 
-void writeDocumentClosing(ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
+void writeInferenceResultClosing(ml::core::CRapidJsonConcurrentLineWriter& jsonWriter) {
     jsonWriter.EndObject();
     jsonWriter.EndObject();
 }
 
 void writeThreadSettings(ml::core::CJsonOutputStreamWrapper& wrappedOutputStream,
-                         std::int32_t inferenceThreads,
-                         std::int32_t modelThreads) {
+                         const std::string& requestId,
+                         const ml::torch::CThreadSettings& threadSettings) {
     ml::core::CRapidJsonConcurrentLineWriter jsonWriter(wrappedOutputStream);
     jsonWriter.StartObject();
     jsonWriter.Key(THREAD_SETTINGS);
     jsonWriter.StartObject();
-    jsonWriter.Key(INFERENCE_THREADS);
-    jsonWriter.Uint64(inferenceThreads);
-    jsonWriter.Key(MODEL_THREADS);
-    jsonWriter.Uint64(modelThreads);
+    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
+    jsonWriter.String(requestId);
+    jsonWriter.Key(NUM_THREADS_PER_ALLOCATION);
+    jsonWriter.Uint(threadSettings.numThreadsPerAllocation());
+    jsonWriter.Key(NUM_ALLOCATIONS);
+    jsonWriter.Uint(threadSettings.numAllocations());
     jsonWriter.EndObject();
     jsonWriter.EndObject();
 }
@@ -176,16 +178,16 @@ void writePrediction(const torch::Tensor& prediction,
     if (prediction.dtype() == torch::kFloat32) {
         auto accessor = prediction.accessor<float, N>();
 
-        writeDocumentOpening(requestId, timeMs, jsonWriter);
+        writeInferenceResultOpening(requestId, timeMs, jsonWriter);
         writeInferenceResults(accessor, jsonWriter);
-        writeDocumentClosing(jsonWriter);
+        writeInferenceResultClosing(jsonWriter);
 
     } else if (prediction.dtype() == torch::kFloat64) {
         auto accessor = prediction.accessor<double, N>();
 
-        writeDocumentOpening(requestId, timeMs, jsonWriter);
+        writeInferenceResultOpening(requestId, timeMs, jsonWriter);
         writeInferenceResults(accessor, jsonWriter);
-        writeDocumentClosing(jsonWriter);
+        writeInferenceResultClosing(jsonWriter);
     } else {
         std::ostringstream ss;
         ss << "cannot process result tensor of type [" << prediction.dtype() << "]";
@@ -234,6 +236,16 @@ bool handleRequest(const ml::torch::CCommandParser::SRequest& request,
     return true;
 }
 
+void handleControlMessage(const ml::torch::CCommandParser::SControlMessage& controlMessage,
+                          ml::torch::CThreadSettings& threadSettings,
+                          ml::core::CJsonOutputStreamWrapper& wrappedOutputStream) {
+
+    // No need to check the control message type there is only 1
+    threadSettings.numAllocations(controlMessage.s_NumAllocations);
+    ml::core::defaultAsyncExecutor().numberThreadsInUse(controlMessage.s_NumAllocations);
+    writeThreadSettings(wrappedOutputStream, controlMessage.s_RequestId, threadSettings);
+}
+
 int main(int argc, char** argv) {
     // command line options
     std::string modelId;
@@ -247,21 +259,23 @@ int main(int argc, char** argv) {
     std::string logProperties;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
-    std::int32_t inferenceThreads{1};
-    std::int32_t modelThreads{1};
+    std::int32_t numThreadsPerAllocation{1};
+    std::int32_t numAllocations{1};
     bool validElasticLicenseKeyConfirmed{false};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, logFileName, logProperties, inferenceThreads,
-            modelThreads, validElasticLicenseKeyConfirmed) == false) {
+            isRestoreFileNamedPipe, logFileName, logProperties, numThreadsPerAllocation,
+            numAllocations, validElasticLicenseKeyConfirmed) == false) {
         return EXIT_FAILURE;
     }
 
-    ml::torch::validateThreadingParameters(
+    ml::torch::CThreadSettings::validateThreadingParameters(
         static_cast<int32_t>(std::thread::hardware_concurrency()),
-        inferenceThreads, modelThreads);
+        numThreadsPerAllocation, numAllocations);
+
+    ml::torch::CThreadSettings threadSettings{numThreadsPerAllocation, numAllocations};
 
     // Setting the number of threads used by libtorch also sets
     // the number of threads used by MKL or OMP libs. However,
@@ -270,7 +284,7 @@ int main(int argc, char** argv) {
     // It doesn't hurt to set variables that won't have any effect on some platforms.
     ml::core::CSetEnv::setEnv(
         "VECLIB_MAXIMUM_THREADS",
-        ml::core::CStringUtils::typeToString(inferenceThreads).c_str(), 0);
+        ml::core::CStringUtils::typeToString(numThreadsPerAllocation).c_str(), 0);
 
     ml::core::CBlockingCallCancellingTimer cancellerThread{
         ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
@@ -322,18 +336,19 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    at::set_num_threads(inferenceThreads);
+    at::set_num_threads(threadSettings.numThreadsPerAllocation());
 
     // This is not used as we don't call at::launch anywhere.
     // Setting it to 1 to ensure there is no thread pool sitting around.
     at::set_num_interop_threads(1);
 
     LOG_DEBUG(<< at::get_parallel_info());
-    LOG_DEBUG(<< "Model threads: " << modelThreads);
+    LOG_DEBUG(<< "Number of allocations: " << threadSettings.numAllocations());
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
 
-    writeThreadSettings(wrappedOutputStream, inferenceThreads, modelThreads);
+    writeThreadSettings(wrappedOutputStream,
+                        ml::torch::CCommandParser::RESERVED_REQUEST_ID, threadSettings);
 
     torch::jit::script::Module module;
     try {
@@ -355,13 +370,19 @@ int main(int argc, char** argv) {
 
     // Starting the executor with 1 thread will use an extra thread that isn't necessary
     // so we only start it when more than 1 threads are set.
-    if (modelThreads > 1) {
-        ml::core::startDefaultAsyncExecutor(modelThreads);
+    if (numAllocations > 1) {
+        ml::core::startDefaultAsyncExecutor(numAllocations);
+    } else {
+        ml::core::stopDefaultAsyncExecutor();
     }
 
     commandParser.ioLoop(
         [&module, &wrappedOutputStream](const ml::torch::CCommandParser::SRequest& request) {
             return handleRequest(request, module, wrappedOutputStream);
+        },
+        [&wrappedOutputStream, &threadSettings](
+            const ml::torch::CCommandParser::SControlMessage& controlMessage) {
+            return handleControlMessage(controlMessage, threadSettings, wrappedOutputStream);
         },
         [&wrappedOutputStream](const std::string& requestId, const std::string& message) {
             ml::core::CRapidJsonConcurrentLineWriter errorWriter(wrappedOutputStream);
