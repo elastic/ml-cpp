@@ -703,8 +703,6 @@ public:
     //! Compute the loss at \p n standard deviations of \p lossMoments above
     //! the mean.
     static double lossAtNSigma(double n, const TMeanVarAccumulator& lossMoments) {
-        LOG_DEBUG(<< "mean " << common::CBasicStatistics::mean(lossMoments)
-                  << "var " << common::CBasicStatistics::variance(lossMoments));
         return common::CBasicStatistics::mean(lossMoments) +
                n * std::sqrt(common::CBasicStatistics::variance(lossMoments));
     }

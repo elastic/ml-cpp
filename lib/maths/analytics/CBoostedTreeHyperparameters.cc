@@ -422,8 +422,6 @@ bool CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLos
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
-    LOG_DEBUG(<< "this->modelSizePenalty(numberKeptNodes, numberNewNodes)"
-              << this->modelSizePenalty(numberKeptNodes, numberNewNodes));
     double testLoss{lossAtNSigma(1.0, testLossMoments) +
                     this->modelSizePenalty(numberKeptNodes, numberNewNodes)};
 
