@@ -152,8 +152,3 @@ install(TARGETS MlCore RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATIO
 if(MSVC)
   install(FILES $<TARGET_PDB_FILE:MlCore> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
 endif()
-
-#get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-#foreach(dir ${dirs})
-#  message(STATUS "dir='${dir}'")
-#endforeach()

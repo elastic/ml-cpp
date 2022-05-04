@@ -66,8 +66,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   endif()
   set(CMAKE_C_FLAGS "-g ${CROSS_FLAGS} ${OPT_C_FLAGS} ${ARCHFLAGS} -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-extra-semi-stmt -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-poison-system-directories -Wno-sign-conversion -Wno-unknown-warning-option -Wno-unreachable-code -Wno-used-but-marked-unused ${OPTCFLAGS} ${COVERAGE}" )
   set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-exit-time-destructors -Wno-global-constructors -Wno-return-std-move-in-c++11 -Wno-unused-member-function -Wno-weak-vtables ${OPTCPPFLAGS}" )
-  message(STATUS "CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
-  message(STATUS "CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
+
+  set(CMAKE_INSTALL_RPATH "@loader_path/../lib")
+
   set(EXE_DIR MacOS)
   set(CMAKE_MACOSX_RPATH 1)
   add_compile_definitions(MacOSX)
@@ -109,6 +110,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CMAKE_C_FLAGS "-g ${CROSS_FLAGS} ${OPTCFLAGS} ${ARCHCFLAGS} -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wno-psabi -Wparentheses -Wpointer-arith -Wswitch-enum")
   set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden")
   
+  set(CMAKE_INSTALL_RPATH "\$ORIGIN/../lib:\$ORIGIN/")
+
   execute_process(COMMAND uname -m OUTPUT_VARIABLE HARDWARE_ARCH)
   string(STRIP "${HARDWARE_ARCH}" HARDWARE_ARCH)
   
@@ -269,7 +272,9 @@ add_subdirectory(lib/api/unittest)
 add_subdirectory(lib/ver/unittest)
 add_subdirectory(lib/seccomp/unittest)
 
-install(TARGETS MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel MlSeccomp MlTest MlVer autodetect categorize controller data_frame_analyzer normalize pytorch_inference COMPONENT Distributed)
+install(TARGETS MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel MlSeccomp MlTest MlVer autodetect
+    categorize controller data_frame_analyzer normalize pytorch_inference COMPONENT Distributed RUNTIME DESTINATION
+    ${EXE_DIR})
 
 add_custom_target(install-distributed
   DEPENDS eigen licenses plist MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel MlSeccomp MlTest MlVer autodetect categorize controller data_frame_analyzer normalize pytorch_inference
