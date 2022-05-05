@@ -30,7 +30,7 @@ cd "$MY_DIR/../.."
 rm -rf cmake_build
 # Configure the build
 echo "CMAKE_FLAGS $CMAKE_FLAGS"
-$CMAKE -B cmake_build $CMAKE_FLAGS
+$CMAKE -B cmake_build -G "$CMAKE_GENERATOR" $CMAKE_FLAGS
 
 # Build the code
 echo "config succeeded"

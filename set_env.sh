@@ -33,6 +33,7 @@ case `uname` in
         SIMPLE_PLATFORM=macos
         BUNDLE_PLATFORM=darwin-`uname -m | sed 's/arm64/aarch64/'`
         CMAKE=cmake
+        CMAKE_GENERATOR='Unix Makefiles'
         CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/"
         ;;
 
@@ -45,10 +46,12 @@ case `uname` in
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             BUNDLE_PLATFORM=darwin-x86_64
             CMAKE=cmake
+            CMAKE_GENERATOR='Unix Makefiles'
             CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/ -DCMAKE_TOOLCHAIN_FILE=tc-darwin.cmake"
         else
             BUNDLE_PLATFORM=linux-$CPP_CROSS_COMPILE
             CMAKE=cmake3
+            CMAKE_GENERATOR='Unix Makefiles'
             CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM -DCMAKE_TOOLCHAIN_FILE=tc-linux-aarch64.cmake"
         fi
         ;;
@@ -57,7 +60,8 @@ case `uname` in
         SIMPLE_PLATFORM=windows
         BUNDLE_PLATFORM=windows-x86_64
         CMAKE=cmake
-        CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
+        CMAKE_GENERATOR='MinGW Makefiles'
+        CMAKE_FLAGS="-DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_C_COMPILER=cl.exe -DCMAKE_MAKE_PROGRAM=gnumake.exe -DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
         ;;
 
     *)
@@ -86,13 +90,19 @@ unset COMPILER_PATH
 if [ "$SIMPLE_PLATFORM" = "windows" ] ; then
     # We have to use 8.3 names for directories with spaces in the names, as some
     # tools won't quote paths with spaces correctly
+    VCBASE=`(cd $ROOT && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2019/Professional")`
+    WINSDKBASE=`(cd $ROOT && cygpath -m -s "Program Files (x86)/Windows Kits")`
     PFX86_DIR=`cd $ROOT && cygpath -m -s "Program Files (x86)"`
     MSVC_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Microsoft Visual Studio"`
     WIN_KITS_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Windows Kits"`
     VCVER=`/bin/ls -1 $ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/VC/Tools/MSVC | tail -1`
+    UCRTVER=`/bin/ls -1 $ROOT/$WINSDKBASE/10/Include | tail -1`
     # NB: Some SDK tools are 32 bit only, hence the 64 bit SDK bin directory
     #     is followed by the 32 bit SDK bin directory
     COMPILER_PATH=$ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:$ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/Common7/IDE:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x64:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x86
+    export INCLUDE=$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/atlmfc/include:$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/include:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/ucrt:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/shared:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/um:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/winrt:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/cppwinrt
+    export LIB=$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/atlmfc/lib/x64:$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/lib/x64:$ROOT/$WINSDKBASE/10/Lib/$UCRTVER/ucrt/x64:$ROOT/$WINSDKBASE/10/Lib/$UCRTVER/um/x64
+    export LIBPATH=$PATH:$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/atlmfc/lib/x64:$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/lib/x64:$ROOT/$VCBASE/VC/Tools/MSVC/VCVER/lib/x86/store/REFERE~1:$ROOT/$WINSDKBASE/10/UNIONM~1/$UCRTVER:$ROOT/$WINSDKBASE/10/REFERE~1/$UCRTVER:$ROOT/Windows/MICROS~1.NET/FRAMEW~2/V40~1.303
 fi
 
 # Git
@@ -113,7 +123,7 @@ case $SIMPLE_PLATFORM in
         ;;
 
     windows)
-        PATH=/mingw64/bin:/usr/bin:/bin:$ROOT/Windows/System32:$ROOT/Windows
+        PATH=/mingw64/bin:/usr/bin:/bin:$ROOT/Windows/System32:$ROOT/Windows:$ROOT/PROGRA~1/Python37/Scripts/
         PATH=$ROOT/usr/local/bin:$ROOT/usr/local/sbin:$PATH
         ;;
 
@@ -183,10 +193,7 @@ unset CPPFLAGS
 unset CFLAGS
 unset CXXFLAGS
 unset LDFLAGS
-if [ "$SIMPLE_PLATFORM" = "windows" ] ; then
-    unset INCLUDE
-    unset LIBPATH
-else
+if [ "$SIMPLE_PLATFORM" != "windows" ] ; then
     unset CPATH
     unset C_INCLUDE_PATH
     unset CPLUS_INCLUDE_PATH
