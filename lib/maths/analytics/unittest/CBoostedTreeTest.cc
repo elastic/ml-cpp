@@ -656,12 +656,12 @@ BOOST_AUTO_TEST_CASE(testMseNonLinear) {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::common::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testHuber) {
@@ -724,7 +724,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
     }
 
     LOG_DEBUG(<< "mean R^2 = " << maths::common::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.96);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testMsle) {
@@ -899,7 +899,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
         target, noiseVariance / static_cast<double>(rows));
     LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
 
-    BOOST_TEST_REQUIRE(rSquared > 0.93);
+    BOOST_TEST_REQUIRE(rSquared > 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -2216,13 +2216,13 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.71);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.7);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.53);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.55);
 }
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForTargetDrift) {
@@ -2787,7 +2787,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.45);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.4);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
@@ -2926,6 +2926,8 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
     // Test we always produce a model which meets our memory constraint.
 
     test::CRandomNumbers rng;
+    std::size_t seed{1000};
+    rng.seed(seed);
     double noiseVariance{10.0};
     std::size_t trainRows{800};
     std::size_t testRows{200};
@@ -2963,6 +2965,7 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
             1, std::make_unique<maths::analytics::boosted_tree::CMse>())
             .maximumDeployedSize(maximumDeployedSize)
             .numberFolds(2)
+            .seed(seed)
             .buildForTrain(*frameConstrained, cols - 1);
     regressionConstrained->train();
     regressionConstrained->predict();
@@ -2973,6 +2976,7 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CMse>())
             .numberFolds(2)
+            .seed(seed)
             .buildForTrain(*frameUnconstrained, cols - 1);
     regressionUnconstrained->train();
     regressionUnconstrained->predict();
@@ -3017,8 +3021,8 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
               << ", modelBiasUnconstrained = " << modelBiasUnconstrained
               << ", modelRSquaredUnconstrained = " << modelRSquaredUnconstrained);
 
-    // We don't hurt model accuracy by more than 5%.
-    BOOST_TEST_REQUIRE(modelRSquaredConstrained > 0.95 * modelRSquaredUnconstrained);
+    // We don't hurt model accuracy by more than 3%.
+    BOOST_TEST_REQUIRE(modelRSquaredConstrained > 0.97 * modelRSquaredUnconstrained);
 
     // We need to constrain vs the optimum for this data and we are within
     // the memory budget.
@@ -3169,6 +3173,7 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
 
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .earlyStoppingEnabled(false)
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();

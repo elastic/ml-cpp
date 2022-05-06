@@ -605,6 +605,10 @@ public:
                m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3;
     }
 
+    bool earlyStoppingEnabled() const {
+        return m_StopHyperparameterOptimizationEarly;
+    }
+
     const THyperparametersVec& tunableHyperparameters() const {
         return m_TunableHyperparameters;
     }
