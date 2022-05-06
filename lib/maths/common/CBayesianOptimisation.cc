@@ -118,6 +118,22 @@ CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds,
     }
 }
 
+CBayesianOptimisation::CBayesianOptimisation(TVectorVectorPr parameterBounds, std::size_t restarts)
+    : m_Restarts{restarts}, m_MinBoundary{std::move(parameterBounds.first)},
+      m_MaxBoundary{std::move(parameterBounds.second)},
+      m_KernelParameters(m_MinBoundary.rows() + 1),
+      m_MinimumKernelCoordinateDistanceScale(m_MinBoundary.rows()) {
+
+    if (m_MinBoundary.rows() != m_MaxBoundary.rows()) {
+        LOG_ERROR(<< "Input error: size of the minimum and maximum boundaries does not match. "
+                  << "Please report this error.");
+    }
+
+    m_KernelParameters.setOnes();
+    m_MinimumKernelCoordinateDistanceScale.setConstant(
+        m_MaxBoundary.rows(), MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE);
+}
+
 CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& traverser) {
     if (traverser.traverseSubLevel([this](auto& traverser_) {
             return this->acceptRestoreTraverser(traverser_);
@@ -155,17 +171,11 @@ void CBayesianOptimisation::add(TVector x, double fx, double vx) {
     }
 }
 
-void CBayesianOptimisation::reset() {
-    m_FunctionMeanValues.clear();
-    m_ErrorVariances.clear();
-}
-
 void CBayesianOptimisation::explainedErrorVariance(double vx) {
     m_ExplainedErrorVariance = CTools::pow2(m_RangeScale) * vx;
 }
 
-std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TVector>
-CBayesianOptimisation::boundingBox() const {
+CBayesianOptimisation::TVectorVectorPr CBayesianOptimisation::boundingBox() const {
     return {m_MinBoundary, m_MaxBoundary};
 }
 

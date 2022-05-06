@@ -1023,7 +1023,11 @@ void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TV
 }
 
 void CBoostedTreeHyperparameters::clearObservations() {
-    m_BayesianOptimization->reset();
+    auto boundingBox = m_BayesianOptimization->boundingBox();
+    m_BayesianOptimization.reset(new common::CBayesianOptimisation(
+        boundingBox, m_BayesianOptimisationRestarts.value_or(
+                         common::CBayesianOptimisation::RESTARTS)));
+    // m_BayesianOptimization->reset();
 }
 
 // clang-format off

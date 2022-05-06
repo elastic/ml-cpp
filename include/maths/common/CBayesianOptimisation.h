@@ -61,6 +61,7 @@ public:
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
     using TVector = CDenseVector<double>;
+    using TVectorVectorPr = std::pair<TVector, TVector>;
     using TLikelihoodFunc = std::function<double(const TVector&)>;
     using TLikelihoodGradientFunc = std::function<TVector(const TVector&)>;
     using TEIFunc = std::function<double(const TVector&)>;
@@ -76,20 +77,20 @@ public:
 public:
     explicit CBayesianOptimisation(TDoubleDoublePrVec parameterBounds,
                                    std::size_t restarts = RESTARTS);
+    explicit CBayesianOptimisation(TVectorVectorPr parameterBounds,
+                                   std::size_t restarts = RESTARTS);
     explicit CBayesianOptimisation(core::CStateRestoreTraverser& traverser);
 
     //! Add the result of evaluating the function to be \p fx at \p x where the
     //! variance in the error in \p fx w.r.t. the true value is \p vx.
     void add(TVector x, double fx, double vx);
 
-    void reset();
-
     //! Any portion of the variance of the function error which is explained and
     //! shouldn't be included in the kernel.
     void explainedErrorVariance(double vx);
 
     //! Get the bounding box (in the function domain) in which we're minimizing.
-    std::pair<TVector, TVector> boundingBox() const;
+    TVectorVectorPr boundingBox() const;
 
     //! Compute the location which maximizes the expected improvement given the
     //! function evaluations added so far.
