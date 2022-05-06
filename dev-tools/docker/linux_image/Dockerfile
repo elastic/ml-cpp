@@ -148,6 +148,7 @@ RUN \
   export USE_QNNPACK=OFF && \
   export USE_PYTORCH_QNNPACK=OFF && \
   export USE_XNNPACK=OFF && \
+  export USE_BREAKPAD=OFF && \
   export PYTORCH_BUILD_VERSION=1.11.0 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   /usr/local/bin/python3.7 setup.py install && \
