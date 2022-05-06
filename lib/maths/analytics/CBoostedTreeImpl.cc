@@ -332,6 +332,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                 m_Instrumentation->flush(HYPERPARAMETER_OPTIMIZATION_ROUND +
                                          std::to_string(m_Hyperparameters.currentRound()));
             }
+        } else {
+            LOG_INFO(<< "Skipping fine parameter tuning: coarse parameter tuning is enough.");
         }
 
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
