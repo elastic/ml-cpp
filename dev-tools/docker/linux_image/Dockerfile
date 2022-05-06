@@ -160,6 +160,7 @@ RUN \
 
 FROM centos:7
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
+COPY --from=builder /usr/local/cmake /usr/local/cmake
 RUN \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc git make unzip which zip zlib-devel

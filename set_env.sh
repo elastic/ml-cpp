@@ -42,7 +42,8 @@ case `uname` in
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
             BUNDLE_PLATFORM=linux-`uname -m`
             CMAKE=cmake
-            CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
+            CMAKE_GENERATOR='Unix Makefiles'
+            CMAKE_FLAGS="-DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             BUNDLE_PLATFORM=darwin-x86_64
             CMAKE=cmake
@@ -115,7 +116,7 @@ fi
 case $SIMPLE_PLATFORM in
 
     linux)
-        PATH=/usr/local/gcc103/bin:/usr/bin:/bin:/usr/local/gcc103/sbin:/usr/sbin:/sbin:/usr/local/bin
+        PATH=/usr/local/gcc103/bin:/usr/bin:/bin:/usr/local/gcc103/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/cmake/bin
         ;;
 
     macos)

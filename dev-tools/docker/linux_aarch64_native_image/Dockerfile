@@ -18,7 +18,10 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Make sure OS packages are up to date and required packages are installed
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y bzip2 gcc gcc-c++ git libffi-devel make openssl-devel texinfo unzip wget which zip zlib-devel
+  yum install -y epel-release && \
+  yum install -y bzip2 cmake3 gcc gcc-c++ git libffi-devel make openssl-devel texinfo unzip wget which zip zlib-devel && \
+  alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 --slave /usr/local/bin/ctest ctest \
+      /usr/bin/ctest3 --slave /usr/local/bin/cpack cpack /usr/bin/cpack3 --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake3 --family cmake
 
 # For compiling with hardening and optimisation
 ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -march=armv8-a+crc+crypto"
@@ -153,6 +156,7 @@ RUN \
 
 FROM centos:7
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
+COPY --from=builder /usr/local/cmake /usr/local/cmake
 RUN \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc git make unzip which zip zlib-devel

@@ -46,7 +46,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   string(REPLACE arm6 aarch64 HARDWARE_ARCH ${HARDWARE_ARCH})
   string(STRIP "${HARDWARE_ARCH}" HARDWARE_ARCH)
   message(STATUS "HARDWARE_ARCH ${HARDWARE_ARCH}")
-  set(OBJECT_FILE_EXT ".o")
     
   if(HARDWARE_ARCH STREQUAL "x86_64")
     set(ARCHCFLAGS -msse4.2)
@@ -106,9 +105,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CROSS_FLAGS "--sysroot=${SYSROOT}")
     add_compile_definitions(RAPIDJSON_NEON)
   endif()
-
-  set(CMAKE_C_FLAGS "-g ${CROSS_FLAGS} ${OPTCFLAGS} ${ARCHCFLAGS} -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wno-psabi -Wparentheses -Wpointer-arith -Wswitch-enum")
-  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden")
   
   set(CMAKE_INSTALL_RPATH "\$ORIGIN/../lib:\$ORIGIN/")
 
@@ -126,7 +122,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
       add_compile_definitions(RAPIDJSON_SSE42)
     endif()
   endif()
-  set(OBJECT_FILE_EXT ".o")
+
+  set(CMAKE_C_FLAGS "-g ${CROSS_FLAGS} ${OPTCFLAGS} ${ARCHCFLAGS} -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wno-psabi -Wparentheses -Wpointer-arith -Wswitch-enum")
+  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden")
 
   set(Boost_COMPILER gcc10)
   set(EXE_DIR bin)
@@ -156,7 +154,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(OPTCFLAGS "-O2 -Qfast_transcendentals -Qvec-report:1")
     add_compile_definitions(NDEBUG EXCLUDE_TRACE_LOGGING)
   endif()
-  set(OBJECT_FILE_EXT ".obj")
   
   if(NOT CRT_OPT)
    set(CRT_OPT -MD)

@@ -18,7 +18,10 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Make sure OS packages are up to date and required packages are installed
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y bzip2 cmake gcc gcc-c++ git make texinfo unzip wget which zip zlib-devel
+  yum install -y epel-release && \
+  yum install -y bzip2 cmake3 gcc gcc-c++ git make texinfo unzip wget which zip zlib-devel && \
+  alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 --slave /usr/local/bin/ctest ctest \
+      /usr/bin/ctest3 --slave /usr/local/bin/cpack cpack /usr/bin/cpack3 --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake3 --family cmake
 
 # Add build dependencies transferred from native aarch64 build server
 RUN \
@@ -30,8 +33,8 @@ RUN \
   ln -s usr/lib64 lib64
 
 # For compiling with hardening and optimisation
-ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
-ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
+ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -march=armv8-a+crc+crypto"
+ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -march=armv8-a+crc+crypto"
 ENV LDFLAGS "-Wl,-z,relro -Wl,-z,now"
 ENV LDFLAGS_FOR_TARGET "-Wl,-z,relro -Wl,-z,now"
 
