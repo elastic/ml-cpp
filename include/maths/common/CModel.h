@@ -148,21 +148,21 @@ public:
 
 private:
     //! The data type.
-    maths_t::EDataType m_Type = maths_t::E_MixedData;
+    maths_t::EDataType m_Type{maths_t::E_MixedData};
     //! True if the data are non-negative false otherwise.
-    bool m_IsNonNegative = false;
+    bool m_IsNonNegative{false};
     //! The proportion of non-empty buckets.
-    double m_Occupancy = 1.0;
+    double m_Occupancy{1.0};
     //! The propagation interval.
-    double m_PropagationInterval = 1.0;
+    double m_PropagationInterval{1.0};
     //! The first value time.
-    core_t::TTime m_FirstValueTime = std::numeric_limits<core_t::TTime>::min();
+    core_t::TTime m_FirstValueTime{std::numeric_limits<core_t::TTime>::min()};
     //! The trend sample weights.
-    const TDouble2VecWeightsAryVec* m_TrendWeights = nullptr;
+    const TDouble2VecWeightsAryVec* m_TrendWeights{nullptr};
     //! The prior sample weights.
-    const TDouble2VecWeightsAryVec* m_PriorWeights = nullptr;
+    const TDouble2VecWeightsAryVec* m_PriorWeights{nullptr};
     //! The add annotation callback.
-    maths_t::TModelAnnotationCallback m_ModelAnnotationCallback = [](const std::string&) {};
+    maths_t::TModelAnnotationCallback m_ModelAnnotationCallback{[](const std::string&) {}};
 };
 
 //! \brief The extra parameters needed by CModel::probability.
@@ -238,11 +238,11 @@ private:
     //! The most anomalous coordinate (if there is one).
     TOptionalSize m_MostAnomalousCorrelate;
     //! Whether or not to use multibucket features.
-    bool m_UseMultibucketFeatures = true;
+    bool m_UseMultibucketFeatures{true};
     //! Whether or not to use the anomaly model.
-    bool m_UseAnomalyModel = true;
+    bool m_UseAnomalyModel{true};
     //! The initial value of the count weight, in the range 0.0 to 1.0.
-    double m_InitialCountWeight = 1.0;
+    double m_InitialCountWeight{1.0};
 };
 
 //! \brief Describes the result of the model probability calculation.
@@ -264,15 +264,15 @@ struct MATHS_COMMON_EXPORT SModelProbabilityResult {
         SFeatureProbability();
         SFeatureProbability(EFeatureProbabilityLabel label, double probability);
         EFeatureProbabilityLabel s_Label;
-        double s_Probability = 1.0;
+        double s_Probability{1.0};
     };
     using TFeatureProbability4Vec = core::CSmallVector<SFeatureProbability, 4>;
 
     //! The overall result probability.
-    double s_Probability = 1.0;
+    double s_Probability{1.0};
     //! True if the probability depends on the correlation between two
     //! time series and false otherwise.
-    bool s_Conditional = false;
+    bool s_Conditional{false};
     //! The probabilities for each individual feature.
     TFeatureProbability4Vec s_FeatureProbabilities;
     //! The tail of the current bucket probability.

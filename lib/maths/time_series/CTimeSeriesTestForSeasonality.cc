@@ -53,6 +53,11 @@ bool almostDivisor(std::size_t i, std::size_t j, double eps) {
     double diff{static_cast<double>(std::min(j % i, i - (j % i))) / static_cast<double>(j)};
     return diff < eps;
 }
+
+double interpolateOnBucketOccupancy(double f1, double f0, double occupancy) {
+    return common::CTools::linearlyInterpolate(0.0, 1.0, f0, f1,
+                                               std::min(2.0 * occupancy, 1.0));
+}
 }
 
 CNewTrendSummary::CNewTrendSummary(core_t::TTime initialValuesStartTime,
@@ -246,42 +251,24 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime value
                                                              TFloatMeanAccumulatorVec values,
                                                              double occupancy,
                                                              double outlierFraction)
-    // We require greater evidence to model seasonality for sparse data because it often
-    // leads to confusing anomaly detection in this case.
-    : m_MaximumNumberSegments{static_cast<std::size_t>(common::CTools::linearlyInterpolate(
-          1.0,
-          0.0,
-          static_cast<double>(MAXIMUM_NUMBER_SEGMENTS),
-          static_cast<double>(MAXIMUM_NUMBER_SEGMENTS / 2),
-          std::min(2.0 * occupancy, 1.0)))},
+    // We require greater evidence to model seasonality for sparse data because
+    // we're more prone to falsely detecting seasonality in this case and when
+    // we do it tends to produce more confusing anomaly detection.
+    : m_MaximumNumberSegments{static_cast<std::size_t>(
+          interpolateOnBucketOccupancy(static_cast<double>(MAXIMUM_NUMBER_SEGMENTS), 1.0, occupancy))},
       m_MinimumRepeatsPerSegmentToTestVariance{
-          common::CTools::linearlyInterpolate(1.0, 0.0, 3.0, 6.0, std::min(2.0 * occupancy, 1.0))},
+          interpolateOnBucketOccupancy(3.0, 6.0, occupancy)},
       m_MinimumRepeatsPerSegmentToTestAmplitude{
-          common::CTools::linearlyInterpolate(1.0, 0.0, 5.0, 10.0, std::min(2.0 * occupancy, 1.0))},
-      m_LowAutocorrelation{
-          common::CTools::linearlyInterpolate(1.0, 0.0, 0.3, 0.5, std::min(2.0 * occupancy, 1.0))},
-      m_MediumAutocorrelation{
-          common::CTools::linearlyInterpolate(1.0, 0.0, 0.5, 0.7, std::min(2.0 * occupancy, 1.0))},
-      m_HighAutocorrelation{
-          common::CTools::linearlyInterpolate(1.0, 0.0, 0.7, 0.9, std::min(2.0 * occupancy, 1.0))},
+          interpolateOnBucketOccupancy(5.0, 10.0, occupancy)},
+      m_LowAutocorrelation{interpolateOnBucketOccupancy(0.3, 0.5, occupancy)},
+      m_MediumAutocorrelation{interpolateOnBucketOccupancy(0.5, 0.7, occupancy)},
+      m_HighAutocorrelation{interpolateOnBucketOccupancy(0.7, 0.9, occupancy)},
       m_SignificantPValue{std::exp(
-          common::CTools::linearlyInterpolate(1.0,
-                                              0.0,
-                                              std::log(5e-3),
-                                              std::log(1e-6),
-                                              std::min(2.0 * occupancy, 1.0)))},
+          interpolateOnBucketOccupancy(std::log(5e-3), std::log(1e-6), occupancy))},
       m_VerySignificantPValue{std::exp(
-          common::CTools::linearlyInterpolate(1.0,
-                                              0.0,
-                                              std::log(1e-6),
-                                              std::log(1e-9),
-                                              std::min(2.0 * occupancy, 1.0)))},
+          interpolateOnBucketOccupancy(std::log(1e-6), std::log(1e-9), occupancy))},
       m_AcceptedFalsePostiveRate{std::exp(
-          common::CTools::linearlyInterpolate(1.0,
-                                              0.0,
-                                              std::log(1e-4),
-                                              std::log(1e-6),
-                                              std::min(2.0 * occupancy, 1.0)))},
+          interpolateOnBucketOccupancy(std::log(1e-4), std::log(1e-6), occupancy))},
       m_ValuesStartTime{valuesStartTime}, m_BucketsStartTime{bucketsStartTime},
       m_BucketLength{bucketLength}, m_SampleInterval{sampleInterval},
       m_OutlierFraction{outlierFraction}, m_Values{std::move(values)},

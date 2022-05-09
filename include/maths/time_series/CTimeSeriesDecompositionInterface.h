@@ -75,6 +75,9 @@ public:
     };
 
 public:
+    static constexpr core_t::TTime MIN_TIME{std::numeric_limits<core_t::TTime>::min()};
+
+public:
     virtual ~CTimeSeriesDecompositionInterface() = default;
 
     //! Clone this decomposition.
@@ -110,8 +113,8 @@ public:
              const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
              const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
              const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
-             double occupancy = 0.0,
-             core_t::TTime firstValueTime = std::numeric_limits<core_t::TTime>::min()) = 0;
+             double occupancy = 1.0,
+             core_t::TTime firstValueTime = MIN_TIME) = 0;
 
     //! Shift seasonality by \p shift at \p time.
     virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;

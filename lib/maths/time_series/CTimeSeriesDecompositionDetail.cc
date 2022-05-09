@@ -739,6 +739,11 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::updateTotalCountWeights(c
 void CTimeSeriesDecompositionDetail::CChangePointTest::testForCandidateChange(const SAddValue& message) {
     core_t::TTime firstValueTime{message.s_FirstValueTime};
     core_t::TTime time{message.s_Time};
+
+    // We're prone to detect changes at model startup before, for example, we
+    // detect and model seasonality. Since the most common seasonality in the
+    // data we model is daily, this delays detecting changes until we've had
+    // the chance to see several repeats.
     if (time < firstValueTime + 3 * DAY) {
         return;
     }
@@ -772,7 +777,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testForChange(const SAddV
 
     core_t::TTime lastTime{message.s_LastTime};
     core_t::TTime timeShift{message.s_TimeShift};
-    bool seasonal{message.s_Decomposition->seasonalComponents().size() > 0};
+    bool seasonal{message.s_Decomposition->seasonalComponents().empty() == false};
     const auto& makePredictor = message.s_MakePredictor;
     CTimeSeriesDecomposition& decomposition{*message.s_Decomposition};
 
@@ -877,7 +882,9 @@ CTimeSeriesDecompositionDetail::CChangePointTest::minimumChangeLength(double occ
     // Transient changes tend to last 1 day. In such cases we do not want to
     // apply any change and mearly ignore the interval. By waiting 30 hours
     // we give ourselves a margin to see the revert before we commit to making
-    // a change.
+    // a change. Note for sparse data we delay detecting changes because we're
+    // more prone to FP in this case, since we get less information per unit
+    // time.
     core_t::TTime length{
         std::max(30 * core::constants::HOUR, 5 * this->windowBucketLength())};
     length = static_cast<core_t::TTime>(
@@ -1985,7 +1992,7 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
             --maximumNumberComponents;
         }
         test.maximumNumberOfComponents(maximumNumberComponents);
-        test.fitAndRemoveUntestableModelledComponents();
+        test.prepareWindowForDecompose();
 
         return test;
     };

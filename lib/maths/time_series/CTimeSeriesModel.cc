@@ -1607,8 +1607,11 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
         maths::common::CPrior::E_Poisson));
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
-    // Reinitialize the residual model with any values we've been given.
-    if (residuals.size() > 0) {
+    // Reinitialize the residual model with any values we've been given. Note
+    // that if we have sparse data we reduce the sample weights so we smoothly
+    // transition to modelling only non-empty values. This must be reflected
+    // in the sample weights when reinitialising the residual model.
+    if (residuals.empty() == false) {
         maths_t::TDoubleWeightsAry1Vec weights(1);
         double buckets{std::accumulate(residuals.begin(), residuals.end(), 0.0,
                                        [](auto partialBuckets, const auto& residual) {
@@ -2990,9 +2993,12 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
         }
     }
 
-    // Reinitialize the residual model with any values we've been given.
+    // Reinitialize the residual model with any values we've been given. Note
+    // that if we have sparse data we reduce the sample weights so we smoothly
+    // transition to modelling only non-empty values. This must be reflected
+    // in the sample weights when reinitialising the residual model.
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
-    if (residuals.size() > 0) {
+    if (residuals.empty() == false) {
         std::size_t dimension{this->dimension()};
 
         TDouble10VecVec samples;
@@ -3012,9 +3018,9 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
             for (std::size_t i = 0; i < residuals[d].size(); ++i) {
                 samples[i][d] = common::CBasicStatistics::mean(residuals[d][i]);
                 weights[i] = std::min(
-                    weights[i],
-                    params.bucketOccupancy() *
-                        static_cast<double>(common::CBasicStatistics::count(residuals[d][i])));
+                    weights[i], params.bucketOccupancy() *
+                                    static_cast<double>(common::CBasicStatistics::count(
+                                        residuals[d][i])));
             }
         }
         time *= params.bucketOccupancy() / static_cast<double>(dimension);

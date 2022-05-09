@@ -113,14 +113,13 @@ public:
     //! component is added as a result of adding the data point.
     //! \param[in] occupancy The proportion of non-empty buckets.
     //! \param[in] firstValueTime The time of the first value added to the decomposition.
-    void
-    addPoint(core_t::TTime time,
-             double value,
-             const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-             const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
-             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
-             double occupancy = 1.0,
-             core_t::TTime firstValueTime = std::numeric_limits<core_t::TTime>::min()) override;
+    void addPoint(core_t::TTime time,
+                  double value,
+                  const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+                  const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
+                  const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
+                  double occupancy = 1.0,
+                  core_t::TTime firstValueTime = MIN_TIME) override;
 
     //! Shift seasonality by \p shift at \p time.
     void shiftTime(core_t::TTime time, core_t::TTime shift) override;

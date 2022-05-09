@@ -81,7 +81,7 @@ using TSetWeightsFunc = void (*)(double, std::size_t, TDouble2VecWeightsAry&);
 const double MINIMUM_SEASONAL_SCALE{0.25};
 const double MINIMUM_SIGNIFICANT_CORRELATION{0.4};
 const double DECAY_RATE{0.0005};
-const std::size_t TAG{0u};
+const std::size_t TAG{0};
 
 //! \brief Implements the allocator for new correlate priors.
 class CTimeSeriesCorrelateModelAllocator
@@ -669,13 +669,11 @@ BOOST_AUTO_TEST_CASE(testAddBucketValue) {
     BOOST_REQUIRE_EQUAL(prior.checksum(), model.residualModel().checksum());
 }
 
-BOOST_AUTO_TEST_CASE(testAddSamples) {
-    // Test: 1) Test multiple samples
-    //       2) Test propagation interval
-    //       3) Test decay rate control
+BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
+
+    // Test adding multiple samples at once.
 
     test::CRandomNumbers rng;
-
     core_t::TTime bucketLength{1800};
 
     LOG_DEBUG(<< "Multiple samples univariate");
@@ -709,8 +707,8 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
              maths_t::countWeight(weights[1])});
         prior.propagateForwardsByTime(1.0);
 
-        uint64_t checksum1{trend.checksum()};
-        uint64_t checksum2{model.trendModel().checksum()};
+        std::uint64_t checksum1{trend.checksum()};
+        std::uint64_t checksum2{model.trendModel().checksum()};
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         checksum1 = prior.checksum();
@@ -764,11 +762,19 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         }
-        uint64_t checksum1{prior.checksum()};
-        uint64_t checksum2{model.residualModel().checksum()};
+        std::uint64_t checksum1{prior.checksum()};
+        std::uint64_t checksum2{model.residualModel().checksum()};
         LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
     }
+}
+
+BOOST_AUTO_TEST_CASE(testNonUnitPropagationIntervalInAddSamples) {
+
+    // Test a non-unit propagation interval.
+
+    test::CRandomNumbers rng;
+    core_t::TTime bucketLength{1800};
 
     LOG_DEBUG(<< "Propagation interval univariate");
     {
@@ -777,7 +783,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend, prior};
 
-        double interval[]{1.0, 1.1, 0.4};
+        TDoubleVec interval{1.0, 1.1, 0.4};
         TDouble2Vec samples[]{{10.0}, {13.9}, {27.1}};
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
         maths_t::setCount(TDouble2Vec{1.5}, weights[0]);
@@ -796,8 +802,8 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             prior.addSamples(TDouble1Vec(samples[i]), weight);
             prior.propagateForwardsByTime(interval[i]);
 
-            uint64_t checksum1{prior.checksum()};
-            uint64_t checksum2{model.residualModel().checksum()};
+            std::uint64_t checksum1{prior.checksum()};
+            std::uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
@@ -815,7 +821,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
         maths::time_series::CMultivariateTimeSeriesModel model{
             modelParams(bucketLength), *trends[0], prior};
 
-        double interval[]{1.0, 1.1, 0.4};
+        TDoubleVec interval{1.0, 1.1, 0.4};
         TDouble2Vec samples[]{{13.5, 13.4, 13.3}, {13.9, 13.8, 13.7}, {20.1, 20.0, 10.9}};
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
         maths_t::setCount(TDouble2Vec{1.0, 1.1, 1.2}, weights[0]);
@@ -834,14 +840,22 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             prior.addSamples({TDouble10Vec(samples[i])}, weight);
             prior.propagateForwardsByTime(interval[i]);
 
-            uint64_t checksum1{prior.checksum()};
-            uint64_t checksum2{model.residualModel().checksum()};
+            std::uint64_t checksum1{prior.checksum()};
+            std::uint64_t checksum2{model.residualModel().checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testWithDecayRateControlInAddSamples) {
+
+    // Test decay rate control.
+
+    test::CRandomNumbers rng;
+    core_t::TTime bucketLength{1800};
 
     LOG_DEBUG(<< "Decay rate control univariate");
     {
@@ -890,8 +904,8 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
                 prior.decayRate(multiplier * prior.decayRate());
             }
 
-            uint64_t checksum1{trend.checksum()};
-            uint64_t checksum2{model.trendModel().checksum()};
+            std::uint64_t checksum1{trend.checksum()};
+            std::uint64_t checksum2{model.trendModel().checksum()};
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
             checksum1 = prior.checksum();
             checksum2 = model.residualModel().checksum();
@@ -931,11 +945,11 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             TDouble1Vec mean(3);
 
             double amplitude{10.0};
-            for (std::size_t i = 0; i < sample.size(); ++i) {
-                sample[i] = 30.0 +
-                            amplitude * std::sin(boost::math::double_constants::two_pi *
-                                                 static_cast<double>(time) / 86400.0) +
-                            (time / bucketLength > 1800 ? 10.0 : 0.0) + sample[i];
+            for (double& dimension : sample) {
+                dimension += 30.0 +
+                             amplitude * std::sin(boost::math::double_constants::two_pi *
+                                                  static_cast<double>(time) / 86400.0) +
+                             (time / bucketLength > 1800 ? 10.0 : 0.0);
                 amplitude += 4.0;
             }
 
@@ -983,12 +997,12 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             }
 
             for (std::size_t i = 0; i < trends.size(); ++i) {
-                uint64_t checksum1{trends[i]->checksum()};
-                uint64_t checksum2{model.trendModel()[i]->checksum()};
+                std::uint64_t checksum1{trends[i]->checksum()};
+                std::uint64_t checksum2{model.trendModel()[i]->checksum()};
                 BOOST_REQUIRE_EQUAL(checksum1, checksum2);
             }
-            uint64_t checksum1{prior.checksum()};
-            uint64_t checksum2{model.residualModel().checksum()};
+            std::uint64_t checksum1{prior.checksum()};
+            std::uint64_t checksum2{model.residualModel().checksum()};
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
 
             time += bucketLength;
