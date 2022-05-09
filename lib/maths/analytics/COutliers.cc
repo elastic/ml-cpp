@@ -768,7 +768,7 @@ void CEnsemble<POINT>::CModel::addOutlierScores(const std::vector<POINT>& points
     std::int64_t methodMemoryBeforeRun{signedMemoryUsage(m_Method)};
 
     // Run the method.
-    TDouble1VecVec2Vec methodScores{m_Method->run(points_, m_Projection, eps, index)};
+    TDouble1VecVec2Vec methodScores(m_Method->run(points_, m_Projection, eps, index));
 
     std::int64_t methodMemoryAfterRun{signedMemoryUsage(m_Method)};
     recordMemoryUsage(methodMemoryAfterRun - methodMemoryBeforeRun);
