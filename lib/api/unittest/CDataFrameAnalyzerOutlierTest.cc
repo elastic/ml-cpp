@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
 
     test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
-        specFactory.memoryLimit(150000).rows(1000).outlierSpec(), outputWriterFactory};
+        specFactory.memoryLimit(160000).rows(1000).outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
     // Allow a 20% margin
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 150000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 160000);
     BOOST_TEST_REQUIRE(
         core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
         (120 * core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage)) / 100);

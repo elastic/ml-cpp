@@ -575,7 +575,7 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
 
                 BOOST_TEST_REQUIRE(
                     std::fabs(maths::common::CBasicStatistics::mean(averageInfluences[0]) -
-                              maths::common::CBasicStatistics::mean(averageInfluences[1])) < 0.06);
+                              maths::common::CBasicStatistics::mean(averageInfluences[1])) < 0.08);
                 core::startDefaultAsyncExecutor();
             }
 
@@ -659,7 +659,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
         BOOST_TEST_REQUIRE(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
-                           std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 4);
+                           std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 3);
     }
 }
 

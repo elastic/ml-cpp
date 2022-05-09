@@ -181,7 +181,7 @@ public:
     using TMatrix = typename common::SConformableMatrix<POINT>::Type;
     using TCoordinate = typename common::SCoordinate<POINT>::Type;
     using TCoordinateVec = std::vector<TCoordinate>;
-    using TUInt32CoordinatePr = std::pair<uint32_t, TCoordinate>;
+    using TUInt32CoordinatePr = std::pair<std::uint32_t, TCoordinate>;
     using TUInt32CoordinatePrVec = std::vector<TUInt32CoordinatePr>;
     using CNearestNeighbourMethod<POINT, NEAREST_NEIGHBOURS>::distanceAtEps;
     static const TCoordinate UNSET_DISTANCE;
@@ -237,8 +237,8 @@ private:
         // values in the range [start addresses, end addresses).
 
         std::size_t k{this->k()};
-        m_KDistances.resize(k * m_StartAddresses, {0, UNSET_DISTANCE});
-        m_KDistances.resize(k * m_EndAddresses, {0, UNSET_DISTANCE});
+        m_KDistances.resize(k * m_StartAddresses, {std::uint32_t{0}, UNSET_DISTANCE});
+        m_KDistances.resize(k * m_EndAddresses, {std::uint32_t{0}, UNSET_DISTANCE});
         m_Lrd.resize(m_StartAddresses, UNSET_DISTANCE);
         m_Lrd.resize(m_EndAddresses, UNSET_DISTANCE);
         if (this->computeFeatureInfluence()) {

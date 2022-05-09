@@ -427,9 +427,8 @@ std::size_t CEnsemble<POINT>::estimateMemoryUsage(TMethodSize methodSize,
     // The scores for a single method plus bookkeeping overhead for a single partition.
     std::size_t partitionScoringMemory{
         numberMethodsPerModel * partitionNumberPoints *
-            (sizeof(TDouble1Vec) +
-             (computeFeatureInfluence ? projectionDimension * sizeof(double) : 0)) +
-        methodSize(maxNumberNeighbours, partitionNumberPoints, projectionDimension)};
+            (sizeof(TDouble1Vec) + (computeFeatureInfluence ? dimension * sizeof(double) : 0)) +
+        methodSize(maxNumberNeighbours, partitionNumberPoints, dimension)};
 
     return pointsMemory + scorersMemory + numberModels * modelMemory + partitionScoringMemory;
 }
@@ -802,7 +801,7 @@ std::size_t CEnsemble<POINT>::CModel::estimateMemoryUsage(TMethodSize methodSize
     std::size_t projectionMemory{projectionDimension * dimension *
                                  sizeof(typename common::SCoordinate<TPoint>::Type)};
     return sizeof(CModel) + lookupMemory + projectionMemory +
-           methodSize(numberNeighbours, sampleSize, projectionDimension);
+           methodSize(numberNeighbours, sampleSize, dimension);
 }
 
 template<typename POINT>
@@ -1100,20 +1099,19 @@ std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& par
                                                    std::size_t dimension) {
     using TLof = CLof<TAnnotatedPoint<POINT>, common::CKdTree<TAnnotatedPoint<POINT>>>;
 
-    auto methodSize = [=](std::size_t k, std::size_t numberPoints,
-                          std::size_t projectionDimension) {
+    auto methodSize = [=](std::size_t k, std::size_t numberPoints, std::size_t dimension) {
 
         k = params.s_NumberNeighbours > 0 ? params.s_NumberNeighbours : k;
 
         if (params.s_Method == E_Ensemble) {
             // On average half of models use CLof.
             return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
-                                                   k, numberPoints, projectionDimension) /
+                                                   k, numberPoints, dimension) /
                    2;
         }
         if (params.s_Method == E_Lof) {
             return TLof::estimateOwnMemoryOverhead(params.s_ComputeFeatureInfluence,
-                                                   k, numberPoints, projectionDimension);
+                                                   k, numberPoints, dimension);
         }
         return std::size_t{0};
     };
