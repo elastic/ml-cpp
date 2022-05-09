@@ -35,16 +35,16 @@ Switch to benchmark mode by passing the `--benchmark` argument.
 
 Setting the number of threads used by inference has the biggest affect
 on performance and is controlled two arguments. First, there is
-`--inferenceThreads` which controls the number of threads used by
+`--numThreadsPerAllocation` which controls the number of threads used by
 LibTorch. If not set LibTorch will choose the defaults. Second, we have
-`--modelThreads` which controls how many threads are
+`--numAllocations` which controls how many allocations are
 calling LibTorch's forwarding. If not set it defaults to 1.
 
 THREADING_BENCHMARK MODE
 -----------
 
 This mode will execute multiple runs setting various options to the two threading
-parameters, `--inferenceThreads` and `--modelThreads`.
+parameters, `--numThreadsPerAllocation` and `--numAllocations`.
 Define those options by setting the variable `threading_options`.
 At the end of the execution the output will be a CSV format summary of the runs
 with the total runtime and the avg time per request.
@@ -59,7 +59,7 @@ For test evaluation:
     python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json
 
 For Benchmarking:
-    python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --benchmark --inferenceThreads=2
+    python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --benchmark --numThreadsPerAllocation=2
 
 For threading benchmark:
     python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json --threading_benchmark
@@ -85,8 +85,8 @@ def parse_arguments():
     parser.add_argument('--restore_file', default='restore_file')
     parser.add_argument('--input_file', default='input_file')
     parser.add_argument('--output_file', default='output_file')
-    parser.add_argument('--inferenceThreads', type=int, help='The number of inference threads used by LibTorch. Defaults to 1.')
-    parser.add_argument('--modelThreads', type=int, help='The number of threads for parallel forwarding. Defaults to 1')
+    parser.add_argument('--numThreadsPerAllocation', type=int, help='The number of inference threads used by LibTorch. Defaults to 1.')
+    parser.add_argument('--numAllocations', type=int, help='The number of allocations for parallel forwarding. Defaults to 1')
     benchmark_group = parser.add_mutually_exclusive_group()
     benchmark_group.add_argument('--benchmark', action='store_true', help='Benchmark inference time rather than evaluting expected results')
     benchmark_group.add_argument('--threading_benchmark', action='store_true', help='Threading benchmark')
@@ -119,11 +119,11 @@ def launch_pytorch_app(args):
         '--validElasticLicenseKeyConfirmed=true'
         ]
 
-    if args.inferenceThreads:
-        command.append('--inferenceThreads=' + str(args.inferenceThreads))
+    if args.numThreadsPerAllocation:
+        command.append('--numThreadsPerAllocation=' + str(args.numThreadsPerAllocation))
 
-    if args.modelThreads:
-        command.append('--modelThreads=' + str(args.modelThreads))
+    if args.numAllocations:
+        command.append('--numAllocations=' + str(args.numAllocations))
 
     subprocess.Popen(command).communicate()
 
@@ -239,9 +239,7 @@ def run_benchmark(args):
 
         # ignore the warmup results
         for i in range(NUM_WARM_UP_REQUESTS, len(result_docs)):
-            if args.benchmark:
-                print(result_docs[i]['time_ms'])
-            total_time_ms += result_docs[i]['time_ms']
+            total_time_ms += result_docs[i]['result']['time_ms']
             doc_count += 1
 
         avg_time_ms = total_time_ms / doc_count
@@ -279,8 +277,12 @@ def test_evaluation(args):
 
         for result in result_docs:
             if 'error' in result: 
-                print(f"Inference failed. Request: {result['request_id']}, Msg: {result['error']}")
+                print(f"Inference failed. Request: {result['error']['request_id']}, Msg: {result['error']['error']}")
                 results_match = False
+                continue
+
+            if 'thread_settings' in result:
+                print(f"Thread settings read: {result}")
                 continue
 
             expected = test_evaluation[doc_count]['expected_output']
@@ -289,10 +291,10 @@ def test_evaluation(args):
             if 'how_close' in test_evaluation[doc_count]:
                 tolerance = test_evaluation[doc_count]['how_close']                                   
 
-            total_time_ms += result['time_ms']
+            total_time_ms += result['result']['time_ms']
 
             # compare to expected
-            if compare_results(expected, result, tolerance) == False:
+            if compare_results(expected, result['result'], tolerance) == False:
                 print()
                 print(f'ERROR: inference result [{doc_count}] does not match expected results')
                 print()
@@ -320,16 +322,16 @@ def threading_benchmark(args):
     threading_options = [1, 2, 3, 4, 8, 12, 16]
     results = []
     for inference_threads in threading_options:
-        for model_threads in threading_options:
+        for num_allocations in threading_options:
             args.inferenceThreads = inference_threads
-            args.modelThreads = model_threads
+            args.numAllocations = num_allocations
             print(f'Running benchmark with inference_threads = [{inference_threads}]; model_threads = [{model_threads}]')
             (run_time_ms, avg_time_ms) = run_benchmark(args)
-            result = {'inference_threads': inference_threads, 'model_threads': model_threads, 'run_time_ms': run_time_ms, 'avg_time_ms': avg_time_ms}
+            result = {'inference_threads': inference_threads, 'num_allocations': num_allocations, 'run_time_ms': run_time_ms, 'avg_time_ms': avg_time_ms}
             results.append(result)
-    print(f'inference_threads,model_threads,run_time_ms,avg_time_ms')
+    print(f'inference_threads,num_allocations,run_time_ms,avg_time_ms')
     for result in results:
-        print(f"{result['inference_threads']},{result['model_threads']},{result['run_time_ms']},{result['avg_time_ms']}")
+        print(f"{result['inference_threads']},{result['num_allocations']},{result['run_time_ms']},{result['avg_time_ms']}")
 
 def main():
 

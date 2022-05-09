@@ -42,7 +42,7 @@ namespace torch {
 //!
 class CBufferedIStreamAdapter : public caffe2::serialize::ReadAdapterInterface {
 public:
-    CBufferedIStreamAdapter(std::istream& inputStream);
+    explicit CBufferedIStreamAdapter(std::istream& inputStream);
 
     //! True if the model is successfully read.
     //! Must be called before read or size

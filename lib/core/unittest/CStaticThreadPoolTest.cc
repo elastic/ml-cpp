@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE(testNumberThreadsInUse) {
             if (numberProcessedTasks == 200) {
                 LOG_DEBUG(<< "# threads used = " << executionThreads.size());
                 // A subset of threads can steal all the work.
-                BOOST_REQUIRE(executionThreads.size() <= numberThreadsInUse);
+                BOOST_TEST_REQUIRE(executionThreads.size() <= numberThreadsInUse);
                 numberProcessedTasks = 0;
                 executionThreads.clear();
                 break;
