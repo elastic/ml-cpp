@@ -187,32 +187,35 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
-        for (auto& hyperparameterLoss : *m_HyperparametersLosses) {
-            auto parameters =
-                std::get<0>(hyperparameterLoss)
-                    .selectParametersVector(
-                        m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
+        if (m_TreeImpl->m_Hyperparameters.earlyStoppingEnabled()) {
+            for (auto& hyperparameterLoss : *m_HyperparametersLosses) {
+                auto parameters =
+                    std::get<0>(hyperparameterLoss)
+                        .selectParametersVector(
+                            m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
 
-            // LOG_DEBUG(<< "Tunable parameters vector size " << parameters.rows() << " " << parameters.cols());
-            m_TreeImpl->m_Hyperparameters.addObservation(
-                parameters, std::get<1>(hyperparameterLoss), 0.0);
-        }
-        if (m_TreeImpl->m_Hyperparameters.stopEarly()) {
-            auto minTuple = std::min_element(
-                m_HyperparametersLosses->begin(), m_HyperparametersLosses->end(),
-                [](const auto& lhs, const auto& rhs) {
-                    return std::get<1>(lhs) < std::get<1>(rhs);
-                });
-            auto parameters = std::get<0>(*minTuple).selectParametersVector(
-                m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
-            m_TreeImpl->m_Hyperparameters.storeHyperparameters(parameters);
-            using TMeanVarAccumulator =
-                common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-            TMeanVarAccumulator lossMoments;
-            lossMoments.add(std::get<1>(*minTuple));
-            m_TreeImpl->m_Hyperparameters.captureBest(
-                lossMoments, 0.0, 0.0, 0.0,
-                m_TreeImpl->m_Hyperparameters.maximumNumberTrees().value());
+                // LOG_DEBUG(<< "Tunable parameters vector size " << parameters.rows() << " " << parameters.cols());
+                m_TreeImpl->m_Hyperparameters.addObservation(
+                    parameters, std::get<1>(hyperparameterLoss), 0.0);
+            }
+            if (m_TreeImpl->m_Hyperparameters.stopEarly()) {
+                auto minTuple = std::min_element(
+                    m_HyperparametersLosses->begin(), m_HyperparametersLosses->end(),
+                    [](const auto& lhs, const auto& rhs) {
+                        return std::get<1>(lhs) < std::get<1>(rhs);
+                    });
+                auto parameters = std::get<0>(*minTuple).selectParametersVector(
+                    m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
+                m_TreeImpl->m_Hyperparameters.storeHyperparameters(parameters);
+                LOG_DEBUG(<< "Best hyperparameters " << parameters.transpose());
+                using TMeanVarAccumulator =
+                    common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+                TMeanVarAccumulator lossMoments;
+                lossMoments.add(std::get<1>(*minTuple));
+                m_TreeImpl->m_Hyperparameters.captureBest(
+                    lossMoments, 0.0, 0.0, 0.0,
+                    m_TreeImpl->m_Hyperparameters.maximumNumberTrees().value());
+            }
         }
         // LOG_DEBUG(<<"Stop early? " << m_TreeImpl->m_Hyperparameters.stopEarly());
     }
@@ -785,11 +788,17 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     });
 
     // initialize unset regularization hyperparameters with meaningful values
-    if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed() == false) {
-        hyperparameters.treeSizePenaltyMultiplier().set(m_GainPerNode90thPercentile);
-    }
-    if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed() == false) {
-        hyperparameters.leafWeightPenaltyMultiplier().set(m_TotalCurvaturePerNode90thPercentile);
+    if (hyperparameters.earlyStoppingEnabled()) {
+        if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed() == false) {
+            // LOG_DEBUG(<< "Setting treeSizePenaltyMultiplier");
+            hyperparameters.treeSizePenaltyMultiplier().set(
+                m_GainPerNode90thPercentile);
+        }
+        if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed() == false) {
+            // LOG_DEBUG(<< "Setting leafWeightPenaltyMultiplier");
+            hyperparameters.leafWeightPenaltyMultiplier().set(
+                m_TotalCurvaturePerNode90thPercentile);
+        }
     }
 
     // Search for depth limit at which the tree starts to overfit.

@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <boost/test/tools/old/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
