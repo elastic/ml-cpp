@@ -75,18 +75,17 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_library(MlApi SHARED ${SRCS} ${PLATFORM_SRCS})
 target_link_libraries(MlApi PUBLIC ${Boost_LIBRARIES})
-target_link_libraries(MlApi PUBLIC ${LOG4CXX_LIBRARIES})
 target_link_libraries(MlApi PUBLIC MlCore)
 target_link_libraries(MlApi PUBLIC MlMathsCommon)
 target_link_libraries(MlApi PUBLIC MlMathsTimeSeries)
 target_link_libraries(MlApi PUBLIC MlMathsAnalytics)
 target_link_libraries(MlApi PUBLIC MlModel)
 
-add_dependencies(MlApi eigen)
-
 if (WIN32)
   target_link_libraries(MlApi PUBLIC ws2_32)
 endif()
+
+add_dependencies(MlApi eigen)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     target_link_libraries(MlApi PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")

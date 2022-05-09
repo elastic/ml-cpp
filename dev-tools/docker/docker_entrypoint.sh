@@ -29,15 +29,11 @@ cd "$MY_DIR/../.."
 
 rm -rf cmake_build
 # Configure the build
-echo "CMAKE_FLAGS $CMAKE_FLAGS"
-$CMAKE -B cmake_build -G "$CMAKE_GENERATOR" $CMAKE_FLAGS
+cmake -B cmake_build -G "$CMAKE_GENERATOR" $CMAKE_FLAGS
 
 # Build the code
-echo "config succeeded"
-$CMAKE --build cmake_build -j`nproc`
-echo "build succeeded"
-$CMAKE --build cmake_build -t install
-echo "install succeeded"
+cmake --build cmake_build -j`nproc`
+cmake --build cmake_build -t install
 
 # Strip the binaries
 dev-tools/strip_binaries.sh
@@ -68,6 +64,6 @@ if [ "x$1" = "x--test" ] ; then
     # failure is the unit tests, and then the detailed test results can be
     # copied from the image
     echo passed > build/test_status.txt
-    $CMAKE --build cmake_build -t test -j`nproc` ML_KEEP_GOING=1 || echo failed > build/test_status.txt
+    cmake --build cmake_build -t test -j`nproc` ML_KEEP_GOING=1 || echo failed > build/test_status.txt
 fi
 

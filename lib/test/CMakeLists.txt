@@ -22,15 +22,7 @@ set(PLATFORM_SRCS_TMP
 CShellCmdEscape.cc
 )
 
-foreach(FILE ${PLATFORM_SRCS_TMP})
-    set(FILE "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}")
-    string(REPLACE ".cc" "_${PLATFORM_NAME}.cc" FILE_TMP ${FILE})
-    if (EXISTS ${FILE_TMP})
-        list(APPEND PLATFORM_SRCS ${FILE_TMP})
-    else()
-        list(APPEND PLATFORM_SRCS ${FILE})
-    endif()
-endforeach()
+gen_platform_srcs("${PLATFORM_SRCS_TMP}")
 
 set(SRCS
 CBoostTestXmlOutput.cc

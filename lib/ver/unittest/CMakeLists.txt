@@ -13,16 +13,12 @@ project("ML Ver unit tests")
 
 include_directories(../../../include)
 
-# TODO make platform safe
-set (PLATFORM_SRCS
-)
-
 set (SRCS
 Main.cc 
 CBuildInfoTest.cc
 )
 
-add_executable(ml_test_ver ${SRCS} ${PLATFORM_SRCS})
+add_executable(ml_test_ver ${SRCS})
 
 target_link_libraries(ml_test_ver ${Boost_LIBRARIES})
 target_link_libraries(ml_test_ver ${LIBXML2_LIBRARIES})

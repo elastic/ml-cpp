@@ -18,10 +18,7 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Make sure OS packages are up to date and required packages are installed
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y epel-release && \
-  yum install -y bzip2 cmake3 gcc gcc-c++ git libffi-devel make openssl-devel texinfo unzip wget which zip zlib-devel && \
-  alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 --slave /usr/local/bin/ctest ctest \
-      /usr/bin/ctest3 --slave /usr/local/bin/cpack cpack /usr/bin/cpack3 --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake3 --family cmake
+  yum install -y bzip2 gcc gcc-c++ git libffi-devel make openssl-devel texinfo unzip wget which zip zlib-devel
 
 # For compiling with hardening and optimisation
 ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -march=armv8-a+crc+crypto"
@@ -119,12 +116,8 @@ RUN \
   cd ${build_dir} && \
   wget --quiet https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-aarch64.sh && \
   chmod +x cmake-3.19.3-Linux-aarch64.sh && \
-  mkdir /usr/local/cmake && \
-  ./cmake-3.19.3-Linux-aarch64.sh --skip-license --prefix=/usr/local/cmake && \
+  ./cmake-3.19.3-Linux-aarch64.sh --skip-license --prefix=/usr/local/gcc103 && \
   rm -f cmake-3.19.3-Linux-aarch64.sh
-
-# Add cmake to PATH
-ENV PATH=${PATH}:/usr/local/cmake/bin
 
 # Clone PyTorch and build LibTorch
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
@@ -156,7 +149,6 @@ RUN \
 
 FROM centos:7
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
-COPY --from=builder /usr/local/cmake /usr/local/cmake
 RUN \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc git make unzip which zip zlib-devel

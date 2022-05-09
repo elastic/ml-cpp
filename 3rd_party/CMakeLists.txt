@@ -27,8 +27,8 @@ add_custom_target(licenses ALL
 add_custom_target(
     eigen
     DEPENDS 3rd_party.sh pull-eigen.sh
-    COMMAND sh -c "./3rd_party.sh --add ${INSTALL_DIR}"
-    COMMAND sh -c "./pull-eigen.sh"
+    COMMAND bash -c "./3rd_party.sh --add ${INSTALL_DIR}"
+    COMMAND bash -c "./pull-eigen.sh"
     WORKING_DIRECTORY $ENV{CPP_SRC_HOME}/3rd_party
 )
 

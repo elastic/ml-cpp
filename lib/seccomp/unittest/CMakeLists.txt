@@ -13,16 +13,12 @@ project("ML Seccomp unit tests")
 
 include_directories(../../../include)
 
-# TODO make platform safe
-set (PLATFORM_SRCS
-)
-
 set (SRCS
 Main.cc 
 CSystemCallFilterTest.cc 
 )
 
-add_executable(ml_test_seccomp ${SRCS} ${PLATFORM_SRCS})
+add_executable(ml_test_seccomp ${SRCS})
 
 target_link_libraries(ml_test_seccomp ${Boost_LIBRARIES})
 target_link_libraries(ml_test_seccomp ${LIBXML2_LIBRARIES})

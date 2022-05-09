@@ -16,10 +16,6 @@ include_directories(SYSTEM ../../../3rd_party/include)
 include_directories(SYSTEM ../../../3rd_party/eigen)
 include_directories(SYSTEM ../../../3rd_party/rapidjson/include)
 
-# TODO make platform safe
-set (PLATFORM_SRCS
-)
-
 set (SRCS
 Main.cc 
 CAnomalyJobConfigTest.cc 
@@ -72,9 +68,6 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_executable(ml_test_api ${SRCS} ${PLATFORM_SRCS})
 
-#TODO make portable for windows
-set(NETLIBS "")
-
 target_link_libraries(ml_test_api ${Boost_LIBRARIES})
 target_link_libraries(ml_test_api ${LIBXML2_LIBRARIES})
 target_link_libraries(ml_test_api MlCore)
@@ -83,7 +76,6 @@ target_link_libraries(ml_test_api MlMathsAnalytics)
 target_link_libraries(ml_test_api MlModel)
 target_link_libraries(ml_test_api MlApi)
 target_link_libraries(ml_test_api MlTest)
-target_link_libraries(ml_test_api ${NETLIBS})
 
 
 # we expect to be built out of source, in a sub directory

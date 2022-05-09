@@ -16,9 +16,6 @@ include_directories(SYSTEM ../../../3rd_party/include)
 include_directories(SYSTEM ../../../3rd_party/eigen)
 include_directories(SYSTEM ../../../3rd_party/rapidjson/include)
 
-# TODO make platform safe
-set (PLATFORM_SRCS
-)
 
 set (SRCS
     Main.cc
@@ -31,9 +28,9 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_executable(ml_test_controller ${SRCS} ${PLATFORM_SRCS})
 
-set(CONTROLLER_OBJS "${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/controller.dir/CBlockingCallCancellingStreamMonitor.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/controller.dir/CCmdLineParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/controller.dir/CCommandProcessor.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/controller.dir/CResponseJsonWriter.cc${OBJECT_FILE_EXT}")
 target_link_libraries(ml_test_controller ${CONTROLLER_OBJS})
 
+target_link_libraries(ml_test_controller MlController)
 target_link_libraries(ml_test_controller ${Boost_LIBRARIES})
 target_link_libraries(ml_test_controller ${LIBXML2_LIBRARIES})
 target_link_libraries(ml_test_controller MlCore)

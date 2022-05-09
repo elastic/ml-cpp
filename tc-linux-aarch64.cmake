@@ -9,6 +9,7 @@ set(CROSS_TARGET_PLATFORM  aarch64-linux-gnu)
 set(CMAKE_C_COMPILER   "/usr/local/gcc103/bin/${CROSS_TARGET_PLATFORM}-gcc")
 set(CMAKE_CXX_COMPILER "/usr/local/gcc103/bin/${CROSS_TARGET_PLATFORM}-g++")
 
+set(CMAKE_SYSTEM_PROCESSOR "aarch64")
 set(CMAKE_AR       "/usr/local/gcc103/bin/${CROSS_TARGET_PLATFORM}-ar")
 set(CMAKE_RANLIB   "/usr/local/gcc103/bin/${CROSS_TARGET_PLATFORM}-ranlib")
 set(CMAKE_STRIP    "/usr/local/gcc103/bin/${CROSS_TARGET_PLATFORM}-strip")

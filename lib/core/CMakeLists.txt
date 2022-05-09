@@ -18,7 +18,7 @@ include_directories(SYSTEM ../../3rd_party/rapidjson/include)
 
 add_compile_definitions(BUILDING_libMlCore)
 
-set(PLATFORM_SRCS_TMP
+set (PLATFORM_SRCS_TMP
 CCondition.cc
 CCrashHandler.cc
 CCTimeR.cc
@@ -50,15 +50,7 @@ CUnSetEnv.cc
 CWindowsError.cc
 )
 
-foreach(FILE ${PLATFORM_SRCS_TMP})
-    set(FILE "${CMAKE_CURRENT_SOURCE_DIR}/${FILE}")
-    string(REPLACE ".cc" "_${PLATFORM_NAME}.cc" FILE_TMP ${FILE})
-    if (EXISTS ${FILE_TMP})
-        list(APPEND PLATFORM_SRCS ${FILE_TMP})
-    else()
-        list(APPEND PLATFORM_SRCS ${FILE})
-    endif()
-endforeach()
+gen_platform_srcs("${PLATFORM_SRCS_TMP}")
 
 set(SRCS
 CBase64Filter.cc 
@@ -126,20 +118,12 @@ CXmlParserIntf.cc
 
 add_library(MlCore SHARED ${SRCS} ${PLATFORM_SRCS})
 if (WIN32)
-  target_link_libraries(MlCore PUBLIC "AdvAPI32.lib shell32.lib Version.lib")
+  target_link_libraries(MlCore PUBLIC AdvAPI32.lib shell32.lib Version.lib ${STRPTIME_LIB})
 endif()
 
 # workaround for linker insisting on picking "tbd" libraries when cross compiling for Darwin
-if(${CMAKE_CROSSCOMPILING})
-  if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_link_libraries(MlCore PUBLIC "-lz")
-    target_link_libraries(MlCore PUBLIC "-lxml2")
-  endif()
-else()
-  target_link_libraries(MlCore PUBLIC ${ZLIB_LIBRARIES})
-  target_link_libraries(MlCore PUBLIC ${LIBXML2_LIBRARIES})
-endif()
-target_link_libraries(MlCore PUBLIC ${STRPTIME_LIB})
+target_link_libraries(MlCore PUBLIC ${ZLIB_LIBRARIES})
+target_link_libraries(MlCore PUBLIC ${LIBXML2_LIBRARIES})
 target_link_libraries(MlCore PUBLIC ${Boost_LIBRARIES})
 
 add_dependencies(MlCore eigen)

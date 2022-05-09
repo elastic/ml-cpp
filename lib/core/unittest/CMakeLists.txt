@@ -16,10 +16,11 @@ include_directories(SYSTEM ../../../3rd_party/include)
 include_directories(SYSTEM ../../../3rd_party/eigen)
 include_directories(SYSTEM ../../../3rd_party/rapidjson/include)
 
-# TODO make platform safe
-set (PLATFORM_SRCS
+set (PLATFORM_SRCS_TMP
 CProcessPriorityTest.cc
 )
+
+gen_platform_srcs("${PLATFORM_SRCS_TMP}")
 
 set (SRCS
 Main.cc 

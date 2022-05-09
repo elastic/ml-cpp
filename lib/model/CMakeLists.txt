@@ -90,7 +90,6 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_library(MlModel SHARED ${SRCS} ${PLATFORM_SRCS})
 target_link_libraries(MlModel PUBLIC ${Boost_LIBRARIES})
-target_link_libraries(MlModel PUBLIC ${LOG4CXX_LIBRARIES})
 target_link_libraries(MlModel PUBLIC MlCore)
 target_link_libraries(MlModel PUBLIC MlMathsCommon)
 target_link_libraries(MlModel PUBLIC MlMathsTimeSeries)

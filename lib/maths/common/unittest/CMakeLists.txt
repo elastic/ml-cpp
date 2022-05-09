@@ -16,10 +16,6 @@ include_directories(SYSTEM ../../../../3rd_party/include)
 include_directories(SYSTEM ../../../../3rd_party/eigen)
 include_directories(SYSTEM ../../../../3rd_party/rapidjson/include)
 
-# TODO make platform safe
-set (PLATFORM_SRCS
-)
-
 set (SRCS
 Main.cc 
 CAgglomerativeClustererTest.cc 
@@ -81,7 +77,7 @@ CXMeansTest.cc
 TestUtils.cc 
 )
 
-add_executable(ml_test_maths_common ${SRCS} ${PLATFORM_SRCS})
+add_executable(ml_test_maths_common ${SRCS})
 
 target_link_libraries(ml_test_maths_common ${Boost_LIBRARIES})
 target_link_libraries(ml_test_maths_common MlCore)

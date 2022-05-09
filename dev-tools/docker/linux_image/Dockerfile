@@ -117,12 +117,8 @@ RUN \
   cd ${build_dir} && \
   wget --quiet https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh && \
   chmod +x cmake-3.19.3-Linux-x86_64.sh && \
-  mkdir /usr/local/cmake && \
-  ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake && \
+  ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/gcc103 && \
   rm -f cmake-3.19.3-Linux-x86_64.sh
-
-# Add cmake to PATH
-ENV PATH=${PATH}:/usr/local/cmake/bin
 
 # Install Intel MKL
 RUN \
@@ -161,7 +157,6 @@ RUN \
 
 FROM centos:7
 COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
-COPY --from=builder /usr/local/cmake /usr/local/cmake
 RUN \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc git make unzip which zip zlib-devel

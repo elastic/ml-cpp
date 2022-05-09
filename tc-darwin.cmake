@@ -9,6 +9,7 @@ set(CROSS_TARGET_PLATFORM  x86_64-apple-macosx10.14)
 set(CMAKE_C_COMPILER   "clang-8")
 set(CMAKE_CXX_COMPILER "clang++-8")
 
+set(CMAKE_SYSTEM_PROCESSOR "x86_64")
 set(CMAKE_AR  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-ar")
 set(CMAKE_RANLIB  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-ranlib")
 set(CMAKE_STRIP  "/usr/local/bin/${CROSS_TARGET_PLATFORM}-strip")

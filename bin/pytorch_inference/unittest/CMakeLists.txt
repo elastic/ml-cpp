@@ -16,25 +16,17 @@ include_directories(SYSTEM ../../../3rd_party/include)
 include_directories(SYSTEM ../../../3rd_party/eigen)
 include_directories(SYSTEM ../../../3rd_party/rapidjson/include)
 
-# TODO make platform safe
-set (PLATFORM_SRCS
-)
-
 set (SRCS
     Main.cc
     CCommandParserTest.cc
-    SettingsValidatorTest.cc
+    CThreadSettingsTest.cc
 )
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_executable(ml_test_pytorch_inference ${SRCS} ${PLATFORM_SRCS})
 
-#TODO make portable for windows
-set(NETLIBS "")
-
-set(PYTORCH_INFERENCE_OBJS "${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CBufferedIStreamAdapter.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CCmdLineParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/CCommandParser.cc${OBJECT_FILE_EXT};${CMAKE_CURRENT_BINARY_DIR}/../CMakeFiles/pytorch_inference.dir/SettingsValidator.cc${OBJECT_FILE_EXT}")
-target_link_libraries(ml_test_pytorch_inference ${PYTORCH_INFERENCE_OBJS})
+target_link_libraries(ml_test_pytorch_inference MlPytorchInference)
 
 target_link_libraries(ml_test_pytorch_inference ${Boost_LIBRARIES})
 target_link_libraries(ml_test_pytorch_inference ${LIBXML2_LIBRARIES})
@@ -45,7 +37,6 @@ target_link_libraries(ml_test_pytorch_inference MlModel)
 target_link_libraries(ml_test_pytorch_inference MlApi)
 target_link_libraries(ml_test_pytorch_inference MlTest)
 target_link_libraries(ml_test_pytorch_inference MlVer)
-target_link_libraries(ml_test_pytorch_inference ${NETLIBS})
 target_link_libraries(ml_test_pytorch_inference "${TORCH_LIB}")
 target_link_libraries(ml_test_pytorch_inference "${C10_LIB}")
 

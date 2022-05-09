@@ -9,7 +9,7 @@
 # limitation.
 #
 
-project("ML Autodetect")
+project("ML DCump State")
 
 include_directories(../../../include)
 include_directories(SYSTEM ../../../3rd_party/include)
@@ -29,5 +29,3 @@ target_link_libraries(dump_state MlCore)
 target_link_libraries(dump_state MlApi)
 target_link_libraries(dump_state MlSeccomp)
 target_link_libraries(dump_state MlVer)
-
-#install(TARGETS dump_state DESTINATION "${EXE_DIR}")

@@ -16,10 +16,6 @@ include_directories(SYSTEM ../../../../3rd_party/include)
 include_directories(SYSTEM ../../../../3rd_party/eigen)
 include_directories(SYSTEM ../../../../3rd_party/rapidjson/include)
 
-# TODO make platform safe
-set (PLATFORM_SRCS
-)
-
 set (SRCS
 Main.cc 
 CAdaptiveBucketingTest.cc 
@@ -46,7 +42,7 @@ CTrendComponentTest.cc
 TestUtils.cc
 )
 
-add_executable(ml_test_maths_time_series ${SRCS} ${PLATFORM_SRCS})
+add_executable(ml_test_maths_time_series ${SRCS})
 
 target_link_libraries(ml_test_maths_time_series ${Boost_LIBRARIES})
 target_link_libraries(ml_test_maths_time_series MlCore)
