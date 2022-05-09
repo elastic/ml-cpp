@@ -193,14 +193,17 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(PLATFORM_NAME "Windows")
 
   # Hardcode paths to avoid any confusion
+  set(LOCAL_DRIVE "${LOCAL_DRIVE}:")
   message(STATUS "LOCAL_DRIVE ${LOCAL_DRIVE}")
-  set(TORCH_INC "$LOCAL_DRIVE/usr/local/include/pytorch")
-  set(TORCH_LIB "$LOCAL_DRIVE/usr/local/lib/libtorch_cpu.lib")
-  set(C10_LIB "$LOCAL_DRIVE/usr/local/lib/libc10.lib")
-  set(STRPTIME_LIB "$LOCAL_DRIVE/usr/local/lib/strptime.lib")
-  set(ZLIB_LIB "$LOCAL_DRIVE/usr/local/lib/zlib.lib")
+  set(TORCH_INC "${LOCAL_DRIVE}/usr/local/include/pytorch")
+  set(TORCH_LIB "${LOCAL_DRIVE}/usr/local/lib/torch_cpu.lib")
+  set(C10_LIB "${LOCAL_DRIVE}/usr/local/lib/c10.lib")
+  set(STRPTIME_LIB "${LOCAL_DRIVE}/usr/local/lib/strptime.lib")
+  set(ZLIB_LIBRARIES "${LOCAL_DRIVE}/usr/local/lib/zlib.lib")
+  set(LIBXML2_LIBRARIES "${LOCAL_DRIVE}/usr/local/lib/libxml2.lib")
 
-  include_directories(SYSTEM "$LOCAL_DRIVE//usr/local/include")
+  include_directories(SYSTEM "${LOCAL_DRIVE}/usr/local/include")
+  include_directories(SYSTEM "${LOCAL_DRIVE}/usr/local/include/libxml2")
 
   set(Boost_USE_DEBUG_LIBS OFF)
   set(Boost_USE_RELEASE_LIBS ON)

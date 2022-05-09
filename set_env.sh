@@ -56,9 +56,9 @@ case `uname` in
     MINGW*)
         SIMPLE_PLATFORM=windows
         BUNDLE_PLATFORM=windows-x86_64
-        LOCAL_DRIVE=${LOCAL_DRIVE:-"c:"}
+        LOCAL_DRIVE=${LOCAL_DRIVE:-"c"}
         CMAKE_GENERATOR='MinGW Makefiles'
-        CMAKE_FLAGS="-DLOCAL_DRIVE=$LOCAL_DRIVE -DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_C_COMPILER=cl.exe -DCMAKE_MAKE_PROGRAM=gnumake.exe -DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
+        CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Release -DLOCAL_DRIVE=$LOCAL_DRIVE -DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_C_COMPILER=cl.exe -DCMAKE_MAKE_PROGRAM=gnumake.exe -DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
         ;;
 
     *)
