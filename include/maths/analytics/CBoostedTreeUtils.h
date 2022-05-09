@@ -28,6 +28,7 @@ namespace analytics {
 namespace boosted_tree {
 class CLoss;
 }
+class CBoostedTreeNode;
 namespace boosted_tree_detail {
 using TFloatVec = std::vector<common::CFloatStorage>;
 using TSizeVec = std::vector<std::size_t>;
@@ -45,7 +46,7 @@ enum EExtraColumn {
     E_BeginSplits
 };
 
-enum EHyperparameters {
+enum EHyperparameter {
     E_DownsampleFactor = 0,
     E_Alpha,
     E_Lambda,
@@ -58,17 +59,33 @@ enum EHyperparameters {
     E_FeatureBagFraction
 };
 
-constexpr std::size_t NUMBER_HYPERPARAMETERS = E_FeatureBagFraction + 1; // This must be last hyperparameter
+constexpr std::size_t NUMBER_EXTRA_COLUMNS{E_BeginSplits + 1}; // This must be last extra column
+constexpr std::size_t NUMBER_HYPERPARAMETERS{E_FeatureBagFraction + 1}; // This must be last hyperparameter
+constexpr std::size_t UNIT_ROW_WEIGHT_COLUMN{std::numeric_limits<std::size_t>::max()};
 
-struct SHyperparameterImportance {
+//! \brief Hyperparameter importance information.
+struct MATHS_ANALYTICS_EXPORT SHyperparameterImportance {
     enum EType { E_Double = 0, E_Uint64 };
-    EHyperparameters s_Hyperparameter;
+    EHyperparameter s_Hyperparameter;
     double s_Value;
     double s_AbsoluteImportance;
     double s_RelativeImportance;
     bool s_Supplied;
     EType s_Type;
 };
+
+//! Get the index of the root node in a canonical tree node vector.
+inline std::size_t rootIndex() {
+    return 0;
+}
+
+//! Get the root node of \p tree.
+MATHS_ANALYTICS_EXPORT
+const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree);
+
+//! Get the root node of \p tree.
+MATHS_ANALYTICS_EXPORT
+CBoostedTreeNode& root(std::vector<CBoostedTreeNode>& tree);
 
 //! Get the split used for storing missing values.
 inline std::size_t missingSplit(const TFloatVec& candidateSplits) {
@@ -80,12 +97,16 @@ inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters
     return numberLossParameters * (numberLossParameters + 1) / 2;
 }
 
+//! Get the tags for extra columns needed by training.
+inline TSizeVec extraColumnTagsForTrain() {
+    return {E_Prediction, E_Gradient, E_Curvature, E_Weight};
+}
+
 //! Get the extra columns needed by training.
-inline TSizeAlignmentPrVec extraColumns(std::size_t numberLossParameters) {
-    return {{numberLossParameters, core::CAlignment::E_Unaligned},
-            {numberLossParameters, core::CAlignment::E_Aligned16},
-            {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned},
-            {1, core::CAlignment::E_Unaligned}};
+inline TSizeAlignmentPrVec extraColumnsForTrain(std::size_t numberLossParameters) {
+    return {{numberLossParameters, core::CAlignment::E_Unaligned}, // prediction
+            {numberLossParameters, core::CAlignment::E_Aligned16}, // gradient
+            {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned}}; // curvature
 }
 
 //! Read the prediction from \p row.
@@ -136,19 +157,17 @@ void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::si
 MATHS_ANALYTICS_EXPORT
 void writeLossCurvature(const TRowRef& row,
                         const TSizeVec& extraColumns,
-                        const boosted_tree::CLoss& curvature,
+                        const boosted_tree::CLoss& loss,
                         const TMemoryMappedFloatVector& prediction,
                         double actual,
                         double weight = 1.0);
 
 //! Read the example weight from \p row.
 inline double readExampleWeight(const TRowRef& row, const TSizeVec& extraColumns) {
-    return row[extraColumns[E_Weight]];
-}
-
-//! Write the example weight to \p row .
-inline void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns, double weight) {
-    row.writeColumn(extraColumns[E_Weight], weight);
+    std::size_t weightColumn{extraColumns[E_Weight]};
+    return weightColumn == UNIT_ROW_WEIGHT_COLUMN
+               ? 1.0
+               : static_cast<double>(row[weightColumn]);
 }
 
 //! Get a writable pointer to the start of the row split indices.

@@ -757,7 +757,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
     for (std::size_t i = 0; i < weights.size(); ++i) {
         // We need to re-normalize so that the probabilities sum to one.
         double number = weights[i] * static_cast<double>(n) / totalWeight;
-        choices.push_back((number - std::floor(number) < 0.5) ? 0u : 1u);
+        choices.push_back((number - std::floor(number) < 0.5) ? 0 : 1);
         remainders[0].push_back(number - std::floor(number));
         remainders[1].push_back(number - std::ceil(number));
         totalRemainder += remainders[choices.back()].back();
@@ -771,8 +771,8 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
 
         TDoubleSizePrVec candidates;
         for (std::size_t i = 0; i < choices.size(); ++i) {
-            if ((totalRemainder > 0.0 && choices[i] == 0u) ||
-                (totalRemainder < 0.0 && choices[i] == 1u)) {
+            if ((totalRemainder > 0.0 && choices[i] == 0) ||
+                (totalRemainder < 0.0 && choices[i] == 1)) {
                 candidates.emplace_back(-std::fabs(remainders[choices[i]][i]), i);
             }
         }
@@ -794,7 +794,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
         double number = weights[i] * static_cast<double>(n) / totalWeight;
 
         sampling.push_back(static_cast<std::size_t>(
-            choices[i] == 0u ? std::floor(number) : std::ceil(number)));
+            choices[i] == 0 ? std::floor(number) : std::ceil(number)));
     }
 }
 

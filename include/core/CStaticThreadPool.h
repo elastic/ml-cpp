@@ -46,6 +46,11 @@ public:
     CStaticThreadPool& operator=(const CStaticThreadPool&) = delete;
     CStaticThreadPool& operator=(CStaticThreadPool&&) = delete;
 
+    //! Adjust the number of threads which are being used by the pool.
+    //!
+    //! \note \p threads should be in the range [1, pool size].
+    void numberThreadsInUse(std::size_t threads);
+
     //! Schedule a Callable type to be executed by a thread in the pool.
     //!
     //! \note This forwards the task to the queue.
@@ -88,9 +93,10 @@ private:
     // This doesn't have to be atomic because it is always only set to true,
     // always set straight before it is checked on each worker in the pool
     // and tearing can't happen for single byte writes.
-    bool m_Done = false;
+    bool m_Done{false};
     std::atomic_bool m_Busy;
     std::atomic<std::uint64_t> m_Cursor;
+    std::atomic<std::size_t> m_NumberThreadsInUse;
     TWrappedTaskQueueVec m_TaskQueues;
     TThreadVec m_Pool;
 };

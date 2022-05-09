@@ -1402,4 +1402,98 @@ BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeights) {
     core::stopDefaultAsyncExecutor();
 }
 
+BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeightsBadInputs) {
+
+    // Check that we successfully handle NaN and infinite inputs.
+
+    using TDoubleVector = maths::common::CDenseVector<double>;
+    using TMemoryMappedFloatVector =
+        maths::common::CMemoryMappedDenseVector<maths::common::CFloatStorage>;
+
+    std::size_t rows{5000};
+    std::size_t capacity{2000};
+
+    test::CRandomNumbers rng;
+
+    for (std::size_t numberClasses : {2, 3}) {
+
+        std::size_t cols{numberClasses + 1};
+
+        auto readPrediction = [&](const core::CDataFrame::TRowRef& row) {
+            return TMemoryMappedFloatVector{row.data(), static_cast<int>(numberClasses)};
+        };
+
+        TBoolVec categoricalColumns(cols, false);
+        categoricalColumns[numberClasses] = true;
+
+        TDoubleVec predictions;
+        TSizeVec category;
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+        frame->categoricalColumns(categoricalColumns);
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                rng.generateUniformSamples(0, numberClasses, 1, category);
+                rng.generateNormalSamples(0.0, 1.0, numberClasses, predictions);
+                for (std::size_t j = 0; j < numberClasses; ++j) {
+                    column[j] += predictions[j];
+                }
+                column[category[0]] += static_cast<double>(category[0] + 1);
+                if (i % 500 == 0) {
+                    column[category[0]] = std::numeric_limits<double>::quiet_NaN();
+                }
+                if (i % 600 == 0) {
+                    column[category[0]] = std::numeric_limits<double>::infinity();
+                }
+                column[numberClasses] = static_cast<double>(category[0]);
+            });
+        }
+        frame->finishWritingRows();
+
+        TDoubleVec minRecalls(2);
+        TDoubleVec maxRecalls(2);
+
+        auto weights = maths::analytics::CDataFrameUtils::maximumMinimumRecallClassWeights(
+            1, *frame, maskAll(rows), numberClasses, numberClasses, readPrediction);
+
+        TDoubleVector prediction;
+        TDoubleVector correct[2]{TDoubleVector::Zero(numberClasses),
+                                 TDoubleVector::Zero(numberClasses)};
+        TDoubleVector counts{TDoubleVector::Zero(numberClasses)};
+
+        frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
+                               const core::CDataFrame::TRowItr& endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                prediction = readPrediction(*row);
+                maths::common::CTools::inplaceSoftmax(prediction);
+                std::size_t weightedPredictedClass;
+                weights.cwiseProduct(prediction).maxCoeff(&weightedPredictedClass);
+                std::size_t actualClass{static_cast<std::size_t>((*row)[numberClasses])};
+                if (weightedPredictedClass == actualClass) {
+                    correct[0](actualClass) += 1.0;
+                }
+                std::size_t unweightedPredictedClass;
+                prediction.maxCoeff(&unweightedPredictedClass);
+                if (unweightedPredictedClass == actualClass) {
+                    correct[1](actualClass) += 1.0;
+                }
+                counts(actualClass) += 1.0;
+            }
+        });
+
+        minRecalls[0] = correct[0].cwiseQuotient(counts).minCoeff();
+        maxRecalls[0] = correct[0].cwiseQuotient(counts).maxCoeff();
+        minRecalls[1] = correct[1].cwiseQuotient(counts).minCoeff();
+        maxRecalls[1] = correct[1].cwiseQuotient(counts).maxCoeff();
+
+        LOG_DEBUG(<< "min recalls = " << core::CContainerPrinter::print(minRecalls));
+        LOG_DEBUG(<< "max recalls = " << core::CContainerPrinter::print(maxRecalls));
+
+        // We improved the minimum class recall by at least 10%.
+        BOOST_TEST_REQUIRE(minRecalls[0] > 1.1 * minRecalls[1]);
+
+        // The minimum and maximum class recalls are close: we're at the global maximum.
+        BOOST_TEST_REQUIRE(1.06 * minRecalls[0] > maxRecalls[0]);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

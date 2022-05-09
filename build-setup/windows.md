@@ -87,17 +87,17 @@ Finally, copy the file `gnumake.exe` from `C:\tools\make-4.2.1\WinRel` to `C:\us
 
 Whilst it is possible to download a pre-built version of `zlib1.dll`, for consistency we want one that links against the Visual Studio 2019 C runtime library. Therefore it is necessary to build zlib from source.
 
-Download the source code from <http://zlib.net/> - the file is called `zlib1211.zip`. Unzip this file under `C:\tools`, so that you end up with a directory called `C:\tools\zlib-1.2.11`.
+Download the source code from <http://zlib.net/> - the file is called `zlib1212.zip`. Unzip this file under `C:\tools`, so that you end up with a directory called `C:\tools\zlib-1.2.12`.
 
 To build, start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
-cd \tools\zlib-1.2.11
-nmake -f win32/Makefile.msc AS=ml64 LOC="-D_WIN32_WINNT=0x0601 -DASMV -DASMINF -I." OBJA="inffasx64.obj gvmat64.obj inffas8664.obj"
+cd \tools\zlib-1.2.12
+nmake -f win32/Makefile.msc LOC="-D_WIN32_WINNT=0x0601"
 nmake -f win32/Makefile.msc test
 ```
 
-All the build output will end up in the top level `C:\tools\zlib-1.2.11` directory. Once the build is complete, copy `zlib1.dll` and `minigzip.exe` to `C:\usr\local\bin`. Copy `zlib.lib` and `zdll.lib` to `C:\usr\local\lib`. And copy `zlib.h` and `zconf.h` to `C:\usr\local\include`.
+All the build output will end up in the top level `C:\tools\zlib-1.2.12` directory. Once the build is complete, copy `zlib1.dll` and `minigzip.exe` to `C:\usr\local\bin`. Copy `zlib.lib` and `zdll.lib` to `C:\usr\local\lib`. And copy `zlib.h` and `zconf.h` to `C:\usr\local\include`.
 
 ### libxml2
 
@@ -161,8 +161,8 @@ Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt
 ```
 cd \tools\boost_1_77_0
 bootstrap.bat
-b2 -j6 --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.11" -sZLIB_LIBPATH="C:\tools\zlib-1.2.11" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
-b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.11" -sZLIB_LIBPATH="C:\tools\zlib-1.2.11" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
+b2 -j6 --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.12" -sZLIB_LIBPATH="C:\tools\zlib-1.2.12" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
+b2 install --prefix=C:\usr\local --layout=versioned --disable-icu --toolset=msvc-14.2 cxxflags="-std:c++17" linkflags="-std:c++17" --build-type=complete -sZLIB_INCLUDE="C:\tools\zlib-1.2.12" -sZLIB_LIBPATH="C:\tools\zlib-1.2.12" -sZLIB_NAME=zdll --without-context --without-coroutine --without-graph_parallel --without-mpi --without-python architecture=x86 address-model=64 optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_WIN32_WINNT=0x0601
 ```
 
 The Boost headers and appropriate libraries should end up in `C:\usr\local\include` and `C:\usr\local\lib` respectively.
@@ -213,7 +213,7 @@ On the "Advanced Options" screen, check "Install for all users" and "Add Python 
 
 For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
 
-### PyTorch 1.9.0
+### PyTorch 1.11.0
 
 PyTorch requires that certain Python modules are installed.  Start a command prompt "cmd.exe" using "Run as administrator".  In it run:
 
@@ -227,7 +227,7 @@ Next, in a Git bash shell run:
 
 ```
 cd /c/tools
-git clone --depth=1 --branch=v1.9.0 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v1.11.0 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
@@ -278,7 +278,7 @@ set USE_QNNPACK=OFF
 set USE_PYTORCH_QNNPACK=OFF
 set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=1.9.0
+set PYTORCH_BUILD_VERSION=1.11.0
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```

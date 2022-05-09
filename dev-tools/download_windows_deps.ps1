@@ -9,9 +9,11 @@
 # limitation.
 #
 $ErrorActionPreference="Stop"
-$Archive="usr-x86_64-windows-2016-5.zip"
+$Archive="usr-x86_64-windows-2016-7.zip"
 $Destination="C:\"
-if (!(Test-Path "$Destination\usr\local\lib\boost_system-vc142-mt-x64-1_77.dll")) {
+# If zlib is not version 1.2.12 then we need the latest download
+if (!(Test-Path "$Destination\usr\local\include\zlib.h") -Or
+    !(Select-String -Path "$Destination\usr\local\include\zlib.h" -Pattern "0x12c0" -Quiet)) {
     Remove-Item "$Destination\usr" -Recurse -Force -ErrorAction Ignore
     $ZipSource="https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/$Archive"
     $ZipDestination="$Env:TEMP\$Archive"

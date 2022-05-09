@@ -12,25 +12,28 @@
 #ifndef INCLUDED_ml_maths_time_series_CTimeSeriesMultibucketFeatures_h
 #define INCLUDED_ml_maths_time_series_CTimeSeriesMultibucketFeatures_h
 
-#include <core/CPersistUtils.h>
+#include <core/CMemory.h>
 #include <core/CSmallVector.h>
-#include <core/CTriple.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CBasicStatisticsPersist.h>
-#include <maths/common/CChecksum.h>
 #include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CLinearAlgebraTools.h>
-#include <maths/common/CTypeTraits.h>
 #include <maths/common/MathsTypes.h>
+
+#include <maths/time_series/CTimeSeriesMultibucketFeaturesFwd.h>
+#include <maths/time_series/ImportExport.h>
 
 #include <boost/circular_buffer.hpp>
 
+#include <cmath>
+#include <cstdint>
 #include <memory>
 #include <numeric>
-#include <tuple>
 #include <type_traits>
 #include <utility>
 
@@ -38,13 +41,13 @@ namespace ml {
 namespace maths {
 namespace time_series {
 
-//! \brief Defines features on collections of time series values.
+//! \brief Defines an interface for features of multiple time series values.
 //!
 //! DESCRIPTION:\n
-//! The intention of these is to provide useful features for performing
-//! anomaly detection. Specifically, unusual values of certain properties
-//! of extended intervals of a time series are often the most interesting
-//! events in a time series from a user's perspective.
+//! The intention is to provide useful features for performing anomaly detection
+//! in addition to the current time series value. Specifically, unusual values of
+//! properties of extended intervals of a time series are often the most interesting
+//! events from a user's perspective.
 template<typename T>
 class CTimeSeriesMultibucketFeature {
 public:
@@ -75,7 +78,7 @@ public:
                      const TWeightsAry1Vec& weights) = 0;
 
     //! Compute a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const = 0;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
 
     //! Debug the memory used by this object.
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
@@ -198,7 +201,7 @@ public:
             }
 
             // Add the next sample.
-            TFloatMeanAccumulator next{this->conformable(TStorage(values[0]), 0.0f)};
+            TFloatMeanAccumulator next{this->conformable(TStorage(values[0]), 0.0F)};
             for (std::size_t i = 0; i < values.size(); ++i) {
                 auto weight = maths_t::countForUpdate(weights[i]);
                 next.add(TStorage(values[i]) / scales[i], this->minweight(weight));
@@ -208,7 +211,7 @@ public:
     }
 
     //! Compute a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const override {
+    std::uint64_t checksum(std::uint64_t seed = 0) const override {
         seed = common::CChecksum::calculate(seed, m_SlidingWindow.capacity());
         return common::CChecksum::calculate(seed, m_SlidingWindow);
     }
@@ -294,8 +297,7 @@ private:
     //! Compute the weighted mean of \p function on the sliding window.
     template<typename VALUE, typename WEIGHT>
     T evaluateOnWindow(VALUE value, WEIGHT weight) const {
-        double latest, earliest;
-        std::tie(earliest, latest) = this->range();
+        auto[earliest, latest] = this->range();
         double n{static_cast<double>(m_SlidingWindow.size())};
         double scale{(n - 1.0) * (latest == earliest ? 1.0 : 1.0 / (latest - earliest))};
         auto i = m_SlidingWindow.begin();
@@ -331,6 +333,10 @@ template<typename T>
 const std::string CTimeSeriesMultibucketMean<T>::CAPACITY_TAG{"a"};
 template<typename T>
 const std::string CTimeSeriesMultibucketMean<T>::SLIDING_WINDOW_TAG{"b"};
+
+using CTimeSeriesMultibucketScalarMean = CTimeSeriesMultibucketMean<double>;
+using CTimeSeriesMultibucketVectorMean =
+    CTimeSeriesMultibucketMean<core::CSmallVector<double, 10>>;
 }
 }
 }

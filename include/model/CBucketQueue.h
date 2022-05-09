@@ -132,13 +132,6 @@ public:
     //! Note, the queue should never be empty.
     void clear(const T& initial = T()) { this->fill(initial); }
 
-    //! Resets the queue to \p startTime.
-    //! This will clear the queue and will fill it with default items.
-    void reset(core_t::TTime startTime, const T& initial = T()) {
-        m_LatestBucketEnd = startTime + m_BucketLength - 1;
-        this->fill(initial);
-    }
-
     //! Returns an iterator pointing to the latest bucket and directed
     //! towards the earlier buckets.
     iterator begin() { return m_Queue.begin(); }
@@ -209,14 +202,9 @@ public:
                 }
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
-                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i
-                             << " >= " << m_Queue.size()
-                             << ".  Extra buckets will be ignored.");
-                    // Restore into a temporary
-                    T dummy;
-                    if (!(core::CPersistUtils::restore(BUCKET_TAG, dummy, traverser))) {
-                        LOG_ERROR(<< "Invalid bucket");
-                    }
+                    LOG_ERROR(<< "Bucket queue is smaller on restore than on persist: " << i
+                              << " >= " << m_Queue.size() << ". Restoration failed.");
+                    return false;
                 } else {
                     if (!(core::CPersistUtils::restore(BUCKET_TAG, m_Queue[i], traverser))) {
                         LOG_ERROR(<< "Invalid bucket");
@@ -252,17 +240,9 @@ private:
                 }
             } else if (traverser.name() == BUCKET_TAG) {
                 if (i >= m_Queue.size()) {
-                    LOG_WARN(<< "Bucket queue is smaller on restore than on persist: " << i
-                             << " >= " << m_Queue.size()
-                             << ".  Extra buckets will be ignored.");
-                    if (traverser.hasSubLevel()) {
-                        // Restore into a temporary
-                        T dummy = initial;
-                        if (traverser.traverseSubLevel(std::bind<bool>(
-                                bucketRestore, dummy, std::placeholders::_1)) == false) {
-                            LOG_ERROR(<< "Invalid bucket");
-                        }
-                    }
+                    LOG_ERROR(<< "Bucket queue is smaller on restore than on persist: " << i
+                              << " >= " << m_Queue.size() << ". Restoration failed.");
+                    return false;
                 } else {
                     m_Queue[i] = initial;
                     if (traverser.hasSubLevel()) {

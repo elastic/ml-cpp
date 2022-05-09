@@ -335,7 +335,6 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     m_InferenceModelMetadata.hyperparameterImportance(
         this->boostedTree().hyperparameterImportance());
     m_InferenceModelMetadata.numberTrainingRows(this->boostedTree().numberTrainingRows());
-    m_InferenceModelMetadata.trainFractionPerFold(this->boostedTree().trainFractionPerFold());
     return m_InferenceModelMetadata;
 }
 

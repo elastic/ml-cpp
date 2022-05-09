@@ -45,10 +45,8 @@ namespace least_squares_online_regression_detail {
 //! when computing parameters.
 template<typename T>
 struct CMaxCondition {
-    static const double VALUE;
+    static constexpr double VALUE{1e15};
 };
-template<typename T>
-const double CMaxCondition<T>::VALUE = 1e15;
 
 //! Used for getting the default maximum condition number to use
 //! when computing parameters.
@@ -56,6 +54,11 @@ template<>
 struct MATHS_COMMON_EXPORT CMaxCondition<CFloatStorage> {
     static const double VALUE;
 };
+
+//! The number of statistics needed by the regression model.
+constexpr std::size_t numberStatistics(std::size_t n, bool r2) {
+    return r2 ? 3 * n : 3 * n - 1;
+}
 }
 
 //! DESCRIPTION:\n
@@ -96,26 +99,34 @@ struct MATHS_COMMON_EXPORT CMaxCondition<CFloatStorage> {
 //! is at a premium.
 //!
 //! \tparam N_ The degree of the polynomial.
+//! \tparam T The storage type used for the statistics. Note that since
+//! we can't avoid losing precision in our formulation be careful using
+//! single precision if the polynomial degree is high.
+//! \tparam R_2 If this is true you can additionally compute R^2 and
+//! the residual statistics, but it adds sizeof(T) to the memory usage.
 // clang-format off
-template<std::size_t N_, typename T = CFloatStorage>
+template<std::size_t N_, typename T = CFloatStorage, bool R_2 = false>
 class CLeastSquaresOnlineRegression : boost::addable<CLeastSquaresOnlineRegression<N_, T>,
                                       boost::subtractable<CLeastSquaresOnlineRegression<N_, T>>> {
     // clang-format on
 public:
     static const std::size_t N = N_ + 1;
     using TArray = std::array<double, N>;
-    using TVector = CVectorNx1<T, 3 * N - 1>;
+    using TVector =
+        CVectorNx1<T, least_squares_online_regression_detail::numberStatistics(N, R_2)>;
     using TMatrix = CSymmetricMatrixNxN<double, N>;
     using TVectorMeanAccumulator = typename CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 public:
     static const core::TPersistenceTag STATISTIC_TAG;
     static const T MAX_CONDITION;
 
 public:
+    // This is purposely not explicit to allow type coercion.
     CLeastSquaresOnlineRegression() = default;
     template<typename U>
-    CLeastSquaresOnlineRegression(const CLeastSquaresOnlineRegression<N_, U>& other)
+    CLeastSquaresOnlineRegression(const CLeastSquaresOnlineRegression<N_, U, R_2>& other)
         : m_S{other.statistic()} {}
 
     //! Restore by traversing a state document.
@@ -139,13 +150,16 @@ public:
         for (std::size_t i = N; i < 2 * N - 1; ++i, xi *= x) {
             d(i) = xi;
         }
+        if constexpr (R_2) {
+            d(3 * N - 1) = y * y;
+        }
         m_S.add(d, weight);
     }
 
     //! Set the statistics from \p rhs.
     template<typename U>
-    const CLeastSquaresOnlineRegression
-    operator=(const CLeastSquaresOnlineRegression<N_, U>& rhs) {
+    CLeastSquaresOnlineRegression&
+    operator=(const CLeastSquaresOnlineRegression<N_, U, R_2>& rhs) {
         m_S = rhs.statistic();
         return *this;
     }
@@ -161,7 +175,7 @@ public:
     //! values add to this.
     template<typename U>
     const CLeastSquaresOnlineRegression&
-    operator-=(const CLeastSquaresOnlineRegression<N_, U>& rhs) {
+    operator-=(const CLeastSquaresOnlineRegression<N_, U, R_2>& rhs) {
         m_S -= rhs.statistic();
         return *this;
     }
@@ -176,7 +190,7 @@ public:
     //! origin.
     template<typename U>
     const CLeastSquaresOnlineRegression&
-    operator+=(const CLeastSquaresOnlineRegression<N_, U>& rhs) {
+    operator+=(const CLeastSquaresOnlineRegression<N_, U, R_2>& rhs) {
         m_S += rhs.statistic();
         return *this;
     }
@@ -233,6 +247,9 @@ public:
             for (std::size_t i = 0; i < N; ++i) {
                 CBasicStatistics::moment<0>(m_S)(i + 2 * N - 1) *= scale;
             }
+            if constexpr (R_2) {
+                CBasicStatistics::moment<0>(m_S)(3 * N - 1) *= scale * scale;
+            }
         }
     }
 
@@ -270,6 +287,46 @@ public:
         this->parameters(n, params, maxCondition);
         return predict(params, x);
     }
+
+    //! Get the regression model R^2 if it can be computed.
+    //!
+    //! If created with R_2 true then the regression model R^2 can
+    //! be computed from the statistics maintained.
+    //! \param[in] maxCondition The maximum condition number for
+    //! the Gramian this will consider solving. If the condition
+    //! is worse than this it'll fit a lower order polynomial.
+    //! \param[out] result Filled in with the regression model R^2.
+    bool r2(double& result, double maxCondition = MAX_CONDITION) const {
+
+        result = 0.0;
+
+        if constexpr (R_2 == false) {
+            return false;
+        }
+        if (CBasicStatistics::count(m_S) == T{0}) {
+            return true;
+        }
+
+        TMeanVarAccumulator residualMoments;
+        if (this->residualMoments(residualMoments, maxCondition) == false) {
+            return false;
+        }
+
+        const auto& s = CBasicStatistics::mean(m_S);
+        double variance{s(3 * N - 1) - CTools::pow2(s(2 * N - 1))};
+        double residualVariance{CBasicStatistics::maximumLikelihoodVariance(residualMoments)};
+        result = CTools::truncate(1.0 - residualVariance / variance, 0.0, 1.0);
+        return true;
+    }
+
+    //! Compute the residual moments.
+    //!
+    //! \param[in] maxCondition The maximum condition number for
+    //! the Gramian this will consider solving. If the condition
+    //! is worse than this it'll fit a lower order polynomial.
+    //! \param[out] result Filled in with the residual moments.
+    //! \note This is only possible if R_2 is true.
+    bool residualMoments(TMeanVarAccumulator& result, double maxCondition = MAX_CONDITION) const;
 
     //! Get the regression parameters.
     //!
@@ -401,6 +458,15 @@ public:
     std::string print() const;
 
 private:
+    //! Compute the residual variance for an order \p n regression model.
+    template<typename MATRIX, typename VECTOR>
+    bool residualMoments(std::size_t n,
+                         MATRIX& x,
+                         VECTOR& y,
+                         VECTOR& z,
+                         double maxCondition,
+                         TMeanVarAccumulator& result) const;
+
     //! Get the first \p n regression parameters.
     template<typename MATRIX, typename VECTOR>
     bool parameters(std::size_t n, MATRIX& x, VECTOR& y, double maxCondition, TArray& result) const;
@@ -421,8 +487,8 @@ private:
     }
 
 private:
-    //! Sufficient statistics for computing the least squares
-    //! regression. There are 3N - 1 in total, for the distinct
+    //! Sufficient statistics for computing the least squares regression.
+    //! There are 3N - 1 (or 3N if computing R^2) in total, for the distinct
     //! values in the design matrix and vector.
     TVectorMeanAccumulator m_S;
 
@@ -430,11 +496,11 @@ private:
     friend class CTimeSeriesDecompositionTest::CNanInjector;
 };
 
-template<std::size_t N_, typename T>
+template<std::size_t N_, typename T, bool R_2>
 const core::TPersistenceTag
-    CLeastSquaresOnlineRegression<N_, T>::STATISTIC_TAG("a", "statistic");
-template<std::size_t N_, typename T>
-const T CLeastSquaresOnlineRegression<N_, T>::MAX_CONDITION{
+    CLeastSquaresOnlineRegression<N_, T, R_2>::STATISTIC_TAG("a", "statistic");
+template<std::size_t N_, typename T, bool R_2>
+const T CLeastSquaresOnlineRegression<N_, T, R_2>::MAX_CONDITION{
     least_squares_online_regression_detail::CMaxCondition<T>::VALUE};
 }
 }

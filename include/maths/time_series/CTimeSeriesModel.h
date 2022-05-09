@@ -16,6 +16,7 @@
 #include <maths/common/CModel.h>
 #include <maths/common/CMultivariatePrior.h>
 
+#include <maths/time_series/CTimeSeriesMultibucketFeaturesFwd.h>
 #include <maths/time_series/ImportExport.h>
 
 #include <boost/array.hpp>
@@ -36,8 +37,6 @@ namespace time_series {
 class CDecayRateController;
 class CTimeSeriesDecompositionInterface;
 class CTimeSeriesAnomalyModel;
-template<typename>
-class CTimeSeriesMultibucketFeature;
 
 //! \brief A CModel implementation for modeling a univariate time series.
 class MATHS_TIME_SERIES_EXPORT CUnivariateTimeSeriesModel : public common::CModel {
@@ -48,7 +47,7 @@ public:
     using TDoubleWeightsAry = maths_t::TDoubleWeightsAry;
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecayRateController2Ary = std::array<CDecayRateController, 2>;
-    using TMultibucketFeature = CTimeSeriesMultibucketFeature<double>;
+    using TMultibucketFeature = CTimeSeriesMultibucketScalarFeature;
 
 public:
     //! \param[in] params The model parameters.
@@ -211,11 +210,9 @@ public:
     //@}
 
 private:
-    using TTimeDoublePr = std::pair<core_t::TTime, double>;
-    using TSizeVec = std::vector<std::size_t>;
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
-    using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
+    using TTimeDouble2VecSizeTrVecDoublePr = std::pair<TTimeDouble2VecSizeTrVec, double>;
     using TMultibucketFeaturePtr = std::unique_ptr<TMultibucketFeature>;
     using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
     using TPriorPtr = std::shared_ptr<common::CPrior>;
@@ -234,6 +231,11 @@ private:
     //! Update the trend with \p samples.
     EUpdateResult updateTrend(const common::CModelAddSamplesParams& params,
                               const TTimeDouble2VecSizeTrVec& samples);
+
+    //! Update the residual models.
+    TTimeDouble2VecSizeTrVecDoublePr
+    updateResidualModels(const common::CModelAddSamplesParams& params,
+                         TTimeDouble2VecSizeTrVec samples);
 
     //! Update the various model decay rates based on the prediction errors
     //! for \p samples.
@@ -530,7 +532,7 @@ public:
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TDecompositionPtr10Vec = core::CSmallVector<TDecompositionPtr, 10>;
     using TDecayRateController2Ary = std::array<CDecayRateController, 2>;
-    using TMultibucketFeature = CTimeSeriesMultibucketFeature<TDouble10Vec>;
+    using TMultibucketFeature = CTimeSeriesMultibucketVectorFeature;
 
 public:
     //! \param[in] params The model parameters.
@@ -691,9 +693,6 @@ public:
 private:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TDouble1VecVec = std::vector<TDouble1Vec>;
-    using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
-    using TVector = common::CVector<common::CFloatStorage>;
-    using TVectorMeanAccumulator = common::CBasicStatistics::SSampleMean<TVector>::TAccumulator;
     using TMultibucketFeaturePtr = std::unique_ptr<TMultibucketFeature>;
     using TDecayRateController2AryPtr = std::unique_ptr<TDecayRateController2Ary>;
     using TMultivariatePriorPtr = std::unique_ptr<common::CMultivariatePrior>;
@@ -703,6 +702,10 @@ private:
     //! Update the trend with \p samples.
     EUpdateResult updateTrend(const common::CModelAddSamplesParams& params,
                               const TTimeDouble2VecSizeTrVec& samples);
+
+    //! Update the residual models.
+    void updateResidualModels(const common::CModelAddSamplesParams& params,
+                              TTimeDouble2VecSizeTrVec samples);
 
     //! Update the various model decay rates based on the prediction errors
     //! for \p samples.

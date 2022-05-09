@@ -150,13 +150,15 @@ CAdaptiveBucketing::CAdaptiveBucketing(double decayRate, double minimumBucketLen
 }
 
 CAdaptiveBucketing::TRestoreFunc CAdaptiveBucketing::getAcceptRestoreTraverser() {
-    return std::bind(&CAdaptiveBucketing::acceptRestoreTraverser, this,
-                     std::placeholders::_1);
+    return [this](core::CStateRestoreTraverser& traverser) {
+        return this->acceptRestoreTraverser(traverser);
+    };
 }
 
 CAdaptiveBucketing::TPersistFunc CAdaptiveBucketing::getAcceptPersistInserter() const {
-    return std::bind(&CAdaptiveBucketing::acceptPersistInserter, this,
-                     std::placeholders::_1);
+    return [this](core::CStatePersistInserter& inserter) {
+        this->acceptPersistInserter(inserter);
+    };
 }
 
 bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -434,7 +436,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
             }
         }
 
-        if (minmax.initialized() > 0) {
+        if (minmax.initialized()) {
             ranges.push_back(WEIGHTS[minmax.max().second > minmax.min().second
                                          ? minmax.max().second - minmax.min().second
                                          : minmax.min().second - minmax.max().second] *

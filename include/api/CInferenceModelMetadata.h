@@ -113,7 +113,6 @@ private:
         }};
     THyperparametersVec m_HyperparameterImportance;
     std::size_t m_NumberTrainingRows{0};
-    double m_TrainFractionPerFold{0.0};
 };
 }
 }

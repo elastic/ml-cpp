@@ -53,6 +53,7 @@ public:
     static const std::string SOFT_TREE_DEPTH_LIMIT;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
     static const std::string MAX_TREES;
+    static const std::string MAX_DEPLOYED_MODEL_SIZE;
     static const std::string FEATURE_BAG_FRACTION;
     static const std::string NUM_FOLDS;
     static const std::string TRAIN_FRACTION_PER_FOLD;
@@ -63,6 +64,7 @@ public:
     static const std::string TRAINING_PERCENT_FIELD_NAME;
     static const std::string FEATURE_PROCESSORS;
     static const std::string EARLY_STOPPING_ENABLED;
+    static const std::string ROW_WEIGHT_COLUMN;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;

@@ -74,8 +74,9 @@ public:
     static const double NEGLIGIBLE_EXPECTED_IMPROVEMENT;
 
 public:
-    CBayesianOptimisation(TDoubleDoublePrVec parameterBounds, std::size_t restarts = RESTARTS);
-    CBayesianOptimisation(core::CStateRestoreTraverser& traverser);
+    explicit CBayesianOptimisation(TDoubleDoublePrVec parameterBounds,
+                                   std::size_t restarts = RESTARTS);
+    explicit CBayesianOptimisation(core::CStateRestoreTraverser& traverser);
 
     //! Add the result of evaluating the function to be \p fx at \p x where the
     //! variance in the error in \p fx w.r.t. the true value is \p vx.
@@ -92,15 +93,6 @@ public:
     //! function evaluations added so far.
     std::pair<TVector, TOptionalDouble>
     maximumExpectedImprovement(double negligibleExpectedImprovement = NEGLIGIBLE_EXPECTED_IMPROVEMENT);
-
-    //! Persist by passing information to \p inserter.
-    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-
-    //! Populate the object from serialized data
-    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-
-    //! Get the memory used by this object.
-    std::size_t memoryUsage() const;
 
     //! Estimate the maximum booking memory used by this class for optimising
     //! \p numberParameters using \p numberRounds rounds.
@@ -133,11 +125,23 @@ public:
     //! of the total variance.
     TDoubleDoublePrVec anovaMainEffects() const;
 
-    //! Set kernel \p parameters explicitly.
-    void kernelParameters(const TVector& parameters);
+    //! Get the memory used by this object.
+    std::size_t memoryUsage() const;
+
+    //! Persist by passing information to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Populate the object from serialized data
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+    //! Compute a checksum for this object.
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! \name Test Interface
     //@{
+    //! Set kernel \p parameters explicitly.
+    void kernelParameters(const TVector& parameters);
+
     //! Get minus the data likelihood and its gradient as a function of the kernel
     //! hyperparameters.
     std::pair<TLikelihoodFunc, TLikelihoodGradientFunc> minusLikelihoodAndGradient() const;
@@ -185,8 +189,9 @@ private:
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
     TVector kinvf() const;
-    TVector transformTo01(const TVector& x) const;
     double dissimilarity(const TVector& x) const;
+    TVector to01(TVector x) const;
+    TVector from01(TVector x) const;
     void checkRestoredInvariants() const;
 
 private:

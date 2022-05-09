@@ -22,7 +22,7 @@
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-macosx-build
-VERSION=13
+VERSION=14
 
 set -e
 

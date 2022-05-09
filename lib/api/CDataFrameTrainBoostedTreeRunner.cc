@@ -18,10 +18,12 @@
 #include <core/CRapidJsonConcurrentLineWriter.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStopWatch.h>
+#include <core/Constants.h>
 
 #include <maths/analytics/CBoostedTree.h>
 #include <maths/analytics/CBoostedTreeFactory.h>
 #include <maths/analytics/CBoostedTreeLoss.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameUtils.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -63,6 +65,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(SOFT_TREE_DEPTH_TOLERANCE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_TREES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(MAX_DEPLOYED_MODEL_SIZE,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_BAG_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUM_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -82,6 +86,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(EARLY_STOPPING_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(ROW_WEIGHT_COLUMN,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -94,21 +100,20 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     : CDataFrameAnalysisRunner{spec}, m_NumberLossParameters{loss->numberParameters()},
       m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
 
+    using TDoubleVec = std::vector<double>;
+
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
     m_PredictionFieldName = parameters[PREDICTION_FIELD_NAME].fallback(
         m_DependentVariableFieldName + "_prediction");
 
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
 
-    bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
-
-    std::size_t downsampleRowsPerFeature{
-        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
-    double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
-
-    std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
+    bool earlyStoppingEnabled{parameters[EARLY_STOPPING_ENABLED].fallback(true)};
+    std::string rowWeightColumnName{parameters[ROW_WEIGHT_COLUMN].fallback(std::string{})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     double trainFractionPerFold{parameters[TRAIN_FRACTION_PER_FOLD].fallback(-1.0)};
+    std::size_t downsampleRowsPerFeature{
+        parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
     std::size_t numberRoundsPerHyperparameter{
         parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(
             NUMBER_ROUNDS_PER_HYPERPARAMETER_IS_UNSET)};
@@ -117,47 +122,68 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
     std::size_t numTopFeatureImportanceValues{
         parameters[NUM_TOP_FEATURE_IMPORTANCE_VALUES].fallback(std::size_t{0})};
+    std::size_t maximumDeployedSize{parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
+        core::constants::BYTES_IN_GIGABYTES)};
 
-    double alpha{parameters[ALPHA].fallback(-1.0)};
-    double lambda{parameters[LAMBDA].fallback(-1.0)};
-    double gamma{parameters[GAMMA].fallback(-1.0)};
-    double eta{parameters[ETA].fallback(-1.0)};
-    double etaGrowthRatePerTree{parameters[ETA_GROWTH_RATE_PER_TREE].fallback(-1.0)};
-    double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
-    double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
-    double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
+    std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
+    auto downsampleFactor = parameters[DOWNSAMPLE_FACTOR].fallback(TDoubleVec{});
+    auto alpha = parameters[ALPHA].fallback(TDoubleVec{});
+    auto lambda = parameters[LAMBDA].fallback(TDoubleVec{});
+    auto gamma = parameters[GAMMA].fallback(TDoubleVec{});
+    auto eta = parameters[ETA].fallback(TDoubleVec{});
+    auto etaGrowthRatePerTree = parameters[ETA_GROWTH_RATE_PER_TREE].fallback(TDoubleVec{});
+    auto softTreeDepthLimit = parameters[SOFT_TREE_DEPTH_LIMIT].fallback(TDoubleVec{});
+    auto softTreeDepthTolerance =
+        parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(TDoubleVec{});
+    auto featureBagFraction = parameters[FEATURE_BAG_FRACTION].fallback(TDoubleVec{});
+
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
                                     m_CustomProcessors.GetAllocator());
     }
-    if (alpha != -1.0 && alpha < 0.0) {
+    if (std::any_of(alpha.begin(), alpha.end(), [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.");
     }
-    if (lambda != -1.0 && lambda < 0.0) {
+    if (std::any_of(lambda.begin(), lambda.end(),
+                    [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << LAMBDA << "' should be non-negative.");
     }
-    if (gamma != -1.0 && gamma < 0.0) {
+    if (std::any_of(gamma.begin(), gamma.end(), [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << GAMMA << "' should be non-negative.");
     }
-    if (eta != -1.0 && (eta <= 0.0 || eta > 1.0)) {
+    if (std::any_of(eta.begin(), eta.end(),
+                    [](double x) { return x <= 0.0 || x > 1.0; })) {
         HANDLE_FATAL(<< "Input error: '" << ETA << "' should be in the range (0, 1].");
     }
-    if (etaGrowthRatePerTree != -1.0 && etaGrowthRatePerTree <= 0.0) {
+    if (std::any_of(etaGrowthRatePerTree.begin(), etaGrowthRatePerTree.end(),
+                    [](double x) { return x <= 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << ETA_GROWTH_RATE_PER_TREE << "' should be positive.");
     }
-    if (softTreeDepthLimit != -1.0 && softTreeDepthLimit < 0.0) {
+    if (std::any_of(softTreeDepthLimit.begin(), softTreeDepthLimit.end(),
+                    [](double x) { return x < 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_LIMIT << "' should be non-negative.");
     }
-    if (softTreeDepthTolerance != -1.0 && softTreeDepthTolerance <= 0.0) {
+    if (std::any_of(softTreeDepthTolerance.begin(), softTreeDepthTolerance.end(),
+                    [](double x) { return x <= 0.0; })) {
         HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_TOLERANCE << "' should be positive.");
     }
-    if (downsampleFactor != -1.0 && (downsampleFactor <= 0.0 || downsampleFactor > 1.0)) {
+    if (std::any_of(downsampleFactor.begin(), downsampleFactor.end(),
+                    [](double x) { return x <= 0.0 || x > 1.0; })) {
         HANDLE_FATAL(<< "Input error: '" << DOWNSAMPLE_FACTOR << "' should be in the range (0, 1]");
     }
-    if (featureBagFraction != -1.0 &&
-        (featureBagFraction <= 0.0 || featureBagFraction > 1.0)) {
+    if (std::any_of(featureBagFraction.begin(), featureBagFraction.end(),
+                    [](double x) { return x <= 0.0 || x > 1.0; })) {
         HANDLE_FATAL(<< "Input error: '" << FEATURE_BAG_FRACTION
                      << "' should be in the range (0, 1]");
+    }
+    if (rowWeightColumnName.empty() == false &&
+        (rowWeightColumnName == m_DependentVariableFieldName ||
+         std::find(spec.categoricalFieldNames().begin(),
+                   spec.categoricalFieldNames().end(),
+                   rowWeightColumnName) != spec.categoricalFieldNames().end())) {
+        HANDLE_FATAL(<< "Input error: row weight column '" << rowWeightColumnName
+                     << "' can't be categorical or the same as the supplied '"
+                     << DEPENDENT_VARIABLE_NAME << "'.");
     }
 
     m_BoostedTreeFactory = std::make_unique<maths::analytics::CBoostedTreeFactory>(
@@ -168,41 +194,25 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
-        .earlyStoppingEnabled(earlyStoppingEnabled);
+        .earlyStoppingEnabled(earlyStoppingEnabled)
+        .downsampleFactor(std::move(downsampleFactor))
+        .depthPenaltyMultiplier(std::move(alpha))
+        .treeSizePenaltyMultiplier(std::move(gamma))
+        .leafWeightPenaltyMultiplier(std::move(lambda))
+        .eta(std::move(eta))
+        .etaGrowthRatePerTree(std::move(etaGrowthRatePerTree))
+        .softTreeDepthLimit(std::move(softTreeDepthLimit))
+        .softTreeDepthTolerance(std::move(softTreeDepthTolerance))
+        .featureBagFraction(std::move(featureBagFraction))
+        .maximumDeployedSize(maximumDeployedSize)
+        .rowWeightColumnName(std::move(rowWeightColumnName));
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
             static_cast<double>(downsampleRowsPerFeature));
     }
-    if (downsampleFactor > 0.0 && downsampleFactor <= 1.0) {
-        m_BoostedTreeFactory->downsampleFactor(downsampleFactor);
-    }
-    if (alpha >= 0.0) {
-        m_BoostedTreeFactory->depthPenaltyMultiplier(alpha);
-    }
-    if (gamma >= 0.0) {
-        m_BoostedTreeFactory->treeSizePenaltyMultiplier(gamma);
-    }
-    if (lambda >= 0.0) {
-        m_BoostedTreeFactory->leafWeightPenaltyMultiplier(lambda);
-    }
-    if (eta > 0.0 && eta <= 1.0) {
-        m_BoostedTreeFactory->eta(eta);
-    }
-    if (etaGrowthRatePerTree > 0.0) {
-        m_BoostedTreeFactory->etaGrowthRatePerTree(etaGrowthRatePerTree);
-    }
-    if (softTreeDepthLimit >= 0.0) {
-        m_BoostedTreeFactory->softTreeDepthLimit(softTreeDepthLimit);
-    }
-    if (softTreeDepthTolerance > 0.0) {
-        m_BoostedTreeFactory->softTreeDepthTolerance(softTreeDepthTolerance);
-    }
     if (maxTrees > 0) {
         m_BoostedTreeFactory->maximumNumberTrees(maxTrees);
-    }
-    if (featureBagFraction > 0.0 && featureBagFraction <= 1.0) {
-        m_BoostedTreeFactory->featureBagFraction(featureBagFraction);
     }
     if (numberFolds > 1) {
         m_BoostedTreeFactory->numberFolds(numberFolds);
@@ -224,7 +234,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
-    return maths::analytics::CBoostedTreeFactory::estimatedExtraColumns(
+    return maths::analytics::CBoostedTreeFactory::estimateExtraColumns(
         this->spec().numberColumns(), m_NumberLossParameters);
 }
 
@@ -406,6 +416,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE{"et
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
+const std::string CDataFrameTrainBoostedTreeRunner::MAX_DEPLOYED_MODEL_SIZE{"max_model_size"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_FOLDS{"num_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD{"train_fraction_per_fold"};
@@ -419,6 +430,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"impor
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
 const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"early_stopping_enabled"};
+const std::string CDataFrameTrainBoostedTreeRunner::ROW_WEIGHT_COLUMN{"weight_column"};
 // clang-format on
 }
 }

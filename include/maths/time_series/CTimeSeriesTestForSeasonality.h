@@ -109,6 +109,9 @@ public:
     //! Get the desired component size.
     std::size_t size() const;
 
+    //! Check if the component is one of \p periods.
+    bool isOneOf(int periods) const;
+
     //! Get a seasonal time for the specified results.
     //!
     //! \warning The caller owns the returned object.
@@ -119,6 +122,9 @@ public:
 
     //! Get the end time of the initial values.
     core_t::TTime initialValuesEndTime() const;
+
+    //! Get the bucket length of the window used to find the component.
+    core_t::TTime bucketLength() const;
 
     //! Get the values to use to initialize the component.
     const TFloatMeanAccumulatorVec& initialValues() const;
@@ -240,7 +246,7 @@ public:
     void modelledSeasonalityPredictor(const TPredictor& predictor);
 
     //! Fit and remove any seasonality we're modelling and can't test.
-    void fitAndRemoveUntestableModelledComponents();
+    void prepareWindowForDecompose();
 
     //! Check invariants which are relied on to hold.
     bool checkInvariants() const;
@@ -457,7 +463,7 @@ private:
                                                        removeComponentsMask)} {}
 
         //! Does this include seasonality?
-        bool seasonal() const { return s_Hypotheses.size() > 0; }
+        bool seasonal() const { return s_Hypotheses.empty() == false; }
         //! True if every seasonal component could be tested.
         bool isTestable() const;
         //! Should this behave as a null hypothesis?
@@ -542,7 +548,7 @@ private:
     std::size_t similarModelled(const TSeasonalComponent& period) const;
     void removeModelledPredictions(const TBoolVec& componentsToRemoveMask,
                                    TFloatMeanAccumulatorVec& values) const;
-    void removeDiscontinuities(const TSizeVec& modelTrendSegments,
+    void removeDiscontinuities(const TSizeVec& trendSegments,
                                TFloatMeanAccumulatorVec& values) const;
     bool constantScale(const TConstantScale& scale,
                        const TSeasonalComponentVec& periods,
@@ -627,7 +633,7 @@ private:
     TSizeVec m_ModelledPeriodsSizes;
     TBoolVec m_ModelledPeriodsTestable;
     TFloatMeanAccumulatorVec m_Values;
-    // The follow are member data to avoid repeatedly reinitialising.
+    // The following are member data to avoid repeatedly recreating.
     mutable TAmplitudeVec m_Amplitudes;
     mutable TSeasonalComponentVec m_Periods;
     mutable TSeasonalComponentVec m_CandidatePeriods;

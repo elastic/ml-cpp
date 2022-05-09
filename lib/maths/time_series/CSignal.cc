@@ -20,6 +20,7 @@
 #include <maths/common/CLeastSquaresOnlineRegression.h>
 #include <maths/common/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/common/CStatisticalTests.h>
+#include <maths/common/CTools.h>
 
 #include <maths/time_series/CTimeSeriesSegmentation.h>
 
@@ -48,8 +49,8 @@ using TComplexVec = std::vector<TComplex>;
 using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-constexpr double LOG_TWO{0.6931471805599453};
-constexpr double LOG_SIXTEEN{2.772588722239781};
+constexpr double LOG_SMALL_OUTLIER_SCALE{0.6931471805599453};
+constexpr double LOG_LARGE_OUTLIER_SCALE{2.772588722239781};
 
 //! Scale \p f by \p scale.
 void scale(double scale, TComplexVec& f) {
@@ -666,6 +667,73 @@ void CSignal::fitSeasonalComponentsRobust(const TSeasonalComponentVec& periods,
     }
 }
 
+void CSignal::removeExtremeOutliers(double fraction, TFloatMeanAccumulatorVec& values) {
+
+    using TMinAccumulator =
+        common::CBasicStatistics::SMin<std::pair<double, std::size_t>>::TAccumulator;
+    using TMaxAccumulator =
+        common::CBasicStatistics::SMax<std::pair<double, std::size_t>>::TAccumulator;
+    using TMinMaxAccumulator = common::CBasicStatistics::CMinMax<double>;
+
+    std::size_t windowLength{static_cast<std::size_t>(
+        std::ceil(common::CTools::truncate(fraction, 0.0, 1.0) *
+                  static_cast<double>(countNotMissing(values))))};
+    if (windowLength == 0 || windowLength == values.size()) {
+        return;
+    }
+
+    TMinAccumulator min;
+    TMaxAccumulator max;
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        double x{common::CBasicStatistics::mean(values[i])};
+        std::size_t n{common::CBasicStatistics::count(values[i]) > 0.0 ? 1U : 0U};
+        min.add({x, i}, n);
+        max.add({x, i}, n);
+    }
+
+    double threshold{std::exp(LOG_LARGE_OUTLIER_SCALE)};
+
+    TMaxAccumulator outliers;
+    for (auto i : {min[0].second, max[0].second}) {
+        std::size_t end{std::min(i + windowLength, values.size())};
+        for (std::size_t j = i; j < end; ++j) {
+
+            TMinMaxAccumulator minmax;
+            for (std::size_t k = 0; k + windowLength <= j; ++k) {
+                minmax.add(common::CBasicStatistics::mean(values[k]),
+                           common::CBasicStatistics::count(values[k]) > 0.0 ? 1 : 0);
+            }
+            for (std::size_t k = j + 1; k < values.size(); ++k) {
+                minmax.add(common::CBasicStatistics::mean(values[k]),
+                           common::CBasicStatistics::count(values[k]) > 0.0 ? 1 : 0);
+            }
+
+            if (minmax.initialized()) {
+                TMeanAccumulator level;
+                for (std::size_t k = j - std::min(windowLength - 1, j); k <= j; ++k) {
+                    level.add(common::CBasicStatistics::mean(values[k]),
+                              common::CBasicStatistics::count(values[k]));
+                }
+                if (common::CBasicStatistics::count(level) > 0.0) {
+                    double x{common::CBasicStatistics::mean(level)};
+                    double difference{
+                        (std::max(minmax.min() - x, std::max(x - minmax.max(), 0.0)))};
+                    outliers.add({std::min(difference / minmax.range(), threshold + 1.0), j});
+                }
+            }
+        }
+    }
+
+    if (outliers.count() > 0) {
+        auto[size, i] = outliers[0];
+        if (size > threshold) {
+            for (std::size_t j = i - std::min(windowLength - 1, i); j <= i; ++j) {
+                values[j] = TMeanAccumulator{};
+            }
+        }
+    }
+}
+
 bool CSignal::reweightOutliers(const TSeasonalComponentVec& periods,
                                const TMeanAccumulatorVecVec& components,
                                double fraction,
@@ -731,10 +799,11 @@ bool CSignal::reweightOutliers(const TIndexPredictor& predictor,
     double logThreshold{std::log(threshold)};
     for (const auto& outlier : outliers) {
         double logDifference{std::log(outlier.first)};
-        double weight{common::CTools::linearlyInterpolate(logThreshold - LOG_TWO, logThreshold,
-                                                          1.0, 0.1, logDifference) *
-                      common::CTools::linearlyInterpolate(logThreshold, logThreshold + LOG_SIXTEEN,
-                                                          1.0, 0.1, logDifference)};
+        double weight{
+            common::CTools::linearlyInterpolate(logThreshold - LOG_SMALL_OUTLIER_SCALE,
+                                                logThreshold, 1.0, 0.1, logDifference) *
+            common::CTools::linearlyInterpolate(logThreshold, logThreshold + LOG_LARGE_OUTLIER_SCALE,
+                                                1.0, 0.1, logDifference)};
         common::CBasicStatistics::count(values[outlier.second]) *= weight;
         result |= (weight < 1.0);
     }
@@ -825,10 +894,10 @@ double CSignal::nestedDecompositionPValue(const SVarianceStats& H0,
                 H1.s_DegreesFreedom};
 
     // This assumes that H1 is nested in H0.
-    double F[]{(df[1] * std::max(v0[0] - v1[0], 0.0)) / (df[0] * v1[0]),
-               (df[1] * std::max(v0[1] - v1[1], 0.0)) / (df[0] * v1[1])};
-    return std::min(common::CStatisticalTests::rightTailFTest(F[0], df[0], df[1]),
-                    common::CStatisticalTests::rightTailFTest(F[1], df[0], df[1]));
+    return std::min(common::CStatisticalTests::rightTailFTest(
+                        std::max(v0[0] - v1[0], 0.0), v1[0], df[0], df[1]),
+                    common::CStatisticalTests::rightTailFTest(
+                        std::max(v0[1] - v1[1], 0.0), v1[1], df[0], df[1]));
 }
 
 std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
@@ -908,16 +977,14 @@ std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
                       << core::CContainerPrinter::print(degreesFreedom));
             LOG_TRACE(<< "variances = " << core::CContainerPrinter::print(variances));
 
-            if ((variances[H0] > 0.0 && variances[1 - H0] == 0.0) ||
-                common::CStatisticalTests::rightTailFTest(
-                    variances[H0] == variances[1 - H0] ? 1.0 : variances[H0] / variances[1 - H0],
-                    degreesFreedom[H0], degreesFreedom[1 - H0]) < 0.1) {
+            if (common::CStatisticalTests::rightTailFTest(
+                    variances[H0], variances[1 - H0], degreesFreedom[H0],
+                    degreesFreedom[1 - H0]) < 0.1) {
                 break;
             }
-            if ((variances[1 - H0] > 0.0 && variances[H0] == 0.0) ||
-                common::CStatisticalTests::rightTailFTest(
-                    variances[1 - H0] == variances[H0] ? 1.0 : variances[1 - H0] / variances[H0],
-                    degreesFreedom[1 - H0], degreesFreedom[H0]) < 0.1) {
+            if (common::CStatisticalTests::rightTailFTest(
+                    variances[1 - H0], variances[H0], degreesFreedom[1 - H0],
+                    degreesFreedom[H0]) < 0.1) {
                 H0 = 1 - H0;
             }
             size = compressedComponent.size();

@@ -40,29 +40,32 @@ const std::string EMPTY_STRING;
 }
 
 CCalendarComponent::CCalendarComponent(const CCalendarFeature& feature,
+                                       core_t::TTime timeZoneOffset,
                                        std::size_t maxSize,
                                        double decayRate,
-                                       double minimumBucketLength,
+                                       double minBucketLength,
                                        common::CSplineTypes::EBoundaryCondition boundaryCondition,
                                        common::CSplineTypes::EType valueInterpolationType,
                                        common::CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{maxSize, boundaryCondition,
                               valueInterpolationType, varianceInterpolationType},
-      m_Bucketing{feature, decayRate, minimumBucketLength},
+      m_Bucketing{feature, timeZoneOffset, decayRate, minBucketLength},
       m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
 }
 
 CCalendarComponent::CCalendarComponent(double decayRate,
-                                       double minimumBucketLength,
+                                       double minBucketLength,
                                        core::CStateRestoreTraverser& traverser,
                                        common::CSplineTypes::EType valueInterpolationType,
                                        common::CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{0, common::CSplineTypes::E_Periodic,
                               valueInterpolationType, varianceInterpolationType},
       m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
-    traverser.traverseSubLevel(std::bind(&CCalendarComponent::acceptRestoreTraverser,
-                                         this, decayRate, minimumBucketLength,
-                                         std::placeholders::_1));
+    if (traverser.traverseSubLevel([&](auto& traverser_) {
+            return this->acceptRestoreTraverser(decayRate, minBucketLength, traverser_);
+        }) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CCalendarComponent::swap(CCalendarComponent& other) {
@@ -76,28 +79,25 @@ bool CCalendarComponent::acceptRestoreTraverser(double decayRate,
                                                 core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
-        RESTORE(DECOMPOSITION_COMPONENT_TAG,
-                traverser.traverseSubLevel(std::bind(
-                    &CDecompositionComponent::acceptRestoreTraverser,
-                    static_cast<CDecompositionComponent*>(this), std::placeholders::_1)))
+        RESTORE(DECOMPOSITION_COMPONENT_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->CDecompositionComponent::acceptRestoreTraverser(traverser_);
+        }))
         RESTORE_SETUP_TEARDOWN(BUCKETING_TAG,
                                CCalendarComponentAdaptiveBucketing bucketing(
                                    decayRate, minimumBucketLength, traverser),
                                true, m_Bucketing.swap(bucketing))
         RESTORE_BUILT_IN(LAST_INTERPOLATION_TAG, m_LastInterpolationTime)
     } while (traverser.next());
-
     return true;
 }
 
 void CCalendarComponent::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertLevel(DECOMPOSITION_COMPONENT_TAG,
-                         std::bind(&CDecompositionComponent::acceptPersistInserter,
-                                   static_cast<const CDecompositionComponent*>(this),
-                                   std::placeholders::_1));
-    inserter.insertLevel(BUCKETING_TAG,
-                         std::bind(&CCalendarComponentAdaptiveBucketing::acceptPersistInserter,
-                                   &m_Bucketing, std::placeholders::_1));
+    inserter.insertLevel(DECOMPOSITION_COMPONENT_TAG, [this](auto& inserter_) {
+        this->CDecompositionComponent::acceptPersistInserter(inserter_);
+    });
+    inserter.insertLevel(BUCKETING_TAG, [this](auto& inserter_) {
+        m_Bucketing.acceptPersistInserter(inserter_);
+    });
     inserter.insertValue(LAST_INTERPOLATION_TAG, m_LastInterpolationTime);
 }
 
@@ -163,7 +163,7 @@ void CCalendarComponent::propagateForwardsByTime(double time) {
     m_Bucketing.propagateForwardsByTime(time);
 }
 
-CCalendarFeature CCalendarComponent::feature() const {
+CCalendarFeatureAndTZ CCalendarComponent::feature() const {
     return m_Bucketing.feature();
 }
 

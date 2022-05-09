@@ -352,6 +352,16 @@ public:
                                             TFloatMeanAccumulatorVec& values,
                                             TMeanAccumulatorVecVec& components);
 
+    //! Remove extreme outliers from \p values.
+    //!
+    //! If \p fraction contiguous values are extremely outlying w.r.t the remainder
+    //! of \p values then remove them altogether. This handles cases where reweighting
+    //! is not sufficient.
+    //!
+    //! \param[in] fraction The fraction of values treated as outliers.
+    //! \param[in,out] values The values to update.
+    static void removeExtremeOutliers(double fraction, TFloatMeanAccumulatorVec& values);
+
     //! Reweight outliers in \p values w.r.t. \p components.
     //!
     //! \param[in] periods The seasonal components in \p values.

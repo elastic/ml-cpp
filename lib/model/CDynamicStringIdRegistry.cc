@@ -90,8 +90,7 @@ std::size_t CDynamicStringIdRegistry::numberNames() const {
 
 bool CDynamicStringIdRegistry::isIdActive(std::size_t id) const {
     return id < m_Names.size() &&
-           !std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id,
-                               std::greater<std::size_t>());
+           !std::binary_search(m_FreeUids.begin(), m_FreeUids.end(), id, std::greater<>());
 }
 
 std::size_t CDynamicStringIdRegistry::addName(const std::string& name,

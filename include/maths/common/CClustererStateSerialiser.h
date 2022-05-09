@@ -59,7 +59,7 @@ public:
     //! \note Sets \p ptr to NULL on failure.
     bool operator()(const SDistributionRestoreParams& params,
                     TClusterer1dPtr& ptr,
-                    core::CStateRestoreTraverser& traverser);
+                    core::CStateRestoreTraverser& traverser) const;
 
     //! Construct the appropriate CClusterer sub-class from its state
     //! document representation.
@@ -69,10 +69,10 @@ public:
                     const CClusterer1d::TSplitFunc& splitFunc,
                     const CClusterer1d::TMergeFunc& mergeFunc,
                     TClusterer1dPtr& ptr,
-                    core::CStateRestoreTraverser& traverser);
+                    core::CStateRestoreTraverser& traverser) const;
 
     //! Persist state by passing information to the supplied inserter.
-    void operator()(const CClusterer1d& clusterer, core::CStatePersistInserter& inserter);
+    void operator()(const CClusterer1d& clusterer, core::CStatePersistInserter& inserter) const;
 
     //! Construct the appropriate CClusterer sub-class from its state
     //! document representation.
@@ -81,7 +81,7 @@ public:
     template<typename T, std::size_t N>
     bool operator()(const SDistributionRestoreParams& params,
                     std::unique_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
-                    core::CStateRestoreTraverser& traverser) {
+                    core::CStateRestoreTraverser& traverser) const {
         return this->operator()(params, CClustererTypes::CDoNothing(),
                                 CClustererTypes::CDoNothing(), ptr, traverser);
     }
@@ -95,7 +95,7 @@ public:
                     const CClustererTypes::TSplitFunc& splitFunc,
                     const CClustererTypes::TMergeFunc& mergeFunc,
                     std::unique_ptr<CClusterer<CVectorNx1<T, N>>>& ptr,
-                    core::CStateRestoreTraverser& traverser) {
+                    core::CStateRestoreTraverser& traverser) const {
         std::size_t numResults(0);
 
         do {
@@ -122,10 +122,10 @@ public:
     //! Persist state by passing information to the supplied inserter.
     template<typename T, std::size_t N>
     void operator()(const CClusterer<CVectorNx1<T, N>>& clusterer,
-                    core::CStatePersistInserter& inserter) {
-        inserter.insertLevel(clusterer.persistenceTag(),
-                             std::bind(&CClusterer<CVectorNx1<T, N>>::acceptPersistInserter,
-                                       &clusterer, std::placeholders::_1));
+                    core::CStatePersistInserter& inserter) const {
+        inserter.insertLevel(clusterer.persistenceTag(), [&clusterer](auto& inserter_) {
+            clusterer.acceptPersistInserter(inserter_);
+        });
     }
 };
 }

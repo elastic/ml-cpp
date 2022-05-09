@@ -380,7 +380,6 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
 
     // Check the node gain upper bounds are always larger than the actual node gains.
 
-    using TRegularization = maths::analytics::CBoostedTreeRegularization<double>;
     using TLeafNodeStatisticsPtr = maths::analytics::CBoostedTreeLeafNodeStatistics::TPtr;
     using TNodeVec = maths::analytics::CBoostedTree::TNodeVec;
 
@@ -458,13 +457,14 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         TSizeVec treeFeatureBag{0};
         TSizeVec nodeFeatureBag{0};
 
-        TRegularization regularization;
-        regularization.softTreeDepthLimit(1.0).softTreeDepthTolerance(1.0);
+        maths::analytics::CBoostedTreeHyperparameters parameters;
+        parameters.softTreeDepthLimit().set(1.0);
+        parameters.softTreeDepthTolerance().set(1.0);
 
         TNodeVec tree(1);
 
         auto rootSplit = std::make_shared<maths::analytics::CBoostedTreeLeafNodeStatistics>(
-            0 /*root*/, extraColumns, 1, *frame, regularization, featureSplits,
+            0 /*root*/, extraColumns, 1, *frame, parameters, featureSplits,
             treeFeatureBag, nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace);
 
         std::size_t splitFeature;
@@ -481,8 +481,8 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = rootSplit->split(
-            leftChildId, rightChildId, 0.0, *frame, regularization,
-            treeFeatureBag, nodeFeatureBag, tree[rootSplit->id()], workspace);
+            leftChildId, rightChildId, 0.0, *frame, parameters, treeFeatureBag,
+            nodeFeatureBag, tree[rootSplit->id()], workspace);
         if (leftChild != nullptr) {
             BOOST_TEST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
         }

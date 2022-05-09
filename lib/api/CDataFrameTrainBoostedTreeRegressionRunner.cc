@@ -169,7 +169,6 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     }
     m_InferenceModelMetadata.hyperparameterImportance(
         this->boostedTree().hyperparameterImportance());
-    m_InferenceModelMetadata.trainFractionPerFold(this->boostedTree().trainFractionPerFold());
     return m_InferenceModelMetadata;
 }
 

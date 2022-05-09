@@ -693,8 +693,8 @@ public:
     static void dispatch(const std::string& tag,
                          const std::pair<A, B>& t,
                          CStatePersistInserter& inserter) {
-        inserter.insertLevel(
-            tag, std::bind(&newLevel<A, B>, std::cref(t), std::placeholders::_1));
+        inserter.insertLevel(tag,
+                             [&t](auto& inserter_) { newLevel(t, inserter_); });
     }
 
 private:
@@ -796,10 +796,9 @@ private:
                          CStatePersistInserter& inserter,
                          std::false_type,
                          std::false_type) {
-        using TCItr = typename T::const_iterator;
-        inserter.insertLevel(tag, std::bind(&newLevel<TCItr>, container.begin(),
-                                            container.end(), container.size(),
-                                            std::placeholders::_1));
+        inserter.insertLevel(tag, [&container](auto& inserter_) {
+            newLevel(container.begin(), container.end(), container.size(), inserter_);
+        });
     }
 
     //! Handle the case for a non-built-in type, which will be added as a new level.
@@ -812,9 +811,9 @@ private:
                          std::false_type,
                          std::true_type) {
         using TCItr = boost::indirect_iterator<typename T::const_iterator>;
-        inserter.insertLevel(tag, std::bind(&newLevel<TCItr>, TCItr(t.begin()),
-                                            TCItr(t.end()), t.size(),
-                                            std::placeholders::_1));
+        inserter.insertLevel(tag, [&t](auto& inserter_) {
+            newLevel(TCItr(t.begin()), TCItr(t.end()), t.size(), inserter_);
+        });
     }
 
     //! Dispatch a collection of items
@@ -836,8 +835,8 @@ class CPersisterImpl<MemberPersist> {
 public:
     template<typename T>
     static void dispatch(const std::string& tag, const T& t, CStatePersistInserter& inserter) {
-        inserter.insertLevel(
-            tag, std::bind(&newLevel<T>, std::cref(t), std::placeholders::_1));
+        inserter.insertLevel(tag,
+                             [&t](auto& inserter_) { newLevel(t, inserter_); });
     }
 
 private:
@@ -879,14 +878,14 @@ public:
                 return false;
             }
             return traverser.traverseSubLevel(
-                std::bind(&newLevel<A, B>, std::ref(t), std::placeholders::_1));
+                [&t](auto& traverser_) { return subLevel(t, traverser_); });
         }
         return true;
     }
 
 private:
     template<typename A, typename B>
-    static bool newLevel(std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
+    static bool subLevel(std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
         if (traverser.name() != FIRST_TAG) {
             // Long, meaningful tag names are only ever expected to be used to
             // provide rich debug of model state, they are not expected to be present
@@ -949,7 +948,7 @@ public:
 private:
     struct SSubLevel {
         template<typename T>
-        bool operator()(T& container, CStateRestoreTraverser& traverser) {
+        bool operator()(T& container, CStateRestoreTraverser& traverser) const {
             using TValueType = typename remove_const<typename T::value_type>::type;
             do {
                 if (traverser.name() == SIZE_TAG) {
@@ -972,7 +971,7 @@ private:
         }
 
         template<typename T, std::size_t N>
-        bool operator()(std::array<T, N>& container, CStateRestoreTraverser& traverser) {
+        bool operator()(std::array<T, N>& container, CStateRestoreTraverser& traverser) const {
             using TValueType = typename remove_const<T>::type;
             auto i = container.begin();
             do {
@@ -1016,8 +1015,10 @@ private:
                 LOG_ERROR(<< "SubLevel mismatch in restore at " << traverser.name());
                 return false;
             }
-            return traverser.traverseSubLevel(std::bind<bool>(
-                SSubLevel{}, std::ref(container), std::placeholders::_1));
+            return traverser.traverseSubLevel(
+                [&container, subLevel = SSubLevel{} ](auto& traverser_) {
+                    return subLevel(container, traverser_);
+                });
         }
         return true;
     }
@@ -1035,7 +1036,7 @@ public:
                 return false;
             }
             return traverser.traverseSubLevel(
-                std::bind(&subLevel<T>, std::ref(t), std::placeholders::_1));
+                [&t](auto& traverser_) { return subLevel(t, traverser_); });
         }
         return true;
     }

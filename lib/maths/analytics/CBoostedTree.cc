@@ -130,6 +130,21 @@ std::size_t CBoostedTreeNode::estimateMemoryUsage(std::size_t numberLossParamete
            common::las::estimateMemoryUsage<TVector>(numberLossParameters);
 }
 
+std::size_t CBoostedTreeNode::deployedSize() const {
+    // These are derived from the main terms from TreeSizeInfo.java:
+    //   - Java uses separate objects for internal and leaf nodes.
+    //   - Each object has a reference.
+    //   - Each internal node additionally has 1 enum, 1 double, 3 ints, 1 boolean
+    //     and 1 long. We assume enum is int sized and after alignment the boolean
+    //     also consumes 4 bytes.
+    //   - Each leaf has 1 double array (equal to the node value size) note Java
+    //     arrays have 20 bytes overhead and 1 long.
+    //
+    // (We assume the JVM is are not using compressed refs in the so 8 bytes per
+    // reference which is the worst case.)
+    return this->isLeaf() ? 20 + (m_NodeValue.size() + 2) * 8 : 5 * 4 + 3 * 8;
+}
+
 void CBoostedTreeNode::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(ASSIGN_MISSING_TO_LEFT_TAG, m_AssignMissingToLeft, inserter);
     core::CPersistUtils::persist(CURVATURE_TAG, m_Curvature, inserter);
@@ -230,15 +245,11 @@ CTreeShapFeatureImportance* CBoostedTree::shap() const {
 }
 
 CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportance() const {
-    return m_Impl->hyperparameterImportance();
+    return m_Impl->hyperparameters().importances();
 }
 
 std::size_t CBoostedTree::numberTrainingRows() const {
     return static_cast<std::size_t>(m_Impl->allTrainingRowsMask().manhattan());
-}
-
-double CBoostedTree::trainFractionPerFold() const {
-    return m_Impl->trainFractionPerFold();
 }
 
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
@@ -286,18 +297,6 @@ const CBoostedTree::TDoubleVec& CBoostedTree::featureWeightsForTraining() const 
     return m_Impl->featureSampleProbabilities();
 }
 
-const std::string& CBoostedTree::bestHyperparametersName() {
-    return CBoostedTreeImpl::bestHyperparametersName();
-}
-
-const std::string& CBoostedTree::bestRegularizationHyperparametersName() {
-    return CBoostedTreeImpl::bestRegularizationHyperparametersName();
-}
-
-CBoostedTree::TStrVec CBoostedTree::bestHyperparameterNames() {
-    return CBoostedTreeImpl::bestHyperparameterNames();
-}
-
 bool CBoostedTree::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     return m_Impl->acceptRestoreTraverser(traverser);
 }
@@ -310,8 +309,8 @@ void CBoostedTree::accept(CBoostedTree::CVisitor& visitor) const {
     m_Impl->accept(visitor);
 }
 
-const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
-    return m_Impl->bestHyperparameters();
+const CBoostedTreeHyperparameters& CBoostedTree::hyperparameters() const {
+    return m_Impl->hyperparameters();
 }
 
 CBoostedTree::TDoubleVec CBoostedTree::classificationWeights() const {

@@ -16,6 +16,7 @@
 #include <core/CNonCopyable.h>
 
 #include <maths/analytics/CBoostedTree.h>
+#include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/ImportExport.h>
 
@@ -42,12 +43,11 @@ class CBoostedTreeImpl;
 //! Factory for CBoostedTree objects.
 class MATHS_ANALYTICS_EXPORT CBoostedTreeFactory final {
 public:
+    using TDoubleVec = std::vector<double>;
     using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
-    using TVector = common::CVectorNx1<double, 3>;
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
-    using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
 
 public:
     //! \name Instrumentation Phases
@@ -74,16 +74,22 @@ public:
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&) = delete;
-    CBoostedTreeFactory(CBoostedTreeFactory&&);
-    CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
+    CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept;
+    CBoostedTreeFactory& operator=(CBoostedTreeFactory&&) noexcept;
 
+    //! Set the random number generator seed.
+    CBoostedTreeFactory& seed(std::uint64_t seed);
     //! Set the objective to use when choosing the class assignments.
     CBoostedTreeFactory&
     classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
-    //! Set the class weights used for assigning labels to classes from the predicted probabilities.
+    //! Set the class weights used for assigning classes from predicted probabilities.
     CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
+    //! Set the column containing the row weights to use for training.
+    CBoostedTreeFactory& rowWeightColumnName(std::string columnName);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
+    //! Set the number of initial rows to use as a holdout set for evaluation.
+    CBoostedTreeFactory& numberHoldoutRows(std::size_t numberHoldoutRows);
     //! Set the number of folds to use for estimating the generalisation error.
     CBoostedTreeFactory& numberFolds(std::size_t numberFolds);
     //! Set the fraction fold data to use for training.
@@ -97,30 +103,32 @@ public:
     //! The number of rows per feature to sample in the initial downsample.
     CBoostedTreeFactory& initialDownsampleRowsPerFeature(double rowsPerFeature);
     //! The amount by which to downsample the data for stochastic gradient estimates.
-    CBoostedTreeFactory& downsampleFactor(double factor);
+    CBoostedTreeFactory& downsampleFactor(TDoubleVec factor);
     //! Set the sum of leaf depth penalties multiplier.
-    CBoostedTreeFactory& depthPenaltyMultiplier(double depthPenaltyMultiplier);
+    CBoostedTreeFactory& depthPenaltyMultiplier(TDoubleVec multiplier);
     //! Set the tree size penalty multiplier.
-    CBoostedTreeFactory& treeSizePenaltyMultiplier(double treeSizePenaltyMultiplier);
+    CBoostedTreeFactory& treeSizePenaltyMultiplier(TDoubleVec multiplier);
     //! Set the sum of weights squared multiplier.
-    CBoostedTreeFactory& leafWeightPenaltyMultiplier(double leafWeightPenaltyMultiplier);
+    CBoostedTreeFactory& leafWeightPenaltyMultiplier(TDoubleVec multiplier);
     //! Set the soft tree depth limit.
-    CBoostedTreeFactory& softTreeDepthLimit(double softTreeDepthLimit);
+    CBoostedTreeFactory& softTreeDepthLimit(TDoubleVec limit);
     //! Set the soft tree depth tolerance. This controls how hard we'll try to
     //! respect the soft tree depth limit.
-    CBoostedTreeFactory& softTreeDepthTolerance(double softTreeDepthTolerance);
+    CBoostedTreeFactory& softTreeDepthTolerance(TDoubleVec tolerance);
     //! Set the fractional relative tolerance in the target maximum tree depth.
-    CBoostedTreeFactory& maxTreeDepthTolerance(double maxTreeDepthTolerance);
-    //! Set the amount we'll shrink the weights on each each iteration.
-    CBoostedTreeFactory& eta(double eta);
+    CBoostedTreeFactory& maxTreeDepthTolerance(TDoubleVec tolerance);
+    //! Set the amount we'll shrink the tree leaf weights we compute.
+    CBoostedTreeFactory& eta(TDoubleVec eta);
     //! Set the amount we'll grow eta on each each iteration.
-    CBoostedTreeFactory& etaGrowthRatePerTree(double etaGrowthRatePerTree);
+    CBoostedTreeFactory& etaGrowthRatePerTree(TDoubleVec growthRate);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTreeFactory& maximumNumberTrees(std::size_t maximumNumberTrees);
+    //! Set the maximum supported size for deploying a model.
+    CBoostedTreeFactory& maximumDeployedSize(std::size_t maximumDeployedSize);
     //! Set the fraction of features we'll use in the bag to build a tree.
-    CBoostedTreeFactory& featureBagFraction(double featureBagFraction);
+    CBoostedTreeFactory& featureBagFraction(TDoubleVec fraction);
     //! Set the maximum number of optimisation rounds we'll use for hyperparameter
-    //! optimisation per parameter.
+    //! optimisation per parameter for fine tuning.
     CBoostedTreeFactory& maximumOptimisationRoundsPerHyperparameter(std::size_t rounds);
     //! Set the number of restarts to use in global probing for Bayesian Optimisation.
     CBoostedTreeFactory& bayesianOptimisationRestarts(std::size_t restarts);
@@ -137,30 +145,27 @@ public:
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
-    //! Estimate the maximum booking memory that training the boosted tree on a
-    //! data frame with \p numberRows row and \p numberColumns columns will use.
+    //! Estimate the maximum booking memory that training a boosted tree on a data
+    //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
     //! Estimate the number of columns training the model will add to the data frame.
-    static std::size_t estimatedExtraColumns(std::size_t numberColumns,
-                                             std::size_t numberLossParameters);
+    static std::size_t estimateExtraColumns(std::size_t numberColumns,
+                                            std::size_t numberLossParameters);
 
-    //! Build a boosted tree object for a given data frame.
+    //! Build a boosted tree object for training on \p frame.
     TBoostedTreeUPtr buildFor(core::CDataFrame& frame, std::size_t dependentVariable);
-    //! Restore a boosted tree object for a given data frame.
+
+    //! Restore a boosted tree object for training on \p frame.
+    //!
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
 private:
-    using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
     using TOptionalDouble = boost::optional<double>;
-    using TOptionalSize = boost::optional<std::size_t>;
-    using TOptionalVector = boost::optional<TVector>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    using TApplyParameter = std::function<bool(CBoostedTreeImpl&, double)>;
-    using TAdjustTestLoss = std::function<double(double, double, double)>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
@@ -178,7 +183,7 @@ private:
     void initializeNumberFolds(core::CDataFrame& frame) const;
 
     //! Resize the data frame with the extra columns used by train.
-    void resizeDataFrame(core::CDataFrame& frame) const;
+    void prepareDataFrameForTrain(core::CDataFrame& frame) const;
 
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;
@@ -192,48 +197,34 @@ private:
     //! Determine the encoded feature types.
     void determineFeatureDataTypes(const core::CDataFrame& frame) const;
 
-    //! Initialize the regressors sample distribution.
+    //! Initialize the feature sample distribution.
     bool initializeFeatureSampleDistribution() const;
 
-    //! Set the initial values for the various hyperparameters.
+    //! Set the initial values for hyperparameters.
     void initializeHyperparameters(core::CDataFrame& frame);
 
-    //! Setup before initializing unset hyperparameters.
+    //! Setup before setting initial values for hyperparameters.
     void initializeHyperparametersSetup(core::CDataFrame& frame);
 
-    //! Estimate a good central value for the regularisation hyperparameters
-    //! search bounding box.
+    //! Estimate a good initial value and bounding box to search for regularisation
+    //! hyperparameters.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
-    //! Estimate a good central value for the feature bag fraction search interval.
+    //! Estimate a good initial value and range to search for the feature bag
+    //! fraction.
     void initializeUnsetFeatureBagFraction(core::CDataFrame& frame);
 
-    //! Estimates a good central value for the downsample factor search interval.
+    //! Estimate a good initial value and range to search for the downsample
+    //! factor.
     void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
 
-    //! Estimate a good central value for learn rate.
+    //! Estimate a good initial value and range to search for the learn rate.
     void initializeUnsetEta(core::CDataFrame& frame);
 
     //! Estimate the reduction in gain from a split and the total curvature of
     //! the loss function at a split.
     TDoubleDoublePrVec estimateTreeGainAndCurvature(core::CDataFrame& frame,
                                                     const TDoubleVec& percentiles) const;
-
-    //! Perform a line search for the test loss w.r.t. a single hyperparameter.
-    //! At the end we use a smooth curve fit through all test loss values (using
-    //! LOWESS regression) and use this to get a best estimate of where the true
-    //! minimum occurs.
-    //!
-    //! \return The interval to search during the main hyperparameter optimisation
-    //! loop or null if this couldn't be found.
-    TOptionalVector testLossLineSearch(core::CDataFrame& frame,
-                                       const TApplyParameter& applyParameterStep,
-                                       double intervalLeftEnd,
-                                       double intervalRightEnd,
-                                       const TAdjustTestLoss& adjustTestLoss = noopAdjustTestLoss) const;
-
-    //! Initialize the state for hyperparameter optimisation.
-    void initializeHyperparameterOptimisation() const;
 
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
@@ -287,7 +278,7 @@ private:
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
-    TOptionalSize m_BayesianOptimisationRestarts;
+    std::size_t m_NumberHoldoutRows{0};
     bool m_StratifyRegressionCrossValidation{true};
     double m_InitialDownsampleRowsPerFeature{200.0};
     std::size_t m_MaximumNumberOfTrainRows{500000};
@@ -296,15 +287,10 @@ private:
     double m_GainPerNode90thPercentile{0.0};
     double m_TotalCurvaturePerNode1stPercentile{0.0};
     double m_TotalCurvaturePerNode90thPercentile{0.0};
-    std::size_t m_NumberThreads;
+    std::size_t m_NumberThreads{1};
+    std::string m_RowWeightColumnName;
     TBoostedTreeImplUPtr m_TreeImpl;
-    TVector m_LogDownsampleFactorSearchInterval;
-    TVector m_LogFeatureBagFractionInterval;
-    TVector m_LogDepthPenaltyMultiplierSearchInterval;
-    TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
-    TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
-    TVector m_SoftDepthLimitSearchInterval;
-    TVector m_LogEtaSearchInterval;
+    mutable std::size_t m_PaddedExtraColumns{0};
     TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
 };
 }

@@ -16,6 +16,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CStringUtils.h>
 #include <core/RestoreMacros.h>
 
 #include <maths/common/CBasicStatisticsPersist.h>
@@ -32,17 +33,10 @@ namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-
-//! Clear a vector and recover its memory.
-template<typename T>
-void clearAndShrink(std::vector<T>& vector) {
-    std::vector<T> empty;
-    empty.swap(vector);
-}
-
 const core::TPersistenceTag ADAPTIVE_BUCKETING_TAG{"a", "adaptive_bucketing"};
 const core::TPersistenceTag FEATURE_TAG{"b", "feature"};
 const core::TPersistenceTag VALUES_TAG{"c", "values"};
+const core::TPersistenceTag TIME_ZONE_OFFSET_TAG{"d", "time_zone"};
 const std::string EMPTY_STRING;
 }
 
@@ -51,9 +45,10 @@ CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing()
 }
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(CCalendarFeature feature,
+                                                                         core_t::TTime timeZoneOffset,
                                                                          double decayRate,
                                                                          double minimumBucketLength)
-    : CAdaptiveBucketing{decayRate, minimumBucketLength}, m_Feature{feature} {
+    : CAdaptiveBucketing{decayRate, minimumBucketLength}, m_Feature{feature}, m_TimeZoneOffset{timeZoneOffset} {
 }
 
 CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(
@@ -61,19 +56,24 @@ CCalendarComponentAdaptiveBucketing::CCalendarComponentAdaptiveBucketing(
     double minimumBucketLength,
     core::CStateRestoreTraverser& traverser)
     : CAdaptiveBucketing{decayRate, minimumBucketLength} {
-    traverser.traverseSubLevel(std::bind(&CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel([this](auto& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CCalendarComponentAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(ADAPTIVE_BUCKETING_TAG, this->getAcceptPersistInserter());
     inserter.insertValue(FEATURE_TAG, m_Feature.toDelimited());
+    inserter.insertValue(TIME_ZONE_OFFSET_TAG, m_TimeZoneOffset);
     core::CPersistUtils::persist(VALUES_TAG, m_Values, inserter);
 }
 
 void CCalendarComponentAdaptiveBucketing::swap(CCalendarComponentAdaptiveBucketing& other) {
     this->CAdaptiveBucketing::swap(other);
     std::swap(m_Feature, other.m_Feature);
+    std::swap(m_TimeZoneOffset, other.m_TimeZoneOffset);
     m_Values.swap(other.m_Values);
 }
 
@@ -90,7 +90,8 @@ bool CCalendarComponentAdaptiveBucketing::initialize(std::size_t n) {
 
 void CCalendarComponentAdaptiveBucketing::clear() {
     this->CAdaptiveBucketing::clear();
-    clearAndShrink(m_Values);
+    m_Values.clear();
+    m_Values.shrink_to_fit();
 }
 
 void CCalendarComponentAdaptiveBucketing::linearScale(double scale) {
@@ -119,8 +120,8 @@ void CCalendarComponentAdaptiveBucketing::add(core_t::TTime time, double value, 
     }
 }
 
-CCalendarFeature CCalendarComponentAdaptiveBucketing::feature() const {
-    return m_Feature;
+CCalendarFeatureAndTZ CCalendarComponentAdaptiveBucketing::feature() const {
+    return {m_Feature, m_TimeZoneOffset};
 }
 
 void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time) {
@@ -137,7 +138,9 @@ void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time) {
 
 double CCalendarComponentAdaptiveBucketing::count(core_t::TTime time) const {
     const TFloatMeanVarAccumulator* value{this->value(time)};
-    return value ? static_cast<double>(common::CBasicStatistics::count(*value)) : 0.0;
+    return value != nullptr
+               ? static_cast<double>(common::CBasicStatistics::count(*value))
+               : 0.0;
 }
 
 const CCalendarComponentAdaptiveBucketing::TFloatMeanVarAccumulator*
@@ -155,6 +158,7 @@ CCalendarComponentAdaptiveBucketing::value(core_t::TTime time) const {
 std::uint64_t CCalendarComponentAdaptiveBucketing::checksum(std::uint64_t seed) const {
     seed = this->CAdaptiveBucketing::checksum(seed);
     seed = common::CChecksum::calculate(seed, m_Feature);
+    seed = common::CChecksum::calculate(seed, m_TimeZoneOffset);
     return common::CChecksum::calculate(seed, m_Values);
 }
 
@@ -175,8 +179,10 @@ bool CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
     do {
         const std::string& name{traverser.name()};
         RESTORE(ADAPTIVE_BUCKETING_TAG,
-                traverser.traverseSubLevel(this->getAcceptRestoreTraverser()));
-        RESTORE(FEATURE_TAG, m_Feature.fromDelimited(traverser.value()));
+                traverser.traverseSubLevel(this->getAcceptRestoreTraverser()))
+        RESTORE(FEATURE_TAG, m_Feature.fromDelimited(traverser.value()))
+        RESTORE(TIME_ZONE_OFFSET_TAG,
+                core::CStringUtils::stringToType(traverser.value(), m_TimeZoneOffset))
         RESTORE(VALUES_TAG, core::CPersistUtils::restore(VALUES_TAG, m_Values, traverser))
     } while (traverser.next());
 
@@ -327,7 +333,7 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
 }
 
 bool CCalendarComponentAdaptiveBucketing::inWindow(core_t::TTime time) const {
-    return m_Feature.inWindow(time);
+    return m_Feature.inWindow(time + m_TimeZoneOffset);
 }
 
 void CCalendarComponentAdaptiveBucketing::addInitialValue(std::size_t bucket,
@@ -339,7 +345,7 @@ void CCalendarComponentAdaptiveBucketing::addInitialValue(std::size_t bucket,
 }
 
 double CCalendarComponentAdaptiveBucketing::offset(core_t::TTime time) const {
-    return static_cast<double>(m_Feature.offset(time));
+    return static_cast<double>(m_Feature.offset(time + m_TimeZoneOffset));
 }
 
 double CCalendarComponentAdaptiveBucketing::bucketCount(std::size_t bucket) const {

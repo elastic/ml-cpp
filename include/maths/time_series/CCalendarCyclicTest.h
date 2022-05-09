@@ -49,7 +49,8 @@ namespace time_series {
 //! errors it returns the feature with the highest mean prediction error.
 class MATHS_TIME_SERIES_EXPORT CCalendarCyclicTest {
 public:
-    using TOptionalFeature = boost::optional<CCalendarFeature>;
+    using TFeatureTimePr = std::pair<CCalendarFeature, core_t::TTime>;
+    using TOptionalFeatureTimePr = boost::optional<TFeatureTimePr>;
 
 public:
     explicit CCalendarCyclicTest(double decayRate = 0.0);
@@ -60,6 +61,9 @@ public:
     //! Persist state by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    //! Clear the error distribution summary.
+    void forgetErrorDistribution();
+
     //! Age the bucket values to account for \p time elapsed time.
     void propagateForwardsByTime(double time);
 
@@ -67,7 +71,7 @@ public:
     void add(core_t::TTime time, double error, double weight = 1.0);
 
     //! Check if there are calendar components.
-    TOptionalFeature test() const;
+    TOptionalFeatureTimePr test() const;
 
     //! Get a checksum for this object.
     std::uint64_t checksum(std::uint64_t seed = 0) const;
@@ -92,9 +96,9 @@ private:
         //! Initialize from a delimited string.
         bool fromDelimited(const std::string& str);
 
-        std::uint32_t s_Count = 0;
-        std::uint32_t s_LargeErrorCount = 0;
-        common::CFloatStorage s_LargeErrorSum = 0.0;
+        std::uint32_t s_Count{0};
+        std::uint32_t s_LargeErrorCount{0};
+        common::CFloatStorage s_LargeErrorSum{0.0};
     };
     using TErrorStatsVec = std::vector<SErrorStats>;
 
@@ -102,8 +106,11 @@ private:
     //! Winsorise \p error.
     double winsorise(double error) const;
 
+    //! Get an estimate of the value of the survival function for \p error.
+    double survivalFunction(double error) const;
+
     //! Get the significance of \p x large errors given \p n samples.
-    double significance(double n, double x) const;
+    double significance(double n, double nl, double nv) const;
 
     //! Convert to a compressed representation.
     void deflate(const TErrorStatsVec& stats);

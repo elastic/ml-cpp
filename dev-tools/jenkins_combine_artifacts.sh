@@ -54,8 +54,7 @@ if [ -n "$(git ls-remote --heads origin $MAJOR.$MINOR)" ] ; then
 elif [ -n "$(git ls-remote --heads origin $MAJOR.x)" ] ; then
     BRANCH=$MAJOR.x
 else
-    # TODO: keep an eye on this in case it changes to main
-    BRANCH=master
+    BRANCH=main
 fi
 
 # Jenkins sets BUILD_SNAPSHOT, but the Docker container requires a workflow that
@@ -109,6 +108,7 @@ docker run --rm \
     cli collect \
       --project ml-cpp \
       --branch "$BRANCH" \
+      --version "$VERSION" \
       --commit `git rev-parse HEAD` \
       --workflow "$WORKFLOW" \
       --qualifier "$VERSION_QUALIFIER" \

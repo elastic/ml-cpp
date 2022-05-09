@@ -48,16 +48,16 @@ public:
 
 public:
     //! Compute the mean of a pair.
-    static double mean(const TDoubleDoublePr& samples);
+    static double mean(const TDoubleDoublePr& data);
 
     //! Compute the vector mean of a pair.
     template<typename VECTOR>
-    static VECTOR mean(const std::pair<VECTOR, VECTOR>& samples) {
-        std::size_t n = std::min(samples.first.size(), samples.second.size());
+    static VECTOR mean(const std::pair<VECTOR, VECTOR>& data) {
+        std::size_t n = std::min(data.first.size(), data.second.size());
         VECTOR result;
         result.reserve(n);
         for (std::size_t i = 0; i < n; ++i) {
-            result.push_back(0.5 * (samples.first[i] + samples.second[i]));
+            result.push_back(0.5 * (data.first[i] + data.second[i]));
         }
         return result;
     }
@@ -257,7 +257,7 @@ public:
             T mean{s_Moments[0]};
             s_Moments[0] = beta * mean + alpha * x;
 
-            if (ORDER > 1) {
+            if constexpr (ORDER > 1) {
                 T r{x - s_Moments[0]};
                 T r2{las::componentwise(r) * las::componentwise(r)};
                 T dMean{mean - s_Moments[0]};
@@ -266,7 +266,7 @@ public:
 
                 s_Moments[1] = beta * (variance + dMean2) + alpha * r2;
 
-                if (ORDER > 2) {
+                if constexpr (ORDER > 2) {
                     T skew{s_Moments[2]};
                     T dSkew{TCoordinate(3) * variance + dMean2};
                     dSkew = las::componentwise(dSkew) * las::componentwise(dMean);
@@ -297,7 +297,7 @@ public:
 
             s_Moments[0] = beta * meanLhs + alpha * meanRhs;
 
-            if (ORDER > 1) {
+            if constexpr (ORDER > 1) {
                 T dMeanLhs{meanLhs - s_Moments[0]};
                 T dMean2Lhs{las::componentwise(dMeanLhs) * las::componentwise(dMeanLhs)};
                 T varianceLhs{s_Moments[1]};
@@ -308,7 +308,7 @@ public:
                 s_Moments[1] = beta * (varianceLhs + dMean2Lhs) +
                                alpha * (varianceRhs + dMean2Rhs);
 
-                if (ORDER > 2) {
+                if constexpr (ORDER > 2) {
                     T skewLhs{s_Moments[2]};
                     T dSkewLhs{TCoordinate{3} * varianceLhs + dMean2Lhs};
                     dSkewLhs = las::componentwise(dSkewLhs) * las::componentwise(dMeanLhs);
@@ -364,7 +364,7 @@ public:
 
             s_Moments[0] = beta * meanLhs - alpha * meanRhs;
 
-            if (ORDER > 1) {
+            if constexpr (ORDER > 1) {
                 T dMeanLhs{s_Moments[0] - meanLhs};
                 T dMean2Lhs{las::componentwise(dMeanLhs) * las::componentwise(dMeanLhs)};
                 T dMeanRhs{meanRhs - meanLhs};
@@ -375,7 +375,7 @@ public:
                                        alpha * (varianceRhs + dMean2Rhs - dMean2Lhs),
                                    T{0});
 
-                if (ORDER > 2) {
+                if constexpr (ORDER > 2) {
                     T skewLhs{s_Moments[2]};
                     T dSkewLhs{TCoordinate{3} * s_Moments[1] + dMean2Lhs};
                     dSkewLhs = las::componentwise(dSkewLhs) * las::componentwise(dMeanLhs);
@@ -422,19 +422,19 @@ public:
     //! Accumulator object to compute the sample mean.
     template<typename T>
     struct SSampleMean {
-        using TAccumulator = SSampleCentralMoments<T, 1u>;
+        using TAccumulator = SSampleCentralMoments<T, 1>;
     };
 
     //! Accumulator object to compute the sample mean and variance.
     template<typename T>
     struct SSampleMeanVar {
-        using TAccumulator = SSampleCentralMoments<T, 2u>;
+        using TAccumulator = SSampleCentralMoments<T, 2>;
     };
 
     //! Accumulator object to compute the sample mean, variance and skewness.
     template<typename T>
     struct SSampleMeanVarSkew {
-        using TAccumulator = SSampleCentralMoments<T, 3u>;
+        using TAccumulator = SSampleCentralMoments<T, 3>;
     };
     //@}
 
@@ -442,8 +442,8 @@ public:
     //@{
     //! Make a mean accumulator.
     template<typename T, typename U>
-    static SSampleCentralMoments<T, 1u> momentsAccumulator(const U& count, const T& m1) {
-        SSampleCentralMoments<T, 1u> result;
+    static SSampleCentralMoments<T, 1> momentsAccumulator(const U& count, const T& m1) {
+        SSampleCentralMoments<T, 1> result;
         result.s_Count = count;
         result.s_Moments[0] = m1;
         return result;
@@ -451,9 +451,9 @@ public:
 
     //! Make a mean and variance accumulator.
     template<typename T, typename U>
-    static SSampleCentralMoments<T, 2u>
+    static SSampleCentralMoments<T, 2>
     momentsAccumulator(const U& count, const T& m1, const T& m2) {
-        SSampleCentralMoments<T, 2u> result;
+        SSampleCentralMoments<T, 2> result;
         result.s_Count = count;
         result.s_Moments[0] = m1;
         result.s_Moments[1] = m2;
@@ -462,9 +462,9 @@ public:
 
     //! Make a mean, variance and skew accumulator.
     template<typename T, typename U>
-    static SSampleCentralMoments<T, 3u>
+    static SSampleCentralMoments<T, 3>
     momentsAccumulator(const U& count, const T& m1, const T& m2, const T& m3) {
-        SSampleCentralMoments<T, 3u> result;
+        SSampleCentralMoments<T, 3> result;
         result.s_Count = count;
         result.s_Moments[0] = m1;
         result.s_Moments[1] = m2;
@@ -677,14 +677,14 @@ public:
     //@{
     //! Print a mean accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 1u>& accumulator) {
+    static inline std::string print(const SSampleCentralMoments<T, 1>& accumulator) {
         std::ostringstream result;
         result << '(' << count(accumulator) << ", " << mean(accumulator) << ')';
         return result.str();
     }
     //! Print a mean and variance accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 2u>& accumulator) {
+    static inline std::string print(const SSampleCentralMoments<T, 2>& accumulator) {
         std::ostringstream result;
         result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
                << variance(accumulator) << ')';
@@ -692,7 +692,7 @@ public:
     }
     //! Print a mean, variance and skew accumulator.
     template<typename T>
-    static inline std::string print(const SSampleCentralMoments<T, 3u>& accumulator) {
+    static inline std::string print(const SSampleCentralMoments<T, 3>& accumulator) {
         std::ostringstream result;
         result << '(' << count(accumulator) << ", " << mean(accumulator) << ", "
                << variance(accumulator) << ", " << skewness(accumulator) << ')';
@@ -1441,19 +1441,19 @@ public:
 
 template<typename T>
 std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 1u>& accumulator) {
+                         const CBasicStatistics::SSampleCentralMoments<T, 1>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
 std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 2u>& accumulator) {
+                         const CBasicStatistics::SSampleCentralMoments<T, 2>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 
 template<typename T>
 std::ostream& operator<<(std::ostream& o,
-                         const CBasicStatistics::SSampleCentralMoments<T, 3u>& accumulator) {
+                         const CBasicStatistics::SSampleCentralMoments<T, 3>& accumulator) {
     return o << CBasicStatistics::print(accumulator);
 }
 

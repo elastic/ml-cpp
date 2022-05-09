@@ -46,16 +46,6 @@ namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-double rightTailFTest(double v0, double v1, double df0, double df1) {
-    // If there is insufficient data for either hypothesis treat we are conservative
-    // and say the alternative hypothesis is not provable.
-    if (df0 <= 0.0 || df1 <= 0.0) {
-        return 1.0;
-    }
-    double F{v0 == v1 ? 1.0 : v0 / v1};
-    return common::CStatisticalTests::rightTailFTest(F, df0, df1);
-}
-
 bool almostDivisor(std::size_t i, std::size_t j, double eps) {
     if (i > j) {
         return false;
@@ -111,6 +101,10 @@ const std::string& CNewSeasonalComponentSummary::annotationText() const {
 
 std::size_t CNewSeasonalComponentSummary::size() const {
     return m_Size;
+}
+
+bool CNewSeasonalComponentSummary::isOneOf(int periods) const {
+    return (m_PeriodDescriptor & periods) != 0;
 }
 
 CNewSeasonalComponentSummary::TSeasonalTimeUPtr
@@ -174,6 +168,10 @@ core_t::TTime CNewSeasonalComponentSummary::initialValuesEndTime() const {
            static_cast<core_t::TTime>(m_InitialValues.size()) * m_BucketLength;
 }
 
+core_t::TTime CNewSeasonalComponentSummary::bucketLength() const {
+    return m_BucketLength;
+}
+
 const CNewSeasonalComponentSummary::TFloatMeanAccumulatorVec&
 CNewSeasonalComponentSummary::initialValues() const {
     return m_InitialValues;
@@ -216,8 +214,9 @@ void CSeasonalDecomposition::withinBucketVariance(double variance) {
 }
 
 bool CSeasonalDecomposition::componentsChanged() const {
-    return m_Seasonal.size() > 0 || std::count(m_SeasonalToRemoveMask.begin(),
-                                               m_SeasonalToRemoveMask.end(), true) > 0;
+    return m_Seasonal.empty() == false ||
+           std::count(m_SeasonalToRemoveMask.begin(),
+                      m_SeasonalToRemoveMask.end(), true) > 0;
 }
 
 const CNewTrendSummary* CSeasonalDecomposition::trend() const {
@@ -316,7 +315,7 @@ bool CTimeSeriesTestForSeasonality::canTestModelledComponent(
     const CSeasonalTime& component) {
     std::size_t minimumPeriodInBuckets{
         std::max(buckets(bucketLength, minimumPeriod), minimumResolution)};
-    return 10 * (component.period() % bucketLength) < component.period() &&
+    return 100 * (component.period() % bucketLength) < component.period() &&
            canTestPeriod(values, minimumPeriodInBuckets,
                          toPeriod(bucketsStartTime, bucketLength, component));
 }
@@ -342,7 +341,7 @@ void CTimeSeriesTestForSeasonality::modelledSeasonalityPredictor(const TPredicto
     m_ModelledPredictor = predictor;
 }
 
-void CTimeSeriesTestForSeasonality::fitAndRemoveUntestableModelledComponents() {
+void CTimeSeriesTestForSeasonality::prepareWindowForDecompose() {
 
     // Although we precondition by removing untestable modelled component predictions
     // there can be errors. This is problematic when the period is too short to test
@@ -357,13 +356,21 @@ void CTimeSeriesTestForSeasonality::fitAndRemoveUntestableModelledComponents() {
             untestable.push_back(period);
         }
     }
-    if (untestable.size() > 0) {
+    if (untestable.empty() == false) {
         TMeanAccumulatorVecVec components;
         CSignal::fitSeasonalComponentsRobust(untestable, m_OutlierFraction,
                                              m_Values, components);
         removePredictions({untestable, 0, untestable.size()},
                           {components, 0, components.size()}, m_Values);
     }
+
+    // Remove extremely outlying values for which reweighting is insufficient. This
+    // is defined as a contiguous range of much smaller or larger than typical values.
+    // We need to be careful with the definition we use because, for example, periodic
+    // spikes can appear to be extremely outlying for many measures. The definition we
+    // use requires that values in the interval are very different to _all_ remaining
+    // values which is sufficient to avoid false positives.
+    CSignal::removeExtremeOutliers(m_OutlierFraction / 2.0, m_Values);
 }
 
 bool CTimeSeriesTestForSeasonality::checkInvariants() const {
@@ -464,8 +471,8 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
     LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(trendSegments));
 
     TRemoveTrend removeTrendModels[]{
-        [&](const TSeasonalComponentVec&, TFloatMeanAccumulatorVec& values,
-            TSizeVec& modelTrendSegments) {
+        [this](const TSeasonalComponentVec& /*periods*/,
+               TFloatMeanAccumulatorVec& values, TSizeVec& modelTrendSegments) {
             LOG_TRACE(<< "no trend");
             values = m_Values;
             modelTrendSegments.clear();
@@ -552,7 +559,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
             values = TSegmentation::removePiecewiseLinear(
                 std::move(values), modelTrendSegments, m_OutlierFraction);
 
-            if (periods.size() > 0) {
+            if (periods.empty() == false) {
                 CSignal::fitSeasonalComponents(periods, values, m_Components);
                 values = m_Values;
                 removePredictions(predictor, values);
@@ -723,8 +730,8 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                            0.3 * std::log(1.0 + common::CTools::pow2(segments)) -
                            0.3 * std::log(std::max(leastCommonRepeat, 0.5))};
             double qualityToAccept{
-                1.0 * qualitySelected -
-                1.0 * std::log(1.0 + std::max(std::log(0.01 / pValueVsSelected), 0.0))};
+                qualitySelected -
+                std::log(1.0 + std::max(std::log(0.01 / pValueVsSelected), 0.0))};
             LOG_TRACE(<< "target size = " << decompositions[H1].targetModelSize()
                       << ", modelled = " << decompositions[H1].s_AlreadyModelled);
             LOG_TRACE(<< "quality = " << quality << " to accept = " << qualityToAccept);
@@ -805,7 +812,7 @@ void CTimeSeriesTestForSeasonality::addModelled(const TRemoveTrend& removeTrend,
                                                 TModelVec& decompositions) const {
     m_CandidatePeriods = m_ModelledPeriods;
     this->removeIfNotTestable(m_CandidatePeriods);
-    if (m_CandidatePeriods.size() > 0 &&
+    if (m_CandidatePeriods.empty() == false &&
         removeTrend(m_CandidatePeriods, m_ValuesMinusTrend, m_ModelTrendSegments)) {
 
         // Already modelled seasonal components.
@@ -822,8 +829,8 @@ void CTimeSeriesTestForSeasonality::addModelled(const TRemoveTrend& removeTrend,
         m_Periods = m_CandidatePeriods;
         CSignal::fitSeasonalComponents(m_Periods, m_ValuesMinusTrend, m_Components);
         m_TemporaryValues = m_ValuesMinusTrend;
-        this->removePredictions({m_Periods, 0, m_Periods.size()},
-                                {m_Components, 0, m_Components.size()}, m_TemporaryValues);
+        removePredictions({m_Periods, 0, m_Periods.size()},
+                          {m_Components, 0, m_Components.size()}, m_TemporaryValues);
         auto diurnal = std::make_tuple(this->day(), this->week(), this->year());
         for (const auto& period : CSignal::seasonalDecomposition(
                  m_TemporaryValues, m_OutlierFraction, diurnal,
@@ -868,7 +875,7 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TRemoveTrend& removeTrend,
             m_ValuesMinusTrend, m_OutlierFraction, this->week(), m_StartOfWeekOverride);
 
         // weekday/weekend modulation + year.
-        if (m_CandidatePeriods.size() > 0) {
+        if (m_CandidatePeriods.empty() == false) {
             CSignal::appendSeasonalComponentSummary(this->year(), m_CandidatePeriods);
             this->removeIfNotTestable(m_CandidatePeriods);
             if (this->includesNewComponents(m_CandidatePeriods)) {
@@ -1037,7 +1044,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
                 m_Periods.push_back(periods[j]);
             }
         }
-        if (m_Periods.size() > 0) {
+        if (m_Periods.empty() == false) {
             LOG_TRACE(<< "removing " << core::CContainerPrinter::print(m_Periods));
             CSignal::fitSeasonalComponents(m_Periods, m_TemporaryValues, m_Components);
             removePredictions({m_Periods, 0, m_Periods.size()},
@@ -1221,6 +1228,7 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
         std::size_t j{periodsHypotheses[i]};
         const TSizeVec& scaleSegments{hypotheses[j].s_ScaleSegments};
 
+        // Consider falling back to not scaling if scaling fails.
         for (auto scale : {scaleSegments.size() > 2, false}) {
 
             m_TemporaryValues = residuals;
@@ -1269,6 +1277,11 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
                                       period[0].value(component[0], k)};
                     value = prediction + (value - prediction) / overlapping;
                     common::CBasicStatistics::moment<0>(residuals[m_WindowIndices[k]]) -= prediction;
+                } else {
+                    // If we were unable to estimate the value of the seasonal
+                    // component here we should discard it when initialising
+                    // the trend.
+                    residuals[m_WindowIndices[k]] = TFloatMeanAccumulator{};
                 }
                 hypotheses[j].s_InitialValues[m_WindowIndices[k]] = moments;
             }
@@ -1470,11 +1483,21 @@ void CTimeSeriesTestForSeasonality::removeModelledPredictions(const TBoolVec& co
     }
 }
 
-void CTimeSeriesTestForSeasonality::removeDiscontinuities(const TSizeVec& modelTrendSegments,
+void CTimeSeriesTestForSeasonality::removeDiscontinuities(const TSizeVec& trendSegments,
                                                           TFloatMeanAccumulatorVec& values) const {
-    if (modelTrendSegments.size() > 2) {
+    if (trendSegments.size() > 2) {
+        // Ignore short segments since they often fit outliers.
+        std::size_t minimumSegmentLength{static_cast<std::size_t>(std::ceil(
+            m_OutlierFraction * static_cast<double>(CSignal::countNotMissing(values)) / 2.0))};
+        for (std::size_t i = 1; i < trendSegments.size(); ++i) {
+            if (trendSegments[i] - trendSegments[i - 1] < minimumSegmentLength) {
+                for (std::size_t j = trendSegments[i - 1]; j < trendSegments[i]; ++j) {
+                    values[j] = TFloatMeanAccumulator{};
+                }
+            }
+        }
         values = TSegmentation::removePiecewiseLinearDiscontinuities(
-            std::move(values), modelTrendSegments, m_OutlierFraction);
+            std::move(values), trendSegments, m_OutlierFraction);
     }
 }
 
@@ -1485,6 +1508,16 @@ bool CTimeSeriesTestForSeasonality::constantScale(const TConstantScale& scale,
                                                   TMeanAccumulatorVecVec& components,
                                                   TDoubleVec& scales) const {
     if (scaleSegments.size() > 2) {
+        // Ignore short segments since they often fit outliers.
+        std::size_t minimumSegmentLength{static_cast<std::size_t>(std::ceil(
+            m_OutlierFraction * static_cast<double>(CSignal::countNotMissing(values)) / 2.0))};
+        for (std::size_t i = 1; i < scaleSegments.size(); ++i) {
+            if (scaleSegments[i] - scaleSegments[i - 1] < minimumSegmentLength) {
+                for (std::size_t j = scaleSegments[i - 1]; j < scaleSegments[i]; ++j) {
+                    values[j] = TFloatMeanAccumulator{};
+                }
+            }
+        }
         values = TSegmentation::constantScalePiecewiseLinearScaledSeasonal(
             values, periods, scaleSegments, scale, m_OutlierFraction, components, scales);
         return true;
@@ -1542,7 +1575,7 @@ std::size_t CTimeSeriesTestForSeasonality::numberTrendParameters(std::size_t num
 }
 
 bool CTimeSeriesTestForSeasonality::includesNewComponents(const TSeasonalComponentVec& periods) const {
-    return periods.size() > 0 && this->includesPermittedPeriod(periods) &&
+    return periods.empty() == false && this->includesPermittedPeriod(periods) &&
            this->alreadyModelled(periods) == false;
 }
 
@@ -2088,7 +2121,8 @@ double CTimeSeriesTestForSeasonality::SHypothesisStats::weight() const {
 }
 
 std::string CTimeSeriesTestForSeasonality::SHypothesisStats::print() const {
-    return s_Period.print();
+    return s_Period.print() + "/" + std::to_string(s_NumberScaleSegments) +
+           "/" + std::to_string(s_NumberTrendSegments);
 }
 
 bool CTimeSeriesTestForSeasonality::SModel::isTestable() const {
@@ -2157,8 +2191,8 @@ double CTimeSeriesTestForSeasonality::SModel::pValue(const SModel& H0,
     v1[1] += minimumRelativeTruncatedVariance * v1[0];
 
     return std::max(
-        std::min(rightTailFTest(v0[0] / df0[0], v1[0] / df1[0], df0[0], df1[0]),
-                 rightTailFTest(v0[1] / df0[1], v1[1] / df1[1], df0[1], df1[1])),
+        std::min(common::CStatisticalTests::rightTailFTest(v0[0], v1[0], df0[0], df1[0]),
+                 common::CStatisticalTests::rightTailFTest(v0[1], v1[1], df0[1], df1[1])),
         common::CTools::smallestProbability());
 }
 

@@ -253,6 +253,15 @@ void fillDataFrame(std::size_t trainRows,
                   noise, target, frame);
 }
 
+template<typename W>
+void fillDataFrameWeights(std::size_t col, const W& weight, core::CDataFrame& frame) {
+    frame.writeColumns(1, [&](const TRowItr& beginRows, const TRowItr& endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            row->writeColumn(col, weight(*row));
+        }
+    });
+}
+
 template<typename F>
 auto predictAndComputeEvaluationMetrics(const F& generateFunction,
                                         test::CRandomNumbers& rng,
@@ -332,27 +341,21 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
 
     std::size_t rows{trainRows + testRows};
 
-    TFactoryFunc makeMainMemory{
-        [=] { return core::makeMainStorageDataFrame(cols, rows).first; }};
-
-    TFactoryFuncVec factories{makeMainMemory, makeMainMemory};
-
     TDoubleVec modelBias;
     TDoubleVec modelRSquared;
 
-    for (const auto& factory : factories) {
-
+    for (std::size_t i = 0; i < 2; ++i) {
         auto target = generateFunction(rng, cols);
 
         TDoubleVecVec x(cols - 1);
-        for (std::size_t i = 0; i < cols - 1; ++i) {
-            rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        for (std::size_t j = 0; j < cols - 1; ++j) {
+            rng.generateUniformSamples(0.0, 10.0, rows, x[j]);
         }
 
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
 
-        auto frame = factory();
+        auto frame = core::makeMainStorageDataFrame(cols, rows).first;
 
         fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
 
@@ -406,8 +409,8 @@ BOOST_AUTO_TEST_CASE(testEdgeCases) {
 
     // Test some edge case inputs fail gracefully.
 
-    auto errorHandler = [](std::string error) {
-        throw std::runtime_error{std::move(error)};
+    auto errorHandler = [](const std::string& error) {
+        throw std::runtime_error{error};
     };
 
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
@@ -566,7 +569,7 @@ BOOST_AUTO_TEST_CASE(testLinear) {
             0.0, modelBias[i][0],
             6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.94);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -706,6 +709,177 @@ BOOST_AUTO_TEST_CASE(testHuber) {
 
 BOOST_AUTO_TEST_CASE(testMsle) {
     // TODO #1744 test quality of MSLE on data with log-normal errors.
+}
+
+BOOST_AUTO_TEST_CASE(testNonUnitWeights) {
+
+    // Check that downweighting outlier values improves prediction errors and bias
+    // on inlier values.
+
+    std::size_t trainRows{500};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+    double noiseVariance{25.0};
+    std::size_t cols{6};
+    std::size_t weightCol{cols};
+
+    TSizeVec outliers;
+    test::CRandomNumbers rng;
+    for (std::size_t i = 0; i < trainRows + testRows; ++i) {
+        TDoubleVec u01;
+        rng.generateUniformSamples(0.0, 1.0, 1, u01);
+        if (u01[0] < 0.05) {
+            outliers.push_back(i);
+        }
+    }
+    LOG_DEBUG(<< "outliers = " << core::CContainerPrinter::print(outliers));
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    auto targetWithOutliers = [&](const TRowRef& row) {
+        return target(row) +
+               (std::binary_search(outliers.begin(), outliers.end(), row.index())
+                    ? 8.0 * std::sqrt(noiseVariance)
+                    : 0.0);
+    };
+
+    auto weight = [&](const TRowRef& row) {
+        return std::binary_search(outliers.begin(), outliers.end(), row.index()) ? 0.1 : 1.0;
+    };
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frameWithoutWeights = core::makeMainStorageDataFrame(cols, rows).first;
+    frameWithoutWeights->columnNames({"x1", "x2", "x3", "x4", "x5", "x6"});
+    fillDataFrame(trainRows, testRows, cols, x, noise, targetWithOutliers, *frameWithoutWeights);
+
+    auto regressionWithoutWeights =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .buildFor(*frameWithoutWeights, cols - 1);
+
+    regressionWithoutWeights->train();
+    regressionWithoutWeights->predict();
+
+    auto frameWithWeights = core::makeMainStorageDataFrame(cols + 1, rows).first;
+    frameWithWeights->columnNames({"x1", "x2", "x3", "x4", "x5", "x6", "w"});
+    fillDataFrame(trainRows, testRows, cols, TBoolVec(cols + 1, false), x,
+                  noise, targetWithOutliers, *frameWithWeights);
+    fillDataFrameWeights(weightCol, weight, *frameWithWeights);
+
+    auto regressionWithWeights =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .rowWeightColumnName("w")
+            .buildFor(*frameWithWeights, cols - 1);
+
+    regressionWithWeights->train();
+    regressionWithWeights->predict();
+
+    double biasWithoutWeights;
+    double rSquaredWithoutWeights;
+    std::tie(biasWithoutWeights, rSquaredWithoutWeights) = computeEvaluationMetrics(
+        *frameWithoutWeights, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionWithoutWeights->readPrediction(row)[0];
+        },
+        target, noiseVariance / static_cast<double>(rows));
+    LOG_DEBUG(<< "biasWithoutWeights = " << biasWithoutWeights
+              << ", rSquaredWithoutWeights = " << rSquaredWithoutWeights);
+
+    double biasWithWeights;
+    double rSquaredWithWeights;
+    std::tie(biasWithWeights, rSquaredWithWeights) = computeEvaluationMetrics(
+        *frameWithWeights, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionWithWeights->readPrediction(row)[0];
+        },
+        target, noiseVariance / static_cast<double>(rows));
+    LOG_DEBUG(<< "biasWithWeights    = " << biasWithWeights
+              << ", rSquaredWithWeights    = " << rSquaredWithWeights);
+
+    BOOST_TEST_REQUIRE(std::fabs(biasWithWeights) < 0.2 * std::fabs(biasWithoutWeights));
+    BOOST_TEST_REQUIRE(1.0 - rSquaredWithWeights < 0.8 * (1.0 - rSquaredWithoutWeights));
+}
+
+BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
+
+    // Test a linear model with low cardinality features.
+
+    std::size_t trainRows{500};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+    double noiseVariance{9.0};
+    std::size_t cols{6};
+
+    test::CRandomNumbers rng;
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-2.0, 2.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+    for (auto& ni : noise) {
+        ni = std::floor(ni + 0.5);
+    }
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+    for (std::size_t i = 0; i < (cols - 1) / 2 + 1; ++i) {
+        for (auto& xj : x[i]) {
+            xj = std::floor(xj + 0.5);
+        }
+    }
+
+    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
+
+    auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                          .buildFor(*frame, cols - 1);
+
+    regression->train();
+    regression->predict();
+
+    double bias;
+    double rSquared;
+    std::tie(bias, rSquared) = computeEvaluationMetrics(
+        *frame, trainRows, rows,
+        [&](const TRowRef& row) { return regression->readPrediction(row)[0]; },
+        target, noiseVariance / static_cast<double>(rows));
+    LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
+
+    BOOST_TEST_REQUIRE(rSquared > 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -1015,7 +1189,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testFeatureBags) {
@@ -1133,10 +1307,13 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                         std::min(selected[i], selectedSorted[i]);
         }
         return static_cast<double>(distance) /
-               static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
+               static_cast<double>(std::accumulate(selected.begin(),
+                                                   selected.end(), std::size_t{0}));
     };
 
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.0073);
+    LOG_DEBUG(<< "distanceToSorted(selectedForTree) = " << distanceToSorted(selectedForTree)
+              << ", distanceToSorted(selectedForNode) = " << distanceToSorted(selectedForNode));
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.01);
     BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.01);
 }
 
@@ -1181,7 +1358,7 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.082);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.97);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.96);
 }
 
 BOOST_AUTO_TEST_CASE(testSingleSplit) {
@@ -1340,10 +1517,10 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .treeSizePenaltyMultiplier(0.0)
-                .leafWeightPenaltyMultiplier(0.0)
-                .softTreeDepthLimit(targetDepth)
-                .softTreeDepthTolerance(0.01)
+                .treeSizePenaltyMultiplier({0.0})
+                .leafWeightPenaltyMultiplier({0.0})
+                .softTreeDepthLimit({targetDepth})
+                .softTreeDepthTolerance({0.05})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
@@ -1351,7 +1528,7 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
         TMeanAccumulator meanDepth;
         for (const auto& tree : regression->trainedModel()) {
             BOOST_TEST_REQUIRE(maxDepth(tree, tree[0], 0) <=
-                               static_cast<std::size_t>(targetDepth));
+                               static_cast<std::size_t>(targetDepth + 1));
             meanDepth.add(static_cast<double>(maxDepth(tree, tree[0], 0)));
         }
         LOG_DEBUG(<< "mean depth = " << maths::common::CBasicStatistics::mean(meanDepth));
@@ -1812,6 +1989,111 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
+
+    // Test we always produce a model which meets our memory constraint.
+
+    test::CRandomNumbers rng;
+    double noiseVariance{10.0};
+    std::size_t trainRows{800};
+    std::size_t testRows{200};
+    std::size_t rows{trainRows + testRows};
+    std::size_t cols{8};
+    std::size_t capacity{250};
+    std::size_t maximumDeployedSize{20000};
+
+    auto target = [&] {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return result;
+        };
+    }();
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frameConstrained = core::makeMainStorageDataFrame(cols, capacity).first;
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *frameConstrained);
+    auto regressionConstrained =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .maximumDeployedSize(maximumDeployedSize)
+            .numberFolds(2)
+            .buildFor(*frameConstrained, cols - 1);
+    regressionConstrained->train();
+    regressionConstrained->predict();
+
+    auto frameUnconstrained = core::makeMainStorageDataFrame(cols, capacity).first;
+    fillDataFrame(trainRows, testRows, cols, x, noise, target, *frameUnconstrained);
+    auto regressionUnconstrained =
+        maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+            .numberFolds(2)
+            .buildFor(*frameUnconstrained, cols - 1);
+    regressionUnconstrained->train();
+    regressionUnconstrained->predict();
+
+    std::size_t deployedSizeConstrained{
+        std::accumulate(regressionConstrained->trainedModel().begin(),
+                        regressionConstrained->trainedModel().end(),
+                        std::size_t{0}, [](std::size_t sum, const auto& tree) {
+                            for (const auto& node : tree) {
+                                sum += node.deployedSize();
+                            }
+                            return sum;
+                        })};
+    std::size_t deployedSizeUnconstrained{
+        std::accumulate(regressionUnconstrained->trainedModel().begin(),
+                        regressionUnconstrained->trainedModel().end(),
+                        std::size_t{0}, [](std::size_t sum, const auto& tree) {
+                            for (const auto& node : tree) {
+                                sum += node.deployedSize();
+                            }
+                            return sum;
+                        })};
+
+    auto[modelBiasConstrained, modelRSquaredConstrained] = computeEvaluationMetrics(
+        *frameConstrained, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionConstrained->readPrediction(row)[0];
+        },
+        target, 0.0);
+
+    auto[modelBiasUnconstrained, modelRSquaredUnconstrained] = computeEvaluationMetrics(
+        *frameUnconstrained, trainRows, rows,
+        [&](const TRowRef& row) {
+            return regressionUnconstrained->readPrediction(row)[0];
+        },
+        target, 0.0);
+
+    LOG_DEBUG(<< "deployedSizeConstrained = " << deployedSizeConstrained
+              << ", modelBiasConstrained = " << modelBiasConstrained
+              << ", modelRSquaredConstrained = " << modelRSquaredConstrained);
+    LOG_DEBUG(<< "deployedSizeUnconstrained = " << deployedSizeUnconstrained
+              << ", modelBiasUnconstrained = " << modelBiasUnconstrained
+              << ", modelRSquaredUnconstrained = " << modelRSquaredUnconstrained);
+
+    // We don't hurt model accuracy by more than 3%.
+    BOOST_TEST_REQUIRE(modelRSquaredConstrained > 0.97 * modelRSquaredUnconstrained);
+
+    // We need to constrain vs the optimum for this data and we are within
+    // the memory budget.
+    BOOST_TEST_REQUIRE(deployedSizeConstrained < maximumDeployedSize);
+    BOOST_TEST_REQUIRE(deployedSizeConstrained < deployedSizeUnconstrained);
+}
+
 BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
     // Test progress monitoring invariants.
@@ -2009,76 +2291,80 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
                 .maximumNumberTrees(10)
-                .treeSizePenaltyMultiplier(0.1)
-                .leafWeightPenaltyMultiplier(0.01)
+                .treeSizePenaltyMultiplier({0.1})
+                .leafWeightPenaltyMultiplier({0.01})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
 
         // We use a single leaf to centre the data so end up with *at most* limit + 1 trees.
-        BOOST_TEST_REQUIRE(regression->bestHyperparameters().maximumNumberTrees() <= 11);
+        BOOST_TEST_REQUIRE(regression->hyperparameters().maximumNumberTrees().value() <= 11);
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->bestHyperparameters().regularization().treeSizePenaltyMultiplier());
+            0.1, regression->hyperparameters().treeSizePenaltyMultiplier().value());
         BOOST_REQUIRE_EQUAL(
-            0.01, regression->bestHyperparameters().regularization().leafWeightPenaltyMultiplier());
+            0.01, regression->hyperparameters().leafWeightPenaltyMultiplier().value());
     }
     {
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
-                .eta(0.2)
-                .softTreeDepthLimit(2.0)
-                .softTreeDepthTolerance(0.1)
+                .eta({0.2})
+                .softTreeDepthLimit({2.0})
+                .softTreeDepthTolerance({0.1})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
 
-        BOOST_REQUIRE_EQUAL(0.2, regression->bestHyperparameters().eta());
+        BOOST_REQUIRE_EQUAL(0.2, regression->hyperparameters().eta().value());
         BOOST_REQUIRE_EQUAL(
-            2.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+            2.0, regression->hyperparameters().softTreeDepthLimit().value());
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
+            0.1, regression->hyperparameters().softTreeDepthTolerance().value());
     }
     {
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
-                .depthPenaltyMultiplier(1.0)
-                .featureBagFraction(0.4)
-                .downsampleFactor(0.6)
+                .depthPenaltyMultiplier({1.0})
+                .featureBagFraction({0.4})
+                .downsampleFactor({0.6})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
 
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
-        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
-        BOOST_REQUIRE_EQUAL(0.6, regression->bestHyperparameters().downsampleFactor());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
+        BOOST_REQUIRE_EQUAL(
+            0.4, regression->hyperparameters().featureBagFraction().value());
+        BOOST_REQUIRE_EQUAL(
+            0.6, regression->hyperparameters().downsampleFactor().value());
     }
     {
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .analysisInstrumentation(instrumentation)
-                .depthPenaltyMultiplier(1.0)
-                .softTreeDepthLimit(3.0)
-                .softTreeDepthTolerance(0.1)
-                .featureBagFraction(0.4)
-                .downsampleFactor(0.6)
-                .etaGrowthRatePerTree(1.1)
+                .depthPenaltyMultiplier({1.0})
+                .softTreeDepthLimit({3.0})
+                .softTreeDepthTolerance({0.1})
+                .featureBagFraction({0.4})
+                .downsampleFactor({0.6})
+                .etaGrowthRatePerTree({1.1})
                 .buildFor(*frame, cols - 1);
 
         regression->train();
         BOOST_REQUIRE_EQUAL(
-            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
+            1.0, regression->hyperparameters().depthPenaltyMultiplier().value());
         BOOST_REQUIRE_EQUAL(
-            3.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+            3.0, regression->hyperparameters().softTreeDepthLimit().value());
         BOOST_REQUIRE_EQUAL(
-            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
-        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
-        BOOST_REQUIRE_EQUAL(1.1, regression->bestHyperparameters().etaGrowthRatePerTree());
+            0.1, regression->hyperparameters().softTreeDepthTolerance().value());
+        BOOST_REQUIRE_EQUAL(
+            0.4, regression->hyperparameters().featureBagFraction().value());
+        BOOST_REQUIRE_EQUAL(
+            1.1, regression->hyperparameters().etaGrowthRatePerTree().value());
     }
 }
 

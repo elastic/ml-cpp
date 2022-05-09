@@ -242,6 +242,7 @@ bool CTokenListDataCategorizerBase::cacheReverseSearch(CLocalCategoryId category
     using TSizeSizeSizePrMMap = std::multimap<std::size_t, TSizeSizePr>;
     TSizeSizeSizePrMMap rareIdsWithCost;
     std::size_t lowestCost{std::numeric_limits<std::size_t>::max()};
+    std::size_t lowestCostTokenId{std::numeric_limits<std::size_t>::max()};
     for (const auto& commonUniqueTokenId : commonUniqueTokenIds) {
         std::size_t tokenId{commonUniqueTokenId.first};
         std::size_t occurrences{static_cast<std::size_t>(std::count_if(
@@ -250,42 +251,37 @@ bool CTokenListDataCategorizerBase::cacheReverseSearch(CLocalCategoryId category
         std::size_t cost{m_ReverseSearchCreator->costOfToken(info.str(), occurrences)};
         rareIdsWithCost.insert(TSizeSizeSizePrMMap::value_type(
             info.categoryCount(), TSizeSizePr(tokenId, cost)));
-        lowestCost = std::min(cost, lowestCost);
+        if (lowestCost > cost) {
+            lowestCost = cost;
+            lowestCostTokenId = tokenId;
+        }
+    }
+
+    if (availableCost < lowestCost) {
+        LOG_WARN(<< "No token was short enough to include in reverse search for "
+                 << categoryId << " - cheapest token was " << lowestCostTokenId << " with cost "
+                 << lowestCost << " and available cost is " << availableCost);
+        return false;
     }
 
     using TSizeSet = std::set<std::size_t>;
     TSizeSet costedCommonUniqueTokenIds;
-    std::size_t cheapestCost{std::numeric_limits<std::size_t>::max()};
-    auto cheapestIter = rareIdsWithCost.end();
-    for (auto iter = rareIdsWithCost.begin();
-         iter != rareIdsWithCost.end() && availableCost > lowestCost; ++iter) {
-        if (iter->second.second < cheapestCost) {
-            cheapestCost = iter->second.second;
-            cheapestIter = iter;
-        }
+    for (auto rareIdWithCost : rareIdsWithCost) {
 
-        if (availableCost < iter->second.second) {
-            // We can't afford this token
+        std::size_t cost{rareIdWithCost.second.second};
+        // Can we afford this token?
+        if (availableCost < cost) {
+            // Can we afford any possible token?
+            if (availableCost < lowestCost) {
+                break;
+            }
             continue;
         }
 
+        availableCost -= cost;
         // By this point we don't care about the weights or costs
-        costedCommonUniqueTokenIds.insert(iter->second.first);
-        availableCost -= iter->second.second;
-    }
-
-    if (costedCommonUniqueTokenIds.empty()) {
-        if (cheapestIter == rareIdsWithCost.end()) {
-            LOG_ERROR(<< "Inconsistency - rareIdsWithCost is empty but "
-                         "commonUniqueTokenIds wasn't for "
-                      << categoryId);
-        } else {
-            LOG_ERROR(<< "No token was short enough to include in reverse search "
-                         "for "
-                      << categoryId << " - cheapest token was "
-                      << cheapestIter->second.first << " with cost " << cheapestCost);
-        }
-        return false;
+        std::size_t tokenId{rareIdWithCost.second.first};
+        costedCommonUniqueTokenIds.insert(tokenId);
     }
 
     // If we get here we're going to create a search in the standard way - there

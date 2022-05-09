@@ -62,8 +62,7 @@ void CXmlNodeWithChildrenPool::recycle(CXmlNodeWithChildren::TXmlNodeWithChildre
         // We take advantage of friendship here to clear the node's attribute vector
         nodePtr->m_Attributes.clear();
         std::for_each(nodePtr->m_Children.rbegin(), nodePtr->m_Children.rend(),
-                      std::bind(&CXmlNodeWithChildrenPool::recycle, this,
-                                std::placeholders::_1));
+                      [this](auto& child) { this->recycle(child); });
         nodePtr->m_Children.clear();
         m_Recycled.push_back(nodePtr);
 

@@ -1159,8 +1159,8 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.92);
-    BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.85);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.9);
+    BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.8);
 }
 
 BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {

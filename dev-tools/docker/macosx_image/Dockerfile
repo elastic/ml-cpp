@@ -31,7 +31,7 @@ RUN \
 RUN \
   mkdir -p /usr/local/sysroot-x86_64-apple-macosx10.14/usr && \
   cd /usr/local/sysroot-x86_64-apple-macosx10.14/usr && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-x86_64-apple-macosx10.14-5.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-x86_64-apple-macosx10.14-6.tar.bz2 | tar jxf - && \
   wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/xcode-x86_64-apple-macosx10.14-1.tar.bz2 | tar jxf - && \
   wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/sdk-x86_64-apple-macosx10.14-1.tar.bz2 | tar jxf -
 

@@ -82,7 +82,7 @@ public:
     virtual std::size_t memoryUsage() const = 0;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed) const = 0;
+    virtual std::uint64_t checksum(std::uint64_t seed) const = 0;
 
     //! Get a human readable description of the class density function.
     virtual std::string print() const = 0;
@@ -94,7 +94,7 @@ class MATHS_COMMON_EXPORT CNaiveBayesFeatureDensityFromPrior final
     : public CNaiveBayesFeatureDensity {
 public:
     CNaiveBayesFeatureDensityFromPrior() = default;
-    CNaiveBayesFeatureDensityFromPrior(const CPrior& prior);
+    explicit CNaiveBayesFeatureDensityFromPrior(const CPrior& prior);
 
     //! Create and return a clone.
     //!
@@ -136,7 +136,7 @@ public:
     std::size_t memoryUsage() const override;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed) const override;
+    std::uint64_t checksum(std::uint64_t seed) const override;
 
     //! Get a human readable description of the class density function.
     std::string print() const override;
@@ -239,7 +239,7 @@ public:
     std::size_t memoryUsage() const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get a human readable description of the classifier.
     std::string print() const;
@@ -278,7 +278,7 @@ private:
         std::size_t memoryUsage() const;
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     private:
         //! The number of examples in this class.

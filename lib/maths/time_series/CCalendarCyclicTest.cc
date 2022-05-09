@@ -29,21 +29,25 @@
 #include <maths/common/Constants.h>
 
 #include <boost/math/distributions/binomial.hpp>
+#include <boost/math/distributions/normal.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 #include <string>
 
 namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
+using TTimeVec = std::vector<core_t::TTime>;
+
 //! \brief Sets the time zone to a specified value in a constructor
 //! call so it can be called once by static initialisation.
 struct SSetTimeZone {
-    SSetTimeZone(const std::string& zone) {
+    explicit SSetTimeZone(const std::string& zone) {
         core::CTimezone::instance().timezoneName(zone);
     }
 };
@@ -70,10 +74,15 @@ const std::string DELIMITER{","};
 const core_t::TTime SIZE{155};
 const core_t::TTime BUCKET{core::constants::DAY};
 const core_t::TTime WINDOW{SIZE * BUCKET};
-const core_t::TTime TIME_ZONE_OFFSETS[]{0};
+// We can't determine the exact time zone given the state we maintain but we can
+// determine if the whole pattern is shifted 1 day late or early.
+const TTimeVec TIME_ZONE_OFFSETS{0, -12 * core::constants::HOUR - 1,
+                                 12 * core::constants::HOUR + 1};
 
 //! The percentile of a large error.
 const double LARGE_ERROR_PERCENTILE{98.5};
+//! The percentile of a very large error.
+const double VERY_LARGE_ERROR_PERCENTILE{99.99};
 //! The minimum number of repeats to test a feature.
 const unsigned int MINIMUM_REPEATS{4};
 //! The maximum significance to accept a feature.
@@ -93,10 +102,9 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
     if (traverser.name() == VERSION_6_4_TAG) {
         while (traverser.next()) {
             const std::string& name = traverser.name();
-            RESTORE(ERROR_QUANTILES_6_4_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&common::CQuantileSketch::acceptRestoreTraverser,
-                                  &m_ErrorQuantiles, std::placeholders::_1)))
+            RESTORE(ERROR_QUANTILES_6_4_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+                return m_ErrorQuantiles.acceptRestoreTraverser(traverser_);
+            }))
             RESTORE_BUILT_IN(CURRENT_BUCKET_TIME_6_4_TAG, m_CurrentBucketTime)
             RESTORE_BUILT_IN(CURRENT_BUCKET_INDEX_6_4_TAG, m_CurrentBucketIndex)
             RESTORE(CURRENT_BUCKET_ERROR_STATS_6_4_TAG,
@@ -107,10 +115,9 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
     } else {
         do {
             const std::string& name = traverser.name();
-            RESTORE(ERROR_QUANTILES_OLD_TAG,
-                    traverser.traverseSubLevel(
-                        std::bind(&common::CQuantileSketch::acceptRestoreTraverser,
-                                  &m_ErrorQuantiles, std::placeholders::_1)))
+            RESTORE(ERROR_QUANTILES_OLD_TAG, traverser.traverseSubLevel([this](auto& traverser_) {
+                return m_ErrorQuantiles.acceptRestoreTraverser(traverser_);
+            }))
         } while (traverser.next());
         errors.resize(SIZE);
     }
@@ -127,15 +134,19 @@ void CCalendarCyclicTest::checkRestoredInvariants(const TErrorStatsVec& errors) 
 
 void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(VERSION_6_4_TAG, "");
-    inserter.insertLevel(ERROR_QUANTILES_6_4_TAG,
-                         std::bind(&common::CQuantileSketch::acceptPersistInserter,
-                                   &m_ErrorQuantiles, std::placeholders::_1));
+    inserter.insertLevel(ERROR_QUANTILES_6_4_TAG, [this](auto& inserter_) {
+        m_ErrorQuantiles.acceptPersistInserter(inserter_);
+    });
     inserter.insertValue(CURRENT_BUCKET_TIME_6_4_TAG, m_CurrentBucketTime);
     inserter.insertValue(CURRENT_BUCKET_INDEX_6_4_TAG, m_CurrentBucketIndex);
     inserter.insertValue(CURRENT_BUCKET_ERROR_STATS_6_4_TAG,
                          m_CurrentBucketErrorStats.toDelimited());
     TErrorStatsVec errors{this->inflate()};
     core::CPersistUtils::persist(ERRORS_6_4_TAG, errors, inserter);
+}
+
+void CCalendarCyclicTest::forgetErrorDistribution() {
+    m_ErrorQuantiles = common::CQuantileSketch{common::CQuantileSketch::E_Linear, 20};
 }
 
 void CCalendarCyclicTest::propagateForwardsByTime(double time) {
@@ -166,78 +177,94 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
 
         ++m_CurrentBucketErrorStats.s_Count;
 
-        double large;
-        m_ErrorQuantiles.quantile(LARGE_ERROR_PERCENTILE, large);
-
-        if (error >= large) {
-            ++m_CurrentBucketErrorStats.s_LargeErrorCount;
+        double largeError;
+        m_ErrorQuantiles.quantile(LARGE_ERROR_PERCENTILE, largeError);
+        if (error >= largeError) {
+            bool isVeryLarge{100.0 * (1.0 - this->survivalFunction(error)) >=
+                             VERY_LARGE_ERROR_PERCENTILE};
+            m_CurrentBucketErrorStats.s_LargeErrorCount +=
+                std::min(std::numeric_limits<std::size_t>::max() -
+                             m_CurrentBucketErrorStats.s_LargeErrorCount,
+                         static_cast<std::size_t>(isVeryLarge ? (1 << 17) + 1 : 1));
             m_CurrentBucketErrorStats.s_LargeErrorSum += this->winsorise(error);
         }
     }
 }
 
-CCalendarCyclicTest::TOptionalFeature CCalendarCyclicTest::test() const {
+CCalendarCyclicTest::TOptionalFeatureTimePr CCalendarCyclicTest::test() const {
+
     // The statistics we need in order to be able to test for calendar
     // features.
     struct SStats {
-        core_t::TTime s_Offset = 0;
-        unsigned int s_Repeats = 0;
-        double s_Sum = 0.0;
-        double s_Count = 0.0;
-        double s_Significance = 0.0;
+        core_t::TTime s_Offset{0};
+        unsigned int s_Repeats{0};
+        double s_Sum{0.0};
+        double s_Count{0.0};
+        double s_PValue{0.0};
     };
     using TFeatureStatsUMap = boost::unordered_map<CCalendarFeature, SStats, SHashFeature>;
-    using TDoubleTimeCalendarFeatureTr = core::CTriple<double, core_t::TTime, CCalendarFeature>;
-    using TMaxAccumulator =
-        common::CBasicStatistics::SMax<TDoubleTimeCalendarFeatureTr>::TAccumulator;
 
     TErrorStatsVec errors{this->inflate()};
-    TFeatureStatsUMap stats{errors.size()};
 
-    // Note that the current index points to the next bucket to overwrite,
-    // i.e. the earliest bucket error statistics we have. The start of
-    // this bucket is WINDOW before the start time of the current partial
-    // bucket.
-    for (auto offset : TIME_ZONE_OFFSETS) {
-        for (core_t::TTime i = m_CurrentBucketIndex, time = m_CurrentBucketTime - WINDOW;
-             time < m_CurrentBucketTime; i = (i + 1) % SIZE, time += BUCKET) {
-            if (errors[i].s_Count > 0) {
-                double n{static_cast<double>(errors[i].s_Count)};
-                double x{static_cast<double>(errors[i].s_LargeErrorCount)};
-                double s{this->significance(n, x)};
-                core_t::TTime midpoint{time + BUCKET / 2 + offset};
-                for (auto feature : CCalendarFeature::features(midpoint)) {
-                    feature.offset(offset);
-                    SStats& stat = stats[feature];
-                    ++stat.s_Repeats;
-                    stat.s_Offset = offset;
-                    stat.s_Sum += errors[i].s_LargeErrorSum;
-                    stat.s_Count += x;
-                    stat.s_Significance = std::max(stat.s_Significance, s);
-                }
-            }
-        }
-    }
+    double mostSignificantError{0.0};
+    CCalendarFeature mostSignificantFeature;
+    core_t::TTime mostSignificantOffset{0};
 
     double errorThreshold;
     m_ErrorQuantiles.quantile(50.0, errorThreshold);
     errorThreshold *= 2.0;
 
-    TMaxAccumulator result;
+    for (auto offset : TIME_ZONE_OFFSETS) {
+        // Note that the current index points to the next bucket to overwrite,
+        // i.e. the earliest bucket error statistics we have. The start of
+        // this bucket is WINDOW before the start time of the current partial
+        // bucket.
+        TFeatureStatsUMap stats{errors.size()};
+        for (core_t::TTime i = m_CurrentBucketIndex, time = m_CurrentBucketTime - WINDOW;
+             time < m_CurrentBucketTime; i = (i + 1) % SIZE, time += BUCKET) {
+            if (errors[i].s_Count > 0) {
+                double n{static_cast<double>(errors[i].s_Count)};
+                double nl{static_cast<double>(errors[i].s_LargeErrorCount % (1 << 17))};
+                double nv{static_cast<double>(errors[i].s_LargeErrorCount / (1 << 17))};
+                double pValue{this->significance(n, nl, nv)};
+                core_t::TTime midpoint{time + BUCKET / 2 + offset};
+                for (auto feature : CCalendarFeature::features(midpoint)) {
+                    if (feature.testForTimeZoneOffset(offset)) {
+                        SStats& stat = stats[feature];
+                        ++stat.s_Repeats;
+                        stat.s_Sum += errors[i].s_LargeErrorSum;
+                        stat.s_Count += nl;
+                        stat.s_PValue = std::max(stat.s_PValue, pValue);
+                    }
+                }
+            }
+        }
 
-    for (const auto& stat : stats) {
-        CCalendarFeature feature = stat.first;
-        double r{static_cast<double>(stat.second.s_Repeats)};
-        double x{stat.second.s_Count};
-        double e{stat.second.s_Sum};
-        double s{stat.second.s_Significance};
-        if (stat.second.s_Repeats >= MINIMUM_REPEATS &&
-            e > errorThreshold * x && std::pow(s, r) < MAXIMUM_SIGNIFICANCE) {
-            result.add({e, stat.second.s_Offset, feature});
+        double mostSignificantErrorForOffset{0.0};
+        CCalendarFeature mostSignificantFeatureForOffset;
+        for (const auto& stat : stats) {
+            CCalendarFeature feature = stat.first;
+            double r{static_cast<double>(stat.second.s_Repeats)};
+            double nl{stat.second.s_Count};
+            double sl{stat.second.s_Sum};
+            double pValue{stat.second.s_PValue};
+            if (stat.second.s_Repeats >= MINIMUM_REPEATS &&
+                sl > errorThreshold * nl && sl > mostSignificantErrorForOffset &&
+                std::pow(pValue, r) < MAXIMUM_SIGNIFICANCE) {
+                mostSignificantErrorForOffset = sl;
+                mostSignificantFeatureForOffset = feature;
+            }
+        }
+        if (mostSignificantErrorForOffset > mostSignificantError) {
+            mostSignificantError = mostSignificantErrorForOffset;
+            mostSignificantFeature = mostSignificantFeatureForOffset;
+            mostSignificantOffset = offset;
         }
     }
 
-    return result.count() > 0 ? result[0].third : TOptionalFeature();
+    return mostSignificantError > 0
+               ? std::make_pair(mostSignificantFeature, mostSignificantOffset)
+               : TOptionalFeatureTimePr();
 }
 
 std::uint64_t CCalendarCyclicTest::checksum(std::uint64_t seed) const {
@@ -269,19 +296,49 @@ double CCalendarCyclicTest::winsorise(double error) const {
     return std::min(error, high);
 }
 
-double CCalendarCyclicTest::significance(double n, double x) const {
+double CCalendarCyclicTest::survivalFunction(double error) const {
+    using TMomentsAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+
+    // We use an approximation for the right tail of a KDE from the error
+    // percentiles to estimate the survival function.
+    TMomentsAccumulator tailMoments;
+    for (double i = 0.0; i < 5.0; i += 1.0) {
+        double eq;
+        m_ErrorQuantiles.quantile(
+            LARGE_ERROR_PERCENTILE + i * (100.0 - LARGE_ERROR_PERCENTILE) / 5.0, eq);
+        tailMoments.add(eq);
+    }
+
+    if (common::CBasicStatistics::variance(tailMoments) == 0.0) {
+        return error > common::CBasicStatistics::mean(tailMoments) ? 0.0 : 1.0;
+    }
+    try {
+        boost::math::normal normal{common::CBasicStatistics::mean(tailMoments),
+                                   std::sqrt(common::CBasicStatistics::variance(tailMoments))};
+        return (100.0 - LARGE_ERROR_PERCENTILE) / 100.0 *
+               common::CTools::safeCdfComplement(normal, error);
+
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Failed to compute tail distribution '" << e.what() << "'");
+    }
+    return 1.0;
+}
+
+double CCalendarCyclicTest::significance(double n, double nl, double nv) const {
     if (n > 0.0) {
         try {
             // We have roughly 31 independent error samples, one for each
             // day of the month, so the chance of seeing as extreme an event
             // among all of them is:
             //   1 - P("don't see as extreme event") = 1 - (1 - P("event"))^31
-            boost::math::binomial binom{n, 1.0 - LARGE_ERROR_PERCENTILE / 100.0};
-            double p{std::min(2.0 * common::CTools::safeCdfComplement(binom, x - 1.0), 1.0)};
+            boost::math::binomial bl{n, 1.0 - LARGE_ERROR_PERCENTILE / 100.0};
+            boost::math::binomial bv{n, 1.0 - VERY_LARGE_ERROR_PERCENTILE / 100.0};
+            double p{std::min({2.0 * common::CTools::safeCdfComplement(bl, nl - 1.0),
+                               2.0 * common::CTools::safeCdfComplement(bv, nv - 1.0), 1.0})};
             return common::CTools::oneMinusPowOneMinusX(p, 31.0);
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to calculate significance: " << e.what()
-                      << " n = " << n << " x = " << x);
+                      << " n = " << n << " nl = " << nl << " nv = " << nv);
         }
     }
     return 1.0;

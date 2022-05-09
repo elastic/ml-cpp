@@ -54,8 +54,11 @@ public:
     static bool isNan(const CSymmetricMatrixNxN<double, N>& val);
     //! Check if any of the elements are NaN.
     static bool isNan(const CSymmetricMatrix<double>& val);
-    //! Check if an element is NaN.
+    //! Check if any of the entries are NaN.
     static bool isNan(const core::CSmallVectorBase<double>& val);
+    //! Check if any of the entries are NaN.
+    template<typename T, std::size_t N>
+    static bool isNan(const std::array<T, N>& val);
 
     //! Check if value is infinite.
     static bool isInf(double val);
@@ -69,8 +72,11 @@ public:
     static bool isInf(const CSymmetricMatrixNxN<double, N>& val);
     //! Check if any of the elements are infinite.
     static bool isInf(const CSymmetricMatrix<double>& val);
-    //! Check if an element is NaN.
+    //! Check if any of the entries is infinite.
     static bool isInf(const core::CSmallVectorBase<double>& val);
+    //! Check if any of the entries is infinite.
+    template<typename T, std::size_t N>
+    static bool isInf(const std::array<T, N>& val);
 
     //! Neither infinite nor NaN.
     static bool isFinite(double val);
@@ -79,13 +85,16 @@ public:
     static bool isFinite(const CVectorNx1<double, N>& val);
     //! Check if all of the components are finite.
     static bool isFinite(const CVector<double>& val);
-    //! Check if all of the components are NaN.
+    //! Check if all of the components are finite.
     template<std::size_t N>
     static bool isFinite(const CSymmetricMatrixNxN<double, N>& val);
-    //! Check if all of the components are NaN.
+    //! Check if all of the components are finite.
     static bool isFinite(const CSymmetricMatrix<double>& val);
-    //! Check if an element is NaN.
+    //! Check if all of the entries are finite.
     static bool isFinite(const core::CSmallVectorBase<double>& val);
+    //! Check if all of the entries are finite.
+    template<typename T, std::size_t N>
+    static bool isFinite(const std::array<T, N>& val);
 
     //! Check the floating point status of \p value.
     static maths_t::EFloatingPointErrorStatus fpStatus(double val);

@@ -28,6 +28,51 @@
 
 //=== Regressions
 
+== {es} version 8.3.0
+
+=== Enhancements
+
+* Upgrade PyTorch to version 1.11. (See {ml-pull}2233[#2233], {ml-pull}2235[#2235]
+  and {ml-pull}2238[#2238].)
+* Upgrade zlib to version 1.2.12 on Windows. (See {ml-pull}2253[#2253].)
+
+=== Bug Fixes
+
+* Correct logic for restart from failover fine tuning hyperparameters for training
+  classification and regression models. (See {ml-pull}2251[#2251].)
+* Fix possible source of "x = NaN, distribution = class boost::math::normal_distribution<..."
+  log errors training classification and regression models. (See {ml-pull}2249[#2249].)
+* Fix some bugs affecting decision to stop optimising hyperparameters for training
+  classification and regression models. (See {ml-pull}2259[#2259].)
+* Fix edge case which could cause the model bounds to blow up after detecting seasonality.
+  (See {ml-pull}2261[#2261].)
+
+== {es} version 8.2.0
+
+=== Enhancements
+
+* Better handle small shifts of the seasonal patterns in time series data.
+  (See {ml-pull}2202[#2202].)
+* Limit the maximum size of classification and regression models training
+  produces so they can always be deployed for inference inside the Elastic
+  Stack. (See {ml-pull}2205[#2205].)
+* Support user defined example weights when training classification and
+  regression models. (See {ml-pull}2222[#2222].)
+* Reduce worst case bucket processing time for anomaly detection. (See {ml-pull}2225[#2225].)
+* Improve handling of low cardinality features for training classification
+  and regression models. (See {ml-pull}2229[#2229].)
+* Improve handling of extremely large outliers in time series modelling.
+  (See {ml-pull}2230[#2230].)
+* Improve detection and modeling of time series' calendar cyclic features.
+  (See {ml-pull}2236[#2236] and {ml-pull}2243[#2243].)
+* Compress quantiles state. (See {ml-pull}2252[#2252].)
+
+=== Bug Fixes
+
+* Fix possible source of "Discarding sample = -nan(ind), weight = 1, variance scale = 1"
+  log errors training classification and regression models. (See {ml-pull}2226[#2226].)
+* Fix error message for failure to create reverse search. (See {ml-pull}2247[#2247].)
+
 == {es} version 8.1.0
 
 === Enhancements
@@ -44,6 +89,16 @@
   classification models. (See {ml-pull}2128[#2128].)
 * Improve training stability for regression and classification models
   (See {ml-pull}2144[#2144], {ml-pull}2147[#2147] and {ml-pull}2150[#2150].)
+* Avoid edge cases in the classification weights calculation to maximize
+  minimum recall which could lead to only a single class being predicted.
+  (See {ml-pull}2194[#2194].)
+* Address cause of "[CStatisticalTests.cc@102] Test statistic is nan"
+  log errors. (See {ml-pull}2196[#2196].)
+* Address possible causes of "x = NaN, distribution = N5boost4math23students_t_distribution"
+  log errors. (See {ml-pull}2197[#2197].)
+* Fix bug restoring data gatherer state for time of day and week anomaly detection
+  functions. This could lead to "No queue item for time " and "Time is out of range.
+  Returning earliest bucket index" log errors. (See {ml-pull}2213[#2213].)
 
 == {es} version 8.0.0-rc1
 

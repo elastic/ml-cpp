@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <boost/test/unit_test_suite.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CoreTypes.h>
@@ -509,6 +510,47 @@ BOOST_AUTO_TEST_CASE(testRestrictTo) {
     }
 
     BOOST_TEST_REQUIRE(tests > 0);
+}
+
+BOOST_AUTO_TEST_CASE(testRemoveExtremeOutliers) {
+
+    test::CRandomNumbers rng;
+
+    double fraction{0.05};
+
+    TDoubleVec value;
+    maths::time_series::CSignal::TFloatMeanAccumulatorVec values;
+
+    // Edge cases don't fallover.
+    maths::time_series::CSignal::removeExtremeOutliers(fraction, values);
+    values.resize(20);
+    maths::time_series::CSignal::removeExtremeOutliers(fraction, values);
+    maths::time_series::CSignal::removeExtremeOutliers(-0.1, values);
+    maths::time_series::CSignal::removeExtremeOutliers(1.1, values);
+
+    TSizeVec outlier;
+    for (std::size_t i = 0; i < 100; ++i) {
+        values.clear();
+        values.resize(50);
+        for (std::size_t j = 0; j < 50; ++j) {
+            rng.generateUniformSamples(499.0, 501.0, 1, value);
+            values[j].add(value[0]);
+        }
+        rng.generateUniformSamples(0, 50, 1, outlier);
+        values[outlier[0]].add(i % 2 == 0 ? 0 : 1000);
+
+        maths::time_series::CSignal::removeExtremeOutliers(fraction, values);
+
+        BOOST_REQUIRE_EQUAL(
+            0.0, maths::common::CBasicStatistics::count(values[outlier[0]]));
+        BOOST_TEST_REQUIRE(
+            std::count_if(values.begin(), values.end(),
+                          [](const auto& value_) {
+                              return maths::common::CBasicStatistics::count(value_) == 0.0;
+                          }) <=
+            static_cast<std::size_t>(
+                std::ceil(fraction * static_cast<double>(values.size()))));
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testReweightOutliers) {

@@ -231,10 +231,6 @@ void testInfluencerPerFeature(model_t::EFeature feature,
     BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
 
     BOOST_REQUIRE_EQUAL(startTime, gatherer.currentBucketStartTime());
-    gatherer.currentBucketStartTime(200);
-    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(200), gatherer.currentBucketStartTime());
-    gatherer.currentBucketStartTime(startTime);
-
     BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
 
     core_t::TTime time = startTime;
@@ -443,12 +439,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
 
         BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberActiveAttributes());
         BOOST_REQUIRE_EQUAL(std::size_t(0), gatherer.numberOverFieldValues());
-
         BOOST_REQUIRE_EQUAL(startTime, gatherer.currentBucketStartTime());
-        gatherer.currentBucketStartTime(200);
-        BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(200),
-                            gatherer.currentBucketStartTime());
-        gatherer.currentBucketStartTime(startTime);
 
         BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
 

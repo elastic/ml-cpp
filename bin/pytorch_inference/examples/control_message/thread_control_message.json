@@ -1,0 +1,9 @@
+[
+	{		
+		"input": {
+			"request_id": "1", 			
+			"control": 0,
+			"num_allocations": 4			
+		}
+	}
+]
