@@ -473,7 +473,7 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
     TSizeVec numberPartitions{1, 3};
     TSizeVec numberThreads{1, 4};
     TSizeVec dimensions{2, 7};
-    TDoubleVecVec thresholds{{0.95, 0.95, 0.48}, {0.4, 0.4, 0.2}};
+    TDoubleVecVec thresholds{{0.95, 0.75, 0.32}, {0.4, 0.4, 0.2}};
 
     test::CRandomNumbers rng;
 
