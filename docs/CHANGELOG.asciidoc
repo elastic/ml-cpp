@@ -36,7 +36,7 @@
   and {ml-pull}2238[#2238].)
 * Upgrade zlib to version 1.2.12 on Windows. (See {ml-pull}2253[#2253].)
 * Improve time series model stability and anomaly scoring consistency for data
-  where many buckets are empty. (See {ml-pull}2267[#2267].)
+  for which many buckets are empty. (See {ml-pull}2267[#2267].)
 
 === Bug Fixes
 
