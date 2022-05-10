@@ -50,13 +50,21 @@ bool almostDivisor(std::size_t i, std::size_t j, double eps) {
     if (i > j) {
         return false;
     }
+    // Check if j mod i < eps * j, i.e. that i is a divisor of j up to epsilon
+    // relative difference.
     double diff{static_cast<double>(std::min(j % i, i - (j % i))) / static_cast<double>(j)};
     return diff < eps;
 }
 
 double interpolateOnBucketOccupancy(double f1, double f0, double occupancy) {
-    return common::CTools::linearlyInterpolate(0.0, 1.0, f0, f1,
-                                               std::min(2.0 * occupancy, 1.0));
+    // We use piecewise linear interpolation with slightly higher rate of test
+    // metrics for higher occupancy. Testing showed this provided a better
+    // precision recall tradeoff.
+    occupancy *= 2.0;
+    double f0p5{0.7 * f0 + 0.3 * f1};
+    return occupancy < 0.5
+               ? common::CTools::linearlyInterpolate(0.0, 0.5, f0, f0p5, occupancy)
+               : common::CTools::linearlyInterpolate(0.5, 1.0, f0p5, f1, occupancy);
 }
 }
 
@@ -261,14 +269,8 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime value
       m_MinimumRepeatsPerSegmentToTestAmplitude{
           interpolateOnBucketOccupancy(5.0, 10.0, occupancy)},
       m_LowAutocorrelation{interpolateOnBucketOccupancy(0.3, 0.5, occupancy)},
-      m_MediumAutocorrelation{interpolateOnBucketOccupancy(0.5, 0.7, occupancy)},
-      m_HighAutocorrelation{interpolateOnBucketOccupancy(0.7, 0.9, occupancy)},
-      m_SignificantPValue{std::exp(
-          interpolateOnBucketOccupancy(std::log(5e-3), std::log(1e-6), occupancy))},
-      m_VerySignificantPValue{std::exp(
-          interpolateOnBucketOccupancy(std::log(1e-6), std::log(1e-9), occupancy))},
-      m_AcceptedFalsePostiveRate{std::exp(
-          interpolateOnBucketOccupancy(std::log(1e-4), std::log(1e-6), occupancy))},
+      m_MediumAutocorrelation{interpolateOnBucketOccupancy(0.5, 0.65, occupancy)},
+      m_HighAutocorrelation{interpolateOnBucketOccupancy(0.7, 0.75, occupancy)},
       m_ValuesStartTime{valuesStartTime}, m_BucketsStartTime{bucketsStartTime},
       m_BucketLength{bucketLength}, m_SampleInterval{sampleInterval},
       m_OutlierFraction{outlierFraction}, m_Values{std::move(values)},
