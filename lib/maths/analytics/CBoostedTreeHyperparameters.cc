@@ -89,7 +89,7 @@ void CBoostedTreeHyperparameters::maximumOptimisationRoundsPerHyperparameter(std
 }
 
 void CBoostedTreeHyperparameters::stopHyperparameterOptimizationEarly(bool enable) {
-    m_StopHyperparameterOptimizationEarly = enable;
+    m_EarlyHyperparameterOptimizationStoppingEnabled = enable;
 }
 
 void CBoostedTreeHyperparameters::bayesianOptimisationRestarts(std::size_t restarts) {
@@ -601,8 +601,8 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
     core::CPersistUtils::persist(SOFT_TREE_DEPTH_LIMIT_TAG, m_SoftTreeDepthLimit, inserter);
     core::CPersistUtils::persist(SOFT_TREE_DEPTH_TOLERANCE_TAG,
                                  m_SoftTreeDepthTolerance, inserter);
-    core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
-                                 m_StopHyperparameterOptimizationEarly, inserter);
+    core::CPersistUtils::persist(EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG,
+                                 m_EarlyHyperparameterOptimizationStoppingEnabled, inserter);
     core::CPersistUtils::persist(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                  m_StoppedHyperparameterOptimizationEarly, inserter);
     core::CPersistUtils::persist(TREE_SIZE_PENALTY_MULTIPLIER_TAG,
@@ -669,9 +669,9 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
         RESTORE(SOFT_TREE_DEPTH_TOLERANCE_TAG,
                 core::CPersistUtils::restore(SOFT_TREE_DEPTH_TOLERANCE_TAG,
                                              m_SoftTreeDepthTolerance, traverser))
-        RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
-                core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
-                                             m_StopHyperparameterOptimizationEarly, traverser))
+        RESTORE(EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG,
+                core::CPersistUtils::restore(EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG,
+                                             m_EarlyHyperparameterOptimizationStoppingEnabled, traverser))
         RESTORE(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                              m_StoppedHyperparameterOptimizationEarly, traverser))
@@ -709,7 +709,7 @@ std::uint64_t CBoostedTreeHyperparameters::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_RetrainedTreeEta);
     seed = common::CChecksum::calculate(seed, m_SoftTreeDepthLimit);
     seed = common::CChecksum::calculate(seed, m_SoftTreeDepthTolerance);
-    seed = common::CChecksum::calculate(seed, m_StopHyperparameterOptimizationEarly);
+    seed = common::CChecksum::calculate(seed, m_EarlyHyperparameterOptimizationStoppingEnabled);
     seed = common::CChecksum::calculate(seed, m_StoppedHyperparameterOptimizationEarly);
     seed = common::CChecksum::calculate(seed, m_TreeSizePenaltyMultiplier);
     seed = common::CChecksum::calculate(seed, m_TreeTopologyChangePenalty);
@@ -1050,7 +1050,7 @@ const std::string CBoostedTreeHyperparameters::PREDICTION_CHANGE_COST_TAG{"predi
 const std::string CBoostedTreeHyperparameters::RETRAINED_TREE_ETA_TAG{"retrained_tree_eta"};
 const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT_TAG{"soft_tree_depth_limit"};
 const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE_TAG{"soft_tree_depth_tolerance"};
-const std::string CBoostedTreeHyperparameters::STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
+const std::string CBoostedTreeHyperparameters::EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG{"early_hyperparameter_optimization_stopping_enabled"};
 const std::string CBoostedTreeHyperparameters::STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stopped_hyperparameter_optimization_early"};
 const std::string CBoostedTreeHyperparameters::TREE_SIZE_PENALTY_MULTIPLIER_TAG{"tree_size_penalty_multiplier"};
 const std::string CBoostedTreeHyperparameters::TREE_TOPOLOGY_CHANGE_PENALTY_TAG{"tree_topology_change_penalty"};

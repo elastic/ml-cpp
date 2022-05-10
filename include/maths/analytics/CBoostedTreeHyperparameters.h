@@ -33,7 +33,6 @@
 #include <locale>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <utility>
 
 namespace ml {
@@ -377,11 +376,9 @@ public:
         using TRecordParameters = std::function<void(CBoostedTreeHyperparameters&, double)>;
         using TTruncateParameter = std::function<void(TVector3x1&)>;
         using TAdjustTestLoss = std::function<double(double, double, double)>;
-        using THyperparametersDoubleSizeTuple =
-            std::tuple<CBoostedTreeHyperparameters, double>;
-        using THyperparametersDoubleSizeTupleVec = std::vector<THyperparametersDoubleSizeTuple>;
-        using THyperparametersDoubleSizeTupleVecSPtr =
-            std::shared_ptr<THyperparametersDoubleSizeTupleVec>;
+        using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
+        using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
+        using THyperparametersDoublePrVecSPtr = std::shared_ptr<THyperparametersDoublePrVec>;
 
     public:
         CInitializeFineTuneArguments(core::CDataFrame& frame,
@@ -389,7 +386,7 @@ public:
                                      double maxValue,
                                      double searchInterval,
                                      TUpdateParameter updateParameter,
-                                     THyperparametersDoubleSizeTupleVecSPtr hyperparametersLosses)
+                                     THyperparametersDoublePrVecSPtr hyperparametersLosses)
             : m_UpdateParameter{std::move(updateParameter)}, m_Frame{frame}, m_Tree{tree},
               m_MaxValue{maxValue}, m_SearchInterval{searchInterval},
               m_HyperparametersLosses{hyperparametersLosses} {}
@@ -416,7 +413,6 @@ public:
         }
         void recordParameters(const CBoostedTreeHyperparameters& hyperparameters,
                               double loss) const {
-            // CBoostedTreeHyperparameters newHyperparameters{hyperparameters};
             m_HyperparametersLosses->emplace_back(hyperparameters, loss);
         }
         const TAdjustTestLoss& adjustLoss() const { return m_AdjustLoss; }
@@ -438,7 +434,7 @@ public:
         CBoostedTreeImpl& m_Tree;
         double m_MaxValue;
         double m_SearchInterval;
-        THyperparametersDoubleSizeTupleVecSPtr m_HyperparametersLosses;
+        THyperparametersDoublePrVecSPtr m_HyperparametersLosses;
     };
 
 public:
@@ -462,7 +458,7 @@ public:
     static const std::string RETRAINED_TREE_ETA_TAG;
     static const std::string SOFT_TREE_DEPTH_LIMIT_TAG;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE_TAG;
-    static const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG;
+    static const std::string EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG;
     static const std::string STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG;
     static const std::string TRAIN_FRACTION_PER_FOLD_TAG;
     static const std::string TREE_SIZE_PENALTY_MULTIPLIER_TAG;
@@ -601,12 +597,19 @@ public:
     void storeHyperparameters(TVector parameters);
 
     bool stopEarly() const {
-        return m_StopHyperparameterOptimizationEarly &&
-               m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3;
+        if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
+            if (m_StoppedHyperparameterOptimizationEarly == false) {
+                if (m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3) {
+                    m_StoppedHyperparameterOptimizationEarly = true;
+                }
+            }
+            return m_StoppedHyperparameterOptimizationEarly;
+        }
+        return false;
     }
 
     bool earlyStoppingEnabled() const {
-        return m_StopHyperparameterOptimizationEarly;
+        return m_EarlyHyperparameterOptimizationStoppingEnabled;
     }
 
     const THyperparametersVec& tunableHyperparameters() const {
@@ -791,8 +794,8 @@ private:
 
     //@ \name Hyperparameter Optimisation
     //@{
-    bool m_StopHyperparameterOptimizationEarly{true};
-    bool m_StoppedHyperparameterOptimizationEarly{false};
+    bool m_EarlyHyperparameterOptimizationStoppingEnabled{true};
+    mutable bool m_StoppedHyperparameterOptimizationEarly{false};
     bool m_ScalingDisabled{false};
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter{2};
     TOptionalSize m_BayesianOptimisationRestarts;

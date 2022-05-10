@@ -655,12 +655,12 @@ BOOST_AUTO_TEST_CASE(testMseNonLinear) {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::common::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.98);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testHuber) {
@@ -898,7 +898,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
         target, noiseVariance / static_cast<double>(rows));
     LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
 
-    BOOST_TEST_REQUIRE(rSquared > 0.95);
+    BOOST_TEST_REQUIRE(rSquared > 0.93);
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -2215,7 +2215,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.7);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.71);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -2786,7 +2786,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.4);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.44);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {

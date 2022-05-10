@@ -189,35 +189,33 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
         m_TreeImpl->m_Hyperparameters.initializeSearch();
         if (m_TreeImpl->m_Hyperparameters.earlyStoppingEnabled()) {
             for (auto& hyperparameterLoss : *m_HyperparametersLosses) {
-                auto parameters =
-                    std::get<0>(hyperparameterLoss)
-                        .selectParametersVector(
-                            m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
+                auto parameters = hyperparameterLoss.first.selectParametersVector(
+                    m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
 
                 // LOG_DEBUG(<< "Tunable parameters vector size " << parameters.rows() << " " << parameters.cols());
                 m_TreeImpl->m_Hyperparameters.addObservation(
-                    parameters, std::get<1>(hyperparameterLoss), 0.0);
+                    parameters, hyperparameterLoss.second, 0.0);
             }
             if (m_TreeImpl->m_Hyperparameters.stopEarly()) {
-                auto minTuple = std::min_element(
-                    m_HyperparametersLosses->begin(), m_HyperparametersLosses->end(),
-                    [](const auto& lhs, const auto& rhs) {
-                        return std::get<1>(lhs) < std::get<1>(rhs);
-                    });
-                auto parameters = std::get<0>(*minTuple).selectParametersVector(
+                auto minTuple = std::min_element(m_HyperparametersLosses->begin(),
+                                                 m_HyperparametersLosses->end(),
+                                                 [](const auto& lhs, const auto& rhs) {
+                                                     return lhs.second < rhs.second;
+                                                 });
+                auto parameters = (*minTuple).first.selectParametersVector(
                     m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
                 m_TreeImpl->m_Hyperparameters.storeHyperparameters(parameters);
                 LOG_DEBUG(<< "Best hyperparameters " << parameters.transpose());
                 using TMeanVarAccumulator =
                     common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
                 TMeanVarAccumulator lossMoments;
-                lossMoments.add(std::get<1>(*minTuple));
+                lossMoments.add((*minTuple).second);
                 m_TreeImpl->m_Hyperparameters.captureBest(
                     lossMoments, 0.0, 0.0, 0.0,
                     m_TreeImpl->m_Hyperparameters.maximumNumberTrees().value());
             }
+            m_TreeImpl->m_Hyperparameters.clearObservations();
         }
-        // LOG_DEBUG(<<"Stop early? " << m_TreeImpl->m_Hyperparameters.stopEarly());
     }
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
@@ -791,13 +789,11 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     if (hyperparameters.earlyStoppingEnabled()) {
         if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed() == false) {
             // LOG_DEBUG(<< "Setting treeSizePenaltyMultiplier");
-            hyperparameters.treeSizePenaltyMultiplier().set(
-                m_GainPerNode90thPercentile);
+            hyperparameters.treeSizePenaltyMultiplier().set(m_GainPerNode90thPercentile);
         }
         if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed() == false) {
             // LOG_DEBUG(<< "Setting leafWeightPenaltyMultiplier");
-            hyperparameters.leafWeightPenaltyMultiplier().set(
-                m_TotalCurvaturePerNode90thPercentile);
+            hyperparameters.leafWeightPenaltyMultiplier().set(m_TotalCurvaturePerNode90thPercentile);
         }
     }
 
@@ -1303,7 +1299,7 @@ std::size_t CBoostedTreeFactory::maximumNumberRows() {
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
     : m_NumberThreads{numberThreads},
       m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
-    m_HyperparametersLosses = std::make_shared<THyperparametersDoubleSizeTupleVec>();
+    m_HyperparametersLosses = std::make_shared<THyperparametersDoublePrVec>();
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept = default;
@@ -1793,6 +1789,7 @@ const std::string FACTORY_TAG{"factory"};
 const std::string GAIN_PER_NODE_1ST_PERCENTILE_TAG{"gain_per_node_1st_percentile"};
 const std::string GAIN_PER_NODE_50TH_PERCENTILE_TAG{"gain_per_node_50th_percentile"};
 const std::string GAIN_PER_NODE_90TH_PERCENTILE_TAG{"gain_per_node_90th_percentile"};
+const std::string HYPERPARAMETERS_LOSSES_TAG{"hyperparameters_losses"};
 const std::string INITIALIZATION_CHECKPOINT_TAG{"initialization_checkpoint"};
 const std::string ROW_WEIGHT_COLUMN_NAME_TAG{"row_weight_column_name"};
 const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
@@ -1805,6 +1802,8 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
     inserter_.insertValue(INITIALIZATION_CHECKPOINT_TAG, "");
     inserter_.insertLevel(FACTORY_TAG, [this](core::CStatePersistInserter& inserter) {
         inserter.insertValue(VERSION_7_9_TAG, "");
+        // core::CPersistUtils::persist(HYPERPARAMETERS_LOSSES_TAG,
+        //                              m_HyperparametersLosses, inserter);
         core::CPersistUtils::persist(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
                                      m_GainPerNode1stPercentile, inserter);
         core::CPersistUtils::persist(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
@@ -1834,6 +1833,10 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
             if (traverser_.traverseSubLevel([this](core::CStateRestoreTraverser& traverser) {
                     do {
                         const std::string& name{traverser.name()};
+                        // RESTORE(HYPERPARAMETERS_LOSSES_TAG,
+                        //         core::CPersistUtils::restore(
+                        //             HYPERPARAMETERS_LOSSES_TAG,
+                        //             m_HyperparametersLosses, traverser))
                         RESTORE(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
                                 core::CPersistUtils::restore(
                                     GAIN_PER_NODE_1ST_PERCENTILE_TAG,
@@ -1878,7 +1881,7 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
     return true;
 }
 
-const CBoostedTreeFactory::THyperparametersDoubleSizeTupleVecSPtr&
+const CBoostedTreeFactory::THyperparametersDoublePrVecSPtr&
 CBoostedTreeFactory::hyperparametersLosses() const {
     return m_HyperparametersLosses;
 }
