@@ -683,7 +683,7 @@ public:
     //! Instrumentation phase.
     static const std::string COMPUTING_OUTLIERS;
     //! Used to compute numeric derivative for influence.
-    static constexpr double EPS{0.01};
+    static constexpr double EPS{0.02};
 
     //! The outlier detection methods which are available.
     enum EMethod {
