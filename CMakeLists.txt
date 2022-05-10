@@ -28,6 +28,9 @@ endif()
 
 set(SNAPSHOT yes)
 
+set(CMAKE_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}")
+message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
+
 execute_process(COMMAND awk -F= "/elasticsearchVersion/ {gsub(/-.*/,\"\"); print $2}" $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE ML_VERSION_NUM)
 string(STRIP "${ML_VERSION_NUM}" ML_VERSION_NUM)
 message(STATUS "ML_VERSION_NUM ${ML_VERSION_NUM}")
@@ -127,6 +130,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(STATUS "CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD}")
     set(SYSROOT /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
     set(CROSS_FLAGS "--sysroot=${SYSROOT}")
+  else()
+    set(CMAKE_CXX_COMPILER "$ENV{CMAKE_CXX_COMPILER}")
+    set(CMAKE_C_COMPILER "$ENV{CMAKE_C_COMPILER}")
+
+    message(STATUS "CMAKE_CXX_COMPILER $ENV{CMAKE_CXX_COMPILER}")
+    message(STATUS "CMAKE_C_COMPILER $ENV{CMAKE_C_COMPILER}")
+
   endif()
 
   # Target architecture specific flags
@@ -166,6 +176,14 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(CMAKE_MAKE_PROGRAM "$ENV{CMAKE_MAKE_PROGRAM}")
+  set(CMAKE_CXX_COMPILER "$ENV{CMAKE_CXX_COMPILER}")
+  set(CMAKE_C_COMPILER "$ENV{CMAKE_C_COMPILER}")
+
+  message(STATUS "CMAKE_MAKE_PROGRAM $ENV{CMAKE_MAKE_PROGRAM}")
+  message(STATUS "CMAKE_CXX_COMPILER $ENV{CMAKE_CXX_COMPILER}")
+  message(STATUS "CMAKE_C_COMPILER $ENV{CMAKE_C_COMPILER}")
+
   set(DYNAMIC_LIB_DIR bin)
   set(IMPORT_LIB_DIR lib)
   set(OS Windows)
@@ -193,7 +211,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(PLATFORM_NAME "Windows")
 
   # Hardcode paths to avoid any confusion
-  set(LOCAL_DRIVE "${LOCAL_DRIVE}:")
+  set(LOCAL_DRIVE "$ENV{LOCAL_DRIVE}:")
   message(STATUS "LOCAL_DRIVE ${LOCAL_DRIVE}")
   set(TORCH_INC "${LOCAL_DRIVE}/usr/local/include/pytorch")
   set(TORCH_LIB "${LOCAL_DRIVE}/usr/local/lib/torch_cpu.lib")
@@ -251,16 +269,6 @@ add_custom_target(install-distributed
   COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=Distributed -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
 )
 
-add_custom_target(run_test_controller
-    DEPENDS ml_test_controller
-    COMMAND ml_test_controller
-    WORKING_DIRECTORY ../bin/controller/unittest
-)
-add_custom_target(run_test_pytorch_inference
-    DEPENDS ml_test_pytorch_inference
-    COMMAND ml_test_pytorch_inference
-    WORKING_DIRECTORY ../bin/pytorch_inference/unittest
-)
 add_custom_target(test
     DEPENDS run_test_model run_test_core run_test_api run_test_seccomp run_test_ver run_test_maths_common
     run_test_maths_time_series run_test_analytics run_test_controller run_test_pytorch_inference

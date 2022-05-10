@@ -25,40 +25,40 @@ add_subdirectory(seccomp/unittest)
 add_custom_target(run_test_model
     DEPENDS ml_test_model
     COMMAND ml_test_model
-    WORKING_DIRECTORY ../lib/model/unittest
+    WORKING_DIRECTORY ../../lib/model/unittest
 )
 add_custom_target(run_test_core
     DEPENDS ml_test_core
     COMMAND ml_test_core
-    WORKING_DIRECTORY ../lib/core/unittest
+    WORKING_DIRECTORY ../../lib/core/unittest
 )
 add_custom_target(run_test_api
     DEPENDS ml_test_api
     COMMAND ml_test_api
-    WORKING_DIRECTORY ../lib/api/unittest
+    WORKING_DIRECTORY ../../lib/api/unittest
 )
 add_custom_target(run_test_seccomp
     DEPENDS ml_test_seccomp
     COMMAND ml_test_seccomp
-    WORKING_DIRECTORY ../lib/seccomp/unittest
+    WORKING_DIRECTORY ../../lib/seccomp/unittest
 )
 add_custom_target(run_test_maths_common
     DEPENDS ml_test_maths_common
     COMMAND ml_test_maths_common
-    WORKING_DIRECTORY ../lib/maths/common/unittest
+    WORKING_DIRECTORY ../../lib/maths/common/unittest
 )
 add_custom_target(run_test_maths_time_series
     DEPENDS ml_test_maths_time_series
     COMMAND ml_test_maths_time_series
-    WORKING_DIRECTORY ../lib/maths/time_series/unittest
+    WORKING_DIRECTORY ../../lib/maths/time_series/unittest
 )
 add_custom_target(run_test_maths_analytics
     DEPENDS ml_test_maths_analytics
     COMMAND ml_test_maths_analytics
-    WORKING_DIRECTORY ../lib/maths/analytics/unittest
+    WORKING_DIRECTORY ../../lib/maths/analytics/unittest
 )
 add_custom_target(run_test_ver
     DEPENDS ml_test_ver
     COMMAND ml_test_ver
-    WORKING_DIRECTORY ../lib/ver/unittest
+    WORKING_DIRECTORY ../../lib/ver/unittest
 )

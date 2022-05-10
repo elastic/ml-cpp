@@ -11,3 +11,13 @@ add_subdirectory(normalize)
 add_subdirectory(pytorch_inference)
 add_subdirectory(pytorch_inference/unittest)
 
+add_custom_target(run_test_controller
+    DEPENDS ml_test_controller
+    COMMAND ml_test_controller
+    WORKING_DIRECTORY ../../bin/controller/unittest
+)
+add_custom_target(run_test_pytorch_inference
+    DEPENDS ml_test_pytorch_inference
+    COMMAND ml_test_pytorch_inference
+    WORKING_DIRECTORY ../../bin/pytorch_inference/unittest
+)

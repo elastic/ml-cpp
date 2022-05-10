@@ -81,6 +81,7 @@ if (isWindows) {
 // Always do the C++ build using bash (Git bash on Windows)
 project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
 project.ext.make = (isMacOsX || isWindows) ? "gnumake" : "make"
+project.ext.cmake = "cmake"
 project.ext.numCpus = Runtime.runtime.availableProcessors()
 project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
                                 'VERSION_QUALIFIER': versionQualifier,
@@ -97,26 +98,34 @@ clean {
     exec {
       environment makeEnvironment
       commandLine bash
-      args '-c', 'source ./set_env.sh && ' + make + ' clean'
+      args '-c', 'source ./set_env.sh && ' + cmake + '  --build cmake_build -v -t clean'
       workingDir "${projectDir}"
     }
   }
 }
 
+task configure(type: Exec) {
+  environment makeEnvironment
+  commandLine bash
+  args '-c', 'source ./set_env.sh && ' + cmake + ' -B cmake_build'
+  workingDir "${projectDir}"
+}
+
 task compile(type: Exec) {
-  // Only do this fully parallelised compile without linking step on a quad core
+  // Only do this fully parallelised compile step on a quad core
   // machine or better - with fewer cores it's not worth it
   enabled numCpus >= 4
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && 3rd_party/pull-eigen.sh && ' + make + ' -j' + numCpus + ' objcompile'
+  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build -v -j' + numCpus
   workingDir "${projectDir}"
+  dependsOn 'configure'
 }
 
 task make(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus
+  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build -v'
   workingDir "${projectDir}"
   dependsOn 'compile'
 }
@@ -190,7 +199,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus + ' test'
+  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build -v -j' + numCpus + ' -t test'
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'

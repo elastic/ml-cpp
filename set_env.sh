@@ -32,33 +32,41 @@ case `uname` in
     Darwin)
         SIMPLE_PLATFORM=macos
         BUNDLE_PLATFORM=darwin-`uname -m | sed 's/arm64/aarch64/'`
-        CMAKE_GENERATOR='Unix Makefiles'
-        CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/"
+        export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/"
+        export CMAKE_GENERATOR='Unix Makefiles'
         ;;
 
     Linux)
         SIMPLE_PLATFORM=linux
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
             BUNDLE_PLATFORM=linux-`uname -m`
-            CMAKE_GENERATOR='Unix Makefiles'
-            CMAKE_FLAGS="-DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
+            export CMAKE_CXX_COMPILER="g++"
+            export CMAKE_C_COMPILER="gcc"
+            export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
+            export CMAKE_GENERATOR='Unix Makefiles'
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             BUNDLE_PLATFORM=darwin-x86_64
-            CMAKE_GENERATOR='Unix Makefiles'
-            CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/ -DCMAKE_TOOLCHAIN_FILE=tc-darwin.cmake"
+            export CMAKE_GENERATOR='Unix Makefiles'
+            export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/"
+            export CMAKE_TOOLCHAIN_FILE="tc-darwin.cmake"
         else
             BUNDLE_PLATFORM=linux-$CPP_CROSS_COMPILE
             CMAKE_GENERATOR='Unix Makefiles'
-            CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM -DCMAKE_TOOLCHAIN_FILE=tc-linux-aarch64.cmake"
+            export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
+            export CMAKE_TOOLCHAIN_FILE="tc-linux-aarch64.cmake"
         fi
         ;;
 
     MINGW*)
         SIMPLE_PLATFORM=windows
         BUNDLE_PLATFORM=windows-x86_64
-        LOCAL_DRIVE=${LOCAL_DRIVE:-"c"}
-        CMAKE_GENERATOR='MinGW Makefiles'
-        CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Release -DLOCAL_DRIVE=$LOCAL_DRIVE -DCMAKE_CXX_COMPILER=cl.exe -DCMAKE_C_COMPILER=cl.exe -DCMAKE_MAKE_PROGRAM=gnumake.exe -DCMAKE_INSTALL_PREFIX=$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
+        export CMAKE_GENERATOR='MinGW Makefiles'
+        export CMAKE_BUILD_TYPE=Release
+        export LOCAL_DRIVE=${LOCAL_DRIVE:-"c"}
+        export CMAKE_CXX_COMPILER=cl.exe
+        export CMAKE_C_COMPILER=cl.exe
+        export CMAKE_MAKE_PROGRAM=gnumake.exe
+        export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
         ;;
 
     *)
