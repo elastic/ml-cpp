@@ -40,8 +40,6 @@ case `uname` in
         SIMPLE_PLATFORM=linux
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
             BUNDLE_PLATFORM=linux-`uname -m`
-            export CXX="g++"
-            export CC="gcc"
             export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
             export CMAKE_GENERATOR='Unix Makefiles'
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
@@ -61,11 +59,7 @@ case `uname` in
         SIMPLE_PLATFORM=windows
         BUNDLE_PLATFORM=windows-x86_64
         export CMAKE_GENERATOR='MinGW Makefiles'
-        export CMAKE_BUILD_TYPE=Release
         export LOCAL_DRIVE=${LOCAL_DRIVE:-"c"}
-        export CXX=cl.exe
-        export CC=cl.exe
-        export CMAKE_MAKE_PROGRAM=gnumake.exe
         export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
         ;;
 

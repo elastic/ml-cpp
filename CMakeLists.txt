@@ -10,8 +10,19 @@
 #
 cmake_minimum_required(VERSION 3.9)
 
-project("ML")
+# Set these here to avoid any confusion. See the documentation
+# in build-setup for more details
+if (WIN32)
+  set(CMAKE_MAKE_PROGRAM "gnumake.exe" CACHE STRING "" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "" FORCE)
+  set(CMAKE_C_COMPILER "cl.exe" CACHE STRING "" FORCE)
+  set(CMAKE_CXX_COMPILER "cl.exe" CACHE STRING "" FORCE)
+elseif(UNIX AND NOT APPLE)
+  set(CMAKE_C_COMPILER   "gcc" CACHE STRING "" FORCE)
+  set(CMAKE_CXX_COMPILER "g++" CACHE STRING "" FORCE)
+endif()
 
+project("ML")
 
 set (CMAKE_CXX_STANDARD 17)
 
@@ -169,9 +180,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(CMAKE_MAKE_PROGRAM "$ENV{CMAKE_MAKE_PROGRAM}")
-
-  message(STATUS "CMAKE_MAKE_PROGRAM $ENV{CMAKE_MAKE_PROGRAM}")
 
   set(DYNAMIC_LIB_DIR bin)
   set(IMPORT_LIB_DIR lib)
