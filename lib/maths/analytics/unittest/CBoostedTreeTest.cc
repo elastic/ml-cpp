@@ -590,7 +590,7 @@ BOOST_AUTO_TEST_CASE(testMseLinear) {
             0.0, modelBias[i][0],
             6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.94);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.93);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -655,12 +655,12 @@ BOOST_AUTO_TEST_CASE(testMseNonLinear) {
             0.0, modelBias[i][0],
             4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.96);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
     LOG_DEBUG(<< "mean R^2 = " << maths::common::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testHuber) {
@@ -717,7 +717,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
             0.0, modelBias[i],
             6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.94);
+        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.92);
 
         meanModelRSquared.add(modelRSquared[i]);
     }
@@ -898,7 +898,7 @@ BOOST_AUTO_TEST_CASE(testLowCardinalityFeatures) {
         target, noiseVariance / static_cast<double>(rows));
     LOG_DEBUG(<< "bias = " << bias << ", rSquared = " << rSquared);
 
-    BOOST_TEST_REQUIRE(rSquared > 0.93);
+    BOOST_TEST_REQUIRE(rSquared > 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testLowTrainFractionPerFold) {
@@ -1288,7 +1288,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
     // By construction, the prediction error for the old training data must
     // increase because the old and new data distributions overlap and their
     // target values disagree. However, we should see proportionally a much
-    // larger reduction in the new training data predcition error.
+    // larger reduction in the new training data prediction error.
 
     double errorIncreaseOnOld{
         maths::common::CBasicStatistics::mean(mseAfterIncrementalTraining[OLD_TRAINING_DATA]) /
@@ -1301,7 +1301,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 25.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 17.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
@@ -1440,7 +1440,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 60.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
@@ -2215,13 +2215,13 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::common::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.71);
+        BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(logRelativeError) < 0.7);
         meanLogRelativeError.add(maths::common::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.55);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 0.53);
 }
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForTargetDrift) {
@@ -2786,7 +2786,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::common::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.44);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.4);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
