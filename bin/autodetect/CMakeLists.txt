@@ -36,5 +36,20 @@ target_link_libraries(autodetect MlVer)
 
 install(TARGETS autodetect DESTINATION "${EXE_DIR}")
 if(MSVC)
+  set( autodetect_LINKFLAGS ${CMAKE_CURRENT_BINARY_DIR}/autodetect.res )
+  set_target_properties( autodetect PROPERTIES LINK_FLAGS ${autodetect_LINKFLAGS} )
+
+  execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh autodetect.exe" OUTPUT_VARIABLE RC_DEFINES)
+  string(STRIP ${RC_DEFINES} RC_DEFINES)
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh "rc -nologo ${RC_FLAGS} ${RC_DEFINES} -Foautodetect.res ${CMAKE_SOURCE_DIR}/mk/ml.rc")
+  add_custom_target(
+      autodetect.res
+      DEPENDS ${CMAKE_SOURCE_DIR}/mk/ml.rc ${CMAKE_SOURCE_DIR}/gradle.properties ${CMAKE_SOURCE_DIR}/mk/ml.ico ${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh
+      COMMAND bash -c ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh
+  )
+  add_dependencies(autodetect autodetect.res)
+
+  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh)
+
   install(FILES $<TARGET_PDB_FILE:autodetect> DESTINATION ${EXE_DIR} OPTIONAL)
 endif()

@@ -2,6 +2,10 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CMAKE_INSTALL_RPATH "\$ORIGIN/")
 endif()
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(CMAKE_INSTALL_RPATH "@loader_path")
+endif()
+
 add_subdirectory(core)
 add_subdirectory(maths/common)
 add_subdirectory(maths/time_series)
