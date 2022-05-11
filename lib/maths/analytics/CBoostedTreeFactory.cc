@@ -191,7 +191,6 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
             for (auto& hyperparameterLoss : *m_HyperparametersLosses) {
                 auto parameters = hyperparameterLoss.first.selectParametersVector(
                     m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
-
                 // LOG_DEBUG(<< "Tunable parameters vector size " << parameters.rows() << " " << parameters.cols());
                 m_TreeImpl->m_Hyperparameters.addObservation(
                     parameters, hyperparameterLoss.second, 0.0);
@@ -788,12 +787,14 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     // initialize unset regularization hyperparameters with meaningful values
     if (hyperparameters.earlyStoppingEnabled()) {
         if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed() == false) {
-            // LOG_DEBUG(<< "Setting treeSizePenaltyMultiplier");
-            hyperparameters.treeSizePenaltyMultiplier().set(m_GainPerNode90thPercentile);
+            auto initValue = hyperparameters.treeSizePenaltyMultiplier().fromSearchValue(hyperparameters.treeSizePenaltyMultiplier().toSearchValue(m_GainPerNode90thPercentile) 
+            - hyperparameters.treeSizePenaltyMultiplier().toSearchValue(2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile));
+            hyperparameters.treeSizePenaltyMultiplier().set(initValue);
         }
         if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed() == false) {
-            // LOG_DEBUG(<< "Setting leafWeightPenaltyMultiplier");
-            hyperparameters.leafWeightPenaltyMultiplier().set(m_TotalCurvaturePerNode90thPercentile);
+            auto initValue = hyperparameters.leafWeightPenaltyMultiplier().fromSearchValue(hyperparameters.leafWeightPenaltyMultiplier().toSearchValue(m_TotalCurvaturePerNode90thPercentile) 
+            - hyperparameters.leafWeightPenaltyMultiplier().toSearchValue(2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile));
+            hyperparameters.leafWeightPenaltyMultiplier().set(initValue);
         }
     }
 

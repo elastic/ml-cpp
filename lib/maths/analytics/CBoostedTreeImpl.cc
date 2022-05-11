@@ -266,7 +266,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         stopWatch.start();
         std::uint64_t lastLap{stopWatch.lap()};
         if (m_Hyperparameters.stopEarly() == false) {
-            m_Hyperparameters.clearObservations();
 
             // Hyperparameter optimisation loop.
 

@@ -1015,11 +1015,26 @@ void CBoostedTreeHyperparameters::storeHyperparameters(CBoostedTreeHyperparamete
     }
 }
 
+ bool CBoostedTreeHyperparameters::stopEarly() const {
+        if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
+            if (m_StoppedHyperparameterOptimizationEarly == false) {
+                double anovaCoV{m_BayesianOptimization->anovaTotalCoefficientOfVariation()};
+                LOG_DEBUG(<<"anovaTotalCoefficientOfVariation " << anovaCoV);
+                if (anovaCoV < 1e-3) {
+                    m_StoppedHyperparameterOptimizationEarly = true;
+                    // return true;
+                }
+            }
+            return m_StoppedHyperparameterOptimizationEarly;
+        }
+        return false;
+    }
+
 void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TVector parameters,
                                                  double loss,
                                                  double variance) {
     m_BayesianOptimization->add(parameters, loss, variance);
-    // m_BayesianOptimization->maximumLikelihoodKernel();
+    m_BayesianOptimization->maximumLikelihoodKernel();
 }
 
 void CBoostedTreeHyperparameters::clearObservations() {

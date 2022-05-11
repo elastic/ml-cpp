@@ -596,17 +596,7 @@ public:
 
     void storeHyperparameters(TVector parameters);
 
-    bool stopEarly() const {
-        if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
-            if (m_StoppedHyperparameterOptimizationEarly == false) {
-                if (m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3) {
-                    m_StoppedHyperparameterOptimizationEarly = true;
-                }
-            }
-            return m_StoppedHyperparameterOptimizationEarly;
-        }
-        return false;
-    }
+    bool stopEarly() const;
 
     bool earlyStoppingEnabled() const {
         return m_EarlyHyperparameterOptimizationStoppingEnabled;
