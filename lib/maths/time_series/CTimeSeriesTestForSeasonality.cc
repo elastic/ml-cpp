@@ -1160,6 +1160,7 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
         std::size_t j{periodsHypotheses[i]};
         const TSizeVec& scaleSegments{hypotheses[j].s_ScaleSegments};
 
+        // Consider falling back to not scaling if scaling fails.
         for (auto scale : {scaleSegments.size() > 2, false}) {
 
             m_TemporaryValues = residuals;
@@ -1209,6 +1210,11 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
                                       period[0].value(component[0], k)};
                     value = prediction + (value - prediction) / overlapping;
                     common::CBasicStatistics::moment<0>(residuals[m_WindowIndices[k]]) -= prediction;
+                } else {
+                    // If we were unable to estimate the value of the seasonal
+                    // component here we should discard it when initialising
+                    // the trend.
+                    residuals[m_WindowIndices[k]] = TFloatMeanAccumulator{};
                 }
                 hypotheses[j].s_InitialValues[m_WindowIndices[k]] = moments;
             }
@@ -2030,7 +2036,8 @@ double CTimeSeriesTestForSeasonality::SHypothesisStats::weight() const {
 }
 
 std::string CTimeSeriesTestForSeasonality::SHypothesisStats::print() const {
-    return s_Period.print();
+    return s_Period.print() + "/" + std::to_string(s_NumberScaleSegments) +
+           "/" + std::to_string(s_NumberTrendSegments);
 }
 
 bool CTimeSeriesTestForSeasonality::SModel::isTestable() const {
