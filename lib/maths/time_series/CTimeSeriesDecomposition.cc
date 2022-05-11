@@ -249,25 +249,26 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                 this->value(time_, 0.0, E_Seasonal, removedSeasonalMask));
         });
 
-    SAddValue message{time,
-                      lastTime,
-                      m_TimeShift,
-                      value,
-                      weights,
-                      occupancy,
-                      firstValueTime,
-                      common::CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
-                      common::CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),
-                      common::CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
-                      *this,
-                      [this] {
-                          auto predictor_ = this->predictor(E_All | E_TrendForced);
-                          return [predictor = std::move(predictor_)](core_t::TTime time_) {
-                              return predictor(time_, {});
-                          };
-                      },
-                      [this] { return this->predictor(E_Seasonal | E_Calendar); },
-                      testForSeasonality};
+    SAddValue message{
+        time,
+        lastTime,
+        m_TimeShift,
+        value,
+        weights,
+        occupancy,
+        firstValueTime,
+        common::CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
+        common::CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),
+        common::CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
+        *this,
+        [this] {
+            auto predictor_ = this->predictor(E_All | E_TrendForced);
+            return [predictor = std::move(predictor_)](core_t::TTime time_) {
+                return predictor(time_, {});
+            };
+        },
+        [this] { return this->predictor(E_Seasonal | E_Calendar); },
+        testForSeasonality};
 
     m_ChangePointTest.handle(message);
     m_Components.handle(message);
