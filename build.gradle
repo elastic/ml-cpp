@@ -112,9 +112,6 @@ task configure(type: Exec) {
 }
 
 task compile(type: Exec) {
-  // Only do this fully parallelised compile step on a quad core
-  // machine or better - with fewer cores it's not worth it
-  enabled numCpus >= 4
   environment makeEnvironment
   commandLine bash
   args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build -v -j' + numCpus
@@ -122,20 +119,12 @@ task compile(type: Exec) {
   dependsOn 'configure'
 }
 
-task make(type: Exec) {
-  environment makeEnvironment
-  commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build -v'
-  workingDir "${projectDir}"
-  dependsOn 'compile'
-}
-
 task strip(type: Exec) {
   environment makeEnvironment
   commandLine bash
   args '-c', 'source ./set_env.sh && dev-tools/strip_binaries.sh'
   workingDir "${projectDir}"
-  dependsOn 'make'
+  dependsOn 'compile'
 }
 
 task format(type: Exec) {
