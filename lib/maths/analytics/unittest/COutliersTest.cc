@@ -9,6 +9,7 @@
  * limitation.
  */
 
+#include <algorithm>
 #include <core/CAlignment.h>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
@@ -543,31 +544,38 @@ BOOST_AUTO_TEST_CASE(testFeatureInfluences) {
 
                 frame->readRows(1, [&](const core::CDataFrame::TRowItr& beginRows,
                                        const core::CDataFrame::TRowItr& endRows) {
-                    for (auto row = beginRows; row != endRows; ++row) {
-                        double sum{0.0};
+                    for (auto row = beginRows; passed && row != endRows; ++row) {
                         TDoubleVec influences;
                         for (std::size_t k = 0; k < dimension; ++k) {
-                            passed &= ((*row)[dimension + 1 + k] >= 0.0);
-                            sum += (*row)[dimension + 1 + k];
-                            averageInfluences[k].add((*row)[dimension + 1 + k]);
                             influences.push_back((*row)[dimension + 1 + k]);
+                            averageInfluences[k].add((*row)[dimension + 1 + k]);
                         }
-                        passed &= (std::fabs(sum - 1.0) < 1e-6);
+                        double differenceFromNormal{std::fabs(
+                            std::accumulate(influences.begin(), influences.end(), 0.0) - 1.0)};
+                        passed &= std::all_of(
+                            influences.begin(), influences.end(),
+                            [](auto influence) { return influence >= 0.0; });
+                        passed &= (differenceFromNormal < 1e-6);
                         if (row->index() == outlierIndexes[0]) {
                             LOG_DEBUG(<< "influences = "
                                       << core::CContainerPrinter::print(influences));
-                            passed &= (*row)[dimension + 2] > thresholds[t][0];
+                            passed &= (influences[1] > thresholds[t][0]);
                         }
                         if (row->index() == outlierIndexes[1]) {
                             LOG_DEBUG(<< "influences = "
                                       << core::CContainerPrinter::print(influences));
-                            passed &= (*row)[dimension + 1] > thresholds[t][1];
+                            passed &= (influences[0] > thresholds[t][1]);
                         }
                         if (row->index() == outlierIndexes[2]) {
                             LOG_DEBUG(<< "influences = "
                                       << core::CContainerPrinter::print(influences));
-                            passed &= ((*row)[dimension + 2] > thresholds[t][2]) &&
-                                      ((*row)[dimension + 1] > thresholds[t][2]);
+                            passed &= (influences[0] > thresholds[t][2]) &&
+                                      (influences[1] > thresholds[t][2]);
+                        }
+                        if (passed == false) {
+                            LOG_DEBUG(<< "failing on influences = "
+                                      << core::CContainerPrinter::print(influences)
+                                      << ", |sum - 1.0| = " << differenceFromNormal);
                         }
                     }
                 });
