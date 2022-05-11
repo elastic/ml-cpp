@@ -72,7 +72,7 @@ public:
                             std::size_t pid,
                             core_t::TTime time) {
         const CMetricModel::TFeatureData* data = model.featureData(feature, pid, time);
-        if (!data) {
+        if (data == nullptr) {
             return TDouble1Vec();
         }
         return data->s_BucketValue ? data->s_BucketValue->value() : TDouble1Vec();
@@ -111,11 +111,11 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                                           model_t::E_IndividualMaxByPerson};
 
             this->makeModel(params, features, startTime, sampleCount);
-            CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
+            auto& model = static_cast<CMetricModel&>(*m_Model);
             BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
             // Bucket values.
-            uint64_t expectedCount{0};
+            std::uint64_t expectedCount{0};
             TMeanAccumulator baselineMeanError;
             TMeanAccumulator expectedMean;
             TMeanAccumulator expectedBaselineMean;
@@ -131,7 +131,7 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
             TDouble1Vec expectedMeanSamples;
             TDouble1Vec expectedMinSamples;
             TDouble1Vec expectedMaxSamples;
-            std::size_t numberSamples = 0;
+            std::size_t numberSamples{0};
 
             TMathsModelPtr expectedMeanModel = m_Factory->defaultFeatureModel(
                 model_t::E_IndividualMeanByPerson, bucketLength, 0.4, true);
@@ -195,7 +195,8 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                             .nonNegative(true)
                             .propagationInterval(1.0)
                             .trendWeights(weights)
-                            .priorWeights(weights);
+                            .priorWeights(weights)
+                            .firstValueTime(startTime);
 
                         maths::common::CModel::TTimeDouble2VecSizeTrVec expectedMeanSamples_;
                         maths::common::CModel::TTimeDouble2VecSizeTrVec expectedMinSamples_;
@@ -302,9 +303,9 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                         inserter.toXml(newXml);
                     }
 
-                    uint64_t origChecksum = model.checksum(false);
+                    std::uint64_t origChecksum = model.checksum(false);
                     LOG_DEBUG(<< "original checksum = " << origChecksum);
-                    uint64_t restoredChecksum = restoredModel->checksum(false);
+                    std::uint64_t restoredChecksum = restoredModel->checksum(false);
                     LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
                     BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
                     BOOST_REQUIRE_EQUAL(origXml, newXml);

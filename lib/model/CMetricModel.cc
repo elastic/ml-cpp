@@ -155,7 +155,7 @@ CMetricModel::TDouble1Vec CMetricModel::currentBucketValue(model_t::EFeature fea
                                                            std::size_t /*cid*/,
                                                            core_t::TTime time) const {
     const TFeatureData* data = this->featureData(feature, pid, time);
-    if (data) {
+    if (data != nullptr) {
         const TOptionalSample& value = data->s_BucketValue;
         return value ? value->value(model_t::dimension(feature)) : TDouble1Vec();
     }
@@ -169,7 +169,7 @@ CMetricModel::TDouble1Vec CMetricModel::baselineBucketMean(model_t::EFeature fea
                                                            const TSizeDoublePr1Vec& correlated,
                                                            core_t::TTime time) const {
     const maths::common::CModel* model{this->model(feature, pid)};
-    if (!model) {
+    if (model == nullptr) {
         return TDouble1Vec();
     }
     static const TSizeDoublePr1Vec NO_CORRELATED;
@@ -336,7 +336,9 @@ void CMetricModel::sample(core_t::TTime startTime,
                     .propagationInterval(scaledInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)
-                    .bucketOccupancy(emptyBucketWeight)
+                    .bucketOccupancy(model_t::includeEmptyBuckets(feature)
+                                         ? this->personFrequency(pid)
+                                         : 1.0)
                     .firstValueTime(pid < this->firstBucketTimes().size()
                                         ? this->firstBucketTimes()[pid]
                                         : std::numeric_limits<core_t::TTime>::min())
@@ -380,13 +382,13 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     pJoint.addAggregator(maths::common::CProbabilityOfExtremeSample());
 
     bool skippedResults{false};
-    for (std::size_t i = 0u, n = gatherer.numberFeatures(); i < n; ++i) {
+    for (std::size_t i = 0, n = gatherer.numberFeatures(); i < n; ++i) {
         model_t::EFeature feature = gatherer.feature(i);
         if (model_t::isCategorical(feature)) {
             continue;
         }
         const TFeatureData* data = this->featureData(feature, pid, startTime);
-        if (!data || !data->s_BucketValue) {
+        if ((data == nullptr) || !data->s_BucketValue) {
             continue;
         }
         const TOptionalSample& bucket = data->s_BucketValue;

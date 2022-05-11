@@ -1612,6 +1612,7 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
     // transition to modelling only non-empty values. This must be reflected
     // in the sample weights when reinitialising the residual model.
     if (residuals.empty() == false) {
+        double emptyBucketWeight{CModel::emptyBucketWeight(params.bucketOccupancy())};
         maths_t::TDoubleWeightsAry1Vec weights(1);
         double buckets{std::accumulate(residuals.begin(), residuals.end(), 0.0,
                                        [](auto partialBuckets, const auto& residual) {
@@ -1619,10 +1620,9 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
                                                   common::CBasicStatistics::count(residual);
                                        }) /
                        this->params().learnRate()};
-        double time{params.bucketOccupancy() * buckets /
-                    static_cast<double>(residuals.size())};
+        double time{emptyBucketWeight * buckets / static_cast<double>(residuals.size())};
         for (const auto& residual : residuals) {
-            double weight{params.bucketOccupancy() * common::CBasicStatistics::count(residual)};
+            double weight{emptyBucketWeight * common::CBasicStatistics::count(residual)};
             if (weight > 0.0) {
                 weights[0] = maths_t::countWeight(weight);
                 m_ResidualModel->addSamples({common::CBasicStatistics::mean(residual)}, weights);
@@ -3000,6 +3000,7 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
     if (residuals.empty() == false) {
         std::size_t dimension{this->dimension()};
+        double emptyBucketWeight{CModel::emptyBucketWeight(params.bucketOccupancy())};
 
         TDouble10VecVec samples;
         TDoubleVec weights;
@@ -3018,12 +3019,11 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
             for (std::size_t i = 0; i < residuals[d].size(); ++i) {
                 samples[i][d] = common::CBasicStatistics::mean(residuals[d][i]);
                 weights[i] = std::min(
-                    weights[i], params.bucketOccupancy() *
-                                    static_cast<double>(common::CBasicStatistics::count(
-                                        residuals[d][i])));
+                    weights[i], emptyBucketWeight * static_cast<double>(common::CBasicStatistics::count(
+                                                        residuals[d][i])));
             }
         }
-        time *= params.bucketOccupancy() / static_cast<double>(dimension);
+        time *= emptyBucketWeight / static_cast<double>(dimension);
 
         maths_t::TDouble10VecWeightsAry1Vec weight(1);
         for (std::size_t i = 0; i < samples.size(); ++i) {

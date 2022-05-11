@@ -70,10 +70,6 @@ const std::string FIRST_BUCKET_TIME_TAG("c");
 const std::string LAST_BUCKET_TIME_TAG("d");
 const std::string FEATURE_MODELS_TAG("e");
 const std::string FEATURE_CORRELATE_MODELS_TAG("f");
-// Extra data tag deprecated at model version 34
-// TODO remove on next version bump
-//const std::string EXTRA_DATA_TAG("g");
-//const std::string INTERIM_BUCKET_CORRECTOR_TAG("h");
 const std::string MEMORY_ESTIMATOR_TAG("i");
 const std::string UPGRADING_PRE_7_5_STATE("j");
 }
@@ -560,10 +556,7 @@ double CIndividualModel::emptyBucketWeight(model_t::EFeature feature,
     if (model_t::includeEmptyBuckets(feature)) {
         TOptionalUInt64 count{this->currentBucketCount(pid, time)};
         if (count == boost::none || *count == 0) {
-            // We smoothly transition to modelling non-zero count when the bucket
-            // occupancy is less than 0.5.
-            weight = maths::common::CTools::truncate(
-                2.0 * this->personFrequency(pid), 1e-6, 1.0);
+            weight = maths::common::CModel::emptyBucketWeight(this->personFrequency(pid));
         }
     }
     return weight;

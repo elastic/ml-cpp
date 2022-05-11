@@ -358,7 +358,9 @@ void CEventRateModel::sample(core_t::TTime startTime,
                     .propagationInterval(scaledInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)
-                    .bucketOccupancy(emptyBucketWeight)
+                    .bucketOccupancy(model_t::includeEmptyBuckets(feature)
+                                         ? this->personFrequency(pid)
+                                         : 1.0)
                     .firstValueTime(pid < this->firstBucketTimes().size()
                                         ? this->firstBucketTimes()[pid]
                                         : std::numeric_limits<core_t::TTime>::min())

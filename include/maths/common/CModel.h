@@ -338,6 +338,10 @@ public:
     //! Get the effective count per correlate model for calibrating aggregation.
     static double effectiveCount(std::size_t n);
 
+    //! Get the weight to apply to values from empty buckets based on the proportion
+    //! of empty buckets in the data as a whole.
+    static double emptyBucketWeight(double occupancy);
+
     //! Get the model identifier.
     virtual std::size_t identifier() const = 0;
 

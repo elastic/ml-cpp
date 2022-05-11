@@ -281,6 +281,12 @@ double CModel::effectiveCount(std::size_t n) {
     return n <= boost::size(EFFECTIVE_COUNT) ? EFFECTIVE_COUNT[n - 1] : 0.5;
 }
 
+double CModel::emptyBucketWeight(double occupancy) {
+    // We smoothly transition to ignoring empty buckets when the bucket
+    // occupancy is less than 0.5.
+    return common::CTools::truncate(2.0 * occupancy, 1e-6, 1.0);
+}
+
 const CModelParams& CModel::params() const {
     return m_Params;
 }
