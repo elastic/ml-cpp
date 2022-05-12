@@ -39,7 +39,7 @@ if(MSVC)
 
   execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh normalize.exe" OUTPUT_VARIABLE RC_DEFINES)
   string(STRIP ${RC_DEFINES} RC_DEFINES)
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh "rc -nologo ${RC_FLAGS} ${RC_DEFINES} -Fonormalize.res ${CMAKE_SOURCE_DIR}/mk/ml.rc")
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh "rc -nologo ${CPPFLAGS} ${RC_DEFINES} -Fonormalize.res ${CMAKE_SOURCE_DIR}/mk/ml.rc")
   add_custom_target(
       normalize.res
       DEPENDS ${CMAKE_SOURCE_DIR}/mk/ml.rc ${CMAKE_SOURCE_DIR}/gradle.properties ${CMAKE_SOURCE_DIR}/mk/ml.ico ${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh 
