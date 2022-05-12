@@ -50,6 +50,7 @@ if(MSVC)
 
   add_dependencies(data_frame_analyzer data_frame_analyzer.res)
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh)
+  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/data_frame_analyzer.res)
  
   install(FILES $<TARGET_PDB_FILE:data_frame_analyzer> DESTINATION ${EXE_DIR} OPTIONAL)
 endif()

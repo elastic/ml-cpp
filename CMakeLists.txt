@@ -181,6 +181,15 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
+  message(STATUS "VCVER $ENV{VCVER}")
+  STRING(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" VCVER_REGEX_MATCH  $ENV{VCVER})
+  set(VCVER_MAJOR ${CMAKE_MATCH_1})
+  set(VCVER_MINOR ${CMAKE_MATCH_2})
+
+  string(CONCAT BOOST_VCVER "vc" ${VCVER_MAJOR} ${VCVER_MINOR} )
+  string(SUBSTRING ${BOOST_VCVER} 0 5 BOOST_VCVER)
+  message(STATUS "BOOST_VCVER ${BOOST_VCVER}")
+
   set(DYNAMIC_LIB_DIR bin)
   set(IMPORT_LIB_DIR lib)
   set(OS Windows)
@@ -226,7 +235,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(Boost_USE_STATIC_LIBS OFF)
   set(Boost_USE_STATIC_RUNTIME OFF)
   set(Boost_USE_DEBUG_RUNTIME OFF)
-  set(Boost_COMPILER "vc142")
+  set(Boost_COMPILER ${BOOST_VCVER})
   set(Boost_DEBUG OFF)
 
   add_compile_definitions(BOOST_ALL_NO_LIB BOOST_ALL_DYN_LINK)
@@ -268,5 +277,5 @@ add_custom_target(install-distributed
 
 add_custom_target(test
     DEPENDS run_test_model run_test_core run_test_api run_test_seccomp run_test_ver run_test_maths_common
-    run_test_maths_time_series run_test_analytics run_test_controller run_test_pytorch_inference
+    run_test_maths_time_series run_test_maths_analytics run_test_controller run_test_pytorch_inference
 )

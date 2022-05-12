@@ -50,6 +50,7 @@ if(MSVC)
 
   add_dependencies(controller controller.res)
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh)
+  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/controller.res)
 
   install(FILES $<TARGET_PDB_FILE:controller> DESTINATION ${EXE_DIR} OPTIONAL)
 endif()

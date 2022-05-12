@@ -49,6 +49,7 @@ if(MSVC)
 
   add_dependencies(categorize categorize.res)
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh)
+  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/categorize.res)
 
   install(FILES $<TARGET_PDB_FILE:categorize> DESTINATION ${EXE_DIR} OPTIONAL)
 endif()

@@ -50,6 +50,7 @@ if(MSVC)
   add_dependencies(autodetect autodetect.res)
 
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh)
+  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/autodetect.res)
 
   install(FILES $<TARGET_PDB_FILE:autodetect> DESTINATION ${EXE_DIR} OPTIONAL)
 endif()

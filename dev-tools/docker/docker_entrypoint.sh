@@ -64,6 +64,6 @@ if [ "x$1" = "x--test" ] ; then
     # failure is the unit tests, and then the detailed test results can be
     # copied from the image
     echo passed > build/test_status.txt
-    cmake --build cmake_build -t test -j`nproc` ML_KEEP_GOING=1 || echo failed > build/test_status.txt
+    cmake --build cmake_build -t test -j`nproc` || echo failed > build/test_status.txt
 fi
 

@@ -48,6 +48,7 @@ if(MSVC)
 
   add_dependencies(normalize normalize.res)
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh)
+  set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/normalize.res)
 
   install(FILES $<TARGET_PDB_FILE:normalize> DESTINATION ${EXE_DIR} OPTIONAL)
 endif()
