@@ -32,8 +32,7 @@ rm -rf cmake_build
 cmake -B cmake_build -G "$CMAKE_GENERATOR" $CMAKE_FLAGS
 
 # Build the code
-cmake --build cmake_build -j`nproc`
-cmake --build cmake_build -t install
+cmake --build cmake_build -j`nproc` -t install-distributed
 
 # Strip the binaries
 dev-tools/strip_binaries.sh

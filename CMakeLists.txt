@@ -88,8 +88,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   
 
   # darwin flags
-  set(Boost_COMPILER "-clang-darwin${CMAKE_CXX_COMPILER_VERSION_MAJOR}")
-  message(STATUS "Boost_COMPILER ${Boost_COMPILER}")
   if(${CMAKE_CROSSCOMPILING})
     message(STATUS "CROSS_TARGET_PLATFORM=${CROSS_TARGET_PLATFORM}")
     message(STATUS "CMAKE_CXX_STANDARD ${CMAKE_CXX_STANDARD}")
@@ -98,10 +96,16 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
     include_directories(SYSTEM ${SYSROOT}/usr/include/c++/v1)
     include_directories(SYSTEM ${SYSROOT}/usr/include)
+    include_directories(SYSTEM ${SYSROOT}/usr/include/libxml2)
+
+    set(Boost_COMPILER "-clang-darwin11")
+  else()
+    set(Boost_COMPILER "-clang-darwin${CMAKE_CXX_COMPILER_VERSION_MAJOR}")
   endif()
+  message(STATUS "Boost_COMPILER ${Boost_COMPILER}")
 
 
-  set(CMAKE_C_FLAGS "-g ${CROSS_FLAGS} ${OPT_C_FLAGS} ${ARCHFLAGS} -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-extra-semi-stmt -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-poison-system-directories -Wno-sign-conversion -Wno-unknown-warning-option -Wno-unreachable-code -Wno-used-but-marked-unused ${OPTCFLAGS} ${COVERAGE}" )
+  set(CMAKE_C_FLAGS "-g ${CROSS_FLAGS} ${OPT_C_FLAGS} ${ARCHCFLAGS} -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-extra-semi-stmt -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-poison-system-directories -Wno-sign-conversion -Wno-unknown-warning-option -Wno-unreachable-code -Wno-used-but-marked-unused ${OPTCFLAGS} ${COVERAGE}" )
   set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-exit-time-destructors -Wno-global-constructors -Wno-return-std-move-in-c++11 -Wno-unused-member-function -Wno-weak-vtables ${OPTCPPFLAGS}" )
 
   set(EXE_DIR MacOS)
@@ -111,9 +115,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(PLATFORM_NAME "MacOSX")
 
   # Hardcode paths to avoid any confusion
-  set(TORCH_INC "/usr/local/include/pytorch")
-  set(TORCH_LIB "/usr/local/lib/libtorch_cpu.dylib")
-  set(C10_LIB "/usr/local/lib/libc10.dylib")
+  set(TORCH_INC "${SYSROOT}/usr/local/include/pytorch")
+  set(TORCH_LIB "${SYSROOT}/usr/local/lib/libtorch_cpu.dylib")
+  set(C10_LIB   "${SYSROOT}/usr/local/lib/libc10.dylib")
   set(ZLIB_LIBRARIES "-lz")
   set(LIBXML2_LIBRARIES "-lxml2")
 
@@ -241,7 +245,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   add_compile_definitions(BOOST_ALL_NO_LIB BOOST_ALL_DYN_LINK)
 endif()
 
-include_directories(SYSTEM ${SYSROOT}${TORCH_INC})
+include_directories(SYSTEM ${TORCH_INC})
 
 add_compile_definitions(EIGEN_MPL2_ONLY EIGEN_MAX_ALIGN_BYTES=32)
 

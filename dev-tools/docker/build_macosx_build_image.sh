@@ -22,7 +22,7 @@
 HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-macosx-build
-VERSION=cmake1
+VERSION=cmake2
 
 set -e
 

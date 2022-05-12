@@ -47,11 +47,13 @@ case `uname` in
             export CMAKE_GENERATOR='Unix Makefiles'
             export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/"
             export CMAKE_TOOLCHAIN_FILE="tc-darwin.cmake"
+            export CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE"
         else
             BUNDLE_PLATFORM=linux-$CPP_CROSS_COMPILE
             CMAKE_GENERATOR='Unix Makefiles'
             export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
             export CMAKE_TOOLCHAIN_FILE="tc-linux-aarch64.cmake"
+            export CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE"
         fi
         ;;
 
