@@ -66,7 +66,7 @@ CTestFieldDataCategorizer.cc
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-add_executable(ml_test_api ${SRCS} ${PLATFORM_SRCS})
+add_executable(ml_test_api ${SRCS})
 
 target_link_libraries(ml_test_api ${Boost_LIBRARIES})
 target_link_libraries(ml_test_api ${LIBXML2_LIBRARIES})

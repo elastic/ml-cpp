@@ -249,7 +249,7 @@ set(Boost_USE_DEBUG_LIBS OFF)
 
 find_package(Boost 1.77.0 REQUIRED COMPONENTS iostreams filesystem program_options regex date_time log log_setup thread unit_test_framework)
 if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS})
+    include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 endif()
 
 add_subdirectory(3rd_party)

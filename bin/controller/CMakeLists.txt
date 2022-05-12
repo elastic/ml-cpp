@@ -23,14 +23,12 @@ CCommandProcessor.cc
 CResponseJsonWriter.cc
 )
 
-add_library(MlController STATIC ${SRCS})
-target_link_libraries(MlController ${Boost_LIBRARIES})
+add_library(MlController OBJECT ${SRCS})
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-add_executable(controller Main.cc)
+add_executable(controller Main.cc $<TARGET_OBJECTS:MlController>)
 
-target_link_libraries(controller MlController)
 target_link_libraries(controller ${Boost_LIBRARIES})
 target_link_libraries(controller MlCore)
 target_link_libraries(controller MlVer)

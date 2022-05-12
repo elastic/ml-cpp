@@ -26,11 +26,8 @@ set (SRCS
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-add_executable(ml_test_controller ${SRCS} ${PLATFORM_SRCS})
+add_executable(ml_test_controller ${SRCS} $<TARGET_OBJECTS:MlController>)
 
-target_link_libraries(ml_test_controller ${CONTROLLER_OBJS})
-
-target_link_libraries(ml_test_controller MlController)
 target_link_libraries(ml_test_controller ${Boost_LIBRARIES})
 target_link_libraries(ml_test_controller ${LIBXML2_LIBRARIES})
 target_link_libraries(ml_test_controller MlCore)

@@ -24,9 +24,7 @@ set (SRCS
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-add_executable(ml_test_pytorch_inference ${SRCS} ${PLATFORM_SRCS})
-
-target_link_libraries(ml_test_pytorch_inference MlPytorchInference)
+add_executable(ml_test_pytorch_inference ${SRCS} $<TARGET_OBJECTS:MlPytorchInference>)
 
 target_link_libraries(ml_test_pytorch_inference ${Boost_LIBRARIES})
 target_link_libraries(ml_test_pytorch_inference ${LIBXML2_LIBRARIES})

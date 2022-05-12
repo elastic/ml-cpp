@@ -24,12 +24,10 @@ CCommandParser.cc
 CThreadSettings.cc
 )
 
-add_library(MlPytorchInference STATIC ${SRCS} ${PLATFORM_SRCS})
-target_link_libraries(MlPytorchInference ${Boost_LIBRARIES})
+add_library(MlPytorchInference OBJECT ${SRCS})
 
-add_executable(pytorch_inference Main.cc)
+add_executable(pytorch_inference Main.cc $<TARGET_OBJECTS:MlPytorchInference>)
 
-target_link_libraries(pytorch_inference MlPytorchInference)
 target_link_libraries(pytorch_inference ${Boost_LIBRARIES})
 target_link_libraries(pytorch_inference MlCore)
 target_link_libraries(pytorch_inference MlApi)

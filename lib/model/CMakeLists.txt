@@ -88,7 +88,7 @@ SModelParams.cc
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-add_library(MlModel SHARED ${SRCS} ${PLATFORM_SRCS})
+add_library(MlModel SHARED ${SRCS})
 target_link_libraries(MlModel PUBLIC ${Boost_LIBRARIES})
 target_link_libraries(MlModel PUBLIC MlCore)
 target_link_libraries(MlModel PUBLIC MlMathsCommon)

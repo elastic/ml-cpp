@@ -73,7 +73,7 @@ ElasticsearchStateIndex.cc
 
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
-add_library(MlApi SHARED ${SRCS} ${PLATFORM_SRCS})
+add_library(MlApi SHARED ${SRCS})
 target_link_libraries(MlApi PUBLIC ${Boost_LIBRARIES})
 target_link_libraries(MlApi PUBLIC MlCore)
 target_link_libraries(MlApi PUBLIC MlMathsCommon)
