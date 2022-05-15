@@ -168,11 +168,11 @@ void decompose(double trend,
     TDoubleVec x(m + n);
     double xhat{x0};
     for (std::size_t i = 0; i < m; ++i) {
-        x[i] = common::CBasicStatistics::mean(seasonal[i]->value(time, 0.0));
+        x[i] = seasonal[i]->value(time, 0.0).mean();
         xhat += x[i];
     }
     for (std::size_t i = m; i < m + n; ++i) {
-        x[i] = common::CBasicStatistics::mean(calendar[i - m]->value(time, 0.0));
+        x[i] = calendar[i - m]->value(time, 0.0).mean();
         xhat += x[i];
     }
 
@@ -1716,15 +1716,13 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
 
         TDoubleVec variances(m + n + 1, 0.0);
         if (m_UsingTrendForPrediction) {
-            variances[0] = common::CBasicStatistics::mean(m_Trend.variance(0.0));
+            variances[0] = m_Trend.variance(0.0).mean();
         }
         for (std::size_t i = 1; i <= m; ++i) {
-            variances[i] = common::CBasicStatistics::mean(
-                seasonalComponents[i - 1]->variance(time, 0.0));
+            variances[i] = seasonalComponents[i - 1]->variance(time, 0.0).mean();
         }
         for (std::size_t i = m + 1; i <= m + n; ++i) {
-            variances[i] = common::CBasicStatistics::mean(
-                calendarComponents[i - m - 1]->variance(time, 0.0));
+            variances[i] = calendarComponents[i - m - 1]->variance(time, 0.0).mean();
         }
         double variance{std::accumulate(variances.begin(), variances.end(), 0.0)};
         double expectedVarianceIncrease{1.0 / static_cast<double>(m + n + 1)};
@@ -1967,18 +1965,14 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
 
 double CTimeSeriesDecompositionDetail::CComponents::meanValue(core_t::TTime time) const {
     return this->initialized()
-               ? ((m_UsingTrendForPrediction
-                       ? common::CBasicStatistics::mean(m_Trend.value(time, 0.0))
-                       : 0.0) +
+               ? ((m_UsingTrendForPrediction ? m_Trend.value(time, 0.0).mean() : 0.0) +
                   meanOf(&CSeasonalComponent::meanValue, this->seasonal()))
                : 0.0;
 }
 
 double CTimeSeriesDecompositionDetail::CComponents::meanVariance() const {
     return this->initialized()
-               ? ((m_UsingTrendForPrediction
-                       ? common::CBasicStatistics::mean(this->trend().variance(0.0))
-                       : 0.0) +
+               ? ((m_UsingTrendForPrediction ? this->trend().variance(0.0).mean() : 0.0) +
                   meanOf(&CSeasonalComponent::meanVariance, this->seasonal()))
                : 0.0;
 }
@@ -2103,7 +2097,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
     for (std::size_t i = 0; i < initialValues.size(); ++i, time += dt) {
         if (common::CBasicStatistics::count(initialValues[i]) > 0.0) {
             common::CBasicStatistics::moment<0>(initialValues[i]) -=
-                common::CBasicStatistics::mean(m_Trend.value(time, 0.0));
+                m_Trend.value(time, 0.0).mean();
         }
     }
 
@@ -2619,7 +2613,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::componentsErrorsAnd
         for (int j{static_cast<int>(i - 1)}; j > -1; --j) {
             core_t::TTime period_{components[j]->time().period()};
             if (period % period_ == 0) {
-                double value{common::CBasicStatistics::mean(components[j]->value(time, 0.0)) -
+                double value{components[j]->value(time, 0.0).mean() -
                              components[j]->meanValue()};
                 double delta{0.1 * components[i]->delta(time, period_, value)};
                 deltas[j] += delta;
@@ -2636,8 +2630,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::appendPredictions(
     predictions.reserve(predictions.size() + m_Components.size());
     for (const auto& component : m_Components) {
         if (component.time().inWindow(time)) {
-            predictions.push_back(common::CBasicStatistics::mean(component.value(time, 0.0)) -
-                                  component.meanValue());
+            predictions.push_back(component.value(time, 0.0).mean() - component.meanValue());
         }
     }
 }
@@ -2924,8 +2917,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::appendPredictions(
     predictions.reserve(predictions.size() + m_Components.size());
     for (const auto& component : m_Components) {
         if (component.feature().inWindow(time)) {
-            predictions.push_back(common::CBasicStatistics::mean(component.value(time, 0.0)) -
-                                  component.meanValue());
+            predictions.push_back(component.value(time, 0.0).mean() - component.meanValue());
         }
     }
 }

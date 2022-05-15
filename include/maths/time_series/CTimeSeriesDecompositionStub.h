@@ -61,12 +61,10 @@ public:
     //! Returns 0.
     double meanValue(core_t::TTime time) const override;
 
-    //! Returns (0.0, 0.0).
-    maths_t::TDoubleDoublePr value(core_t::TTime time,
-                                   double confidence = 0.0,
-                                   int components = E_All,
-                                   const TBoolVec& removedSeasonalMask = {},
-                                   bool smooth = true) const override;
+    //! Returns zero vector.
+    TVector2x1 value(core_t::TTime time,
+                     double confidence = 0.0,
+                     bool isNonNegative = false) const override;
 
     //! Returns 0.
     core_t::TTime maximumForecastInterval() const override;
@@ -77,23 +75,21 @@ public:
                   core_t::TTime step,
                   double confidence,
                   double minimumScale,
+                  bool isNonNegative,
                   const TWriteForecastResult& writer) override;
 
     //! Returns \p value.
     double detrend(core_t::TTime time,
                    double value,
                    double confidence,
-                   core_t::TTime maximumTimeShift = 0,
-                   int components = E_All) const override;
+                   bool isNonNegative,
+                   core_t::TTime maximumTimeShift = 0) const override;
 
     //! Returns 0.0.
     double meanVariance() const override;
 
-    //! Returns (1.0, 1.0).
-    maths_t::TDoubleDoublePr varianceScaleWeight(core_t::TTime time,
-                                                 double variance,
-                                                 double confidence,
-                                                 bool smooth = true) const override;
+    //! Returns ones vector.
+    TVector2x1 varianceScaleWeight(core_t::TTime time, double variance, double confidence) const override;
 
     //! Returns 1.0.
     double countWeight(core_t::TTime time) const override;
@@ -102,7 +98,7 @@ public:
     double winsorisationDerate(core_t::TTime time) const override;
 
     //! Returns an empty vector.
-    TFloatMeanAccumulatorVec residuals() const override;
+    TFloatMeanAccumulatorVec residuals(bool isNonNegative) const override;
 
     //! No-op.
     void skipTime(core_t::TTime skipInterval) override;
