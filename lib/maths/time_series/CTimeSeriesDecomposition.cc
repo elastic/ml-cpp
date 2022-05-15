@@ -333,18 +333,21 @@ CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, bool isNo
 
 CTimeSeriesDecomposition::TFilteredPredictor
 CTimeSeriesDecomposition::predictor(int components) const {
+
     CTrendComponent::TPredictor trend_{m_Components.trend().predictor()};
+
     return [ components, trend = std::move(trend_),
              this ](core_t::TTime time, const TBoolVec& removedSeasonalMask) {
-        double baseline{0.0};
+
+        double result{0.0};
 
         time += m_TimeShift;
 
         if ((components & E_TrendForced) != 0) {
-            baseline += trend(time);
+            result += trend(time);
         } else if ((components & E_Trend) != 0) {
             if (m_Components.usingTrendForPrediction()) {
-                baseline += trend(time);
+                result += trend(time);
             }
         }
 
@@ -354,7 +357,7 @@ CTimeSeriesDecomposition::predictor(int components) const {
                 if (seasonal[i].initialized() &&
                     (removedSeasonalMask.empty() || removedSeasonalMask[i] == false) &&
                     seasonal[i].time().inWindow(time)) {
-                    baseline += seasonal[i].value(time, 0.0).mean();
+                    result += seasonal[i].value(time, 0.0).mean();
                 }
             }
         }
@@ -362,12 +365,12 @@ CTimeSeriesDecomposition::predictor(int components) const {
         if ((components & E_Calendar) != 0) {
             for (const auto& component : m_Components.calendar()) {
                 if (component.initialized() && component.feature().inWindow(time)) {
-                    baseline += component.value(time, 0.0).mean();
+                    result += component.value(time, 0.0).mean();
                 }
             }
         }
 
-        return baseline;
+        return result;
     };
 }
 
