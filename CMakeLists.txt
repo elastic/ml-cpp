@@ -68,6 +68,9 @@ function(gen_platform_srcs SRCS_LIST)
   set(PLATFORM_SRCS ${PLATFORM_SRCS} PARENT_SCOPE)
 endfunction()
 
+set(INSTALL_DEPENDS eigen licenses MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel MlSeccomp
+    MlTest MlVer autodetect categorize controller data_frame_analyzer normalize pytorch_inference)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(DYNAMIC_LIB_DIR controller.app/Contents/lib)
   set(IMPORT_LIB_DIR lib)
@@ -132,6 +135,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   install(FILES ${CMAKE_BINARY_DIR}/Info.plist DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT Distributed)
   install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/Resources COMPONENT Distributed)
 
+  list( APPEND INSTALL_DEPENDS plist )
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -275,7 +279,7 @@ install(TARGETS MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries Ml
     ${EXE_DIR})
 
 add_custom_target(install-distributed
-  DEPENDS eigen licenses plist MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel MlSeccomp MlTest MlVer autodetect categorize controller data_frame_analyzer normalize pytorch_inference
+    DEPENDS ${INSTALL_DEPENDS}
   COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=Distributed -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
 )
 
