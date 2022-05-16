@@ -81,7 +81,7 @@ using TSetWeightsFunc = void (*)(double, std::size_t, TDouble2VecWeightsAry&);
 const double MINIMUM_SEASONAL_SCALE{0.25};
 const double MINIMUM_SIGNIFICANT_CORRELATION{0.4};
 const double DECAY_RATE{0.0005};
-const std::size_t TAG{0u};
+const std::size_t TAG{0};
 
 //! \brief Implements the allocator for new correlate priors.
 class CTimeSeriesCorrelateModelAllocator
@@ -127,7 +127,7 @@ addSampleParams(double interval,
                 const TDouble2VecWeightsAryVec& trendWeights,
                 const TDouble2VecWeightsAryVec& residualWeights) {
     maths::common::CModelAddSamplesParams params;
-    params.integer(false)
+    params.isInteger(false)
         .propagationInterval(interval)
         .trendWeights(trendWeights)
         .priorWeights(residualWeights);
@@ -211,7 +211,7 @@ auto makeComponentDetectedCallback(double learnRate,
         }
 
         residualModel.setToNonInformative(0.0, residualModel.decayRate());
-        if (residuals.size() > 0) {
+        if (residuals.empty() == false) {
             maths_t::TDoubleWeightsAry1Vec weights(1);
             double buckets{
                 std::accumulate(residuals.begin(), residuals.end(), 0.0,
@@ -257,7 +257,7 @@ void reinitializeResidualModel(double learnRate,
     for (std::size_t d = 0; d < dimension; ++d) {
         residuals[d] = trends[d]->residuals(false);
     }
-    if (residuals.size() > 0) {
+    if (residuals.empty() == false) {
         TDouble10Vec1Vec samples;
         TDoubleVec weights;
         double time{0.0};
@@ -292,19 +292,18 @@ void reinitializeResidualModel(double learnRate,
     }
 }
 
-class CChangeDebug {
+class CDebug {
 public:
     static const bool ENABLED{false};
 
 public:
-    explicit CChangeDebug(std::string file = "results.py")
-        : m_File{std::move(file)} {
+    explicit CDebug(std::string file = "results.py") : m_File{std::move(file)} {
         if (ENABLED) {
             m_ModelBounds.resize(3);
             m_Forecast.resize(3);
         }
     }
-    ~CChangeDebug() {
+    ~CDebug() {
         if (ENABLED) {
             std::ofstream file;
             file.open(m_File);
@@ -1394,7 +1393,8 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                         for (std::size_t i = 0; i < weight.size(); ++i) {
                             weight_[i] = weight[i];
                         }
-                        double lb[2], ub[2];
+                        double lb[2];
+                        double ub[2];
                         model0.residualModel().probabilityOfLessLikelySamples(
                             calculation, {TDouble10Vec(sample)}, {weight_},
                             lb[0], ub[0], expectedTail[0]);
@@ -2032,7 +2032,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend,
             univariateNormal(DECAY_RATE / 3.0), &controllers};
-        CChangeDebug debug("prior_reinitialization.py");
+        CDebug debug("prior_reinitialization.py");
 
         core_t::TTime time{0};
         TDoubleVec samples;
@@ -2058,7 +2058,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend,
             univariateNormal(DECAY_RATE / 3.0), &controllers};
-        CChangeDebug debug("piecewise_constant.py");
+        CDebug debug("piecewise_constant.py");
 
         // Add some data to the model.
 
@@ -2128,7 +2128,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         auto controllers = decayRateControllers(1);
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend, univariateNormal(), &controllers};
-        CChangeDebug debug("saw_tooth.py");
+        CDebug debug("saw_tooth.py");
 
         // Add some data to the model.
 
@@ -2219,7 +2219,7 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
     auto controllers = decayRateControllers(1);
     maths::time_series::CUnivariateTimeSeriesModel model{
         modelParams(bucketLength), 0, trend, univariateNormal(DECAY_RATE / 3.0), &controllers};
-    CChangeDebug debug;
+    CDebug debug;
 
     core_t::TTime time{0};
     TDoubleVec samples;
@@ -2297,7 +2297,7 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
     auto controllers = decayRateControllers(1);
     maths::time_series::CUnivariateTimeSeriesModel model{
         modelParams(bucketLength), 0, trend, univariateNormal(DECAY_RATE / 3.0), &controllers};
-    CChangeDebug debug;
+    CDebug debug;
 
     core_t::TTime time{0};
     TDoubleVec samples;
@@ -2352,6 +2352,72 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.8 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
+}
+
+BOOST_AUTO_TEST_CASE(testNonNegative) {
+    // Test after a non-negative time series drops to zero we always predict
+    // high probability for zero values using the one-sided above calculation.
+
+    TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    auto updateModel = [&](core_t::TTime time, double value,
+                           maths::time_series::CUnivariateTimeSeriesModel& model) {
+        model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
+                           residualWeights[0]);
+        auto params = addSampleParams(1.0, trendWeights, residualWeights);
+        params.isNonNegative(true);
+        model.addSamples(params, {core::make_triple(time, TDouble2Vec{value}, TAG)});
+    };
+
+    test::CRandomNumbers rng;
+
+    core_t::TTime day{core::constants::DAY};
+    core_t::TTime week{core::constants::WEEK};
+
+    auto trend = [&](core_t::TTime time) {
+        return (time > 10 * day ? -2.0
+                                : std::max(15.0 - 0.5 * static_cast<double>(time) /
+                                                      static_cast<double>(day),
+                                           1.0)) +
+               std::sin(boost::math::double_constants::two_pi *
+                        static_cast<double>(time) / static_cast<double>(day));
+    };
+
+    core_t::TTime bucketLength{600};
+    maths::time_series::CTimeSeriesDecomposition trendModel{24.0 * DECAY_RATE, bucketLength};
+    auto controllers = decayRateControllers(1);
+    maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
+        modelParams(bucketLength), 0, trendModel,
+        univariateNormal(DECAY_RATE / 3.0), &controllers};
+    CDebug debug;
+
+    core_t::TTime time{0};
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, 0.1, 3 * week / bucketLength, noise);
+    TDouble2VecWeightsAry probabilityCalculationWeights{
+        maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+
+    double pMinAfterDrop{1.0};
+    for (auto sample : noise) {
+        sample = std::max(trend(time) + sample, 0.0);
+        updateModel(time, sample, timeSeriesModel);
+
+        if (time > 10 * day) {
+            maths::common::CModelProbabilityParams params;
+            params.addCalculation(maths_t::E_OneSidedAbove)
+                .seasonalConfidenceInterval(50.0)
+                .addWeights(probabilityCalculationWeights);
+            maths::common::SModelProbabilityResult result;
+            timeSeriesModel.probability(params, {{time}}, {{sample}}, result);
+            pMinAfterDrop = std::min(pMinAfterDrop, result.s_Probability);
+        }
+
+        debug.addValueAndPrediction(time, sample, timeSeriesModel);
+        time += bucketLength;
+    }
+
+    LOG_DEBUG(<< "pMinAfterDrop = " << pMinAfterDrop);
+    BOOST_TEST_REQUIRE(pMinAfterDrop > 0.3);
 }
 
 BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {

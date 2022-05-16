@@ -1005,7 +1005,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
                                       lastWeekTimeseries[j].second - prediction(1)),
                              0.0);
                 debug.addPrediction(lastWeekTimeseries[j].first, prediction.mean(), residual);
-                    }
+            }
 
             LOG_TRACE(<< "'sum residual' / 'sum value' = "
                       << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
@@ -1133,7 +1133,7 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
                                       lastWeekTimeseries[j].second - prediction(1)),
                              0.0);
                 debug.addPrediction(lastWeekTimeseries[j].first, prediction.mean(), residual);
-                    }
+            }
 
             LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
             LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
@@ -1232,7 +1232,7 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
                                       lastWeekTimeseries[j].second - prediction(1)),
                              0.0);
                 debug.addPrediction(lastWeekTimeseries[j].first, prediction.mean(), residual);
-                    }
+            }
 
             LOG_DEBUG(<< "'sum residual' / 'sum value' = "
                       << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
@@ -1435,7 +1435,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
     LOG_DEBUG(<< "Saw Tooth Not Periodic");
     {
         core_t::TTime drops[]{0,        30 * DAY,  50 * DAY,  60 * DAY,
-                       85 * DAY, 100 * DAY, 115 * DAY, 120 * DAY};
+                              85 * DAY, 100 * DAY, 115 * DAY, 120 * DAY};
 
         times.clear();
         trend.clear();
@@ -2284,7 +2284,7 @@ BOOST_FIXTURE_TEST_CASE(testFastAndSlowSeasonality, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testNonNegative, CTestFixture) {
 
-    // Test if we state the tie series is non-negative then we never predict
+    // Test if we specify the time series is non-negative then we never predict
     // a negative value for it.
 
     test::CRandomNumbers rng;

@@ -593,16 +593,15 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(
     const TDecayRateController2Ary* controllers,
     const TMultibucketFeature* multibucketFeature,
     bool modelAnomalies)
-    : common::CModel(params), m_Id(id), m_IsNonNegative(false), m_IsForecastable(true),
-      m_TrendModel(trendModel.clone()), m_ResidualModel(residualModel.clone()),
+    : common::CModel(params), m_Id(id), m_TrendModel(trendModel.clone()),
+      m_ResidualModel(residualModel.clone()),
       m_MultibucketFeature(multibucketFeature != nullptr ? multibucketFeature->clone()
                                                          : nullptr),
       m_MultibucketFeatureModel(multibucketFeature != nullptr ? residualModel.clone() : nullptr),
       m_AnomalyModel(modelAnomalies ? std::make_unique<CTimeSeriesAnomalyModel>(
                                           params.bucketLength(),
                                           params.decayRate())
-                                    : nullptr),
-      m_Correlations(nullptr) {
+                                    : nullptr) {
     if (controllers != nullptr) {
         m_Controllers = std::make_unique<TDecayRateController2Ary>(*controllers);
     }
@@ -610,8 +609,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(
 
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const common::SModelRestoreParams& params,
                                                        core::CStateRestoreTraverser& traverser)
-    : common::CModel(params.s_Params), m_IsForecastable(false),
-      m_Correlations(nullptr) {
+    : common::CModel(params.s_Params), m_IsForecastable(false) {
     if (traverser.traverseSubLevel([&](auto& traverser_) {
             return this->acceptRestoreTraverser(params, traverser_);
         }) == false) {
@@ -1410,8 +1408,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
                                     : nullptr),
       m_AnomalyModel(!isForForecast && other.m_AnomalyModel != nullptr
                          ? std::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
-                         : nullptr),
-      m_Correlations(nullptr) {
+                         : nullptr) {
     if (!isForForecast && other.m_Controllers != nullptr) {
         m_Controllers = std::make_unique<TDecayRateController2Ary>(*other.m_Controllers);
     }
@@ -2128,8 +2125,7 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(
     const TDecayRateController2Ary* controllers,
     const TMultibucketFeature* multibucketFeature,
     bool modelAnomalies)
-    : common::CModel(params), m_IsNonNegative(false),
-      m_ResidualModel(residualModel.clone()),
+    : common::CModel(params), m_ResidualModel(residualModel.clone()),
       m_MultibucketFeature(multibucketFeature != nullptr ? multibucketFeature->clone()
                                                          : nullptr),
       m_MultibucketFeatureModel(multibucketFeature != nullptr ? residualModel.clone() : nullptr),
