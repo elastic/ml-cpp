@@ -23,11 +23,9 @@
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CNormalMeanPrecConjugate.h>
 #include <maths/common/CRestoreParams.h>
-#include <maths/common/Constants.h>
 #include <maths/common/MathsTypes.h>
 
 #include <maths/time_series/CDecayRateController.h>
-#include <maths/time_series/CSeasonalTime.h>
 #include <maths/time_series/CTimeSeriesDecomposition.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -1007,7 +1005,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
                                       lastWeekTimeseries[j].second - prediction(1)),
                              0.0);
                 debug.addPrediction(lastWeekTimeseries[j].first, prediction.mean(), residual);
-            }
+                    }
 
             LOG_TRACE(<< "'sum residual' / 'sum value' = "
                       << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
@@ -1135,7 +1133,7 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
                                       lastWeekTimeseries[j].second - prediction(1)),
                              0.0);
                 debug.addPrediction(lastWeekTimeseries[j].first, prediction.mean(), residual);
-            }
+                    }
 
             LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
             LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
@@ -1234,7 +1232,7 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
                                       lastWeekTimeseries[j].second - prediction(1)),
                              0.0);
                 debug.addPrediction(lastWeekTimeseries[j].first, prediction.mean(), residual);
-            }
+                    }
 
             LOG_DEBUG(<< "'sum residual' / 'sum value' = "
                       << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
@@ -1437,7 +1435,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
     LOG_DEBUG(<< "Saw Tooth Not Periodic");
     {
         core_t::TTime drops[]{0,        30 * DAY,  50 * DAY,  60 * DAY,
-                              85 * DAY, 100 * DAY, 115 * DAY, 120 * DAY};
+                       85 * DAY, 100 * DAY, 115 * DAY, 120 * DAY};
 
         times.clear();
         trend.clear();
@@ -2228,7 +2226,8 @@ BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testFastAndSlowSeasonality, CTestFixture) {
 
-    // Test we have good modelling of the fast component after detecting a slow periodic component.
+    // Test we have good modelling of the fast component after detecting a slow
+    // periodic component.
 
     test::CRandomNumbers rng;
 
@@ -2281,6 +2280,48 @@ BOOST_FIXTURE_TEST_CASE(testFastAndSlowSeasonality, CTestFixture) {
 
     // We should be modelling both seasonalities.
     BOOST_TEST_REQUIRE(2, decomposition.seasonalComponents().size());
+}
+
+BOOST_FIXTURE_TEST_CASE(testNonNegative, CTestFixture) {
+
+    // Test if we state the tie series is non-negative then we never predict
+    // a negative value for it.
+
+    test::CRandomNumbers rng;
+
+    auto trend = [](core_t::TTime time) {
+        return std::max(15.0 - 0.5 * static_cast<double>(time) / static_cast<double>(DAY), 1.0) +
+               std::sin(boost::math::double_constants::two_pi *
+                        static_cast<double>(time) / static_cast<double>(DAY));
+    };
+
+    maths::time_series::CTimeSeriesDecomposition decomposition(0.012, FIVE_MINS);
+    CDebugGenerator debug;
+
+    TMeanAccumulator meanError;
+
+    TDoubleVec noise;
+    for (core_t::TTime time = 0; time < 6 * WEEK; time += FIVE_MINS) {
+        rng.generateNormalSamples(0.0, 0.1, 1, noise);
+
+        decomposition.addPoint(time, trend(time) + noise[0]);
+        debug.addValue(time, trend(time) + noise[0]);
+
+        auto prediction = decomposition.value(time, 0.0, true);
+        BOOST_TEST_REQUIRE(prediction(0) >= 0.0);
+        BOOST_TEST_REQUIRE(prediction(1) >= 0.0);
+        debug.addPrediction(time, prediction.mean(),
+                            trend(time) + noise[0] - prediction.mean());
+
+        if (time > 4 * DAY && trend(time) > 1.0) {
+            double error{(std::fabs(decomposition.detrend(time, trend(time), 0.0, true, FIVE_MINS))) /
+                         std::fabs(trend(time))};
+            BOOST_TEST_REQUIRE(error < 0.8);
+            meanError.add(error);
+        }
+    }
+
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanError) < 0.1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {

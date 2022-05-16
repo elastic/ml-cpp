@@ -240,11 +240,7 @@ private:
                                 core::CStateRestoreTraverser& traverser);
 
     //! Get the predicted value of the time series at \p time.
-    TVector2x1 value(core_t::TTime time,
-                     double confidence,
-                     int components,
-                     const TBoolVec& removedSeasonalMask = {},
-                     bool smooth = true) const;
+    TVector2x1 value(core_t::TTime time, double confidence, int components, bool smooth = true) const;
 
     //! Compute the variance scale weight to apply at \p time.
     TVector2x1
@@ -253,7 +249,8 @@ private:
     //! The correction to produce a smooth join between periodic
     //! repeats and partitions.
     template<typename F>
-    TVector2x1 smooth(const F& f, core_t::TTime time, int components) const;
+    auto smooth(const F& f, core_t::TTime time, int components) const
+        -> decltype(f(time));
 
 private:
     //! The time over which discontinuities between weekdays

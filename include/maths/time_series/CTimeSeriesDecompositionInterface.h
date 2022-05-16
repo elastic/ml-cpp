@@ -45,7 +45,6 @@ class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionTypes {
 public:
     using TBoolVec = std::vector<bool>;
     using TPredictor = std::function<double(core_t::TTime)>;
-    using TFilteredPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;

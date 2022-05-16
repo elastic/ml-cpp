@@ -226,10 +226,17 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     m_LastValueTime = std::max(m_LastValueTime, time);
     this->propagateForwardsTo(time);
 
-    auto testForSeasonality = m_Components.makeTestForSeasonality(
-        [this](core_t::TTime time_, const TBoolVec& removedSeasonalMask) {
-            return this->value(time_, 0.0, E_Seasonal, removedSeasonalMask).mean();
-        });
+    auto testForSeasonality = m_Components.makeTestForSeasonality([this]() {
+        return [ predictor = this->predictor(E_Seasonal),
+                 this ](core_t::TTime time_, const TBoolVec& removedSeasonalMask) {
+            return predictor(time_, removedSeasonalMask) +
+                   this->smooth(
+                       [&](core_t::TTime shiftedTime) {
+                           return predictor(shiftedTime - m_TimeShift, removedSeasonalMask);
+                       },
+                       time_ + m_TimeShift, E_Seasonal);
+        };
+    });
 
     SAddValue message{time,
                       lastTime,
@@ -241,8 +248,8 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       this->value(time, 0.0, E_Calendar).mean(),
                       *this,
                       [this] {
-                          auto predictor_ = this->predictor(E_All | E_TrendForced);
-                          return [predictor = std::move(predictor_)](core_t::TTime time_) {
+                          return [predictor = this->predictor(E_All | E_TrendForced)](
+                              core_t::TTime time_) {
                               return predictor(time_, {});
                           };
                       },
@@ -277,11 +284,8 @@ double CTimeSeriesDecomposition::meanValue(core_t::TTime time) const {
 }
 
 CTimeSeriesDecomposition::TVector2x1
-CTimeSeriesDecomposition::value(core_t::TTime time,
-                                double confidence,
-                                int components,
-                                const TBoolVec& removedSeasonalMask,
-                                bool smooth) const {
+CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, int components, bool smooth) const {
+
     TVector2x1 result{0.0};
 
     time += m_TimeShift;
@@ -295,12 +299,9 @@ CTimeSeriesDecomposition::value(core_t::TTime time,
     }
 
     if ((components & E_Seasonal) != 0) {
-        const auto& seasonal = m_Components.seasonal();
-        for (std::size_t i = 0; i < seasonal.size(); ++i) {
-            if (seasonal[i].initialized() &&
-                (removedSeasonalMask.empty() || removedSeasonalMask[i] == false) &&
-                seasonal[i].time().inWindow(time)) {
-                result += seasonal[i].value(time, confidence);
+        for (const auto& component : m_Components.seasonal()) {
+            if (component.initialized() && component.time().inWindow(time)) {
+                result += component.value(time, confidence);
             }
         }
     }
@@ -317,7 +318,7 @@ CTimeSeriesDecomposition::value(core_t::TTime time,
         result += this->smooth(
             [&](core_t::TTime time_) {
                 return this->value(time_ - m_TimeShift, confidence,
-                                   components & E_Seasonal, removedSeasonalMask, false);
+                                   components & E_Seasonal, false);
             },
             time, components);
     }
@@ -612,15 +613,18 @@ void CTimeSeriesDecomposition::initializeMediator() {
 }
 
 template<typename F>
-CTimeSeriesDecomposition::TVector2x1
-CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components) const {
+auto CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components) const
+    -> decltype(f(time)) {
+
+    using TResultType = decltype(f(time));
+
     if ((components & E_Seasonal) != E_Seasonal) {
-        return TVector2x1{0.0};
+        return TResultType{0.0};
     }
 
     auto offset = [&f, time](core_t::TTime discontinuity) {
-        TVector2x1 baselineMinusEps{f(discontinuity - 1)};
-        TVector2x1 baselinePlusEps{f(discontinuity + 1)};
+        auto baselineMinusEps = f(discontinuity - 1);
+        auto baselinePlusEps = f(discontinuity + 1);
         return 0.5 *
                std::max((1.0 - static_cast<double>(std::abs(time - discontinuity)) /
                                    static_cast<double>(SMOOTHING_INTERVAL)),
@@ -650,7 +654,7 @@ CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components)
         }
     }
 
-    return TVector2x1{0.0};
+    return TResultType{0.0};
 }
 
 const core_t::TTime CTimeSeriesDecomposition::SMOOTHING_INTERVAL{14400};

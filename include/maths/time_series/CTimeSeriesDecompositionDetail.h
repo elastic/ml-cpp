@@ -52,6 +52,7 @@ class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionDetail
 public:
     using TDoubleVec = std::vector<double>;
     using TMakePredictor = std::function<TPredictor()>;
+    using TFilteredPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;
     using TMakeFilteredPredictor = std::function<TFilteredPredictor()>;
     using TChangePointUPtr = std::unique_ptr<CChangePoint>;
 
@@ -586,7 +587,8 @@ public:
         void useTrendForPrediction();
 
         //! Get a factory for the seasonal components test.
-        TMakeTestForSeasonality makeTestForSeasonality(const TFilteredPredictor& predictor) const;
+        TMakeTestForSeasonality
+        makeTestForSeasonality(const TMakeFilteredPredictor& makePredictor) const;
 
         //! Get the mean value of the baseline in the vicinity of \p time.
         double meanValue(core_t::TTime time) const;

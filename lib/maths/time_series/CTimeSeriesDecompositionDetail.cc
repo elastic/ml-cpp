@@ -1927,10 +1927,11 @@ void CTimeSeriesDecompositionDetail::CComponents::useTrendForPrediction() {
 }
 
 CTimeSeriesDecompositionDetail::TMakeTestForSeasonality
-CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilteredPredictor& predictor) const {
-    return [predictor, this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
-                             std::size_t minimumResolutionToTestModelledComponent,
-                             const TFilteredPredictor& preconditioner) {
+CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(
+    const TMakeFilteredPredictor& makePredictor) const {
+    return [makePredictor, this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
+                                 std::size_t minimumResolutionToTestModelledComponent,
+                                 const TFilteredPredictor& preconditioner) {
         core_t::TTime valuesStartTime{window.beginValuesTime()};
         core_t::TTime windowBucketStartTime{window.bucketStartTime()};
         core_t::TTime windowBucketLength{window.bucketLength()};
@@ -1950,7 +1951,7 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
         test.minimumPeriod(minimumPeriod)
             .minimumModelSize(2 * m_SeasonalComponentSize / 3)
             .maximumModelSize(2 * m_SeasonalComponentSize)
-            .modelledSeasonalityPredictor(predictor);
+            .modelledSeasonalityPredictor(makePredictor());
         std::ptrdiff_t maximumNumberComponents{MAXIMUM_COMPONENTS};
         for (const auto& component : this->seasonal()) {
             test.addModelledSeasonality(component.time(), minimumResolutionToTestModelledComponent,
