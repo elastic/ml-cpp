@@ -28,19 +28,14 @@
 
 //=== Regressions
 
-== {es} version 7.17.5
-
-=== Bug Fixes
-
-* Fix cause of "Must provide points at which to evaluate function" log error training
-  classification and regression models. (See {ml-pull}2268[#2268].)
-
 == {es} version 7.17.4
 
 === Bug Fixes
 
 * Fix edge case which could cause the model bounds to blow up after detecting seasonality.
   (See {ml-pull}2261[#2261].)
+* Fix cause of "Must provide points at which to evaluate function" log error training
+  classification and regression models. (See {ml-pull}2268[#2268].)
 
 == {es} version 7.17.1
 
