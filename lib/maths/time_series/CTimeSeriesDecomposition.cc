@@ -226,8 +226,9 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     m_LastValueTime = std::max(m_LastValueTime, time);
     this->propagateForwardsTo(time);
 
-    auto testForSeasonality = m_Components.makeTestForSeasonality([this]() {
-        return [ predictor = this->predictor(E_Seasonal),
+    auto testForSeasonality = m_Components.makeTestForSeasonality([this] {
+        auto predictor_ = this->predictor(E_Seasonal);
+        return [ predictor = std::move(predictor_),
                  this ](core_t::TTime time_, const TBoolVec& removedSeasonalMask) {
             return predictor(time_, removedSeasonalMask) +
                    this->smooth(
@@ -248,8 +249,8 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       this->value(time, 0.0, E_Calendar).mean(),
                       *this,
                       [this] {
-                          return [predictor = this->predictor(E_All | E_TrendForced)](
-                              core_t::TTime time_) {
+                          auto predictor_ = this->predictor(E_All | E_TrendForced);
+                          return [predictor = std::move(predictor_)](core_t::TTime time_) {
                               return predictor(time_, {});
                           };
                       },
