@@ -23,6 +23,7 @@ BOOST_AUTO_TEST_CASE(testProgName) {
     LOG_DEBUG(<< "Current program name is " << progName);
 
     // allow for different naming scheme to support cmake builds
+    // TODO Once we've cut over to CMake make this unconditional
     ml::core::CRegex expectedNameRegex;
     BOOST_TEST_REQUIRE(expectedNameRegex.init("ml_test(_core)?"));
     BOOST_TEST_REQUIRE(expectedNameRegex.matches(progName));
@@ -34,7 +35,7 @@ BOOST_AUTO_TEST_CASE(testProgDir) {
     LOG_DEBUG(<< "Current program directory is " << progDir);
 
     ml::core::CRegex expectedPathRegex;
-    BOOST_TEST_REQUIRE(expectedPathRegex.init(".+[\\\\/]lib[\\\\/]core[\\\\/]unittest.*"));
+    BOOST_TEST_REQUIRE(expectedPathRegex.init(".+[\\\\/]lib[\\\\/]core[\\\\/]unittest$"));
     BOOST_TEST_REQUIRE(expectedPathRegex.matches(progDir));
 
     // Confirm we've stripped any extended length indicator on Windows

@@ -60,4 +60,3 @@ CBuildInfo.cc
 )
 
 add_library(MlVer STATIC ${SRCS})
-target_link_libraries(MlVer ${Boost_LIBRARIES})

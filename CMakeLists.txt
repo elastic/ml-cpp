@@ -39,8 +39,6 @@ endif()
 
 set(SNAPSHOT yes)
 
-set(CMAKE_INSTALL_PREFIX "$ENV{CMAKE_INSTALL_PREFIX}")
-message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
 execute_process(COMMAND awk -F= "/elasticsearchVersion/ {gsub(/-.*/,\"\"); print $2}" $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE ML_VERSION_NUM)
 string(STRIP "${ML_VERSION_NUM}" ML_VERSION_NUM)
@@ -72,6 +70,12 @@ set(INSTALL_DEPENDS eigen licenses MlApi MlCore MlMathsAnalytics MlMathsCommon M
     MlTest MlVer autodetect categorize controller data_frame_analyzer normalize pytorch_inference)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
+  if(NOT DEFINED ENV{CMAKE_INSTALL_PREFIX})
+    set(CMAKE_INSTALL_PREFIX $ENV{CPP_PLATFORM_HOME}/controller.app/Contents/)
+  endif()
+  message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
+
   set(DYNAMIC_LIB_DIR controller.app/Contents/lib)
   set(IMPORT_LIB_DIR lib)
 
@@ -140,6 +144,12 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(STATUS "Linux detected")
+
+  if(NOT DEFINED ENV{CMAKE_INSTALL_PREFIX})
+    set(CMAKE_INSTALL_PREFIX $ENV{CPP_PLATFORM_HOME})
+  endif()
+  message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
+
   set(DYNAMIC_LIB_DIR lib)
   set(IMPORT_LIB_DIR lib)
   # linux flags
@@ -171,14 +181,12 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(PLATFORM_NAME "Linux")
   add_compile_definitions(Linux)
 
-  set(LIBXML2_HINTS /usr/local/gcc103)
-
   # Hardcode paths to avoid any confusion
-  set(TORCH_INC "/usr/local/gcc103/include/pytorch")
-  set(TORCH_LIB "/usr/local/gcc103/lib/libtorch_cpu.so")
-  set(C10_LIB   "/usr/local/gcc103/lib/libc10.so")
+  set(TORCH_INC "${SYSROOT}/usr/local/gcc103/include/pytorch")
+  set(TORCH_LIB "${SYSROOT}/usr/local/gcc103/lib/libtorch_cpu.so")
+  set(C10_LIB   "${SYSROOT}/usr/local/gcc103/lib/libc10.so")
+  set(LIBXML2_LIBRARIES "${SYSROOT}/usr/local/gcc103/lib/libxml2.so")
   set(ZLIB_LIBRARIES "-lz")
-  set(LIBXML2_LIBRARIES "-lxml2")
 
   include_directories(SYSTEM ${SYSROOT}/usr/include)
   include_directories(SYSTEM ${SYSROOT}/usr/local/include)
@@ -189,14 +197,10 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
-  message(STATUS "VCVER $ENV{VCVER}")
-  STRING(REGEX MATCH "^([0-9]+)\\.([0-9]+)\\.([0-9]+)" VCVER_REGEX_MATCH  $ENV{VCVER})
-  set(VCVER_MAJOR ${CMAKE_MATCH_1})
-  set(VCVER_MINOR ${CMAKE_MATCH_2})
-
-  string(CONCAT BOOST_VCVER "vc" ${VCVER_MAJOR} ${VCVER_MINOR} )
-  string(SUBSTRING ${BOOST_VCVER} 0 5 BOOST_VCVER)
-  message(STATUS "BOOST_VCVER ${BOOST_VCVER}")
+  if(NOT DEFINED ENV{CMAKE_INSTALL_PREFIX})
+    set(CMAKE_INSTALL_PREFIX $ENV{CPP_PLATFORM_HOME})
+  endif()
+  message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
   set(DYNAMIC_LIB_DIR bin)
   set(IMPORT_LIB_DIR lib)
@@ -225,29 +229,25 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(PLATFORM_NAME "Windows")
 
   # Hardcode paths to avoid any confusion
-  set(LOCAL_DRIVE "$ENV{LOCAL_DRIVE}:")
-  message(STATUS "LOCAL_DRIVE ${LOCAL_DRIVE}")
-  set(TORCH_INC "${LOCAL_DRIVE}/usr/local/include/pytorch")
-  set(TORCH_LIB "${LOCAL_DRIVE}/usr/local/lib/torch_cpu.lib")
-  set(C10_LIB "${LOCAL_DRIVE}/usr/local/lib/c10.lib")
-  set(STRPTIME_LIB "${LOCAL_DRIVE}/usr/local/lib/strptime.lib")
-  set(ZLIB_LIBRARIES "${LOCAL_DRIVE}/usr/local/lib/zlib.lib")
-  set(LIBXML2_LIBRARIES "${LOCAL_DRIVE}/usr/local/lib/libxml2.lib")
+  set(TORCH_INC "/usr/local/include/pytorch")
+  set(TORCH_LIB "/usr/local/lib/torch_cpu.lib")
+  set(C10_LIB "/usr/local/lib/c10.lib")
+  set(STRPTIME_LIB "/usr/local/lib/strptime.lib")
+  set(ZLIB_LIBRARIES "/usr/local/lib/zlib.lib")
+  set(LIBXML2_LIBRARIES "/usr/local/lib/libxml2.lib")
 
-  include_directories(SYSTEM "${LOCAL_DRIVE}/usr/local/include")
-  include_directories(SYSTEM "${LOCAL_DRIVE}/usr/local/include/libxml2")
+  include_directories(SYSTEM "/usr/local/include")
+  include_directories(SYSTEM "/usr/local/include/libxml2")
 
-  set(Boost_USE_DEBUG_LIBS OFF)
   set(Boost_USE_RELEASE_LIBS ON)
-  set(Boost_USE_MULTITHREADED ON)
   set(Boost_USE_STATIC_LIBS OFF)
-  set(Boost_USE_STATIC_RUNTIME OFF)
   set(Boost_USE_DEBUG_RUNTIME OFF)
-  set(Boost_COMPILER ${BOOST_VCVER})
-  set(Boost_DEBUG OFF)
+  set(Boost_COMPILER vc142})
 
   add_compile_definitions(BOOST_ALL_NO_LIB BOOST_ALL_DYN_LINK)
 endif()
+
+message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
 include_directories(SYSTEM ${TORCH_INC})
 
@@ -269,6 +269,8 @@ if(Boost_FOUND)
     include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 endif()
 
+message(STATUS ${Boost_LIBRARIES})
+
 add_subdirectory(3rd_party)
 
 add_subdirectory(lib)
@@ -279,7 +281,7 @@ install(TARGETS MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries Ml
     ${EXE_DIR})
 
 add_custom_target(install-distributed
-    DEPENDS ${INSTALL_DEPENDS}
+  DEPENDS ${INSTALL_DEPENDS}
   COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=Distributed -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
 )
 

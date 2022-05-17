@@ -26,14 +26,13 @@ fi
 MY_DIR=`dirname "$BASH_SOURCE"`
 export CPP_SRC_HOME=`cd "$MY_DIR" && pwd`
 
+echo CMAKE_TOOLCHAIN_FILE $CMAKE_TOOLCHAIN_FILE
 # Platform
 case `uname` in
 
     Darwin)
         SIMPLE_PLATFORM=macos
         BUNDLE_PLATFORM=darwin-`uname -m | sed 's/arm64/aarch64/'`
-        export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/"
-        export CMAKE_GENERATOR='Unix Makefiles'
         ;;
 
     Linux)
@@ -41,28 +40,18 @@ case `uname` in
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
             BUNDLE_PLATFORM=linux-`uname -m`
             export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
-            export CMAKE_GENERATOR='Unix Makefiles'
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             BUNDLE_PLATFORM=darwin-x86_64
-            export CMAKE_GENERATOR='Unix Makefiles'
-            export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM/controller.app/Contents/"
-            export CMAKE_TOOLCHAIN_FILE="tc-darwin.cmake"
-            export CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE"
+            echo $BUNDLE_PLATFORM
         else
             BUNDLE_PLATFORM=linux-$CPP_CROSS_COMPILE
             CMAKE_GENERATOR='Unix Makefiles'
-            export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
-            export CMAKE_TOOLCHAIN_FILE="tc-linux-aarch64.cmake"
-            export CMAKE_FLAGS="-DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE"
         fi
         ;;
 
     MINGW*)
         SIMPLE_PLATFORM=windows
         BUNDLE_PLATFORM=windows-x86_64
-        export CMAKE_GENERATOR='MinGW Makefiles'
-        export LOCAL_DRIVE=${LOCAL_DRIVE:-"c"}
-        export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
         ;;
 
     *)
@@ -88,23 +77,6 @@ fi
 
 # Compiler
 unset COMPILER_PATH
-if [ "$SIMPLE_PLATFORM" = "windows" ] ; then
-    # We have to use 8.3 names for directories with spaces in the names, as some
-    # tools won't quote paths with spaces correctly
-    VCBASE=`(cd $ROOT && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2019/Professional")`
-    WINSDKBASE=`(cd $ROOT && cygpath -m -s "Program Files (x86)/Windows Kits")`
-    PFX86_DIR=`cd $ROOT && cygpath -m -s "Program Files (x86)"`
-    MSVC_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Microsoft Visual Studio"`
-    WIN_KITS_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Windows Kits"`
-    VCVER=`/bin/ls -1 $ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/VC/Tools/MSVC | tail -1`
-    UCRTVER=`/bin/ls -1 $ROOT/$WINSDKBASE/10/Include | tail -1`
-    # NB: Some SDK tools are 32 bit only, hence the 64 bit SDK bin directory
-    #     is followed by the 32 bit SDK bin directory
-    COMPILER_PATH=$ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:$ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/Common7/IDE:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x64:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x86
-    export INCLUDE=$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/atlmfc/include:$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/include:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/ucrt:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/shared:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/um:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/winrt:$ROOT/$WINSDKBASE/10/Include/$UCRTVER/cppwinrt
-    export LIB=$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/atlmfc/lib/x64:$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/lib/x64:$ROOT/$WINSDKBASE/10/Lib/$UCRTVER/ucrt/x64:$ROOT/$WINSDKBASE/10/Lib/$UCRTVER/um/x64
-    export LIBPATH=$PATH:$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/atlmfc/lib/x64:$ROOT/$VCBASE/VC/Tools/MSVC/$VCVER/lib/x64:$ROOT/$VCBASE/VC/Tools/MSVC/VCVER/lib/x86/store/REFERE~1:$ROOT/$WINSDKBASE/10/UNIONM~1/$UCRTVER:$ROOT/$WINSDKBASE/10/REFERE~1/$UCRTVER:$ROOT/Windows/MICROS~1.NET/FRAMEW~2/V40~1.303
-fi
 
 # Git
 unset GIT_HOME
@@ -116,7 +88,7 @@ fi
 case $SIMPLE_PLATFORM in
 
     linux)
-        PATH=/usr/local/gcc103/bin:/usr/bin:/bin:/usr/local/gcc103/sbin:/usr/sbin:/sbin:/usr/local/bin:/usr/local/cmake/bin
+        PATH=/usr/local/gcc103/bin:/usr/bin:/bin:/usr/local/gcc103/sbin:/usr/sbin:/sbin:/usr/local/bin
         ;;
 
     macos)

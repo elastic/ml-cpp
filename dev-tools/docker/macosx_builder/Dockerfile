@@ -20,6 +20,8 @@ COPY . /ml-cpp/
 # Tell the build we want to cross compile
 ENV CPP_CROSS_COMPILE macosx
 
+ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/tc-darwin.cmake
+
 # Pass through any version qualifier (default none)
 ARG VERSION_QUALIFIER=
 

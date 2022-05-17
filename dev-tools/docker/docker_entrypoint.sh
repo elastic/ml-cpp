@@ -29,10 +29,10 @@ cd "$MY_DIR/../.."
 
 rm -rf cmake_build
 # Configure the build
-cmake -B cmake_build -G "$CMAKE_GENERATOR" $CMAKE_FLAGS
+cmake -B cmake_build ${CMAKE_FLAGS}
 
 # Build the code
-cmake --build cmake_build -j`nproc` -t install-distributed
+cmake --build cmake_build -j`nproc` -v -t install-distributed
 
 # Strip the binaries
 dev-tools/strip_binaries.sh

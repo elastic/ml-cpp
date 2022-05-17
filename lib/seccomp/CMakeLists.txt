@@ -21,4 +21,3 @@ set(SRCS
 )
 
 add_library(MlSeccomp STATIC ${SRCS} ${PLATFORM_SRCS})
-target_link_libraries(MlSeccomp ${Boost_LIBRARIES})
