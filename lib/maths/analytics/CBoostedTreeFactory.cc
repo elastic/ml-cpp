@@ -191,27 +191,12 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
             for (auto& hyperparameterLoss : *m_HyperparametersLosses) {
                 auto parameters = hyperparameterLoss.first.selectParametersVector(
                     m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
-                // LOG_DEBUG(<< "Tunable parameters vector size " << parameters.rows() << " " << parameters.cols());
                 m_TreeImpl->m_Hyperparameters.addObservation(
                     parameters, hyperparameterLoss.second, 0.0);
             }
-            if (m_TreeImpl->m_Hyperparameters.stopEarly()) {
-                auto minTuple = std::min_element(m_HyperparametersLosses->begin(),
-                                                 m_HyperparametersLosses->end(),
-                                                 [](const auto& lhs, const auto& rhs) {
-                                                     return lhs.second < rhs.second;
-                                                 });
-                auto parameters = (*minTuple).first.selectParametersVector(
-                    m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
-                m_TreeImpl->m_Hyperparameters.storeHyperparameters(parameters);
-                LOG_DEBUG(<< "Best hyperparameters " << parameters.transpose());
-                using TMeanVarAccumulator =
-                    common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-                TMeanVarAccumulator lossMoments;
-                lossMoments.add((*minTuple).second);
-                m_TreeImpl->m_Hyperparameters.captureBest(
-                    lossMoments, 0.0, 0.0, 0.0,
-                    m_TreeImpl->m_Hyperparameters.maximumNumberTrees().value());
+
+            if (m_TreeImpl->m_Hyperparameters.stopEarly() == false) {
+                m_TreeImpl->m_Hyperparameters.resetSearch();
             }
             m_TreeImpl->m_Hyperparameters.clearObservations();
         }
@@ -786,14 +771,25 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     // initialize unset regularization hyperparameters with meaningful values
     if (hyperparameters.earlyStoppingEnabled()) {
-        if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed() == false) {
-            auto initValue = hyperparameters.treeSizePenaltyMultiplier().fromSearchValue(hyperparameters.treeSizePenaltyMultiplier().toSearchValue(m_GainPerNode90thPercentile) 
-            - hyperparameters.treeSizePenaltyMultiplier().toSearchValue(2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile));
+        if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed() == false &&
+            hyperparameters.treeSizePenaltyMultiplier().value() == 0.0) {
+            double maxValue{hyperparameters.treeSizePenaltyMultiplier().toSearchValue(
+                m_GainPerNode90thPercentile)};
+            double interval{hyperparameters.treeSizePenaltyMultiplier().toSearchValue(
+                2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile)};
+            double minValue{maxValue - interval};
+            auto initValue =
+                hyperparameters.treeSizePenaltyMultiplier().fromSearchValue(minValue);
             hyperparameters.treeSizePenaltyMultiplier().set(initValue);
         }
-        if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed() == false) {
-            auto initValue = hyperparameters.leafWeightPenaltyMultiplier().fromSearchValue(hyperparameters.leafWeightPenaltyMultiplier().toSearchValue(m_TotalCurvaturePerNode90thPercentile) 
-            - hyperparameters.leafWeightPenaltyMultiplier().toSearchValue(2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile));
+        if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed() == false &&
+            hyperparameters.leafWeightPenaltyMultiplier().value() == 0.0) {
+            auto initValue = hyperparameters.leafWeightPenaltyMultiplier().fromSearchValue(
+                hyperparameters.leafWeightPenaltyMultiplier().toSearchValue(
+                    m_TotalCurvaturePerNode90thPercentile) -
+                hyperparameters.leafWeightPenaltyMultiplier().toSearchValue(
+                    2.0 * m_TotalCurvaturePerNode90thPercentile /
+                    m_TotalCurvaturePerNode1stPercentile));
             hyperparameters.leafWeightPenaltyMultiplier().set(initValue);
         }
     }
@@ -1759,6 +1755,7 @@ bool CBoostedTreeFactory::skipCheckpointIfAtOrAfter(int stage, const F& f) {
         f();
         m_TreeImpl->m_InitializationStage =
             static_cast<CBoostedTreeImpl::EInitializationStage>(stage);
+        // LOG_DEBUG(<<"Checkpoints stage " << stage);
         m_RecordTrainingState([this](core::CStatePersistInserter& inserter) {
             this->acceptPersistInserter(inserter);
         });
@@ -1803,8 +1800,8 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
     inserter_.insertValue(INITIALIZATION_CHECKPOINT_TAG, "");
     inserter_.insertLevel(FACTORY_TAG, [this](core::CStatePersistInserter& inserter) {
         inserter.insertValue(VERSION_7_9_TAG, "");
-        // core::CPersistUtils::persist(HYPERPARAMETERS_LOSSES_TAG,
-        //                              m_HyperparametersLosses, inserter);
+        core::CPersistUtils::persistIfNotNull(HYPERPARAMETERS_LOSSES_TAG,
+                                              m_HyperparametersLosses, inserter);
         core::CPersistUtils::persist(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
                                      m_GainPerNode1stPercentile, inserter);
         core::CPersistUtils::persist(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
@@ -1834,10 +1831,9 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
             if (traverser_.traverseSubLevel([this](core::CStateRestoreTraverser& traverser) {
                     do {
                         const std::string& name{traverser.name()};
-                        // RESTORE(HYPERPARAMETERS_LOSSES_TAG,
-                        //         core::CPersistUtils::restore(
-                        //             HYPERPARAMETERS_LOSSES_TAG,
-                        //             m_HyperparametersLosses, traverser))
+                        RESTORE(HYPERPARAMETERS_LOSSES_TAG,
+                                core::CPersistUtils::restore(HYPERPARAMETERS_LOSSES_TAG,
+                                                             *m_HyperparametersLosses, traverser))
                         RESTORE(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
                                 core::CPersistUtils::restore(
                                     GAIN_PER_NODE_1ST_PERCENTILE_TAG,

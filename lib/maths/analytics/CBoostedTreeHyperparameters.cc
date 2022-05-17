@@ -265,6 +265,10 @@ CBoostedTreeHyperparameters::TVector3x1
 CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
                                               TDoubleDoublePrVec testLosses) const {
+    auto minPair = std::min_element(
+        testLosses.begin(), testLosses.end(),
+        [](const auto& lhs, const auto& rhs) { return lhs.second < rhs.second; });
+    double minValue{minPair->first};
     common::CLowess<2> lowess;
     std::size_t numberFolds{testLosses.size()};
     lowess.fit(std::move(testLosses), numberFolds);
@@ -276,8 +280,8 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
 
     double width{(intervalRightEnd - intervalLeftEnd) /
                  static_cast<double>(this->maxLineSearchIterations())};
-    intervalLeftEnd = bestParameter - width;
-    intervalRightEnd = bestParameter + width;
+    intervalLeftEnd = std::min(bestParameter - width, minValue);
+    intervalRightEnd = std::max(bestParameter + width, minValue);
     LOG_TRACE(<< "interval = [" << intervalLeftEnd << "," << intervalRightEnd << "]");
 
     return TVector3x1{{intervalLeftEnd, bestParameter, intervalRightEnd}};
@@ -670,8 +674,9 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
                 core::CPersistUtils::restore(SOFT_TREE_DEPTH_TOLERANCE_TAG,
                                              m_SoftTreeDepthTolerance, traverser))
         RESTORE(EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG,
-                core::CPersistUtils::restore(EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG,
-                                             m_EarlyHyperparameterOptimizationStoppingEnabled, traverser))
+                core::CPersistUtils::restore(
+                    EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG,
+                    m_EarlyHyperparameterOptimizationStoppingEnabled, traverser))
         RESTORE(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                              m_StoppedHyperparameterOptimizationEarly, traverser))
@@ -1015,20 +1020,19 @@ void CBoostedTreeHyperparameters::storeHyperparameters(CBoostedTreeHyperparamete
     }
 }
 
- bool CBoostedTreeHyperparameters::stopEarly() const {
-        if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
-            if (m_StoppedHyperparameterOptimizationEarly == false) {
-                double anovaCoV{m_BayesianOptimization->anovaTotalCoefficientOfVariation()};
-                LOG_DEBUG(<<"anovaTotalCoefficientOfVariation " << anovaCoV);
-                if (anovaCoV < 1e-3) {
-                    m_StoppedHyperparameterOptimizationEarly = true;
-                    // return true;
-                }
+bool CBoostedTreeHyperparameters::stopEarly() const {
+    if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
+        if (m_StoppedHyperparameterOptimizationEarly == false) {
+            double anovaCoV{m_BayesianOptimization->anovaTotalCoefficientOfVariation()};
+            LOG_TRACE(<< "anovaTotalCoefficientOfVariation " << anovaCoV);
+            if (anovaCoV < 1e-3) {
+                m_StoppedHyperparameterOptimizationEarly = true;
             }
-            return m_StoppedHyperparameterOptimizationEarly;
         }
-        return false;
+        return m_StoppedHyperparameterOptimizationEarly;
     }
+    return false;
+}
 
 void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TVector parameters,
                                                  double loss,

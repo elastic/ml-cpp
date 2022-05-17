@@ -385,7 +385,8 @@ double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
 
 double CBayesianOptimisation::anovaTotalCoefficientOfVariation() {
     this->precondition();
-    LOG_DEBUG(<<"anovaTotalVariance " << this->anovaTotalVariance() << " m_RangeShift " << m_RangeShift << " m_RangeScale " << m_RangeScale);
+    LOG_TRACE(<< "anovaTotalVariance " << this->anovaTotalVariance() << " m_RangeShift "
+              << m_RangeShift << " m_RangeScale " << m_RangeScale);
     return std::sqrt(this->anovaTotalVariance()) / m_RangeShift;
 }
 
