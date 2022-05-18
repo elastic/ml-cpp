@@ -62,9 +62,7 @@ public:
     double meanValue(core_t::TTime time) const override;
 
     //! Returns zero vector.
-    TVector2x1 value(core_t::TTime time,
-                     double confidence = 0.0,
-                     bool isNonNegative = false) const override;
+    TVector2x1 value(core_t::TTime time, double confidence, bool isNonNegative) const override;
 
     //! Returns 0.
     core_t::TTime maximumForecastInterval() const override;

@@ -244,9 +244,9 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       m_TimeShift,
                       value,
                       weights,
-                      this->value(time, 0.0, E_TrendForced).mean(),
-                      this->value(time, 0.0, E_Seasonal).mean(),
-                      this->value(time, 0.0, E_Calendar).mean(),
+                      this->value(time, 0.0, E_TrendForced, true).mean(),
+                      this->value(time, 0.0, E_Seasonal, true).mean(),
+                      this->value(time, 0.0, E_Calendar, true).mean(),
                       *this,
                       [this] {
                           auto predictor_ = this->predictor(E_All | E_TrendForced);
@@ -329,7 +329,7 @@ CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, int compo
 
 CTimeSeriesDecomposition::TVector2x1
 CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, bool isNonNegative) const {
-    auto result = this->value(time, confidence, E_All);
+    auto result = this->value(time, confidence, E_All, true);
     return isNonNegative ? max(result, 0.0) : result;
 }
 
@@ -449,9 +449,9 @@ double CTimeSeriesDecomposition::detrend(core_t::TTime time,
         return value;
     }
 
-    TVector2x1 interval{this->value(time, confidence, E_All ^ E_Seasonal)};
-    auto shiftedInterval = [=](core_t::TTime shift) {
-        TVector2x1 result{interval + this->value(time + shift, confidence, E_Seasonal)};
+    TVector2x1 interval{this->value(time, confidence, E_All ^ E_Seasonal, true)};
+    auto shiftedInterval = [&](core_t::TTime shift) {
+        TVector2x1 result{interval + this->value(time + shift, confidence, E_Seasonal, true)};
         return isNonNegative ? max(result, 0.0) : result;
     };
 

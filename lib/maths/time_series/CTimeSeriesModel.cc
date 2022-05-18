@@ -609,7 +609,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(
 
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const common::SModelRestoreParams& params,
                                                        core::CStateRestoreTraverser& traverser)
-    : common::CModel(params.s_Params), m_IsForecastable(false) {
+    : common::CModel(params.s_Params) {
     if (traverser.traverseSubLevel([&](auto& traverser_) {
             return this->acceptRestoreTraverser(params, traverser_);
         }) == false) {

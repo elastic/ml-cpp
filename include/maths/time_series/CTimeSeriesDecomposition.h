@@ -240,7 +240,7 @@ private:
                                 core::CStateRestoreTraverser& traverser);
 
     //! Get the predicted value of the time series at \p time.
-    TVector2x1 value(core_t::TTime time, double confidence, int components, bool smooth = true) const;
+    TVector2x1 value(core_t::TTime time, double confidence, int components, bool smooth) const;
 
     //! Compute the variance scale weight to apply at \p time.
     TVector2x1
