@@ -758,7 +758,7 @@ CUnivariateTimeSeriesModel::residualModes(const TDouble2VecWeightsAry& weights) 
     TDouble1Vec modes(m_ResidualModel->marginalLikelihoodModes(unpack(weights)));
     result.reserve(modes.size());
     for (auto mode : modes) {
-        result.emplace_back(mode);
+        result.push_back({mode});
     }
     return result;
 }
@@ -2268,7 +2268,7 @@ CMultivariateTimeSeriesModel::mode(core_t::TTime time,
 CMultivariateTimeSeriesModel::TDouble2Vec1Vec
 CMultivariateTimeSeriesModel::correlateModes(core_t::TTime /*time*/,
                                              const TDouble2VecWeightsAry1Vec& /*weights*/) const {
-    return TDouble2Vec1Vec();
+    return {};
 }
 
 CMultivariateTimeSeriesModel::TDouble2Vec1Vec
@@ -2277,7 +2277,7 @@ CMultivariateTimeSeriesModel::residualModes(const TDouble2VecWeightsAry& weights
     TDouble2Vec1Vec result;
     result.reserve(modes.size());
     for (const auto& mode : modes) {
-        result.push_back(TDouble2Vec(mode));
+        result.push_back(mode);
     }
     return result;
 }
