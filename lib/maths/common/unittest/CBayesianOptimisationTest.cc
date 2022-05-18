@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
 BOOST_AUTO_TEST_CASE(testEvaluate) {
     TDoubleVec coordinates{0.25, 0.5, 0.75};
     for (auto scale : {1.0, 0.5, 2.0}) {
-        maths::common::CBayesianOptimisation bopt{{{0.0, scale}, {0.0, scale}}};
+        maths::common::CBayesianOptimisation bopt{maths::common::CBayesianOptimisation::TDoubleDoublePrVec({{0.0, scale}, {0.0, scale}})};
         for (std::size_t i = 0; i < 3; ++i) {
             for (std::size_t j = 0; j < 3; ++j) {
                 TVector x{vector({scale * coordinates[i], scale * coordinates[j]})};
