@@ -406,7 +406,6 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
     rng.generateUniformSamples(0.1, 1.0, 3 * hyperparameters.numberRounds(), losses);
 
     TDoubleVecVec previousHyperparameters;
-    double minimumLoss{std::numeric_limits<double>::max()};
 
     initHyperaparameters();
 
@@ -449,7 +448,6 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
     hyperparameters.initializeSearch();
 
     initHyperaparameters();
-    minimumLoss = std::numeric_limits<double>::max();
     TDoubleVec bestParameters;
 
     for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();

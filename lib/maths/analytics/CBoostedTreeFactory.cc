@@ -202,7 +202,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
                 auto parameters = hyperparameterLoss.first.selectParametersVector(
                     m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
                 m_TreeImpl->m_Hyperparameters.addObservation(
-                    parameters, hyperparameterLoss.second, 0.0);
+                    parameters, hyperparameterLoss.second, 0.0, true);
             }
             if (m_TreeImpl->m_Hyperparameters.stopEarly() == false) {
                 m_TreeImpl->m_Hyperparameters.resetSearch();

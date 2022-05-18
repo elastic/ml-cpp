@@ -596,8 +596,9 @@ public:
     TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
 
     //! Add a new observation to the GP for Bayesian optimization.
-    //! Only tunable parameters are passed in \p parameters.
-    void addObservation(TVector parameters, double loss, double variance);
+    //! Only tunable parameters are passed in \p parameters. If \p reestimate is set to true,
+    //! kernel parameters of the GP are re-estimated.
+    void addObservation(TVector parameters, double loss, double variance, bool reestimate = false);
 
     //! Set the hyperparameters to the vector of tunable \p parameters.
     void setHyperparameterValues(TVector parameters);

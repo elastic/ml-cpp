@@ -266,8 +266,8 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
                                               TDoubleDoublePrVec testLosses) const {
     auto minPair = std::min_element(
-                testLosses.begin(), testLosses.end(),
-                [](const auto& lhs, const auto& rhs) { return lhs.second < rhs.second; });
+        testLosses.begin(), testLosses.end(),
+        [](const auto& lhs, const auto& rhs) { return lhs.second < rhs.second; });
     double minValue{minPair->first};
     common::CLowess<2> lowess;
     std::size_t numberFolds{testLosses.size()};
@@ -386,7 +386,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
               << ", explained variance = " << explainedVariance);
     LOG_TRACE(<< "parameters = " << this->print());
 
-    this->addObservation(parameters, meanTestLoss, testLossVariance);
+    this->addObservation(parameters, meanTestLoss, testLossVariance, false);
 
     // One fold might have examples which are harder to predict on average than
     // another fold, particularly if the sample size is small. What we really care
@@ -1023,9 +1023,12 @@ bool CBoostedTreeHyperparameters::stopEarly() const {
 
 void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TVector parameters,
                                                  double loss,
-                                                 double variance) {
+                                                 double variance,
+                                                 bool reestimate) {
     m_BayesianOptimization->add(parameters, loss, variance);
-    m_BayesianOptimization->maximumLikelihoodKernel();
+    if (reestimate) {
+        m_BayesianOptimization->maximumLikelihoodKernel();
+    }
 }
 
 void CBoostedTreeHyperparameters::resetBayesianOptimization() {
