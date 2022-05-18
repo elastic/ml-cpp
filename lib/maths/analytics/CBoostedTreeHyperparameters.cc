@@ -265,6 +265,10 @@ CBoostedTreeHyperparameters::TVector3x1
 CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
                                               TDoubleDoublePrVec testLosses) const {
+    auto minPair = std::min_element(
+                testLosses.begin(), testLosses.end(),
+                [](const auto& lhs, const auto& rhs) { return lhs.second < rhs.second; });
+    double minValue{minPair->first};
     common::CLowess<2> lowess;
     std::size_t numberFolds{testLosses.size()};
     lowess.fit(std::move(testLosses), numberFolds);
@@ -276,8 +280,8 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
 
     double width{(intervalRightEnd - intervalLeftEnd) /
                  static_cast<double>(this->maxLineSearchIterations())};
-    intervalLeftEnd = bestParameter - width;
-    intervalRightEnd = bestParameter + width;
+    intervalLeftEnd = std::min(bestParameter - width, minValue);
+    intervalRightEnd = std::max(bestParameter + width, minValue);
     LOG_TRACE(<< "interval = [" << intervalLeftEnd << "," << intervalRightEnd << "]");
 
     return TVector3x1{{intervalLeftEnd, bestParameter, intervalRightEnd}};
@@ -1021,7 +1025,7 @@ void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TV
                                                  double loss,
                                                  double variance) {
     m_BayesianOptimization->add(parameters, loss, variance);
-    // m_BayesianOptimization->maximumLikelihoodKernel();
+    m_BayesianOptimization->maximumLikelihoodKernel();
 }
 
 void CBoostedTreeHyperparameters::resetBayesianOptimization() {
