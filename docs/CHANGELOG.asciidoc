@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.17.5
+
+=== Enhancements
+
+* Make ML native processes work with glibc 2.35 (required for Ubuntu 22.04). (See
+  {ml-pull}2272[#2272].)
+
 == {es} version 7.17.4
 
 === Bug Fixes
