@@ -183,9 +183,9 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
             bool isVeryLarge{100.0 * (1.0 - this->survivalFunction(error)) >=
                              VERY_LARGE_ERROR_PERCENTILE};
             m_CurrentBucketErrorStats.s_LargeErrorCount +=
-                std::min(std::numeric_limits<std::size_t>::max() -
+                std::min(std::numeric_limits<std::uint32_t>::max() -
                              m_CurrentBucketErrorStats.s_LargeErrorCount,
-                         static_cast<std::size_t>(isVeryLarge ? (1 << 17) + 1 : 1));
+                         static_cast<std::uint32_t>(isVeryLarge ? (1 << 17) + 1 : 1));
             m_CurrentBucketErrorStats.s_LargeErrorSum += this->winsorise(error);
         }
     }
