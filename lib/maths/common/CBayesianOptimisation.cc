@@ -125,7 +125,7 @@ CBayesianOptimisation::CBayesianOptimisation(TVectorVectorPr parameterBounds, st
       m_MinimumKernelCoordinateDistanceScale(m_MinBoundary.rows()) {
 
     if (m_MinBoundary.rows() != m_MaxBoundary.rows()) {
-        LOG_ERROR(<< "Input error: size of the minimum and maximum boundaries does not match. "
+        LOG_ERROR(<< "Input error: sizes of the minimum and maximum boundaries do not match. "
                   << "Please report this error.");
     }
 

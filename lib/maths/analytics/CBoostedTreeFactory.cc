@@ -119,6 +119,15 @@ auto validInputStream(core::CDataSearcher& restoreSearcher) {
     }
     return decltype(restoreSearcher.search(1, 1)){};
 }
+
+double minBoundary(const maths::analytics::CBoostedTreeHyperparameters::TDoubleParameter parameter,
+                   double maxBoundary,
+                   double interval) {
+    maxBoundary = parameter.toSearchValue(maxBoundary);
+    interval = parameter.toSearchValue(interval);
+    double minBoundary{maxBoundary - interval};
+    return parameter.fromSearchValue(minBoundary);
+}
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
@@ -188,17 +197,17 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
         if (m_TreeImpl->m_Hyperparameters.earlyStoppingEnabled()) {
+            // Add information about observed training runs to the GP
             for (auto& hyperparameterLoss : *m_HyperparametersLosses) {
                 auto parameters = hyperparameterLoss.first.selectParametersVector(
                     m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
                 m_TreeImpl->m_Hyperparameters.addObservation(
                     parameters, hyperparameterLoss.second, 0.0);
             }
-
             if (m_TreeImpl->m_Hyperparameters.stopEarly() == false) {
                 m_TreeImpl->m_Hyperparameters.resetSearch();
             }
-            m_TreeImpl->m_Hyperparameters.clearObservations();
+            m_TreeImpl->m_Hyperparameters.resetBayesianOptimization();
         }
     }
 
@@ -737,8 +746,10 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
     auto& depthPenaltyMultiplierParameter = hyperparameters.depthPenaltyMultiplier();
+    auto& leafWeightPenaltyMultiplier = hyperparameters.leafWeightPenaltyMultiplier();
     auto& softTreeDepthLimitParameter = hyperparameters.softTreeDepthLimit();
     auto& softTreeDepthToleranceParameter = hyperparameters.softTreeDepthTolerance();
+    auto& treeSizePenaltyMultiplier = hyperparameters.treeSizePenaltyMultiplier();
     double log2MaxTreeSize{std::log2(static_cast<double>(m_TreeImpl->maximumTreeSize(
                                m_TreeImpl->m_TrainingRowMasks[0]))) +
                            1.0};
@@ -771,26 +782,16 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     // initialize unset regularization hyperparameters with meaningful values
     if (hyperparameters.earlyStoppingEnabled()) {
-        if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed() == false &&
-            hyperparameters.treeSizePenaltyMultiplier().value() == 0.0) {
-            double maxValue{hyperparameters.treeSizePenaltyMultiplier().toSearchValue(
-                m_GainPerNode90thPercentile)};
-            double interval{hyperparameters.treeSizePenaltyMultiplier().toSearchValue(
-                2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile)};
-            double minValue{maxValue - interval};
-            auto initValue =
-                hyperparameters.treeSizePenaltyMultiplier().fromSearchValue(minValue);
-            hyperparameters.treeSizePenaltyMultiplier().set(initValue);
+
+        if (treeSizePenaltyMultiplier.rangeFixed() == false) {
+            treeSizePenaltyMultiplier.set(minBoundary(
+                treeSizePenaltyMultiplier, m_GainPerNode90thPercentile,
+                2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile));
         }
-        if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed() == false &&
-            hyperparameters.leafWeightPenaltyMultiplier().value() == 0.0) {
-            auto initValue = hyperparameters.leafWeightPenaltyMultiplier().fromSearchValue(
-                hyperparameters.leafWeightPenaltyMultiplier().toSearchValue(
-                    m_TotalCurvaturePerNode90thPercentile) -
-                hyperparameters.leafWeightPenaltyMultiplier().toSearchValue(
-                    2.0 * m_TotalCurvaturePerNode90thPercentile /
-                    m_TotalCurvaturePerNode1stPercentile));
-            hyperparameters.leafWeightPenaltyMultiplier().set(initValue);
+        if (leafWeightPenaltyMultiplier.rangeFixed() == false) {
+            leafWeightPenaltyMultiplier.set(minBoundary(
+                leafWeightPenaltyMultiplier, m_TotalCurvaturePerNode90thPercentile,
+                2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile));
         }
     }
 
@@ -865,7 +866,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     // Search for the value of the tree size penalty multiplier at which the
     // model starts to overfit.
-    if (hyperparameters.treeSizePenaltyMultiplier().rangeFixed() == false) {
+    if (treeSizePenaltyMultiplier.rangeFixed() == false) {
         if (this->skipCheckpointIfAtOrAfter(
                 CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized, [&] {
                     hyperparameters.initializeFineTuneSearchInterval(
@@ -879,7 +880,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                 return true;
                             },
                             m_HyperparametersLosses},
-                        hyperparameters.treeSizePenaltyMultiplier());
+                        treeSizePenaltyMultiplier);
                 })) {
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
@@ -888,7 +889,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 
     // Search for the value of the leaf weight penalty multiplier at which the
     // model starts to overfit.
-    if (hyperparameters.leafWeightPenaltyMultiplier().rangeFixed() == false) {
+    if (leafWeightPenaltyMultiplier.rangeFixed() == false) {
         if (this->skipCheckpointIfAtOrAfter(
                 CBoostedTreeImpl::E_LeafWeightPenaltyMultiplierInitialized, [&] {
                     hyperparameters.initializeFineTuneSearchInterval(
@@ -902,7 +903,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                 return true;
                             },
                             m_HyperparametersLosses},
-                        hyperparameters.leafWeightPenaltyMultiplier());
+                        leafWeightPenaltyMultiplier);
                 })) {
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
