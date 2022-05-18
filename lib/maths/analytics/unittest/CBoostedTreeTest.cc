@@ -9,6 +9,8 @@
  * limitation.
  */
 
+#include <boost/test/tools/interface.hpp>
+#include <boost/test/tools/old/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
@@ -3701,7 +3703,82 @@ BOOST_AUTO_TEST_CASE(testCoarseParameterTuningEarlyStopping) {
         return stopEarly;
     };
     BOOST_REQUIRE_EQUAL(verify(0.1), false);
-    BOOST_REQUIRE_EQUAL(verify(1000.0), true);
+    BOOST_REQUIRE_EQUAL(verify(1000), true);
+}
+
+BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {
+    test::CRandomNumbers rng;
+    std::size_t rows{1000};
+    std::size_t cols{3};
+    double noiseVariance{100.0};
+
+    std::size_t numberHoldoutRows{200};
+    auto computeMetrics = [&](bool earlyStoppingEnabled) -> std::pair<double, double> {
+        rng.seed(100);
+        auto target = [&] {
+            TDoubleVec m;
+            TDoubleVec s;
+            rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+            rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+            return [=](const TRowRef& row) {
+                double result{0.0};
+                for (std::size_t i = 0; i < cols - 1; ++i) {
+                    result += m[i] + s[i] * row[i];
+                }
+                return result;
+            };
+        }();
+
+        TDoubleVecVec x(cols - 1);
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        }
+
+        TDoubleVec noise;
+        rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+        auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+        fillDataFrame(rows, 0, cols, x, noise, target, *frame);
+
+        auto factory = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::analytics::boosted_tree::CMse>());
+        factory.numberHoldoutRows(numberHoldoutRows).earlyStoppingEnabled(earlyStoppingEnabled);
+        auto regression = factory.buildForTrain(*frame, cols - 1);
+        regression->train();
+        regression->predict();
+
+        // make sure early stopping was triggered if it was enabled
+        BOOST_REQUIRE_EQUAL(regression->hyperparameters().stopEarly(), earlyStoppingEnabled);
+
+        double bias;
+        double rSquared;
+        std::tie(bias, rSquared) = computeEvaluationMetrics(
+            *frame, 0, rows,
+            [&](const TRowRef& row) { return regression->prediction(row)[0]; },
+            target, noiseVariance / static_cast<double>(rows));
+        return {bias, rSquared};
+    };
+
+    double biasStopEarly;
+    double rSquaredStopEarly;
+    double biasNotStopEarly;
+    double rSquaredNotStopEarly;
+    std::tie(biasStopEarly, rSquaredStopEarly) = computeMetrics(true);
+    std::tie(biasNotStopEarly, rSquaredNotStopEarly) = computeMetrics(false);
+
+    LOG_DEBUG(<< "biasStopEarly = " << biasStopEarly
+              << " rSquaredStopEarly = " << rSquaredStopEarly << "\n"
+              << "biasNotStopEarly = " << biasNotStopEarly
+              << " rSquaredNotStopEarly = " << rSquaredNotStopEarly);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        0.0, biasStopEarly,
+        std::sqrt(noiseVariance / static_cast<double>(rows - numberHoldoutRows)));
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        0.0, biasNotStopEarly,
+        std::sqrt(noiseVariance / static_cast<double>(rows - numberHoldoutRows)));
+    BOOST_TEST_REQUIRE(rSquaredNotStopEarly > 0.98);
+    BOOST_TEST_REQUIRE(rSquaredStopEarly > 0.92);
+    BOOST_REQUIRE_CLOSE(rSquaredNotStopEarly, rSquaredStopEarly, 10);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
