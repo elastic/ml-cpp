@@ -301,8 +301,8 @@ void CTimeSeriesTestForSeasonality::addModelledSeasonality(const CSeasonalTime& 
     }
 }
 
-void CTimeSeriesTestForSeasonality::modelledSeasonalityPredictor(const TPredictor& predictor) {
-    m_ModelledPredictor = predictor;
+void CTimeSeriesTestForSeasonality::modelledSeasonalityPredictor(TPredictor predictor) {
+    m_ModelledPredictor = std::move(predictor);
 }
 
 void CTimeSeriesTestForSeasonality::prepareWindowForDecompose() {

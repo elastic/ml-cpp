@@ -336,7 +336,7 @@ CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, bool isNo
 CTimeSeriesDecomposition::TFilteredPredictor
 CTimeSeriesDecomposition::predictor(int components) const {
 
-    CTrendComponent::TPredictor trend_{m_Components.trend().predictor()};
+    auto trend_ = m_Components.trend().predictor();
 
     return [ components, trend = std::move(trend_),
              this ](core_t::TTime time, const TBoolVec& removedSeasonalMask) {
@@ -396,7 +396,7 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
         return;
     }
 
-    auto seasonal = [this, confidence](core_t::TTime time) {
+    auto seasonal = [this, confidence](core_t::TTime time) -> TVector2x1 {
         TVector2x1 prediction{0.0};
         for (const auto& component : m_Components.seasonal()) {
             if (component.initialized() && component.time().inWindow(time)) {
@@ -450,14 +450,14 @@ double CTimeSeriesDecomposition::detrend(core_t::TTime time,
     }
 
     TVector2x1 interval{this->value(time, confidence, E_All ^ E_Seasonal, true)};
-    auto shiftedInterval = [&](core_t::TTime shift) {
+    auto shiftedInterval = [&](core_t::TTime shift) -> TVector2x1 {
         TVector2x1 result{interval + this->value(time + shift, confidence, E_Seasonal, true)};
         return isNonNegative ? max(result, 0.0) : result;
     };
 
     core_t::TTime shift{0};
     if (maximumTimeShift > 0) {
-        auto loss = [&](double shift_) {
+        auto loss = [&](double shift_) -> double {
             TVector2x1 interval_{shiftedInterval(static_cast<core_t::TTime>(shift_ + 0.5))};
             return std::fabs(std::min(value - interval_(0), 0.0) +
                              std::max(value - interval_(1), 0.0));
