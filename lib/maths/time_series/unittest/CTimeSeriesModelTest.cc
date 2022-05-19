@@ -81,7 +81,7 @@ using TSetWeightsFunc = void (*)(double, std::size_t, TDouble2VecWeightsAry&);
 const double MINIMUM_SEASONAL_SCALE{0.25};
 const double MINIMUM_SIGNIFICANT_CORRELATION{0.4};
 const double DECAY_RATE{0.0005};
-const std::size_t TAG{0u};
+const std::size_t TAG{0};
 
 //! \brief Implements the allocator for new correlate priors.
 class CTimeSeriesCorrelateModelAllocator
@@ -127,7 +127,7 @@ addSampleParams(double interval,
                 const TDouble2VecWeightsAryVec& trendWeights,
                 const TDouble2VecWeightsAryVec& residualWeights) {
     maths::common::CModelAddSamplesParams params;
-    params.integer(false)
+    params.isInteger(false)
         .propagationInterval(interval)
         .trendWeights(trendWeights)
         .priorWeights(residualWeights);
@@ -211,7 +211,7 @@ auto makeComponentDetectedCallback(double learnRate,
         }
 
         residualModel.setToNonInformative(0.0, residualModel.decayRate());
-        if (residuals.size() > 0) {
+        if (residuals.empty() == false) {
             maths_t::TDoubleWeightsAry1Vec weights(1);
             double buckets{
                 std::accumulate(residuals.begin(), residuals.end(), 0.0,
@@ -255,9 +255,9 @@ void reinitializeResidualModel(double learnRate,
     std::size_t dimension{residualModel.dimension()};
     TFloatMeanAccumulatorVecVec residuals(dimension);
     for (std::size_t d = 0; d < dimension; ++d) {
-        residuals[d] = trends[d]->residuals();
+        residuals[d] = trends[d]->residuals(false);
     }
-    if (residuals.size() > 0) {
+    if (residuals.empty() == false) {
         TDouble10Vec1Vec samples;
         TDoubleVec weights;
         double time{0.0};
@@ -292,19 +292,18 @@ void reinitializeResidualModel(double learnRate,
     }
 }
 
-class CChangeDebug {
+class CDebug {
 public:
     static const bool ENABLED{false};
 
 public:
-    explicit CChangeDebug(std::string file = "results.py")
-        : m_File{std::move(file)} {
+    explicit CDebug(std::string file = "results.py") : m_File{std::move(file)} {
         if (ENABLED) {
             m_ModelBounds.resize(3);
             m_Forecast.resize(3);
         }
     }
-    ~CChangeDebug() {
+    ~CDebug() {
         if (ENABLED) {
             std::ofstream file;
             file.open(m_File);
@@ -445,7 +444,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         core_t::TTime time{0};
         for (auto sample : samples) {
             trend.addPoint(time, sample);
-            TDouble1Vec sample_{trend.detrend(time, sample, 0.0)};
+            TDouble1Vec sample_{trend.detrend(time, sample, 0.0, false)};
             prior.addSamples(sample_, maths_t::CUnitWeights::SINGLE_UNIT);
             prior.propagateForwardsByTime(1.0);
             time += bucketLength;
@@ -458,7 +457,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
         }
-        double expectedMode{maths::common::CBasicStatistics::mean(trend.value(time)) +
+        double expectedMode{trend.value(time, 0.0, false).mean() +
                             prior.marginalLikelihoodMode()};
         TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(1)));
 
@@ -493,13 +492,13 @@ BOOST_AUTO_TEST_CASE(testMode) {
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(), prior));
-            prior.addSamples({trend.detrend(time, sample, 0.0)},
+            prior.addSamples({trend.detrend(time, sample, 0.0, false)},
                              maths_t::CUnitWeights::SINGLE_UNIT);
             prior.propagateForwardsByTime(1.0);
             time += bucketLength;
         }
 
-        double expectedMode{maths::common::CBasicStatistics::mean(trend.value(time)) +
+        double expectedMode{trend.value(time, 0.0, false).mean() +
                             prior.marginalLikelihoodMode()};
         TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(1)));
 
@@ -532,7 +531,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
             for (std::size_t i = 0; i < sample.size(); ++i) {
                 trends[i]->addPoint(time, sample[i]);
-                detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
+                detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0, false);
             }
             prior.addSamples(detrended,
                              maths_t::CUnitWeights::singleUnit<TDouble10Vec>(3));
@@ -549,8 +548,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         TDouble2Vec expectedMode(prior.marginalLikelihoodMode(
             maths_t::CUnitWeights::unit<TDouble10Vec>(3)));
         for (std::size_t i = 0; i < trends.size(); ++i) {
-            expectedMode[i] +=
-                maths::common::CBasicStatistics::mean(trends[i]->value(time));
+            expectedMode[i] += trends[i]->value(time, 0.0, false).mean();
         }
         TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(3)));
 
@@ -606,7 +604,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
-                detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
+                detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0, false);
             }
             if (reinitialize) {
                 reinitializeResidualModel(params.learnRate(), trends, prior);
@@ -621,8 +619,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         TDouble2Vec expectedMode(prior.marginalLikelihoodMode(
             maths_t::CUnitWeights::unit<TDouble10Vec>(3)));
         for (std::size_t i = 0; i < trends.size(); ++i) {
-            expectedMode[i] +=
-                maths::common::CBasicStatistics::mean(trends[i]->value(time));
+            expectedMode[i] += trends[i]->value(time, 0.0, false).mean();
         }
         TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(3)));
 
@@ -872,7 +869,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
                            makeComponentDetectedCallback(params.learnRate(),
                                                          prior, &controllers));
 
-            double detrended{trend.detrend(time, sample, 0.0)};
+            double detrended{trend.detrend(time, sample, 0.0, false)};
             prior.addSamples({detrended}, maths_t::CUnitWeights::SINGLE_UNIT);
             prior.propagateForwardsByTime(1.0);
 
@@ -950,7 +947,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
-                detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
+                detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0, false);
                 mean[i] = trends[i]->meanValue(time);
                 hasTrend |= true;
             }
@@ -1024,7 +1021,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
             trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(params.learnRate(), prior));
 
-            prior.addSamples({trend.detrend(time, sample, 0.0)},
+            prior.addSamples({trend.detrend(time, sample, 0.0, false)},
                              maths_t::CUnitWeights::SINGLE_UNIT);
             prior.propagateForwardsByTime(1.0);
 
@@ -1035,7 +1032,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
         for (core_t::TTime time_ = time; time_ < time + 86400; time_ += 3600) {
             double trend_{10.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
                                                  static_cast<double>(time_) / 86400.0)};
-            double expected{maths::common::CBasicStatistics::mean(trend.value(time_)) +
+            double expected{trend.value(time_, 0.0, false).mean() +
                             maths::common::CBasicStatistics::mean(
                                 prior.marginalLikelihoodConfidenceInterval(0.0))};
             double predicted{model.predict(time_)[0]};
@@ -1127,7 +1124,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
-                detrended.push_back(trends[i]->detrend(time, sample[i], 0.0));
+                detrended.push_back(trends[i]->detrend(time, sample[i], 0.0, false));
             }
             if (reinitialize) {
                 reinitializeResidualModel(params.learnRate(), trends, prior);
@@ -1150,10 +1147,9 @@ BOOST_AUTO_TEST_CASE(testPredict) {
                                               static_cast<double>(time_) / 86400.0)};
                 maths::common::CMultivariatePrior::TUnivariatePriorPtr margin{
                     prior.univariate(marginalize, condition).first};
-                double expected{
-                    maths::common::CBasicStatistics::mean(trends[i]->value(time_)) +
-                    maths::common::CBasicStatistics::mean(
-                        margin->marginalLikelihoodConfidenceInterval(0.0))};
+                double expected{trends[i]->value(time_, 0.0, false).mean() +
+                                maths::common::CBasicStatistics::mean(
+                                    margin->marginalLikelihoodConfidenceInterval(0.0))};
                 double predicted{model.predict(time_)[i]};
                 --marginalize[std::min(i, marginalize.size() - 1)];
                 LOG_DEBUG(<< "expected = " << expected << " predicted = " << predicted
@@ -1300,12 +1296,13 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                         for (std::size_t i = 0; i < weight.size(); ++i) {
                             weight_[i] = weight[i][0];
                         }
-                        double lb[2], ub[2];
+                        double lb[2];
+                        double ub[2];
                         model0.residualModel().probabilityOfLessLikelySamples(
                             calculation, sample, {weight_}, lb[0], ub[0], expectedTail[0]);
                         model1.residualModel().probabilityOfLessLikelySamples(
                             calculation,
-                            {model1.trendModel().detrend(time, sample[0], confidence)},
+                            {model1.trendModel().detrend(time, sample[0], confidence, false)},
                             {weight_}, lb[1], ub[1], expectedTail[1]);
                         expectedProbability[0] = (lb[0] + ub[0]) / 2.0;
                         expectedProbability[1] = (lb[1] + ub[1]) / 2.0;
@@ -1396,14 +1393,15 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                         for (std::size_t i = 0; i < weight.size(); ++i) {
                             weight_[i] = weight[i];
                         }
-                        double lb[2], ub[2];
+                        double lb[2];
+                        double ub[2];
                         model0.residualModel().probabilityOfLessLikelySamples(
                             calculation, {TDouble10Vec(sample)}, {weight_},
                             lb[0], ub[0], expectedTail[0]);
                         TDouble10Vec detrended;
                         for (std::size_t j = 0; j < sample.size(); ++j) {
                             detrended.push_back(model1.trendModel()[j]->detrend(
-                                time, sample[j], confidence));
+                                time, sample[j], confidence, false));
                         }
                         model1.residualModel().probabilityOfLessLikelySamples(
                             calculation, {detrended}, {weight_}, lb[1], ub[1],
@@ -1517,11 +1515,8 @@ BOOST_AUTO_TEST_CASE(testWeights) {
                                      static_cast<double>(time_) / 86400.0),
                 2.0)};
 
-            double expectedScale{
-                model.trendModel()
-                    .varianceScaleWeight(
-                        time_, model.residualModel().marginalLikelihoodVariance(), 0.0)
-                    .second};
+            double expectedScale{model.trendModel().varianceScaleWeight(
+                time_, model.residualModel().marginalLikelihoodVariance(), 0.0)(1)};
             model.seasonalWeight(0.0, time_, scale);
 
             LOG_DEBUG(<< "expected weight = " << expectedScale << ", scale = " << scale
@@ -1591,11 +1586,8 @@ BOOST_AUTO_TEST_CASE(testWeights) {
 
             model.seasonalWeight(0.0, time_, scale);
             for (std::size_t i = 0; i < 3; ++i) {
-                double expectedScale{
-                    model.trendModel()[i]
-                        ->varianceScaleWeight(
-                            time_, model.residualModel().marginalLikelihoodVariances()[i], 0.0)
-                        .second};
+                double expectedScale{model.trendModel()[i]->varianceScaleWeight(
+                    time_, model.residualModel().marginalLikelihoodVariances()[i], 0.0)(1)};
                 LOG_DEBUG(<< "expected weight = " << expectedScale << ", weight = " << scale
                           << " (data weight = " << dataScale << ")");
                 BOOST_REQUIRE_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE),
@@ -2040,7 +2032,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend,
             univariateNormal(DECAY_RATE / 3.0), &controllers};
-        CChangeDebug debug("prior_reinitialization.py");
+        CDebug debug("prior_reinitialization.py");
 
         core_t::TTime time{0};
         TDoubleVec samples;
@@ -2066,7 +2058,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend,
             univariateNormal(DECAY_RATE / 3.0), &controllers};
-        CChangeDebug debug("piecewise_constant.py");
+        CDebug debug("piecewise_constant.py");
 
         // Add some data to the model.
 
@@ -2136,7 +2128,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         auto controllers = decayRateControllers(1);
         maths::time_series::CUnivariateTimeSeriesModel model{
             modelParams(bucketLength), 0, trend, univariateNormal(), &controllers};
-        CChangeDebug debug("saw_tooth.py");
+        CDebug debug("saw_tooth.py");
 
         // Add some data to the model.
 
@@ -2227,7 +2219,7 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
     auto controllers = decayRateControllers(1);
     maths::time_series::CUnivariateTimeSeriesModel model{
         modelParams(bucketLength), 0, trend, univariateNormal(DECAY_RATE / 3.0), &controllers};
-    CChangeDebug debug;
+    CDebug debug;
 
     core_t::TTime time{0};
     TDoubleVec samples;
@@ -2305,7 +2297,7 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
     auto controllers = decayRateControllers(1);
     maths::time_series::CUnivariateTimeSeriesModel model{
         modelParams(bucketLength), 0, trend, univariateNormal(DECAY_RATE / 3.0), &controllers};
-    CChangeDebug debug;
+    CDebug debug;
 
     core_t::TTime time{0};
     TDoubleVec samples;
@@ -2360,6 +2352,72 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.8 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
+}
+
+BOOST_AUTO_TEST_CASE(testNonNegative) {
+    // Test after a non-negative time series drops to zero we always predict
+    // high probability for zero values using the one-sided above calculation.
+
+    TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    auto updateModel = [&](core_t::TTime time, double value,
+                           maths::time_series::CUnivariateTimeSeriesModel& model) {
+        model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
+                           residualWeights[0]);
+        auto params = addSampleParams(1.0, trendWeights, residualWeights);
+        params.isNonNegative(true);
+        model.addSamples(params, {core::make_triple(time, TDouble2Vec{value}, TAG)});
+    };
+
+    test::CRandomNumbers rng;
+
+    core_t::TTime day{core::constants::DAY};
+    core_t::TTime week{core::constants::WEEK};
+
+    auto trend = [&](core_t::TTime time) {
+        return (time > 10 * day ? -2.0
+                                : std::max(15.0 - 0.5 * static_cast<double>(time) /
+                                                      static_cast<double>(day),
+                                           1.0)) +
+               std::sin(boost::math::double_constants::two_pi *
+                        static_cast<double>(time) / static_cast<double>(day));
+    };
+
+    core_t::TTime bucketLength{600};
+    maths::time_series::CTimeSeriesDecomposition trendModel{24.0 * DECAY_RATE, bucketLength};
+    auto controllers = decayRateControllers(1);
+    maths::time_series::CUnivariateTimeSeriesModel timeSeriesModel{
+        modelParams(bucketLength), 0, trendModel,
+        univariateNormal(DECAY_RATE / 3.0), &controllers};
+    CDebug debug;
+
+    core_t::TTime time{0};
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, 0.1, 3 * week / bucketLength, noise);
+    TDouble2VecWeightsAry probabilityCalculationWeights{
+        maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+
+    double pMinAfterDrop{1.0};
+    for (auto sample : noise) {
+        sample = std::max(trend(time) + sample, 0.0);
+        updateModel(time, sample, timeSeriesModel);
+
+        if (time > 10 * day) {
+            maths::common::CModelProbabilityParams params;
+            params.addCalculation(maths_t::E_OneSidedAbove)
+                .seasonalConfidenceInterval(50.0)
+                .addWeights(probabilityCalculationWeights);
+            maths::common::SModelProbabilityResult result;
+            timeSeriesModel.probability(params, {{time}}, {{sample}}, result);
+            pMinAfterDrop = std::min(pMinAfterDrop, result.s_Probability);
+        }
+
+        debug.addValueAndPrediction(time, sample, timeSeriesModel);
+        time += bucketLength;
+    }
+
+    LOG_DEBUG(<< "pMinAfterDrop = " << pMinAfterDrop);
+    BOOST_TEST_REQUIRE(pMinAfterDrop > 0.3);
 }
 
 BOOST_AUTO_TEST_CASE(testSkipAnomalyModelUpdate) {

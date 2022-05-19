@@ -142,9 +142,7 @@ BOOST_FIXTURE_TEST_CASE(testFit, CTestFixture) {
         TMeanAccumulator mae;
         for (core_t::TTime time = 15724800 - timeZoneOffset;
              time < 15724800 - timeZoneOffset + DAY; time += HOUR) {
-            mae.add(std::fabs(
-                (maths::common::CBasicStatistics::mean(component.value(time, 0.0)) - trend(time)) /
-                trend(time)));
+            mae.add(std::fabs((component.value(time, 0.0).mean() - trend(time)) / trend(time)));
         }
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(mae) < 0.06);
     }

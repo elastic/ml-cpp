@@ -117,7 +117,7 @@ addSamples(core_t::TTime bucketLength, const SAMPLES& samples, maths::common::CM
     TDouble2VecWeightsAryVec weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(dimension(samples[0]))};
     maths::common::CModelAddSamplesParams params;
-    params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
+    params.isInteger(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
     core_t::TTime time{0};
     for (const auto& sample_ : samples) {
         model.addSamples(params, {sample(time, sample_)});
@@ -280,7 +280,8 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
     double probability;
     BOOST_TEST_REQUIRE(calculator.calculate(probability, influences));
 
-    double pj, pe;
+    double pj;
+    double pe;
     BOOST_TEST_REQUIRE(pJoint.calculate(pj));
     BOOST_TEST_REQUIRE(pExtreme.calculate(pe));
 

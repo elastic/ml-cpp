@@ -409,8 +409,8 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
             maths_t::CUnitWeights::unit<TDouble2Vec>(dimension)};
         maths_t::setCount(TDouble2Vec(dimension, 50.0), weights[0]);
         maths::common::CModelAddSamplesParams params;
-        params.integer(true)
-            .nonNegative(true)
+        params.isInteger(true)
+            .isNonNegative(true)
             .propagationInterval(1.0)
             .trendWeights(weights)
             .priorWeights(weights);
