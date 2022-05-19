@@ -25,9 +25,6 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 add_executable(autodetect ${SRCS})
 
-# TODO - Not a final solution by any means
-list(REMOVE_ITEM Boost_LIBRARIES "Boost::unit_test_framework")
-
 target_link_libraries(autodetect ${Boost_LIBRARIES})
 target_link_libraries(autodetect MlCore)
 target_link_libraries(autodetect MlMathsCommon)

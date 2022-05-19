@@ -32,7 +32,7 @@ rm -rf cmake_build
 cmake -B cmake_build ${CMAKE_FLAGS}
 
 # Build the code
-cmake --build cmake_build -j`nproc` -v -t install-distributed
+cmake --build cmake_build -j`nproc` -v -t install
 
 # Strip the binaries
 dev-tools/strip_binaries.sh

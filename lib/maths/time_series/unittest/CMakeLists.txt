@@ -44,7 +44,7 @@ TestUtils.cc
 
 add_executable(ml_test_maths_time_series ${SRCS})
 
-target_link_libraries(ml_test_maths_time_series ${Boost_LIBRARIES})
+target_link_libraries(ml_test_maths_time_series ${Boost_LIBRARIES_WITH_UNIT_TEST})
 target_link_libraries(ml_test_maths_time_series MlCore)
 target_link_libraries(ml_test_maths_time_series MlMathsCommon)
 target_link_libraries(ml_test_maths_time_series MlMathsTimeSeries)

@@ -43,7 +43,7 @@ link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 
 add_library(MlTest SHARED ${SRCS} ${PLATFORM_SRCS})
-target_link_libraries(MlTest PUBLIC ${Boost_LIBRARIES})
+target_link_libraries(MlTest PUBLIC ${Boost_LIBRARIES_WITH_UNIT_TEST})
 target_link_libraries(MlTest PUBLIC MlApi)
 target_link_libraries(MlTest PUBLIC MlCore)
 target_link_libraries(MlTest PUBLIC MlMathsAnalytics)

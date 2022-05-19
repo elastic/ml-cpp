@@ -20,7 +20,7 @@ CBuildInfoTest.cc
 
 add_executable(ml_test_ver ${SRCS})
 
-target_link_libraries(ml_test_ver ${Boost_LIBRARIES})
+target_link_libraries(ml_test_ver ${Boost_LIBRARIES_WITH_UNIT_TEST})
 target_link_libraries(ml_test_ver ${LIBXML2_LIBRARIES})
 target_link_libraries(ml_test_ver MlCore)
 target_link_libraries(ml_test_ver MlVer)

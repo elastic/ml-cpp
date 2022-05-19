@@ -61,13 +61,15 @@ function(gen_platform_srcs SRCS_LIST)
   set(PLATFORM_SRCS ${PLATFORM_SRCS} PARENT_SCOPE)
 endfunction()
 
-set(INSTALL_DEPENDS eigen licenses MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel MlSeccomp
-    MlTest MlVer autodetect categorize controller data_frame_analyzer normalize pytorch_inference)
+set(INSTALL_DEPENDS eigen licenses MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel
+    MlTest autodetect categorize controller data_frame_analyzer normalize pytorch_inference)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 
   if(NOT DEFINED ENV{CMAKE_INSTALL_PREFIX})
     set(CMAKE_INSTALL_PREFIX $ENV{CPP_PLATFORM_HOME}/controller.app/Contents/)
+  else()
+    set(CMAKE_INSTALL_PREFIX $ENV{CMAKE_INSTALL_PREFIX})
   endif()
   message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
@@ -131,8 +133,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
       DEPENDS $ENV{CPP_SRC_HOME}/gradle.properties
       COMMAND $ENV{CPP_SRC_HOME}/mk/make_info_plist.sh "${ML_APP_NAME}" false > Info.plist
   )
-  install(FILES ${CMAKE_BINARY_DIR}/Info.plist DESTINATION ${CMAKE_INSTALL_PREFIX} COMPONENT Distributed)
-  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/Resources COMPONENT Distributed)
+  install(FILES ${CMAKE_BINARY_DIR}/Info.plist DESTINATION ${CMAKE_INSTALL_PREFIX})
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${CMAKE_INSTALL_PREFIX}/Resources)
 
   list( APPEND INSTALL_DEPENDS plist )
 endif()
@@ -140,8 +142,12 @@ endif()
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(STATUS "Linux detected")
 
+  message(STATUS "ENV{CMAKE_INSTALL_PREFIX} $ENV{CMAKE_INSTALL_PREFIX}")
+  message(STATUS "ENV{CPP_PLATFORM_HOME} $ENV{CPP_PLATFORM_HOME}")
   if(NOT DEFINED ENV{CMAKE_INSTALL_PREFIX})
     set(CMAKE_INSTALL_PREFIX $ENV{CPP_PLATFORM_HOME})
+  else()
+    set(CMAKE_INSTALL_PREFIX $ENV{CMAKE_INSTALL_PREFIX})
   endif()
   message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
@@ -215,6 +221,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
   if(NOT DEFINED ENV{CMAKE_INSTALL_PREFIX})
     set(CMAKE_INSTALL_PREFIX $ENV{CPP_PLATFORM_HOME})
+  else()
+    set(CMAKE_INSTALL_PREFIX $ENV{CMAKE_INSTALL_PREFIX})
   endif()
   message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
@@ -290,23 +298,13 @@ if(Boost_FOUND)
     include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 endif()
 
+set(Boost_LIBRARIES_WITH_UNIT_TEST ${Boost_LIBRARIES})
+list(REMOVE_ITEM Boost_LIBRARIES "Boost::unit_test_framework")
+
 message(STATUS ${Boost_LIBRARIES})
+message(STATUS ${Boost_LIBRARIES_WITH_UNIT_TEST})
 
 add_subdirectory(3rd_party)
-
 add_subdirectory(lib)
 add_subdirectory(bin)
-
-install(TARGETS MlApi MlCore MlMathsAnalytics MlMathsCommon MlMathsTimeSeries MlModel MlSeccomp MlTest MlVer autodetect
-    categorize controller data_frame_analyzer normalize pytorch_inference COMPONENT Distributed RUNTIME DESTINATION
-    ${EXE_DIR})
-
-add_custom_target(install-distributed
-  DEPENDS ${INSTALL_DEPENDS}
-  COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=Distributed -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
-)
-
-add_custom_target(test
-    DEPENDS run_test_model run_test_core run_test_api run_test_seccomp run_test_ver run_test_maths_common
-    run_test_maths_time_series run_test_maths_analytics run_test_controller run_test_pytorch_inference
-)
+add_subdirectory(test EXCLUDE_FROM_ALL)

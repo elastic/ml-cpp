@@ -26,7 +26,6 @@ fi
 MY_DIR=`dirname "$BASH_SOURCE"`
 export CPP_SRC_HOME=`cd "$MY_DIR" && pwd`
 
-echo CMAKE_TOOLCHAIN_FILE $CMAKE_TOOLCHAIN_FILE
 # Platform
 case `uname` in
 
@@ -39,13 +38,10 @@ case `uname` in
         SIMPLE_PLATFORM=linux
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
             BUNDLE_PLATFORM=linux-`uname -m`
-            export CMAKE_INSTALL_PREFIX="$CPP_SRC_HOME/build/distribution/platform/$BUNDLE_PLATFORM"
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             BUNDLE_PLATFORM=darwin-x86_64
-            echo $BUNDLE_PLATFORM
         else
             BUNDLE_PLATFORM=linux-$CPP_CROSS_COMPILE
-            CMAKE_GENERATOR='Unix Makefiles'
         fi
         ;;
 
