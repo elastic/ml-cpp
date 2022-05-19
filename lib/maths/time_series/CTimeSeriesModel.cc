@@ -123,10 +123,15 @@ const std::string VERSION_7_11_TAG("7.11");
 const std::string ID_6_3_TAG{"a"};
 const std::string IS_NON_NEGATIVE_6_3_TAG{"b"};
 const std::string IS_FORECASTABLE_6_3_TAG{"c"};
+//const std::string RNG_6_3_TAG{"d"}; Removed in 6.5
 const std::string CONTROLLER_6_3_TAG{"e"};
 const core::TPersistenceTag TREND_MODEL_6_3_TAG{"f", "trend_model"};
 const core::TPersistenceTag RESIDUAL_MODEL_6_3_TAG{"g", "residual_model"};
 const std::string ANOMALY_MODEL_6_3_TAG{"h"};
+//const std::string RECENT_SAMPLES_6_3_TAG{"i"}; Removed in 6.5
+//const std::string CANDIDATE_CHANGE_POINT_6_3_TAG{"j"}; Removed in 7.11
+//const std::string CURRENT_CHANGE_INTERVAL_6_3_TAG{"k"}; Removed in 7.11
+//const std::string CHANGE_DETECTOR_6_3_TAG{"l"}; Removed in 7.11
 const std::string MULTIBUCKET_FEATURE_6_3_TAG{"m"};
 const std::string MULTIBUCKET_FEATURE_MODEL_6_3_TAG{"n"};
 
