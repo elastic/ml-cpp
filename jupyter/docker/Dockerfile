@@ -31,6 +31,9 @@ RUN --mount=type=cache,target=/root/.ccache \
 ##############################################
 FROM docker.elastic.co/ml-dev/ml-linux-jupyter-build:1
  
+COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
+ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/
+
 COPY jupyter/requirements.txt jupyter/Makefile /root/
 RUN --mount=type=cache,target=/root/.cache/pip \
     cd /root && \
@@ -48,8 +51,6 @@ COPY jupyter/src /root/src
 RUN  source env/bin/activate &&  pip install -e /root/src
 COPY jupyter/scripts /root/scripts
 
-COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
-ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/
 COPY --from=builder /ml-cpp/build/distribution/platform/linux-x86_64 /ml-cpp
 
 ENTRYPOINT ["/root/env/bin/jupyter", "notebook"]
