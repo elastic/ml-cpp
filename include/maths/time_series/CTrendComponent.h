@@ -52,13 +52,13 @@ namespace time_series {
 //! is common in many real world time series.
 class MATHS_TIME_SERIES_EXPORT CTrendComponent {
 public:
-    using TDoubleDoublePr = maths_t::TDoubleDoublePr;
     using TDoubleVec = std::vector<double>;
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TSizeVec = std::vector<std::size_t>;
-    using TVector = common::CVectorNx1<double, 3>;
-    using TMatrix = common::CSymmetricMatrixNxN<double, 3>;
-    using TMatrixVec = std::vector<TMatrix>;
+    using TVector2x1 = common::CVectorNx1<double, 2>;
+    using TVector3x1 = common::CVectorNx1<double, 3>;
+    using TMatrix3x3 = common::CSymmetricMatrixNxN<double, 3>;
+    using TMatrix3x3Vec = std::vector<TMatrix3x3>;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
@@ -67,7 +67,7 @@ public:
     using TWriteForecastResult = std::function<void(core_t::TTime, const TDouble3Vec&)>;
 
 public:
-    CTrendComponent(double decayRate);
+    explicit CTrendComponent(double decayRate);
 
     //! Efficiently swap the state of this and \p other.
     void swap(CTrendComponent& other);
@@ -145,7 +145,7 @@ public:
     //! \param[in] time The time of interest.
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! as a percentage.
-    TDoubleDoublePr value(core_t::TTime time, double confidence) const;
+    TVector2x1 value(core_t::TTime time, double confidence) const;
 
     //! Get a function which returns the trend value as a function of time.
     //!
@@ -159,7 +159,7 @@ public:
     //!
     //! \param[in] confidence The symmetric confidence interval for the
     //! variance as a percentage.
-    TDoubleDoublePr variance(double confidence) const;
+    TVector2x1 variance(double confidence) const;
 
     //! Get the maximum interval for which the trend model can be forecast.
     core_t::TTime maximumForecastInterval() const;
@@ -170,12 +170,15 @@ public:
     //! \param[in] endTime The end time of the forecast interval.
     //! \param[in] step The time step.
     //! \param[in] confidence The confidence interval to calculate.
+    //! \param[in] isNonNegative True if the data being modelled are known to be
+    //! non-negative.
     //! \param[in] seasonal Forecasts seasonal components.
     //! \param[in] writer Writes out forecast results.
     void forecast(core_t::TTime startTime,
                   core_t::TTime endTime,
                   core_t::TTime step,
                   double confidence,
+                  bool isNonNegative,
                   const TSeasonalForecast& seasonal,
                   const TWriteForecastResult& writer) const;
 
@@ -196,7 +199,8 @@ private:
     using TRegressionArray = TRegression::TArray;
     using TRegressionArrayVec = std::vector<TRegressionArray>;
     using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TVectorMeanAccumulator = common::CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+    using TVector3x1MeanAccumulator =
+        common::CBasicStatistics::SSampleMean<TVector3x1>::TAccumulator;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     //! \brief A model of the trend at a specific time scale.
@@ -207,7 +211,7 @@ private:
         std::uint64_t checksum(std::uint64_t seed) const;
         TMeanAccumulator s_Weight;
         TRegression s_Regression;
-        TVectorMeanAccumulator s_Mse;
+        TVector3x1MeanAccumulator s_Mse;
     };
     using TModelVec = std::vector<SModel>;
 
@@ -215,7 +219,7 @@ private:
     class CForecastLevel : private core::CNonCopyable {
     public:
         //! The default number of roll out paths to use.
-        static const std::size_t DEFAULT_NUMBER_PATHS{100u};
+        static const std::size_t DEFAULT_NUMBER_PATHS{100};
 
     public:
         CForecastLevel(const common::CNaiveBayes& probability,
@@ -253,11 +257,8 @@ private:
     //! Select the most complex model for which there is significant evidence.
     TSizeVec selectModelOrdersForForecasting() const;
 
-    //! Get the initial weights to use for forecast predictions.
-    TDoubleVec initialForecastModelWeights() const;
-
-    //! Get the initial weights to use for forecast prediction errors.
-    TDoubleVec initialForecastErrorWeights() const;
+    //! Get the initial model weights to use for forecasting.
+    TDoubleVec initialForecastModelWeights(std::size_t n) const;
 
     //! Get the mean count of samples in the prediction.
     double count() const;

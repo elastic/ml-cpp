@@ -508,8 +508,8 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
-                params.integer(true)
-                    .nonNegative(true)
+                params.isInteger(true)
+                    .isNonNegative(true)
                     .propagationInterval(this->propagationTime(cid, sampleTime))
                     .trendWeights(attribute.second.s_TrendWeights)
                     .priorWeights(attribute.second.s_ResidualWeights)

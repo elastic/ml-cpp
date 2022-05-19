@@ -231,8 +231,8 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
     LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
               << ", # events = " << eventTimes.size());
 
-    std::size_t i{0u};
-    std::size_t j{0u};
+    std::size_t i{0};
+    std::size_t j{0};
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime;
          bucketStartTime += bucketLength, ++j) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
@@ -248,8 +248,8 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
         maths::common::CModelAddSamplesParams params_;
-        params_.integer(true)
-            .nonNegative(true)
+        params_.isInteger(true)
+            .isNonNegative(true)
             .propagationInterval(1.0)
             .trendWeights(weights)
             .priorWeights(weights);
@@ -326,8 +326,8 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
     LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
               << ", # events = " << eventTimes.size());
 
-    std::size_t i{0u};
-    std::size_t j{0u};
+    std::size_t i{0};
+    std::size_t j{0};
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime;
          bucketStartTime += bucketLength) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
@@ -344,8 +344,8 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
 
         if (*model->currentBucketCount(0, bucketStartTime) > 0) {
             maths::common::CModelAddSamplesParams params_;
-            params_.integer(true)
-                .nonNegative(true)
+            params_.isInteger(true)
+                .isNonNegative(true)
                 .propagationInterval(1.0)
                 .trendWeights(weights)
                 .priorWeights(weights);

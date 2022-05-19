@@ -352,8 +352,8 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
-                params.integer(true)
-                    .nonNegative(true)
+                params.isInteger(true)
+                    .isNonNegative(true)
                     .propagationInterval(scaledInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)
