@@ -10,11 +10,13 @@
 #
 cmake_minimum_required(VERSION 3.9)
 
-# Set these here to avoid any confusion. See the documentation
-# in build-setup for more details
+# Instruct cmake to use very specific versions of the C and C++
+# compilers - see the appropriate documentation in build-setup
+# for more details. Note that CMake correctly determines the
+# correct compilers for Windows and Mac targets.
 if(UNIX AND NOT APPLE)
-  set(CMAKE_C_COMPILER   "gcc" CACHE STRING "" FORCE)
-  set(CMAKE_CXX_COMPILER "g++" CACHE STRING "" FORCE)
+  set(CMAKE_C_COMPILER   "/usr/local/gcc103/bin/gcc" CACHE STRING "" FORCE)
+  set(CMAKE_CXX_COMPILER "/usr/local/gcc103/bin/g++" CACHE STRING "" FORCE)
 endif()
 
 project("ML")
