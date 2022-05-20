@@ -235,6 +235,27 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
     return sampler;
 }
 
+TStratifiedSamplerUPtr
+classifierDistributionPreservingRowSampler(std::size_t numberThreads,
+                                           const core::CDataFrame& frame,
+                                           std::size_t targetColumn,
+                                           common::CPRNG::CXorOShiro128Plus rng,
+                                           const core::CPackedBitVector& rowMask) {
+    // TODO initialize or pass categoryCounts
+    TDoubleVec categoryCounts{CDataFrameUtils::categoryCounts(
+        numberThreads, frame, rowMask, {targetColumn})[targetColumn]};
+
+    auto sampler = std::make_unique<CStratifiedSampler>(categoryCounts.size());
+    for (auto categoryCount : categoryCounts) {
+        sampler->addSampler(static_cast<std::size_t>(categoryCount), rng);
+    }
+    sampler->samplerSelector([targetColumn](const TRowRef& row) mutable {
+        return static_cast<std::size_t>(row[targetColumn]);
+    });
+
+    return std::move(sampler);
+}
+
 //! Get the test row masks corresponding to \p foldRowMasks.
 TPackedBitVectorVec complementRowMasks(const TPackedBitVectorVec& foldRowMasks,
                                        core::CPackedBitVector allRowsMask) {
@@ -663,12 +684,87 @@ CDataFrameUtils::stratifiedSamplingRowMasks(std::size_t numberThreads,
     return samplesRowMask;
 }
 
+core::CPackedBitVector CDataFrameUtils::distributionPreservingSamplingRowMasks(
+    std::size_t numberThreads,
+    const core::CDataFrame& frame,
+    std::size_t targetColumn,
+    common::CPRNG::CXorOShiro128Plus rng,
+    std::size_t numberBuckets,
+    const core::CPackedBitVector& distributionSourceRowsMask,
+    const core::CPackedBitVector& allTrainingRowsMask) {
+    TSizeVec categoryNumbers;
+    TStratifiedSamplerUPtr sampler;
+    core::CPackedBitVector samplesRowMask;
+
+    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    if (numberTrainingRows < 2.0) {
+        HANDLE_FATAL(<< "Input error: unsufficient training data provided.");
+        return {};
+    }
+
+    if (frame.columnIsCategorical()[targetColumn]) {
+        sampler = classifierDistributionPreservingRowSampler(
+            numberThreads, frame, targetColumn, rng, distributionSourceRowsMask);
+    } else {
+        // TODO uncomment and implement
+        // sampler = regressionDistributionPreservingRowSampler(
+        //     numberThreads, frame, targetColumn, rng, desiredNumberSamples,
+        //     numberBuckets, dataSummarizationRowsMask, allTrainingRowsMask);
+    }
+
+    LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
+
+    TSizeVec rowIndices;
+    core::CPackedBitVector candidateSamplesRowsMask{allTrainingRowsMask};
+    frame.readRows(1, 0, frame.numberRows(),
+                   [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                       for (auto row = beginRows; row != endRows; ++row) {
+                           sampler->sample(*row);
+                       }
+                   },
+                   &candidateSamplesRowsMask);
+    sampler->finishSampling(rng, rowIndices);
+    std::sort(rowIndices.begin(), rowIndices.end());
+    LOG_TRACE(<< "# row indices = " << rowIndices.size());
+
+    for (auto row : rowIndices) {
+        samplesRowMask.extend(false, row - samplesRowMask.size());
+        samplesRowMask.extend(true);
+    }
+    samplesRowMask.extend(false, allTrainingRowsMask.size() - samplesRowMask.size());
+
+    // We exclusive or here to remove the rows we've selected for the current
+    //test fold. This is equivalent to samplng without replacement
+    candidateSamplesRowsMask ^= samplesRowMask;
+
+    LOG_TRACE(<< "# selected rows = " << samplesRowMask.manhattan());
+    return samplesRowMask;
+}
+
 CDataFrameUtils::TDoubleVecVec
 CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
                                      const core::CDataFrame& frame,
                                      const core::CPackedBitVector& rowMask,
                                      TSizeVec columnMask) {
+    TDoubleVecVec result{CDataFrameUtils::categoryCounts(numberThreads, frame,
+                                                         rowMask, columnMask)};
 
+    double Z{rowMask.manhattan()};
+    for (std::size_t i = 0; i < result.size(); ++i) {
+        for (std::size_t j = 0; j < result[i].size(); ++j) {
+            result[i][j] /= Z;
+        }
+    }
+
+    return result;
+}
+
+CDataFrameUtils::TDoubleVecVec
+CDataFrameUtils::categoryCounts(std::size_t numberThreads,
+                                const core::CDataFrame& frame,
+                                const core::CPackedBitVector& rowMask,
+                                TSizeVec columnMask) {
+    TDoubleVecVec result;
     removeMetricColumns(frame, columnMask);
     if (frame.numberRows() == 0 || columnMask.empty()) {
         return TDoubleVecVec(frame.numberColumns());
@@ -700,7 +796,6 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
         }
     };
 
-    TDoubleVecVec result;
     try {
         doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
                                 readCategoryCounts, &rowMask),
@@ -709,14 +804,6 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
                      << " category frequencies. Please report this problem.");
     }
-
-    double Z{rowMask.manhattan()};
-    for (std::size_t i = 0; i < result.size(); ++i) {
-        for (std::size_t j = 0; j < result[i].size(); ++j) {
-            result[i][j] /= Z;
-        }
-    }
-
     return result;
 }
 

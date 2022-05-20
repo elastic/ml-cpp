@@ -802,6 +802,71 @@ BOOST_AUTO_TEST_CASE(testStratifiedSamplingRowMasks) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
+    using TDoubleDoubleUMap = boost::unordered_map<double, double>;
+    test::CRandomNumbers testRng;
+    maths::common::CPRNG::CXorOShiro128Plus rng;
+
+std:
+    size_t numberDistributionSourceRows{1000};
+    std::size_t numberAdditionalRows{1000};
+    std::size_t numberCols{1};
+
+    for (std::size_t trial = 0; trial < 10; ++trial) {
+        TDoubleVec categories;
+        testRng.generateNormalSamples(0.0, 3.0, numberDistributionSourceRows, categories);
+
+        auto frame = core::makeMainStorageDataFrame(numberCols).first;
+        frame->categoricalColumns(TBoolVec{true});
+        for (std::size_t i = 0; i < numberDistributionSourceRows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *column = std::floor(std::fabs(categories[i]));
+            });
+        }
+        for (std::size_t i = 0; i < numberAdditionalRows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column,
+                                std::int32_t&) { *column = 0; });
+        }
+        frame->finishWritingRows();
+        core::CPackedBitVector distributionSourceRowsMask{numberDistributionSourceRows, true};
+        distributionSourceRowsMask.extend(false, numberAdditionalRows);
+
+        core::CPackedBitVector allRowsMask{distributionSourceRowsMask.size(), true};
+
+        TDoubleDoubleUMap expectedCategoryCounts;
+        for (auto i = distributionSourceRowsMask.beginOneBits();
+             i != distributionSourceRowsMask.endOneBits(); ++i) {
+            expectedCategoryCounts[std::floor(std::fabs(categories[*i]))] += 1.0;
+        }
+
+        core::CPackedBitVector samplingRowsMask{
+            maths::analytics::CDataFrameUtils::distributionPreservingSamplingRowMasks(
+                1, *frame, 0, rng, 0, distributionSourceRowsMask, allRowsMask)};
+
+        BOOST_REQUIRE_EQUAL(samplingRowsMask.size(), allRowsMask.size());
+
+        TDoubleDoubleUMap actualCategoryCounts;
+        frame->readRows(1, 0, frame->numberRows(),
+                        [&](const core::CDataFrame::TRowItr& beginRows,
+                            const core::CDataFrame::TRowItr& endRows) {
+                            for (auto row = beginRows; row != endRows; ++row) {
+                                actualCategoryCounts[(*row)[0]] += 1.0;
+                            }
+                        },
+                        &samplingRowsMask);
+
+        LOG_TRACE(<< "Expected category count "
+                  << core::CContainerPrinter::print(expectedCategoryCounts));
+        LOG_TRACE(<< "Actual category count "
+                  << core::CContainerPrinter::print(actualCategoryCounts));
+
+        BOOST_REQUIRE_EQUAL(actualCategoryCounts.size(), expectedCategoryCounts.size());
+        for (std::size_t i = 0; i < expectedCategoryCounts.size(); ++i) {
+            BOOST_REQUIRE_EQUAL(actualCategoryCounts[i], expectedCategoryCounts[i]);
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testMicWithColumn) {
 
     // Test we get the exact MICe value when the number of rows is less than

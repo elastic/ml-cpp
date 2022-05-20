@@ -2527,13 +2527,22 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
         return allTrainingRowsMask;
     }
 
-    std::size_t sampleSize{std::max(
-        static_cast<std::size_t>(allTrainingRowsMask.manhattan() * m_DataSummarizationFraction),
-        static_cast<std::size_t>(2))};
-    core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
-        m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10, allTrainingRowsMask)};
-
-    return rowMask;
+    if (m_Hyperparameters.incrementalTraining() == false) {
+        // use stratified sampling after initial training
+        std::size_t sampleSize{std::max(
+            static_cast<std::size_t>(allTrainingRowsMask.manhattan() * m_DataSummarizationFraction),
+            static_cast<std::size_t>(2))};
+        core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
+            m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
+            allTrainingRowsMask)};
+        return rowMask;
+    } else {
+        // use class distribution preserving sampling after incremental training
+        core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMasks(
+            m_NumberThreads, frame, m_DependentVariable, m_Rng, 10,
+            this->allTrainingRowsMask() & ~this->newTrainingRowMask(),
+            this->allTrainingRowsMask())};
+    }
 }
 
 const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {

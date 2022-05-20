@@ -328,6 +328,15 @@ public:
                                std::size_t numberBuckets,
                                const core::CPackedBitVector& allTrainingRowsMask);
 
+    static core::CPackedBitVector
+    distributionPreservingSamplingRowMasks(std::size_t numberThreads,
+                                           const core::CDataFrame& frame,
+                                           std::size_t targetColumn,
+                                           common::CPRNG::CXorOShiro128Plus rng,
+                                           std::size_t numberBuckets,
+                                           const core::CPackedBitVector& distributionSourceRowsMask,
+                                           const core::CPackedBitVector& allTrainingRowsMask);
+
     //! Get the relative frequency of each category in \p frame.
     //!
     //! \param[in] numberThreads The number of threads available.
@@ -340,6 +349,11 @@ public:
                                              const core::CDataFrame& frame,
                                              const core::CPackedBitVector& rowMask,
                                              TSizeVec columnMask);
+
+    static TDoubleVecVec categoryCounts(std::size_t numberThreads,
+                                        const core::CDataFrame& frame,
+                                        const core::CPackedBitVector& rowMask,
+                                        TSizeVec columnMask);
 
     //! Compute the mean value of \p target on the restriction to the rows labelled
     //! by each distinct category of the categorical columns.
