@@ -252,13 +252,7 @@ bool CTokenListCategory::updateCommonUniqueTokenIds(const TSizeSizeMap& newUniqu
             changed = true;
         } else {
             if (commonIter->first == newIter->first) {
-                if (commonIter->second == newIter->second) {
-                    ++commonIter;
-                } else {
-                    m_CommonUniqueTokenWeight -= commonIter->second;
-                    commonIter = m_CommonUniqueTokenIds.erase(commonIter);
-                    changed = true;
-                }
+                ++commonIter;
             }
             ++newIter;
         }
@@ -337,8 +331,7 @@ bool CTokenListCategory::updateOrderedCommonTokenIds(const TSizeSizePrVec& newTo
                 if (newTokenIds[newIndex].first != m_BaseTokenIds[commonIndex].first) {
                     ++newIndex;
                 } else {
-                    tryWeight += (newTokenIds[newIndex].second +
-                                  m_BaseTokenIds[commonIndex].second);
+                    tryWeight += m_BaseTokenIds[commonIndex].second;
                     break;
                 }
             }
@@ -439,17 +432,14 @@ std::size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uni
     while (commonIter != m_CommonUniqueTokenIds.end() &&
            testIter != uniqueTokenIds.end()) {
         if (commonIter->first == testIter->first) {
-            // Don't increment the weight if a given token appears a different
-            // number of times in the two strings
-            if (commonIter->second == testIter->second) {
-                presentWeight += commonIter->second;
-            }
+            // If the token ID matches then consider the token present even if
+            // the weight in the test list is different.
+            presentWeight += commonIter->second;
             ++commonIter;
             ++testIter;
         } else if (commonIter->first < testIter->first) {
             ++commonIter;
-        } else // if (commonIter->first > testIter->first)
-        {
+        } else { // if (commonIter->first > testIter->first)
             ++testIter;
         }
     }
