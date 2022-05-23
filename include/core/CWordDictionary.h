@@ -15,6 +15,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <algorithm>
 #include <string>
 
 namespace ml {
