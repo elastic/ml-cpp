@@ -108,7 +108,6 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
             // Quickly rule out wildly different token weights prior to doing
             // the expensive similarity calculations
             if (baseWeight < minWeight || baseWeight > maxWeight) {
-                LOG_INFO(<< "here1");
                 continue;
             }
 
@@ -123,7 +122,6 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
                     static_cast<double>(commonUniqueTokenWeight - missingCommonTokenWeight) /
                     static_cast<double>(origUniqueTokenWeight)};
                 if (proportionOfOrig < m_LowerThreshold) {
-                    LOG_INFO(<< "here2");
                     continue;
                 }
             }
