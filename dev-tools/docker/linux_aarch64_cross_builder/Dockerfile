@@ -20,7 +20,7 @@ COPY . /ml-cpp/
 # Tell the build we want to cross compile
 ENV CPP_CROSS_COMPILE aarch64
 
-ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/tc-linux-aarch64.cmake
+ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake
 
 # Pass through any version qualifier (default none)
 ARG VERSION_QUALIFIER=

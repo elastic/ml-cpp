@@ -77,6 +77,11 @@ if (isWindows) {
 } else {
   artifactClassifier = 'linux-' + osArch
 }
+println "artifactClassifier = " + artifactClassifier
+
+String cmakeFlags = '-DCMAKE_TOOLCHAIN_FILE=cmake/' + artifactClassifier + '.cmake'
+
+println "cmakeFlags = " + cmakeFlags
 
 // Always do the C++ build using bash (Git bash on Windows)
 project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
@@ -107,7 +112,7 @@ clean {
 task configure(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' -B cmake_build'
+  args '-c', 'source ./set_env.sh && ' + cmake + ' -B cmake_build ' + cmakeFlags
   workingDir "${projectDir}"
 }
 

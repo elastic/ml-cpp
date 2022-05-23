@@ -121,7 +121,6 @@ if (WIN32)
   target_link_libraries(MlCore PUBLIC AdvAPI32.lib shell32.lib Version.lib ${STRPTIME_LIB})
 endif()
 
-# workaround for linker insisting on picking "tbd" libraries when cross compiling for Darwin
 target_link_libraries(MlCore PUBLIC ${ZLIB_LIBRARIES})
 target_link_libraries(MlCore PUBLIC ${LIBXML2_LIBRARIES})
 target_link_libraries(MlCore PUBLIC ${Boost_LIBRARIES})
@@ -133,6 +132,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif()
 
 install(TARGETS MlCore RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
+
 if(MSVC)
   install(FILES $<TARGET_PDB_FILE:MlCore> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
+  install(FILES $ENV{CPP_SRC_HOME}/lib/core/date_time_zonespec.csv DESTINATION ${CMAKE_INSTALL_PREFIX}/resources)
 endif()

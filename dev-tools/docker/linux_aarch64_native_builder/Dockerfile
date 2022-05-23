@@ -17,6 +17,8 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Copy the current Git repository into the container
 COPY . /ml-cpp/
 
+ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-aarch64.cmake
+
 # Pass through any version qualifier (default none)
 ARG VERSION_QUALIFIER=
 

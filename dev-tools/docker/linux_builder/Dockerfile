@@ -26,6 +26,8 @@ ARG SNAPSHOT=yes
 # Pass through ML debug option (default blank)
 ARG ML_DEBUG=
 
+ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/linux-x86_64.cmake
+
 # Run the build
 RUN \
   /ml-cpp/dev-tools/docker/docker_entrypoint.sh
