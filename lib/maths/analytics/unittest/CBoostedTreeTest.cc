@@ -3698,7 +3698,6 @@ BOOST_AUTO_TEST_CASE(testCoarseParameterTuningEarlyStopping) {
             1, std::make_unique<maths::analytics::boosted_tree::CMse>());
         factory.numberHoldoutRows(numberHoldoutRows);
         auto regression = factory.buildForTrain(*frame, cols - 1);
-        BOOST_REQUIRE(factory.hyperparametersLosses()->empty() == false);
         bool stopEarly{regression->hyperparameters().stopEarly()};
         return stopEarly;
     };

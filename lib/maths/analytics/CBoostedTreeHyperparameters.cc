@@ -46,31 +46,6 @@ CBoostedTreeHyperparameters::CBoostedTreeHyperparameters() {
     this->initializeTunableHyperparameters();
 }
 
-CBoostedTreeHyperparameters::CBoostedTreeHyperparameters(const CBoostedTreeHyperparameters& other) {
-    *this = other;
-}
-
-CBoostedTreeHyperparameters& CBoostedTreeHyperparameters::
-operator=(const CBoostedTreeHyperparameters& other) {
-    // copy hyperparameter attributes not related to hyperparameter optimization
-    m_IncrementalTraining = other.m_IncrementalTraining;
-    m_DepthPenaltyMultiplier = other.m_DepthPenaltyMultiplier;
-    m_TreeSizePenaltyMultiplier = other.m_TreeSizePenaltyMultiplier;
-    m_LeafWeightPenaltyMultiplier = other.m_LeafWeightPenaltyMultiplier;
-    m_SoftTreeDepthLimit = other.m_SoftTreeDepthLimit;
-    m_SoftTreeDepthTolerance = other.m_SoftTreeDepthTolerance;
-    m_TreeTopologyChangePenalty = other.m_TreeTopologyChangePenalty;
-    m_DownsampleFactor = other.m_DownsampleFactor;
-    m_FeatureBagFraction = other.m_FeatureBagFraction;
-    m_Eta = other.m_Eta;
-    m_EtaGrowthRatePerTree = other.m_EtaGrowthRatePerTree;
-    m_RetrainedTreeEta = other.m_RetrainedTreeEta;
-    m_PredictionChangeCost = other.m_PredictionChangeCost;
-    m_MaximumNumberTrees = other.m_MaximumNumberTrees;
-    m_TunableHyperparameters = other.m_TunableHyperparameters;
-
-    return *this;
-}
 
 double CBoostedTreeHyperparameters::penaltyForDepth(std::size_t depth) const {
     return std::exp((static_cast<double>(depth) / m_SoftTreeDepthLimit.value() - 1.0) /
@@ -195,7 +170,7 @@ void CBoostedTreeHyperparameters::initialTestLossLineSearch(const CInitializeFin
                                          args.tree().m_TestingRowMasks[0],
                                          args.tree().m_TrainingProgress)
                             .s_TestLoss};
-        args.storeParameters(args.tree().hyperparameters(), testLoss);
+        args.tree().hyperparameters().captureState(testLoss);
         testLosses.emplace_back(parameter, testLoss);
     }
 }
@@ -253,7 +228,7 @@ void CBoostedTreeHyperparameters::fineTineTestLoss(const CInitializeFineTuneArgu
 
         double adjustedTestLoss{adjustTestLoss(parameter(0), testLoss)};
         bopt.add(parameter, adjustedTestLoss, 0.0);
-        args.storeParameters(args.tree().hyperparameters(), adjustedTestLoss);
+        args.tree().hyperparameters().captureState(testLoss);
         testLosses.emplace_back(parameter(0), adjustedTestLoss);
     }
 
@@ -359,6 +334,21 @@ void CBoostedTreeHyperparameters::initializeSearch() {
     m_NumberRounds = m_MaximumOptimisationRoundsPerHyperparameter *
                      m_TunableHyperparameters.size();
     this->saveCurrent();
+}
+
+void CBoostedTreeHyperparameters::coarseParameterTuningEarlyStopping() {
+    if (this->earlyStoppingEnabled()) {
+        // Add information about observed training runs to the GP
+        for (auto& hyperparameterLoss : m_HyperparametersLosses) {
+            auto parameters = hyperparameterLoss.first.selectParametersVector(
+                this->tunableHyperparameters());
+            this->addObservation(parameters, hyperparameterLoss.second, 0.0, true);
+        }
+        if (this->stopEarly() == false) {
+            this->resetSearch();
+        }
+        this->resetBayesianOptimization();
+    }
 }
 
 void CBoostedTreeHyperparameters::startSearch() {
@@ -613,6 +603,8 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
                                  m_TreeSizePenaltyMultiplier, inserter);
     core::CPersistUtils::persist(TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
                                  m_TreeTopologyChangePenalty, inserter);
+    core::CPersistUtils::persist(HYPERPARAMETERS_LOSSES_TAG,
+                                 m_HyperparametersLosses, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is re-generated
     // from overriden hyperparameters.
     // m_HyperparameterSamples is not persisted explicitly, it is re-generated.
@@ -686,6 +678,9 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
         RESTORE(TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
                 core::CPersistUtils::restore(TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
                                              m_TreeTopologyChangePenalty, traverser))
+        RESTORE(HYPERPARAMETERS_LOSSES_TAG,
+                core::CPersistUtils::restore(HYPERPARAMETERS_LOSSES_TAG,
+                                             m_HyperparametersLosses, traverser))
     } while (traverser.next());
 
     this->initializeTunableHyperparameters();
@@ -876,6 +871,32 @@ void CBoostedTreeHyperparameters::captureScale() {
     m_MaximumNumberTrees.captureScale();
 }
 
+void CBoostedTreeHyperparameters::captureState(double loss) {
+    m_HyperparametersLosses.emplace_back(this->copyRegularizationParameters(), loss);
+}
+
+CBoostedTreeHyperparameters CBoostedTreeHyperparameters::copyRegularizationParameters() const {
+    CBoostedTreeHyperparameters copyTo;
+
+    copyTo.m_IncrementalTraining = m_IncrementalTraining;
+    copyTo.m_DepthPenaltyMultiplier = m_DepthPenaltyMultiplier;
+    copyTo.m_TreeSizePenaltyMultiplier = m_TreeSizePenaltyMultiplier;
+    copyTo.m_LeafWeightPenaltyMultiplier = m_LeafWeightPenaltyMultiplier;
+    copyTo.m_SoftTreeDepthLimit = m_SoftTreeDepthLimit;
+    copyTo.m_SoftTreeDepthTolerance = m_SoftTreeDepthTolerance;
+    copyTo.m_TreeTopologyChangePenalty = m_TreeTopologyChangePenalty;
+    copyTo.m_DownsampleFactor = m_DownsampleFactor;
+    copyTo.m_FeatureBagFraction = m_FeatureBagFraction;
+    copyTo.m_Eta = m_Eta;
+    copyTo.m_EtaGrowthRatePerTree = m_EtaGrowthRatePerTree;
+    copyTo.m_RetrainedTreeEta = m_RetrainedTreeEta;
+    copyTo.m_PredictionChangeCost = m_PredictionChangeCost;
+    copyTo.m_MaximumNumberTrees = m_MaximumNumberTrees;
+    copyTo.m_TunableHyperparameters = m_TunableHyperparameters;
+
+    return copyTo;
+}
+
 CBoostedTreeHyperparameters::TVector CBoostedTreeHyperparameters::selectParametersVector(
     const CBoostedTreeHyperparameters::THyperparametersVec& selectedHyperparameters) const {
     TVector parameters{selectedHyperparameters.size()};
@@ -1049,6 +1070,7 @@ const std::string CBoostedTreeHyperparameters::ETA_GROWTH_RATE_PER_TREE_TAG{"eta
 const std::string CBoostedTreeHyperparameters::ETA_TAG{"eta"};
 const std::string CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
 const std::string CBoostedTreeHyperparameters::LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{"leaf_weight_penalty_multiplier"};
+const std::string CBoostedTreeHyperparameters::HYPERPARAMETERS_LOSSES_TAG{"hyperparameters_losses"};
 const std::string CBoostedTreeHyperparameters::MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
 const std::string CBoostedTreeHyperparameters::MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{"maximum_optimisation_rounds_per_hyperparameter"};
 const std::string CBoostedTreeHyperparameters::MEAN_FOREST_SIZE_ACCUMULATOR_TAG{"mean_forest_size_accumulator"};

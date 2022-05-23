@@ -65,10 +65,6 @@ public:
         : m_Value{value}, m_MinValue{value}, m_MaxValue{value}, m_LogSearch{logSearch == E_LogSearch} {
     }
 
-    CBoostedTreeParameter(const CBoostedTreeParameter<T>& other) = default;
-    CBoostedTreeParameter& operator=(const CBoostedTreeParameter<T>& other) = default;
-    ~CBoostedTreeParameter() = default;
-
     //! Get the value.
     T value() const { return m_Scale * m_Value; }
 
@@ -376,20 +372,15 @@ public:
         using TUpdateParameter = std::function<bool(CBoostedTreeImpl&, double)>;
         using TTruncateParameter = std::function<void(TVector3x1&)>;
         using TAdjustTestLoss = std::function<double(double, double, double)>;
-        using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
-        using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
-        using THyperparametersDoublePrVecSPtr = std::shared_ptr<THyperparametersDoublePrVec>;
 
     public:
         CInitializeFineTuneArguments(core::CDataFrame& frame,
                                      CBoostedTreeImpl& tree,
                                      double maxValue,
                                      double searchInterval,
-                                     TUpdateParameter updateParameter,
-                                     THyperparametersDoublePrVecSPtr hyperparametersLosses)
+                                     TUpdateParameter updateParameter)
             : m_UpdateParameter{std::move(updateParameter)}, m_Frame{frame}, m_Tree{tree},
-              m_MaxValue{maxValue}, m_SearchInterval{searchInterval},
-              m_HyperparametersLosses{hyperparametersLosses} {}
+              m_MaxValue{maxValue}, m_SearchInterval{searchInterval} {}
 
         CInitializeFineTuneArguments(const CInitializeFineTuneArguments&) = delete;
         CInitializeFineTuneArguments& operator=(const CInitializeFineTuneArguments&) = delete;
@@ -411,10 +402,6 @@ public:
         const TUpdateParameter& updateParameter() const {
             return m_UpdateParameter;
         }
-        void storeParameters(const CBoostedTreeHyperparameters& hyperparameters,
-                             double loss) const {
-            m_HyperparametersLosses->emplace_back(hyperparameters, loss);
-        }
         const TAdjustTestLoss& adjustLoss() const { return m_AdjustLoss; }
         const TTruncateParameter& truncateParameter() const {
             return m_TruncateParameter;
@@ -434,7 +421,6 @@ public:
         CBoostedTreeImpl& m_Tree;
         double m_MaxValue;
         double m_SearchInterval;
-        THyperparametersDoublePrVecSPtr m_HyperparametersLosses;
     };
 
 public:
@@ -447,6 +433,7 @@ public:
     static const std::string ETA_GROWTH_RATE_PER_TREE_TAG;
     static const std::string ETA_TAG;
     static const std::string FEATURE_BAG_FRACTION_TAG;
+    static const std::string HYPERPARAMETERS_LOSSES_TAG;
     static const std::string LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG;
     static const std::string MAXIMUM_NUMBER_TREES_TAG;
     static const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG;
@@ -469,8 +456,6 @@ public:
 
 public:
     CBoostedTreeHyperparameters();
-    CBoostedTreeHyperparameters(const CBoostedTreeHyperparameters& other);
-    CBoostedTreeHyperparameters& operator=(const CBoostedTreeHyperparameters& other);
 
     //! Set if we're incremental training.
     void incrementalTraining(bool value) { m_IncrementalTraining = value; }
@@ -656,6 +641,8 @@ public:
     //! Initialize the search for best values of tunable hyperparameters.
     void initializeSearch();
 
+    void coarseParameterTuningEarlyStopping();
+
     //! Initialize a search for the best hyperparameters.
     void startSearch();
 
@@ -753,6 +740,8 @@ private:
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TOptionalSize = boost::optional<std::size_t>;
+    using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
+    using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
 
 private:
     void initializeTunableHyperparameters();
@@ -768,6 +757,10 @@ private:
                                 double intervalRightEnd,
                                 TDoubleDoublePrVec testLosses) const;
     void saveCurrent();
+
+    void captureState(double loss);
+
+    CBoostedTreeHyperparameters copyRegularizationParameters() const;
 
 private:
     bool m_IncrementalTraining{false};
@@ -805,6 +798,7 @@ private:
     double m_BestForestLossGap{0.0};
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;
+    THyperparametersDoublePrVec m_HyperparametersLosses{};
     //@}
 };
 }

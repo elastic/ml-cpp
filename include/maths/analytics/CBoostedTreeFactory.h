@@ -60,10 +60,6 @@ public:
     using TNodeVecVecUPtr = std::unique_ptr<TNodeVecVec>;
     using TRestoreBestForestFunc =
         std::function<TNodeVecVecUPtr(core::CDataSearcher::TIStreamP, const TStrSizeUMap&)>;
-    using THyperparametersDoublePrVec =
-        CBoostedTreeHyperparameters::CInitializeFineTuneArguments::THyperparametersDoublePrVec;
-    using THyperparametersDoublePrVecSPtr =
-        CBoostedTreeHyperparameters::CInitializeFineTuneArguments::THyperparametersDoublePrVecSPtr;
 
 public:
     //! \name Instrumentation Phases
@@ -238,8 +234,6 @@ public:
     //! \warning A tree object can only be restored once.
     TBoostedTreeUPtr restoreFor(core::CDataFrame& frame, std::size_t dependentVariable);
 
-    const THyperparametersDoublePrVecSPtr& hyperparametersLosses() const;
-
 private:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
@@ -394,7 +388,7 @@ private:
     TBoostedTreeImplUPtr m_TreeImpl;
     mutable std::size_t m_PaddedExtraColumns{0};
     TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
-    THyperparametersDoublePrVecSPtr m_HyperparametersLosses;
+    // THyperparametersDoublePrVecSPtr m_HyperparametersLosses;
 };
 }
 }

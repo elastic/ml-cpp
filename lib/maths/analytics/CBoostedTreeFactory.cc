@@ -120,12 +120,13 @@ auto validInputStream(core::CDataSearcher& restoreSearcher) {
     return decltype(restoreSearcher.search(1, 1)){};
 }
 
+template<typename T>
 double minBoundary(const maths::analytics::CBoostedTreeHyperparameters::TDoubleParameter parameter,
-                   double maxBoundary,
-                   double interval) {
+                   T maxBoundary,
+                   T interval) {
     maxBoundary = parameter.toSearchValue(maxBoundary);
     interval = parameter.toSearchValue(interval);
-    double minBoundary{maxBoundary - interval};
+    T minBoundary{maxBoundary - interval};
     return parameter.fromSearchValue(minBoundary);
 }
 }
@@ -196,19 +197,6 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
-        if (m_TreeImpl->m_Hyperparameters.earlyStoppingEnabled()) {
-            // Add information about observed training runs to the GP
-            for (auto& hyperparameterLoss : *m_HyperparametersLosses) {
-                auto parameters = hyperparameterLoss.first.selectParametersVector(
-                    m_TreeImpl->m_Hyperparameters.tunableHyperparameters());
-                m_TreeImpl->m_Hyperparameters.addObservation(
-                    parameters, hyperparameterLoss.second, 0.0, true);
-            }
-            if (m_TreeImpl->m_Hyperparameters.stopEarly() == false) {
-                m_TreeImpl->m_Hyperparameters.resetSearch();
-            }
-            m_TreeImpl->m_Hyperparameters.resetBayesianOptimization();
-        }
     }
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
@@ -781,18 +769,15 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     });
 
     // initialize unset regularization hyperparameters with meaningful values
-    if (hyperparameters.earlyStoppingEnabled()) {
-
-        if (treeSizePenaltyMultiplier.rangeFixed() == false) {
-            treeSizePenaltyMultiplier.set(minBoundary(
-                treeSizePenaltyMultiplier, m_GainPerNode90thPercentile,
-                2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile));
-        }
-        if (leafWeightPenaltyMultiplier.rangeFixed() == false) {
-            leafWeightPenaltyMultiplier.set(minBoundary(
-                leafWeightPenaltyMultiplier, m_TotalCurvaturePerNode90thPercentile,
-                2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile));
-        }
+    if (treeSizePenaltyMultiplier.rangeFixed() == false) {
+        treeSizePenaltyMultiplier.set(minBoundary(
+            treeSizePenaltyMultiplier, m_GainPerNode90thPercentile,
+            2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile));
+    }
+    if (leafWeightPenaltyMultiplier.rangeFixed() == false) {
+        leafWeightPenaltyMultiplier.set(minBoundary(
+            leafWeightPenaltyMultiplier, m_TotalCurvaturePerNode90thPercentile,
+            2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile));
     }
 
     // Search for depth limit at which the tree starts to overfit.
@@ -812,8 +797,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                 auto& parameter = tree.m_Hyperparameters.softTreeDepthLimit();
                                 parameter.set(parameter.fromSearchValue(softDepthLimit));
                                 return true;
-                            },
-                            m_HyperparametersLosses}
+                            }}
                             .truncateParameter([&](TVector& range) {
                                 range = truncate(range, minSearchValue, maxSearchValue);
                             }),
@@ -847,8 +831,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                             auto& parameter = tree.m_Hyperparameters.depthPenaltyMultiplier();
                             parameter.set(parameter.fromSearchValue(depthPenalty));
                             return true;
-                        },
-                        m_HyperparametersLosses},
+                        }},
                     depthPenaltyMultiplierParameter);
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
@@ -878,8 +861,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                     tree.m_Hyperparameters.treeSizePenaltyMultiplier();
                                 parameter.set(parameter.fromSearchValue(treeSizePenalty));
                                 return true;
-                            },
-                            m_HyperparametersLosses},
+                            }},
                         treeSizePenaltyMultiplier);
                 })) {
             m_TreeImpl->m_TrainingProgress.increment(
@@ -901,8 +883,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                                     tree.m_Hyperparameters.leafWeightPenaltyMultiplier();
                                 parameter.set(parameter.fromSearchValue(leafWeightPenalty));
                                 return true;
-                            },
-                            m_HyperparametersLosses},
+                            }},
                         leafWeightPenaltyMultiplier);
                 })) {
             m_TreeImpl->m_TrainingProgress.increment(
@@ -952,8 +933,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                             parameter.set(downsampleFactor);
                             scaleRegularizers(tree, downsampleFactor);
                             return downsampleFactor * numberTrainingRows > 10.0;
-                        },
-                        m_HyperparametersLosses}
+                        }}
                         .adjustLoss([&](double downsampleFactor, double minTestLoss, double testLoss) {
                             // If there is very little relative difference in the loss prefer
                             // smaller downsample factors because they train faster. We add a
@@ -1019,8 +999,7 @@ void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& fr
                             featureBagFraction = parameter.fromSearchValue(featureBagFraction);
                             parameter.set(featureBagFraction);
                             return tree.featureBagSize(featureBagFraction) > 1;
-                        },
-                        m_HyperparametersLosses}
+                        }}
                         .adjustLoss([&](double featureBagFraction, double minTestLoss, double testLoss) {
                             // If there is very little relative difference in the loss prefer
                             // smaller feature bag fractions because they train faster. We add
@@ -1069,7 +1048,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
                 hyperparameters.initializeFineTuneSearchInterval(
                     CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
-                        frame, *m_TreeImpl, maxEta, searchIntervalSize, applyEta, m_HyperparametersLosses}
+                        frame, *m_TreeImpl, maxEta, searchIntervalSize, applyEta}
                         .truncateParameter([&](TVector& range) {
                             range = truncate(range, minSearchValue, maxSearchValue);
                         }),
@@ -1297,7 +1276,6 @@ std::size_t CBoostedTreeFactory::maximumNumberRows() {
 CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss)
     : m_NumberThreads{numberThreads},
       m_TreeImpl{std::make_unique<CBoostedTreeImpl>(numberThreads, std::move(loss))} {
-    m_HyperparametersLosses = std::make_shared<THyperparametersDoublePrVec>();
 }
 
 CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept = default;
@@ -1756,7 +1734,6 @@ bool CBoostedTreeFactory::skipCheckpointIfAtOrAfter(int stage, const F& f) {
         f();
         m_TreeImpl->m_InitializationStage =
             static_cast<CBoostedTreeImpl::EInitializationStage>(stage);
-        // LOG_DEBUG(<<"Checkpoints stage " << stage);
         m_RecordTrainingState([this](core::CStatePersistInserter& inserter) {
             this->acceptPersistInserter(inserter);
         });
@@ -1801,8 +1778,6 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
     inserter_.insertValue(INITIALIZATION_CHECKPOINT_TAG, "");
     inserter_.insertLevel(FACTORY_TAG, [this](core::CStatePersistInserter& inserter) {
         inserter.insertValue(VERSION_7_9_TAG, "");
-        core::CPersistUtils::persistIfNotNull(HYPERPARAMETERS_LOSSES_TAG,
-                                              m_HyperparametersLosses, inserter);
         core::CPersistUtils::persist(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
                                      m_GainPerNode1stPercentile, inserter);
         core::CPersistUtils::persist(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
@@ -1832,9 +1807,7 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
             if (traverser_.traverseSubLevel([this](core::CStateRestoreTraverser& traverser) {
                     do {
                         const std::string& name{traverser.name()};
-                        RESTORE(HYPERPARAMETERS_LOSSES_TAG,
-                                core::CPersistUtils::restore(HYPERPARAMETERS_LOSSES_TAG,
-                                                             *m_HyperparametersLosses, traverser))
+                        
                         RESTORE(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
                                 core::CPersistUtils::restore(
                                     GAIN_PER_NODE_1ST_PERCENTILE_TAG,
@@ -1877,11 +1850,6 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
         }
     }
     return true;
-}
-
-const CBoostedTreeFactory::THyperparametersDoublePrVecSPtr&
-CBoostedTreeFactory::hyperparametersLosses() const {
-    return m_HyperparametersLosses;
 }
 
 const std::string CBoostedTreeFactory::FEATURE_SELECTION{"feature_selection"};
