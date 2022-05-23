@@ -11,7 +11,6 @@
 #ifndef INCLUDED_ml_core_CWordDictionary_h
 #define INCLUDED_ml_core_CWordDictionary_h
 
-#include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
 #include <boost/unordered_map.hpp>
@@ -50,7 +49,7 @@ namespace core {
 //! too to avoid repeated locking in the instance() method (see
 //! Modern C++ Design by Andrei Alexandrescu for details).
 //!
-class CORE_EXPORT CWordDictionary : private CNonCopyable {
+class CORE_EXPORT CWordDictionary {
 public:
     //! Types of words.
     //! The values used are deliberately powers of two so that in the
@@ -84,6 +83,10 @@ public:
         void reset() {
             // NO-OP
         }
+
+        std::size_t minMatchingWeight(std::size_t weight) { return weight; }
+
+        std::size_t maxMatchingWeight(std::size_t weight) { return weight; }
     };
 
     using TWeightAll2 = CWeightAll<2>;
@@ -103,6 +106,10 @@ public:
         void reset() {
             // NO-OP
         }
+
+        std::size_t minMatchingWeight(std::size_t weight) { return weight; }
+
+        std::size_t maxMatchingWeight(std::size_t weight) { return weight; }
     };
 
     using TWeightVerbs5Other2 = CWeightOnePart<E_Verb, 5, 2>;
@@ -120,16 +127,27 @@ public:
             }
 
             std::size_t weight = (partOfSpeech == SPECIAL_PART1) ? EXTRA_WEIGHT1 : DEFAULT_EXTRA_WEIGHT;
-            std::size_t boost =
-                (m_NumOfAdjacentDictionaryWords > 1 ? ADJACENT_PARTS_BOOST : 1);
+            std::size_t boost = (++m_NumOfAdjacentDictionaryWords > 2) ? ADJACENT_PARTS_BOOST
+                                                                       : 1;
             weight *= boost;
-
-            ++m_NumOfAdjacentDictionaryWords;
 
             return weight;
         }
 
         void reset() { m_NumOfAdjacentDictionaryWords = 0; }
+
+        std::size_t minMatchingWeight(std::size_t weight) {
+            return (weight <= ADJACENT_PARTS_BOOST)
+                       ? weight
+                       : (1 + (weight - 1) / ADJACENT_PARTS_BOOST);
+        }
+
+        std::size_t maxMatchingWeight(std::size_t weight) {
+            return (weight <= std::min(EXTRA_WEIGHT1, DEFAULT_EXTRA_WEIGHT) ||
+                    weight > std::max(EXTRA_WEIGHT1 + 1, DEFAULT_EXTRA_WEIGHT + 1))
+                       ? weight
+                       : (1 + (weight - 1) * ADJACENT_PARTS_BOOST);
+        }
 
     private:
         std::size_t m_NumOfAdjacentDictionaryWords = 0;
@@ -155,6 +173,10 @@ public:
         void reset() {
             // NO-OP
         }
+
+        std::size_t minMatchingWeight(std::size_t weight) { return weight; }
+
+        std::size_t maxMatchingWeight(std::size_t weight) { return weight; }
     };
 
     // Similar templates with more arguments can be added as required...
@@ -175,6 +197,10 @@ public:
     //! created Moby.  This method returns E_NotInDictionary for words that
     //! aren't in the dictionary.
     EPartOfSpeech partOfSpeech(const std::string& str) const;
+
+    //! No copying
+    CWordDictionary(const CWordDictionary&) = delete;
+    CWordDictionary& operator=(const CWordDictionary&) = delete;
 
 private:
     //! Constructor for a singleton is private

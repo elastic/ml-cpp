@@ -67,22 +67,26 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
                                                std::size_t rawStringLen) {
     // First tokenise string
     std::size_t workWeight{0};
+    std::size_t minReweightedWorkWeight{0};
+    std::size_t maxReweightedWorkWeight{0};
     auto preTokenisedIter = fields.find(PRETOKENISED_TOKEN_FIELD);
     if (preTokenisedIter != fields.end()) {
         if (this->addPretokenisedTokens(preTokenisedIter->second, m_WorkTokenIds,
-                                        m_WorkTokenUniqueIds, workWeight) == false) {
+                                        m_WorkTokenUniqueIds, workWeight, minReweightedWorkWeight,
+                                        maxReweightedWorkWeight) == false) {
             return CLocalCategoryId::softFailure();
         }
     } else {
-        this->tokeniseString(fields, str, m_WorkTokenIds, m_WorkTokenUniqueIds, workWeight);
+        this->tokeniseString(fields, str, m_WorkTokenIds, m_WorkTokenUniqueIds, workWeight,
+                             minReweightedWorkWeight, maxReweightedWorkWeight);
     }
 
     // Determine the minimum and maximum token weight that could possibly
     // match the weight we've got
     std::size_t minWeight{CTokenListDataCategorizerBase::minMatchingWeight(
-        workWeight, m_LowerThreshold)};
+        minReweightedWorkWeight, m_LowerThreshold)};
     std::size_t maxWeight{CTokenListDataCategorizerBase::maxMatchingWeight(
-        workWeight, m_LowerThreshold)};
+        maxReweightedWorkWeight, m_LowerThreshold)};
 
     // We search previous categories in descending order of the number of matches
     // we've seen for them
@@ -104,19 +108,24 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
             // Quickly rule out wildly different token weights prior to doing
             // the expensive similarity calculations
             if (baseWeight < minWeight || baseWeight > maxWeight) {
+                LOG_INFO(<< "here1");
                 continue;
             }
 
             // Rule out categories where adding the current string would unacceptably
             // reduce the number of unique common tokens
-            std::size_t origUniqueTokenWeight{compCategory.origUniqueTokenWeight()};
-            std::size_t commonUniqueTokenWeight{compCategory.commonUniqueTokenWeight()};
             std::size_t missingCommonTokenWeight{
                 compCategory.missingCommonTokenWeight(m_WorkTokenUniqueIds)};
-            double proportionOfOrig{static_cast<double>(commonUniqueTokenWeight - missingCommonTokenWeight) /
-                                    static_cast<double>(origUniqueTokenWeight)};
-            if (proportionOfOrig < m_LowerThreshold) {
-                continue;
+            if (missingCommonTokenWeight > 0) {
+                std::size_t origUniqueTokenWeight{compCategory.origUniqueTokenWeight()};
+                std::size_t commonUniqueTokenWeight{compCategory.commonUniqueTokenWeight()};
+                double proportionOfOrig{
+                    static_cast<double>(commonUniqueTokenWeight - missingCommonTokenWeight) /
+                    static_cast<double>(origUniqueTokenWeight)};
+                if (proportionOfOrig < m_LowerThreshold) {
+                    LOG_INFO(<< "here2");
+                    continue;
+                }
             }
         }
 
@@ -148,8 +157,10 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
 
             // Recalculate the minimum and maximum token counts that might
             // produce a better match
-            minWeight = CTokenListDataCategorizerBase::minMatchingWeight(workWeight, similarity);
-            maxWeight = CTokenListDataCategorizerBase::maxMatchingWeight(workWeight, similarity);
+            minWeight = CTokenListDataCategorizerBase::minMatchingWeight(
+                minReweightedWorkWeight, similarity);
+            maxWeight = CTokenListDataCategorizerBase::maxMatchingWeight(
+                maxReweightedWorkWeight, similarity);
         }
     }
 
@@ -513,7 +524,9 @@ std::size_t CTokenListDataCategorizerBase::idForToken(const std::string& token) 
 bool CTokenListDataCategorizerBase::addPretokenisedTokens(const std::string& tokensCsv,
                                                           TSizeSizePrVec& tokenIds,
                                                           TSizeSizeMap& tokenUniqueIds,
-                                                          std::size_t& totalWeight) {
+                                                          std::size_t& totalWeight,
+                                                          std::size_t& minReweightedTotalWeight,
+                                                          std::size_t& maxReweightedTotalWeight) {
     tokenIds.clear();
     tokenUniqueIds.clear();
     totalWeight = 0;
@@ -525,7 +538,8 @@ bool CTokenListDataCategorizerBase::addPretokenisedTokens(const std::string& tok
             return false;
         }
 
-        this->tokenToIdAndWeight(token, tokenIds, tokenUniqueIds, totalWeight);
+        this->tokenToIdAndWeight(token, tokenIds, tokenUniqueIds, totalWeight,
+                                 minReweightedTotalWeight, maxReweightedTotalWeight);
     }
 
     this->reset();
