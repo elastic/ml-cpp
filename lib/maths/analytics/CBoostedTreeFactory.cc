@@ -197,6 +197,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
         this->initializeHyperparameters(frame);
         m_TreeImpl->m_Hyperparameters.initializeSearch();
+        m_TreeImpl->m_Hyperparameters.coarseParameterTuningEarlyStopping();
     }
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
@@ -1807,7 +1808,6 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
             if (traverser_.traverseSubLevel([this](core::CStateRestoreTraverser& traverser) {
                     do {
                         const std::string& name{traverser.name()};
-                        
                         RESTORE(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
                                 core::CPersistUtils::restore(
                                     GAIN_PER_NODE_1ST_PERCENTILE_TAG,

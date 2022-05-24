@@ -46,7 +46,6 @@ CBoostedTreeHyperparameters::CBoostedTreeHyperparameters() {
     this->initializeTunableHyperparameters();
 }
 
-
 double CBoostedTreeHyperparameters::penaltyForDepth(std::size_t depth) const {
     return std::exp((static_cast<double>(depth) / m_SoftTreeDepthLimit.value() - 1.0) /
                     m_SoftTreeDepthTolerance.value());
@@ -603,8 +602,7 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
                                  m_TreeSizePenaltyMultiplier, inserter);
     core::CPersistUtils::persist(TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
                                  m_TreeTopologyChangePenalty, inserter);
-    core::CPersistUtils::persist(HYPERPARAMETERS_LOSSES_TAG,
-                                 m_HyperparametersLosses, inserter);
+    core::CPersistUtils::persist(HYPERPARAMETERS_LOSSES_TAG, m_HyperparametersLosses, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is re-generated
     // from overriden hyperparameters.
     // m_HyperparameterSamples is not persisted explicitly, it is re-generated.
