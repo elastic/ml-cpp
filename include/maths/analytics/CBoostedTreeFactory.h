@@ -388,7 +388,6 @@ private:
     TBoostedTreeImplUPtr m_TreeImpl;
     mutable std::size_t m_PaddedExtraColumns{0};
     TTrainingStateCallback m_RecordTrainingState{noopRecordTrainingState};
-    // THyperparametersDoublePrVecSPtr m_HyperparametersLosses;
 };
 }
 }

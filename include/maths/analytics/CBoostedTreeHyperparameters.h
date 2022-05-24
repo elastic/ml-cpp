@@ -349,7 +349,7 @@ private:
 //! DESCRIPTION:\n
 //! This stores and manages persistence of all the boosted tree training and
 //! incremental training hyperparameters. It also provides functionality for
-//! optimizing these using a combination of random (Sobolov sequence) search
+//! optimizing these using a combination of random (Sobolev sequence) search
 //! and Bayesian Optimisation.
 class MATHS_ANALYTICS_EXPORT CBoostedTreeHyperparameters {
 public:
@@ -537,9 +537,9 @@ public:
         return m_FeatureBagFraction;
     }
 
-    //! Get the writeable weight shinkage.
+    //! Get the writeable weight shrinkage.
     TDoubleParameter& eta() { return m_Eta; }
-    //! Get the weight shinkage.
+    //! Get the weight shrinkage.
     const TDoubleParameter& eta() const { return m_Eta; }
 
     //! Get the writeable growth in weight shrinkage per tree which is added.
@@ -578,6 +578,7 @@ public:
         return m_TunableHyperparameters;
     }
 
+    //! Assemble a vector out of \p selectedHyperparameters.
     TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
 
     //! Add a new observation to the GP for Bayesian optimization.
@@ -641,6 +642,8 @@ public:
     //! Initialize the search for best values of tunable hyperparameters.
     void initializeSearch();
 
+    //! Computes if there is enough evidence to stop hyperparameter tuning after
+    //! coarse parameter tuning stage.
     void coarseParameterTuningEarlyStopping();
 
     //! Initialize a search for the best hyperparameters.
