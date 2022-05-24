@@ -294,7 +294,7 @@ void reinitializeResidualModel(double learnRate,
 
 class CDebug {
 public:
-    static const bool ENABLED{true};
+    static const bool ENABLED{false};
 
 public:
     explicit CDebug(std::string file = "results.py") : m_File{std::move(file)} {
