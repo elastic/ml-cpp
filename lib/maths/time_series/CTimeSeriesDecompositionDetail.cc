@@ -1975,9 +1975,10 @@ void CTimeSeriesDecompositionDetail::CComponents::useTrendForPrediction() {
 CTimeSeriesDecompositionDetail::TMakeTestForSeasonality
 CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(
     const TMakeFilteredPredictor& makePredictor) const {
-    return [makePredictor, this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
-                                 std::size_t minimumResolutionToTestModelledComponent,
-                                 const TFilteredPredictor& preconditioner, double occupancy) {
+    return [makePredictor,
+            this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
+                  std::size_t minimumResolutionToTestModelledComponent,
+                  const TFilteredPredictor& preconditioner, double occupancy) {
         core_t::TTime valuesStartTime{window.beginValuesTime()};
         core_t::TTime windowBucketStartTime{window.bucketStartTime()};
         core_t::TTime windowBucketLength{window.bucketLength()};
