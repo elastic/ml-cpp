@@ -36,6 +36,8 @@
   and {ml-pull}2238[#2238].)
 * Upgrade zlib to version 1.2.12 on Windows. (See {ml-pull}2253[#2253].)
 * Address root cause for actuals equals typical equals zero anomalies. (See {ml-pull}2270[#2270].)
+* Better handling of outliers in update immediately after detecting changes in time
+  series. (See {ml-pull}2280[#2280].)
 
 === Bug Fixes
 
