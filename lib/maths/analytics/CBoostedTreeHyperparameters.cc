@@ -27,6 +27,7 @@
 #include <boost/optional/optional_io.hpp>
 
 #include <cmath>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -748,43 +749,43 @@ CBoostedTreeHyperparameters::TStrVec CBoostedTreeHyperparameters::names() {
 void CBoostedTreeHyperparameters::initializeTunableHyperparameters() {
     m_TunableHyperparameters.clear();
     m_TunableHyperparameters.reserve(NUMBER_HYPERPARAMETERS);
+
+    auto addTrainHyperparameter = [&](EHyperparameter type, const TDoubleParameter& parameter) {
+        if (parameter.fixed() == false) {
+            m_TunableHyperparameters.push_back(type);
+        }
+    };
+
+    auto addIncrementalHyperparameter = [&](EHyperparameter type,
+                                            const TDoubleParameter& parameter) {
+        if (m_IncrementalTraining && (parameter.fixed() == false)) {
+            m_TunableHyperparameters.push_back(type);
+        }
+    };
+
     for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
         switch (static_cast<EHyperparameter>(i)) {
         // Train hyperparameters.
         case E_DownsampleFactor:
-            if (m_DownsampleFactor.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_DownsampleFactor);
-            }
+            addTrainHyperparameter(E_DownsampleFactor, m_DownsampleFactor);
             break;
         case E_Alpha:
-            if (m_DepthPenaltyMultiplier.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_Alpha);
-            }
+            addTrainHyperparameter(E_Alpha, m_DepthPenaltyMultiplier);
             break;
         case E_Lambda:
-            if (m_LeafWeightPenaltyMultiplier.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_Lambda);
-            }
+            addTrainHyperparameter(E_Lambda, m_LeafWeightPenaltyMultiplier);
             break;
         case E_Gamma:
-            if (m_TreeSizePenaltyMultiplier.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_Gamma);
-            }
+            addTrainHyperparameter(E_Gamma, m_TreeSizePenaltyMultiplier);
             break;
         case E_SoftTreeDepthLimit:
-            if (m_SoftTreeDepthLimit.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_SoftTreeDepthLimit);
-            }
+            addTrainHyperparameter(E_SoftTreeDepthLimit, m_SoftTreeDepthLimit);
             break;
         case E_SoftTreeDepthTolerance:
-            if (m_SoftTreeDepthTolerance.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_SoftTreeDepthTolerance);
-            }
+            addTrainHyperparameter(E_SoftTreeDepthTolerance, m_SoftTreeDepthTolerance);
             break;
         case E_Eta:
-            if (m_Eta.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_Eta);
-            }
+            addTrainHyperparameter(E_Eta, m_Eta);
             break;
         case E_EtaGrowthRatePerTree:
             if ((m_Eta.fixed() || m_EtaGrowthRatePerTree.fixed()) == false) {
@@ -792,25 +793,17 @@ void CBoostedTreeHyperparameters::initializeTunableHyperparameters() {
             }
             break;
         case E_FeatureBagFraction:
-            if (m_FeatureBagFraction.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_FeatureBagFraction);
-            }
+            addTrainHyperparameter(E_FeatureBagFraction, m_FeatureBagFraction);
             break;
         // Incremental train hyperparameters.
         case E_PredictionChangeCost:
-            if (m_IncrementalTraining && (m_PredictionChangeCost.fixed() == false)) {
-                m_TunableHyperparameters.push_back(E_PredictionChangeCost);
-            }
+            addIncrementalHyperparameter(E_PredictionChangeCost, m_PredictionChangeCost);
             break;
         case E_RetrainedTreeEta:
-            if (m_IncrementalTraining && (m_RetrainedTreeEta.fixed() == false)) {
-                m_TunableHyperparameters.push_back(E_RetrainedTreeEta);
-            }
+            addIncrementalHyperparameter(E_RetrainedTreeEta, m_RetrainedTreeEta);
             break;
         case E_TreeTopologyChangePenalty:
-            if (m_IncrementalTraining && (m_TreeTopologyChangePenalty.fixed() == false)) {
-                m_TunableHyperparameters.push_back(E_TreeTopologyChangePenalty);
-            }
+            addIncrementalHyperparameter(E_TreeTopologyChangePenalty, m_TreeTopologyChangePenalty);
             break;
         // Not tuned directly.
         case E_MaximumNumberTrees:
@@ -1051,10 +1044,12 @@ void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TV
 }
 
 void CBoostedTreeHyperparameters::resetBayesianOptimization() {
-    auto boundingBox = m_BayesianOptimization->boundingBox();
-    m_BayesianOptimization.reset(new common::CBayesianOptimisation(
-        boundingBox, m_BayesianOptimisationRestarts.value_or(
-                         common::CBayesianOptimisation::RESTARTS)));
+    if (m_BayesianOptimization) {
+        auto boundingBox = m_BayesianOptimization->boundingBox();
+        m_BayesianOptimization = std::make_unique<common::CBayesianOptimisation>(
+            boundingBox, m_BayesianOptimisationRestarts.value_or(
+                             common::CBayesianOptimisation::RESTARTS));
+    }
 }
 
 // clang-format off
