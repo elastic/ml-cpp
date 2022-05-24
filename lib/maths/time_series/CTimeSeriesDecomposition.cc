@@ -336,7 +336,9 @@ CTimeSeriesDecomposition::value(core_t::TTime time, double confidence, bool isNo
 CTimeSeriesDecomposition::TFilteredPredictor
 CTimeSeriesDecomposition::predictor(int components) const {
 
-    auto trend_ = m_Components.trend().predictor();
+    auto trend_ = (((components & E_TrendForced) != 0) || ((components & E_Trend) != 0))
+                      ? m_Components.trend().predictor()
+                      : [](core_t::TTime) { return 0.0; };
 
     return [ components, trend = std::move(trend_),
              this ](core_t::TTime time, const TBoolVec& removedSeasonalMask) {
@@ -547,8 +549,8 @@ double CTimeSeriesDecomposition::countWeight(core_t::TTime time) const {
     return m_ChangePointTest.countWeight(time);
 }
 
-double CTimeSeriesDecomposition::winsorisationDerate(core_t::TTime time) const {
-    return m_ChangePointTest.winsorisationDerate(time);
+double CTimeSeriesDecomposition::winsorisationDerate(core_t::TTime time, double error) const {
+    return m_ChangePointTest.winsorisationDerate(time, error);
 }
 
 CTimeSeriesDecomposition::TFloatMeanAccumulatorVec

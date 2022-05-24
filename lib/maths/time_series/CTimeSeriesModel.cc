@@ -1177,7 +1177,8 @@ void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
     maths_t::setSeasonalVarianceScale(seasonalWeight[0], weights);
     double winsorisationWeight{winsorisation::weight(
         *m_ResidualModel, weights,
-        std::max(winsorisationDerate, m_TrendModel->winsorisationDerate(time)), sample)};
+        std::max(winsorisationDerate, m_TrendModel->winsorisationDerate(time, sample)),
+        sample)};
 
     double changeWeight{m_TrendModel->countWeight(time)};
     trendCountWeight /= countVarianceScale;
@@ -2572,7 +2573,8 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
         maths_t::setSeasonalVarianceScale(seasonalWeight[d], weights);
         double winsorisationWeight{winsorisation::weight(
             *conditional(*m_ResidualModel, d, sample), weights,
-            std::max(winsorisationDerate, m_TrendModel[d]->winsorisationDerate(time)),
+            std::max(winsorisationDerate,
+                     m_TrendModel[d]->winsorisationDerate(time, sample[d])),
             sample[d])};
         residualCountWeights[d] *= changeWeight;
         trendWinsorisationWeight[d] = winsorisationWeight * changeWeight;

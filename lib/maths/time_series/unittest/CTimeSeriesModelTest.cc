@@ -2194,6 +2194,79 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testLargeAnomalyAfterChange) {
+
+    // Check large outliers directly after a change do not pollute the model.
+
+    TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    auto updateModel = [&](core_t::TTime time, double value,
+                           maths::time_series::CUnivariateTimeSeriesModel& model) {
+        model.countWeights(time, {value}, 1.0, 1.0, 0.0, 1.0, trendWeights[0],
+                           residualWeights[0]);
+        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights),
+                         {core::make_triple(time, TDouble2Vec{value}, TAG)});
+    };
+    auto seasonality = [](core_t::TTime time) {
+        return 2.0 * std::sin(boost::math::double_constants::two_pi *
+                              static_cast<double>(time) /
+                              static_cast<double>(core::constants::DAY));
+    };
+
+    test::CRandomNumbers rng;
+
+    core_t::TTime bucketLength{1800};
+    maths::time_series::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
+    auto controllers = decayRateControllers(1);
+    maths::time_series::CUnivariateTimeSeriesModel model{
+        modelParams(bucketLength), 0, trend, univariateNormal(DECAY_RATE / 3.0), &controllers};
+    CDebug debug("piecewise_constant.py");
+
+    // Add some data to the model.
+    core_t::TTime time{0};
+    TDoubleVec samples;
+    double level{20.0};
+    for (auto dl : {0.0, 15.0}) {
+        level += dl;
+        rng.generateNormalSamples(level, 0.5, 300, samples);
+        for (auto sample : samples) {
+            sample += seasonality(time);
+            updateModel(time, sample, model);
+            debug.addValueAndPrediction(time, sample, model);
+            time += bucketLength;
+        }
+    }
+
+    // Arrange for a change which will just be detected before injecting an anomaly.
+    level += 10.0;
+    rng.generateNormalSamples(level, 0.5, 80, samples);
+    for (auto sample : samples) {
+        sample += seasonality(time);
+        updateModel(time, sample, model);
+        debug.addValueAndPrediction(time, sample, model);
+        time += bucketLength;
+    }
+
+    // Anomaly.
+    for (std::size_t i = 0; i < 3; ++i) {
+        updateModel(time, 0.0, model);
+        debug.addValueAndPrediction(time, 0.0, model);
+        time += bucketLength;
+    }
+
+    rng.generateNormalSamples(level, 0.5, 80, samples);
+
+    for (auto sample : samples) {
+        sample += seasonality(time);
+        updateModel(time, sample, model);
+        debug.addValueAndPrediction(time, sample, model);
+        time += bucketLength;
+        TDouble2Vec1Vec error{{sample}};
+        model.detrend({{time}}, 0.0, error);
+        BOOST_TEST_REQUIRE(error[0][0] < 1.5);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testLinearScaling) {
     // We test that the predictions are good and the bounds do not
     // blow up after we:
