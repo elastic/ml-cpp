@@ -46,7 +46,6 @@ class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionTypes {
 public:
     using TBoolVec = std::vector<bool>;
     using TPredictor = std::function<double(core_t::TTime)>;
-    using TFilteredPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;
     using TFloatMeanAccumulator =
         common::CBasicStatistics::SSampleMean<common::CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
@@ -58,6 +57,7 @@ public:
 class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionInterface
     : public CTimeSeriesDecompositionTypes {
 public:
+    using TVector2x1 = common::CVectorNx1<double, 2>;
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
     using TWeights = maths_t::CUnitWeights;
@@ -130,14 +130,10 @@ public:
     //! \param[in] time The time of interest.
     //! \param[in] confidence The symmetric confidence interval for the prediction
     //! the baseline as a percentage.
-    //! \param[in] components The components to include in the baseline.
-    //! \param[in] removedSeasonalMask A bit mask of specific seasonal components
-    //! to remove. This is only intended for use by CTimeSeriesTestForSeasonlity.
-    virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
-                                           double confidence = 0.0,
-                                           int components = E_All,
-                                           const TBoolVec& removedSeasonalMask = {},
-                                           bool smooth = true) const = 0;
+    //! \param[in] isNonNegative True if the data being modelled are known to be
+    //! non-negative.
+    virtual TVector2x1
+    value(core_t::TTime time, double confidence, bool isNonNegative) const = 0;
 
     //! Get the maximum interval for which the time series can be forecast.
     virtual core_t::TTime maximumForecastInterval() const = 0;
@@ -149,29 +145,33 @@ public:
     //! \param[in] step The time increment.
     //! \param[in] confidence The forecast confidence interval.
     //! \param[in] minimumScale The minimum permitted seasonal scale.
+    //! \param[in] isNonNegative True if the data being modelled are known to be
+    //! non-negative.
     //! \param[in] writer Forecast results are passed to this callback.
     virtual void forecast(core_t::TTime startTime,
                           core_t::TTime endTime,
                           core_t::TTime step,
                           double confidence,
                           double minimumScale,
+                          bool isNonNegative,
                           const TWriteForecastResult& writer) = 0;
 
     //! Remove the prediction of the component models at \p time from \p value.
     //!
     //! \param[in] time The time of \p value.
+    //! \param[in] value The value from which to remove the prediction.
     //! \param[in] confidence The prediction confidence interval as a percentage.
     //! The closest point to \p value in the confidence interval is removed.
+    //! \param[in] isNonNegative True if the data being modelled are known to be
+    //! non-negative.
     //! \param[in] maximumTimeShift The maximum amount by which we will shift
     //! \p time in order to minimize the difference between the prediction and
     //! \p value.
-    //! \param[in] components A bit mask of the type of components to remove.
-    //! \note That detrending preserves the time series mean.
     virtual double detrend(core_t::TTime time,
                            double value,
                            double confidence,
-                           core_t::TTime maximumTimeShift = 0,
-                           int components = E_All) const = 0;
+                           bool isNonNegative,
+                           core_t::TTime maximumTimeShift = 0) const = 0;
 
     //! Get the mean variance of the baseline.
     virtual double meanVariance() const = 0;
@@ -182,19 +182,20 @@ public:
     //! \param[in] variance The variance of the distribution to scale.
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! scale as a percentage.
-    virtual maths_t::TDoubleDoublePr varianceScaleWeight(core_t::TTime time,
-                                                         double variance,
-                                                         double confidence,
-                                                         bool smooth = true) const = 0;
+    virtual TVector2x1
+    varianceScaleWeight(core_t::TTime time, double variance, double confidence) const = 0;
 
     //! Get the count weight to apply at \p time.
     virtual double countWeight(core_t::TTime time) const = 0;
 
     //! Get the derate to apply to the Winsorisation weight at \p time.
-    virtual double winsorisationDerate(core_t::TTime time) const = 0;
+    virtual double winsorisationDerate(core_t::TTime time, double derate) const = 0;
 
     //! Get the prediction residuals in a recent time window.
-    virtual TFloatMeanAccumulatorVec residuals() const = 0;
+    //!
+    //! \param[in] isNonNegative True if the data being modelled are known to be
+    //! non-negative.
+    virtual TFloatMeanAccumulatorVec residuals(bool isNonNegative) const = 0;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval) = 0;

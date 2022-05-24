@@ -373,8 +373,8 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
                     samples.emplace_back(startTime + bucketLength / 2, sample, 0);
                 }
                 maths::common::CModelAddSamplesParams params_;
-                params_.integer(true)
-                    .nonNegative(true)
+                params_.isInteger(true)
+                    .isNonNegative(true)
                     .propagationInterval(1.0)
                     .trendWeights(trendWeights)
                     .priorWeights(residualWeights)

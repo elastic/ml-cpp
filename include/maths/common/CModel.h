@@ -106,12 +106,12 @@ public:
 
 public:
     //! Set whether or not the data are integer valued.
-    CModelAddSamplesParams& integer(bool integer);
+    CModelAddSamplesParams& isInteger(bool isInteger);
     //! Get the data type.
     maths_t::EDataType type() const;
 
     //! Set whether or not the data are non-negative.
-    CModelAddSamplesParams& nonNegative(bool nonNegative);
+    CModelAddSamplesParams& isNonNegative(bool isNonNegative);
     //! Get the whether the data are non-negative.
     bool isNonNegative() const;
 

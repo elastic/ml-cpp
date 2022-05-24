@@ -279,10 +279,10 @@ private:
     std::size_t m_Id;
 
     //! True if the data are non-negative.
-    bool m_IsNonNegative;
+    bool m_IsNonNegative{false};
 
     //! True if the model can be forecast.
-    bool m_IsForecastable;
+    bool m_IsForecastable{true};
 
     //! These control the trend and residual model decay rates (see
     //! CDecayRateController for more details).
@@ -309,7 +309,7 @@ private:
     TAnomalyModelPtr m_AnomalyModel;
 
     //! Models the correlations between time series.
-    CTimeSeriesCorrelations* m_Correlations;
+    CTimeSeriesCorrelations* m_Correlations{nullptr};
 };
 
 //! \brief Manages the creation correlate models.
@@ -732,7 +732,7 @@ private:
 
 private:
     //! True if the data are non-negative.
-    bool m_IsNonNegative;
+    bool m_IsNonNegative{false};
 
     //! These control the trend and residual model decay rates (see
     //! CDecayRateController for more details).

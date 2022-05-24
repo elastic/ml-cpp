@@ -243,7 +243,7 @@ public:
                                 std::size_t size);
 
     //! Add a predictor for the currently modelled seasonal conponents.
-    void modelledSeasonalityPredictor(const TPredictor& predictor);
+    void modelledSeasonalityPredictor(TPredictor predictor);
 
     //! Fit and remove any seasonality we're modelling and can't test.
     void prepareWindowForDecompose();

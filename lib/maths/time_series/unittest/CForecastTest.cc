@@ -197,7 +197,7 @@ public:
 
             for (std::size_t i = 0; i < noise.size(); ++i, time += m_BucketLength) {
                 maths::common::CModelAddSamplesParams params;
-                params.integer(false)
+                params.isInteger(false)
                     .propagationInterval(1.0)
                     .trendWeights(weights)
                     .priorWeights(weights);
@@ -442,8 +442,8 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
         for (auto value = noise.begin(); value != noise.end(); ++value, time += bucketLength) {
             maths::common::CModelAddSamplesParams params;
-            params.integer(false)
-                .nonNegative(true)
+            params.isInteger(false)
+                .isNonNegative(true)
                 .propagationInterval(1.0)
                 .trendWeights(weights)
                 .priorWeights(weights);
@@ -526,7 +526,7 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     for (std::size_t i = 0; i < n; ++i) {
         maths::common::CModelAddSamplesParams params;
-        params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
+        params.isInteger(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
         model.addSamples(
             params, {core::make_triple(timeseries[i].first,
                                        TDouble2Vec{timeseries[i].second}, TAG)});
@@ -588,7 +588,10 @@ BOOST_AUTO_TEST_CASE(testTruncation) {
 
         for (core_t::TTime time = 0; time < dataEndTime; time += bucketLength) {
             maths::common::CModelAddSamplesParams params;
-            params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
+            params.isInteger(false)
+                .propagationInterval(1.0)
+                .trendWeights(weights)
+                .priorWeights(weights);
             double yi{static_cast<double>(time)};
             model.addSamples(params, {core::make_triple(time, TDouble2Vec{yi}, TAG)});
         }

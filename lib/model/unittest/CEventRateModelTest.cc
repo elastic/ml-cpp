@@ -246,8 +246,8 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
         maths::common::CModelAddSamplesParams params_;
-        params_.integer(true)
-            .nonNegative(true)
+        params_.isInteger(true)
+            .isNonNegative(true)
             .propagationInterval(1.0)
             .trendWeights(weights)
             .priorWeights(weights)
@@ -342,8 +342,8 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
 
         if (*model->currentBucketCount(0, bucketStartTime) > 0) {
             maths::common::CModelAddSamplesParams params_;
-            params_.integer(true)
-                .nonNegative(true)
+            params_.isInteger(true)
+                .isNonNegative(true)
                 .propagationInterval(1.0)
                 .trendWeights(weights)
                 .priorWeights(weights)

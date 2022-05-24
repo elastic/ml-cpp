@@ -495,8 +495,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
-                params.integer(attribute.second.s_IsInteger)
-                    .nonNegative(attribute.second.s_IsNonNegative)
+                params.isInteger(attribute.second.s_IsInteger)
+                    .isNonNegative(attribute.second.s_IsNonNegative)
                     .propagationInterval(this->propagationTime(cid, latest))
                     .trendWeights(attribute.second.s_TrendWeights)
                     .priorWeights(attribute.second.s_ResidualWeights)

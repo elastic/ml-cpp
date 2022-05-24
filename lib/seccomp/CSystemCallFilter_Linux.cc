@@ -38,13 +38,19 @@ const struct sock_filter FILTER[] = {
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
 
 #ifdef __x86_64__
-// The statx syscall won't be defined on a RHEL/CentOS 7 build machine, but
-// might exist on the kernel we run on
+// The statx, rseq and clone3 syscalls won't be defined on a RHEL/CentOS 7 build
+// machine, but might exist on the kernel we run on
 #ifndef __NR_statx
 #define __NR_statx 332
 #endif
+#ifndef __NR_rseq
+#define __NR_rseq 334
+#endif
+#ifndef __NR_clone3
+#define __NR_clone3 435
+#endif
     // Only applies to x86_64 arch. Jump to disallow for calls using the x32 ABI
-    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 51, 0),
+    BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 54, 0),
     // If any sys call filters are added or removed then the jump
     // destination for each statement including the one above must
     // be updated accordingly
@@ -53,57 +59,66 @@ const struct sock_filter FILTER[] = {
     // Some of these are not used in latest glibc, and not supported in Linux
     // kernels for recent architectures, but in a few cases different sys calls
     // are used on different architectures
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 51, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 50, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 49, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 48, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 47, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 46, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 45, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 44, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 43, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 42, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 41, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 40, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_access, 54, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_open, 53, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup2, 52, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlink, 51, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_stat, 50, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lstat, 49, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_time, 48, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlink, 47, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents, 46, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rmdir, 45, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdir, 44, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknod, 43, 0),
 #elif defined(__aarch64__)
-// The statx syscall won't be defined on a RHEL/CentOS 7 build machine, but
-// might exist on the kernel we run on
+// The statx, rseq and clone3 syscalls won't be defined on a RHEL/CentOS 7 build
+// machine, but might exist on the kernel we run on
 #ifndef __NR_statx
 #define __NR_statx 291
 #endif
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 40, 0),
+#ifndef __NR_rseq
+#define __NR_rseq 293
+#endif
+#ifndef __NR_clone3
+#define __NR_clone3 435
+#endif
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_faccessat, 43, 0),
 #else
 #error Unsupported hardware architecture
 #endif
 
     // Allowed sys calls for all architectures, jump to return allow on match
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpid, 39, 0), // for pthread_kill
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statx, 38, 0), // for create_directories
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrandom, 37, 0), // for unique_path
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 36, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_newfstatat, 35, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 34, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup3, 33, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpriority, 32, 0), // for nice
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_setpriority, 31, 0), // for nice
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 30, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 29, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 28, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 27, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clock_gettime, 26, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_gettimeofday, 25, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fstat, 24, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_close, 23, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_connect, 22, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone, 21, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statfs, 20, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdirat, 19, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlinkat, 18, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents64, 17, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_openat, 16, 0), // for forecast temp storage
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_tgkill, 15, 0), // for the crash handler
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigaction, 14, 0), // for the crash handler
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigreturn, 13, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpid, 42, 0), // for pthread_kill
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statx, 41, 0), // for create_directories
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getrandom, 40, 0), // for unique_path
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mknodat, 39, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_newfstatat, 38, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_readlinkat, 37, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_dup3, 36, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getpriority, 35, 0), // for nice
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_setpriority, 34, 0), // for nice
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_read, 33, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_write, 32, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_writev, 31, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_lseek, 30, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clock_gettime, 29, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_gettimeofday, 28, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_fstat, 27, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_close, 26, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_connect, 25, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone3, 24, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_clone, 23, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_statfs, 22, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mkdirat, 21, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_unlinkat, 20, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getdents64, 19, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_openat, 18, 0), // for forecast temp storage
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_tgkill, 17, 0), // for the crash handler
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigaction, 16, 0), // for the crash handler
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigreturn, 15, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rt_sigprocmask, 14, 0), // for recent pthread_create
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_rseq, 13, 0), // for recent pthread_create
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_futex, 12, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_madvise, 11, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_nanosleep, 10, 0),
