@@ -193,8 +193,11 @@ void CCalendarCyclicTest::add(core_t::TTime time, double error, double weight) {
 
 CCalendarCyclicTest::TOptionalFeatureTimePr CCalendarCyclicTest::test() const {
 
-    // The statistics we need in order to be able to test for calendar
-    // features.
+    if (m_ErrorQuantiles.count() == 0) {
+        return {};
+    }
+
+    // The statistics we need in order to be able to test for calendar features.
     struct SStats {
         core_t::TTime s_Offset{0};
         unsigned int s_Repeats{0};
