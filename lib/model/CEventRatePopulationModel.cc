@@ -513,6 +513,9 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     .propagationInterval(this->propagationTime(cid, sampleTime))
                     .trendWeights(attribute.second.s_TrendWeights)
                     .priorWeights(attribute.second.s_ResidualWeights)
+                    .firstValueTime(cid < this->attributeFirstBucketTimes().size()
+                                        ? this->attributeFirstBucketTimes()[cid]
+                                        : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });

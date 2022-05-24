@@ -50,7 +50,9 @@ public:
                   double value,
                   const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
-                  const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
+                  const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
+                  double occupancy = 1.0,
+                  core_t::TTime firstValueTime = MIN_TIME) override;
 
     //! No-op.
     void shiftTime(core_t::TTime time, core_t::TTime shift) override;

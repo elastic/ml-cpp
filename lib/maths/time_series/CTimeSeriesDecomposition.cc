@@ -208,7 +208,9 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback,
-                                        const maths_t::TModelAnnotationCallback& modelAnnotationCallback) {
+                                        const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
+                                        double occupancy,
+                                        core_t::TTime firstValueTime) {
 
     if (common::CMathsFuncs::isFinite(value) == false) {
         LOG_ERROR(<< "Discarding invalid value.");
@@ -244,6 +246,8 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       m_TimeShift,
                       value,
                       weights,
+                      occupancy,
+                      firstValueTime,
                       this->value(time, 0.0, E_TrendForced, true).mean(),
                       this->value(time, 0.0, E_Seasonal, true).mean(),
                       this->value(time, 0.0, E_Calendar, true).mean(),

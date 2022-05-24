@@ -1877,6 +1877,10 @@ double CTools::shiftRight(double x, double eps) {
 }
 
 double CTools::linearlyInterpolate(double a, double b, double fa, double fb, double x) {
+    if (a > b) {
+        std::swap(a, b);
+        std::swap(fa, fb);
+    }
     if (x <= a) {
         return fa;
     }
@@ -1886,22 +1890,6 @@ double CTools::linearlyInterpolate(double a, double b, double fa, double fb, dou
     if (b == a) {
         return 0.5 * (fa + fb);
     }
-    return ((b - x) * fa + (x - a) * fb) / (b - a);
-}
-
-double CTools::logLinearlyInterpolate(double a, double b, double fa, double fb, double x) {
-    if (x <= a) {
-        return fa;
-    }
-    if (x >= b) {
-        return fb;
-    }
-    if (b == a) {
-        return 0.5 * (fa + fb);
-    }
-    a = std::log(a);
-    b = std::log(b);
-    x = std::log(x);
     return ((b - x) * fa + (x - a) * fb) / (b - a);
 }
 

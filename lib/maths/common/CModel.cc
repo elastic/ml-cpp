@@ -105,6 +105,24 @@ bool CModelAddSamplesParams::isNonNegative() const {
     return m_IsNonNegative;
 }
 
+CModelAddSamplesParams& CModelAddSamplesParams::bucketOccupancy(double occupancy) {
+    m_Occupancy = occupancy;
+    return *this;
+}
+
+double CModelAddSamplesParams::bucketOccupancy() const {
+    return m_Occupancy;
+}
+
+CModelAddSamplesParams& CModelAddSamplesParams::firstValueTime(core_t::TTime time) {
+    m_FirstValueTime = time;
+    return *this;
+}
+
+core_t::TTime CModelAddSamplesParams::firstValueTime() const {
+    return m_FirstValueTime;
+}
+
 CModelAddSamplesParams& CModelAddSamplesParams::propagationInterval(double interval) {
     m_PropagationInterval = interval;
     return *this;
@@ -261,6 +279,12 @@ CModel::CModel(const CModelParams& params) : m_Params(params) {
 
 double CModel::effectiveCount(std::size_t n) {
     return n <= boost::size(EFFECTIVE_COUNT) ? EFFECTIVE_COUNT[n - 1] : 0.5;
+}
+
+double CModel::emptyBucketWeight(double occupancy) {
+    // We smoothly transition to ignoring empty buckets when the bucket
+    // occupancy is less than 0.5.
+    return common::CTools::truncate(2.0 * occupancy, 1e-6, 1.0);
 }
 
 const CModelParams& CModel::params() const {

@@ -1424,9 +1424,6 @@ CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& params,
                                         const TTimeDouble2VecSizeTrVec& samples) {
 
-    const auto& weights = params.trendWeights();
-    const auto& modelAnnotationCallback = params.annotationCallback();
-
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
             LOG_ERROR(<< "Dimension mismatch: '" << sample.second.size() << " != 1'");
@@ -1456,16 +1453,21 @@ CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& pa
         }
         result = E_Reset;
     };
+    const auto& weights = params.trendWeights();
+    const auto& modelAnnotationCallback = params.annotationCallback();
+    double occupancy{params.bucketOccupancy()};
+    core_t::TTime firstValueTime{params.firstValueTime()};
+
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
         TDoubleWeightsAry weight{unpack(weights[i])};
         m_TrendModel->addPoint(time, value, weight, componentChangeCallback,
-                               modelAnnotationCallback);
+                               modelAnnotationCallback, occupancy, firstValueTime);
     }
 
     if (result == E_Reset) {
-        this->reinitializeStateGivenNewComponent(std::move(window));
+        this->reinitializeStateGivenNewComponent(params, std::move(window));
     }
 
     return result;
@@ -1590,7 +1592,9 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals) {
+void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
+    const common::CModelAddSamplesParams& params,
+    TFloatMeanAccumulatorVec residuals) {
 
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
@@ -1609,8 +1613,12 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
         maths::common::CPrior::E_Poisson));
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
-    // Reinitialize the residual model with any values we've been given.
+    // Reinitialize the residual model with any values we've been given. Note
+    // that if we have sparse data we reduce the sample weights so we smoothly
+    // transition to modelling only non-empty values. This must be reflected
+    // in the sample weights when reinitialising the residual model.
     if (residuals.empty() == false) {
+        double emptyBucketWeight{CModel::emptyBucketWeight(params.bucketOccupancy())};
         maths_t::TDoubleWeightsAry1Vec weights(1);
         double buckets{std::accumulate(residuals.begin(), residuals.end(), 0.0,
                                        [](auto partialBuckets, const auto& residual) {
@@ -1618,9 +1626,9 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
                                                   common::CBasicStatistics::count(residual);
                                        }) /
                        this->params().learnRate()};
-        double time{buckets / static_cast<double>(residuals.size())};
+        double time{emptyBucketWeight * buckets / static_cast<double>(residuals.size())};
         for (const auto& residual : residuals) {
-            double weight{common::CBasicStatistics::count(residual)};
+            double weight{emptyBucketWeight * common::CBasicStatistics::count(residual)};
             if (weight > 0.0) {
                 weights[0] = maths_t::countWeight(weight);
                 m_ResidualModel->addSamples({common::CBasicStatistics::mean(residual)}, weights);
@@ -2801,9 +2809,6 @@ CMultivariateTimeSeriesModel::EUpdateResult
 CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& params,
                                           const TTimeDouble2VecSizeTrVec& samples) {
 
-    const auto& weights = params.trendWeights();
-    const auto& modelAnnotationCallback = params.annotationCallback();
-
     std::size_t dimension{this->dimension()};
 
     for (const auto& sample : samples) {
@@ -2832,6 +2837,10 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
     auto componentChangeCallback = [&result](TFloatMeanAccumulatorVec) {
         result = E_Reset;
     };
+    const auto& weights = params.trendWeights();
+    const auto& modelAnnotationCallback = params.annotationCallback();
+    double occupancy{params.bucketOccupancy()};
+    core_t::TTime firstValueTime{params.firstValueTime()};
 
     maths_t::TDoubleWeightsAry weight;
     for (auto i : timeorder) {
@@ -2842,7 +2851,7 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
                 weight[j] = weights[i][j][d];
             }
             m_TrendModel[d]->addPoint(time, value[d], weight, componentChangeCallback,
-                                      modelAnnotationCallback);
+                                      modelAnnotationCallback, occupancy, firstValueTime);
         }
     }
 
@@ -2851,7 +2860,7 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
         for (std::size_t d = 0; d < dimension; ++d) {
             window[d] = m_TrendModel[d]->residuals(m_IsNonNegative);
         }
-        this->reinitializeStateGivenNewComponent(std::move(window));
+        this->reinitializeStateGivenNewComponent(params, std::move(window));
     }
 
     return result;
@@ -2968,7 +2977,9 @@ void CMultivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec10Vec residuals) {
+void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
+    const common::CModelAddSamplesParams& params,
+    TFloatMeanAccumulatorVec10Vec residuals) {
 
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
@@ -2982,10 +2993,14 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
         }
     }
 
-    // Reinitialize the residual model with any values we've been given.
+    // Reinitialize the residual model with any values we've been given. Note
+    // that if we have sparse data we reduce the sample weights so we smoothly
+    // transition to modelling only non-empty values. This must be reflected
+    // in the sample weights when reinitialising the residual model.
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
     if (residuals.empty() == false) {
         std::size_t dimension{this->dimension()};
+        double emptyBucketWeight{CModel::emptyBucketWeight(params.bucketOccupancy())};
 
         TDouble10VecVec samples;
         TDoubleVec weights;
@@ -3003,11 +3018,12 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
             time += buckets / static_cast<double>(residuals.size());
             for (std::size_t i = 0; i < residuals[d].size(); ++i) {
                 samples[i][d] = common::CBasicStatistics::mean(residuals[d][i]);
-                weights[i] = std::min(weights[i], static_cast<double>(common::CBasicStatistics::count(
-                                                      residuals[d][i])));
+                weights[i] = std::min(
+                    weights[i], emptyBucketWeight * static_cast<double>(common::CBasicStatistics::count(
+                                                        residuals[d][i])));
             }
         }
-        time /= static_cast<double>(dimension);
+        time *= emptyBucketWeight / static_cast<double>(dimension);
 
         maths_t::TDouble10VecWeightsAry1Vec weight(1);
         for (std::size_t i = 0; i < samples.size(); ++i) {

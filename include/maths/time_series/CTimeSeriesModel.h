@@ -248,7 +248,8 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals);
+    void reinitializeStateGivenNewComponent(const common::CModelAddSamplesParams& params,
+                                            TFloatMeanAccumulatorVec residuals);
 
     //! Compute the probability for uncorrelated series.
     bool uncorrelatedProbability(const common::CModelProbabilityParams& params,
@@ -719,7 +720,8 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec10Vec residuals);
+    void reinitializeStateGivenNewComponent(const common::CModelAddSamplesParams& params,
+                                            TFloatMeanAccumulatorVec10Vec residuals);
 
     //! Get the model dimension.
     std::size_t dimension() const;
