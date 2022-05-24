@@ -36,6 +36,7 @@ install(TARGETS normalize DESTINATION "${EXE_DIR}")
 if(MSVC)
   set( normalize_LINKFLAGS ${CMAKE_CURRENT_BINARY_DIR}/normalize.res )
   set_target_properties( normalize PROPERTIES LINK_FLAGS ${normalize_LINKFLAGS} )
+  set_property(TARGET normalize PROPERTY COMPILE_PDB_NAME normalize)
 
   execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh normalize.exe" OUTPUT_VARIABLE RC_DEFINES)
   string(STRIP ${RC_DEFINES} RC_DEFINES)

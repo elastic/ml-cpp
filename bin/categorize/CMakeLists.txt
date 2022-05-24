@@ -37,6 +37,7 @@ install(TARGETS categorize DESTINATION "${EXE_DIR}")
 if(MSVC)
   set( categorize_LINKFLAGS ${CMAKE_CURRENT_BINARY_DIR}/categorize.res )
   set_target_properties( categorize PROPERTIES LINK_FLAGS ${categorize_LINKFLAGS} )
+  set_property(TARGET categorize PROPERTY COMPILE_PDB_NAME categorize)
 
   execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh categorize.exe" OUTPUT_VARIABLE RC_DEFINES)
   string(STRIP ${RC_DEFINES} RC_DEFINES)

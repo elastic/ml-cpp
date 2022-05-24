@@ -32,23 +32,6 @@ else()
   #set(Boost_COMPILER "-clang-darwin13")
 endif()
 
-if(UNIX AND ENV{ML_DEBUG} AND ENV{ML_COVERAGE})
-    set(ML_COVERAGE "--coverage")
-endif()
-
-if(NOT ENV{ML_DEBUG})
-  list(APPEND ML_COMPILE_DEFINITIONS  "NDEBUG" "EXCLUDE_TRACE_LOGGING")
-  if(UNIX)
-    list(APPEND OPTCFLAGS "-O3")
-    if (NOT APPLE)
-        list(APPEND OPTCFLAGS "-Wdisabled-optimization")
-        list(APPEND ML_COMPILE_DEFINITIONS "_FORTIFY_SOURCE=2")
-    endif()
-  else()
-      set(OPTCFLAGS "-O2" "-Qfast_transcendentals" "-Qvec-report:1")
-  endif()
-endif()
-  
 
 list(APPEND ML_C_FLAGS 
     "-g"

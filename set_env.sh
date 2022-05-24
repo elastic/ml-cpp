@@ -73,6 +73,17 @@ fi
 
 # Compiler
 unset COMPILER_PATH
+if [ "$SIMPLE_PLATFORM" = "windows" ] ; then
+    # We have to use 8.3 names for directories with spaces in the names, as some
+    # tools won't quote paths with spaces correctly
+    PFX86_DIR=`cd $ROOT && cygpath -m -s "Program Files (x86)"`
+    MSVC_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Microsoft Visual Studio"`
+    WIN_KITS_DIR=`cd $ROOT/$PFX86_DIR && cygpath -m -s "Windows Kits"`
+    VCVER=`/bin/ls -1 $ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/VC/Tools/MSVC | tail -1`
+    # NB: Some SDK tools are 32 bit only, hence the 64 bit SDK bin directory
+    #     is followed by the 32 bit SDK bin directory
+    COMPILER_PATH=$ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/VC/Tools/MSVC/$VCVER/bin/Hostx64/x64:$ROOT/$PFX86_DIR/$MSVC_DIR/2019/Professional/Common7/IDE:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x64:$ROOT/$PFX86_DIR/$WIN_KITS_DIR/8.0/bin/x86
+fi
 
 # Git
 unset GIT_HOME

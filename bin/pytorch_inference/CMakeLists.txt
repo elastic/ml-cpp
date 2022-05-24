@@ -40,6 +40,7 @@ install(TARGETS pytorch_inference DESTINATION "${EXE_DIR}")
 if(MSVC)
   set( pytorch_inference_LINKFLAGS ${CMAKE_CURRENT_BINARY_DIR}/pytorch_inference.res )
   set_target_properties( pytorch_inference PROPERTIES LINK_FLAGS ${pytorch_inference_LINKFLAGS} )
+  set_property(TARGET pytorch_inference PROPERTY COMPILE_PDB_NAME pytorch_inference)
 
   execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh pytorch_inference.exe" OUTPUT_VARIABLE RC_DEFINES)
   string(STRIP ${RC_DEFINES} RC_DEFINES)

@@ -38,6 +38,7 @@ install(TARGETS data_frame_analyzer DESTINATION "${EXE_DIR}")
 if(MSVC)
   set( data_frame_analyzer_LINKFLAGS ${CMAKE_CURRENT_BINARY_DIR}/data_frame_analyzer.res )
   set_target_properties( data_frame_analyzer PROPERTIES LINK_FLAGS ${data_frame_analyzer_LINKFLAGS} )
+  set_property(TARGET data_frame_analyzer PROPERTY COMPILE_PDB_NAME data_frame_analyzer)
 
   execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh data_frame_analyzer.exe" OUTPUT_VARIABLE RC_DEFINES)
   string(STRIP ${RC_DEFINES} RC_DEFINES)

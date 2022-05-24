@@ -38,6 +38,7 @@ install(TARGETS controller DESTINATION "${EXE_DIR}")
 if(MSVC)
   set( controller_LINKFLAGS ${CMAKE_CURRENT_BINARY_DIR}/controller.res )
   set_target_properties( controller PROPERTIES LINK_FLAGS ${controller_LINKFLAGS} )
+  set_property(TARGET controller PROPERTY COMPILE_PDB_NAME controller)
 
   execute_process(COMMAND bash -c "${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh controller.exe" OUTPUT_VARIABLE RC_DEFINES)
   string(STRIP ${RC_DEFINES} RC_DEFINES)

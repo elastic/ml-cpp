@@ -48,5 +48,6 @@ endif()
 
 install(TARGETS MlMathsAnalytics  RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
 if(MSVC)
+  set_property(TARGET MlMathsAnalytics PROPERTY COMPILE_PDB_NAME MlMathsAnalytics)
   install(FILES $<TARGET_PDB_FILE:MlMathsAnalytics> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
 endif()
