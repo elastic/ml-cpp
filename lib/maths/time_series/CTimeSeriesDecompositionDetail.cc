@@ -317,6 +317,8 @@ const core::TPersistenceTag LAST_CHANGE_POINT_TIME_7_11_TAG{"i", "last_change_po
 const core::TPersistenceTag LAST_CANDIDATE_CHANGE_POINT_TIME_7_11_TAG{
     "j", "last_candidate_change_point_time"};
 const core::TPersistenceTag LAST_CHANGE_POINT_7_11_TAG{"k", "last_change_point"};
+// Version 8.3
+const core::TPersistenceTag WINSORIZATION_DERATE_8_3_TAG{"l", "winsorization_derate"};
 
 // Seasonality Test Tags
 // Version 7.9
@@ -505,7 +507,8 @@ CTimeSeriesDecompositionDetail::CChangePointTest::CChangePointTest(const CChange
       m_TotalCountWeightAdjustment{other.m_TotalCountWeightAdjustment},
       m_MinimumTotalCountWeightAdjustment{other.m_MinimumTotalCountWeightAdjustment},
       m_LastTestTime{other.m_LastTestTime}, m_LastChangePointTime{other.m_LastChangePointTime},
-      m_LastCandidateChangePointTime{other.m_LastCandidateChangePointTime} {
+      m_LastCandidateChangePointTime{other.m_LastCandidateChangePointTime},
+      m_LastChangeWinsorizationDerate{other.m_LastChangeWinsorizationDerate} {
 
     if (isForForecast) {
         this->apply(CD_DISABLE);
@@ -539,6 +542,10 @@ bool CTimeSeriesDecompositionDetail::CChangePointTest::acceptRestoreTraverser(
         ](auto& traverser_) {
             return serializer(m_UndoableLastChange, traverser_);
         }))
+        RESTORE(WINSORIZATION_DERATE_8_3_TAG,
+                traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+                    return m_LastChangeWinsorizationDerate.acceptRestoreTraverser(traverser_);
+                }))
     } while (traverser.next());
     return true;
 }
@@ -567,6 +574,9 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::acceptPersistInserter(
             this, serializer = CUndoableChangePointStateSerializer{}
         ](auto& inserter_) { serializer(*m_UndoableLastChange, inserter_); });
     }
+    inserter.insertLevel(WINSORIZATION_DERATE_8_3_TAG, [this](auto& inserter_) {
+        return m_LastChangeWinsorizationDerate.acceptPersistInserter(inserter_);
+    });
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::swap(CChangePointTest& other) {
@@ -583,6 +593,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::swap(CChangePointTest& ot
     std::swap(m_LastChangePointTime, other.m_LastChangePointTime);
     std::swap(m_LastCandidateChangePointTime, other.m_LastCandidateChangePointTime);
     std::swap(m_UndoableLastChange, other.m_UndoableLastChange);
+    std::swap(m_LastChangeWinsorizationDerate, other.m_LastChangeWinsorizationDerate);
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& message) {
@@ -622,7 +633,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& m
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SDetectedSeasonal& message) {
-    if (m_Window.size() > 0) {
+    if (m_Window.empty() == false) {
         m_Window.assign(m_Window.size(), TFloatMeanAccumulator{});
     }
     m_ResidualMoments = TMeanVarAccumulator{};
@@ -645,10 +656,12 @@ double CTimeSeriesDecompositionDetail::CChangePointTest::countWeight(core_t::TTi
     return 1.0 + std::min(1.0, -m_TotalCountWeightAdjustment);
 }
 
-double CTimeSeriesDecompositionDetail::CChangePointTest::winsorisationDerate(core_t::TTime time) const {
+double CTimeSeriesDecompositionDetail::CChangePointTest::winsorisationDerate(core_t::TTime time,
+                                                                             double error) const {
     return std::max(1.0 - static_cast<double>(time - m_LastChangePointTime) /
                               static_cast<double>(3 * DAY),
-                    0.0);
+                    0.0) *
+           m_LastChangeWinsorizationDerate.value(error);
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::propagateForwards(core_t::TTime start,
@@ -671,7 +684,8 @@ std::uint64_t CTimeSeriesDecompositionDetail::CChangePointTest::checksum(std::ui
     seed = common::CChecksum::calculate(seed, m_LastTestTime);
     seed = common::CChecksum::calculate(seed, m_LastChangePointTime);
     seed = common::CChecksum::calculate(seed, m_LastCandidateChangePointTime);
-    return common::CChecksum::calculate(seed, m_UndoableLastChange);
+    seed = common::CChecksum::calculate(seed, m_UndoableLastChange);
+    return common::CChecksum::calculate(seed, m_LastChangeWinsorizationDerate);
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::debugMemoryUsage(
@@ -752,7 +766,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testForChange(const SAddV
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
     core_t::TTime timeShift{message.s_TimeShift};
-    bool seasonal{message.s_Decomposition->seasonalComponents().size() > 0};
+    bool seasonal{message.s_Decomposition->seasonalComponents().empty() == false};
     const auto& makePredictor = message.s_MakePredictor;
     CTimeSeriesDecomposition& decomposition{*message.s_Decomposition};
 
@@ -799,6 +813,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testForChange(const SAddV
         m_LastCandidateChangePointTime = std::min(
             m_LastCandidateChangePointTime, time - this->maximumIntervalToDetectChange());
         m_UndoableLastChange = change->undoable();
+        m_LastChangeWinsorizationDerate =
+            change->winsorizationDerate(bucketsStartTime, time, predictor);
         this->mediator()->forward(SDetectedChangePoint{time, lastTime, std::move(change)});
     } else if (change != nullptr) {
         m_LastCandidateChangePointTime = change->time();
