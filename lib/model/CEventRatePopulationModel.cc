@@ -280,7 +280,7 @@ CEventRatePopulationModel::baselineBucketMean(model_t::EFeature feature,
                                               const TSizeDoublePr1Vec& correlated,
                                               core_t::TTime time) const {
     const maths::common::CModel* model{this->model(feature, cid)};
-    if (!model) {
+    if (model == nullptr) {
         return TDouble1Vec();
     }
 
@@ -433,7 +433,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
 
                 maths::common::CModel* model{this->model(feature, cid)};
-                if (model != nullptr) {
+                if (model == nullptr) {
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }

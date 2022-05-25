@@ -259,7 +259,7 @@ CMetricPopulationModel::baselineBucketMean(model_t::EFeature feature,
                                            const TSizeDoublePr1Vec& correlated,
                                            core_t::TTime time) const {
     const maths::common::CModel* model{this->model(feature, cid)};
-    if (!model) {
+    if (model == nullptr) {
         return TDouble1Vec();
     }
     static const TSizeDoublePr1Vec NO_CORRELATED;
@@ -382,7 +382,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
 
                 maths::common::CModel* model{this->model(feature, cid)};
-                if (!model) {
+                if (model == nullptr) {
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
