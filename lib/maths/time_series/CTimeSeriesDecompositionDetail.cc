@@ -318,7 +318,7 @@ const core::TPersistenceTag LAST_CANDIDATE_CHANGE_POINT_TIME_7_11_TAG{
     "j", "last_candidate_change_point_time"};
 const core::TPersistenceTag LAST_CHANGE_POINT_7_11_TAG{"k", "last_change_point"};
 // Version 8.3
-const core::TPersistenceTag OUTLIER_WEIGHT_DERATE_8_3_TAG{"l", "outlier_weight_derate"};
+const core::TPersistenceTag OUTLIER_WEIGHT_DERATE_8_3_TAG{"l", "winsorization_derate"};
 
 // Seasonality Test Tags
 // Version 7.9
