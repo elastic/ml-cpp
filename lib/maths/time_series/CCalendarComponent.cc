@@ -20,6 +20,7 @@
 
 #include <maths/common/CChecksum.h>
 #include <maths/common/CIntegerTools.h>
+#include <maths/common/CLinearAlgebra.h>
 #include <maths/common/CSampling.h>
 
 #include <maths/time_series/CSeasonalTime.h>
@@ -32,7 +33,6 @@ namespace ml {
 namespace maths {
 namespace time_series {
 namespace {
-using TDoubleDoublePr = maths_t::TDoubleDoublePr;
 const core::TPersistenceTag DECOMPOSITION_COMPONENT_TAG{"a", "decomposition_component"};
 const core::TPersistenceTag BUCKETING_TAG{"b", "bucketing"};
 const core::TPersistenceTag LAST_INTERPOLATION_TAG{"c", "last_interpolation_time"};
@@ -167,7 +167,8 @@ CCalendarFeatureAndTZ CCalendarComponent::feature() const {
     return m_Bucketing.feature();
 }
 
-TDoubleDoublePr CCalendarComponent::value(core_t::TTime time, double confidence) const {
+CCalendarComponent::TVector2x1 CCalendarComponent::value(core_t::TTime time,
+                                                         double confidence) const {
     double offset{static_cast<double>(this->feature().offset(time))};
     double n{m_Bucketing.count(time)};
     return this->CDecompositionComponent::value(offset, n, confidence);
@@ -177,7 +178,8 @@ double CCalendarComponent::meanValue() const {
     return this->CDecompositionComponent::meanValue();
 }
 
-TDoubleDoublePr CCalendarComponent::variance(core_t::TTime time, double confidence) const {
+CCalendarComponent::TVector2x1
+CCalendarComponent::variance(core_t::TTime time, double confidence) const {
     double offset{static_cast<double>(this->feature().offset(time))};
     double n{m_Bucketing.count(time)};
     return this->CDecompositionComponent::variance(offset, n, confidence);

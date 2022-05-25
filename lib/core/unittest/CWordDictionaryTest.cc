@@ -58,41 +58,91 @@ BOOST_AUTO_TEST_CASE(testPartOfSpeech) {
                         dict.partOfSpeech("a"));
 }
 
-BOOST_AUTO_TEST_CASE(testWeightingFunctors) {
+BOOST_AUTO_TEST_CASE(testSimpleWeightingFunctors) {
     {
         ml::core::CWordDictionary::TWeightAll2 weighter;
 
-        BOOST_REQUIRE_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Verb));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
+        BOOST_REQUIRE_EQUAL(0, weighter(ml::core::CWordDictionary::E_NotInDictionary));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_UnknownPart));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Noun));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Plural));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Verb));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Adjective));
+        weighter.reset(); // should make no difference
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Adverb));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Conjunction));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Preposition));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Interjection));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Pronoun));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_DefiniteArticle));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
+        // Any given token always gives the same weight, so min/max matching
+        // should always be the same as the original
+        for (std::size_t weight = 1; weight < 10; ++weight) {
+            BOOST_REQUIRE_EQUAL(weight, weighter.minMatchingWeight(weight));
+            BOOST_REQUIRE_EQUAL(weight, weighter.maxMatchingWeight(weight));
+        }
     }
     {
         ml::core::CWordDictionary::TWeightVerbs5Other2 weighter;
 
-        BOOST_REQUIRE_EQUAL(size_t(0), weighter(ml::core::CWordDictionary::E_NotInDictionary));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_UnknownPart));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Noun));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Plural));
-        BOOST_REQUIRE_EQUAL(size_t(5), weighter(ml::core::CWordDictionary::E_Verb));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adjective));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Adverb));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Conjunction));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Preposition));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Interjection));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_Pronoun));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_DefiniteArticle));
-        BOOST_REQUIRE_EQUAL(size_t(2), weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
+        BOOST_REQUIRE_EQUAL(0, weighter(ml::core::CWordDictionary::E_NotInDictionary));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_UnknownPart));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Noun));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Plural));
+        weighter.reset(); // should make no difference
+        BOOST_REQUIRE_EQUAL(5, weighter(ml::core::CWordDictionary::E_Verb));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Adjective));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Adverb));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Conjunction));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Preposition));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Interjection));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Pronoun));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_DefiniteArticle));
+        BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_IndefiniteArticle));
+        // Any given token always gives the same weight, so min/max matching
+        // should always be the same as the original
+        for (std::size_t weight = 1; weight < 10; ++weight) {
+            BOOST_REQUIRE_EQUAL(weight, weighter.minMatchingWeight(weight));
+            BOOST_REQUIRE_EQUAL(weight, weighter.maxMatchingWeight(weight));
+        }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testAdjacencyDependentWeightingFunctor) {
+    ml::core::CWordDictionary::TWeightVerbs5Other2AdjacentBoost6 weighter;
+
+    BOOST_REQUIRE_EQUAL(0, weighter(ml::core::CWordDictionary::E_NotInDictionary));
+    BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_UnknownPart));
+    BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Noun));
+    BOOST_REQUIRE_EQUAL(12, weighter(ml::core::CWordDictionary::E_Plural));
+    BOOST_REQUIRE_EQUAL(30, weighter(ml::core::CWordDictionary::E_Verb));
+    weighter.reset();
+    // Explicit reset stops adjacency multiplier
+    BOOST_REQUIRE_EQUAL(5, weighter(ml::core::CWordDictionary::E_Verb));
+    BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Adjective));
+    BOOST_REQUIRE_EQUAL(12, weighter(ml::core::CWordDictionary::E_Adverb));
+    BOOST_REQUIRE_EQUAL(12, weighter(ml::core::CWordDictionary::E_Conjunction));
+    BOOST_REQUIRE_EQUAL(0, weighter(ml::core::CWordDictionary::E_NotInDictionary));
+    // Non-dictionary word stops adjacency multiplier
+    BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Noun));
+    BOOST_REQUIRE_EQUAL(5, weighter(ml::core::CWordDictionary::E_Verb));
+    weighter.reset();
+    // Explicit reset stops adjacency multiplier
+    BOOST_REQUIRE_EQUAL(2, weighter(ml::core::CWordDictionary::E_Adjective));
+
+    // Of the possible weights, 3 could map to 13 and 6 to 31 depending on
+    // whether adjacency weighting takes place
+    BOOST_REQUIRE_EQUAL(1, weighter.minMatchingWeight(1));
+    BOOST_REQUIRE_EQUAL(1, weighter.maxMatchingWeight(1));
+    BOOST_REQUIRE_EQUAL(3, weighter.minMatchingWeight(3));
+    BOOST_REQUIRE_EQUAL(13, weighter.maxMatchingWeight(3));
+    BOOST_REQUIRE_EQUAL(6, weighter.minMatchingWeight(6));
+    BOOST_REQUIRE_EQUAL(31, weighter.maxMatchingWeight(6));
+    BOOST_REQUIRE_EQUAL(3, weighter.minMatchingWeight(13));
+    BOOST_REQUIRE_EQUAL(13, weighter.maxMatchingWeight(13));
+    BOOST_REQUIRE_EQUAL(6, weighter.minMatchingWeight(31));
+    BOOST_REQUIRE_EQUAL(31, weighter.maxMatchingWeight(31));
 }
 
 // Disabled because it doesn't assert anything
@@ -104,8 +154,8 @@ BOOST_AUTO_TEST_CASE(testPerformance, *boost::unit_test::disabled()) {
     LOG_INFO(<< "Starting word dictionary throughput test at "
              << ml::core::CTimeUtils::toTimeString(start));
 
-    static const size_t TEST_SIZE(100000);
-    for (size_t count = 0; count < TEST_SIZE; ++count) {
+    static const std::size_t TEST_SIZE(100000);
+    for (std::size_t count = 0; count < TEST_SIZE; ++count) {
         dict.isInDictionary("hello");
         dict.isInDictionary("Hello");
         dict.isInDictionary("HELLO");

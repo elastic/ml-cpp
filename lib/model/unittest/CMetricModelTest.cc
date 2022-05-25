@@ -191,8 +191,8 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                         maths::common::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights(
                             numberSamples, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
                         maths::common::CModelAddSamplesParams params_;
-                        params_.integer(false)
-                            .nonNegative(true)
+                        params_.isInteger(false)
+                            .isNonNegative(true)
                             .propagationInterval(1.0)
                             .trendWeights(weights)
                             .priorWeights(weights);

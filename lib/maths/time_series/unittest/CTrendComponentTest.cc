@@ -183,7 +183,7 @@ auto trainModel(ITR beginValues, ITR endValues) {
         component.add(time, *value);
         component.propagateForwardsByTime(BUCKET_LENGTH);
 
-        double prediction{maths::common::CBasicStatistics::mean(component.value(time, 0.0))};
+        double prediction{component.value(time, 0.0).mean()};
         controller.multiplier({prediction}, {{*value - prediction}},
                               BUCKET_LENGTH, 0.3, 0.012);
         component.decayRate(0.012 * controller.multiplier());
@@ -203,7 +203,7 @@ auto forecastErrors(ITR actual,
     core_t::TTime interval(std::distance(actual, endActual) * BUCKET_LENGTH);
 
     TDouble3VecVec forecast;
-    component.forecast(time, time + interval, BUCKET_LENGTH, 95.0,
+    component.forecast(time, time + interval, BUCKET_LENGTH, 95.0, false,
                        [](core_t::TTime) { return TDouble3Vec(3, 0.0); },
                        [&forecast](core_t::TTime, const TDouble3Vec& value) {
                            forecast.push_back(value);
@@ -248,10 +248,10 @@ BOOST_AUTO_TEST_CASE(testValueAndVariance) {
     TMeanVarAccumulator normalisedResiduals;
     for (core_t::TTime time = start; time < end; time += BUCKET_LENGTH) {
         double value{values[(time - start) / BUCKET_LENGTH]};
-        double prediction{maths::common::CBasicStatistics::mean(component.value(time, 0.0))};
+        double prediction{component.value(time, 0.0).mean()};
 
         if (time > start + BUCKET_LENGTH) {
-            double variance{maths::common::CBasicStatistics::mean(component.variance(0.0))};
+            double variance{component.variance(0.0).mean()};
             normalisedResiduals.add((value - prediction) / std::sqrt(variance));
         }
 
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE(testDecayRate) {
         regression.add(static_cast<double>(time) / 604800.0, value);
 
         double expectedPrediction{regression.predict(static_cast<double>(time) / 604800.0)};
-        double prediction{maths::common::CBasicStatistics::mean(component.value(time, 0.0))};
+        double prediction{component.value(time, 0.0).mean()};
         error.add(std::fabs(prediction - expectedPrediction));
         level.add(value);
 

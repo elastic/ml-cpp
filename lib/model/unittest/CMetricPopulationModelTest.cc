@@ -365,7 +365,7 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
     TSizeSizePrDoubleVecMap expectedSampleTimes;
     TSizeSizePrDoubleVecMap expectedSamples[3];
     TSizeMathsModelPtrMap expectedPopulationModels[3];
-    bool nonNegative = true;
+    bool isNonNegative = true;
 
     for (const auto& message : messages) {
         if (message.s_Time >= startTime + bucketLength) {
@@ -408,8 +408,8 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
                         attribute.second.s_Values, attribute.second.s_TrendWeights,
                         attribute.second.s_ResidualWeights);
                     maths::common::CModelAddSamplesParams params_;
-                    params_.integer(false)
-                        .nonNegative(nonNegative)
+                    params_.isInteger(false)
+                        .isNonNegative(isNonNegative)
                         .propagationInterval(1.0)
                         .trendWeights(attribute.second.s_TrendWeights)
                         .priorWeights(attribute.second.s_ResidualWeights);
@@ -442,7 +442,7 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
         CEventData eventData = this->addArrival(message, m_Gatherer);
         std::size_t pid = *eventData.personId();
         std::size_t cid = *eventData.attributeId();
-        nonNegative &= message.s_Dbl1Vec.get()[0] < 0.0;
+        isNonNegative &= message.s_Dbl1Vec.get()[0] < 0.0;
 
         double sampleCount = m_Gatherer->sampleCount(cid);
         if (sampleCount > 0.0) {

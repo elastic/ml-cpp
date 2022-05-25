@@ -89,6 +89,38 @@ const core::TPersistenceTag TYPE_TAG{"a", "change_type"};
 const core::TPersistenceTag TIME_TAG{"b", "change_time"};
 const core::TPersistenceTag VALUE_TAG{"c", "change_value"};
 const core::TPersistenceTag SIGNIFICANT_P_VALUE_TAG{"d", "significant_p_value"};
+const core::TPersistenceTag MAGNITUDE_TAG{"e", "magnitude"};
+}
+
+CWinsorizationDerate::CWinsorizationDerate(double magnitude)
+    : m_Magnitude{std::fabs(magnitude)} {
+}
+
+double CWinsorizationDerate::value(double error) const {
+    // We do not want to model every change for a signal which flip-flops back
+    // and forward between similar values generating anomalies every time it
+    // changes. Therefore, we derate the weight we apply to outlying values if
+    // they are similar in magnitude to any change we just detected. However,
+    // extreme outliers after a change can significantly pollute the model if
+    // we apply a blanket derate. Any choice here which forces the error to
+    // grow is sufficient to prevent flip-flopping.
+    return std::max(1.0 - 0.5 * std::fabs(error) / m_Magnitude, 0.0);
+}
+
+bool CWinsorizationDerate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name{traverser.name()};
+        RESTORE_BUILT_IN(MAGNITUDE_TAG, m_Magnitude)
+    } while (traverser.next());
+    return true;
+}
+
+void CWinsorizationDerate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    inserter.insertValue(MAGNITUDE_TAG, m_Magnitude, core::CIEEE754::E_DoublePrecision);
+}
+
+std::uint64_t CWinsorizationDerate::checksum(std::uint64_t seed) const {
+    return common::CChecksum::calculate(seed, m_Magnitude);
 }
 
 CChangePoint::CChangePoint(core_t::TTime time, TFloatMeanAccumulatorVec residuals, double significantPValue)
@@ -247,6 +279,17 @@ CTimeShift::CTimeShift(core_t::TTime time, core_t::TTime shift, double significa
 
 CTimeShift::TChangePointUPtr CTimeShift::undoable() const {
     return std::make_unique<CTimeShift>(this->time(), -m_Shift, this->significantPValue());
+}
+
+CWinsorizationDerate CTimeShift::winsorizationDerate(core_t::TTime startTime,
+                                                     core_t::TTime endTime,
+                                                     const TPredictor& predictor) const {
+    TMeanAccumulator result;
+    for (core_t::TTime t = startTime, dt = (endTime - startTime) / 20;
+         t <= endTime; t += dt) {
+        result.add(std::fabs(predictor(t) - predictor(t + m_Shift)));
+    }
+    return CWinsorizationDerate{common::CBasicStatistics::mean(result)};
 }
 
 bool CTimeShift::longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {

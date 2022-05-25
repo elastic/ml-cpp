@@ -52,6 +52,7 @@ class MATHS_TIME_SERIES_EXPORT CTimeSeriesDecompositionDetail
 public:
     using TDoubleVec = std::vector<double>;
     using TMakePredictor = std::function<TPredictor()>;
+    using TFilteredPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;
     using TMakeFilteredPredictor = std::function<TFilteredPredictor()>;
     using TChangePointUPtr = std::unique_ptr<CChangePoint>;
 
@@ -248,8 +249,9 @@ public:
         //! Get the count weight to apply to samples.
         double countWeight(core_t::TTime time) const;
 
-        //! Get the derate to apply to the Winsorisation weight.
-        double winsorisationDerate(core_t::TTime time) const;
+        //! Get the derate to apply to the Winsorization weight for a prediction error
+        //! of size \p error.
+        double winsorisationDerate(core_t::TTime time, double error) const;
 
         //! Age the test to account for the interval \p end - \p start elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
@@ -336,13 +338,13 @@ public:
         TMeanVarAccumulator m_ResidualMoments;
 
         //! The proportion of recent values with significantly prediction error.
-        double m_LargeErrorFraction = 0.0;
+        double m_LargeErrorFraction{0.0};
 
         //! The total adjustment applied to the count weight.
-        double m_TotalCountWeightAdjustment = 0.0;
+        double m_TotalCountWeightAdjustment{0.0};
 
         //! The minimum permitted total adjustment applied to the count weight.
-        double m_MinimumTotalCountWeightAdjustment = 0.0;
+        double m_MinimumTotalCountWeightAdjustment{0.0};
 
         //! The last test time.
         core_t::TTime m_LastTestTime;
@@ -356,6 +358,9 @@ public:
         //! The last change which was made, if it hasn't been committed, in a form
         //! which can be undone.
         TChangePointUPtr m_UndoableLastChange;
+
+        //! The derate to apply to the Winsorization immediately after the last change point.
+        CWinsorizationDerate m_LastChangeWinsorizationDerate;
     };
 
     //! \brief Scans through increasingly low frequencies looking for significant
@@ -586,7 +591,8 @@ public:
         void useTrendForPrediction();
 
         //! Get a factory for the seasonal components test.
-        TMakeTestForSeasonality makeTestForSeasonality(const TFilteredPredictor& predictor) const;
+        TMakeTestForSeasonality
+        makeTestForSeasonality(const TMakeFilteredPredictor& makePredictor) const;
 
         //! Get the mean value of the baseline in the vicinity of \p time.
         double meanValue(core_t::TTime time) const;
