@@ -256,9 +256,9 @@ public:
         //! Get the count weight to apply to samples.
         double countWeight(core_t::TTime time) const;
 
-        //! Get the derate to apply to the Winsorization weight for a prediction error
+        //! Get the derate to apply to the outlier weight for a prediction error
         //! of size \p error.
-        double winsorisationDerate(core_t::TTime time, double error) const;
+        double outlierWeightDerate(core_t::TTime time, double error) const;
 
         //! Age the test to account for the interval \p end - \p start elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
@@ -366,8 +366,8 @@ public:
         //! which can be undone.
         TChangePointUPtr m_UndoableLastChange;
 
-        //! The derate to apply to the Winsorization immediately after the last change point.
-        CWinsorizationDerate m_LastChangeWinsorizationDerate;
+        //! The derate to apply to the outlier weight immediately after the last change point.
+        COutlierWeightDerate m_LastChangeOutlierWeightDerate;
     };
 
     //! \brief Scans through increasingly low frequencies looking for significant

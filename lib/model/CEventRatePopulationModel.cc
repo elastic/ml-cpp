@@ -433,7 +433,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
 
                 maths::common::CModel* model{this->model(feature, cid)};
-                if (!model) {
+                if (model != nullptr) {
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
@@ -485,7 +485,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     attribute.s_ResidualWeights.push_back(
                         maths_t::CUnitWeights::unit<TDouble2Vec>(1));
                     model->countWeights(sampleTime, {value}, countWeight,
-                                        countWeight, 1.0, // winsorisation derate
+                                        countWeight, 1.0, // outlier weight derate
                                         1.0, // count variance scale
                                         attribute.s_TrendWeights.back(),
                                         attribute.s_ResidualWeights.back());

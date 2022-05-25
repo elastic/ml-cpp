@@ -468,7 +468,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                         auto& trendWeight = attribute.s_TrendWeights.back();
                         auto& residualWeight = attribute.s_ResidualWeights.back();
                         model->countWeights(sample.time(), value, countWeight,
-                                            countWeight, 1.0, // winsorisation derate
+                                            countWeight, 1.0, // outlier weight derate
                                             countVarianceScale, trendWeight, residualWeight);
                     }
                 }

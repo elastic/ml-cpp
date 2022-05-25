@@ -156,7 +156,7 @@ public:
                       const TDouble2Vec& value,
                       double trendCountWeight,
                       double residualCountWeight,
-                      double winsorisationDerate,
+                      double outlierWeightDerate,
                       double countVarianceScale,
                       TDouble2VecWeightsAry& trendWeights,
                       TDouble2VecWeightsAry& residualWeights) const override;
@@ -637,7 +637,7 @@ public:
                       const TDouble2Vec& value,
                       double trendCountWeight,
                       double residualCountWeight,
-                      double winsorisationDerate,
+                      double outlierWeightDerate,
                       double countVarianceScale,
                       TDouble2VecWeightsAry& trendWeights,
                       TDouble2VecWeightsAry& residualWeights) const override;

@@ -318,7 +318,7 @@ const core::TPersistenceTag LAST_CANDIDATE_CHANGE_POINT_TIME_7_11_TAG{
     "j", "last_candidate_change_point_time"};
 const core::TPersistenceTag LAST_CHANGE_POINT_7_11_TAG{"k", "last_change_point"};
 // Version 8.3
-const core::TPersistenceTag WINSORIZATION_DERATE_8_3_TAG{"l", "winsorization_derate"};
+const core::TPersistenceTag OUTLIER_WEIGHT_DERATE_8_3_TAG{"l", "outlier_weight_derate"};
 
 // Seasonality Test Tags
 // Version 7.9
@@ -510,7 +510,7 @@ CTimeSeriesDecompositionDetail::CChangePointTest::CChangePointTest(const CChange
       m_MinimumTotalCountWeightAdjustment{other.m_MinimumTotalCountWeightAdjustment},
       m_LastTestTime{other.m_LastTestTime}, m_LastChangePointTime{other.m_LastChangePointTime},
       m_LastCandidateChangePointTime{other.m_LastCandidateChangePointTime},
-      m_LastChangeWinsorizationDerate{other.m_LastChangeWinsorizationDerate} {
+      m_LastChangeOutlierWeightDerate{other.m_LastChangeOutlierWeightDerate} {
 
     if (isForForecast) {
         this->apply(CD_DISABLE);
@@ -544,9 +544,9 @@ bool CTimeSeriesDecompositionDetail::CChangePointTest::acceptRestoreTraverser(
         ](auto& traverser_) {
             return serializer(m_UndoableLastChange, traverser_);
         }))
-        RESTORE(WINSORIZATION_DERATE_8_3_TAG,
+        RESTORE(OUTLIER_WEIGHT_DERATE_8_3_TAG,
                 traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
-                    return m_LastChangeWinsorizationDerate.acceptRestoreTraverser(traverser_);
+                    return m_LastChangeOutlierWeightDerate.acceptRestoreTraverser(traverser_);
                 }))
     } while (traverser.next());
     return true;
@@ -576,8 +576,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::acceptPersistInserter(
             this, serializer = CUndoableChangePointStateSerializer{}
         ](auto& inserter_) { serializer(*m_UndoableLastChange, inserter_); });
     }
-    inserter.insertLevel(WINSORIZATION_DERATE_8_3_TAG, [this](auto& inserter_) {
-        return m_LastChangeWinsorizationDerate.acceptPersistInserter(inserter_);
+    inserter.insertLevel(OUTLIER_WEIGHT_DERATE_8_3_TAG, [this](auto& inserter_) {
+        return m_LastChangeOutlierWeightDerate.acceptPersistInserter(inserter_);
     });
 }
 
@@ -595,7 +595,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::swap(CChangePointTest& ot
     std::swap(m_LastChangePointTime, other.m_LastChangePointTime);
     std::swap(m_LastCandidateChangePointTime, other.m_LastCandidateChangePointTime);
     std::swap(m_UndoableLastChange, other.m_UndoableLastChange);
-    std::swap(m_LastChangeWinsorizationDerate, other.m_LastChangeWinsorizationDerate);
+    std::swap(m_LastChangeOutlierWeightDerate, other.m_LastChangeOutlierWeightDerate);
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& message) {
@@ -658,12 +658,12 @@ double CTimeSeriesDecompositionDetail::CChangePointTest::countWeight(core_t::TTi
     return 1.0 + std::min(1.0, -m_TotalCountWeightAdjustment);
 }
 
-double CTimeSeriesDecompositionDetail::CChangePointTest::winsorisationDerate(core_t::TTime time,
+double CTimeSeriesDecompositionDetail::CChangePointTest::outlierWeightDerate(core_t::TTime time,
                                                                              double error) const {
     return std::max(1.0 - static_cast<double>(time - m_LastChangePointTime) /
                               static_cast<double>(3 * DAY),
                     0.0) *
-           m_LastChangeWinsorizationDerate.value(error);
+           m_LastChangeOutlierWeightDerate.value(error);
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::propagateForwards(core_t::TTime start,
@@ -687,7 +687,7 @@ std::uint64_t CTimeSeriesDecompositionDetail::CChangePointTest::checksum(std::ui
     seed = common::CChecksum::calculate(seed, m_LastChangePointTime);
     seed = common::CChecksum::calculate(seed, m_LastCandidateChangePointTime);
     seed = common::CChecksum::calculate(seed, m_UndoableLastChange);
-    return common::CChecksum::calculate(seed, m_LastChangeWinsorizationDerate);
+    return common::CChecksum::calculate(seed, m_LastChangeOutlierWeightDerate);
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::debugMemoryUsage(
@@ -836,8 +836,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testForChange(const SAddV
             std::min(m_LastCandidateChangePointTime,
                      time - this->maximumIntervalToDetectChange(occupancy));
         m_UndoableLastChange = change->undoable();
-        m_LastChangeWinsorizationDerate =
-            change->winsorizationDerate(bucketsStartTime, time, predictor);
+        m_LastChangeOutlierWeightDerate =
+            change->outlierWeightDerate(bucketsStartTime, time, predictor);
         this->mediator()->forward(SDetectedChangePoint{time, lastTime, std::move(change)});
     } else if (change != nullptr) {
         m_LastCandidateChangePointTime = change->time();
