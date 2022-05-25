@@ -2532,17 +2532,26 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
         std::size_t sampleSize{std::max(
             static_cast<std::size_t>(allTrainingRowsMask.manhattan() * m_DataSummarizationFraction),
             static_cast<std::size_t>(2))};
-        core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMasks(
+        core::CPackedBitVector rowMask{CDataFrameUtils::stratifiedSamplingRowMask(
             m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
             allTrainingRowsMask)};
         return rowMask;
-    } else {
-        // use class distribution preserving sampling after incremental training
-        core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMasks(
-            m_NumberThreads, frame, m_DependentVariable, m_Rng, 10,
-            this->allTrainingRowsMask() & ~this->newTrainingRowMask(),
-            this->allTrainingRowsMask())};
     }
+    auto dataSummarizationRowMask{this->allTrainingRowsMask() & ~this->newTrainingRowMask()};
+    std::size_t sampleSize{static_cast<std::size_t>(dataSummarizationRowMask.manhattan())};
+
+    // Add dataSummarizationFraction amount of new data to the old data to sample from.
+    std::size_t newDataSubsampleSize{static_cast<std::size_t>(std::ceil(
+        m_DataSummarizationFraction * this->allTrainingRowsMask().manhattan()))};
+    auto newDataSampleRowMask{CDataFrameUtils::stratifiedSamplingRowMask(
+        m_NumberThreads, frame, m_DependentVariable, m_Rng,
+        newDataSubsampleSize, 10, this->newTrainingRowMask())};
+
+    // use class distribution preserving sampling after incremental training
+    core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMask(
+        m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
+        dataSummarizationRowMask, (dataSummarizationRowMask | newDataSampleRowMask))};
+    return rowMask;
 }
 
 const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {
