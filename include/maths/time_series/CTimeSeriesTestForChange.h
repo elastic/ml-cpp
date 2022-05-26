@@ -38,11 +38,11 @@ class CSeasonalComponent;
 class CTimeSeriesDecomposition;
 class CTrendComponent;
 
-//! \brief Determines the Winsorization derate which should apply after a change.
-class MATHS_TIME_SERIES_EXPORT CWinsorizationDerate {
+//! \brief Determines the outlier weight derate which should apply after a change.
+class MATHS_TIME_SERIES_EXPORT COutlierWeightDerate {
 public:
-    CWinsorizationDerate() = default;
-    explicit CWinsorizationDerate(double magnitude);
+    COutlierWeightDerate() = default;
+    explicit COutlierWeightDerate(double magnitude);
     double value(double error) const;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -66,7 +66,7 @@ public:
     virtual ~CChangePoint();
 
     virtual TChangePointUPtr undoable() const = 0;
-    virtual CWinsorizationDerate winsorizationDerate(core_t::TTime startTime,
+    virtual COutlierWeightDerate outlierWeightDerate(core_t::TTime startTime,
                                                      core_t::TTime endTime,
                                                      const TPredictor& predictor) const = 0;
     virtual bool largeEnough(double threshold) const = 0;
@@ -125,9 +125,9 @@ public:
                 double significantPValue);
 
     TChangePointUPtr undoable() const override;
-    CWinsorizationDerate
-    winsorizationDerate(core_t::TTime, core_t::TTime, const TPredictor&) const override {
-        return CWinsorizationDerate{m_Shift};
+    COutlierWeightDerate
+    outlierWeightDerate(core_t::TTime, core_t::TTime, const TPredictor&) const override {
+        return COutlierWeightDerate{m_Shift};
     }
     bool largeEnough(double threshold) const override;
     bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const override;
@@ -160,9 +160,9 @@ public:
            double significantPValue);
 
     TChangePointUPtr undoable() const override;
-    CWinsorizationDerate
-    winsorizationDerate(core_t::TTime, core_t::TTime, const TPredictor&) const override {
-        return CWinsorizationDerate{m_Magnitude};
+    COutlierWeightDerate
+    outlierWeightDerate(core_t::TTime, core_t::TTime, const TPredictor&) const override {
+        return COutlierWeightDerate{m_Magnitude};
     }
     bool largeEnough(double threshold) const override;
     bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const override;
@@ -194,7 +194,7 @@ public:
     CTimeShift(core_t::TTime time, core_t::TTime shift, double significantPValue);
 
     TChangePointUPtr undoable() const override;
-    CWinsorizationDerate winsorizationDerate(core_t::TTime startTime,
+    COutlierWeightDerate outlierWeightDerate(core_t::TTime startTime,
                                              core_t::TTime endTime,
                                              const TPredictor& predictor) const override;
     bool largeEnough(double) const override { return m_Shift != 0; }

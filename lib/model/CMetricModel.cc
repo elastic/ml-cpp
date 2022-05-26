@@ -286,7 +286,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                          ? this->params().s_MaximumUpdatesPerBucket / static_cast<double>(n)
                          : 1.0) *
                     this->learnRate(feature) * initialCountWeight;
-                double winsorisationDerate = this->derate(pid, sampleTime);
+                double outlierWeightDerate = this->derate(pid, sampleTime);
                 // Note we need to scale the amount of data we'll "age out" of the residual
                 // model in one bucket by the empty bucket weight so the posterior doesn't
                 // end up too flat.
@@ -314,7 +314,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                         ithSampleValue, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID);
                     model->countWeights(ithSampleTime, ithSampleValue,
                                         countWeight, scaledCountWeight,
-                                        winsorisationDerate, countVarianceScale,
+                                        outlierWeightDerate, countVarianceScale,
                                         trendWeights[i], priorWeights[i]);
                 }
 

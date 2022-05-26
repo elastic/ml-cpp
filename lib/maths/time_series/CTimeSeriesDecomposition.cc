@@ -553,8 +553,8 @@ double CTimeSeriesDecomposition::countWeight(core_t::TTime time) const {
     return m_ChangePointTest.countWeight(time);
 }
 
-double CTimeSeriesDecomposition::winsorisationDerate(core_t::TTime time, double error) const {
-    return m_ChangePointTest.winsorisationDerate(time, error);
+double CTimeSeriesDecomposition::outlierWeightDerate(core_t::TTime time, double error) const {
+    return m_ChangePointTest.outlierWeightDerate(time, error);
 }
 
 CTimeSeriesDecomposition::TFloatMeanAccumulatorVec
