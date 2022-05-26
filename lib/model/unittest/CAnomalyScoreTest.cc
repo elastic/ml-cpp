@@ -657,8 +657,8 @@ BOOST_AUTO_TEST_CASE(testNoiseForDifferentBucketLengths) {
     // Simulate noise in different bucket lengths and check that distribution
     // alert severities. Because there are multiple factors which affect the
     // score we don't necessarily get the same distribution for all bucket
-    // lengths. However, we do have an approximate rough upper bound on the
-    // count by severity based on the rate limiting we perform.
+    // lengths. However, we do have an approximate upper bound on the count
+    // by severity based on the rate limiting we perform.
 
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
