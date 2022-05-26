@@ -28,6 +28,14 @@
 
 //=== Regressions
 
+== {es} version 8.4.0
+
+=== Enhancements
+
+* Improve normalization of anomaly detection results for short bucket lengths. This
+  corrects bias which could cause our scoring to be too low for these jobs. (See,
+  {ml-pull}2285[#2285], issue: {ml-issue}2276[#2276].)
+
 == {es} version 8.3.0
 
 === Enhancements

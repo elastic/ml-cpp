@@ -9,10 +9,10 @@
  * limitation.
  */
 
-#include "core/CIEEE754.h"
 #include <model/CAnomalyScore.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CIEEE754.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
