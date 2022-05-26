@@ -11,53 +11,35 @@
 
 project("ML Maths Time Series")
 
-include_directories(../../../include)
-include_directories(SYSTEM ../../../3rd_party/include)
-include_directories(SYSTEM ../../../3rd_party/eigen)
-include_directories(SYSTEM ../../../3rd_party/rapidjson/include)
+set(ML_DEPENDENCIES eigen)
+set(ML_LINK_LIBRARIES 
+    ${Boost_LIBRARIES}
+    MlMathsCommon
+    MlCore)
 
-add_compile_definitions(BUILDING_libMlMathsTimeSeries)
-
-set(SRCS
-CAdaptiveBucketing.cc 
-CCalendarComponent.cc 
-CCalendarComponentAdaptiveBucketing.cc 
-CCalendarCyclicTest.cc 
-CCalendarFeature.cc 
-CCountMinSketch.cc 
-CDecayRateController.cc 
-CDecompositionComponent.cc 
-CExpandingWindow.cc 
-CModelStateSerialiser.cc 
-CSeasonalComponent.cc 
-CSeasonalComponentAdaptiveBucketing.cc 
-CSeasonalTime.cc 
-CSignal.cc 
-CTimeSeriesDecomposition.cc 
-CTimeSeriesDecompositionDetail.cc 
-CTimeSeriesDecompositionStateSerialiser.cc 
-CTimeSeriesDecompositionStub.cc 
-CTimeSeriesModel.cc 
-CTimeSeriesMultibucketFeatureSerialiser.cc 
-CTimeSeriesSegmentation.cc 
-CTimeSeriesTestForChange.cc 
-CTimeSeriesTestForSeasonality.cc 
-CTrendComponent.cc 
+ml_add_library(MlMathsTimeSeries SHARED
+    CAdaptiveBucketing.cc 
+    CCalendarComponent.cc 
+    CCalendarComponentAdaptiveBucketing.cc 
+    CCalendarCyclicTest.cc 
+    CCalendarFeature.cc 
+    CCountMinSketch.cc 
+    CDecayRateController.cc 
+    CDecompositionComponent.cc 
+    CExpandingWindow.cc 
+    CModelStateSerialiser.cc 
+    CSeasonalComponent.cc 
+    CSeasonalComponentAdaptiveBucketing.cc 
+    CSeasonalTime.cc 
+    CSignal.cc 
+    CTimeSeriesDecomposition.cc 
+    CTimeSeriesDecompositionDetail.cc 
+    CTimeSeriesDecompositionStateSerialiser.cc 
+    CTimeSeriesDecompositionStub.cc 
+    CTimeSeriesModel.cc 
+    CTimeSeriesMultibucketFeatureSerialiser.cc 
+    CTimeSeriesSegmentation.cc 
+    CTimeSeriesTestForChange.cc 
+    CTimeSeriesTestForSeasonality.cc 
+    CTrendComponent.cc 
 )
-
-add_library(MlMathsTimeSeries SHARED ${SRCS})
-target_link_libraries(MlMathsTimeSeries PUBLIC ${Boost_LIBRARIES})
-target_link_libraries(MlMathsTimeSeries PUBLIC MlMathsCommon)
-target_link_libraries(MlMathsTimeSeries PUBLIC MlCore)
-
-add_dependencies(MlMathsTimeSeries eigen)
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_link_libraries(MlMathsTimeSeries PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
-endif()
-
-install(TARGETS MlMathsTimeSeries  RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
-if(MSVC)
-  set_property(TARGET MlMathsTimeSeries PROPERTY COMPILE_PDB_NAME MlMathsTimeSeries)
-  install(FILES $<TARGET_PDB_FILE:MlMathsTimeSeries> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
-endif()

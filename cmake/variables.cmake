@@ -113,17 +113,20 @@ else ()
   list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES ${ML_BASE_PATH}/include/libxml2)
 endif()
 
-list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES ${TORCH_INC})
+list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES
+    ${TORCH_INC}
+    ${CMAKE_SOURCE_DIR}/3rd_party/include
+    ${CMAKE_SOURCE_DIR}/3rd_party/eigen
+    ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
+)
 
 message(STATUS "ML_SYSTEM_INCLUDE_DIRECTORIES = ${ML_SYSTEM_INCLUDE_DIRECTORIES}")
 
 set(IMPORT_LIB_DIR lib)
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(DYNAMIC_LIB_DIR lib)
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(DYNAMIC_LIB_DIR controller.app/Contents/lib)
-else()
+if (WIN32)
   set(DYNAMIC_LIB_DIR bin)
+else()
+  set(DYNAMIC_LIB_DIR lib)
 endif()
 
 

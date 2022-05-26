@@ -11,51 +11,38 @@
 
 project("ML Maths Time Series unit tests")
 
-include_directories(../../../../include)
-include_directories(SYSTEM ../../../../3rd_party/include)
-include_directories(SYSTEM ../../../../3rd_party/eigen)
-include_directories(SYSTEM ../../../../3rd_party/rapidjson/include)
-
 set (SRCS
-Main.cc 
-CAdaptiveBucketingTest.cc 
-CCalendarComponentAdaptiveBucketingTest.cc 
-CCalendarComponentTest.cc 
-CCalendarCyclicTestTest.cc 
-CCalendarFeatureTest.cc 
-CCountMinSketchTest.cc 
-CDecayRateControllerTest.cc 
-CExpandingWindowTest.cc 
-CForecastTest.cc 
-CMathsMemoryTest.cc 
-CSeasonalComponentAdaptiveBucketingTest.cc 
-CSeasonalComponentTest.cc 
-CSeasonalTimeTest.cc 
-CSignalTest.cc 
-CTimeSeriesDecompositionTest.cc 
-CTimeSeriesModelTest.cc 
-CTimeSeriesMultibucketFeaturesTest.cc 
-CTimeSeriesSegmentationTest.cc 
-CTimeSeriesTestForChangeTest.cc 
-CTimeSeriesTestForSeasonalityTest.cc 
-CTrendComponentTest.cc 
-TestUtils.cc
+    Main.cc 
+    CAdaptiveBucketingTest.cc 
+    CCalendarComponentAdaptiveBucketingTest.cc 
+    CCalendarComponentTest.cc 
+    CCalendarCyclicTestTest.cc 
+    CCalendarFeatureTest.cc 
+    CCountMinSketchTest.cc 
+    CDecayRateControllerTest.cc 
+    CExpandingWindowTest.cc 
+    CForecastTest.cc 
+    CMathsMemoryTest.cc 
+    CSeasonalComponentAdaptiveBucketingTest.cc 
+    CSeasonalComponentTest.cc 
+    CSeasonalTimeTest.cc 
+    CSignalTest.cc 
+    CTimeSeriesDecompositionTest.cc 
+    CTimeSeriesModelTest.cc 
+    CTimeSeriesMultibucketFeaturesTest.cc 
+    CTimeSeriesSegmentationTest.cc 
+    CTimeSeriesTestForChangeTest.cc 
+    CTimeSeriesTestForSeasonalityTest.cc 
+    CTrendComponentTest.cc 
+    TestUtils.cc
 )
 
-add_executable(ml_test_maths_time_series ${SRCS})
-
-target_link_libraries(ml_test_maths_time_series ${Boost_LIBRARIES_WITH_UNIT_TEST})
-target_link_libraries(ml_test_maths_time_series MlCore)
-target_link_libraries(ml_test_maths_time_series MlMathsCommon)
-target_link_libraries(ml_test_maths_time_series MlMathsTimeSeries)
-target_link_libraries(ml_test_maths_time_series MlTest)
-
-
-add_test(ml_test_maths_time_series ml_test_maths_time_series
+set(ML_LINK_LIBRARIES
+    ${Boost_LIBRARIES_WITH_UNIT_TEST}
+    MlCore
+    MlMathsCommon
+    MlMathsTimeSeries
+    MlTest
 )
 
-add_custom_target(test_math_time_series
-     DEPENDS ml_test_maths_time_series
-     COMMAND ml_test_maths_time_series
-     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+ml_add_test_executable(maths_time_series ${SRCS})

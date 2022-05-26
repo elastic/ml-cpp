@@ -11,12 +11,6 @@
 
 project("ML controller unit tests")
 
-include_directories(../../../include)
-include_directories(SYSTEM ../../../3rd_party/include)
-include_directories(SYSTEM ../../../3rd_party/eigen)
-include_directories(SYSTEM ../../../3rd_party/rapidjson/include)
-
-
 set (SRCS
     Main.cc
     CBlockingCallCancellingStreamMonitorTest.cc
@@ -24,25 +18,12 @@ set (SRCS
     CResponseJsonWriterTest.cc
 )
 
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-
-add_executable(ml_test_controller ${SRCS} $<TARGET_OBJECTS:MlController>)
-
-target_link_libraries(ml_test_controller ${Boost_LIBRARIES_WITH_UNIT_TEST})
-target_link_libraries(ml_test_controller ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_controller MlCore)
-target_link_libraries(ml_test_controller MlTest)
-target_link_libraries(ml_test_controller MlVer)
-
-# we expect to be built out of source, in a sub directory
-# so need to change working directory up a level to find
-# test files
-add_test(ml_test_controller ml_test_controller
+set(ML_LINK_LIBRARIES
+    ${Boost_LIBRARIES_WITH_UNIT_TEST}
+    ${LIBXML2_LIBRARIES}
+    MlCore
+    MlTest
+    MlVer
 )
 
-# make "make test" run the test program
-add_custom_target(test_controller
-     DEPENDS ml_test_controller
-     COMMAND ml_test_controller
-     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+ml_add_test_executable(controller ${SRCS})

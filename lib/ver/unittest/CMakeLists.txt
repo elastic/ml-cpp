@@ -11,25 +11,17 @@
 
 project("ML Ver unit tests")
 
-include_directories(../../../include)
-
 set (SRCS
-Main.cc 
-CBuildInfoTest.cc
+    Main.cc 
+    CBuildInfoTest.cc
 )
 
-add_executable(ml_test_ver ${SRCS})
-
-target_link_libraries(ml_test_ver ${Boost_LIBRARIES_WITH_UNIT_TEST})
-target_link_libraries(ml_test_ver ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_ver MlCore)
-target_link_libraries(ml_test_ver MlVer)
-target_link_libraries(ml_test_ver MlTest)
-
-add_test(ml_test_ver ml_test_ver)
-# make "make test" run the test program
-add_custom_target(test_ver
-     DEPENDS ml_test_ver
-     COMMAND ml_test_ver
-     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+set(ML_LINK_LIBRARIES
+    ${Boost_LIBRARIES_WITH_UNIT_TEST}
+    ${LIBXML2_LIBRARIES}
+    MlCore
+    MlVer
+    MlTest
 )
+
+ml_add_test_executable(ver ${SRCS})

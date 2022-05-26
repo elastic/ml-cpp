@@ -34,8 +34,6 @@ endif()
 
 message(STATUS "CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}")
 
-install(FILES $ENV{CPP_SRC_HOME}/lib/core/ml-en.dict DESTINATION ${ML_RESOURCES_DIR})
-
 include_directories(SYSTEM ${ML_SYSTEM_INCLUDE_DIRECTORIES})
 
 add_compile_definitions(${ML_COMPILE_DEFINITIONS})

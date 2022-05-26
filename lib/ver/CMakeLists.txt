@@ -11,18 +11,12 @@
 
 project("ML Ver")
 
-include_directories(../../include)
-include_directories(SYSTEM ../../3rd_party/include)
-
 # Prepare values to substitute into the template
-execute_process(COMMAND date "+%Y" OUTPUT_VARIABLE BUILD_YEAR)
-string(STRIP "${BUILD_YEAR}" BUILD_YEAR)
-
-execute_process(COMMAND id COMMAND awk -F ")" "{ print $1 }" COMMAND awk -F "(" "{ print $2 }" OUTPUT_VARIABLE USER_NAME)
-string(STRIP "${USER_NAME}" USER_NAME)
-
-execute_process(COMMAND awk -F= "/elasticsearchVersion/ {gsub(/-.*/,\"\"); print $2}" $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE PRODUCT_VERSION)
-string(STRIP "${PRODUCT_VERSION}" PRODUCT_VERSION)
+execute_process(COMMAND date "+%Y" OUTPUT_VARIABLE BUILD_YEAR OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND id COMMAND awk -F ")" "{ print $1 }" COMMAND awk -F "(" "{ print $2 }" OUTPUT_VARIABLE USER_NAME
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND awk -F= "/elasticsearchVersion/ {gsub(/-.*/,\"\"); print $2}"
+    $ENV{CPP_SRC_HOME}/gradle.properties OUTPUT_VARIABLE PRODUCT_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 if(${VERSION_QUALIFIER})
     set(PRODUCT_VERSION "${PRODUCT_VERSION}-${VERSION_QUALIFIER}")
@@ -59,4 +53,4 @@ set(SRCS
 CBuildInfo.cc
 )
 
-add_library(MlVer STATIC ${SRCS})
+ml_add_library(MlVer STATIC ${SRCS})

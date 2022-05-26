@@ -9,7 +9,7 @@
 # limitation.
 #
 
-set(INSTALL_DIR $ENV{CPP_PLATFORM_HOME}/${DYNAMIC_LIB_DIR})
+set(INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/${DYNAMIC_LIB_DIR})
 set(LICENSE_DIR $ENV{CPP_PLATFORM_HOME}/../licenses)
 
 # For now we want to co-exist with static Makefiles
@@ -18,7 +18,7 @@ set(LICENSE_DIR $ENV{CPP_PLATFORM_HOME}/../licenses)
 add_custom_target(licenses ALL
   COMMAND cmake -E make_directory $ENV{CPP_PLATFORM_HOME}
   COMMAND cmake -E copy_directory licenses ${LICENSE_DIR}
-  WORKING_DIRECTORY $ENV{CPP_SRC_HOME}/3rd_party
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # For now we want to co-exist with static Makefiles
@@ -29,7 +29,7 @@ add_custom_target(
     DEPENDS 3rd_party.sh pull-eigen.sh
     COMMAND bash -c "./3rd_party.sh --add ${INSTALL_DIR}"
     COMMAND bash -c "./pull-eigen.sh"
-    WORKING_DIRECTORY $ENV{CPP_SRC_HOME}/3rd_party
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES $ENV{CPP_SRC_HOME}/3rd_party/eigen)

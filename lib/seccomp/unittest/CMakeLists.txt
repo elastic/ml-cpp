@@ -11,25 +11,17 @@
 
 project("ML Seccomp unit tests")
 
-include_directories(../../../include)
-
 set (SRCS
-Main.cc 
-CSystemCallFilterTest.cc 
+    Main.cc 
+    CSystemCallFilterTest.cc 
 )
 
-add_executable(ml_test_seccomp ${SRCS})
-
-target_link_libraries(ml_test_seccomp ${Boost_LIBRARIES_WITH_UNIT_TEST})
-target_link_libraries(ml_test_seccomp ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_seccomp MlCore)
-target_link_libraries(ml_test_seccomp MlSeccomp)
-target_link_libraries(ml_test_seccomp MlTest)
-
-add_test(ml_test_seccomp ml_test_seccomp)
-# make "make test" run the test program
-add_custom_target(test_seccomp
-     DEPENDS ml_test_seccomp
-     COMMAND ml_test_seccomp
-     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+set(ML_LINK_LIBRARIES
+    ${Boost_LIBRARIES_WITH_UNIT_TEST}
+    ${LIBXML2_LIBRARIES}
+    MlCore
+    MlSeccomp
+    MlTest
 )
+
+ml_add_test_executable(seccomp ${SRCS})

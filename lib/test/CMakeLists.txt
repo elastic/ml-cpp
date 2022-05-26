@@ -11,52 +11,27 @@
 
 project("ML Test")
 
-include_directories(../../include)
-include_directories(SYSTEM ../../3rd_party/include)
-include_directories(SYSTEM ../../3rd_party/eigen)
-include_directories(SYSTEM ../../3rd_party/rapidjson/include)
-
-add_compile_definitions(BUILDING_libMlTest)
-
-set(PLATFORM_SRCS_TMP
-CShellCmdEscape.cc
+set(ML_DEPENDENCIES eigen)
+set(ML_LINK_LIBRARIES 
+    ${Boost_LIBRARIES_WITH_UNIT_TEST}
+    MlApi
+    MlCore
+    MlMathsAnalytics
+    MlMathsCommon
 )
 
-gen_platform_srcs("${PLATFORM_SRCS_TMP}")
-
-set(SRCS
-CBoostTestXmlOutput.cc
-CDataFrameAnalysisSpecificationFactory.cc
-CDataFrameAnalyzerTrainingFactory.cc
-CMultiFileDataAdder.cc
-CMultiFileSearcher.cc
-CProgramCounterClearingFixture.cc
-CRandomNumbers.cc
-CTestObserver.cc
-CTestTmpDir.cc
-CThreadDataReader.cc
-CThreadDataWriter.cc
-CTimeSeriesTestData.cc
+ml_add_library(MlTest SHARED
+    CBoostTestXmlOutput.cc
+    CDataFrameAnalysisSpecificationFactory.cc
+    CDataFrameAnalyzerTrainingFactory.cc
+    CMultiFileDataAdder.cc
+    CMultiFileSearcher.cc
+    CProgramCounterClearingFixture.cc
+    CRandomNumbers.cc
+    CShellCmdEscape.cc
+    CTestObserver.cc
+    CTestTmpDir.cc
+    CThreadDataReader.cc
+    CThreadDataWriter.cc
+    CTimeSeriesTestData.cc
 )
-
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-
-
-add_library(MlTest SHARED ${SRCS} ${PLATFORM_SRCS})
-target_link_libraries(MlTest PUBLIC ${Boost_LIBRARIES_WITH_UNIT_TEST})
-target_link_libraries(MlTest PUBLIC MlApi)
-target_link_libraries(MlTest PUBLIC MlCore)
-target_link_libraries(MlTest PUBLIC MlMathsAnalytics)
-target_link_libraries(MlTest PUBLIC MlMathsCommon)
-
-add_dependencies(MlTest eigen)
-
-if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    target_link_libraries(MlTest PRIVATE "-current_version ${ML_VERSION_NUM}" "-compatibility_version ${ML_VERSION_NUM}" "${COVERAGE}")
-endif()
-
-install(TARGETS MlTest RUNTIME DESTINATION ${DYNAMIC_LIB_DIR} ARCHIVE DESTINATION ${IMPORT_LIB_DIR})
-if(MSVC)
-  set_property(TARGET MlTest PROPERTY COMPILE_PDB_NAME MlTest)
-  install(FILES $<TARGET_PDB_FILE:MlTest> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
-endif()

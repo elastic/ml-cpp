@@ -11,82 +11,63 @@
 
 project("ML Api unit tests")
 
-include_directories(../../../include)
-include_directories(SYSTEM ../../../3rd_party/include)
-include_directories(SYSTEM ../../../3rd_party/eigen)
-include_directories(SYSTEM ../../../3rd_party/rapidjson/include)
-
 set (SRCS
-Main.cc 
-CAnomalyJobConfigTest.cc 
-CAnomalyJobLimitTest.cc 
-CAnomalyJobTest.cc 
-CBoostedTreeInferenceModelBuilderTest.cc 
-CConfigUpdaterTest.cc 
-CCsvInputParserTest.cc 
-CCsvOutputWriterTest.cc 
-CDataFrameAnalysisInstrumentationTest.cc 
-CDataFrameAnalysisRunnerTest.cc 
-CDataFrameAnalysisSpecificationTest.cc 
-CDataFrameAnalyzerFeatureImportanceTest.cc 
-CDataFrameAnalyzerOutlierTest.cc 
-CDataFrameAnalyzerTrainingTest.cc 
-CDataFrameTrainBoostedTreeClassifierRunnerTest.cc 
-CDataFrameTrainBoostedTreeRegressionRunnerTest.cc 
-CDataFrameMockAnalysisRunner.cc 
-CDetectionRulesJsonParserTest.cc 
-CFieldDataCategorizerTest.cc 
-CForecastRunnerTest.cc 
-CGlobalCategoryIdTest.cc 
-CInferenceModelMetadataTest.cc 
-CIoManagerTest.cc 
-CJsonOutputWriterTest.cc 
-CLengthEncodedInputParserTest.cc 
-CMemoryUsageEstimationResultJsonWriterTest.cc 
-CMockDataAdder.cc 
-CMockSearcher.cc 
-CAnnotationJsonWriterTest.cc 
-CModelPlotDataJsonWriterTest.cc 
-CModelSnapshotJsonWriterTest.cc 
-CMultiFileDataAdderTest.cc 
-CNdJsonInputParserTest.cc 
-CNdJsonOutputWriterTest.cc 
-CNoopCategoryIdMapperTest.cc 
-CPerPartitionCategoryIdMapperTest.cc 
-CPersistenceManagerTest.cc 
-CRestorePreviousStateTest.cc 
-CResultNormalizerTest.cc 
-CSingleFieldDataCategorizerTest.cc 
-CSingleStreamDataAdderTest.cc 
-CStateRestoreStreamFilterTest.cc 
-CStringStoreTest.cc 
-CTestAnomalyJob.cc 
-CTestFieldDataCategorizer.cc 
+    Main.cc 
+    CAnomalyJobConfigTest.cc 
+    CAnomalyJobLimitTest.cc 
+    CAnomalyJobTest.cc 
+    CBoostedTreeInferenceModelBuilderTest.cc 
+    CConfigUpdaterTest.cc 
+    CCsvInputParserTest.cc 
+    CCsvOutputWriterTest.cc 
+    CDataFrameAnalysisInstrumentationTest.cc 
+    CDataFrameAnalysisRunnerTest.cc 
+    CDataFrameAnalysisSpecificationTest.cc 
+    CDataFrameAnalyzerFeatureImportanceTest.cc 
+    CDataFrameAnalyzerOutlierTest.cc 
+    CDataFrameAnalyzerTrainingTest.cc 
+    CDataFrameTrainBoostedTreeClassifierRunnerTest.cc 
+    CDataFrameTrainBoostedTreeRegressionRunnerTest.cc 
+    CDataFrameMockAnalysisRunner.cc 
+    CDetectionRulesJsonParserTest.cc 
+    CFieldDataCategorizerTest.cc 
+    CForecastRunnerTest.cc 
+    CGlobalCategoryIdTest.cc 
+    CInferenceModelMetadataTest.cc 
+    CIoManagerTest.cc 
+    CJsonOutputWriterTest.cc 
+    CLengthEncodedInputParserTest.cc 
+    CMemoryUsageEstimationResultJsonWriterTest.cc 
+    CMockDataAdder.cc 
+    CMockSearcher.cc 
+    CAnnotationJsonWriterTest.cc 
+    CModelPlotDataJsonWriterTest.cc 
+    CModelSnapshotJsonWriterTest.cc 
+    CMultiFileDataAdderTest.cc 
+    CNdJsonInputParserTest.cc 
+    CNdJsonOutputWriterTest.cc 
+    CNoopCategoryIdMapperTest.cc 
+    CPerPartitionCategoryIdMapperTest.cc 
+    CPersistenceManagerTest.cc 
+    CRestorePreviousStateTest.cc 
+    CResultNormalizerTest.cc 
+    CSingleFieldDataCategorizerTest.cc 
+    CSingleStreamDataAdderTest.cc 
+    CStateRestoreStreamFilterTest.cc 
+    CStringStoreTest.cc 
+    CTestAnomalyJob.cc 
+    CTestFieldDataCategorizer.cc 
 )
 
-link_directories(${CMAKE_INSTALL_PREFIX}/lib)
-
-add_executable(ml_test_api ${SRCS})
-
-target_link_libraries(ml_test_api ${Boost_LIBRARIES_WITH_UNIT_TEST})
-target_link_libraries(ml_test_api ${LIBXML2_LIBRARIES})
-target_link_libraries(ml_test_api MlCore)
-target_link_libraries(ml_test_api MlMathsCommon)
-target_link_libraries(ml_test_api MlMathsAnalytics)
-target_link_libraries(ml_test_api MlModel)
-target_link_libraries(ml_test_api MlApi)
-target_link_libraries(ml_test_api MlTest)
-
-
-# we expect to be built out of source, in a sub directory
-# so need to change working directory up a level to find
-# test files
-add_test(ml_test_api ml_test_api
+set(ML_LINK_LIBRARIES
+    ${Boost_LIBRARIES_WITH_UNIT_TEST}
+    ${LIBXML2_LIBRARIES}
+    MlCore
+    MlMathsCommon
+    MlMathsAnalytics
+    MlModel
+    MlApi
+    MlTest
 )
 
-# make "make test" run the test program
-add_custom_target(test_api
-     DEPENDS ml_test_api
-     COMMAND ml_test_api
-     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-)
+ml_add_test_executable(api ${SRCS})
