@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
 
     // The maximum bucket_time influencer probability in the farequote data used to initialise
     // the normaliser is 2.1305076675260463E-24, so this should map to the highest normalised
-    // score which is 90.69091.
+    // score which is 93.9542.
     {
         const rapidjson::Document& doc = resultDocs[13];
         BOOST_REQUIRE_EQUAL(std::string(""),
