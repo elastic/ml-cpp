@@ -598,10 +598,10 @@ operator()(const lognormal& logNormal, double x, maths_t::ETail& tail) const {
         //                        + 2 * s^2 * (log(x) - m))^(1/2))  if x > mode
 
         double logx = std::log(x);
-        double squareScale = CTools::pow2(logNormal.scale());
-        double discriminant = std::sqrt(CTools::pow2(squareScale) +
-                                        (logx - logNormal.location() + 2.0 * squareScale) *
-                                            (logx - logNormal.location()));
+        double squareScale = pow2(logNormal.scale());
+        double discriminant = std::sqrt(
+            pow2(squareScale) + (logx - logNormal.location() + 2.0 * squareScale) *
+                                    (logx - logNormal.location()));
         double m = boost::math::mode(logNormal);
         this->tail(x, m, tail);
         double y = m * std::exp(x > m ? -discriminant : discriminant);
@@ -1366,19 +1366,25 @@ double CTools::SIntervalExpectation::operator()(const normal& normal_, double a,
     if (a > b) {
         std::swap(a, b);
     }
-    if (a == POS_INF) {
+    if (a >= POS_INF) {
         return POS_INF;
+    }
+    if (a == b) {
+        return a;
+    }
+    if (a == b) {
+        return a;
     }
 
     double mean = normal_.mean();
     double sd = normal_.standard_deviation();
     double s = std::sqrt(2.0) * sd;
-    double a_ = a == NEG_INF ? a : (a - mean) / s;
-    double b_ = b == POS_INF ? b : (b - mean) / s;
-    double expa = a_ == NEG_INF ? 0.0 : std::exp(-a_ * a_);
-    double expb = b_ == POS_INF ? 0.0 : std::exp(-b_ * b_);
-    double erfa = a_ == NEG_INF ? -1.0 : std::erf(a_);
-    double erfb = b_ == POS_INF ? 1.0 : std::erf(b_);
+    double a_ = a <= NEG_INF ? a : (a - mean) / s;
+    double b_ = b >= POS_INF ? b : (b - mean) / s;
+    double expa = a_ <= NEG_INF ? 0.0 : std::exp(-a_ * a_);
+    double expb = b_ >= POS_INF ? 0.0 : std::exp(-b_ * b_);
+    double erfa = a_ <= NEG_INF ? -1.0 : std::erf(a_);
+    double erfb = b_ >= POS_INF ? 1.0 : std::erf(b_);
 
     if (erfb - erfa < std::sqrt(EPSILON)) {
         return expa == expb ? (a + b) / 2.0 : (a * expa + b * expb) / (expa + expb);
@@ -1393,63 +1399,88 @@ operator()(const lognormal& logNormal, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }
-    if (a == POS_INF) {
+    if (a >= POS_INF) {
         return POS_INF;
     }
     if (b <= 0.0) {
         return 0.0;
     }
+    if (a == b) {
+        return a;
+    }
 
     double location = logNormal.location();
     double scale = logNormal.scale();
+    if (a <= 1e-8) {
+        lognormal logNormalShift{location + pow2(scale), scale};
+        // If F(b) underflows we're in the extreme left tail. We can fallback to
+        // computing an asymptotic expansion of the ratio. The leading term (by
+        // L'Hospital) turns out to just be b. This intuitively makes sense since
+        // the distribution is concentrated at the right end of the interval.
+        double cdf = boost::math::cdf(logNormal, b);
+        return (cdf == 0.0 ? b
+                           : boost::math::mean(logNormal) *
+                                 boost::math::cdf(logNormalShift, b) / cdf);
+    }
+
     double mean = boost::math::mean(logNormal);
-    double loga = a <= 0.0 ? NEG_INF : std::log(a);
-    double logb = b == POS_INF ? POS_INF : std::log(b);
-    double c = location + scale * scale;
+    double loga = std::log(a);
+    double logb = std::log(b);
+    double c = location + pow2(scale);
     double s = std::sqrt(2.0) * scale;
-    double a_ = loga == NEG_INF ? NEG_INF : (loga - location) / s;
-    double b_ = logb == POS_INF ? POS_INF : (logb - location) / s;
-    double erfa = loga == NEG_INF ? -1.0 : std::erf((loga - c) / s);
-    double erfb = logb == POS_INF ? 1.0 : std::erf((logb - c) / s);
+    double a_ = (loga - location) / s;
+    double b_ = (logb - location) / s;
+    double erfa = std::erf((loga - c) / s);
+    double erfb = std::erf((logb - c) / s);
 
     if (erfb - erfa < std::sqrt(EPSILON)) {
-        double expa = loga == NEG_INF ? 0.0 : std::exp(-a_ * a_);
-        double expb = logb == POS_INF ? 0.0 : std::exp(-b_ * b_);
+        double expa = std::exp(-a_ * a_);
+        double expb = std::exp(-b_ * b_);
         return expa == expb ? (2.0 * a / (a + b)) * b
                             : (expa + expb) / (expa / a + expb / b);
     }
 
-    double erfa_ = a_ == NEG_INF ? -1.0 : std::erf(a_);
-    double erfb_ = b_ == POS_INF ? 1.0 : std::erf(b_);
-    return mean * (erfb - erfa) / (erfb_ - erfa_);
+    double erfa_ = std::erf(a_);
+    double erfb_ = std::erf(b_);
+    return (erfb - erfa) == (erfb_ - erfa_) ? mean : mean * (erfb - erfa) / (erfb_ - erfa_);
 }
 
 double CTools::SIntervalExpectation::operator()(const gamma& gamma_, double a, double b) const {
     if (a > b) {
         std::swap(a, b);
     }
-    if (a == POS_INF) {
+    if (a >= POS_INF) {
         return POS_INF;
     }
     if (b <= 0.0) {
         return 0.0;
     }
-
-    double shape = gamma_.shape();
-    double rate = 1.0 / gamma_.scale();
-    double mean = boost::math::mean(gamma_);
-    double gama = a <= 0.0 ? 0.0 : boost::math::gamma_p(shape + 1.0, rate * a);
-    double gamb = b == POS_INF ? 1.0 : boost::math::gamma_p(shape + 1.0, rate * b);
-
-    if (gamb - gama < std::sqrt(EPSILON)) {
-        double expa = a <= 0.0 ? 0.0 : std::exp((shape - 1.0) * std::log(a) - rate * a);
-        double expb = b == POS_INF ? 0.0 : std::exp((shape - 1.0) * std::log(b) - rate * b);
-        return (a * expa + b * expb) / (expa + expb);
+    if (a == b) {
+        return a;
     }
 
-    double gama_ = a <= 0.0 ? 0.0 : boost::math::gamma_p(shape, rate * a);
-    double gamb_ = b == POS_INF ? 1.0 : boost::math::gamma_p(shape, rate * b);
-    return mean * (gamb - gama) / (gamb_ - gama_);
+    double shape = gamma_.shape();
+    double scale = gamma_.scale();
+    if (a <= 1e-8) {
+        boost::math::gamma_distribution<> gammaShift_{shape + 1.0, scale};
+        return boost::math::mean(gamma_) * boost::math::cdf(gammaShift_, b) /
+               boost::math::cdf(gamma_, b);
+    }
+
+    double rate = 1.0 / scale;
+    double mean = boost::math::mean(gamma_);
+    double gama = boost::math::gamma_p(shape + 1.0, rate * a);
+    double gamb = b >= POS_INF ? 1.0 : boost::math::gamma_p(shape + 1.0, rate * b);
+
+    if (gamb - gama < std::sqrt(EPSILON)) {
+        double expa = std::exp((shape - 1.0) * std::log(a) - rate * a);
+        double expb = std::exp((shape - 1.0) * std::log(b) - rate * b);
+        return expa == expb ? (a + b) / 2.0 : (a * expa + b * expb) / (expa + expb);
+    }
+
+    double gama_ = boost::math::gamma_p(shape, rate * a);
+    double gamb_ = boost::math::gamma_p(shape, rate * b);
+    return (gamb - gama) == (gamb_ - gama_) ? mean : mean * (gamb - gama) / (gamb_ - gama_);
 }
 
 //////// smallestProbability Implementation ////////
@@ -1835,7 +1866,7 @@ double CTools::differentialEntropy(const lognormal& logNormal) {
     double location = logNormal.location();
     double scale = logNormal.scale();
     return 0.5 * std::log(boost::math::double_constants::two_pi *
-                          boost::math::double_constants::e * CTools::pow2(scale)) +
+                          boost::math::double_constants::e * pow2(scale)) +
            location;
 }
 
