@@ -165,7 +165,7 @@ const std::string INFO_COULD_NOT_FORECAST_FOR_FULL_DURATION{
 const std::string ERROR_MULTIVARIATE{"Forecast not supported for multivariate features"};
 }
 
-namespace winsorisation {
+namespace outliers {
 constexpr double MINIMUM_WEIGHT{0.01};
 const double MAXIMUM_P_VALUE{1e-3};
 const double MINIMUM_P_VALUE{1e-5};
@@ -174,7 +174,7 @@ const double LOG_MINIMUM_P_VALUE{std::log(MINIMUM_P_VALUE)};
 const double MINUS_LOG_TOLERANCE{
     -std::log(1.0 - 100.0 * std::numeric_limits<double>::epsilon())};
 
-//! Derate the minimum Winsorisation weight.
+//! Derate the minimum outlier weight.
 double deratedMinimumWeight(double derate) {
     derate = common::CTools::truncate(derate, 0.0, 1.0);
     return MINIMUM_WEIGHT + (0.5 - MINIMUM_WEIGHT) * derate;
@@ -1161,7 +1161,7 @@ void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
                                               const TDouble2Vec& value,
                                               double trendCountWeight,
                                               double residualCountWeight,
-                                              double winsorisationDerate,
+                                              double outlierWeightDerate,
                                               double countVarianceScale,
                                               TDouble2VecWeightsAry& trendWeights,
                                               TDouble2VecWeightsAry& residuaWeights) const {
@@ -1175,22 +1175,22 @@ void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
     auto weights = maths_t::CUnitWeights::UNIT;
     maths_t::setCount(std::min(residualCountWeight / trendCountWeight, 1.0), weights);
     maths_t::setSeasonalVarianceScale(seasonalWeight[0], weights);
-    double winsorisationWeight{winsorisation::weight(
+    double outlierWeight{outliers::weight(
         *m_ResidualModel, weights,
-        std::max(winsorisationDerate, m_TrendModel->winsorisationDerate(time, sample)),
+        std::max(outlierWeightDerate, m_TrendModel->outlierWeightDerate(time, sample)),
         sample)};
 
     double changeWeight{m_TrendModel->countWeight(time)};
     trendCountWeight /= countVarianceScale;
     residualCountWeight *= changeWeight;
 
-    TDouble2Vec trendWinsorisationWeight{winsorisationWeight * changeWeight};
-    TDouble2Vec residualWinsorisationWeight{winsorisationWeight};
+    TDouble2Vec trendOutlierWeight{outlierWeight * changeWeight};
+    TDouble2Vec residualOutlierWeight{outlierWeight};
 
     maths_t::setCount(TDouble2Vec{trendCountWeight}, trendWeights);
     maths_t::setCount(TDouble2Vec{residualCountWeight}, residuaWeights);
-    maths_t::setWinsorisationWeight(trendWinsorisationWeight, trendWeights);
-    maths_t::setWinsorisationWeight(residualWinsorisationWeight, residuaWeights);
+    maths_t::setOutlierWeight(trendOutlierWeight, trendWeights);
+    maths_t::setOutlierWeight(residualOutlierWeight, residuaWeights);
     maths_t::setCountVarianceScale(TDouble2Vec{countVarianceScale}, trendWeights);
     maths_t::setCountVarianceScale(TDouble2Vec{countVarianceScale}, residuaWeights);
 }
@@ -2552,7 +2552,7 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
                                                 const TDouble2Vec& value,
                                                 double trendCountWeight,
                                                 double residualCountWeight,
-                                                double winsorisationDerate,
+                                                double outlierWeightDerate,
                                                 double countVarianceScale,
                                                 TDouble2VecWeightsAry& trendWeights,
                                                 TDouble2VecWeightsAry& residuaWeights) const {
@@ -2563,8 +2563,8 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
 
     TDouble2Vec trendCountWeights(dimension, trendCountWeight);
     TDouble2Vec residualCountWeights(dimension, residualCountWeight);
-    TDouble2Vec trendWinsorisationWeight(dimension);
-    TDouble2Vec residualWinsorisationWeight(dimension);
+    TDouble2Vec trendOutlierWeight(dimension);
+    TDouble2Vec residualOutlierWeight(dimension);
     TDouble2Vec countVarianceScales(dimension, 1.0);
     TDouble10Vec sample(dimension);
     for (std::size_t d = 0; d < dimension; ++d) {
@@ -2579,20 +2579,20 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
         auto weights = maths_t::CUnitWeights::UNIT;
         maths_t::setCount(std::min(residualCountWeight / trendCountWeight, 1.0), weights);
         maths_t::setSeasonalVarianceScale(seasonalWeight[d], weights);
-        double winsorisationWeight{winsorisation::weight(
+        double outlierWeight{outliers::weight(
             *conditional(*m_ResidualModel, d, sample), weights,
-            std::max(winsorisationDerate,
-                     m_TrendModel[d]->winsorisationDerate(time, sample[d])),
+            std::max(outlierWeightDerate,
+                     m_TrendModel[d]->outlierWeightDerate(time, sample[d])),
             sample[d])};
         residualCountWeights[d] *= changeWeight;
-        trendWinsorisationWeight[d] = winsorisationWeight * changeWeight;
-        residualWinsorisationWeight[d] = winsorisationWeight;
+        trendOutlierWeight[d] = outlierWeight * changeWeight;
+        residualOutlierWeight[d] = outlierWeight;
     }
 
     maths_t::setCount(trendCountWeights, trendWeights);
     maths_t::setCount(residualCountWeights, residuaWeights);
-    maths_t::setWinsorisationWeight(trendWinsorisationWeight, trendWeights);
-    maths_t::setWinsorisationWeight(trendWinsorisationWeight, residuaWeights);
+    maths_t::setOutlierWeight(trendOutlierWeight, trendWeights);
+    maths_t::setOutlierWeight(trendOutlierWeight, residuaWeights);
     maths_t::setCountVarianceScale(countVarianceScales, trendWeights);
     maths_t::setCountVarianceScale(countVarianceScales, residuaWeights);
 }

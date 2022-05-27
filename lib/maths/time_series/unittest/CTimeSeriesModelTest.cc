@@ -784,7 +784,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitPropagationIntervalInAddSamples) {
         TDouble2Vec samples[]{{10.0}, {13.9}, {27.1}};
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
         maths_t::setCount(TDouble2Vec{1.5}, weights[0]);
-        maths_t::setWinsorisationWeight(TDouble2Vec{0.9}, weights[0]);
+        maths_t::setOutlierWeight(TDouble2Vec{0.9}, weights[0]);
         maths_t::setCountVarianceScale(TDouble2Vec{1.1}, weights[0]);
 
         core_t::TTime time{0};
@@ -822,7 +822,7 @@ BOOST_AUTO_TEST_CASE(testNonUnitPropagationIntervalInAddSamples) {
         TDouble2Vec samples[]{{13.5, 13.4, 13.3}, {13.9, 13.8, 13.7}, {20.1, 20.0, 10.9}};
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
         maths_t::setCount(TDouble2Vec{1.0, 1.1, 1.2}, weights[0]);
-        maths_t::setWinsorisationWeight(TDouble2Vec{0.1, 0.1, 0.2}, weights[0]);
+        maths_t::setOutlierWeight(TDouble2Vec{0.1, 0.1, 0.2}, weights[0]);
         maths_t::setCountVarianceScale(TDouble2Vec{2.0, 2.1, 2.2}, weights[0]);
 
         core_t::TTime time{0};
@@ -1493,7 +1493,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
     //   1) the trend and residual model
     //   2) the variation in the input data
     //
-    // And that the Winsorisation weight is monotonic decreasing with
+    // And that the outlier weight is monotonic decreasing with
     // increasing distance from the expected value.
 
     core_t::TTime bucketLength{1800};
@@ -1542,24 +1542,23 @@ BOOST_AUTO_TEST_CASE(testWeights) {
         LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(error));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.26);
 
-        LOG_DEBUG(<< "Winsorisation");
+        LOG_DEBUG(<< "Outlier reweighting");
         TDouble2Vec prediction(model.predict(time));
         TDouble2VecWeightsAry trendWeights;
         TDouble2VecWeightsAry residualWeights;
-        double lastTrendWinsorisationWeight{1.0};
-        double lastResidualWinsorisationWeight{1.0};
+        double lastTrendOutlierWeight{1.0};
+        double lastResidualOutlierWeight{1.0};
         for (std::size_t i = 0; i < 10; ++i) {
             model.countWeights(time, prediction, 1.0, 1.0, 1.0, 1.0,
                                trendWeights, residualWeights);
-            double trendWinsorisationWeight{maths_t::winsorisationWeight(trendWeights)[0]};
-            double residualWinsorisationWeight{
-                maths_t::winsorisationWeight(residualWeights)[0]};
-            LOG_DEBUG(<< "trend weight = " << trendWinsorisationWeight
-                      << ", residual weight = " << residualWinsorisationWeight);
-            BOOST_TEST_REQUIRE(trendWinsorisationWeight <= lastTrendWinsorisationWeight);
-            BOOST_TEST_REQUIRE(residualWinsorisationWeight <= lastResidualWinsorisationWeight);
-            lastTrendWinsorisationWeight = trendWinsorisationWeight;
-            lastResidualWinsorisationWeight = residualWinsorisationWeight;
+            double trendOutlierWeight{maths_t::outlierWeight(trendWeights)[0]};
+            double residualOutlierWeight{maths_t::outlierWeight(residualWeights)[0]};
+            LOG_DEBUG(<< "trend weight = " << trendOutlierWeight
+                      << ", residual weight = " << residualOutlierWeight);
+            BOOST_TEST_REQUIRE(trendOutlierWeight <= lastTrendOutlierWeight);
+            BOOST_TEST_REQUIRE(residualOutlierWeight <= lastResidualOutlierWeight);
+            lastTrendOutlierWeight = trendOutlierWeight;
+            lastResidualOutlierWeight = residualOutlierWeight;
             prediction[0] *= 1.1;
         }
     }
@@ -1612,24 +1611,23 @@ BOOST_AUTO_TEST_CASE(testWeights) {
         LOG_DEBUG(<< "error = " << maths::common::CBasicStatistics::mean(error));
         BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(error) < 0.3);
 
-        LOG_DEBUG(<< "Winsorisation");
+        LOG_DEBUG(<< "Outlier reweighting");
         TDouble2Vec prediction(model.predict(time));
         TDouble2VecWeightsAry trendWeights;
         TDouble2VecWeightsAry residualWeights;
-        double lastTrendWinsorisationWeight{1.0};
-        double lastResidualWinsorisationWeight{1.0};
+        double lastTrendOutlierWeight{1.0};
+        double lastResidualOutlierWeight{1.0};
         for (std::size_t i = 0; i < 10; ++i) {
             model.countWeights(time, prediction, 1.0, 1.0, 1.0, 1.0,
                                trendWeights, residualWeights);
-            double trendWinsorisationWeight{maths_t::winsorisationWeight(trendWeights)[0]};
-            double residualWinsorisationWeight{
-                maths_t::winsorisationWeight(residualWeights)[0]};
-            LOG_DEBUG(<< "trend weight = " << trendWinsorisationWeight
-                      << ", residual weight = " << residualWinsorisationWeight);
-            BOOST_TEST_REQUIRE(trendWinsorisationWeight <= lastTrendWinsorisationWeight);
-            BOOST_TEST_REQUIRE(residualWinsorisationWeight <= lastResidualWinsorisationWeight);
-            lastTrendWinsorisationWeight = trendWinsorisationWeight;
-            lastResidualWinsorisationWeight = residualWinsorisationWeight;
+            double trendOutlierWeight{maths_t::outlierWeight(trendWeights)[0]};
+            double residualOutlierWeight{maths_t::outlierWeight(residualWeights)[0]};
+            LOG_DEBUG(<< "trend weight = " << trendOutlierWeight
+                      << ", residual weight = " << residualOutlierWeight);
+            BOOST_TEST_REQUIRE(trendOutlierWeight <= lastTrendOutlierWeight);
+            BOOST_TEST_REQUIRE(residualOutlierWeight <= lastResidualOutlierWeight);
+            lastTrendOutlierWeight = trendOutlierWeight;
+            lastResidualOutlierWeight = residualOutlierWeight;
             prediction[0] *= 1.1;
         }
     }

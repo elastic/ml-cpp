@@ -358,12 +358,12 @@ public:
                     }
                     maths_t::setCount(cluster.second, N, weight[0]);
                     if (maths_t::isWinsorised(weight)) {
-                        TDouble10Vec ww = maths_t::winsorisationWeight(weight[0]);
+                        TDouble10Vec ww = maths_t::outlierWeight(weight[0]);
                         double f = (k->weight() + cluster.second) / Z;
                         for (auto& w : ww) {
                             w = std::max(1.0 - (1.0 - w) / f, w * f);
                         }
-                        maths_t::setWinsorisationWeight(ww, weight[0]);
+                        maths_t::setOutlierWeight(ww, weight[0]);
                     }
                     k->s_Prior->addSamples(sample, weight);
                     n += this->smallest(maths_t::countForUpdate(weight[0]));

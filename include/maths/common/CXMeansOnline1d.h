@@ -176,7 +176,7 @@ public:
         //! \param[in] minimumCount The minimum count of a cluster
         //! in the split.
         //! \param[in] smallest The smallest sample added to date.
-        //! \param[in] interval The Winsorisation interval.
+        //! \param[in] interval The Winsorization interval.
         //! \param[in] indexGenerator The unique cluster identifier
         //! generator.
         TOptionalClusterClusterPr split(CAvailableModeDistributions distributions,
@@ -191,7 +191,7 @@ public:
         //! \param[in] distributions The distributions available to
         //! model the clusters.
         //! \param[in] smallest The smallest sample added to date.
-        //! \param[in] interval The Winsorisation interval.
+        //! \param[in] interval The Winsorization interval.
         bool shouldMerge(CCluster& other,
                          CAvailableModeDistributions distributions,
                          double smallest,
@@ -234,7 +234,7 @@ public:
 
 public:
     //! The central confidence interval on which to Winsorise.
-    static const double WINSORISATION_CONFIDENCE_INTERVAL;
+    static const double WINSORIZATION_CONFIDENCE_INTERVAL;
 
 public:
     //! Construct a new clusterer.
@@ -252,7 +252,7 @@ public:
     //! cluster.
     //! \param[in] minimumCategoryCount The minimum count of a category
     //! in the sketch to cluster.
-    //! \param[in] winsorisationConfidenceInterval The central confidence
+    //! \param[in] winsorizationConfidenceInterval The central confidence
     //! interval on which to Winsorise.
     //! \param[in] splitFunc Optional callback for when a cluster is split.
     //! \param[in] mergeFunc Optional callback for when two clusters are
@@ -263,7 +263,7 @@ public:
                     double minimumClusterFraction = MINIMUM_CLUSTER_SPLIT_FRACTION,
                     double minimumClusterCount = MINIMUM_CLUSTER_SPLIT_COUNT,
                     double minimumCategoryCount = MINIMUM_CATEGORY_COUNT,
-                    double winsorisationConfidenceInterval = WINSORISATION_CONFIDENCE_INTERVAL,
+                    double winsorizationConfidenceInterval = WINSORIZATION_CONFIDENCE_INTERVAL,
                     const TSplitFunc& splitFunc = CDoNothing(),
                     const TMergeFunc& mergeFunc = CDoNothing());
 
@@ -427,8 +427,8 @@ private:
     //! Remove any clusters which are effectively dead.
     bool prune();
 
-    //! Get the Winsorisation interval.
-    TDoubleDoublePr winsorisationInterval() const;
+    //! Get the Winsorization interval.
+    TDoubleDoublePr winsorizationInterval() const;
 
 private:
     //! The type of data being clustered.
@@ -459,7 +459,7 @@ private:
     CFloatStorage m_MinimumCategoryCount;
 
     //! The data central confidence interval on which to Winsorise.
-    CFloatStorage m_WinsorisationConfidenceInterval;
+    CFloatStorage m_WinsorizationConfidenceInterval;
 
     //! A generator of unique cluster indices.
     CIndexGenerator m_ClusterIndexGenerator;
