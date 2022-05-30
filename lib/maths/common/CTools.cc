@@ -1442,7 +1442,9 @@ operator()(const lognormal& logNormal, double a, double b) const {
 
     double erfa_ = std::erf(a_);
     double erfb_ = std::erf(b_);
-    return (erfb - erfa) == (erfb_ - erfa_) ? mean : mean * (erfb - erfa) / (erfb_ - erfa_);
+    return truncate(
+        (erfb - erfa) == (erfb_ - erfa_) ? mean : mean * (erfb - erfa) / (erfb_ - erfa_),
+        -POS_INF, POS_INF);
 }
 
 double CTools::SIntervalExpectation::operator()(const gamma& gamma_, double a, double b) const {
@@ -1480,7 +1482,9 @@ double CTools::SIntervalExpectation::operator()(const gamma& gamma_, double a, d
 
     double gama_ = boost::math::gamma_p(shape, rate * a);
     double gamb_ = boost::math::gamma_p(shape, rate * b);
-    return (gamb - gama) == (gamb_ - gama_) ? mean : mean * (gamb - gama) / (gamb_ - gama_);
+    return truncate(
+        (gamb - gama) == (gamb_ - gama_) ? mean : mean * (gamb - gama) / (gamb_ - gama_),
+        -POS_INF, POS_INF);
 }
 
 //////// smallestProbability Implementation ////////
