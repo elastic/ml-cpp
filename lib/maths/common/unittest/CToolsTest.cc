@@ -18,6 +18,7 @@
 #include <maths/common/CLinearAlgebraEigen.h>
 #include <maths/common/CLinearAlgebraTools.h>
 #include <maths/common/CLogTDistribution.h>
+#include <maths/common/CMathsFuncs.h>
 #include <maths/common/CTools.h>
 #include <maths/common/CToolsDetail.h>
 
@@ -291,14 +292,21 @@ public:
 };
 
 template<typename DISTRIBUTION>
-double numericalIntervalExpectation(const DISTRIBUTION& distribution, double a, double b) {
+double numericalIntervalExpectation(const DISTRIBUTION& distribution,
+                                    double a,
+                                    double b,
+                                    std::size_t steps = 10) {
+    if (a == b) {
+        return b;
+    }
+
     double numerator = 0.0;
     double denominator = 0.0;
 
     CPdf<DISTRIBUTION> fx(distribution);
     maths::common::CCompositeFunctions::CProduct<CPdf<DISTRIBUTION>, CIdentity> xfx(fx);
-    double dx = (b - a) / 10.0;
-    for (std::size_t i = 0; i < 10; ++i, a += dx) {
+    double dx = (b - a) / static_cast<double>(steps);
+    for (std::size_t i = 0; i < steps; ++i, a += dx) {
         double fxi;
         BOOST_TEST_REQUIRE(
             maths::common::CIntegration::gaussLegendre<maths::common::CIntegration::OrderFive>(
@@ -957,6 +965,52 @@ BOOST_AUTO_TEST_CASE(testIntervalExpectation) {
                              8.1 * (1.0 + std::numeric_limits<double>::epsilon()));
         LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 1e-12 * expected);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testIntervalExpectationNumericIssues) {
+
+    // We check some limiting cases which lead to numerically challenging
+    // cases. These can easily generate NaNs if not handled carefully.
+
+    maths::common::CTools::SIntervalExpectation expectation;
+
+    LOG_DEBUG(<< "*** Log-Normal ***");
+    {
+        for (double a : {0.01, 1e-4, 1e-8, 1e-16, 1e-32, 0.0}) {
+            for (double b : {0.01, 0.1}) {
+                for (double location : {-1.0, 1.0}) {
+                    for (double scale : {0.1, 2.0}) {
+                        boost::math::lognormal logNormal(location, scale);
+                        double actual = expectation(logNormal, a, b);
+                        double expected =
+                            numericalIntervalExpectation(logNormal, a, b, 100);
+                        if (maths::common::CMathsFuncs::isNan(expected) == false) {
+                            LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
+                            BOOST_REQUIRE_CLOSE(actual, expected, 1.0 /* percent */);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    LOG_DEBUG(<< "*** Gamma ***");
+    {
+        for (double a : {0.01, 1e-4, 1e-8, 1e-16, 1e-32, 0.0}) {
+            for (double b : {0.01, 0.1}) {
+                for (double shape : {1.0, 5.0}) {
+                    for (double rate : {1.0, 0.2}) {
+                        boost::math::gamma_distribution<> gamma(
+                            0.236554 * shape, 1.0 / 36.9769 / rate);
+                        double actual = expectation(gamma, a, b);
+                        double expected = numericalIntervalExpectation(gamma, a, b, 100);
+                        LOG_DEBUG(<< "expected = " << expected << ", actual = " << actual);
+                        BOOST_REQUIRE_CLOSE(actual, expected, 20.0 /* percent */);
+                    }
+                }
+            }
+        }
     }
 }
 
