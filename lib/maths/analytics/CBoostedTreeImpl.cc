@@ -2528,7 +2528,7 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
     }
 
     if (m_Hyperparameters.incrementalTraining() == false) {
-        // use stratified sampling after initial training
+        // Use stratified sampling after initial training.
         std::size_t sampleSize{std::max(
             static_cast<std::size_t>(allTrainingRowsMask.manhattan() * m_DataSummarizationFraction),
             static_cast<std::size_t>(2))};
@@ -2546,11 +2546,19 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
     auto newDataSampleRowMask{CDataFrameUtils::stratifiedSamplingRowMask(
         m_NumberThreads, frame, m_DependentVariable, m_Rng,
         newDataSubsampleSize, 10, this->newTrainingRowMask())};
+    auto allTrainingData{dataSummarizationRowMask | newDataSampleRowMask};
 
-    // use class distribution preserving sampling after incremental training
+    if (m_Loss->isRegression()) {
+        // For regression we preserve the quantile distribution of the complete training sample.
+        core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMask(
+            m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
+            allTrainingData, allTrainingData)};
+        return rowMask;
+    }
+    // For classification we preserve the class distribution of the data summarization sample.
     core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMask(
         m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
-        dataSummarizationRowMask, (dataSummarizationRowMask | newDataSampleRowMask))};
+        dataSummarizationRowMask, allTrainingData)};
     return rowMask;
 }
 

@@ -9,7 +9,6 @@
  * limitation.
  */
 
-#include <boost/test/tools/old/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CPackedBitVector.h>
 
@@ -871,7 +870,9 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
         }
     }
 
-    // Test for regression data that quantiles fit to the new data.
+    // Test for regression data that quantiles fit to the new data. This part of the test
+    // resembles the test for testStratifiedSamplingRowMasks. This is on purpose, since the
+    // behaviour should be similar.
     for (std::size_t trial = 0; trial < 10; ++trial) {
 
         testRng.generateUniformSamples(500, 750, 1, numberDistributionSourceRows);
@@ -908,7 +909,9 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
             maths::common::CQuantileSketch::E_Linear,
             static_cast<std::size_t>(samplingRowsMask.manhattan()));
         for (std::size_t i = 0; i < numberRows; ++i) {
-            expectedQuantiles.add(value[i]);
+            if (distributionSourceRowsMask[i]) {
+                expectedQuantiles.add(value[i]);
+            }
             if (samplingRowsMask[i]) {
                 actualQuantiles.add(value[i]);
             }

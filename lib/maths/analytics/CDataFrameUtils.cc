@@ -707,7 +707,7 @@ core::CPackedBitVector CDataFrameUtils::distributionPreservingSamplingRowMask(
     } else {
         sampler = regressionStratifiedCrossValidationRowSampler(
             numberThreads, frame, targetColumn, rng, desiredNumberSamples,
-            numberBuckets, allTrainingRowsMask);
+            numberBuckets, distributionSourceRowsMask);
     }
 
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
