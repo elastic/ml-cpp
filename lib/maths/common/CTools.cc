@@ -1390,8 +1390,9 @@ double CTools::SIntervalExpectation::operator()(const normal& normal_, double a,
         return expa == expb ? (a + b) / 2.0 : (a * expa + b * expb) / (expa + expb);
     }
 
-    return mean + 2.0 * sd * (expa - expb) /
-                      boost::math::double_constants::root_two_pi / (erfb - erfa);
+    return truncate(mean + 2.0 * sd * (expa - expb) /
+                               boost::math::double_constants::root_two_pi / (erfb - erfa),
+                    -POS_INF, POS_INF);
 }
 
 double CTools::SIntervalExpectation::
