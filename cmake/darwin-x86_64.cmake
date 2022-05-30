@@ -14,14 +14,13 @@ set(CMAKE_SYSTEM_NAME Darwin)
 
 message(STATUS "CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}")
 
-if(ENV{CPP_CROSS_COMPILE})
+message(STATUS "CPP_CROSS_COMPILE = ${CPP_CROSS_COMPILE}")
+
+if(CPP_CROSS_COMPILE)
+
   set(CROSS_TARGET_PLATFORM  x86_64-apple-macosx10.14)
-  # where is the target environment located
-  set(CMAKE_FIND_ROOT_PATH  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
-  #set(CMAKE_SYSROOT  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
-  
-  message(STATUS "CMAKE_SYSROOT=${CMAKE_SYSROOT}")
-  
+  set(SYSROOT /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
+
   # adjust the default behavior of the FIND_XXX() commands:
   # search programs in the host environment
   set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)

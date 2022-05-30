@@ -88,8 +88,11 @@ function(ml_add_library _target _type)
   if(ML_DEPENDENCIES)
     add_dependencies(${_target} ${ML_DEPENDENCIES})
   endif()
-  
+
   if (_type STREQUAL "SHARED")
+    if (ML_SHARED_LINKER_FLAGS)
+      target_link_options(${_target} PUBLIC ${ML_SHARED_LINKER_FLAGS})
+    endif()
     if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
       target_link_libraries(${_target} PRIVATE
         "-current_version ${ML_VERSION_NUM}"
@@ -113,6 +116,10 @@ function(ml_add_executable _target)
   endif()
 
   add_executable(${_target} Main.cc ${PLATFORM_SRCS})
+
+  if (ML_EXE_LINKER_FLAGS)
+    target_link_options(${_target} PUBLIC ${ML_EXE_LINKER_FLAGS})
+  endif()
 
   target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
 
