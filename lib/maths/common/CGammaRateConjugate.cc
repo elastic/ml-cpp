@@ -912,7 +912,7 @@ void CGammaRateConjugate::addSamples(const TDouble1Vec& samples,
             if (x <= 0.0 || !CMathsFuncs::isFinite(x) ||
                 !CMathsFuncs::isFinite(weights[i])) {
                 LOG_ERROR(<< "Discarding sample = " << x << ", weights = "
-                          << core::CContainerPrinter::print(weights));
+                          << core::CContainerPrinter::print(weights[i]));
                 continue;
             }
             double n = maths_t::countForUpdate(weights[i]);
