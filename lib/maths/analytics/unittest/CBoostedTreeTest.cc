@@ -2436,7 +2436,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
 
     TDoubleVecVec x(cols - 1);
     for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(-3.0, 0.0, rows, x[i]);
+        rng.generateUniformSamples(-3.0, -1.0, rows, x[i]);
     }
 
     fillDataFrame(rows, 0, cols, {false, false, false, false, true}, x,
@@ -2455,7 +2455,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
                   TDoubleVec(rows, 0.0), target, *newFrame);
 
     for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(0.0, 3.0, extraTrainingRows, x[i]);
+        rng.generateUniformSamples(1.0, 3.0, extraTrainingRows, x[i]);
     }
 
     fillDataFrame(extraTrainingRows, 0, cols, {false, false, false, false, true},
