@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
     std::string results(outputWriter.internalString());
     LOG_INFO(<< "Results:\n" << results);
 
-    // Results are new line separated so read all the docs into an  array
+    // Results are new line separated so read all the docs into an array.
     std::vector<rapidjson::Document> resultDocs;
     std::stringstream ss(results);
     std::string docString;
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
 
     // The maximum bucket_time influencer probability in the farequote data used to initialise
     // the normaliser is 2.1305076675260463E-24, so this should map to the highest normalised
-    // score which is 90.69091
+    // score which is 93.9542.
     {
         const rapidjson::Document& doc = resultDocs[13];
         BOOST_REQUIRE_EQUAL(std::string(""),
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
         BOOST_REQUIRE_EQUAL(std::string(""),
                             std::string(doc["partition_field_value"].GetString()));
         BOOST_REQUIRE_EQUAL(std::string("root"), std::string(doc["level"].GetString()));
-        BOOST_REQUIRE_EQUAL(std::string("90.69091"),
+        BOOST_REQUIRE_EQUAL(std::string("93.9542"),
                             std::string(doc["normalized_score"].GetString()));
     }
     {
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
         BOOST_REQUIRE_EQUAL(std::string(""),
                             std::string(doc["partition_field_value"].GetString()));
         BOOST_REQUIRE_EQUAL(std::string("inflb"), std::string(doc["level"].GetString()));
-        BOOST_REQUIRE_EQUAL(std::string("69.60219"),
+        BOOST_REQUIRE_EQUAL(std::string("81.65058"),
                             std::string(doc["normalized_score"].GetString()));
     }
     {
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
         BOOST_REQUIRE_EQUAL(std::string("AAL"),
                             std::string(doc["partition_field_value"].GetString()));
         BOOST_REQUIRE_EQUAL(std::string("leaf"), std::string(doc["level"].GetString()));
-        BOOST_REQUIRE_EQUAL(std::string("99.22667"),
+        BOOST_REQUIRE_EQUAL(std::string("99.61332"),
                             std::string(doc["normalized_score"].GetString()));
     }
     {
@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_CASE(testInitNormalizerPartitioned) {
         BOOST_REQUIRE_EQUAL(std::string(""),
                             std::string(doc["partition_field_value"].GetString()));
         BOOST_REQUIRE_EQUAL(std::string("infl"), std::string(doc["level"].GetString()));
-        BOOST_REQUIRE_EQUAL(std::string("96.89889"),
+        BOOST_REQUIRE_EQUAL(std::string("98.44925"),
                             std::string(doc["normalized_score"].GetString()));
     }
     {
