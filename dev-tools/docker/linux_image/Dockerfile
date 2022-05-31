@@ -64,7 +64,7 @@ RUN \
 # Build libxml2
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.14.tar.xz | tar Jxf - && \
+  wget --quiet --no-check-certificate -O - https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.14.tar.xz | tar Jxf - && \
   cd libxml2-2.9.14 && \
   ./configure --prefix=/usr/local/gcc103 --without-python --without-readline && \
   make -j`nproc` && \

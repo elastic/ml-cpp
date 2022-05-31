@@ -24,7 +24,7 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 
 ### OS Packages
 
-You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip` and `bzip2`. `libffi-devel` and `openssl-devel` are dependencies for building PyTorch. Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database.  On RHEL/CentOS these can be installed using:
+You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip`, `bzip2` and `xz`. `libffi-devel` and `openssl-devel` are dependencies for building PyTorch. Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database.  On RHEL/CentOS these can be installed using:
 
 ```
 sudo yum install bzip2 gcc-c++ libffi-devel openssl-devel texinfo tzdata unzip xz zlib-devel
