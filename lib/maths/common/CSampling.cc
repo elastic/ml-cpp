@@ -803,8 +803,7 @@ void CSampling::normalSampleQuantiles(double mean, double variance, std::size_t 
     if (n == 0) {
         return;
     }
-
-    if (variance == 0.0) {
+    if (variance <= 0.0) {
         result.resize(n, mean);
         return;
     }
