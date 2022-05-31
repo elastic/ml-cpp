@@ -51,6 +51,8 @@
   classification and regression models. (See {ml-pull}2259[#2259].)
 * Fix cause of "Must provide points at which to evaluate function" log error training
   classification and regression models. (See {ml-pull}2268[#2268].)
+* Fix a source of "Discarding sample = nan, weights = ..." log errors for time series
+  anomaly detection. (See {ml-pull}2286[#2286].)
 
 == {es} version 8.2.2
 
