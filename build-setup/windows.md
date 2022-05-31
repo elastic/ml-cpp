@@ -101,16 +101,16 @@ All the build output will end up in the top level `C:\tools\zlib-1.2.12` directo
 
 ### libxml2
 
-Download `libxml2-2.9.7.tar.bz2` from <ftp://xmlsoft.org/libxml2/> .
+Download `libxml2-2.9.14.tar.xz` from <https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.14.tar.xz>.
 
 Extract it in a Git bash shell using the GNU tar that comes with Git for Windows, e.g.:
 
 ```
 cd /c/tools
-tar jxvf /z/cpp_src/libxml2-2.9.7.tar.bz2
+tar Jxvf /z/cpp_src/libxml2-2.9.14.tar.xz
 ```
 
-Edit `C:\tools\libxml2-2.9.7\win32\Makefile.msvc` and change the following lines:
+Edit `C:\tools\libxml2-2.9.14\win32\Makefile.msvc` and change the following lines:
 
 ```
 CFLAGS = $(CFLAGS) /D "NDEBUG" /O2
@@ -127,7 +127,7 @@ CFLAGS = $(CFLAGS) /D "NDEBUG" /O2 /Zi /D_WIN32_WINNT=0x0601
 Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
-cd \tools\libxml2-2.9.7\win32
+cd \tools\libxml2-2.9.14\win32
 cscript configure.js iconv=no prefix=C:\usr\local
 nmake
 nmake install
