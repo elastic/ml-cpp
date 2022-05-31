@@ -39,12 +39,13 @@ bool CTimeSeriesDecompositionStub::initialized() const {
     return false;
 }
 
-void CTimeSeriesDecompositionStub::addPoint(
-    core_t::TTime /*time*/,
-    double /*value*/,
-    const maths_t::TDoubleWeightsAry& /*weights*/,
-    const TComponentChangeCallback& /*componentChangeCallback*/,
-    const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/) {
+void CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
+                                            double /*value*/,
+                                            const maths_t::TDoubleWeightsAry& /*weights*/,
+                                            const TComponentChangeCallback& /*componentChangeCallback*/,
+                                            const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/,
+                                            double /*occupancy*/,
+                                            core_t::TTime /*firstValueTime*/) {
 }
 
 void CTimeSeriesDecompositionStub::shiftTime(core_t::TTime /*time*/, core_t::TTime /*shift*/) {
@@ -100,7 +101,7 @@ double CTimeSeriesDecompositionStub::countWeight(core_t::TTime /*time*/) const {
     return 1.0;
 }
 
-double CTimeSeriesDecompositionStub::winsorisationDerate(core_t::TTime /*time*/,
+double CTimeSeriesDecompositionStub::outlierWeightDerate(core_t::TTime /*time*/,
                                                          double /*error*/) const {
     return 0.0;
 }

@@ -208,7 +208,9 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback,
-                                        const maths_t::TModelAnnotationCallback& modelAnnotationCallback) {
+                                        const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
+                                        double occupancy,
+                                        core_t::TTime firstValueTime) {
 
     if (common::CMathsFuncs::isFinite(value) == false) {
         LOG_ERROR(<< "Discarding invalid value.");
@@ -244,6 +246,8 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       m_TimeShift,
                       value,
                       weights,
+                      occupancy,
+                      firstValueTime,
                       this->value(time, 0.0, E_TrendForced, true).mean(),
                       this->value(time, 0.0, E_Seasonal, true).mean(),
                       this->value(time, 0.0, E_Calendar, true).mean(),
@@ -549,8 +553,8 @@ double CTimeSeriesDecomposition::countWeight(core_t::TTime time) const {
     return m_ChangePointTest.countWeight(time);
 }
 
-double CTimeSeriesDecomposition::winsorisationDerate(core_t::TTime time, double error) const {
-    return m_ChangePointTest.winsorisationDerate(time, error);
+double CTimeSeriesDecomposition::outlierWeightDerate(core_t::TTime time, double error) const {
+    return m_ChangePointTest.outlierWeightDerate(time, error);
 }
 
 CTimeSeriesDecomposition::TFloatMeanAccumulatorVec

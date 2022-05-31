@@ -259,7 +259,7 @@ CMetricPopulationModel::baselineBucketMean(model_t::EFeature feature,
                                            const TSizeDoublePr1Vec& correlated,
                                            core_t::TTime time) const {
     const maths::common::CModel* model{this->model(feature, cid)};
-    if (!model) {
+    if (model == nullptr) {
         return TDouble1Vec();
     }
     static const TSizeDoublePr1Vec NO_CORRELATED;
@@ -382,7 +382,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
 
                 maths::common::CModel* model{this->model(feature, cid)};
-                if (!model) {
+                if (model == nullptr) {
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
@@ -468,7 +468,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                         auto& trendWeight = attribute.s_TrendWeights.back();
                         auto& residualWeight = attribute.s_ResidualWeights.back();
                         model->countWeights(sample.time(), value, countWeight,
-                                            countWeight, 1.0, // winsorisation derate
+                                            countWeight, 1.0, // outlier weight derate
                                             countVarianceScale, trendWeight, residualWeight);
                     }
                 }
@@ -500,6 +500,9 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     .propagationInterval(this->propagationTime(cid, latest))
                     .trendWeights(attribute.second.s_TrendWeights)
                     .priorWeights(attribute.second.s_ResidualWeights)
+                    .firstValueTime(cid < this->attributeFirstBucketTimes().size()
+                                        ? this->attributeFirstBucketTimes()[cid]
+                                        : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });

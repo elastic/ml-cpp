@@ -165,7 +165,7 @@ const std::string INFO_COULD_NOT_FORECAST_FOR_FULL_DURATION{
 const std::string ERROR_MULTIVARIATE{"Forecast not supported for multivariate features"};
 }
 
-namespace winsorisation {
+namespace outliers {
 constexpr double MINIMUM_WEIGHT{0.01};
 const double MAXIMUM_P_VALUE{1e-3};
 const double MINIMUM_P_VALUE{1e-5};
@@ -174,7 +174,7 @@ const double LOG_MINIMUM_P_VALUE{std::log(MINIMUM_P_VALUE)};
 const double MINUS_LOG_TOLERANCE{
     -std::log(1.0 - 100.0 * std::numeric_limits<double>::epsilon())};
 
-//! Derate the minimum Winsorisation weight.
+//! Derate the minimum outlier weight.
 double deratedMinimumWeight(double derate) {
     derate = common::CTools::truncate(derate, 0.0, 1.0);
     return MINIMUM_WEIGHT + (0.5 - MINIMUM_WEIGHT) * derate;
@@ -1161,7 +1161,7 @@ void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
                                               const TDouble2Vec& value,
                                               double trendCountWeight,
                                               double residualCountWeight,
-                                              double winsorisationDerate,
+                                              double outlierWeightDerate,
                                               double countVarianceScale,
                                               TDouble2VecWeightsAry& trendWeights,
                                               TDouble2VecWeightsAry& residuaWeights) const {
@@ -1175,22 +1175,22 @@ void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
     auto weights = maths_t::CUnitWeights::UNIT;
     maths_t::setCount(std::min(residualCountWeight / trendCountWeight, 1.0), weights);
     maths_t::setSeasonalVarianceScale(seasonalWeight[0], weights);
-    double winsorisationWeight{winsorisation::weight(
+    double outlierWeight{outliers::weight(
         *m_ResidualModel, weights,
-        std::max(winsorisationDerate, m_TrendModel->winsorisationDerate(time, sample)),
+        std::max(outlierWeightDerate, m_TrendModel->outlierWeightDerate(time, sample)),
         sample)};
 
     double changeWeight{m_TrendModel->countWeight(time)};
     trendCountWeight /= countVarianceScale;
     residualCountWeight *= changeWeight;
 
-    TDouble2Vec trendWinsorisationWeight{winsorisationWeight * changeWeight};
-    TDouble2Vec residualWinsorisationWeight{winsorisationWeight};
+    TDouble2Vec trendOutlierWeight{outlierWeight * changeWeight};
+    TDouble2Vec residualOutlierWeight{outlierWeight};
 
     maths_t::setCount(TDouble2Vec{trendCountWeight}, trendWeights);
     maths_t::setCount(TDouble2Vec{residualCountWeight}, residuaWeights);
-    maths_t::setWinsorisationWeight(trendWinsorisationWeight, trendWeights);
-    maths_t::setWinsorisationWeight(residualWinsorisationWeight, residuaWeights);
+    maths_t::setOutlierWeight(trendOutlierWeight, trendWeights);
+    maths_t::setOutlierWeight(residualOutlierWeight, residuaWeights);
     maths_t::setCountVarianceScale(TDouble2Vec{countVarianceScale}, trendWeights);
     maths_t::setCountVarianceScale(TDouble2Vec{countVarianceScale}, residuaWeights);
 }
@@ -1424,9 +1424,6 @@ CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& params,
                                         const TTimeDouble2VecSizeTrVec& samples) {
 
-    const auto& weights = params.trendWeights();
-    const auto& modelAnnotationCallback = params.annotationCallback();
-
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
             LOG_ERROR(<< "Dimension mismatch: '" << sample.second.size() << " != 1'");
@@ -1456,16 +1453,21 @@ CUnivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& pa
         }
         result = E_Reset;
     };
+    const auto& weights = params.trendWeights();
+    const auto& modelAnnotationCallback = params.annotationCallback();
+    double occupancy{params.bucketOccupancy()};
+    core_t::TTime firstValueTime{params.firstValueTime()};
+
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
         TDoubleWeightsAry weight{unpack(weights[i])};
         m_TrendModel->addPoint(time, value, weight, componentChangeCallback,
-                               modelAnnotationCallback);
+                               modelAnnotationCallback, occupancy, firstValueTime);
     }
 
     if (result == E_Reset) {
-        this->reinitializeStateGivenNewComponent(std::move(window));
+        this->reinitializeStateGivenNewComponent(params, std::move(window));
     }
 
     return result;
@@ -1590,7 +1592,9 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals) {
+void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
+    const common::CModelAddSamplesParams& params,
+    TFloatMeanAccumulatorVec residuals) {
 
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
@@ -1609,8 +1613,12 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
         maths::common::CPrior::E_Poisson));
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
-    // Reinitialize the residual model with any values we've been given.
+    // Reinitialize the residual model with any values we've been given. Note
+    // that if we have sparse data we reduce the sample weights so we smoothly
+    // transition to modelling only non-empty values. This must be reflected
+    // in the sample weights when reinitialising the residual model.
     if (residuals.empty() == false) {
+        double emptyBucketWeight{CModel::emptyBucketWeight(params.bucketOccupancy())};
         maths_t::TDoubleWeightsAry1Vec weights(1);
         double buckets{std::accumulate(residuals.begin(), residuals.end(), 0.0,
                                        [](auto partialBuckets, const auto& residual) {
@@ -1618,9 +1626,9 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
                                                   common::CBasicStatistics::count(residual);
                                        }) /
                        this->params().learnRate()};
-        double time{buckets / static_cast<double>(residuals.size())};
+        double time{emptyBucketWeight * buckets / static_cast<double>(residuals.size())};
         for (const auto& residual : residuals) {
-            double weight{common::CBasicStatistics::count(residual)};
+            double weight{emptyBucketWeight * common::CBasicStatistics::count(residual)};
             if (weight > 0.0) {
                 weights[0] = maths_t::countWeight(weight);
                 m_ResidualModel->addSamples({common::CBasicStatistics::mean(residual)}, weights);
@@ -2544,7 +2552,7 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
                                                 const TDouble2Vec& value,
                                                 double trendCountWeight,
                                                 double residualCountWeight,
-                                                double winsorisationDerate,
+                                                double outlierWeightDerate,
                                                 double countVarianceScale,
                                                 TDouble2VecWeightsAry& trendWeights,
                                                 TDouble2VecWeightsAry& residuaWeights) const {
@@ -2555,8 +2563,8 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
 
     TDouble2Vec trendCountWeights(dimension, trendCountWeight);
     TDouble2Vec residualCountWeights(dimension, residualCountWeight);
-    TDouble2Vec trendWinsorisationWeight(dimension);
-    TDouble2Vec residualWinsorisationWeight(dimension);
+    TDouble2Vec trendOutlierWeight(dimension);
+    TDouble2Vec residualOutlierWeight(dimension);
     TDouble2Vec countVarianceScales(dimension, 1.0);
     TDouble10Vec sample(dimension);
     for (std::size_t d = 0; d < dimension; ++d) {
@@ -2571,20 +2579,20 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
         auto weights = maths_t::CUnitWeights::UNIT;
         maths_t::setCount(std::min(residualCountWeight / trendCountWeight, 1.0), weights);
         maths_t::setSeasonalVarianceScale(seasonalWeight[d], weights);
-        double winsorisationWeight{winsorisation::weight(
+        double outlierWeight{outliers::weight(
             *conditional(*m_ResidualModel, d, sample), weights,
-            std::max(winsorisationDerate,
-                     m_TrendModel[d]->winsorisationDerate(time, sample[d])),
+            std::max(outlierWeightDerate,
+                     m_TrendModel[d]->outlierWeightDerate(time, sample[d])),
             sample[d])};
         residualCountWeights[d] *= changeWeight;
-        trendWinsorisationWeight[d] = winsorisationWeight * changeWeight;
-        residualWinsorisationWeight[d] = winsorisationWeight;
+        trendOutlierWeight[d] = outlierWeight * changeWeight;
+        residualOutlierWeight[d] = outlierWeight;
     }
 
     maths_t::setCount(trendCountWeights, trendWeights);
     maths_t::setCount(residualCountWeights, residuaWeights);
-    maths_t::setWinsorisationWeight(trendWinsorisationWeight, trendWeights);
-    maths_t::setWinsorisationWeight(trendWinsorisationWeight, residuaWeights);
+    maths_t::setOutlierWeight(trendOutlierWeight, trendWeights);
+    maths_t::setOutlierWeight(trendOutlierWeight, residuaWeights);
     maths_t::setCountVarianceScale(countVarianceScales, trendWeights);
     maths_t::setCountVarianceScale(countVarianceScales, residuaWeights);
 }
@@ -2801,9 +2809,6 @@ CMultivariateTimeSeriesModel::EUpdateResult
 CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& params,
                                           const TTimeDouble2VecSizeTrVec& samples) {
 
-    const auto& weights = params.trendWeights();
-    const auto& modelAnnotationCallback = params.annotationCallback();
-
     std::size_t dimension{this->dimension()};
 
     for (const auto& sample : samples) {
@@ -2832,6 +2837,10 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
     auto componentChangeCallback = [&result](TFloatMeanAccumulatorVec) {
         result = E_Reset;
     };
+    const auto& weights = params.trendWeights();
+    const auto& modelAnnotationCallback = params.annotationCallback();
+    double occupancy{params.bucketOccupancy()};
+    core_t::TTime firstValueTime{params.firstValueTime()};
 
     maths_t::TDoubleWeightsAry weight;
     for (auto i : timeorder) {
@@ -2842,7 +2851,7 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
                 weight[j] = weights[i][j][d];
             }
             m_TrendModel[d]->addPoint(time, value[d], weight, componentChangeCallback,
-                                      modelAnnotationCallback);
+                                      modelAnnotationCallback, occupancy, firstValueTime);
         }
     }
 
@@ -2851,7 +2860,7 @@ CMultivariateTimeSeriesModel::updateTrend(const common::CModelAddSamplesParams& 
         for (std::size_t d = 0; d < dimension; ++d) {
             window[d] = m_TrendModel[d]->residuals(m_IsNonNegative);
         }
-        this->reinitializeStateGivenNewComponent(std::move(window));
+        this->reinitializeStateGivenNewComponent(params, std::move(window));
     }
 
     return result;
@@ -2968,7 +2977,9 @@ void CMultivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec10Vec residuals) {
+void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
+    const common::CModelAddSamplesParams& params,
+    TFloatMeanAccumulatorVec10Vec residuals) {
 
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
@@ -2982,10 +2993,14 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
         }
     }
 
-    // Reinitialize the residual model with any values we've been given.
+    // Reinitialize the residual model with any values we've been given. Note
+    // that if we have sparse data we reduce the sample weights so we smoothly
+    // transition to modelling only non-empty values. This must be reflected
+    // in the sample weights when reinitialising the residual model.
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
     if (residuals.empty() == false) {
         std::size_t dimension{this->dimension()};
+        double emptyBucketWeight{CModel::emptyBucketWeight(params.bucketOccupancy())};
 
         TDouble10VecVec samples;
         TDoubleVec weights;
@@ -3003,11 +3018,12 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
             time += buckets / static_cast<double>(residuals.size());
             for (std::size_t i = 0; i < residuals[d].size(); ++i) {
                 samples[i][d] = common::CBasicStatistics::mean(residuals[d][i]);
-                weights[i] = std::min(weights[i], static_cast<double>(common::CBasicStatistics::count(
-                                                      residuals[d][i])));
+                weights[i] = std::min(
+                    weights[i], emptyBucketWeight * static_cast<double>(common::CBasicStatistics::count(
+                                                        residuals[d][i])));
             }
         }
-        time /= static_cast<double>(dimension);
+        time *= emptyBucketWeight / static_cast<double>(dimension);
 
         maths_t::TDouble10VecWeightsAry1Vec weight(1);
         for (std::size_t i = 0; i < samples.size(); ++i) {

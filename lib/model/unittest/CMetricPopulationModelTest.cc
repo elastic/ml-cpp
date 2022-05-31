@@ -324,6 +324,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
     // Check the correct data is read from the gatherer into the model on sample.
 
+    using TSizeTimeUMap = boost::unordered_map<std::size_t, core_t::TTime>;
     using TSizeValueAndWeightsMap = std::map<std::size_t, SValuesAndWeights>;
     using TSizeSizeValueAndWeightsMapMap = std::map<std::size_t, TSizeValueAndWeightsMap>;
     using TSizeSizePrDoubleVecMap = std::map<TSizeSizePr, TDoubleVec>;
@@ -358,6 +359,7 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
     BOOST_REQUIRE_EQUAL(features[1], models[1].first);
     BOOST_REQUIRE_EQUAL(features[2], models[2].first);
 
+    TSizeTimeUMap attributeFirstValueTimes;
     TSizeSizePrMeanAccumulatorUMap sampleTimes;
     TSizeSizePrMeanAccumulatorUMap sampleMeans;
     TSizeSizePrMinAccumulatorMap sampleMins;
@@ -376,6 +378,7 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
                 for (const auto& samples_ : expectedSamples[feature]) {
                     std::size_t pid = samples_.first.first;
                     std::size_t cid = samples_.first.second;
+                    attributeFirstValueTimes.emplace(cid, startTime);
                     auto& attribute = populationWeightedSamples[feature][cid];
                     TMathsModelPtr& attributeModel = expectedPopulationModels[feature][cid];
                     if (attributeModel == nullptr) {
@@ -412,17 +415,14 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
                         .isNonNegative(isNonNegative)
                         .propagationInterval(1.0)
                         .trendWeights(attribute.second.s_TrendWeights)
-                        .priorWeights(attribute.second.s_ResidualWeights);
+                        .priorWeights(attribute.second.s_ResidualWeights)
+                        .firstValueTime(attributeFirstValueTimes[attribute.first]);
                     expectedPopulationModels[feature.first][attribute.first]->addSamples(
                         params_, attribute.second.s_Values);
                 }
             }
 
             for (std::size_t feature = 0; feature < features.size(); ++feature) {
-                if ((startTime / bucketLength) % 10 == 0) {
-                    LOG_DEBUG(<< "Testing priors for feature "
-                              << model_t::print(features[feature]));
-                }
                 for (std::size_t cid = 0; cid < numberAttributes; ++cid) {
                     if (expectedPopulationModels[feature].count(cid) > 0) {
                         BOOST_REQUIRE_EQUAL(

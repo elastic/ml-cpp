@@ -318,7 +318,7 @@ const core::TPersistenceTag LAST_CANDIDATE_CHANGE_POINT_TIME_7_11_TAG{
     "j", "last_candidate_change_point_time"};
 const core::TPersistenceTag LAST_CHANGE_POINT_7_11_TAG{"k", "last_change_point"};
 // Version 8.3
-const core::TPersistenceTag WINSORIZATION_DERATE_8_3_TAG{"l", "winsorization_derate"};
+const core::TPersistenceTag OUTLIER_WEIGHT_DERATE_8_3_TAG{"l", "winsorization_derate"};
 
 // Seasonality Test Tags
 // Version 7.9
@@ -390,6 +390,8 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
     core_t::TTime timeShift,
     double value,
     const maths_t::TDoubleWeightsAry& weights,
+    double occupancy,
+    core_t::TTime firstValueTime,
     double trend,
     double seasonal,
     double calendar,
@@ -397,10 +399,10 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
     const TMakePredictor& makePredictor,
     const TMakeFilteredPredictor& makeSeasonalityTestPreconditioner,
     const TMakeTestForSeasonality& makeTestForSeasonality)
-    : SMessage{time, lastTime}, s_TimeShift{timeShift}, s_Value{value},
-      s_Weights{weights}, s_Trend{trend}, s_Seasonal{seasonal}, s_Calendar{calendar},
-      s_Decomposition{&decomposition}, s_MakePredictor{makePredictor},
-      s_MakeSeasonalityTestPreconditioner{makeSeasonalityTestPreconditioner},
+    : SMessage{time, lastTime}, s_TimeShift{timeShift}, s_Value{value}, s_Weights{weights},
+      s_Occupancy{occupancy}, s_FirstValueTime{firstValueTime}, s_Trend{trend},
+      s_Seasonal{seasonal}, s_Calendar{calendar}, s_Decomposition{&decomposition},
+      s_MakePredictor{makePredictor}, s_MakeSeasonalityTestPreconditioner{makeSeasonalityTestPreconditioner},
       s_MakeTestForSeasonality{makeTestForSeasonality} {
 }
 
@@ -508,7 +510,7 @@ CTimeSeriesDecompositionDetail::CChangePointTest::CChangePointTest(const CChange
       m_MinimumTotalCountWeightAdjustment{other.m_MinimumTotalCountWeightAdjustment},
       m_LastTestTime{other.m_LastTestTime}, m_LastChangePointTime{other.m_LastChangePointTime},
       m_LastCandidateChangePointTime{other.m_LastCandidateChangePointTime},
-      m_LastChangeWinsorizationDerate{other.m_LastChangeWinsorizationDerate} {
+      m_LastChangeOutlierWeightDerate{other.m_LastChangeOutlierWeightDerate} {
 
     if (isForForecast) {
         this->apply(CD_DISABLE);
@@ -542,9 +544,9 @@ bool CTimeSeriesDecompositionDetail::CChangePointTest::acceptRestoreTraverser(
         ](auto& traverser_) {
             return serializer(m_UndoableLastChange, traverser_);
         }))
-        RESTORE(WINSORIZATION_DERATE_8_3_TAG,
+        RESTORE(OUTLIER_WEIGHT_DERATE_8_3_TAG,
                 traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
-                    return m_LastChangeWinsorizationDerate.acceptRestoreTraverser(traverser_);
+                    return m_LastChangeOutlierWeightDerate.acceptRestoreTraverser(traverser_);
                 }))
     } while (traverser.next());
     return true;
@@ -574,8 +576,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::acceptPersistInserter(
             this, serializer = CUndoableChangePointStateSerializer{}
         ](auto& inserter_) { serializer(*m_UndoableLastChange, inserter_); });
     }
-    inserter.insertLevel(WINSORIZATION_DERATE_8_3_TAG, [this](auto& inserter_) {
-        return m_LastChangeWinsorizationDerate.acceptPersistInserter(inserter_);
+    inserter.insertLevel(OUTLIER_WEIGHT_DERATE_8_3_TAG, [this](auto& inserter_) {
+        return m_LastChangeOutlierWeightDerate.acceptPersistInserter(inserter_);
     });
 }
 
@@ -593,7 +595,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::swap(CChangePointTest& ot
     std::swap(m_LastChangePointTime, other.m_LastChangePointTime);
     std::swap(m_LastCandidateChangePointTime, other.m_LastCandidateChangePointTime);
     std::swap(m_UndoableLastChange, other.m_UndoableLastChange);
-    std::swap(m_LastChangeWinsorizationDerate, other.m_LastChangeWinsorizationDerate);
+    std::swap(m_LastChangeOutlierWeightDerate, other.m_LastChangeOutlierWeightDerate);
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& message) {
@@ -618,8 +620,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& m
         m_Window.back().add(value, weight);
         m_MeanOffset.add(static_cast<double>(time % m_BucketLength), weight);
         m_ResidualMoments.add(value - prediction, weightForResidualMoments);
-        this->updateTotalCountWeights(time, lastTime);
-        this->testForCandidateChange(time, std::fabs(value - prediction));
+        this->updateTotalCountWeights(message);
+        this->testForCandidateChange(message);
         this->testUndoLastChange(message);
         this->testForChange(message);
         break;
@@ -641,7 +643,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SDetectedSea
     m_TotalCountWeightAdjustment = 0.0;
     m_MinimumTotalCountWeightAdjustment = 0.0;
     m_LastCandidateChangePointTime = message.s_Time -
-                                     2 * this->maximumIntervalToDetectChange();
+                                     4 * this->maximumIntervalToDetectChange(1.0);
 }
 
 double CTimeSeriesDecompositionDetail::CChangePointTest::countWeight(core_t::TTime) const {
@@ -656,12 +658,12 @@ double CTimeSeriesDecompositionDetail::CChangePointTest::countWeight(core_t::TTi
     return 1.0 + std::min(1.0, -m_TotalCountWeightAdjustment);
 }
 
-double CTimeSeriesDecompositionDetail::CChangePointTest::winsorisationDerate(core_t::TTime time,
+double CTimeSeriesDecompositionDetail::CChangePointTest::outlierWeightDerate(core_t::TTime time,
                                                                              double error) const {
     return std::max(1.0 - static_cast<double>(time - m_LastChangePointTime) /
                               static_cast<double>(3 * DAY),
                     0.0) *
-           m_LastChangeWinsorizationDerate.value(error);
+           m_LastChangeOutlierWeightDerate.value(error);
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::propagateForwards(core_t::TTime start,
@@ -685,7 +687,7 @@ std::uint64_t CTimeSeriesDecompositionDetail::CChangePointTest::checksum(std::ui
     seed = common::CChecksum::calculate(seed, m_LastChangePointTime);
     seed = common::CChecksum::calculate(seed, m_LastCandidateChangePointTime);
     seed = common::CChecksum::calculate(seed, m_UndoableLastChange);
-    return common::CChecksum::calculate(seed, m_LastChangeWinsorizationDerate);
+    return common::CChecksum::calculate(seed, m_LastChangeOutlierWeightDerate);
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::debugMemoryUsage(
@@ -729,8 +731,10 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::apply(std::size_t symbol)
     }
 }
 
-void CTimeSeriesDecompositionDetail::CChangePointTest::updateTotalCountWeights(core_t::TTime time,
-                                                                               core_t::TTime lastTime) {
+void CTimeSeriesDecompositionDetail::CChangePointTest::updateTotalCountWeights(const SAddValue& message) {
+    core_t::TTime lastTime{message.s_LastTime};
+    core_t::TTime time{message.s_Time};
+    double occupancy{message.s_Occupancy};
     m_TotalCountWeightAdjustment += static_cast<double>(time - lastTime) /
                                     static_cast<double>(m_BucketLength) *
                                     (this->countWeight(time) - 1.0);
@@ -738,7 +742,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::updateTotalCountWeights(c
     if (m_TotalCountWeightAdjustment == 0.0) {
         m_MinimumTotalCountWeightAdjustment =
             (CHANGE_COUNT_WEIGHT - 1.0) *
-            static_cast<double>(this->maximumIntervalToDetectChange()) /
+            static_cast<double>(this->maximumIntervalToDetectChange(occupancy)) /
             static_cast<double>(m_BucketLength);
     }
     if (m_TotalCountWeightAdjustment < m_MinimumTotalCountWeightAdjustment) {
@@ -746,8 +750,23 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::updateTotalCountWeights(c
     }
 }
 
-void CTimeSeriesDecompositionDetail::CChangePointTest::testForCandidateChange(core_t::TTime time,
-                                                                              double error) {
+void CTimeSeriesDecompositionDetail::CChangePointTest::testForCandidateChange(const SAddValue& message) {
+    core_t::TTime firstValueTime{message.s_FirstValueTime};
+    core_t::TTime time{message.s_Time};
+
+    // We're prone to detect changes at model startup before, for example, we
+    // detect and model seasonality. Since the most common seasonality in the
+    // data we model is daily, this delays detecting changes until we've had
+    // the chance to see several repeats.
+    if (time < firstValueTime + 3 * DAY) {
+        return;
+    }
+
+    double occupancy{message.s_Occupancy};
+    double value{message.s_Value};
+    double prediction{message.s_Trend + message.s_Seasonal + message.s_Calendar};
+    double error{std::fabs(value - prediction)};
+
     double beta{static_cast<double>(m_BucketLength) /
                 (4.0 * static_cast<double>(this->windowBucketLength()))};
     double alpha{1.0 - beta};
@@ -755,7 +774,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testForCandidateChange(co
     m_LargeErrorFraction = alpha * m_LargeErrorFraction +
                            beta * (error > this->largeError() ? 1.0 : 0.0);
     if (this->mayHaveChanged() && mayHaveChangedBefore == false &&
-        time > m_LastCandidateChangePointTime + 2 * this->maximumIntervalToDetectChange()) {
+        time > m_LastCandidateChangePointTime +
+                   2 * this->maximumIntervalToDetectChange(occupancy)) {
         m_LastCandidateChangePointTime = time;
     }
     LOG_TRACE(<< "large error fraction = " << m_LargeErrorFraction
@@ -764,22 +784,23 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testForCandidateChange(co
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::testForChange(const SAddValue& message) {
     core_t::TTime time{message.s_Time};
+    double occupancy{message.s_Occupancy};
+    if (this->shouldTest(time, occupancy) == false) {
+        return;
+    }
+
     core_t::TTime lastTime{message.s_LastTime};
     core_t::TTime timeShift{message.s_TimeShift};
     bool seasonal{message.s_Decomposition->seasonalComponents().empty() == false};
     const auto& makePredictor = message.s_MakePredictor;
     CTimeSeriesDecomposition& decomposition{*message.s_Decomposition};
 
-    if (this->shouldTest(time) == false) {
-        return;
-    }
-
     auto begin = std::find_if(m_Window.begin(), m_Window.end(), [](const auto& bucket) {
         return common::CBasicStatistics::count(bucket) > 0.0;
     });
     std::ptrdiff_t length{std::distance(begin, m_Window.end())};
 
-    if (this->windowBucketLength() * length <= this->minimumChangeLength()) {
+    if (this->windowBucketLength() * length <= this->minimumChangeLength(occupancy)) {
         return;
     }
 
@@ -797,24 +818,26 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testForChange(const SAddV
 
     CTimeSeriesTestForChange changeTest(
         testFor, valuesStartTime - timeShift, bucketsStartTime - timeShift,
-        this->windowBucketLength(), m_BucketLength, predictor, std::move(values));
+        this->windowBucketLength(), m_BucketLength, predictor, std::move(values),
+        0.0, CTimeSeriesTestForChange::OUTLIER_FRACTION * occupancy);
 
     auto change = changeTest.test();
     m_LastTestTime = time;
 
     if (change != nullptr && // did we detect a change at all
         change->largeEnough(this->largeError()) &&
-        change->longEnough(time, this->minimumChangeLength())) {
+        change->longEnough(time, this->minimumChangeLength(occupancy))) {
         addMeanZeroNormalNoise(common::CBasicStatistics::variance(m_ResidualMoments),
                                change->residuals());
         change->apply(decomposition);
         m_LargeErrorFraction = 0.0;
         m_LastChangePointTime = time;
-        m_LastCandidateChangePointTime = std::min(
-            m_LastCandidateChangePointTime, time - this->maximumIntervalToDetectChange());
+        m_LastCandidateChangePointTime =
+            std::min(m_LastCandidateChangePointTime,
+                     time - this->maximumIntervalToDetectChange(occupancy));
         m_UndoableLastChange = change->undoable();
-        m_LastChangeWinsorizationDerate =
-            change->winsorizationDerate(bucketsStartTime, time, predictor);
+        m_LastChangeOutlierWeightDerate =
+            change->outlierWeightDerate(bucketsStartTime, time, predictor);
         this->mediator()->forward(SDetectedChangePoint{time, lastTime, std::move(change)});
     } else if (change != nullptr) {
         m_LastCandidateChangePointTime = change->time();
@@ -830,6 +853,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testUndoLastChange(const 
     core_t::TTime time{message.s_Time};
     core_t::TTime timeShift{message.s_TimeShift};
     core_t::TTime lastTime{message.s_LastTime};
+    double occupancy{message.s_Occupancy};
     double value{message.s_Value};
     double weight{maths_t::count(message.s_Weights)};
     const auto& makePredictor = message.s_MakePredictor;
@@ -838,7 +862,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testUndoLastChange(const 
     m_UndoableLastChange->add(time - timeShift, lastTime - timeShift, value,
                               weight, makePredictor());
 
-    if (time - m_LastChangePointTime > this->minimumChangeLength() / 10 &&
+    if (time - m_LastChangePointTime > this->minimumChangeLength(occupancy) / 10 &&
         m_UndoableLastChange->shouldUndo()) {
         m_UndoableLastChange->apply(decomposition);
         this->mediator()->forward(
@@ -847,7 +871,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::testUndoLastChange(const 
         return;
     }
 
-    if (time - m_LastChangePointTime > this->maximumIntervalToDetectChange()) {
+    if (time - m_LastChangePointTime > this->maximumIntervalToDetectChange(occupancy)) {
         m_UndoableLastChange.reset();
     }
 }
@@ -860,27 +884,33 @@ double CTimeSeriesDecompositionDetail::CChangePointTest::largeError() const {
     return 3.0 * std::sqrt(common::CBasicStatistics::variance(m_ResidualMoments));
 }
 
-bool CTimeSeriesDecompositionDetail::CChangePointTest::shouldTest(core_t::TTime time) const {
+bool CTimeSeriesDecompositionDetail::CChangePointTest::shouldTest(core_t::TTime time,
+                                                                  double occupancy) const {
     return (m_UndoableLastChange == nullptr) &&
-           ((time > m_LastTestTime + this->minimumChangeLength()) ||
+           ((time > m_LastTestTime + this->minimumChangeLength(occupancy)) ||
             (time > m_LastTestTime + 3 * this->windowBucketLength() &&
-             time < m_LastCandidateChangePointTime + this->maximumIntervalToDetectChange() &&
-             time > m_LastCandidateChangePointTime + this->minimumChangeLength()));
+             time < m_LastCandidateChangePointTime + this->maximumIntervalToDetectChange(occupancy) &&
+             time > m_LastCandidateChangePointTime + this->minimumChangeLength(occupancy)));
 }
 
-core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::minimumChangeLength() const {
+core_t::TTime
+CTimeSeriesDecompositionDetail::CChangePointTest::minimumChangeLength(double occupancy) const {
     // Transient changes tend to last 1 day. In such cases we do not want to
     // apply any change and mearly ignore the interval. By waiting 30 hours
     // we give ourselves a margin to see the revert before we commit to making
-    // a change.
+    // a change. Note for sparse data we delay detecting changes because we're
+    // more prone to FP in this case, since we get less information per unit
+    // time.
     core_t::TTime length{
         std::max(30 * core::constants::HOUR, 5 * this->windowBucketLength())};
+    length = static_cast<core_t::TTime>(
+        std::min(1.0 / occupancy, 2.0) * static_cast<double>(length) + 0.5);
     return common::CIntegerTools::ceil(length, this->windowBucketLength());
 }
 
 core_t::TTime
-CTimeSeriesDecompositionDetail::CChangePointTest::maximumIntervalToDetectChange() const {
-    return 5 * this->minimumChangeLength() / 3;
+CTimeSeriesDecompositionDetail::CChangePointTest::maximumIntervalToDetectChange(double occupancy) const {
+    return 5 * this->minimumChangeLength(occupancy) / 3;
 }
 
 core_t::TTime
@@ -1174,6 +1204,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::handle(const SDetectedTre
 void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& message) {
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
+    double occupancy{message.s_Occupancy};
     const auto& makeTest = message.s_MakeTestForSeasonality;
     const auto& makePreconditioner = message.s_MakeSeasonalityTestPreconditioner;
 
@@ -1189,8 +1220,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
                         i, m_BucketLength, window->haveShorterWindows())};
                 auto seasonalityTest = makeTest(*window, minimumPeriod,
                                                 minimumResolutionToTestModelledComponent,
-                                                makePreconditioner());
-                seasonalityTest.prepareWindowForDecompose();
+                                                makePreconditioner(), occupancy);
 
                 auto decomposition = seasonalityTest.decompose();
                 if (decomposition.componentsChanged()) {
@@ -1945,9 +1975,10 @@ void CTimeSeriesDecompositionDetail::CComponents::useTrendForPrediction() {
 CTimeSeriesDecompositionDetail::TMakeTestForSeasonality
 CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(
     const TMakeFilteredPredictor& makePredictor) const {
-    return [makePredictor, this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
-                                 std::size_t minimumResolutionToTestModelledComponent,
-                                 const TFilteredPredictor& preconditioner) {
+    return [makePredictor,
+            this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
+                  std::size_t minimumResolutionToTestModelledComponent,
+                  const TFilteredPredictor& preconditioner, double occupancy) {
         core_t::TTime valuesStartTime{window.beginValuesTime()};
         core_t::TTime windowBucketStartTime{window.bucketStartTime()};
         core_t::TTime windowBucketLength{window.bucketLength()};
@@ -1961,12 +1992,14 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(
         values = window.valuesMinusPrediction(std::move(values), [&](core_t::TTime time) {
             return preconditioner(time, testableMask);
         });
-        CTimeSeriesTestForSeasonality test(
-            valuesStartTime, windowBucketStartTime, windowBucketLength,
-            m_BucketLength, std::move(values), window.withinBucketVariance());
+        CTimeSeriesTestForSeasonality test(valuesStartTime, windowBucketStartTime,
+                                           windowBucketLength, m_BucketLength,
+                                           std::move(values), occupancy);
+
         test.minimumPeriod(minimumPeriod)
             .minimumModelSize(2 * m_SeasonalComponentSize / 3)
             .maximumModelSize(2 * m_SeasonalComponentSize)
+            .sampleVariance(window.withinBucketVariance())
             .modelledSeasonalityPredictor(makePredictor());
         std::ptrdiff_t maximumNumberComponents{MAXIMUM_COMPONENTS};
         for (const auto& component : this->seasonal()) {
@@ -1975,6 +2008,7 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(
             --maximumNumberComponents;
         }
         test.maximumNumberOfComponents(maximumNumberComponents);
+        test.prepareWindowForDecompose();
 
         return test;
     };

@@ -1198,7 +1198,7 @@ private:
     static const core::TPersistenceTag WEIGHT_CALC_TAG;
     static const core::TPersistenceTag MINIMUM_CLUSTER_FRACTION_TAG;
     static const core::TPersistenceTag MINIMUM_CLUSTER_COUNT_TAG;
-    static const core::TPersistenceTag WINSORISATION_CONFIDENCE_INTERVAL_TAG;
+    static const core::TPersistenceTag WINSORIZATION_CONFIDENCE_INTERVAL_TAG;
     static const core::TPersistenceTag CLUSTER_INDEX_GENERATOR_TAG;
     static const core::TPersistenceTag CLUSTER_TAG;
     static const core::TPersistenceTag RNG_TAG;

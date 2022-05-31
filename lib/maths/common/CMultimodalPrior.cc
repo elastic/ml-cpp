@@ -429,10 +429,10 @@ void CMultimodalPrior::addSamples(const TDouble1Vec& samples,
                 }
                 maths_t::setCount(cluster.second, weight[0]);
                 if (maths_t::isWinsorised(weight)) {
-                    double ww = maths_t::winsorisationWeight(weight[0]);
+                    double ww = maths_t::outlierWeight(weight[0]);
                     double f = (k->weight() + cluster.second) / Z;
-                    maths_t::setWinsorisationWeight(
-                        std::max(1.0 - (1.0 - ww) / f, ww * f), weight[0]);
+                    maths_t::setOutlierWeight(std::max(1.0 - (1.0 - ww) / f, ww * f),
+                                              weight[0]);
                 }
                 k->s_Prior->addSamples(sample, weight);
                 n += maths_t::countForUpdate(weight[0]);
