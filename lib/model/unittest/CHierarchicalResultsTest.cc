@@ -204,16 +204,16 @@ public:
 
 public:
     void visit(const model::CHierarchicalResults& /*results*/, const TNode& node, bool /*pivot*/) override {
-        if (this->isPartitioned(node)) {
+        if (isPartitioned(node)) {
             m_PartitionedNodes.push_back(&node);
         }
-        if (this->isPartition(node)) {
+        if (isPartition(node)) {
             m_PartitionNodes.push_back(&node);
         }
-        if (this->isPerson(node)) {
+        if (isPerson(node)) {
             m_PersonNodes.push_back(&node);
         }
-        if (this->isLeaf(node)) {
+        if (isLeaf(node)) {
             m_LeafNodes.push_back(&node);
         }
     }
@@ -1530,15 +1530,12 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
         {"1", FALSE_STR, PNF1, pn11, PF2, p21, EMPTY_STRING},
         {"1", FALSE_STR, PNF1, pn11, PF2, p22, EMPTY_STRING},
         {"1", FALSE_STR, PNF1, pn11, PF2, p23, EMPTY_STRING},
-        {"2", FALSE_STR, PNF1, pn12, PF1, p11, EMPTY_STRING},
-        {"2", FALSE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
-        {"2", FALSE_STR, PNF1, pn12, PF1, p13, EMPTY_STRING},
-        {"3", TRUE_STR, PNF1, pn12, PF1, p11, EMPTY_STRING},
-        {"3", TRUE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
-        {"3", TRUE_STR, PNF1, pn12, PF1, p13, EMPTY_STRING},
-        {"4", FALSE_STR, PNF2, pn21, PF1, p11, EMPTY_STRING},
-        {"4", FALSE_STR, PNF2, pn22, PF1, p12, EMPTY_STRING},
-        {"4", FALSE_STR, PNF2, pn23, PF1, p13, EMPTY_STRING}};
+        {"2", TRUE_STR, PNF1, pn12, PF1, p11, EMPTY_STRING},
+        {"2", TRUE_STR, PNF1, pn12, PF1, p12, EMPTY_STRING},
+        {"2", TRUE_STR, PNF1, pn12, PF1, p13, EMPTY_STRING},
+        {"3", FALSE_STR, PNF2, pn21, PF1, p11, EMPTY_STRING},
+        {"3", FALSE_STR, PNF2, pn22, PF1, p12, EMPTY_STRING},
+        {"3", FALSE_STR, PNF2, pn23, PF1, p13, EMPTY_STRING}};
     TStrNormalizerPtrMap expectedNormalizers;
     expectedNormalizers.emplace(
         "r", std::make_shared<model::CAnomalyScore::CNormalizer>(modelConfig));
@@ -1579,14 +1576,16 @@ BOOST_AUTO_TEST_CASE(testNormalizer) {
                 const std::string& partitionFieldName = *node->s_Spec.s_PartitionFieldName;
                 const std::string& personFieldName =
                     key == "n" ? EMPTY_STRING : *node->s_Spec.s_PersonFieldName;
-                key += ' ' + partitionFieldName + ' ' + personFieldName;
-                auto itr = expectedNormalizers.find(key);
-                if (itr != expectedNormalizers.end()) {
-                    return itr->second;
+                key += ' ' + partitionFieldName;
+                key += ' ' + personFieldName;
+                auto entry = expectedNormalizers.find(key);
+                if (entry != expectedNormalizers.end()) {
+                    return entry->second;
                 }
                 TNormalizerPtr& result = expectedNormalizers[key];
                 result = std::make_shared<model::CAnomalyScore::CNormalizer>(modelConfig);
-                result->isForMembersOfPopulation(partitionFieldName == PNF1);
+                result->isForMembersOfPopulation((partitionFieldName == PNF1) &&
+                                                 (personFieldName == PF1));
                 return result;
             };
         auto scope = [](const model::CHierarchicalResultsVisitor::TNode* node) {

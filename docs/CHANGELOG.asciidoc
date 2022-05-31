@@ -34,6 +34,9 @@
 
 * Make ML native processes work with glibc 2.35 (required for Ubuntu 22.04). (See
   {ml-pull}2272[#2272].)
+* Improve normalization of anomaly detection results for short bucket lengths. This
+  corrects bias which could cause our scoring to be too low for these jobs. (See,
+  {ml-pull}2285[#2285], issue: {ml-issue}2276[#2276].)
 
 === Bug Fixes
 
