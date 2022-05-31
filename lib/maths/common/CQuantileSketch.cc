@@ -37,8 +37,8 @@ using TFloatFloatPrVec = CQuantileSketch::TFloatFloatPrVec;
 
 //! \brief An iterator over just the unique knot values.
 // clang-format off
-class CUniqueIterator : private boost::addable2<CUniqueIterator, ptrdiff_t,
-                                boost::subtractable2<CUniqueIterator, ptrdiff_t,
+class CUniqueIterator : private boost::addable2<CUniqueIterator, std::ptrdiff_t,
+                                boost::subtractable2<CUniqueIterator, std::ptrdiff_t,
                                 boost::equality_comparable<CUniqueIterator>>> {
     // clang-format on
 public:
@@ -67,14 +67,14 @@ public:
         return *this;
     }
 
-    const CUniqueIterator& operator+=(ptrdiff_t i) {
+    const CUniqueIterator& operator+=(std::ptrdiff_t i) {
         while (--i >= 0) {
             this->operator++();
         }
         return *this;
     }
 
-    const CUniqueIterator& operator-=(ptrdiff_t i) {
+    const CUniqueIterator& operator-=(std::ptrdiff_t i) {
         while (--i >= 0) {
             this->operator--();
         }
@@ -172,15 +172,15 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
     }
 
     CFloatStorage x = x_;
-    ptrdiff_t n = m_Knots.size();
+    std::ptrdiff_t n = m_Knots.size();
     if (n == 1) {
         result = x < m_Knots[0].first ? 0.0 : (x > m_Knots[0].first ? 1.0 : 0.5);
         return true;
     }
 
-    ptrdiff_t k = std::lower_bound(m_Knots.begin(), m_Knots.end(), x,
-                                   COrderings::SFirstLess()) -
-                  m_Knots.begin();
+    std::ptrdiff_t k = std::lower_bound(m_Knots.begin(), m_Knots.end(), x,
+                                        COrderings::SFirstLess()) -
+                       m_Knots.begin();
     LOG_TRACE(<< "k = " << k);
 
     switch (m_Interpolation) {
@@ -203,8 +203,8 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
             bool left = (2 * k < n);
             bool loc = (2.0 * x < xl + xr);
             double partial = 0.0;
-            for (ptrdiff_t i = left ? 0 : (loc ? k : k + 1),
-                           m = left ? (loc ? k - 1 : k) : n;
+            for (std::ptrdiff_t i = left ? 0 : (loc ? k : k + 1),
+                                m = left ? (loc ? k - 1 : k) : n;
                  i < m; ++i) {
                 partial += m_Knots[i].second;
             }
@@ -240,7 +240,7 @@ bool CQuantileSketch::cdf(double x_, double& result) const {
         } else {
             bool left = (2 * k < n);
             double partial = x < m_Knots[0].first ? 0.0 : 0.5 * m_Knots[0].second;
-            for (ptrdiff_t i = left ? 0 : k + 1, m = left ? k : n; i < m; ++i) {
+            for (std::ptrdiff_t i = left ? 0 : k + 1, m = left ? k : n; i < m; ++i) {
                 partial += m_Knots[i].second;
             }
             partial /= m_Count;

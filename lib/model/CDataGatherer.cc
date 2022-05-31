@@ -556,7 +556,7 @@ CDataGatherer::influencerCounts(core_t::TTime time) const {
 }
 
 uint64_t CDataGatherer::checksum() const {
-    uint64_t result = m_PeopleRegistry.checksum();
+    std::uint64_t result = m_PeopleRegistry.checksum();
     result = maths::common::CChecksum::calculate(result, m_AttributesRegistry);
     result = maths::common::CChecksum::calculate(result, m_SummaryMode);
     result = maths::common::CChecksum::calculate(result, m_Features);

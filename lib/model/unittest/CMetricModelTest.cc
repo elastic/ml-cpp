@@ -365,7 +365,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
         BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
         // Bucket values.
-        uint64_t expectedCount{0};
+        std::uint64_t expectedCount{0};
         TMean2Accumulator baselineLatLongError;
         TMean2Accumulator expectedLatLong;
         TMean2Accumulator expectedBaselineLatLong;
@@ -490,9 +490,9 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                     inserter.toXml(newXml);
                 }
 
-                uint64_t origChecksum = model.checksum(false);
+                std::uint64_t origChecksum = model.checksum(false);
                 LOG_DEBUG(<< "original checksum = " << origChecksum);
-                uint64_t restoredChecksum = restoredModel->checksum(false);
+                std::uint64_t restoredChecksum = restoredModel->checksum(false);
                 LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
                 BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
                 BOOST_REQUIRE_EQUAL(origXml, newXml);
@@ -1861,9 +1861,9 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatePersist, CTestFixture) {
                 inserter.toXml(newXml);
             }
 
-            uint64_t origChecksum = m_Model->checksum(false);
+            std::uint64_t origChecksum = m_Model->checksum(false);
             LOG_DEBUG(<< "original checksum = " << origChecksum);
-            uint64_t restoredChecksum = restoredModel->checksum(false);
+            std::uint64_t restoredChecksum = restoredModel->checksum(false);
             LOG_DEBUG(<< "restored checksum = " << restoredChecksum);
             BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
             BOOST_REQUIRE_EQUAL(origXml, newXml);
@@ -2341,11 +2341,11 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     const maths::common::CModel* mathsModelWithSkip =
         modelWithSkipView->model(model_t::E_IndividualMeanByPerson, 0);
     BOOST_TEST_REQUIRE(mathsModelWithSkip != nullptr);
-    uint64_t withSkipChecksum = mathsModelWithSkip->checksum();
+    std::uint64_t withSkipChecksum = mathsModelWithSkip->checksum();
     const maths::common::CModel* mathsModelNoSkip =
         modelNoSkipView->model(model_t::E_IndividualMeanByPerson, 0);
     BOOST_TEST_REQUIRE(mathsModelNoSkip != nullptr);
-    uint64_t noSkipChecksum = mathsModelNoSkip->checksum();
+    std::uint64_t noSkipChecksum = mathsModelNoSkip->checksum();
     BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
     // Check the last value times of the underlying models are the same

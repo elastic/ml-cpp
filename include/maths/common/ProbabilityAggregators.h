@@ -88,7 +88,7 @@ public:
     double numberSamples() const;
 
     //! Get a checksum for an object of this class.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! Print the joint probability for debugging.
     std::ostream& print(std::ostream& o) const;
@@ -212,7 +212,7 @@ public:
     bool calculate(double& result) const;
 
     //! Get a checksum for an object of this class.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! Print the extreme probability for debugging.
     std::ostream& print(std::ostream& o) const;
@@ -301,7 +301,7 @@ public:
     bool calibrated(double& result);
 
     //! Get a checksum for an object of this class.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
 private:
     using TMinValueAccumulator = CBasicStatistics::COrderStatisticsHeap<double>;

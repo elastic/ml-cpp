@@ -449,9 +449,10 @@ bool CMetricModel::computeProbability(const std::size_t pid,
 }
 
 uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
-    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
+    using TStrCRefUInt64Map =
+        std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 
-    uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
+    std::uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
 
 #define KEY(pid) std::cref(this->personName(pid))
 
@@ -461,11 +462,11 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
             m_CurrentBucketStats.s_FeatureData;
         for (std::size_t i = 0; i < featureData.size(); ++i) {
             for (std::size_t j = 0; j < featureData[i].second.size(); ++j) {
-                uint64_t& hash = hashes[KEY(featureData[i].second[j].first)];
+                std::uint64_t& hash = hashes[KEY(featureData[i].second[j].first)];
                 const TFeatureData& data = featureData[i].second[j].second;
                 hash = maths::common::CChecksum::calculate(hash, data.s_BucketValue);
                 hash = core::CHashing::hashCombine(
-                    hash, static_cast<uint64_t>(data.s_IsInteger));
+                    hash, static_cast<std::uint64_t>(data.s_IsInteger));
                 hash = maths::common::CChecksum::calculate(hash, data.s_Samples);
             }
         }

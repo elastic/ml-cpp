@@ -314,7 +314,7 @@ CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited(const TT
 }
 
 template<typename T, typename CONTAINER, typename LESS>
-uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(uint64_t seed) const {
+uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(std::uint64_t seed) const {
     if (this->count() == 0) {
         return seed;
     }

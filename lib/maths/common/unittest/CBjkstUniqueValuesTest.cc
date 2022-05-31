@@ -32,11 +32,11 @@ namespace {
 
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
-using TUInt32Set = std::set<uint32_t>;
+using TUInt32Set = std::set<std::uint32_t>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-uint8_t trailingZeros(uint32_t x) {
-    uint8_t result = 0;
+uint8_t trailingZeros(std::uint32_t x) {
+    std::uint8_t result = 0;
     for (/**/; (x & 0x1) == 0; x >>= 1) {
         ++result;
     }
@@ -45,18 +45,18 @@ uint8_t trailingZeros(uint32_t x) {
 }
 
 BOOST_AUTO_TEST_CASE(testTrailingZeros) {
-    uint32_t n = 1;
-    for (uint8_t i = 0; i < 32; n <<= 1, ++i) {
+    std::uint32_t n = 1;
+    for (std::uint8_t i = 0; i < 32; n <<= 1, ++i) {
         BOOST_REQUIRE_EQUAL(i, CBjkstUniqueValues::trailingZeros(n));
     }
 
     TDoubleVec samples;
 
     CRandomNumbers rng;
-    rng.generateUniformSamples(0.0, std::numeric_limits<uint32_t>::max(), 10000, samples);
+    rng.generateUniformSamples(0.0, std::numeric_limits<std::uint32_t>::max(), 10000, samples);
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
-        uint32_t sample = static_cast<uint32_t>(samples[i]);
+        std::uint32_t sample = static_cast<std::uint32_t>(samples[i]);
         BOOST_REQUIRE_EQUAL(trailingZeros(sample),
                             CBjkstUniqueValues::trailingZeros(sample));
     }
@@ -83,7 +83,8 @@ BOOST_AUTO_TEST_CASE(testNumber) {
         rng.generateUniformSamples(0.0, 20000.0, 500u + i, samples);
 
         for (std::size_t j = 0; j < 2 * samples.size(); ++j) {
-            uint32_t sample = static_cast<uint32_t>(samples[j % samples.size()]);
+            std::uint32_t sample =
+                static_cast<std::uint32_t>(samples[j % samples.size()]);
             approxUniqueValues5.add(sample);
             approxUniqueValues6.add(sample);
             uniqueValues.insert(sample);
@@ -152,7 +153,7 @@ BOOST_AUTO_TEST_CASE(testRemove) {
         maths::common::CBjkstUniqueValues sketch(2, 150);
         TUInt32Set unique;
         for (std::size_t i = 0; i < categories.size(); ++i) {
-            uint32_t category = static_cast<uint32_t>(categories[i]);
+            std::uint32_t category = static_cast<std::uint32_t>(categories[i]);
             sketch.add(category);
             unique.insert(category);
         }
@@ -169,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testRemove) {
 
         rng.random_shuffle(categories.begin(), categories.end());
         for (std::size_t i = 0; i < toRemove[t]; ++i) {
-            uint32_t category = static_cast<uint32_t>(categories[i]);
+            std::uint32_t category = static_cast<std::uint32_t>(categories[i]);
             sketch.remove(category);
             unique.erase(category);
         }
@@ -213,22 +214,22 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     maths::common::CBjkstUniqueValues sketch3(3, 120);
     maths::common::CBjkstUniqueValues sketch4(2, 180);
     for (std::size_t i = 0; i < categories1.size(); ++i) {
-        sketch1.add(static_cast<uint32_t>(categories1[i]));
+        sketch1.add(static_cast<std::uint32_t>(categories1[i]));
     }
     for (std::size_t i = 0; i < categories2.size(); ++i) {
-        sketch2.add(static_cast<uint32_t>(categories2[i]));
+        sketch2.add(static_cast<std::uint32_t>(categories2[i]));
     }
     for (std::size_t i = 0; i < categories3.size(); ++i) {
-        sketch3.add(static_cast<uint32_t>(categories3[i]));
+        sketch3.add(static_cast<std::uint32_t>(categories3[i]));
     }
     for (std::size_t i = 0; i < categories4.size(); ++i) {
-        sketch4.add(static_cast<uint32_t>(categories4[i]));
+        sketch4.add(static_cast<std::uint32_t>(categories4[i]));
     }
 
-    uint64_t checksum1 = sketch1.checksum();
-    uint64_t checksum2 = sketch2.checksum();
-    uint64_t checksum3 = sketch3.checksum();
-    uint64_t checksum4 = sketch4.checksum();
+    std::uint64_t checksum1 = sketch1.checksum();
+    std::uint64_t checksum2 = sketch2.checksum();
+    std::uint64_t checksum3 = sketch3.checksum();
+    std::uint64_t checksum4 = sketch4.checksum();
     LOG_DEBUG(<< "checksum1 = " << checksum1);
     LOG_DEBUG(<< "checksum2 = " << checksum2);
     LOG_DEBUG(<< "checksum3 = " << checksum3);
@@ -270,7 +271,7 @@ BOOST_AUTO_TEST_CASE(testSmall) {
     maths::common::CBjkstUniqueValues sketch(3, 100);
     TUInt32Set unique;
     for (std::size_t i = 0; i < 100; ++i) {
-        uint32_t category = static_cast<uint32_t>(categories[i]);
+        std::uint32_t category = static_cast<std::uint32_t>(categories[i]);
         sketch.add(category);
         unique.insert(category);
         BOOST_REQUIRE_EQUAL(unique.size(), std::size_t(sketch.number()));
@@ -279,7 +280,7 @@ BOOST_AUTO_TEST_CASE(testSmall) {
 
     LOG_DEBUG(<< "# categories = " << sketch.number());
     for (std::size_t i = 100; i < categories.size(); ++i) {
-        uint32_t category = static_cast<uint32_t>(categories[i]);
+        std::uint32_t category = static_cast<std::uint32_t>(categories[i]);
         sketch.add(category);
         unique.insert(category);
         if (i % 20 == 0) {
@@ -307,7 +308,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     maths::common::CBjkstUniqueValues origSketch(2, 100);
     for (std::size_t i = 0; i < 100; ++i) {
-        origSketch.add(static_cast<uint32_t>(categories[i]));
+        origSketch.add(static_cast<std::uint32_t>(categories[i]));
     }
 
     std::string origXml;
@@ -338,7 +339,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
 
     for (std::size_t i = 100; i < categories.size(); ++i) {
-        origSketch.add(static_cast<uint32_t>(categories[i]));
+        origSketch.add(static_cast<std::uint32_t>(categories[i]));
     }
 
     origXml.clear();

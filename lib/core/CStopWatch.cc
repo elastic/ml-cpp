@@ -70,7 +70,7 @@ void CStopWatch::reset(bool startRunning) {
 }
 
 uint64_t CStopWatch::calcDuration() {
-    uint64_t current(m_MonotonicTime.milliseconds());
+    std::uint64_t current(m_MonotonicTime.milliseconds());
     if (current < m_Start) {
         LOG_WARN(<< "Monotonic timer has gone backwards - "
                     "stop watch timings will be inaccurate");

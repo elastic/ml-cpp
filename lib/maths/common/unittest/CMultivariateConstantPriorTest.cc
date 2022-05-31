@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_DEBUG(<< "*** Non-informative ***");
     {
         maths::common::CMultivariateConstantPrior origFilter(3);
-        uint64_t checksum = origFilter.checksum();
+        std::uint64_t checksum = origFilter.checksum();
 
         std::string origXml;
         {
@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         maths::common::CMultivariateConstantPrior origFilter(
             3, TDouble10Vec(std::begin(constant), std::end(constant)));
-        uint64_t checksum = origFilter.checksum();
+        std::uint64_t checksum = origFilter.checksum();
 
         std::string origXml;
         {

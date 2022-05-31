@@ -49,16 +49,16 @@ namespace {
 
 using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
-using TStrUInt64Map = std::map<std::string, uint64_t>;
+using TStrUInt64Map = std::map<std::string, std::uint64_t>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TSizeSizePrVec = std::vector<TSizeSizePr>;
-using TUInt64Vec = std::vector<uint64_t>;
+using TUInt64Vec = std::vector<std::uint64_t>;
 using TSizeUSet = boost::unordered_set<std::size_t>;
 using TSizeUSetCItr = TSizeUSet::const_iterator;
 using TSizeUSetVec = std::vector<TSizeUSet>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TSizeSizePrMeanAccumulatorUMap = boost::unordered_map<TSizeSizePr, TMeanAccumulator>;
-using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64Map = std::map<TSizeSizePr, std::uint64_t>;
 using TSizeSizePrMeanAccumulatorUMapQueue = CBucketQueue<TSizeSizePrMeanAccumulatorUMap>;
 using TCategoryAnyMap = CEventRateBucketGatherer::TCategoryAnyMap;
 using TSizeSizePrStrDataUMap = boost::unordered_map<TSizeSizePr, CUniqueStringFeatureData>;
@@ -483,7 +483,7 @@ struct SChecksum {
                 }
                 std::sort(people.begin(), people.end(),
                           maths::common::COrderings::SReferenceLess());
-                uint64_t& hash = hashes[gatherer.attributeName(cid)];
+                std::uint64_t& hash = hashes[gatherer.attributeName(cid)];
                 hash = maths::common::CChecksum::calculate(hash, people);
             }
         }
@@ -521,7 +521,7 @@ struct SChecksum {
 
         for (auto& hash_ : attributeHashes) {
             std::sort(hash_.second.begin(), hash_.second.end());
-            uint64_t& hash = hashes[gatherer.attributeName(hash_.first)];
+            std::uint64_t& hash = hashes[gatherer.attributeName(hash_.first)];
             hash = maths::common::CChecksum::calculate(hash, hash_.second);
         }
     }
@@ -1001,7 +1001,7 @@ void CEventRateBucketGatherer::removeAttributes(std::size_t lowestAttributeToRem
 }
 
 uint64_t CEventRateBucketGatherer::checksum() const {
-    uint64_t seed = this->CBucketGatherer::checksum();
+    std::uint64_t seed = this->CBucketGatherer::checksum();
     TStrUInt64Map hashes;
     applyFunc(m_FeatureData, [&, checksum = SChecksum{} ](const auto& data) {
         checksum(data, m_DataGatherer, hashes);
@@ -1167,10 +1167,10 @@ void CEventRateBucketGatherer::personCounts(model_t::EFeature feature,
     }
 
     for (const auto& count_ : this->bucketCounts(time)) {
-        uint64_t& count = std::lower_bound(result.begin(), result.end(),
-                                           CDataGatherer::extractPersonId(count_),
-                                           maths::common::COrderings::SFirstLess())
-                              ->second.s_Count;
+        std::uint64_t& count = std::lower_bound(result.begin(), result.end(),
+                                                CDataGatherer::extractPersonId(count_),
+                                                maths::common::COrderings::SFirstLess())
+                                   ->second.s_Count;
         count += CDataGatherer::extractData(count_);
     }
 
@@ -1427,7 +1427,7 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPerson(model_t::EFeature featur
         result.reserve(arrivalTimes.size());
         for (const auto& time_ : arrivalTimes) {
             result.emplace_back(CDataGatherer::extractPersonId(time_),
-                                static_cast<uint64_t>(maths::common::CBasicStatistics::mean(
+                                static_cast<std::uint64_t>(maths::common::CBasicStatistics::mean(
                                     CDataGatherer::extractData(time_))));
         }
         std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
@@ -1470,7 +1470,7 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPersonAttribute(model_t::EFeatu
         result.reserve(arrivalTimes.size());
         for (const auto& time_ : arrivalTimes) {
             result.emplace_back(time_.first,
-                                static_cast<uint64_t>(maths::common::CBasicStatistics::mean(
+                                static_cast<std::uint64_t>(maths::common::CBasicStatistics::mean(
                                     CDataGatherer::extractData(time_))));
         }
         std::sort(result.begin(), result.end(), maths::common::COrderings::SFirstLess());
@@ -1806,7 +1806,7 @@ bool CUniqueStringFeatureData::acceptRestoreTraverser(core::CStateRestoreTravers
 }
 
 uint64_t CUniqueStringFeatureData::checksum() const {
-    uint64_t seed = maths::common::CChecksum::calculate(0, m_UniqueStrings);
+    std::uint64_t seed = maths::common::CChecksum::calculate(0, m_UniqueStrings);
     return maths::common::CChecksum::calculate(seed, m_InfluencerUniqueStrings);
 }
 

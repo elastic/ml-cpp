@@ -21,11 +21,10 @@
 #include <boost/unordered/unordered_set_fwd.hpp>
 
 #include <array>
+#include <cstdint>
 #include <map>
 #include <set>
 #include <string>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -47,7 +46,7 @@ namespace core {
 template<std::size_t N>
 class CCompressedDictionary {
 public:
-    using TUInt64Array = std::array<uint64_t, N>;
+    using TUInt64Array = std::array<std::uint64_t, N>;
     using TStrCPtr = const std::string*;
 
     //! \brief A hash representation of a string in the dictionary
@@ -121,7 +120,7 @@ public:
 
         std::size_t hash() const { return static_cast<std::size_t>(m_Hash[0]); }
 
-        uint64_t hash64() const { return m_Hash[0]; }
+        std::uint64_t hash64() const { return m_Hash[0]; }
 
         std::string print() const { return CContainerPrinter::print(m_Hash); }
 
@@ -201,7 +200,7 @@ private:
     CWord word(const TStrCPtr (&words)[NUMBER_OF_WORDS]) const {
         TUInt64Array hashes;
         for (std::size_t i = 0; i < N; ++i) {
-            uint64_t& hash = hashes[i];
+            std::uint64_t& hash = hashes[i];
             for (std::size_t wordIndex = 0; wordIndex < NUMBER_OF_WORDS; ++wordIndex) {
                 const std::string& word = *words[wordIndex];
                 hash = CHashing::safeMurmurHash64(word.c_str(),

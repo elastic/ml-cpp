@@ -23,10 +23,9 @@
 #include <boost/unordered_set.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace model {

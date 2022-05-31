@@ -366,7 +366,7 @@ bool CJsonStateRestoreTraverser::SRapidJsonHandler::Uint(unsigned u) {
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SRapidJsonHandler::Int64(int64_t i) {
+bool CJsonStateRestoreTraverser::SRapidJsonHandler::Int64(std::int64_t i) {
     s_Type = E_TokenInt64;
     if (s_RememberValue) {
         s_Value[s_NextIndex].assign(CStringUtils::typeToString(i));
@@ -375,7 +375,7 @@ bool CJsonStateRestoreTraverser::SRapidJsonHandler::Int64(int64_t i) {
     return true;
 }
 
-bool CJsonStateRestoreTraverser::SRapidJsonHandler::Uint64(uint64_t u) {
+bool CJsonStateRestoreTraverser::SRapidJsonHandler::Uint64(std::uint64_t u) {
     s_Type = E_TokenUInt64;
     if (s_RememberValue) {
         s_Value[s_NextIndex].assign(CStringUtils::typeToString(u));

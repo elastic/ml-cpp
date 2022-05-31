@@ -210,7 +210,7 @@ public:
     //! the current bucket statistics. (This is designed to handle
     //! serialization, for which we don't serialize the current
     //! bucket statistics.)
-    uint64_t checksum(bool includeCurrentBucketStats = true) const override;
+    std::uint64_t checksum(bool includeCurrentBucketStats = true) const override;
 
     //! Get the memory used by this model
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
@@ -282,7 +282,7 @@ private:
     CMemoryUsageEstimator* memoryUsageEstimator() const override;
 
 private:
-    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
     using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;

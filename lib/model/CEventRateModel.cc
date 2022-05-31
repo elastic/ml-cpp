@@ -494,22 +494,23 @@ bool CEventRateModel::computeProbability(std::size_t pid,
 }
 
 uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
-    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
+    using TStrCRefUInt64Map =
+        std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 
-    uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
+    std::uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
 
     TStrCRefUInt64Map hashes;
     const TDoubleVec& categories = m_ProbabilityPrior.categories();
     const TDoubleVec& concentrations = m_ProbabilityPrior.concentrations();
     for (std::size_t i = 0; i < categories.size(); ++i) {
-        uint64_t& hash =
+        std::uint64_t& hash =
             hashes[std::cref(this->personName(static_cast<std::size_t>(categories[i])))];
         hash = maths::common::CChecksum::calculate(hash, concentrations[i]);
     }
     if (includeCurrentBucketStats) {
         for (const auto& featureData_ : m_CurrentBucketStats.s_FeatureData) {
             for (const auto& data : featureData_.second) {
-                uint64_t& hash = hashes[std::cref(this->personName(data.first))];
+                std::uint64_t& hash = hashes[std::cref(this->personName(data.first))];
                 hash = maths::common::CChecksum::calculate(hash, data.second.s_Count);
             }
         }

@@ -292,14 +292,15 @@ void CAnomalyDetectorModel::prune() {
 }
 
 uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) const {
-    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
-    uint64_t seed{m_DataGatherer->checksum()};
+    using TStrCRefUInt64Map =
+        std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
+    std::uint64_t seed{m_DataGatherer->checksum()};
     seed = maths::common::CChecksum::calculate(seed, m_Params);
     seed = maths::common::CChecksum::calculate(seed, m_BucketCount);
     TStrCRefUInt64Map hashes;
     for (std::size_t pid = 0; pid < m_PersonBucketCounts.size(); ++pid) {
         if (m_DataGatherer->isPersonActive(pid)) {
-            uint64_t& hash{hashes[std::cref(m_DataGatherer->personName(pid))]};
+            std::uint64_t& hash{hashes[std::cref(m_DataGatherer->personName(pid))]};
             hash = maths::common::CChecksum::calculate(hash, m_PersonBucketCounts[pid]);
         }
     }

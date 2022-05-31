@@ -18,7 +18,7 @@ namespace core {
 CWindowsError::CWindowsError() : m_ErrorCode(0) {
 }
 
-CWindowsError::CWindowsError(uint32_t /* errorCode */) : m_ErrorCode(0) {
+CWindowsError::CWindowsError(std::uint32_t /* errorCode */) : m_ErrorCode(0) {
 }
 
 uint32_t CWindowsError::errorCode() const {

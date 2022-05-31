@@ -70,7 +70,7 @@ public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get the checksum of this object.
-    uint64_t checksum() const;
+    std::uint64_t checksum() const;
 
     //! Get the memory usage of this object in a tree structure.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -244,7 +244,7 @@ public:
     //@}
 
     //! Get the checksum of this gatherer.
-    uint64_t checksum() const override;
+    std::uint64_t checksum() const override;
 
     //! Get the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;

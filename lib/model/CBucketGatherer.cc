@@ -41,7 +41,7 @@ const std::string BUCKET_EXPLICIT_NULLS_TAG("m");
 namespace detail {
 
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, std::uint64_t>;
 using TSizeSizePrStoredStringPtrPrUInt64UMap = CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMap;
 using TSizeSizePrStoredStringPtrPrUInt64UMapCItr =
     CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMapCItr;
@@ -66,7 +66,7 @@ void insertPersonAttributeCounts(const TSizeSizePrUInt64Pr& tuple,
 //! Restore a person, attribute and count.
 bool restorePersonAttributeCounts(core::CStateRestoreTraverser& traverser,
                                   TSizeSizePr& key,
-                                  uint64_t& count) {
+                                  std::uint64_t& count) {
     do {
         const std::string& name = traverser.name();
         RESTORE_BUILT_IN(PERSON_UID_TAG, key.first)
@@ -110,7 +110,7 @@ bool restoreInfluencerPersonAttributeCounts(core::CStateRestoreTraverser& traver
     std::size_t person = 0;
     std::size_t attribute = 0;
     std::string influence = "";
-    uint64_t count = 0;
+    std::uint64_t count = 0;
     do {
         const std::string name = traverser.name();
         RESTORE_BUILT_IN(PERSON_UID_TAG, person)
@@ -149,7 +149,7 @@ struct SBucketCountsPersister {
                     core::CStateRestoreTraverser& traverser) {
         do {
             TSizeSizePr key;
-            uint64_t count{0u};
+            std::uint64_t count{0u};
             if (!traverser.hasSubLevel()) {
                 continue;
             }
@@ -300,7 +300,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
                     influencerCounts[i]
                         .emplace(boost::unordered::piecewise_construct,
                                  boost::make_tuple(pidCid, inf),
-                                 boost::make_tuple(uint64_t(0)))
+                                 boost::make_tuple(std::uint64_t(0)))
                         .first->second += count;
                 }
             }
@@ -353,7 +353,7 @@ void CBucketGatherer::skipSampleNow(core_t::TTime sampleBucketStart) {
 }
 
 void CBucketGatherer::personNonZeroCounts(core_t::TTime time, TSizeUInt64PrVec& result) const {
-    using TSizeUInt64Map = std::map<std::size_t, uint64_t>;
+    using TSizeUInt64Map = std::map<std::size_t, std::uint64_t>;
 
     result.clear();
 
@@ -505,10 +505,10 @@ uint64_t CBucketGatherer::checksum() const {
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
     using TStrCRefStrCRefPrVec = std::vector<TStrCRefStrCRefPr>;
-    using TStrCRefStrCRefPrUInt64Pr = std::pair<TStrCRefStrCRefPr, uint64_t>;
+    using TStrCRefStrCRefPrUInt64Pr = std::pair<TStrCRefStrCRefPr, std::uint64_t>;
     using TStrCRefStrCRefPrUInt64PrVec = std::vector<TStrCRefStrCRefPrUInt64Pr>;
 
-    uint64_t result = maths::common::CChecksum::calculate(0, m_BucketStart);
+    std::uint64_t result = maths::common::CChecksum::calculate(0, m_BucketStart);
 
     result = maths::common::CChecksum::calculate(
         result, m_PersonAttributeCounts.latestBucketEnd());

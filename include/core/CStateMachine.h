@@ -110,7 +110,7 @@ public:
     std::string printSymbol(std::size_t symbol) const;
 
     //! Get a checksum of this object.
-    uint64_t checksum() const;
+    std::uint64_t checksum() const;
 
     //! Print all the state machines.
     static std::size_t numberMachines();

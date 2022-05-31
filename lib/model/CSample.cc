@@ -91,7 +91,7 @@ CSample::TDouble1Vec CSample::value(std::size_t dimension) const {
 }
 
 uint64_t CSample::checksum() const {
-    uint64_t seed = static_cast<uint64_t>(m_Time);
+    std::uint64_t seed = static_cast<std::uint64_t>(m_Time);
     seed = maths::common::CChecksum::calculate(seed, m_Value);
     seed = maths::common::CChecksum::calculate(seed, m_VarianceScale);
     return maths::common::CChecksum::calculate(seed, m_Count);

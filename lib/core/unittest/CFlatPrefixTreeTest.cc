@@ -18,10 +18,9 @@
 #include <boost/unordered_set.hpp>
 
 #include <algorithm>
+#include <cstdint>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
 
 BOOST_AUTO_TEST_SUITE(CFlatPrefixTreeTest)
 

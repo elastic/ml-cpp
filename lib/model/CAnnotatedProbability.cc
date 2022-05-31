@@ -238,7 +238,7 @@ bool SAnnotatedProbability::acceptRestoreTraverser(core::CStateRestoreTraverser&
             s_Influences.emplace_back(
                 TStoredStringPtrStoredStringPtrPr(influencerName, influencerValue), d);
         } else if (name == CURRENT_BUCKET_COUNT_TAG) {
-            uint64_t i{0};
+            std::uint64_t i{0};
             if (!core::CPersistUtils::restore(CURRENT_BUCKET_COUNT_TAG, i, traverser)) {
                 LOG_ERROR(<< "Restore error for " << traverser.name() << " / "
                           << traverser.value());

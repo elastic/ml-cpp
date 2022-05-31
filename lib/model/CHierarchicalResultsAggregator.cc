@@ -173,7 +173,7 @@ bool CHierarchicalResultsAggregator::acceptRestoreTraverser(core::CStateRestoreT
 }
 
 uint64_t CHierarchicalResultsAggregator::checksum() const {
-    uint64_t seed = static_cast<uint64_t>(m_DecayRate);
+    std::uint64_t seed = static_cast<std::uint64_t>(m_DecayRate);
     seed = maths::common::CChecksum::calculate(seed, m_Parameters);
     seed = maths::common::CChecksum::calculate(seed, m_MaximumAnomalousProbability);
     return this->TBase::checksum(seed);

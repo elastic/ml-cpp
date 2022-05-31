@@ -419,7 +419,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 // Set up fuzzy de-duplication.
                 for (const auto& data_ : data) {
                     std::size_t cid = CDataGatherer::extractAttributeId(data_);
-                    uint64_t count = CDataGatherer::extractData(data_).s_Count;
+                    std::uint64_t count = CDataGatherer::extractData(data_).s_Count;
                     duplicates[cid].add({static_cast<double>(count)});
                 }
                 for (auto& attribute : duplicates) {
@@ -790,7 +790,7 @@ bool CEventRatePopulationModel::computeTotalProbability(
 }
 
 uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) const {
-    uint64_t seed = this->CPopulationModel::checksum(includeCurrentBucketStats);
+    std::uint64_t seed = this->CPopulationModel::checksum(includeCurrentBucketStats);
     seed = maths::common::CChecksum::calculate(seed, m_NewAttributeProbabilityPrior);
     if (includeCurrentBucketStats) {
         seed = maths::common::CChecksum::calculate(seed, m_CurrentBucketStats.s_StartTime);
@@ -798,7 +798,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
 
     using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
     using TStrCRefStrCRefPrUInt64Map =
-        std::map<TStrCRefStrCRefPr, uint64_t, maths::common::COrderings::SLess>;
+        std::map<TStrCRefStrCRefPr, std::uint64_t, maths::common::COrderings::SLess>;
 
     const CDataGatherer& gatherer = this->dataGatherer();
 
@@ -808,7 +808,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     const TDoubleVec& concentrations = m_AttributeProbabilityPrior.concentrations();
     for (std::size_t i = 0; i < categories.size(); ++i) {
         std::size_t cid = static_cast<std::size_t>(categories[i]);
-        uint64_t& hash =
+        std::uint64_t& hash =
             hashes[{std::cref(EMPTY_STRING), std::cref(this->attributeName(cid))}];
         hash = maths::common::CChecksum::calculate(hash, concentrations[i]);
     }
@@ -816,7 +816,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     for (const auto& feature : m_FeatureModels) {
         for (std::size_t cid = 0; cid < feature.s_Models.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
-                uint64_t& hash =
+                std::uint64_t& hash =
                     hashes[{std::cref(EMPTY_STRING), std::cref(gatherer.attributeName(cid))}];
                 hash = maths::common::CChecksum::calculate(hash, feature.s_Models[cid]);
             }
@@ -828,8 +828,9 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
             std::size_t cids[]{model.first.first, model.first.second};
             if (gatherer.isAttributeActive(cids[0]) &&
                 gatherer.isAttributeActive(cids[1])) {
-                uint64_t& hash = hashes[{std::cref(gatherer.attributeName(cids[0])),
-                                         std::cref(gatherer.attributeName(cids[1]))}];
+                std::uint64_t& hash =
+                    hashes[{std::cref(gatherer.attributeName(cids[0])),
+                            std::cref(gatherer.attributeName(cids[1]))}];
                 hash = maths::common::CChecksum::calculate(hash, model.second);
             }
         }
@@ -837,7 +838,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
 
     if (includeCurrentBucketStats) {
         for (const auto& personCount : this->personCounts()) {
-            uint64_t& hash =
+            std::uint64_t& hash =
                 hashes[{std::cref(gatherer.personName(personCount.first)), std::cref(EMPTY_STRING)}];
             hash = maths::common::CChecksum::calculate(hash, personCount.second);
         }
@@ -845,7 +846,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
             for (const auto& data : feature.second) {
                 std::size_t pid = CDataGatherer::extractPersonId(data);
                 std::size_t cid = CDataGatherer::extractAttributeId(data);
-                uint64_t& hash =
+                std::uint64_t& hash =
                     hashes[{std::cref(this->personName(pid)), std::cref(this->attributeName(cid))}];
                 hash = maths::common::CChecksum::calculate(
                     hash, CDataGatherer::extractData(data).s_Count);

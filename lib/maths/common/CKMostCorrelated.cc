@@ -355,7 +355,7 @@ void CKMostCorrelated::capture() {
     }
 }
 
-uint64_t CKMostCorrelated::checksum(uint64_t seed) const {
+uint64_t CKMostCorrelated::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_K);
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_Projections);
@@ -760,7 +760,7 @@ double CKMostCorrelated::SCorrelation::correlation(const TVector& px,
     return result;
 }
 
-uint64_t CKMostCorrelated::SCorrelation::checksum(uint64_t seed) const {
+uint64_t CKMostCorrelated::SCorrelation::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, s_Correlation);
     seed = CChecksum::calculate(seed, s_X);
     return CChecksum::calculate(seed, s_Y);

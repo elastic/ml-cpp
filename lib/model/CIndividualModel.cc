@@ -43,10 +43,10 @@ namespace {
 
 using TDouble2Vec = core::CSmallVector<double, 2>;
 using TStrCRef = std::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
+using TStrCRefUInt64Map = std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
 using TStrCRefStrCRefPrUInt64Map =
-    std::map<TStrCRefStrCRefPr, uint64_t, maths::common::COrderings::SLess>;
+    std::map<TStrCRefStrCRefPr, std::uint64_t, maths::common::COrderings::SLess>;
 
 //! Update \p hashes with the hashes of the active people in \p values.
 template<typename T>
@@ -55,7 +55,7 @@ void hashActive(const CDataGatherer& gatherer,
                 TStrCRefUInt64Map& hashes) {
     for (std::size_t pid = 0; pid < values.size(); ++pid) {
         if (gatherer.isPersonActive(pid)) {
-            uint64_t& hash = hashes[std::cref(gatherer.personName(pid))];
+            std::uint64_t& hash = hashes[std::cref(gatherer.personName(pid))];
             hash = maths::common::CChecksum::calculate(hash, values[pid]);
         }
     }
@@ -150,7 +150,7 @@ CIndividualModel::currentBucketCount(std::size_t pid, core_t::TTime time) const 
 
     return result != this->currentBucketPersonCounts().end() && result->first == pid
                ? result->second
-               : static_cast<uint64_t>(0);
+               : static_cast<std::uint64_t>(0);
 }
 
 bool CIndividualModel::bucketStatsAvailable(core_t::TTime time) const {
@@ -245,7 +245,7 @@ bool CIndividualModel::computeTotalProbability(const std::string& /*person*/,
 }
 
 uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
-    uint64_t seed = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
+    std::uint64_t seed = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
 
     TStrCRefUInt64Map hashes1;
 
@@ -262,8 +262,8 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
         for (const auto& model : feature.s_Models->correlationModels()) {
             std::size_t pids[]{model.first.first, model.first.second};
             if (gatherer.isPersonActive(pids[0]) && gatherer.isPersonActive(pids[1])) {
-                uint64_t& hash = hashes2[{std::cref(this->personName(pids[0])),
-                                          std::cref(this->personName(pids[1]))}];
+                std::uint64_t& hash =
+                    hashes2[{std::cref(this->personName(pids[0])), std::cref(this->personName(pids[1]))}];
                 hash = maths::common::CChecksum::calculate(hash, model.second);
             }
         }
@@ -273,7 +273,7 @@ uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
         seed = maths::common::CChecksum::calculate(seed, this->currentBucketStartTime());
         const TSizeUInt64PrVec& personCounts = this->currentBucketPersonCounts();
         for (const auto& count : personCounts) {
-            uint64_t& hash = hashes1[std::cref(this->personName(count.first))];
+            std::uint64_t& hash = hashes1[std::cref(this->personName(count.first))];
             hash = maths::common::CChecksum::calculate(hash, count.second);
         }
     }

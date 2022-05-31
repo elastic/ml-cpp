@@ -48,7 +48,7 @@ using TStrVec = std::vector<std::string>;
 using TStrCRef = std::reference_wrapper<const std::string>;
 using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
 using TStrCRefStrCRefPrUInt64Map =
-    std::map<TStrCRefStrCRefPr, uint64_t, maths::common::COrderings::SLexicographicalCompare>;
+    std::map<TStrCRefStrCRefPr, std::uint64_t, maths::common::COrderings::SLexicographicalCompare>;
 using TSampleVec = std::vector<CSample>;
 using TSizeMeanGathererUMap = boost::unordered_map<std::size_t, CGathererTools::TMeanGatherer>;
 using TSizeSizeMeanGathererUMapUMap = boost::unordered_map<std::size_t, TSizeMeanGathererUMap>;
@@ -1322,7 +1322,7 @@ void CMetricBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove
 }
 
 uint64_t CMetricBucketGatherer::checksum() const {
-    uint64_t seed = this->CBucketGatherer::checksum();
+    std::uint64_t seed = this->CBucketGatherer::checksum();
     seed = maths::common::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
     TStrCRefStrCRefPrUInt64Map hashes;
     applyFunc(m_FeatureData, [&, hash = SHash{} ](const auto& category, const auto& data) {
@@ -1463,7 +1463,7 @@ void CMetricBucketGatherer::addValue(std::size_t pid,
 
 void CMetricBucketGatherer::startNewBucket(core_t::TTime time, bool skipUpdates) {
     LOG_TRACE(<< "StartNewBucket, " << time << " @ " << this);
-    using TUInt64Vec = std::vector<uint64_t>;
+    using TUInt64Vec = std::vector<std::uint64_t>;
     using TSizeUInt64VecUMap = boost::unordered_map<std::size_t, TUInt64Vec>;
 
     // Only update the sampleCounts if we are the primary bucket gatherer.

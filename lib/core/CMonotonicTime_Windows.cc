@@ -25,7 +25,7 @@ CMonotonicTime::CMonotonicTime()
         LOG_WARN(<< "High frequency performance counters not available");
     } else {
         // The high frequency counter ticks this many times per second
-        m_ScalingFactor1 = static_cast<uint64_t>(largeInt.QuadPart);
+        m_ScalingFactor1 = static_cast<std::uint64_t>(largeInt.QuadPart);
     }
 }
 
@@ -59,17 +59,17 @@ uint64_t CMonotonicTime::nanoseconds() const {
 
     // Doing the division first here truncates the result to the number of
     // nanoseconds in a number of full seconds
-    uint64_t fullSecondNanoseconds(
-        (static_cast<uint64_t>(largeInt.QuadPart) / m_ScalingFactor1) * 1000000000ULL);
+    std::uint64_t fullSecondNanoseconds(
+        (static_cast<std::uint64_t>(largeInt.QuadPart) / m_ScalingFactor1) * 1000000000ULL);
 
     // This is the number of ticks over and above the last full second
-    uint64_t remainder(static_cast<uint64_t>(largeInt.QuadPart) % m_ScalingFactor1);
+    std::uint64_t remainder(static_cast<std::uint64_t>(largeInt.QuadPart) % m_ScalingFactor1);
 
     // Assuming the counter ticks less than 18.4 billion times per second, this
     // won't overflow when we do the multiplication first (and on Windows 2008
     // it ticks about 3.75 million times per second, so there's a fair amount
     // of leeway here)
-    uint64_t extraNanoseconds((remainder * 1000000000ULL) / m_ScalingFactor1);
+    std::uint64_t extraNanoseconds((remainder * 1000000000ULL) / m_ScalingFactor1);
 
     return fullSecondNanoseconds + extraNanoseconds;
 }

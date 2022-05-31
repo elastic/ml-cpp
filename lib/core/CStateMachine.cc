@@ -157,8 +157,8 @@ std::string CStateMachine::printSymbol(std::size_t symbol) const {
 }
 
 uint64_t CStateMachine::checksum() const {
-    return CHashing::hashCombine(static_cast<uint64_t>(m_Machine),
-                                 static_cast<uint64_t>(m_State));
+    return CHashing::hashCombine(static_cast<std::uint64_t>(m_Machine),
+                                 static_cast<std::uint64_t>(m_State));
 }
 
 std::size_t CStateMachine::numberMachines() {

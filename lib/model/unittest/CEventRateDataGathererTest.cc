@@ -42,7 +42,7 @@ using namespace model;
 
 using TSizeVec = std::vector<std::size_t>;
 using TFeatureVec = std::vector<model_t::EFeature>;
-using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
 using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
 using TStrVec = std::vector<std::string>;
 using TStrVecCItr = TStrVec::const_iterator;
@@ -1560,7 +1560,8 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             data.insert(ss.str(), influencers);
             SEventRateFeatureData featureData(0);
             data.populateDistinctCountFeatureData(featureData);
-            BOOST_REQUIRE_EQUAL(std::max(uint64_t(3), uint64_t(i)), featureData.s_Count);
+            BOOST_REQUIRE_EQUAL(std::max(std::uint64_t(3), std::uint64_t(i)),
+                                featureData.s_Count);
         }
     }
     {
@@ -1687,9 +1688,9 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
             SEventRateFeatureData featureData(0);
             data.populateInfoContentFeatureData(featureData);
             BOOST_TEST_REQUIRE((featureData.s_Count - 12) >=
-                               std::max(uint64_t(3), uint64_t(i)));
+                               std::max(std::uint64_t(3), std::uint64_t(i)));
             BOOST_TEST_REQUIRE((featureData.s_Count - 12) <=
-                               std::max(uint64_t(3), uint64_t(i)) * 3);
+                               std::max(std::uint64_t(3), std::uint64_t(i)) * 3);
         }
     }
     {
@@ -1869,7 +1870,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -1879,7 +1880,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 50),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 50),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -1890,7 +1891,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -1900,7 +1901,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 100),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -1911,7 +1912,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -1921,7 +1922,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 150),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 150),
                                 featureData[0].second[0].second.s_Count);
         }
 
@@ -1934,7 +1935,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 100),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -1945,7 +1946,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 200),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 200),
                                 featureData[0].second[0].second.s_Count);
         }
 
@@ -1991,7 +1992,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -2001,7 +2002,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 50),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 50),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -2012,7 +2013,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -2022,7 +2023,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 100),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -2033,7 +2034,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -2043,7 +2044,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 150),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 150),
                                 featureData[0].second[0].second.s_Count);
         }
 
@@ -2056,7 +2057,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 100),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -2067,7 +2068,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 200),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 200),
                                 featureData[0].second[0].second.s_Count);
         }
 
@@ -2114,7 +2115,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -2124,7 +2125,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 50),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 50),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -2135,7 +2136,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -2145,7 +2146,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 100),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -2156,7 +2157,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 604800),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 604800),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -2166,7 +2167,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 150),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 150),
                                 featureData[0].second[0].second.s_Count);
         }
 
@@ -2179,7 +2180,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 100),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -2190,7 +2191,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 604800) + 200),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 604800) + 200),
                                 featureData[0].second[0].second.s_Count);
         }
 
@@ -2238,7 +2239,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -2248,7 +2249,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 50),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 50),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -2259,7 +2260,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -2269,7 +2270,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 100),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -2280,7 +2281,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t(time % 86400),
+            BOOST_REQUIRE_EQUAL(std::uint64_t(time % 86400),
                                 featureData[0].second[0].second.s_Count);
         }
         {
@@ -2290,7 +2291,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 150),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 150),
                                 featureData[0].second[0].second.s_Count);
         }
 
@@ -2303,7 +2304,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 100),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 100),
                                 featureData[0].second[0].second.s_Count);
         }
         time += bucketLength;
@@ -2314,7 +2315,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
             gatherer.featureData(time, bucketLength, featureData);
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
             BOOST_REQUIRE_EQUAL(std::size_t(1), featureData[0].second.size());
-            BOOST_REQUIRE_EQUAL(uint64_t((time % 86400) + 200),
+            BOOST_REQUIRE_EQUAL(std::uint64_t((time % 86400) + 200),
                                 featureData[0].second[0].second.s_Count);
         }
 

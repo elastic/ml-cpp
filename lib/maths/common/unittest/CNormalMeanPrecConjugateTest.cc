@@ -1143,7 +1143,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origFilter.addSamples({samples[i]}, maths_t::CUnitWeights::SINGLE_UNIT);
     }
     double decayRate = origFilter.decayRate();
-    uint64_t checksum = origFilter.checksum();
+    std::uint64_t checksum = origFilter.checksum();
 
     std::string origXml;
     {
