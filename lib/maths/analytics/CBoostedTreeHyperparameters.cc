@@ -39,6 +39,29 @@ const std::size_t MIN_VALUE_INDEX{0};
 const std::size_t MID_VALUE_INDEX{1};
 const std::size_t MAX_VALUE_INDEX{2};
 const double LINE_SEARCH_MINIMUM_RELATIVE_EI_TO_CONTINUE{0.01};
+
+// clang-format off
+const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
+const std::string BEST_FOREST_NUMBER_NODES_TAG{"best_forest_number_nodes"};
+const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
+const std::string CURRENT_ROUND_TAG{"current_round"};
+const std::string DEPTH_PENALTY_MULTIPLIER_TAG{"depth_penalty_multiplier"};
+const std::string DOWNSAMPLE_FACTOR_TAG{"downsample_factor"};
+const std::string ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
+const std::string ETA_TAG{"eta"};
+const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
+const std::string LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{"leaf_weight_penalty_multiplier"};
+const std::string MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
+const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{"maximum_optimisation_rounds_per_hyperparameter"};
+const std::string MEAN_FOREST_SIZE_ACCUMULATOR_TAG{"mean_forest_size_accumulator"};
+const std::string MEAN_TEST_LOSS_ACCUMULATOR_TAG{"mean_test_loss_accumulator"};
+const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
+const std::string SOFT_TREE_DEPTH_LIMIT_TAG{"soft_tree_depth_limit"};
+const std::string SOFT_TREE_DEPTH_TOLERANCE_TAG{"soft_tree_depth_tolerance"};
+const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
+const std::string STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stopped_hyperparameter_optimization_early"};
+const std::string TREE_SIZE_PENALTY_MULTIPLIER_TAG{"tree_size_penalty_multiplier"};
+// clang-format on
 }
 
 CBoostedTreeHyperparameters::CBoostedTreeHyperparameters() {
@@ -78,6 +101,7 @@ std::size_t CBoostedTreeHyperparameters::numberToTune() const {
 void CBoostedTreeHyperparameters::resetSearch() {
     m_CurrentRound = 0;
     m_BestForestTestLoss = boosted_tree_detail::INF;
+    m_BestForestNumberNodes = 0;
     m_MeanForestSizeAccumulator = TMeanAccumulator{};
     m_MeanTestLossAccumulator = TMeanAccumulator{};
     this->initializeTunableHyperparameters();
@@ -468,10 +492,13 @@ bool CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLos
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
-    double testLoss{lossAtNSigma(1.0, testLossMoments) + this->modelSizePenalty(numberNodes)};
+    double testLoss{lossAtNSigma(1.0, testLossMoments)};
+    double penalizedTestLoss{testLoss + this->modelSizePenalty(numberNodes)};
+    double bestPenalizedTestLoss{m_BestForestTestLoss + this->modelSizePenalty(numberNodes)};
 
-    if (testLoss < m_BestForestTestLoss) {
+    if (penalizedTestLoss < bestPenalizedTestLoss) {
         m_BestForestTestLoss = testLoss;
+        m_BestForestNumberNodes = numberNodes;
 
         // During hyperparameter search we have a fixed upper bound on
         // the number of trees which we use for every round and we stop
@@ -604,6 +631,8 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
     core::CPersistUtils::persistIfNotNull(BAYESIAN_OPTIMIZATION_TAG,
                                           m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
+    core::CPersistUtils::persist(BEST_FOREST_NUMBER_NODES_TAG,
+                                 m_BestForestNumberNodes, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
     core::CPersistUtils::persist(DEPTH_PENALTY_MULTIPLIER_TAG,
                                  m_DepthPenaltyMultiplier, inserter);
@@ -642,6 +671,9 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
         RESTORE_NO_ERROR(BAYESIAN_OPTIMIZATION_TAG,
                          m_BayesianOptimization =
                              std::make_unique<common::CBayesianOptimisation>(traverser))
+        RESTORE(BEST_FOREST_NUMBER_NODES_TAG,
+                core::CPersistUtils::restore(BEST_FOREST_NUMBER_NODES_TAG,
+                                             m_BestForestNumberNodes, traverser))
         RESTORE(BEST_FOREST_TEST_LOSS_TAG,
                 core::CPersistUtils::restore(BEST_FOREST_TEST_LOSS_TAG,
                                              m_BestForestTestLoss, traverser))
@@ -702,6 +734,7 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
 std::uint64_t CBoostedTreeHyperparameters::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_BayesianOptimization);
     seed = common::CChecksum::calculate(seed, m_BestForestTestLoss);
+    seed = common::CChecksum::calculate(seed, m_BestForestNumberNodes);
     seed = common::CChecksum::calculate(seed, m_CurrentRound);
     seed = common::CChecksum::calculate(seed, m_DepthPenaltyMultiplier);
     seed = common::CChecksum::calculate(seed, m_DownsampleFactor);
@@ -845,28 +878,6 @@ void CBoostedTreeHyperparameters::captureScale() {
     m_EtaGrowthRatePerTree.captureScale();
     m_MaximumNumberTrees.captureScale();
 }
-
-// clang-format off
-const std::string CBoostedTreeHyperparameters::BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
-const std::string CBoostedTreeHyperparameters::BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
-const std::string CBoostedTreeHyperparameters::CURRENT_ROUND_TAG{"current_round"};
-const std::string CBoostedTreeHyperparameters::DEPTH_PENALTY_MULTIPLIER_TAG{"depth_penalty_multiplier"};
-const std::string CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR_TAG{"downsample_factor"};
-const std::string CBoostedTreeHyperparameters::ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
-const std::string CBoostedTreeHyperparameters::ETA_TAG{"eta"};
-const std::string CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
-const std::string CBoostedTreeHyperparameters::LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{"leaf_weight_penalty_multiplier"};
-const std::string CBoostedTreeHyperparameters::MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
-const std::string CBoostedTreeHyperparameters::MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{"maximum_optimisation_rounds_per_hyperparameter"};
-const std::string CBoostedTreeHyperparameters::MEAN_FOREST_SIZE_ACCUMULATOR_TAG{"mean_forest_size_accumulator"};
-const std::string CBoostedTreeHyperparameters::MEAN_TEST_LOSS_ACCUMULATOR_TAG{"mean_test_loss_accumulator"};
-const std::string CBoostedTreeHyperparameters::NUMBER_ROUNDS_TAG{"number_rounds"};
-const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT_TAG{"soft_tree_depth_limit"};
-const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE_TAG{"soft_tree_depth_tolerance"};
-const std::string CBoostedTreeHyperparameters::STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
-const std::string CBoostedTreeHyperparameters::STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stopped_hyperparameter_optimization_early"};
-const std::string CBoostedTreeHyperparameters::TREE_SIZE_PENALTY_MULTIPLIER_TAG{"tree_size_penalty_multiplier"};
-// clang-format on
 }
 }
 }
