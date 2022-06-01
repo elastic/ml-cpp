@@ -162,7 +162,7 @@ std::string CBasicStatistics::SSampleCentralMoments<T, ORDER>::toDelimited() con
 }
 
 template<typename T, unsigned int ORDER>
-uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum() const {
+std::uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum() const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
     for (std::size_t i = 0; i < ORDER; ++i) {
@@ -220,7 +220,7 @@ std::string CBasicStatistics::SSampleCovariances<POINT>::toDelimited() const {
 }
 
 template<typename POINT>
-uint64_t CBasicStatistics::SSampleCovariances<POINT>::checksum() const {
+std::uint64_t CBasicStatistics::SSampleCovariances<POINT>::checksum() const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
     raw << ' ';
@@ -314,7 +314,7 @@ CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::toDelimited(const TT
 }
 
 template<typename T, typename CONTAINER, typename LESS>
-uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(std::uint64_t seed) const {
+std::uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(std::uint64_t seed) const {
     if (this->count() == 0) {
         return seed;
     }

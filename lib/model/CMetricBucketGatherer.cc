@@ -1321,7 +1321,7 @@ void CMetricBucketGatherer::removeAttributes(std::size_t lowestAttributeToRemove
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
-uint64_t CMetricBucketGatherer::checksum() const {
+std::uint64_t CMetricBucketGatherer::checksum() const {
     std::uint64_t seed = this->CBucketGatherer::checksum();
     seed = maths::common::CChecksum::calculate(seed, m_DataGatherer.params().s_DecayRate);
     TStrCRefStrCRefPrUInt64Map hashes;

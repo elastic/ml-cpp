@@ -41,15 +41,15 @@ CHashing::CUniversalHash::CUInt32Hash::CUInt32Hash(std::uint32_t m, std::uint32_
     : m_M(m), m_A(a), m_B(b) {
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32Hash::m() const {
+std::uint32_t CHashing::CUniversalHash::CUInt32Hash::m() const {
     return m_M;
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32Hash::a() const {
+std::uint32_t CHashing::CUniversalHash::CUInt32Hash::a() const {
     return m_A;
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32Hash::b() const {
+std::uint32_t CHashing::CUniversalHash::CUInt32Hash::b() const {
     return m_B;
 }
 
@@ -69,11 +69,11 @@ CHashing::CUniversalHash::CUInt32UnrestrictedHash::CUInt32UnrestrictedHash(std::
     : m_A(a), m_B(b) {
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::a() const {
+std::uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::a() const {
     return m_A;
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::b() const {
+std::uint32_t CHashing::CUniversalHash::CUInt32UnrestrictedHash::b() const {
     return m_B;
 }
 
@@ -89,7 +89,7 @@ CHashing::CUniversalHash::CUInt32VecHash::CUInt32VecHash(std::uint32_t m,
     : m_M(m), m_A(a), m_B(b) {
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32VecHash::m() const {
+std::uint32_t CHashing::CUniversalHash::CUInt32VecHash::m() const {
     return m_M;
 }
 
@@ -98,7 +98,7 @@ CHashing::CUniversalHash::CUInt32VecHash::a() const {
     return m_A;
 }
 
-uint32_t CHashing::CUniversalHash::CUInt32VecHash::b() const {
+std::uint32_t CHashing::CUniversalHash::CUInt32VecHash::b() const {
     return m_B;
 }
 
@@ -292,7 +292,7 @@ void CHashing::CUniversalHash::generateHashes(std::size_t k,
     }
 }
 
-uint32_t CHashing::murmurHash32(const void* key, int length, std::uint32_t seed) {
+std::uint32_t CHashing::murmurHash32(const void* key, int length, std::uint32_t seed) {
     constexpr std::uint32_t m = 0x5bd1e995;
     constexpr int r = 24;
 
@@ -341,7 +341,7 @@ uint32_t CHashing::murmurHash32(const void* key, int length, std::uint32_t seed)
     return h;
 }
 
-uint32_t CHashing::safeMurmurHash32(const void* key, int length, std::uint32_t seed) {
+std::uint32_t CHashing::safeMurmurHash32(const void* key, int length, std::uint32_t seed) {
     constexpr std::uint32_t m = 0x5bd1e995;
     constexpr int r = 24;
 
@@ -391,7 +391,7 @@ uint32_t CHashing::safeMurmurHash32(const void* key, int length, std::uint32_t s
     return h;
 }
 
-uint64_t CHashing::murmurHash64(const void* key, int length, std::uint64_t seed) {
+std::uint64_t CHashing::murmurHash64(const void* key, int length, std::uint64_t seed) {
     constexpr std::uint64_t m = 0xc6a4a7935bd1e995ULL;
     constexpr int r = 47;
 
@@ -452,7 +452,7 @@ uint64_t CHashing::murmurHash64(const void* key, int length, std::uint64_t seed)
     return h;
 }
 
-uint64_t CHashing::safeMurmurHash64(const void* key, int length, std::uint64_t seed) {
+std::uint64_t CHashing::safeMurmurHash64(const void* key, int length, std::uint64_t seed) {
     constexpr std::uint64_t m = 0xc6a4a7935bd1e995ULL;
     constexpr int r = 47;
 
@@ -518,13 +518,13 @@ uint64_t CHashing::safeMurmurHash64(const void* key, int length, std::uint64_t s
     return h;
 }
 
-uint32_t CHashing::hashCombine(std::uint32_t seed, std::uint32_t h) {
+std::uint32_t CHashing::hashCombine(std::uint32_t seed, std::uint32_t h) {
     constexpr std::uint32_t C = 0x9e3779b9;
     seed ^= h + C + (seed << 6) + (seed >> 2);
     return seed;
 }
 
-uint64_t CHashing::hashCombine(std::uint64_t seed, std::uint64_t h) {
+std::uint64_t CHashing::hashCombine(std::uint64_t seed, std::uint64_t h) {
     // As with boost::hash_combine use the binary expansion of an irrational
     // number to generate 64 random independent bits, i.e.
     //   C = 2^64 / "golden ratio" = 2^65 / (1 + 5^(1/2))

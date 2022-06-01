@@ -501,7 +501,7 @@ bool CBucketGatherer::hasExplicitNullsOnly(core_t::TTime time, std::size_t pid, 
            bucketCounts.find(pidCid) == bucketCounts.end();
 }
 
-uint64_t CBucketGatherer::checksum() const {
+std::uint64_t CBucketGatherer::checksum() const {
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
     using TStrCRefStrCRefPrVec = std::vector<TStrCRefStrCRefPr>;

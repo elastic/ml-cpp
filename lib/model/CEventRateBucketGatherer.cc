@@ -1000,7 +1000,7 @@ void CEventRateBucketGatherer::removeAttributes(std::size_t lowestAttributeToRem
     this->CBucketGatherer::removeAttributes(lowestAttributeToRemove);
 }
 
-uint64_t CEventRateBucketGatherer::checksum() const {
+std::uint64_t CEventRateBucketGatherer::checksum() const {
     std::uint64_t seed = this->CBucketGatherer::checksum();
     TStrUInt64Map hashes;
     applyFunc(m_FeatureData, [&, checksum = SChecksum{} ](const auto& data) {
@@ -1805,7 +1805,7 @@ bool CUniqueStringFeatureData::acceptRestoreTraverser(core::CStateRestoreTravers
     return true;
 }
 
-uint64_t CUniqueStringFeatureData::checksum() const {
+std::uint64_t CUniqueStringFeatureData::checksum() const {
     std::uint64_t seed = maths::common::CChecksum::calculate(0, m_UniqueStrings);
     return maths::common::CChecksum::calculate(seed, m_InfluencerUniqueStrings);
 }

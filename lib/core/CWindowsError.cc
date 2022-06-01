@@ -21,7 +21,7 @@ CWindowsError::CWindowsError() : m_ErrorCode(0) {
 CWindowsError::CWindowsError(std::uint32_t /* errorCode */) : m_ErrorCode(0) {
 }
 
-uint32_t CWindowsError::errorCode() const {
+std::uint32_t CWindowsError::errorCode() const {
     return m_ErrorCode;
 }
 

@@ -703,7 +703,7 @@ bool CMetricPopulationModel::computeTotalProbability(const std::string& /*person
     return true;
 }
 
-uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const {
+std::uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const {
     std::uint64_t seed = this->CPopulationModel::checksum(includeCurrentBucketStats);
     if (includeCurrentBucketStats) {
         seed = maths::common::CChecksum::calculate(seed, m_CurrentBucketStats.s_StartTime);

@@ -182,7 +182,7 @@ CPrior::SPlot CPrior::marginalLikelihoodPlot(unsigned int numberPoints, double w
     return plot;
 }
 
-uint64_t CPrior::checksum(std::uint64_t seed) const {
+std::uint64_t CPrior::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DataType);
     seed = CChecksum::calculate(seed, m_DecayRate);
     return CChecksum::calculate(seed, m_NumberSamples);

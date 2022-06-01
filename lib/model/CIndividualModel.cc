@@ -244,7 +244,7 @@ bool CIndividualModel::computeTotalProbability(const std::string& /*person*/,
     return true;
 }
 
-uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
+std::uint64_t CIndividualModel::checksum(bool includeCurrentBucketStats) const {
     std::uint64_t seed = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
 
     TStrCRefUInt64Map hashes1;

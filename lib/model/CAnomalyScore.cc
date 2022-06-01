@@ -842,7 +842,7 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
     return true;
 }
 
-uint64_t CAnomalyScore::CNormalizer::checksum() const {
+std::uint64_t CAnomalyScore::CNormalizer::checksum() const {
     auto seed = static_cast<std::uint64_t>(m_NoisePercentile);
     seed = maths::common::CChecksum::calculate(seed, m_NoiseMultiplier);
     seed = maths::common::CChecksum::calculate(seed, m_NormalizedScoreKnotPoints);
@@ -860,7 +860,7 @@ uint64_t CAnomalyScore::CNormalizer::checksum() const {
     return maths::common::CChecksum::calculate(seed, m_TimeToQuantileDecay);
 }
 
-uint32_t CAnomalyScore::CNormalizer::discreteScore(double rawScore) const {
+std::uint32_t CAnomalyScore::CNormalizer::discreteScore(double rawScore) const {
     return static_cast<std::uint32_t>(DISCRETIZATION_FACTOR * rawScore + 0.5);
 }
 
@@ -946,7 +946,7 @@ bool CAnomalyScore::CNormalizer::CMaxScore::acceptRestoreTraverser(core::CStateR
     return true;
 }
 
-uint64_t CAnomalyScore::CNormalizer::CMaxScore::checksum() const {
+std::uint64_t CAnomalyScore::CNormalizer::CMaxScore::checksum() const {
     std::uint64_t seed = maths::common::CChecksum::calculate(0, m_Score);
     return maths::common::CChecksum::calculate(seed, m_TimeSinceLastScore);
 }

@@ -192,7 +192,7 @@ void CPopulationModel::sample(core_t::TTime startTime,
     }
 }
 
-uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
+std::uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
     std::uint64_t seed = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
 
     const CDataGatherer& gatherer = this->dataGatherer();

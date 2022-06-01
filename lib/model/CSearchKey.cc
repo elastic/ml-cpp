@@ -351,7 +351,7 @@ const CSearchKey::TStoredStringPtrVec& CSearchKey::influenceFieldNames() const {
     return m_InfluenceFieldNames;
 }
 
-uint64_t CSearchKey::hash() const {
+std::uint64_t CSearchKey::hash() const {
     if (m_Hash != 0) {
         return m_Hash;
     }

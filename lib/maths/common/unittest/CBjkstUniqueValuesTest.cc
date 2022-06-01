@@ -35,7 +35,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TUInt32Set = std::set<std::uint32_t>;
 using TMeanAccumulator = maths::common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-uint8_t trailingZeros(std::uint32_t x) {
+std::uint8_t trailingZeros(std::uint32_t x) {
     std::uint8_t result = 0;
     for (/**/; (x & 0x1) == 0; x >>= 1) {
         ++result;

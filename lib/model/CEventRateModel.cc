@@ -493,7 +493,7 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     return true;
 }
 
-uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
+std::uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
     using TStrCRefUInt64Map =
         std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 

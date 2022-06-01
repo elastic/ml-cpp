@@ -203,7 +203,7 @@ void CForecastDataSink::push(bool flush, rapidjson::Value& doc) {
     }
 }
 
-uint64_t CForecastDataSink::numRecordsWritten() const {
+std::uint64_t CForecastDataSink::numRecordsWritten() const {
     return m_NumRecordsWritten;
 }
 

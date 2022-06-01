@@ -206,7 +206,7 @@ void CDynamicStringIdRegistry::clear() {
     m_RecycledUids.clear();
 }
 
-uint64_t CDynamicStringIdRegistry::checksum() const {
+std::uint64_t CDynamicStringIdRegistry::checksum() const {
     using TStrCRef = std::reference_wrapper<const std::string>;
     using TStrCRefVec = std::vector<TStrCRef>;
 

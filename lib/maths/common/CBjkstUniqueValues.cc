@@ -229,7 +229,7 @@ public:
 };
 }
 
-uint8_t CBjkstUniqueValues::trailingZeros(std::uint32_t value) {
+std::uint8_t CBjkstUniqueValues::trailingZeros(std::uint32_t value) {
     if (value == 0) {
         return 32;
     }
@@ -409,7 +409,7 @@ void CBjkstUniqueValues::remove(std::uint32_t value) {
     }
 }
 
-uint32_t CBjkstUniqueValues::number() const {
+std::uint32_t CBjkstUniqueValues::number() const {
     const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values == nullptr) {
         try {
@@ -422,7 +422,7 @@ uint32_t CBjkstUniqueValues::number() const {
     return static_cast<std::uint32_t>(values->size());
 }
 
-uint64_t CBjkstUniqueValues::checksum(std::uint64_t seed) const {
+std::uint64_t CBjkstUniqueValues::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MaxSize);
     seed = CChecksum::calculate(seed, m_NumberHashes);
     const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
@@ -628,7 +628,7 @@ void CBjkstUniqueValues::SSketch::remove(std::uint32_t value) {
     }
 }
 
-uint32_t CBjkstUniqueValues::SSketch::number() const {
+std::uint32_t CBjkstUniqueValues::SSketch::number() const {
     // This uses the median trick to reduce the error.
     TUInt32Vec estimates;
     estimates.reserve(s_Z.size());

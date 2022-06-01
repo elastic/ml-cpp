@@ -448,7 +448,7 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     return true;
 }
 
-uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
+std::uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
     using TStrCRefUInt64Map =
         std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 

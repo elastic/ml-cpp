@@ -29,12 +29,12 @@ CMonotonicTime::CMonotonicTime()
     }
 }
 
-uint64_t CMonotonicTime::milliseconds() const {
+std::uint64_t CMonotonicTime::milliseconds() const {
     // This is only accurate to about 15 milliseconds
     return GetTickCount64();
 }
 
-uint64_t CMonotonicTime::nanoseconds() const {
+std::uint64_t CMonotonicTime::nanoseconds() const {
     if (m_ScalingFactor1 == 0) {
         // High frequency performance counters are not available, so return an
         // approximation

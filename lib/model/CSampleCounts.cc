@@ -220,7 +220,7 @@ void CSampleCounts::resize(std::size_t id) {
     }
 }
 
-uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
+std::uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
     TStrCRefUInt64Map hashes;
     for (std::size_t id = 0; id < m_SampleCounts.size(); ++id) {
         if (gatherer.isPopulation() ? gatherer.isAttributeActive(id)

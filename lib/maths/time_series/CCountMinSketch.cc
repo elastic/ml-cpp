@@ -299,7 +299,7 @@ bool CCountMinSketch::sketched() const {
     return std::get_if<SSketch>(&m_Sketch) != nullptr;
 }
 
-uint64_t CCountMinSketch::checksum(std::uint64_t seed) const {
+std::uint64_t CCountMinSketch::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_Rows);
     seed = common::CChecksum::calculate(seed, m_Columns);
     seed = common::CChecksum::calculate(seed, m_TotalCount);

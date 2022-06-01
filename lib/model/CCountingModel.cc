@@ -303,7 +303,7 @@ bool CCountingModel::computeTotalProbability(const std::string& /*person*/,
     return true;
 }
 
-uint64_t CCountingModel::checksum(bool includeCurrentBucketStats) const {
+std::uint64_t CCountingModel::checksum(bool includeCurrentBucketStats) const {
     std::uint64_t result = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
     result = maths::common::CChecksum::calculate(result, m_MeanCounts);
     if (includeCurrentBucketStats) {

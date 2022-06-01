@@ -789,7 +789,7 @@ bool CEventRatePopulationModel::computeTotalProbability(
     return true;
 }
 
-uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) const {
+std::uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) const {
     std::uint64_t seed = this->CPopulationModel::checksum(includeCurrentBucketStats);
     seed = maths::common::CChecksum::calculate(seed, m_NewAttributeProbabilityPrior);
     if (includeCurrentBucketStats) {

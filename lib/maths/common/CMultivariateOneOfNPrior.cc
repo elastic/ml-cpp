@@ -746,7 +746,7 @@ void CMultivariateOneOfNPrior::print(const std::string& separator, std::string& 
     }
 }
 
-uint64_t CMultivariateOneOfNPrior::checksum(std::uint64_t seed) const {
+std::uint64_t CMultivariateOneOfNPrior::checksum(std::uint64_t seed) const {
     seed = this->CMultivariatePrior::checksum(seed);
     return CChecksum::calculate(seed, m_Models);
 }

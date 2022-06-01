@@ -405,15 +405,15 @@ void CQDigest::summary(TUInt32UInt64PrVec& result) const {
     }
 }
 
-uint64_t CQDigest::n() const {
+std::uint64_t CQDigest::n() const {
     return m_N;
 }
 
-uint64_t CQDigest::k() const {
+std::uint64_t CQDigest::k() const {
     return m_K;
 }
 
-uint64_t CQDigest::checksum(std::uint64_t seed) const {
+std::uint64_t CQDigest::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_K);
     seed = CChecksum::calculate(seed, m_N);
     seed = CChecksum::calculate(seed, m_DecayRate);
@@ -524,7 +524,7 @@ std::size_t CQDigest::CNode::size() const {
     return size;
 }
 
-uint32_t CQDigest::CNode::quantile(std::uint64_t leftCount, std::uint64_t n) const {
+std::uint32_t CQDigest::CNode::quantile(std::uint64_t leftCount, std::uint64_t n) const {
     // We need to find the smallest node in post-order where
     // the left count is greater than n. At each level we visit
     // the smallest, in post order, node in the q-digest for
@@ -725,7 +725,7 @@ CQDigest::CNode* CQDigest::CNode::compress(CNodeAllocator& allocator,
     return this;
 }
 
-uint64_t CQDigest::CNode::age(double factor) {
+std::uint64_t CQDigest::CNode::age(double factor) {
     m_SubtreeCount = 0;
 
     for (auto& descendant : m_Descendants) {
@@ -741,15 +741,15 @@ uint64_t CQDigest::CNode::age(double factor) {
     return m_SubtreeCount;
 }
 
-uint32_t CQDigest::CNode::span() const {
+std::uint32_t CQDigest::CNode::span() const {
     return m_Max - m_Min + 1;
 }
 
-uint32_t CQDigest::CNode::min() const {
+std::uint32_t CQDigest::CNode::min() const {
     return m_Min;
 }
 
-uint32_t CQDigest::CNode::max() const {
+std::uint32_t CQDigest::CNode::max() const {
     return m_Max;
 }
 

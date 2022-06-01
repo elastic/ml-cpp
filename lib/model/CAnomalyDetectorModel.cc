@@ -291,7 +291,7 @@ void CAnomalyDetectorModel::prune() {
     this->prune(this->defaultPruneWindow());
 }
 
-uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) const {
+std::uint64_t CAnomalyDetectorModel::checksum(bool /*includeCurrentBucketStats*/) const {
     using TStrCRefUInt64Map =
         std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
     std::uint64_t seed{m_DataGatherer->checksum()};

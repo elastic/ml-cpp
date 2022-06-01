@@ -555,7 +555,7 @@ CDataGatherer::influencerCounts(core_t::TTime time) const {
     return m_BucketGatherer->influencerCounts(time);
 }
 
-uint64_t CDataGatherer::checksum() const {
+std::uint64_t CDataGatherer::checksum() const {
     std::uint64_t result = m_PeopleRegistry.checksum();
     result = maths::common::CChecksum::calculate(result, m_AttributesRegistry);
     result = maths::common::CChecksum::calculate(result, m_SummaryMode);
