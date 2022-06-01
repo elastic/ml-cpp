@@ -39,6 +39,7 @@
 #include <model/FrequencyPredicates.h>
 
 #include <algorithm>
+#include <limits>
 #include <string>
 #include <utility>
 
@@ -316,7 +317,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 double count = model_t::offsetCountToZero(
                     feature, static_cast<double>(data_.second.s_Count));
                 TDouble2Vec value{count};
-                double winsorisationDerate = this->derate(pid, sampleTime);
+                double outlierWeightDerate = this->derate(pid, sampleTime);
                 double countWeight = initialCountWeight * this->learnRate(feature);
                 // Note we need to scale the amount of data we'll "age out" of the residual
                 // model in one bucket by the empty bucket weight so the posterior doesn't
@@ -336,7 +337,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 trendWeights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
                 priorWeights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
                 model->countWeights(sampleTime, value, countWeight, scaledCountWeight,
-                                    winsorisationDerate, 1.0, // count variance scale
+                                    outlierWeightDerate, 1.0, // count variance scale
                                     trendWeights[0], priorWeights[0]);
 
                 auto annotationCallback = [&](const std::string& annotation) {
@@ -352,11 +353,17 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
-                params.integer(true)
-                    .nonNegative(true)
+                params.isInteger(true)
+                    .isNonNegative(true)
                     .propagationInterval(scaledInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)
+                    .bucketOccupancy(model_t::includeEmptyBuckets(feature)
+                                         ? this->personFrequency(pid)
+                                         : 1.0)
+                    .firstValueTime(pid < this->firstBucketTimes().size()
+                                        ? this->firstBucketTimes()[pid]
+                                        : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });

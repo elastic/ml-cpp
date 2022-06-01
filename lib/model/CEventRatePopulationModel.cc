@@ -280,7 +280,7 @@ CEventRatePopulationModel::baselineBucketMean(model_t::EFeature feature,
                                               const TSizeDoublePr1Vec& correlated,
                                               core_t::TTime time) const {
     const maths::common::CModel* model{this->model(feature, cid)};
-    if (!model) {
+    if (model == nullptr) {
         return TDouble1Vec();
     }
 
@@ -433,7 +433,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
 
                 maths::common::CModel* model{this->model(feature, cid)};
-                if (!model) {
+                if (model == nullptr) {
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
@@ -485,7 +485,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     attribute.s_ResidualWeights.push_back(
                         maths_t::CUnitWeights::unit<TDouble2Vec>(1));
                     model->countWeights(sampleTime, {value}, countWeight,
-                                        countWeight, 1.0, // winsorisation derate
+                                        countWeight, 1.0, // outlier weight derate
                                         1.0, // count variance scale
                                         attribute.s_TrendWeights.back(),
                                         attribute.s_ResidualWeights.back());
@@ -508,11 +508,14 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
-                params.integer(true)
-                    .nonNegative(true)
+                params.isInteger(true)
+                    .isNonNegative(true)
                     .propagationInterval(this->propagationTime(cid, sampleTime))
                     .trendWeights(attribute.second.s_TrendWeights)
                     .priorWeights(attribute.second.s_ResidualWeights)
+                    .firstValueTime(cid < this->attributeFirstBucketTimes().size()
+                                        ? this->attributeFirstBucketTimes()[cid]
+                                        : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });
