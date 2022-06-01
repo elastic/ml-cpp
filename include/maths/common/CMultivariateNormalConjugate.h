@@ -207,7 +207,7 @@ public:
 
         this->CMultivariatePrior::addSamples(samples, weights);
 
-        // Note that if either count weight or Winsorisation weights are supplied
+        // Note that if either count weight or outlier weights are supplied
         // the weight of the sample x(i) is interpreted as its count, so for example
         // updating with {(x, 2)} is equivalent to updating with {x, x}.
         //

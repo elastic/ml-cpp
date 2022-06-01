@@ -251,6 +251,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
 
     using TSizeSet = std::set<std::size_t>;
     using TSizeSizeSetMap = std::map<std::size_t, TSizeSet>;
+    using TSizeTimeUMap = boost::unordered_map<std::size_t, core_t::TTime>;
     using TFeatureData = SEventRateFeatureData;
     using TSizeSizePrFeatureDataPr = CEventRatePopulationModel::TSizeSizePrFeatureDataPr;
     using TSizeSizePrFeatureDataPrVec = std::vector<TSizeSizePrFeatureDataPr>;
@@ -308,8 +309,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
     model_t::TFeatureVec features{model_t::E_PopulationCountByBucketPersonAndAttribute,
                                   model_t::E_PopulationUniquePersonCountByAttribute};
     this->makeModel(params, features, startTime);
-    CEventRatePopulationModel* model =
-        dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
+    auto* model = dynamic_cast<CEventRatePopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
     model::CModelFactory::TFeatureMathsModelPtrPrVec models{
@@ -318,6 +318,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
     BOOST_REQUIRE_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
                         models[0].first);
 
+    TSizeTimeUMap attributeFirstValueTimes;
     std::size_t numberAttributes = 0;
     std::size_t numberPeople = 0;
     TSizeSizeSetMap attributePeople;
@@ -331,6 +332,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
             for (const auto& expectedCount : expectedCounts) {
                 std::size_t pid = expectedCount.first.first;
                 std::size_t cid = expectedCount.first.second;
+                attributeFirstValueTimes.emplace(cid, startTime);
                 numberAttributes = std::max(numberAttributes, cid + 1);
                 numberPeople = std::max(numberPeople, pid + 1);
                 attributePeople[cid].insert(pid);
@@ -371,19 +373,21 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
                     samples.emplace_back(startTime + bucketLength / 2, sample, 0);
                 }
                 maths::common::CModelAddSamplesParams params_;
-                params_.integer(true)
-                    .nonNegative(true)
+                params_.isInteger(true)
+                    .isNonNegative(true)
                     .propagationInterval(1.0)
                     .trendWeights(trendWeights)
-                    .priorWeights(residualWeights);
+                    .priorWeights(residualWeights)
+                    .bucketOccupancy(1.0)
+                    .firstValueTime(attributeFirstValueTimes[cid]);
                 expectedPopulationModels[cid]->addSamples(params_, samples);
             }
 
             TSizeSizePrFeatureDataPrVec expectedPeoplePerAttribute;
             expectedPeoplePerAttribute.reserve(numberAttributes);
             for (std::size_t j = 0; j < numberAttributes; ++j) {
-                expectedPeoplePerAttribute.emplace_back(std::make_pair(size_t(0), j),
-                                                        TFeatureData(j));
+                expectedPeoplePerAttribute.emplace_back(
+                    std::make_pair(std::size_t(0), j), TFeatureData(j));
             }
             for (const auto& attribute : attributePeople) {
                 expectedPeoplePerAttribute[attribute.first].second =

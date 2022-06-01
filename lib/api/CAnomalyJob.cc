@@ -98,7 +98,7 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 //! boundary.  Model snapshots generated in 8.x will not be loadable by 7.x, and
 //! when 7.x is end-of-life we'll be able to remove all the 7.x state backwards
 //! compatibility code.)
-const std::string MODEL_SNAPSHOT_MIN_VERSION("8.0.0");
+const std::string MODEL_SNAPSHOT_MIN_VERSION("8.3.0");
 
 //! Persist state as JSON with meaningful tag names.
 class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter {

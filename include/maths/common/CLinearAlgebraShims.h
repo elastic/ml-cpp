@@ -255,19 +255,31 @@ typename SCoordinate<VECTOR>::Type L1(const CAnnotatedVector<VECTOR, ANNOTATION>
     return L1(static_cast<const VECTOR&>(x));
 }
 
+//! Get the Manhattan norm of one of our internal vector classes.
+template<typename TENSOR>
+double mean(const TENSOR& x) {
+    return x.mean();
+}
+
+//! Get the mean of the elements of an annotated vector.
+template<typename VECTOR, typename ANNOTATION>
+double mean(const CAnnotatedVector<VECTOR, ANNOTATION>& x) {
+    return mean(static_cast<const VECTOR&>(x));
+}
+
 //! Get the Frobenius norm of one of our internal matrices.
 template<typename MATRIX>
 typename SCoordinate<MATRIX>::Type frobenius(const MATRIX& m) {
     return m.frobenius();
 }
 
-//! Get the Euclidean norm of an Eigen dense vector.
+//! Get the Frobenius norm of an Eigen dense matrix.
 template<typename SCALAR>
 SCALAR frobenius(const CDenseMatrix<SCALAR>& x) {
     return x.norm();
 }
 
-//! Get the Euclidean norm of an Eigen memory mapped matrix.
+//! Get the Frobenius norm of an Eigen memory mapped matrix.
 template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
 SCALAR frobenius(const CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& x) {
     return x.norm();
