@@ -31,6 +31,7 @@
 #include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <functional>
 #include <limits>
 #include <map>
@@ -38,8 +39,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -147,7 +146,7 @@ public:
     using TStr1Vec = core::CSmallVector<std::string, 1>;
     using TOptionalDouble = boost::optional<double>;
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-    using TOptionalUInt64 = boost::optional<uint64_t>;
+    using TOptionalUInt64 = boost::optional<std::uint64_t>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TAttributeProbability1Vec = core::CSmallVector<SAttributeProbability, 1>;
     using TInfluenceCalculatorCPtr = std::shared_ptr<const CInfluenceCalculator>;
@@ -446,7 +445,7 @@ public:
     //! the current bucket statistics. (This is designed to handle
     //! serialization, for which we don't serialize the current
     //! bucket statistics.)
-    virtual uint64_t checksum(bool includeCurrentBucketStats = true) const = 0;
+    virtual std::uint64_t checksum(bool includeCurrentBucketStats = true) const = 0;
 
     //! Get the memory used by this model
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;

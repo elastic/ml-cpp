@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testScheduleDelayMinimisation) {
         // We should get here fast because the unblocked thread should keep
         // draining the instant tasks even though they're added to both queues.
 
-        uint64_t timeToSchedule{watch.stop()};
+        std::uint64_t timeToSchedule{watch.stop()};
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
         //BOOST_TEST_REQUIRE(timeToSchedule <= 1);
     }
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(testThroughputStability) {
         // to process before we can finish scheduling. We give ourselves a little
         // head room.
 
-        uint64_t timeToSchedule{watch.stop()};
+        std::uint64_t timeToSchedule{watch.stop()};
         LOG_DEBUG(<< "Time to schedule " << timeToSchedule);
         //BOOST_TEST_REQUIRE(timeToSchedule >= 300);
         //BOOST_TEST_REQUIRE(timeToSchedule <= 350);

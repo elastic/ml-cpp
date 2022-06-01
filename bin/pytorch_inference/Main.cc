@@ -272,7 +272,7 @@ int main(int argc, char** argv) {
     }
 
     ml::torch::CThreadSettings::validateThreadingParameters(
-        static_cast<int32_t>(std::thread::hardware_concurrency()),
+        static_cast<std::int32_t>(std::thread::hardware_concurrency()),
         numThreadsPerAllocation, numAllocations);
 
     ml::torch::CThreadSettings threadSettings{numThreadsPerAllocation, numAllocations};

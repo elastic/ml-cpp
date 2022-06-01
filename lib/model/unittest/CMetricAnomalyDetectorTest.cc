@@ -102,7 +102,7 @@ public:
             m_HighAnomalyFactors.push_back(anomalyFactor);
         } else if (anomalyFactor > 0.0) {
             m_AnomalyFactors.push_back(anomalyFactor);
-            uint64_t currentRate(0);
+            std::uint64_t currentRate(0);
             if (node.s_AnnotatedProbability.s_CurrentBucketCount) {
                 currentRate = *node.s_AnnotatedProbability.s_CurrentBucketCount;
             }
@@ -375,7 +375,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     LOG_TRACE(<< "Event rate detector XML representation:\n" << origXml);
 
-    uint64_t peakMemoryUsageBeforeRestoring = counters.counter(counter_t::E_TSADPeakMemoryUsage);
+    std::uint64_t peakMemoryUsageBeforeRestoring =
+        counters.counter(counter_t::E_TSADPeakMemoryUsage);
 
     // Clear the counter to verify that restoring detector also restores counter's value.
     counters.counter(counter_t::E_TSADPeakMemoryUsage) = 0;
@@ -401,7 +402,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             &core::CProgramCounters::staticsAcceptRestoreTraverser));
     }
 
-    uint64_t peakMemoryUsageAfterRestoring = counters.counter(counter_t::E_TSADPeakMemoryUsage);
+    std::uint64_t peakMemoryUsageAfterRestoring =
+        counters.counter(counter_t::E_TSADPeakMemoryUsage);
     BOOST_REQUIRE_EQUAL(peakMemoryUsageBeforeRestoring, peakMemoryUsageAfterRestoring);
 
     // The XML representation of the new detector should be the same as the original

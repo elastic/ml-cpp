@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(testMicroBenchmark, *boost::unit_test::disabled()) {
         rapidjson::internal::dtoa(1.43e-35, buffer);
         rapidjson::internal::dtoa(42.0, buffer);
     }
-    uint64_t elapsed = stopWatch.stop();
+    std::uint64_t elapsed = stopWatch.stop();
     LOG_INFO(<< "Rapidjson dtoa " << runs << " runs took " << elapsed);
     stopWatch.reset();
     stopWatch.start();

@@ -56,7 +56,7 @@ public:
 #endif
     };
 
-    static const uint64_t IEEE754_MANTISSA_MASK = 0xFFFFFFFFFFFFF;
+    static const std::uint64_t IEEE754_MANTISSA_MASK = 0xFFFFFFFFFFFFF;
 
     //! Decompose a double in to its mantissa and exponent.
     //!

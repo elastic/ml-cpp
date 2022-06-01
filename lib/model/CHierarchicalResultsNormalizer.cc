@@ -59,8 +59,8 @@ void SNormalizer::propagateForwardByTime(double time) {
     s_Normalizer->propagateForwardByTime(time);
 }
 
-uint64_t SNormalizer::checksum() const {
-    uint64_t seed = maths::common::CChecksum::calculate(0, s_Description);
+std::uint64_t SNormalizer::checksum() const {
+    std::uint64_t seed = maths::common::CChecksum::calculate(0, s_Description);
     return maths::common::CChecksum::calculate(seed, s_Normalizer);
 }
 }

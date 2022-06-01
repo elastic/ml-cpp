@@ -59,7 +59,7 @@ public:
     void age(double alpha);
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! Restore state from part of a state document.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);

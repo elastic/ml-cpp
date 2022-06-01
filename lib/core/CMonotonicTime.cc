@@ -22,7 +22,7 @@ CMonotonicTime::CMonotonicTime()
     : m_ScalingFactor1(0), m_ScalingFactor2(0), m_ScalingFactor3(0) {
 }
 
-uint64_t CMonotonicTime::milliseconds() const {
+std::uint64_t CMonotonicTime::milliseconds() const {
     struct timespec ts;
 
     int rc(-1);
@@ -48,13 +48,13 @@ uint64_t CMonotonicTime::milliseconds() const {
         return ::time(0) * 1000ULL;
     }
 
-    uint64_t result(static_cast<uint64_t>(ts.tv_sec) * 1000ULL);
-    result += static_cast<uint64_t>(ts.tv_nsec) / 1000000ULL;
+    std::uint64_t result(static_cast<std::uint64_t>(ts.tv_sec) * 1000ULL);
+    result += static_cast<std::uint64_t>(ts.tv_nsec) / 1000000ULL;
 
     return result;
 }
 
-uint64_t CMonotonicTime::nanoseconds() const {
+std::uint64_t CMonotonicTime::nanoseconds() const {
     struct timespec ts;
 
     int rc(-1);
@@ -75,8 +75,8 @@ uint64_t CMonotonicTime::nanoseconds() const {
         return ::time(0) * 1000000000ULL;
     }
 
-    uint64_t result(static_cast<uint64_t>(ts.tv_sec) * 1000000000ULL);
-    result += static_cast<uint64_t>(ts.tv_nsec);
+    std::uint64_t result(static_cast<std::uint64_t>(ts.tv_sec) * 1000000000ULL);
+    result += static_cast<std::uint64_t>(ts.tv_nsec);
 
     return result;
 }

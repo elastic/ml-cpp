@@ -1036,7 +1036,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origFilter.addSamples({samples[i]},
                               maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
     }
-    uint64_t checksum = origFilter.checksum();
+    std::uint64_t checksum = origFilter.checksum();
 
     std::string origXml;
     {

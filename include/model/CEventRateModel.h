@@ -24,11 +24,10 @@
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace {
 class CMockEventRateModel;

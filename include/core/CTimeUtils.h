@@ -61,7 +61,7 @@ public:
     static std::string toTimeString(core_t::TTime t);
 
     //! Converts an epoch seconds timestamp to epoch millis
-    static int64_t toEpochMs(core_t::TTime t);
+    static std::int64_t toEpochMs(core_t::TTime t);
     //! strptime interface
     //! NOTE: the time returned here is a UTC value
     static bool strptime(const std::string& format,

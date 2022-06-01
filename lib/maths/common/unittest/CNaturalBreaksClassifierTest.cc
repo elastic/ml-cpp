@@ -631,7 +631,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origClassifier.add(samples[i]);
     }
 
-    uint64_t checksum = origClassifier.checksum();
+    std::uint64_t checksum = origClassifier.checksum();
 
     std::string origXml;
     {

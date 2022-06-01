@@ -43,11 +43,10 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(CModelTestFixtureBase::TStrVec::iterator)
 
@@ -64,8 +63,8 @@ const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
 class CTestFixture : public CModelTestFixtureBase {
 public:
     TUInt64Vec rawEventCounts(std::size_t copies = 1) {
-        uint64_t counts[] = {54, 67, 39, 58, 46, 50, 42,
-                             48, 53, 51, 50, 57, 53, 49};
+        std::uint64_t counts[] = {54, 67, 39, 58, 46, 50, 42,
+                                  48, 53, 51, 50, 57, 53, 49};
         TUInt64Vec result;
         for (std::size_t i = 0; i < copies; ++i) {
             result.insert(result.end(), std::begin(counts), std::end(counts));
@@ -261,7 +260,7 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
 
         // Test we sample the data correctly.
         BOOST_REQUIRE_EQUAL(expectedEventCounts[j],
-                            static_cast<uint64_t>(model->currentBucketValue(
+                            static_cast<std::uint64_t>(model->currentBucketValue(
                                 model_t::E_IndividualCountByBucketAndPerson, 0,
                                 0, bucketStartTime)[0]));
         BOOST_REQUIRE_EQUAL(timeseriesModel->checksum(),
@@ -358,7 +357,7 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
 
             // Test we sample the data correctly.
             BOOST_REQUIRE_EQUAL(expectedEventCounts[j],
-                                static_cast<uint64_t>(model->currentBucketValue(
+                                static_cast<std::uint64_t>(model->currentBucketValue(
                                     model_t::E_IndividualNonZeroCountByBucketAndPerson,
                                     0, 0, bucketStartTime)[0]));
             BOOST_REQUIRE_EQUAL(timeseriesModel->checksum(),

@@ -36,7 +36,8 @@ const double NUMBER_BUCKETS_TO_ESTIMATE_SAMPLE_COUNT(3.0);
 const double NUMBER_BUCKETS_TO_REFRESH_SAMPLE_COUNT(30.0);
 
 using TStrCRef = std::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SReferenceLess>;
+using TStrCRefUInt64Map =
+    std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SReferenceLess>;
 }
 
 CSampleCounts::CSampleCounts(unsigned int sampleCountOverride)
@@ -219,12 +220,12 @@ void CSampleCounts::resize(std::size_t id) {
     }
 }
 
-uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
+std::uint64_t CSampleCounts::checksum(const CDataGatherer& gatherer) const {
     TStrCRefUInt64Map hashes;
     for (std::size_t id = 0; id < m_SampleCounts.size(); ++id) {
         if (gatherer.isPopulation() ? gatherer.isAttributeActive(id)
                                     : gatherer.isPersonActive(id)) {
-            uint64_t& hash = hashes[TStrCRef(this->name(gatherer, id))];
+            std::uint64_t& hash = hashes[TStrCRef(this->name(gatherer, id))];
             hash = maths::common::CChecksum::calculate(hash, m_SampleCounts[id]);
             hash = maths::common::CChecksum::calculate(hash, m_MeanNonZeroBucketCounts[id]);
             hash = maths::common::CChecksum::calculate(hash, m_EffectiveSampleVariances[id]);
