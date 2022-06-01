@@ -494,7 +494,8 @@ bool CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLos
     // we prefer the solution with the least variation across the folds.
     double testLoss{lossAtNSigma(1.0, testLossMoments)};
     double penalizedTestLoss{testLoss + this->modelSizePenalty(numberNodes)};
-    double bestPenalizedTestLoss{m_BestForestTestLoss + this->modelSizePenalty(numberNodes)};
+    double bestPenalizedTestLoss{m_BestForestTestLoss +
+                                 this->modelSizePenalty(m_BestForestNumberNodes)};
 
     if (penalizedTestLoss < bestPenalizedTestLoss) {
         m_BestForestTestLoss = testLoss;
