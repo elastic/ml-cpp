@@ -22,12 +22,11 @@ USE_TORCH=1
 all: build
 
 TESTED_OBJS=\
-    ../.objs/C*$(OBJECT_FILE_EXT) \
-    ../.objs/SettingsValidator$(OBJECT_FILE_EXT)
+    ../.objs/C*$(OBJECT_FILE_EXT)
 
 SRCS=\
     Main.cc \
     CCommandParserTest.cc \
-    SettingsValidatorTest.cc \
+    CThreadSettingsTest.cc \
 
 include $(CPP_SRC_HOME)/mk/stdboosttest.mk

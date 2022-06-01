@@ -48,6 +48,9 @@ std::ostream& operator<<(std::ostream& os, const rapidjson::Document& doc) {
 namespace ml {
 namespace torch {
 
+const std::string CCommandParser::CONTROL{"control"};
+const std::string CCommandParser::NUM_ALLOCATIONS{"num_allocations"};
+const std::string CCommandParser::RESERVED_REQUEST_ID{"ignore"};
 const std::string CCommandParser::REQUEST_ID{"request_id"};
 const std::string CCommandParser::TOKENS{"tokens"};
 const std::string CCommandParser::VAR_ARG_PREFIX{"arg_"};
@@ -57,6 +60,7 @@ CCommandParser::CCommandParser(std::istream& strmIn) : m_StrmIn(strmIn) {
 }
 
 bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
+                            const TControlHandlerFunc& controlHandler,
                             const TErrorHandlerFunc& errorHandler) {
 
     core::CRapidJsonUnbufferedIStreamWrapper isw{m_StrmIn};
@@ -81,44 +85,88 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler,
             return false;
         }
 
-        if (validateJson(doc, errorHandler) == false) {
-            continue;
-        }
-
         LOG_TRACE(<< "Inference command: " << doc);
-        jsonToRequest(doc);
-        if (requestHandler(m_Request) == false) {
-            LOG_ERROR(<< "Request handler forced exit");
-            return false;
+        switch (validateJson(doc, errorHandler)) {
+        case EMessageType::E_InferenceRequest:
+            jsonToInferenceRequest(doc);
+            if (requestHandler(m_Request) == false) {
+                LOG_ERROR(<< "Request handler forced exit");
+                return false;
+            }
+            break;
+        case EMessageType::E_ControlMessage:
+            jsonToControlMessage(doc);
+            controlHandler(m_ControlMessage);
+            break;
+        case EMessageType::E_MalformedMessage:
+            continue;
         }
     }
 
     return true;
 }
 
-bool CCommandParser::validateJson(const rapidjson::Document& doc,
-                                  const TErrorHandlerFunc& errorHandler) const {
+CCommandParser::EMessageType
+CCommandParser::validateJson(const rapidjson::Document& doc,
+                             const TErrorHandlerFunc& errorHandler) {
     if (doc.HasMember(REQUEST_ID) == false) {
         errorHandler(UNKNOWN_ID, "Invalid command: missing field [" + REQUEST_ID + "]");
-        return false;
+        return EMessageType::E_MalformedMessage;
     }
 
     if (doc[REQUEST_ID].IsString() == false) {
         errorHandler(UNKNOWN_ID, "Invalid command: [" + REQUEST_ID + "] field is not a string");
-        return false;
+        return EMessageType::E_MalformedMessage;
     }
 
+    if (doc.HasMember(CONTROL)) {
+        return validateControlMessageJson(doc, errorHandler);
+    }
+
+    return validateInferenceRequestJson(doc, errorHandler);
+}
+
+CCommandParser::EMessageType
+CCommandParser::validateControlMessageJson(const rapidjson::Document& doc,
+                                           const TErrorHandlerFunc& errorHandler) {
+
+    const rapidjson::Value& control = doc[CONTROL];
+    if (control.IsInt() == false || control.GetInt() < 0 ||
+        control.GetInt() >= SControlMessage::EControlMessageType::E_Unknown) {
+        errorHandler(UNKNOWN_ID, "Invalid control message: unknown control message type");
+        return EMessageType::E_MalformedMessage;
+    }
+
+    if (doc.HasMember(NUM_ALLOCATIONS) == false) {
+        errorHandler(UNKNOWN_ID, "Invalid control message: missing field [" +
+                                     NUM_ALLOCATIONS + "]");
+        return EMessageType::E_MalformedMessage;
+    }
+
+    const rapidjson::Value& numThreads = doc[NUM_ALLOCATIONS];
+    if (numThreads.IsInt() == false) {
+        errorHandler(UNKNOWN_ID, "Invalid control message: field [" +
+                                     NUM_ALLOCATIONS + "] is not an integer");
+        return EMessageType::E_MalformedMessage;
+    }
+
+    return EMessageType::E_ControlMessage;
+}
+
+CCommandParser::EMessageType
+CCommandParser::validateInferenceRequestJson(const rapidjson::Document& doc,
+                                             const TErrorHandlerFunc& errorHandler) {
     if (doc.HasMember(TOKENS) == false) {
         errorHandler(doc[REQUEST_ID].GetString(),
                      "Invalid command: missing field [" + TOKENS + "]");
-        return false;
+        return EMessageType::E_MalformedMessage;
     }
 
     const rapidjson::Value& tokens = doc[TOKENS];
     if (tokens.IsArray() == false) {
         errorHandler(doc[REQUEST_ID].GetString(),
                      "Invalid command: expected an array of [" + TOKENS + "]");
-        return false;
+        return EMessageType::E_MalformedMessage;
     }
 
     const rapidjson::Value::ConstArray& outerArray = tokens.GetArray();
@@ -126,7 +174,7 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
         if (val.IsArray() == false) {
             errorHandler(doc[REQUEST_ID].GetString(),
                          "Invalid command: expected an array of arrays of [" + TOKENS + "]");
-            return false;
+            return EMessageType::E_MalformedMessage;
         }
 
         const rapidjson::Value::ConstArray& innerArray = val.GetArray();
@@ -134,7 +182,7 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
             errorHandler(doc[REQUEST_ID].GetString(),
                          "Invalid command: array [" + TOKENS +
                              "] contains values that are not unsigned integers");
-            return false;
+            return EMessageType::E_MalformedMessage;
         }
     }
 
@@ -146,7 +194,7 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
         if (value.IsArray() == false) {
             errorHandler(doc[REQUEST_ID].GetString(),
                          "Invalid command: argument [" + varArgName + "] is not an array");
-            return false;
+            return EMessageType::E_MalformedMessage;
         }
 
         const rapidjson::Value::ConstArray& outerArgArray = value.GetArray();
@@ -155,7 +203,7 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
                 errorHandler(doc[REQUEST_ID].GetString(),
                              "Invalid command: expected an array of arrays of [" +
                                  varArgName + "]");
-                return false;
+                return EMessageType::E_MalformedMessage;
             }
 
             const rapidjson::Value::ConstArray& innerArgArray = val.GetArray();
@@ -164,7 +212,7 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
                 errorHandler(doc[REQUEST_ID].GetString(),
                              "Invalid command: array [" + varArgName +
                                  "] contains values that are not unsigned integers");
-                return false;
+                return EMessageType::E_MalformedMessage;
             }
         }
 
@@ -172,7 +220,7 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
         varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
     }
 
-    return true;
+    return EMessageType::E_InferenceRequest;
 }
 
 bool CCommandParser::checkArrayContainsUInts(const rapidjson::Value::ConstArray& arr) {
@@ -187,7 +235,7 @@ bool CCommandParser::checkArrayContainsDoubles(const rapidjson::Value::ConstArra
            }) == arr.End();
 }
 
-void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
+void CCommandParser::jsonToInferenceRequest(const rapidjson::Document& doc) {
     // wipe any previous
     m_Request.reset();
     m_Request.s_RequestId = doc[REQUEST_ID].GetString();
@@ -225,12 +273,28 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
     }
 }
 
+void CCommandParser::jsonToControlMessage(const rapidjson::Document& doc) {
+    // wipe any previous
+    m_ControlMessage.reset();
+
+    m_ControlMessage.s_MessageType =
+        static_cast<SControlMessage::EControlMessageType>(doc[CONTROL].GetInt());
+    m_ControlMessage.s_NumAllocations = doc[NUM_ALLOCATIONS].GetInt();
+    m_ControlMessage.s_RequestId = doc[REQUEST_ID].GetString();
+}
+
 void CCommandParser::SRequest::reset() {
     s_NumberInputTokens = 0;
     s_NumberInferences = 0;
     s_RequestId.clear();
     s_Tokens.clear();
     s_SecondaryArguments.clear();
+}
+
+void CCommandParser::SControlMessage::reset() {
+    s_MessageType = E_Unknown;
+    s_NumAllocations = 0;
+    s_RequestId.clear();
 }
 }
 }

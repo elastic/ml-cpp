@@ -370,8 +370,8 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
 
         sizeWithoutComponent = result.size();
 
-        // Exclude if there is a not too much longer period that has significantly
-        // higher autocorrelation for which we haven't seen enough repeats.
+        // Exclude if there is a similar period which has significantly higher
+        // correlation for which we haven't yet seen enough repeats.
         if (maxCorrelation < 0.8 * *std::max_element(correlations.begin() + pad,
                                                      correlations.begin() + 3 * pad / 2)) {
             break;

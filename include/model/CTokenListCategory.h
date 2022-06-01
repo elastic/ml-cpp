@@ -119,8 +119,7 @@ public:
                                         return testItem.first >= commonItem.first;
                                     });
             if (testIter == uniqueTokenIds.end() ||
-                testIter->first != commonItem.first ||
-                testIter->second != commonItem.second) {
+                testIter->first != commonItem.first) {
                 return false;
             }
             ++testIter;

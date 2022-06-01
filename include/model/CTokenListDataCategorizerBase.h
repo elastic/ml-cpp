@@ -219,14 +219,18 @@ protected:
                                 const std::string& str,
                                 TSizeSizePrVec& tokenIds,
                                 TSizeSizeMap& tokenUniqueIds,
-                                std::size_t& totalWeight) = 0;
+                                std::size_t& totalWeight,
+                                std::size_t& minReweightedTotalWeight,
+                                std::size_t& maxReweightedTotalWeight) = 0;
 
     //! Take a string token, convert it to a numeric ID and a weighting and
     //! add these to the provided data structures.
     virtual void tokenToIdAndWeight(const std::string& token,
                                     TSizeSizePrVec& tokenIds,
                                     TSizeSizeMap& tokenUniqueIds,
-                                    std::size_t& totalWeight) = 0;
+                                    std::size_t& totalWeight,
+                                    std::size_t& minReweightedTotalWeight,
+                                    std::size_t& maxReweightedTotalWeight) = 0;
 
     virtual void reset() = 0;
 
@@ -339,7 +343,9 @@ private:
     bool addPretokenisedTokens(const std::string& tokensCsv,
                                TSizeSizePrVec& tokenIds,
                                TSizeSizeMap& tokenUniqueIds,
-                               std::size_t& totalWeight);
+                               std::size_t& totalWeight,
+                               std::size_t& minReweightedTotalWeight,
+                               std::size_t& maxReweightedTotalWeight);
 
     //! Get the categories that will never be detected again because the
     //! specified category will always be returned instead.  This overload

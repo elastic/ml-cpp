@@ -79,6 +79,7 @@ public:
     virtual void schedule(std::function<void()>&& f) = 0;
     virtual bool busy() const = 0;
     virtual void busy(bool value) = 0;
+    virtual void numberThreadsInUse(std::size_t threads) = 0;
 };
 
 //! Setup the global default executor for async.

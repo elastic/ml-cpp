@@ -87,8 +87,8 @@ core_t::TTime CModelParams::maximumTimeToTestForChange() const {
 
 //////// CModelAddSamplesParams ////////
 
-CModelAddSamplesParams& CModelAddSamplesParams::integer(bool integer) {
-    m_Type = integer ? maths_t::E_IntegerData : maths_t::E_ContinuousData;
+CModelAddSamplesParams& CModelAddSamplesParams::isInteger(bool isInteger) {
+    m_Type = isInteger ? maths_t::E_IntegerData : maths_t::E_ContinuousData;
     return *this;
 }
 
@@ -96,13 +96,31 @@ maths_t::EDataType CModelAddSamplesParams::type() const {
     return m_Type;
 }
 
-CModelAddSamplesParams& CModelAddSamplesParams::nonNegative(bool nonNegative) {
-    m_IsNonNegative = nonNegative;
+CModelAddSamplesParams& CModelAddSamplesParams::isNonNegative(bool isNonNegative) {
+    m_IsNonNegative = isNonNegative;
     return *this;
 }
 
 bool CModelAddSamplesParams::isNonNegative() const {
     return m_IsNonNegative;
+}
+
+CModelAddSamplesParams& CModelAddSamplesParams::bucketOccupancy(double occupancy) {
+    m_Occupancy = occupancy;
+    return *this;
+}
+
+double CModelAddSamplesParams::bucketOccupancy() const {
+    return m_Occupancy;
+}
+
+CModelAddSamplesParams& CModelAddSamplesParams::firstValueTime(core_t::TTime time) {
+    m_FirstValueTime = time;
+    return *this;
+}
+
+core_t::TTime CModelAddSamplesParams::firstValueTime() const {
+    return m_FirstValueTime;
 }
 
 CModelAddSamplesParams& CModelAddSamplesParams::propagationInterval(double interval) {
@@ -263,6 +281,12 @@ double CModel::effectiveCount(std::size_t n) {
     return n <= boost::size(EFFECTIVE_COUNT) ? EFFECTIVE_COUNT[n - 1] : 0.5;
 }
 
+double CModel::emptyBucketWeight(double occupancy) {
+    // We smoothly transition to ignoring empty buckets when the bucket
+    // occupancy is less than 0.5.
+    return common::CTools::truncate(2.0 * occupancy, 1e-6, 1.0);
+}
+
 const CModelParams& CModel::params() const {
     return m_Params;
 }
@@ -376,7 +400,7 @@ void CModelStub::countWeights(core_t::TTime /*time*/,
                               const TDouble2Vec& /*value*/,
                               double /*trendCountWeight*/,
                               double /*residualCountWeight*/,
-                              double /*winsorisationDerate*/,
+                              double /*outlierWeightDerate*/,
                               double /*countVarianceScale*/,
                               TDouble2VecWeightsAry& /*trendWeights*/,
                               TDouble2VecWeightsAry& /*residualWeights*/) const {

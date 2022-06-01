@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
                     startTime, startTime, bucketLength, bucketLength, values};
 
                 auto result = seasonality.decompose();
-                bool isSeasonal{result.seasonal().size() > 0};
+                bool isSeasonal{result.seasonal().empty() == false};
 
                 if (isSeasonal) {
                     LOG_DEBUG(<< "got " << result.print() << " expected []");
@@ -138,6 +138,107 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
 
     LOG_DEBUG(<< "True negative rate = " << TN / (FP + TN));
     BOOST_TEST_REQUIRE(TN / (FP + TN) > 0.99);
+}
+
+BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonalitySparse) {
+
+    // Test FP % for sparse data with no seasonality.
+
+    core_t::TTime bucketLength{HOUR};
+    core_t::TTime window{4 * WEEK};
+    core_t::TTime startTime{10 * WEEK};
+
+    test::CRandomNumbers rng;
+
+    TFloatMeanAccumulatorVec values;
+    TSizeVec nonEmptyBuckets;
+
+    for (auto occupancy : {0.25, 0.1, 0.05}) {
+        LOG_DEBUG(<< "occupancy = " << occupancy);
+
+        double FP{0.0};
+        double TN{0.0};
+
+        for (std::size_t test = 0; test < 1000; ++test) {
+            if ((test + 1) % 100 == 0) {
+                LOG_DEBUG(<< "test " << test + 1 << " / 1000");
+            }
+
+            auto numberBuckets = static_cast<std::size_t>(window / bucketLength);
+            auto numberNonEmptyBuckets = static_cast<std::size_t>(
+                occupancy * static_cast<double>(numberBuckets));
+            rng.generateUniformSamples(0, numberBuckets, numberNonEmptyBuckets, nonEmptyBuckets);
+            std::sort(nonEmptyBuckets.begin(), nonEmptyBuckets.end());
+
+            values.assign(numberBuckets, TFloatMeanAccumulator{});
+            for (std::size_t j = 0; j < numberBuckets; ++j) {
+                values[j].add(std::find(nonEmptyBuckets.begin(), nonEmptyBuckets.end(),
+                                        j) != nonEmptyBuckets.end()
+                                  ? 1.0
+                                  : 0.0);
+            }
+
+            maths::time_series::CTimeSeriesTestForSeasonality seasonality{
+                startTime,    startTime, bucketLength,
+                bucketLength, values,    occupancy};
+
+            auto result = seasonality.decompose();
+            bool isSeasonal{result.seasonal().empty() == false};
+
+            if (isSeasonal) {
+                LOG_DEBUG(<< "got " << result.print() << " expected []");
+            }
+            FP += isSeasonal ? 1.0 : 0.0;
+            TN += isSeasonal ? 0.0 : 1.0;
+        }
+
+        LOG_DEBUG(<< "True negative rate = " << TN / (FP + TN));
+        BOOST_TEST_REQUIRE(TN / (FP + TN) >= 0.995);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testSyntheticSeasonalSparse) {
+
+    // Test TP % for sparse data with seasonality.
+
+    core_t::TTime bucketLength{HOUR};
+    core_t::TTime window{4 * WEEK};
+    core_t::TTime startTime{10 * WEEK};
+
+    test::CRandomNumbers rng;
+
+    TFloatMeanAccumulatorVec values;
+    TSizeVec period;
+
+    double TP{0.0};
+    double FN{0.0};
+
+    for (std::size_t test = 0; test < 100; ++test) {
+        if ((test + 1) % 10 == 0) {
+            LOG_DEBUG(<< "test " << test + 1 << " / 100");
+        }
+
+        auto numberBuckets = static_cast<std::size_t>(window / bucketLength);
+        rng.generateUniformSamples(10, 50, 1, period);
+        double occupancy{1.0 / static_cast<double>(period[0])};
+
+        values.assign(numberBuckets, TFloatMeanAccumulator{});
+        for (std::size_t i = 0; i < numberBuckets; ++i) {
+            values[i].add(i % period[0] == 0 ? 1.0 : 0.0);
+        }
+
+        maths::time_series::CTimeSeriesTestForSeasonality seasonality{
+            startTime,    startTime, bucketLength,
+            bucketLength, values,    occupancy};
+
+        auto result = seasonality.decompose();
+        bool isSeasonal{result.seasonal().empty() == false};
+
+        TP += isSeasonal ? 1.0 : 0.0;
+        FN += isSeasonal ? 0.0 : 1.0;
+    }
+    LOG_DEBUG(<< "True positive rate = " << TP / (TP + FN));
+    BOOST_TEST_REQUIRE(TP / (TP + FN) >= 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
@@ -200,11 +301,11 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
                               << core::CContainerPrinter::print(expected[index[0]]));
                 }
 
-                std::size_t found[]{0, 0};
+                TSizeVec found{0, 0};
                 for (const auto& component : result.seasonal()) {
-                    ++found[std::find(expected[index[0]].begin(),
-                                      expected[index[0]].end(), component.print()) ==
-                            expected[index[0]].end()];
+                    ++found[static_cast<std::size_t>(
+                        std::find(expected[index[0]].begin(), expected[index[0]].end(),
+                                  component.print()) == expected[index[0]].end())];
                 }
                 TP += static_cast<double>(found[0]);
                 FN += static_cast<double>(expected[index[0]].size() - found[0]);
