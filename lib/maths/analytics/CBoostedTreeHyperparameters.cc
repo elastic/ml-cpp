@@ -545,10 +545,10 @@ bool CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLos
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
     double testLoss{lossAtNSigma(1.0, testLossMoments)};
-    double penalizedTestLoss{testLoss +
-                    this->modelSizePenalty(numberKeptNodes, numberNewNodes)};
-    double bestPenalizedTestLoss{m_BestForestTestLoss +
-                        this->modelSizePenalty(m_BestForestNumberKeptNodes, m_BestForestNumberNewNodes)};
+    double penalizedTestLoss{testLoss + this->modelSizePenalty(numberKeptNodes, numberNewNodes)};
+    double bestPenalizedTestLoss{
+        m_BestForestTestLoss + this->modelSizePenalty(m_BestForestNumberKeptNodes,
+                                                      m_BestForestNumberNewNodes)};
 
     if (penalizedTestLoss < bestPenalizedTestLoss) {
         m_BestForestTestLoss = testLoss;
@@ -701,8 +701,10 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
                                           m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_LOSS_GAP_TAG, m_BestForestLossGap, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
-    core::CPersistUtils::persist(BEST_FOREST_NUMBER_KEPT_NODES_TAG, m_BestForestNumberKeptNodes, inserter);
-    core::CPersistUtils::persist(BEST_FOREST_NUMBER_NEW_NODES_TAG, m_BestForestNumberNewNodes, inserter);
+    core::CPersistUtils::persist(BEST_FOREST_NUMBER_KEPT_NODES_TAG,
+                                 m_BestForestNumberKeptNodes, inserter);
+    core::CPersistUtils::persist(BEST_FOREST_NUMBER_NEW_NODES_TAG,
+                                 m_BestForestNumberNewNodes, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
     core::CPersistUtils::persist(DEPTH_PENALTY_MULTIPLIER_TAG,
                                  m_DepthPenaltyMultiplier, inserter);
