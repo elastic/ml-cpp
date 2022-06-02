@@ -154,7 +154,7 @@ void CDataFrameAnalyzer::run() {
         this->writeInferenceModel(*analysisRunner, outputWriter);
         this->writeResultsOf(*analysisRunner, outputWriter);
         this->writeInferenceModelMetadata(*analysisRunner, outputWriter);
-        this->writeDataSummarization(*analysisRunner, outputWriter);
+        // this->writeDataSummarization(*analysisRunner, outputWriter);
     }
 }
 
