@@ -1627,8 +1627,8 @@ void CBoostedTreeImpl::skipProgressMonitoringFinalTrain() {
 }
 
 namespace {
-const std::string VERSION_8_2_TAG{"8.2"};
-const TStrVec SUPPORTED_VERSIONS{VERSION_8_2_TAG};
+const std::string VERSION_8_4_TAG{"8.4"};
+const TStrVec SUPPORTED_VERSIONS{VERSION_8_4_TAG};
 
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string CLASSIFICATION_WEIGHTS_OVERRIDE_TAG{"classification_weights_tag"};
@@ -1656,7 +1656,7 @@ const std::string NUMBER_TOP_SHAP_VALUES_TAG{"top_shap_values"};
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(VERSION_8_2_TAG, "", inserter);
+    core::CPersistUtils::persist(VERSION_8_4_TAG, "", inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
     core::CPersistUtils::persistIfNotNull(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
                                           m_ClassificationWeightsOverride, inserter);
