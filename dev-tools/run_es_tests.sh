@@ -24,11 +24,6 @@
 
 set -e
 
-
-if [ "$PR_TARGET_BRANCH" == "feature/incremental-learning" ]; then
-    exit 0
-fi
-
 function isCloneTargetValid {
     FORK_TO_CHECK="$1"
     BRANCH_TO_CHECK="$2"
