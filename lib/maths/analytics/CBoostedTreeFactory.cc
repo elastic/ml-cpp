@@ -1622,7 +1622,7 @@ std::size_t CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t number
     //   1. The predicted values for the dependent variable
     //   2. The gradient of the loss function
     //   3. The upper triangle of the hessian of the loss function
-    //   4. The example's splits packed into uint8_t
+    //   4. The example's splits packed into std::uint8_t
     return numberLossParameters * (numberLossParameters + 5) / 2 + (numberColumns + 2) / 4;
 }
 

@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
     // must hold for a randomly selected member of the family.
 
     double tolerances[] = {1.0, 1.6};
-    uint32_t m[] = {30, 300};
-    uint32_t u[] = {1000, 10000};
+    std::uint32_t m[] = {30, 300};
+    std::uint32_t u[] = {1000, 10000};
 
     for (size_t i = 0; i < boost::size(m); ++i) {
         CHashing::CUniversalHash::TUInt32HashVec hashes;
@@ -60,16 +60,16 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
 
             for (size_t j = 0; j < boost::size(u); ++j) {
-                uint32_t n = u[j];
+                std::uint32_t n = u[j];
 
                 LOG_DEBUG(<< "m = " << m[i] << ", U = [" << n << "]");
 
-                uint32_t collisions = 0;
+                std::uint32_t collisions = 0;
 
-                for (uint32_t x = 0; x < n; ++x) {
-                    for (uint32_t y = x + 1; y < n; ++y) {
-                        uint32_t hx = hash(x);
-                        uint32_t hy = hash(y);
+                for (std::uint32_t x = 0; x < n; ++x) {
+                    for (std::uint32_t y = x + 1; y < n; ++y) {
+                        std::uint32_t hx = hash(x);
+                        std::uint32_t hy = hash(y);
                         if (hx == hy) {
                             ++collisions;
                         }
@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
     // We test a large u and m non exhaustively by choosing sufficient
     // different numbers of pairs to hash.
 
-    using TUInt32Vec = std::vector<uint32_t>;
-    using TUInt32Pr = std::pair<uint32_t, uint32_t>;
+    using TUInt32Vec = std::vector<std::uint32_t>;
+    using TUInt32Pr = std::pair<std::uint32_t, std::uint32_t>;
     using TUInt32PrSet = std::set<TUInt32Pr>;
     using TUint32PrUIntMap = std::map<TUInt32Pr, unsigned int>;
     using TUint32PrUIntMapCItr = TUint32PrUIntMap::const_iterator;
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
         LOG_DEBUG(<< "**** m = " << 10000 << ", U = [" << 10000000 << "] ****");
 
         boost::random::mt11213b generator;
-        boost::random::uniform_int_distribution<uint32_t> uniform(0u, 10000000u);
+        boost::random::uniform_int_distribution<std::uint32_t> uniform(0u, 10000000u);
 
         TUInt32Vec samples;
         std::generate_n(std::back_inserter(samples), 1000u,
@@ -126,15 +126,15 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
 
-            uint32_t collisions = 0;
+            std::uint32_t collisions = 0;
             TUInt32PrSet uniquePairs;
 
             for (std::size_t i = 0; i < samples.size(); ++i) {
                 for (std::size_t j = i + 1; j < samples.size(); ++j) {
                     if (samples[i] != samples[j] &&
                         uniquePairs.insert(TUInt32Pr(samples[i], samples[j])).second) {
-                        uint32_t hx = hash(samples[i]);
-                        uint32_t hy = hash(samples[j]);
+                        std::uint32_t hx = hash(samples[i]);
+                        std::uint32_t hy = hash(samples[j]);
                         if (hx == hy) {
                             ++collisions;
                         }
@@ -180,10 +180,10 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
             LOG_DEBUG(<< "Testing hash = " << hashes[h].print());
 
             CHashing::CUniversalHash::CUInt32Hash hash = hashes[h];
-            for (uint32_t x = 0; x < 2000; ++x) {
-                for (uint32_t y = x + 1; y < 2000; ++y) {
-                    uint32_t hx = hash(x);
-                    uint32_t hy = hash(y);
+            for (std::uint32_t x = 0; x < 2000; ++x) {
+                for (std::uint32_t y = x + 1; y < 2000; ++y) {
+                    std::uint32_t hx = hash(x);
+                    std::uint32_t hy = hash(y);
                     ++uniqueHashedPairs[TUInt32Pr(hx, hy)];
                 }
             }
@@ -211,32 +211,32 @@ BOOST_AUTO_TEST_CASE(testUniversalHash) {
 BOOST_AUTO_TEST_CASE(testMurmurHash) {
     {
         std::string key("This is the voice of the Mysterons!");
-        uint32_t seed = 0xdead4321;
-        uint32_t result =
+        std::uint32_t seed = 0xdead4321;
+        std::uint32_t result =
             CHashing::murmurHash32(key.c_str(), static_cast<int>(key.size()), seed);
-        BOOST_REQUIRE_EQUAL(uint32_t(0xEE593473), result);
+        BOOST_REQUIRE_EQUAL(std::uint32_t(0xEE593473), result);
     }
     {
         std::string key("We know that you can hear us, Earthmen!");
-        uint32_t seed = 0xffeeeeff;
-        uint32_t result = CHashing::safeMurmurHash32(
+        std::uint32_t seed = 0xffeeeeff;
+        std::uint32_t result = CHashing::safeMurmurHash32(
             key.c_str(), static_cast<int>(key.size()), seed);
-        BOOST_REQUIRE_EQUAL(uint32_t(0x54837c96), result);
+        BOOST_REQUIRE_EQUAL(std::uint32_t(0x54837c96), result);
     }
     {
         std::string key("Your message has been analysed and it has been decided to allow one member of Spectrum to meet our representative.");
-        uint64_t seed = 0xaabbccddffeeeeffULL;
-        uint64_t result =
+        std::uint64_t seed = 0xaabbccddffeeeeffULL;
+        std::uint64_t result =
             CHashing::murmurHash64(key.c_str(), static_cast<int>(key.size()), seed);
-        BOOST_REQUIRE_EQUAL(uint64_t(14826751455157300659ull), result);
+        BOOST_REQUIRE_EQUAL(std::uint64_t(14826751455157300659ull), result);
     }
     {
         std::string key("Earthmen, we are peaceful beings and you have tried to destroy us, but you cannot succeed. You and your people "
                         "will pay for this act of aggression.");
-        uint64_t seed = 0x1324fedc9876abdeULL;
-        uint64_t result = CHashing::safeMurmurHash64(
+        std::uint64_t seed = 0x1324fedc9876abdeULL;
+        std::uint64_t result = CHashing::safeMurmurHash64(
             key.c_str(), static_cast<int>(key.size()), seed);
-        BOOST_REQUIRE_EQUAL(uint64_t(7291323361835448266ull), result);
+        BOOST_REQUIRE_EQUAL(std::uint64_t(7291323361835448266ull), result);
     }
 
     using TStrVec = std::vector<std::string>;
@@ -251,10 +251,10 @@ BOOST_AUTO_TEST_CASE(testMurmurHash) {
     rng.generateWords(stringSize, numberStrings, testStrings);
 
     core::CStopWatch stopWatch;
-    uint64_t defaultInsertTime = 0;
-    uint64_t defaultLookupTime = 0;
-    uint64_t murmurInsertTime = 0;
-    uint64_t murmurLookupTime = 0;
+    std::uint64_t defaultInsertTime = 0;
+    std::uint64_t defaultLookupTime = 0;
+    std::uint64_t murmurInsertTime = 0;
+    std::uint64_t murmurLookupTime = 0;
     for (int run = 0; run < 6; ++run) {
         LOG_DEBUG(<< "run = " << run);
 
@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE(testHashCombine) {
     CHashing::CMurmurHash2String hasher;
 
     using TStrVec = std::vector<std::string>;
-    using TSizeSet = std::set<uint64_t>;
+    using TSizeSet = std::set<std::uint64_t>;
 
     const std::size_t stringSize = 32;
     const std::size_t numberStrings = 2000000;
@@ -366,8 +366,8 @@ BOOST_AUTO_TEST_CASE(testHashCombine) {
         for (std::size_t j = 0; j < numberStrings; j += 2) {
             uniqueHashes.insert(hasher(testStrings[j] + testStrings[j + 1]));
             uniqueHashCombines.insert(core::CHashing::hashCombine(
-                static_cast<uint64_t>(hasher(testStrings[j])),
-                static_cast<uint64_t>(hasher(testStrings[j + 1]))));
+                static_cast<std::uint64_t>(hasher(testStrings[j])),
+                static_cast<std::uint64_t>(hasher(testStrings[j + 1]))));
         }
 
         LOG_DEBUG(<< "# unique hashes          = " << uniqueHashes.size());
@@ -382,19 +382,19 @@ BOOST_AUTO_TEST_CASE(testHashCombine) {
 BOOST_AUTO_TEST_CASE(testConstructors) {
     {
         CHashing::CUniversalHash::CUInt32Hash hash(1, 2, 3);
-        BOOST_REQUIRE_EQUAL(uint32_t(1), hash.m());
-        BOOST_REQUIRE_EQUAL(uint32_t(2), hash.a());
-        BOOST_REQUIRE_EQUAL(uint32_t(3), hash.b());
+        BOOST_REQUIRE_EQUAL(std::uint32_t(1), hash.m());
+        BOOST_REQUIRE_EQUAL(std::uint32_t(2), hash.a());
+        BOOST_REQUIRE_EQUAL(std::uint32_t(3), hash.b());
     }
     {
         CHashing::CUniversalHash::CUInt32UnrestrictedHash hash;
-        BOOST_REQUIRE_EQUAL(uint32_t(1), hash.a());
-        BOOST_REQUIRE_EQUAL(uint32_t(0), hash.b());
+        BOOST_REQUIRE_EQUAL(std::uint32_t(1), hash.a());
+        BOOST_REQUIRE_EQUAL(std::uint32_t(0), hash.b());
     }
     {
         CHashing::CUniversalHash::CUInt32UnrestrictedHash hash(3, 4);
-        BOOST_REQUIRE_EQUAL(uint32_t(3), hash.a());
-        BOOST_REQUIRE_EQUAL(uint32_t(4), hash.b());
+        BOOST_REQUIRE_EQUAL(std::uint32_t(3), hash.a());
+        BOOST_REQUIRE_EQUAL(std::uint32_t(4), hash.b());
         LOG_DEBUG(<< hash.print());
     }
     {
@@ -405,8 +405,8 @@ BOOST_AUTO_TEST_CASE(testConstructors) {
         CHashing::CUniversalHash::CUInt32VecHash hash(5, a, 6);
         BOOST_REQUIRE_EQUAL(CContainerPrinter::print(a),
                             CContainerPrinter::print(hash.a()));
-        BOOST_REQUIRE_EQUAL(uint32_t(5), hash.m());
-        BOOST_REQUIRE_EQUAL(uint32_t(6), hash.b());
+        BOOST_REQUIRE_EQUAL(std::uint32_t(5), hash.m());
+        BOOST_REQUIRE_EQUAL(std::uint32_t(6), hash.b());
         LOG_DEBUG(<< hash.print());
     }
     {
@@ -425,15 +425,15 @@ BOOST_AUTO_TEST_CASE(testConstructors) {
         {
             CHashing::CUniversalHash::CUInt32UnrestrictedHash hash;
             BOOST_TEST_REQUIRE(c("2134,5432", hash));
-            BOOST_REQUIRE_EQUAL(uint32_t(2134), hash.a());
-            BOOST_REQUIRE_EQUAL(uint32_t(5432), hash.b());
+            BOOST_REQUIRE_EQUAL(std::uint32_t(2134), hash.a());
+            BOOST_REQUIRE_EQUAL(std::uint32_t(5432), hash.b());
         }
         {
             CHashing::CUniversalHash::CUInt32Hash hash;
             BOOST_TEST_REQUIRE(c("92134,54329,00000002", hash));
-            BOOST_REQUIRE_EQUAL(uint32_t(92134), hash.m());
-            BOOST_REQUIRE_EQUAL(uint32_t(54329), hash.a());
-            BOOST_REQUIRE_EQUAL(uint32_t(2), hash.b());
+            BOOST_REQUIRE_EQUAL(std::uint32_t(92134), hash.m());
+            BOOST_REQUIRE_EQUAL(std::uint32_t(54329), hash.a());
+            BOOST_REQUIRE_EQUAL(std::uint32_t(2), hash.b());
         }
     }
     {

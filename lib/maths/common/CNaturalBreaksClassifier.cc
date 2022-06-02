@@ -476,7 +476,7 @@ std::string CNaturalBreaksClassifier::print() const {
     return core::CContainerPrinter::print(m_Categories);
 }
 
-uint64_t CNaturalBreaksClassifier::checksum(uint64_t seed) const {
+std::uint64_t CNaturalBreaksClassifier::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Space);
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_Categories);

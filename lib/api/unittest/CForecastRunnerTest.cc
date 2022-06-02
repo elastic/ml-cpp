@@ -69,7 +69,7 @@ void populateJob(TGenerateRecord generateRecord, CTestAnomalyJob& job, std::size
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
     }
 
-    BOOST_REQUIRE_EQUAL(uint64_t(2 * buckets), job.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2 * buckets), job.numRecordsHandled());
 }
 }
 

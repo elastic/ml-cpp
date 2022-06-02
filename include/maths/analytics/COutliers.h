@@ -165,7 +165,7 @@ public:
     using TPointVec = std::vector<POINT>;
     using TCoordinate = typename common::SCoordinate<POINT>::Type;
     using TCoordinateVec = std::vector<TCoordinate>;
-    using TUInt32CoordinatePr = std::pair<uint32_t, TCoordinate>;
+    using TUInt32CoordinatePr = std::pair<std::uint32_t, TCoordinate>;
     using TUInt32CoordinatePrVec = std::vector<TUInt32CoordinatePr>;
     static const TCoordinate UNSET_DISTANCE;
 

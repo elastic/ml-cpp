@@ -19,7 +19,7 @@
 
 #include <model/CHierarchicalResults.h>
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace ml {
 namespace model {

@@ -22,11 +22,10 @@
 
 #include <rapidjson/document.h>
 
+#include <cstdint>
 #include <iosfwd>
 #include <sstream>
 #include <string>
-
-#include <stdint.h>
 
 namespace ml {
 namespace api {

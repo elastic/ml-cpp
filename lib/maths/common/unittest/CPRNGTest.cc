@@ -32,10 +32,10 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
     boost::normal_distribution<> norm(4.0, 10.0);
 
     // Test min and max.
-    maths::common::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
-    maths::common::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
+    maths::common::CBasicStatistics::COrderStatisticsStack<std::uint64_t, 1> min;
+    maths::common::CBasicStatistics::COrderStatisticsStack<std::uint64_t, 1, std::greater<std::uint64_t>> max;
     for (std::size_t i = 0; i < 10000; ++i) {
-        uint64_t x = rng1();
+        std::uint64_t x = rng1();
         min.add(x);
         max.add(x);
     }
@@ -50,9 +50,9 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
 
     // Test generate.
     maths::common::CPRNG::CSplitMix64 rng2 = rng1;
-    uint64_t samples1[50] = {0u};
+    std::uint64_t samples1[50] = {0u};
     rng1.generate(&samples1[0], &samples1[50]);
-    uint64_t samples2[50] = {0u};
+    std::uint64_t samples2[50] = {0u};
     for (std::size_t i = 0; i < 50; ++i) {
         samples2[i] = rng2();
     }
@@ -138,10 +138,10 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     boost::normal_distribution<> norm(-4.0, 4.0);
 
     // Test min and max.
-    maths::common::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
-    maths::common::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
+    maths::common::CBasicStatistics::COrderStatisticsStack<std::uint64_t, 1> min;
+    maths::common::CBasicStatistics::COrderStatisticsStack<std::uint64_t, 1, std::greater<std::uint64_t>> max;
     for (std::size_t i = 0; i < 10000; ++i) {
-        uint64_t x = rng1();
+        std::uint64_t x = rng1();
         min.add(x);
         max.add(x);
     }
@@ -156,9 +156,9 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
 
     // Test generate.
     maths::common::CPRNG::CXorOShiro128Plus rng2 = rng1;
-    uint64_t samples1[50] = {0u};
+    std::uint64_t samples1[50] = {0u};
     rng1.generate(&samples1[0], &samples1[50]);
-    uint64_t samples2[50] = {0u};
+    std::uint64_t samples2[50] = {0u};
     for (std::size_t i = 0; i < 50; ++i) {
         samples2[i] = rng2();
     }
@@ -260,10 +260,10 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     boost::normal_distribution<> norm(100.0, 8000.0);
 
     // Test min and max.
-    maths::common::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
-    maths::common::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
+    maths::common::CBasicStatistics::COrderStatisticsStack<std::uint64_t, 1> min;
+    maths::common::CBasicStatistics::COrderStatisticsStack<std::uint64_t, 1, std::greater<std::uint64_t>> max;
     for (std::size_t i = 0; i < 10000; ++i) {
-        uint64_t x = rng1();
+        std::uint64_t x = rng1();
         min.add(x);
         max.add(x);
     }
@@ -278,9 +278,9 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
 
     // Test generate.
     maths::common::CPRNG::CXorShift1024Mult rng2 = rng1;
-    uint64_t samples1[50] = {0u};
+    std::uint64_t samples1[50] = {0u};
     rng1.generate(&samples1[0], &samples1[50]);
-    uint64_t samples2[50] = {0u};
+    std::uint64_t samples2[50] = {0u};
     for (std::size_t i = 0; i < 50; ++i) {
         samples2[i] = rng2();
     }

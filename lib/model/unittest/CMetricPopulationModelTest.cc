@@ -1275,8 +1275,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     // This time we expect the model checksums to differ because of the
     // different weightings applied to the samples for attribute c4
-    uint64_t withSkipChecksum = modelWithSkip->checksum();
-    uint64_t noSkipChecksum = modelNoSkip->checksum();
+    std::uint64_t withSkipChecksum = modelWithSkip->checksum();
+    std::uint64_t noSkipChecksum = modelNoSkip->checksum();
     BOOST_TEST_REQUIRE(withSkipChecksum != noSkipChecksum);
 
     // expect models for attributes c0 - c4

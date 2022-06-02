@@ -16,6 +16,7 @@
 #include <core/CStringUtils.h>
 
 #include <maths/common/CBasicStatistics.h>
+#include <maths/common/COrderings.h>
 #include <maths/common/CTools.h>
 #include <maths/common/ProbabilityAggregators.h>
 

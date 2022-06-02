@@ -21,7 +21,6 @@
 #include <model/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/unordered_map.hpp>
 
 #include <cstdint>
 #include <functional>
@@ -190,7 +189,7 @@ public:
         //@}
 
         //! Get a checksum of the object.
-        uint64_t checksum() const;
+        std::uint64_t checksum() const;
 
     private:
         using TDoubleDoublePr = std::pair<double, double>;
@@ -218,7 +217,7 @@ public:
             bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
             //! Get a checksum of the object.
-            uint64_t checksum() const;
+            std::uint64_t checksum() const;
 
         private:
             TMaxValueAccumulator m_Score;
@@ -252,10 +251,10 @@ public:
 
     private:
         //! Compute the discrete score from a raw score.
-        uint32_t discreteScore(double rawScore) const;
+        std::uint32_t discreteScore(double rawScore) const;
 
         //! Extract the raw score from a discrete score.
-        double rawScore(uint32_t discreteScore) const;
+        double rawScore(std::uint32_t discreteScore) const;
 
         //! Retrieve the maximum score for a partition
         bool maxScore(const CMaximumScoreScope& scope, double& maxScore) const;
@@ -271,10 +270,10 @@ public:
         double m_MaximumNormalizedScore{100.0};
 
         //! The approximate HIGH_PERCENTILE percentile raw score.
-        uint32_t m_HighPercentileScore;
+        std::uint32_t m_HighPercentileScore;
         //! The number of scores less than the approximate
         //! HIGH_PERCENTILE percentile raw score.
-        uint64_t m_HighPercentileCount{0};
+        std::uint64_t m_HighPercentileCount{0};
 
         //! True if this normalizer applies to results for individual
         //! members of a population analysis.

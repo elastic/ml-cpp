@@ -240,7 +240,7 @@ struct SFixtureRandomTrees {
         s_Frame = core::makeMainStorageDataFrame(s_NumberFeatures, s_NumberRows).first;
         s_Frame->columnNames(columnNames(s_NumberFeatures));
         for (std::size_t i = 0; i < s_NumberRows; ++i) {
-            s_Frame->writeRow([&](core::CDataFrame::TFloatVecItr column, int32_t&) {
+            s_Frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 for (std::size_t j = 0; j < s_NumberFeatures; ++j, ++column) {
                     *column = values[i * s_NumberFeatures + j];
                 }

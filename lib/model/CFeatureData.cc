@@ -68,7 +68,8 @@ const TSizeVec& CFeatureDataIndexing::valueIndices(std::size_t dimension) {
 
 ////// SEventRateFeatureData //////
 
-SEventRateFeatureData::SEventRateFeatureData(uint64_t count) : s_Count(count) {
+SEventRateFeatureData::SEventRateFeatureData(std::uint64_t count)
+    : s_Count(count) {
 }
 
 void SEventRateFeatureData::swap(SEventRateFeatureData& other) {

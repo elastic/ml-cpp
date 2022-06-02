@@ -25,9 +25,9 @@ using namespace ml;
 using namespace model;
 
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, std::uint64_t>;
 using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
-using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, std::uint64_t>;
 using TSizeSizePrUInt64UMapQueue = model::CBucketQueue<TSizeSizePrUInt64UMap>;
 using TSizeSizePrUInt64UMapQueueCItr = TSizeSizePrUInt64UMapQueue::const_iterator;
 

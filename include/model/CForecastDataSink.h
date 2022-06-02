@@ -28,11 +28,10 @@
 
 #include <boost/unordered_set.hpp>
 
+#include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <string>
-
-#include <stdint.h>
 
 namespace ml {
 namespace model {
