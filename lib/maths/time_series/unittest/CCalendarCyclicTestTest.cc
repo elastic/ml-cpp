@@ -73,10 +73,10 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::common::CTools::truncate(
+            std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(std::begin(months), std::end(months), time) -
                     std::begin(months),
-                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 30000 && time < months[i - 1] + 50000) {
@@ -120,10 +120,10 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::common::CTools::truncate(
+            std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(std::begin(months), std::end(months), time) -
                     std::begin(months),
-                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 10000 && time < months[i - 1] + 20000) {
@@ -164,10 +164,10 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::common::CTools::truncate(
+            std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(std::begin(months), std::end(months), time) -
                     std::begin(months),
-                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 45000 && time < months[i - 1] + 60000) {
@@ -208,10 +208,10 @@ BOOST_AUTO_TEST_CASE(testTruePositives) {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::common::CTools::truncate(
+            std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(std::begin(months), std::end(months), time) -
                     std::begin(months),
-                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 45000 && time < months[i - 1] + 60000) {
@@ -266,10 +266,10 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::common::CTools::truncate(
+            std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(std::begin(months), std::end(months), time + timeZoneOffset) -
                     std::begin(months),
-                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time + timeZoneOffset >= months[i - 1] + 25000 &&
@@ -313,10 +313,10 @@ BOOST_AUTO_TEST_CASE(testTimeZones) {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HALF_HOUR) {
-            ptrdiff_t i = maths::common::CTools::truncate(
+            std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(std::begin(months), std::end(months), time + timeZoneOffset) -
                     std::begin(months),
-                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time + timeZoneOffset >= months[i - 1] + 45000 &&
@@ -376,10 +376,10 @@ BOOST_AUTO_TEST_CASE(testVeryLargeCyclicSpikes) {
 
         TDoubleVec error;
         for (core_t::TTime time = 0; time <= end; time += HOUR) {
-            ptrdiff_t i = maths::common::CTools::truncate(
+            std::ptrdiff_t i = maths::common::CTools::truncate(
                 std::lower_bound(std::begin(months), std::end(months), time) -
                     std::begin(months),
-                ptrdiff_t(1), ptrdiff_t(boost::size(months)));
+                std::ptrdiff_t(1), std::ptrdiff_t(boost::size(months)));
 
             rng.generateNormalSamples(0.0, 9.0, 1, error);
             if (time >= months[i - 1] + 36000 && time < months[i - 1] + 39600) {

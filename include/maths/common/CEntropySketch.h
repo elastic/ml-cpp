@@ -15,7 +15,7 @@
 #include <maths/common/ImportExport.h>
 
 #include <cstddef>
-#include <stdint.h>
+#include <cstdint>
 #include <vector>
 
 namespace ml {
@@ -37,14 +37,14 @@ public:
     CEntropySketch(std::size_t k);
 
     //! Add \p category with count of \p count.
-    void add(std::size_t category, uint64_t count = 1);
+    void add(std::size_t category, std::uint64_t count = 1);
 
     //! Compute the entropy based on the values added so far.
     double calculate() const;
 
 private:
     using TDoubleVec = std::vector<double>;
-    using TUInt64Vec = std::vector<uint64_t>;
+    using TUInt64Vec = std::vector<std::uint64_t>;
 
 private:
     //! Generate the projection of the category counts.
@@ -52,7 +52,7 @@ private:
 
 private:
     //! The overall count.
-    uint64_t m_Y;
+    std::uint64_t m_Y;
 
     //! The sketch count.
     TDoubleVec m_Yi;

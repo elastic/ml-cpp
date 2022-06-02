@@ -1444,10 +1444,10 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
-    // Update the base model by allowing 0, 5, and 10 new trees. Verify that the holdout error is
-    // note getting worse when allowing for more model capacity.
+    // Update the base model by allowing 0, 5, and 10 new trees. Verify that the
+    // holdout error is note getting worse when allowing for more model capacity.
     test::CRandomNumbers rng;
-    double noiseVariance{100.0};
+    double noiseVariance{16.0};
     std::size_t batch1Size{500};
     std::size_t batch2Size{150};
     std::size_t numberHoldoutRows{200};
@@ -1477,7 +1477,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     rng.generateNormalSamples(0.0, noiseVariance, batch1Size, noise);
     fillDataFrame(batch1Size, 0, cols, x, noise, target, *batch1);
 
-    // second batch of data extends the domain
+    // Second batch of data extends the domain.
     auto batch2 = core::makeMainStorageDataFrame(cols).first;
     fillDataFrame(batch1Size, 0, cols, x, noise, target, *batch2);
     for (std::size_t i = 0; i < cols - 1; ++i) {
@@ -1488,9 +1488,8 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
 
     auto baseModel = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                         .eta({0.02}) // Ensure there are enough trees.
                          .dataSummarizationFraction(1.0)
-                         .maximumNumberTrees(3)
+                         .maximumNumberTrees(4)
                          .numberHoldoutRows(numberHoldoutRows)
                          .buildForTrain(*batch1, cols - 1);
     baseModel->train();
@@ -1498,6 +1497,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     core::CPackedBitVector batch2RowMask{batch1Size, false};
     batch2RowMask.extend(true, batch2Size);
 
+    double eta{baseModel->hyperparameters().eta().value()};
     double alpha{baseModel->hyperparameters().depthPenaltyMultiplier().value()};
     double gamma{baseModel->hyperparameters().treeSizePenaltyMultiplier().value()};
     double lambda{baseModel->hyperparameters().leafWeightPenaltyMultiplier().value()};
@@ -1509,6 +1509,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
             maths::analytics::CBoostedTreeFactory::constructFromModel(
                 baseImpl.cloneFor(*batch1, cols - 1))
                 .newTrainingRowMask(batch2RowMask)
+                .eta({0.5 * eta, eta})
                 .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
                 .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
                 .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})

@@ -174,8 +174,8 @@ std::size_t CModelTools::CFuzzyDeduplicate::SDuplicateValueHash::
 operator()(const TTimeDouble2VecPr& value) const {
     return static_cast<std::size_t>(std::accumulate(
         value.second.begin(), value.second.end(),
-        static_cast<uint64_t>(value.first), [](uint64_t seed, double v) {
-            return core::CHashing::hashCombine(seed, static_cast<uint64_t>(v));
+        static_cast<std::uint64_t>(value.first), [](std::uint64_t seed, double v) {
+            return core::CHashing::hashCombine(seed, static_cast<std::uint64_t>(v));
         }));
 }
 

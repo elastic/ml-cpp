@@ -589,16 +589,16 @@ CMultinomialConjugate::marginalLikelihoodConfidenceInterval(double percentage,
         pU += 1.0 / static_cast<double>(m_Concentrations.size()) - p;
     }
     double q1 = (1.0 - percentage) / 2.0;
-    ptrdiff_t i1 = std::lower_bound(quantiles.begin(), quantiles.end(), q1 - pU) -
-                   quantiles.begin();
+    std::ptrdiff_t i1 = std::lower_bound(quantiles.begin(), quantiles.end(), q1 - pU) -
+                        quantiles.begin();
     double x1 = m_Categories[i1];
     double x2 = x1;
     if (percentage > 0.0) {
         double q2 = (1.0 + percentage) / 2.0;
-        ptrdiff_t i2 =
+        std::ptrdiff_t i2 =
             std::min(std::lower_bound(quantiles.begin(), quantiles.end(), q2 + pU) -
                          quantiles.begin(),
-                     static_cast<ptrdiff_t>(quantiles.size()) - 1);
+                     static_cast<std::ptrdiff_t>(quantiles.size()) - 1);
         x2 = m_Categories[i2];
     }
     LOG_TRACE(<< "x1 = " << x1 << ", x2 = " << x2);
@@ -1058,10 +1058,10 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                     TMeanAccumulator pAcc;
                     for (std::size_t k = 0; k < marginalSamples.size(); ++k) {
                         TDoubleDoubleSizeTr x(1.05 * marginalSamples[k], 0.0, 0);
-                        ptrdiff_t r = std::min(
+                        std::ptrdiff_t r = std::min(
                             std::upper_bound(pCategories.begin(), pCategories.end(), x) -
                                 pCategories.begin(),
-                            static_cast<ptrdiff_t>(pCategories.size()) - 1);
+                            static_cast<std::ptrdiff_t>(pCategories.size()) - 1);
 
                         double fl = r > 0 ? pCategories[r - 1].get<0>() : 0.0;
                         double fr = pCategories[r].get<0>();
@@ -1471,10 +1471,10 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
                 TMeanAccumulator pAcc;
                 for (std::size_t k = 0; k < samples.size(); ++k) {
                     TDoubleDoubleSizeTr x(1.05 * samples[k], 0.0, 0);
-                    ptrdiff_t r = std::min(
+                    std::ptrdiff_t r = std::min(
                         std::upper_bound(pCategories.begin(), pCategories.end(), x) -
                             pCategories.begin(),
-                        static_cast<ptrdiff_t>(pCategories.size()) - 1);
+                        static_cast<std::ptrdiff_t>(pCategories.size()) - 1);
 
                     double fl = r > 0 ? pCategories[r - 1].get<0>() : 0.0;
                     double fr = pCategories[r].get<0>();

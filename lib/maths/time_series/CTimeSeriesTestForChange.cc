@@ -92,11 +92,11 @@ const core::TPersistenceTag SIGNIFICANT_P_VALUE_TAG{"d", "significant_p_value"};
 const core::TPersistenceTag MAGNITUDE_TAG{"e", "magnitude"};
 }
 
-CWinsorizationDerate::CWinsorizationDerate(double magnitude)
+COutlierWeightDerate::COutlierWeightDerate(double magnitude)
     : m_Magnitude{std::fabs(magnitude)} {
 }
 
-double CWinsorizationDerate::value(double error) const {
+double COutlierWeightDerate::value(double error) const {
     // We do not want to model every change for a signal which flip-flops back
     // and forward between similar values generating anomalies every time it
     // changes. Therefore, we derate the weight we apply to outlying values if
@@ -107,7 +107,7 @@ double CWinsorizationDerate::value(double error) const {
     return std::max(1.0 - 0.5 * std::fabs(error) / m_Magnitude, 0.0);
 }
 
-bool CWinsorizationDerate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool COutlierWeightDerate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
         RESTORE_BUILT_IN(MAGNITUDE_TAG, m_Magnitude)
@@ -115,11 +115,11 @@ bool CWinsorizationDerate::acceptRestoreTraverser(core::CStateRestoreTraverser& 
     return true;
 }
 
-void CWinsorizationDerate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+void COutlierWeightDerate::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(MAGNITUDE_TAG, m_Magnitude, core::CIEEE754::E_DoublePrecision);
 }
 
-std::uint64_t CWinsorizationDerate::checksum(std::uint64_t seed) const {
+std::uint64_t COutlierWeightDerate::checksum(std::uint64_t seed) const {
     return common::CChecksum::calculate(seed, m_Magnitude);
 }
 
@@ -281,7 +281,7 @@ CTimeShift::TChangePointUPtr CTimeShift::undoable() const {
     return std::make_unique<CTimeShift>(this->time(), -m_Shift, this->significantPValue());
 }
 
-CWinsorizationDerate CTimeShift::winsorizationDerate(core_t::TTime startTime,
+COutlierWeightDerate CTimeShift::outlierWeightDerate(core_t::TTime startTime,
                                                      core_t::TTime endTime,
                                                      const TPredictor& predictor) const {
     TMeanAccumulator result;
@@ -289,7 +289,7 @@ CWinsorizationDerate CTimeShift::winsorizationDerate(core_t::TTime startTime,
          t <= endTime; t += dt) {
         result.add(std::fabs(predictor(t) - predictor(t + m_Shift)));
     }
-    return CWinsorizationDerate{common::CBasicStatistics::mean(result)};
+    return COutlierWeightDerate{common::CBasicStatistics::mean(result)};
 }
 
 bool CTimeShift::longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
@@ -702,7 +702,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
         double parametersH1{static_cast<double>(segments.size() - 1)};
         double pValue{this->pValue(varianceH0, truncatedVarianceH0, parametersH0,
                                    varianceH1, truncatedVarianceH1, parametersH1, n)};
-        LOG_TRACE(<< "time shift p-value = " << pValue);
+        LOG_INFO(<< "time shift p-value = " << pValue);
 
         if (pValue < m_AcceptedFalsePostiveRate) {
             auto changePoint = std::make_unique<CTimeShift>(

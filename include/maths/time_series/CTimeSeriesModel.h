@@ -156,7 +156,7 @@ public:
                       const TDouble2Vec& value,
                       double trendCountWeight,
                       double residualCountWeight,
-                      double winsorisationDerate,
+                      double outlierWeightDerate,
                       double countVarianceScale,
                       TDouble2VecWeightsAry& trendWeights,
                       TDouble2VecWeightsAry& residualWeights) const override;
@@ -248,7 +248,8 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals);
+    void reinitializeStateGivenNewComponent(const common::CModelAddSamplesParams& params,
+                                            TFloatMeanAccumulatorVec residuals);
 
     //! Compute the probability for uncorrelated series.
     bool uncorrelatedProbability(const common::CModelProbabilityParams& params,
@@ -636,7 +637,7 @@ public:
                       const TDouble2Vec& value,
                       double trendCountWeight,
                       double residualCountWeight,
-                      double winsorisationDerate,
+                      double outlierWeightDerate,
                       double countVarianceScale,
                       TDouble2VecWeightsAry& trendWeights,
                       TDouble2VecWeightsAry& residualWeights) const override;
@@ -719,7 +720,8 @@ private:
 
     //! Reinitialize state after detecting a new component of the trend
     //! decomposition.
-    void reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec10Vec residuals);
+    void reinitializeStateGivenNewComponent(const common::CModelAddSamplesParams& params,
+                                            TFloatMeanAccumulatorVec10Vec residuals);
 
     //! Get the model dimension.
     std::size_t dimension() const;

@@ -91,7 +91,7 @@ public:
                                  TOptionalDouble& probability,
                                  TAttributeProbability1Vec& attributeProbabilities) const override;
 
-    uint64_t checksum(bool includeCurrentBucketStats = true) const override;
+    std::uint64_t checksum(bool includeCurrentBucketStats = true) const override;
 
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 

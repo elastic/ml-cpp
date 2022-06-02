@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(testWriteFlat) {
     BOOST_REQUIRE_EQUAL(std::string("'count per bucket by person'"),
                         std::string(modelPlot["model_feature"].GetString()));
     BOOST_TEST_REQUIRE(modelPlot.HasMember("timestamp"));
-    BOOST_REQUIRE_EQUAL(int64_t(1000), modelPlot["timestamp"].GetInt64());
+    BOOST_REQUIRE_EQUAL(1000, modelPlot["timestamp"].GetInt64());
     BOOST_TEST_REQUIRE(modelPlot.HasMember("partition_field_name"));
     BOOST_REQUIRE_EQUAL(std::string("pName"),
                         std::string(modelPlot["partition_field_name"].GetString()));
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(testWriteFlat) {
     BOOST_TEST_REQUIRE(modelPlot.HasMember("model_median"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(3.0, modelPlot["model_median"].GetDouble(), 0.01);
     BOOST_TEST_REQUIRE(modelPlot.HasMember("bucket_span"));
-    BOOST_REQUIRE_EQUAL(int64_t(300), modelPlot["bucket_span"].GetInt64());
+    BOOST_REQUIRE_EQUAL(300, modelPlot["bucket_span"].GetInt64());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

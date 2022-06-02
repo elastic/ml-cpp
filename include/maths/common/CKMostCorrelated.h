@@ -21,10 +21,9 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace maths {

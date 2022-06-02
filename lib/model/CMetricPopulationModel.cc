@@ -259,7 +259,7 @@ CMetricPopulationModel::baselineBucketMean(model_t::EFeature feature,
                                            const TSizeDoublePr1Vec& correlated,
                                            core_t::TTime time) const {
     const maths::common::CModel* model{this->model(feature, cid)};
-    if (!model) {
+    if (model == nullptr) {
         return TDouble1Vec();
     }
     static const TSizeDoublePr1Vec NO_CORRELATED;
@@ -382,7 +382,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
 
                 maths::common::CModel* model{this->model(feature, cid)};
-                if (!model) {
+                if (model == nullptr) {
                     LOG_ERROR(<< "Missing model for " << this->attributeName(cid));
                     continue;
                 }
@@ -468,7 +468,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                         auto& trendWeight = attribute.s_TrendWeights.back();
                         auto& residualWeight = attribute.s_ResidualWeights.back();
                         model->countWeights(sample.time(), value, countWeight,
-                                            countWeight, 1.0, // winsorisation derate
+                                            countWeight, 1.0, // outlier weight derate
                                             countVarianceScale, trendWeight, residualWeight);
                     }
                 }
@@ -500,6 +500,9 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     .propagationInterval(this->propagationTime(cid, latest))
                     .trendWeights(attribute.second.s_TrendWeights)
                     .priorWeights(attribute.second.s_ResidualWeights)
+                    .firstValueTime(cid < this->attributeFirstBucketTimes().size()
+                                        ? this->attributeFirstBucketTimes()[cid]
+                                        : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });
@@ -700,15 +703,15 @@ bool CMetricPopulationModel::computeTotalProbability(const std::string& /*person
     return true;
 }
 
-uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const {
-    uint64_t seed = this->CPopulationModel::checksum(includeCurrentBucketStats);
+std::uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const {
+    std::uint64_t seed = this->CPopulationModel::checksum(includeCurrentBucketStats);
     if (includeCurrentBucketStats) {
         seed = maths::common::CChecksum::calculate(seed, m_CurrentBucketStats.s_StartTime);
     }
 
     using TStrCRefStrCRefPr = std::pair<TStrCRef, TStrCRef>;
     using TStrCRefStrCRefPrUInt64Map =
-        std::map<TStrCRefStrCRefPr, uint64_t, maths::common::COrderings::SLess>;
+        std::map<TStrCRefStrCRefPr, std::uint64_t, maths::common::COrderings::SLess>;
 
     const CDataGatherer& gatherer = this->dataGatherer();
 
@@ -717,7 +720,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
     for (const auto& feature : m_FeatureModels) {
         for (std::size_t cid = 0; cid < feature.s_Models.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
-                uint64_t& hash =
+                std::uint64_t& hash =
                     hashes[{std::cref(EMPTY_STRING), std::cref(gatherer.attributeName(cid))}];
                 hash = maths::common::CChecksum::calculate(hash, feature.s_Models[cid]);
             }
@@ -729,8 +732,9 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
             std::size_t cids[]{model.first.first, model.first.second};
             if (gatherer.isAttributeActive(cids[0]) &&
                 gatherer.isAttributeActive(cids[1])) {
-                uint64_t& hash = hashes[{std::cref(gatherer.attributeName(cids[0])),
-                                         std::cref(gatherer.attributeName(cids[1]))}];
+                std::uint64_t& hash =
+                    hashes[{std::cref(gatherer.attributeName(cids[0])),
+                            std::cref(gatherer.attributeName(cids[1]))}];
                 hash = maths::common::CChecksum::calculate(hash, model.second);
             }
         }
@@ -738,7 +742,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
 
     if (includeCurrentBucketStats) {
         for (const auto& personCount : this->personCounts()) {
-            uint64_t& hash =
+            std::uint64_t& hash =
                 hashes[{std::cref(gatherer.personName(personCount.first)), std::cref(EMPTY_STRING)}];
             hash = maths::common::CChecksum::calculate(hash, personCount.second);
         }
@@ -747,7 +751,7 @@ uint64_t CMetricPopulationModel::checksum(bool includeCurrentBucketStats) const 
                 std::size_t pid = CDataGatherer::extractPersonId(data_);
                 std::size_t cid = CDataGatherer::extractAttributeId(data_);
                 const TFeatureData& data = CDataGatherer::extractData(data_);
-                uint64_t& hash =
+                std::uint64_t& hash =
                     hashes[{std::cref(this->personName(pid)), std::cref(this->attributeName(cid))}];
                 hash = maths::common::CChecksum::calculate(hash, data.s_BucketValue);
                 hash = maths::common::CChecksum::calculate(hash, data.s_IsInteger);

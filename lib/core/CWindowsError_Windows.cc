@@ -26,10 +26,10 @@ namespace core {
 CWindowsError::CWindowsError() : m_ErrorCode(GetLastError()) {
 }
 
-CWindowsError::CWindowsError(uint32_t errorCode) : m_ErrorCode(errorCode) {
+CWindowsError::CWindowsError(std::uint32_t errorCode) : m_ErrorCode(errorCode) {
 }
 
-uint32_t CWindowsError::errorCode() const {
+std::uint32_t CWindowsError::errorCode() const {
     return m_ErrorCode;
 }
 

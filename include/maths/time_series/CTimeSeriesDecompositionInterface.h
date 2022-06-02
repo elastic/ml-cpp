@@ -24,7 +24,8 @@
 #include <boost/array.hpp>
 
 #include <cstddef>
-#include <stdint.h>
+#include <cstdint>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
@@ -74,6 +75,9 @@ public:
     };
 
 public:
+    static constexpr core_t::TTime MIN_TIME{std::numeric_limits<core_t::TTime>::min()};
+
+public:
     virtual ~CTimeSeriesDecompositionInterface() = default;
 
     //! Clone this decomposition.
@@ -101,12 +105,16 @@ public:
     //! residuals if a new component is added as a result of adding the data point.
     //! \param[in] modelAnnotationCallback Supplied with an annotation if a new
     //! component is added as a result of adding the data point.
+    //! \param[in] occupancy The proportion of non-empty buckets.
+    //! \param[in] firstValueTime The time of the first value added to the decomposition.
     virtual void
     addPoint(core_t::TTime time,
              double value,
              const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
              const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
-             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) = 0;
+             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
+             double occupancy = 1.0,
+             core_t::TTime firstValueTime = MIN_TIME) = 0;
 
     //! Shift seasonality by \p shift at \p time.
     virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;
@@ -180,8 +188,8 @@ public:
     //! Get the count weight to apply at \p time.
     virtual double countWeight(core_t::TTime time) const = 0;
 
-    //! Get the derate to apply to the Winsorisation weight at \p time.
-    virtual double winsorisationDerate(core_t::TTime time, double derate) const = 0;
+    //! Get the derate to apply to the outlier weight at \p time.
+    virtual double outlierWeightDerate(core_t::TTime time, double derate) const = 0;
 
     //! Get the prediction residuals in a recent time window.
     //!

@@ -25,6 +25,7 @@
 #include <maths/common/CMathsFuncs.h>
 #include <maths/common/CRestoreParams.h>
 #include <maths/common/CSampling.h>
+#include <maths/common/CTools.h>
 
 #include <boost/algorithm/cxx11/is_sorted.hpp>
 #include <boost/math/distributions/normal.hpp>
@@ -38,33 +39,12 @@ namespace ml {
 namespace maths {
 namespace common {
 namespace {
-
-//! Orders two tuples by their mean.
-struct SMeanLess {
-    bool operator()(const CNaturalBreaksClassifier::TTuple& lhs,
-                    const CNaturalBreaksClassifier::TTuple& rhs) const {
-        return CBasicStatistics::mean(lhs) < CBasicStatistics::mean(rhs);
-    }
-};
-
-//! Checks if a tuple count is less than a specified value.
-class CCountLessThan {
-public:
-    CCountLessThan(double count) : m_Count(count) {}
-
-    bool operator()(const CNaturalBreaksClassifier::TTuple& tuple) const {
-        return CBasicStatistics::count(tuple) < m_Count;
-    }
-
-private:
-    double m_Count;
-};
 const core::TPersistenceTag SPACE_TAG("a", "space");
 const core::TPersistenceTag CATEGORY_TAG("b", "category");
 const core::TPersistenceTag POINTS_TAG("c", "points");
 const core::TPersistenceTag DECAY_RATE_TAG("d", "decay_rate");
-
 const std::string EMPTY_STRING;
+const double ALMOST_ONE = 0.99999;
 }
 
 CNaturalBreaksClassifier::CNaturalBreaksClassifier(std::size_t space,
@@ -72,7 +52,7 @@ CNaturalBreaksClassifier::CNaturalBreaksClassifier(std::size_t space,
                                                    double minimumCategoryCount)
     : m_Space(std::max(space, MINIMUM_SPACE)), m_DecayRate(decayRate),
       m_MinimumCategoryCount(minimumCategoryCount) {
-    m_Categories.reserve(m_Space + MAXIMUM_BUFFER_SIZE + 1u);
+    m_Categories.reserve(m_Space + MAXIMUM_BUFFER_SIZE + 1);
     m_PointsBuffer.reserve(MAXIMUM_BUFFER_SIZE);
 }
 
@@ -189,7 +169,7 @@ bool CNaturalBreaksClassifier::split(std::size_t n, std::size_t p, TClassifierVe
     LOG_TRACE(<< "raw categories = " << this->print());
 
     if (n >= m_Categories.size()) {
-        double p_ = static_cast<double>(p);
+        auto p_ = static_cast<double>(p);
         for (std::size_t i = 0; p_ > 0.0 && i < m_Categories.size(); ++i) {
             if (CBasicStatistics::count(m_Categories[i]) < p_) {
                 return false;
@@ -203,8 +183,9 @@ bool CNaturalBreaksClassifier::split(std::size_t n, std::size_t p, TClassifierVe
                 m_Space, m_DecayRate, m_MinimumCategoryCount, category));
         }
         return true;
-    } else if (n == 1) {
-        double p_ = static_cast<double>(p);
+    }
+    if (n == 1) {
+        auto p_ = static_cast<double>(p);
         double count = 0.0;
         for (std::size_t i = 0; p_ > 0.0 && i < m_Categories.size(); ++i) {
             count += CBasicStatistics::count(m_Categories[i]);
@@ -281,7 +262,7 @@ bool CNaturalBreaksClassifier::categories(std::size_t n, std::size_t p, TTupleVe
     LOG_TRACE(<< "raw categories = " << this->print());
 
     if (n >= m_Categories.size()) {
-        double p_ = static_cast<double>(p);
+        auto p_ = static_cast<double>(p);
         for (std::size_t i = 0; p_ > 0.0 && i < m_Categories.size(); ++i) {
             if (CBasicStatistics::count(m_Categories[i]) < p_) {
                 return false;
@@ -293,8 +274,9 @@ bool CNaturalBreaksClassifier::categories(std::size_t n, std::size_t p, TTupleVe
             result.insert(result.end(), m_Categories.begin(), m_Categories.end());
         }
         return true;
-    } else if (n == 1) {
-        double p_ = static_cast<double>(p);
+    }
+    if (n == 1) {
+        auto p_ = static_cast<double>(p);
         TTuple category =
             std::accumulate(m_Categories.begin(), m_Categories.end(), TTuple());
         if (CBasicStatistics::count(category) < p_) {
@@ -395,14 +377,17 @@ void CNaturalBreaksClassifier::propagateForwardsByTime(double time) {
     // Prune any dead categories: we're not interested in maintaining
     // categories with low counts.
     m_Categories.erase(std::remove_if(m_Categories.begin(), m_Categories.end(),
-                                      CCountLessThan(m_MinimumCategoryCount)),
+                                      [this](const auto& category) {
+                                          return CBasicStatistics::count(category) <
+                                                 m_MinimumCategoryCount;
+                                      }),
                        m_Categories.end());
 
     LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Categories));
 }
 
 bool CNaturalBreaksClassifier::buffering() const {
-    return m_PointsBuffer.size() > 0;
+    return m_PointsBuffer.empty() == false;
 }
 
 void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
@@ -416,8 +401,6 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
 
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
-    static const double ALMOST_ONE = 0.99999;
-
     // See, for example, Effective C++ item 3.
     const_cast<CNaturalBreaksClassifier*>(this)->reduce();
     LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Categories));
@@ -425,14 +408,17 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
     TDoubleVec weights;
     weights.reserve(m_Categories.size());
     double weightSum = 0.0;
-
-    for (std::size_t i = 0; i < m_Categories.size(); ++i) {
-        double nCategory = CBasicStatistics::count(m_Categories[i]);
-        weights.push_back(nCategory);
-        weightSum += nCategory;
+    for (const auto& category : m_Categories) {
+        double count = CBasicStatistics::count(category);
+        weights.push_back(count);
+        weightSum += count;
     }
-    for (std::size_t i = 0; i < weights.size(); ++i) {
-        weights[i] /= weightSum;
+    if (weightSum == 0.0) {
+        return;
+    }
+
+    for (auto& weight : weights) {
+        weight /= weightSum;
     }
 
     numberSamples = std::min(numberSamples, static_cast<std::size_t>(weightSum));
@@ -445,38 +431,38 @@ void CNaturalBreaksClassifier::sample(std::size_t numberSamples,
     TDoubleVec categorySamples;
     for (std::size_t i = 0; i < m_Categories.size(); ++i) {
         double ni = static_cast<double>(numberSamples) * weights[i];
-        std::size_t ni_ = static_cast<std::size_t>(std::ceil(ni));
-
+        auto ni_ = static_cast<std::size_t>(std::ceil(ni));
         double m = CBasicStatistics::mean(m_Categories[i]);
         double v = CBasicStatistics::maximumLikelihoodVariance(m_Categories[i]);
 
         CSampling::normalSampleQuantiles(m, v, ni_, categorySamples);
+
         for (std::size_t j = 0; j < categorySamples.size(); ++j) {
             if (categorySamples[j] < smallest) {
-                if (v == 0.0) {
+                // Fallback to range restricted sampling.
+                if (m < smallest || v == 0.0) {
                     categorySamples.assign(ni_, smallest);
                 } else {
                     m -= std::min(smallest, 0.0);
                     double shape = m * m / v;
                     double rate = m / v;
                     CSampling::gammaSampleQuantiles(shape, rate, ni_, categorySamples);
-                    for (std::size_t k = 0; k < categorySamples.size(); ++k) {
-                        categorySamples[k] += std::min(smallest, 0.0);
+                    for (auto& categorySample : categorySamples) {
+                        categorySample += std::min(smallest, 0.0);
                     }
                 }
                 break;
             }
         }
 
-        if (categorySamples.size() > 0) {
+        if (categorySamples.empty() == false) {
             ni /= static_cast<double>(categorySamples.size());
-            for (std::size_t j = 0; j < categorySamples.size(); ++j) {
-                double nij = std::min(1.0 - CBasicStatistics::count(sample), ni);
-                sample.add(categorySamples[j], nij);
+            for (auto& categorySample : categorySamples) {
+                double nij = CTools::truncate(1.0 - CBasicStatistics::count(sample), 0.0, ni);
+                sample.add(categorySample, nij);
                 if (CBasicStatistics::count(sample) > ALMOST_ONE) {
                     result.push_back(CBasicStatistics::mean(sample));
-                    sample = nij < ni ? CBasicStatistics::momentsAccumulator(
-                                            ni - nij, categorySamples[j])
+                    sample = nij < ni ? CBasicStatistics::momentsAccumulator(ni - nij, categorySample)
                                       : TMeanAccumulator{};
                 }
             }
@@ -490,7 +476,7 @@ std::string CNaturalBreaksClassifier::print() const {
     return core::CContainerPrinter::print(m_Categories);
 }
 
-uint64_t CNaturalBreaksClassifier::checksum(uint64_t seed) const {
+std::uint64_t CNaturalBreaksClassifier::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Space);
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_Categories);
@@ -668,7 +654,9 @@ void CNaturalBreaksClassifier::reduce() {
     }
     m_PointsBuffer.clear();
 
-    std::sort(m_Categories.begin(), m_Categories.end(), SMeanLess());
+    std::sort(m_Categories.begin(), m_Categories.end(), [](const auto& lhs, const auto& rhs) {
+        return CBasicStatistics::mean(lhs) < CBasicStatistics::mean(rhs);
+    });
     LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Categories));
 
     while (m_Categories.size() > m_Space) {

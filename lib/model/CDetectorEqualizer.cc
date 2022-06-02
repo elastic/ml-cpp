@@ -131,7 +131,7 @@ void CDetectorEqualizer::age(double factor) {
     }
 }
 
-uint64_t CDetectorEqualizer::checksum() const {
+std::uint64_t CDetectorEqualizer::checksum() const {
     return maths::common::CChecksum::calculate(0, m_Sketches);
 }
 

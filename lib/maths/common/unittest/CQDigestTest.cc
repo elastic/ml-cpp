@@ -35,7 +35,7 @@ using namespace common;
 using namespace test;
 
 using TDoubleVec = std::vector<double>;
-using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
+using TUInt32UInt64Pr = std::pair<std::uint32_t, std::uint64_t>;
 using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
 BOOST_AUTO_TEST_CASE(testAdd) {
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
         };
 
         for (std::size_t i = 0; i < 5; ++i) {
-            qDigest.add(static_cast<uint32_t>(i));
+            qDigest.add(static_cast<std::uint32_t>(i));
 
             LOG_DEBUG(<< qDigest.print());
 
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
 
     // Large n uniform random.
     {
-        using TUInt64Set = std::multiset<uint64_t>;
+        using TUInt64Set = std::multiset<std::uint64_t>;
 
         const double expectedMaxErrors[] = {0.007, 0.01,  0.12,  0.011, 0.016,
                                             0.018, 0.023, 0.025, 0.02};
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
 
         TUInt64Set orderedSamples;
         for (std::size_t i = 0; i < samples.size(); ++i) {
-            uint32_t sample = static_cast<uint32_t>(std::floor(samples[i]));
+            std::uint32_t sample = static_cast<std::uint32_t>(std::floor(samples[i]));
 
             qDigest.add(sample);
             orderedSamples.insert(sample);
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
                 for (unsigned int j = 1; j < 10; ++j) {
                     double q = static_cast<double>(j) / 10.0;
 
-                    uint32_t quantile;
+                    std::uint32_t quantile;
                     qDigest.quantile(q, quantile);
 
                     std::size_t rank = std::distance(
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
 
     std::size_t s = 0;
     for (/**/; s < std::min(k, samples.size()); ++s) {
-        uint32_t sample = static_cast<uint32_t>(std::floor(samples[s]));
+        std::uint32_t sample = static_cast<std::uint32_t>(std::floor(samples[s]));
         qDigest.add(sample);
     }
 
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     }
 
     for (/**/; s < samples.size(); ++s) {
-        uint32_t sample = static_cast<uint32_t>(std::floor(samples[s]));
+        std::uint32_t sample = static_cast<std::uint32_t>(std::floor(samples[s]));
         qDigest.add(sample);
     }
 
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
         generator.generateUniformSamples(0.0, 500.0, 100u, samples);
 
         for (std::size_t i = 0; i < samples.size(); ++i) {
-            uint32_t sample = static_cast<uint32_t>(std::floor(samples[i]));
+            std::uint32_t sample = static_cast<std::uint32_t>(std::floor(samples[i]));
             qDigest.add(sample);
         }
 
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
         for (std::size_t i = 0; i < summary.size(); ++i) {
             double q = static_cast<double>(summary[i].second) / 100.0;
 
-            uint32_t xq;
+            std::uint32_t xq;
             qDigest.quantile(q, xq);
 
             LOG_DEBUG(<< "q = " << q << ", x(q) = " << summary[i].first
@@ -325,10 +325,10 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         TDoubleVec samples;
         rng.generateNormalSamples(mean, std * std, 200000, samples);
         for (std::size_t i = 0; i < samples.size(); ++i) {
-            qDigest.add(static_cast<uint32_t>(samples[i] + 0.5));
+            qDigest.add(static_cast<std::uint32_t>(samples[i] + 0.5));
         }
 
-        uint64_t n = qDigest.n();
+        std::uint64_t n = qDigest.n();
         LOG_DEBUG(<< "n = " << n);
 
         TDoubleVec cdfLower;
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         boost::math::normal_distribution<> normal(mean, std);
         for (double x = mean - 5.0 * std; x <= mean + 5 * std; x += 5.0) {
             double lb, ub;
-            BOOST_TEST_REQUIRE(qDigest.cdf(static_cast<uint32_t>(x), 0.0, lb, ub));
+            BOOST_TEST_REQUIRE(qDigest.cdf(static_cast<std::uint32_t>(x), 0.0, lb, ub));
             cdfLower.push_back(lb);
             double f = boost::math::cdf(normal, x);
             cdfUpper.push_back(ub);
@@ -350,7 +350,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         qDigest.propagateForwardsByTime(1.0);
         BOOST_TEST_REQUIRE(qDigest.checkInvariants());
 
-        uint64_t nAged = qDigest.n();
+        std::uint64_t nAged = qDigest.n();
         LOG_DEBUG(<< "nAged = " << nAged);
 
         BOOST_REQUIRE_CLOSE_ABSOLUTE(0.001, double(n - nAged) / double(n), 5e-4);
@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         TDoubleVec cdfUpperAged;
         for (double x = mean - 5.0 * std; x <= mean + 5 * std; x += 5.0) {
             double lb, ub;
-            BOOST_TEST_REQUIRE(qDigest.cdf(static_cast<uint32_t>(x), 0.0, lb, ub));
+            BOOST_TEST_REQUIRE(qDigest.cdf(static_cast<std::uint32_t>(x), 0.0, lb, ub));
             cdfLowerAged.push_back(lb);
             cdfUpperAged.push_back(ub);
         }
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         for (std::size_t i = 0; i < 500; ++i) {
             rng.generateNormalSamples(mean, std * std, 2000, samples);
             for (std::size_t j = 0; j < samples.size(); ++j) {
-                qDigest.add(static_cast<uint32_t>(samples[j] + 0.5));
+                qDigest.add(static_cast<std::uint32_t>(samples[j] + 0.5));
             }
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "iteration = " << i);
@@ -405,7 +405,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         boost::math::normal_distribution<> normal(mean, std);
         for (double x = mean - 5.0 * std; x <= mean + 5 * std; x += 5.0) {
             double lb, ub;
-            BOOST_TEST_REQUIRE(qDigest.cdf(static_cast<uint32_t>(x), 0.0, lb, ub));
+            BOOST_TEST_REQUIRE(qDigest.cdf(static_cast<std::uint32_t>(x), 0.0, lb, ub));
             double f = boost::math::cdf(normal, x);
             BOOST_TEST_REQUIRE(lb <= f);
             BOOST_TEST_REQUIRE(ub >= f);
@@ -487,8 +487,8 @@ BOOST_AUTO_TEST_CASE(testScale) {
             CQDigest qDigestScaled(20u);
 
             for (std::size_t j = 0; j < samples.size(); ++j) {
-                qDigest.add(static_cast<uint32_t>(samples[j]));
-                qDigestScaled.add(static_cast<uint32_t>(scales[i] * samples[j]));
+                qDigest.add(static_cast<std::uint32_t>(samples[j]));
+                qDigestScaled.add(static_cast<std::uint32_t>(scales[i] * samples[j]));
             }
 
             qDigest.scale(scales[i]);
@@ -499,11 +499,11 @@ BOOST_AUTO_TEST_CASE(testScale) {
             double maxType2 = 0.0;
             double totalType2 = 0.0;
 
-            uint32_t end =
-                static_cast<uint32_t>(
+            std::uint32_t end =
+                static_cast<std::uint32_t>(
                     scales[i] * *std::max_element(samples.begin(), samples.end())) +
                 1;
-            for (uint32_t j = 0; j < end; ++j) {
+            for (std::uint32_t j = 0; j < end; ++j) {
                 double expectedLowerBound;
                 double expectedUpperBound;
                 qDigestScaled.cdf(j, 0.0, expectedLowerBound, expectedUpperBound);
@@ -542,7 +542,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     generator.generateUniformSamples(0.0, 5000.0, 1000u, samples);
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
-        uint32_t sample = static_cast<uint32_t>(std::floor(samples[i]));
+        std::uint32_t sample = static_cast<std::uint32_t>(std::floor(samples[i]));
 
         origQDigest.add(sample);
     }

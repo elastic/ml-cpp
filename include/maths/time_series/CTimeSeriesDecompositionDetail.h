@@ -61,7 +61,8 @@ public:
         std::function<CTimeSeriesTestForSeasonality(const CExpandingWindow&,
                                                     core_t::TTime,
                                                     std::size_t,
-                                                    const TFilteredPredictor&)>;
+                                                    const TFilteredPredictor&,
+                                                    double)>;
     // clang-format on
 
     class CMediator;
@@ -83,6 +84,8 @@ public:
                   core_t::TTime timeShift,
                   double value,
                   const maths_t::TDoubleWeightsAry& weights,
+                  double occupancy,
+                  core_t::TTime firstValueTime,
                   double trend,
                   double seasonal,
                   double calendar,
@@ -99,6 +102,10 @@ public:
         double s_Value;
         //! The weights of associated with the value.
         const maths_t::TDoubleWeightsAry& s_Weights;
+        //! The proportion of non-empty buckets.
+        double s_Occupancy;
+        //! The time of the first value added to the decomposition.
+        core_t::TTime s_FirstValueTime;
         //! The trend component prediction at the value's time.
         double s_Trend;
         //! The seasonal component prediction at the value's time.
@@ -249,9 +256,9 @@ public:
         //! Get the count weight to apply to samples.
         double countWeight(core_t::TTime time) const;
 
-        //! Get the derate to apply to the Winsorization weight for a prediction error
+        //! Get the derate to apply to the outlier weight for a prediction error
         //! of size \p error.
-        double winsorisationDerate(core_t::TTime time, double error) const;
+        double outlierWeightDerate(core_t::TTime time, double error) const;
 
         //! Age the test to account for the interval \p end - \p start elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
@@ -274,10 +281,10 @@ public:
         void apply(std::size_t symbol);
 
         //! Update the total count weight statistics.
-        void updateTotalCountWeights(core_t::TTime time, core_t::TTime lastTime);
+        void updateTotalCountWeights(const SAddValue& message);
 
-        //! Update the fraction of recent large errors and test if a change may be occurring.
-        void testForCandidateChange(core_t::TTime time, double error);
+        //! Update the fraction of recent large errors.
+        void testForCandidateChange(const SAddValue& message);
 
         //! Test if any change has occurred.
         void testForChange(const SAddValue& message);
@@ -292,13 +299,13 @@ public:
         double largeError() const;
 
         //! Check if we should test for a change.
-        bool shouldTest(core_t::TTime time) const;
+        bool shouldTest(core_t::TTime time, double occupancy) const;
 
         //! The minimum time a change has to last.
-        core_t::TTime minimumChangeLength() const;
+        core_t::TTime minimumChangeLength(double occupancy) const;
 
         //! The length of time in which we expect to detect a change.
-        core_t::TTime maximumIntervalToDetectChange() const;
+        core_t::TTime maximumIntervalToDetectChange(double occupancy) const;
 
         //! The start of the sliding window of buckets given the time is now \p time.
         core_t::TTime bucketsStartTime(core_t::TTime time, core_t::TTime bucketsLength) const;
@@ -359,8 +366,8 @@ public:
         //! which can be undone.
         TChangePointUPtr m_UndoableLastChange;
 
-        //! The derate to apply to the Winsorization immediately after the last change point.
-        CWinsorizationDerate m_LastChangeWinsorizationDerate;
+        //! The derate to apply to the outlier weight immediately after the last change point.
+        COutlierWeightDerate m_LastChangeOutlierWeightDerate;
     };
 
     //! \brief Scans through increasingly low frequencies looking for significant
