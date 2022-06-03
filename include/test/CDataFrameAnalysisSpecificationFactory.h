@@ -17,6 +17,7 @@
 
 #include <maths/analytics/CBoostedTreeLoss.h>
 
+#include <api/ApiTypes.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
@@ -45,7 +46,7 @@ public:
     using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
     using TLossFunctionType = maths::analytics::boosted_tree::ELossType;
-    using TTask = api::CDataFrameTrainBoostedTreeRunner::ETask;
+    using TTask = api_t::EDataFrameTrainBoostedTreeTask;
     using TDataFrameUPtrTemporaryDirectoryPtrPr =
         api::CDataFrameAnalysisSpecification::TDataFrameUPtrTemporaryDirectoryPtrPr;
 

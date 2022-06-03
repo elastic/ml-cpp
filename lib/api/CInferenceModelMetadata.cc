@@ -10,6 +10,7 @@
  */
 #include <api/CInferenceModelMetadata.h>
 
+#include <api/ApiTypes.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <maths/analytics/CBoostedTreeUtils.h>
@@ -24,8 +25,11 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
-    // this->writeTrainProperties(writer);
-    // this->writeDataSummarization(writer);
+    if (m_NumDataSummarizationRows > 0) {
+        // only output if data summarization fraction was specified.
+        this->writeTrainProperties(writer);
+        this->writeDataSummarization(writer);
+    }
 }
 
 void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
@@ -271,20 +275,22 @@ void CInferenceModelMetadata::hyperparameterImportance(
         case maths::analytics::boosted_tree_detail::E_SoftTreeDepthTolerance:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
             break;
-        // case maths::analytics::boosted_tree_detail::E_PredictionChangeCost:
-        //     hyperparameterName = CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST;
-        //     break;
-        // Incremental train hyperparameters.
-        // case maths::analytics::boosted_tree_detail::E_RetrainedTreeEta:
-        //     hyperparameterName = CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA;
-        //     break;
-        // case maths::analytics::boosted_tree_detail::E_TreeTopologyChangePenalty:
-        //     hyperparameterName = CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY;
-        //     break;
         // Not tuned directly.
         case maths::analytics::boosted_tree_detail::E_MaximumNumberTrees:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::MAX_TREES;
             break;
+            if (m_Task == api_t::E_Update) {
+            // Incremental train hyperparameters.
+            case maths::analytics::boosted_tree_detail::E_PredictionChangeCost:
+                hyperparameterName = CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST;
+                break;
+            case maths::analytics::boosted_tree_detail::E_RetrainedTreeEta:
+                hyperparameterName = CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA;
+                break;
+            case maths::analytics::boosted_tree_detail::E_TreeTopologyChangePenalty:
+                hyperparameterName = CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY;
+                break;
+            }
         }
         double absoluteImportance{(std::fabs(item.s_AbsoluteImportance) < 1e-8)
                                       ? 0.0
@@ -312,6 +318,10 @@ void CInferenceModelMetadata::lossGap(double lossGap) {
 
 void CInferenceModelMetadata::numDataSummarizationRows(std::size_t numRows) {
     m_NumDataSummarizationRows = numRows;
+}
+
+void CInferenceModelMetadata::task(api_t::EDataFrameTrainBoostedTreeTask task) {
+    m_Task = task;
 }
 
 // clang-format off

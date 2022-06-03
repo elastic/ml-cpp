@@ -16,6 +16,7 @@
 #include <maths/common/CBasicStatistics.h>
 #include <maths/common/CLinearAlgebraEigen.h>
 
+#include <api/ApiTypes.h>
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 
@@ -86,6 +87,8 @@ public:
     void lossGap(double lossGap);
     //! Set the number of rows in the training data summarization.
     void numDataSummarizationRows(std::size_t numRows);
+    //! Set the task.
+    void task(api_t::EDataFrameTrainBoostedTreeTask task);
 
 private:
     struct SHyperparameterImportance {
@@ -127,6 +130,7 @@ private:
     std::size_t m_NumTrainRows{0};
     double m_LossGap{0.0};
     std::size_t m_NumDataSummarizationRows{0};
+    api_t::EDataFrameTrainBoostedTreeTask m_Task{api_t::E_Train};
 };
 }
 }
