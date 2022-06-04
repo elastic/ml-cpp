@@ -25,6 +25,7 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
     this->writeTotalFeatureImportance(writer);
     this->writeFeatureImportanceBaseline(writer);
     this->writeHyperparameterImportance(writer);
+    LOG_DEBUG(<< "Nuber data summarization rows " << m_NumDataSummarizationRows);
     if (m_NumDataSummarizationRows > 0) {
         // only output if data summarization fraction was specified.
         this->writeTrainProperties(writer);
@@ -279,18 +280,26 @@ void CInferenceModelMetadata::hyperparameterImportance(
         case maths::analytics::boosted_tree_detail::E_MaximumNumberTrees:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::MAX_TREES;
             break;
-            if (m_Task == api_t::E_Update) {
-            // Incremental train hyperparameters.
-            case maths::analytics::boosted_tree_detail::E_PredictionChangeCost:
-                hyperparameterName = CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST;
-                break;
-            case maths::analytics::boosted_tree_detail::E_RetrainedTreeEta:
-                hyperparameterName = CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA;
-                break;
-            case maths::analytics::boosted_tree_detail::E_TreeTopologyChangePenalty:
-                hyperparameterName = CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY;
-                break;
+
+        // Incremental train hyperparameters.
+        case maths::analytics::boosted_tree_detail::E_PredictionChangeCost:
+            if (m_Task != api_t::E_Update) {
+                continue;
             }
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST;
+            break;
+        case maths::analytics::boosted_tree_detail::E_RetrainedTreeEta:
+            if (m_Task != api_t::E_Update) {
+                continue;
+            }
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::RETRAINED_TREE_ETA;
+            break;
+        case maths::analytics::boosted_tree_detail::E_TreeTopologyChangePenalty:
+            if (m_Task != api_t::E_Update) {
+                continue;
+            }
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY;
+            break;
         }
         double absoluteImportance{(std::fabs(item.s_AbsoluteImportance) < 1e-8)
                                       ? 0.0

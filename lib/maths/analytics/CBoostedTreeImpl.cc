@@ -2523,6 +2523,9 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
 
     core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
 
+    if (m_DataSummarizationFraction == 0.0) {
+        return ~allTrainingRowsMask;
+    }
     if (m_DataSummarizationFraction >= 1.0) {
         return allTrainingRowsMask;
     }
