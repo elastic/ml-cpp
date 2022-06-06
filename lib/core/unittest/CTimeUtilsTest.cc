@@ -88,13 +88,11 @@ BOOST_AUTO_TEST_CASE(testToLocal) {
 }
 
 BOOST_AUTO_TEST_CASE(testToEpochMs) {
-    BOOST_REQUIRE_EQUAL(int64_t(1000),
-                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)));
-    BOOST_REQUIRE_EQUAL(int64_t(-1000),
-                        ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)));
-    BOOST_REQUIRE_EQUAL(int64_t(1521035866000),
+    BOOST_REQUIRE_EQUAL(1000, ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1)));
+    BOOST_REQUIRE_EQUAL(-1000, ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1)));
+    BOOST_REQUIRE_EQUAL(1521035866000,
                         ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(1521035866)));
-    BOOST_REQUIRE_EQUAL(int64_t(-1521035866000),
+    BOOST_REQUIRE_EQUAL(-1521035866000,
                         ml::core::CTimeUtils::toEpochMs(ml::core_t::TTime(-1521035866)));
 }
 

@@ -111,11 +111,15 @@ public:
     //! residuals if a new component is added as a result of adding the data point.
     //! \param[in] modelAnnotationCallback Supplied with an annotation if a new
     //! component is added as a result of adding the data point.
+    //! \param[in] occupancy The proportion of non-empty buckets.
+    //! \param[in] firstValueTime The time of the first value added to the decomposition.
     void addPoint(core_t::TTime time,
                   double value,
                   const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
-                  const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
+                  const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
+                  double occupancy = 1.0,
+                  core_t::TTime firstValueTime = MIN_TIME) override;
 
     //! Shift seasonality by \p shift at \p time.
     void shiftTime(core_t::TTime time, core_t::TTime shift) override;
@@ -131,15 +135,9 @@ public:
     //! \param[in] time The time of interest.
     //! \param[in] confidence The symmetric confidence interval for the prediction
     //! the baseline as a percentage.
-    //! \param[in] components The components to include in the baseline.
-    //! \param[in] removedSeasonalMask A bit mask of specific seasonal components
-    //! to remove. This is only intended for use by CTimeSeriesTestForSeasonlity.
-    //! \param[in] smooth Detail do not supply.
-    maths_t::TDoubleDoublePr value(core_t::TTime time,
-                                   double confidence = 0.0,
-                                   int components = E_All,
-                                   const TBoolVec& removedSeasonalMask = {},
-                                   bool smooth = true) const override;
+    //! \param[in] isNonNegative True if the data being modelled are known to be
+    //! non-negative.
+    TVector2x1 value(core_t::TTime time, double confidence, bool isNonNegative) const override;
 
     //! Get a function which returns the decomposition value as a function of time.
     //!
@@ -159,29 +157,33 @@ public:
     //! \param[in] step The time increment.
     //! \param[in] confidence The forecast confidence interval.
     //! \param[in] minimumScale The minimum permitted seasonal scale.
+    //! \param[in] isNonNegative True if the data being modelled are known to be
+    //! non-negative.
     //! \param[in] writer Forecast results are passed to this callback.
     void forecast(core_t::TTime startTime,
                   core_t::TTime endTime,
                   core_t::TTime step,
                   double confidence,
                   double minimumScale,
+                  bool isNonNegative,
                   const TWriteForecastResult& writer) override;
 
     //! Remove the prediction of the component models at \p time from \p value.
     //!
     //! \param[in] time The time of \p value.
+    //! \param[in] value The value from which to remove the prediction.
     //! \param[in] confidence The prediction confidence interval as a percentage.
     //! The closest point to \p value in the confidence interval is removed.
+    //! \param[in] isNonNegative True if the data being modelled are known to be
+    //! non-negative.
     //! \param[in] maximumTimeShift The maximum amount by which we will shift
     //! \p time in order to minimize the difference between the prediction and
     //! \p value.
-    //! \param[in] components A bit mask of the type of components to remove.
-    //! \note That detrending preserves the time series mean.
     double detrend(core_t::TTime time,
                    double value,
                    double confidence,
-                   core_t::TTime maximumTimeShift = 0,
-                   int components = E_All) const override;
+                   bool isNonNegative,
+                   core_t::TTime maximumTimeShift = 0) const override;
 
     //! Get the mean variance of the baseline.
     double meanVariance() const override;
@@ -192,19 +194,19 @@ public:
     //! \param[in] variance The variance of the distribution to scale.
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! scale as a percentage.
-    maths_t::TDoubleDoublePr varianceScaleWeight(core_t::TTime time,
-                                                 double variance,
-                                                 double confidence,
-                                                 bool smooth = true) const override;
+    TVector2x1 varianceScaleWeight(core_t::TTime time, double variance, double confidence) const override;
 
     //! Get the count weight to apply at \p time.
     double countWeight(core_t::TTime time) const override;
 
-    //! Get the derate to apply to the Winsorisation weight at \p time.
-    double winsorisationDerate(core_t::TTime time) const override;
+    //! Get the derate to apply to the outlier weight at \p time.
+    double outlierWeightDerate(core_t::TTime time, double error) const override;
 
     //! Get the prediction residuals in a recent time window.
-    TFloatMeanAccumulatorVec residuals() const override;
+    //!
+    //! \param[in] isNonNegative True if the data being modelled are known to be
+    //! non-negative.
+    TFloatMeanAccumulatorVec residuals(bool isNonNegative) const override;
 
     //! Roll time forwards by \p skipInterval.
     void skipTime(core_t::TTime skipInterval) override;
@@ -241,10 +243,18 @@ private:
     bool acceptRestoreTraverser(const common::SDistributionRestoreParams& params,
                                 core::CStateRestoreTraverser& traverser);
 
+    //! Get the predicted value of the time series at \p time.
+    TVector2x1 value(core_t::TTime time, double confidence, int components, bool smooth) const;
+
+    //! Compute the variance scale weight to apply at \p time.
+    TVector2x1
+    varianceScaleWeight(core_t::TTime time, double variance, double confidence, bool smooth) const;
+
     //! The correction to produce a smooth join between periodic
     //! repeats and partitions.
     template<typename F>
-    maths_t::TDoubleDoublePr smooth(const F& f, core_t::TTime time, int components) const;
+    auto smooth(const F& f, core_t::TTime time, int components) const
+        -> decltype(f(time));
 
 private:
     //! The time over which discontinuities between weekdays

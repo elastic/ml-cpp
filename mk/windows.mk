@@ -50,7 +50,7 @@ CFLAGS=-nologo $(OPTCFLAGS) -W4 $(CRT_OPT) -EHsc -Zi -Gw -FS -Zc:inline -diagnos
 CXXFLAGS=-TP $(CFLAGS) -Zc:rvalueCast -Zc:strictStrings -wd4127 -we4150 -wd4201 -wd4231 -wd4251 -wd4355 -wd4512 -wd4702 -bigobj
 ANALYZEFLAGS=-nologo -analyze:only -analyze:stacksize100000 $(CRT_OPT)
 
-CPPFLAGS=-X -I$(CPP_SRC_HOME)/3rd_party/include -I$(LOCAL_DRIVE):/usr/local/include $(VCINCLUDES) $(WINSDKINCLUDES) -D$(OS) -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -DWIN32_LEAN_AND_MEAN -DNTDDI_VERSION=0x06010000 -D_WIN32_WINNT=0x0601 -DBUILDING_$(basename $(notdir $(TARGET))) $(OPTCPPFLAGS)
+CPPFLAGS=-X -I$(CPP_SRC_HOME)/3rd_party/include -I$(LOCAL_DRIVE):/usr/local/include $(VCINCLUDES) $(WINSDKINCLUDES) -D$(OS) -D_CRT_SECURE_NO_WARNINGS -D_CRT_NONSTDC_NO_DEPRECATE -DWIN32_LEAN_AND_MEAN -DNOMINMAX -DNTDDI_VERSION=0x06010000 -D_WIN32_WINNT=0x0601 -DBUILDING_$(basename $(notdir $(TARGET))) $(OPTCPPFLAGS)
 # -MD defines _DLL and _MT - for dependency determination we must define these
 # otherwise the Boost headers will throw errors during preprocessing
 ifeq ($(CRT_OPT),-MD)

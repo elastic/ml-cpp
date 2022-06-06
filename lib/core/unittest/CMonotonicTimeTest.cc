@@ -22,13 +22,13 @@ BOOST_AUTO_TEST_SUITE(CMonotonicTimeTest)
 BOOST_AUTO_TEST_CASE(testMilliseconds) {
     ml::core::CMonotonicTime monoTime;
 
-    uint64_t start(monoTime.milliseconds());
+    std::uint64_t start(monoTime.milliseconds());
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    uint64_t end(monoTime.milliseconds());
+    std::uint64_t end(monoTime.milliseconds());
 
-    uint64_t diff(end - start);
+    std::uint64_t diff(end - start);
     LOG_DEBUG(<< "During 1 second the monotonic millisecond timer advanced by "
               << diff << " milliseconds");
 
@@ -42,13 +42,13 @@ BOOST_AUTO_TEST_CASE(testMilliseconds) {
 BOOST_AUTO_TEST_CASE(testNanoseconds) {
     ml::core::CMonotonicTime monoTime;
 
-    uint64_t start(monoTime.nanoseconds());
+    std::uint64_t start(monoTime.nanoseconds());
 
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    uint64_t end(monoTime.nanoseconds());
+    std::uint64_t end(monoTime.nanoseconds());
 
-    uint64_t diff(end - start);
+    std::uint64_t diff(end - start);
     LOG_DEBUG(<< "During 1 second the monotonic nanosecond timer advanced by "
               << diff << " nanoseconds");
 

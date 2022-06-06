@@ -121,7 +121,7 @@ public:
     CPackedBitVector() = default;
     explicit CPackedBitVector(bool bit);
     CPackedBitVector(std::size_t dimension, bool bit);
-    CPackedBitVector(const TBoolVec& bits);
+    explicit CPackedBitVector(const TBoolVec& bits);
 
     //! Contract the vector by popping a component from the start.
     void contract();

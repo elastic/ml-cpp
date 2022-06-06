@@ -51,7 +51,10 @@ BOOST_AUTO_TEST_CASE(testAll) {
         TDouble2VecWeightsAryVec trendWeights{weight1};
         TDouble2VecWeightsAryVec priorWeights{weight2};
         maths::common::CModelAddSamplesParams params;
-        params.integer(true).propagationInterval(1.5).trendWeights(trendWeights).priorWeights(priorWeights);
+        params.isInteger(true)
+            .propagationInterval(1.5)
+            .trendWeights(trendWeights)
+            .priorWeights(priorWeights);
         BOOST_REQUIRE_EQUAL(maths_t::E_IntegerData, params.type());
         BOOST_REQUIRE_EQUAL(1.5, params.propagationInterval());
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(trendWeights),

@@ -552,7 +552,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
         filter.addSamples(samples);
 
         TWeightFunc weightsFuncs[]{static_cast<TWeightFunc>(maths_t::countWeight),
-                                   static_cast<TWeightFunc>(maths_t::winsorisationWeight)};
+                                   static_cast<TWeightFunc>(maths_t::outlierWeight)};
         double weights[]{0.1, 1.0, 10.0};
 
         for (std::size_t i = 0; i < boost::size(weightsFuncs); ++i) {
@@ -1205,7 +1205,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origFilter.addSamples({samples[i]}, maths_t::CUnitWeights::SINGLE_UNIT);
     }
     double decayRate = origFilter.decayRate();
-    uint64_t checksum = origFilter.checksum();
+    std::uint64_t checksum = origFilter.checksum();
 
     std::string origXml;
     {

@@ -611,7 +611,7 @@ public:
     }
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const {
+    std::uint64_t checksum(std::uint64_t seed = 0) const {
         seed = CChecksum::calculate(seed, m_Type);
         seed = CChecksum::calculate(seed, m_Knots);
         seed = CChecksum::calculate(seed, m_Values);

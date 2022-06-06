@@ -141,8 +141,8 @@ bool CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser(core::CStateRe
     return true;
 }
 
-uint64_t CGathererTools::CArrivalTimeGatherer::checksum() const {
-    return maths::common::CChecksum::calculate(static_cast<uint64_t>(m_LastTime), m_Value);
+std::uint64_t CGathererTools::CArrivalTimeGatherer::checksum() const {
+    return maths::common::CChecksum::calculate(static_cast<std::uint64_t>(m_LastTime), m_Value);
 }
 
 std::string CGathererTools::CArrivalTimeGatherer::print() const {
@@ -291,8 +291,8 @@ bool CGathererTools::CSumGatherer::acceptRestoreTraverser(core::CStateRestoreTra
     return true;
 }
 
-uint64_t CGathererTools::CSumGatherer::checksum() const {
-    uint64_t seed = static_cast<uint64_t>(m_Classifier.isInteger());
+std::uint64_t CGathererTools::CSumGatherer::checksum() const {
+    std::uint64_t seed = static_cast<std::uint64_t>(m_Classifier.isInteger());
     seed = maths::common::CChecksum::calculate(seed, m_Classifier.isNonNegative());
     seed = maths::common::CChecksum::calculate(seed, m_BucketSums);
     return maths::common::CChecksum::calculate(seed, m_InfluencerBucketSums);

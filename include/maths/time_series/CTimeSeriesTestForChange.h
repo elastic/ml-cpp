@@ -21,6 +21,7 @@
 #include <maths/time_series/ImportExport.h>
 
 #include <functional>
+#include <limits>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -37,6 +38,20 @@ class CSeasonalComponent;
 class CTimeSeriesDecomposition;
 class CTrendComponent;
 
+//! \brief Determines the outlier weight derate which should apply after a change.
+class MATHS_TIME_SERIES_EXPORT COutlierWeightDerate {
+public:
+    COutlierWeightDerate() = default;
+    explicit COutlierWeightDerate(double magnitude);
+    double value(double error) const;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
+
+private:
+    double m_Magnitude{std::numeric_limits<double>::max()};
+};
+
 //! \brief Represents a sudden change to a time series model.
 class MATHS_TIME_SERIES_EXPORT CChangePoint {
 public:
@@ -51,6 +66,9 @@ public:
     virtual ~CChangePoint();
 
     virtual TChangePointUPtr undoable() const = 0;
+    virtual COutlierWeightDerate outlierWeightDerate(core_t::TTime startTime,
+                                                     core_t::TTime endTime,
+                                                     const TPredictor& predictor) const = 0;
     virtual bool largeEnough(double threshold) const = 0;
     virtual bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const = 0;
     virtual bool apply(CTimeSeriesDecomposition&) const { return false; }
@@ -70,7 +88,7 @@ public:
     TFloatMeanAccumulatorVec& residuals() { return m_Residuals; }
     const TFloatMeanAccumulatorVec& residuals() const { return m_Residuals; }
 
-private:
+protected:
     using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 private:
@@ -79,15 +97,15 @@ private:
     }
 
 private:
-    core_t::TTime m_Time = 0;
-    double m_SignificantPValue = 0.0;
+    core_t::TTime m_Time{0};
+    double m_SignificantPValue{0.0};
     TFloatMeanAccumulatorVec m_Residuals;
     TMeanAccumulator m_Mse;
     TMeanAccumulator m_UndoneMse;
 };
 
 //! \brief Represents a level shift of a time series.
-class MATHS_TIME_SERIES_EXPORT CLevelShift : public CChangePoint {
+class MATHS_TIME_SERIES_EXPORT CLevelShift final : public CChangePoint {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
@@ -107,6 +125,10 @@ public:
                 double significantPValue);
 
     TChangePointUPtr undoable() const override;
+    COutlierWeightDerate
+    outlierWeightDerate(core_t::TTime, core_t::TTime, const TPredictor&) const override {
+        return COutlierWeightDerate{m_Shift};
+    }
     bool largeEnough(double threshold) const override;
     bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const override;
     bool apply(CTrendComponent& component) const override;
@@ -116,16 +138,16 @@ public:
     std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
 private:
-    double m_Shift = 0.0;
-    core_t::TTime m_ValuesStartTime = 0;
-    core_t::TTime m_BucketLength = 0;
+    double m_Shift{0.0};
+    core_t::TTime m_ValuesStartTime{0};
+    core_t::TTime m_BucketLength{0};
     TFloatMeanAccumulatorVec m_Values;
     TSizeVec m_Segments;
     TDoubleVec m_Shifts;
 };
 
 //! \brief Represents a linear scale of a time series.
-class MATHS_TIME_SERIES_EXPORT CScale : public CChangePoint {
+class MATHS_TIME_SERIES_EXPORT CScale final : public CChangePoint {
 public:
     static const std::string TYPE;
 
@@ -138,6 +160,10 @@ public:
            double significantPValue);
 
     TChangePointUPtr undoable() const override;
+    COutlierWeightDerate
+    outlierWeightDerate(core_t::TTime, core_t::TTime, const TPredictor&) const override {
+        return COutlierWeightDerate{m_Magnitude};
+    }
     bool largeEnough(double threshold) const override;
     bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const override;
     bool apply(CTrendComponent& component) const override;
@@ -149,13 +175,13 @@ public:
     std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
 private:
-    double m_Scale = 1.0;
-    double m_Magnitude = 0.0;
-    double m_MinimumDurationScale = 1.0;
+    double m_Scale{1.0};
+    double m_Magnitude{0.0};
+    double m_MinimumDurationScale{1.0};
 };
 
 //! \brief Represents a time shift of a time series.
-class MATHS_TIME_SERIES_EXPORT CTimeShift : public CChangePoint {
+class MATHS_TIME_SERIES_EXPORT CTimeShift final : public CChangePoint {
 public:
     static const std::string TYPE;
 
@@ -168,6 +194,9 @@ public:
     CTimeShift(core_t::TTime time, core_t::TTime shift, double significantPValue);
 
     TChangePointUPtr undoable() const override;
+    COutlierWeightDerate outlierWeightDerate(core_t::TTime startTime,
+                                             core_t::TTime endTime,
+                                             const TPredictor& predictor) const override;
     bool largeEnough(double) const override { return m_Shift != 0; }
     bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const override;
     bool apply(CTimeSeriesDecomposition& decomposition) const override;
@@ -180,7 +209,7 @@ private:
     double undonePredict(const TPredictor& predictor, core_t::TTime time) const override;
 
 private:
-    core_t::TTime m_Shift = 0;
+    core_t::TTime m_Shift{0};
 };
 
 //! \brief Manages persist and restore of an undoable change point.
@@ -292,9 +321,9 @@ private:
             : s_ResidualVariance{residualVariance}, s_TruncatedResidualVariance{truncatedResidualVariance},
               s_NumberParameters{numberParameters}, s_ChangePoint{std::move(changePoint)} {}
 
-        double s_ResidualVariance = 0.0;
-        double s_TruncatedResidualVariance = 0.0;
-        double s_NumberParameters = 0.0;
+        double s_ResidualVariance{0.0};
+        double s_TruncatedResidualVariance{0.0};
+        double s_NumberParameters{0.0};
         TChangePointUPtr s_ChangePoint;
     };
 

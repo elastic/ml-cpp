@@ -118,7 +118,7 @@ struct MODEL_EXPORT SAnnotatedProbability {
     using TDescriptiveDataDoublePr = SAttributeProbability::TDescriptiveDataDoublePr;
     using TDescriptiveDataDoublePr2Vec = SAttributeProbability::TDescriptiveDataDoublePr2Vec;
     using TOptionalDouble = boost::optional<double>;
-    using TOptionalUInt64 = boost::optional<uint64_t>;
+    using TOptionalUInt64 = boost::optional<std::uint64_t>;
 
     SAnnotatedProbability();
     SAnnotatedProbability(double p);

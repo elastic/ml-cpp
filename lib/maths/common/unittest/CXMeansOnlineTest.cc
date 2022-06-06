@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
             cluster.logLikelihoodFromCluster(maths_t::E_ClustersFractionWeight, TPoint(1.5)),
         1e-10);
 
-    uint64_t origChecksum = cluster.checksum(0);
+    std::uint64_t origChecksum = cluster.checksum(0);
     std::string origXml;
     {
         core::CRapidXmlStatePersistInserter inserter("root");
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testCluster) {
         maths_t::E_ContinuousData, 0.1, maths::common::MINIMUM_CLUSTER_SPLIT_FRACTION,
         maths::common::MINIMUM_CLUSTER_SPLIT_COUNT, maths::common::MINIMUM_CATEGORY_COUNT);
     restore(params, traverser, restoredCluster);
-    uint64_t restoredChecksum = restoredCluster.checksum(0);
+    std::uint64_t restoredChecksum = restoredCluster.checksum(0);
     BOOST_REQUIRE_EQUAL(origChecksum, restoredChecksum);
 
     double x2[][2]{{10.3, 10.4}, {10.6, 10.5}, {10.7, 11.0}, {9.8, 10.2},

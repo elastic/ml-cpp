@@ -43,11 +43,10 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(CModelTestFixtureBase::TStrVec::iterator)
 
@@ -64,8 +63,8 @@ const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
 class CTestFixture : public CModelTestFixtureBase {
 public:
     TUInt64Vec rawEventCounts(std::size_t copies = 1) {
-        uint64_t counts[] = {54, 67, 39, 58, 46, 50, 42,
-                             48, 53, 51, 50, 57, 53, 49};
+        std::uint64_t counts[] = {54, 67, 39, 58, 46, 50, 42,
+                                  48, 53, 51, 50, 57, 53, 49};
         TUInt64Vec result;
         for (std::size_t i = 0; i < copies; ++i) {
             result.insert(result.end(), std::begin(counts), std::end(counts));
@@ -155,12 +154,12 @@ public:
         CModelFactory::TModelPtr model(factory.makeModel(gatherer));
         BOOST_TEST_REQUIRE(model);
 
-        std::size_t anomalousBucket{20u};
-        std::size_t numberBuckets{30u};
+        std::size_t anomalousBucket{20};
+        std::size_t numberBuckets{30};
 
         const core_t::TTime endTime = startTime + (numberBuckets * bucketLength);
 
-        std::size_t i{0u};
+        std::size_t i{0};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, i++) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
@@ -215,7 +214,7 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
     this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, startTime, 1);
-    CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
+    auto* model = dynamic_cast<CEventRateModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
     TMathsModelPtr timeseriesModel{m_Factory->defaultFeatureModel(
@@ -231,8 +230,8 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
     LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
               << ", # events = " << eventTimes.size());
 
-    std::size_t i{0u};
-    std::size_t j{0u};
+    std::size_t i{0};
+    std::size_t j{0};
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime;
          bucketStartTime += bucketLength, ++j) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
@@ -243,16 +242,16 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
             count += 1.0;
         }
 
-        LOG_DEBUG(<< "Bucket count = " << count);
-
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
         maths::common::CModelAddSamplesParams params_;
-        params_.integer(true)
-            .nonNegative(true)
+        params_.isInteger(true)
+            .isNonNegative(true)
             .propagationInterval(1.0)
             .trendWeights(weights)
-            .priorWeights(weights);
+            .priorWeights(weights)
+            .bucketOccupancy(1.0)
+            .firstValueTime(startTime);
         double sample{static_cast<double>(expectedEventCounts[j])};
         maths::common::CModel::TTimeDouble2VecSizeTrVec expectedSamples{core::make_triple(
             (bucketStartTime + bucketEndTime) / 2,
@@ -261,7 +260,7 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
 
         // Test we sample the data correctly.
         BOOST_REQUIRE_EQUAL(expectedEventCounts[j],
-                            static_cast<uint64_t>(model->currentBucketValue(
+                            static_cast<std::uint64_t>(model->currentBucketValue(
                                 model_t::E_IndividualCountByBucketAndPerson, 0,
                                 0, bucketStartTime)[0]));
         BOOST_REQUIRE_EQUAL(timeseriesModel->checksum(),
@@ -310,7 +309,7 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
     params.s_InitialDecayRateMultiplier = 1.0;
     this->makeModel(params, {model_t::E_IndividualNonZeroCountByBucketAndPerson},
                     startTime, 1);
-    CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
+    auto* model = dynamic_cast<CEventRateModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
     TMathsModelPtr timeseriesModel{m_Factory->defaultFeatureModel(
@@ -326,8 +325,8 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
     LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
               << ", # events = " << eventTimes.size());
 
-    std::size_t i{0u};
-    std::size_t j{0u};
+    std::size_t i{0};
+    std::size_t j{0};
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime;
          bucketStartTime += bucketLength) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
@@ -338,17 +337,16 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
             count += 1.0;
         }
 
-        LOG_DEBUG(<< "Bucket count = " << count);
-
         model->sample(bucketStartTime, bucketEndTime, m_ResourceMonitor);
 
         if (*model->currentBucketCount(0, bucketStartTime) > 0) {
             maths::common::CModelAddSamplesParams params_;
-            params_.integer(true)
-                .nonNegative(true)
+            params_.isInteger(true)
+                .isNonNegative(true)
                 .propagationInterval(1.0)
                 .trendWeights(weights)
-                .priorWeights(weights);
+                .priorWeights(weights)
+                .firstValueTime(startTime);
             double sample{static_cast<double>(model_t::offsetCountToZero(
                 model_t::E_IndividualNonZeroCountByBucketAndPerson,
                 static_cast<double>(expectedEventCounts[j])))};
@@ -359,7 +357,7 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
 
             // Test we sample the data correctly.
             BOOST_REQUIRE_EQUAL(expectedEventCounts[j],
-                                static_cast<uint64_t>(model->currentBucketValue(
+                                static_cast<std::uint64_t>(model->currentBucketValue(
                                     model_t::E_IndividualNonZeroCountByBucketAndPerson,
                                     0, 0, bucketStartTime)[0]));
             BOOST_REQUIRE_EQUAL(timeseriesModel->checksum(),

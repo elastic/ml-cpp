@@ -16,12 +16,11 @@
 
 #include <maths/common/ImportExport.h>
 
+#include <cstdint>
 #include <functional>
 #include <list>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -82,7 +81,7 @@ namespace common {
 //! and to reserve sufficient memory up front for our node allocator.
 class MATHS_COMMON_EXPORT CQDigest : private core::CNonCopyable {
 public:
-    using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
+    using TUInt32UInt64Pr = std::pair<std::uint32_t, std::uint64_t>;
     using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
 public:
@@ -96,7 +95,7 @@ public:
     //@}
 
 public:
-    CQDigest(uint64_t k, double decayRate = 0.0);
+    CQDigest(std::uint64_t k, double decayRate = 0.0);
 
     //! \name Serialization
     //@{
@@ -108,7 +107,7 @@ public:
     //@}
 
     //! Add \p n values \p value to the q-digest.
-    void add(uint32_t value, uint64_t n = 1ull);
+    void add(std::uint32_t value, std::uint64_t n = 1ull);
 
     //! Merge this and \p digest.
     void merge(const CQDigest& digest);
@@ -135,7 +134,7 @@ public:
     //! digest isn't empty.
     //! \return True if the quantile could be computed and
     //! false otherwise.
-    bool quantile(double q, uint32_t& result) const;
+    bool quantile(double q, std::uint32_t& result) const;
 
     //! Find the largest value x such that upper bound of the
     //! c.d.f. is less than \p f, i.e. \f$\sup_y{\{y:F(y)<f\}}\f$.
@@ -144,7 +143,7 @@ public:
     //! only defined on the points where it changes, i.e. the
     //! q-digest node end points. So this returns the rightmost
     //! end point where the upper c.d.f. is less than \p f.
-    bool quantileSublevelSetSupremum(double f, uint32_t& result) const;
+    bool quantileSublevelSetSupremum(double f, std::uint32_t& result) const;
 
     //! Get the quantile corresponding to the c.d.f. value \p.
     //!
@@ -162,7 +161,7 @@ public:
     //! the c.d.f. at \p x.
     //! \param[out] upperBound Filled in with the upper bound for
     //! the c.d.f. at \p x.
-    bool cdf(uint32_t x, double confidence, double& lowerBound, double& upperBound) const;
+    bool cdf(std::uint32_t x, double confidence, double& lowerBound, double& upperBound) const;
 
     //! Compute the value of the p.d.f. at \p x.
     //!
@@ -173,13 +172,13 @@ public:
     //! the p.d.f. at \p x.
     //! \param[out] upperBound Filled in with the upper bound for
     //! the p.d.f. at \p x.
-    void pdf(uint32_t x, double confidence, double& lowerBound, double& upperBound) const;
+    void pdf(std::uint32_t x, double confidence, double& lowerBound, double& upperBound) const;
 
     //! Get the maximum knot point less than \p x.
-    void sublevelSetSupremum(uint32_t x, uint32_t& result) const;
+    void sublevelSetSupremum(std::uint32_t x, std::uint32_t& result) const;
 
     //! Get the minimum knot point greater than \p x.
-    void superlevelSetInfimum(uint32_t x, uint32_t& result) const;
+    void superlevelSetInfimum(std::uint32_t x, std::uint32_t& result) const;
 
     //! Get a summary of the q-digest. This is the counts less
     //! than or equal to each distinct integer in the quantile
@@ -189,13 +188,13 @@ public:
     void summary(TUInt32UInt64PrVec& result) const;
 
     //! Get the total number of values added to the q-digest.
-    uint64_t n() const;
+    std::uint64_t n() const;
 
     //! Get the size factor "k" for the q-digest.
-    uint64_t k() const;
+    std::uint64_t k() const;
 
     //! Get a checksum of this object.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! \name Test Methods
     //@{
@@ -248,36 +247,38 @@ private:
 
     public:
         CNode();
-        CNode(uint32_t min, uint32_t max, uint64_t count, uint64_t subtreeCount);
+        CNode(std::uint32_t min, std::uint32_t max, std::uint64_t count, std::uint64_t subtreeCount);
 
         //! Get the size of the q-digest rooted at this node.
         std::size_t size() const;
 
         //! Get the approximate quantile \p n.
-        uint32_t quantile(uint64_t leftCount, uint64_t n) const;
+        std::uint32_t quantile(std::uint64_t leftCount, std::uint64_t n) const;
 
         //! Get the largest value of x for which the upper count
         //! i.e. count of values definitely to the right of x, is
         //! less than \p n.
-        bool quantileSublevelSetSupremum(uint64_t n, uint64_t leftCount, uint32_t& result) const;
+        bool quantileSublevelSetSupremum(std::uint64_t n,
+                                         std::uint64_t leftCount,
+                                         std::uint32_t& result) const;
 
         //! Get the lower bound for the c.d.f. at \p x.
-        void cdfLowerBound(uint32_t x, uint64_t& result) const;
+        void cdfLowerBound(std::uint32_t x, std::uint64_t& result) const;
 
         //! Get the upper bound for the c.d.f. at \p x.
-        void cdfUpperBound(uint32_t x, uint64_t& result) const;
+        void cdfUpperBound(std::uint32_t x, std::uint64_t& result) const;
 
         //! Get the maximum knot point less than \p x.
-        void sublevelSetSupremum(const int64_t x, uint32_t& result) const;
+        void sublevelSetSupremum(const int64_t x, std::uint32_t& result) const;
 
         //! Get the minimum knot point greater than \p x.
-        void superlevelSetInfimum(uint32_t x, uint32_t& result) const;
+        void superlevelSetInfimum(std::uint32_t x, std::uint32_t& result) const;
 
         //! Fill in \p nodes with q-digest nodes in post-order.
         void postOrder(TNodePtrVec& nodes) const;
 
         //! Expand the node to fit \p value.
-        CNode* expand(CNodeAllocator& allocator, const uint32_t& value);
+        CNode* expand(CNodeAllocator& allocator, const std::uint32_t& value);
 
         //! Insert the specified node at its lowest ancestor
         //! in the q-digest.
@@ -286,21 +287,21 @@ private:
         //! Compress the digest at the triple comprising this node,
         //! its sibling and parent in the complete tree if they are
         //! in the q-digest.
-        CNode* compress(CNodeAllocator& allocator, uint64_t compressionFactor);
+        CNode* compress(CNodeAllocator& allocator, std::uint64_t compressionFactor);
 
         //! Age the counts by the specified factor.
-        uint64_t age(double factor);
+        std::uint64_t age(double factor);
 
         //! Get the span of universe values covered by the node.
-        uint32_t span() const;
+        std::uint32_t span() const;
         //! Get the minimum value covered by the node.
-        uint32_t min() const;
+        std::uint32_t min() const;
         //! Get the maximum value covered by the node.
-        uint32_t max() const;
+        std::uint32_t max() const;
         //! Get the count of entries in the node range.
-        const uint64_t& count() const;
+        const std::uint64_t& count() const;
         //! Get the count in the subtree rooted at this node.
-        const uint64_t& subtreeCount() const;
+        const std::uint64_t& subtreeCount() const;
 
         //! Persist this node and descendents
         void persistRecursive(const std::string& nodeTag,
@@ -310,7 +311,7 @@ private:
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
         //! Check the node invariants in the q-digest rooted at this node.
-        bool checkInvariants(uint64_t compressionFactor) const;
+        bool checkInvariants(std::uint64_t compressionFactor) const;
 
         //! Print for debug.
         std::string print() const;
@@ -363,16 +364,16 @@ private:
         TNodePtrVec m_Descendants;
 
         //! The minimum value covered by the node.
-        uint32_t m_Min;
+        std::uint32_t m_Min;
 
         //! The maximum value covered by the node.
-        uint32_t m_Max;
+        std::uint32_t m_Max;
 
         //! The count of the node.
-        uint64_t m_Count;
+        std::uint64_t m_Count;
 
         //! The count in the subtree root at this node.
-        uint64_t m_SubtreeCount;
+        std::uint64_t m_SubtreeCount;
     };
 
     //! Manages the creation and recycling of nodes.
@@ -415,9 +416,9 @@ private:
 private:
     //! Controls the maximum number of values stored. In particular,
     //! the number of nodes is less than \f$3k\f$.
-    uint64_t m_K;
+    std::uint64_t m_K;
     //! The number of values added to the q-digest.
-    uint64_t m_N;
+    std::uint64_t m_N;
     //! The root node.
     CNode* m_Root;
     //! The node allocator.

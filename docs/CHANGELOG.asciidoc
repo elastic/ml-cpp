@@ -28,6 +28,16 @@
 
 //=== Regressions
 
+== {es} version 8.4.0
+
+=== Enhancements
+
+* Improve normalization of anomaly detection results for short bucket lengths. This
+  corrects bias which could cause our scoring to be too low for these jobs. (See,
+  {ml-pull}2285[#2285], issue: {ml-issue}2276[#2276].)
+* Fairer application of size penalty for model selection for training classification
+  and regression models. (See {ml-pull}2291[#2291].)
+
 == {es} version 8.3.0
 
 === Enhancements
@@ -35,6 +45,12 @@
 * Upgrade PyTorch to version 1.11. (See {ml-pull}2233[#2233], {ml-pull}2235[#2235]
   and {ml-pull}2238[#2238].)
 * Upgrade zlib to version 1.2.12 on Windows. (See {ml-pull}2253[#2253].)
+* Upgrade libxml2 to version 2.9.14 on Linux and Windows. (See {ml-pull}2287[#2287].)
+* Improve time series model stability and anomaly scoring consistency for data
+  for which many buckets are empty. (See {ml-pull}2267[#2267].)
+* Address root cause for actuals equals typical equals zero anomalies. (See {ml-pull}2270[#2270].)
+* Better handling of outliers in update immediately after detecting changes in time
+  series. (See {ml-pull}2280[#2280].)
 
 === Bug Fixes
 
@@ -44,6 +60,26 @@
   log errors training classification and regression models. (See {ml-pull}2249[#2249].)
 * Fix some bugs affecting decision to stop optimising hyperparameters for training
   classification and regression models. (See {ml-pull}2259[#2259].)
+* Fix cause of "Must provide points at which to evaluate function" log error training
+  classification and regression models. (See {ml-pull}2268[#2268].)
+* Fix a source of "Discarding sample = nan, weights = ..." log errors for time series
+  anomaly detection. (See {ml-pull}2286[#2286].)
+
+== {es} version 8.2.2
+
+=== Enhancements
+
+* Make ML native processes work with glibc 2.35 (required for Ubuntu 22.04). (See
+  {ml-pull}2272[#2272].)
+
+=== Bug Fixes
+
+* Adjacency weighting fixes in categorization. (See {ml-pull}2277[#2277].)
+
+== {es} version 8.2.1
+
+=== Bug Fixes
+
 * Fix edge case which could cause the model bounds to blow up after detecting seasonality.
   (See {ml-pull}2261[#2261].)
 

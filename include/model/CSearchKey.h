@@ -16,16 +16,13 @@
 #include <core/CStoredStringPtr.h>
 #include <core/UnwrapRef.h>
 
-#include <maths/common/COrderings.h>
-
 #include <model/FunctionTypes.h>
 #include <model/ImportExport.h>
 
+#include <cstdint>
 #include <iosfwd>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {

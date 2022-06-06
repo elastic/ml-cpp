@@ -90,7 +90,7 @@ public:
 private:
     template<typename NUM_TYPE>
     void appendNumber(NUM_TYPE num, std::string& str) {
-        uint32_t netNum(htonl(static_cast<uint32_t>(num)));
+        std::uint32_t netNum(htonl(static_cast<std::uint32_t>(num)));
         str.append(reinterpret_cast<char*>(&netNum), sizeof(netNum));
     }
 
@@ -283,11 +283,11 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
 }
 
 BOOST_AUTO_TEST_CASE(testCorruptStreamDetection) {
-    uint32_t numFields(1);
-    uint32_t numFieldsNet(htonl(numFields));
-    std::string dodgyInput(reinterpret_cast<char*>(&numFieldsNet), sizeof(uint32_t));
+    std::uint32_t numFields(1);
+    std::uint32_t numFieldsNet(htonl(numFields));
+    std::string dodgyInput(reinterpret_cast<char*>(&numFieldsNet), sizeof(std::uint32_t));
     // This is going to create a length field consisting of four 'a' characters
-    // interpreted as a uint32_t
+    // interpreted as a std::uint32_t
     dodgyInput.append(1000, 'a');
 
     // Input must be binary otherwise Windows will stop at CTRL+Z

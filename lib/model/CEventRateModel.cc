@@ -39,6 +39,7 @@
 #include <model/FrequencyPredicates.h>
 
 #include <algorithm>
+#include <limits>
 #include <string>
 #include <utility>
 
@@ -316,7 +317,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 double count = model_t::offsetCountToZero(
                     feature, static_cast<double>(data_.second.s_Count));
                 TDouble2Vec value{count};
-                double winsorisationDerate = this->derate(pid, sampleTime);
+                double outlierWeightDerate = this->derate(pid, sampleTime);
                 double countWeight = initialCountWeight * this->learnRate(feature);
                 // Note we need to scale the amount of data we'll "age out" of the residual
                 // model in one bucket by the empty bucket weight so the posterior doesn't
@@ -336,7 +337,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 trendWeights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
                 priorWeights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
                 model->countWeights(sampleTime, value, countWeight, scaledCountWeight,
-                                    winsorisationDerate, 1.0, // count variance scale
+                                    outlierWeightDerate, 1.0, // count variance scale
                                     trendWeights[0], priorWeights[0]);
 
                 auto annotationCallback = [&](const std::string& annotation) {
@@ -352,11 +353,17 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
-                params.integer(true)
-                    .nonNegative(true)
+                params.isInteger(true)
+                    .isNonNegative(true)
                     .propagationInterval(scaledInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)
+                    .bucketOccupancy(model_t::includeEmptyBuckets(feature)
+                                         ? this->personFrequency(pid)
+                                         : 1.0)
+                    .firstValueTime(pid < this->firstBucketTimes().size()
+                                        ? this->firstBucketTimes()[pid]
+                                        : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });
@@ -486,23 +493,24 @@ bool CEventRateModel::computeProbability(std::size_t pid,
     return true;
 }
 
-uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
-    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
+std::uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
+    using TStrCRefUInt64Map =
+        std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 
-    uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
+    std::uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
 
     TStrCRefUInt64Map hashes;
     const TDoubleVec& categories = m_ProbabilityPrior.categories();
     const TDoubleVec& concentrations = m_ProbabilityPrior.concentrations();
     for (std::size_t i = 0; i < categories.size(); ++i) {
-        uint64_t& hash =
+        std::uint64_t& hash =
             hashes[std::cref(this->personName(static_cast<std::size_t>(categories[i])))];
         hash = maths::common::CChecksum::calculate(hash, concentrations[i]);
     }
     if (includeCurrentBucketStats) {
         for (const auto& featureData_ : m_CurrentBucketStats.s_FeatureData) {
             for (const auto& data : featureData_.second) {
-                uint64_t& hash = hashes[std::cref(this->personName(data.first))];
+                std::uint64_t& hash = hashes[std::cref(this->personName(data.first))];
                 hash = maths::common::CChecksum::calculate(hash, data.second.s_Count);
             }
         }

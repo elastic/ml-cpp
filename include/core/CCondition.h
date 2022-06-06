@@ -18,7 +18,7 @@
 #ifndef Windows
 #include <pthread.h>
 #endif
-#include <stdint.h>
+#include <cstdint>
 
 namespace ml {
 namespace core {
@@ -37,7 +37,7 @@ class CMutex;
 //!
 class CORE_EXPORT CCondition : private CNonCopyable {
 public:
-    CCondition(CMutex&);
+    explicit CCondition(CMutex&);
     ~CCondition();
 
     //! Wait in current thread for signal - blocks.  The wait may be
@@ -50,7 +50,7 @@ public:
     //! be spuriously interrupted by a signal, so the caller must check a
     //! condition that will detect spurious wakeups, and wait again if
     //! necessary.
-    bool wait(uint32_t t);
+    bool wait(std::uint32_t t);
 
     //! Wake up a single thread that is blocked in wait
     void signal();
@@ -61,7 +61,7 @@ public:
 private:
 #ifndef Windows
     //! Convert milliseconds to timespec
-    static bool convert(uint32_t, timespec&);
+    static bool convert(std::uint32_t, timespec&);
 #endif
 
 private:

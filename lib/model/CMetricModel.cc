@@ -155,7 +155,7 @@ CMetricModel::TDouble1Vec CMetricModel::currentBucketValue(model_t::EFeature fea
                                                            std::size_t /*cid*/,
                                                            core_t::TTime time) const {
     const TFeatureData* data = this->featureData(feature, pid, time);
-    if (data) {
+    if (data != nullptr) {
         const TOptionalSample& value = data->s_BucketValue;
         return value ? value->value(model_t::dimension(feature)) : TDouble1Vec();
     }
@@ -169,7 +169,7 @@ CMetricModel::TDouble1Vec CMetricModel::baselineBucketMean(model_t::EFeature fea
                                                            const TSizeDoublePr1Vec& correlated,
                                                            core_t::TTime time) const {
     const maths::common::CModel* model{this->model(feature, pid)};
-    if (!model) {
+    if (model == nullptr) {
         return TDouble1Vec();
     }
     static const TSizeDoublePr1Vec NO_CORRELATED;
@@ -286,7 +286,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                          ? this->params().s_MaximumUpdatesPerBucket / static_cast<double>(n)
                          : 1.0) *
                     this->learnRate(feature) * initialCountWeight;
-                double winsorisationDerate = this->derate(pid, sampleTime);
+                double outlierWeightDerate = this->derate(pid, sampleTime);
                 // Note we need to scale the amount of data we'll "age out" of the residual
                 // model in one bucket by the empty bucket weight so the posterior doesn't
                 // end up too flat.
@@ -314,7 +314,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                         ithSampleValue, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID);
                     model->countWeights(ithSampleTime, ithSampleValue,
                                         countWeight, scaledCountWeight,
-                                        winsorisationDerate, countVarianceScale,
+                                        outlierWeightDerate, countVarianceScale,
                                         trendWeights[i], priorWeights[i]);
                 }
 
@@ -331,11 +331,17 @@ void CMetricModel::sample(core_t::TTime startTime,
                 };
 
                 maths::common::CModelAddSamplesParams params;
-                params.integer(data_.second.s_IsInteger)
-                    .nonNegative(data_.second.s_IsNonNegative)
+                params.isInteger(data_.second.s_IsInteger)
+                    .isNonNegative(data_.second.s_IsNonNegative)
                     .propagationInterval(scaledInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)
+                    .bucketOccupancy(model_t::includeEmptyBuckets(feature)
+                                         ? this->personFrequency(pid)
+                                         : 1.0)
+                    .firstValueTime(pid < this->firstBucketTimes().size()
+                                        ? this->firstBucketTimes()[pid]
+                                        : std::numeric_limits<core_t::TTime>::min())
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });
@@ -376,13 +382,13 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     pJoint.addAggregator(maths::common::CProbabilityOfExtremeSample());
 
     bool skippedResults{false};
-    for (std::size_t i = 0u, n = gatherer.numberFeatures(); i < n; ++i) {
+    for (std::size_t i = 0, n = gatherer.numberFeatures(); i < n; ++i) {
         model_t::EFeature feature = gatherer.feature(i);
         if (model_t::isCategorical(feature)) {
             continue;
         }
         const TFeatureData* data = this->featureData(feature, pid, startTime);
-        if (!data || !data->s_BucketValue) {
+        if ((data == nullptr) || !data->s_BucketValue) {
             continue;
         }
         const TOptionalSample& bucket = data->s_BucketValue;
@@ -442,10 +448,11 @@ bool CMetricModel::computeProbability(const std::size_t pid,
     return true;
 }
 
-uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
-    using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
+std::uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
+    using TStrCRefUInt64Map =
+        std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 
-    uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
+    std::uint64_t seed = this->CIndividualModel::checksum(includeCurrentBucketStats);
 
 #define KEY(pid) std::cref(this->personName(pid))
 
@@ -455,11 +462,11 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
             m_CurrentBucketStats.s_FeatureData;
         for (std::size_t i = 0; i < featureData.size(); ++i) {
             for (std::size_t j = 0; j < featureData[i].second.size(); ++j) {
-                uint64_t& hash = hashes[KEY(featureData[i].second[j].first)];
+                std::uint64_t& hash = hashes[KEY(featureData[i].second[j].first)];
                 const TFeatureData& data = featureData[i].second[j].second;
                 hash = maths::common::CChecksum::calculate(hash, data.s_BucketValue);
                 hash = core::CHashing::hashCombine(
-                    hash, static_cast<uint64_t>(data.s_IsInteger));
+                    hash, static_cast<std::uint64_t>(data.s_IsInteger));
                 hash = maths::common::CChecksum::calculate(hash, data.s_Samples);
             }
         }

@@ -18,7 +18,7 @@ MAINTAINER David Roberts <dave.roberts@elastic.co>
 # Make sure OS packages are up to date and required packages are installed
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y bzip2 gcc gcc-c++ git libffi-devel make openssl-devel texinfo unzip wget which zip zlib-devel
+  yum install -y bzip2 gcc gcc-c++ git libffi-devel make openssl-devel texinfo unzip wget which xz zip zlib-devel
 
 # For compiling with hardening and optimisation
 ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -march=armv8-a+crc+crypto"
@@ -63,13 +63,13 @@ RUN \
 # Build libxml2
 RUN \
   cd ${build_dir} && \
-  wget --quiet -O - ftp://anonymous@ftp.xmlsoft.org/libxml2/libxml2-2.9.7.tar.gz | tar zxf - && \
-  cd libxml2-2.9.7 && \
+  wget --quiet --no-check-certificate -O - https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.14.tar.xz | tar Jxf - && \
+  cd libxml2-2.9.14 && \
   ./configure --prefix=/usr/local/gcc103 --without-python --without-readline && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf libxml2-2.9.7
+  rm -rf libxml2-2.9.14
 
 # Build Boost
 RUN \

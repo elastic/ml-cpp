@@ -23,10 +23,9 @@
 #include <boost/unordered_set.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace model {
@@ -262,7 +261,7 @@ protected:
                                    TDouble1Vec& baseline) const;
 
     //! Get the amount by which to derate the initial decay rate
-    //! and the minimum Winsorisation weight for \p pid at \p time.
+    //! and the minimum outlier weight for \p pid at \p time.
     double derate(std::size_t pid, core_t::TTime time) const;
 
     //! Print the current bucketing interval.

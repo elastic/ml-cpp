@@ -49,7 +49,7 @@ struct SMultimodalPriorMode {
     double weight() const { return s_Prior->numberSamples(); }
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed) const {
+    std::uint64_t checksum(std::uint64_t seed) const {
         seed = CChecksum::calculate(seed, s_Index);
         return CChecksum::calculate(seed, s_Prior);
     }

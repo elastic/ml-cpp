@@ -87,14 +87,14 @@ public:
     //!
     //! \note \p count can be negative in which case the count is
     //! removed from the sketch.
-    void add(uint32_t category, double count);
+    void add(std::uint32_t category, double count);
 
     //! Remove \p category from the sketch altogether.
     //!
     //! \note That one can decrement the counts by calling add with
     //! a negative count. However, if we have not sketched the counts
     //! this removes the map entry for \p category.
-    void removeFromMap(uint32_t category);
+    void removeFromMap(std::uint32_t category);
 
     //! Age the counts forwards \p time.
     void age(double alpha);
@@ -103,16 +103,16 @@ public:
     double totalCount() const;
 
     //! Get the count of category \p category.
-    double count(uint32_t category) const;
+    double count(std::uint32_t category) const;
 
     //! Get the fraction of category \p category.
-    double fraction(uint32_t category) const;
+    double fraction(std::uint32_t category) const;
 
     //! Check if the counts are sketched.
     bool sketched() const;
 
     //! Get a checksum for the sketch.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get the memory used by this sketch.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -145,7 +145,7 @@ private:
         TFloatVecVec s_Counts;
     };
 
-    using TUInt32FloatPr = std::pair<uint32_t, common::CFloatStorage>;
+    using TUInt32FloatPr = std::pair<std::uint32_t, common::CFloatStorage>;
     using TUInt32FloatPrVec = std::vector<TUInt32FloatPr>;
     using TUInt32FloatPrVecOrSketch = std::variant<TUInt32FloatPrVec, SSketch>;
 

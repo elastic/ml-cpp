@@ -49,7 +49,7 @@ void CSystemCallFilter::installSystemCallFilter() {
 
     // Limit the number of active processes to 1 and
     // flag that the limit is set
-    limits.ActiveProcessLimit = uint32_t{1};
+    limits.ActiveProcessLimit = std::uint32_t{1};
     limits.LimitFlags = limits.LimitFlags | JOB_OBJECT_LIMIT_ACTIVE_PROCESS;
     if (SetInformationJobObject(job, JobObjectBasicLimitInformation, &limits,
                                 sizeof(limits)) == 0) {

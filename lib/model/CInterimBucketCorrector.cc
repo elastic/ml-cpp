@@ -46,11 +46,11 @@ CInterimBucketCorrector::CInterimBucketCorrector(core_t::TTime bucketLength)
       m_FinalCountTrend(trendDecayRate(bucketLength), bucketLength, COMPONENT_SIZE) {
 }
 
-void CInterimBucketCorrector::currentBucketCount(core_t::TTime time, uint64_t count) {
+void CInterimBucketCorrector::currentBucketCount(core_t::TTime time, std::uint64_t count) {
     m_Completeness = this->estimateBucketCompleteness(time, count);
 }
 
-void CInterimBucketCorrector::finalBucketCount(core_t::TTime time, uint64_t count) {
+void CInterimBucketCorrector::finalBucketCount(core_t::TTime time, std::uint64_t count) {
     core_t::TTime bucketMidPoint{this->calcBucketMidPoint(time)};
     m_Completeness = 1.0;
     m_FinalCountTrend.addPoint(bucketMidPoint, static_cast<double>(count));
@@ -123,10 +123,9 @@ double CInterimBucketCorrector::estimateBucketCompleteness(core_t::TTime time,
                                                            std::uint64_t count_) const {
     double count{static_cast<double>(count_)};
     core_t::TTime bucketMidPoint{this->calcBucketMidPoint(time)};
-    double bucketCount{
-        m_FinalCountTrend.initialized()
-            ? maths::common::CBasicStatistics::mean(m_FinalCountTrend.value(bucketMidPoint))
-            : maths::common::CBasicStatistics::mean(m_FinalCountMean)};
+    double bucketCount{m_FinalCountTrend.initialized()
+                           ? m_FinalCountTrend.value(bucketMidPoint, 0.0, true).mean()
+                           : maths::common::CBasicStatistics::mean(m_FinalCountMean)};
     return bucketCount > 0.0
                ? maths::common::CTools::truncate(count / bucketCount, 0.0, 1.0)
                : 1.0;

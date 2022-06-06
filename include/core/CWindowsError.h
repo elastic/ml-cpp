@@ -13,10 +13,9 @@
 
 #include <core/ImportExport.h>
 
+#include <cstdint>
 #include <iosfwd>
 #include <string>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -44,17 +43,17 @@ public:
     CWindowsError();
 
     //! Initialise using a specific error number
-    CWindowsError(uint32_t errorCode);
+    CWindowsError(std::uint32_t errorCode);
 
     //! Access the raw error code number
-    uint32_t errorCode() const;
+    std::uint32_t errorCode() const;
 
     //! Textual representation of the error
     std::string errorString() const;
 
 private:
     //! The error code
-    uint32_t m_ErrorCode;
+    std::uint32_t m_ErrorCode;
 
     friend CORE_EXPORT std::ostream& operator<<(std::ostream&, const CWindowsError&);
 };
