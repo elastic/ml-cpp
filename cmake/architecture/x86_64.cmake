@@ -12,7 +12,7 @@
 message(STATUS "x86_64 detected for target")
 set (ARCHCFLAGS "-msse4.2")
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    string(APPEND ARCHCFLAGS " -mfpmath=sse")
+    list(APPEND ARCHCFLAGS "-mfpmath=sse")
 endif()
 add_compile_definitions(RAPIDJSON_SSE42)
 

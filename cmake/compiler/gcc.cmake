@@ -58,7 +58,7 @@ list(APPEND ML_C_FLAGS
 )
 
 list(APPEND ML_CXX_FLAGS
-  ${CMAKE_C_FLAGS}
+  ${ML_C_FLAGS}
   "-Wno-ctor-dtor-privacy"
   "-Wno-deprecated-declarations"
   "-Wold-style-cast"
