@@ -257,6 +257,10 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        this->initializeMissingFeatureMasks(frame);
+    });
+
     this->prepareDataFrameForPredict(frame);
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
