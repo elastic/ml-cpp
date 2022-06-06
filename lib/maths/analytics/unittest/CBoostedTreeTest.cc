@@ -1557,9 +1557,10 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
 
     auto updateBaseModel = [&](core::CDataFrame& frame, std::size_t maxNumNewTrees) {
         auto tmp_ = makeBatch2();
-        // Note that we fix the tree topology penalty because it is affected
-        // by the maxNumNewTrees so we can no longer guaranty that the hold
-        // out loss is less than or equal with more new trees.
+        // We fix the tree topology penalty because its initialization is
+        // affected by the maxNumNewTrees. Changing the parameter ranges for
+        // trainIncremental means we can no longer be sure that the hold out
+        // loss is no larger when we _optionally_ allow adding extra trees.
         auto updatedModel =
             maths::analytics::CBoostedTreeFactory::constructFromModel(
                 baseImpl.cloneFor(*tmp_, cols - 1))
@@ -1610,8 +1611,14 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
 
     LOG_DEBUG(<< "Holdout errors: base = " << testErrorBase << ", 0 new trees = " << testError0
               << ", 5 new trees = " << testError5 << ", 10 new trees = " << testError10);
-    BOOST_TEST_REQUIRE(testError0 >= testError5);
-    BOOST_TEST_REQUIRE(testError5 >= testError10);
+    // The initial model has too little capacity so we should get substantial
+    // improvements for adding trees.
+    BOOST_TEST_REQUIRE(0.9 * testError0 >= testError5);
+    BOOST_TEST_REQUIRE(0.9 * testError0 >= testError10);
+    // Since we perturb the hyperparameter optimisation we aren't guaranteed
+    // to have lower test error for 10 vs 5 trees, but it should be very close
+    // if it is larger.
+    BOOST_TEST_REQUIRE(1.01 * testError5 >= testError10);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -2613,7 +2620,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 40.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 30.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
