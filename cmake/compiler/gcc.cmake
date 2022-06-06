@@ -38,7 +38,7 @@ endif()
 
 SET(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> -ru <TARGET> <OBJECTS>")
 
-set(CMAKE_C_FLAGS
+list(APPEND ML_C_FLAGS
   "-g"
   ${CROSS_FLAGS}
   ${OPTCFLAGS}
@@ -57,7 +57,7 @@ set(CMAKE_C_FLAGS
   ${ML_COVERAGE}
 )
 
-set(CMAKE_CXX_FLAGS
+list(APPEND ML_CXX_FLAGS
   ${CMAKE_C_FLAGS}
   "-Wno-ctor-dtor-privacy"
   "-Wno-deprecated-declarations"
