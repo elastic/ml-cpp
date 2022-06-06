@@ -38,8 +38,31 @@ endif()
 
 SET(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> -ru <TARGET> <OBJECTS>")
 
-set(CMAKE_C_FLAGS "-g ${CROSS_FLAGS} ${OPTCFLAGS} ${ARCHCFLAGS} -fstack-protector -fno-math-errno -Wall -Wcast-align
--Wconversion -Wextra -Winit-self -Wno-psabi -Wparentheses -Wpointer-arith -Wswitch-enum ${ML_COVERAGE}")
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden")
+set(CMAKE_C_FLAGS
+  "-g"
+  ${CROSS_FLAGS}
+  ${OPTCFLAGS}
+  ${ARCHCFLAGS}
+  "-fstack-protector"
+  "-fno-math-errno"
+  "-Wall"
+  "-Wcast-align"
+  "-Wconversion"
+  "-Wextra"
+  "-Winit-self"
+  "-Wno-psabi"
+  "-Wparentheses"
+  "-Wpointer-arith"
+  "-Wswitch-enum"
+  ${ML_COVERAGE}
+)
+
+set(CMAKE_CXX_FLAGS
+  ${CMAKE_C_FLAGS}
+  "-Wno-ctor-dtor-privacy"
+  "-Wno-deprecated-declarations"
+  "-Wold-style-cast"
+  "-fvisibility-inlines-hidden"
+)
 
 

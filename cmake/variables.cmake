@@ -58,7 +58,6 @@ else()
   set(ML_BOOST_COMPILER_VER ${BOOST_VCVER})
 endif()
 message(STATUS "ML_BOOST_COMPILER_VER ${ML_BOOST_COMPILER_VER}")
-#message(STATUS "Boost_COMPILER ${Boost_COMPILER}")
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(ML_BASE_PATH ${ROOT}/usr/local/)
@@ -119,8 +118,6 @@ list(APPEND ML_SYSTEM_INCLUDE_DIRECTORIES
     ${CMAKE_SOURCE_DIR}/3rd_party/eigen
     ${CMAKE_SOURCE_DIR}/3rd_party/rapidjson/include
 )
-
-message(STATUS "ML_SYSTEM_INCLUDE_DIRECTORIES = ${ML_SYSTEM_INCLUDE_DIRECTORIES}")
 
 set(IMPORT_LIB_DIR lib)
 if (WIN32)

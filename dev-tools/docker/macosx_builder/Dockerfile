@@ -20,7 +20,7 @@ COPY . /ml-cpp/
 # Tell the build we want to cross compile
 ENV CPP_CROSS_COMPILE macosx
 
-ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/darwin-x86_64.cmake -DCPP_CROSS_COMPILE=macosx
+ENV CMAKE_FLAGS -DCMAKE_TOOLCHAIN_FILE=/ml-cpp/cmake/darwin-x86_64.cmake
 
 # Pass through any version qualifier (default none)
 ARG VERSION_QUALIFIER=

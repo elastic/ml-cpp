@@ -10,8 +10,8 @@
 #
 
 # which compilers to use for C and C++
-if(CPP_CROSS_COMPILE)
-  message(STATUS "Cross compiling: CPP_CROSS_COMPILE = ${CPP_CROSS_COMPILE}")
+if(DEFINED ENV{CPP_CROSS_COMPILE} AND $ENV{CPP_CROSS_COMPILE} NOT STREQUAL "")
+  message(STATUS "Cross compiling: CPP_CROSS_COMPILE = $ENV{CPP_CROSS_COMPILE}")
 
   set(CROSS_FLAGS --sysroot=${SYSROOT} -B /usr/local/bin -target ${CROSS_TARGET_PLATFORM} -stdlib=libc++)
   set(ML_SHARED_LINKER_FLAGS ${CROSS_FLAGS})

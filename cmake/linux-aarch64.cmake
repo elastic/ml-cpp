@@ -14,7 +14,20 @@ set(CMAKE_SYSTEM_NAME Linux)
 
 message(STATUS "CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}")
 
-set(CROSS_TARGET_PLATFORM  aarch64-linux-gnu)
+
+if(DEFINED ENV{CPP_CROSS_COMPILE} AND ENV{CPP_CROSS_COMPILE} STREQUAL "aarch64")
+  set(CROSS_TARGET_PLATFORM  aarch64-linux-gnu)
+  set(CMAKE_SYSROOT  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
+
+  # adjust the default behavior of the FIND_XXX() commands:
+  # search programs in the host environment
+  set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+  
+  # search headers and libraries in the target environment
+  set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+  set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+endif()
+
 
 ##########################
 # this must be first
@@ -30,17 +43,3 @@ include("${CMAKE_CURRENT_LIST_DIR}/architecture/aarch64.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/compiler/gcc.cmake")
 ##########################
 
-
-# where is the target environment located
-set(CMAKE_FIND_ROOT_PATH  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
-#set(CMAKE_SYSROOT  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
-
-message(STATUS "CMAKE_SYSROOT=${CMAKE_SYSROOT}")
-
-# adjust the default behavior of the FIND_XXX() commands:
-# search programs in the host environment
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-
-# search headers and libraries in the target environment
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

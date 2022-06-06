@@ -10,6 +10,5 @@
 #
 
 message(STATUS "aarch64 detected for target")
-#set(CMAKE_SYSTEM_PROCESSOR "aarch64")
 set(ARCHCFLAGS "-march=armv8-a+crc+crypto")
 add_compile_definitions(RAPIDJSON_NEON)

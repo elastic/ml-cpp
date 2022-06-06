@@ -12,14 +12,10 @@
 # the name of the target operating system
 message(STATUS "CMAKE_SYSTEM_NAME ${CMAKE_SYSTEM_NAME}")
 
-if(ENV{CPP_CROSS_COMPILE})
+if(DEFINED ENV{CPP_CROSS_COMPILE} AND ENV{CPP_CROSS_COMPILE} STREQUAL "macosx")
   set(CROSS_TARGET_PLATFORM  x86_64-apple-macosx10.14)
-  # where is the target environment located
-  set(CMAKE_FIND_ROOT_PATH  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
-  #set(CMAKE_SYSROOT  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
-  
-  message(STATUS "CMAKE_SYSROOT=${CMAKE_SYSROOT}")
-  
+  set(CMAKE_SYSROOT  /usr/local/sysroot-${CROSS_TARGET_PLATFORM})
+
   # adjust the default behavior of the FIND_XXX() commands:
   # search programs in the host environment
   set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)

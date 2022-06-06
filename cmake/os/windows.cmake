@@ -9,7 +9,7 @@
 # limitation.
 #
 
-message(STATUS "iWindows detected")
+message(STATUS "Windows detected")
 set(EXE_DIR bin)
 set(PLATFORM_NAME "Windows")
 add_compile_definitions(Windows)

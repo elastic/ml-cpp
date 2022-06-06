@@ -10,7 +10,6 @@
 #
 
 message(STATUS "x86_64 detected for target")
-#set(CMAKE_SYSTEM_PROCESSOR "x86_64")
 set (ARCHCFLAGS "-msse4.2")
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     string(APPEND ARCHCFLAGS " -mfpmath=sse")

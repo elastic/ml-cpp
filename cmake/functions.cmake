@@ -23,6 +23,10 @@ else()
   set (ML_CMAKE_DIR ${CMAKE_BASE_ROOT_DIR}/cmake)
 endif()
 
+#
+# Generate the additional resource file containing the ML icon and build information
+# that is linked into the Windows executables
+#
 function(ml_generate_resources _target)
   if(NOT WIN32)
     return()
@@ -43,6 +47,10 @@ function(ml_generate_resources _target)
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_target}.res)
 endfunction()
     
+#
+# Generate a list of source files, replacing any in the input list
+# with a platform specific file if one exists.
+#
 function(ml_generate_platform_sources)
   set(SRCS ${ARGN})
   foreach(FILE ${SRCS})
@@ -57,6 +65,10 @@ function(ml_generate_platform_sources)
   set(PLATFORM_SRCS ${PLATFORM_SRCS} PARENT_SCOPE)
 endfunction()
 
+#
+# Install a target into the correct location
+# depending on the type of target and the platform
+#
 function(ml_install _target)
   install(TARGETS ${_target} 
     LIBRARY DESTINATION ${DYNAMIC_LIB_DIR}
@@ -70,6 +82,10 @@ function(ml_install _target)
   endif()
 endfunction()
 
+#
+# Rules to create and install  a library target
+# _type may be SHARED or STATIC
+#
 function(ml_add_library _target _type)
   set(SRCS ${ARGN})
 
@@ -104,6 +120,15 @@ function(ml_add_library _target _type)
   endif()
 endfunction()
 
+#
+# Rules to create and install an executable target
+# Note that 'Main.cc' is included by default so there
+# is no neeed to pass it in.
+# Also note that a transient OBJECT library
+# is created, this simplifies the task of creating a unit
+# test that links against this executable target's object
+# files
+#
 function(ml_add_executable _target)
   set(SRCS ${ARGN})
 
@@ -132,6 +157,16 @@ function(ml_add_executable _target)
   endif()
 endfunction()
 
+#
+# Create a unit test executable and rules for running it.
+# The input parameter '_target' corresponds to either 
+# a library or executable target and will have 'ml_test_' prepended
+# to it to form the name of the unit test executable.
+# If an OBJECT library exists corresponding to the name of the
+# input parameter '_target' with 'Ml' prepended then the
+# constituent object files from that library will be linked
+# in to the unit test executable.
+#
 function(ml_add_test_executable _target)
   set(SRCS ${ARGN})
 
