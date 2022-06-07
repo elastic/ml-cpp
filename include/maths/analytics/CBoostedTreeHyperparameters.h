@@ -698,7 +698,6 @@ private:
                                               TDoubleSizeDoubleTrVec testLosses) const;
     void checkIfCanSkipFineTuneSearch(std::size_t numberTrees);
     void captureHyperparametersAndLoss(double loss);
-    CBoostedTreeHyperparameters copyRegularizationParameters() const;
     TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
     void setHyperparameterValues(TVector parameters);
     //! \note Only tunable parameters should be passed in \p parameters. If \p reestimate

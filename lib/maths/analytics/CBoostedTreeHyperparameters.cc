@@ -952,31 +952,24 @@ void CBoostedTreeHyperparameters::captureScale() {
 
 void CBoostedTreeHyperparameters::captureHyperparametersAndLoss(double testLoss) {
     if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
-        m_LineSearchHyperparameterLosses.emplace_back(
-            this->copyRegularizationParameters(), testLoss);
+        CBoostedTreeHyperparameters copy;
+        copy.m_IncrementalTraining = m_IncrementalTraining;
+        copy.m_DepthPenaltyMultiplier = m_DepthPenaltyMultiplier;
+        copy.m_TreeSizePenaltyMultiplier = m_TreeSizePenaltyMultiplier;
+        copy.m_LeafWeightPenaltyMultiplier = m_LeafWeightPenaltyMultiplier;
+        copy.m_SoftTreeDepthLimit = m_SoftTreeDepthLimit;
+        copy.m_SoftTreeDepthTolerance = m_SoftTreeDepthTolerance;
+        copy.m_TreeTopologyChangePenalty = m_TreeTopologyChangePenalty;
+        copy.m_DownsampleFactor = m_DownsampleFactor;
+        copy.m_FeatureBagFraction = m_FeatureBagFraction;
+        copy.m_Eta = m_Eta;
+        copy.m_EtaGrowthRatePerTree = m_EtaGrowthRatePerTree;
+        copy.m_RetrainedTreeEta = m_RetrainedTreeEta;
+        copy.m_PredictionChangeCost = m_PredictionChangeCost;
+        copy.m_MaximumNumberTrees = m_MaximumNumberTrees;
+        copy.m_TunableHyperparameters = m_TunableHyperparameters;
+        m_LineSearchHyperparameterLosses.emplace_back(std::move(copy), testLoss);
     }
-}
-
-CBoostedTreeHyperparameters CBoostedTreeHyperparameters::copyRegularizationParameters() const {
-    CBoostedTreeHyperparameters copyTo;
-
-    copyTo.m_IncrementalTraining = m_IncrementalTraining;
-    copyTo.m_DepthPenaltyMultiplier = m_DepthPenaltyMultiplier;
-    copyTo.m_TreeSizePenaltyMultiplier = m_TreeSizePenaltyMultiplier;
-    copyTo.m_LeafWeightPenaltyMultiplier = m_LeafWeightPenaltyMultiplier;
-    copyTo.m_SoftTreeDepthLimit = m_SoftTreeDepthLimit;
-    copyTo.m_SoftTreeDepthTolerance = m_SoftTreeDepthTolerance;
-    copyTo.m_TreeTopologyChangePenalty = m_TreeTopologyChangePenalty;
-    copyTo.m_DownsampleFactor = m_DownsampleFactor;
-    copyTo.m_FeatureBagFraction = m_FeatureBagFraction;
-    copyTo.m_Eta = m_Eta;
-    copyTo.m_EtaGrowthRatePerTree = m_EtaGrowthRatePerTree;
-    copyTo.m_RetrainedTreeEta = m_RetrainedTreeEta;
-    copyTo.m_PredictionChangeCost = m_PredictionChangeCost;
-    copyTo.m_MaximumNumberTrees = m_MaximumNumberTrees;
-    copyTo.m_TunableHyperparameters = m_TunableHyperparameters;
-
-    return copyTo;
 }
 
 CBoostedTreeHyperparameters::TVector CBoostedTreeHyperparameters::selectParametersVector(
