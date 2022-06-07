@@ -33,7 +33,7 @@ do
 
     case "$1" in
         --extract-unit-tests)
-            EXTRACT_FIND="$EXTRACT_FIND -o -name ml_test"
+            EXTRACT_FIND="$EXTRACT_FIND -o -name ml_test\*"
             EXTRACT_EXPLICIT="$EXTRACT_EXPLICIT build/distribution"
             ;;
         linux|linux_aarch64_native)
