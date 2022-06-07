@@ -115,7 +115,7 @@ CForecastDataSink::CForecastDataSink(const std::string& jobId,
 }
 
 void CForecastDataSink::writeStats(const double progress,
-                                   uint64_t runtime,
+                                   std::uint64_t runtime,
                                    const TStrUMap& messages,
                                    bool successful) {
     TScopedAllocator scopedAllocator("CForecastDataSink", m_Writer);
@@ -203,7 +203,7 @@ void CForecastDataSink::push(bool flush, rapidjson::Value& doc) {
     }
 }
 
-uint64_t CForecastDataSink::numRecordsWritten() const {
+std::uint64_t CForecastDataSink::numRecordsWritten() const {
     return m_NumRecordsWritten;
 }
 

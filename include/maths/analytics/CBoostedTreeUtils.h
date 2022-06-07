@@ -126,6 +126,16 @@ inline TSizeAlignmentPrVec extraColumnsForIncrementalTrain(std::size_t numberLos
     return {{numberLossParameters, core::CAlignment::E_Unaligned}};
 }
 
+//! Get the extra columns needed for prediction.
+inline TSizeAlignmentPrVec extraColumnsForPredict(std::size_t numberLossParameters) {
+    return {{numberLossParameters, core::CAlignment::E_Unaligned}}; // prediction
+}
+
+//! Get the tags for extra columns needed for prediction.
+inline TSizeVec extraColumnTagsForPredict() {
+    return {E_Prediction};
+}
+
 //! Read the prediction from \p row.
 inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
                                                const TSizeVec& extraColumns,

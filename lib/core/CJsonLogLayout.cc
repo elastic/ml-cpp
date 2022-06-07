@@ -39,8 +39,8 @@ const std::string LOGGER{CProgName::progName()};
 const std::string TIMESTAMP_NAME{"timestamp"};
 const std::string LEVEL_NAME{"level"};
 const std::string PID_NAME{"pid"};
-// Cast this to int64_t as the type varies between int32_t and uint32_t on
-// different platforms and int64_t covers both
+// Cast this to std::int64_t as the type varies between std::int32_t and std::uint32_t on
+// different platforms and std::int64_t covers both
 const std::int64_t PID{static_cast<std::int64_t>(ml::core::CProcess::instance().id())};
 const std::string THREAD_NAME{"thread"};
 const std::string MESSAGE_NAME{"message"};

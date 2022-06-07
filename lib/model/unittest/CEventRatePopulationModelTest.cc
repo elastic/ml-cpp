@@ -161,7 +161,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
     // Check that the correct data is read retrieved by the
     // basic model accessors.
 
-    using TSizeUInt64Map = std::map<std::size_t, uint64_t>;
+    using TSizeUInt64Map = std::map<std::size_t, std::uint64_t>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;

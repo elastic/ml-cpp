@@ -63,7 +63,7 @@ public:
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
     using TOptionalStr = boost::optional<std::string>;
     using TOptionalUInt = boost::optional<unsigned int>;
-    using TOptionalUInt64 = boost::optional<uint64_t>;
+    using TOptionalUInt64 = boost::optional<std::uint64_t>;
 
     using TPriorPtr = std::shared_ptr<ml::maths::common::CPrior>;
 
@@ -72,7 +72,7 @@ public:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeSizePrVec = std::vector<TSizeSizePr>;
     using TSizeSizePrVecVec = std::vector<TSizeSizePrVec>;
-    using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
+    using TSizeSizePrUInt64Map = std::map<TSizeSizePr, std::uint64_t>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeVecVec = std::vector<TSizeVec>;
     using TSizeVecVecVec = std::vector<TSizeVecVec>;
@@ -80,7 +80,7 @@ public:
     using TStrSizePrVec = std::vector<TStrSizePr>;
     using TStrSizePrVecVec = std::vector<TStrSizePrVec>;
     using TStrSizePrVecVecVec = std::vector<TStrSizePrVecVec>;
-    using TStrUInt64Map = std::map<std::string, uint64_t>;
+    using TStrUInt64Map = std::map<std::string, std::uint64_t>;
 
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
@@ -92,7 +92,7 @@ public:
     using TTimeStrVecPrVec = std::vector<TTimeStrVecPr>;
     using TTimeVec = std::vector<ml::core_t::TTime>;
 
-    using TUInt64Vec = std::vector<uint64_t>;
+    using TUInt64Vec = std::vector<std::uint64_t>;
     using TUIntVec = std::vector<unsigned int>;
 
 protected:

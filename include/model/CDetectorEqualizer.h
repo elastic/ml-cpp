@@ -17,9 +17,8 @@
 #include <model/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -62,7 +61,7 @@ public:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Get a checksum for the equalizer.
-    uint64_t checksum() const;
+    std::uint64_t checksum() const;
 
     //! Get the largest probability that will be corrected.
     static double largestProbabilityToCorrect();

@@ -30,19 +30,19 @@ namespace common {
 namespace {
 namespace detail {
 
-using TUInt8Vec = std::vector<uint8_t>;
+using TUInt8Vec = std::vector<std::uint8_t>;
 using TUInt8VecItr = TUInt8Vec::iterator;
 using TUInt8VecCItr = TUInt8Vec::const_iterator;
 
 //! Convert the decomposition of the hash into two 8 bit integers
 //! bask into the original hash value.
-inline uint16_t from8Bit(uint8_t leading, uint8_t trailing) {
+inline uint16_t from8Bit(std::uint8_t leading, std::uint8_t trailing) {
     // The C++ standard says that arithmetic on types smaller than int may be
     // done by converting to int, so cast this way to avoid compiler warnings
     return static_cast<uint16_t>((static_cast<unsigned int>(leading) << 8) + trailing);
 }
 
-using TUInt8UInt8Pr = std::pair<uint8_t, uint8_t>;
+using TUInt8UInt8Pr = std::pair<std::uint8_t, std::uint8_t>;
 
 //! \brief Random access iterator wrapper for B set iterator.
 //!
@@ -58,13 +58,13 @@ using TUInt8UInt8Pr = std::pair<uint8_t, uint8_t>;
 // clang-format off
 class EMPTY_BASE_OPT CHashIterator final
     : private boost::less_than_comparable<CHashIterator,
-              boost::addable<CHashIterator, ptrdiff_t,
-              boost::subtractable<CHashIterator, ptrdiff_t>>> {
+              boost::addable<CHashIterator, std::ptrdiff_t,
+              boost::subtractable<CHashIterator, std::ptrdiff_t>>> {
     // clang-format on
 public:
     using iterator_category = std::random_access_iterator_tag;
     using value_type = uint16_t;
-    using difference_type = ptrdiff_t;
+    using difference_type = std::ptrdiff_t;
     using pointer = void;
     using reference = void;
 
@@ -97,19 +97,19 @@ public:
         m_Itr -= 3;
         return result;
     }
-    uint16_t operator[](ptrdiff_t n) const {
+    uint16_t operator[](std::ptrdiff_t n) const {
         auto itr = m_Itr + 3 * n;
         return from8Bit(*itr, *(itr + 1));
     }
-    const CHashIterator& operator+=(ptrdiff_t n) {
+    const CHashIterator& operator+=(std::ptrdiff_t n) {
         m_Itr += 3 * n;
         return *this;
     }
-    const CHashIterator& operator-=(ptrdiff_t n) {
+    const CHashIterator& operator-=(std::ptrdiff_t n) {
         m_Itr -= 3 * n;
         return *this;
     }
-    ptrdiff_t operator-(const CHashIterator& other) const {
+    std::ptrdiff_t operator-(const CHashIterator& other) const {
         return (m_Itr - other.m_Itr) / 3;
     }
 
@@ -117,7 +117,7 @@ private:
     TUInt8VecItr m_Itr;
 };
 
-bool insert(TUInt8Vec& b, uint16_t g, uint8_t zeros) {
+bool insert(TUInt8Vec& b, uint16_t g, std::uint8_t zeros) {
     // This uses the fact that the set "b" is laid out as follows:
     //  |<---8 bits--->|<---8 bits--->|<---8 bits--->|
     //  |(g >> 8) % 256|    g % 256   |    zeros     |
@@ -138,14 +138,14 @@ bool insert(TUInt8Vec& b, uint16_t g, uint8_t zeros) {
     // requires values after in b to be copied to their new
     // positions.
 
-    ptrdiff_t i = lb.base() - b.begin();
-    auto g1 = static_cast<uint8_t>(g >> 8);
-    auto g2 = static_cast<uint8_t>(g);
+    std::ptrdiff_t i = lb.base() - b.begin();
+    auto g1 = static_cast<std::uint8_t>(g >> 8);
+    auto g2 = static_cast<std::uint8_t>(g);
     LOG_TRACE(<< "Adding g = " << g << " at " << i
-              << " (g1 = " << static_cast<uint32_t>(g1)
-              << ", g2 = " << static_cast<uint32_t>(g2) << ")");
+              << " (g1 = " << static_cast<std::uint32_t>(g1)
+              << ", g2 = " << static_cast<std::uint32_t>(g2) << ")");
 
-    b.insert(lb.base(), 3u, uint8_t());
+    b.insert(lb.base(), 3u, std::uint8_t());
     b[i] = g1;
     b[i + 1] = g2;
     b[i + 2] = zeros;
@@ -165,7 +165,7 @@ void remove(TUInt8Vec& b, uint16_t g) {
     }
 }
 
-void prune(TUInt8Vec& b, uint8_t z) {
+void prune(TUInt8Vec& b, std::uint8_t z) {
     // This uses the fact that the set "b" is laid out as follows:
     //  |<---8 bits--->|<---8 bits--->|<---8 bits--->|
     //  |(g >> 8) % 256|    g % 256   |    zeros     |
@@ -179,8 +179,8 @@ void prune(TUInt8Vec& b, uint8_t z) {
             j += 3;
         } else {
             LOG_TRACE(<< "Removing " << from8Bit(b[i], b[i + 1])
-                      << ", zeros =  " << static_cast<uint32_t>(b[i + 2])
-                      << ", z = " << static_cast<uint32_t>(z));
+                      << ", zeros =  " << static_cast<std::uint32_t>(b[i + 2])
+                      << ", z = " << static_cast<std::uint32_t>(z));
         }
     }
     b.erase(b.begin() + j, b.end());
@@ -229,7 +229,7 @@ public:
 };
 }
 
-uint8_t CBjkstUniqueValues::trailingZeros(uint32_t value) {
+std::uint8_t CBjkstUniqueValues::trailingZeros(std::uint32_t value) {
     if (value == 0) {
         return 32;
     }
@@ -237,15 +237,15 @@ uint8_t CBjkstUniqueValues::trailingZeros(uint32_t value) {
     // This is just doing a binary search for the first
     // non-zero bit.
 
-    static const uint32_t MASKS[]{0xffff, 0xff, 0xf, 0x3, 0x1};
-    static const uint8_t SHIFTS[]{16, 8, 4, 2, 1};
+    static const std::uint32_t MASKS[]{0xffff, 0xff, 0xf, 0x3, 0x1};
+    static const std::uint8_t SHIFTS[]{16, 8, 4, 2, 1};
 
-    uint8_t result = 0;
+    std::uint8_t result = 0;
     for (std::size_t i = 0; i < 5; ++i) {
         switch (value & MASKS[i]) {
         case 0:
             value >>= SHIFTS[i];
-            result = static_cast<uint8_t>(result + SHIFTS[i]);
+            result = static_cast<std::uint8_t>(result + SHIFTS[i]);
             break;
         default:
             break;
@@ -374,7 +374,7 @@ void CBjkstUniqueValues::acceptPersistInserter(core::CStatePersistInserter& inse
     }
 }
 
-void CBjkstUniqueValues::add(uint32_t value) {
+void CBjkstUniqueValues::add(std::uint32_t value) {
     TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values != nullptr) {
         auto i = std::lower_bound(values->begin(), values->end(), value);
@@ -392,7 +392,7 @@ void CBjkstUniqueValues::add(uint32_t value) {
     }
 }
 
-void CBjkstUniqueValues::remove(uint32_t value) {
+void CBjkstUniqueValues::remove(std::uint32_t value) {
     TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values != nullptr) {
         auto i = std::lower_bound(values->begin(), values->end(), value);
@@ -409,7 +409,7 @@ void CBjkstUniqueValues::remove(uint32_t value) {
     }
 }
 
-uint32_t CBjkstUniqueValues::number() const {
+std::uint32_t CBjkstUniqueValues::number() const {
     const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
     if (values == nullptr) {
         try {
@@ -419,10 +419,10 @@ uint32_t CBjkstUniqueValues::number() const {
             LOG_ABORT(<< "Unexpected exception: " << e.what());
         }
     }
-    return static_cast<uint32_t>(values->size());
+    return static_cast<std::uint32_t>(values->size());
 }
 
-uint64_t CBjkstUniqueValues::checksum(uint64_t seed) const {
+std::uint64_t CBjkstUniqueValues::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MaxSize);
     seed = CChecksum::calculate(seed, m_NumberHashes);
     const TUInt32Vec* values = std::get_if<TUInt32Vec>(&m_Sketch);
@@ -480,8 +480,8 @@ std::size_t CBjkstUniqueValues::memoryUsage() const {
 }
 
 void CBjkstUniqueValues::sketch() {
-    static const std::size_t UINT8_SIZE = sizeof(uint8_t);
-    static const std::size_t UINT32_SIZE = sizeof(uint32_t);
+    static const std::size_t UINT8_SIZE = sizeof(std::uint8_t);
+    static const std::size_t UINT32_SIZE = sizeof(std::uint32_t);
     static const std::size_t HASH_SIZE =
         sizeof(core::CHashing::CUniversalHash::CUInt32UnrestrictedHash);
     static const std::size_t VEC8_SIZE = sizeof(TUInt8Vec);
@@ -590,14 +590,14 @@ void CBjkstUniqueValues::SSketch::acceptPersistInserter(core::CStatePersistInser
     }
 }
 
-void CBjkstUniqueValues::SSketch::add(std::size_t maxSize, uint32_t value) {
+void CBjkstUniqueValues::SSketch::add(std::size_t maxSize, std::uint32_t value) {
     LOG_TRACE(<< "Adding " << value);
     for (std::size_t i = 0; i < s_Z.size(); ++i) {
-        uint8_t zeros = trailingZeros((s_H[i])(value));
+        std::uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
             TUInt8Vec& b = s_B[i];
             auto g = static_cast<uint16_t>((s_G[i])(value));
-            LOG_TRACE(<< "g = " << g << ", zeros = " << static_cast<uint32_t>(zeros));
+            LOG_TRACE(<< "g = " << g << ", zeros = " << static_cast<std::uint32_t>(zeros));
             if (detail::insert(b, g, zeros)) {
                 while (b.size() >= 3 * maxSize) {
                     ++s_Z[i];
@@ -610,32 +610,32 @@ void CBjkstUniqueValues::SSketch::add(std::size_t maxSize, uint32_t value) {
                     b.swap(shrunk);
                 }
                 LOG_TRACE(<< "|B| = " << b.size()
-                          << ", z = " << static_cast<uint32_t>(s_Z[i]));
+                          << ", z = " << static_cast<std::uint32_t>(s_Z[i]));
             }
         }
     }
 }
 
-void CBjkstUniqueValues::SSketch::remove(uint32_t value) {
+void CBjkstUniqueValues::SSketch::remove(std::uint32_t value) {
     for (std::size_t i = 0; i < s_Z.size(); ++i) {
-        uint8_t zeros = trailingZeros((s_H[i])(value));
+        std::uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
             TUInt8Vec& b = s_B[i];
             auto g = static_cast<uint16_t>((s_G[i])(value));
-            LOG_TRACE(<< "g = " << g << ", zeros = " << static_cast<uint32_t>(zeros));
+            LOG_TRACE(<< "g = " << g << ", zeros = " << static_cast<std::uint32_t>(zeros));
             detail::remove(b, g);
         }
     }
 }
 
-uint32_t CBjkstUniqueValues::SSketch::number() const {
+std::uint32_t CBjkstUniqueValues::SSketch::number() const {
     // This uses the median trick to reduce the error.
     TUInt32Vec estimates;
     estimates.reserve(s_Z.size());
     for (std::size_t i = 0; i < s_Z.size(); ++i) {
         LOG_TRACE(<< "|B| = " << s_B[i].size()
-                  << ", z = " << static_cast<uint32_t>(s_Z[i]));
-        estimates.push_back(static_cast<uint32_t>(s_B[i].size() / 3) * (1 << s_Z[i]));
+                  << ", z = " << static_cast<std::uint32_t>(s_Z[i]));
+        estimates.push_back(static_cast<std::uint32_t>(s_B[i].size() / 3) * (1 << s_Z[i]));
     }
 
     LOG_TRACE(<< "estimates = " << core::CContainerPrinter::print(estimates));

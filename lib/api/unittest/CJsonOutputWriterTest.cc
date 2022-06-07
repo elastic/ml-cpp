@@ -280,7 +280,7 @@ void testBucketWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(!bucket.HasMember("is_interim"));
         }
 
-        BOOST_REQUIRE_EQUAL(uint64_t(10ll), bucket["processing_time_ms"].GetUint64());
+        BOOST_REQUIRE_EQUAL(std::uint64_t(10ll), bucket["processing_time_ms"].GetUint64());
     }
 
     for (rapidjson::SizeType i = 0; i < arrayDoc.Size(); i = i + 2) {

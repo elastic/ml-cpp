@@ -314,7 +314,7 @@ double CJointProbabilityOfLessLikelySamples::numberSamples() const {
     return m_NumberSamples;
 }
 
-uint64_t CJointProbabilityOfLessLikelySamples::checksum(uint64_t seed) const {
+std::uint64_t CJointProbabilityOfLessLikelySamples::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_OnlyProbability);
     seed = CChecksum::calculate(seed, m_SumZScores);
     seed = CChecksum::calculate(seed, m_SumZScoresSquared);
@@ -675,7 +675,7 @@ bool CProbabilityOfExtremeSample::calculate(double& result) const {
     return true;
 }
 
-uint64_t CProbabilityOfExtremeSample::checksum(uint64_t seed) const {
+std::uint64_t CProbabilityOfExtremeSample::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MinValue);
     return CChecksum::calculate(seed, m_NumberSamples);
 }
@@ -966,7 +966,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calibrated(double& result) {
     return false;
 }
 
-uint64_t CLogProbabilityOfMFromNExtremeSamples::checksum(uint64_t seed) const {
+std::uint64_t CLogProbabilityOfMFromNExtremeSamples::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MinValues);
     return CChecksum::calculate(seed, m_NumberSamples);
 }

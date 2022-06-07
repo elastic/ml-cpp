@@ -32,12 +32,11 @@
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -71,18 +70,18 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStrVecCItr = TStrVec::const_iterator;
     using TStrCPtrVec = std::vector<const std::string*>;
-    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
     using TFeatureVec = model_t::TFeatureVec;
     using TOptionalDouble = boost::optional<double>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-    using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
+    using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, std::uint64_t>;
     using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
     using TDictionary = core::CCompressedDictionary<2>;
     using TWordSizeUMap = TDictionary::TWordTUMap<std::size_t>;
     using TWordSizeUMapItr = TWordSizeUMap::iterator;
     using TWordSizeUMapCItr = TWordSizeUMap::const_iterator;
-    using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
+    using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, std::uint64_t>;
     using TSizeSizePrUInt64UMapItr = TSizeSizePrUInt64UMap::iterator;
     using TSizeSizePrUInt64UMapCItr = TSizeSizePrUInt64UMap::const_iterator;
     using TSizeSizePrUInt64UMapQueue = CBucketQueue<TSizeSizePrUInt64UMap>;
@@ -101,9 +100,9 @@ public:
     //! \brief Hashes a ((size_t, size_t), string*) pair.
     struct MODEL_EXPORT SSizeSizePrStoredStringPtrPrHash {
         std::size_t operator()(const TSizeSizePrStoredStringPtrPr& key) const {
-            uint64_t seed = core::CHashing::hashCombine(
-                static_cast<uint64_t>(key.first.first),
-                static_cast<uint64_t>(key.first.second));
+            std::uint64_t seed = core::CHashing::hashCombine(
+                static_cast<std::uint64_t>(key.first.first),
+                static_cast<std::uint64_t>(key.first.second));
             return core::CHashing::hashCombine(seed, s_Hasher(*key.second));
         }
         core::CHashing::CMurmurHash2String s_Hasher;
@@ -118,7 +117,7 @@ public:
     };
 
     using TSizeSizePrStoredStringPtrPrUInt64UMap =
-        boost::unordered_map<TSizeSizePrStoredStringPtrPr, uint64_t, SSizeSizePrStoredStringPtrPrHash, SSizeSizePrStoredStringPtrPrEqual>;
+        boost::unordered_map<TSizeSizePrStoredStringPtrPr, std::uint64_t, SSizeSizePrStoredStringPtrPrHash, SSizeSizePrStoredStringPtrPrEqual>;
     using TSizeSizePrStoredStringPtrPrUInt64UMapCItr =
         TSizeSizePrStoredStringPtrPrUInt64UMap::const_iterator;
     using TSizeSizePrStoredStringPtrPrUInt64UMapItr =
@@ -315,7 +314,7 @@ public:
     //@}
 
     //! Get the checksum of this gatherer.
-    virtual uint64_t checksum() const = 0;
+    virtual std::uint64_t checksum() const = 0;
 
     //! Debug the memory used by this component.
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;

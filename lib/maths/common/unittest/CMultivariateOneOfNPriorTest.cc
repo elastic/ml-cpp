@@ -973,7 +973,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     }
     std::size_t dimension = origFilter.dimension();
     double decayRate = origFilter.decayRate();
-    uint64_t checksum = origFilter.checksum();
+    std::uint64_t checksum = origFilter.checksum();
 
     std::string origXml;
     {

@@ -56,7 +56,7 @@ void CModelWeight::age(double alpha) {
     m_LogWeight = alpha * m_LogWeight + (1 - alpha) * m_LongTermLogWeight;
 }
 
-uint64_t CModelWeight::checksum(uint64_t seed) const {
+std::uint64_t CModelWeight::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_LogWeight);
     return CChecksum::calculate(seed, m_LongTermLogWeight);
 }

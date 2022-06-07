@@ -122,7 +122,7 @@ bool CMockModel::computeTotalProbability(const std::string& /*person*/,
     return false;
 }
 
-uint64_t CMockModel::checksum(bool /*includeCurrentBucketStats*/) const {
+std::uint64_t CMockModel::checksum(bool /*includeCurrentBucketStats*/) const {
     return 0;
 }
 
