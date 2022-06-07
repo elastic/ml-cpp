@@ -43,7 +43,7 @@ using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 using TFeatureVec = std::vector<model_t::EFeature>;
-using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
 using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
 using TStrVec = std::vector<std::string>;
 using TSizeFeatureDataPr = std::pair<std::size_t, SMetricFeatureData>;
@@ -1090,21 +1090,24 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(0).find(pidCidPr)->second);
 
     gatherer.featureData(600, bucketLength, featureData);
     BOOST_REQUIRE_EQUAL(4.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(3.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(5.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(12.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(3), gatherer.bucketCounts(600).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(3),
+                        gatherer.bucketCounts(600).find(pidCidPr)->second);
 
     gatherer.featureData(1200, bucketLength, featureData);
     BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(1), gatherer.bucketCounts(1200).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(1),
+                        gatherer.bucketCounts(1200).find(pidCidPr)->second);
 
     gatherer.resetBucket(600);
     addArrival(gatherer, m_ResourceMonitor, 610, "p", 2.0);
@@ -1115,21 +1118,24 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenSingleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(1.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(2.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(0).find(pidCidPr)->second);
 
     gatherer.featureData(600, bucketLength, featureData);
     BOOST_REQUIRE_EQUAL(2.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(2.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(3.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(5.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(0).find(pidCidPr)->second);
 
     gatherer.featureData(1200, bucketLength, featureData);
     BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[1].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[2].second[0].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(1), gatherer.bucketCounts(1200).find(pidCidPr)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(1),
+                        gatherer.bucketCounts(1200).find(pidCidPr)->second);
 
     gatherer.sampleNow(0);
     gatherer.featureData(0, bucketLength, featureData);
@@ -1213,9 +1219,12 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr0)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr1)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(0).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(0).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(0).find(pidCidPr2)->second);
 
     gatherer.featureData(600, bucketLength, featureData);
     BOOST_REQUIRE_EQUAL(4.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
@@ -1230,9 +1239,12 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(12.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(12.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(12.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(3), gatherer.bucketCounts(600).find(pidCidPr0)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(3), gatherer.bucketCounts(600).find(pidCidPr1)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(3), gatherer.bucketCounts(600).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(3),
+                        gatherer.bucketCounts(600).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(3),
+                        gatherer.bucketCounts(600).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(3),
+                        gatherer.bucketCounts(600).find(pidCidPr2)->second);
 
     gatherer.featureData(1200, bucketLength, featureData);
     BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
@@ -1247,11 +1259,11 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(1),
+    BOOST_REQUIRE_EQUAL(std::uint64_t(1),
                         gatherer.bucketCounts(1200).find(pidCidPr0)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(1),
+    BOOST_REQUIRE_EQUAL(std::uint64_t(1),
                         gatherer.bucketCounts(1200).find(pidCidPr1)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(1),
+    BOOST_REQUIRE_EQUAL(std::uint64_t(1),
                         gatherer.bucketCounts(1200).find(pidCidPr2)->second);
 
     gatherer.resetBucket(600);
@@ -1273,9 +1285,12 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(3.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr0)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr1)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(0).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(0).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(0).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(0).find(pidCidPr2)->second);
 
     gatherer.featureData(600, bucketLength, featureData);
     BOOST_REQUIRE_EQUAL(2.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
@@ -1290,9 +1305,12 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(5.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(5.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(5.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(600).find(pidCidPr0)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(600).find(pidCidPr1)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(2), gatherer.bucketCounts(600).find(pidCidPr2)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(600).find(pidCidPr0)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(600).find(pidCidPr1)->second);
+    BOOST_REQUIRE_EQUAL(std::uint64_t(2),
+                        gatherer.bucketCounts(600).find(pidCidPr2)->second);
 
     gatherer.featureData(1200, bucketLength, featureData);
     BOOST_REQUIRE_EQUAL(6.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
@@ -1307,11 +1325,11 @@ BOOST_FIXTURE_TEST_CASE(testResetBucketGivenMultipleSeries, CTestFixture) {
     BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
     BOOST_REQUIRE_EQUAL(6.0, featureData[3].second[2].second.s_BucketValue->value()[0]);
-    BOOST_REQUIRE_EQUAL(uint64_t(1),
+    BOOST_REQUIRE_EQUAL(std::uint64_t(1),
                         gatherer.bucketCounts(1200).find(pidCidPr0)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(1),
+    BOOST_REQUIRE_EQUAL(std::uint64_t(1),
                         gatherer.bucketCounts(1200).find(pidCidPr1)->second);
-    BOOST_REQUIRE_EQUAL(uint64_t(1),
+    BOOST_REQUIRE_EQUAL(std::uint64_t(1),
                         gatherer.bucketCounts(1200).find(pidCidPr2)->second);
 
     gatherer.sampleNow(0);

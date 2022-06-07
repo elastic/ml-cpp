@@ -1818,12 +1818,13 @@ void CTimeSeriesCorrelations::refresh(const CTimeSeriesCorrelateModelAllocator& 
         LOG_TRACE(<< "correlationCoeffs = "
                   << core::CContainerPrinter::print(correlationCoeffs));
 
-        ptrdiff_t cutoff{std::upper_bound(correlationCoeffs.begin(),
-                                          correlationCoeffs.end(), 0.5 * m_MinimumSignificantCorrelation,
-                                          [](double lhs, double rhs) {
-                                              return std::fabs(lhs) > std::fabs(rhs);
-                                          }) -
-                         correlationCoeffs.begin()};
+        std::ptrdiff_t cutoff{
+            std::upper_bound(correlationCoeffs.begin(), correlationCoeffs.end(),
+                             0.5 * m_MinimumSignificantCorrelation,
+                             [](double lhs, double rhs) {
+                                 return std::fabs(lhs) > std::fabs(rhs);
+                             }) -
+            correlationCoeffs.begin()};
         LOG_TRACE(<< "cutoff = " << cutoff);
 
         correlated.erase(correlated.begin() + cutoff, correlated.end());

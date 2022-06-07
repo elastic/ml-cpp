@@ -422,32 +422,6 @@ public:
     };
 
 public:
-    static const std::string BAYESIAN_OPTIMIZATION_TAG;
-    static const std::string BEST_FOREST_LOSS_GAP_TAG;
-    static const std::string BEST_FOREST_TEST_LOSS_TAG;
-    static const std::string CURRENT_ROUND_TAG;
-    static const std::string DEPTH_PENALTY_MULTIPLIER_TAG;
-    static const std::string DOWNSAMPLE_FACTOR_TAG;
-    static const std::string ETA_GROWTH_RATE_PER_TREE_TAG;
-    static const std::string ETA_TAG;
-    static const std::string FEATURE_BAG_FRACTION_TAG;
-    static const std::string LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG;
-    static const std::string MAXIMUM_NUMBER_TREES_TAG;
-    static const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG;
-    static const std::string MEAN_FOREST_SIZE_ACCUMULATOR_TAG;
-    static const std::string MEAN_TEST_LOSS_ACCUMULATOR_TAG;
-    static const std::string NUMBER_FOLDS_TAG;
-    static const std::string NUMBER_ROUNDS_TAG;
-    static const std::string PREDICTION_CHANGE_COST_TAG;
-    static const std::string RETRAINED_TREE_ETA_TAG;
-    static const std::string SOFT_TREE_DEPTH_LIMIT_TAG;
-    static const std::string SOFT_TREE_DEPTH_TOLERANCE_TAG;
-    static const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG;
-    static const std::string STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG;
-    static const std::string TRAIN_FRACTION_PER_FOLD_TAG;
-    static const std::string TREE_SIZE_PENALTY_MULTIPLIER_TAG;
-    static const std::string TREE_TOPOLOGY_CHANGE_PENALTY_TAG;
-
     //! We prefer smaller models if it costs little in test accuracy.
     static constexpr double RELATIVE_SIZE_PENALTY{0.01};
 
@@ -760,6 +734,8 @@ private:
     std::size_t m_NumberRounds{1};
     std::size_t m_CurrentRound{0};
     double m_BestForestTestLoss{boosted_tree_detail::INF};
+    double m_BestForestNumberKeptNodes{0.0};
+    double m_BestForestNumberNewNodes{0.0};
     double m_BestForestLossGap{0.0};
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;

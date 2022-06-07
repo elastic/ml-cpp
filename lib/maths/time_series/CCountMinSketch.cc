@@ -190,7 +190,7 @@ double CCountMinSketch::oneMinusDeltaError() const {
            m_TotalCount;
 }
 
-void CCountMinSketch::add(uint32_t category, double count) {
+void CCountMinSketch::add(std::uint32_t category, double count) {
     LOG_TRACE(<< "Adding category = " << category << ", count = " << count);
 
     m_TotalCount += count;
@@ -215,7 +215,7 @@ void CCountMinSketch::add(uint32_t category, double count) {
         try {
             auto& sketch = std::get<SSketch>(m_Sketch);
             for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
-                uint32_t hash = (sketch.s_Hashes[i])(category);
+                std::uint32_t hash = (sketch.s_Hashes[i])(category);
                 std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
                 sketch.s_Counts[i][j] += count;
                 LOG_TRACE(<< "count (i,j) = (" << i << "," << j << ")"
@@ -227,7 +227,7 @@ void CCountMinSketch::add(uint32_t category, double count) {
     }
 }
 
-void CCountMinSketch::removeFromMap(uint32_t category) {
+void CCountMinSketch::removeFromMap(std::uint32_t category) {
     auto* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
     if (counts != nullptr) {
         auto itr = std::lower_bound(counts->begin(), counts->end(), category,
@@ -262,7 +262,7 @@ double CCountMinSketch::totalCount() const {
     return m_TotalCount;
 }
 
-double CCountMinSketch::count(uint32_t category) const {
+double CCountMinSketch::count(std::uint32_t category) const {
     using TMinAccumulator = common::CBasicStatistics::COrderStatisticsStack<double, 1>;
 
     const auto* counts = std::get_if<TUInt32FloatPrVec>(&m_Sketch);
@@ -279,7 +279,7 @@ double CCountMinSketch::count(uint32_t category) const {
     try {
         const auto& sketch = std::get<SSketch>(m_Sketch);
         for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
-            uint32_t hash = (sketch.s_Hashes[i])(category);
+            std::uint32_t hash = (sketch.s_Hashes[i])(category);
             std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
             LOG_TRACE(<< "count (i,j) = (" << i << "," << j << ")"
                       << " <- " << sketch.s_Counts[i][j]);
@@ -291,7 +291,7 @@ double CCountMinSketch::count(uint32_t category) const {
     return result.count() > 0 ? result[0] : 0.0;
 }
 
-double CCountMinSketch::fraction(uint32_t category) const {
+double CCountMinSketch::fraction(std::uint32_t category) const {
     return this->count(category) / m_TotalCount;
 }
 
@@ -299,7 +299,7 @@ bool CCountMinSketch::sketched() const {
     return std::get_if<SSketch>(&m_Sketch) != nullptr;
 }
 
-uint64_t CCountMinSketch::checksum(uint64_t seed) const {
+std::uint64_t CCountMinSketch::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_Rows);
     seed = common::CChecksum::calculate(seed, m_Columns);
     seed = common::CChecksum::calculate(seed, m_TotalCount);

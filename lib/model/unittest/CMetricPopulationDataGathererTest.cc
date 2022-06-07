@@ -655,11 +655,11 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     // people are removed.
 
     using TSizeVec = std::vector<std::size_t>;
-    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
     using TStrFeatureDataPr = std::pair<std::string, SMetricFeatureData>;
     using TStrFeatureDataPrVec = std::vector<TStrFeatureDataPr>;
-    using TStrSizeMap = std::map<std::string, uint64_t>;
+    using TStrSizeMap = std::map<std::string, std::uint64_t>;
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;

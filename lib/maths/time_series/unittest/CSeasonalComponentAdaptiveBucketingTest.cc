@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     maths::time_series::CGeneralPeriodTime time2(120);
     maths::time_series::CSeasonalComponentAdaptiveBucketing bucketing2(time2, 0.1);
 
-    uint64_t checksum1 = bucketing1.checksum();
-    uint64_t checksum2 = bucketing2.checksum();
+    std::uint64_t checksum1 = bucketing1.checksum();
+    std::uint64_t checksum2 = bucketing2.checksum();
 
     bucketing1.swap(bucketing2);
 
@@ -134,8 +134,8 @@ BOOST_AUTO_TEST_CASE(testRefine) {
             for (core_t::TTime t = 0; t < 86400; t += 1800) {
                 core_t::TTime x = start + t;
 
-                ptrdiff_t i = std::lower_bound(std::begin(times), std::end(times), t) -
-                              std::begin(times);
+                std::ptrdiff_t i = std::lower_bound(std::begin(times), std::end(times), t) -
+                                   std::begin(times);
 
                 double x0 = static_cast<double>(times[i - 1]);
                 double x1 = static_cast<double>(times[i]);
@@ -156,8 +156,8 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         for (std::size_t i = 1; i < endpoints1.size(); ++i) {
             core_t::TTime t = static_cast<core_t::TTime>(
                 0.5 * (endpoints1[i] + endpoints1[i - 1] + 1.0));
-            ptrdiff_t j = std::lower_bound(std::begin(times), std::end(times), t) -
-                          std::begin(times);
+            std::ptrdiff_t j = std::lower_bound(std::begin(times), std::end(times), t) -
+                               std::begin(times);
             double x0 = static_cast<double>(times[j - 1]);
             double x1 = static_cast<double>(times[j]);
             double y0 = function[j - 1];
@@ -174,8 +174,8 @@ BOOST_AUTO_TEST_CASE(testRefine) {
         for (std::size_t i = 1; i < endpoints1.size(); ++i) {
             core_t::TTime t = static_cast<core_t::TTime>(
                 0.5 * (endpoints2[i] + endpoints2[i - 1] + 1.0));
-            ptrdiff_t j = std::lower_bound(std::begin(times), std::end(times), t) -
-                          std::begin(times);
+            std::ptrdiff_t j = std::lower_bound(std::begin(times), std::end(times), t) -
+                               std::begin(times);
             double x0 = static_cast<double>(times[j - 1]);
             double x1 = static_cast<double>(times[j]);
             double y0 = function[j - 1];
@@ -736,7 +736,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origBucketing.refine(static_cast<core_t::TTime>(86400 * (p + 1)));
     }
 
-    uint64_t checksum = origBucketing.checksum();
+    std::uint64_t checksum = origBucketing.checksum();
 
     std::string origXml;
     {

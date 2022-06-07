@@ -264,6 +264,9 @@ private:
     //! Resize the data frame with the extra columns used by incremental train.
     void prepareDataFrameForIncrementalTrain(core::CDataFrame& frame) const;
 
+    //! Resize the data frame with the extra columns used by prediction.
+    void prepareDataFrameForPredict(core::CDataFrame& frame) const;
+
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;
 

@@ -42,7 +42,7 @@ class API_EXPORT CHierarchicalResultsWriter : public model::CHierarchicalResults
 public:
     using TDouble1Vec = core::CSmallVector<double, 1>;
     using TOptionalDouble = boost::optional<double>;
-    using TOptionalUInt64 = boost::optional<uint64_t>;
+    using TOptionalUInt64 = boost::optional<std::uint64_t>;
 
     // Influencers
     using TStoredStringPtrVec = std::vector<core::CStoredStringPtr>;

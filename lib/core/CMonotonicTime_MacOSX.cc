@@ -31,11 +31,11 @@ CMonotonicTime::CMonotonicTime()
     }
 }
 
-uint64_t CMonotonicTime::milliseconds() const {
+std::uint64_t CMonotonicTime::milliseconds() const {
     return ::mach_absolute_time() * m_ScalingFactor1 / m_ScalingFactor2;
 }
 
-uint64_t CMonotonicTime::nanoseconds() const {
+std::uint64_t CMonotonicTime::nanoseconds() const {
     return ::mach_absolute_time() * m_ScalingFactor1 / m_ScalingFactor3;
 }
 }

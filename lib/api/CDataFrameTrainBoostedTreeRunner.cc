@@ -460,7 +460,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
         break;
     case E_Predict:
         m_BoostedTree = m_BoostedTreeFactory->buildForPredict(frame, dependentVariableColumn);
-        // prediction occurs in buildForPredict
+        // Prediction occurs in buildForPredict.
         // m_BoostedTree->predict(true /*new data only*/);
         break;
     }

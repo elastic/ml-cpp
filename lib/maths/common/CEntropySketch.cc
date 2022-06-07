@@ -27,7 +27,7 @@ namespace common {
 CEntropySketch::CEntropySketch(std::size_t k) : m_Y(0), m_Yi(k, 0.0) {
 }
 
-void CEntropySketch::add(std::size_t category, uint64_t count) {
+void CEntropySketch::add(std::size_t category, std::uint64_t count) {
     m_Y += count;
     TDoubleVec projection;
     this->generateProjection(category, projection);

@@ -14,7 +14,7 @@
 #include <core/CMonotonicTime.h>
 #include <core/ImportExport.h>
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace ml {
 namespace core {
@@ -43,12 +43,12 @@ public:
     void start();
 
     //! Stop the stop watch and retrieve the accumulated reading
-    uint64_t stop();
+    std::uint64_t stop();
 
     //! Retrieve the accumulated reading from the stop watch without
     //! stopping it.  (Not const because it may trigger a reset if the
     //! system clock has been adjusted.)
-    uint64_t lap();
+    std::uint64_t lap();
 
     //! Is the stop watch running?
     bool isRunning() const;
@@ -60,7 +60,7 @@ private:
     //! Calculate the difference between two monotonic times, with sanity
     //! checking just in case the timer does go backwards somehow, and
     //! return the answer in milliseconds
-    uint64_t calcDuration();
+    std::uint64_t calcDuration();
 
 private:
     //! Is the stop watch currently running?
@@ -71,11 +71,11 @@ private:
 
     //! Monotonic time (in milliseconds since some arbitrary time in the
     //! past) when the stop watch was last started
-    uint64_t m_Start;
+    std::uint64_t m_Start;
 
     //! Time (in milliseconds) accumulated over previous runs of the stop
     //! watch since the last reset
-    uint64_t m_AccumulatedTime;
+    std::uint64_t m_AccumulatedTime;
 };
 }
 }

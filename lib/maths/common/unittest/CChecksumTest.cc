@@ -40,17 +40,17 @@ namespace {
 enum EAnEnum { E_1, E_2, E_3 };
 
 struct SFoo {
-    SFoo(uint64_t key) : s_Key(key) {}
-    uint64_t checksum() const { return s_Key; }
-    uint64_t s_Key;
+    SFoo(std::uint64_t key) : s_Key(key) {}
+    std::uint64_t checksum() const { return s_Key; }
+    std::uint64_t s_Key;
 };
 
 struct SBar {
-    SBar(uint64_t key) : s_Key(key) {}
-    uint64_t checksum(uint64_t seed) const {
+    SBar(std::uint64_t key) : s_Key(key) {}
+    std::uint64_t checksum(std::uint64_t seed) const {
         return core::CHashing::hashCombine(seed, s_Key);
     }
-    uint64_t s_Key;
+    std::uint64_t s_Key;
 };
 
 using TIntVec = std::vector<int>;
@@ -69,7 +69,7 @@ using TBarVec = std::vector<SBar>;
 }
 
 BOOST_AUTO_TEST_CASE(testMemberChecksum) {
-    uint64_t seed = 1679023009937ull;
+    std::uint64_t seed = 1679023009937ull;
 
     LOG_DEBUG(<< "");
     LOG_DEBUG(<< "*** test member functions ***");
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(testMemberChecksum) {
 }
 
 BOOST_AUTO_TEST_CASE(testContainers) {
-    uint64_t seed = 1679023009937ull;
+    std::uint64_t seed = 1679023009937ull;
 
     test::CRandomNumbers rng;
 
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(testContainers) {
     {
         std::string values[] = {"rain", "in", "spain"};
         TStrSet a(std::begin(values), std::end(values));
-        uint64_t expected = seed;
+        std::uint64_t expected = seed;
         core::CHashing::CSafeMurmurHash2String64 hasher;
         for (TStrSetCItr itr = a.begin(); itr != a.end(); ++itr) {
             expected = core::CHashing::safeMurmurHash64(
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE(testContainers) {
 }
 
 BOOST_AUTO_TEST_CASE(testNullable) {
-    uint64_t seed = 1679023009937ull;
+    std::uint64_t seed = 1679023009937ull;
 
     // Test optional and pointers.
     //
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testNullable) {
 }
 
 BOOST_AUTO_TEST_CASE(testAccumulators) {
-    uint64_t seed = 1679023009937ull;
+    std::uint64_t seed = 1679023009937ull;
 
     // Test accumulators.
     {
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(testAccumulators) {
 }
 
 BOOST_AUTO_TEST_CASE(testPair) {
-    uint64_t seed = 1679023009937ull;
+    std::uint64_t seed = 1679023009937ull;
 
     // Test pair.
     {
@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE(testPair) {
         TDoubleMeanVarAccumulatorPrList collection;
         collection.push_back(a);
         collection.push_back(b);
-        uint64_t expected = maths::common::CChecksum::calculate(seed, a);
+        std::uint64_t expected = maths::common::CChecksum::calculate(seed, a);
         expected = maths::common::CChecksum::calculate(expected, b);
         LOG_DEBUG(<< "expected checksum = " << expected);
         LOG_DEBUG(<< "actual checksum   = "
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(testPair) {
 }
 
 BOOST_AUTO_TEST_CASE(testArray) {
-    uint64_t seed = 1679023009937ull;
+    std::uint64_t seed = 1679023009937ull;
 
     double a[] = {1.0, 23.8, 15.2, 14.7};
     double b[] = {1.0, 23.8, 15.2, 14.7};
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(testArray) {
 }
 
 BOOST_AUTO_TEST_CASE(testCombinations) {
-    uint64_t seed = 1679023009937ull;
+    std::uint64_t seed = 1679023009937ull;
 
     test::CRandomNumbers rng;
 
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE(testCombinations) {
     // etc.
     {
         SFoo values[] = {
-            SFoo(static_cast<uint64_t>(-1)), SFoo(20), SFoo(10), SFoo(15), SFoo(2), SFoo(2)};
+            SFoo(static_cast<std::uint64_t>(-1)), SFoo(20), SFoo(10), SFoo(15), SFoo(2), SFoo(2)};
         TFooDeque a(std::begin(values), std::end(values));
         TFooDeque b(std::begin(values), std::end(values));
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));
@@ -345,7 +345,7 @@ BOOST_AUTO_TEST_CASE(testCombinations) {
     }
     {
         SBar values[] = {
-            SBar(static_cast<uint64_t>(-1)), SBar(20), SBar(10), SBar(15), SBar(2), SBar(2)};
+            SBar(static_cast<std::uint64_t>(-1)), SBar(20), SBar(10), SBar(15), SBar(2), SBar(2)};
         TBarVec a(std::begin(values), std::end(values));
         TBarVec b(std::begin(values), std::end(values));
         LOG_DEBUG(<< "checksum a = " << maths::common::CChecksum::calculate(seed, a));

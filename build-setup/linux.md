@@ -24,10 +24,10 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 
 ### OS Packages
 
-You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip` and `bzip2`. `libffi-devel` and `openssl-devel` are dependencies for building PyTorch. Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database.  On RHEL/CentOS these can be installed using:
+You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip`, `bzip2` and `xz`. `libffi-devel` and `openssl-devel` are dependencies for building PyTorch. Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database.  On RHEL/CentOS these can be installed using:
 
 ```
-sudo yum install bzip2 gcc-c++ libffi-devel openssl-devel texinfo tzdata unzip zlib-devel
+sudo yum install bzip2 gcc-c++ libffi-devel openssl-devel texinfo tzdata unzip xz zlib-devel
 ```
 
 On other Linux distributions the package names are generally the same and you just need to use the correct package manager to install these packages.
@@ -154,7 +154,7 @@ Without the `prefix=/usr` bit, you'll end up with a personal Git build in `~/bin
 
 ### libxml2
 
-Anonymous FTP to ftp.xmlsoft.org, change directory to libxml2, switch to binary mode, and get `libxml2-2.9.7.tar.gz`.
+Download `libxml2-2.9.14.tar.xz` from <https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.14.tar.xz>.
 
 Uncompress and untar the resulting file. Then run:
 

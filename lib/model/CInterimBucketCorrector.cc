@@ -46,11 +46,11 @@ CInterimBucketCorrector::CInterimBucketCorrector(core_t::TTime bucketLength)
       m_FinalCountTrend(trendDecayRate(bucketLength), bucketLength, COMPONENT_SIZE) {
 }
 
-void CInterimBucketCorrector::currentBucketCount(core_t::TTime time, uint64_t count) {
+void CInterimBucketCorrector::currentBucketCount(core_t::TTime time, std::uint64_t count) {
     m_Completeness = this->estimateBucketCompleteness(time, count);
 }
 
-void CInterimBucketCorrector::finalBucketCount(core_t::TTime time, uint64_t count) {
+void CInterimBucketCorrector::finalBucketCount(core_t::TTime time, std::uint64_t count) {
     core_t::TTime bucketMidPoint{this->calcBucketMidPoint(time)};
     m_Completeness = 1.0;
     m_FinalCountTrend.addPoint(bucketMidPoint, static_cast<double>(count));

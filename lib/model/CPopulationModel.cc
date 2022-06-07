@@ -39,7 +39,7 @@ namespace model {
 namespace {
 
 using TStrCRef = std::reference_wrapper<const std::string>;
-using TStrCRefUInt64Map = std::map<TStrCRef, uint64_t, maths::common::COrderings::SLess>;
+using TStrCRefUInt64Map = std::map<TStrCRef, std::uint64_t, maths::common::COrderings::SLess>;
 
 enum EEntity { E_Person, E_Attribute };
 
@@ -75,7 +75,7 @@ void hashActive(EEntity entity,
                 TStrCRefUInt64Map& hashes) {
     for (std::size_t id = 0; id < values.size(); ++id) {
         if (isActive(entity, gatherer, id)) {
-            uint64_t& hash = hashes[std::cref(name(entity, gatherer, id))];
+            std::uint64_t& hash = hashes[std::cref(name(entity, gatherer, id))];
             hash = maths::common::CChecksum::calculate(hash, values[id]);
         }
     }
@@ -180,9 +180,9 @@ void CPopulationModel::sample(core_t::TTime startTime,
             m_AttributeFirstBucketTimes[cid] = startTime;
         }
         m_AttributeLastBucketTimes[cid] = startTime;
-        m_DistinctPersonCounts[cid].add(static_cast<int32_t>(pid));
+        m_DistinctPersonCounts[cid].add(static_cast<std::int32_t>(pid));
         if (cid < m_PersonAttributeBucketCounts.size()) {
-            m_PersonAttributeBucketCounts[cid].add(static_cast<int32_t>(pid), 1.0);
+            m_PersonAttributeBucketCounts[cid].add(static_cast<std::int32_t>(pid), 1.0);
         }
     }
 
@@ -192,8 +192,8 @@ void CPopulationModel::sample(core_t::TTime startTime,
     }
 }
 
-uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
-    uint64_t seed = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
+std::uint64_t CPopulationModel::checksum(bool includeCurrentBucketStats) const {
+    std::uint64_t seed = this->CAnomalyDetectorModel::checksum(includeCurrentBucketStats);
 
     const CDataGatherer& gatherer = this->dataGatherer();
     TStrCRefUInt64Map hashes;
@@ -259,7 +259,7 @@ double CPopulationModel::sampleRateWeight(std::size_t pid, std::size_t cid) cons
     const maths::time_series::CCountMinSketch& counts = m_PersonAttributeBucketCounts[cid];
     const maths::common::CBjkstUniqueValues& distinctPeople = m_DistinctPersonCounts[cid];
 
-    double personCount = counts.count(static_cast<uint32_t>(pid)) -
+    double personCount = counts.count(static_cast<std::uint32_t>(pid)) -
                          counts.oneMinusDeltaError();
     if (personCount <= 0.0) {
         return 1.0;
@@ -540,7 +540,7 @@ void CPopulationModel::peopleAndAttributesToRemove(core_t::TTime time,
 
 void CPopulationModel::removePeople(const TSizeVec& peopleToRemove) {
     for (std::size_t i = 0; i < peopleToRemove.size(); ++i) {
-        uint32_t pid = static_cast<uint32_t>(peopleToRemove[i]);
+        std::uint32_t pid = static_cast<std::uint32_t>(peopleToRemove[i]);
         for (std::size_t cid = 0; cid < m_PersonAttributeBucketCounts.size(); ++cid) {
             m_PersonAttributeBucketCounts[cid].removeFromMap(pid);
         }
@@ -582,7 +582,8 @@ bool CPopulationModel::CCorrectionKey::operator==(const CCorrectionKey& rhs) con
 }
 
 std::size_t CPopulationModel::CCorrectionKey::hash() const {
-    uint64_t seed = core::CHashing::hashCombine(static_cast<uint64_t>(m_Feature), m_Pid);
+    std::uint64_t seed =
+        core::CHashing::hashCombine(static_cast<std::uint64_t>(m_Feature), m_Pid);
     seed = core::CHashing::hashCombine(seed, m_Cid);
     return static_cast<std::size_t>(core::CHashing::hashCombine(seed, m_Correlate));
 }

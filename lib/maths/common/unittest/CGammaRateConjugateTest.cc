@@ -1234,7 +1234,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         maths::common::MINIMUM_CLUSTER_SPLIT_COUNT, maths::common::MINIMUM_CATEGORY_COUNT);
     maths::common::CGammaRateConjugate restoredFilter(params, traverser);
 
-    uint64_t checksum = origFilter.checksum();
+    std::uint64_t checksum = origFilter.checksum();
     LOG_DEBUG(<< "orig checksum = " << checksum
               << " restored checksum = " << restoredFilter.checksum());
     BOOST_REQUIRE_EQUAL(checksum, restoredFilter.checksum());

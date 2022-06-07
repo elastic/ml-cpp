@@ -35,7 +35,7 @@ bool CCondition::wait() {
     return true;
 }
 
-bool CCondition::wait(uint32_t t) {
+bool CCondition::wait(std::uint32_t t) {
     BOOL success(SleepConditionVariableCS(&m_Condition, &m_Mutex.m_Mutex, t));
     if (success == FALSE) {
         DWORD errorCode(GetLastError());

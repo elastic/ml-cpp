@@ -728,7 +728,7 @@ public:
     }
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const override {
+    std::uint64_t checksum(std::uint64_t seed = 0) const override {
         seed = this->CMultivariatePrior::checksum(seed);
         seed = CChecksum::calculate(seed, m_GaussianMean);
         seed = CChecksum::calculate(seed, m_GaussianPrecision);

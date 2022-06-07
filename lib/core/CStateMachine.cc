@@ -156,9 +156,9 @@ std::string CStateMachine::printSymbol(std::size_t symbol) const {
     return ms_Machines[m_Machine].s_Alphabet[symbol];
 }
 
-uint64_t CStateMachine::checksum() const {
-    return CHashing::hashCombine(static_cast<uint64_t>(m_Machine),
-                                 static_cast<uint64_t>(m_State));
+std::uint64_t CStateMachine::checksum() const {
+    return CHashing::hashCombine(static_cast<std::uint64_t>(m_Machine),
+                                 static_cast<std::uint64_t>(m_State));
 }
 
 std::size_t CStateMachine::numberMachines() {

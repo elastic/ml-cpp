@@ -19,10 +19,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <cstdint>
 #include <set>
 #include <vector>
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -127,24 +127,24 @@ BOOST_AUTO_TEST_CASE(testReplaceFirst) {
 
 BOOST_AUTO_TEST_CASE(testTypeToString) {
     {
-        uint64_t i(18446744073709551615ULL);
+        std::uint64_t i(18446744073709551615ULL);
         std::string expected("18446744073709551615");
 
         std::string actual = ml::core::CStringUtils::typeToString(i);
         BOOST_REQUIRE_EQUAL(expected, actual);
 
-        uint64_t j(0);
+        std::uint64_t j(0);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(actual, j));
         BOOST_REQUIRE_EQUAL(i, j);
     }
     {
-        uint32_t i(123456U);
+        std::uint32_t i(123456U);
         std::string expected("123456");
 
         std::string actual = ml::core::CStringUtils::typeToString(i);
         BOOST_REQUIRE_EQUAL(expected, actual);
 
-        uint32_t j(0);
+        std::uint32_t j(0);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(actual, j));
         BOOST_REQUIRE_EQUAL(i, j);
     }
@@ -160,13 +160,13 @@ BOOST_AUTO_TEST_CASE(testTypeToString) {
         BOOST_REQUIRE_EQUAL(i, j);
     }
     {
-        int32_t i(123456);
+        std::int32_t i(123456);
         std::string expected("123456");
 
         std::string actual = ml::core::CStringUtils::typeToString(i);
         BOOST_REQUIRE_EQUAL(expected, actual);
 
-        int32_t j(0);
+        std::int32_t j(0);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(actual, j));
         BOOST_REQUIRE_EQUAL(i, j);
     }
@@ -382,43 +382,43 @@ BOOST_AUTO_TEST_CASE(testStringToType) {
     }
     {
         // All good conversions
-        int32_t ret;
+        std::int32_t ret;
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("1000", ret));
-        BOOST_REQUIRE_EQUAL(int32_t(1000), ret);
+        BOOST_REQUIRE_EQUAL(1000, ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("-1000", ret));
-        BOOST_REQUIRE_EQUAL(int32_t(-1000), ret);
+        BOOST_REQUIRE_EQUAL(-1000, ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("0", ret));
-        BOOST_REQUIRE_EQUAL(int32_t(0), ret);
+        BOOST_REQUIRE_EQUAL(0, ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("0x1000", ret));
-        BOOST_REQUIRE_EQUAL(int32_t(0x1000), ret);
+        BOOST_REQUIRE_EQUAL(0x1000, ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("2147483647", ret));
-        BOOST_REQUIRE_EQUAL(int32_t(2147483647), ret);
+        BOOST_REQUIRE_EQUAL(2147483647, ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("-2147483647", ret));
-        BOOST_REQUIRE_EQUAL(int32_t(-2147483647), ret);
+        BOOST_REQUIRE_EQUAL(-2147483647, ret);
     }
     {
         // All good conversions
-        uint64_t ret;
+        std::uint64_t ret;
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("1000", ret));
-        BOOST_REQUIRE_EQUAL(uint64_t(1000), ret);
+        BOOST_REQUIRE_EQUAL(1000, ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("0", ret));
-        BOOST_REQUIRE_EQUAL(uint64_t(0), ret);
+        BOOST_REQUIRE_EQUAL(0, ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("0x1000", ret));
-        BOOST_REQUIRE_EQUAL(uint64_t(0x1000), ret);
+        BOOST_REQUIRE_EQUAL(0x1000, ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("18446744073709551615", ret));
-        BOOST_REQUIRE_EQUAL(uint64_t(18446744073709551615ULL), ret);
+        BOOST_REQUIRE_EQUAL(18446744073709551615ULL, ret);
     }
     {
         // All good conversions
-        uint32_t ret;
+        std::uint32_t ret;
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("1000", ret));
-        BOOST_REQUIRE_EQUAL(uint32_t(1000), ret);
+        BOOST_REQUIRE_EQUAL(std::uint32_t(1000), ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("0", ret));
-        BOOST_REQUIRE_EQUAL(uint32_t(0), ret);
+        BOOST_REQUIRE_EQUAL(std::uint32_t(0), ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("0x1000", ret));
-        BOOST_REQUIRE_EQUAL(uint32_t(0x1000), ret);
+        BOOST_REQUIRE_EQUAL(std::uint32_t(0x1000), ret);
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType("2147483650", ret));
-        BOOST_REQUIRE_EQUAL(uint32_t(2147483650UL), ret);
+        BOOST_REQUIRE_EQUAL(std::uint32_t(2147483650UL), ret);
     }
     {
         // All good conversions
@@ -451,7 +451,7 @@ BOOST_AUTO_TEST_CASE(testStringToType) {
     }
     {
         // All bad conversions
-        int64_t ret;
+        std::int64_t ret;
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("", ret));
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("abc", ret));
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("9223372036854775808", ret));
@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE(testStringToType) {
     }
     {
         // All bad conversions
-        int32_t ret;
+        std::int32_t ret;
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("abc", ret));
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("2147483648", ret));
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("-2147483649", ret));
@@ -473,13 +473,13 @@ BOOST_AUTO_TEST_CASE(testStringToType) {
     }
     {
         // All bad conversions
-        uint64_t ret;
+        std::uint64_t ret;
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("abc", ret));
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("18446744073709551616", ret));
     }
     {
         // All bad conversions
-        uint32_t ret;
+        std::uint32_t ret;
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("abc", ret));
         BOOST_TEST_REQUIRE(!ml::core::CStringUtils::stringToType("4294967296", ret));
     }
@@ -858,7 +858,7 @@ BOOST_AUTO_TEST_CASE(testPerformance, *boost::unit_test::disabled()) {
             std::string result(ml::core::CStringUtils::typeToString(count));
             ml::core::CStringUtils::stringToType(result, count);
         }
-        uint64_t timeMs(stopWatch.stop());
+        std::uint64_t timeMs(stopWatch.stop());
         LOG_DEBUG(<< "After CStringUtils::typeToString integer test");
         LOG_DEBUG(<< "CStringUtils::typeToString integer test took " << timeMs << "ms");
     }
@@ -872,7 +872,7 @@ BOOST_AUTO_TEST_CASE(testPerformance, *boost::unit_test::disabled()) {
             std::string result(boost::lexical_cast<std::string>(count));
             count = boost::lexical_cast<size_t>(result);
         }
-        uint64_t timeMs(stopWatch.stop());
+        std::uint64_t timeMs(stopWatch.stop());
         LOG_DEBUG(<< "After boost::lexical_cast integer test");
         LOG_DEBUG(<< "boost::lexical_cast integer test took " << timeMs << "ms");
     }
@@ -887,7 +887,7 @@ BOOST_AUTO_TEST_CASE(testPerformance, *boost::unit_test::disabled()) {
             std::string result(ml::core::CStringUtils::typeToString(count));
             ml::core::CStringUtils::stringToType(result, count);
         }
-        uint64_t timeMs(stopWatch.stop());
+        std::uint64_t timeMs(stopWatch.stop());
         LOG_DEBUG(<< "After CStringUtils::typeToString floating point test");
         LOG_DEBUG(<< "CStringUtils::typeToString floating point test took " << timeMs << "ms");
     }
@@ -901,7 +901,7 @@ BOOST_AUTO_TEST_CASE(testPerformance, *boost::unit_test::disabled()) {
             std::string result(boost::lexical_cast<std::string>(count));
             count = boost::lexical_cast<double>(result);
         }
-        uint64_t timeMs(stopWatch.stop());
+        std::uint64_t timeMs(stopWatch.stop());
         LOG_DEBUG(<< "After boost::lexical_cast floating point test");
         LOG_DEBUG(<< "boost::lexical_cast floating point test took " << timeMs << "ms");
     }
