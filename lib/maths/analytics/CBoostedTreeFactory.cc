@@ -155,6 +155,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         this->initializeMissingFeatureMasks(frame);
         this->initializeNumberFolds(frame);
+        // There are only "old" training examples for the initial train.
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
             m_TreeImpl->m_NewTrainingRowMask.extend(
                 false, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
@@ -259,13 +260,13 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
         this->initializeMissingFeatureMasks(frame);
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
-            // We assume any additional rows are new examples.
+            // We assume any additional rows are new examples to predict.
             m_TreeImpl->m_NewTrainingRowMask.extend(
                 true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
         }
     });
 
-    this->prepareDataFrameForTrain(frame);
+    this->prepareDataFrameForPredict(frame);
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
         this->determineFeatureDataTypes(frame);
@@ -425,8 +426,8 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 void CBoostedTreeFactory::prepareDataFrameForEncode(core::CDataFrame& frame) const {
 
     std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
-    const auto& columnNames = frame.columnNames();
     if (m_RowWeightColumnName.empty() == false) {
+        const auto& columnNames = frame.columnNames();
         auto column = std::find(columnNames.begin(), columnNames.end(), m_RowWeightColumnName);
         if (column == columnNames.end()) {
             HANDLE_FATAL(<< "Input error: unrecognised row weight field name '"
@@ -443,8 +444,8 @@ void CBoostedTreeFactory::prepareDataFrameForEncode(core::CDataFrame& frame) con
 void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) const {
 
     std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
-    const auto& columnNames = frame.columnNames();
     if (m_RowWeightColumnName.empty() == false) {
+        const auto& columnNames = frame.columnNames();
         auto column = std::find(columnNames.begin(), columnNames.end(), m_RowWeightColumnName);
         if (column == columnNames.end()) {
             HANDLE_FATAL(<< "Input error: unrecognised row weight field name '"
@@ -461,6 +462,30 @@ void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) cons
     std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumnsForTrain(numberLossParameters));
     auto extraColumnTags = extraColumnTagsForTrain();
+    m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
+    for (std::size_t i = 0; i < extraColumns.size(); ++i) {
+        m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
+    }
+    m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
+    m_PaddedExtraColumns += paddedExtraColumns;
+
+    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
+    m_TreeImpl->m_Instrumentation->flush();
+}
+
+void CBoostedTreeFactory::prepareDataFrameForPredict(core::CDataFrame& frame) const {
+
+    std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
+
+    // Extend the frame with the bookkeeping columns used in predict.
+    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
+    TSizeVec extraColumns;
+    std::size_t paddedExtraColumns;
+    std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
+    std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
+        m_TreeImpl->m_NumberThreads, extraColumnsForPredict(numberLossParameters));
+    auto extraColumnTags = extraColumnTagsForPredict();
     m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
     for (std::size_t i = 0; i < extraColumns.size(); ++i) {
         m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
