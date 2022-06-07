@@ -12,7 +12,6 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
 #define INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
 
-#include "api/ApiTypes.h"
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
