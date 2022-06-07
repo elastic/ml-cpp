@@ -103,7 +103,7 @@ case $SIMPLE_PLATFORM in
         ;;
 
     windows)
-        PATH=/mingw64/bin:/usr/bin:/bin:$ROOT/Windows/System32:$ROOT/Windows:$ROOT/PROGRA~2/MICROS~2/2019/PROFES~1/Common7/IDE/COMMON~1/MICROS~1/CMake/CMake/bin
+        PATH=/mingw64/bin:/usr/bin:/bin:$ROOT/Windows/System32:$ROOT/Windows::$ROOT/PROGRA~1/CMake/bin
         PATH=$ROOT/usr/local/bin:$ROOT/usr/local/sbin:$PATH
         ;;
 
