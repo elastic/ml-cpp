@@ -8,7 +8,7 @@
 # limitation.
 
 # syntax=docker/dockerfile:1.3
-FROM docker.elastic.co/ml-dev/ml-linux-build:20 as builder
+FROM docker.elastic.co/ml-dev/ml-linux-build:22 as builder
 
 RUN yum install -y epel-release && \
     yum install -y ccache && \
@@ -19,15 +19,21 @@ ENV CCACHE_SLOPPINESS="file_stat_matches,pch_defines,time_macros,include_file_mt
 COPY . /ml-cpp
 WORKDIR /ml-cpp
 ENV CPP_SRC_HOME=/ml-cpp
+ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/
 
 RUN --mount=type=cache,target=/root/.ccache \
     . ./set_env.sh &&  \
-    make -j`nproc`
+    make -j`nproc` && \
+    find build/distribution/platform/linux-x86_64/lib ! -name libMl*.so -type f -exec rm -f {} + && \
+    dev-tools/strip_binaries.sh 
 
 
 ##############################################
 FROM docker.elastic.co/ml-dev/ml-linux-jupyter-build:1
  
+COPY --from=builder /usr/local/gcc103 /usr/local/gcc103
+ENV LD_LIBRARY_PATH=/usr/local/gcc103/lib/:/usr/local/gcc103/lib64/
+
 COPY jupyter/requirements.txt jupyter/Makefile /root/
 RUN --mount=type=cache,target=/root/.cache/pip \
     cd /root && \

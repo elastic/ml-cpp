@@ -116,8 +116,8 @@ private:
         bool Bool(bool b);
         bool Int(int i);
         bool Uint(unsigned u);
-        bool Int64(int64_t i);
-        bool Uint64(uint64_t u);
+        bool Int64(std::int64_t i);
+        bool Uint64(std::uint64_t u);
         bool Double(double d);
         bool RawNumber(const char*, rapidjson::SizeType, bool);
         bool String(const char* str, rapidjson::SizeType length, bool);

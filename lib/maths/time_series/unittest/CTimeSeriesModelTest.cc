@@ -382,10 +382,10 @@ BOOST_AUTO_TEST_CASE(testClone) {
             time += bucketLength;
         }
 
-        uint64_t checksum1 = model.checksum();
+        std::uint64_t checksum1 = model.checksum();
         std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> clone1{
             model.clone(1)};
-        uint64_t checksum2 = clone1->checksum();
+        std::uint64_t checksum2 = clone1->checksum();
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::time_series::CUnivariateTimeSeriesModel> clone2{
             model.clone(2)};
@@ -410,14 +410,14 @@ BOOST_AUTO_TEST_CASE(testClone) {
             time += bucketLength;
         }
 
-        uint64_t checksum1 = model.checksum();
+        std::uint64_t checksum1 = model.checksum();
         std::unique_ptr<maths::time_series::CMultivariateTimeSeriesModel> clone1{
             model.clone(1)};
-        uint64_t checksum2 = clone1->checksum();
+        std::uint64_t checksum2 = clone1->checksum();
         BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         std::unique_ptr<maths::time_series::CMultivariateTimeSeriesModel> clone2{
             model.clone(2)};
-        uint64_t checksum3 = clone2->checksum();
+        std::uint64_t checksum3 = clone2->checksum();
         BOOST_REQUIRE_EQUAL(checksum1, checksum3);
         BOOST_REQUIRE_EQUAL(std::size_t(0), clone2->identifier());
     }
@@ -754,8 +754,8 @@ BOOST_AUTO_TEST_CASE(testAddMultipleSamples) {
         prior.propagateForwardsByTime(1.0);
 
         for (std::size_t i = 0; i < trends.size(); ++i) {
-            uint64_t checksum1{trends[i]->checksum()};
-            uint64_t checksum2{model.trendModel()[i]->checksum()};
+            std::uint64_t checksum1{trends[i]->checksum()};
+            std::uint64_t checksum2{model.trendModel()[i]->checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
             BOOST_REQUIRE_EQUAL(checksum1, checksum2);
         }

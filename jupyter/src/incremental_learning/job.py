@@ -525,6 +525,8 @@ def train(dataset_name: str, dataset: pandas.DataFrame,
             raise AttributeError("Encode job is missing the model.")
         restore_file = tempfile.NamedTemporaryFile(mode='wt')
         restore_file.write(encode_job.model)
+    else:
+        restore_file = None
 
     job = run_job(input=data_file, config=config_file,
                   persist=model_file, restore=restore_file, 

@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationCaptureBest) {
     hyperparameters.eta().fixToRange(0.1, 1.0);
     hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
-    hyperparameters.initializeSearch();
+    hyperparameters.initializeFineTuneSearch();
 
     test::CRandomNumbers rng;
     TDoubleVec losses;
@@ -205,8 +205,8 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationCaptureBest) {
     double minimumLoss{std::numeric_limits<double>::max()};
     TDoubleVec expectedBestParameters;
 
-    for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
-         hyperparameters.startNextSearchRound()) {
+    for (hyperparameters.startFineTuneSearch();
+         hyperparameters.fineTuneSearchNotFinished(); hyperparameters.startNextRound()) {
 
         TMeanVarAccumulator testLossMoments;
         rng.generateUniformSamples(0.5, 1.5, 3, losses);
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
         parameter.fixTo(TDoubleVec{0.5});
 
-        hyperparameters.initializeSearch();
+        hyperparameters.initializeFineTuneSearch();
 
         BOOST_REQUIRE_EQUAL(--numberToTune, hyperparameters.numberToTune());
         BOOST_REQUIRE_EQUAL(2 * hyperparameters.numberToTune(),
@@ -280,8 +280,9 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithOverrides) {
 
         test::CRandomNumbers rng;
         TDoubleVec losses;
-        for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
-             hyperparameters.startNextSearchRound()) {
+        for (hyperparameters.startFineTuneSearch();
+             hyperparameters.fineTuneSearchNotFinished();
+             hyperparameters.startNextRound()) {
 
             TMeanVarAccumulator testLossMoments;
             rng.generateUniformSamples(0.1, 1.0, 3, losses);
@@ -334,7 +335,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithRangeOverride
 
         BOOST_REQUIRE_EQUAL(numberToTune, hyperparameters.numberToTune());
 
-        hyperparameters.initializeSearch();
+        hyperparameters.initializeFineTuneSearch();
 
         BOOST_REQUIRE_EQUAL(2 * hyperparameters.numberToTune(),
                             hyperparameters.numberRounds());
@@ -342,8 +343,9 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersOptimisationWithRangeOverride
         test::CRandomNumbers rng;
         TDoubleVec losses;
 
-        for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
-             hyperparameters.startNextSearchRound()) {
+        for (hyperparameters.startFineTuneSearch();
+             hyperparameters.fineTuneSearchNotFinished();
+             hyperparameters.startNextRound()) {
 
             TMeanVarAccumulator testLossMoments;
             rng.generateUniformSamples(0.1, 1.0, 3, losses);
@@ -398,7 +400,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
     hyperparameters.eta().fixToRange(0.1, 1.0);
     hyperparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
-    hyperparameters.initializeSearch();
+    hyperparameters.initializeFineTuneSearch();
 
     test::CRandomNumbers rng;
 
@@ -409,8 +411,8 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
 
     initHyperaparameters();
 
-    for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
-         hyperparameters.startNextSearchRound()) {
+    for (hyperparameters.startFineTuneSearch();
+         hyperparameters.fineTuneSearchNotFinished(); hyperparameters.startNextRound()) {
         TMeanVarAccumulator testLossMoments;
         testLossMoments.add(losses[3 * hyperparameters.currentRound() + 0]);
         testLossMoments.add(losses[3 * hyperparameters.currentRound() + 1]);
@@ -444,14 +446,14 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersResetSearch) {
          hyperparameters.featureBagFraction().value(),
          hyperparameters.etaGrowthRatePerTree().value(), hyperparameters.eta().value()});
 
-    hyperparameters.resetSearch();
-    hyperparameters.initializeSearch();
+    hyperparameters.resetFineTuneSearch();
+    hyperparameters.initializeFineTuneSearch();
 
     initHyperaparameters();
     TDoubleVec bestParameters;
 
-    for (hyperparameters.startSearch(); hyperparameters.searchNotFinished();
-         hyperparameters.startNextSearchRound()) {
+    for (hyperparameters.startFineTuneSearch();
+         hyperparameters.fineTuneSearchNotFinished(); hyperparameters.startNextRound()) {
 
         TMeanVarAccumulator testLossMoments;
         testLossMoments.add(losses[3 * hyperparameters.currentRound() + 0]);
@@ -558,9 +560,9 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOptimisation) {
     origHyperaparameters.eta().fixToRange(0.1, 1.0);
     origHyperaparameters.etaGrowthRatePerTree().fixToRange(0.1, 1.0);
 
-    origHyperaparameters.initializeSearch();
+    origHyperaparameters.initializeFineTuneSearch();
 
-    origHyperaparameters.startSearch();
+    origHyperaparameters.startFineTuneSearch();
 
     maths::analytics::CBoostedTreeHyperparameters::TMeanAccumulator forestSize;
     forestSize.add(103.0);
@@ -588,7 +590,7 @@ BOOST_AUTO_TEST_CASE(testBoostedTreeHyperparametersPersistWithOptimisation) {
     maths::analytics::CBoostedTreeHyperparameters restoredHyperaparameters;
     BOOST_TEST_REQUIRE(restoredHyperaparameters.acceptRestoreTraverser(traverser));
 
-    restoredHyperaparameters.startSearch();
+    restoredHyperaparameters.startFineTuneSearch();
 
     BOOST_REQUIRE_EQUAL(origHyperaparameters.checksum(),
                         restoredHyperaparameters.checksum());

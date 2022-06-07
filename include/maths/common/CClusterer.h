@@ -26,11 +26,10 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace maths {

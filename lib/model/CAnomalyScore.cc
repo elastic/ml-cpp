@@ -259,7 +259,7 @@ CAnomalyScore::CNormalizer::CNormalizer(const CAnomalyDetectorModelConfig& confi
     : m_NoisePercentile(config.noisePercentile()),
       m_NoiseMultiplier(config.noiseMultiplier()),
       m_NormalizedScoreKnotPoints(config.normalizedScoreKnotPoints()),
-      m_HighPercentileScore(std::numeric_limits<uint32_t>::max()),
+      m_HighPercentileScore(std::numeric_limits<std::uint32_t>::max()),
       m_CountPerSample(core::constants::HOUR /
                        maths::common::CTools::truncate(2 * config.bucketLength(),
                                                        5 * core::constants::MINUTE,
@@ -293,7 +293,7 @@ bool CAnomalyScore::CNormalizer::normalize(const CMaximumScoreScope& scope,
     double normalizedScores[]{m_MaximumNormalizedScore, m_MaximumNormalizedScore,
                               m_MaximumNormalizedScore, m_MaximumNormalizedScore};
 
-    uint32_t discreteScore = this->discreteScore(score);
+    std::uint32_t discreteScore = this->discreteScore(score);
 
     // Our normalized score is the minimum of a set of different
     // score ceilings. The idea is that we have a number of factors
@@ -332,7 +332,7 @@ bool CAnomalyScore::CNormalizer::normalize(const CMaximumScoreScope& scope,
     // c.d.f. of the score and pn the noise percentile. We achieve
     // this by adding "max score" * min(F(0) / "noise percentile",
     // to the score.
-    uint32_t noiseScore;
+    std::uint32_t noiseScore;
     m_RawScoreQuantileSummary.quantile(m_NoisePercentile / 100.0, noiseScore);
     auto knotPoint = std::lower_bound(m_NormalizedScoreKnotPoints.begin(),
                                       m_NormalizedScoreKnotPoints.end(),
@@ -369,13 +369,13 @@ bool CAnomalyScore::CNormalizer::normalize(const CMaximumScoreScope& scope,
                                   m_NormalizedScoreKnotPoints.end(), lowerPercentile,
                                   maths::common::COrderings::SFirstLess()) -
                      m_NormalizedScoreKnotPoints.begin(),
-                 ptrdiff_t(1));
+                 std::ptrdiff_t(1));
     std::size_t upperKnotPoint =
         std::max(std::lower_bound(m_NormalizedScoreKnotPoints.begin(),
                                   m_NormalizedScoreKnotPoints.end(), upperPercentile,
                                   maths::common::COrderings::SFirstLess()) -
                      m_NormalizedScoreKnotPoints.begin(),
-                 ptrdiff_t(1));
+                 std::ptrdiff_t(1));
     if (lowerKnotPoint < m_NormalizedScoreKnotPoints.size()) {
         const TDoubleDoublePr& left = m_NormalizedScoreKnotPoints[lowerKnotPoint - 1];
         const TDoubleDoublePr& right = m_NormalizedScoreKnotPoints[lowerKnotPoint];
@@ -435,7 +435,7 @@ void CAnomalyScore::CNormalizer::quantile(double score,
                                           double confidence,
                                           double& lowerBound,
                                           double& upperBound) const {
-    uint32_t discreteScore = this->discreteScore(score);
+    std::uint32_t discreteScore = this->discreteScore(score);
     double n = static_cast<double>(m_RawScoreQuantileSummary.n());
     double lowerQuantile = (100.0 - confidence) / 200.0;
     double upperQuantile = (100.0 + confidence) / 200.0;
@@ -513,7 +513,7 @@ void CAnomalyScore::CNormalizer::quantile(double score,
 }
 
 bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope, double score) {
-    using TUInt32UInt64Pr = std::pair<uint32_t, uint64_t>;
+    using TUInt32UInt64Pr = std::pair<std::uint32_t, std::uint64_t>;
     using TUInt32UInt64PrVec = std::vector<TUInt32UInt64Pr>;
 
     CMaxScore& maxScore = m_MaxScores[scope.key(m_IsForMembersOfPopulation, m_Dictionary)];
@@ -529,15 +529,15 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
         return bigChange;
     }
 
-    uint32_t discreteScore = this->discreteScore(m_Sample);
+    std::uint32_t discreteScore = this->discreteScore(m_Sample);
     LOG_TRACE(<< "score = " << m_Sample << ", discreteScore = " << discreteScore
               << ", maxScore = " << maxScore.score() << ", scope = " << scope.print());
 
     m_CountSinceLastSample = 0;
     m_Sample = 0.0;
 
-    uint64_t n = m_RawScoreQuantileSummary.n();
-    uint64_t k = m_RawScoreQuantileSummary.k();
+    std::uint64_t n = m_RawScoreQuantileSummary.n();
+    std::uint64_t k = m_RawScoreQuantileSummary.k();
     LOG_TRACE(<< "n = " << n << ", k = " << k);
 
     // We are about to compress the q-digest, at the moment it comprises
@@ -553,7 +553,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
             LOG_ERROR(<< "High quantile summary is empty: "
                       << m_RawScoreQuantileSummary.print());
         } else {
-            auto highPercentileCount = static_cast<uint64_t>(
+            auto highPercentileCount = static_cast<std::uint64_t>(
                 (HIGH_PERCENTILE / 100.0) * static_cast<double>(n) + 0.5);
 
             // Estimate the high percentile score and update the count.
@@ -581,8 +581,8 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
 
             // Populate the high quantile summary.
             for (/**/; i < L.size(); ++i) {
-                uint32_t x = L[i].first;
-                uint64_t m = L[i].second - L[i - 1].second;
+                std::uint32_t x = L[i].first;
+                std::uint64_t m = L[i].second - L[i - 1].second;
 
                 LOG_TRACE(<< "Adding (" << x << ", " << m << ") to H");
                 m_RawScoreHighQuantileSummary.add(x, m);
@@ -604,7 +604,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
     if ((n + 1) > k && (n + 1) % k == 0) {
         LOG_TRACE(<< "Refreshing high quantile summary");
 
-        auto highPercentileCount = static_cast<uint64_t>(
+        auto highPercentileCount = static_cast<std::uint64_t>(
             (HIGH_PERCENTILE / 100.0) * static_cast<double>(n + 1) + 0.5);
 
         LOG_TRACE(<< "s(H) = " << m_HighPercentileScore << ", c(H) = " << m_HighPercentileCount
@@ -629,18 +629,18 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
                     H.begin()),
                 H.size() - 1);
 
-            uint64_t r = L[i0].second;
+            std::uint64_t r = L[i0].second;
             for (std::size_t i = i0 + 1;
                  i < L.size() && L[i0].second + m_RawScoreHighQuantileSummary.n() < n + 1;
                  ++i) {
                 for (/**/; j < H.size() && H[j].first <= L[i].first; ++j) {
-                    r += (H[j].second -
-                          (j == 0 ? static_cast<uint64_t>(0) : H[j - 1].second));
+                    r += (H[j].second - (j == 0 ? static_cast<std::uint64_t>(0)
+                                                : H[j - 1].second));
                 }
 
-                uint32_t x = L[i].first;
-                uint64_t m = r < L[i].second ? L[i].second - r
-                                             : static_cast<uint64_t>(0);
+                std::uint32_t x = L[i].first;
+                std::uint64_t m = r < L[i].second ? L[i].second - r
+                                                  : static_cast<std::uint64_t>(0);
                 r += m;
                 if (m > 0) {
                     LOG_TRACE(<< "Adding (" << x << ',' << m << ") to H");
@@ -667,8 +667,8 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
             double lowerBound;
             double upperBound;
             m_RawScoreQuantileSummary.cdf(m_HighPercentileScore, 0.0, lowerBound, upperBound);
-            m_HighPercentileCount =
-                static_cast<uint64_t>(static_cast<double>(n + 1) * lowerBound + 0.5);
+            m_HighPercentileCount = static_cast<std::uint64_t>(
+                static_cast<double>(n + 1) * lowerBound + 0.5);
 
             LOG_TRACE(<< "s(H) = " << m_HighPercentileScore << ", c(H) = " << m_HighPercentileCount
                       << ", percentile = " << 100.0 * lowerBound << "%");
@@ -697,11 +697,11 @@ void CAnomalyScore::CNormalizer::propagateForwardByTime(double time) {
     if (m_TimeToQuantileDecay <= 0.0) {
         time = std::floor((QUANTILE_DECAY_TIME - m_TimeToQuantileDecay) / QUANTILE_DECAY_TIME);
 
-        uint64_t n = m_RawScoreQuantileSummary.n();
+        std::uint64_t n = m_RawScoreQuantileSummary.n();
         m_RawScoreQuantileSummary.propagateForwardsByTime(time);
         m_RawScoreHighQuantileSummary.propagateForwardsByTime(time);
         if (n > 0) {
-            m_HighPercentileCount = static_cast<uint64_t>(
+            m_HighPercentileCount = static_cast<std::uint64_t>(
                 static_cast<double>(m_RawScoreQuantileSummary.n()) /
                     static_cast<double>(n) * static_cast<double>(m_HighPercentileCount) +
                 0.5);
@@ -779,7 +779,7 @@ bool CAnomalyScore::CNormalizer::upgrade(const std::string& loadedVersion,
 }
 
 void CAnomalyScore::CNormalizer::clear() {
-    m_HighPercentileScore = std::numeric_limits<uint32_t>::max();
+    m_HighPercentileScore = std::numeric_limits<std::uint32_t>::max();
     m_HighPercentileCount = 0ULL;
     m_IsForMembersOfPopulation.reset();
     m_MaxScores.clear();
@@ -816,11 +816,11 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
         // This used to be 64 bit but is now 32 bit, so may need adjusting
         // on restoration
         RESTORE_SETUP_TEARDOWN(
-            HIGH_PERCENTILE_SCORE_TAG, uint64_t highPercentileScore64(0),
+            HIGH_PERCENTILE_SCORE_TAG, std::uint64_t highPercentileScore64(0),
             core::CStringUtils::stringToType(traverser.value(), highPercentileScore64),
-            m_HighPercentileScore = static_cast<uint32_t>(std::min(
+            m_HighPercentileScore = static_cast<std::uint32_t>(std::min(
                 highPercentileScore64,
-                static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()))));
+                static_cast<std::uint64_t>(std::numeric_limits<std::uint32_t>::max()))));
         RESTORE(HIGH_PERCENTILE_COUNT_TAG,
                 core::CStringUtils::stringToType(traverser.value(), m_HighPercentileCount));
         RESTORE_BUILT_IN(COUNT_SINCE_LAST_SAMPLE_TAG, m_CountSinceLastSample)
@@ -842,8 +842,8 @@ bool CAnomalyScore::CNormalizer::acceptRestoreTraverser(core::CStateRestoreTrave
     return true;
 }
 
-uint64_t CAnomalyScore::CNormalizer::checksum() const {
-    auto seed = static_cast<uint64_t>(m_NoisePercentile);
+std::uint64_t CAnomalyScore::CNormalizer::checksum() const {
+    auto seed = static_cast<std::uint64_t>(m_NoisePercentile);
     seed = maths::common::CChecksum::calculate(seed, m_NoiseMultiplier);
     seed = maths::common::CChecksum::calculate(seed, m_NormalizedScoreKnotPoints);
     seed = maths::common::CChecksum::calculate(seed, m_MaximumNormalizedScore);
@@ -860,11 +860,11 @@ uint64_t CAnomalyScore::CNormalizer::checksum() const {
     return maths::common::CChecksum::calculate(seed, m_TimeToQuantileDecay);
 }
 
-uint32_t CAnomalyScore::CNormalizer::discreteScore(double rawScore) const {
-    return static_cast<uint32_t>(DISCRETIZATION_FACTOR * rawScore + 0.5);
+std::uint32_t CAnomalyScore::CNormalizer::discreteScore(double rawScore) const {
+    return static_cast<std::uint32_t>(DISCRETIZATION_FACTOR * rawScore + 0.5);
 }
 
-double CAnomalyScore::CNormalizer::rawScore(uint32_t discreteScore) const {
+double CAnomalyScore::CNormalizer::rawScore(std::uint32_t discreteScore) const {
     return static_cast<double>(discreteScore) / DISCRETIZATION_FACTOR;
 }
 
@@ -946,8 +946,8 @@ bool CAnomalyScore::CNormalizer::CMaxScore::acceptRestoreTraverser(core::CStateR
     return true;
 }
 
-uint64_t CAnomalyScore::CNormalizer::CMaxScore::checksum() const {
-    uint64_t seed = maths::common::CChecksum::calculate(0, m_Score);
+std::uint64_t CAnomalyScore::CNormalizer::CMaxScore::checksum() const {
+    std::uint64_t seed = maths::common::CChecksum::calculate(0, m_Score);
     return maths::common::CChecksum::calculate(seed, m_TimeSinceLastScore);
 }
 

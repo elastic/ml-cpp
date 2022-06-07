@@ -17,7 +17,6 @@
 #include <core/CNonCopyable.h>
 
 #include <maths/analytics/CBoostedTree.h>
-#include <maths/analytics/CBoostedTreeHyperparameters.h>
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/analytics/ImportExport.h>
@@ -265,6 +264,9 @@ private:
     //! Resize the data frame with the extra columns used by incremental train.
     void prepareDataFrameForIncrementalTrain(core::CDataFrame& frame) const;
 
+    //! Resize the data frame with the extra columns used by prediction.
+    void prepareDataFrameForPredict(core::CDataFrame& frame) const;
+
     //! Set up cross validation.
     void initializeCrossValidation(core::CDataFrame& frame) const;
 
@@ -284,26 +286,28 @@ private:
     //! data set and original train data set sizes.
     void initialHyperparameterScaling();
 
-    //! Set the initial values for hyperparameters.
-    void initializeHyperparameters(core::CDataFrame& frame);
-
     //! Setup before setting initial values for hyperparameters.
     void initializeHyperparametersSetup(core::CDataFrame& frame);
 
+    //! Set the initial values for hyperparameters.
+    std::size_t initializeHyperparameters(core::CDataFrame& frame);
+
     //! Estimate a good initial value and bounding box to search for regularisation
     //! hyperparameters.
-    void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
+    std::size_t initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
     //! Estimate a good initial value and range to search for the feature bag
     //! fraction.
-    void initializeUnsetFeatureBagFraction(core::CDataFrame& frame);
+    std::size_t initializeUnsetFeatureBagFraction(core::CDataFrame& frame,
+                                                  std::size_t bestNumberTrees);
 
     //! Estimate a good initial value and range to search for the downsample
     //! factor.
-    void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
+    std::size_t initializeUnsetDownsampleFactor(core::CDataFrame& frame,
+                                                std::size_t bestNumberTrees);
 
     //! Estimate a good initial value and range to search for the learn rate.
-    void initializeUnsetEta(core::CDataFrame& frame);
+    std::size_t initializeUnsetEta(core::CDataFrame& frame, std::size_t bestNumberTrees);
 
     //! Estimate a good initial value and range to search for the learn rate
     //! to use for retrained trees when training incrementally.
@@ -311,7 +315,7 @@ private:
 
     //! Estimate a good initial value and range to search for the cost of
     //! changing predictions when training incrementally.
-    void initializePredictionChangeCost();
+    void initializeUnsetPredictionChangeCost();
 
     //! Estimate a good initial value and range to search for the for tree
     //! topology penalty when training incrementally.

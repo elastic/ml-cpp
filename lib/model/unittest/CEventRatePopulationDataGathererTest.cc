@@ -59,7 +59,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrVec = std::vector<std::string>;
 using TEventRateDataGathererPtr = std::shared_ptr<CDataGatherer>;
 using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
+using TSizeSizePrUInt64Map = std::map<TSizeSizePr, std::uint64_t>;
 using TSizeSizePrUInt64MapCItr = TSizeSizePrUInt64Map::iterator;
 using TSizeSet = std::set<std::size_t>;
 using TSizeSizeSetMap = std::map<std::size_t, TSizeSet>;
@@ -556,7 +556,7 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     using TStrSizeMap = std::map<std::string, std::size_t>;
-    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
 
     const core_t::TTime startTime = 1367280000;

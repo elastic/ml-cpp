@@ -22,10 +22,9 @@
 #include <test/CRandomNumbersDetail.h>
 
 #include <boost/math/constants/constants.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <stdint.h>
+#include <cstdint>
 
 using TVector2 = ml::maths::common::CVectorNx1<double, 2>;
 using TVector4 = ml::maths::common::CVectorNx1<double, 4>;
@@ -663,7 +662,7 @@ BOOST_AUTO_TEST_CASE(testPoorlyConditioned) {
     }
     std::sort(cluster2.begin(), cluster2.end());
     TVector2Vec cluster3;
-    for (std::size_t i = 20; i < boost::size(points_); ++i) {
+    for (std::size_t i = 20; i < std::size(points_); ++i) {
         cluster3.push_back(TVector2(&points_[i][0], &points_[i][2]));
     }
     std::sort(cluster3.begin(), cluster3.end());
@@ -674,7 +673,7 @@ BOOST_AUTO_TEST_CASE(testPoorlyConditioned) {
         LOG_DEBUG(<< "*** test = " << t << " ***");
 
         TVector2Vec points;
-        for (std::size_t i = 0; i < boost::size(points_); ++i) {
+        for (std::size_t i = 0; i < std::size(points_); ++i) {
             points.push_back(TVector2(&points_[i][0], &points_[i][2]));
         }
 

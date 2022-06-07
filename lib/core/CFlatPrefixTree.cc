@@ -26,7 +26,7 @@ namespace ml {
 namespace core {
 
 namespace {
-const uint32_t NO_CHILD = std::numeric_limits<uint32_t>::max();
+const std::uint32_t NO_CHILD = std::numeric_limits<std::uint32_t>::max();
 const char PADDING_NODE = '$';
 const char LEAF_NODE = 'l';
 const char BRANCH_NODE = 'b';
@@ -43,7 +43,7 @@ struct SCharNotEqualTo {
 };
 }
 
-CFlatPrefixTree::SNode::SNode(char c, char type, uint32_t next)
+CFlatPrefixTree::SNode::SNode(char c, char type, std::uint32_t next)
     : s_Char(c), s_Type(type), s_Next(next) {
 }
 
@@ -107,7 +107,7 @@ void CFlatPrefixTree::buildRecursively(const TStrVec& prefixes,
     // Now, we create the nodes of the current level: the padding node, that contains
     // the number of distinct characters, and a node for each distinct character.
     m_FlatTree.push_back(SNode(PADDING_NODE, PADDING_NODE,
-                               static_cast<uint32_t>(distinctCharsWithRange.size())));
+                               static_cast<std::uint32_t>(distinctCharsWithRange.size())));
     std::size_t treeSizeBeforeNewChars = m_FlatTree.size();
     for (std::size_t i = 0; i < distinctCharsWithRange.size(); ++i) {
         SDistinctChar& distinctChar = distinctCharsWithRange[i];
@@ -120,7 +120,7 @@ void CFlatPrefixTree::buildRecursively(const TStrVec& prefixes,
         SDistinctChar& distinctChar = distinctCharsWithRange[i];
         if (distinctChar.s_Type != LEAF_NODE) {
             m_FlatTree[treeSizeBeforeNewChars + i].s_Next =
-                static_cast<uint32_t>(m_FlatTree.size());
+                static_cast<std::uint32_t>(m_FlatTree.size());
             this->buildRecursively(prefixes, distinctChar.s_Start,
                                    distinctChar.s_End, charPos + 1);
         }

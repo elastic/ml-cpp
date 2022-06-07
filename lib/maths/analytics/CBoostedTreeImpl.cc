@@ -260,82 +260,78 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             1.0 /*single node used to centre the data*/, 1 /*single tree*/);
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-    } else if (m_Hyperparameters.searchNotFinished() || m_BestForest.empty()) {
+    } else if (m_Hyperparameters.fineTuneSearchNotFinished() || m_BestForest.empty()) {
         TMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();
         std::uint64_t lastLap{stopWatch.lap()};
-        if (m_Hyperparameters.stopEarly() == false) {
 
-            // Hyperparameter optimisation loop.
+        // Hyperparameter optimisation loop.
 
-            this->initializePerFoldTestLosses();
+        this->initializePerFoldTestLosses();
 
-            for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
+        for (m_Hyperparameters.startFineTuneSearch();
+             m_Hyperparameters.fineTuneSearchNotFinished();
+             /**/) {
 
-                LOG_TRACE(<< "Optimisation round = "
-                          << m_Hyperparameters.currentRound() + 1);
-                m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
+            LOG_DEBUG(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
+            m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
 
-                this->recordHyperparameters();
+            this->recordHyperparameters();
 
-                auto crossValidationResult = this->crossValidateForest(
-                    frame, m_Hyperparameters.maximumNumberTrees().value(),
-                    [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
-                           const core::CPackedBitVector& testingRowMask,
-                           core::CLoopProgress& trainingProgress) {
-                        return this->trainForest(frame_, trainingRowMask,
-                                                 testingRowMask, trainingProgress);
-                    });
+            auto crossValidationResult = this->crossValidateForest(
+                frame, m_Hyperparameters.maximumNumberTrees().value(),
+                [this](core::CDataFrame& frame_, const core::CPackedBitVector& trainingRowMask,
+                       const core::CPackedBitVector& testingRowMask,
+                       core::CLoopProgress& trainingProgress) {
+                    return this->trainForest(frame_, trainingRowMask,
+                                             testingRowMask, trainingProgress);
+                });
 
-                // If we have one fold we're evaluating using a hold-out set and will
-                // not retrain on the full data set at the end.
-                if (m_Hyperparameters.captureBest(
-                        crossValidationResult.s_TestLossMoments,
-                        crossValidationResult.s_MeanLossGap,
-                        0.0 /*no kept nodes*/, crossValidationResult.s_NumberNodes,
-                        crossValidationResult.s_NumberTrees) &&
-                    m_NumberFolds.value() == 1) {
-                    m_BestForest = std::move(crossValidationResult.s_Forest);
-                }
-
-                if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
-                                                 this->betweenFoldTestLossVariance()) == false) {
-                    LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
-                             << m_Hyperparameters.currentRound() << " out of "
-                             << m_Hyperparameters.numberRounds() << ".");
-                    break;
-                }
-
-                std::int64_t memoryUsage(this->memoryUsage());
-                m_Instrumentation->updateMemoryUsage(memoryUsage - lastMemoryUsage);
-                lastMemoryUsage = memoryUsage;
-
-                // We need to update the current round before we persist so we don't
-                // perform an extra round when we fail over.
-                m_Hyperparameters.startNextSearchRound();
-
-                // Store the training state after each hyperparameter search step.
-                LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
-                          << " state recording started");
-                this->recordState(recordTrainStateCallback);
-                LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
-                          << " state recording finished");
-
-                std::uint64_t currentLap{stopWatch.lap()};
-                std::uint64_t delta{currentLap - lastLap};
-                m_Instrumentation->iterationTime(delta);
-
-                timeAccumulator.add(static_cast<double>(delta));
-                lastLap = currentLap;
-                m_Instrumentation->flush(HYPERPARAMETER_OPTIMIZATION_ROUND +
-                                         std::to_string(m_Hyperparameters.currentRound()));
+            // If we have one fold we're evaluating using a hold-out set and will
+            // not retrain on the full data set at the end.
+            if (m_Hyperparameters.captureBest(
+                    crossValidationResult.s_TestLossMoments,
+                    crossValidationResult.s_MeanLossGap, 0.0 /*no kept nodes*/,
+                    crossValidationResult.s_NumberNodes, crossValidationResult.s_NumberTrees) &&
+                m_NumberFolds.value() == 1) {
+                m_BestForest = std::move(crossValidationResult.s_Forest);
             }
-        } else {
-            LOG_INFO(<< "Skipping fine parameter tuning: coarse parameter tuning is enough.");
+
+            if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
+                                             this->betweenFoldTestLossVariance()) == false) {
+                LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
+                         << m_Hyperparameters.currentRound() << " out of "
+                         << m_Hyperparameters.numberRounds() << ".");
+                break;
+            }
+
+            std::int64_t memoryUsage(this->memoryUsage());
+            m_Instrumentation->updateMemoryUsage(memoryUsage - lastMemoryUsage);
+            lastMemoryUsage = memoryUsage;
+
+            // We need to update the current round before we persist so we don't
+            // perform an extra round when we fail over.
+            m_Hyperparameters.startNextRound();
+
+            // Store the training state after each hyperparameter search step.
+            LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
+                      << " state recording started");
+            this->recordState(recordTrainStateCallback);
+            LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
+                      << " state recording finished");
+
+            std::uint64_t currentLap{stopWatch.lap()};
+            std::uint64_t delta{currentLap - lastLap};
+            m_Instrumentation->iterationTime(delta);
+
+            timeAccumulator.add(static_cast<double>(delta));
+            lastLap = currentLap;
+            m_Instrumentation->flush(HYPERPARAMETER_OPTIMIZATION_ROUND +
+                                     std::to_string(m_Hyperparameters.currentRound()));
         }
 
-        LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
+        LOG_DEBUG(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
         if (m_BestForest.empty()) {
             m_Hyperparameters.restoreBest();
@@ -390,7 +386,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
         return;
     }
 
-    LOG_DEBUG(<< "Main incremental training loop...");
+    LOG_TRACE(<< "Main incremental training loop...");
 
     this->selectTreesToRetrain(frame);
     // Add dummy trees that can be replaced with the new trees in the forest.
@@ -456,7 +452,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "Number trees to retrain = " << numberTreesToRetrain << "/"
               << m_BestForest.size());
 
-    for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
+    for (m_Hyperparameters.startFineTuneSearch();
+         m_Hyperparameters.fineTuneSearchNotFinished();
+         /**/) {
 
         LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
         m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
@@ -496,7 +494,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
         // We need to update the current round before we persist so we don't
         // perform an extra round when we fail over.
-        m_Hyperparameters.startNextSearchRound();
+        m_Hyperparameters.startNextRound();
 
         LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() << " state recording started");
         this->recordState(recordTrainStateCallback);
@@ -2167,8 +2165,8 @@ void CBoostedTreeImpl::startProgressMonitoringTrainIncremental() {
 }
 
 namespace {
-const std::string VERSION_8_2_TAG{"8.2"};
-const TStrVec SUPPORTED_VERSIONS{VERSION_8_2_TAG};
+const std::string VERSION_8_4_TAG{"8.4"};
+const TStrVec SUPPORTED_VERSIONS{VERSION_8_4_TAG};
 
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string CLASSIFICATION_WEIGHTS_OVERRIDE_TAG{"classification_weights_tag"};
@@ -2204,7 +2202,7 @@ const std::string DATA_SUMMARIZATION_FRACTION_TAG{"data_summarization_fraction"}
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(VERSION_8_2_TAG, "", inserter);
+    core::CPersistUtils::persist(VERSION_8_4_TAG, "", inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
     core::CPersistUtils::persistIfNotNull(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
                                           m_ClassificationWeightsOverride, inserter);

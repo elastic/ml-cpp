@@ -389,6 +389,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     std::size_t numberThreads{1};
 
     auto rowsToWriteMask = analysis.rowsToWriteMask(*m_DataFrame);
+    LOG_TRACE(<< "# rows to write = " << rowsToWriteMask.manhattan());
 
     using TRowItr = core::CDataFrame::TRowItr;
     m_DataFrame->readRows(numberThreads, 0, m_DataFrame->numberRows(),

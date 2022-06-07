@@ -27,15 +27,13 @@
 #include <model/SModelParams.h>
 
 #include <boost/any.hpp>
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -110,13 +108,13 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStrVecCItr = TStrVec::const_iterator;
     using TStrCPtrVec = std::vector<const std::string*>;
-    using TSizeUInt64Pr = std::pair<std::size_t, uint64_t>;
+    using TSizeUInt64Pr = std::pair<std::size_t, std::uint64_t>;
     using TSizeUInt64PrVec = std::vector<TSizeUInt64Pr>;
     using TFeatureVec = model_t::TFeatureVec;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-    using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, uint64_t>;
+    using TSizeSizePrUInt64Pr = std::pair<TSizeSizePr, std::uint64_t>;
     using TSizeSizePrUInt64PrVec = std::vector<TSizeSizePrUInt64Pr>;
-    using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, uint64_t>;
+    using TSizeSizePrUInt64UMap = boost::unordered_map<TSizeSizePr, std::uint64_t>;
     using TSizeSizePrUInt64UMapQueue = CBucketQueue<TSizeSizePrUInt64UMap>;
     using TSizeSizePrStoredStringPtrPrUInt64UMap = CBucketGatherer::TSizeSizePrStoredStringPtrPrUInt64UMap;
     using TSizeSizePrStoredStringPtrPrUInt64UMapVec =
@@ -579,7 +577,7 @@ public:
     //@}
 
     //! Get the checksum of this gatherer.
-    uint64_t checksum() const;
+    std::uint64_t checksum() const;
 
     //! Debug the memory used by this component.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;

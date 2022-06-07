@@ -691,7 +691,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
     test::CRandomNumbers rng;
 
     std::size_t n[] = {200, 400, 800, 1600, 3200};
-    uint64_t elapsed[5];
+    std::uint64_t elapsed[5];
 
     for (std::size_t s = 0; s < boost::size(n); ++s) {
         double proportions[] = {0.2, 0.3, 0.5};

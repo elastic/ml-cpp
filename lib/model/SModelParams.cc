@@ -89,7 +89,7 @@ SModelParams::distributionRestoreParams(maths_t::EDataType dataType) const {
             this->minimumCategoryCount()};
 }
 
-uint64_t SModelParams::checksum(uint64_t seed) const {
+std::uint64_t SModelParams::checksum(std::uint64_t seed) const {
     seed = maths::common::CChecksum::calculate(seed, s_LearnRate);
     seed = maths::common::CChecksum::calculate(seed, s_DecayRate);
     seed = maths::common::CChecksum::calculate(seed, s_InitialDecayRateMultiplier);

@@ -121,7 +121,7 @@ auto validInputStream(core::CDataSearcher& restoreSearcher) {
 }
 
 template<typename T>
-double minBoundary(const maths::analytics::CBoostedTreeHyperparameters::TDoubleParameter parameter,
+double minBoundary(const CBoostedTreeHyperparameters::TDoubleParameter& parameter,
                    T maxBoundary,
                    T interval) {
     maxBoundary = parameter.toSearchValue(maxBoundary);
@@ -165,6 +165,7 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         this->initializeMissingFeatureMasks(frame);
         this->initializeNumberFolds(frame);
+        // There are only "old" training examples for the initial train.
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
             m_TreeImpl->m_NewTrainingRowMask.extend(
                 false, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
@@ -195,9 +196,9 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     this->startProgressMonitoringInitializeHyperparameters(frame);
 
     if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
-        this->initializeHyperparameters(frame);
-        m_TreeImpl->m_Hyperparameters.initializeSearch();
-        m_TreeImpl->m_Hyperparameters.coarseParameterTuningEarlyStopping();
+        std::size_t bestNumberTrees{this->initializeHyperparameters(frame)};
+        m_TreeImpl->m_Hyperparameters.initializeFineTuneSearch();
+        m_TreeImpl->m_Hyperparameters.checkIfCanSkipFineTuneSearch(bestNumberTrees);
     }
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
@@ -250,7 +251,7 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
 
     if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
         this->initializeHyperparameters(frame);
-        m_TreeImpl->m_Hyperparameters.initializeSearch();
+        m_TreeImpl->m_Hyperparameters.initializeFineTuneSearch();
     }
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
@@ -270,13 +271,13 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
         this->initializeMissingFeatureMasks(frame);
         if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
-            // We assume any additional rows are new examples.
+            // We assume any additional rows are new examples to predict.
             m_TreeImpl->m_NewTrainingRowMask.extend(
                 true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
         }
     });
 
-    this->prepareDataFrameForTrain(frame);
+    this->prepareDataFrameForPredict(frame);
 
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
         this->determineFeatureDataTypes(frame);
@@ -436,8 +437,8 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 void CBoostedTreeFactory::prepareDataFrameForEncode(core::CDataFrame& frame) const {
 
     std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
-    const auto& columnNames = frame.columnNames();
     if (m_RowWeightColumnName.empty() == false) {
+        const auto& columnNames = frame.columnNames();
         auto column = std::find(columnNames.begin(), columnNames.end(), m_RowWeightColumnName);
         if (column == columnNames.end()) {
             HANDLE_FATAL(<< "Input error: unrecognised row weight field name '"
@@ -454,8 +455,8 @@ void CBoostedTreeFactory::prepareDataFrameForEncode(core::CDataFrame& frame) con
 void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) const {
 
     std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
-    const auto& columnNames = frame.columnNames();
     if (m_RowWeightColumnName.empty() == false) {
+        const auto& columnNames = frame.columnNames();
         auto column = std::find(columnNames.begin(), columnNames.end(), m_RowWeightColumnName);
         if (column == columnNames.end()) {
             HANDLE_FATAL(<< "Input error: unrecognised row weight field name '"
@@ -472,6 +473,30 @@ void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) cons
     std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumnsForTrain(numberLossParameters));
     auto extraColumnTags = extraColumnTagsForTrain();
+    m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
+    for (std::size_t i = 0; i < extraColumns.size(); ++i) {
+        m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
+    }
+    m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
+    m_PaddedExtraColumns += paddedExtraColumns;
+
+    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
+    m_TreeImpl->m_Instrumentation->flush();
+}
+
+void CBoostedTreeFactory::prepareDataFrameForPredict(core::CDataFrame& frame) const {
+
+    std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
+
+    // Extend the frame with the bookkeeping columns used in predict.
+    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
+    TSizeVec extraColumns;
+    std::size_t paddedExtraColumns;
+    std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
+    std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
+        m_TreeImpl->m_NumberThreads, extraColumnsForPredict(numberLossParameters));
+    auto extraColumnTags = extraColumnTagsForPredict();
     m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
     for (std::size_t i = 0; i < extraColumns.size(); ++i) {
         m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
@@ -669,18 +694,6 @@ void CBoostedTreeFactory::initialHyperparameterScaling() {
     }
 }
 
-void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
-    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
-                [&] { this->initializeHyperparametersSetup(frame); });
-    this->initializeUnsetRegularizationHyperparameters(frame);
-    this->initializePredictionChangeCost();
-    this->initializeUnsetTreeTopologyPenalty(frame);
-    this->initializeUnsetDownsampleFactor(frame);
-    this->initializeUnsetFeatureBagFraction(frame);
-    this->initializeUnsetEta(frame);
-    this->initializeUnsetRetrainedTreeEta();
-}
-
 void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame) {
     auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
 
@@ -719,7 +732,19 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
             : hyperparameters.eta().value());
 }
 
-void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame) {
+std::size_t CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
+    skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized,
+                [&] { this->initializeHyperparametersSetup(frame); });
+    std::size_t bestNumberTrees{this->initializeUnsetRegularizationHyperparameters(frame)};
+    bestNumberTrees = this->initializeUnsetDownsampleFactor(frame, bestNumberTrees);
+    bestNumberTrees = this->initializeUnsetFeatureBagFraction(frame, bestNumberTrees);
+    bestNumberTrees = this->initializeUnsetEta(frame, bestNumberTrees);
+    this->initializeUnsetRetrainedTreeEta();
+    return bestNumberTrees;
+}
+
+std::size_t
+CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame) {
 
     // The strategy here is to:
     //   1) Get percentile estimates of the gain in the loss function and its sum
@@ -739,6 +764,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     auto& softTreeDepthLimitParameter = hyperparameters.softTreeDepthLimit();
     auto& softTreeDepthToleranceParameter = hyperparameters.softTreeDepthTolerance();
     auto& treeSizePenaltyMultiplier = hyperparameters.treeSizePenaltyMultiplier();
+    std::size_t bestNumberTrees{hyperparameters.maximumNumberTrees().value()};
     double log2MaxTreeSize{std::log2(static_cast<double>(m_TreeImpl->maximumTreeSize(
                                m_TreeImpl->m_TrainingRowMasks[0]))) +
                            1.0};
@@ -769,7 +795,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                   << core::CContainerPrinter::print(gainAndTotalCurvaturePerNode));
     });
 
-    // initialize unset regularization hyperparameters with meaningful values
+    // Initialize regularization multipliers with their minimum permitted values.
     if (treeSizePenaltyMultiplier.rangeFixed() == false) {
         treeSizePenaltyMultiplier.set(minBoundary(
             treeSizePenaltyMultiplier, m_GainPerNode90thPercentile,
@@ -791,18 +817,22 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                     double maxSearchValue{
                         softTreeDepthLimitParameter.toSearchValue(maxSoftDepthLimit)};
                     depthPenaltyMultiplierParameter.set(m_GainPerNode50thPercentile);
-                    hyperparameters.initializeFineTuneSearchInterval(
-                        CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
-                            frame, *m_TreeImpl, maxSoftDepthLimit, log2MaxTreeSize,
-                            [](CBoostedTreeImpl& tree, double softDepthLimit) {
-                                auto& parameter = tree.m_Hyperparameters.softTreeDepthLimit();
-                                parameter.set(parameter.fromSearchValue(softDepthLimit));
-                                return true;
-                            }}
-                            .truncateParameter([&](TVector& range) {
-                                range = truncate(range, minSearchValue, maxSearchValue);
-                            }),
-                        softTreeDepthLimitParameter);
+                    bestNumberTrees =
+                        hyperparameters
+                            .initializeFineTuneSearchInterval(
+                                CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
+                                    frame, *m_TreeImpl, maxSoftDepthLimit, log2MaxTreeSize,
+                                    [](CBoostedTreeImpl& tree, double softDepthLimit) {
+                                        auto& parameter =
+                                            tree.m_Hyperparameters.softTreeDepthLimit();
+                                        parameter.set(parameter.fromSearchValue(softDepthLimit));
+                                        return true;
+                                    }}
+                                    .truncateParameter([&](TVector& range) {
+                                        range = truncate(range, minSearchValue, maxSearchValue);
+                                    }),
+                                softTreeDepthLimitParameter)
+                            .value_or(bestNumberTrees);
                 } else {
                     softTreeDepthLimitParameter.fix();
                 }
@@ -824,16 +854,20 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     // to overfit.
     if (depthPenaltyMultiplierParameter.rangeFixed() == false) {
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_DepthPenaltyMultiplierInitialized, [&] {
-                hyperparameters.initializeFineTuneSearchInterval(
-                    CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
-                        frame, *m_TreeImpl, m_GainPerNode90thPercentile,
-                        2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile,
-                        [](CBoostedTreeImpl& tree, double depthPenalty) {
-                            auto& parameter = tree.m_Hyperparameters.depthPenaltyMultiplier();
-                            parameter.set(parameter.fromSearchValue(depthPenalty));
-                            return true;
-                        }},
-                    depthPenaltyMultiplierParameter);
+                bestNumberTrees =
+                    hyperparameters
+                        .initializeFineTuneSearchInterval(
+                            CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
+                                frame, *m_TreeImpl, m_GainPerNode90thPercentile,
+                                2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile,
+                                [](CBoostedTreeImpl& tree, double depthPenalty) {
+                                    auto& parameter =
+                                        tree.m_Hyperparameters.depthPenaltyMultiplier();
+                                    parameter.set(parameter.fromSearchValue(depthPenalty));
+                                    return true;
+                                }},
+                            depthPenaltyMultiplierParameter)
+                        .value_or(bestNumberTrees);
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
@@ -851,20 +885,22 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     // Search for the value of the tree size penalty multiplier at which the
     // model starts to overfit.
     if (treeSizePenaltyMultiplier.rangeFixed() == false) {
-        if (this->skipCheckpointIfAtOrAfter(
-                CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized, [&] {
-                    hyperparameters.initializeFineTuneSearchInterval(
-                        CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
-                            frame, *m_TreeImpl, m_GainPerNode90thPercentile,
-                            2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile,
-                            [](CBoostedTreeImpl& tree, double treeSizePenalty) {
-                                auto& parameter =
-                                    tree.m_Hyperparameters.treeSizePenaltyMultiplier();
-                                parameter.set(parameter.fromSearchValue(treeSizePenalty));
-                                return true;
-                            }},
-                        treeSizePenaltyMultiplier);
-                })) {
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized, [&] {
+                bestNumberTrees =
+                    hyperparameters
+                        .initializeFineTuneSearchInterval(
+                            CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
+                                frame, *m_TreeImpl, m_GainPerNode90thPercentile,
+                                2.0 * m_GainPerNode90thPercentile / m_GainPerNode1stPercentile,
+                                [](CBoostedTreeImpl& tree, double treeSizePenalty) {
+                                    auto& parameter =
+                                        tree.m_Hyperparameters.treeSizePenaltyMultiplier();
+                                    parameter.set(parameter.fromSearchValue(treeSizePenalty));
+                                    return true;
+                                }},
+                            treeSizePenaltyMultiplier)
+                        .value_or(bestNumberTrees);
+            })) {
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
         }
@@ -873,27 +909,35 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     // Search for the value of the leaf weight penalty multiplier at which the
     // model starts to overfit.
     if (leafWeightPenaltyMultiplier.rangeFixed() == false) {
-        if (this->skipCheckpointIfAtOrAfter(
-                CBoostedTreeImpl::E_LeafWeightPenaltyMultiplierInitialized, [&] {
-                    hyperparameters.initializeFineTuneSearchInterval(
-                        CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
-                            frame, *m_TreeImpl, m_TotalCurvaturePerNode90thPercentile,
-                            2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile,
-                            [](CBoostedTreeImpl& tree, double leafWeightPenalty) {
-                                auto& parameter =
-                                    tree.m_Hyperparameters.leafWeightPenaltyMultiplier();
-                                parameter.set(parameter.fromSearchValue(leafWeightPenalty));
-                                return true;
-                            }},
-                        leafWeightPenaltyMultiplier);
-                })) {
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_LeafWeightPenaltyMultiplierInitialized, [&] {
+                bestNumberTrees =
+                    hyperparameters
+                        .initializeFineTuneSearchInterval(
+                            CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
+                                frame, *m_TreeImpl, m_TotalCurvaturePerNode90thPercentile,
+                                2.0 * m_TotalCurvaturePerNode90thPercentile / m_TotalCurvaturePerNode1stPercentile,
+                                [](CBoostedTreeImpl& tree, double leafWeightPenalty) {
+                                    auto& parameter =
+                                        tree.m_Hyperparameters.leafWeightPenaltyMultiplier();
+                                    parameter.set(parameter.fromSearchValue(leafWeightPenalty));
+                                    return true;
+                                }},
+                            leafWeightPenaltyMultiplier)
+                        .value_or(bestNumberTrees);
+            })) {
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
         }
     }
+
+    this->initializeUnsetPredictionChangeCost();
+    this->initializeUnsetTreeTopologyPenalty(frame);
+
+    return bestNumberTrees;
 }
 
-void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& frame) {
+std::size_t CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& frame,
+                                                                 std::size_t bestNumberTrees) {
 
     auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
     auto& downsampleFactorParameter = hyperparameters.downsampleFactor();
@@ -925,33 +969,37 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     tree.scaleRegularizationMultipliers(downsampleFactor / initialDownsampleFactor);
                 };
 
-                hyperparameters.initializeFineTuneSearchInterval(
-                    CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
-                        frame, *m_TreeImpl, maxDownsampleFactor, searchIntervalSize,
-                        [&](CBoostedTreeImpl& tree, double downsampleFactor) {
-                            auto& parameter = tree.m_Hyperparameters.downsampleFactor();
-                            downsampleFactor = parameter.fromSearchValue(downsampleFactor);
-                            parameter.set(downsampleFactor);
-                            scaleRegularizers(tree, downsampleFactor);
-                            return downsampleFactor * numberTrainingRows > 10.0;
-                        }}
-                        .adjustLoss([&](double downsampleFactor, double minTestLoss, double testLoss) {
-                            // If there is very little relative difference in the loss prefer
-                            // smaller downsample factors because they train faster. We add a
-                            // penalty which is  eps * lmin * (x - xmin) / (xmax - xmin) for x
-                            // the downsample factor, [xmin, xmax] the search interval and lmin
-                            // the minimum test loss. This means we'll never use a parameter
-                            // whose loss is more than 1 + eps times larger than the minimum.
-                            return testLoss +
-                                   common::CTools::linearlyInterpolate(
-                                       searchIntervalStart, searchIntervalEnd, 0.0,
-                                       SMALL_RELATIVE_TEST_LOSS_INCREASE * minTestLoss,
-                                       downsampleFactor);
-                        })
-                        .truncateParameter([&](TVector& range) {
-                            range = truncate(range, minSearchValue, maxSearchValue);
-                        }),
-                    downsampleFactorParameter);
+                bestNumberTrees =
+                    hyperparameters
+                        .initializeFineTuneSearchInterval(
+                            CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
+                                frame, *m_TreeImpl, maxDownsampleFactor, searchIntervalSize,
+                                [&](CBoostedTreeImpl& tree, double downsampleFactor) {
+                                    auto& parameter = tree.m_Hyperparameters.downsampleFactor();
+                                    downsampleFactor = parameter.fromSearchValue(downsampleFactor);
+                                    parameter.set(downsampleFactor);
+                                    scaleRegularizers(tree, downsampleFactor);
+                                    return downsampleFactor * numberTrainingRows > 10.0;
+                                }}
+                                .adjustLoss([&](double downsampleFactor,
+                                                double minTestLoss, double testLoss) {
+                                    // If there is very little relative difference in the loss prefer
+                                    // smaller downsample factors because they train faster. We add a
+                                    // penalty which is  eps * lmin * (x - xmin) / (xmax - xmin) for x
+                                    // the downsample factor, [xmin, xmax] the search interval and lmin
+                                    // the minimum test loss. This means we'll never use a parameter
+                                    // whose loss is more than 1 + eps times larger than the minimum.
+                                    return testLoss +
+                                           common::CTools::linearlyInterpolate(
+                                               searchIntervalStart, searchIntervalEnd,
+                                               0.0, SMALL_RELATIVE_TEST_LOSS_INCREASE * minTestLoss,
+                                               downsampleFactor);
+                                })
+                                .truncateParameter([&](TVector& range) {
+                                    range = truncate(range, minSearchValue, maxSearchValue);
+                                }),
+                            downsampleFactorParameter)
+                        .value_or(bestNumberTrees);
 
                 scaleRegularizers(*m_TreeImpl, downsampleFactorParameter.value());
 
@@ -967,9 +1015,11 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                 this->lineSearchMaximumNumberIterations(frame));
         }
     }
+    return bestNumberTrees;
 }
 
-void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& frame) {
+std::size_t CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& frame,
+                                                                   std::size_t bestNumberTrees) {
 
     auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
 
@@ -992,40 +1042,49 @@ void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& fr
                 double maxSearchValue{hyperparameters.featureBagFraction().toSearchValue(
                     MAX_FEATURE_BAG_FRACTION)};
 
-                hyperparameters.initializeFineTuneSearchInterval(
-                    CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
-                        frame, *m_TreeImpl, maxFeatureBagFraction, searchIntervalSize,
-                        [&](CBoostedTreeImpl& tree, double featureBagFraction) {
-                            auto& parameter = tree.m_Hyperparameters.featureBagFraction();
-                            featureBagFraction = parameter.fromSearchValue(featureBagFraction);
-                            parameter.set(featureBagFraction);
-                            return tree.featureBagSize(featureBagFraction) > 1;
-                        }}
-                        .adjustLoss([&](double featureBagFraction, double minTestLoss, double testLoss) {
-                            // If there is very little relative difference in the loss prefer
-                            // smaller feature bag fractions because they train faster. We add
-                            // a penalty which is eps * lmin * (x - xmin) / (xmax - xmin) for x
-                            // the feature bag fraction, [xmin, xmax] the search interval and
-                            // lmin the minimum test loss. This means we'll never use a parameter
-                            // whose loss is more than 1 + eps times larger than the minimum.
-                            return testLoss +
-                                   common::CTools::linearlyInterpolate(
-                                       searchIntervalStart, searchIntervalEnd, 0.0,
-                                       SMALL_RELATIVE_TEST_LOSS_INCREASE * minTestLoss,
-                                       featureBagFraction);
-                        })
-                        .truncateParameter([&](TVector& range) {
-                            range = truncate(range, minSearchValue, maxSearchValue);
-                        }),
-                    hyperparameters.featureBagFraction());
+                bestNumberTrees =
+                    hyperparameters
+                        .initializeFineTuneSearchInterval(
+                            CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
+                                frame, *m_TreeImpl, maxFeatureBagFraction, searchIntervalSize,
+                                [&](CBoostedTreeImpl& tree, double featureBagFraction) {
+                                    auto& parameter =
+                                        tree.m_Hyperparameters.featureBagFraction();
+                                    featureBagFraction =
+                                        parameter.fromSearchValue(featureBagFraction);
+                                    parameter.set(featureBagFraction);
+                                    return tree.featureBagSize(featureBagFraction) > 1;
+                                }}
+                                .adjustLoss([&](double featureBagFraction,
+                                                double minTestLoss, double testLoss) {
+                                    // If there is very little relative difference in the loss prefer
+                                    // smaller feature bag fractions because they train faster. We add
+                                    // a penalty which is eps * lmin * (x - xmin) / (xmax - xmin) for x
+                                    // the feature bag fraction, [xmin, xmax] the search interval and
+                                    // lmin the minimum test loss. This means we'll never use a parameter
+                                    // whose loss is more than 1 + eps times larger than the minimum.
+                                    return testLoss +
+                                           common::CTools::linearlyInterpolate(
+                                               searchIntervalStart, searchIntervalEnd,
+                                               0.0, SMALL_RELATIVE_TEST_LOSS_INCREASE * minTestLoss,
+                                               featureBagFraction);
+                                })
+                                .truncateParameter([&](TVector& range) {
+                                    range = truncate(range, minSearchValue, maxSearchValue);
+                                }),
+                            hyperparameters.featureBagFraction())
+                        .value_or(bestNumberTrees);
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
                 this->lineSearchMaximumNumberIterations(frame));
         }
     }
+
+    return bestNumberTrees;
 }
 
-void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
+std::size_t CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame,
+                                                    std::size_t bestNumberTrees) {
 
     auto& hyperparameters = m_TreeImpl->m_Hyperparameters;
 
@@ -1047,13 +1106,16 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
                     return true;
                 };
 
-                hyperparameters.initializeFineTuneSearchInterval(
-                    CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
-                        frame, *m_TreeImpl, maxEta, searchIntervalSize, applyEta}
-                        .truncateParameter([&](TVector& range) {
-                            range = truncate(range, minSearchValue, maxSearchValue);
-                        }),
-                    hyperparameters.eta());
+                bestNumberTrees =
+                    hyperparameters
+                        .initializeFineTuneSearchInterval(
+                            CBoostedTreeHyperparameters::CInitializeFineTuneArguments{
+                                frame, *m_TreeImpl, maxEta, searchIntervalSize, applyEta}
+                                .truncateParameter([&](TVector& range) {
+                                    range = truncate(range, minSearchValue, maxSearchValue);
+                                }),
+                            hyperparameters.eta())
+                        .value_or(bestNumberTrees);
 
                 applyEta(*m_TreeImpl, hyperparameters.eta().toSearchValue());
                 hyperparameters.maximumNumberTrees().set(computeMaximumNumberTrees(
@@ -1069,6 +1131,8 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
         hyperparameters.etaGrowthRatePerTree().fixToRange(
             1.0 + MIN_ETA_GROWTH_RATE_SCALE * rate, 1.0 + MAX_ETA_GROWTH_RATE_SCALE * rate);
     }
+
+    return bestNumberTrees;
 }
 
 void CBoostedTreeFactory::initializeUnsetRetrainedTreeEta() {
@@ -1087,7 +1151,7 @@ void CBoostedTreeFactory::initializeUnsetRetrainedTreeEta() {
     });
 }
 
-void CBoostedTreeFactory::initializePredictionChangeCost() {
+void CBoostedTreeFactory::initializeUnsetPredictionChangeCost() {
     if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
         return;
     }
@@ -1261,7 +1325,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromModel(TBoostedTreeUPtr mod
     hyperparameters.eta().captureScale().fix();
     hyperparameters.etaGrowthRatePerTree().captureScale().fix();
     hyperparameters.featureBagFraction().captureScale().fix();
-    hyperparameters.resetSearch();
+    hyperparameters.resetFineTuneSearch();
     result.m_TreeImpl->m_PreviousTrainNumberRows = static_cast<std::size_t>(
         result.m_TreeImpl->allTrainingRowsMask().manhattan() + 0.5);
     result.m_TreeImpl->m_PreviousTrainLossGap = hyperparameters.bestForestLossGap();
@@ -1647,7 +1711,7 @@ std::size_t CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t number
     //   1. The predicted values for the dependent variable
     //   2. The gradient of the loss function
     //   3. The upper triangle of the hessian of the loss function
-    //   4. The example's splits packed into uint8_t
+    //   4. The example's splits packed into std::uint8_t
     return numberLossParameters * (numberLossParameters + 5) / 2 + (numberColumns + 2) / 4;
 }
 

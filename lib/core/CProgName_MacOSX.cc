@@ -12,8 +12,9 @@
 
 #include <boost/filesystem.hpp>
 
+#include <cstdint>
+
 #include <mach-o/dyld.h>
-#include <stdint.h>
 #include <stdlib.h>
 
 namespace ml {
@@ -29,12 +30,12 @@ std::string CProgName::progName() {
 }
 
 std::string CProgName::progDir() {
-    uint32_t bufferSize(2048);
+    std::uint32_t bufferSize(2048);
     std::string path(bufferSize, '\0');
     if (_NSGetExecutablePath(&path[0], &bufferSize) != 0) {
         return std::string();
     }
-    size_t lastSlash(path.rfind('/'));
+    std::size_t lastSlash(path.rfind('/'));
     if (lastSlash == std::string::npos) {
         return std::string();
     }

@@ -93,6 +93,11 @@ public:
             .restoreFor(frame, dependentVariable);
     }
 
+    double meanChangePenalisedLoss(core::CDataFrame& frame,
+                                   const core::CPackedBitVector& rowMask) const {
+        return m_TreeImpl.meanChangePenalisedLoss(frame, rowMask);
+    }
+
 private:
     CBoostedTreeImpl& m_TreeImpl;
 };
@@ -1443,15 +1448,18 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
     BOOST_TEST_REQUIRE(errorDecreaseOnNew > 57.0 * errorIncreaseOnOld);
 }
 
-// TODO #2271 Fix flacky test and re-enabled
-BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees, *boost::unit_test::disabled()) {
-    // Update the base model by allowing 0, 5, and 10 new trees. Verify that the
-    // holdout error is note getting worse when allowing for more model capacity.
+BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
+    // Update the base model by allowing 0, 5, and 10 new trees. Verify that
+    // the holdout error is not getting worse when allowing for more model
+    // capacity.
+
     test::CRandomNumbers rng;
     double noiseVariance{16.0};
     std::size_t batch1Size{500};
-    std::size_t batch2Size{150};
-    std::size_t numberHoldoutRows{200};
+    std::size_t batch2Size{300};
+    std::size_t batch1InHoldoutSet{150};
+    std::size_t batch2InHoldoutSet{50};
+    std::size_t numberHoldoutRows{batch1InHoldoutSet + batch2InHoldoutSet};
     std::size_t cols{6};
 
     auto target = [&] {
@@ -1468,24 +1476,51 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees, *boost::unit_test::disabled(
         };
     }();
 
-    TDoubleVec noise;
-    TDoubleVecVec x(cols - 1);
-
-    auto batch1 = core::makeMainStorageDataFrame(cols).first;
+    TDoubleVecVec x1Test(cols - 1);
+    TDoubleVecVec x1Train(cols - 1);
+    TDoubleVec noise1Test;
+    TDoubleVec noise1Train;
     for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(0.0, 4.0, batch1Size, x[i]);
+        rng.generateUniformSamples(0.0, 4.0, batch1InHoldoutSet, x1Test[i]);
+        rng.generateUniformSamples(0.0, 4.0, batch1Size - batch1InHoldoutSet, x1Train[i]);
     }
-    rng.generateNormalSamples(0.0, noiseVariance, batch1Size, noise);
-    fillDataFrame(batch1Size, 0, cols, x, noise, target, *batch1);
+    rng.generateNormalSamples(0.0, noiseVariance, batch1InHoldoutSet, noise1Test);
+    rng.generateNormalSamples(0.0, noiseVariance, batch1Size - batch1InHoldoutSet, noise1Train);
 
-    // Second batch of data extends the domain.
-    auto batch2 = core::makeMainStorageDataFrame(cols).first;
-    fillDataFrame(batch1Size, 0, cols, x, noise, target, *batch2);
+    TDoubleVecVec x2Test(cols - 1);
+    TDoubleVecVec x2Train(cols - 1);
+    TDoubleVec noise2Test;
+    TDoubleVec noise2Train;
+    // The second batch of data extends the domain.
     for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(2.0, 6.0, batch2Size, x[i]);
+        rng.generateUniformSamples(2.0, 6.0, batch2InHoldoutSet, x2Test[i]);
+        rng.generateUniformSamples(2.0, 6.0, batch2Size - batch2InHoldoutSet, x2Train[i]);
     }
-    rng.generateNormalSamples(0.0, noiseVariance, batch2Size, noise);
-    fillDataFrame(batch2Size, 0, cols, x, noise, target, *batch2);
+    rng.generateNormalSamples(0.0, noiseVariance, batch2InHoldoutSet, noise2Test);
+    rng.generateNormalSamples(0.0, noiseVariance, batch2Size, noise2Train);
+
+    // Fill in the first batch.
+    auto makeBatch1 = [&] {
+        auto result = core::makeMainStorageDataFrame(cols).first;
+        fillDataFrame(batch1InHoldoutSet, 0, cols, x1Test, noise1Test, target, *result);
+        fillDataFrame(batch1Size - batch1InHoldoutSet, 0, cols, x1Train,
+                      noise1Train, target, *result);
+        return result;
+    };
+    auto batch1 = makeBatch1();
+
+    // We arrange to use 150 of the original batch and 50 of the new batch
+    // as a holdout set.
+    auto makeBatch2 = [&] {
+        auto result = core::makeMainStorageDataFrame(cols).first;
+        fillDataFrame(batch1InHoldoutSet, 0, cols, x1Test, noise1Test, target, *result);
+        fillDataFrame(batch2InHoldoutSet, 0, cols, x2Test, noise2Test, target, *result);
+        fillDataFrame(batch1Size - batch1InHoldoutSet, 0, cols, x1Train,
+                      noise1Train, target, *result);
+        fillDataFrame(batch2Size - batch2InHoldoutSet, 0, cols, x2Train,
+                      noise2Train, target, *result);
+        return result;
+    };
 
     auto baseModel = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                          1, std::make_unique<maths::analytics::boosted_tree::CMse>())
@@ -1496,8 +1531,13 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees, *boost::unit_test::disabled(
                          .buildForTrain(*batch1, cols - 1);
     baseModel->train();
 
-    core::CPackedBitVector batch2RowMask{batch1Size, false};
-    batch2RowMask.extend(true, batch2Size);
+    core::CPackedBitVector batch2RowMask{batch1InHoldoutSet, false};
+    batch2RowMask.extend(true, batch2InHoldoutSet);
+    batch2RowMask.extend(false, batch1Size - batch1InHoldoutSet);
+    batch2RowMask.extend(true, batch2Size - batch2InHoldoutSet);
+
+    core::CPackedBitVector holdoutRowMask{numberHoldoutRows, true};
+    holdoutRowMask.extend(false, batch1Size + batch2Size - numberHoldoutRows);
 
     double eta{baseModel->hyperparameters().eta().value()};
     double alpha{baseModel->hyperparameters().depthPenaltyMultiplier().value()};
@@ -1506,51 +1546,80 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees, *boost::unit_test::disabled(
 
     maths::analytics::CBoostedTreeImplForTest baseImpl{baseModel->impl()};
 
-    auto updateBaseModel = [&](std::size_t maxNumNewTrees) {
+    auto cloneBaseModel = [&](core::CDataFrame& frame) {
+        auto tmp_ = makeBatch2();
+        auto clonedModel = maths::analytics::CBoostedTreeFactory::constructFromModel(
+                               baseImpl.cloneFor(*tmp_, cols - 1))
+                               .numberHoldoutRows(numberHoldoutRows)
+                               .buildForPredict(frame, cols - 1);
+        clonedModel->predict();
+        return clonedModel;
+    };
+
+    auto updateBaseModel = [&](core::CDataFrame& frame, std::size_t maxNumNewTrees) {
+        auto tmp_ = makeBatch2();
+        // We fix the tree topology penalty because its initialization is
+        // affected by the maxNumNewTrees. Changing the parameter ranges for
+        // trainIncremental means we can no longer be sure that the hold out
+        // loss is no larger when we _optionally_ allow adding extra trees.
         auto updatedModel =
             maths::analytics::CBoostedTreeFactory::constructFromModel(
-                baseImpl.cloneFor(*batch1, cols - 1))
+                baseImpl.cloneFor(*tmp_, cols - 1))
                 .newTrainingRowMask(batch2RowMask)
                 .eta({0.5 * eta, eta})
                 .depthPenaltyMultiplier({0.5 * alpha, 2.0 * alpha})
                 .treeSizePenaltyMultiplier({0.5 * gamma, 2.0 * gamma})
                 .leafWeightPenaltyMultiplier({0.5 * lambda, 2.0 * lambda})
+                .treeTopologyChangePenalty({18.0, 22.0})
                 .maximumNumberNewTrees(maxNumNewTrees)
                 .numberHoldoutRows(numberHoldoutRows)
                 .forceAcceptIncrementalTraining(true)
-                .buildForTrainIncremental(*batch2, cols - 1);
+                .buildForTrainIncremental(frame, cols - 1);
         updatedModel->trainIncremental();
         updatedModel->predict();
         return updatedModel;
     };
 
-    core::CPackedBitVector holdoutRowMask(numberHoldoutRows, true);
-    holdoutRowMask.extend(false, batch1Size + batch2Size - numberHoldoutRows);
-    BOOST_REQUIRE_EQUAL(batch2->numberRows(), holdoutRowMask.size());
-
-    auto computeTestError = [&](maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr&& model) {
+    auto computeTestError = [&](core::CDataFrame& frame,
+                                const maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr& model) {
         TMeanAccumulator squaredError;
-        batch2->readRows(1, 0, batch2->numberRows(),
-                         [&](const TRowItr& beginRows, const TRowItr& endRows) {
-                             for (auto row = beginRows; row != endRows; ++row) {
-                                 squaredError.add(maths::common::CTools::pow2(
-                                     (*row)[cols - 1] - model->prediction(*row)[0]));
-                             }
-                         },
-                         &holdoutRowMask);
+        frame.readRows(1, 0, frame.numberRows(),
+                       [&](const TRowItr& beginRows, const TRowItr& endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               squaredError.add(maths::common::CTools::pow2(
+                                   (*row)[cols - 1] - model->prediction(*row)[0]));
+                           }
+                       },
+                       &holdoutRowMask);
         return maths::common::CBasicStatistics::mean(squaredError);
     };
 
-    double testError0{computeTestError(updateBaseModel(0))};
-    double testError5{computeTestError(updateBaseModel(5))};
-    double testError10{computeTestError(updateBaseModel(10))};
-    double testErrorBase{computeTestError(std::move(baseModel))};
+    auto computePenalisedTestError =
+        [&](core::CDataFrame& frame,
+            const maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr& model) {
+            auto modelForTest = maths::analytics::CBoostedTreeImplForTest{model->impl()};
+            return modelForTest.meanChangePenalisedLoss(frame, holdoutRowMask);
+        };
+
+    auto frame = makeBatch2();
+    double testErrorBase{computeTestError(*frame, cloneBaseModel(*frame))};
+    auto frame0 = makeBatch2();
+    double testError0{computePenalisedTestError(*frame0, updateBaseModel(*frame0, 0))};
+    auto frame1 = makeBatch2();
+    double testError5{computePenalisedTestError(*frame1, updateBaseModel(*frame1, 5))};
+    auto frame2 = makeBatch2();
+    double testError10{computePenalisedTestError(*frame2, updateBaseModel(*frame2, 10))};
 
     LOG_DEBUG(<< "Holdout errors: base = " << testErrorBase << ", 0 new trees = " << testError0
               << ", 5 new trees = " << testError5 << ", 10 new trees = " << testError10);
-    BOOST_TEST_REQUIRE(testErrorBase >= testError0);
-    BOOST_TEST_REQUIRE(testError0 >= testError5);
-    BOOST_TEST_REQUIRE(testError5 >= testError10);
+    // The initial model has too little capacity so we should get substantial
+    // improvements for adding trees.
+    BOOST_TEST_REQUIRE(0.9 * testError0 >= testError5);
+    BOOST_TEST_REQUIRE(0.9 * testError0 >= testError10);
+    // Since we perturb the hyperparameter optimisation we aren't guaranteed
+    // to have lower test error for 10 vs 5 trees, but it should be very close
+    // if it is larger.
+    BOOST_TEST_REQUIRE(1.02 * testError5 >= testError10);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -2552,7 +2621,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 40.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 30.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
@@ -3657,9 +3726,10 @@ BOOST_AUTO_TEST_CASE(testEncodingSeparately) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testCoarseParameterTuningEarlyStopping) {
+BOOST_AUTO_TEST_CASE(testStopAfterCoarseParameterTuning) {
 
-    // Check that we can effectively train using loss on a specified holdout set.
+    // Check that we stop without fine tuning if we can make little progress
+    // on the optimisation objective.
 
     test::CRandomNumbers rng;
     std::size_t rows{500};
@@ -3697,14 +3767,17 @@ BOOST_AUTO_TEST_CASE(testCoarseParameterTuningEarlyStopping) {
             1, std::make_unique<maths::analytics::boosted_tree::CMse>());
         factory.numberHoldoutRows(numberHoldoutRows);
         auto regression = factory.buildForTrain(*frame, cols - 1);
-        bool stopEarly{regression->hyperparameters().stopEarly()};
-        return stopEarly;
+        return regression->hyperparameters().optimisationMakingNoProgress();
     };
+
     BOOST_REQUIRE_EQUAL(verify(0.1), false);
     BOOST_REQUIRE_EQUAL(verify(1000), true);
 }
 
 BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {
+
+    // Test we don't hurt accuracy too much if we stop early.
+
     test::CRandomNumbers rng;
     std::size_t rows{1000};
     std::size_t cols{3};
@@ -3745,8 +3818,9 @@ BOOST_AUTO_TEST_CASE(testEarlyStoppingAccuracy) {
         regression->train();
         regression->predict();
 
-        // make sure early stopping was triggered if it was enabled
-        BOOST_REQUIRE_EQUAL(regression->hyperparameters().stopEarly(), earlyStoppingEnabled);
+        // Make sure early stopping was triggered if it was enabled.
+        BOOST_REQUIRE_EQUAL(regression->hyperparameters().optimisationMakingNoProgress(),
+                            earlyStoppingEnabled);
 
         double bias;
         double rSquared;

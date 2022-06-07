@@ -668,12 +668,12 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
                 maths::common::CJointProbabilityOfLessLikelySamples expectedProbabilityCalculator;
                 {
-                    ptrdiff_t i = std::lower_bound(categories.begin(),
-                                                   categories.end(), itr->first[0]) -
-                                  categories.begin();
-                    ptrdiff_t j = std::lower_bound(categories.begin(),
-                                                   categories.end(), itr->first[1]) -
-                                  categories.begin();
+                    std::ptrdiff_t i = std::lower_bound(categories.begin(),
+                                                        categories.end(), itr->first[0]) -
+                                       categories.begin();
+                    std::ptrdiff_t j = std::lower_bound(categories.begin(),
+                                                        categories.end(), itr->first[1]) -
+                                       categories.begin();
                     expectedProbabilityCalculator.add(expectedProbabilities[i]);
                     expectedProbabilityCalculator.add(expectedProbabilities[j]);
                 }
@@ -879,7 +879,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         origFilter.addSamples({samples[i]}, maths_t::CUnitWeights::SINGLE_UNIT);
     }
     double decayRate = origFilter.decayRate();
-    uint64_t checksum = origFilter.checksum();
+    std::uint64_t checksum = origFilter.checksum();
 
     std::string origXml;
     {

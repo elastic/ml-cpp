@@ -33,6 +33,7 @@
 #include <locale>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 namespace ml {
@@ -353,13 +354,12 @@ private:
 //! and Bayesian Optimisation.
 class MATHS_ANALYTICS_EXPORT CBoostedTreeHyperparameters {
 public:
-    using TDoubleDoublePrVec = std::vector<std::pair<double, double>>;
     using TStrVec = std::vector<std::string>;
+    using TOptionalSize = boost::optional<std::size_t>;
     using TDoubleParameter = CBoostedTreeParameter<double>;
     using TSizeParameter = CBoostedTreeParameter<std::size_t>;
     using TVector = common::CDenseVector<double>;
     using TVector3x1 = common::CVectorNx1<double, 3>;
-    using TOptionalVector3x1 = boost::optional<TVector3x1>;
     using TMeanAccumulator = common::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = common::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using THyperparameterImportanceVec =
@@ -424,33 +424,6 @@ public:
     };
 
 public:
-    static const std::string BAYESIAN_OPTIMIZATION_TAG;
-    static const std::string BEST_FOREST_LOSS_GAP_TAG;
-    static const std::string BEST_FOREST_TEST_LOSS_TAG;
-    static const std::string CURRENT_ROUND_TAG;
-    static const std::string DEPTH_PENALTY_MULTIPLIER_TAG;
-    static const std::string DOWNSAMPLE_FACTOR_TAG;
-    static const std::string ETA_GROWTH_RATE_PER_TREE_TAG;
-    static const std::string ETA_TAG;
-    static const std::string FEATURE_BAG_FRACTION_TAG;
-    static const std::string HYPERPARAMETERS_LOSSES_TAG;
-    static const std::string LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG;
-    static const std::string MAXIMUM_NUMBER_TREES_TAG;
-    static const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG;
-    static const std::string MEAN_FOREST_SIZE_ACCUMULATOR_TAG;
-    static const std::string MEAN_TEST_LOSS_ACCUMULATOR_TAG;
-    static const std::string NUMBER_FOLDS_TAG;
-    static const std::string NUMBER_ROUNDS_TAG;
-    static const std::string PREDICTION_CHANGE_COST_TAG;
-    static const std::string RETRAINED_TREE_ETA_TAG;
-    static const std::string SOFT_TREE_DEPTH_LIMIT_TAG;
-    static const std::string SOFT_TREE_DEPTH_TOLERANCE_TAG;
-    static const std::string EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG;
-    static const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG;
-    static const std::string TRAIN_FRACTION_PER_FOLD_TAG;
-    static const std::string TREE_SIZE_PENALTY_MULTIPLIER_TAG;
-    static const std::string TREE_TOPOLOGY_CHANGE_PENALTY_TAG;
-
     //! We prefer smaller models if it costs little in test accuracy.
     static constexpr double RELATIVE_SIZE_PENALTY{0.01};
 
@@ -573,25 +546,6 @@ public:
         return m_MaximumNumberTrees;
     }
 
-    //! Get the vector of tunable hyperparameters.
-    const THyperparametersVec& tunableHyperparameters() const {
-        return m_TunableHyperparameters;
-    }
-
-    //! Assemble a vector out of \p selectedHyperparameters.
-    TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
-
-    //! Add a new observation to the GP for Bayesian optimization.
-    //! Only tunable parameters are passed in \p parameters. If \p reestimate is set to true,
-    //! kernel parameters of the GP are re-estimated.
-    void addObservation(TVector parameters, double loss, double variance, bool reestimate = false);
-
-    //! Set the hyperparameters to the vector of tunable \p parameters.
-    void setHyperparameterValues(TVector parameters);
-
-    //! Is there not sufficient evidence to continue the parameter optimization process?
-    bool stopEarly() const;
-
     //! Allow hyperparameter optimization to stop early.
     bool earlyStoppingEnabled() const {
         return m_EarlyHyperparameterOptimizationStoppingEnabled;
@@ -615,47 +569,34 @@ public:
     std::size_t numberToTune() const;
 
     //! Reset search state.
-    void resetSearch();
-
-    //! Reset Bayesian optimization preserving the bounding box.
-    void resetBayesianOptimization();
+    void resetFineTuneSearch();
 
     //! Compute the fine tune search interval for \p parameter.
-    void initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
-                                          TDoubleParameter& parameter) const;
-
-    //! Perform a line search for the test loss w.r.t. a single hyperparameter.
-    //! At the end we use a smooth curve fit through all test loss values (using
-    //! LOWESS regression) and use this to get a best estimate of where the true
-    //! minimum occurs.
     //!
-    //! \return A vector comprising
-    //! <pre>
-    //!   | minimum value for fine tune |
-    //!   |       initial value         |
-    //!   | maximum value for fine tune |
-    //! </pre>
-    TOptionalVector3x1 testLossLineSearch(const CInitializeFineTuneArguments& args,
-                                          double intervalLeftEnd,
-                                          double intervalRightEnd) const;
+    //! \return The best number of trees to use for the current hyperparameter settings.
+    TOptionalSize initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
+                                                   TDoubleParameter& parameter) const;
 
     //! Initialize the search for best values of tunable hyperparameters.
-    void initializeSearch();
+    void initializeFineTuneSearch();
 
-    //! Computes if there is enough evidence to stop hyperparameter tuning after
-    //! coarse parameter tuning stage.
-    void coarseParameterTuningEarlyStopping();
+    //! Computes if there is enough evidence to stop hyperparameter tuning before
+    //! the fine tuning stage.
+    void checkIfCanSkipFineTuneSearch(std::size_t numberTrees);
+
+    //! Check if search is making no progress improving the test loss.
+    bool optimisationMakingNoProgress() const;
 
     //! Initialize a search for the best hyperparameters.
-    void startSearch();
+    void startFineTuneSearch();
 
     //! Check if the search for the best hyperparameter values has finished.
-    bool searchNotFinished() const {
+    bool fineTuneSearchNotFinished() const {
         return m_StopHyperparameterOptimizationEarly == false && m_CurrentRound < m_NumberRounds;
     }
 
     //! Start a new round of hyperparameter search.
-    void startNextSearchRound() { ++m_CurrentRound; }
+    void startNextRound() { ++m_CurrentRound; }
 
     //! Get the current round of the search for the best hyperparameters.
     std::size_t currentRound() const { return m_CurrentRound; }
@@ -742,7 +683,9 @@ private:
     using TBayesinOptimizationUPtr = std::unique_ptr<common::CBayesianOptimisation>;
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
-    using TOptionalSize = boost::optional<std::size_t>;
+    using TDoubleSizeDoubleTrVec = std::vector<std::tuple<double, std::size_t, double>>;
+    using TOptionalVector3x1 = boost::optional<TVector3x1>;
+    using TOptionalVector3x1SizePr = std::pair<TOptionalVector3x1, std::size_t>;
     using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
     using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
 
@@ -751,19 +694,26 @@ private:
     void initialTestLossLineSearch(const CInitializeFineTuneArguments& args,
                                    double intervalLeftEnd,
                                    double intervalRightEnd,
-                                   TDoubleDoublePrVec& testLosses) const;
-    void fineTineTestLoss(const CInitializeFineTuneArguments& args,
+                                   TDoubleSizeDoubleTrVec& testLosses) const;
+    TOptionalVector3x1SizePr testLossLineSearch(const CInitializeFineTuneArguments& args,
+                                                double intervalLeftEnd,
+                                                double intervalRightEnd) const;
+    void fineTuneTestLoss(const CInitializeFineTuneArguments& args,
                           double intervalLeftEnd,
                           double intervalRightEnd,
-                          TDoubleDoublePrVec& testLosses) const;
-    TVector3x1 minimizeTestLoss(double intervalLeftEnd,
-                                double intervalRightEnd,
-                                TDoubleDoublePrVec testLosses) const;
+                          TDoubleSizeDoubleTrVec& testLosses) const;
+    TOptionalVector3x1SizePr minimizeTestLoss(double intervalLeftEnd,
+                                              double intervalRightEnd,
+                                              TDoubleSizeDoubleTrVec testLosses) const;
     void saveCurrent();
-
-    void captureState(double loss);
-
+    void captureHyperparametersAndLoss(double loss);
     CBoostedTreeHyperparameters copyRegularizationParameters() const;
+    TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
+    void setHyperparameterValues(TVector parameters);
+    //! \note Only tunable parameters should be passed in \p parameters. If \p reestimate
+    //! is set to true, kernel parameters of the GP are re-estimated.
+    void addObservation(TVector parameters, double loss, double variance, bool reestimate = false);
+    void resetBayesianOptimization();
 
 private:
     bool m_IncrementalTraining{false};
@@ -788,7 +738,7 @@ private:
     //@ \name Hyperparameter Optimisation
     //@{
     bool m_EarlyHyperparameterOptimizationStoppingEnabled{true};
-    mutable bool m_StopHyperparameterOptimizationEarly{false};
+    bool m_StopHyperparameterOptimizationEarly{false};
     bool m_ScalingDisabled{false};
     std::size_t m_MaximumOptimisationRoundsPerHyperparameter{2};
     TOptionalSize m_BayesianOptimisationRestarts;
@@ -798,10 +748,12 @@ private:
     std::size_t m_NumberRounds{1};
     std::size_t m_CurrentRound{0};
     double m_BestForestTestLoss{boosted_tree_detail::INF};
+    double m_BestForestNumberKeptNodes{0.0};
+    double m_BestForestNumberNewNodes{0.0};
     double m_BestForestLossGap{0.0};
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;
-    THyperparametersDoublePrVec m_HyperparametersLosses{};
+    THyperparametersDoublePrVec m_LineSearchHyperparameterLosses;
     //@}
 };
 }
