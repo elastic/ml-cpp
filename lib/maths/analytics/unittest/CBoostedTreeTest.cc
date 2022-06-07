@@ -1450,7 +1450,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     // Update the base model by allowing 0, 5, and 10 new trees. Verify that
-    // the holdout error is note getting worse when allowing for more model
+    // the holdout error is not getting worse when allowing for more model
     // capacity.
 
     test::CRandomNumbers rng;
