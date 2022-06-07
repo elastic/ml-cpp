@@ -2543,9 +2543,12 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
     // Add dataSummarizationFraction amount of new data to the old data to sample from.
     std::size_t newDataSubsampleSize{static_cast<std::size_t>(std::ceil(
         m_DataSummarizationFraction * this->allTrainingRowsMask().manhattan()))};
-    auto newDataSampleRowMask{CDataFrameUtils::stratifiedSamplingRowMask(
-        m_NumberThreads, frame, m_DependentVariable, m_Rng,
-        newDataSubsampleSize, 10, this->newTrainingRowMask())};
+    auto newDataSampleRowMask =
+        this->newTrainingRowMask().manhattan() > 0
+            ? CDataFrameUtils::stratifiedSamplingRowMask(
+                  m_NumberThreads, frame, m_DependentVariable, m_Rng,
+                  newDataSubsampleSize, 10, this->newTrainingRowMask())
+            : core::CPackedBitVector(this->allTrainingRowsMask().size(), false);
     auto allTrainingData{dataSummarizationRowMask | newDataSampleRowMask};
 
     if (m_Loss->isRegression()) {
