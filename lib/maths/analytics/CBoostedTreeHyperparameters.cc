@@ -306,7 +306,7 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
             static_cast<std::size_t>(std::ceil(forestSize))};
 }
 
-void CBoostedTreeHyperparameters::initializeFineTuneSearch() {
+void CBoostedTreeHyperparameters::initializeFineTuneSearch(std::size_t numberTrees) {
 
     // We need sensible bounds for the region we'll search for optimal values.
     // For all parameters where we have initial estimates we use bounds of the
@@ -377,10 +377,11 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch() {
     m_CurrentRound = 0;
     m_NumberRounds = m_MaximumOptimisationRoundsPerHyperparameter *
                      m_TunableHyperparameters.size();
+    this->checkIfCanSkipFineTuneSearch(numberTrees);
 }
 
 void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(std::size_t numberTrees) {
-    if (this->earlyStoppingEnabled()) {
+    if (m_EarlyHyperparameterOptimizationStoppingEnabled && m_IncrementalTraining == false) {
         // Add information about observed line search training runs to the GP.
         for (auto& hyperparameterLoss : m_LineSearchHyperparameterLosses) {
             auto parameters = hyperparameterLoss.first.selectParametersVector(m_TunableHyperparameters);
@@ -388,7 +389,7 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(std::size_t numbe
         }
         m_StopHyperparameterOptimizationEarly = this->optimisationMakingNoProgress();
         if (m_StopHyperparameterOptimizationEarly) {
-            LOG_DEBUG(<< "Skipping fine tune hyperparameters");
+            LOG_DEBUG(<< "Skipping fine tuning hyperparameters");
         } else {
             // Only reset Bayesian optimisation if we are going to fine tune or
             // else we won't be  able to compute hyperparameter importances.
@@ -396,14 +397,14 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(std::size_t numbe
         }
         m_LineSearchHyperparameterLosses.clear();
         m_LineSearchHyperparameterLosses.shrink_to_fit();
-
-        // The stored number of trees is used for final train when we train on
-        // all the data and so can't measure when to stop.
-        std::size_t numberTreesToRestore{m_MaximumNumberTrees.value()};
-        m_MaximumNumberTrees.set(numberTrees);
-        this->saveCurrent();
-        m_MaximumNumberTrees.set(numberTreesToRestore);
     }
+
+    // The stored number of trees is used for final train when we train on
+    // all the data and so can't measure when to stop.
+    std::size_t numberTreesToRestore{m_MaximumNumberTrees.value()};
+    m_MaximumNumberTrees.set(numberTrees);
+    this->saveCurrent();
+    m_MaximumNumberTrees.set(numberTreesToRestore);
 }
 
 bool CBoostedTreeHyperparameters::optimisationMakingNoProgress() const {
@@ -950,7 +951,7 @@ void CBoostedTreeHyperparameters::captureScale() {
 }
 
 void CBoostedTreeHyperparameters::captureHyperparametersAndLoss(double testLoss) {
-    if (this->earlyStoppingEnabled()) {
+    if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
         m_LineSearchHyperparameterLosses.emplace_back(
             this->copyRegularizationParameters(), testLoss);
     }

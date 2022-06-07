@@ -546,11 +546,6 @@ public:
         return m_MaximumNumberTrees;
     }
 
-    //! Allow hyperparameter optimization to stop early.
-    bool earlyStoppingEnabled() const {
-        return m_EarlyHyperparameterOptimizationStoppingEnabled;
-    }
-
     //! \name Optimisation
     //@{
     //! Set the number of search rounds to use per hyperparameter which is being tuned.
@@ -578,11 +573,7 @@ public:
                                                    TDoubleParameter& parameter) const;
 
     //! Initialize the search for best values of tunable hyperparameters.
-    void initializeFineTuneSearch();
-
-    //! Computes if there is enough evidence to stop hyperparameter tuning before
-    //! the fine tuning stage.
-    void checkIfCanSkipFineTuneSearch(std::size_t numberTrees);
+    void initializeFineTuneSearch(std::size_t numberTrees);
 
     //! Check if search is making no progress improving the test loss.
     bool optimisationMakingNoProgress() const;
@@ -705,7 +696,7 @@ private:
     TOptionalVector3x1SizePr minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
                                               TDoubleSizeDoubleTrVec testLosses) const;
-    void saveCurrent();
+    void checkIfCanSkipFineTuneSearch(std::size_t numberTrees);
     void captureHyperparametersAndLoss(double loss);
     CBoostedTreeHyperparameters copyRegularizationParameters() const;
     TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
@@ -714,6 +705,7 @@ private:
     //! is set to true, kernel parameters of the GP are re-estimated.
     void addObservation(TVector parameters, double loss, double variance, bool reestimate = false);
     void resetBayesianOptimization();
+    void saveCurrent();
 
 private:
     bool m_IncrementalTraining{false};

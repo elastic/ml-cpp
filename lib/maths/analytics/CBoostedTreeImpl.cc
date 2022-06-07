@@ -482,9 +482,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
         if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
                                          this->betweenFoldTestLossVariance()) == false) {
-            LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
-                     << m_Hyperparameters.currentRound() << " out of "
-                     << m_Hyperparameters.numberRounds() << ".");
+            LOG_DEBUG(<< "Stopping fine tuning hyperparameters on round "
+                      << m_Hyperparameters.currentRound() << " out of "
+                      << m_Hyperparameters.numberRounds());
             break;
         }
 

@@ -196,9 +196,8 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
     this->startProgressMonitoringInitializeHyperparameters(frame);
 
     if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
-        std::size_t bestNumberTrees{this->initializeHyperparameters(frame)};
-        m_TreeImpl->m_Hyperparameters.initializeFineTuneSearch();
-        m_TreeImpl->m_Hyperparameters.checkIfCanSkipFineTuneSearch(bestNumberTrees);
+        std::size_t numberTrees{this->initializeHyperparameters(frame)};
+        m_TreeImpl->m_Hyperparameters.initializeFineTuneSearch(numberTrees);
     }
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
@@ -250,8 +249,8 @@ CBoostedTreeFactory::buildForTrainIncremental(core::CDataFrame& frame,
                 [&] { this->initialHyperparameterScaling(); });
 
     if (m_TreeImpl->m_Encoder->numberEncodedColumns() > 0) {
-        this->initializeHyperparameters(frame);
-        m_TreeImpl->m_Hyperparameters.initializeFineTuneSearch();
+        std::size_t numberTrees{this->initializeHyperparameters(frame)};
+        m_TreeImpl->m_Hyperparameters.initializeFineTuneSearch(numberTrees);
     }
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
