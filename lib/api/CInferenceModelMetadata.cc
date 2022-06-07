@@ -197,6 +197,8 @@ void CInferenceModelMetadata::writeTrainProperties(TRapidJsonWriter& writer) con
         writer.Uint64(m_NumTrainRows);
         writer.Key(JSON_LOSS_GAP_TAG);
         writer.Double(m_LossGap);
+        writer.Key(JSON_TRAINED_MODEL_MEMORY_USAGE_TAG);
+        writer.Uint64(m_TrainedModelMemoryUsage);
         writer.EndObject();
     }
 }
@@ -314,6 +316,10 @@ void CInferenceModelMetadata::numDataSummarizationRows(std::size_t numRows) {
     m_NumDataSummarizationRows = numRows;
 }
 
+void CInferenceModelMetadata::trainedModelMemoryUsage(std::size_t memoryUsage) {
+    m_TrainedModelMemoryUsage = memoryUsage;
+}
+
 // clang-format off
 const std::string CInferenceModelMetadata::JSON_ABSOLUTE_IMPORTANCE_TAG{"absolute_importance"};
 const std::string CInferenceModelMetadata::JSON_BASELINE_TAG{"baseline"};
@@ -337,6 +343,7 @@ const std::string CInferenceModelMetadata::JSON_NUM_TRAIN_ROWS_TAG{"num_train_ro
 const std::string CInferenceModelMetadata::JSON_RELATIVE_IMPORTANCE_TAG{"relative_importance"};
 const std::string CInferenceModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
 const std::string CInferenceModelMetadata::JSON_TRAIN_PROPERTIES_TAG{"train_properties"};
+const std::string CInferenceModelMetadata::JSON_TRAINED_MODEL_MEMORY_USAGE_TAG{"trained_model_memory_usage"};
 // clang-format on
 }
 }

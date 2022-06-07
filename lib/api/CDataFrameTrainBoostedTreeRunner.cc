@@ -141,11 +141,12 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
     m_PredictionFieldName = parameters[PREDICTION_FIELD_NAME].fallback(
         m_DependentVariableFieldName + "_prediction");
-
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
-
     m_Task = parameters[TASK].fallback(E_Train);
+    m_TrainedModelMemoryUsage =
+        parameters[TRAINED_MODEL_MEMORY_USAGE].fallback(std::size_t{0});
 
+    // Training parameters.
     auto seed = parameters[RANDOM_NUMBER_GENERATOR_SEED].fallback(std::size_t{0});
     auto numberHoldoutRows = parameters[NUM_HOLDOUT_ROWS].fallback(std::size_t{0});
     auto numberFolds = parameters[NUM_FOLDS].fallback(std::size_t{0});
@@ -159,12 +160,13 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     auto bayesianOptimisationRestarts =
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0});
     auto stopCrossValidationEarly = parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true);
-    auto numTopFeatureImportanceValues =
+    auto numberTopShapValues =
         parameters[NUM_TOP_FEATURE_IMPORTANCE_VALUES].fallback(std::size_t{0});
     auto rowWeightColumnName = parameters[ROW_WEIGHT_COLUMN].fallback(std::string{});
     auto maximumDeployedSize = parameters[MAX_DEPLOYED_MODEL_SIZE].fallback(
         core::constants::BYTES_IN_GIGABYTES);
 
+    // Hyperparameters.
     auto maxTrees = parameters[MAX_TREES].fallback(std::size_t{0});
     auto alpha = parameters[ALPHA].fallback(TDoubleVec{});
     auto lambda = parameters[LAMBDA].fallback(TDoubleVec{});
@@ -181,6 +183,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     auto treeTopologyChangePenalty =
         parameters[TREE_TOPOLOGY_CHANGE_PENALTY].fallback(TDoubleVec{});
 
+    // Incremental training.
     auto forceAcceptIncrementalTraining =
         parameters[FORCE_ACCEPT_INCREMENTAL_TRAINING].fallback(false);
     auto disableHyperparameterScaling =
@@ -189,7 +192,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     auto previousTrainLossGap = parameters[PREVIOUS_TRAIN_LOSS_GAP].fallback(-1.0);
     auto previousTrainNumberRows =
         parameters[PREVIOUS_TRAIN_NUM_ROWS].fallback(std::size_t{0});
-    auto maxNumNewTrees = parameters[MAX_NUM_NEW_TREES].fallback(std::size_t{0});
+    auto maxNumberNewTrees = parameters[MAX_NUM_NEW_TREES].fallback(std::size_t{0});
 
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
@@ -301,8 +304,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (bayesianOptimisationRestarts > 0) {
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
-    if (numTopFeatureImportanceValues > 0) {
-        m_BoostedTreeFactory->numberTopShapValues(numTopFeatureImportanceValues);
+    if (numberTopShapValues > 0) {
+        m_BoostedTreeFactory->numberTopShapValues(numberTopShapValues);
     }
     if (dataSummarizationFraction > 0) {
         m_BoostedTreeFactory->dataSummarizationFraction(dataSummarizationFraction);
@@ -313,16 +316,27 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (previousTrainNumberRows > 0) {
         m_BoostedTreeFactory->previousTrainNumberRows(previousTrainNumberRows);
     }
-    if (maxNumNewTrees > 0) {
-        m_BoostedTreeFactory->maximumNumberNewTrees(maxNumNewTrees);
+    if (maxNumberNewTrees > 0) {
+        m_BoostedTreeFactory->maximumNumberNewTrees(maxNumberNewTrees);
     }
 }
 
 CDataFrameTrainBoostedTreeRunner::~CDataFrameTrainBoostedTreeRunner() = default;
 
 std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
-    return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(
-        this->spec().numberColumns(), m_NumberLossParameters);
+    switch (m_Task) {
+    case E_Encode:
+        return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode();
+    case E_Train:
+        return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(
+            this->spec().numberColumns(), m_NumberLossParameters);
+    case E_Update:
+        return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(
+            this->spec().numberColumns(), m_NumberLossParameters);
+    case E_Predict:
+        return maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForPredict(
+            m_NumberLossParameters);
+    }
 }
 
 std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
@@ -554,10 +568,25 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t totalNumberRows,
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
-    // TODO https://github.com/elastic/ml-cpp/issues/1790.
-    return m_BoostedTreeFactory->estimateMemoryUsageForTrain(
-        static_cast<std::size_t>(static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5),
-        numberColumns);
+    switch (m_Task) {
+    case E_Encode:
+        return m_BoostedTreeFactory->estimateMemoryUsageForEncode(
+            static_cast<std::size_t>(static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5),
+            numberColumns, this->spec().categoricalFieldNames().size());
+    case E_Train:
+        return m_BoostedTreeFactory->estimateMemoryUsageForTrain(
+            static_cast<std::size_t>(static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5),
+            numberColumns);
+    case E_Update:
+        return m_TrainedModelMemoryUsage +
+               m_BoostedTreeFactory->estimateMemoryUsageForTrainIncremental(
+                   static_cast<std::size_t>(
+                       static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5),
+                   numberColumns);
+    case E_Predict:
+        return m_TrainedModelMemoryUsage +
+               m_BoostedTreeFactory->estimateMemoryUsageForPredict();
+    }
 }
 
 const CDataFrameAnalysisInstrumentation&
@@ -600,6 +629,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::MAX_DEPLOYED_MODEL_SIZE{"max
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_CHANGE_COST{"prediction_change_cost"};
 const std::string CDataFrameTrainBoostedTreeRunner::TREE_TOPOLOGY_CHANGE_PENALTY{"tree_topology_change_penalty"};
+const std::string CDataFrameTrainBoostedTreeRunner::TRAINED_MODEL_MEMORY_USAGE{"trained_model_memory_usage"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_HOLDOUT_ROWS{"num_holdout_rows"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_FOLDS{"num_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::TRAIN_FRACTION_PER_FOLD{"train_fraction_per_fold"};

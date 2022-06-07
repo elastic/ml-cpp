@@ -50,22 +50,26 @@
 #include <utility>
 #include <vector>
 
-namespace ml {
-namespace maths {
-namespace analytics {
+using namespace ml;
+
 class CBoostedTreeImplForTest {
 public:
-    using TAnalysisInstrumentationPtr = CBoostedTreeImpl::TAnalysisInstrumentationPtr;
-    using TLossFunctionUPtr = CBoostedTreeImpl::TLossFunctionUPtr;
-    using TSizeVec = CBoostedTreeImpl::TSizeVec;
-    using TDoubleVec = CBoostedTreeImpl::TDoubleVec;
-    using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
+    using TAnalysisInstrumentationPtr = maths::analytics::CBoostedTreeImpl::TAnalysisInstrumentationPtr;
+    using TLossFunctionUPtr = maths::analytics::CBoostedTreeImpl::TLossFunctionUPtr;
+    using TSizeVec = maths::analytics::CBoostedTreeImpl::TSizeVec;
+    using TDoubleVec = maths::analytics::CBoostedTreeImpl::TDoubleVec;
+    using TBoostedTreeUPtr = std::unique_ptr<maths::analytics::CBoostedTree>;
 
 public:
-    explicit CBoostedTreeImplForTest(CBoostedTreeImpl& treeImpl)
+    explicit CBoostedTreeImplForTest(maths::analytics::CBoostedTreeImpl& treeImpl)
         : m_TreeImpl{treeImpl} {}
     CBoostedTreeImplForTest(const CBoostedTreeImplForTest&) = delete;
     CBoostedTreeImplForTest& operator=(const CBoostedTreeImplForTest&) = delete;
+
+    static double correctedMemoryUsage(double memoryUsageBytes) {
+        return static_cast<double>(maths::analytics::CBoostedTreeImpl::correctedMemoryUsageForTraining(
+            memoryUsageBytes));
+    }
 
     const TDoubleVec& featureSampleProbabilities() const {
         return m_TreeImpl.featureSampleProbabilities();
@@ -99,15 +103,10 @@ public:
     }
 
 private:
-    CBoostedTreeImpl& m_TreeImpl;
+    maths::analytics::CBoostedTreeImpl& m_TreeImpl;
 };
-}
-}
-}
 
-using namespace ml;
-
-BOOST_TEST_DONT_PRINT_LOG_VALUE(maths::analytics::CBoostedTreeImplForTest::TSizeVec::iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(CBoostedTreeImplForTest::TSizeVec::iterator)
 
 BOOST_AUTO_TEST_SUITE(CBoostedTreeTest)
 
@@ -116,6 +115,7 @@ using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
+using TStrVec = std::vector<std::string>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>()>;
 using TFactoryFuncVec = std::vector<TFactoryFunc>;
 using TFactoryFuncVecVec = std::vector<TFactoryFuncVec>;
@@ -1543,7 +1543,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     double gamma{baseModel->hyperparameters().treeSizePenaltyMultiplier().value()};
     double lambda{baseModel->hyperparameters().leafWeightPenaltyMultiplier().value()};
 
-    maths::analytics::CBoostedTreeImplForTest baseImpl{baseModel->impl()};
+    CBoostedTreeImplForTest baseImpl{baseModel->impl()};
 
     auto cloneBaseModel = [&](core::CDataFrame& frame) {
         auto tmp_ = makeBatch2();
@@ -1596,7 +1596,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
     auto computePenalisedTestError =
         [&](core::CDataFrame& frame,
             const maths::analytics::CBoostedTreeFactory::TBoostedTreeUPtr& model) {
-            auto modelForTest = maths::analytics::CBoostedTreeImplForTest{model->impl()};
+            auto modelForTest = CBoostedTreeImplForTest{model->impl()};
             return modelForTest.meanChangePenalisedLoss(frame, holdoutRowMask);
         };
 
@@ -1663,11 +1663,9 @@ BOOST_AUTO_TEST_CASE(testThreading) {
     TDoubleVec modelBias;
     TDoubleVec modelMse;
 
-    std::string tests[]{"serial", "parallel"};
+    for (const auto& test : {"serial", "parallel"}) {
 
-    for (std::size_t test = 0; test < 2; ++test) {
-
-        LOG_DEBUG(<< tests[test]);
+        LOG_DEBUG(<< test);
 
         auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
 
@@ -1766,8 +1764,8 @@ BOOST_AUTO_TEST_CASE(testConstantTarget) {
     std::size_t capacity{500};
 
     TDoubleVecVec x(cols - 1);
-    for (std::size_t i = 0; i < x.size(); ++i) {
-        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    for (auto& xi : x) {
+        rng.generateUniformSamples(0.0, 10.0, rows, xi);
     }
 
     auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
@@ -1928,7 +1926,7 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                           .buildForTrain(*frame, cols - 1);
 
-    maths::analytics::CBoostedTreeImplForTest impl{regression->impl()};
+    CBoostedTreeImplForTest impl{regression->impl()};
 
     TSizeVec selectedForTree(impl.featureSampleProbabilities().size(), 0);
     TSizeVec selectedForNode(impl.featureSampleProbabilities().size(), 0);
@@ -2710,18 +2708,16 @@ BOOST_AUTO_TEST_CASE(testClassificationWeightsOverride) {
 
     // Test that the overrides are reflected in the classification weights used.
 
-    using TStrVec = std::vector<std::string>;
-
     test::CRandomNumbers rng;
 
-    std::size_t classes[]{1, 0};
-    std::size_t classesRowCounts[]{50, 50};
+    TSizeVec classes{1, 0};
+    TSizeVec classesRowCounts{50, 50};
     std::size_t cols{3};
 
     TDoubleVecVec x;
     TDoubleVec means{0.0, 3.0};
     TDoubleVec variances{6.0, 6.0};
-    for (std::size_t i = 0; i < std::size(classes); ++i) {
+    for (std::size_t i = 0; i < classes.size(); ++i) {
         TDoubleVecVec xi;
         double mean{means[classes[i]]};
         double variance{variances[classes[i]]};
@@ -2733,9 +2729,9 @@ BOOST_AUTO_TEST_CASE(testClassificationWeightsOverride) {
     auto frame = core::makeMainStorageDataFrame(cols).first;
     frame->categoricalColumns(TBoolVec{false, false, true});
 
-    std::string classValues[]{"foo", "bar"};
+    TStrVec classValues{"foo", "bar"};
     TStrVec row(cols);
-    for (std::size_t i = 0, index = 0; i < std::size(classes); ++i) {
+    for (std::size_t i = 0, index = 0; i < classes.size(); ++i) {
         for (std::size_t j = 0; j < classesRowCounts[i]; ++j, ++index) {
             row[0] = std::to_string(x[index][0]);
             row[1] = std::to_string(x[index][1]);
@@ -3114,7 +3110,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
     core::stopDefaultAsyncExecutor();
 
-    std::string tests[]{"serial", "parallel"};
+    TStrVec tests{"serial", "parallel"};
 
     for (std::size_t threads : {1, 2}) {
 
@@ -3590,29 +3586,19 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
 
 BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
     // test for 15mb
-    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::analytics::CBoostedTreeImpl::correctedMemoryUsage(
-                            15.0 * BYTES_IN_MB)) /
-                            BYTES_IN_MB,
+    BOOST_REQUIRE_CLOSE(CBoostedTreeImplForTest::correctedMemoryUsage(15.0 * BYTES_IN_MB) / BYTES_IN_MB,
                         15.0, 1.0);
     // test for 50mb
-    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::analytics::CBoostedTreeImpl::correctedMemoryUsage(
-                            50.0 * BYTES_IN_MB)) /
-                            BYTES_IN_MB,
+    BOOST_REQUIRE_CLOSE(CBoostedTreeImplForTest::correctedMemoryUsage(50.0 * BYTES_IN_MB) / BYTES_IN_MB,
                         24.76, 1.0);
     // test for 300mb
-    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::analytics::CBoostedTreeImpl::correctedMemoryUsage(
-                            300.0 * BYTES_IN_MB)) /
-                            BYTES_IN_MB,
+    BOOST_REQUIRE_CLOSE(CBoostedTreeImplForTest::correctedMemoryUsage(300.0 * BYTES_IN_MB) / BYTES_IN_MB,
                         64.4, 1.0);
     // test for 1024mb
-    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::analytics::CBoostedTreeImpl::correctedMemoryUsage(
-                            1024.0 * BYTES_IN_MB)) /
-                            BYTES_IN_MB,
+    BOOST_REQUIRE_CLOSE(CBoostedTreeImplForTest::correctedMemoryUsage(1024.0 * BYTES_IN_MB) / BYTES_IN_MB,
                         179.2, 1.0);
     // test for 18000mb
-    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::analytics::CBoostedTreeImpl::correctedMemoryUsage(
-                            18000.0 * BYTES_IN_MB)) /
-                            BYTES_IN_MB,
+    BOOST_REQUIRE_CLOSE(CBoostedTreeImplForTest::correctedMemoryUsage(18000.0 * BYTES_IN_MB) / BYTES_IN_MB,
                         1355.75, 1.0);
 
     // test for monotonicity
@@ -3625,10 +3611,9 @@ BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
     rng.generateUniformSamples(0.0, 20000.0, numberSamples, lhs);
     rng.generateUniformSamples(0.0, 20000.0, numberSamples, rhs);
     for (std::size_t i = 0; i < numberSamples; ++i) {
-        BOOST_TEST_REQUIRE(
-            (lhs[i] <= rhs[i]) ==
-            (maths::analytics::CBoostedTreeImpl::correctedMemoryUsage(lhs[i]) <=
-             maths::analytics::CBoostedTreeImpl::correctedMemoryUsage(rhs[i])));
+        BOOST_TEST_REQUIRE((lhs[i] <= rhs[i]) ==
+                           (CBoostedTreeImplForTest::correctedMemoryUsage(lhs[i]) <=
+                            CBoostedTreeImplForTest::correctedMemoryUsage(rhs[i])));
     }
 }
 

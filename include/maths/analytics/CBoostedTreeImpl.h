@@ -41,10 +41,11 @@
 #include <utility>
 #include <vector>
 
+class CBoostedTreeImplForTest;
+
 namespace ml {
 namespace maths {
 namespace analytics {
-class CBoostedTreeImplForTest;
 class CTreeShapFeatureImportance;
 namespace boosted_tree {
 class CArgMinLoss;
@@ -144,18 +145,15 @@ public:
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
-    //! Estimate the maximum booking memory that training a boosted tree on a data
-    //! frame with \p numberRows row and \p numberColumns columns will use.
-    std::size_t estimateMemoryUsageTrain(std::size_t numberRows, std::size_t numberColumns) const;
+    //! Estimate the maximum booking memory that train on a data frame with
+    //! \p numberRows rows and \p numberColumns columns will use.
+    std::size_t estimateMemoryUsageForTrain(std::size_t numberRows,
+                                            std::size_t numberColumns) const;
 
-    //! Estimate the maximum booking memory that incrementally training a boosted
-    //! tree on a data frame with \p numberRows row and \p numberColumns columns
-    //! will use.
-    std::size_t estimateMemoryUsageTrainIncremental(std::size_t numberRows,
-                                                    std::size_t numberColumns) const;
-
-    //! Correct from worst case memory usage to a more realistic estimate.
-    static std::size_t correctedMemoryUsage(double memoryUsageBytes);
+    //! Estimate the maximum booking memory that trainIncremental on a data frame
+    //! with \p numberRows rows and \p numberColumns columns will use.
+    std::size_t estimateMemoryUsageForTrainIncremental(std::size_t numberRows,
+                                                       std::size_t numberColumns) const;
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -459,6 +457,14 @@ private:
     //! Record hyperparameters for instrumentation.
     void recordHyperparameters();
 
+    //! Estimate the memory usage for training (either from scratch or incremental).
+    std::size_t estimateMemoryUsageForTraining(std::size_t numberRows,
+                                               std::size_t numberColumns,
+                                               std::size_t numberTrees) const;
+
+    //! Correct from worst case memory usage to a more realistic estimate.
+    static std::size_t correctedMemoryUsageForTraining(double memoryUsageBytes);
+
 private:
     //! \name Parameters
     //@{
@@ -534,7 +540,7 @@ private:
 private:
     friend class CBoostedTreeFactory;
     friend class CBoostedTreeHyperparameters;
-    friend class CBoostedTreeImplForTest;
+    friend class ::CBoostedTreeImplForTest;
 };
 }
 }

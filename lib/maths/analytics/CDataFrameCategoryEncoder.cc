@@ -14,6 +14,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
 #include <core/CTriple.h>
@@ -665,6 +666,57 @@ CMakeDataFrameCategoryEncoder::TEncodingUPtrVec CMakeDataFrameCategoryEncoder::m
     this->finishEncoding(this->selectFeatures(metricColumnMask, categoricalColumnMask));
 
     return this->readEncodings();
+}
+
+std::size_t CMakeDataFrameCategoryEncoder::memoryUsage() const {
+    return core::CMemory::dynamicSize(m_RowMask) +
+           core::CMemory::dynamicSize(m_ColumnMask) +
+           core::CMemory::dynamicSize(m_InputColumnUsesFrequencyEncoding) +
+           core::CMemory::dynamicSize(m_OneHotEncodedCategories) +
+           core::CMemory::dynamicSize(m_RareCategories) +
+           core::CMemory::dynamicSize(m_CategoryFrequencies) +
+           core::CMemory::dynamicSize(m_MeanCategoryFrequencies) +
+           core::CMemory::dynamicSize(m_CategoryTargetMeanValues) +
+           core::CMemory::dynamicSize(m_MeanCategoryTargetMeanValues) +
+           core::CMemory::dynamicSize(m_EncodedColumnMics) +
+           core::CMemory::dynamicSize(m_EncodedColumnInputColumnMap) +
+           core::CMemory::dynamicSize(m_EncodedColumnEncodingMap);
+}
+
+std::size_t CMakeDataFrameCategoryEncoder::estimateMemoryUsage(std::size_t numberRows,
+                                                               std::size_t numberColumns,
+                                                               std::size_t numberCategoricalColumns) {
+
+    // We don't know in advance how many distinct categories. For useful features we
+    // estimate we'll have no more than 1000 on average.
+    std::size_t maximumNumberCategories{1000};
+    // Assuming either many or few missing rows, we get good compression of the bit
+    // vector. Specifically, we'll assume the average run length is 64 for which
+    // we get a constant 8 / 64.
+    std::size_t missingFeatureMaskMemoryUsage{8 * numberRows / 64};
+    std::size_t columnMaskMemoryUsage{numberColumns * sizeof(std::size_t)};
+    std::size_t frequencyEncodingMemoryUsage{numberColumns / 8};
+    std::size_t oneHotMemoryUsage{
+        numberCategoricalColumns *
+            core::CMemory::dynamicSize(TSizeVec(static_cast<std::size_t>(
+                1.0 / MINIMUM_FREQUENCY_TO_ONE_HOT_ENCODE))) +
+        (numberColumns - numberCategoricalColumns) * core::CMemory::dynamicSize(TSizeVec())};
+    std::size_t rareCategoriesMemoryUsage{
+        numberCategoricalColumns * core::CMemory::dynamicSize(TSizeUSet(maximumNumberCategories)) +
+        (numberColumns - numberCategoricalColumns) *
+            core::CMemory::dynamicSize(TSizeUSet())};
+    std::size_t meanFrequencyMemoryUsage{numberColumns * sizeof(double)};
+    std::size_t meanValuesMemoryUsage{
+        numberColumns * sizeof(double) +
+        numberCategoricalColumns * core::CMemory::dynamicSize(TDoubleVec(1000)) +
+        (numberColumns - numberCategoricalColumns) *
+            core::CMemory::dynamicSize(TDoubleVec())};
+    std::size_t micsMemoryUsage{numberColumns * sizeof(double)};
+    std::size_t encodingMapMemoryUsage{2 * numberColumns * sizeof(std::size_t)};
+    return sizeof(CMakeDataFrameCategoryEncoder{}) + missingFeatureMaskMemoryUsage +
+           columnMaskMemoryUsage + frequencyEncodingMemoryUsage +
+           oneHotMemoryUsage + rareCategoriesMemoryUsage + meanFrequencyMemoryUsage +
+           meanValuesMemoryUsage + micsMemoryUsage + encodingMapMemoryUsage;
 }
 
 CMakeDataFrameCategoryEncoder::TEncodingUPtrVec

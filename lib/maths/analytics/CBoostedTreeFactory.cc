@@ -25,6 +25,7 @@
 #include <maths/analytics/CBoostedTreeLoss.h>
 #include <maths/analytics/CBoostedTreeUtils.h>
 #include <maths/analytics/CDataFrameCategoryEncoder.h>
+#include <maths/analytics/CDataFrameUtils.h>
 
 #include <maths/common/CBayesianOptimisation.h>
 #include <maths/common/CLowess.h>
@@ -126,10 +127,19 @@ CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t depende
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
+    m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_EncodingInitialized
+        ? this->skipProgressMonitoringFeatureSelection()
+        : this->startProgressMonitoringFeatureSelection();
+
     skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         this->initializeMissingFeatureMasks(frame);
+        this->initializeNumberFolds(frame);
+        // There are only "old" training examples for the initial train.
+        if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
+            m_TreeImpl->m_NewTrainingRowMask.extend(
+                false, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
+        }
         this->prepareDataFrameForEncode(frame);
-        this->startProgressMonitoringFeatureSelection();
         this->selectFeaturesAndEncodeCategories(frame);
         this->determineFeatureDataTypes(frame);
         this->initializeFeatureSampleDistribution();
@@ -257,26 +267,18 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
-        this->initializeMissingFeatureMasks(frame);
-        if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
-            // We assume any additional rows are new examples to predict.
-            m_TreeImpl->m_NewTrainingRowMask.extend(
-                true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
-        }
-    });
+    this->initializeMissingFeatureMasks(frame);
+    if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
+        // We assume any additional rows are new examples to predict.
+        m_TreeImpl->m_NewTrainingRowMask.extend(
+            true, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
+    }
 
     this->prepareDataFrameForPredict(frame);
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
-        this->determineFeatureDataTypes(frame);
-        m_TreeImpl->predict(frame);
-        m_TreeImpl->computeClassificationWeights(frame);
-    });
-
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
-    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
-    m_TreeImpl->m_Instrumentation->flush();
+    this->determineFeatureDataTypes(frame);
+    m_TreeImpl->predict(frame);
+    m_TreeImpl->computeClassificationWeights(frame);
 
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
@@ -313,6 +315,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
         return this->buildForTrain(frame, dependentVariable);
     }
 
+    // Note we only ever save state in training.
     if (m_TreeImpl->m_Hyperparameters.incrementalTraining() == false) {
         this->prepareDataFrameForTrain(frame);
     } else {
@@ -1623,6 +1626,14 @@ CBoostedTreeFactory& CBoostedTreeFactory::bestForest(TNodeVecVec forest) {
     return *this;
 }
 
+std::size_t
+CBoostedTreeFactory::estimateMemoryUsageForEncode(std::size_t numberRows,
+                                                  std::size_t numberColumns,
+                                                  std::size_t numberCategoricalColumns) const {
+    return CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+        numberRows, numberColumns, numberCategoricalColumns);
+}
+
 std::size_t CBoostedTreeFactory::estimateMemoryUsageForTrain(std::size_t numberRows,
                                                              std::size_t numberColumns) const {
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
@@ -1631,14 +1642,31 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsageForTrain(std::size_t numberR
             : computeEta(numberColumns))};
     CScopeBoostedTreeParameterOverrides<std::size_t> overrides;
     overrides.apply(m_TreeImpl->m_Hyperparameters.maximumNumberTrees(), maximumNumberTrees);
-    std::size_t result{m_TreeImpl->estimateMemoryUsageTrain(numberRows, numberColumns)};
-    return result;
+    return m_TreeImpl->estimateMemoryUsageForTrain(numberRows, numberColumns);
 }
 
 std::size_t
 CBoostedTreeFactory::estimateMemoryUsageForTrainIncremental(std::size_t numberRows,
                                                             std::size_t numberColumns) const {
-    return m_TreeImpl->estimateMemoryUsageTrainIncremental(numberRows, numberColumns);
+    std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
+        m_TreeImpl->m_Hyperparameters.eta().fixed()
+            ? m_TreeImpl->m_Hyperparameters.eta().value()
+            : computeEta(numberColumns))};
+    CScopeBoostedTreeParameterOverrides<std::size_t> overrides;
+    overrides.apply(m_TreeImpl->m_Hyperparameters.maximumNumberTrees(), maximumNumberTrees);
+    return m_TreeImpl->estimateMemoryUsageForTrainIncremental(numberRows, numberColumns);
+}
+
+std::size_t CBoostedTreeFactory::estimateMemoryUsageForPredict() const {
+    // We use no _additional_ memory for prediction.
+    return 0;
+}
+
+std::size_t CBoostedTreeFactory::estimateExtraColumnsForEncode() {
+    // We don't need to resize the data frame to compute encodings.
+    //
+    // See prepareDataFrameForEncode for details.
+    return 0;
 }
 
 std::size_t CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t numberColumns,
@@ -1648,7 +1676,30 @@ std::size_t CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t number
     //   2. The gradient of the loss function
     //   3. The upper triangle of the hessian of the loss function
     //   4. The example's splits packed into std::uint8_t
+    //
+    // See prepareDataFrameForTrain and initializeSplitsCache for details.
     return numberLossParameters * (numberLossParameters + 5) / 2 + (numberColumns + 2) / 4;
+}
+
+std::size_t
+CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(std::size_t numberColumns,
+                                                             std::size_t numberLossParameters) {
+    // We store as follows:
+    //   1. The predicted values for the dependent variable
+    //   2. The gradient of the loss function
+    //   3. The upper triangle of the hessian of the loss function
+    //   4. The previous prediction
+    //   5. The example's splits packed into std::uint8_t
+    //
+    // See prepareDataFrameForTrainIncremental and initializeSplitsCache for details.
+    return numberLossParameters * (numberLossParameters + 7) / 2 + (numberColumns + 2) / 4;
+}
+
+std::size_t CBoostedTreeFactory::estimateExtraColumnsForPredict(std::size_t numberLossParameters) {
+    // We store the predicted values for the dependent variable.
+    //
+    // See prepareDataFrameForPredict for details.
+    return numberLossParameters;
 }
 
 void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {

@@ -587,8 +587,26 @@ void CBoostedTreeImpl::predict(const core::CPackedBitVector& rowMask,
     }
 }
 
-std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
-                                                       std::size_t numberColumns) const {
+std::size_t CBoostedTreeImpl::estimateMemoryUsageForTrain(std::size_t numberRows,
+                                                          std::size_t numberColumns) const {
+    return this->estimateMemoryUsageForTraining(
+        numberRows, numberColumns, m_Hyperparameters.maximumNumberTrees().value());
+}
+
+std::size_t
+CBoostedTreeImpl::estimateMemoryUsageForTrainIncremental(std::size_t numberRows,
+                                                         std::size_t numberColumns) const {
+
+    return this->estimateMemoryUsageForTraining(
+        numberRows, numberColumns,
+        static_cast<std::size_t>(
+            static_cast<double>(m_Hyperparameters.maximumNumberTrees().value()) * m_RetrainFraction + 0.5) +
+            m_MaximumNumberNewTrees);
+}
+
+std::size_t CBoostedTreeImpl::estimateMemoryUsageForTraining(std::size_t numberRows,
+                                                             std::size_t numberColumns,
+                                                             std::size_t numberTrees) const {
     // The maximum tree size is defined is the maximum number of leaves minus one.
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
     std::size_t maximumNumberLeaves{maximumTreeSize(numberRows) + 1};
@@ -597,7 +615,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
         std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
     std::size_t hyperparametersMemoryUsage{m_Hyperparameters.estimateMemoryUsage()};
     std::size_t forestMemoryUsage{
-        m_Hyperparameters.maximumNumberTrees().value() *
+        numberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
                                                      m_Loss->numberParameters()))};
     std::size_t foldRoundLossMemoryUsage{
@@ -640,18 +658,11 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
         featureSampleProbabilitiesMemoryUsage + fixedCandidateSplitsMemoryUsage +
         missingFeatureMaskMemoryUsage + trainTestMaskMemoryUsage};
 
-    return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
+    return CBoostedTreeImpl::correctedMemoryUsageForTraining(
+        static_cast<double>(worstCaseMemoryUsage));
 }
 
-std::size_t
-CBoostedTreeImpl::estimateMemoryUsageTrainIncremental(std::size_t /*numberRows*/,
-                                                      std::size_t /*numberColumns*/) const {
-
-    // TODO https://github.com/elastic/ml-cpp/issues/1790.
-    return 0;
-}
-
-std::size_t CBoostedTreeImpl::correctedMemoryUsage(double memoryUsageBytes) {
+std::size_t CBoostedTreeImpl::correctedMemoryUsageForTraining(double memoryUsageBytes) {
     // We use a piecewise linear function of the estimated memory usage to compute
     // the corrected value. The values are selected in a way to reduce over-estimation
     // and to improve the behaviour on the trial nodes in the cloud. The high level strategy
