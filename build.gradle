@@ -100,7 +100,7 @@ clean {
     exec {
       environment makeEnvironment
       commandLine bash
-      args '-c', 'source ./set_env.sh && ' + cmake + '  --build cmake_build -v -t clean'
+      args '-c', 'source ./set_env.sh && rm -rf 3rd_party/eigen cmake_build'
       workingDir "${projectDir}"
     }
   }
