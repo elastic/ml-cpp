@@ -183,7 +183,20 @@ function(ml_add_test_executable _target)
 
   add_custom_target(test_${_target}
     DEPENDS ml_test_${_target}
-    COMMAND ml_test_${_target}
+    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
+endfunction()
+
+#
+# Add a target to the list of unittests to be built and run
+# _directory: Relative path to unittest binary directory, e.g. lib/maths/common/unittest
+# _target: Name of the unittest target, e.g. maths_common
+#
+function(ml_add_test _directory _target)
+  add_subdirectory(../${_directory} ${_directory})
+  list(APPEND ML_BUILD_TEST_DEPENDS ml_test_${_target})
+  list(APPEND ML_TEST_DEPENDS test_${_target})
+  set(ML_BUILD_TEST_DEPENDS ${ML_BUILD_TEST_DEPENDS} PARENT_SCOPE)
+  set(ML_TEST_DEPENDS ${ML_TEST_DEPENDS} PARENT_SCOPE)
 endfunction()
