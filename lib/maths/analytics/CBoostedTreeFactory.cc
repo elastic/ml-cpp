@@ -478,7 +478,7 @@ void CBoostedTreeFactory::prepareDataFrameForPredict(core::CDataFrame& frame) co
 
     std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
 
-    // Extend the frame with the bookkeeping columns used in train.
+    // Extend the frame with the bookkeeping columns used in predict.
     std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
     TSizeVec extraColumns;
     std::size_t paddedExtraColumns;
