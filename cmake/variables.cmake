@@ -46,7 +46,17 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   if (CMAKE_CROSSCOMPILING)
     set(ML_BOOST_COMPILER_VER "-clang-darwin11")
   else()
-    set(ML_BOOST_COMPILER_VER "-clang-darwin${CMAKE_CXX_COMPILER_VERSION_MAJOR}")
+    # For macOS we usually only use a particular version as our build platform
+    # once Xcode has stopped receiving updates for it. However, with Big Sur
+    # on ARM we couldn't do this, as Big Sur was the first macOS version for
+    # ARM. Therefore, the compiler may get upgraded on a CI server, and we
+    # need to hardcode the version that was used to build Boost for that
+    # version of Elasticsearch.
+    if(DEFINED ENV{BOOSTCLANGVER})
+      set(ML_BOOST_COMPILER_VER "-clang-darwin$ENV{BOOSTCLANGVER}")
+    else()
+      set(ML_BOOST_COMPILER_VER "-clang-darwin${CMAKE_CXX_COMPILER_VERSION_MAJOR}")
+    endif()
   endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(ML_BOOST_COMPILER_VER "gcc${CMAKE_CXX_COMPILER_VERSION_MAJOR}")
