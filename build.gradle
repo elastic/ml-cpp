@@ -116,7 +116,7 @@ task configure(type: Exec) {
 task compile(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build --config Release -t install -v -j' + numCpus
+  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build --config Release -t eigen -t install -v -j' + numCpus
   workingDir "${projectDir}"
   dependsOn 'configure'
 }
