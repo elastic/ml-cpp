@@ -10,7 +10,7 @@
 #
 
 # which compilers to use for C and C++
-if(DEFINED ENV{CPP_CROSS_COMPILE} AND NOT $ENV{CPP_CROSS_COMPILE} STREQUAL "")
+if(DEFINED ENV{CPP_CROSS_COMPILE} AND NOT "$ENV{CPP_CROSS_COMPILE}" STREQUAL "")
   message(STATUS "Cross compiling: CPP_CROSS_COMPILE = $ENV{CPP_CROSS_COMPILE}")
 
   set(CROSS_FLAGS --sysroot=${SYSROOT} -B /usr/local/bin -target ${CROSS_TARGET_PLATFORM} -stdlib=libc++)
