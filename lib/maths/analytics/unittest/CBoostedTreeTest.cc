@@ -595,7 +595,7 @@ BOOST_AUTO_TEST_CASE(testMseLinear) {
             0.0, modelBias[i][0],
             6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.93);
+        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.94);
 
         meanModelRSquared.add(modelRSquared[i][0]);
     }
@@ -722,13 +722,13 @@ BOOST_AUTO_TEST_CASE(testHuber) {
             0.0, modelBias[i],
             6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.92);
+        BOOST_TEST_REQUIRE(modelRSquared[i] > 0.94);
 
         meanModelRSquared.add(modelRSquared[i]);
     }
 
     LOG_DEBUG(<< "mean R^2 = " << maths::common::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.94);
+    BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanModelRSquared) > 0.96);
 }
 
 BOOST_AUTO_TEST_CASE(testMsle) {
@@ -1306,7 +1306,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForTargetDrift) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 17.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 25.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
@@ -1445,7 +1445,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalForOutOfDomain) {
 
     LOG_DEBUG(<< "increase on old = " << errorIncreaseOnOld);
     LOG_DEBUG(<< "decrease on new = " << errorDecreaseOnNew);
-    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 57.0 * errorIncreaseOnOld);
+    BOOST_TEST_REQUIRE(errorDecreaseOnNew > 100.0 * errorIncreaseOnOld);
 }
 
 BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
@@ -1527,7 +1527,6 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalAddNewTrees) {
                          .dataSummarizationFraction(1.0)
                          .maximumNumberTrees(4)
                          .numberHoldoutRows(numberHoldoutRows)
-                         .earlyStoppingEnabled(false)
                          .buildForTrain(*batch1, cols - 1);
     baseModel->train();
 
@@ -2827,7 +2826,6 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         auto classifier =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMultinomialLogisticLoss>(numberClasses))
-                .earlyStoppingEnabled(false)
                 .buildForTrain(*frame, cols - 1);
 
         classifier->train();
@@ -2997,8 +2995,6 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
     // Test we always produce a model which meets our memory constraint.
 
     test::CRandomNumbers rng;
-    std::size_t seed{1000};
-    rng.seed(seed);
     double noiseVariance{10.0};
     std::size_t trainRows{800};
     std::size_t testRows{200};
@@ -3036,7 +3032,6 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
             1, std::make_unique<maths::analytics::boosted_tree::CMse>())
             .maximumDeployedSize(maximumDeployedSize)
             .numberFolds(2)
-            .seed(seed)
             .buildForTrain(*frameConstrained, cols - 1);
     regressionConstrained->train();
     regressionConstrained->predict();
@@ -3047,7 +3042,6 @@ BOOST_AUTO_TEST_CASE(testDeployedMemoryLimiting) {
         maths::analytics::CBoostedTreeFactory::constructFromParameters(
             1, std::make_unique<maths::analytics::boosted_tree::CMse>())
             .numberFolds(2)
-            .seed(seed)
             .buildForTrain(*frameUnconstrained, cols - 1);
     regressionUnconstrained->train();
     regressionUnconstrained->predict();
@@ -3244,7 +3238,6 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
 
     auto regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                          .earlyStoppingEnabled(false)
                           .buildForTrain(*frame, cols - 1);
 
     regression->train();

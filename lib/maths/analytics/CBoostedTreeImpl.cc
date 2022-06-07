@@ -274,7 +274,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
              m_Hyperparameters.fineTuneSearchNotFinished();
              /**/) {
 
-            LOG_DEBUG(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
+            LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
             m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
 
             this->recordHyperparameters();
@@ -300,9 +300,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
                                              this->betweenFoldTestLossVariance()) == false) {
-                LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
-                         << m_Hyperparameters.currentRound() << " out of "
-                         << m_Hyperparameters.numberRounds() << ".");
+                LOG_DEBUG(<< "Stopping fine tuning hyperparameters on round "
+                          << m_Hyperparameters.currentRound() << " out of "
+                          << m_Hyperparameters.numberRounds());
                 break;
             }
 
@@ -331,7 +331,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                                      std::to_string(m_Hyperparameters.currentRound()));
         }
 
-        LOG_DEBUG(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
+        LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
         if (m_BestForest.empty()) {
             m_Hyperparameters.restoreBest();

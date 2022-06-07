@@ -293,7 +293,7 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
     double bestParameterTestLoss;
     std::tie(bestParameter, bestParameterTestLoss) = testLossCurve.minimum();
     double forestSize{forestSizeCurve.predict(bestParameter)};
-    LOG_DEBUG(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss
+    LOG_TRACE(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss
               << ", forest size = " << forestSize);
 
     double width{(intervalRightEnd - intervalLeftEnd) /
@@ -387,7 +387,9 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(std::size_t numbe
             this->addObservation(parameters, hyperparameterLoss.second, 0.0, true);
         }
         m_StopHyperparameterOptimizationEarly = this->optimisationMakingNoProgress();
-        if (m_StopHyperparameterOptimizationEarly == false) {
+        if (m_StopHyperparameterOptimizationEarly) {
+            LOG_DEBUG(<< "Skipping fine tune hyperparameters");
+        } else {
             // Only reset Bayesian optimisation if we are going to fine tune or
             // else we won't be  able to compute hyperparameter importances.
             this->resetBayesianOptimization();
