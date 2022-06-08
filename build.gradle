@@ -190,7 +190,7 @@ String artifactGroupPath = project.group.replaceAll("\\.", "/")
 task test(type: Exec) {
   environment makeEnvironment
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build -v -j' + numCpus + ' -t test'
+  args '-c', 'source ./set_env.sh && ' + cmake + ' --build cmake_build --config Release -v -j' + numCpus + ' -t test'
   workingDir "${projectDir}"
   dependsOn 'strip'
   description = 'Run C++ tests'
