@@ -27,6 +27,7 @@
 #include <boost/optional/optional_io.hpp>
 
 #include <cmath>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -47,9 +48,11 @@ const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
 const std::string CURRENT_ROUND_TAG{"current_round"};
 const std::string DEPTH_PENALTY_MULTIPLIER_TAG{"depth_penalty_multiplier"};
 const std::string DOWNSAMPLE_FACTOR_TAG{"downsample_factor"};
+const std::string EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG{"early_hyperparameter_optimization_stopping_enabled"};
 const std::string ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
 const std::string ETA_TAG{"eta"};
 const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
+const std::string LINE_SEARCH_HYPERPARAMETER_LOSSES_TAG{"line_search_hyperparameters_losses"};
 const std::string LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{"leaf_weight_penalty_multiplier"};
 const std::string MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
 const std::string MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG{"maximum_optimisation_rounds_per_hyperparameter"};
@@ -59,7 +62,6 @@ const std::string NUMBER_ROUNDS_TAG{"number_rounds"};
 const std::string SOFT_TREE_DEPTH_LIMIT_TAG{"soft_tree_depth_limit"};
 const std::string SOFT_TREE_DEPTH_TOLERANCE_TAG{"soft_tree_depth_tolerance"};
 const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
-const std::string STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stopped_hyperparameter_optimization_early"};
 const std::string TREE_SIZE_PENALTY_MULTIPLIER_TAG{"tree_size_penalty_multiplier"};
 // clang-format on
 }
@@ -79,7 +81,7 @@ void CBoostedTreeHyperparameters::maximumOptimisationRoundsPerHyperparameter(std
 }
 
 void CBoostedTreeHyperparameters::stopHyperparameterOptimizationEarly(bool enable) {
-    m_StopHyperparameterOptimizationEarly = enable;
+    m_EarlyHyperparameterOptimizationStoppingEnabled = enable;
 }
 
 void CBoostedTreeHyperparameters::bayesianOptimisationRestarts(std::size_t restarts) {
@@ -98,8 +100,9 @@ std::size_t CBoostedTreeHyperparameters::numberToTune() const {
     return result;
 }
 
-void CBoostedTreeHyperparameters::resetSearch() {
+void CBoostedTreeHyperparameters::resetFineTuneSearch() {
     m_CurrentRound = 0;
+    m_StopHyperparameterOptimizationEarly = false;
     m_BestForestTestLoss = boosted_tree_detail::INF;
     m_BestForestNumberNodes = 0;
     m_MeanForestSizeAccumulator = TMeanAccumulator{};
@@ -107,9 +110,9 @@ void CBoostedTreeHyperparameters::resetSearch() {
     this->initializeTunableHyperparameters();
 }
 
-void CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(
-    const CInitializeFineTuneArguments& args,
-    TDoubleParameter& parameter) const {
+CBoostedTreeHyperparameters::TOptionalDoubleSizePr
+CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
+                                                              TDoubleParameter& parameter) const {
 
     if (parameter.valid(args.maxValue())) {
 
@@ -122,20 +125,23 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(
         fallback(MIN_VALUE_INDEX) = minValue;
         fallback(MID_VALUE_INDEX) = meanValue;
         fallback(MAX_VALUE_INDEX) = maxValue;
-        auto interval = this->testLossLineSearch(args, minValue, maxValue).value_or(fallback);
+        auto[maybeNullInterval, lossGap, forestSize] =
+            this->testLossLineSearch(args, minValue, maxValue);
+        auto interval = maybeNullInterval.value_or(fallback);
         args.truncateParameter()(interval);
         LOG_TRACE(<< "search interval = [" << interval.toDelimited() << "]");
 
         parameter.fixToRange(parameter.fromSearchValue(interval(MIN_VALUE_INDEX)),
                              parameter.fromSearchValue(interval(MAX_VALUE_INDEX)));
         parameter.set(parameter.fromSearchValue(interval(MID_VALUE_INDEX)));
-
-    } else {
-        parameter.fix();
+        return {{lossGap, forestSize}};
     }
+
+    parameter.fix();
+    return {};
 }
 
-CBoostedTreeHyperparameters::TOptionalVector3x1
+CBoostedTreeHyperparameters::TOptionalVector3x1DoubleSizeTr
 CBoostedTreeHyperparameters::testLossLineSearch(const CInitializeFineTuneArguments& args,
                                                 double intervalLeftEnd,
                                                 double intervalRightEnd) const {
@@ -148,21 +154,22 @@ CBoostedTreeHyperparameters::testLossLineSearch(const CInitializeFineTuneArgumen
     //      minimum test loss,
     //   3. Fit a LOWESS model to the test losses and compute the minimum.
 
-    TDoubleDoublePrVec testLosses;
+    TDoubleDoubleDoubleSizeTupleVec testLosses;
     this->initialTestLossLineSearch(args, intervalLeftEnd, intervalRightEnd, testLosses);
     if (testLosses.empty()) {
-        return {};
+        return {{}, 0.0, 0};
     }
-    this->fineTineTestLoss(args, intervalLeftEnd, intervalRightEnd, testLosses);
+    this->fineTuneTestLoss(args, intervalLeftEnd, intervalRightEnd, testLosses);
     return this->minimizeTestLoss(intervalLeftEnd, intervalRightEnd, std::move(testLosses));
 }
 
-void CBoostedTreeHyperparameters::initialTestLossLineSearch(const CInitializeFineTuneArguments& args,
-                                                            double intervalLeftEnd,
-                                                            double intervalRightEnd,
-                                                            TDoubleDoublePrVec& testLosses) const {
+void CBoostedTreeHyperparameters::initialTestLossLineSearch(
+    const CInitializeFineTuneArguments& args,
+    double intervalLeftEnd,
+    double intervalRightEnd,
+    TDoubleDoubleDoubleSizeTupleVec& testLosses) const {
 
-    testLosses.reserve(this->maxLineSearchIterations());
+    testLosses.reserve(maxLineSearchIterations());
 
     for (auto parameter :
          {intervalLeftEnd, (2.0 * intervalLeftEnd + intervalRightEnd) / 3.0,
@@ -170,30 +177,30 @@ void CBoostedTreeHyperparameters::initialTestLossLineSearch(const CInitializeFin
 
         if (args.updateParameter()(args.tree(), parameter) == false) {
             args.tree().m_TrainingProgress.increment(
-                (this->maxLineSearchIterations() - testLosses.size()) *
+                (maxLineSearchIterations() - testLosses.size()) *
                 args.tree().m_Hyperparameters.maximumNumberTrees().value());
             break;
         }
 
-        double testLoss{args.tree()
-                            .trainForest(args.frame(), args.tree().m_TrainingRowMasks[0],
-                                         args.tree().m_TestingRowMasks[0],
-                                         args.tree().m_TrainingProgress)
-                            .s_TestLoss};
-        testLosses.emplace_back(parameter, testLoss);
+        auto result = args.tree().trainForest(
+            args.frame(), args.tree().m_TrainingRowMasks[0],
+            args.tree().m_TestingRowMasks[0], args.tree().m_TrainingProgress);
+        args.tree().hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
+        testLosses.emplace_back(parameter, result.s_TestLoss, result.s_LossGap,
+                                result.s_Forest.size());
     }
 }
 
-void CBoostedTreeHyperparameters::fineTineTestLoss(const CInitializeFineTuneArguments& args,
+void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArguments& args,
                                                    double intervalLeftEnd,
                                                    double intervalRightEnd,
-                                                   TDoubleDoublePrVec& testLosses) const {
+                                                   TDoubleDoubleDoubleSizeTupleVec& testLosses) const {
 
     using TMinAccumulator = common::CBasicStatistics::SMin<double>::TAccumulator;
 
     TMinAccumulator minTestLoss;
-    for (auto[_, testLoss] : testLosses) {
-        minTestLoss.add(testLoss);
+    for (const auto& testLoss : testLosses) {
+        minTestLoss.add(std::get<1>(testLoss));
     }
 
     auto boptVector = [](double parameter) {
@@ -204,7 +211,7 @@ void CBoostedTreeHyperparameters::fineTineTestLoss(const CInitializeFineTuneArgu
     };
 
     common::CBayesianOptimisation bopt{{{intervalLeftEnd, intervalRightEnd}}};
-    for (auto & [ parameter, testLoss ] : testLosses) {
+    for (auto & [ parameter, testLoss, lossGap, size ] : testLosses) {
         double adjustedTestLoss{adjustTestLoss(parameter, testLoss)};
         bopt.add(boptVector(parameter), adjustedTestLoss, 0.0);
         testLoss = adjustedTestLoss;
@@ -213,7 +220,7 @@ void CBoostedTreeHyperparameters::fineTineTestLoss(const CInitializeFineTuneArgu
     // Ensure we choose one value based on expected improvement.
     std::size_t minNumberTestLosses{6};
 
-    while (testLosses.size() < this->maxLineSearchIterations()) {
+    while (testLosses.size() < maxLineSearchIterations()) {
         common::CBayesianOptimisation::TVector parameter;
         common::CBayesianOptimisation::TOptionalDouble EI;
         std::tie(parameter, EI) = bopt.maximumExpectedImprovement();
@@ -222,51 +229,75 @@ void CBoostedTreeHyperparameters::fineTineTestLoss(const CInitializeFineTuneArgu
         if ((testLosses.size() >= minNumberTestLosses && EI != boost::none && *EI < threshold) ||
             args.updateParameter()(args.tree(), parameter(0)) == false) {
             args.tree().m_TrainingProgress.increment(
-                (this->maxLineSearchIterations() - testLosses.size()) *
+                (maxLineSearchIterations() - testLosses.size()) *
                 args.tree().m_Hyperparameters.maximumNumberTrees().value());
             break;
         }
 
-        double testLoss{args.tree()
-                            .trainForest(args.frame(), args.tree().m_TrainingRowMasks[0],
-                                         args.tree().m_TestingRowMasks[0],
-                                         args.tree().m_TrainingProgress)
-                            .s_TestLoss};
+        auto result = args.tree().trainForest(
+            args.frame(), args.tree().m_TrainingRowMasks[0],
+            args.tree().m_TestingRowMasks[0], args.tree().m_TrainingProgress);
 
-        minTestLoss.add(testLoss);
+        minTestLoss.add(result.s_TestLoss);
 
-        double adjustedTestLoss{adjustTestLoss(parameter(0), testLoss)};
+        double adjustedTestLoss{adjustTestLoss(parameter(0), result.s_TestLoss)};
         bopt.add(parameter, adjustedTestLoss, 0.0);
-        testLosses.emplace_back(parameter(0), adjustedTestLoss);
+        args.tree().hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
+        testLosses.emplace_back(parameter(0), adjustedTestLoss,
+                                result.s_LossGap, result.s_Forest.size());
     }
 
     std::sort(testLosses.begin(), testLosses.end());
     LOG_TRACE(<< "test losses = " << core::CContainerPrinter::print(testLosses));
 }
 
-CBoostedTreeHyperparameters::TVector3x1
+CBoostedTreeHyperparameters::TOptionalVector3x1DoubleSizeTr
 CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
-                                              TDoubleDoublePrVec testLosses) const {
-    common::CLowess<2> lowess;
+                                              TDoubleDoubleDoubleSizeTupleVec testLosses) const {
+    auto minPair = std::min_element(testLosses.begin(), testLosses.end(),
+                                    [](const auto& lhs, const auto& rhs) {
+                                        return std::get<1>(lhs) < std::get<1>(rhs);
+                                    });
+    double minValue{std::get<0>(*minPair)};
+    common::CLowess<2>::TDoubleDoublePrVec testLossCurveValues;
+    common::CLowess<2>::TDoubleDoublePrVec lossGapCurveValues;
+    common::CLowess<2>::TDoubleDoublePrVec forestSizeCurveValues;
+    testLossCurveValues.reserve(testLosses.size());
+    lossGapCurveValues.reserve(testLosses.size());
+    forestSizeCurveValues.reserve(testLosses.size());
+    for (const auto & [ parameter, testLoss, lossGap, size ] : testLosses) {
+        testLossCurveValues.emplace_back(parameter, testLoss);
+        lossGapCurveValues.emplace_back(parameter, lossGap);
+        forestSizeCurveValues.emplace_back(parameter, static_cast<double>(size));
+    }
     std::size_t numberFolds{testLosses.size()};
-    lowess.fit(std::move(testLosses), numberFolds);
+    common::CLowess<2> testLossCurve;
+    common::CLowess<2> lossGapCurve;
+    common::CLowess<2> forestSizeCurve;
+    testLossCurve.fit(std::move(testLossCurveValues), numberFolds);
+    lossGapCurve.fit(std::move(lossGapCurveValues), numberFolds);
+    forestSizeCurve.fit(std::move(forestSizeCurveValues), numberFolds);
 
     double bestParameter;
     double bestParameterTestLoss;
-    std::tie(bestParameter, bestParameterTestLoss) = lowess.minimum();
-    LOG_TRACE(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss);
+    std::tie(bestParameter, bestParameterTestLoss) = testLossCurve.minimum();
+    double lossGap{std::max(lossGapCurve.predict(bestParameter), 0.0)};
+    double forestSize{forestSizeCurve.predict(bestParameter)};
+    LOG_TRACE(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss
+              << ", loss gap = " << lossGap << ", forest size = " << forestSize);
 
     double width{(intervalRightEnd - intervalLeftEnd) /
-                 static_cast<double>(this->maxLineSearchIterations())};
-    intervalLeftEnd = bestParameter - width;
-    intervalRightEnd = bestParameter + width;
+                 static_cast<double>(maxLineSearchIterations())};
+    intervalLeftEnd = std::min(bestParameter - width, minValue);
+    intervalRightEnd = std::max(bestParameter + width, minValue);
     LOG_TRACE(<< "interval = [" << intervalLeftEnd << "," << intervalRightEnd << "]");
 
-    return TVector3x1{{intervalLeftEnd, bestParameter, intervalRightEnd}};
+    return {TVector3x1{{intervalLeftEnd, bestParameter, intervalRightEnd}},
+            lossGap, static_cast<std::size_t>(std::ceil(forestSize))};
 }
 
-void CBoostedTreeHyperparameters::initializeSearch() {
+void CBoostedTreeHyperparameters::initializeFineTuneSearch(double lossGap, std::size_t numberTrees) {
 
     // We need sensible bounds for the region we'll search for optimal values.
     // For all parameters where we have initial estimates we use bounds of the
@@ -280,7 +311,7 @@ void CBoostedTreeHyperparameters::initializeSearch() {
 
     this->initializeTunableHyperparameters();
 
-    TDoubleDoublePrVec boundingBox;
+    common::CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
     boundingBox.reserve(m_TunableHyperparameters.size());
     for (const auto& parameter : m_TunableHyperparameters) {
         switch (parameter) {
@@ -327,10 +358,54 @@ void CBoostedTreeHyperparameters::initializeSearch() {
     m_CurrentRound = 0;
     m_NumberRounds = m_MaximumOptimisationRoundsPerHyperparameter *
                      m_TunableHyperparameters.size();
-    this->saveCurrent();
+    this->checkIfCanSkipFineTuneSearch(lossGap, numberTrees);
 }
 
-void CBoostedTreeHyperparameters::startSearch() {
+void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(double lossGap,
+                                                               std::size_t numberTrees) {
+    if (m_EarlyHyperparameterOptimizationStoppingEnabled && m_IncrementalTraining == false) {
+        // Add information about observed line search training runs to the GP.
+        for (auto & [ parameters, loss ] : m_LineSearchHyperparameterLosses) {
+            this->addObservation(std::move(parameters), loss, 0.0, true);
+        }
+        m_StopHyperparameterOptimizationEarly = this->optimisationMakingNoProgress();
+        if (m_StopHyperparameterOptimizationEarly) {
+            LOG_DEBUG(<< "Skipping fine tune hyperparameters");
+        } else {
+            // Only reset Bayesian optimisation if we are going to fine tune or
+            // else we won't be  able to compute hyperparameter importances.
+            this->resetBayesianOptimization();
+        }
+        m_LineSearchHyperparameterLosses.clear();
+        m_LineSearchHyperparameterLosses.shrink_to_fit();
+    }
+
+    // We purposely don't record the test loss because it isn't comparable with the
+    // value computed in fine tune. However, an estimate of the test train loss gap
+    // is needed if we incrementally train.
+    m_BestForestLossGap = lossGap;
+
+    // The stored number of trees is used for final train when we train on
+    // all the data and so can't measure when to stop.
+    std::size_t numberTreesToRestore{m_MaximumNumberTrees.value()};
+    m_MaximumNumberTrees.set(numberTrees);
+    this->saveCurrent();
+    m_MaximumNumberTrees.set(numberTreesToRestore);
+}
+
+bool CBoostedTreeHyperparameters::optimisationMakingNoProgress() const {
+    if (m_EarlyHyperparameterOptimizationStoppingEnabled == false) {
+        return false;
+    }
+    if (m_StopHyperparameterOptimizationEarly) {
+        return true;
+    }
+    double anovaCoV{m_BayesianOptimization->anovaTotalCoefficientOfVariation()};
+    LOG_TRACE(<< "anovaTotalCoefficientOfVariation " << anovaCoV);
+    return anovaCoV < 1e-3;
+}
+
+void CBoostedTreeHyperparameters::startFineTuneSearch() {
     std::size_t dimension{m_TunableHyperparameters.size()};
     std::size_t n{m_NumberRounds / 3 + 1};
     common::CSampling::sobolSequenceSample(dimension, n, m_HyperparameterSamples);
@@ -345,49 +420,7 @@ void CBoostedTreeHyperparameters::addRoundStats(const TMeanAccumulator& meanFore
 bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLossMoments,
                                              double explainedVariance) {
 
-    using TVector = common::CDenseVector<double>;
-
-    TVector parameters{m_TunableHyperparameters.size()};
-
-    TVector minBoundary;
-    TVector maxBoundary;
-    std::tie(minBoundary, maxBoundary) = m_BayesianOptimization->boundingBox();
-
-    // Read parameters for last round.
-    for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
-        switch (m_TunableHyperparameters[i]) {
-        case E_Alpha:
-            parameters(i) = m_DepthPenaltyMultiplier.toSearchValue();
-            break;
-        case E_DownsampleFactor:
-            parameters(i) = m_DownsampleFactor.toSearchValue();
-            break;
-        case E_Eta:
-            parameters(i) = m_Eta.toSearchValue();
-            break;
-        case E_EtaGrowthRatePerTree:
-            parameters(i) = m_EtaGrowthRatePerTree.toSearchValue();
-            break;
-        case E_FeatureBagFraction:
-            parameters(i) = m_FeatureBagFraction.toSearchValue();
-            break;
-        case E_MaximumNumberTrees:
-            parameters(i) = m_MaximumNumberTrees.toSearchValue();
-            break;
-        case E_Gamma:
-            parameters(i) = m_TreeSizePenaltyMultiplier.toSearchValue();
-            break;
-        case E_Lambda:
-            parameters(i) = m_LeafWeightPenaltyMultiplier.toSearchValue();
-            break;
-        case E_SoftTreeDepthLimit:
-            parameters(i) = m_SoftTreeDepthLimit.toSearchValue();
-            break;
-        case E_SoftTreeDepthTolerance:
-            parameters(i) = m_SoftTreeDepthTolerance.toSearchValue();
-            break;
-        }
-    }
+    TVector parameters{this->selectParametersVector(m_TunableHyperparameters)};
 
     double meanTestLoss{common::CBasicStatistics::mean(testLossMoments)};
     double testLossVariance{common::CBasicStatistics::variance(testLossMoments)};
@@ -397,7 +430,7 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
               << ", explained variance = " << explainedVariance);
     LOG_TRACE(<< "parameters = " << this->print());
 
-    m_BayesianOptimization->add(parameters, meanTestLoss, testLossVariance);
+    this->addObservation(parameters, meanTestLoss, testLossVariance, false);
 
     // One fold might have examples which are harder to predict on average than
     // another fold, particularly if the sample size is small. What we really care
@@ -407,80 +440,23 @@ bool CBoostedTreeHyperparameters::selectNext(const TMeanVarAccumulator& testLoss
     // in the loss values in the Gaussian Process.
     m_BayesianOptimization->explainedErrorVariance(explainedVariance);
 
+    TVector minBoundary;
+    TVector maxBoundary;
+    std::tie(minBoundary, maxBoundary) = m_BayesianOptimization->boundingBox();
+
     if (m_CurrentRound < m_HyperparameterSamples.size()) {
         std::copy(m_HyperparameterSamples[m_CurrentRound].begin(),
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
-    } else if (m_StopHyperparameterOptimizationEarly &&
-               m_BayesianOptimization->anovaTotalCoefficientOfVariation() < 1e-3) {
-        m_StoppedHyperparameterOptimizationEarly = true;
+    } else if (this->optimisationMakingNoProgress()) {
+        m_StopHyperparameterOptimizationEarly = true;
         return false;
     } else {
         std::tie(parameters, std::ignore) =
             m_BayesianOptimization->maximumExpectedImprovement();
     }
 
-    // Downsampling directly affects the loss terms: it multiplies the sums over
-    // gradients and Hessians in expectation by the downsample factor. To preserve
-    // the same effect for regularisers we need to scale these terms by the same
-    // multiplier.
-    double scale{1.0};
-    if (m_ScalingDisabled == false && m_DownsampleFactor.fixed() == false) {
-        auto i = std::distance(m_TunableHyperparameters.begin(),
-                               std::find(m_TunableHyperparameters.begin(),
-                                         m_TunableHyperparameters.end(), E_DownsampleFactor));
-        if (static_cast<std::size_t>(i) < m_TunableHyperparameters.size()) {
-            scale = std::min(
-                1.0, 2.0 * m_DownsampleFactor.fromSearchValue(parameters(i)) /
-                         (m_DownsampleFactor.fromSearchValue(minBoundary(i)) +
-                          m_DownsampleFactor.fromSearchValue(maxBoundary(i))));
-        }
-    }
-
-    // Write parameters for next round.
-    for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
-        switch (m_TunableHyperparameters[i]) {
-        case E_Alpha:
-            m_DepthPenaltyMultiplier
-                .set(m_DepthPenaltyMultiplier.fromSearchValue(parameters(i)))
-                .scale(scale);
-            break;
-        case E_DownsampleFactor:
-            m_DownsampleFactor.set(m_DownsampleFactor.fromSearchValue(parameters(i)));
-            break;
-        case E_Eta:
-            m_Eta.set(m_Eta.fromSearchValue(parameters(i)));
-            break;
-        case E_EtaGrowthRatePerTree:
-            m_EtaGrowthRatePerTree.set(
-                m_EtaGrowthRatePerTree.fromSearchValue(parameters(i)));
-            break;
-        case E_FeatureBagFraction:
-            m_FeatureBagFraction.set(m_FeatureBagFraction.fromSearchValue(parameters(i)));
-            break;
-        case E_MaximumNumberTrees:
-            m_MaximumNumberTrees.set(
-                m_MaximumNumberTrees.fromSearchValue(std::ceil(parameters(i))));
-            break;
-        case E_Gamma:
-            m_TreeSizePenaltyMultiplier
-                .set(m_TreeSizePenaltyMultiplier.fromSearchValue(parameters(i)))
-                .scale(scale);
-            break;
-        case E_Lambda:
-            m_LeafWeightPenaltyMultiplier
-                .set(m_LeafWeightPenaltyMultiplier.fromSearchValue(parameters(i)))
-                .scale(scale);
-            break;
-        case E_SoftTreeDepthLimit:
-            m_SoftTreeDepthLimit.set(m_SoftTreeDepthLimit.fromSearchValue(parameters(i)));
-            break;
-        case E_SoftTreeDepthTolerance:
-            m_SoftTreeDepthTolerance.set(
-                m_SoftTreeDepthTolerance.fromSearchValue(parameters(i)));
-            break;
-        }
-    }
+    this->setHyperparameterValues(parameters);
 
     return true;
 }
@@ -512,22 +488,25 @@ bool CBoostedTreeHyperparameters::captureBest(const TMeanVarAccumulator& testLos
         m_MaximumNumberTrees.set(numberTreesToRestore);
         return true;
     }
+
     return false;
 }
 
 double CBoostedTreeHyperparameters::modelSizePenalty(double numberNodes) const {
     // eps * "forest number nodes" * E[GP] / "average forest number nodes" to meanLoss.
-    return RELATIVE_SIZE_PENALTY * numberNodes /
-           common::CBasicStatistics::mean(m_MeanForestSizeAccumulator) *
-           common::CBasicStatistics::mean(m_MeanTestLossAccumulator);
+    return (m_MeanForestSizeAccumulator.s_Count != 0 &&
+            m_MeanTestLossAccumulator.s_Count != 0)
+               ? RELATIVE_SIZE_PENALTY * numberNodes /
+                     common::CBasicStatistics::mean(m_MeanForestSizeAccumulator) *
+                     common::CBasicStatistics::mean(m_MeanTestLossAccumulator)
+               : 0.0;
 }
 
 CBoostedTreeHyperparameters::THyperparameterImportanceVec
 CBoostedTreeHyperparameters::importances() const {
     THyperparameterImportanceVec importances;
     importances.reserve(m_TunableHyperparameters.size());
-    common::CBayesianOptimisation::TDoubleDoublePrVec anovaMainEffects{
-        m_BayesianOptimization->anovaMainEffects()};
+    auto anovaMainEffects = m_BayesianOptimization->anovaMainEffects();
     for (std::size_t i = 0; i < static_cast<std::size_t>(NUMBER_HYPERPARAMETERS); ++i) {
         double absoluteImportance{0.0};
         double relativeImportance{0.0};
@@ -618,13 +597,15 @@ std::size_t CBoostedTreeHyperparameters::estimateMemoryUsage() const {
     std::size_t numberToTune{this->numberToTune()};
     return sizeof(*this) + numberToTune * sizeof(int) +
            (m_NumberRounds / 3 + 1) * numberToTune * sizeof(double) +
-           common::CBayesianOptimisation::estimateMemoryUsage(numberToTune, m_NumberRounds);
+           common::CBayesianOptimisation::estimateMemoryUsage(numberToTune, m_NumberRounds) +
+           numberToTune * maxLineSearchIterations() * sizeof(double);
 }
 
 std::size_t CBoostedTreeHyperparameters::memoryUsage() const {
     std::size_t mem{core::CMemory::dynamicSize(m_TunableHyperparameters)};
     mem += core::CMemory::dynamicSize(m_HyperparameterSamples);
     mem += core::CMemory::dynamicSize(m_BayesianOptimization);
+    mem += core::CMemory::dynamicSize(m_LineSearchHyperparameterLosses);
     return mem;
 }
 
@@ -644,6 +625,8 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
     core::CPersistUtils::persist(FEATURE_BAG_FRACTION_TAG, m_FeatureBagFraction, inserter);
     core::CPersistUtils::persist(LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
                                  m_LeafWeightPenaltyMultiplier, inserter);
+    core::CPersistUtils::persist(LINE_SEARCH_HYPERPARAMETER_LOSSES_TAG,
+                                 m_LineSearchHyperparameterLosses, inserter);
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_TAG, m_MaximumNumberTrees, inserter);
     core::CPersistUtils::persist(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
                                  m_MaximumOptimisationRoundsPerHyperparameter, inserter);
@@ -655,10 +638,10 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
     core::CPersistUtils::persist(SOFT_TREE_DEPTH_LIMIT_TAG, m_SoftTreeDepthLimit, inserter);
     core::CPersistUtils::persist(SOFT_TREE_DEPTH_TOLERANCE_TAG,
                                  m_SoftTreeDepthTolerance, inserter);
+    core::CPersistUtils::persist(EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG,
+                                 m_EarlyHyperparameterOptimizationStoppingEnabled, inserter);
     core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                  m_StopHyperparameterOptimizationEarly, inserter);
-    core::CPersistUtils::persist(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
-                                 m_StoppedHyperparameterOptimizationEarly, inserter);
     core::CPersistUtils::persist(TREE_SIZE_PENALTY_MULTIPLIER_TAG,
                                  m_TreeSizePenaltyMultiplier, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is re-generated
@@ -685,6 +668,10 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
                                              m_DepthPenaltyMultiplier, traverser))
         RESTORE(DOWNSAMPLE_FACTOR_TAG,
                 core::CPersistUtils::restore(DOWNSAMPLE_FACTOR_TAG, m_DownsampleFactor, traverser))
+        RESTORE(EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG,
+                core::CPersistUtils::restore(
+                    EARLY_HYPERPARAMETER_OPTIMIZATION_STOPPING_ENABLED_TAG,
+                    m_EarlyHyperparameterOptimizationStoppingEnabled, traverser))
         RESTORE(ETA_TAG, core::CPersistUtils::restore(ETA_TAG, m_Eta, traverser))
         RESTORE(ETA_GROWTH_RATE_PER_TREE_TAG,
                 core::CPersistUtils::restore(ETA_GROWTH_RATE_PER_TREE_TAG,
@@ -692,6 +679,9 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
         RESTORE(FEATURE_BAG_FRACTION_TAG,
                 core::CPersistUtils::restore(FEATURE_BAG_FRACTION_TAG,
                                              m_FeatureBagFraction, traverser))
+        RESTORE(LINE_SEARCH_HYPERPARAMETER_LOSSES_TAG,
+                core::CPersistUtils::restore(LINE_SEARCH_HYPERPARAMETER_LOSSES_TAG,
+                                             m_LineSearchHyperparameterLosses, traverser))
         RESTORE(LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
                 core::CPersistUtils::restore(LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
                                              m_LeafWeightPenaltyMultiplier, traverser))
@@ -719,9 +709,6 @@ bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTrav
         RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                                              m_StopHyperparameterOptimizationEarly, traverser))
-        RESTORE(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
-                core::CPersistUtils::restore(STOPPED_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
-                                             m_StoppedHyperparameterOptimizationEarly, traverser))
         RESTORE(TREE_SIZE_PENALTY_MULTIPLIER_TAG,
                 core::CPersistUtils::restore(TREE_SIZE_PENALTY_MULTIPLIER_TAG,
                                              m_TreeSizePenaltyMultiplier, traverser))
@@ -739,11 +726,13 @@ std::uint64_t CBoostedTreeHyperparameters::checksum(std::uint64_t seed) const {
     seed = common::CChecksum::calculate(seed, m_CurrentRound);
     seed = common::CChecksum::calculate(seed, m_DepthPenaltyMultiplier);
     seed = common::CChecksum::calculate(seed, m_DownsampleFactor);
+    seed = common::CChecksum::calculate(seed, m_EarlyHyperparameterOptimizationStoppingEnabled);
     seed = common::CChecksum::calculate(seed, m_Eta);
     seed = common::CChecksum::calculate(seed, m_EtaGrowthRatePerTree);
     seed = common::CChecksum::calculate(seed, m_FeatureBagFraction);
     seed = common::CChecksum::calculate(seed, m_HyperparameterSamples);
     seed = common::CChecksum::calculate(seed, m_LeafWeightPenaltyMultiplier);
+    seed = common::CChecksum::calculate(seed, m_LineSearchHyperparameterLosses);
     seed = common::CChecksum::calculate(seed, m_MaximumNumberTrees);
     seed = common::CChecksum::calculate(seed, m_MaximumOptimisationRoundsPerHyperparameter);
     seed = common::CChecksum::calculate(seed, m_MeanForestSizeAccumulator);
@@ -784,43 +773,43 @@ CBoostedTreeHyperparameters::TStrVec CBoostedTreeHyperparameters::names() {
 void CBoostedTreeHyperparameters::initializeTunableHyperparameters() {
     m_TunableHyperparameters.clear();
     m_TunableHyperparameters.reserve(NUMBER_HYPERPARAMETERS);
+
+    auto addTrainHyperparameter = [&](EHyperparameter type, const TDoubleParameter& parameter) {
+        if (parameter.fixed() == false) {
+            m_TunableHyperparameters.push_back(type);
+        }
+    };
+
+    auto addIncrementalHyperparameter = [&](EHyperparameter type,
+                                            const TDoubleParameter& parameter) {
+        if (m_IncrementalTraining && (parameter.fixed() == false)) {
+            m_TunableHyperparameters.push_back(type);
+        }
+    };
+
     for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
         switch (static_cast<EHyperparameter>(i)) {
         // Train hyperparameters.
         case E_DownsampleFactor:
-            if (m_DownsampleFactor.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_DownsampleFactor);
-            }
+            addTrainHyperparameter(E_DownsampleFactor, m_DownsampleFactor);
             break;
         case E_Alpha:
-            if (m_DepthPenaltyMultiplier.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_Alpha);
-            }
+            addTrainHyperparameter(E_Alpha, m_DepthPenaltyMultiplier);
             break;
         case E_Lambda:
-            if (m_LeafWeightPenaltyMultiplier.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_Lambda);
-            }
+            addTrainHyperparameter(E_Lambda, m_LeafWeightPenaltyMultiplier);
             break;
         case E_Gamma:
-            if (m_TreeSizePenaltyMultiplier.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_Gamma);
-            }
+            addTrainHyperparameter(E_Gamma, m_TreeSizePenaltyMultiplier);
             break;
         case E_SoftTreeDepthLimit:
-            if (m_SoftTreeDepthLimit.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_SoftTreeDepthLimit);
-            }
+            addTrainHyperparameter(E_SoftTreeDepthLimit, m_SoftTreeDepthLimit);
             break;
         case E_SoftTreeDepthTolerance:
-            if (m_SoftTreeDepthTolerance.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_SoftTreeDepthTolerance);
-            }
+            addTrainHyperparameter(E_SoftTreeDepthTolerance, m_SoftTreeDepthTolerance);
             break;
         case E_Eta:
-            if (m_Eta.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_Eta);
-            }
+            addTrainHyperparameter(E_Eta, m_Eta);
             break;
         case E_EtaGrowthRatePerTree:
             if ((m_Eta.fixed() || m_EtaGrowthRatePerTree.fixed()) == false) {
@@ -828,9 +817,7 @@ void CBoostedTreeHyperparameters::initializeTunableHyperparameters() {
             }
             break;
         case E_FeatureBagFraction:
-            if (m_FeatureBagFraction.fixed() == false) {
-                m_TunableHyperparameters.push_back(E_FeatureBagFraction);
-            }
+            addTrainHyperparameter(E_FeatureBagFraction, m_FeatureBagFraction);
             break;
         // Not tuned directly.
         case E_MaximumNumberTrees:
@@ -878,6 +865,163 @@ void CBoostedTreeHyperparameters::captureScale() {
     m_Eta.captureScale();
     m_EtaGrowthRatePerTree.captureScale();
     m_MaximumNumberTrees.captureScale();
+}
+
+void CBoostedTreeHyperparameters::captureHyperparametersAndLoss(double testLoss) {
+    if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
+        auto parameters = this->selectParametersVector(m_TunableHyperparameters);
+        m_LineSearchHyperparameterLosses.emplace_back(std::move(parameters), testLoss);
+    }
+}
+
+CBoostedTreeHyperparameters::TVector CBoostedTreeHyperparameters::selectParametersVector(
+    const CBoostedTreeHyperparameters::THyperparametersVec& selectedHyperparameters) const {
+    TVector parameters{selectedHyperparameters.size()};
+
+    // Read parameters for last round.
+    for (std::size_t i = 0; i < selectedHyperparameters.size(); ++i) {
+        switch (selectedHyperparameters[i]) {
+        case E_Alpha:
+            parameters(i) = m_DepthPenaltyMultiplier.toSearchValue();
+            break;
+        case E_DownsampleFactor:
+            parameters(i) = m_DownsampleFactor.toSearchValue();
+            break;
+        case E_Eta:
+            parameters(i) = m_Eta.toSearchValue();
+            break;
+        case E_EtaGrowthRatePerTree:
+            parameters(i) = m_EtaGrowthRatePerTree.toSearchValue();
+            break;
+        case E_FeatureBagFraction:
+            parameters(i) = m_FeatureBagFraction.toSearchValue();
+            break;
+        case E_MaximumNumberTrees:
+            parameters(i) = m_MaximumNumberTrees.toSearchValue();
+            break;
+        case E_Gamma:
+            parameters(i) = m_TreeSizePenaltyMultiplier.toSearchValue();
+            break;
+        case E_Lambda:
+            parameters(i) = m_LeafWeightPenaltyMultiplier.toSearchValue();
+            break;
+        case E_SoftTreeDepthLimit:
+            parameters(i) = m_SoftTreeDepthLimit.toSearchValue();
+            break;
+        case E_SoftTreeDepthTolerance:
+            parameters(i) = m_SoftTreeDepthTolerance.toSearchValue();
+            break;
+        case E_PredictionChangeCost:
+            parameters(i) = m_PredictionChangeCost.toSearchValue();
+            break;
+        case E_RetrainedTreeEta:
+            parameters(i) = m_RetrainedTreeEta.toSearchValue();
+            break;
+        case E_TreeTopologyChangePenalty:
+            parameters(i) = m_TreeTopologyChangePenalty.toSearchValue();
+            break;
+        }
+    }
+    return parameters;
+}
+
+void CBoostedTreeHyperparameters::setHyperparameterValues(CBoostedTreeHyperparameters::TVector parameters) {
+    TVector minBoundary;
+    TVector maxBoundary;
+    std::tie(minBoundary, maxBoundary) = m_BayesianOptimization->boundingBox();
+
+    // Downsampling directly affects the loss terms: it multiplies the sums over
+    // gradients and Hessians in expectation by the downsample factor. To preserve
+    // the same effect for regularisers we need to scale these terms by the same
+    // multiplier.
+    double scale{1.0};
+    if (m_ScalingDisabled == false && m_DownsampleFactor.fixed() == false) {
+        auto i = std::distance(m_TunableHyperparameters.begin(),
+                               std::find(m_TunableHyperparameters.begin(),
+                                         m_TunableHyperparameters.end(), E_DownsampleFactor));
+        if (static_cast<std::size_t>(i) < m_TunableHyperparameters.size()) {
+            scale = std::min(
+                1.0, 2.0 * m_DownsampleFactor.fromSearchValue(parameters(i)) /
+                         (m_DownsampleFactor.fromSearchValue(minBoundary(i)) +
+                          m_DownsampleFactor.fromSearchValue(maxBoundary(i))));
+        }
+    }
+
+    // Write parameters for next round.
+    for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
+        switch (m_TunableHyperparameters[i]) {
+        case E_Alpha:
+            m_DepthPenaltyMultiplier
+                .set(m_DepthPenaltyMultiplier.fromSearchValue(parameters(i)))
+                .scale(scale);
+            break;
+        case E_DownsampleFactor:
+            m_DownsampleFactor.set(m_DownsampleFactor.fromSearchValue(parameters(i)));
+            break;
+        case E_Eta:
+            m_Eta.set(m_Eta.fromSearchValue(parameters(i)));
+            break;
+        case E_EtaGrowthRatePerTree:
+            m_EtaGrowthRatePerTree.set(
+                m_EtaGrowthRatePerTree.fromSearchValue(parameters(i)));
+            break;
+        case E_FeatureBagFraction:
+            m_FeatureBagFraction.set(m_FeatureBagFraction.fromSearchValue(parameters(i)));
+            break;
+        case E_MaximumNumberTrees:
+            m_MaximumNumberTrees.set(
+                m_MaximumNumberTrees.fromSearchValue(std::ceil(parameters(i))));
+            break;
+        case E_Gamma:
+            m_TreeSizePenaltyMultiplier
+                .set(m_TreeSizePenaltyMultiplier.fromSearchValue(parameters(i)))
+                .scale(scale);
+            break;
+        case E_Lambda:
+            m_LeafWeightPenaltyMultiplier
+                .set(m_LeafWeightPenaltyMultiplier.fromSearchValue(parameters(i)))
+                .scale(scale);
+            break;
+        case E_SoftTreeDepthLimit:
+            m_SoftTreeDepthLimit.set(m_SoftTreeDepthLimit.fromSearchValue(parameters(i)));
+            break;
+        case E_SoftTreeDepthTolerance:
+            m_SoftTreeDepthTolerance.set(
+                m_SoftTreeDepthTolerance.fromSearchValue(parameters(i)));
+            break;
+        case E_PredictionChangeCost:
+            m_PredictionChangeCost.set(
+                m_PredictionChangeCost.fromSearchValue(parameters(i)));
+            break;
+        case E_RetrainedTreeEta:
+            m_RetrainedTreeEta.set(m_RetrainedTreeEta.fromSearchValue(parameters(i)));
+            break;
+        case E_TreeTopologyChangePenalty:
+            m_TreeTopologyChangePenalty
+                .set(m_TreeTopologyChangePenalty.fromSearchValue(parameters(i)))
+                .scale(scale);
+            break;
+        }
+    }
+}
+
+void CBoostedTreeHyperparameters::addObservation(CBoostedTreeHyperparameters::TVector parameters,
+                                                 double loss,
+                                                 double variance,
+                                                 bool reestimate) {
+    m_BayesianOptimization->add(parameters, loss, variance);
+    if (reestimate) {
+        m_BayesianOptimization->maximumLikelihoodKernel();
+    }
+}
+
+void CBoostedTreeHyperparameters::resetBayesianOptimization() {
+    if (m_BayesianOptimization != nullptr) {
+        auto boundingBox = m_BayesianOptimization->boundingBox();
+        m_BayesianOptimization = std::make_unique<common::CBayesianOptimisation>(
+            boundingBox, m_BayesianOptimisationRestarts.value_or(
+                             common::CBayesianOptimisation::RESTARTS));
+    }
 }
 }
 }
