@@ -145,9 +145,9 @@ public:
     using TTaskProgressVec = std::vector<STaskProgess>;
 
 public:
-    CTestInstrumentation()
-        : m_TotalFractionalProgress{0}, m_Monotonic{true}, m_MemoryUsage{0}, m_MaxMemoryUsage{0} {
-    }
+    explicit CTestInstrumentation(bool debug = false)
+        : m_Debug{debug}, m_TotalFractionalProgress{0}, m_Monotonic{true},
+          m_MemoryUsage{0}, m_MaxMemoryUsage{0} {}
 
     int progress() const {
         return (100 * m_TotalFractionalProgress.load()) / 65536;
@@ -179,16 +179,20 @@ public:
     }
 
     void updateMemoryUsage(std::int64_t delta) override {
-        std::int64_t memory{m_MemoryUsage.fetch_add(delta)};
-        std::int64_t previousMaxMemoryUsage{m_MaxMemoryUsage.load(std::memory_order_relaxed)};
+        // fetch_add returns the value immediately _before_ adding delta.
+        std::int64_t memory{m_MemoryUsage.fetch_add(delta) + delta};
+        std::int64_t previousMaxMemoryUsage{m_MaxMemoryUsage.load()};
         while (previousMaxMemoryUsage < memory &&
                m_MaxMemoryUsage.compare_exchange_weak(previousMaxMemoryUsage, memory) == false) {
         }
-        LOG_TRACE(<< "current memory = " << m_MemoryUsage.load()
-                  << ", high water mark = " << m_MaxMemoryUsage.load());
+        if (m_Debug) {
+            LOG_DEBUG(<< "current memory = " << m_MemoryUsage.load()
+                      << ", high water mark = " << m_MaxMemoryUsage.load());
+        }
     }
 
 private:
+    bool m_Debug{false};
     std::string m_Task;
     std::atomic_int m_TotalFractionalProgress;
     TIntVec m_TenPercentProgressPoints;
@@ -2855,73 +2859,16 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
     BOOST_TEST_REQUIRE(maths::common::CBasicStatistics::mean(meanLogRelativeError) < 1.4);
 }
 
-BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
+BOOST_AUTO_TEST_CASE(testEstimateMemory) {
 
-    // Test estimation of the memory used training a model.
-
-    test::CRandomNumbers rng;
-
-    std::size_t rows{1000};
-    std::size_t cols{6};
-    std::size_t capacity{600};
-
-    for (std::size_t test = 0; test < 3; ++test) {
-        TDoubleVecVec x(cols - 1);
-        for (std::size_t i = 0; i < cols - 1; ++i) {
-            rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
-        }
-
-        auto target = [&](std::size_t i) {
-            double result{0.0};
-            for (std::size_t j = 0; j < cols - 1; ++j) {
-                result += x[j][i];
-            }
-            return result;
-        };
-
-        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
-        frame->categoricalColumns(TBoolVec{true, false, false, false, false, false});
-        for (std::size_t i = 0; i < rows; ++i) {
-            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-                *(column++) = std::floor(x[0][i]);
-                for (std::size_t j = 1; j < cols - 1; ++j, ++column) {
-                    *column = x[j][i];
-                }
-                *column = target(i);
-            });
-        }
-        frame->finishWritingRows();
-
-        std::int64_t estimatedMemory(
-            maths::analytics::CBoostedTreeFactory::constructFromParameters(
-                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .estimateMemoryUsageForTrain(rows, cols));
-
-        CTestInstrumentation instrumentation;
-        auto regression =
-            maths::analytics::CBoostedTreeFactory::constructFromParameters(
-                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .analysisInstrumentation(instrumentation)
-                .buildForTrain(*frame, cols - 1);
-
-        regression->train();
-
-        LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
-        LOG_DEBUG(<< "high water mark = " << instrumentation.maxMemoryUsage());
-
-        BOOST_TEST_REQUIRE(instrumentation.maxMemoryUsage() < estimatedMemory);
-    }
-}
-
-// TODO: test for handle fatal (memory-limit-circuit-breaker)
-BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
-
-    // Test estimation of the memory used training a model.
+    // Test estimation of the memory used training a model. Note that we don't
+    // test circuit breaking because that is managed from the api library.
 
     test::CRandomNumbers rng;
 
     std::size_t rows{1000};
     std::size_t cols{6};
+    std::size_t categoricalCols{1};
     std::size_t capacity{600};
     std::int64_t previousEstimatedMemory{std::numeric_limits<std::int64_t>::max()};
 
@@ -2940,49 +2887,134 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
             return result;
         };
 
-        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
-        frame->categoricalColumns(TBoolVec{true, false, false, false, false, false});
-        for (std::size_t i = 0; i < rows; ++i) {
-            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-                *(column++) = std::floor(x[0][i]);
-                for (std::size_t j = 1; j < cols - 1; ++j, ++column) {
-                    *column = x[j][i];
-                }
-                if (i < numTestRows) {
-                    *column = core::CDataFrame::valueOfMissing();
-                } else {
-                    *column = target(i);
-                }
-            });
-        }
-        frame->finishWritingRows();
+        auto makeDataFrame = [&] {
+            auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+            TBoolVec categoricalColumns(categoricalCols, true);
+            categoricalColumns.resize(cols, false);
+            frame->categoricalColumns(std::move(categoricalColumns));
+            for (std::size_t i = 0; i < rows; ++i) {
+                frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                    for (std::size_t j = 0; j < categoricalCols; ++j, ++column) {
+                        *column = std::floor(x[j][i]);
+                    }
+                    for (std::size_t j = categoricalCols; j < cols - 1; ++j, ++column) {
+                        *column = x[j][i];
+                    }
+                    *column = i < numTestRows ? core::CDataFrame::valueOfMissing()
+                                              : target(i);
+                });
+            }
+            frame->finishWritingRows();
+            return frame;
+        };
 
         double percentTrainingRows{1.0 - static_cast<double>(numTestRows) /
                                              static_cast<double>(rows)};
         std::size_t trainRows{static_cast<std::size_t>(static_cast<double>(rows) *
                                                        percentTrainingRows)};
+        LOG_DEBUG(<< "percent training rows = " << percentTrainingRows);
+
+        LOG_DEBUG(<< "Encode...");
 
         std::int64_t estimatedMemory(
+            core::CDataFrame::estimateMemoryUsage(
+                true, rows, cols + maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode(),
+                core::CAlignment::E_Aligned16) +
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .estimateMemoryUsageForTrain(trainRows, cols));
+                .estimateMemoryUsageForEncode(trainRows, cols, categoricalCols));
 
-        CTestInstrumentation instrumentation;
+        CTestInstrumentation encodeInstrumentation;
+        auto frame = makeDataFrame();
+        encodeInstrumentation.updateMemoryUsage(frame->memoryUsage());
         auto regression =
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .analysisInstrumentation(instrumentation)
-                .buildForTrain(*frame, cols - 1);
+                .analysisInstrumentation(encodeInstrumentation)
+                .buildForEncode(*frame, cols - 1);
 
-        regression->train();
-
-        LOG_DEBUG(<< "percent training rows = " << percentTrainingRows);
         LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
-        LOG_DEBUG(<< "high water mark = " << instrumentation.maxMemoryUsage());
+        LOG_DEBUG(<< "high water mark = " << encodeInstrumentation.maxMemoryUsage());
 
-        BOOST_TEST_REQUIRE(instrumentation.maxMemoryUsage() < estimatedMemory);
+        BOOST_TEST_REQUIRE(encodeInstrumentation.maxMemoryUsage() <= estimatedMemory);
+
+        LOG_DEBUG(<< "Train...");
+
+        estimatedMemory =
+            core::CDataFrame::estimateMemoryUsage(
+                true, rows,
+                cols + maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(cols, 1),
+                core::CAlignment::E_Aligned16) +
+            maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                .estimateMemoryUsageForTrain(trainRows, cols);
         BOOST_TEST_REQUIRE(previousEstimatedMemory > estimatedMemory);
         previousEstimatedMemory = estimatedMemory;
+
+        CTestInstrumentation trainInstrumentation;
+        frame = makeDataFrame();
+        trainInstrumentation.updateMemoryUsage(frame->memoryUsage());
+        regression = maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                         1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                         .analysisInstrumentation(trainInstrumentation)
+                         .buildForTrain(*frame, cols - 1);
+        regression->train();
+
+        LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
+        LOG_DEBUG(<< "high water mark = " << trainInstrumentation.maxMemoryUsage());
+
+        BOOST_TEST_REQUIRE(trainInstrumentation.maxMemoryUsage() < estimatedMemory);
+
+        LOG_DEBUG(<< "Train incremental...");
+
+        estimatedMemory =
+            core::CDataFrame::estimateMemoryUsage(
+                true, rows,
+                cols + maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(
+                           cols, 1),
+                core::CAlignment::E_Aligned16) +
+            maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                .estimateMemoryUsageForTrainIncremental(rows, cols);
+
+        CTestInstrumentation trainIncrementalInstrumentation;
+        auto newFrame = makeDataFrame();
+        trainIncrementalInstrumentation.updateMemoryUsage(newFrame->memoryUsage());
+        regression = maths::analytics::CBoostedTreeFactory::constructFromModel(
+                         std::move(regression))
+                         .analysisInstrumentation(trainIncrementalInstrumentation)
+                         .buildForTrainIncremental(*newFrame, cols - 1);
+        regression->trainIncremental();
+
+        LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
+        LOG_DEBUG(<< "high water mark = "
+                  << trainIncrementalInstrumentation.maxMemoryUsage());
+
+        BOOST_TEST_REQUIRE(trainIncrementalInstrumentation.maxMemoryUsage() <= estimatedMemory);
+
+        LOG_DEBUG(<< "Predict...");
+
+        estimatedMemory =
+            core::CDataFrame::estimateMemoryUsage(
+                true, rows,
+                cols + maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForPredict(1),
+                core::CAlignment::E_Aligned16) +
+            maths::analytics::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::analytics::boosted_tree::CMse>())
+                .estimateMemoryUsageForPredict();
+
+        CTestInstrumentation predictInstrumentation{true};
+        newFrame = makeDataFrame();
+        predictInstrumentation.updateMemoryUsage(newFrame->memoryUsage());
+        regression = maths::analytics::CBoostedTreeFactory::constructFromModel(
+                         std::move(regression))
+                         .analysisInstrumentation(predictInstrumentation)
+                         .buildForPredict(*newFrame, cols - 1);
+
+        LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
+        LOG_DEBUG(<< "high water mark = " << predictInstrumentation.maxMemoryUsage());
+
+        BOOST_TEST_REQUIRE(predictInstrumentation.maxMemoryUsage() <= estimatedMemory);
     }
 }
 

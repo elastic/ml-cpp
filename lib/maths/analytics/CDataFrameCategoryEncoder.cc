@@ -713,7 +713,7 @@ std::size_t CMakeDataFrameCategoryEncoder::estimateMemoryUsage(std::size_t numbe
             core::CMemory::dynamicSize(TDoubleVec())};
     std::size_t micsMemoryUsage{numberColumns * sizeof(double)};
     std::size_t encodingMapMemoryUsage{2 * numberColumns * sizeof(std::size_t)};
-    return sizeof(CMakeDataFrameCategoryEncoder{}) + missingFeatureMaskMemoryUsage +
+    return sizeof(CMakeDataFrameCategoryEncoder) + missingFeatureMaskMemoryUsage +
            columnMaskMemoryUsage + frequencyEncodingMemoryUsage +
            oneHotMemoryUsage + rareCategoriesMemoryUsage + meanFrequencyMemoryUsage +
            meanValuesMemoryUsage + micsMemoryUsage + encodingMapMemoryUsage;

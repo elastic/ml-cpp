@@ -628,7 +628,7 @@ private:
     //! True if the data frame resides in main memory.
     bool m_InMainMemory;
     //! The number of rows in the data frame.
-    std::size_t m_NumberRows = 0;
+    std::size_t m_NumberRows{0};
     //! The number of columns in the data frame.
     std::size_t m_NumberColumns;
     //! The number of columns a row could contain. This is greater than or
@@ -661,9 +661,9 @@ private:
 
     //! \name Parse Counters
     //@{
-    std::uint64_t m_MissingValueCount = 0;
-    std::uint64_t m_BadValueCount = 0;
-    std::uint64_t m_BadDocHashCount = 0;
+    std::uint64_t m_MissingValueCount{0};
+    std::uint64_t m_BadValueCount{0};
+    std::uint64_t m_BadDocHashCount{0};
     //@}
 
     //! The stored slices.

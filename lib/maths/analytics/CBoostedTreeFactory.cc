@@ -1630,8 +1630,8 @@ std::size_t
 CBoostedTreeFactory::estimateMemoryUsageForEncode(std::size_t numberRows,
                                                   std::size_t numberColumns,
                                                   std::size_t numberCategoricalColumns) const {
-    return CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
-        numberRows, numberColumns, numberCategoricalColumns);
+    return sizeof(*this) + CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+                               numberRows, numberColumns, numberCategoricalColumns);
 }
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsageForTrain(std::size_t numberRows,
@@ -1642,7 +1642,7 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsageForTrain(std::size_t numberR
             : computeEta(numberColumns))};
     CScopeBoostedTreeParameterOverrides<std::size_t> overrides;
     overrides.apply(m_TreeImpl->m_Hyperparameters.maximumNumberTrees(), maximumNumberTrees);
-    return m_TreeImpl->estimateMemoryUsageForTrain(numberRows, numberColumns);
+    return sizeof(*this) + m_TreeImpl->estimateMemoryUsageForTrain(numberRows, numberColumns);
 }
 
 std::size_t
@@ -1654,12 +1654,13 @@ CBoostedTreeFactory::estimateMemoryUsageForTrainIncremental(std::size_t numberRo
             : computeEta(numberColumns))};
     CScopeBoostedTreeParameterOverrides<std::size_t> overrides;
     overrides.apply(m_TreeImpl->m_Hyperparameters.maximumNumberTrees(), maximumNumberTrees);
-    return m_TreeImpl->estimateMemoryUsageForTrainIncremental(numberRows, numberColumns);
+    return sizeof(*this) + m_TreeImpl->estimateMemoryUsageForTrainIncremental(
+                               numberRows, numberColumns);
 }
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsageForPredict() const {
     // We use no _additional_ memory for prediction.
-    return 0;
+    return sizeof(*this) + sizeof(CBoostedTreeImpl);
 }
 
 std::size_t CBoostedTreeFactory::estimateExtraColumnsForEncode() {
@@ -1672,7 +1673,7 @@ std::size_t CBoostedTreeFactory::estimateExtraColumnsForEncode() {
 std::size_t CBoostedTreeFactory::estimateExtraColumnsForTrain(std::size_t numberColumns,
                                                               std::size_t numberLossParameters) {
     // We store as follows:
-    //   1. The predicted values for the dependent variable
+    //   1. The predicted values
     //   2. The gradient of the loss function
     //   3. The upper triangle of the hessian of the loss function
     //   4. The example's splits packed into std::uint8_t
@@ -1685,7 +1686,7 @@ std::size_t
 CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(std::size_t numberColumns,
                                                              std::size_t numberLossParameters) {
     // We store as follows:
-    //   1. The predicted values for the dependent variable
+    //   1. The predicted values
     //   2. The gradient of the loss function
     //   3. The upper triangle of the hessian of the loss function
     //   4. The previous prediction
@@ -1696,7 +1697,7 @@ CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(std::size_t numberC
 }
 
 std::size_t CBoostedTreeFactory::estimateExtraColumnsForPredict(std::size_t numberLossParameters) {
-    // We store the predicted values for the dependent variable.
+    // We store the predicted values.
     //
     // See prepareDataFrameForPredict for details.
     return numberLossParameters;

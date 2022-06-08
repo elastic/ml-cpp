@@ -494,9 +494,13 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
                                             std::size_t numberRows,
                                             std::size_t numberColumns,
                                             CAlignment::EType alignment) {
-    return inMainMemory
-               ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
-               : 0;
+    return sizeof(CDataFrame) + core::CMemory::dynamicSize(TStrVec(numberColumns)) +
+           core::CMemory::dynamicSize(TStrVecVec(numberColumns)) +
+           core::CMemory::dynamicSize(TStrSizeUMapVec(numberColumns)) +
+           core::CMemory::dynamicSize(TBoolVec(numberColumns)) +
+           (inMainMemory ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
+                         : 0);
+    ;
 }
 
 void CDataFrame::fillCategoricalColumnValueLookup() {
@@ -583,7 +587,7 @@ bool CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
 
     CPackedBitVector::COneBitIndexConstIterator maskedRow;
     CPackedBitVector::COneBitIndexConstIterator endMaskedRows;
-    if (rowMask) {
+    if (rowMask != nullptr) {
         maskedRow = rowMask->beginOneBits();
         endMaskedRows = rowMask->endOneBits();
     }
@@ -790,7 +794,7 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
         m_SlicesWrittenToStore.push_back(m_SliceWrittenAsyncToStore.get());
     }
 
-    if (m_DocHashesOfSliceBeingWritten.size() > 0) {
+    if (m_DocHashesOfSliceBeingWritten.empty() == false) {
         std::size_t firstRow{m_NumberRows - m_RowsOfSliceBeingWritten.size() / m_RowCapacity};
         LOG_TRACE(<< "Last slice [" << std::to_string(firstRow) << ","
                   << std::to_string(m_NumberRows) + ")");
