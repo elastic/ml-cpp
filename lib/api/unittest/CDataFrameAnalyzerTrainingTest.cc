@@ -2218,7 +2218,7 @@ BOOST_AUTO_TEST_CASE(testCreationForEncoding) {
     ml::core::CLogger& logger{ml::core::CLogger::instance()};
     logger.reset();
     logger.setLoggingLevel(ml::core::CLogger::E_Error);
-    boost::shared_ptr<std::ostream> logDataSPtr = boost::make_shared<std::stringstream>();
+    auto logDataSPtr = boost::make_shared<std::stringstream>();
     logger.reconfigure(logDataSPtr);
 
     auto makeSpec = [&](std::size_t rows, TDataFrameUPtrTemporaryDirectoryPtrPr& frameAndDirectory,
@@ -2259,12 +2259,11 @@ BOOST_AUTO_TEST_CASE(testCreationForEncoding) {
         TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer, rowsEncode);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
 
-    TStrVec persistedStates{
-        splitOnNull(std::stringstream{std::move(persistenceStream->str())})};
+    TStrVec persistedStates{splitOnNull(std::stringstream{persistenceStream->str()})};
 
-    BOOST_REQUIRE(persistedStates.size() > 0);
+    BOOST_REQUIRE(persistedStates.empty() == false);
 
-    // pass persisted state as a state to restore from in the new analyzer
+    // Pass persisted state as a state to restore from in the new analyzer.
     std::istringstream lastStateStream{persistedStates[0]};
     TRestoreSearcherSupplier restoreSearcherSupplier{[&lastStateStream]() {
         return std::make_unique<CTestDataSearcher>(lastStateStream.str());
@@ -2281,6 +2280,8 @@ BOOST_AUTO_TEST_CASE(testCreationForEncoding) {
 
     // reset logger for next tests
     logger.reset();
+
+    LOG_DEBUG(<< "messages = '" << logDataSPtr->str() << "'");
 
     // Check that no error messages were logged
     BOOST_TEST_REQUIRE(logDataSPtr->rdbuf()->in_avail() == 0);

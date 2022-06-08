@@ -133,12 +133,8 @@ CBoostedTreeFactory::buildForEncode(core::CDataFrame& frame, std::size_t depende
 
     skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         this->initializeMissingFeatureMasks(frame);
-        this->initializeNumberFolds(frame);
-        // There are only "old" training examples for the initial train.
-        if (frame.numberRows() > m_TreeImpl->m_NewTrainingRowMask.size()) {
-            m_TreeImpl->m_NewTrainingRowMask.extend(
-                false, frame.numberRows() - m_TreeImpl->m_NewTrainingRowMask.size());
-        }
+        // This can be run on a different data set to train so we do not compute
+        // number of folds or update the new training data row mask here.
         this->prepareDataFrameForEncode(frame);
         this->selectFeaturesAndEncodeCategories(frame);
         this->determineFeatureDataTypes(frame);
@@ -162,6 +158,10 @@ CBoostedTreeFactory::buildForTrain(core::CDataFrame& frame, std::size_t dependen
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
+    // Because we can run encoding separately on a different data set we can get
+    // here with E_EncodingInitialized but without having computed number of folds
+    // or setup the new training data row mask. So we can only skip if we are at
+    // a later stage.
     skipIfAfter(CBoostedTreeImpl::E_EncodingInitialized, [&] {
         this->initializeMissingFeatureMasks(frame);
         this->initializeNumberFolds(frame);
