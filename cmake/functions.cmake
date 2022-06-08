@@ -194,7 +194,11 @@ endfunction()
 # _target: Name of the unittest target, e.g. maths_common
 #
 function(ml_add_test _directory _target)
-  add_subdirectory(../${_directory} ${_directory})
+  if(MSVC)
+    add_subdirectory(../${_directory} ${_directory}/Release)
+  else()
+    add_subdirectory(../${_directory} ${_directory})
+  endif()
   list(APPEND ML_BUILD_TEST_DEPENDS ml_test_${_target})
   list(APPEND ML_TEST_DEPENDS test_${_target})
   set(ML_BUILD_TEST_DEPENDS ${ML_BUILD_TEST_DEPENDS} PARENT_SCOPE)
