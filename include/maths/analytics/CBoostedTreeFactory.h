@@ -236,6 +236,7 @@ public:
 private:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+    using TDoubleSizePr = std::pair<double, std::size_t>;
     using TOptionalDouble = boost::optional<double>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
@@ -290,24 +291,26 @@ private:
     void initializeHyperparametersSetup(core::CDataFrame& frame);
 
     //! Set the initial values for hyperparameters.
-    std::size_t initializeHyperparameters(core::CDataFrame& frame);
+    TDoubleSizePr initializeHyperparameters(core::CDataFrame& frame);
 
     //! Estimate a good initial value and bounding box to search for regularisation
     //! hyperparameters.
-    std::size_t initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
+    TDoubleSizePr initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
     //! Estimate a good initial value and range to search for the feature bag
     //! fraction.
-    std::size_t initializeUnsetFeatureBagFraction(core::CDataFrame& frame,
-                                                  std::size_t bestNumberTrees);
+    TDoubleSizePr initializeUnsetFeatureBagFraction(core::CDataFrame& frame,
+                                                    double lossGap,
+                                                    std::size_t bestNumberTrees);
 
     //! Estimate a good initial value and range to search for the downsample
     //! factor.
-    std::size_t initializeUnsetDownsampleFactor(core::CDataFrame& frame,
-                                                std::size_t bestNumberTrees);
+    TDoubleSizePr initializeUnsetDownsampleFactor(core::CDataFrame& frame,
+                                                  double lossGap,
+                                                  std::size_t bestNumberTrees);
 
     //! Estimate a good initial value and range to search for the learn rate.
-    std::size_t initializeUnsetEta(core::CDataFrame& frame, std::size_t bestNumberTrees);
+    TDoubleSizePr initializeUnsetEta(core::CDataFrame& frame, double lossGap, std::size_t bestNumberTrees);
 
     //! Estimate a good initial value and range to search for the learn rate
     //! to use for retrained trees when training incrementally.

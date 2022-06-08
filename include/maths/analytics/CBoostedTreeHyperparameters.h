@@ -356,6 +356,7 @@ class MATHS_ANALYTICS_EXPORT CBoostedTreeHyperparameters {
 public:
     using TStrVec = std::vector<std::string>;
     using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalDoubleSizePr = boost::optional<std::pair<double, std::size_t>>;
     using TDoubleParameter = CBoostedTreeParameter<double>;
     using TSizeParameter = CBoostedTreeParameter<std::size_t>;
     using TVector = common::CDenseVector<double>;
@@ -558,7 +559,7 @@ public:
     void bayesianOptimisationRestarts(std::size_t restarts);
 
     //! Get the maximum number of iterations used in testLossLineSearch.
-    std::size_t maxLineSearchIterations() const { return 10; }
+    static std::size_t maxLineSearchIterations() { return 10; }
 
     //! Get the number of hyperparameters to tune.
     std::size_t numberToTune() const;
@@ -569,11 +570,12 @@ public:
     //! Compute the fine tune search interval for \p parameter.
     //!
     //! \return The best number of trees to use for the current hyperparameter settings.
-    TOptionalSize initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
-                                                   TDoubleParameter& parameter) const;
+    TOptionalDoubleSizePr
+    initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
+                                     TDoubleParameter& parameter) const;
 
     //! Initialize the search for best values of tunable hyperparameters.
-    void initializeFineTuneSearch(std::size_t numberTrees);
+    void initializeFineTuneSearch(double lossGap, std::size_t numberTrees);
 
     //! Check if search is making no progress improving the test loss.
     bool optimisationMakingNoProgress() const;
@@ -674,9 +676,10 @@ private:
     using TBayesinOptimizationUPtr = std::unique_ptr<common::CBayesianOptimisation>;
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
-    using TDoubleSizeDoubleTrVec = std::vector<std::tuple<double, std::size_t, double>>;
+    using TDoubleDoubleDoubleSizeTupleVec =
+        std::vector<std::tuple<double, double, double, std::size_t>>;
     using TOptionalVector3x1 = boost::optional<TVector3x1>;
-    using TOptionalVector3x1SizePr = std::pair<TOptionalVector3x1, std::size_t>;
+    using TOptionalVector3x1DoubleSizeTr = std::tuple<TOptionalVector3x1, double, std::size_t>;
     using TVectorDoublePr = std::pair<TVector, double>;
     using TVectorDoublePrVec = std::vector<TVectorDoublePr>;
 
@@ -685,18 +688,19 @@ private:
     void initialTestLossLineSearch(const CInitializeFineTuneArguments& args,
                                    double intervalLeftEnd,
                                    double intervalRightEnd,
-                                   TDoubleSizeDoubleTrVec& testLosses) const;
-    TOptionalVector3x1SizePr testLossLineSearch(const CInitializeFineTuneArguments& args,
-                                                double intervalLeftEnd,
-                                                double intervalRightEnd) const;
+                                   TDoubleDoubleDoubleSizeTupleVec& testLosses) const;
+    TOptionalVector3x1DoubleSizeTr testLossLineSearch(const CInitializeFineTuneArguments& args,
+                                                      double intervalLeftEnd,
+                                                      double intervalRightEnd) const;
     void fineTuneTestLoss(const CInitializeFineTuneArguments& args,
                           double intervalLeftEnd,
                           double intervalRightEnd,
-                          TDoubleSizeDoubleTrVec& testLosses) const;
-    TOptionalVector3x1SizePr minimizeTestLoss(double intervalLeftEnd,
-                                              double intervalRightEnd,
-                                              TDoubleSizeDoubleTrVec testLosses) const;
-    void checkIfCanSkipFineTuneSearch(std::size_t numberTrees);
+                          TDoubleDoubleDoubleSizeTupleVec& testLosses) const;
+    TOptionalVector3x1DoubleSizeTr
+    minimizeTestLoss(double intervalLeftEnd,
+                     double intervalRightEnd,
+                     TDoubleDoubleDoubleSizeTupleVec testLosses) const;
+    void checkIfCanSkipFineTuneSearch(double lossGap, std::size_t numberTrees);
     void captureHyperparametersAndLoss(double loss);
     TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
     void setHyperparameterValues(TVector parameters);
