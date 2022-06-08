@@ -260,7 +260,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             1.0 /*single node used to centre the data*/, 1 /*single tree*/);
         LOG_TRACE(<< "Test loss = " << m_Hyperparameters.bestForestTestLoss());
 
-    } else if (m_Hyperparameters.searchNotFinished() || m_BestForest.empty()) {
+    } else if (m_Hyperparameters.fineTuneSearchNotFinished() || m_BestForest.empty()) {
         TMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();
@@ -270,7 +270,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         this->initializePerFoldTestLosses();
 
-        for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
+        for (m_Hyperparameters.startFineTuneSearch();
+             m_Hyperparameters.fineTuneSearchNotFinished();
+             /**/) {
 
             LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
             m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
@@ -298,9 +300,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
                                              this->betweenFoldTestLossVariance()) == false) {
-                LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
-                         << m_Hyperparameters.currentRound() << " out of "
-                         << m_Hyperparameters.numberRounds() << ".");
+                LOG_DEBUG(<< "Stopping fine tune hyperparameters on round "
+                          << m_Hyperparameters.currentRound() << " out of "
+                          << m_Hyperparameters.numberRounds());
                 break;
             }
 
@@ -310,7 +312,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             // We need to update the current round before we persist so we don't
             // perform an extra round when we fail over.
-            m_Hyperparameters.startNextSearchRound();
+            m_Hyperparameters.startNextRound();
 
             // Store the training state after each hyperparameter search step.
             LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound()
@@ -450,7 +452,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
     LOG_TRACE(<< "Number trees to retrain = " << numberTreesToRetrain << "/"
               << m_BestForest.size());
 
-    for (m_Hyperparameters.startSearch(); m_Hyperparameters.searchNotFinished(); /**/) {
+    for (m_Hyperparameters.startFineTuneSearch();
+         m_Hyperparameters.fineTuneSearchNotFinished();
+         /**/) {
 
         LOG_TRACE(<< "Optimisation round = " << m_Hyperparameters.currentRound() + 1);
         m_Instrumentation->iteration(m_Hyperparameters.currentRound() + 1);
@@ -478,9 +482,9 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
         if (m_Hyperparameters.selectNext(crossValidationResult.s_TestLossMoments,
                                          this->betweenFoldTestLossVariance()) == false) {
-            LOG_INFO(<< "Exiting hyperparameter optimisation loop on round "
-                     << m_Hyperparameters.currentRound() << " out of "
-                     << m_Hyperparameters.numberRounds() << ".");
+            LOG_DEBUG(<< "Stopping fine tune hyperparameters on round "
+                      << m_Hyperparameters.currentRound() << " out of "
+                      << m_Hyperparameters.numberRounds());
             break;
         }
 
@@ -490,7 +494,7 @@ void CBoostedTreeImpl::trainIncremental(core::CDataFrame& frame,
 
         // We need to update the current round before we persist so we don't
         // perform an extra round when we fail over.
-        m_Hyperparameters.startNextSearchRound();
+        m_Hyperparameters.startNextRound();
 
         LOG_TRACE(<< "Round " << m_Hyperparameters.currentRound() << " state recording started");
         this->recordState(recordTrainStateCallback);
