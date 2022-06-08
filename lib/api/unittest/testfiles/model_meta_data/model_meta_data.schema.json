@@ -112,6 +112,9 @@
                 },
                 "loss_gap" : {
                     "type" : "number"
+                },
+                "trained_model_memory_usage": {
+                    "type" : "number"
                 }
             },
             "required" : [
