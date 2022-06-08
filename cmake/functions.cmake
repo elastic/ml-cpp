@@ -174,7 +174,7 @@ function(ml_add_test_executable _target)
 
   include_directories(${CMAKE_SOURCE_DIR}/include)
 
-  add_executable(ml_test_${_target} ${PLATFORM_SRCS}
+  add_executable(ml_test_${_target} EXCLUDE_FROM_ALL  ${PLATFORM_SRCS}
     $<$<TARGET_EXISTS:Ml${_target}>:$<TARGET_OBJECTS:Ml${_target}>>)
 
   target_link_libraries(ml_test_${_target} ${ML_LINK_LIBRARIES})
@@ -195,7 +195,7 @@ endfunction()
 #
 function(ml_add_test _directory _target)
   add_subdirectory(../${_directory} ${_directory})
-  list(APPEND ML_BUILD_TEST_DEPENDS ml_test_${_target} EXCLUDE_FROM_ALL)
+  list(APPEND ML_BUILD_TEST_DEPENDS ml_test_${_target})
   list(APPEND ML_TEST_DEPENDS test_${_target})
   set(ML_BUILD_TEST_DEPENDS ${ML_BUILD_TEST_DEPENDS} PARENT_SCOPE)
   set(ML_TEST_DEPENDS ${ML_TEST_DEPENDS} PARENT_SCOPE)
