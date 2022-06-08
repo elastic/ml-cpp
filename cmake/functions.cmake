@@ -195,7 +195,7 @@ endfunction()
 #
 function(ml_add_test _directory _target)
   add_subdirectory(../${_directory} ${_directory})
-  list(APPEND ML_BUILD_TEST_DEPENDS ml_test_${_target})
+  list(APPEND ML_BUILD_TEST_DEPENDS ml_test_${_target} EXCLUDE_FROM_ALL)
   list(APPEND ML_TEST_DEPENDS test_${_target})
   set(ML_BUILD_TEST_DEPENDS ${ML_BUILD_TEST_DEPENDS} PARENT_SCOPE)
   set(ML_TEST_DEPENDS ${ML_TEST_DEPENDS} PARENT_SCOPE)
