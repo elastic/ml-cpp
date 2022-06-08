@@ -677,8 +677,8 @@ private:
     using TDoubleSizeDoubleTrVec = std::vector<std::tuple<double, std::size_t, double>>;
     using TOptionalVector3x1 = boost::optional<TVector3x1>;
     using TOptionalVector3x1SizePr = std::pair<TOptionalVector3x1, std::size_t>;
-    using THyperparametersDoublePr = std::pair<CBoostedTreeHyperparameters, double>;
-    using THyperparametersDoublePrVec = std::vector<THyperparametersDoublePr>;
+    using TVectorDoublePr = std::pair<TVector, double>;
+    using TVectorDoublePrVec = std::vector<TVectorDoublePr>;
 
 private:
     void initializeTunableHyperparameters();
@@ -744,7 +744,7 @@ private:
     double m_BestForestLossGap{0.0};
     TMeanAccumulator m_MeanForestSizeAccumulator;
     TMeanAccumulator m_MeanTestLossAccumulator;
-    THyperparametersDoublePrVec m_LineSearchHyperparameterLosses;
+    TVectorDoublePrVec m_LineSearchHyperparameterLosses;
     //@}
 };
 }

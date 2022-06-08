@@ -271,9 +271,9 @@ public:
     //! \name Copy and Move Semantics
     //@{
     CDenseVector(const CDenseVector& other) = default;
-    CDenseVector(CDenseVector&& other) = default;
+    CDenseVector(CDenseVector&& other) noexcept = default;
     CDenseVector& operator=(const CDenseVector& other) = default;
-    CDenseVector& operator=(CDenseVector&& other) = default;
+    CDenseVector& operator=(CDenseVector&& other) noexcept = default;
     template<typename EXPR>
     CDenseVector& operator=(const EXPR& expr) {
         static_cast<TBase&>(*this) = expr;

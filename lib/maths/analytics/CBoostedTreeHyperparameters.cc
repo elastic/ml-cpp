@@ -383,9 +383,8 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(std::size_t numberTre
 void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(std::size_t numberTrees) {
     if (m_EarlyHyperparameterOptimizationStoppingEnabled && m_IncrementalTraining == false) {
         // Add information about observed line search training runs to the GP.
-        for (auto& hyperparameterLoss : m_LineSearchHyperparameterLosses) {
-            auto parameters = hyperparameterLoss.first.selectParametersVector(m_TunableHyperparameters);
-            this->addObservation(parameters, hyperparameterLoss.second, 0.0, true);
+        for (auto & [ parameters, loss ] : m_LineSearchHyperparameterLosses) {
+            this->addObservation(std::move(parameters), loss, 0.0, true);
         }
         m_StopHyperparameterOptimizationEarly = this->optimisationMakingNoProgress();
         if (m_StopHyperparameterOptimizationEarly) {
@@ -630,7 +629,8 @@ std::size_t CBoostedTreeHyperparameters::estimateMemoryUsage() const {
     std::size_t numberToTune{this->numberToTune()};
     return sizeof(*this) + numberToTune * sizeof(int) +
            (m_NumberRounds / 3 + 1) * numberToTune * sizeof(double) +
-           common::CBayesianOptimisation::estimateMemoryUsage(numberToTune, m_NumberRounds);
+           common::CBayesianOptimisation::estimateMemoryUsage(numberToTune, m_NumberRounds) +
+           numberToTune * this->maxLineSearchIterations() * sizeof(double);
 }
 
 std::size_t CBoostedTreeHyperparameters::memoryUsage() const {
@@ -952,23 +952,8 @@ void CBoostedTreeHyperparameters::captureScale() {
 
 void CBoostedTreeHyperparameters::captureHyperparametersAndLoss(double testLoss) {
     if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
-        CBoostedTreeHyperparameters copy;
-        copy.m_IncrementalTraining = m_IncrementalTraining;
-        copy.m_DepthPenaltyMultiplier = m_DepthPenaltyMultiplier;
-        copy.m_TreeSizePenaltyMultiplier = m_TreeSizePenaltyMultiplier;
-        copy.m_LeafWeightPenaltyMultiplier = m_LeafWeightPenaltyMultiplier;
-        copy.m_SoftTreeDepthLimit = m_SoftTreeDepthLimit;
-        copy.m_SoftTreeDepthTolerance = m_SoftTreeDepthTolerance;
-        copy.m_TreeTopologyChangePenalty = m_TreeTopologyChangePenalty;
-        copy.m_DownsampleFactor = m_DownsampleFactor;
-        copy.m_FeatureBagFraction = m_FeatureBagFraction;
-        copy.m_Eta = m_Eta;
-        copy.m_EtaGrowthRatePerTree = m_EtaGrowthRatePerTree;
-        copy.m_RetrainedTreeEta = m_RetrainedTreeEta;
-        copy.m_PredictionChangeCost = m_PredictionChangeCost;
-        copy.m_MaximumNumberTrees = m_MaximumNumberTrees;
-        copy.m_TunableHyperparameters = m_TunableHyperparameters;
-        m_LineSearchHyperparameterLosses.emplace_back(std::move(copy), testLoss);
+        auto parameters = this->selectParametersVector(m_TunableHyperparameters);
+        m_LineSearchHyperparameterLosses.emplace_back(std::move(parameters), testLoss);
     }
 }
 
