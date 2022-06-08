@@ -291,26 +291,22 @@ private:
     void initializeHyperparametersSetup(core::CDataFrame& frame);
 
     //! Set the initial values for hyperparameters.
-    TDoubleSizePr initializeHyperparameters(core::CDataFrame& frame);
+    void initializeHyperparameters(core::CDataFrame& frame);
 
     //! Estimate a good initial value and bounding box to search for regularisation
     //! hyperparameters.
-    TDoubleSizePr initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
+    void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
     //! Estimate a good initial value and range to search for the feature bag
     //! fraction.
-    TDoubleSizePr initializeUnsetFeatureBagFraction(core::CDataFrame& frame,
-                                                    double lossGap,
-                                                    std::size_t bestNumberTrees);
+    void initializeUnsetFeatureBagFraction(core::CDataFrame& frame);
 
     //! Estimate a good initial value and range to search for the downsample
     //! factor.
-    TDoubleSizePr initializeUnsetDownsampleFactor(core::CDataFrame& frame,
-                                                  double lossGap,
-                                                  std::size_t bestNumberTrees);
+    void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
 
     //! Estimate a good initial value and range to search for the learn rate.
-    TDoubleSizePr initializeUnsetEta(core::CDataFrame& frame, double lossGap, std::size_t bestNumberTrees);
+    void initializeUnsetEta(core::CDataFrame& frame);
 
     //! Estimate a good initial value and range to search for the learn rate
     //! to use for retrained trees when training incrementally.
@@ -390,6 +386,8 @@ private:
     double m_GainPerNode90thPercentile{0.0};
     double m_TotalCurvaturePerNode1stPercentile{0.0};
     double m_TotalCurvaturePerNode90thPercentile{0.0};
+    double m_LossGap{0.0};
+    std::size_t m_NumberTrees{0};
     std::size_t m_NumberThreads{1};
     std::string m_RowWeightColumnName;
     TBoostedTreeImplUPtr m_TreeImpl;
