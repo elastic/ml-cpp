@@ -215,9 +215,10 @@ public:
     //! on a data frame with \p numberRows and \p numberColumns.
     std::size_t estimateMemoryUsageForTrainIncremental(std::size_t numberRows,
                                                        std::size_t numberColumns) const;
-    //! Estimate the maximum booking memory that predicting values from a model
-    //! will use.
-    std::size_t estimateMemoryUsageForPredict() const;
+    //! Estimate the maximum booking memory used when predicting a model on a data
+    //! frame with \p numberRows and \p numberColumns.
+    std::size_t estimateMemoryUsageForPredict(std::size_t numberRows,
+                                              std::size_t numberColumns) const;
     //! Estimate the number of columns computing encodings will add to the data frame.
     static std::size_t estimateExtraColumnsForEncode();
     //! Estimate the number of columns training the model will add to the data frame.

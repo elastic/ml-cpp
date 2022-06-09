@@ -280,6 +280,8 @@ CBoostedTreeFactory::buildForPredict(core::CDataFrame& frame, std::size_t depend
     m_TreeImpl->predict(frame);
     m_TreeImpl->computeClassificationWeights(frame);
 
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
@@ -477,30 +479,6 @@ void CBoostedTreeFactory::prepareDataFrameForTrain(core::CDataFrame& frame) cons
     m_TreeImpl->m_Instrumentation->flush();
 }
 
-void CBoostedTreeFactory::prepareDataFrameForPredict(core::CDataFrame& frame) const {
-
-    std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
-
-    // Extend the frame with the bookkeeping columns used in predict.
-    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
-    TSizeVec extraColumns;
-    std::size_t paddedExtraColumns;
-    std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
-    std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
-        m_TreeImpl->m_NumberThreads, extraColumnsForPredict(numberLossParameters));
-    auto extraColumnTags = extraColumnTagsForPredict();
-    m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
-    for (std::size_t i = 0; i < extraColumns.size(); ++i) {
-        m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
-    }
-    m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
-    m_PaddedExtraColumns += paddedExtraColumns;
-
-    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
-    m_TreeImpl->m_Instrumentation->flush();
-}
-
 void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& frame) const {
 
     this->prepareDataFrameForTrain(frame);
@@ -533,6 +511,30 @@ void CBoostedTreeFactory::prepareDataFrameForIncrementalTrain(core::CDataFrame& 
                 readPrediction(row, m_TreeImpl->m_ExtraColumns, numberLossParameters));
         }
     });
+}
+
+void CBoostedTreeFactory::prepareDataFrameForPredict(core::CDataFrame& frame) const {
+
+    std::size_t rowWeightColumn{UNIT_ROW_WEIGHT_COLUMN};
+
+    // Extend the frame with the bookkeeping columns used in predict.
+    std::size_t oldFrameMemory{core::CMemory::dynamicSize(frame)};
+    TSizeVec extraColumns;
+    std::size_t paddedExtraColumns;
+    std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
+    std::tie(extraColumns, paddedExtraColumns) = frame.resizeColumns(
+        m_TreeImpl->m_NumberThreads, extraColumnsForPredict(numberLossParameters));
+    auto extraColumnTags = extraColumnTagsForPredict();
+    m_TreeImpl->m_ExtraColumns.resize(NUMBER_EXTRA_COLUMNS);
+    for (std::size_t i = 0; i < extraColumns.size(); ++i) {
+        m_TreeImpl->m_ExtraColumns[extraColumnTags[i]] = extraColumns[i];
+    }
+    m_TreeImpl->m_ExtraColumns[E_Weight] = rowWeightColumn;
+    m_PaddedExtraColumns += paddedExtraColumns;
+
+    std::size_t newFrameMemory{core::CMemory::dynamicSize(frame)};
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(newFrameMemory - oldFrameMemory);
+    m_TreeImpl->m_Instrumentation->flush();
 }
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
@@ -1630,8 +1632,8 @@ std::size_t
 CBoostedTreeFactory::estimateMemoryUsageForEncode(std::size_t numberRows,
                                                   std::size_t numberColumns,
                                                   std::size_t numberCategoricalColumns) const {
-    return sizeof(*this) + CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
-                               numberRows, numberColumns, numberCategoricalColumns);
+    return CMakeDataFrameCategoryEncoder::estimateMemoryUsage(
+        numberRows, numberColumns, numberCategoricalColumns);
 }
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsageForTrain(std::size_t numberRows,
@@ -1642,7 +1644,7 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsageForTrain(std::size_t numberR
             : computeEta(numberColumns))};
     CScopeBoostedTreeParameterOverrides<std::size_t> overrides;
     overrides.apply(m_TreeImpl->m_Hyperparameters.maximumNumberTrees(), maximumNumberTrees);
-    return sizeof(*this) + m_TreeImpl->estimateMemoryUsageForTrain(numberRows, numberColumns);
+    return m_TreeImpl->estimateMemoryUsageForTrain(numberRows, numberColumns);
 }
 
 std::size_t
@@ -1654,13 +1656,13 @@ CBoostedTreeFactory::estimateMemoryUsageForTrainIncremental(std::size_t numberRo
             : computeEta(numberColumns))};
     CScopeBoostedTreeParameterOverrides<std::size_t> overrides;
     overrides.apply(m_TreeImpl->m_Hyperparameters.maximumNumberTrees(), maximumNumberTrees);
-    return sizeof(*this) + m_TreeImpl->estimateMemoryUsageForTrainIncremental(
-                               numberRows, numberColumns);
+    return m_TreeImpl->estimateMemoryUsageForTrainIncremental(numberRows, numberColumns);
 }
 
-std::size_t CBoostedTreeFactory::estimateMemoryUsageForPredict() const {
+std::size_t CBoostedTreeFactory::estimateMemoryUsageForPredict(std::size_t numberRows,
+                                                               std::size_t numberColumns) const {
     // We use no _additional_ memory for prediction.
-    return sizeof(*this) + sizeof(CBoostedTreeImpl);
+    return m_TreeImpl->estimateMemoryUsageForPredict(numberRows, numberColumns);
 }
 
 std::size_t CBoostedTreeFactory::estimateExtraColumnsForEncode() {

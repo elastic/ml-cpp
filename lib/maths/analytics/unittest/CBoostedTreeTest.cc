@@ -13,6 +13,7 @@
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
+#include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
 #include <core/CRegex.h>
 #include <core/CStopWatch.h>
@@ -2916,10 +2917,11 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
 
         LOG_DEBUG(<< "Encode...");
 
+        std::size_t extraCols{
+            maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode()};
         std::int64_t estimatedMemory(
-            core::CDataFrame::estimateMemoryUsage(
-                true, rows, cols + maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForEncode(),
-                core::CAlignment::E_Aligned16) +
+            core::CDataFrame::estimateMemoryUsage(true, rows, cols + extraCols,
+                                                  core::CAlignment::E_Aligned16) +
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .estimateMemoryUsageForEncode(trainRows, cols, categoricalCols));
@@ -2940,11 +2942,11 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
 
         LOG_DEBUG(<< "Train...");
 
+        extraCols = maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(
+            cols, 1);
         estimatedMemory =
-            core::CDataFrame::estimateMemoryUsage(
-                true, rows,
-                cols + maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrain(cols, 1),
-                core::CAlignment::E_Aligned16) +
+            core::CDataFrame::estimateMemoryUsage(true, rows, cols + extraCols,
+                                                  core::CAlignment::E_Aligned16) +
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .estimateMemoryUsageForTrain(trainRows, cols);
@@ -2967,12 +2969,12 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
 
         LOG_DEBUG(<< "Train incremental...");
 
+        extraCols = maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(
+            cols, 1);
         estimatedMemory =
-            core::CDataFrame::estimateMemoryUsage(
-                true, rows,
-                cols + maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForTrainIncremental(
-                           cols, 1),
-                core::CAlignment::E_Aligned16) +
+            core::CDataFrame::estimateMemoryUsage(true, rows, cols + extraCols,
+                                                  core::CAlignment::E_Aligned16) +
+            core::CMemory::dynamicSize(regression->trainedModel()) +
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
                 .estimateMemoryUsageForTrainIncremental(rows, cols);
@@ -2994,16 +2996,16 @@ BOOST_AUTO_TEST_CASE(testEstimateMemory) {
 
         LOG_DEBUG(<< "Predict...");
 
+        extraCols = maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForPredict(1);
         estimatedMemory =
-            core::CDataFrame::estimateMemoryUsage(
-                true, rows,
-                cols + maths::analytics::CBoostedTreeFactory::estimateExtraColumnsForPredict(1),
-                core::CAlignment::E_Aligned16) +
+            core::CDataFrame::estimateMemoryUsage(true, rows, cols + extraCols,
+                                                  core::CAlignment::E_Aligned16) +
+            core::CMemory::dynamicSize(&regression->impl()) +
             maths::analytics::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::analytics::boosted_tree::CMse>())
-                .estimateMemoryUsageForPredict();
+                .estimateMemoryUsageForPredict(rows, cols);
 
-        CTestInstrumentation predictInstrumentation{true};
+        CTestInstrumentation predictInstrumentation;
         newFrame = makeDataFrame();
         predictInstrumentation.updateMemoryUsage(newFrame->memoryUsage());
         regression = maths::analytics::CBoostedTreeFactory::constructFromModel(

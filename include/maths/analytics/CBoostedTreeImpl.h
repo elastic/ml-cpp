@@ -155,6 +155,11 @@ public:
     std::size_t estimateMemoryUsageForTrainIncremental(std::size_t numberRows,
                                                        std::size_t numberColumns) const;
 
+    //! Estimate the maximum booking memory that predict on a data frame with
+    //! \p numberRows rows and \p numberColumns columns will use.
+    std::size_t estimateMemoryUsageForPredict(std::size_t numberRows,
+                                              std::size_t numberColumns) const;
+
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 

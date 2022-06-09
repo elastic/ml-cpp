@@ -613,13 +613,14 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageForTraining(std::size_t numberR
     std::size_t maximumNumberNodes{2 * maximumNumberLeaves - 1};
     std::size_t maximumNumberFeatures{
         std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
-    std::size_t hyperparametersMemoryUsage{m_Hyperparameters.estimateMemoryUsage()};
+    std::size_t hyperparametersMemoryUsage{m_Hyperparameters.estimateMemoryUsage() -
+                                           sizeof(CBoostedTreeHyperparameters)};
     std::size_t forestMemoryUsage{
         numberTrees *
         (sizeof(TNodeVec) + maximumNumberNodes * CBoostedTreeNode::estimateMemoryUsage(
                                                      m_Loss->numberParameters()))};
-    std::size_t foldRoundLossMemoryUsage{
-        m_NumberFolds.value() * m_Hyperparameters.numberRounds() * sizeof(TOptionalDouble)};
+    std::size_t foldRoundLossMemoryUsage{core::CMemory::dynamicSize(TOptionalDoubleVecVec(
+        m_NumberFolds.value(), TOptionalDoubleVec(m_Hyperparameters.numberRounds())))};
     // The leaves' row masks memory is accounted for here because it's proportional
     // to the log2(number of nodes). The compressed bit vector representation uses
     // roughly log2(E[run length]) / E[run length] bytes per bit. As we grow the
@@ -639,13 +640,18 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageForTraining(std::size_t numberR
                                      maximumNumberFeatures, m_NumberSplitsPerFeature,
                                      m_Loss->numberParameters()) /
                                  2};
-    std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
-    std::size_t featureSampleProbabilitiesMemoryUsage{maximumNumberFeatures * sizeof(double)};
-    std::size_t fixedCandidateSplitsMemoryUsage{maximumNumberFeatures * sizeof(TFloatVec)};
+    std::size_t categoryEncoderMemoryUsage{sizeof(CDataFrameCategoryEncoder)};
+    std::size_t dataTypeMemoryUsage{
+        core::CMemory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
+    std::size_t featureSampleProbabilitiesMemoryUsage{
+        core::CMemory::dynamicSize(TDoubleVec(maximumNumberFeatures))};
+    std::size_t fixedCandidateSplitsMemoryUsage{
+        core::CMemory::dynamicSize(TFloatVecVec(maximumNumberFeatures))};
     // Assuming either many or few missing rows, we get good compression of the bit
     // vector. Specifically, we'll assume the average run length is 64 for which
     // we get a constant 8 / 64.
     std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
+    std::size_t newTrainingRowMaskMemoryUsage{8 * numberRows / 64};
     std::size_t trainTestMaskMemoryUsage{
         2 * m_NumberFolds.value() *
         static_cast<std::size_t>(std::ceil(std::min(m_TrainFractionPerFold.value(),
@@ -654,12 +660,26 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsageForTraining(std::size_t numberR
 
     std::size_t worstCaseMemoryUsage{
         sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
-        hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage + dataTypeMemoryUsage +
-        featureSampleProbabilitiesMemoryUsage + fixedCandidateSplitsMemoryUsage +
-        missingFeatureMaskMemoryUsage + trainTestMaskMemoryUsage};
+        hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage + categoryEncoderMemoryUsage +
+        dataTypeMemoryUsage + featureSampleProbabilitiesMemoryUsage +
+        fixedCandidateSplitsMemoryUsage + missingFeatureMaskMemoryUsage +
+        newTrainingRowMaskMemoryUsage + trainTestMaskMemoryUsage};
 
     return CBoostedTreeImpl::correctedMemoryUsageForTraining(
         static_cast<double>(worstCaseMemoryUsage));
+}
+
+std::size_t CBoostedTreeImpl::estimateMemoryUsageForPredict(std::size_t numberRows,
+                                                            std::size_t numberColumns) const {
+    std::size_t maximumNumberFeatures{
+        std::min(numberColumns - 1, numberRows / this->rowsPerFeature(numberRows))};
+    std::size_t categoryEncoderMemoryUsage{sizeof(CDataFrameCategoryEncoder)};
+    std::size_t dataTypeMemoryUsage{
+        core::CMemory::dynamicSize(TDataTypeVec(maximumNumberFeatures))};
+    std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
+    std::size_t newTrainingRowMaskMemoryUsage{8 * numberRows / 64};
+    return sizeof(*this) + categoryEncoderMemoryUsage + dataTypeMemoryUsage +
+           missingFeatureMaskMemoryUsage + newTrainingRowMaskMemoryUsage;
 }
 
 std::size_t CBoostedTreeImpl::correctedMemoryUsageForTraining(double memoryUsageBytes) {

@@ -568,24 +568,23 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t totalNumberRows,
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
+    std::size_t numberTrainingRows{static_cast<std::size_t>(
+        static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5)};
     switch (m_Task) {
     case E_Encode:
         return m_BoostedTreeFactory->estimateMemoryUsageForEncode(
-            static_cast<std::size_t>(static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5),
-            numberColumns, this->spec().categoricalFieldNames().size());
+            numberTrainingRows, numberColumns,
+            this->spec().categoricalFieldNames().size());
     case E_Train:
-        return m_BoostedTreeFactory->estimateMemoryUsageForTrain(
-            static_cast<std::size_t>(static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5),
-            numberColumns);
+        return m_BoostedTreeFactory->estimateMemoryUsageForTrain(numberTrainingRows,
+                                                                 numberColumns);
     case E_Update:
         return m_TrainedModelMemoryUsage +
                m_BoostedTreeFactory->estimateMemoryUsageForTrainIncremental(
-                   static_cast<std::size_t>(
-                       static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5),
-                   numberColumns);
+                   numberTrainingRows, numberColumns);
     case E_Predict:
-        return m_TrainedModelMemoryUsage +
-               m_BoostedTreeFactory->estimateMemoryUsageForPredict();
+        return m_TrainedModelMemoryUsage + m_BoostedTreeFactory->estimateMemoryUsageForPredict(
+                                               numberTrainingRows, numberColumns);
     }
 }
 
