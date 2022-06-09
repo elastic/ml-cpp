@@ -181,13 +181,17 @@ function(ml_add_test_executable _target)
 
   add_test(ml_test_${_target} ml_test_${_target})
 
-  # For Visual Studio builds the build type forms part of the path to the
-  # target. As this isn't known until build time a generator expression is
-  # required to determine it.
   if(MSVC)
+    # For Visual Studio builds the build type forms part of the path to the
+    # target. As this isn't known until build time a generator expression is
+    # required to determine it.
+    # Also, as some unittests make assumptions about the directory that the test
+    # executable resides in we copy the test executable up a level in the binary
+    # source directory.
     add_custom_target(test_${_target}
       DEPENDS ml_test_${_target}
-      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}
+      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}.exe ${CMAKE_CURRENT_BINARY_DIR}.exe
+      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
   else()
