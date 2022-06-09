@@ -713,14 +713,13 @@ core::CPackedBitVector CDataFrameUtils::distributionPreservingSamplingRowMask(
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
 
     TSizeVec rowIndices;
-    core::CPackedBitVector candidateSamplesRowsMask{allTrainingRowsMask};
     frame.readRows(1, 0, frame.numberRows(),
                    [&](const TRowItr& beginRows, const TRowItr& endRows) {
                        for (auto row = beginRows; row != endRows; ++row) {
                            sampler->sample(*row);
                        }
                    },
-                   &candidateSamplesRowsMask);
+                   &allTrainingRowsMask);
     sampler->finishSampling(rng, rowIndices);
     std::sort(rowIndices.begin(), rowIndices.end());
     LOG_TRACE(<< "# row indices = " << rowIndices.size());
@@ -730,10 +729,6 @@ core::CPackedBitVector CDataFrameUtils::distributionPreservingSamplingRowMask(
         samplesRowMask.extend(true);
     }
     samplesRowMask.extend(false, allTrainingRowsMask.size() - samplesRowMask.size());
-
-    // We exclusive or here to remove the rows we've selected for the current
-    //test fold. This is equivalent to samplng without replacement
-    candidateSamplesRowsMask ^= samplesRowMask;
 
     LOG_TRACE(<< "# selected rows = " << samplesRowMask.manhattan());
     return samplesRowMask;

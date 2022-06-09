@@ -849,15 +849,7 @@ BOOST_AUTO_TEST_CASE(testDistributionPreservingSamplingRowMasks) {
         BOOST_REQUIRE_CLOSE(samplingRowsMask.manhattan(),
                             numberDistributionSourceRows[0], 1);
 
-        TDoubleDoubleUMap actualCategoryCounts;
-        frame->readRows(1, 0, frame->numberRows(),
-                        [&](const core::CDataFrame::TRowItr& beginRows,
-                            const core::CDataFrame::TRowItr& endRows) {
-                            for (auto row = beginRows; row != endRows; ++row) {
-                                actualCategoryCounts[(*row)[0]] += 1.0;
-                            }
-                        },
-                        &samplingRowsMask);
+        auto actualCategoryCounts = maths::analytics::CDataFrameUtils::categoryCounts(1, *frame, samplingRowsMask, {0})[0];
 
         LOG_TRACE(<< "Expected category count "
                   << core::CContainerPrinter::print(expectedCategoryCounts));
