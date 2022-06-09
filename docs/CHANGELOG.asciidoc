@@ -41,6 +41,9 @@
 * Address root cause for actuals equals typical equals zero anomalies. (See {ml-pull}2270[#2270].)
 * Better handling of outliers in update immediately after detecting changes in time
   series. (See {ml-pull}2280[#2280].)
+* Improve normalization of anomaly detection results for short bucket lengths. This
+  corrects bias which could cause our scoring to be too low for these jobs. (See,
+  {ml-pull}2285[#2285], issue: {ml-issue}2276[#2276].)
 
 === Bug Fixes
 
