@@ -40,13 +40,13 @@ function(ml_generate_resources _target)
     ${_target}.res
     DEPENDS ${CMAKE_SOURCE_DIR}/mk/ml.rc ${CMAKE_SOURCE_DIR}/gradle.properties ${CMAKE_SOURCE_DIR}/mk/ml.ico ${CMAKE_SOURCE_DIR}/mk/make_rc_defines.sh ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh
     COMMAND bash -c ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh
-  )
+    )
   add_dependencies(${_target} ${_target}.res)
 
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/tmp.sh)
   set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_target}.res)
 endfunction()
-    
+
 #
 # Generate a list of source files, replacing any in the input list
 # with a platform specific file if one exists.
@@ -74,8 +74,8 @@ function(ml_install _target)
     LIBRARY DESTINATION ${DYNAMIC_LIB_DIR}
     RUNTIME DESTINATION ${EXE_DIR}
     ARCHIVE DESTINATION ${IMPORT_LIB_DIR}
-  )
-    
+    )
+
   if(WIN32)
     set_property(TARGET ${_target} PROPERTY COMPILE_PDB_NAME ${_target})
     install(FILES $<TARGET_PDB_FILE:${_target}> DESTINATION ${DYNAMIC_LIB_DIR} OPTIONAL)
@@ -92,11 +92,11 @@ function(ml_add_library _target _type)
   ml_generate_platform_sources(${SRCS})
 
   include_directories(${CMAKE_SOURCE_DIR}/include)
-  
+
   add_compile_definitions(BUILDING_lib${_target})
 
   add_library(${_target} ${_type} ${PLATFORM_SRCS})
-  
+
   if(ML_LINK_LIBRARIES)
     target_link_libraries(${_target} PUBLIC ${ML_LINK_LIBRARIES})
   endif()
@@ -188,11 +188,13 @@ function(ml_add_test_executable _target)
     # Also, as some unittests make assumptions about the directory that the test
     # executable resides in we copy the test executable up a level in the binary
     # source directory.
+    message(STATUS "Current Binary Dir = ${CMAKE_CURRENT_BINARY_DIR}")
     add_custom_target(test_${_target}
       DEPENDS ml_test_${_target}
       COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}.exe
         ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}.exe
+      COMMAND ${CMAKE_COMMAND} -E echo ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
       COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
