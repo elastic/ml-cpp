@@ -238,7 +238,7 @@ private:
         return Printer::print(ml::core::unwrap_ref(value));
     }
 
-    //! Print a non associative element pointer to const for debug.
+    //! Print const pointer.
     template<typename T>
     static std::string printElement(const T* value) {
         if (value == nullptr) {
@@ -249,7 +249,7 @@ private:
         return result.str();
     }
 
-    //! Print a non associative element pointer for debug.
+    //! Print a raw pointer.
     template<typename T>
     static std::string printElement(T* value) {
         if (value == nullptr) {
@@ -293,7 +293,7 @@ private:
     // If you find yourself using some different smart pointer and
     // it isn't printing please feel free to add an overload here.
 
-    //! Print a non associative (boost) optional element for debug.
+    //! Print a (boost) optional.
     template<typename T>
     static std::string printElement(const boost::optional<T>& value) {
         if (!value) {
@@ -304,12 +304,27 @@ private:
         return result.str();
     }
 
-    //! Print an associative container element for debug.
+    //! Print a std::pair.
     template<typename U, typename V>
     static std::string printElement(const std::pair<U, V>& value) {
         std::ostringstream result;
         result << "(" << printElement(ml::core::unwrap_ref(value.first)) << ", "
                << printElement(ml::core::unwrap_ref(value.second)) << ")";
+        return result.str();
+    }
+
+    //! Print a std::tuple.
+    template<typename... ARGS>
+    static std::string printElement(const std::tuple<ARGS...>& value) {
+        std::ostringstream result;
+        std::apply(
+            [&result](ARGS const&... args) {
+                result << '(';
+                std::size_t n{0};
+                ((result << args << (++n != sizeof...(ARGS) ? ", " : "")), ...);
+                result << ')';
+            },
+            value);
         return result.str();
     }
 
