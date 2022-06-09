@@ -2549,19 +2549,34 @@ core::CPackedBitVector CBoostedTreeImpl::dataSummarization(const core::CDataFram
                   m_NumberThreads, frame, m_DependentVariable, m_Rng,
                   newDataSubsampleSize, 10, this->newTrainingRowMask())
             : core::CPackedBitVector(this->allTrainingRowsMask().size(), false);
-    auto allTrainingData{dataSummarizationRowMask | newDataSampleRowMask};
+    auto allTrainingDataRowMask{dataSummarizationRowMask | newDataSampleRowMask};
 
     if (m_Loss->isRegression()) {
         // For regression we preserve the quantile distribution of the complete training sample.
         core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMask(
             m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
-            allTrainingData, allTrainingData)};
+            allTrainingDataRowMask, allTrainingDataRowMask)};
         return rowMask;
     }
     // For classification we preserve the class distribution of the data summarization sample.
+    auto classImbalance = [&](const core::CPackedBitVector& rowMask) {
+        auto categoryCounts = CDataFrameUtils::categoryCounts(
+            m_NumberThreads, frame, rowMask, {m_DependentVariable})[m_DependentVariable];
+        double maxClassCount{
+            *(std::max_element(categoryCounts.begin(), categoryCounts.end()))};
+        double minClassCount{
+            *(std::min_element(categoryCounts.begin(), categoryCounts.end()))};
+        return maxClassCount / minClassCount;
+    };
+
+    const auto& distributionSourceRowMask =
+        classImbalance(dataSummarizationRowMask) < classImbalance(allTrainingRowsMask)
+            ? dataSummarizationRowMask
+            : allTrainingDataRowMask;
+
     core::CPackedBitVector rowMask{CDataFrameUtils::distributionPreservingSamplingRowMask(
         m_NumberThreads, frame, m_DependentVariable, m_Rng, sampleSize, 10,
-        dataSummarizationRowMask, allTrainingData)};
+        distributionSourceRowMask, allTrainingDataRowMask)};
     return rowMask;
 }
 

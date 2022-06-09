@@ -330,10 +330,10 @@ public:
 
     //! Compute sampling on the \p frame that preserves the distribution on \p distributionSourceRowsMask.
     //!
-    //! For categorical \p targetColumn, the items of
-    //! different categories of the \p distributionSourceRowsMask and of the result sample will match.
-    //! For numerical \p targetColumn, the quantiles distribution of \p allTrainingRowsMask with be
-    //! preserved.
+    //! For categorical \p targetColumn, a subset of  \p allTrainingRowsMask will be selected which
+    //! preserves the proportion of categories in \p distributionSourceRowsMask for \p targetColumn.
+    //! For numerical \p targetColumn,  a subset of  \p allTrainingRowsMask will be selected which
+    //! preserves the distribution quantiles of \p distributionSourceRowsMask for \p targetColumn.
     //!
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the row masks.

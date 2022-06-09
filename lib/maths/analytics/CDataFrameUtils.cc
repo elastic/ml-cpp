@@ -248,7 +248,7 @@ classifierDistributionPreservingRowSampler(std::size_t numberThreads,
     for (auto categoryCount : categoryCounts) {
         sampler->addSampler(static_cast<std::size_t>(categoryCount), rng);
     }
-    sampler->samplerSelector([targetColumn](const TRowRef& row) mutable {
+    sampler->samplerSelector([targetColumn](const TRowRef& row) {
         return static_cast<std::size_t>(row[targetColumn]);
     });
 
