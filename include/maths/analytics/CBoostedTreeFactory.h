@@ -288,7 +288,6 @@ private:
     double m_GainPerNode90thPercentile{0.0};
     double m_TotalCurvaturePerNode1stPercentile{0.0};
     double m_TotalCurvaturePerNode90thPercentile{0.0};
-    double m_LossGap{0.0};
     std::size_t m_NumberTrees{0};
     std::size_t m_NumberThreads{1};
     std::string m_RowWeightColumnName;

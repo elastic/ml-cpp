@@ -110,7 +110,7 @@ void CBoostedTreeHyperparameters::resetFineTuneSearch() {
     this->initializeTunableHyperparameters();
 }
 
-CBoostedTreeHyperparameters::TOptionalDoubleSizePr
+CBoostedTreeHyperparameters::TOptionalSize
 CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
                                                               TDoubleParameter& parameter) const {
 
@@ -125,7 +125,7 @@ CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(const CInitializeF
         fallback(MIN_VALUE_INDEX) = minValue;
         fallback(MID_VALUE_INDEX) = meanValue;
         fallback(MAX_VALUE_INDEX) = maxValue;
-        auto[maybeNullInterval, lossGap, forestSize] =
+        auto[maybeNullInterval, forestSize] =
             this->testLossLineSearch(args, minValue, maxValue);
         auto interval = maybeNullInterval.value_or(fallback);
         args.truncateParameter()(interval);
@@ -134,14 +134,14 @@ CBoostedTreeHyperparameters::initializeFineTuneSearchInterval(const CInitializeF
         parameter.fixToRange(parameter.fromSearchValue(interval(MIN_VALUE_INDEX)),
                              parameter.fromSearchValue(interval(MAX_VALUE_INDEX)));
         parameter.set(parameter.fromSearchValue(interval(MID_VALUE_INDEX)));
-        return {{lossGap, forestSize}};
+        return {forestSize};
     }
 
     parameter.fix();
     return {};
 }
 
-CBoostedTreeHyperparameters::TOptionalVector3x1DoubleSizeTr
+CBoostedTreeHyperparameters::TOptionalVector3x1SizePr
 CBoostedTreeHyperparameters::testLossLineSearch(const CInitializeFineTuneArguments& args,
                                                 double intervalLeftEnd,
                                                 double intervalRightEnd) const {
@@ -154,10 +154,10 @@ CBoostedTreeHyperparameters::testLossLineSearch(const CInitializeFineTuneArgumen
     //      minimum test loss,
     //   3. Fit a LOWESS model to the test losses and compute the minimum.
 
-    TDoubleDoubleDoubleSizeTupleVec testLosses;
+    TDoubleDoubleSizeTupleVec testLosses;
     this->initialTestLossLineSearch(args, intervalLeftEnd, intervalRightEnd, testLosses);
     if (testLosses.empty()) {
-        return {{}, 0.0, 0};
+        return {{}, 0};
     }
     this->fineTuneTestLoss(args, intervalLeftEnd, intervalRightEnd, testLosses);
     return this->minimizeTestLoss(intervalLeftEnd, intervalRightEnd, std::move(testLosses));
@@ -167,7 +167,7 @@ void CBoostedTreeHyperparameters::initialTestLossLineSearch(
     const CInitializeFineTuneArguments& args,
     double intervalLeftEnd,
     double intervalRightEnd,
-    TDoubleDoubleDoubleSizeTupleVec& testLosses) const {
+    TDoubleDoubleSizeTupleVec& testLosses) const {
 
     testLosses.reserve(maxLineSearchIterations());
 
@@ -186,15 +186,14 @@ void CBoostedTreeHyperparameters::initialTestLossLineSearch(
             args.frame(), args.tree().m_TrainingRowMasks[0],
             args.tree().m_TestingRowMasks[0], args.tree().m_TrainingProgress);
         args.tree().hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
-        testLosses.emplace_back(parameter, result.s_TestLoss, result.s_LossGap,
-                                result.s_Forest.size());
+        testLosses.emplace_back(parameter, result.s_TestLoss, result.s_Forest.size());
     }
 }
 
 void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArguments& args,
                                                    double intervalLeftEnd,
                                                    double intervalRightEnd,
-                                                   TDoubleDoubleDoubleSizeTupleVec& testLosses) const {
+                                                   TDoubleDoubleSizeTupleVec& testLosses) const {
 
     using TMinAccumulator = common::CBasicStatistics::SMin<double>::TAccumulator;
 
@@ -211,7 +210,7 @@ void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArgu
     };
 
     common::CBayesianOptimisation bopt{{{intervalLeftEnd, intervalRightEnd}}};
-    for (auto & [ parameter, testLoss, lossGap, size ] : testLosses) {
+    for (auto & [ parameter, testLoss, size ] : testLosses) {
         double adjustedTestLoss{adjustTestLoss(parameter, testLoss)};
         bopt.add(boptVector(parameter), adjustedTestLoss, 0.0);
         testLoss = adjustedTestLoss;
@@ -243,32 +242,28 @@ void CBoostedTreeHyperparameters::fineTuneTestLoss(const CInitializeFineTuneArgu
         double adjustedTestLoss{adjustTestLoss(parameter(0), result.s_TestLoss)};
         bopt.add(parameter, adjustedTestLoss, 0.0);
         args.tree().hyperparameters().captureHyperparametersAndLoss(result.s_TestLoss);
-        testLosses.emplace_back(parameter(0), adjustedTestLoss,
-                                result.s_LossGap, result.s_Forest.size());
+        testLosses.emplace_back(parameter(0), adjustedTestLoss, result.s_Forest.size());
     }
 
     std::sort(testLosses.begin(), testLosses.end());
     LOG_TRACE(<< "test losses = " << core::CContainerPrinter::print(testLosses));
 }
 
-CBoostedTreeHyperparameters::TOptionalVector3x1DoubleSizeTr
+CBoostedTreeHyperparameters::TOptionalVector3x1SizePr
 CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
                                               double intervalRightEnd,
-                                              TDoubleDoubleDoubleSizeTupleVec testLosses) const {
+                                              TDoubleDoubleSizeTupleVec testLosses) const {
     auto minPair = std::min_element(testLosses.begin(), testLosses.end(),
                                     [](const auto& lhs, const auto& rhs) {
                                         return std::get<1>(lhs) < std::get<1>(rhs);
                                     });
     double minValue{std::get<0>(*minPair)};
     common::CLowess<2>::TDoubleDoublePrVec testLossCurveValues;
-    common::CLowess<2>::TDoubleDoublePrVec lossGapCurveValues;
     common::CLowess<2>::TDoubleDoublePrVec forestSizeCurveValues;
     testLossCurveValues.reserve(testLosses.size());
-    lossGapCurveValues.reserve(testLosses.size());
     forestSizeCurveValues.reserve(testLosses.size());
-    for (const auto & [ parameter, testLoss, lossGap, size ] : testLosses) {
+    for (const auto & [ parameter, testLoss, size ] : testLosses) {
         testLossCurveValues.emplace_back(parameter, testLoss);
-        lossGapCurveValues.emplace_back(parameter, lossGap);
         forestSizeCurveValues.emplace_back(parameter, static_cast<double>(size));
     }
     std::size_t numberFolds{testLosses.size()};
@@ -276,16 +271,14 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
     common::CLowess<2> lossGapCurve;
     common::CLowess<2> forestSizeCurve;
     testLossCurve.fit(std::move(testLossCurveValues), numberFolds);
-    lossGapCurve.fit(std::move(lossGapCurveValues), numberFolds);
     forestSizeCurve.fit(std::move(forestSizeCurveValues), numberFolds);
 
     double bestParameter;
     double bestParameterTestLoss;
     std::tie(bestParameter, bestParameterTestLoss) = testLossCurve.minimum();
-    double lossGap{std::max(lossGapCurve.predict(bestParameter), 0.0)};
     double forestSize{forestSizeCurve.predict(bestParameter)};
     LOG_TRACE(<< "best parameter = " << bestParameter << ", test loss = " << bestParameterTestLoss
-              << ", loss gap = " << lossGap << ", forest size = " << forestSize);
+              << ", forest size = " << forestSize);
 
     double width{(intervalRightEnd - intervalLeftEnd) /
                  static_cast<double>(maxLineSearchIterations())};
@@ -294,10 +287,10 @@ CBoostedTreeHyperparameters::minimizeTestLoss(double intervalLeftEnd,
     LOG_TRACE(<< "interval = [" << intervalLeftEnd << "," << intervalRightEnd << "]");
 
     return {TVector3x1{{intervalLeftEnd, bestParameter, intervalRightEnd}},
-            lossGap, static_cast<std::size_t>(std::ceil(forestSize))};
+            static_cast<std::size_t>(std::ceil(forestSize))};
 }
 
-void CBoostedTreeHyperparameters::initializeFineTuneSearch(double lossGap, std::size_t numberTrees) {
+void CBoostedTreeHyperparameters::initializeFineTuneSearch(std::size_t numberTrees) {
 
     // We need sensible bounds for the region we'll search for optimal values.
     // For all parameters where we have initial estimates we use bounds of the
@@ -358,12 +351,11 @@ void CBoostedTreeHyperparameters::initializeFineTuneSearch(double lossGap, std::
     m_CurrentRound = 0;
     m_NumberRounds = m_MaximumOptimisationRoundsPerHyperparameter *
                      m_TunableHyperparameters.size();
-    this->checkIfCanSkipFineTuneSearch(lossGap, numberTrees);
+    this->checkIfCanSkipFineTuneSearch(numberTrees);
 }
 
-void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(double lossGap,
-                                                               std::size_t numberTrees) {
-    if (m_EarlyHyperparameterOptimizationStoppingEnabled && m_IncrementalTraining == false) {
+void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(std::size_t numberTrees) {
+    if (m_EarlyHyperparameterOptimizationStoppingEnabled) {
         // Add information about observed line search training runs to the GP.
         for (auto & [ parameters, loss ] : m_LineSearchHyperparameterLosses) {
             this->addObservation(std::move(parameters), loss, 0.0, true);
@@ -379,11 +371,6 @@ void CBoostedTreeHyperparameters::checkIfCanSkipFineTuneSearch(double lossGap,
         m_LineSearchHyperparameterLosses.clear();
         m_LineSearchHyperparameterLosses.shrink_to_fit();
     }
-
-    // We purposely don't record the test loss because it isn't comparable with the
-    // value computed in fine tune. However, an estimate of the test train loss gap
-    // is needed if we incrementally train.
-    m_BestForestLossGap = lossGap;
 
     // The stored number of trees is used for final train when we train on
     // all the data and so can't measure when to stop.
@@ -780,13 +767,6 @@ void CBoostedTreeHyperparameters::initializeTunableHyperparameters() {
         }
     };
 
-    auto addIncrementalHyperparameter = [&](EHyperparameter type,
-                                            const TDoubleParameter& parameter) {
-        if (m_IncrementalTraining && (parameter.fixed() == false)) {
-            m_TunableHyperparameters.push_back(type);
-        }
-    };
-
     for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
         switch (static_cast<EHyperparameter>(i)) {
         // Train hyperparameters.
@@ -911,15 +891,6 @@ CBoostedTreeHyperparameters::TVector CBoostedTreeHyperparameters::selectParamete
         case E_SoftTreeDepthTolerance:
             parameters(i) = m_SoftTreeDepthTolerance.toSearchValue();
             break;
-        case E_PredictionChangeCost:
-            parameters(i) = m_PredictionChangeCost.toSearchValue();
-            break;
-        case E_RetrainedTreeEta:
-            parameters(i) = m_RetrainedTreeEta.toSearchValue();
-            break;
-        case E_TreeTopologyChangePenalty:
-            parameters(i) = m_TreeTopologyChangePenalty.toSearchValue();
-            break;
         }
     }
     return parameters;
@@ -988,18 +959,6 @@ void CBoostedTreeHyperparameters::setHyperparameterValues(CBoostedTreeHyperparam
         case E_SoftTreeDepthTolerance:
             m_SoftTreeDepthTolerance.set(
                 m_SoftTreeDepthTolerance.fromSearchValue(parameters(i)));
-            break;
-        case E_PredictionChangeCost:
-            m_PredictionChangeCost.set(
-                m_PredictionChangeCost.fromSearchValue(parameters(i)));
-            break;
-        case E_RetrainedTreeEta:
-            m_RetrainedTreeEta.set(m_RetrainedTreeEta.fromSearchValue(parameters(i)));
-            break;
-        case E_TreeTopologyChangePenalty:
-            m_TreeTopologyChangePenalty
-                .set(m_TreeTopologyChangePenalty.fromSearchValue(parameters(i)))
-                .scale(scale);
             break;
         }
     }

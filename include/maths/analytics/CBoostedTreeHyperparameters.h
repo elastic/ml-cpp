@@ -539,12 +539,11 @@ public:
     //! Compute the fine tune search interval for \p parameter.
     //!
     //! \return The best number of trees to use for the current hyperparameter settings.
-    TOptionalDoubleSizePr
-    initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
-                                     TDoubleParameter& parameter) const;
+    TOptionalSize initializeFineTuneSearchInterval(const CInitializeFineTuneArguments& args,
+                                                   TDoubleParameter& parameter) const;
 
     //! Initialize the search for best values of tunable hyperparameters.
-    void initializeFineTuneSearch(double lossGap, std::size_t numberTrees);
+    void initializeFineTuneSearch(std::size_t numberTrees);
 
     //! Check if search is making no progress improving the test loss.
     bool optimisationMakingNoProgress() const;
@@ -640,10 +639,9 @@ private:
     using TBayesinOptimizationUPtr = std::unique_ptr<common::CBayesianOptimisation>;
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
-    using TDoubleDoubleDoubleSizeTupleVec =
-        std::vector<std::tuple<double, double, double, std::size_t>>;
+    using TDoubleDoubleSizeTupleVec = std::vector<std::tuple<double, double, std::size_t>>;
     using TOptionalVector3x1 = boost::optional<TVector3x1>;
-    using TOptionalVector3x1DoubleSizeTr = std::tuple<TOptionalVector3x1, double, std::size_t>;
+    using TOptionalVector3x1SizePr = std::pair<TOptionalVector3x1, std::size_t>;
     using TVectorDoublePr = std::pair<TVector, double>;
     using TVectorDoublePrVec = std::vector<TVectorDoublePr>;
 
@@ -652,19 +650,18 @@ private:
     void initialTestLossLineSearch(const CInitializeFineTuneArguments& args,
                                    double intervalLeftEnd,
                                    double intervalRightEnd,
-                                   TDoubleDoubleDoubleSizeTupleVec& testLosses) const;
-    TOptionalVector3x1DoubleSizeTr testLossLineSearch(const CInitializeFineTuneArguments& args,
-                                                      double intervalLeftEnd,
-                                                      double intervalRightEnd) const;
+                                   TDoubleDoubleSizeTupleVec& testLosses) const;
+    TOptionalVector3x1SizePr testLossLineSearch(const CInitializeFineTuneArguments& args,
+                                                double intervalLeftEnd,
+                                                double intervalRightEnd) const;
     void fineTuneTestLoss(const CInitializeFineTuneArguments& args,
                           double intervalLeftEnd,
                           double intervalRightEnd,
-                          TDoubleDoubleDoubleSizeTupleVec& testLosses) const;
-    TOptionalVector3x1DoubleSizeTr
-    minimizeTestLoss(double intervalLeftEnd,
-                     double intervalRightEnd,
-                     TDoubleDoubleDoubleSizeTupleVec testLosses) const;
-    void checkIfCanSkipFineTuneSearch(double lossGap, std::size_t numberTrees);
+                          TDoubleDoubleSizeTupleVec& testLosses) const;
+    TOptionalVector3x1SizePr minimizeTestLoss(double intervalLeftEnd,
+                                              double intervalRightEnd,
+                                              TDoubleDoubleSizeTupleVec testLosses) const;
+    void checkIfCanSkipFineTuneSearch(std::size_t numberTrees);
     void captureHyperparametersAndLoss(double loss);
     TVector selectParametersVector(const THyperparametersVec& selectedHyperparameters) const;
     void setHyperparameterValues(TVector parameters);
