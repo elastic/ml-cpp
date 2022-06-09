@@ -190,7 +190,9 @@ function(ml_add_test_executable _target)
     # source directory.
     add_custom_target(test_${_target}
       DEPENDS ml_test_${_target}
-      COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}.exe ${CMAKE_CURRENT_BINARY_DIR}.exe
+      COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}.exe
+        ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}.exe
       COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
       )
