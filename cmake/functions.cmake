@@ -181,11 +181,22 @@ function(ml_add_test_executable _target)
 
   add_test(ml_test_${_target} ml_test_${_target})
 
-  add_custom_target(test_${_target}
-    DEPENDS ml_test_${_target}
-    COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    )
+  # For Visual Studio builds the build type forms part of the path to the
+  # target. As this isn't known until build time a generator expression is
+  # required to determine it.
+  if(MSVC)
+    add_custom_target(test_${_target}
+      DEPENDS ml_test_${_target}
+      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<CONFIG:Release>,Release,Debug>/ml_test_${_target}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      )
+  else()
+    add_custom_target(test_${_target}
+      DEPENDS ml_test_${_target}
+      COMMAND ${CMAKE_CURRENT_BINARY_DIR}/ml_test_${_target}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      )
+  endif()
 endfunction()
 
 #
